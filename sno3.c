@@ -1,4 +1,4 @@
-#include "sno.h"
+#include "sno3.h"
 
 int bextend(struct node *str, struct node *last)
 {
@@ -34,7 +34,7 @@ int bextend(struct node *str, struct node *last)
     ++d;
     c = class(a->ch);
 
-    // rp    
+    /* rp */
     if(c == 1) {
 	if(b == 0) {
 	    goto bad;
@@ -45,7 +45,7 @@ int bextend(struct node *str, struct node *last)
 	goto eb3;
     }
 
-    // lp
+    /* lp */
     if(c == 2) {
 	++b;
 	

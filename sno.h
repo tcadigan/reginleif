@@ -23,4 +23,4 @@ struct node *namelist;
 int lc;
 struct node *schar;
 
-#endif // SNO_H_
+#endif /* SNO_H_ */

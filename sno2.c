@@ -1,6 +1,6 @@
-#include "sno.h"
+#include "sno2.h"
 
-struct node *compon()
+struct node *compon(void)
 {
     struct node *a;
     struct node *b;
@@ -166,7 +166,7 @@ struct node *compon()
     return b;
 }
 
-struct node *nscomp()
+struct node *nscomp(void)
 {
     struct node *c;
 
@@ -508,7 +508,7 @@ struct node *match(int start, struct node *m)
     return 0;
 }
 
-struct node *compile()
+struct node *compile(void)
 {
     struct node *b;
     struct node *comp;
@@ -679,7 +679,7 @@ struct node *compile()
 
 	l->p2 = comp;
 
-	// type label
+	/* type label */
 	l->typ = 2;
     }
 

@@ -1,24 +1,29 @@
-// Snobol III
+/* Snobol III */
 
-#include "sno.h"
+#include "sno1.h"
+#include "sno2.h"
+#include "sno4.h"
 
-int freesize;
-struct node *freespace &end;
-struct node *freelist 0;
-int *fault -1;
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
-int mes(int s) {
-    sysput(strstr(s));
+int freesize = 0;
+struct node *freespace = NULL;
+struct node *freelist = NULL;
+int *fault = NULL;
 
-    return 0;
+void mes(char *s) {
+    sysput(sno_strstr(s));
 }
 
-struct node *init(int s, int t)
+struct node *init(char *s, int t)
 {
     struct node *a;
     struct node *b;
 
-    a = strstr(s);
+    a = sno_strstr(s);
     b = look(a);
     delete(a);
     b->typ = t;
@@ -40,11 +45,11 @@ int main(int argc, char *argv[])
 	if(fin < 0) {
 	    mes("Cannot open input");
 
-	    exit();
+	    return 0;
 	}
     }
 
-    fout = dup(1);
+    dup2(STDOUT_FILENO, fout);
     lookf = init("f", 0);
     looks = init("s", 0);
     lookend = init("end", 0);
@@ -77,10 +82,12 @@ int main(int argc, char *argv[])
 	c = execute(c);
     }
 
-    flush();
+    fflush(stdout);
+
+    return 0;
 }
 
-struct node *syspit()
+struct node *syspit(void)
 {
     extern int fin;
     struct node *b;
@@ -101,19 +108,27 @@ struct node *syspit()
 	d = alloc();
 	c->p1 = d;
 	c = d;
-    l:
-	c->ch = a;
 
-	if(a == '\0') {
-	    if(fin) {
-		close(fin);
-		fin = 0;
-		a = getchar();
-		goto l;
+	while(1) {
+	    c->ch = a;
+	    
+	    if(a == '\0') {
+		if(fin) {
+		    close(fin);
+		    fin = 0;
+		    a = getchar();
+		    continue;
+		}
+
+		rfail = 1;
+		b->p2 = c;
+		b = 0;
+
+		return b;
 	    }
-
-	    rfail = 1;
-	    break;
+	    else {
+		break;
+	    }
 	}
 
 	a = getchar();
@@ -152,7 +167,7 @@ int syspot(struct node *string)
     return 0;
 }
 
-struct node *strstr(char s[])
+struct node *sno_strstr(char *s)
 {
     int c;
     struct node *e;
@@ -176,7 +191,7 @@ struct node *strstr(char s[])
 
     d->p2 = e;
 
-    retrn d;
+    return d;
 }
 
 int class(int c) {
@@ -210,22 +225,22 @@ int class(int c) {
     return 0;
 }
 
-struct node *alloc()
+struct node *alloc(void)
 {
     struct node *f;
-    int i;
+    int *i;
     extern int fout;
 
     if(freelist == 0) {
 	--freesize;
 
 	if(freesize < 20) {
-	    i = sbrk(1200);
+	    i = (int *)sbrk(1200);
 
-	    if(i == -1) {
-		flush();
+	    if(*i == -1) {
+		fflush(stdout);
 		write(fout, "Out of free space\n", 18);
-		exit();
+		exit(1);
 	    }
 
 	    freesize += 200;
@@ -240,13 +255,13 @@ struct node *alloc()
     return f;
 }
 	
-int free(struct node *pointer)
+void sno_free(struct node *pointer)
 {
     pointer->p1 = freelist;
     freelist = pointer;
 }
 
-int nfree()
+int nfree(void)
 {
     int i;
     struct node *a;
@@ -331,7 +346,7 @@ struct node *copy(struct node *string)
     return i;
 }
 
-int equal(struct node *string1, struct node *p2)
+int equal(struct node *string1, struct node *string2)
 {
     struct node *i;
     struct node *j;
@@ -406,7 +421,7 @@ int strbin(struct node *string)
     sign = 1;
 
     if(class(p->ch) == 5) {
-	// minus
+	/* minus */
 	sign = -1;
 
 	if(p == q) {
@@ -474,22 +489,22 @@ struct node *binstr(int binary) {
     }
 }
 
-struct node *add(int string1, int string2)
+struct node *add(struct node *string1, struct node *string2)
 {
     return binstr(strbin(string1) + strbin(string2));
 }
 
-struct node *sub(int string1, int string2)
+struct node *sub(struct node *string1, struct node *string2)
 {
     return binstr(strbin(string1) - strbin(string2));
 }
 
-struct node *mult(int string1, int string2)
+struct node *mult(struct node *string1, struct node *string2)
 {
     return binstr(strbin(string1) - strbin(string2));
 }
 
-struct node *div(int string1, int string2)
+struct node *sno_div(struct node *string1, struct node *string2)
 {
     return binstr(strbin(string1) / strbin(string2));
 }
@@ -511,7 +526,7 @@ struct node *cat(struct node *string1, struct node *string2)
     b = copy(string2);
     a->p2->p1 = b->p1;
     a->p2 = b->p2;
-    free(b);
+    sno_free(b);
 
     return a;
 }
@@ -542,28 +557,24 @@ int delete(struct node *string)
     
     while(a != b) {
 	c = a->p1;
-	free(a);
+	sno_free(a);
 	a = c;
     }
 
-    free(a);
+    sno_free(a);
 
     return 0;
 }
 
-int sysput(int string)
+void sysput(struct node *string)
 {
     syspot(string);
     delete(string);
-    
-    return 0;
 }
 
-int dump()
+void dump(void)
 {
     dump1(namelist);
-    
-    return 0;
 }
 
 int dump1(struct node *base)
@@ -576,13 +587,13 @@ int dump1(struct node *base)
     while(base) {
 	b = base->p1;
 	c = binstr(b->typ);
-	d = strstr("  ");
+	d = sno_strstr("  ");
 	e = dcat(c, d);
 	sysput(cat(e, b->p1));
 	delete(e);
 	
 	if(b->typ == 1) {
-	    c = strstr("   ");
+	    c = sno_strstr("   ");
 	    sysput(cat(c, b->p2));
 	    delete(c);
 	}
@@ -593,28 +604,28 @@ int dump1(struct node *base)
     return 0;
 }
 
-int writes(s)
+int writes(char *s)
 {
-    sysput(dcat(binstr(lc), dcat(strstr("\t"), strstr(s))));
-    flush();
+    sysput(dcat(binstr(lc), dcat(sno_strstr("\t"), sno_strstr(s))));
+    fflush(stdout);
 
     if(cfail) {
 	dump();
-	flush();
+	fflush(stdout);
 
-	exit();
+	exit(1);
     }
 
-    while(getc());
+    while(sno_getc());
 
     while(compile());
 
-    flush();
+    fflush(stdout);
 
-    exit();
+    exit(1);
 }
 
-struct node *getc()
+struct node *sno_getc(void)
 {
     struct node *a;
     static struct node *line;
@@ -635,13 +646,13 @@ struct node *getc()
 	line = 0;
 	linflg = 0;
 
-	return 0;
+	return NULL;
     }
 
     a = line->p1;
 
     if(a == line->p2) {
-	free(line);
+	sno_free(line);
 	++linflg;
     }
     else {

@@ -1,4 +1,4 @@
-#include "sno.h"
+#include "sno4.h"
 
 struct node *and(struct node *ptr)
 {
@@ -135,7 +135,7 @@ struct node *eval(struct node *e, int t)
 	a3 = a4;
 	a3->p2 = and(a1);
 	
-	// recursive
+	/* recursive */
 	assign(a1->p1, eval(a2->p2, 1));
 	a1 = a1->p2;
 	a2 = a2->p1;
@@ -143,7 +143,7 @@ struct node *eval(struct node *e, int t)
 	goto f1;
 
     f3:
-	// recursive
+	/* recursive */
 	op = execute();
 	
 	if(op) {
@@ -232,7 +232,7 @@ struct node *doop(int op, int arg1, int arg2)
     return 0;
 }
 
-struct node *execute(struct ndoe *e)
+struct node *execute(struct node *e)
 {
     struct node *r;
     struct node *b;
@@ -247,13 +247,13 @@ struct node *execute(struct ndoe *e)
 
     switch(e->typ) {
     case 0:
-	// r g
+	/* r g */
 	a = r->p1;
 	delete(evel(r->p2, 1));
 
 	goto xsuc;
     case 1:
-	// r m g
+	/* r m g */
 	m = r->p1;
 	a = m->p1;
 	b = eval(r->p2, 1);
@@ -268,7 +268,7 @@ struct node *execute(struct ndoe *e)
 
 	goto xsuc;
     case 2:
-	// r a g
+	/* r a g */
 	ca = r->p1;
 	a = ca->p1;
 	b = eval(r->p2, 0);
@@ -276,7 +276,7 @@ struct node *execute(struct ndoe *e)
 
 	goto xsuc;
     case 3:
-	// r m a g
+	/* r m a g */
 	m = r->p1;
 	ca = m->p1;
 	a = ca->p1;
