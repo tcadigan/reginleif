@@ -1,5 +1,9 @@
 #include "sno2.h"
 
+#include "sno1.h"
+
+#include <stdlib.h>
+
 struct node *compon(void)
 {
     struct node *a;
@@ -8,7 +12,7 @@ struct node *compon(void)
     static int next;
 
     if(next == 0) {
-	schar = getc();
+	schar = sno_getc();
     }
     else {
 	next = 0;
@@ -34,7 +38,7 @@ struct node *compon(void)
 	a = schar;
 	
 	while(1) {
-	    schar = getc();
+	    schar = sno_getc();
 	    
 	    if(schar == 0) {
 		a->typ = 0;
@@ -46,7 +50,7 @@ struct node *compon(void)
 		break;
 	    }
 
-	    free(schar);
+	    sno_free(schar);
 	}
 
 	next = 1;
@@ -63,7 +67,7 @@ struct node *compon(void)
 	return schar;
     case 6:
 	a = schar;
-	schar = getc();
+	schar = sno_getc();
 	
 	if(class(schar->ch) == 3) {
 	    a->typ = 10;
@@ -77,7 +81,7 @@ struct node *compon(void)
 	return a;
     case 7:
 	a = schar;
-	scahr = getc();
+	schar = sno_getc();
 
 	if(class(schar->ch) == 2) {
 	    a->typ = 11;
@@ -90,12 +94,12 @@ struct node *compon(void)
 
 	return a;
     case 8:
-	scar->typ = 12;
+	schar->typ = 12;
 
 	return schar;
     case 9:
 	c = schar->ch;
-	a = getc();
+	a = sno_getc();
 	
 	if(a == 0) {
 	    goto lerr;
@@ -104,7 +108,7 @@ struct node *compon(void)
 	b = schar;
 
 	if(a->ch == c) {
-	    free(schar);
+	    sno_free(schar);
 	    a->typ = 15;
 	    a->p1 = 0;
 
@@ -114,7 +118,7 @@ struct node *compon(void)
 	b->p1 = a;
 
 	while(1) {
-	    schar = getc();
+	    schar = sno_getc();
 
 	    if(schar == 0) {
 	    lerr:
@@ -139,7 +143,7 @@ struct node *compon(void)
 	
 	return schar;
     case 11:
-	schar->type = 4;
+	schar->typ = 4;
 
 	return schar;
     }
@@ -147,12 +151,12 @@ struct node *compon(void)
     b = alloc();
     a = schar;
     b->p1 = a;
-    schar = getc();
+    schar = sno_getc();
 
     while((schar != 0) && !class(schar->ch)) {
 	a->p1 = schar;
 	a = schar;
-	schar = getc();
+	schar = sno_getc();
     }
 
     b->p2 = a;
@@ -160,7 +164,7 @@ struct node *compon(void)
     a = look(b);
     delete(b);
     b = alloc();
-    b->type = 14;
+    b->typ = 14;
     b->p1 = a;
 
     return b;
@@ -173,14 +177,14 @@ struct node *nscomp(void)
     c = compon();
 
     while(c->typ == 7) {
-	free(c);
+	sno_free(c);
 	c = compon();
     }
 
     return c;
 }
 
-struct node *push(int stack) {
+struct node *push(struct node *stack) {
     struct node *a;
 
     a = alloc();
@@ -201,19 +205,19 @@ struct node *pop(struct node *stack)
     }
 
     a = s->p2;
-    free(s);
+    sno_free(s);
 
     return a;
 }
 
-struct node *expr(int start, int eof, struct node *e)
+struct node *expr(struct node *start, int eof, struct node *e)
 {
     struct node *stack;
     struct node *list;
     struct node *comp;
     int operand;
     int op;
-    int space;
+    struct node *space;
     int op1;
     struct node *a;
     struct node *b;
@@ -230,7 +234,7 @@ struct node *expr(int start, int eof, struct node *e)
  l1:
     if(space) {
 	comp = space;
-	space = 0;
+	space = NULL;;
     }
     else {
 	comp = compon();
@@ -241,8 +245,8 @@ struct node *expr(int start, int eof, struct node *e)
     
     switch(op) {
     case 7:
-	space = 1;
-	free(comp);
+	space = list;
+	sno_free(comp);
 	comp = compon();
 
 	goto l3;
@@ -264,7 +268,7 @@ struct node *expr(int start, int eof, struct node *e)
 	    writes("No operand preceding operator");
 	}
 
-	operand 0;
+	operand = 0;
 
 	goto l5;
     case 14:
@@ -329,7 +333,7 @@ struct node *expr(int start, int eof, struct node *e)
 
 	a->p1 = 0;
     l10:
-	free(b);
+	sno_free(b);
 	goto l6;
 
     l4:
@@ -391,7 +395,7 @@ struct node *expr(int start, int eof, struct node *e)
     goto l6;
 }
 
-struct node *match(int start, struct node *m)
+struct node *match(struct node *start, struct node *m)
 {
     struct node *list;
     struct node *comp;
@@ -401,7 +405,7 @@ struct node *match(int start, struct node *m)
     int bal;
 
     bal = 0;
-    term = bal;
+    term = NULL;
     list = alloc();
     m->p2 = list;
     comp = start;
@@ -414,13 +418,13 @@ struct node *match(int start, struct node *m)
 
  l3:
     a = alloc();
-    list->p1 = 1;
+    list->p1 = NULL;
     list = a;
 
  l2:
     switch(comp->typ) {
     case 7:
-	free(comp);
+	sno_free(comp);
 	comp = compon();
 
 	goto l2;
@@ -434,13 +438,13 @@ struct node *match(int start, struct node *m)
 
 	goto l3;
     case 1:
-	free(comp);
+	sno_free(comp);
 	comp = compon();
 	bal = 0;
 
 	if(comp->typ == 16) {
 	    bal = 1;
-	    free(comp);
+	    sno_free(comp);
 	    comp = compon();
 	}
 
@@ -498,7 +502,7 @@ struct node *match(int start, struct node *m)
 	term->typ = 3;
     }
 
-    list->type = 0;
+    list->typ = 0;
 
     return comp;
 
@@ -517,10 +521,12 @@ struct node *compile(void)
     struct node *xs;
     struct node *xf;
     struct node *g;
-    int m;
+    int a;
+    struct node *m;
     int t;
-    int as;
+    struct node *as;
     
+
     t = 0;
     xf = 0;
     xs = 0;
@@ -543,11 +549,11 @@ struct node *compile(void)
 
     free(comp);
     
-    if(l == lookfdef) {
+    if(l == lookfret) {
 	goto def;
     }
     
-    r == alloc();
+    r = alloc();
     comp = expr(0, 11, r);
     a = comp->typ;
 
@@ -568,7 +574,7 @@ struct node *compile(void)
     a = comp->typ;
 
     if(a == 0) {
-	goto asmbl;
+	goto asmble;
     }
 
     if(a == 2) {
@@ -633,9 +639,9 @@ struct node *compile(void)
     writes("Unrecognized component in goto");
     
  xboth:
-    free(com);
+    free(comp);
     xs = alloc();
-    xf == alloc();
+    xf = alloc();
     comp = expr(0, 6, xs);
     
     if(comp->typ != 5) {
@@ -664,6 +670,25 @@ struct node *compile(void)
 
     xs = alloc();
     comp = expr(0, 6, xs);
+
+    if(comp->typ != 5) {
+	goto xerr;
+    }
+
+    goto xfer;
+
+ xfail:
+    if(xf) {
+	goto xerr;
+    }
+
+    comp = compon();
+    if(comp->typ != 16) {
+	goto xerr;
+    }
+
+    xf = alloc();
+    comp = expr(0, 6, xf);
 
     if(comp->typ != 5) {
 	goto xerr;
@@ -731,19 +756,19 @@ struct node *compile(void)
 	writes("Name doubly defined");
     }
 
-    // type function
+    /* type function */
     l->typ = 5;
-    a = r;
-    l->p2 = a;
+    m = r;
+    l->p2 = m;
     r = nscomp();
     l = r;
-    a->p1 = l;
+    m->p1 = l;
 
     if(r->typ == 0) {
 	goto d4;
     }
 
-    if(r->type != 16) {
+    if(r->typ != 16) {
 	goto derr;
     }
 
@@ -754,13 +779,13 @@ struct node *compile(void)
 	goto derr;
     }
 
-    a->p2 = r;
+    m->p2 = r;
     r->typ = 0;
-    a = r;
+    m = r;
     r = nscomp();
 
     if(r->typ == 4) {
-	free(r);
+	sno_free(r);
 
 	goto d2;
     }
@@ -769,18 +794,18 @@ struct node *compile(void)
 	goto derr;
     }
 
-    free(r);
+    sno_free(r);
     r = compon();
     
     if(r->typ != 0) {
 	goto derr;
     }
 
-    free(r);
+    sno_free(r);
 
  d4:
     r = compile();
-    a->p2 = 0;
+    m->p2 = 0;
     l->p1 = r;
     l->p2 = 0;
 

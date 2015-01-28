@@ -14,6 +14,9 @@ struct node *freespace = NULL;
 struct node *freelist = NULL;
 int *fault = NULL;
 
+int fin;
+int fout;
+
 void mes(char *s) {
     sysput(sno_strstr(s));
 }
@@ -33,8 +36,6 @@ struct node *init(char *s, int t)
 
 int main(int argc, char *argv[])
 {
-    extern int fin;
-    extern int fout;
     struct node *a;
     struct node *b;
     struct node *c;
@@ -89,7 +90,6 @@ int main(int argc, char *argv[])
 
 struct node *syspit(void)
 {
-    extern int fin;
     struct node *b;
     struct node *c;
     struct node *d;
@@ -229,7 +229,6 @@ struct node *alloc(void)
 {
     struct node *f;
     int *i;
-    extern int fout;
 
     if(freelist == 0) {
 	--freesize;

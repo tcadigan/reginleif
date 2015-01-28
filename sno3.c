@@ -1,5 +1,8 @@
 #include "sno3.h"
 
+#include "sno1.h"
+#include "sno4.h"
+
 int bextend(struct node *str, struct node *last)
 {
     struct node *a;
@@ -9,17 +12,17 @@ int bextend(struct node *str, struct node *last)
     int d;
 
     s = str;
-    c = s->p1;
     
-    if(c == 0) {
+    if(s->p1 == 0) {
 	goto bad;
     }
 
     d = 0;
     b = 0;
-    
+    a = s->p2;
+
     if(a == 0) {
-	a = c;
+	a = s->p1;
 	goto eb2;
     }
 
@@ -65,7 +68,7 @@ int bextend(struct node *str, struct node *last)
     return 0;
 }
 
-int ubextend(struct ndoe *str, struct node *last)
+int ubextend(struct node *str, struct node *last)
 {
     struct node *a;
     struct node *b;
@@ -126,7 +129,7 @@ struct node *search(struct node *arg, struct node *r)
  badvanc:
     a = a->p1;
 
-    if(a->typ = 0) {
+    if(a->typ == 0) {
 	list->p1 = 0;
 	
 	if(rfail == 1) {
@@ -191,7 +194,7 @@ struct node *search(struct node *arg, struct node *r)
     }
     else {
 	e = eval(e, 1);
-	etc->p2 = strbin(e);
+	etc->p2 = e;
 	delete(e);
     }
 
@@ -316,7 +319,6 @@ struct node *search(struct node *arg, struct node *r)
     etc = var->p2;
     str->p1 = next;
     str->p1 = 0;
-    c = etc->p2;
 
     if(var->typ == 1) {
 	d = bextend(str, last);
@@ -325,7 +327,7 @@ struct node *search(struct node *arg, struct node *r)
 	    goto retard;
 	}
 
-	if(c == 0) {
+	if(etc->p2 == 0) {
 	    goto adv0;
 	}
 
@@ -359,7 +361,7 @@ struct node *search(struct node *arg, struct node *r)
     }
 
     while(c) {
-	c--;
+	--c;
 
 	if(ubextend(str, last) == 0) {
 	    goto retard;
@@ -373,9 +375,9 @@ struct node *search(struct node *arg, struct node *r)
     goto f1;
 
  fadv:
-    free(back);
+    sno_free(back);
     b = list->p1;
-    free(list);
+    sno_free(list);
 
     if(b == 0) {
 	return a;
@@ -393,12 +395,12 @@ struct node *search(struct node *arg, struct node *r)
 	goto fadv;
     }
 
-    tr = var->p1;
+    str = var->p1;
     etc = var->p2;
 
     if((a != 0) && (etc->p1 != 0)) {
 	if(str->p2 == 0) {
-	    free(str);
+	    sno_free(str);
 	    str = 0;
 	}
 
@@ -406,11 +408,11 @@ struct node *search(struct node *arg, struct node *r)
     }
 
     if(str) {
-	free(str);
+	sno_free(str);
     }
 
-    free(etc);
-    free(var);
+    sno_free(etc);
+    sno_free(var);
     goto fadv;
 }
 	    

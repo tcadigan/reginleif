@@ -4,7 +4,7 @@ OBJS = sno1.o sno2.o sno3.o sno4.o
 CFLAGS = -Wall -Wextra -Werror \
 	 -fno-builtin \
 	 -std=c89 -pedantic \
-	  -Wmissing-prototypes -Wstrict-prototypes
+	 -Wmissing-prototypes -Wstrict-prototypes
 CC = gcc
 
 all: ${OBJS}

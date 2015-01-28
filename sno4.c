@@ -1,5 +1,11 @@
 #include "sno4.h"
 
+#include "sno1.h"
+#include "sno2.h"
+#include "sno3.h"
+
+#include <stdio.h>
+
 struct node *and(struct node *ptr)
 {
     struct node *a;
@@ -17,7 +23,7 @@ struct node *and(struct node *ptr)
 
 	    goto l1;
 	case 3:
-	    flush();
+	    fflush(stdout);
 	    
 	    return syspit();
 	case 5:
@@ -51,6 +57,8 @@ struct node *eval(struct node *e, int t)
     struct node *stack;
     struct node *op;
 
+    int temp;
+
     if(rfail == 1) {
 	return 0;
     }
@@ -64,9 +72,9 @@ struct node *eval(struct node *e, int t)
     list = list->p1;
 
  l1:
-    op = list->typ;
+    temp = list->typ;
     
-    switch(op) {
+    switch(temp) {
     default:
     case 0:
 	if(t == 1) {
@@ -144,7 +152,7 @@ struct node *eval(struct node *e, int t)
 
     f3:
 	/* recursive */
-	op = execute();
+	op = execute(op);
 	
 	if(op) {
 	    goto f3;
@@ -159,7 +167,7 @@ struct node *eval(struct node *e, int t)
 
     f4:
 	a4 = a3->p1;
-	free(a3);
+	sno_free(a3);
 	a3 = a4;
 	a1 = a1->p2;
 
@@ -178,35 +186,37 @@ struct node *eval(struct node *e, int t)
 	a1 = and(stack);
 	stack = pop(stack);
 	a2 = and(stack);
-	a3 = doop(op, a2, a1);
+	a3 = doop(temp, a2, a1);
 	delete(a1);
-	deleted(a2);
-	stack->p1 = a;
+	delete(a2);
+	stack->p1 = a3;
 	stack->typ = 1;
 	
 	goto advanc;
     case 15:
 	a1 = copy(list->p2);
-	a2 = 1;
+	temp = 1;
 
 	goto l3;
     case 14:
 	a1 = list->p2;
-	a2 = 0;
+	temp = 0;
 
     l3:
 	stack = push(stack);
 	stack->p1 = a1;
-	stack->typ = a2;
+	stack->typ = temp;
 
 	goto advanc;
     }
+
+    return 0;
 }
 
-struct node *doop(int op, int arg1, int arg2)
+struct node *doop(int op, struct node *arg1, struct node *arg2)
 {
-    int a1;
-    int a2;
+    struct node *a1;
+    struct node *a2;
     
     a1 = arg1;
     a2 = arg2;
@@ -214,7 +224,7 @@ struct node *doop(int op, int arg1, int arg2)
     switch(op) {
     case 11:
 
-	return div(a1, a2);
+	return sno_div(a1, a2);
     case 10:
 
 	return mult(a1, a2);
@@ -243,13 +253,13 @@ struct node *execute(struct node *e)
     struct node *a;
 
     r = e->p2;
-    ls = e->ch;
+    lc = e->ch;
 
     switch(e->typ) {
     case 0:
 	/* r g */
 	a = r->p1;
-	delete(evel(r->p2, 1));
+	delete(eval(r->p2, 1));
 
 	goto xsuc;
     case 1:
@@ -264,7 +274,7 @@ struct node *execute(struct node *e)
 	    goto xfail;
 	}
 
-	free(c);
+	sno_free(c);
 
 	goto xsuc;
     case 2:
@@ -290,7 +300,7 @@ struct node *execute(struct node *e)
 	c = eval(ca->p2, 1);
 
 	if(d->p1 == 0) {
-	    free(d);
+	    sno_free(d);
 	    assign(b, cat(c, b->p2));
 	    delete(c);
 
@@ -299,7 +309,7 @@ struct node *execute(struct node *e)
 
 	if(d->p2 == b->p2->p2) {
 	    assign(b, c);
-	    free(d);
+	    sno_free(d);
 
 	    goto xsuc;
 	}
@@ -308,8 +318,8 @@ struct node *execute(struct node *e)
 	r->p1 = d->p2->p1;
 	r->p2 = b->p2->p2;
 	assign(b, cat(c, r));
-	free(d);
-	free(r);
+	sno_free(d);
+	sno_free(r);
 	delete(c);
 
 	goto xsuc;
@@ -387,6 +397,6 @@ int assign(struct node *adr, struct node *val)
 	delete(a->p2);
 	a->p2 = value;
 
-	return;
+	return 0;
     }
 }

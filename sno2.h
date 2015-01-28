@@ -5,10 +5,10 @@
 
 struct node *compon(void);
 struct node *nscomp(void);
-struct node *push(int stack);
+struct node *push(struct node *stack);
 struct node *pop(struct node *stack);
-struct node *expr(int start, int eof, struct node *e);
-struct node *match(int start, struct node *m);
+struct node *expr(struct node *start, int eof, struct node *e);
+struct node *match(struct node *start, struct node *m);
 struct node *compile(void);
 
 #endif /* SNO2_H_ */
