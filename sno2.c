@@ -102,7 +102,36 @@ struct node *compon(void)
 	a = sno_getc();
 	
 	if(a == 0) {
-	    goto lerr;
+	    writes("Illegal literal string");
+
+	    if(schar->ch == c) {
+		break;
+	    }
+
+	    a->p1 = schar;
+	    a = schar;
+
+	    while(1) {
+		schar = sno_getc();
+		
+		if(schar == 0) {
+		    writes("Illegal literal string");
+		}
+		
+		if(schar->ch == c) {
+		    break;
+		}
+		
+		a->p1 = schar;
+		a = schar;
+	    }
+
+	    b = NULL;
+	    b->p2 = a;
+	    schar->typ = 15;
+	    schar->p1 = b;
+	    
+	    return schar;
 	}
 
 	b = schar;
@@ -121,7 +150,6 @@ struct node *compon(void)
 	    schar = sno_getc();
 
 	    if(schar == 0) {
-	    lerr:
 		writes("Illegal literal string");
 	    }
 
@@ -223,7 +251,9 @@ struct node *expr(struct node *start, int eof, struct node *e)
     struct node *b;
     struct node *c;
     int d;
+    int f;
 
+    f = 0;
     list = alloc();
     e->p2 = list;
     stack = push(0);
@@ -231,168 +261,1204 @@ struct node *expr(struct node *start, int eof, struct node *e)
     operand = 0;
     space = start;
 
- l1:
     if(space) {
 	comp = space;
-	space = NULL;;
+	space = NULL;
     }
     else {
 	comp = compon();
     }
 
- l3:
-    op = comp->typ;
-    
-    switch(op) {
-    case 7:
-	space = list;
-	sno_free(comp);
-	comp = compon();
-
-	goto l3;
-    case 10:
-	if(space == 0) {
-	    comp->typ = 1;
-	    
-	    goto l3;
-	}
-    case 11:
-	if(space == 0) {
-	    comp->typ = 2;
-	    
-	    goto l3;
-	}
-    case 8:
-    case 9:
-	if(operand == 0) {
-	    writes("No operand preceding operator");
-	}
-
-	operand = 0;
-
-	goto l5;
-    case 14:
-    case 15:
-	if(operand == 0) {
-	    operand = 1;
-	    
-	    goto l5;
-	}
-
-	if(space == 0) {
-	    goto l7;
-	}
-
-	goto l4;
-    case 12:
-	if(operand == 0) {
-	    goto l5;
-	}
-
-	if(space) {
-	    goto l4;
-	}
-
-    l7:
-	writes("Illegal juxtaposition of operands");
-
-    case 16:
-	if(operand == 0) {
-	    goto l5;
-	}
-
-	if(space) {
-	    goto l4;
-	}
-
-	b = compon();
-	comp->typ = 13;
+    while(1) {
 	op = comp->typ;
-
-	if(b->typ == 5) {
-	    comp->p1 = 0;
+	
+	switch(op) {
+	case 7:
+	    space = list;
+	    sno_free(comp);
+	    comp = compon();
 	    
-	    goto l10;
-	}
+	    continue;
+	case 10:
+	    if(space == 0) {
+		comp->typ = 1;
 
-	a = alloc();
-	comp->p1 = a;
-	b = expr(b, 6, a);
-	d = b->typ;
+		continue;
+	    }
+	case 11:
+	    if(space == 0) {
+		comp->typ = 2;
+	
+		continue;
+	    }
+	case 8:
+	case 9:
+	    if(operand == 0) {
+		writes("No operand preceding operator");
+	    }
 
-	while(d == 4) {
-	    a->p1 = b;
-	    a = b;
-	    b = expr(0, 6, a);
+	    operand = 0;
+	    space = 0;
+
+	    while(1) {
+		op1 = stack->typ;
+
+		if(op > op1) {
+		    stack = push(stack);
+
+		    if(op == 16) {
+			op = 6;
+		    }
+
+		    stack->typ = op;
+		    stack->p1 = comp;
+
+		    if(space) {
+			comp = space;
+			space = NULL;
+		    }
+		    else {
+			comp = compon();
+		    }
+
+		    f = 1;
+
+		    break;
+		}
+
+		c = stack->p1;
+		stack = pop(stack);
+
+		if(stack == 0) {
+		    list->typ = 0;
+
+		    return comp;
+		}
+
+		if(op1 == 6) {
+		    if(op != 5) {
+			writes("Too many ('s");
+		    }
+
+		    if(space) {
+			comp = space;
+			space = NULL;
+		    }
+		    else {
+			comp = compon();
+		    }
+
+		    f = 1;
+
+		    break;
+		}
+
+		if(op1 == 7) {
+		    c = alloc();
+		}
+
+		list->typ = op1;
+		list->p2 = c->p1;
+		list->p1 = c;
+		list = c;
+	    }
+
+	    if(f) {
+		f = 0;
+
+		continue;
+	    }
+	case 14:
+	case 15:
+	    if(operand == 0) {
+		operand = 1;
+		space = 0;
+
+		while(1) {
+		    op1 = stack->typ;
+
+		    if(op > op1) {
+			stack = push(stack);
+
+			if(op == 16) {
+			    op = 6;
+			}
+
+			stack->typ = op;
+			stack->p1 = comp;
+
+			if(space) {
+			    comp = space;
+			    space = NULL;
+			}
+			else {
+			    comp = compon();
+			}
+
+			f = 1;
+
+			break;
+		    }
+
+		    c = stack->p1;
+		    stack = pop(stack);
+
+		    if(stack == 0) {
+			list->typ = 0;
+
+			return comp;
+		    }
+
+		    if(op1 == 6) {
+			if(op != 5) {
+			    writes("Too many ('s");
+			}
+
+			if(space) {
+			    comp = space;
+			    space = NULL;
+			}
+			else {
+			    comp = compon();
+			}
+
+			f = 1;
+
+			break;
+		    }
+
+		    if(op1 == 7) {
+			c = alloc();
+		    }
+
+		    list->typ = op1;
+		    list->p2 = c->p1;
+		    list->p1 = c;
+		    list = c;
+		}
+
+		if(f) {
+		    f = 0;
+
+		    continue;
+		}
+	    }
+
+	    if(space == 0) {
+		writes("Illegal juxtaposition of operands");
+
+		if(operand == 0) {
+		    space = 0;
+
+		    while(1) {
+			op1 = stack->typ;
+
+			if(op > op1) {
+			    stack = push(stack);
+
+			    if(op == 16) {
+				op = 6;
+			    }
+
+			    stack->typ = op;
+			    stack->p1 = comp;
+
+			    if(space) {
+				comp = space;
+				space = NULL;
+			    }
+			    else {
+				comp = compon();
+			    }
+
+			    f = 1;
+
+			    break;
+			}
+
+			c = stack->p1;
+			stack = pop(stack);
+
+			if(stack == 0) {
+			    list->typ = 0;
+
+			    return comp;
+			}
+
+			if(op1 == 6) {
+			    if(op != 5) {
+				writes("Too many ('s");
+			    }
+
+			    if(space) {
+				comp = space;
+				space = NULL;
+			    }
+			    else {
+				comp = compon();
+			    }
+
+			    f = 1;
+
+			    break;
+			}
+
+			if(op1 == 7) {
+			    c = alloc();
+			}
+
+			list->typ = op1;
+			list->p2 = c->p1;
+			list->p1 = c;
+			list = c;
+		    }
+
+		    if(f) {
+			f = 0;
+
+			continue;
+		    }
+		}
+
+		if(space) {
+		    space = comp;
+		    op = 7;
+		    operand = 0;
+
+		    while(1) {
+			op1 = stack->typ;
+
+			if(op > op1) {
+			    stack = push(stack);
+
+			    if(op == 16) {
+				op = 6;
+			    }
+		    
+			    stack->typ = op;
+			    stack->p1 = comp;
+
+			    if(space) {
+				comp = space;
+				space = NULL;
+			    }
+			    else {
+				comp = compon();
+			    }
+
+			    f = 1;
+
+			    break;
+			}
+
+			c = stack->p1;
+			stack = pop(stack);
+
+			if(stack == 0) {
+			    list->typ = 0;
+
+			    return comp;
+			}
+
+			if(op1 == 6) {
+			    if(op != 5) {
+				writes("Too many ('s");
+			    }
+
+			    if(space) {
+				comp = space;
+				space = NULL;
+			    }
+			    else {
+				comp = compon();
+			    }
+
+			    f = 1;
+
+			    break;
+			}
+
+			if(op1 == 7) {
+			    c = alloc();
+			}
+
+			list->typ = op1;
+			list->p2 = c->p1;
+			list->p1 = c;
+			list = c;
+		    }
+
+		    if(f) {
+			f = 0;
+
+			continue;
+		    }
+		}
+
+		b = compon();
+		comp->typ = 13;
+		op = comp->typ;
+
+		if(b->typ == 5) {
+		    comp->p1 = 0;
+
+		    sno_free(b);
+
+		    while(1) {
+			op1 = stack->typ;
+
+			if(op > op1) {
+			    stack = push(stack);
+
+			    if(op == 16) {
+				op = 6;
+			    }
+
+			    stack->typ = op;
+			    stack->p1 = comp;
+
+			    if(space) {
+				comp = space;
+				space = NULL;
+			    }
+			    else {
+				comp = compon();
+			    }
+
+			    f = 1;
+
+			    break;
+			}
+
+			c = stack->p1;
+			stack = pop(stack);
+
+			if(stack == 0) {
+			    list->typ = 0;
+		    
+			    return comp;
+			}
+
+			if(op1 == 6) {
+			    if(op != 5) {
+				writes("Too many ('s");
+			    }
+
+			    if(space) {
+				comp = space;
+				space = NULL;
+			    }
+			    else {
+				comp = compon();
+			    }
+		    
+			    f = 1;
+
+			    break;
+			}
+
+			if(op1 == 7) {
+			    c = alloc();
+			}
+
+			list->typ = op1;
+			list->p2 = c->p1;
+			list->p1 = c;
+			list = c;
+		    }
+
+		    if(f) {
+			f = 0;
+
+			continue;
+		    }
+		}
+
+		a = alloc();
+		comp->p1 = a;
+		b = expr(b, 6, a);
+		d = b->typ;
+
+		while(d == 4) {
+		    a->p1 = b;
+		    a = b;
+		    b = expr(0, 6, a);
+		    d = b->typ;
+		}
+
+		if(d != 5) {
+		    writes("Error in function");
+		}
+
+		a->p1 = 0;
+		sno_free(b);
+
+		while(1) {
+		    op1 = stack->typ;
+
+		    if(op > op1) {
+			stack = push(stack);
+		
+			if(op == 16) {
+			    op = 6;
+			}
+
+			stack->typ = op;
+			stack->p1 = comp;
+
+			if(space) {
+			    comp = space;
+			    space = NULL;
+			}
+			else {
+			    comp = compon();
+			}
+
+			f = 1;
+
+			break;
+		    }
+
+		    c = stack->p1;
+		    stack = pop(stack);
+
+		    if(stack == 0) {
+			list->typ = 0;
+
+			return comp;
+		    }
+
+		    if(op1 == 6) {
+			if(op != 5) {
+			    writes("Too many ('s");
+			}
+
+			if(space) {
+			    comp = space;
+			    space = NULL;
+			}
+			else {
+			    comp = compon();
+			}
+
+			f = 1;
+
+			break;
+		    }
+
+		    if(op1 == 7) {
+			c = alloc();
+		    }
+
+		    list->typ = op1;
+		    list->p2 = c->p1;
+		    list->p1 = c;
+		    list = c;
+		}
+
+		if(f) {
+		    f = 0;
+
+		    continue;
+		}
+	
+		if(operand == 0) {
+		    writes("No operand at end of expression");
+		}
+
+		space = 0;
+
+		while(1) {
+		    op1 = stack->typ;
+
+		    if(op > op1) {
+			stack = push(stack);
+	    
+			if(op == 16) {
+			    op = 6;
+			}
+	    
+			stack->typ = op;
+			stack->p1 = comp;
+	    
+			if(space) {
+			    comp = space;
+			    space = NULL;
+			}
+			else {
+			    comp = compon();
+			}
+	    
+			f = 1;
+
+			break;
+		    }
+
+		    c = stack->p1;
+		    stack = pop(stack);
+	
+		    if(stack == 0) {
+			list->typ = 0;
+	    
+			return comp;
+		    }
+	
+		    if(op1 == 6) {
+			if(op != 5) {
+			    writes("Too many ('s");
+			}
+	    
+			if(space) {
+			    comp = space;
+			    space = NULL;
+			}
+			else {
+			    comp = compon();
+			}
+	    
+			f = 1;
+			
+			break;
+		    }
+	
+		    if(op1 == 7) {
+			c = alloc();
+		    }
+	
+		    list->typ = op1;
+		    list->p2 = c->p1;
+		    list->p1 = c;
+		    list = c;
+		}
+
+		if(f) {
+		    f = 0;
+
+		    continue;
+		}
+
+		return NULL;
+	    }
+
+	    space = comp;
+	    op = 7;
+	    operand = 0;
+
+	    while(1) {
+		op1 = stack->typ;
+
+		if(op > op1) {
+		    stack = push(stack);
+
+		    if(op == 16) {
+			op = 6;
+		    }
+
+		    stack->typ = op;
+		    stack->p1 = comp;
+
+		    if(space) {
+			comp = space;
+			space = NULL;
+		    }
+		    else {
+			comp = compon();
+		    }
+
+		    f = 1;
+
+		    break;
+		}
+
+		c = stack->p1;
+		stack = pop(stack);
+
+		if(stack == 0) {
+		    list->typ = 0;
+
+		    return comp;
+		}
+
+		if(op1 == 6) {
+		    if(op != 5) {
+			writes("Too many ('s");
+		    }
+
+		    if(space) {
+			comp = space;
+			space = NULL;
+		    }
+		    else {
+			comp = compon();
+		    }
+
+		    f = 1;
+
+		    break;
+		}
+
+		if(op == 7) {
+		    c = alloc();
+		}
+
+		list->typ = op1;
+		list->p2 = c->p1;
+		list->p1 = c;
+		list = c;
+	    }
+
+	    if(f) {
+		f = 0;
+
+		continue;
+	    }
+	case 12:
+	    if(operand == 0) {
+		space = 0;
+
+		while(1) {
+		    op1 = stack->typ;
+
+		    if(op > op1) {
+			stack = push(stack);
+
+			if(op == 16) {
+			    op = 6;
+			}
+		    
+			stack->typ = op;
+			stack->p1 = comp;
+		    
+			if(space) {
+			    comp = space;
+			    space = NULL;
+			}
+			else {
+			    comp = compon();
+			}
+
+			f = 1;
+
+			break;
+		    }
+
+		    c = stack->p1;
+		    stack = pop(stack);
+
+		    if(stack == 0) {
+			list->typ = 0;
+
+			return comp;
+		    }
+
+		    if(op1 == 6) {
+			if(op != 5) {
+			    writes("Too many ('s");
+			}
+
+			if(space) {
+			    comp = space;
+			    space = NULL;
+			}
+			else {
+			    comp = compon();
+			}
+
+			f = 1;
+
+			break;
+		    }
+
+		    if(op1 == 7) {
+			c = alloc();
+		    }
+
+		    list->typ = op1;
+		    list->p2 = c->p1;
+		    list->p1 = c;
+		    list = c;
+		}
+
+		if(f) {
+		    f = 0;
+
+		    continue;
+		}
+	    }
+
+	    if(space) {
+		space = comp;
+		op = 7;
+		operand = 0;
+
+		while(1) {
+		    op1 = stack->typ;
+
+		    if(op > op1) {
+			stack = push(stack);
+
+			if(op == 16) {
+			    op = 6;
+			}
+
+			stack->typ = op;
+			stack->p1 = comp;
+		    
+			if(space) {
+			    comp = space;
+			    space = NULL;
+			}
+			else {
+			    comp = compon();
+			}
+
+			f = 1;
+
+			break;
+		    }
+
+		    c = stack->p1;
+		    stack = pop(stack);
+
+		    if(stack == 0) {
+			list->typ = 0;
+
+			return comp;
+		    }
+
+		    if(op1 == 6) {
+			if(op != 5) {
+			    writes("Too many ('s");
+			}
+
+			if(space) {
+			    comp = space;
+			    space = NULL;
+			}
+			else {
+			    comp = compon();
+			}
+
+			f = 1;
+			
+			break;
+		    }
+
+		    if(op1 == 7) {
+			c = alloc();
+		    }
+
+		    list->typ = op1;
+		    list->p2 = c->p1;
+		    list->p1 = c;
+		    list = c;
+		}
+
+		if(f) {
+		    f = 0;
+
+		    continue;
+		}
+	    }
+
+	    writes("Illegal juxtaposition of operands");
+
+	case 16:
+	    if(operand == 0) {
+		space = 0;
+
+		while(1) {
+		    op1 = stack->typ;
+
+		    if(op > op1) {
+			stack = push(stack);
+
+			if(op == 16) {
+			    op = 6;
+			}
+
+			stack->typ = op;
+			stack->p1 = comp;
+
+			if(space) {
+			    comp = space;
+			    space = NULL;
+			}
+			else {
+			    comp = compon();
+			}
+
+			f = 1;
+
+			break;
+ 		    }
+
+		    c = stack->p1;
+		    stack = pop(stack);
+
+		    if(stack == 0) {
+			list->typ = 0;
+
+			return comp;
+		    }
+
+		    if(op1 == 6) {
+			if(op != 5) {
+			    writes("Too many ('s");
+			}
+
+			if(space) {
+			    comp = space;
+			    space = NULL;
+			}
+			else {
+			    comp = compon();
+			}
+
+			f = 1;
+
+			break;
+		    }
+
+		    if(op1 == 7) {
+			c = alloc();
+		    }
+
+		    list->typ = op1;
+		    list->p2 = c->p1;
+		    list->p1 = c;
+		    list = c;
+		}
+
+		if(f) {
+		    f = 0;
+
+		    continue;
+		}
+	    }
+
+	    if(space) {
+		space = comp;
+		op = 7;
+		operand = 0;
+
+		while(1) {
+		    op1 = stack->typ;
+
+		    if(op > op1) {
+			stack = push(stack);
+
+			if(op == 16) {
+			    op = 6;
+			}
+		    
+			stack->typ = op;
+			stack->p1 = comp;
+
+			if(space) {
+			    comp = space;
+			    space = NULL;
+			}
+			else {
+			    comp = compon();
+			}
+
+			f = 1;
+
+			break;
+		    }
+
+		    c = stack->p1;
+		    stack = pop(stack);
+
+		    if(stack == 0) {
+			list->typ = 0;
+
+			return comp;
+		    }
+
+		    if(op1 == 6) {
+			if(op != 5) {
+			    writes("Too many ('s");
+			}
+
+			if(space) {
+			    comp = space;
+			    space = NULL;
+			}
+			else {
+			    comp = compon();
+			}
+
+			f = 1;
+			
+			break;
+		    }
+
+		    if(op1 == 7) {
+			c = alloc();
+		    }
+
+		    list->typ = op1;
+		    list->p2 = c->p1;
+		    list->p1 = c;
+		    list = c;
+		}
+
+		if(f) {
+		    f = 0;
+
+		    continue;
+		}
+	    }
+
+	    b = compon();
+	    comp->typ = 13;
+	    op = comp->typ;
+
+	    if(b->typ == 5) {
+		comp->p1 = 0;
+
+		sno_free(b);
+
+		while(1) {
+		    op1 = stack->typ;
+
+		    if(op > op1) {
+			stack = push(stack);
+
+			if(op == 16) {
+			    op = 6;
+			}
+
+			stack->typ = op;
+			stack->p1 = comp;
+
+			if(space) {
+			    comp = space;
+			    space = NULL;
+			}
+			else {
+			    comp = compon();
+			}
+
+			f = 1;
+			
+			break;
+		    }
+
+		    c = stack->p1;
+		    stack = pop(stack);
+
+		    if(stack == 0) {
+			list->typ = 0;
+		    
+			return comp;
+		    }
+
+		    if(op1 == 6) {
+			if(op != 5) {
+			    writes("Too many ('s");
+			}
+
+			if(space) {
+			    comp = space;
+			    space = NULL;
+			}
+			else {
+			    comp = compon();
+			}
+		 
+			f = 1;
+
+			break;
+		    }
+
+		    if(op1 == 7) {
+			c = alloc();
+		    }
+
+		    list->typ = op1;
+		    list->p2 = c->p1;
+		    list->p1 = c;
+		    list = c;
+		}
+
+		if(f) {
+		    f = 0;
+
+		    continue;
+		}
+	    }
+
+	    a = alloc();
+	    comp->p1 = a;
+	    b = expr(b, 6, a);
 	    d = b->typ;
+
+	    while(d == 4) {
+		a->p1 = b;
+		a = b;
+		b = expr(0, 6, a);
+		d = b->typ;
+	    }
+
+	    if(d != 5) {
+		writes("Error in function");
+	    }
+
+	    a->p1 = 0;
+	    sno_free(b);
+
+	    while(1) {
+		op1 = stack->typ;
+
+		if(op > op1) {
+		    stack = push(stack);
+		
+		    if(op == 16) {
+			op = 6;
+		    }
+
+		    stack->typ = op;
+		    stack->p1 = comp;
+
+		    if(space) {
+			comp = space;
+			space = NULL;
+		    }
+		    else {
+			comp = compon();
+		    }
+
+		    f = 1;
+		    
+		    break;
+		}
+
+		c = stack->p1;
+		stack = pop(stack);
+
+		if(stack == 0) {
+		    list->typ = 0;
+
+		    return comp;
+		}
+
+		if(op1 == 6) {
+		    if(op != 5) {
+			writes("Too many ('s");
+		    }
+
+		    if(space) {
+			comp = space;
+			space = NULL;
+		    }
+		    else {
+			comp = compon();
+		    }
+
+		    f = 1;
+		    
+		    break;
+		}
+
+		if(op1 == 7) {
+		    c = alloc();
+		}
+
+		list->typ = op1;
+		list->p2 = c->p1;
+		list->p1 = c;
+		list = c;
+	    }
+
+	    if(f) {
+		f = 0;
+
+		continue;
+	    }
 	}
 
-	if(d != 5) {
-	    writes("Error in function");
+	if(operand == 0) {
+	    writes("No operand at end of expression");
 	}
 
-	a->p1 = 0;
-    l10:
-	sno_free(b);
-	goto l6;
+	space = 0;
 
-    l4:
-	space = comp;
-	op = 7;
-	operand = 0;
-	goto l6;
-    }
+	while(1) {
+	    op1 = stack->typ;
 
-    if(operand == 0) {
-	writes("No operand at end of expression");
-    }
+	    if(op > op1) {
+		stack = push(stack);
+	    
+		if(op == 16) {
+		    op = 6;
+		}
+	    
+		stack->typ = op;
+		stack->p1 = comp;
+	    
+		if(space) {
+		    comp = space;
+		    space = NULL;
+		}
+		else {
+		    comp = compon();
+		}
 
- l5:
-    space = 0;
+		f = 1;
 
- l6:
-    op1 = stack->typ;
+		break;
+	    }
 
-    if(op > op1) {
-	stack = push(stack);
-
-	if(op == 16) {
-	    op = 6;
-	}
+	    c = stack->p1;
+	    stack = pop(stack);
 	
-	stack->typ = op;
-	stack->p1 = comp;
+	    if(stack == 0) {
+		list->typ = 0;
+	    
+		return comp;
+	    }
 	
-	goto l1;
-    }
+	    if(op1 == 6) {
+		if(op != 5) {
+		    writes("Too many ('s");
+		}
+	    
+		if(space) {
+		    comp = space;
+		    space = NULL;
+		}
+		else {
+		    comp = compon();
+		}
+	    
+		f = 1;
 
-    c = stack->p1;
-    stack = pop(stack);
+		break;
+	    }
 
-    if(stack == 0) {
-	list->typ = 0;
-
-	return comp;
-    }
-
-    if(op1 == 6) {
-	if(op != 5) {
-	    writes("Too many ('s");
+	    if(op1 == 7) {
+		c = alloc();
+	    }
+	
+	    list->typ = op1;
+	    list->p2 = c->p1;
+	    list->p1 = c;
+	    list = c;
 	}
 
-	goto l1;
+	if(f) {
+	    f = 0;
+
+	    continue;
+	}
+
+	break;
     }
 
-    if(op1 == 7) {
-	c = alloc();
-    }
-
-    list->typ = op1;
-    list->p2 = c->p1;
-    list->p1 = c;
-    list = c;
-    
-    goto l6;
+    return NULL;
 }
 
 struct node *match(struct node *start, struct node *m)
@@ -403,8 +1469,10 @@ struct node *match(struct node *start, struct node *m)
     struct node *a;
     int b;
     int bal;
+    int i;
 
     bal = 0;
+    i = 0;
     term = NULL;
     list = alloc();
     m->p2 = list;
@@ -414,88 +1482,96 @@ struct node *match(struct node *start, struct node *m)
 	comp = compon();
     }
 
-    goto l2;
+    while(1) {
+	if(i) {
+	    a = alloc();
+	    list->p1 = NULL;
+	    list = a;
+	}
 
- l3:
-    a = alloc();
-    list->p1 = NULL;
-    list = a;
-
- l2:
-    switch(comp->typ) {
-    case 7:
-	sno_free(comp);
-	comp = compon();
-
-	goto l2;
-    case 12:
-    case 14:
-    case 15:
-    case 16:
-	term = 0;
-	comp = expr(comp, 6, list);
-	list->typ = 1;
-
-	goto l3;
-    case 1:
-	sno_free(comp);
-	comp = compon();
-	bal = 0;
-
-	if(comp->typ == 16) {
-	    bal = 1;
+	switch(comp->typ) {
+	case 7:
 	    sno_free(comp);
 	    comp = compon();
-	}
 
-	a = alloc();
-	b = comp->typ;
+	    i = 0;
 	
-	if((b == 2) || (b == 5) || (b == 10) || (b == 1)) {
-	    a->p1 = 0;
-	}
-	else {
-	    comp = expr(comp, 11, a);
-	    a->p1 = a->p2;
-	}
+	    continue;
+	case 12:
+	case 14:
+	case 15:
+	case 16:
+	    term = 0;
+	    comp = expr(comp, 6, list);
+	    list->typ = 1;
 
-	if(comp->typ != 2) {
-	    a->p2 = 0;
-	}
-	else {
-	    free(comp);
-	    comp = expr(0, 6, a);
-	}
+	    continue;
+	case 1:
+	    sno_free(comp);
+	    comp = compon();
+	    bal = 0;
 
-	if(bal) {
-	    if(comp->typ != 5) {
-		goto merr;
+	    if(comp->typ == 16) {
+		bal = 1;
+		sno_free(comp);
+		comp = compon();
 	    }
 
+	    a = alloc();
+	    b = comp->typ;
+	
+	    if((b == 2) || (b == 5) || (b == 10) || (b == 1)) {
+		a->p1 = 0;
+	    }
+	    else {
+		comp = expr(comp, 11, a);
+		a->p1 = a->p2;
+	    }
+
+	    if(comp->typ != 2) {
+		a->p2 = 0;
+	    }
+	    else {
+		free(comp);
+		comp = expr(0, 6, a);
+	    }
+
+	    if(bal) {
+		if(comp->typ != 5) {
+		    writes("Unrecognized component in match");
+
+		    return 0;
+		}
+
+		free(comp);
+		comp = compon();
+	    }
+
+	    b = comp->typ;
+	
+	    if((b != 1) && (b != 10)) {
+		writes("Unrecognized component in match");
+
+		return 0;
+	    }
+
+	    list->p2 = a;
+	    list->typ = 2;
+	    a->typ = bal;
 	    free(comp);
 	    comp = compon();
+
+	    if(bal) {
+		term = 0;
+	    }
+	    else {
+		term = list;
+	    }
+
+	    continue;
 	}
 
-	b = comp->typ;
-	
-	if((b != 1) && (b != 10)) {
-	    goto merr;
-	}
-
-	list->p2 = a;
-	list->typ = 2;
-	a->typ = bal;
-	free(comp);
-	comp = compon();
-
-	if(bal) {
-	    term = 0;
-	}
-	else {
-	    term = list;
-	}
-
-	goto l3;
+	break;
     }
 
     if(term) {
@@ -505,11 +1581,6 @@ struct node *match(struct node *start, struct node *m)
     list->typ = 0;
 
     return comp;
-
- merr:
-    writes("Unrecognized component in match");
-
-    return 0;
 }
 
 struct node *compile(void)
@@ -550,7 +1621,89 @@ struct node *compile(void)
     free(comp);
     
     if(l == lookfret) {
-	goto def;
+	r = nscomp();
+    
+	if(r->typ != 14) {
+	    writes("Illegal component in define");
+	
+	    return 0;
+	}
+
+	l = r->p1;
+    
+	if(l->typ) {
+	    writes("Name doubly defined");
+	}
+
+	/* type function */
+	l->typ = 5;
+	m = r;
+	l->p2 = m;
+	r = nscomp();
+	l = r;
+	m->p1 = l;
+
+	if(r->typ == 0) {
+	    r = compile();
+	    m->p2 = 0;
+	    l->p1 = r;
+	    l->p2 = 0;
+	
+	    return r;
+	}
+
+	if(r->typ != 16) {
+	    writes("Illegal component in define");
+	
+	    return 0;
+	}
+
+	while(1) {
+	    r = nscomp();
+    
+	    if(r->typ != 14) {
+		writes("Illegal component in define");
+	
+		return 0;
+	    }
+
+	    m->p2 = r;
+	    r->typ = 0;
+	    m = r;
+	    r = nscomp();
+
+	    if(r->typ == 4) {
+		sno_free(r);
+
+		continue;
+	    }
+
+	    break;
+	}
+    
+	if(r->typ != 5) {
+	    writes("Illegal component in define");
+	
+	    return 0;
+	}
+
+	sno_free(r);
+	r = compon();
+    
+	if(r->typ != 0) {
+	    writes("Illegal component in define");
+	
+	    return 0;
+	}
+
+	sno_free(r);
+
+	r = compile();
+	m->p2 = 0;
+	l->p1 = r;
+	l->p2 = 0;
+
+	return r;
     }
     
     r = alloc();
@@ -558,15 +1711,1757 @@ struct node *compile(void)
     a = comp->typ;
 
     if(a == 0) {
-	goto asmble;
+	if(l) {
+	    if(l->typ) {
+		writes("Name doubly defined");
+	    }
+
+	    l->p2 = comp;
+
+	    /* type label */
+	    l->typ = 2;
+	}
+
+	comp->p2 = r;
+
+	if(m) {
+	    ++t;
+	    r->p1 = m;
+	    r = m;
+	}
+
+	if(as) {
+	    t += 2;
+	    r->p1 = as;
+	    r = as;
+	}
+
+	g = alloc();
+	g->p1 = 0;
+
+	if(xs) {
+	    g->p1 = xs->p2;
+	    free(xs);
+	}
+
+	g->p2 = 0;
+
+	if(xf) {
+	    g->p2 = xf->p2;
+	    free(xf);
+	}
+
+	r->p1 = g;
+	comp->typ = t;
+	comp->ch = lc;
+
+	return comp;
     }
 
     if(a == 2) {
-	goto xfer;
+	while(1) {
+	    free(comp);
+	    comp = compon();
+	    a = comp->typ;
+    
+	    if(a == 16) {
+		while(1) {
+		    free(comp);
+		    xs = alloc();
+		    xf = alloc();
+		    comp = expr(0, 6, xs);
+	
+		    if(comp->typ != 5) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    xf->p2 = xs->p2;
+		    comp = compon();
+	
+		    if(comp->typ != 0) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    break;
+		}
+
+		if(l) {
+		    if(l->typ) {
+			writes("Name doubly defined");
+		    }
+
+		    l->p2 = comp;
+
+		    /* type label */
+		    l->typ = 2;
+		}
+
+		comp->p2 = r;
+
+		if(m) {
+		    ++t;
+		    r->p1 = m;
+		    r = m;
+		}
+
+		if(as) {
+		    t += 2;
+		    r->p1 = as;
+		    r = as;
+		}
+
+		g = alloc();
+		g->p1 = 0;
+
+		if(xs) {
+		    g->p1 = xs->p2;
+		    free(xs);
+		}
+
+		g->p2 = 0;
+
+		if(xf) {
+		    g->p2 = xf->p2;
+		    free(xf);
+		}
+
+		r->p1 = g;
+		comp->typ = t;
+		comp->ch = lc;
+
+		return comp;
+	    }
+
+	    if(a == 0) {
+		if((xs != 0) || (xf != 0)) {
+		    if(l) {
+			if(l->typ) {
+			    writes("Name doubly defined");
+			}
+
+			l->p2 = comp;
+
+			/* type label */
+			l->typ = 2;
+		    }
+
+		    comp->p2 = r;
+
+		    if(m) {
+			++t;
+			r->p1 = m;
+			r = m;
+		    }
+
+		    if(as) {
+			t += 2;
+			r->p1 = as;
+			r = as;
+		    }
+
+		    g = alloc();
+		    g->p1 = 0;
+
+		    if(xs) {
+			g->p1 = xs->p2;
+			free(xs);
+		    }
+
+		    g->p2 = 0;
+
+		    if(xf) {
+			g->p2 = xf->p2;
+			free(xf);
+		    }
+
+		    r->p1 = g;
+		    comp->typ = t;
+		    comp->ch = lc;
+
+		    return comp;
+		}
+	
+		writes("Unrecognized component in goto");
+    
+		while(1) {
+		    free(comp);
+		    xs = alloc();
+		    xf = alloc();
+		    comp = expr(0, 6, xs);
+	
+		    if(comp->typ != 5) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    xf->p2 = xs->p2;
+		    comp = compon();
+	
+		    if(comp->typ != 0) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    break;
+		}
+
+		if(l) {
+		    if(l->typ) {
+			writes("Name doubly defined");
+		    }
+
+		    l->p2 = comp;
+
+		    /* type label */
+		    l->typ = 2;
+		}
+
+		comp->p2 = r;
+
+		if(m) {
+		    ++t;
+		    r->p1 = m;
+		    r = m;
+		}
+
+		if(as) {
+		    t += 2;
+		    r->p1 = as;
+		    r = as;
+		}
+
+		g = alloc();
+		g->p1 = 0;
+
+		if(xs) {
+		    g->p1 = xs->p2;
+		    free(xs);
+		}
+
+		g->p2 = 0;
+
+		if(xf) {
+		    g->p2 = xf->p2;
+		    free(xf);
+		}
+
+		r->p1 = g;
+		comp->typ = t;
+		comp->ch = lc;
+
+		return comp;
+	    }
+
+	    if(a != 14) {
+		writes("Unrecognized component in goto");
+    
+		while(1) {
+		    free(comp);
+		    xs = alloc();
+		    xf = alloc();
+		    comp = expr(0, 6, xs);
+	
+		    if(comp->typ != 5) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    xf->p2 = xs->p2;
+		    comp = compon();
+	
+		    if(comp->typ != 0) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    break;
+		}
+
+		if(l) {
+		    if(l->typ) {
+			writes("Name doubly defined");
+		    }
+
+		    l->p2 = comp;
+
+		    /* type label */
+		    l->typ = 2;
+		}
+
+		comp->p2 = r;
+
+		if(m) {
+		    ++t;
+		    r->p1 = m;
+		    r = m;
+		}
+
+		if(as) {
+		    t += 2;
+		    r->p1 = as;
+		    r = as;
+		}
+
+		g = alloc();
+		g->p1 = 0;
+
+		if(xs) {
+		    g->p1 = xs->p2;
+		    free(xs);
+		}
+
+		g->p2 = 0;
+
+		if(xf) {
+		    g->p2 = xf->p2;
+		    free(xf);
+		}
+
+		r->p1 = g;
+		comp->typ = t;
+		comp->ch = lc;
+
+		return comp;       
+	    }
+
+	    b = comp->p1;
+	    free(comp);
+
+	    if(b == looks) {
+		if(xs) {
+		    writes("Unrecognized component in goto");
+    
+		    while(1) {
+			free(comp);
+			xs = alloc();
+			xf = alloc();
+			comp = expr(0, 6, xs);
+	
+			if(comp->typ != 5) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			xf->p2 = xs->p2;
+			comp = compon();
+	
+			if(comp->typ != 0) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			break;
+		    }
+
+		    if(l) {
+			if(l->typ) {
+			    writes("Name doubly defined");
+			}
+
+			l->p2 = comp;
+
+			/* type label */
+			l->typ = 2;
+		    }
+
+		    comp->p2 = r;
+
+		    if(m) {
+			++t;
+			r->p1 = m;
+			r = m;
+		    }
+
+		    if(as) {
+			t += 2;
+			r->p1 = as;
+			r = as;
+		    }
+
+		    g = alloc();
+		    g->p1 = 0;
+
+		    if(xs) {
+			g->p1 = xs->p2;
+			free(xs);
+		    }
+
+		    g->p2 = 0;
+
+		    if(xf) {
+			g->p2 = xf->p2;
+			free(xf);
+		    }
+
+		    r->p1 = g;
+		    comp->typ = t;
+		    comp->ch = lc;
+
+		    return comp;
+
+	  
+		}
+
+		comp = compon();
+
+		if(comp->typ != 16) {
+		    writes("Unrecognized component in goto");
+    
+		    while(1) {
+			free(comp);
+			xs = alloc();
+			xf = alloc();
+			comp = expr(0, 6, xs);
+	
+			if(comp->typ != 5) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			xf->p2 = xs->p2;
+			comp = compon();
+	
+			if(comp->typ != 0) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			break;
+		    }
+
+		    if(l) {
+			if(l->typ) {
+			    writes("Name doubly defined");
+			}
+
+			l->p2 = comp;
+
+			/* type label */
+			l->typ = 2;
+		    }
+
+		    comp->p2 = r;
+
+		    if(m) {
+			++t;
+			r->p1 = m;
+			r = m;
+		    }
+
+		    if(as) {
+			t += 2;
+			r->p1 = as;
+			r = as;
+		    }
+
+		    g = alloc();
+		    g->p1 = 0;
+
+		    if(xs) {
+			g->p1 = xs->p2;
+			free(xs);
+		    }
+
+		    g->p2 = 0;
+
+		    if(xf) {
+			g->p2 = xf->p2;
+			free(xf);
+		    }
+
+		    r->p1 = g;
+		    comp->typ = t;
+		    comp->ch = lc;
+
+		    return comp;
+
+	    
+		}
+
+		xs = alloc();
+		comp = expr(0, 6, xs);
+
+		if(comp->typ != 5) {
+		    writes("Unrecognized component in goto");
+    
+		    while(1) {
+			free(comp);
+			xs = alloc();
+			xf = alloc();
+			comp = expr(0, 6, xs);
+	
+			if(comp->typ != 5) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			xf->p2 = xs->p2;
+			comp = compon();
+	
+			if(comp->typ != 0) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			break;
+		    }
+
+		    if(l) {
+			if(l->typ) {
+			    writes("Name doubly defined");
+			}
+
+			l->p2 = comp;
+
+			/* type label */
+			l->typ = 2;
+		    }
+
+		    comp->p2 = r;
+
+		    if(m) {
+			++t;
+			r->p1 = m;
+			r = m;
+		    }
+
+		    if(as) {
+			t += 2;
+			r->p1 = as;
+			r = as;
+		    }
+
+		    g = alloc();
+		    g->p1 = 0;
+
+		    if(xs) {
+			g->p1 = xs->p2;
+			free(xs);
+		    }
+
+		    g->p2 = 0;
+
+		    if(xf) {
+			g->p2 = xf->p2;
+			free(xf);
+		    }
+
+		    r->p1 = g;
+		    comp->typ = t;
+		    comp->ch = lc;
+
+		    return comp;
+
+	    
+		}
+
+		continue;
+	    }
+
+	    if(b == lookf) {
+		if(xf) {
+		    writes("Unrecognized component in goto");
+    
+		    while(1) {
+			free(comp);
+			xs = alloc();
+			xf = alloc();
+			comp = expr(0, 6, xs);
+	
+			if(comp->typ != 5) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			xf->p2 = xs->p2;
+			comp = compon();
+	
+			if(comp->typ != 0) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			break;
+		    }
+
+		    if(l) {
+			if(l->typ) {
+			    writes("Name doubly defined");
+			}
+
+			l->p2 = comp;
+
+			/* type label */
+			l->typ = 2;
+		    }
+
+		    comp->p2 = r;
+
+		    if(m) {
+			++t;
+			r->p1 = m;
+			r = m;
+		    }
+
+		    if(as) {
+			t += 2;
+			r->p1 = as;
+			r = as;
+		    }
+
+		    g = alloc();
+		    g->p1 = 0;
+
+		    if(xs) {
+			g->p1 = xs->p2;
+			free(xs);
+		    }
+
+		    g->p2 = 0;
+
+		    if(xf) {
+			g->p2 = xf->p2;
+			free(xf);
+		    }
+
+		    r->p1 = g;
+		    comp->typ = t;
+		    comp->ch = lc;
+
+		    return comp;
+
+	    
+		}
+
+		comp = compon();
+		if(comp->typ != 16) {
+		    writes("Unrecognized component in goto");
+    
+		    while(1) {
+			free(comp);
+			xs = alloc();
+			xf = alloc();
+			comp = expr(0, 6, xs);
+	
+			if(comp->typ != 5) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			xf->p2 = xs->p2;
+			comp = compon();
+	
+			if(comp->typ != 0) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			break;
+		    }
+
+		    if(l) {
+			if(l->typ) {
+			    writes("Name doubly defined");
+			}
+
+			l->p2 = comp;
+
+			/* type label */
+			l->typ = 2;
+		    }
+
+		    comp->p2 = r;
+
+		    if(m) {
+			++t;
+			r->p1 = m;
+			r = m;
+		    }
+
+		    if(as) {
+			t += 2;
+			r->p1 = as;
+			r = as;
+		    }
+
+		    g = alloc();
+		    g->p1 = 0;
+
+		    if(xs) {
+			g->p1 = xs->p2;
+			free(xs);
+		    }
+
+		    g->p2 = 0;
+
+		    if(xf) {
+			g->p2 = xf->p2;
+			free(xf);
+		    }
+
+		    r->p1 = g;
+		    comp->typ = t;
+		    comp->ch = lc;
+
+		    return comp;
+
+	   
+		}
+
+		xf = alloc();
+		comp = expr(0, 6, xf);
+
+		if(comp->typ != 5) {
+		    writes("Unrecognized component in goto");
+    
+		    while(1) {
+			free(comp);
+			xs = alloc();
+			xf = alloc();
+			comp = expr(0, 6, xs);
+	
+			if(comp->typ != 5) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			xf->p2 = xs->p2;
+			comp = compon();
+	
+			if(comp->typ != 0) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			break;
+		    }
+
+		    if(l) {
+			if(l->typ) {
+			    writes("Name doubly defined");
+			}
+
+			l->p2 = comp;
+
+			/* type label */
+			l->typ = 2;
+		    }
+
+		    comp->p2 = r;
+
+		    if(m) {
+			++t;
+			r->p1 = m;
+			r = m;
+		    }
+
+		    if(as) {
+			t += 2;
+			r->p1 = as;
+			r = as;
+		    }
+
+		    g = alloc();
+		    g->p1 = 0;
+
+		    if(xs) {
+			g->p1 = xs->p2;
+			free(xs);
+		    }
+
+		    g->p2 = 0;
+
+		    if(xf) {
+			g->p2 = xf->p2;
+			free(xf);
+		    }
+
+		    r->p1 = g;
+		    comp->typ = t;
+		    comp->ch = lc;
+
+		    return comp;
+		}
+
+		continue;
+	    }
+
+	    break;
+	}
+
+	writes("Unrecognized component in goto");
+    
+	while(1) {
+	    free(comp);
+	    xs = alloc();
+	    xf = alloc();
+	    comp = expr(0, 6, xs);
+	
+	    if(comp->typ != 5) {
+		writes("Unrecognized component in goto");
+	    
+		continue;
+	    }
+	
+	    xf->p2 = xs->p2;
+	    comp = compon();
+	
+	    if(comp->typ != 0) {
+		writes("Unrecognized component in goto");
+	    
+		continue;
+	    }
+	
+	    break;
+	}
+
+	if(l) {
+	    if(l->typ) {
+		writes("Name doubly defined");
+	    }
+
+	    l->p2 = comp;
+
+	    /* type label */
+	    l->typ = 2;
+	}
+
+	comp->p2 = r;
+
+	if(m) {
+	    ++t;
+	    r->p1 = m;
+	    r = m;
+	}
+
+	if(as) {
+	    t += 2;
+	    r->p1 = as;
+	    r = as;
+	}
+
+	g = alloc();
+	g->p1 = 0;
+
+	if(xs) {
+	    g->p1 = xs->p2;
+	    free(xs);
+	}
+
+	g->p2 = 0;
+
+	if(xf) {
+	    g->p2 = xf->p2;
+	    free(xf);
+	}
+
+	r->p1 = g;
+	comp->typ = t;
+	comp->ch = lc;
+
+	return comp;
+
     }
 
     if(a == 3) {
-	goto assig;
+	free(comp);
+	as = alloc();
+	comp = expr(0, 6, as);
+	a = comp->typ;
+    
+	if(a == 0) {
+	    if(l) {
+		if(l->typ) {
+		    writes("Name doubly defined");
+		}
+
+		l->p2 = comp;
+
+		/* type label */
+		l->typ = 2;
+	    }
+
+	    comp->p2 = r;
+
+	    if(m) {
+		++t;
+		r->p1 = m;
+		r = m;
+	    }
+
+	    if(as) {
+		t += 2;
+		r->p1 = as;
+		r = as;
+	    }
+
+	    g = alloc();
+	    g->p1 = 0;
+
+	    if(xs) {
+		g->p1 = xs->p2;
+		free(xs);
+	    }
+
+	    g->p2 = 0;
+
+	    if(xf) {
+		g->p2 = xf->p2;
+		free(xf);
+	    }
+
+	    r->p1 = g;
+	    comp->typ = t;
+	    comp->ch = lc;
+
+	    return comp;
+	}
+
+	if(a != 2) {
+	    writes("Unrecognized component in assignment");
+	}
+
+	while(1) {
+	    free(comp);
+	    comp = compon();
+	    a = comp->typ;
+    
+	    if(a == 16) {
+		while(1) {
+		    free(comp);
+		    xs = alloc();
+		    xf = alloc();
+		    comp = expr(0, 6, xs);
+	
+		    if(comp->typ != 5) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    xf->p2 = xs->p2;
+		    comp = compon();
+	
+		    if(comp->typ != 0) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    break;
+		}
+
+		if(l) {
+		    if(l->typ) {
+			writes("Name doubly defined");
+		    }
+
+		    l->p2 = comp;
+
+		    /* type label */
+		    l->typ = 2;
+		}
+
+		comp->p2 = r;
+
+		if(m) {
+		    ++t;
+		    r->p1 = m;
+		    r = m;
+		}
+
+		if(as) {
+		    t += 2;
+		    r->p1 = as;
+		    r = as;
+		}
+
+		g = alloc();
+		g->p1 = 0;
+
+		if(xs) {
+		    g->p1 = xs->p2;
+		    free(xs);
+		}
+
+		g->p2 = 0;
+
+		if(xf) {
+		    g->p2 = xf->p2;
+		    free(xf);
+		}
+
+		r->p1 = g;
+		comp->typ = t;
+		comp->ch = lc;
+
+		return comp;
+	    }
+
+	    if(a == 0) {
+		if((xs != 0) || (xf != 0)) {
+		    if(l) {
+			if(l->typ) {
+			    writes("Name doubly defined");
+			}
+
+			l->p2 = comp;
+
+			/* type label */
+			l->typ = 2;
+		    }
+
+		    comp->p2 = r;
+
+		    if(m) {
+			++t;
+			r->p1 = m;
+			r = m;
+		    }
+
+		    if(as) {
+			t += 2;
+			r->p1 = as;
+			r = as;
+		    }
+
+		    g = alloc();
+		    g->p1 = 0;
+
+		    if(xs) {
+			g->p1 = xs->p2;
+			free(xs);
+		    }
+
+		    g->p2 = 0;
+
+		    if(xf) {
+			g->p2 = xf->p2;
+			free(xf);
+		    }
+
+		    r->p1 = g;
+		    comp->typ = t;
+		    comp->ch = lc;
+
+		    return comp;
+		}
+	
+		writes("Unrecognized component in goto");
+    
+		while(1) {
+		    free(comp);
+		    xs = alloc();
+		    xf = alloc();
+		    comp = expr(0, 6, xs);
+	
+		    if(comp->typ != 5) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    xf->p2 = xs->p2;
+		    comp = compon();
+	
+		    if(comp->typ != 0) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    break;
+		}
+
+		if(l) {
+		    if(l->typ) {
+			writes("Name doubly defined");
+		    }
+
+		    l->p2 = comp;
+
+		    /* type label */
+		    l->typ = 2;
+		}
+
+		comp->p2 = r;
+
+		if(m) {
+		    ++t;
+		    r->p1 = m;
+		    r = m;
+		}
+
+		if(as) {
+		    t += 2;
+		    r->p1 = as;
+		    r = as;
+		}
+
+		g = alloc();
+		g->p1 = 0;
+
+		if(xs) {
+		    g->p1 = xs->p2;
+		    free(xs);
+		}
+
+		g->p2 = 0;
+
+		if(xf) {
+		    g->p2 = xf->p2;
+		    free(xf);
+		}
+
+		r->p1 = g;
+		comp->typ = t;
+		comp->ch = lc;
+
+		return comp;
+	    }
+
+	    if(a != 14) {
+		writes("Unrecognized component in goto");
+    
+		while(1) {
+		    free(comp);
+		    xs = alloc();
+		    xf = alloc();
+		    comp = expr(0, 6, xs);
+	
+		    if(comp->typ != 5) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    xf->p2 = xs->p2;
+		    comp = compon();
+	
+		    if(comp->typ != 0) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    break;
+		}
+
+		if(l) {
+		    if(l->typ) {
+			writes("Name doubly defined");
+		    }
+
+		    l->p2 = comp;
+
+		    /* type label */
+		    l->typ = 2;
+		}
+
+		comp->p2 = r;
+
+		if(m) {
+		    ++t;
+		    r->p1 = m;
+		    r = m;
+		}
+
+		if(as) {
+		    t += 2;
+		    r->p1 = as;
+		    r = as;
+		}
+
+		g = alloc();
+		g->p1 = 0;
+
+		if(xs) {
+		    g->p1 = xs->p2;
+		    free(xs);
+		}
+
+		g->p2 = 0;
+
+		if(xf) {
+		    g->p2 = xf->p2;
+		    free(xf);
+		}
+
+		r->p1 = g;
+		comp->typ = t;
+		comp->ch = lc;
+
+		return comp;       
+	    }
+
+	    b = comp->p1;
+	    free(comp);
+
+	    if(b == looks) {
+		if(xs) {
+		    writes("Unrecognized component in goto");
+    
+		    while(1) {
+			free(comp);
+			xs = alloc();
+			xf = alloc();
+			comp = expr(0, 6, xs);
+	
+			if(comp->typ != 5) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			xf->p2 = xs->p2;
+			comp = compon();
+	
+			if(comp->typ != 0) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			break;
+		    }
+
+		    if(l) {
+			if(l->typ) {
+			    writes("Name doubly defined");
+			}
+
+			l->p2 = comp;
+
+			/* type label */
+			l->typ = 2;
+		    }
+
+		    comp->p2 = r;
+
+		    if(m) {
+			++t;
+			r->p1 = m;
+			r = m;
+		    }
+
+		    if(as) {
+			t += 2;
+			r->p1 = as;
+			r = as;
+		    }
+
+		    g = alloc();
+		    g->p1 = 0;
+
+		    if(xs) {
+			g->p1 = xs->p2;
+			free(xs);
+		    }
+
+		    g->p2 = 0;
+
+		    if(xf) {
+			g->p2 = xf->p2;
+			free(xf);
+		    }
+
+		    r->p1 = g;
+		    comp->typ = t;
+		    comp->ch = lc;
+
+		    return comp;
+
+	  
+		}
+
+		comp = compon();
+
+		if(comp->typ != 16) {
+		    writes("Unrecognized component in goto");
+    
+		    while(1) {
+			free(comp);
+			xs = alloc();
+			xf = alloc();
+			comp = expr(0, 6, xs);
+	
+			if(comp->typ != 5) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			xf->p2 = xs->p2;
+			comp = compon();
+	
+			if(comp->typ != 0) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			break;
+		    }
+
+		    if(l) {
+			if(l->typ) {
+			    writes("Name doubly defined");
+			}
+
+			l->p2 = comp;
+
+			/* type label */
+			l->typ = 2;
+		    }
+
+		    comp->p2 = r;
+
+		    if(m) {
+			++t;
+			r->p1 = m;
+			r = m;
+		    }
+
+		    if(as) {
+			t += 2;
+			r->p1 = as;
+			r = as;
+		    }
+
+		    g = alloc();
+		    g->p1 = 0;
+
+		    if(xs) {
+			g->p1 = xs->p2;
+			free(xs);
+		    }
+
+		    g->p2 = 0;
+
+		    if(xf) {
+			g->p2 = xf->p2;
+			free(xf);
+		    }
+
+		    r->p1 = g;
+		    comp->typ = t;
+		    comp->ch = lc;
+
+		    return comp;
+
+	    
+		}
+
+		xs = alloc();
+		comp = expr(0, 6, xs);
+
+		if(comp->typ != 5) {
+		    writes("Unrecognized component in goto");
+    
+		    while(1) {
+			free(comp);
+			xs = alloc();
+			xf = alloc();
+			comp = expr(0, 6, xs);
+	
+			if(comp->typ != 5) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			xf->p2 = xs->p2;
+			comp = compon();
+	
+			if(comp->typ != 0) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			break;
+		    }
+
+		    if(l) {
+			if(l->typ) {
+			    writes("Name doubly defined");
+			}
+
+			l->p2 = comp;
+
+			/* type label */
+			l->typ = 2;
+		    }
+
+		    comp->p2 = r;
+
+		    if(m) {
+			++t;
+			r->p1 = m;
+			r = m;
+		    }
+
+		    if(as) {
+			t += 2;
+			r->p1 = as;
+			r = as;
+		    }
+
+		    g = alloc();
+		    g->p1 = 0;
+
+		    if(xs) {
+			g->p1 = xs->p2;
+			free(xs);
+		    }
+
+		    g->p2 = 0;
+
+		    if(xf) {
+			g->p2 = xf->p2;
+			free(xf);
+		    }
+
+		    r->p1 = g;
+		    comp->typ = t;
+		    comp->ch = lc;
+
+		    return comp;
+
+	    
+		}
+
+		continue;
+	    }
+
+	    if(b == lookf) {
+		if(xf) {
+		    writes("Unrecognized component in goto");
+    
+		    while(1) {
+			free(comp);
+			xs = alloc();
+			xf = alloc();
+			comp = expr(0, 6, xs);
+	
+			if(comp->typ != 5) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			xf->p2 = xs->p2;
+			comp = compon();
+	
+			if(comp->typ != 0) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			break;
+		    }
+
+		    if(l) {
+			if(l->typ) {
+			    writes("Name doubly defined");
+			}
+
+			l->p2 = comp;
+
+			/* type label */
+			l->typ = 2;
+		    }
+
+		    comp->p2 = r;
+
+		    if(m) {
+			++t;
+			r->p1 = m;
+			r = m;
+		    }
+
+		    if(as) {
+			t += 2;
+			r->p1 = as;
+			r = as;
+		    }
+
+		    g = alloc();
+		    g->p1 = 0;
+
+		    if(xs) {
+			g->p1 = xs->p2;
+			free(xs);
+		    }
+
+		    g->p2 = 0;
+
+		    if(xf) {
+			g->p2 = xf->p2;
+			free(xf);
+		    }
+
+		    r->p1 = g;
+		    comp->typ = t;
+		    comp->ch = lc;
+
+		    return comp;
+
+	    
+		}
+
+		comp = compon();
+
+		if(comp->typ != 16) {
+		    writes("Unrecognized component in goto");
+    
+		    while(1) {
+			free(comp);
+			xs = alloc();
+			xf = alloc();
+			comp = expr(0, 6, xs);
+	
+			if(comp->typ != 5) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			xf->p2 = xs->p2;
+			comp = compon();
+	
+			if(comp->typ != 0) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			break;
+		    }
+
+		    if(l) {
+			if(l->typ) {
+			    writes("Name doubly defined");
+			}
+
+			l->p2 = comp;
+
+			/* type label */
+			l->typ = 2;
+		    }
+
+		    comp->p2 = r;
+
+		    if(m) {
+			++t;
+			r->p1 = m;
+			r = m;
+		    }
+
+		    if(as) {
+			t += 2;
+			r->p1 = as;
+			r = as;
+		    }
+
+		    g = alloc();
+		    g->p1 = 0;
+
+		    if(xs) {
+			g->p1 = xs->p2;
+			free(xs);
+		    }
+
+		    g->p2 = 0;
+
+		    if(xf) {
+			g->p2 = xf->p2;
+			free(xf);
+		    }
+
+		    r->p1 = g;
+		    comp->typ = t;
+		    comp->ch = lc;
+
+		    return comp;
+		}
+
+		xf = alloc();
+		comp = expr(0, 6, xf);
+
+		if(comp->typ != 5) {
+		    writes("Unrecognized component in goto");
+    
+		    while(1) {
+			free(comp);
+			xs = alloc();
+			xf = alloc();
+			comp = expr(0, 6, xs);
+	
+			if(comp->typ != 5) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			xf->p2 = xs->p2;
+			comp = compon();
+	
+			if(comp->typ != 0) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			break;
+		    }
+
+		    if(l) {
+			if(l->typ) {
+			    writes("Name doubly defined");
+			}
+
+			l->p2 = comp;
+
+			/* type label */
+			l->typ = 2;
+		    }
+
+		    comp->p2 = r;
+
+		    if(m) {
+			++t;
+			r->p1 = m;
+			r = m;
+		    }
+
+		    if(as) {
+			t += 2;
+			r->p1 = as;
+			r = as;
+		    }
+
+		    g = alloc();
+		    g->p1 = 0;
+
+		    if(xs) {
+			g->p1 = xs->p2;
+			free(xs);
+		    }
+
+		    g->p2 = 0;
+
+		    if(xf) {
+			g->p2 = xf->p2;
+			free(xf);
+		    }
+
+		    r->p1 = g;
+		    comp->typ = t;
+		    comp->ch = lc;
+
+		    return comp;
+		}
+
+		continue;
+	    }
+
+	    break;
+	}
+
+	writes("Unrecognized component in goto");
+    
+	while(1) {
+	    free(comp);
+	    xs = alloc();
+	    xf = alloc();
+	    comp = expr(0, 6, xs);
+	
+	    if(comp->typ != 5) {
+		writes("Unrecognized component in goto");
+	    
+		continue;
+	    }
+	
+	    xf->p2 = xs->p2;
+	    comp = compon();
+	
+	    if(comp->typ != 0) {
+		writes("Unrecognized component in goto");
+	    
+		continue;
+	    }
+	
+	    break;
+	}
+
+	if(l) {
+	    if(l->typ) {
+		writes("Name doubly defined");
+	    }
+
+	    l->p2 = comp;
+
+	    /* type label */
+	    l->typ = 2;
+	}
+
+	comp->p2 = r;
+
+	if(m) {
+	    ++t;
+	    r->p1 = m;
+	    r = m;
+	}
+
+	if(as) {
+	    t += 2;
+	    r->p1 = as;
+	    r = as;
+	}
+
+	g = alloc();
+	g->p1 = 0;
+
+	if(xs) {
+	    g->p1 = xs->p2;
+	    free(xs);
+	}
+
+	g->p2 = 0;
+
+	if(xf) {
+	    g->p2 = xf->p2;
+	    free(xf);
+	}
+
+	r->p1 = g;
+	comp->typ = t;
+	comp->ch = lc;
+
+	return comp;
+
     }
 
     m = alloc();
@@ -574,129 +3469,1697 @@ struct node *compile(void)
     a = comp->typ;
 
     if(a == 0) {
-	goto asmble;
+	if(l) {
+	    if(l->typ) {
+		writes("Name doubly defined");
+	    }
+
+	    l->p2 = comp;
+
+	    /* type label */
+	    l->typ = 2;
+	}
+
+	comp->p2 = r;
+
+	if(m) {
+	    ++t;
+	    r->p1 = m;
+	    r = m;
+	}
+
+	if(as) {
+	    t += 2;
+	    r->p1 = as;
+	    r = as;
+	}
+
+	g = alloc();
+	g->p1 = 0;
+
+	if(xs) {
+	    g->p1 = xs->p2;
+	    free(xs);
+	}
+
+	g->p2 = 0;
+
+	if(xf) {
+	    g->p2 = xf->p2;
+	    free(xf);
+	}
+
+	r->p1 = g;
+	comp->typ = t;
+	comp->ch = lc;
+
+	return comp;
     }
 
     if(a == 2) {
-	goto xfer;
+	while(1) {
+	    free(comp);
+	    comp = compon();
+	    a = comp->typ;
+    
+	    if(a == 16) {
+		while(1) {
+		    free(comp);
+		    xs = alloc();
+		    xf = alloc();
+		    comp = expr(0, 6, xs);
+	
+		    if(comp->typ != 5) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    xf->p2 = xs->p2;
+		    comp = compon();
+	
+		    if(comp->typ != 0) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    break;
+		}
+
+		if(l) {
+		    if(l->typ) {
+			writes("Name doubly defined");
+		    }
+
+		    l->p2 = comp;
+
+		    /* type label */
+		    l->typ = 2;
+		}
+
+		comp->p2 = r;
+
+		if(m) {
+		    ++t;
+		    r->p1 = m;
+		    r = m;
+		}
+
+		if(as) {
+		    t += 2;
+		    r->p1 = as;
+		    r = as;
+		}
+
+		g = alloc();
+		g->p1 = 0;
+
+		if(xs) {
+		    g->p1 = xs->p2;
+		    free(xs);
+		}
+
+		g->p2 = 0;
+
+		if(xf) {
+		    g->p2 = xf->p2;
+		    free(xf);
+		}
+
+		r->p1 = g;
+		comp->typ = t;
+		comp->ch = lc;
+
+		return comp;
+	    }
+
+	    if(a == 0) {
+		if((xs != 0) || (xf != 0)) {
+		    if(l) {
+			if(l->typ) {
+			    writes("Name doubly defined");
+			}
+
+			l->p2 = comp;
+
+			/* type label */
+			l->typ = 2;
+		    }
+
+		    comp->p2 = r;
+
+		    if(m) {
+			++t;
+			r->p1 = m;
+			r = m;
+		    }
+
+		    if(as) {
+			t += 2;
+			r->p1 = as;
+			r = as;
+		    }
+
+		    g = alloc();
+		    g->p1 = 0;
+
+		    if(xs) {
+			g->p1 = xs->p2;
+			free(xs);
+		    }
+
+		    g->p2 = 0;
+
+		    if(xf) {
+			g->p2 = xf->p2;
+			free(xf);
+		    }
+
+		    r->p1 = g;
+		    comp->typ = t;
+		    comp->ch = lc;
+
+		    return comp;
+		}
+	
+		writes("Unrecognized component in goto");
+    
+		while(1) {
+		    free(comp);
+		    xs = alloc();
+		    xf = alloc();
+		    comp = expr(0, 6, xs);
+	
+		    if(comp->typ != 5) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    xf->p2 = xs->p2;
+		    comp = compon();
+	
+		    if(comp->typ != 0) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    break;
+		}
+
+		if(l) {
+		    if(l->typ) {
+			writes("Name doubly defined");
+		    }
+
+		    l->p2 = comp;
+
+		    /* type label */
+		    l->typ = 2;
+		}
+
+		comp->p2 = r;
+
+		if(m) {
+		    ++t;
+		    r->p1 = m;
+		    r = m;
+		}
+
+		if(as) {
+		    t += 2;
+		    r->p1 = as;
+		    r = as;
+		}
+
+		g = alloc();
+		g->p1 = 0;
+
+		if(xs) {
+		    g->p1 = xs->p2;
+		    free(xs);
+		}
+
+		g->p2 = 0;
+
+		if(xf) {
+		    g->p2 = xf->p2;
+		    free(xf);
+		}
+
+		r->p1 = g;
+		comp->typ = t;
+		comp->ch = lc;
+
+		return comp;
+	    }
+
+	    if(a != 14) {
+		writes("Unrecognized component in goto");
+    
+		while(1) {
+		    free(comp);
+		    xs = alloc();
+		    xf = alloc();
+		    comp = expr(0, 6, xs);
+	
+		    if(comp->typ != 5) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    xf->p2 = xs->p2;
+		    comp = compon();
+	
+		    if(comp->typ != 0) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    break;
+		}
+
+		if(l) {
+		    if(l->typ) {
+			writes("Name doubly defined");
+		    }
+
+		    l->p2 = comp;
+
+		    /* type label */
+		    l->typ = 2;
+		}
+
+		comp->p2 = r;
+
+		if(m) {
+		    ++t;
+		    r->p1 = m;
+		    r = m;
+		}
+
+		if(as) {
+		    t += 2;
+		    r->p1 = as;
+		    r = as;
+		}
+
+		g = alloc();
+		g->p1 = 0;
+
+		if(xs) {
+		    g->p1 = xs->p2;
+		    free(xs);
+		}
+
+		g->p2 = 0;
+
+		if(xf) {
+		    g->p2 = xf->p2;
+		    free(xf);
+		}
+
+		r->p1 = g;
+		comp->typ = t;
+		comp->ch = lc;
+
+		return comp;       
+	    }
+
+	    b = comp->p1;
+	    free(comp);
+
+	    if(b == looks) {
+		if(xs) {
+		    writes("Unrecognized component in goto");
+    
+		    while(1) {
+			free(comp);
+			xs = alloc();
+			xf = alloc();
+			comp = expr(0, 6, xs);
+	
+			if(comp->typ != 5) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			xf->p2 = xs->p2;
+			comp = compon();
+	
+			if(comp->typ != 0) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			break;
+		    }
+
+		    if(l) {
+			if(l->typ) {
+			    writes("Name doubly defined");
+			}
+
+			l->p2 = comp;
+
+			/* type label */
+			l->typ = 2;
+		    }
+
+		    comp->p2 = r;
+
+		    if(m) {
+			++t;
+			r->p1 = m;
+			r = m;
+		    }
+
+		    if(as) {
+			t += 2;
+			r->p1 = as;
+			r = as;
+		    }
+
+		    g = alloc();
+		    g->p1 = 0;
+
+		    if(xs) {
+			g->p1 = xs->p2;
+			free(xs);
+		    }
+
+		    g->p2 = 0;
+
+		    if(xf) {
+			g->p2 = xf->p2;
+			free(xf);
+		    }
+
+		    r->p1 = g;
+		    comp->typ = t;
+		    comp->ch = lc;
+
+		    return comp;
+		}
+
+		comp = compon();
+
+		if(comp->typ != 16) {
+		    writes("Unrecognized component in goto");
+    
+		    while(1) {
+			free(comp);
+			xs = alloc();
+			xf = alloc();
+			comp = expr(0, 6, xs);
+	
+			if(comp->typ != 5) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			xf->p2 = xs->p2;
+			comp = compon();
+	
+			if(comp->typ != 0) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			break;
+		    }
+
+		    if(l) {
+			if(l->typ) {
+			    writes("Name doubly defined");
+			}
+
+			l->p2 = comp;
+
+			/* type label */
+			l->typ = 2;
+		    }
+
+		    comp->p2 = r;
+
+		    if(m) {
+			++t;
+			r->p1 = m;
+			r = m;
+		    }
+
+		    if(as) {
+			t += 2;
+			r->p1 = as;
+			r = as;
+		    }
+
+		    g = alloc();
+		    g->p1 = 0;
+
+		    if(xs) {
+			g->p1 = xs->p2;
+			free(xs);
+		    }
+
+		    g->p2 = 0;
+
+		    if(xf) {
+			g->p2 = xf->p2;
+			free(xf);
+		    }
+
+		    r->p1 = g;
+		    comp->typ = t;
+		    comp->ch = lc;
+
+		    return comp;
+		}
+
+		xs = alloc();
+		comp = expr(0, 6, xs);
+
+		if(comp->typ != 5) {
+		    writes("Unrecognized component in goto");
+    
+		    while(1) {
+			free(comp);
+			xs = alloc();
+			xf = alloc();
+			comp = expr(0, 6, xs);
+	
+			if(comp->typ != 5) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			xf->p2 = xs->p2;
+			comp = compon();
+	
+			if(comp->typ != 0) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			break;
+		    }
+
+		    if(l) {
+			if(l->typ) {
+			    writes("Name doubly defined");
+			}
+
+			l->p2 = comp;
+
+			/* type label */
+			l->typ = 2;
+		    }
+
+		    comp->p2 = r;
+
+		    if(m) {
+			++t;
+			r->p1 = m;
+			r = m;
+		    }
+
+		    if(as) {
+			t += 2;
+			r->p1 = as;
+			r = as;
+		    }
+
+		    g = alloc();
+		    g->p1 = 0;
+
+		    if(xs) {
+			g->p1 = xs->p2;
+			free(xs);
+		    }
+
+		    g->p2 = 0;
+
+		    if(xf) {
+			g->p2 = xf->p2;
+			free(xf);
+		    }
+
+		    r->p1 = g;
+		    comp->typ = t;
+		    comp->ch = lc;
+
+		    return comp;
+		}
+
+		continue;
+	    }
+
+	    if(b == lookf) {
+		if(xf) {
+		    writes("Unrecognized component in goto");
+    
+		    while(1) {
+			free(comp);
+			xs = alloc();
+			xf = alloc();
+			comp = expr(0, 6, xs);
+	
+			if(comp->typ != 5) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			xf->p2 = xs->p2;
+			comp = compon();
+	
+			if(comp->typ != 0) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			break;
+		    }
+
+		    if(l) {
+			if(l->typ) {
+			    writes("Name doubly defined");
+			}
+
+			l->p2 = comp;
+
+			/* type label */
+			l->typ = 2;
+		    }
+
+		    comp->p2 = r;
+
+		    if(m) {
+			++t;
+			r->p1 = m;
+			r = m;
+		    }
+
+		    if(as) {
+			t += 2;
+			r->p1 = as;
+			r = as;
+		    }
+
+		    g = alloc();
+		    g->p1 = 0;
+
+		    if(xs) {
+			g->p1 = xs->p2;
+			free(xs);
+		    }
+
+		    g->p2 = 0;
+
+		    if(xf) {
+			g->p2 = xf->p2;
+			free(xf);
+		    }
+
+		    r->p1 = g;
+		    comp->typ = t;
+		    comp->ch = lc;
+
+		    return comp;
+		}
+
+		comp = compon();
+		if(comp->typ != 16) {
+		    writes("Unrecognized component in goto");
+    
+		    while(1) {
+			free(comp);
+			xs = alloc();
+			xf = alloc();
+			comp = expr(0, 6, xs);
+	
+			if(comp->typ != 5) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			xf->p2 = xs->p2;
+			comp = compon();
+	
+			if(comp->typ != 0) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			break;
+		    }
+
+		    if(l) {
+			if(l->typ) {
+			    writes("Name doubly defined");
+			}
+
+			l->p2 = comp;
+
+			/* type label */
+			l->typ = 2;
+		    }
+
+		    comp->p2 = r;
+
+		    if(m) {
+			++t;
+			r->p1 = m;
+			r = m;
+		    }
+
+		    if(as) {
+			t += 2;
+			r->p1 = as;
+			r = as;
+		    }
+
+		    g = alloc();
+		    g->p1 = 0;
+
+		    if(xs) {
+			g->p1 = xs->p2;
+			free(xs);
+		    }
+
+		    g->p2 = 0;
+
+		    if(xf) {
+			g->p2 = xf->p2;
+			free(xf);
+		    }
+
+		    r->p1 = g;
+		    comp->typ = t;
+		    comp->ch = lc;
+
+		    return comp;
+		}
+
+		xf = alloc();
+		comp = expr(0, 6, xf);
+
+		if(comp->typ != 5) {
+		    writes("Unrecognized component in goto");
+    
+		    while(1) {
+			free(comp);
+			xs = alloc();
+			xf = alloc();
+			comp = expr(0, 6, xs);
+	
+			if(comp->typ != 5) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			xf->p2 = xs->p2;
+			comp = compon();
+	
+			if(comp->typ != 0) {
+			    writes("Unrecognized component in goto");
+	    
+			    continue;
+			}
+	
+			break;
+		    }
+
+		    if(l) {
+			if(l->typ) {
+			    writes("Name doubly defined");
+			}
+
+			l->p2 = comp;
+
+			/* type label */
+			l->typ = 2;
+		    }
+
+		    comp->p2 = r;
+
+		    if(m) {
+			++t;
+			r->p1 = m;
+			r = m;
+		    }
+
+		    if(as) {
+			t += 2;
+			r->p1 = as;
+			r = as;
+		    }
+
+		    g = alloc();
+		    g->p1 = 0;
+
+		    if(xs) {
+			g->p1 = xs->p2;
+			free(xs);
+		    }
+
+		    g->p2 = 0;
+
+		    if(xf) {
+			g->p2 = xf->p2;
+			free(xf);
+		    }
+
+		    r->p1 = g;
+		    comp->typ = t;
+		    comp->ch = lc;
+
+		    return comp;
+		}
+
+		continue;
+	    }
+
+	    break;
+	}
+
+	writes("Unrecognized component in goto");
+    
+	while(1) {
+	    free(comp);
+	    xs = alloc();
+	    xf = alloc();
+	    comp = expr(0, 6, xs);
+	
+	    if(comp->typ != 5) {
+		writes("Unrecognized component in goto");
+	    
+		continue;
+	    }
+	
+	    xf->p2 = xs->p2;
+	    comp = compon();
+	
+	    if(comp->typ != 0) {
+		writes("Unrecognized component in goto");
+	    
+		continue;
+	    }
+	
+	    break;
+	}
+
+	if(l) {
+	    if(l->typ) {
+		writes("Name doubly defined");
+	    }
+
+	    l->p2 = comp;
+
+	    /* type label */
+	    l->typ = 2;
+	}
+
+	comp->p2 = r;
+
+	if(m) {
+	    ++t;
+	    r->p1 = m;
+	    r = m;
+	}
+
+	if(as) {
+	    t += 2;
+	    r->p1 = as;
+	    r = as;
+	}
+
+	g = alloc();
+	g->p1 = 0;
+
+	if(xs) {
+	    g->p1 = xs->p2;
+	    free(xs);
+	}
+
+	g->p2 = 0;
+
+	if(xf) {
+	    g->p2 = xf->p2;
+	    free(xf);
+	}
+
+	r->p1 = g;
+	comp->typ = t;
+	comp->ch = lc;
+
+	return comp;
+
+ 
     }
 
-    if(a == 3) {
-	goto assig;
+    if(a != 3) {
+	writes("Unrecognized component in match");
     }
 
-    writes("Unrecognized component in match");
-
- assig:
     free(comp);
     as = alloc();
     comp = expr(0, 6, as);
     a = comp->typ;
     
     if(a == 0) {
-	goto asmble;
-    }
+	if(l) {
+	    if(l->typ) {
+		writes("Name doubly defined");
+	    }
 
-    if(a == 2) {
-	goto xfer;
-    }
+	    l->p2 = comp;
 
-    writes("Unrecognized component in assignment");
-
- xfer:
-    free(comp);
-    comp = compon();
-    a = comp->typ;
-    
-    if(a == 16) {
-	goto xboth;
-    }
-
-    if(a == 0) {
-	if((xs != 0) || (xf != 0)) {
-	    goto asmble;
+	    /* type label */
+	    l->typ = 2;
 	}
+
+	comp->p2 = r;
+
+	if(m) {
+	    ++t;
+	    r->p1 = m;
+	    r = m;
+	}
+
+	if(as) {
+	    t += 2;
+	    r->p1 = as;
+	    r = as;
+	}
+
+	g = alloc();
+	g->p1 = 0;
+
+	if(xs) {
+	    g->p1 = xs->p2;
+	    free(xs);
+	}
+
+	g->p2 = 0;
+
+	if(xf) {
+	    g->p2 = xf->p2;
+	    free(xf);
+	}
+
+	r->p1 = g;
+	comp->typ = t;
+	comp->ch = lc;
+
+	return comp;
+    }
+
+    if(a != 2) {
+	writes("Unrecognized component in assignment");
+    }
+
+    while(1) {
+	free(comp);
+	comp = compon();
+	a = comp->typ;
+    
+	if(a == 16) {
+	    while(1) {
+		free(comp);
+		xs = alloc();
+		xf = alloc();
+		comp = expr(0, 6, xs);
 	
-	goto xerr;
+		if(comp->typ != 5) {
+		    writes("Unrecognized component in goto");
+	    
+		    continue;
+		}
+	
+		xf->p2 = xs->p2;
+		comp = compon();
+	
+		if(comp->typ != 0) {
+		    writes("Unrecognized component in goto");
+	    
+		    continue;
+		}
+	
+		break;
+	    }
+
+	    if(l) {
+		if(l->typ) {
+		    writes("Name doubly defined");
+		}
+
+		l->p2 = comp;
+
+		/* type label */
+		l->typ = 2;
+	    }
+
+	    comp->p2 = r;
+
+	    if(m) {
+		++t;
+		r->p1 = m;
+		r = m;
+	    }
+
+	    if(as) {
+		t += 2;
+		r->p1 = as;
+		r = as;
+	    }
+
+	    g = alloc();
+	    g->p1 = 0;
+
+	    if(xs) {
+		g->p1 = xs->p2;
+		free(xs);
+	    }
+
+	    g->p2 = 0;
+
+	    if(xf) {
+		g->p2 = xf->p2;
+		free(xf);
+	    }
+
+	    r->p1 = g;
+	    comp->typ = t;
+	    comp->ch = lc;
+
+	    return comp;
+	}
+
+	if(a == 0) {
+	    if((xs != 0) || (xf != 0)) {
+		if(l) {
+		    if(l->typ) {
+			writes("Name doubly defined");
+		    }
+
+		    l->p2 = comp;
+
+		    /* type label */
+		    l->typ = 2;
+		}
+
+		comp->p2 = r;
+
+		if(m) {
+		    ++t;
+		    r->p1 = m;
+		    r = m;
+		}
+
+		if(as) {
+		    t += 2;
+		    r->p1 = as;
+		    r = as;
+		}
+
+		g = alloc();
+		g->p1 = 0;
+
+		if(xs) {
+		    g->p1 = xs->p2;
+		    free(xs);
+		}
+
+		g->p2 = 0;
+
+		if(xf) {
+		    g->p2 = xf->p2;
+		    free(xf);
+		}
+
+		r->p1 = g;
+		comp->typ = t;
+		comp->ch = lc;
+
+		return comp;
+	    }
+	
+	    writes("Unrecognized component in goto");
+    
+	    while(1) {
+		free(comp);
+		xs = alloc();
+		xf = alloc();
+		comp = expr(0, 6, xs);
+	
+		if(comp->typ != 5) {
+		    writes("Unrecognized component in goto");
+	    
+		    continue;
+		}
+	
+		xf->p2 = xs->p2;
+		comp = compon();
+	
+		if(comp->typ != 0) {
+		    writes("Unrecognized component in goto");
+	    
+		    continue;
+		}
+	
+		break;
+	    }
+
+	    if(l) {
+		if(l->typ) {
+		    writes("Name doubly defined");
+		}
+
+		l->p2 = comp;
+
+		/* type label */
+		l->typ = 2;
+	    }
+
+	    comp->p2 = r;
+
+	    if(m) {
+		++t;
+		r->p1 = m;
+		r = m;
+	    }
+
+	    if(as) {
+		t += 2;
+		r->p1 = as;
+		r = as;
+	    }
+
+	    g = alloc();
+	    g->p1 = 0;
+
+	    if(xs) {
+		g->p1 = xs->p2;
+		free(xs);
+	    }
+
+	    g->p2 = 0;
+
+	    if(xf) {
+		g->p2 = xf->p2;
+		free(xf);
+	    }
+
+	    r->p1 = g;
+	    comp->typ = t;
+	    comp->ch = lc;
+
+	    return comp;
+	}
+
+	if(a != 14) {
+	    writes("Unrecognized component in goto");
+    
+	    while(1) {
+		free(comp);
+		xs = alloc();
+		xf = alloc();
+		comp = expr(0, 6, xs);
+	
+		if(comp->typ != 5) {
+		    writes("Unrecognized component in goto");
+	    
+		    continue;
+		}
+	
+		xf->p2 = xs->p2;
+		comp = compon();
+	
+		if(comp->typ != 0) {
+		    writes("Unrecognized component in goto");
+	    
+		    continue;
+		}
+	
+		break;
+	    }
+
+	    if(l) {
+		if(l->typ) {
+		    writes("Name doubly defined");
+		}
+
+		l->p2 = comp;
+
+		/* type label */
+		l->typ = 2;
+	    }
+
+	    comp->p2 = r;
+
+	    if(m) {
+		++t;
+		r->p1 = m;
+		r = m;
+	    }
+
+	    if(as) {
+		t += 2;
+		r->p1 = as;
+		r = as;
+	    }
+
+	    g = alloc();
+	    g->p1 = 0;
+
+	    if(xs) {
+		g->p1 = xs->p2;
+		free(xs);
+	    }
+
+	    g->p2 = 0;
+
+	    if(xf) {
+		g->p2 = xf->p2;
+		free(xf);
+	    }
+
+	    r->p1 = g;
+	    comp->typ = t;
+	    comp->ch = lc;
+
+	    return comp;       
+	}
+
+	b = comp->p1;
+	free(comp);
+
+	if(b == looks) {
+	    if(xs) {
+		writes("Unrecognized component in goto");
+    
+		while(1) {
+		    free(comp);
+		    xs = alloc();
+		    xf = alloc();
+		    comp = expr(0, 6, xs);
+	
+		    if(comp->typ != 5) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    xf->p2 = xs->p2;
+		    comp = compon();
+	
+		    if(comp->typ != 0) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    break;
+		}
+
+		if(l) {
+		    if(l->typ) {
+			writes("Name doubly defined");
+		    }
+
+		    l->p2 = comp;
+
+		    /* type label */
+		    l->typ = 2;
+		}
+
+		comp->p2 = r;
+
+		if(m) {
+		    ++t;
+		    r->p1 = m;
+		    r = m;
+		}
+
+		if(as) {
+		    t += 2;
+		    r->p1 = as;
+		    r = as;
+		}
+
+		g = alloc();
+		g->p1 = 0;
+
+		if(xs) {
+		    g->p1 = xs->p2;
+		    free(xs);
+		}
+
+		g->p2 = 0;
+
+		if(xf) {
+		    g->p2 = xf->p2;
+		    free(xf);
+		}
+
+		r->p1 = g;
+		comp->typ = t;
+		comp->ch = lc;
+
+		return comp;
+	    }
+
+	    comp = compon();
+
+	    if(comp->typ != 16) {
+		writes("Unrecognized component in goto");
+    
+		while(1) {
+		    free(comp);
+		    xs = alloc();
+		    xf = alloc();
+		    comp = expr(0, 6, xs);
+	
+		    if(comp->typ != 5) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    xf->p2 = xs->p2;
+		    comp = compon();
+	
+		    if(comp->typ != 0) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    break;
+		}
+
+		if(l) {
+		    if(l->typ) {
+			writes("Name doubly defined");
+		    }
+
+		    l->p2 = comp;
+
+		    /* type label */
+		    l->typ = 2;
+		}
+
+		comp->p2 = r;
+
+		if(m) {
+		    ++t;
+		    r->p1 = m;
+		    r = m;
+		}
+
+		if(as) {
+		    t += 2;
+		    r->p1 = as;
+		    r = as;
+		}
+
+		g = alloc();
+		g->p1 = 0;
+
+		if(xs) {
+		    g->p1 = xs->p2;
+		    free(xs);
+		}
+
+		g->p2 = 0;
+
+		if(xf) {
+		    g->p2 = xf->p2;
+		    free(xf);
+		}
+
+		r->p1 = g;
+		comp->typ = t;
+		comp->ch = lc;
+
+		return comp;
+	    }
+
+	    xs = alloc();
+	    comp = expr(0, 6, xs);
+
+	    if(comp->typ != 5) {
+		writes("Unrecognized component in goto");
+    
+		while(1) {
+		    free(comp);
+		    xs = alloc();
+		    xf = alloc();
+		    comp = expr(0, 6, xs);
+	
+		    if(comp->typ != 5) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    xf->p2 = xs->p2;
+		    comp = compon();
+	
+		    if(comp->typ != 0) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    break;
+		}
+
+		if(l) {
+		    if(l->typ) {
+			writes("Name doubly defined");
+		    }
+
+		    l->p2 = comp;
+
+		    /* type label */
+		    l->typ = 2;
+		}
+
+		comp->p2 = r;
+
+		if(m) {
+		    ++t;
+		    r->p1 = m;
+		    r = m;
+		}
+
+		if(as) {
+		    t += 2;
+		    r->p1 = as;
+		    r = as;
+		}
+
+		g = alloc();
+		g->p1 = 0;
+
+		if(xs) {
+		    g->p1 = xs->p2;
+		    free(xs);
+		}
+
+		g->p2 = 0;
+
+		if(xf) {
+		    g->p2 = xf->p2;
+		    free(xf);
+		}
+
+		r->p1 = g;
+		comp->typ = t;
+		comp->ch = lc;
+
+		return comp;
+	    }
+
+	    continue;
+	}
+
+	if(b == lookf) {
+	    if(xf) {
+		writes("Unrecognized component in goto");
+    
+		while(1) {
+		    free(comp);
+		    xs = alloc();
+		    xf = alloc();
+		    comp = expr(0, 6, xs);
+	
+		    if(comp->typ != 5) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    xf->p2 = xs->p2;
+		    comp = compon();
+	
+		    if(comp->typ != 0) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    break;
+		}
+
+		if(l) {
+		    if(l->typ) {
+			writes("Name doubly defined");
+		    }
+
+		    l->p2 = comp;
+
+		    /* type label */
+		    l->typ = 2;
+		}
+
+		comp->p2 = r;
+
+		if(m) {
+		    ++t;
+		    r->p1 = m;
+		    r = m;
+		}
+
+		if(as) {
+		    t += 2;
+		    r->p1 = as;
+		    r = as;
+		}
+
+		g = alloc();
+		g->p1 = 0;
+
+		if(xs) {
+		    g->p1 = xs->p2;
+		    free(xs);
+		}
+
+		g->p2 = 0;
+
+		if(xf) {
+		    g->p2 = xf->p2;
+		    free(xf);
+		}
+
+		r->p1 = g;
+		comp->typ = t;
+		comp->ch = lc;
+
+		return comp;
+	    }
+
+	    comp = compon();
+
+	    if(comp->typ != 16) {
+		writes("Unrecognized component in goto");
+    
+		while(1) {
+		    free(comp);
+		    xs = alloc();
+		    xf = alloc();
+		    comp = expr(0, 6, xs);
+	
+		    if(comp->typ != 5) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    xf->p2 = xs->p2;
+		    comp = compon();
+	
+		    if(comp->typ != 0) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    break;
+		}
+
+		if(l) {
+		    if(l->typ) {
+			writes("Name doubly defined");
+		    }
+
+		    l->p2 = comp;
+
+		    /* type label */
+		    l->typ = 2;
+		}
+
+		comp->p2 = r;
+
+		if(m) {
+		    ++t;
+		    r->p1 = m;
+		    r = m;
+		}
+
+		if(as) {
+		    t += 2;
+		    r->p1 = as;
+		    r = as;
+		}
+
+		g = alloc();
+		g->p1 = 0;
+
+		if(xs) {
+		    g->p1 = xs->p2;
+		    free(xs);
+		}
+
+		g->p2 = 0;
+
+		if(xf) {
+		    g->p2 = xf->p2;
+		    free(xf);
+		}
+
+		r->p1 = g;
+		comp->typ = t;
+		comp->ch = lc;
+
+		return comp;
+	    }
+
+	    xf = alloc();
+	    comp = expr(0, 6, xf);
+
+	    if(comp->typ != 5) {
+		writes("Unrecognized component in goto");
+    
+		while(1) {
+		    free(comp);
+		    xs = alloc();
+		    xf = alloc();
+		    comp = expr(0, 6, xs);
+	
+		    if(comp->typ != 5) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    xf->p2 = xs->p2;
+		    comp = compon();
+	
+		    if(comp->typ != 0) {
+			writes("Unrecognized component in goto");
+	    
+			continue;
+		    }
+	
+		    break;
+		}
+
+		if(l) {
+		    if(l->typ) {
+			writes("Name doubly defined");
+		    }
+
+		    l->p2 = comp;
+
+		    /* type label */
+		    l->typ = 2;
+		}
+
+		comp->p2 = r;
+
+		if(m) {
+		    ++t;
+		    r->p1 = m;
+		    r = m;
+		}
+
+		if(as) {
+		    t += 2;
+		    r->p1 = as;
+		    r = as;
+		}
+
+		g = alloc();
+		g->p1 = 0;
+
+		if(xs) {
+		    g->p1 = xs->p2;
+		    free(xs);
+		}
+
+		g->p2 = 0;
+
+		if(xf) {
+		    g->p2 = xf->p2;
+		    free(xf);
+		}
+
+		r->p1 = g;
+		comp->typ = t;
+		comp->ch = lc;
+
+		return comp;
+	    }
+
+	    continue;
+	}
+
+	break;
     }
 
-    if(a != 14) {
-	goto xerr;
-    }
-
-    b = comp->p1;
-    free(comp);
-
-    if(b == looks) {
-	goto xsuc;
-    }
-
-    if(b == lookf) {
-	goto xfail;
-    }
-
- xerr:
     writes("Unrecognized component in goto");
     
- xboth:
-    free(comp);
-    xs = alloc();
-    xf = alloc();
-    comp = expr(0, 6, xs);
-    
-    if(comp->typ != 5) {
-	goto xerr;
+    while(1) {
+	free(comp);
+	xs = alloc();
+	xf = alloc();
+	comp = expr(0, 6, xs);
+	
+	if(comp->typ != 5) {
+	    writes("Unrecognized component in goto");
+	    
+	    continue;
+	}
+	
+	xf->p2 = xs->p2;
+	comp = compon();
+	
+	if(comp->typ != 0) {
+	    writes("Unrecognized component in goto");
+	    
+	    continue;
+	}
+	
+	break;
     }
 
-    xf->p2 = xs->p2;
-    comp = compon();
-
-    if(comp->typ != 0) {
-	goto xerr;
-    }
-
-    goto asmble;
-
- xsuc:
-    if(xs) {
-	goto xerr;
-    }
-
-    comp = compon();
-
-    if(comp->typ != 16) {
-	goto xerr;
-    }
-
-    xs = alloc();
-    comp = expr(0, 6, xs);
-
-    if(comp->typ != 5) {
-	goto xerr;
-    }
-
-    goto xfer;
-
- xfail:
-    if(xf) {
-	goto xerr;
-    }
-
-    comp = compon();
-    if(comp->typ != 16) {
-	goto xerr;
-    }
-
-    xf = alloc();
-    comp = expr(0, 6, xf);
-
-    if(comp->typ != 5) {
-	goto xerr;
-    }
-
-    goto xfer;
-
- asmble:
     if(l) {
 	if(l->typ) {
 	    writes("Name doubly defined");
@@ -742,79 +5205,4 @@ struct node *compile(void)
     comp->ch = lc;
 
     return comp;
-
- def:
-    r = nscomp();
-    
-    if(r->typ != 14) {
-	goto derr;
-    }
-
-    l = r->p1;
-    
-    if(l->typ) {
-	writes("Name doubly defined");
-    }
-
-    /* type function */
-    l->typ = 5;
-    m = r;
-    l->p2 = m;
-    r = nscomp();
-    l = r;
-    m->p1 = l;
-
-    if(r->typ == 0) {
-	goto d4;
-    }
-
-    if(r->typ != 16) {
-	goto derr;
-    }
-
- d2:
-    r = nscomp();
-    
-    if(r->typ != 14) {
-	goto derr;
-    }
-
-    m->p2 = r;
-    r->typ = 0;
-    m = r;
-    r = nscomp();
-
-    if(r->typ == 4) {
-	sno_free(r);
-
-	goto d2;
-    }
-    
-    if(r->typ != 5) {
-	goto derr;
-    }
-
-    sno_free(r);
-    r = compon();
-    
-    if(r->typ != 0) {
-	goto derr;
-    }
-
-    sno_free(r);
-
- d4:
-    r = compile();
-    m->p2 = 0;
-    l->p1 = r;
-    l->p2 = 0;
-
-    return r;
-
- derr:
-    writes("Illegal component in define");
-
-    return 0;
 }
-
-	
