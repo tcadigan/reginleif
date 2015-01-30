@@ -16,31 +16,32 @@ struct node *and(struct node *ptr)
     
     if(p->typ == 0) {
 	switch(a->typ) {
-	case0:
 	case 0:
 	    a->typ = 1;
 	case 1:
+	    a = copy(a->p2);
 
-	    goto l1;
+	    return a;
 	case 3:
 	    fflush(stdout);
 	    
 	    return syspit();
 	case 5:
 	    a = a->p2->p1;
+	    a = copy(a->p2);
 
-	    goto l1;
+	    return a;
 	case 6:
 
 	    return binstr(nfree());
 	}
 
 	writes("Attempt to take an illegal value");
-	
-	goto case0;
 
-    l1:
+	a->typ = 1;
 	a = copy(a->p2);
+
+	return a;
     }
 
     return a;
@@ -66,148 +67,159 @@ struct node *eval(struct node *e, int t)
     stack = 0;
     list = e;
 
-    goto l1;
-
- advanc:
-    list = list->p1;
-
- l1:
-    temp = list->typ;
+    while(1) {
+	temp = list->typ;
     
-    switch(temp) {
-    default:
-    case 0:
-	if(t == 1) {
+	switch(temp) {
+	default:
+	case 0:
+	    if(t == 1) {
+		a1 = and(stack);
+
+		stack = pop(stack);
+
+		if(stack) {
+		    writes("Phase error");
+		}
+
+		return a1;
+	    }
+	
+	    if(stack->typ == 1) {
+		writes("Attempt to store in a value");
+	    }
+
+	    a1 = stack->p1;
+
+	    stack = pop(stack);
+	
+	    if(stack) {
+		writes("Phase error");
+	    }
+
+	    return a1;
+	case 12:
 	    a1 = and(stack);
+	    stack->p1 = look(a1);
+	    delete(a1);
+	    stack->typ = 0;
+	    list = list->p1;
 
-	    goto e1;
-	}
+	    break;
+	case 13:
+	    if(stack->typ) {
+		writes("Illegal function");
+	    }
+
+	    a1 = stack->p1;
 	
-	if(stack->typ == 1) {
-	    writes("Attempt to store in a value");
+	    if(a1->typ != 5) {
+		writes("Illegal function");
+	    }
+
+	    a1 = a1->p2;
+	    op = a1->p1;
+	    a3 = alloc();
+	    a3base = a3;
+	    a3->p2 = op->p2;
+	    op->p2 = 0;
+	    a1 = a1->p2;
+	    a2 = list->p2;
+
+	    while(1) {
+		a4 = alloc();
+		a3->p1 = a4;
+		a3 = a4;
+		a3->p2 = and(a1);
+	    
+		/* recursive */
+		assign(a1->p1, eval(a2->p2, 1));
+		a1 = a1->p2;
+		a2 = a2->p1;
+	    
+		if((a1 != 0) && (a2 != 0)) {
+		    continue;
+		}
+
+		break;
+	    }
+
+	    if(a1 != a2) {
+		writes("Parameters do not match");
+	    }
+
+	    op = op->p1;
+
+	    while(1) {
+		/* recursive */
+		op = execute(op);
+	    
+		if(op) {
+		    continue;
+		}
+
+		break;
+	    }
+
+	    a1 = stack->p1->p2;
+	    op = a1->p1;
+	    a3 = a3base;
+	    stack->p1 = op->p2;
+	    stack->typ = 1;
+	    op->p2 = a3->p2;
+
+	    while(1) {
+		a4 = a3->p1;
+		sno_free(a3);
+		a3 = a4;
+		a1 = a1->p2;
+	    
+		if(a1 == 0) {
+		    list = list->p1;
+		
+		    break;
+		}
+	    
+		assign(a1->p1, a3->p2);
+	    }
+
+	    break;
+	case 11:
+	case 10:
+	case 9:
+	case 8:
+	case 7:
+	    a1 = and(stack);
+	    stack = pop(stack);
+	    a2 = and(stack);
+	    a3 = doop(temp, a2, a1);
+	    delete(a1);
+	    delete(a2);
+	    stack->p1 = a3;
+	    stack->typ = 1;
+	    list = list->p1;
+
+	    break;
+	case 15:
+	    a1 = copy(list->p2);
+	    temp = 1;
+
+	    stack = push(stack);
+	    stack->p1 = a1;
+	    stack->typ = temp;
+	    list = list->p1;
+
+	    break;
+	case 14:
+	    a1 = list->p2;
+	    temp = 0;
+	    stack = push(stack);
+	    stack->p1 = a1;
+	    stack->typ = temp;
+	    list = list->p1;
+
+	    break;
 	}
-
-	a1 = stack->p1;
-
-    e1:
-	stack = pop(stack);
-	
-	if(stack) {
-	    writes("Phase error");
-	}
-
-	return a1;
-    case 12:
-	a1 = and(stack);
-	stack->p1 = look(a1);
-	delete(a1);
-	stack->typ = 0;
-
-	goto advanc;
-    case 13:
-	if(stack->typ) {
-	    writes("Illegal function");
-	}
-
-	a1 = stack->p1;
-	
-	if(a1->typ != 5) {
-	    writes("Illegal function");
-	}
-
-	a1 = a1->p2;
-	op = a1->p1;
-	a3 = alloc();
-	a3base = a3;
-	a3->p2 = op->p2;
-	op->p2 = 0;
-	a1 = a1->p2;
-	a2 = list->p2;
-
-    f1:
-	if((a1 != 0) && (a2 != 0)) {
-	    goto f2;
-	}
-
-	if(a1 != a2) {
-	    writes("Parameters do not match");
-	}
-
-	op = op->p1;
-
-	goto f3;
-
-    f2:
-	a4 = alloc();
-	a3->p1 = a4;
-	a3 = a4;
-	a3->p2 = and(a1);
-	
-	/* recursive */
-	assign(a1->p1, eval(a2->p2, 1));
-	a1 = a1->p2;
-	a2 = a2->p1;
-	
-	goto f1;
-
-    f3:
-	/* recursive */
-	op = execute(op);
-	
-	if(op) {
-	    goto f3;
-	}
-
-	a1 = stack->p1->p2;
-	op = a1->p1;
-	a3 = a3base;
-	stack->p1 = op->p2;
-	stack->typ = 1;
-	op->p2 = a3->p2;
-
-    f4:
-	a4 = a3->p1;
-	sno_free(a3);
-	a3 = a4;
-	a1 = a1->p2;
-
-	if(a1 == 0) {
-	    goto advanc;
-	}
-
-	assign(a1->p1, a3->p2);
-
-	goto f4;
-    case 11:
-    case 10:
-    case 9:
-    case 8:
-    case 7:
-	a1 = and(stack);
-	stack = pop(stack);
-	a2 = and(stack);
-	a3 = doop(temp, a2, a1);
-	delete(a1);
-	delete(a2);
-	stack->p1 = a3;
-	stack->typ = 1;
-	
-	goto advanc;
-    case 15:
-	a1 = copy(list->p2);
-	temp = 1;
-
-	goto l3;
-    case 14:
-	a1 = list->p2;
-	temp = 0;
-
-    l3:
-	stack = push(stack);
-	stack->p1 = a1;
-	stack->typ = temp;
-
-	goto advanc;
     }
 
     return 0;
@@ -261,7 +273,57 @@ struct node *execute(struct node *e)
 	a = r->p1;
 	delete(eval(r->p2, 1));
 
-	goto xsuc;
+	if(rfail) {
+	    rfail = 0;
+	    b = a->p2;
+
+	    if(b == 0) {
+		return e->p1;
+	    }
+
+	    b = eval(b, 0);
+
+	    if(b == lookret) {
+		return 0;
+	    }
+
+	    if(b == lookfret) {
+		rfail = 1;
+
+		return 0;
+	    }
+
+	    if(b->typ != 2) {
+		writes("Attempt to transfer to non-label");
+	    }
+
+	    return b->p2;
+	}
+
+	b = a->p1;
+    
+	if(b == 0) {
+	    return e->p1;
+	}
+
+	b = eval(b, 0);
+
+	if(b == lookret) {
+	    return 0;
+	}
+
+	if(b == lookfret) {
+	    rfail = 1;
+
+	    return 0;
+	}
+
+	if(b->typ != 2) {
+	    writes("Attempt to transfer to non-label");
+	}
+
+	return b->p2;
+
     case 1:
 	/* r m g */
 	m = r->p1;
@@ -271,20 +333,140 @@ struct node *execute(struct node *e)
 	delete(b);
 
 	if(c == 0) {
-	    goto xfail;
+	    rfail = 0;
+	    b = a->p2;
+
+	    if(b == 0) {
+		return e->p1;
+	    }
+
+	    b = eval(b, 0);
+
+	    if(b == lookret) {
+		return 0;
+	    }
+
+	    if(b == lookfret) {
+		rfail = 1;
+
+		return 0;
+	    }
+
+	    if(b->typ != 2) {
+		writes("Attempt to transfer to non-label");
+	    }
+
+	    return b->p2;
 	}
 
 	sno_free(c);
 
-	goto xsuc;
+	if(rfail) {
+	    rfail = 0;
+	    b = a->p2;
+
+	    if(b == 0) {
+		return e->p1;
+	    }
+
+	    b = eval(b, 0);
+
+	    if(b == lookret) {
+		return 0;
+	    }
+
+	    if(b == lookfret) {
+		rfail = 1;
+
+		return 0;
+	    }
+
+	    if(b->typ != 2) {
+		writes("Attempt to transfer to non-label");
+	    }
+
+	    return b->p2;
+	}
+
+	b = a->p1;
+    
+	if(b == 0) {
+	    return e->p1;
+	}
+
+	b = eval(b, 0);
+
+	if(b == lookret) {
+	    return 0;
+	}
+
+	if(b == lookfret) {
+	    rfail = 1;
+
+	    return 0;
+	}
+
+	if(b->typ != 2) {
+	    writes("Attempt to transfer to non-label");
+	}
+
+	return b->p2;
     case 2:
 	/* r a g */
 	ca = r->p1;
 	a = ca->p1;
 	b = eval(r->p2, 0);
 	assign(b, eval(ca->p2, 1));
+	if(rfail) {
+	    rfail = 0;
+	    b = a->p2;
 
-	goto xsuc;
+	    if(b == 0) {
+		return e->p1;
+	    }
+
+	    b = eval(b, 0);
+
+	    if(b == lookret) {
+		return 0;
+	    }
+
+	    if(b == lookfret) {
+		rfail = 1;
+
+		return 0;
+	    }
+
+	    if(b->typ != 2) {
+		writes("Attempt to transfer to non-label");
+	    }
+
+	    return b->p2;
+	}
+
+	b = a->p1;
+    
+	if(b == 0) {
+	    return e->p1;
+	}
+
+	b = eval(b, 0);
+
+	if(b == lookret) {
+	    return 0;
+	}
+
+	if(b == lookfret) {
+	    rfail = 1;
+
+	    return 0;
+	}
+
+	if(b->typ != 2) {
+	    writes("Attempt to transfer to non-label");
+	}
+
+	return b->p2;
     case 3:
 	/* r m a g */
 	m = r->p1;
@@ -294,7 +476,30 @@ struct node *execute(struct node *e)
 	d = search(m, b->p2);
 
 	if(d == 0) {
-	    goto xfail;
+	    rfail = 0;
+	    b = a->p2;
+
+	    if(b == 0) {
+		return e->p1;
+	    }
+
+	    b = eval(b, 0);
+
+	    if(b == lookret) {
+		return 0;
+	    }
+
+	    if(b == lookfret) {
+		rfail = 1;
+
+		return 0;
+	    }
+
+	    if(b->typ != 2) {
+		writes("Attempt to transfer to non-label");
+	    }
+
+	    return b->p2;
 	}
 
 	c = eval(ca->p2, 1);
@@ -304,14 +509,112 @@ struct node *execute(struct node *e)
 	    assign(b, cat(c, b->p2));
 	    delete(c);
 
-	    goto xsuc;
+	    if(rfail) {
+		rfail = 0;
+		b = a->p2;
+
+		if(b == 0) {
+		    return e->p1;
+		}
+
+		b = eval(b, 0);
+
+		if(b == lookret) {
+		    return 0;
+		}
+
+		if(b == lookfret) {
+		    rfail = 1;
+
+		    return 0;
+		}
+
+		if(b->typ != 2) {
+		    writes("Attempt to transfer to non-label");
+		}
+
+		return b->p2;
+	    }
+
+	    b = a->p1;
+    
+	    if(b == 0) {
+		return e->p1;
+	    }
+
+	    b = eval(b, 0);
+
+	    if(b == lookret) {
+		return 0;
+	    }
+
+	    if(b == lookfret) {
+		rfail = 1;
+
+		return 0;
+	    }
+
+	    if(b->typ != 2) {
+		writes("Attempt to transfer to non-label");
+	    }
+
+	    return b->p2;
 	}
 
 	if(d->p2 == b->p2->p2) {
 	    assign(b, c);
 	    sno_free(d);
+	    if(rfail) {
+		rfail = 0;
+		b = a->p2;
 
-	    goto xsuc;
+		if(b == 0) {
+		    return e->p1;
+		}
+
+		b = eval(b, 0);
+
+		if(b == lookret) {
+		    return 0;
+		}
+
+		if(b == lookfret) {
+		    rfail = 1;
+
+		    return 0;
+		}
+
+		if(b->typ != 2) {
+		    writes("Attempt to transfer to non-label");
+		}
+
+		return b->p2;
+	    }
+
+	    b = a->p1;
+    
+	    if(b == 0) {
+		return e->p1;
+	    }
+
+	    b = eval(b, 0);
+
+	    if(b == lookret) {
+		return 0;
+	    }
+
+	    if(b == lookfret) {
+		rfail = 1;
+
+		return 0;
+	    }
+
+	    if(b->typ != 2) {
+		writes("Attempt to transfer to non-label");
+	    }
+
+	    return b->p2;
+
 	}
 
 	r = alloc();
@@ -322,23 +625,37 @@ struct node *execute(struct node *e)
 	sno_free(r);
 	delete(c);
 
-	goto xsuc;
     }
 
- xsuc:
     if(rfail) {
-	goto xfail;
+	rfail = 0;
+	b = a->p2;
+
+	if(b == 0) {
+	    return e->p1;
+	}
+
+	b = eval(b, 0);
+
+	if(b == lookret) {
+	    return 0;
+	}
+
+	if(b == lookfret) {
+	    rfail = 1;
+
+	    return 0;
+	}
+
+	if(b->typ != 2) {
+	    writes("Attempt to transfer to non-label");
+	}
+
+	return b->p2;
     }
 
     b = a->p1;
     
-    goto xboth;
-
- xfail:
-    rfail = 0;
-    b = a->p2;
-
- xboth:
     if(b == 0) {
 	return e->p1;
     }

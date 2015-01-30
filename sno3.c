@@ -10,11 +10,13 @@ int bextend(struct node *str, struct node *last)
     int b;
     int c;
     int d;
+    int f;
 
+    f = 1;
     s = str;
     
     if(s->p1 == 0) {
-	goto bad;
+	return 0;
     }
 
     d = 0;
@@ -23,48 +25,55 @@ int bextend(struct node *str, struct node *last)
 
     if(a == 0) {
 	a = s->p1;
-	goto eb2;
+	
+	f = 0;
     }
 
- eb1:
-    if(a == last) {
-	goto bad;
-    }
+    while(1) {
+	if(f) {
+	    if(a == last) {
+		return 0;
+	    }
 
-    a = a->p1;
+	    a = a->p1;
 
- eb2:
-    ++d;
-    c = class(a->ch);
-
-    /* rp */
-    if(c == 1) {
-	if(b == 0) {
-	    goto bad;
+	    f = 0;
 	}
 
-	--b;
+	++d;
+	c = class(a->ch);
 
-	goto eb3;
+	/* rp */
+	if(c == 1) {
+	    if(b == 0) {
+		return 0;
+	    }
+
+	    --b;
+
+	    if(b == 0) {
+		s->p2 = a;
+
+		return d;
+	    }
+
+	    continue;
+	}
+
+	/* lp */
+	if(c == 2) {
+	    ++b;
+
+	    continue;
+	}
+
+	if(b == 0) {
+	    s->p2 = a;
+
+	    return d;
+	}
     }
 
-    /* lp */
-    if(c == 2) {
-	++b;
-	
-	goto eb1;
-    }
-
- eb3:
-    if(b == 0) {
-	s->p2 = a;
-
-	return d;
-    }
-
-    goto eb1;
-
- bad:
     return 0;
 }
 
@@ -78,28 +87,25 @@ int ubextend(struct node *str, struct node *last)
     a = s->p1;
     
     if(a == 0) {
-	goto bad;
+	return 0;
     }
 
     b = s->p2;
 
     if(b == 0) {
-	goto good;
+	s->p2 = a;
+
+	return 1;
     }
 
     if(b == last) {
-	goto bad;
+	return 0;
     }
 
     a = b->p1;
-
- good:
     s->p2 = a;
     
     return 1;
-
- bad:
-    return 0;
 }
 
 struct node *search(struct node *arg, struct node *r)
@@ -124,122 +130,1914 @@ struct node *search(struct node *arg, struct node *r)
     next = 0;
     last = 0;
 
-    goto badv1;
+    while(1) {
+	back = alloc();
+	list->p2 = back;
+	back->p1 = last;
+	b = a->p2;
+	c = a->typ;
+	list->typ = c;
 
- badvanc:
-    a = a->p1;
+	if(c < 2) {
+	    back->p2 = eval(b, 1);
 
-    if(a->typ == 0) {
-	list->p1 = 0;
+	    a = a->p1;
+
+	    if(a->typ == 0) {
+		list->p1 = 0;
 	
-	if(rfail == 1) {
-	    a = 0;
+		if(rfail == 1) {
+		    a = 0;
 	    
-	    goto fail;
+		    list = base;
+
+		    while(1) {
+			back = list->p2;
+			var = back->p2;
+	
+			if(list->typ < 2) {
+			    delete(var);
+			    sno_free(back);
+			    b = list->p1;
+			    sno_free(list);
+	    
+			    if(b == 0) {
+				return a;
+			    }
+	    
+			    list = b;
+
+			    continue;
+			}
+	
+			str = var->p1;
+			etc = var->p2;
+	
+			if((a != 0) && (etc->p1 != 0)) {
+			    if(str->p2 == 0) {
+				sno_free(str);
+				str = 0;
+			    }
+
+			    assign(etc->p1, copy(str));
+			}
+	
+			if(str) {
+			    sno_free(str);
+			}
+	
+			sno_free(etc);
+			sno_free(var);
+			sno_free(back);
+			b = list->p1;
+			sno_free(list);
+	
+			if(b == 0) {
+			    return a;
+			}
+	
+			list = b;
+		    }
+
+		}
+
+		list = base;
+
+		if(r == 0) {
+		    last = 0;
+		    next = 0;
+		}
+		else {
+		    next = r->p1;
+		    last = r->p2;
+		}
+
+		back = list->p2;
+		var = back->p2;
+		d = list->typ;
+
+		if(d < 2) {
+		    if(var == 0) {
+			goto advanc;
+		    }
+
+		    if(next == 0) {
+			while(1) {
+			    a = back->p1;
+    
+			    if(a == 0) {
+				rfail = 1;
+				list = base;
+
+				while(1) {
+				    back = list->p2;
+				    var = back->p2;
+	
+				    if(list->typ < 2) {
+					delete(var);
+					sno_free(back);
+					b = list->p1;
+					sno_free(list);
+	    
+					if(b == 0) {
+					    return a;
+					}
+	    
+					list = b;
+
+					continue;
+				    }
+	
+				    str = var->p1;
+				    etc = var->p2;
+	
+				    if((a != 0) && (etc->p1 != 0)) {
+					if(str->p2 == 0) {
+					    sno_free(str);
+					    str = 0;
+					}
+
+					assign(etc->p1, copy(str));
+				    }
+	
+				    if(str) {
+					sno_free(str);
+				    }
+	
+				    sno_free(etc);
+				    sno_free(var);
+				    sno_free(back);
+				    b = list->p1;
+				    sno_free(list);
+	
+				    if(b == 0) {
+					return a;
+				    }
+	
+				    list = b;
+				}
+			    }
+
+			    list = a;
+			    back = list->p2;
+			    var = back->p2;
+			    str = var->p1;
+			    etc = var->p2;
+
+			    if(etc->p2) {
+				continue;
+			    }
+
+			    if(var->typ == 1) {
+				if(bextend(str, last) == 0) {
+				    continue;
+				}
+
+				a = str->p2;
+
+				if(a == last) {
+				    next = 0;
+				}
+				else {
+				    next = a->p1;
+				}
+
+				goto advanc;
+			    }
+
+			    if(ubextend(str, last) == 0) {
+				continue;
+			    }
+
+			    a = str->p2;
+    
+			    if(a == last) {
+				next = 0;
+			    }
+			    else {
+				next = a->p1;
+			    }
+			}
+
+			goto advanc;
+		    }
+
+		    a = next;
+		    b = var->p1;
+		    e = var->p2;
+
+		    while(1) {
+			if(a->ch != b->ch) {
+			    while(1) {
+				a = back->p1;
+    
+				if(a == 0) {
+				    rfail = 1;
+				    list = base;
+
+				    while(1) {
+					back = list->p2;
+					var = back->p2;
+	
+					if(list->typ < 2) {
+					    delete(var);
+					    sno_free(back);
+					    b = list->p1;
+					    sno_free(list);
+	    
+					    if(b == 0) {
+						return a;
+					    }
+	    
+					    list = b;
+
+					    continue;
+					}
+	
+					str = var->p1;
+					etc = var->p2;
+	
+					if((a != 0) && (etc->p1 != 0)) {
+					    if(str->p2 == 0) {
+						sno_free(str);
+						str = 0;
+					    }
+
+					    assign(etc->p1, copy(str));
+					}
+	
+					if(str) {
+					    sno_free(str);
+					}
+	
+					sno_free(etc);
+					sno_free(var);
+					sno_free(back);
+					b = list->p1;
+					sno_free(list);
+	
+					if(b == 0) {
+					    return a;
+					}
+	
+					list = b;
+				    }
+				}
+
+				list = a;
+				back = list->p2;
+				var = back->p2;
+				str = var->p1;
+				etc = var->p2;
+
+				if(etc->p2) {
+				    continue;
+				}
+
+				if(var->typ == 1) {
+				    if(bextend(str, last) == 0) {
+					continue;
+				    }
+
+				    a = str->p2;
+
+				    if(a == last) {
+					next = 0;
+				    }
+				    else {
+					next = a->p1;
+				    }
+
+				    goto advanc;
+				}
+
+				if(ubextend(str, last) == 0) {
+				    continue;
+				}
+
+				a = str->p2;
+    
+				if(a == last) {
+				    next = 0;
+				}
+				else {
+				    next = a->p1;
+				}
+			    }
+
+			    goto advanc;
+			}
+
+			if(b == e) {
+			    if(a == last) {
+				next = 0;
+			    }
+			    else {
+				next = a->p1;
+			    }
+
+			    goto advanc;
+			}
+
+			if(a == last) {
+			    while(1) {
+				a = back->p1;
+    
+				if(a == 0) {
+				    rfail = 1;
+				    list = base;
+
+				    while(1) {
+					back = list->p2;
+					var = back->p2;
+	
+					if(list->typ < 2) {
+					    delete(var);
+					    sno_free(back);
+					    b = list->p1;
+					    sno_free(list);
+	    
+					    if(b == 0) {
+						return a;
+					    }
+	    
+					    list = b;
+
+					    continue;
+					}
+	
+					str = var->p1;
+					etc = var->p2;
+	
+					if((a != 0) && (etc->p1 != 0)) {
+					    if(str->p2 == 0) {
+						sno_free(str);
+						str = 0;
+					    }
+
+					    assign(etc->p1, copy(str));
+					}
+	
+					if(str) {
+					    sno_free(str);
+					}
+	
+					sno_free(etc);
+					sno_free(var);
+					sno_free(back);
+					b = list->p1;
+					sno_free(list);
+	
+					if(b == 0) {
+					    return a;
+					}
+	
+					list = b;
+				    }
+				}
+
+				list = a;
+				back = list->p2;
+				var = back->p2;
+				str = var->p1;
+				etc = var->p2;
+
+				if(etc->p2) {
+				    continue;
+				}
+
+				if(var->typ == 1) {
+				    if(bextend(str, last) == 0) {
+					continue;
+				    }
+
+				    a = str->p2;
+
+				    if(a == last) {
+					next = 0;
+				    }
+				    else {
+					next = a->p1;
+				    }
+
+				    goto advanc;
+				}
+
+				if(ubextend(str, last) == 0) {
+				    continue;
+				}
+
+				a = str->p2;
+    
+				if(a == last) {
+				    next = 0;
+				}
+				else {
+				    next = a->p1;
+				}
+			    }
+
+			    goto advanc;
+			}
+
+			a = a->p1;
+			b = b->p1;
+		    }
+		}
+
+		str = var->p1;
+		etc = var->p2;
+		str->p1 = next;
+		str->p1 = 0;
+
+		if(var->typ == 1) {
+		    d = bextend(str, last);
+
+		    if(d == 0) {
+			while(1) {
+			    a = back->p1;
+    
+			    if(a == 0) {
+				rfail = 1;
+				list = base;
+
+				while(1) {
+				    back = list->p2;
+				    var = back->p2;
+	
+				    if(list->typ < 2) {
+					delete(var);
+					sno_free(back);
+					b = list->p1;
+					sno_free(list);
+	    
+					if(b == 0) {
+					    return a;
+					}
+	    
+					list = b;
+
+					continue;
+				    }
+	
+				    str = var->p1;
+				    etc = var->p2;
+	
+				    if((a != 0) && (etc->p1 != 0)) {
+					if(str->p2 == 0) {
+					    sno_free(str);
+					    str = 0;
+					}
+
+					assign(etc->p1, copy(str));
+				    }
+	
+				    if(str) {
+					sno_free(str);
+				    }
+	
+				    sno_free(etc);
+				    sno_free(var);
+				    sno_free(back);
+				    b = list->p1;
+				    sno_free(list);
+	
+				    if(b == 0) {
+					return a;
+				    }
+	
+				    list = b;
+				}
+			    }
+
+			    list = a;
+			    back = list->p2;
+			    var = back->p2;
+			    str = var->p1;
+			    etc = var->p2;
+
+			    if(etc->p2) {
+				continue;
+			    }
+
+			    if(var->typ == 1) {
+				if(bextend(str, last) == 0) {
+				    continue;
+				}
+
+				a = str->p2;
+
+				if(a == last) {
+				    next = 0;
+				}
+				else {
+				    next = a->p1;
+				}
+
+				goto advanc;
+			    }
+
+			    if(ubextend(str, last) == 0) {
+				continue;
+			    }
+
+			    a = str->p2;
+    
+			    if(a == last) {
+				next = 0;
+			    }
+			    else {
+				next = a->p1;
+			    }
+			}
+
+			goto advanc;
+		    }
+
+		    if(etc->p2 == 0) {
+			a = str->p2;
+
+			if(a == last) {
+			    next = 0;
+			}
+			else {
+			    next = a->p1;
+			}
+	    
+			goto advanc;
+		    }
+
+		    while(1) {
+			c -= d;
+
+			if(c == d) {
+			    a = str->p2;
+
+			    if(a == last) {
+				next = 0;
+			    }
+			    else {
+				next = a->p1;
+			    }
+
+			    goto advanc;
+			}
+
+			if(c < 0) {
+			    while(1) {
+				a = back->p1;
+    
+				if(a == 0) {
+				    rfail = 1;
+				    list = base;
+
+				    while(1) {
+					back = list->p2;
+					var = back->p2;
+	
+					if(list->typ < 2) {
+					    delete(var);
+					    sno_free(back);
+					    b = list->p1;
+					    sno_free(list);
+	    
+					    if(b == 0) {
+						return a;
+					    }
+	    
+					    list = b;
+
+					    continue;
+					}
+	
+					str = var->p1;
+					etc = var->p2;
+	
+					if((a != 0) && (etc->p1 != 0)) {
+					    if(str->p2 == 0) {
+						sno_free(str);
+						str = 0;
+					    }
+
+					    assign(etc->p1, copy(str));
+					}
+	
+					if(str) {
+					    sno_free(str);
+					}
+	
+					sno_free(etc);
+					sno_free(var);
+					sno_free(back);
+					b = list->p1;
+					sno_free(list);
+	
+					if(b == 0) {
+					    return a;
+					}
+	
+					list = b;
+				    }
+				}
+
+				list = a;
+				back = list->p2;
+				var = back->p2;
+				str = var->p1;
+				etc = var->p2;
+
+				if(etc->p2) {
+				    continue;
+				}
+
+				if(var->typ == 1) {
+				    if(bextend(str, last) == 0) {
+					continue;
+				    }
+
+				    a = str->p2;
+
+				    if(a == last) {
+					next = 0;
+				    }
+				    else {
+					next = a->p1;
+				    }
+
+				    goto advanc;
+				}
+
+				if(ubextend(str, last) == 0) {
+				    continue;
+				}
+
+				a = str->p2;
+    
+				if(a == last) {
+				    next = 0;
+				}
+				else {
+				    next = a->p1;
+				}
+			    }
+
+			    goto advanc;
+			}
+
+			d = bextend(str, last);
+       
+			if(d == 0) {
+			    while(1) {
+				a = back->p1;
+    
+				if(a == 0) {
+				    rfail = 1;
+				    list = base;
+
+				    while(1) {
+					back = list->p2;
+					var = back->p2;
+	
+					if(list->typ < 2) {
+					    delete(var);
+					    sno_free(back);
+					    b = list->p1;
+					    sno_free(list);
+	    
+					    if(b == 0) {
+						return a;
+					    }
+	    
+					    list = b;
+
+					    continue;
+					}
+	
+					str = var->p1;
+					etc = var->p2;
+	
+					if((a != 0) && (etc->p1 != 0)) {
+					    if(str->p2 == 0) {
+						sno_free(str);
+						str = 0;
+					    }
+
+					    assign(etc->p1, copy(str));
+					}
+	
+					if(str) {
+					    sno_free(str);
+					}
+	
+					sno_free(etc);
+					sno_free(var);
+					sno_free(back);
+					b = list->p1;
+					sno_free(list);
+	
+					if(b == 0) {
+					    return a;
+					}
+	
+					list = b;
+				    }
+				}
+
+				list = a;
+				back = list->p2;
+				var = back->p2;
+				str = var->p1;
+				etc = var->p2;
+
+				if(etc->p2) {
+				    continue;
+				}
+
+				if(var->typ == 1) {
+				    if(bextend(str, last) == 0) {
+					continue;
+				    }
+
+				    a = str->p2;
+
+				    if(a == last) {
+					next = 0;
+				    }
+				    else {
+					next = a->p1;
+				    }
+
+				    goto advanc;
+				}
+
+				if(ubextend(str, last) == 0) {
+				    continue;
+				}
+
+				a = str->p2;
+    
+				if(a == last) {
+				    next = 0;
+				}
+				else {
+				    next = a->p1;
+				}
+			    }
+
+			    goto advanc;
+			}
+		    }
+		}
+
+		if(c == 0) {
+		    if((d == 3) && (next != 0)) {
+			str->p2 = last;
+			a = str->p2;
+
+			if(a == last) {
+			    next = 0;
+			}
+			else {
+			    next = a->p1;
+			}
+		    }
+
+		    goto advanc;
+		}
+
+	    	while(c) {
+		    --c;
+
+		    if(ubextend(str, last) == 0) {
+			while(1) {
+			    a = back->p1;
+    
+			    if(a == 0) {
+				rfail = 1;
+				list = base;
+
+				while(1) {
+				    back = list->p2;
+				    var = back->p2;
+	
+				    if(list->typ < 2) {
+					delete(var);
+					sno_free(back);
+					b = list->p1;
+					sno_free(list);
+	    
+					if(b == 0) {
+					    return a;
+					}
+	    
+					list = b;
+
+					continue;
+				    }
+	
+				    str = var->p1;
+				    etc = var->p2;
+	
+				    if((a != 0) && (etc->p1 != 0)) {
+					if(str->p2 == 0) {
+					    sno_free(str);
+					    str = 0;
+					}
+
+					assign(etc->p1, copy(str));
+				    }
+	
+				    if(str) {
+					sno_free(str);
+				    }
+	
+				    sno_free(etc);
+				    sno_free(var);
+				    sno_free(back);
+				    b = list->p1;
+				    sno_free(list);
+	
+				    if(b == 0) {
+					return a;
+				    }
+	
+				    list = b;
+				}
+			    }
+
+			    list = a;
+			    back = list->p2;
+			    var = back->p2;
+			    str = var->p1;
+			    etc = var->p2;
+
+			    if(etc->p2) {
+				continue;
+			    }
+
+			    if(var->typ == 1) {
+				if(bextend(str, last) == 0) {
+				    continue;
+				}
+
+				a = str->p2;
+
+				if(a == last) {
+				    next = 0;
+				}
+				else {
+				    next = a->p1;
+				}
+
+				goto advanc;
+			    }
+
+			    if(ubextend(str, last) == 0) {
+				continue;
+			    }
+
+			    a = str->p2;
+    
+			    if(a == last) {
+				next = 0;
+			    }
+			    else {
+				next = a->p1;
+			    }
+			}
+
+			goto advanc;
+		    }
+		}
+
+		a = str->p2;
+
+		if(a == last) {
+		    next = 0;
+		}
+		else {
+		    next = a->p1;
+		}
+
+		goto advanc;
+	    }
+
+	    b = alloc();
+	    list->p1 = b;
+	    list = b;
+
+	    continue;
 	}
 
-	list = base;
+	last = list;
+	str = alloc();
+	etc = alloc();
+	var = alloc();
+	back->p2 = var;
+	var->typ = b->typ;
+	var->p1 = str;
+	var->p2 = etc;
+	e = b->p1;
 
-	if(r == 0) {
-	    last = 0;
+	if(e == 0) {
+	    etc->p1 = 0;
+	}
+	else {
+	    etc->p1 = eval(e, 0);
+	}
+
+	e = b->p2;
+    
+	if(e == 0) {
+	    etc->p2 = 0;
+	}
+	else {
+	    e = eval(e, 1);
+	    etc->p2 = e;
+	    delete(e);
+	}
+
+	a = a->p1;
+
+	if(a->typ == 0) {
+	    list->p1 = 0;
+	
+	    if(rfail == 1) {
+		a = 0;
+	    
+		list = base;
+
+		while(1) {
+		    back = list->p2;
+		    var = back->p2;
+	
+		    if(list->typ < 2) {
+			delete(var);
+			sno_free(back);
+			b = list->p1;
+			sno_free(list);
+	    
+			if(b == 0) {
+			    return a;
+			}
+	    
+			list = b;
+
+			continue;
+		    }
+	
+		    str = var->p1;
+		    etc = var->p2;
+	
+		    if((a != 0) && (etc->p1 != 0)) {
+			if(str->p2 == 0) {
+			    sno_free(str);
+			    str = 0;
+			}
+
+			assign(etc->p1, copy(str));
+		    }
+	
+		    if(str) {
+			sno_free(str);
+		    }
+	
+		    sno_free(etc);
+		    sno_free(var);
+		    sno_free(back);
+		    b = list->p1;
+		    sno_free(list);
+	
+		    if(b == 0) {
+			return a;
+		    }
+	
+		    list = b;
+		}
+
+	    }
+
+	    list = base;
+
+	    if(r == 0) {
+		last = 0;
+		next = 0;
+	    }
+	    else {
+		next = r->p1;
+		last = r->p2;
+	    }
+
+	    back = list->p2;
+	    var = back->p2;
+	    d = list->typ;
+
+	    if(d < 2) {
+		if(var == 0) {
+		    goto advanc;
+		}
+
+		if( next == 0) {
+		    while(1) {
+			a = back->p1;
+    
+			if(a == 0) {
+			    rfail = 1;
+			    list = base;
+
+			    while(1) {
+				back = list->p2;
+				var = back->p2;
+	
+				if(list->typ < 2) {
+				    delete(var);
+				    sno_free(back);
+				    b = list->p1;
+				    sno_free(list);
+	    
+				    if(b == 0) {
+					return a;
+				    }
+	    
+				    list = b;
+
+				    continue;
+				}
+	
+				str = var->p1;
+				etc = var->p2;
+	
+				if((a != 0) && (etc->p1 != 0)) {
+				    if(str->p2 == 0) {
+					sno_free(str);
+					str = 0;
+				    }
+
+				    assign(etc->p1, copy(str));
+				}
+	
+				if(str) {
+				    sno_free(str);
+				}
+	
+				sno_free(etc);
+				sno_free(var);
+				sno_free(back);
+				b = list->p1;
+				sno_free(list);
+	
+				if(b == 0) {
+				    return a;
+				}
+	
+				list = b;
+			    }
+			}
+
+			list = a;
+			back = list->p2;
+			var = back->p2;
+			str = var->p1;
+			etc = var->p2;
+
+			if(etc->p2) {
+			    continue;
+			}
+
+			if(var->typ == 1) {
+			    if(bextend(str, last) == 0) {
+				continue;
+			    }
+
+			    a = str->p2;
+
+			    if(a == last) {
+				next = 0;
+			    }
+			    else {
+				next = a->p1;
+			    }
+
+			    goto advanc;
+			}
+
+			if(ubextend(str, last) == 0) {
+			    continue;
+			}
+
+			a = str->p2;
+    
+			if(a == last) {
+			    next = 0;
+			}
+			else {
+			    next = a->p1;
+			}
+		    }
+
+		    goto advanc;
+		}
+
+		a = next;
+		b = var->p1;
+		e = var->p2;
+
+		while(1) {
+		    if(a->ch != b->ch) {
+			while(1) {
+			    a = back->p1;
+    
+			    if(a == 0) {
+				rfail = 1;
+				list = base;
+
+				while(1) {
+				    back = list->p2;
+				    var = back->p2;
+	
+				    if(list->typ < 2) {
+					delete(var);
+					sno_free(back);
+					b = list->p1;
+					sno_free(list);
+	    
+					if(b == 0) {
+					    return a;
+					}
+	    
+					list = b;
+
+					continue;
+				    }
+	
+				    str = var->p1;
+				    etc = var->p2;
+	
+				    if((a != 0) && (etc->p1 != 0)) {
+					if(str->p2 == 0) {
+					    sno_free(str);
+					    str = 0;
+					}
+
+					assign(etc->p1, copy(str));
+				    }
+	
+				    if(str) {
+					sno_free(str);
+				    }
+	
+				    sno_free(etc);
+				    sno_free(var);
+				    sno_free(back);
+				    b = list->p1;
+				    sno_free(list);
+	
+				    if(b == 0) {
+					return a;
+				    }
+	
+				    list = b;
+				}
+			    }
+
+			    list = a;
+			    back = list->p2;
+			    var = back->p2;
+			    str = var->p1;
+			    etc = var->p2;
+
+			    if(etc->p2) {
+				continue;
+			    }
+
+			    if(var->typ == 1) {
+				if(bextend(str, last) == 0) {
+				    continue;
+				}
+
+				a = str->p2;
+
+				if(a == last) {
+				    next = 0;
+				}
+				else {
+				    next = a->p1;
+				}
+
+				goto advanc;
+			    }
+
+			    if(ubextend(str, last) == 0) {
+				continue;
+			    }
+
+			    a = str->p2;
+    
+			    if(a == last) {
+				next = 0;
+			    }
+			    else {
+				next = a->p1;
+			    }
+			}
+
+			goto advanc;
+		    }
+
+		    if(b == e) {
+			if(a == last) {
+			    next = 0;
+			}
+			else {
+			    next = a->p1;
+			}
+
+			goto advanc;
+		    }
+
+		    if(a == last) {
+			while(1) {
+			    a = back->p1;
+    
+			    if(a == 0) {
+				rfail = 1;
+				list = base;
+
+				while(1) {
+				    back = list->p2;
+				    var = back->p2;
+	
+				    if(list->typ < 2) {
+					delete(var);
+					sno_free(back);
+					b = list->p1;
+					sno_free(list);
+	    
+					if(b == 0) {
+					    return a;
+					}
+	    
+					list = b;
+
+					continue;
+				    }
+	
+				    str = var->p1;
+				    etc = var->p2;
+	
+				    if((a != 0) && (etc->p1 != 0)) {
+					if(str->p2 == 0) {
+					    sno_free(str);
+					    str = 0;
+					}
+
+					assign(etc->p1, copy(str));
+				    }
+	
+				    if(str) {
+					sno_free(str);
+				    }
+	
+				    sno_free(etc);
+				    sno_free(var);
+				    sno_free(back);
+				    b = list->p1;
+				    sno_free(list);
+	
+				    if(b == 0) {
+					return a;
+				    }
+	
+				    list = b;
+				}
+			    }
+
+			    list = a;
+			    back = list->p2;
+			    var = back->p2;
+			    str = var->p1;
+			    etc = var->p2;
+
+			    if(etc->p2) {
+				continue;
+			    }
+
+			    if(var->typ == 1) {
+				if(bextend(str, last) == 0) {
+				    continue;
+				}
+
+				a = str->p2;
+
+				if(a == last) {
+				    next = 0;
+				}
+				else {
+				    next = a->p1;
+				}
+
+				goto advanc;
+			    }
+
+			    if(ubextend(str, last) == 0) {
+				continue;
+			    }
+
+			    a = str->p2;
+    
+			    if(a == last) {
+				next = 0;
+			    }
+			    else {
+				next = a->p1;
+			    }
+			}
+
+			goto advanc;
+		    }
+
+		    a = a->p1;
+		    b = b->p1;
+		}
+	    }
+
+	    str = var->p1;
+	    etc = var->p2;
+	    str->p1 = next;
+	    str->p1 = 0;
+
+	    if(var->typ == 1) {
+		d = bextend(str, last);
+
+		if(d == 0) {
+		    while(1) {
+			a = back->p1;
+    
+			if(a == 0) {
+			    rfail = 1;
+			    list = base;
+
+			    while(1) {
+				back = list->p2;
+				var = back->p2;
+	
+				if(list->typ < 2) {
+				    delete(var);
+				    sno_free(back);
+				    b = list->p1;
+				    sno_free(list);
+	    
+				    if(b == 0) {
+					return a;
+				    }
+	    
+				    list = b;
+
+				    continue;
+				}
+	
+				str = var->p1;
+				etc = var->p2;
+	
+				if((a != 0) && (etc->p1 != 0)) {
+				    if(str->p2 == 0) {
+					sno_free(str);
+					str = 0;
+				    }
+
+				    assign(etc->p1, copy(str));
+				}
+	
+				if(str) {
+				    sno_free(str);
+				}
+	
+				sno_free(etc);
+				sno_free(var);
+				sno_free(back);
+				b = list->p1;
+				sno_free(list);
+	
+				if(b == 0) {
+				    return a;
+				}
+	
+				list = b;
+			    }
+			}
+
+			list = a;
+			back = list->p2;
+			var = back->p2;
+			str = var->p1;
+			etc = var->p2;
+
+			if(etc->p2) {
+			    continue;
+			}
+
+			if(var->typ == 1) {
+			    if(bextend(str, last) == 0) {
+				continue;
+			    }
+
+			    a = str->p2;
+
+			    if(a == last) {
+				next = 0;
+			    }
+			    else {
+				next = a->p1;
+			    }
+
+			    goto advanc;
+			}
+
+			if(ubextend(str, last) == 0) {
+			    continue;
+			}
+
+			a = str->p2;
+    
+			if(a == last) {
+			    next = 0;
+			}
+			else {
+			    next = a->p1;
+			}
+		    }
+
+		    goto advanc;
+		}
+
+		if(etc->p2 == 0) {
+		    a = str->p2;
+
+		    if(a == last) {
+			next = 0;
+		    }
+		    else {
+			next = a->p1;
+		    }
+	    
+		    goto advanc;
+		}
+
+		while(1) {
+		    c -= d;
+
+		    if(c == d) {
+			a = str->p2;
+
+			if(a == last) {
+			    next = 0;
+			}
+			else {
+			    next = a->p1;
+			}
+
+			goto advanc;
+		    }
+
+		    if(c < 0) {
+			while(1) {
+			    a = back->p1;
+    
+			    if(a == 0) {
+				rfail = 1;
+				list = base;
+
+				while(1) {
+				    back = list->p2;
+				    var = back->p2;
+	
+				    if(list->typ < 2) {
+					delete(var);
+					sno_free(back);
+					b = list->p1;
+					sno_free(list);
+	    
+					if(b == 0) {
+					    return a;
+					}
+	    
+					list = b;
+
+					continue;
+				    }
+	
+				    str = var->p1;
+				    etc = var->p2;
+	
+				    if((a != 0) && (etc->p1 != 0)) {
+					if(str->p2 == 0) {
+					    sno_free(str);
+					    str = 0;
+					}
+
+					assign(etc->p1, copy(str));
+				    }
+	
+				    if(str) {
+					sno_free(str);
+				    }
+	
+				    sno_free(etc);
+				    sno_free(var);
+				    sno_free(back);
+				    b = list->p1;
+				    sno_free(list);
+	
+				    if(b == 0) {
+					return a;
+				    }
+	
+				    list = b;
+				}
+			    }
+
+			    list = a;
+			    back = list->p2;
+			    var = back->p2;
+			    str = var->p1;
+			    etc = var->p2;
+
+			    if(etc->p2) {
+				continue;
+			    }
+
+			    if(var->typ == 1) {
+				if(bextend(str, last) == 0) {
+				    continue;
+				}
+
+				a = str->p2;
+
+				if(a == last) {
+				    next = 0;
+				}
+				else {
+				    next = a->p1;
+				}
+
+				goto advanc;
+			    }
+
+			    if(ubextend(str, last) == 0) {
+				continue;
+			    }
+
+			    a = str->p2;
+    
+			    if(a == last) {
+				next = 0;
+			    }
+			    else {
+				next = a->p1;
+			    }
+			}
+
+			goto advanc;
+		    }
+
+		    d = bextend(str, last);
+       
+		    if(d == 0) {
+			while(1) {
+			    a = back->p1;
+    
+			    if(a == 0) {
+				rfail = 1;
+				list = base;
+
+				while(1) {
+				    back = list->p2;
+				    var = back->p2;
+	
+				    if(list->typ < 2) {
+					delete(var);
+					sno_free(back);
+					b = list->p1;
+					sno_free(list);
+	    
+					if(b == 0) {
+					    return a;
+					}
+	    
+					list = b;
+
+					continue;
+				    }
+	
+				    str = var->p1;
+				    etc = var->p2;
+	
+				    if((a != 0) && (etc->p1 != 0)) {
+					if(str->p2 == 0) {
+					    sno_free(str);
+					    str = 0;
+					}
+
+					assign(etc->p1, copy(str));
+				    }
+	
+				    if(str) {
+					sno_free(str);
+				    }
+	
+				    sno_free(etc);
+				    sno_free(var);
+				    sno_free(back);
+				    b = list->p1;
+				    sno_free(list);
+	
+				    if(b == 0) {
+					return a;
+				    }
+	
+				    list = b;
+				}
+			    }
+
+			    list = a;
+			    back = list->p2;
+			    var = back->p2;
+			    str = var->p1;
+			    etc = var->p2;
+
+			    if(etc->p2) {
+				continue;
+			    }
+
+			    if(var->typ == 1) {
+				if(bextend(str, last) == 0) {
+				    continue;
+				}
+
+				a = str->p2;
+
+				if(a == last) {
+				    next = 0;
+				}
+				else {
+				    next = a->p1;
+				}
+
+				goto advanc;
+			    }
+
+			    if(ubextend(str, last) == 0) {
+				continue;
+			    }
+
+			    a = str->p2;
+    
+			    if(a == last) {
+				next = 0;
+			    }
+			    else {
+				next = a->p1;
+			    }
+			}
+
+			goto advanc;
+		    }
+		}
+	    }
+
+	    if(c == 0) {
+		if((d == 3) && (next != 0)) {
+		    str->p2 = last;
+		    a = str->p2;
+
+		    if(a == last) {
+			next = 0;
+		    }
+		    else {
+			next = a->p1;
+		    }
+		}
+
+		goto advanc;
+	    }
+
+	    while(c) {
+		--c;
+
+		if(ubextend(str, last) == 0) {
+		    while(1) {
+			a = back->p1;
+    
+			if(a == 0) {
+			    rfail = 1;
+			    list = base;
+
+			    while(1) {
+				back = list->p2;
+				var = back->p2;
+	
+				if(list->typ < 2) {
+				    delete(var);
+				    sno_free(back);
+				    b = list->p1;
+				    sno_free(list);
+	    
+				    if(b == 0) {
+					return a;
+				    }
+	    
+				    list = b;
+
+				    continue;
+				}
+	
+				str = var->p1;
+				etc = var->p2;
+	
+				if((a != 0) && (etc->p1 != 0)) {
+				    if(str->p2 == 0) {
+					sno_free(str);
+					str = 0;
+				    }
+
+				    assign(etc->p1, copy(str));
+				}
+	
+				if(str) {
+				    sno_free(str);
+				}
+	
+				sno_free(etc);
+				sno_free(var);
+				sno_free(back);
+				b = list->p1;
+				sno_free(list);
+	
+				if(b == 0) {
+				    return a;
+				}
+	
+				list = b;
+			    }
+			}
+
+			list = a;
+			back = list->p2;
+			var = back->p2;
+			str = var->p1;
+			etc = var->p2;
+
+			if(etc->p2) {
+			    continue;
+			}
+
+			if(var->typ == 1) {
+			    if(bextend(str, last) == 0) {
+				continue;
+			    }
+
+			    a = str->p2;
+
+			    if(a == last) {
+				next = 0;
+			    }
+			    else {
+				next = a->p1;
+			    }
+
+			    goto advanc;
+			}
+
+			if(ubextend(str, last) == 0) {
+			    continue;
+			}
+
+			a = str->p2;
+    
+			if(a == last) {
+			    next = 0;
+			}
+			else {
+			    next = a->p1;
+			}
+		    }
+
+		    goto advanc;
+		}
+	    }
+
+	    a = str->p2;
+
+	    if(a == last) {
+		next = 0;
+	    }
+	    else {
+		next = a->p1;
+	    }
+
+	    goto advanc;
+	}
+
+	b = alloc();
+	list->p1 = b;
+	list = b;
+    }
+
+    while(1) {
+	a = back->p1;
+    
+	if(a == 0) {
+	    rfail = 1;
+	    list = base;
+
+	    while(1) {
+		back = list->p2;
+		var = back->p2;
+	
+		if(list->typ < 2) {
+		    delete(var);
+		    sno_free(back);
+		    b = list->p1;
+		    sno_free(list);
+	    
+		    if(b == 0) {
+			return a;
+		    }
+	    
+		    list = b;
+
+		    continue;
+		}
+	
+		str = var->p1;
+		etc = var->p2;
+	
+		if((a != 0) && (etc->p1 != 0)) {
+		    if(str->p2 == 0) {
+			sno_free(str);
+			str = 0;
+		    }
+
+		    assign(etc->p1, copy(str));
+		}
+	
+		if(str) {
+		    sno_free(str);
+		}
+	
+		sno_free(etc);
+		sno_free(var);
+		sno_free(back);
+		b = list->p1;
+		sno_free(list);
+	
+		if(b == 0) {
+		    return a;
+		}
+	
+		list = b;
+	    }
+	}
+
+	list = a;
+	back = list->p2;
+	var = back->p2;
+	str = var->p1;
+	etc = var->p2;
+
+	if(etc->p2) {
+	    continue;
+	}
+
+	if(var->typ == 1) {
+	    if(bextend(str, last) == 0) {
+		continue;
+	    }
+
+	    a = str->p2;
+
+	    if(a == last) {
+		next = 0;
+	    }
+	    else {
+		next = a->p1;
+	    }
+
+	    goto advanc;
+	}
+
+	if(ubextend(str, last) == 0) {
+	    continue;
+	}
+
+	a = str->p2;
+    
+	if(a == last) {
 	    next = 0;
 	}
 	else {
-	    next = r->p1;
-	    last = r->p2;
+	    next = a->p1;
 	}
-
-	goto adv1;
-    }
-
-    b = alloc();
-    list->p1 = b;
-    list = b;
-
- badv1:
-    back = alloc();
-    list->p2 = back;
-    back->p1 = last;
-    b = a->p2;
-    c = a->typ;
-    list->typ = c;
-
-    if(c < 2) {
-	back->p2 = eval(b, 1);
-
-	goto badvanc;
-    }
-
-    last = list;
-    str = alloc();
-    etc = alloc();
-    var = alloc();
-    back->p2 = var;
-    var->typ = b->typ;
-    var->p1 = str;
-    var->p2 = etc;
-    e = b->p1;
-
-    if(e == 0) {
-	etc->p1 = 0;
-    }
-    else {
-	etc->p1 = eval(e, 0);
-    }
-
-    e = b->p2;
-    
-    if(e == 0) {
-	etc->p2 = 0;
-    }
-    else {
-	e = eval(e, 1);
-	etc->p2 = e;
-	delete(e);
-    }
-
-    goto badvanc;
-
- retard:
-    a = back->p1;
-    
-    if(a == 0) {
-	rfail = 1;
-	
-	goto fail;
-    }
-
-    list = a;
-    back = list->p2;
-    var = back->p2;
-    str = var->p1;
-    etc = var->p2;
-
-    if(etc->p2) {
-	goto retard;
-    }
-
-    if(var->typ == 1) {
-	if(bextend(str, last) == 0) {
-	    goto retard;
-	}
-
-	goto adv0;
-    }
-
-    if(ubextend(str, last) == 0) {
-	goto retard;
-    }
-
- adv0:
-    a = str->p2;
-    
- adv01:
-    if(a == last) {
-	next = 0;
-    }
-    else {
-	next = a->p1;
     }
 
  advanc:
@@ -251,8 +2049,55 @@ struct node *search(struct node *arg, struct node *r)
 	if(r == 0) {
 	    a->p2 = 0;
 	    a->p1 = 0;
+	    list = base;
+
+	    while(1) {
+		back = list->p2;
+		var = back->p2;
 	
-	    goto fail;
+		if(list->typ < 2) {
+		    delete(var);
+		    sno_free(back);
+		    b = list->p1;
+		    sno_free(list);
+	    
+		    if(b == 0) {
+			return a;
+		    }
+	    
+		    list = b;
+
+		    continue;
+		}
+	
+		str = var->p1;
+		etc = var->p2;
+	
+		if((a != 0) && (etc->p1 != 0)) {
+		    if(str->p2 == 0) {
+			sno_free(str);
+			str = 0;
+		    }
+
+		    assign(etc->p1, copy(str));
+		}
+	
+		if(str) {
+		    sno_free(str);
+		}
+	
+		sno_free(etc);
+		sno_free(var);
+		sno_free(back);
+		b = list->p1;
+		sno_free(list);
+	
+		if(b == 0) {
+		    return a;
+		}
+	
+		list = b;
+	    }	  
 	}
 
 	b = r->p1;
@@ -260,8 +2105,55 @@ struct node *search(struct node *arg, struct node *r)
 
 	if(next == 0) {
 	    a->p2 = r->p2;
+	    list = base;
 
-	    goto fail;
+	    while(1) {
+		back = list->p2;
+		var = back->p2;
+	
+		if(list->typ < 2) {
+		    delete(var);
+		    sno_free(back);
+		    b = list->p1;
+		    sno_free(list);
+	    
+		    if(b == 0) {
+			return a;
+		    }
+	    
+		    list = b;
+
+		    continue;
+		}
+	
+		str = var->p1;
+		etc = var->p2;
+	
+		if((a != 0) && (etc->p1 != 0)) {
+		    if(str->p2 == 0) {
+			sno_free(str);
+			str = 0;
+		    }
+
+		    assign(etc->p1, copy(str));
+		}
+	
+		if(str) {
+		    sno_free(str);
+		}
+	
+		sno_free(etc);
+		sno_free(var);
+		sno_free(back);
+		b = list->p1;
+		sno_free(list);
+	
+		if(b == 0) {
+		    return a;
+		}
+	
+		list = b;
+	    }
 	}
 
 	while(1) {
@@ -269,8 +2161,55 @@ struct node *search(struct node *arg, struct node *r)
 	    
 	    if(e == next) {
 		a->p2 = b;
+		list = base;
 
-		goto fail;
+		while(1) {
+		    back = list->p2;
+		    var = back->p2;
+	
+		    if(list->typ < 2) {
+			delete(var);
+			sno_free(back);
+			b = list->p1;
+			sno_free(list);
+	    
+			if(b == 0) {
+			    return a;
+			}
+	    
+			list = b;
+
+			continue;
+		    }
+	
+		    str = var->p1;
+		    etc = var->p2;
+	
+		    if((a != 0) && (etc->p1 != 0)) {
+			if(str->p2 == 0) {
+			    sno_free(str);
+			    str = 0;
+			}
+
+			assign(etc->p1, copy(str));
+		    }
+	
+		    if(str) {
+			sno_free(str);
+		    }
+	
+		    sno_free(etc);
+		    sno_free(var);
+		    sno_free(back);
+		    b = list->p1;
+		    sno_free(list);
+	
+		    if(b == 0) {
+			return a;
+		    }
+	
+		    list = b;
+		}
 	    }
 
 	    b = e;
@@ -278,8 +2217,6 @@ struct node *search(struct node *arg, struct node *r)
     }
 
     list = a;
-
- adv1:
     back = list->p2;
     var = back->p2;
     d = list->typ;
@@ -289,8 +2226,105 @@ struct node *search(struct node *arg, struct node *r)
 	    goto advanc;
 	}
 
-	if( next == 0) {
-	    goto retard;
+	if(next == 0) {
+	    while(1) {
+		a = back->p1;
+    
+		if(a == 0) {
+		    rfail = 1;
+		    list = base;
+
+		    while(1) {
+			back = list->p2;
+			var = back->p2;
+	
+			if(list->typ < 2) {
+			    delete(var);
+			    sno_free(back);
+			    b = list->p1;
+			    sno_free(list);
+	    
+			    if(b == 0) {
+				return a;
+			    }
+	    
+			    list = b;
+
+			    continue;
+			}
+	
+			str = var->p1;
+			etc = var->p2;
+	
+			if((a != 0) && (etc->p1 != 0)) {
+			    if(str->p2 == 0) {
+				sno_free(str);
+				str = 0;
+			    }
+
+			    assign(etc->p1, copy(str));
+			}
+	
+			if(str) {
+			    sno_free(str);
+			}
+	
+			sno_free(etc);
+			sno_free(var);
+			sno_free(back);
+			b = list->p1;
+			sno_free(list);
+	
+			if(b == 0) {
+			    return a;
+			}
+	
+			list = b;
+		    }
+		}
+
+		list = a;
+		back = list->p2;
+		var = back->p2;
+		str = var->p1;
+		etc = var->p2;
+
+		if(etc->p2) {
+		    continue;
+		}
+
+		if(var->typ == 1) {
+		    if(bextend(str, last) == 0) {
+			continue;
+		    }
+
+		    a = str->p2;
+
+		    if(a == last) {
+			next = 0;
+		    }
+		    else {
+			next = a->p1;
+		    }
+
+		    break;
+		}
+
+		if(ubextend(str, last) == 0) {
+		    continue;
+		}
+
+		a = str->p2;
+    
+		if(a == last) {
+		    next = 0;
+		}
+		else {
+		    next = a->p1;
+		}
+	    }
+
+	    goto advanc;
 	}
 
 	a = next;
@@ -299,15 +2333,216 @@ struct node *search(struct node *arg, struct node *r)
 
 	while(1) {
 	    if(a->ch != b->ch) {
-		goto retard;
+		while(1) {
+		    a = back->p1;
+    
+		    if(a == 0) {
+			rfail = 1;
+			list = base;
+
+			while(1) {
+			    back = list->p2;
+			    var = back->p2;
+	
+			    if(list->typ < 2) {
+				delete(var);
+				sno_free(back);
+				b = list->p1;
+				sno_free(list);
+	    
+				if(b == 0) {
+				    return a;
+				}
+	    
+				list = b;
+
+				continue;
+			    }
+	
+			    str = var->p1;
+			    etc = var->p2;
+	
+			    if((a != 0) && (etc->p1 != 0)) {
+				if(str->p2 == 0) {
+				    sno_free(str);
+				    str = 0;
+				}
+
+				assign(etc->p1, copy(str));
+			    }
+	
+			    if(str) {
+				sno_free(str);
+			    }
+	
+			    sno_free(etc);
+			    sno_free(var);
+			    sno_free(back);
+			    b = list->p1;
+			    sno_free(list);
+	
+			    if(b == 0) {
+				return a;
+			    }
+	
+			    list = b;
+			}
+		    }
+
+		    list = a;
+		    back = list->p2;
+		    var = back->p2;
+		    str = var->p1;
+		    etc = var->p2;
+
+		    if(etc->p2) {
+			continue;
+		    }
+
+		    if(var->typ == 1) {
+			if(bextend(str, last) == 0) {
+			    continue;
+			}
+
+			a = str->p2;
+
+			if(a == last) {
+			    next = 0;
+			}
+			else {
+			    next = a->p1;
+			}
+
+			break;
+		    }
+
+		    if(ubextend(str, last) == 0) {
+			continue;
+		    }
+
+		    a = str->p2;
+    
+		    if(a == last) {
+			next = 0;
+		    }
+		    else {
+			next = a->p1;
+		    }
+		}
+
+		goto advanc;
 	    }
 
 	    if(b == e) {
-		goto adv01;
+		if(a == last) {
+		    next = 0;
+		}
+		else {
+		    next = a->p1;
+		}
+
+		goto advanc;
 	    }
 
 	    if(a == last) {
-		goto retard;
+		while(1) {
+		    a = back->p1;
+    
+		    if(a == 0) {
+			rfail = 1;
+			list = base;
+
+			while(1) {
+			    back = list->p2;
+			    var = back->p2;
+	
+			    if(list->typ < 2) {
+				delete(var);
+				sno_free(back);
+				b = list->p1;
+				sno_free(list);
+	    
+				if(b == 0) {
+				    return a;
+				}
+	    
+				list = b;
+
+				continue;
+			    }
+	
+			    str = var->p1;
+			    etc = var->p2;
+	
+			    if((a != 0) && (etc->p1 != 0)) {
+				if(str->p2 == 0) {
+				    sno_free(str);
+				    str = 0;
+				}
+
+				assign(etc->p1, copy(str));
+			    }
+	
+			    if(str) {
+				sno_free(str);
+			    }
+	
+			    sno_free(etc);
+			    sno_free(var);
+			    sno_free(back);
+			    b = list->p1;
+			    sno_free(list);
+	
+			    if(b == 0) {
+				return a;
+			    }
+	
+			    list = b;
+			}
+		    }
+
+		    list = a;
+		    back = list->p2;
+		    var = back->p2;
+		    str = var->p1;
+		    etc = var->p2;
+
+		    if(etc->p2) {
+			continue;
+		    }
+
+		    if(var->typ == 1) {
+			if(bextend(str, last) == 0) {
+			    continue;
+			}
+
+			a = str->p2;
+
+			if(a == last) {
+			    next = 0;
+			}
+			else {
+			    next = a->p1;
+			}
+
+			break;
+		    }
+
+		    if(ubextend(str, last) == 0) {
+			continue;
+		    }
+
+		    a = str->p2;
+    
+		    if(a == last) {
+			next = 0;
+		    }
+		    else {
+			next = a->p1;
+		    }
+		}
+
+		goto advanc;
 	    }
 
 	    a = a->p1;
@@ -324,28 +2559,337 @@ struct node *search(struct node *arg, struct node *r)
 	d = bextend(str, last);
 
 	if(d == 0) {
-	    goto retard;
+	    while(1) {
+		a = back->p1;
+    
+		if(a == 0) {
+		    rfail = 1;
+		    list = base;
+
+		    while(1) {
+			back = list->p2;
+			var = back->p2;
+	
+			if(list->typ < 2) {
+			    delete(var);
+			    sno_free(back);
+			    b = list->p1;
+			    sno_free(list);
+	    
+			    if(b == 0) {
+				return a;
+			    }
+	    
+			    list = b;
+
+			    continue;
+			}
+	
+			str = var->p1;
+			etc = var->p2;
+	
+			if((a != 0) && (etc->p1 != 0)) {
+			    if(str->p2 == 0) {
+				sno_free(str);
+				str = 0;
+			    }
+
+			    assign(etc->p1, copy(str));
+			}
+	
+			if(str) {
+			    sno_free(str);
+			}
+	
+			sno_free(etc);
+			sno_free(var);
+			sno_free(back);
+			b = list->p1;
+			sno_free(list);
+	
+			if(b == 0) {
+			    return a;
+			}
+	
+			list = b;
+		    }
+		}
+
+		list = a;
+		back = list->p2;
+		var = back->p2;
+		str = var->p1;
+		etc = var->p2;
+
+		if(etc->p2) {
+		    continue;
+		}
+
+		if(var->typ == 1) {
+		    if(bextend(str, last) == 0) {
+			continue;
+		    }
+
+		    a = str->p2;
+
+		    if(a == last) {
+			next = 0;
+		    }
+		    else {
+			next = a->p1;
+		    }
+
+		    break;
+		}
+
+		if(ubextend(str, last) == 0) {
+		    continue;
+		}
+
+		a = str->p2;
+    
+		if(a == last) {
+		    next = 0;
+		}
+		else {
+		    next = a->p1;
+		}
+	    }
+
+	    goto advanc;
 	}
 
 	if(etc->p2 == 0) {
-	    goto adv0;
+	    a = str->p2;
+
+	    if(a == last) {
+		next = 0;
+	    }
+	    else {
+		next = a->p1;
+	    }
+	    
+	    goto advanc;
 	}
 
 	while(1) {
 	    c -= d;
 
 	    if(c == d) {
-		goto adv0;
+		a = str->p2;
+
+		if(a == last) {
+		    next = 0;
+		}
+		else {
+		    next = a->p1;
+		}
+
+		goto advanc;
 	    }
 
 	    if(c < 0) {
-		goto retard;
+		while(1) {
+		    a = back->p1;
+    
+		    if(a == 0) {
+			rfail = 1;
+			list = base;
+
+			while(1) {
+			    back = list->p2;
+			    var = back->p2;
+	
+			    if(list->typ < 2) {
+				delete(var);
+				sno_free(back);
+				b = list->p1;
+				sno_free(list);
+	    
+				if(b == 0) {
+				    return a;
+				}
+	    
+				list = b;
+
+				continue;
+			    }
+	
+			    str = var->p1;
+			    etc = var->p2;
+	
+			    if((a != 0) && (etc->p1 != 0)) {
+				if(str->p2 == 0) {
+				    sno_free(str);
+				    str = 0;
+				}
+
+				assign(etc->p1, copy(str));
+			    }
+	
+			    if(str) {
+				sno_free(str);
+			    }
+	
+			    sno_free(etc);
+			    sno_free(var);
+			    sno_free(back);
+			    b = list->p1;
+			    sno_free(list);
+	
+			    if(b == 0) {
+				return a;
+			    }
+	
+			    list = b;
+			}
+		    }
+
+		    list = a;
+		    back = list->p2;
+		    var = back->p2;
+		    str = var->p1;
+		    etc = var->p2;
+
+		    if(etc->p2) {
+			continue;
+		    }
+
+		    if(var->typ == 1) {
+			if(bextend(str, last) == 0) {
+			    continue;
+			}
+
+			a = str->p2;
+
+			if(a == last) {
+			    next = 0;
+			}
+			else {
+			    next = a->p1;
+			}
+
+			break;
+		    }
+
+		    if(ubextend(str, last) == 0) {
+			continue;
+		    }
+
+		    a = str->p2;
+    
+		    if(a == last) {
+			next = 0;
+		    }
+		    else {
+			next = a->p1;
+		    }
+		}
+
+		goto advanc;
 	    }
 
 	    d = bextend(str, last);
        
 	    if(d == 0) {
-		goto retard;
+		while(1) {
+		    a = back->p1;
+    
+		    if(a == 0) {
+			rfail = 1;
+			list = base;
+
+			while(1) {
+			    back = list->p2;
+			    var = back->p2;
+	
+			    if(list->typ < 2) {
+				delete(var);
+				sno_free(back);
+				b = list->p1;
+				sno_free(list);
+	    
+				if(b == 0) {
+				    return a;
+				}
+	    
+				list = b;
+
+				continue;
+			    }
+	
+			    str = var->p1;
+			    etc = var->p2;
+	
+			    if((a != 0) && (etc->p1 != 0)) {
+				if(str->p2 == 0) {
+				    sno_free(str);
+				    str = 0;
+				}
+
+				assign(etc->p1, copy(str));
+			    }
+	
+			    if(str) {
+				sno_free(str);
+			    }
+	
+			    sno_free(etc);
+			    sno_free(var);
+			    sno_free(back);
+			    b = list->p1;
+			    sno_free(list);
+	
+			    if(b == 0) {
+				return a;
+			    }
+	
+			    list = b;
+			}
+		    }
+
+		    list = a;
+		    back = list->p2;
+		    var = back->p2;
+		    str = var->p1;
+		    etc = var->p2;
+
+		    if(etc->p2) {
+			continue;
+		    }
+
+		    if(var->typ == 1) {
+			if(bextend(str, last) == 0) {
+			    continue;
+			}
+
+			a = str->p2;
+
+			if(a == last) {
+			    next = 0;
+			}
+			else {
+			    next = a->p1;
+			}
+
+			break;
+		    }
+
+		    if(ubextend(str, last) == 0) {
+			continue;
+		    }
+
+		    a = str->p2;
+    
+		    if(a == last) {
+			next = 0;
+		    }
+		    else {
+			next = a->p1;
+		    }
+		}
+
+		goto advanc;
 	    }
 	}
     }
@@ -353,8 +2897,14 @@ struct node *search(struct node *arg, struct node *r)
     if(c == 0) {
 	if((d == 3) && (next != 0)) {
 	    str->p2 = last;
+	    a = str->p2;
 
-	    goto adv0;
+	    if(a == last) {
+		next = 0;
+	    }
+	    else {
+		next = a->p1;
+	    }
 	}
 
 	goto advanc;
@@ -364,55 +2914,115 @@ struct node *search(struct node *arg, struct node *r)
 	--c;
 
 	if(ubextend(str, last) == 0) {
-	    goto retard;
-	}
-    }
-
-    goto adv0;
-
- fail:
-    list = base;
-    goto f1;
-
- fadv:
-    sno_free(back);
-    b = list->p1;
-    sno_free(list);
-
-    if(b == 0) {
-	return a;
-    }
-
-    list = b;
-
- f1:
-    back = list->p2;
-    var = back->p2;
+	    while(1) {
+		a = back->p1;
     
-    if(list->typ < 2) {
-	delete(var);
+		if(a == 0) {
+		    rfail = 1;
+		    list = base;
 
-	goto fadv;
-    }
-
-    str = var->p1;
-    etc = var->p2;
-
-    if((a != 0) && (etc->p1 != 0)) {
-	if(str->p2 == 0) {
-	    sno_free(str);
-	    str = 0;
-	}
-
-	assign(etc->p1, copy(str));
-    }
-
-    if(str) {
-	sno_free(str);
-    }
-
-    sno_free(etc);
-    sno_free(var);
-    goto fadv;
-}
+		    while(1) {
+			back = list->p2;
+			var = back->p2;
+	
+			if(list->typ < 2) {
+			    delete(var);
+			    sno_free(back);
+			    b = list->p1;
+			    sno_free(list);
 	    
+			    if(b == 0) {
+				return a;
+			    }
+	    
+			    list = b;
+
+			    continue;
+			}
+	
+			str = var->p1;
+			etc = var->p2;
+	
+			if((a != 0) && (etc->p1 != 0)) {
+			    if(str->p2 == 0) {
+				sno_free(str);
+				str = 0;
+			    }
+
+			    assign(etc->p1, copy(str));
+			}
+	
+			if(str) {
+			    sno_free(str);
+			}
+	
+			sno_free(etc);
+			sno_free(var);
+			sno_free(back);
+			b = list->p1;
+			sno_free(list);
+	
+			if(b == 0) {
+			    return a;
+			}
+	
+			list = b;
+		    }
+		}
+
+		list = a;
+		back = list->p2;
+		var = back->p2;
+		str = var->p1;
+		etc = var->p2;
+
+		if(etc->p2) {
+		    continue;
+		}
+
+		if(var->typ == 1) {
+		    if(bextend(str, last) == 0) {
+			continue;
+		    }
+
+		    a = str->p2;
+
+		    if(a == last) {
+			next = 0;
+		    }
+		    else {
+			next = a->p1;
+		    }
+
+		    break;
+		}
+
+		if(ubextend(str, last) == 0) {
+		    continue;
+		}
+
+		a = str->p2;
+    
+		if(a == last) {
+		    next = 0;
+		}
+		else {
+		    next = a->p1;
+		}
+	    }
+
+	    goto advanc;
+	}
+    }
+
+    a = str->p2;
+
+    if(a == last) {
+	next = 0;
+    }
+    else {
+	next = a->p1;
+    }
+
+    goto advanc;
+}
