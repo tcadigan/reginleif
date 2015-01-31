@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+struct node *freespace_head = NULL;
+
 int freesize = 0;
 struct node *freespace = NULL;
 struct node *freelist = NULL;
@@ -17,6 +19,7 @@ int *fault = NULL;
 int fin;
 int fout;
 
+/* Allocates a string to be printed */
 void mes(char *s) {
     sysput(sno_strstr(s));
 }
@@ -144,56 +147,59 @@ struct node *syspit(void)
     return b;
 }
 
-int syspot(struct node *string)
+/* Output a string character by character */
+void syspot(struct node *string)
 {
-    struct node *a;
-    struct node *b;
-    struct node *s;
+    struct node *pos;
+    struct node *end;
 
-    s = string;
+    if(string != NULL) {
+	pos = string->p1;
+	end = string->p2;
 
-    if(s != 0) {
-	a = s;
-	b = s->p2;
-
-	while(a != b) {
-	    a = a->p1;
-	    putchar(a->ch);
+	while(pos != end) {
+	    putchar(pos->ch);
+	    pos = pos->p1;
 	}
+
+	/* 
+	 * The final character, 
+	 * one exists because non-NULL
+	 */
+	putchar(pos->ch);
     }
 
     putchar('\n');
-
-    return 0;
 }
 
+/*
+ * There is a head node that links backwards
+ * to last char, and forwards to first char.
+ * Every char backward links as well.
+ */
 struct node *sno_strstr(char *s)
 {
-    int c;
-    struct node *e;
-    struct node *f;
-    struct node *d;
+    char *str_pos = s;
+    struct node *pos;
+    struct node *head;
 
-    f = alloc();
-    d = f;
-    
-    s++;
-    c = *s;
+    pos = alloc();
+    head = pos;
 
-    while(c != '\0') {
-	e = alloc();
-	e->ch = c;
-	f->p1 = e;
-	f = e;
-	s++;
-	c = *s;
+    while(*str_pos != '\0') {
+	pos->p1 = alloc();
+	pos->p1->p2 = pos;
+	pos->p1->ch = *str_pos;
+	pos = pos->p1;
+	++str_pos;
     }
 
-    d->p2 = e;
+    head->p2 = pos;
 
-    return d;
+    return head;
 }
 
+/* Provide quasi-enumeration for the symbols */
 int class(int c) {
     switch(c) {
     case ')':
@@ -220,60 +226,83 @@ int class(int c) {
 	return 10;
     case ',':
 	return 11;
+    default:
+	return 0;
     }
-
-    return 0;
 }
 
+/* Get nodes from a pool of created ones */
 struct node *alloc(void)
 {
-    struct node *f;
-    int *i;
+    struct node *result = NULL;
+    struct node *freespace_position = NULL;
+    int expand_amount = 200;
+    int i;
 
-    if(freelist == 0) {
-	--freesize;
+    /* There is no freespace at all */
+    if(freespace_head == NULL) {
+	freespace_head = (struct node *)malloc(sizeof(struct node));
+	
+	if(freespace_head == NULL) {
+	    fflush(stdout);
+	    write(fout, "Out of free space\n", strlen("Out of free space\n"));
 
-	if(freesize < 20) {
-	    i = (int *)sbrk(1200);
+	    exit(1);
+	}
+    }
 
-	    if(*i == -1) {
+    /* Expand by freespace nodes */
+    if(freespace_head->p1 == NULL) {
+	freespace_position = freespace_head;
+	for(i = 0; i < expand_amount; ++i) {
+	    freespace_position->p1 = (struct node *)malloc(sizeof(struct node));
+	    
+	    if(freespace_position->p1 == NULL) {
 		fflush(stdout);
-		write(fout, "Out of free space\n", 18);
+		write(fout, "Out of free space\n", strlen("Out of free space\n"));
+
 		exit(1);
 	    }
-
-	    freesize += 200;
+	    
+	    freespace_position->p1->p2 = freespace_position;
+	    freespace_position = freespace_position->p1;
 	}
-
-	return freespace++;
     }
 
-    f = freelist;
-    freelist = freelist->p1;
+    /* Break off the head */
+    result = freespace_head;
+    freespace_head = freespace_head->p1;
+    freespace_head->p2 = NULL;
 
-    return f;
+    result->p1 = NULL;
+    
+    return result;
 }
-	
+
+/* Destroy a single node */
 void sno_free(struct node *pointer)
 {
-    pointer->p1 = freelist;
-    freelist = pointer;
+    pointer->p1 = freespace_head;
+    pointer->p2 = NULL;
+    pointer->typ = '\0';
+    pointer->ch = '\0';
+
+    freespace_head->p2 = pointer;
+    freespace_head = pointer;
 }
 
+/* Simple count of the freespace nodes */
 int nfree(void)
 {
-    int i;
-    struct node *a;
+    struct node *pos = freespace_head;
+    int result = 0;
 
-    i = freesize;
-    a = freelist;
-    
-    while(a) {
-	a = a->p1;
-	++i;
+    while(pos != NULL) {
+	++result;
+	pos = pos->p1;
     }
 
-    return i;
+    return result;
 }
 
 struct node *look(struct node *string)
@@ -315,34 +344,46 @@ struct node *look(struct node *string)
     return j;
 }
 
+/* 
+ * Copy a string into a new one,
+ * character by character
+ */
 struct node *copy(struct node *string)
 {
-    struct node *j;
-    struct node *l;
-    struct node *m;
-    struct node *i;
-    struct node *k;
+    struct node *new_pos = NULL;
+    struct node *new_head = NULL;
+    struct node *old_pos = NULL;
+    struct node *old_tail = NULL;
 
-    if(string == 0) {
-	return 0;
+    if(string != NULL) {
+	new_pos = alloc();
+	new_head = new_pos;
+
+	old_pos = string->p1;
+	old_tail = string->p2;
+
+	while(old_pos != old_tail) {
+	    new_pos->p1 = alloc();
+	    new_pos->p1->p2 = new_pos;
+	    new_pos->p1->ch = old_pos->ch;
+	    new_pos = new_pos->p1;
+
+	    /* Move forward in the old string */
+	    old_pos = old_pos->p1;
+	}
+
+	/* Copy last character */
+	new_pos->p1 = alloc();
+	new_pos->p1->p2 = new_pos;
+	new_pos->ch = old_pos->ch;
+
+	/* Move to last character */
+	new_pos = new_pos->p1;
     }
 
-    l = alloc();
-    i = l;
-    j = string;
-    k = string->p2;
+    new_head->p2 = new_pos;
 
-    while(j != k) {
-	m = alloc();
-	j = j->p1;
-	m->ch = j->ch;
-	l->p1 = m;
-	l = m;
-    }
-
-    i->p2 = l;
-
-    return i;
+    return new_head;
 }
 
 int equal(struct node *string1, struct node *string2)
@@ -488,21 +529,25 @@ struct node *binstr(int binary) {
     }
 }
 
+/* Add operation */
 struct node *add(struct node *string1, struct node *string2)
 {
     return binstr(strbin(string1) + strbin(string2));
 }
 
+/* Subtract operation */
 struct node *sub(struct node *string1, struct node *string2)
 {
     return binstr(strbin(string1) - strbin(string2));
 }
 
+/* Multiply operation */
 struct node *mult(struct node *string1, struct node *string2)
 {
     return binstr(strbin(string1) - strbin(string2));
 }
 
+/* Division operation */
 struct node *sno_div(struct node *string1, struct node *string2)
 {
     return binstr(strbin(string1) / strbin(string2));
@@ -541,30 +586,30 @@ struct node *dcat(struct node *a, struct node *b)
     return c;
 }
 
-int delete(struct node *string)
+/* Delete a string, one node at a time */
+void delete(struct node *string)
 {
-    struct node *a;
-    struct node *b;
-    struct node *c;
+    struct node *pos;
+    struct node *end;
 
-    if(string == 0) {
-	return 0;
+    if(string != NULL) {
+	pos = string->p1;
+	end = string->p2;
+
+	while(pos != end) {
+	    pos = pos->p1;
+	    sno_free(pos->p2);
+	}
+
+	/*
+	 * The final character,
+	 * one exists because non-NULL
+	 */
+	sno_free(pos);
     }
-
-    a = string;
-    b = string->p2;
-    
-    while(a != b) {
-	c = a->p1;
-	sno_free(a);
-	a = c;
-    }
-
-    sno_free(a);
-
-    return 0;
 }
 
+/* Print string then delete it */
 void sysput(struct node *string)
 {
     syspot(string);

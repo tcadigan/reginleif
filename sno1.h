@@ -3,10 +3,12 @@
 
 #include "sno.h"
 
+#include <string.h>
+
 void mes(char *c);
 struct node *init(char *s, int t);
 struct node *syspit(void);
-int syspot(struct node *string);
+void syspot(struct node *string);
 struct node *sno_strstr(char *s);
 int class(int c);
 struct node *alloc(void);
@@ -23,7 +25,7 @@ struct node *mult(struct node *string1, struct node *string2);
 struct node *sno_div(struct node *string1, struct node *string2);
 struct node *cat(struct node *string1, struct node *string2);
 struct node *dcat(struct node *a, struct node *b);
-int delete(struct node *string);
+void delete(struct node *string);
 void sysput(struct node *string);
 void dump(void);
 int dump1(struct node *base);
@@ -32,5 +34,8 @@ struct node *sno_getc(void);
 
 /* from unistd.h */
 void *sbrk(int increment);
+
+/* from string.h */
+size_t strlen(const char *str);
 
 #endif /* SNO1_H_ */
