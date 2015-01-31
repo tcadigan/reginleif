@@ -1,9 +1,6 @@
-/*
- * File with various monster functions in it
- *
- * @(#)monsters.c	3.18 (Berkeley) 6/15/81
- */
-
+// File with various monster functions in it
+//
+// @(#)monsters.c 3.18 (Berkeley) 6/15/81
 #include "monsters.h"
 
 #include "chase.h"
@@ -18,18 +15,13 @@
 
 #include <ctype.h>
 
-/*
- * List of monsters in rough order of vorpalness
- */
+// List of monsters in rough order of vorpalness
 static char *lvl_mons =  "KJBSHEAOZGLCRQNYTWFIXUMVDP";
 static char *wand_mons = "KJBSH AOZG CRQ Y W IXU V  ";
 
-/*
- * randmonster:
- *	Pick a monster to show up.  The lower the level,
- *	the meaner the monster.
- */
-
+// randmonster:
+//     Pick a monster to show up. The lower the level,
+//     the meaner the monster
 char randmonster(bool wander)
 {
     int d;
@@ -70,15 +62,12 @@ char randmonster(bool wander)
     return mons[d];
 }
 
-/*
- * new_monster:
- *	Pick a new monster and add it to the list
- */
-
+// new_monster:
+//     Pick a new monster and add it to the list
 int new_monster(struct linked_list *item, char type, coord *cp)
 {
-    register struct thing *tp;
-    register struct monster *mp;
+    struct thing *tp;
+    struct monster *mp;
 
     _attach(&mlist, item);
     tp = (struct thing *)item->l_data;
@@ -161,17 +150,16 @@ int new_monster(struct linked_list *item, char type, coord *cp)
     return 0;
 }
 
-/*
- * wanderer:
- *	A wandering monster has awakened and is headed for the player
- */
-
+// wanderer:
+//     A wandering monster has awakened and is headed for the player
 int wanderer()
 {
-    register int i, ch;
-    register struct room *rp, *hr = roomin(&player.t_pos);
-    register struct linked_list *item;
-    register struct thing *tp;
+    int i;
+    int ch;
+    struct room *rp;
+    struct room *hr = roomin(&player.t_pos);
+    struct linked_list *item;
+    struct thing *tp;
     coord cp;
 
     item = new_item(sizeof *tp);
@@ -221,29 +209,30 @@ int wanderer()
     tp->t_flags |= ISRUN;
     tp->t_pos = cp;
     tp->t_dest = &player.t_pos;
-    if (wizard)
-	msg("Started a wandering %s", monsters[tp->t_type-'A'].m_name);
+    if(wizard) {
+	msg("Started a wandering %s", monsters[tp->t_type - 'A'].m_name);
+    }
 
     return 0;
 }
 
-/*
- * what to do when the hero steps next to a monster
- */
+// wake_monster:
+//     What to do when the hero steps next to a monster
 struct linked_list *wake_monster(int y, int x)
 {
-    register struct thing *tp;
-    register struct linked_list *it;
-    register struct room *rp;
-    register char ch;
+    struct thing *tp;
+    struct linked_list *it;
+    struct room *rp;
+    char ch;
 
-    if ((it = find_mons(y, x)) == NULL)
+    it = find_mons(y, x);
+    if(it == NULL) {
 	msg("Can't find monster in show", 0);
+    }
     tp = (struct thing *)it->l_data;
     ch = tp->t_type;
-    /*
-     * Every time he sees mean monster, it might start chasing him
-     */
+
+    // Every time he sees a mean monster, it might start chasing him
     if((rnd(100) > 33)
        && ((tp->t_flags & ISMEAN) != 0)
        && ((tp->t_flags & ISHELD) == 0)
@@ -291,42 +280,51 @@ struct linked_list *wake_monster(int y, int x)
     return it;
 }
 
+// genocide:
+//     Something...
 int genocide()
 {
-    register struct linked_list *ip;
-    register struct thing *mp;
-    register char c;
-    register int i;
-    register struct linked_list *nip;
+    struct linked_list *ip;
+    struct thing *mp;
+    char c;
+    int i;
+    struct linked_list *nip;
 
     addmsg("Which monster", 0);
-    if (!terse)
+    if(!terse) {
 	addmsg(" do you wish to wipe out", 0);
+    }
     msg("? ", 0);
-    while (!isalpha(c = readchar()))
-	if (c == ESCAPE)
+    c = readchar();
+    while(!isalpha(c)) {
+	if(c == ESCAPE) {
 	    return 0;
-	else
-	{
+        }
+	else {
 	    mpos = 0;
 	    msg("Please specifiy a letter between 'A' and 'Z'", 0);
 	}
-    if (islower(c))
+
+        c = readchar();
+    }
+    if(islower(c)) {
 	c = toupper(c);
-    for (ip = mlist; ip; ip = nip)
-    {
+    }
+    
+    for(ip = mlist; ip; ip = nip) {
 	mp = (struct thing *)ip->l_data;
 	nip = ip->l_next;
-	if (mp->t_type == c)
+	if(mp->t_type == c) {
 	    remove_monster(&mp->t_pos, ip);
+        }
     }
-    for (i = 0; i < 26; i++)
-	if (lvl_mons[i] == c)
-	{
+    for(i = 0; i < 26; ++i) {
+	if(lvl_mons[i] == c) {
 	    lvl_mons[i] = ' ';
 	    wand_mons[i] = ' ';
 	    break;
 	}
-
+    }
+    
     return 0;
 }

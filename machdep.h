@@ -1,46 +1,48 @@
-/*
- * machine dependicies
- *
- * %G% (Berkeley) %W%
- */
-/*
- * where scorefile should live
- */
-#define SCOREFILE	"/usr/games/rogueroll"
+// Machine dependencies
 
-/*
- * Variables for checking to make sure the system isn't too loaded
- * for people to play
- */
+// Where the scorefile should live
+#define SCOREFILE "/usr/games/rogueroll"
 
-// #define	MAXUSERS	8	/* max number of users for this game */
-#undef	MAXLOAD		40	/* 10 * max 15 minute load average */
+// Variables for chekcing to make sure the system isn't too loaded
+// for people to play
 
-#if MAXUSERS|MAXLOAD
-#define	CHECKTIME	10	/* number of minutes between load checks */
-				/* if not defined checks are only on startup */
+// Max number of users for this game
+#define MAXUSERS 8
+
+// 10 * max 15 minute load average
+#undef MAXLOAD 40
+
+#ifdef MAXUSERS|MAXLOAD
+// Number of minutes between load checks.
+// If not defined, checks are only on startup
+#define	CHECKTIME 10
 #endif
 
 #ifdef MAXLOAD
-#define	LOADAV			/* defined if rogue should provide loadav() */
+// Defined if rogue should provide loadav()
+#define	LOADAV
 
 #ifdef LOADAV
-#define	NAMELIST	"/vmunix"	/* where the system namelist lives */
+// Where the system namelist lives
+#define	NAMELIST "/vmunix"
 #endif
+
 #endif
 
 #ifdef MAXUSERS
-#define	UCOUNT			/* defined if rogue should provide ucount() */
+// Defined if rogue should provide ucount()
+#define UCOUNT
 
 #ifdef UCOUNT
-#define UTMP	"/etc/utmp"	/* where utmp file lives */
-#endif
+// Where utmp file lives
+#define UTMP "/etc/UTMP"
 #endif
 
-/*
- *	BRL Addition  -  If RNOTES is defined, then the filename it
- *	is defined as is printed on the terminal whenever rogue
- *	is invoked.  Typically this would be used to describe changes
- *	or to warn of bugs, etc.
- */
-#define	RNOTES	"/usr/games/roguenotes"
+#endif
+
+// BRL Addition:
+//     If RNOTES is defined, then the filename it is defined as
+//     is printed on the terminal whenever rogue is invoked.
+//     Typically this would be used to describe changes or
+//     to warn of bugs, etc.
+#define	RNOTES "/usr/games/roguenotes"

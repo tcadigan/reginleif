@@ -12,9 +12,5 @@ char readchar();
 int status();
 int wait_for(char ch);
 int show_win(WINDOW *scr, char *message);
-int noecho();
-int noraw();
-int crmode();
-int raw();
 
 #endif

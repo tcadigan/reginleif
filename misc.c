@@ -1,9 +1,6 @@
-/*
- * all sorts of miscellaneous routines
- *
- * @(#)misc.c	3.13 (Berkeley) 6/15/81
- */
-
+// All sorts of miscellaneous routines
+//
+// @(#)misc.c 3.13 (Berkeley) 6/15/81
 #include "misc.h"
 
 #include "chase.h"
@@ -19,11 +16,8 @@
 
 #include <ctype.h>
 
-/*
- * tr_name:
- *	print the name of a trap
- */
-
+// tr_name:
+//     Print the name of the trap
 char *tr_name(char ch)
 {
     char *s;
@@ -88,20 +82,20 @@ char *tr_name(char ch)
     return s;
 }
 
-/*
- * Look:
- *	A quick glance all around the player
- */
-
+// look:
+//     A quick glance all around the player
 int look(bool wakeup)
 {
-    register int x, y;
-    register char ch;
-    register int oldx, oldy;
-    register bool inpass;
-    register int passcount = 0;
-    register struct room *rp;
-    register int ey, ex;
+    int x;
+    int y;
+    char ch;
+    int oldx;
+    int oldy;
+    bool inpass;
+    int passcount = 0;
+    struct room *rp;
+    int ey;
+    int ex;
 
     getyx(cw, oldy, oldx);
 
@@ -117,129 +111,139 @@ int look(bool wakeup)
             }
         }
     }
-    
-    inpass = ((rp = roomin(&player.t_pos)) == NULL);
+
+    rp = roomin(&player.t_pos);
+    inpass = (rp == NULL);
     ey = player.t_pos.y + 1;
     ex = player.t_pos.x + 1;
-    for (x = player.t_pos.x - 1; x <= ex; x++)
-	if (x >= 0 && x < COLS) for (y = player.t_pos.y - 1; y <= ey; y++)
-	{
-	    if (y <= 0 || y >= LINES - 1)
-		continue;
-	    if (isupper(mvwinch(mw, y, x)))
-	    {
-		register struct linked_list *it;
-		register struct thing *tp;
-
-		if (wakeup)
-		    it = wake_monster(y, x);
-		else
-		    it = find_mons(y, x);
-		tp = (struct thing *)it->l_data;
-                tp->t_oldch = mvinch(y, x);
-                
-		if(tp->t_oldch == TRAP) {
-                    if(trap_at(y,x)->tr_flags & ISFOUND) {
-                        tp->t_oldch = TRAP;
-                    }
-                    else {
-                        tp->t_oldch = FLOOR;
-                    }
-                }
-
-		if((tp->t_oldch == FLOOR)
-                   && (rp->r_flags & ISDARK)
-                   && ((player.t_flags & ISBLIND) == 0)) {
-                       tp->t_oldch = ' ';
-                   }
-	    }
-	    /*
-	     * Secret doors show as walls
-	     */
-	    if ((ch = show(y, x)) == SECRETDOOR)
-		ch = secretdoor(y, x);
-	    /*
-	     * Don't show room walls if he is in a passage
-	     */
-            if((player.t_flags & ISBLIND) == 0) {
-		if(((y == player.t_pos.y) && (x == player.t_pos.x))
-                   || (inpass && ((ch == '-') || (ch == '|')))) {
+    for(x = player.t_pos.x - 1; x <= ex; ++x) {
+	if((x >= 0) && (x < COLS)) {
+            for(y = player.t_pos.y - 1; y <= ey; ++y) {
+                if((y <= 0) || (y >= (LINES - 1))) {
                     continue;
                 }
-	    }
-	    else if((y != player.t_pos.y) || (x != player.t_pos.x)) {
-		continue;
-            }
-            
-	    wmove(cw, y, x);
-	    waddch(cw, ch);
-	    if(door_stop && !firstmove && running) {
-		switch(runch) {
-                case 'h':
-                    if(x == ex) {
-                        continue;
-                    }
-                    break;
-                case 'j':
-                    if(y == (player.t_pos.y - 1)) {
-                        continue;
-                    }
-                    break;
-                case 'k':
-                    if(y == ey) {
-                        continue;
-                    }
-                    break;
-                case 'l':
-                    if(x == (player.t_pos.x - 1)) {
-                        continue;
-                    }
-                    break;
-                case 'y':
-                    if(((x + y) - (player.t_pos.x + player.t_pos.y)) >= 1) {
-                        continue;
-                    }
-                    break;
-                case 'u':
-                    if(((y - x) - (player.t_pos.y - player.t_pos.x)) >= 1) {
-                        continue;
-                    }
-                    break;
-                case 'n':
-                    if(((x + y) - (player.t_pos.x + player.t_pos.y)) <= -1) {
-                        continue;
-                    }
-                    break;
-                case 'b':
-                    if(((y - x) - (player.t_pos.y - player.t_pos.x)) <= -1) {
-                        continue;
-                    }
-		}
                 
-		switch(ch) {
-                case DOOR:
-                    if((x == player.t_pos.x) || (y == player.t_pos.y)) {
+                if(isupper(mvwinch(mw, y, x))) {
+                    struct linked_list *it;
+                    struct thing *tp;
+
+                    if(wakeup){
+                        it = wake_monster(y, x);
+                    }
+                    else {
+                        it = find_mons(y, x);
+                    }
+                    
+                    tp = (struct thing *)it->l_data;
+                    tp->t_oldch = mvinch(y, x);
+                    
+                    if(tp->t_oldch == TRAP) {
+                        if(trap_at(y,x)->tr_flags & ISFOUND) {
+                            tp->t_oldch = TRAP;
+                        }
+                        else {
+                            tp->t_oldch = FLOOR;
+                        }
+                    }
+
+                    if((tp->t_oldch == FLOOR)
+                       && (rp->r_flags & ISDARK)
+                       && ((player.t_flags & ISBLIND) == 0)) {
+                        tp->t_oldch = ' ';
+                    }
+                }
+
+                // Secret doors show as walls
+                ch = show(y, x);
+                if(ch == SECRETDOOR) {
+                    ch = secretdoor(y, x);
+                }
+
+                // Don't show room walls if he is in a passage
+                if((player.t_flags & ISBLIND) == 0) {
+                    if(((y == player.t_pos.y) && (x == player.t_pos.x))
+                       || (inpass && ((ch == '-') || (ch == '|')))) {
+                        continue;
+                    }
+                }
+                else if((y != player.t_pos.y) || (x != player.t_pos.x)) {
+                    continue;
+                }
+            
+                wmove(cw, y, x);
+                waddch(cw, ch);
+                if(door_stop && !firstmove && running) {
+                    switch(runch) {
+                    case 'h':
+                        if(x == ex) {
+                            continue;
+                        }
+                        break;
+                    case 'j':
+                        if(y == (player.t_pos.y - 1)) {
+                            continue;
+                        }
+                        break;
+                    case 'k':
+                        if(y == ey) {
+                            continue;
+                        }
+                        break;
+                    case 'l':
+                        if(x == (player.t_pos.x - 1)) {
+                            continue;
+                        }
+                        break;
+                    case 'y':
+                        if(((x + y) - (player.t_pos.x + player.t_pos.y)) >= 1) {
+                            continue;
+                        }
+                        break;
+                    case 'u':
+                        if(((y - x) - (player.t_pos.y - player.t_pos.x)) >= 1) {
+                        continue;
+                        }
+                    break;
+                    case 'n':
+                        if(((x + y) - (player.t_pos.x + player.t_pos.y)) <= -1) {
+                            continue;
+                        }
+                        break;
+                    case 'b':
+                        if(((y - x) - (player.t_pos.y - player.t_pos.x)) <= -1) {
+                            continue;
+                        }
+                    }
+                
+                    switch(ch) {
+                    case DOOR:
+                        if((x == player.t_pos.x) || (y == player.t_pos.y)) {
+                            running = FALSE;
+                        }
+                        break;
+                    case PASSAGE:
+                        if((x == player.t_pos.x) || (y == player.t_pos.y)) {
+                            passcount++;
+                        }
+                        break;
+                    case FLOOR:
+                    case '|':
+                    case '-':
+                    case ' ':
+                        break;
+                    default:
                         running = FALSE;
+                        break;
                     }
-                    break;
-                case PASSAGE:
-                    if((x == player.t_pos.x) || (y == player.t_pos.y)) {
-                        passcount++;
-                    }
-                    break;
-                case FLOOR:
-                case '|':
-                case '-':
-                case ' ':
-                    break;
-                default:
-                    running = FALSE;
-                    break;
-		}
-	    }
-	}
-    if (door_stop && !firstmove && passcount > 1)
+                }
+            }
+        }
+    }
+    
+    if(door_stop && !firstmove && (passcount > 1)) {
 	running = FALSE;
+    }
+    
     mvwaddch(cw, player.t_pos.y, player.t_pos.x, PLAYER);
     wmove(cw, oldy, oldx);
     oldpos = player.t_pos;
@@ -248,22 +252,19 @@ int look(bool wakeup)
     return 0;
 }
 
-/*
- * secret_door:
- *	Figure out what a secret door looks like.
- */
-
+// secretdoor:
+//     Figure out what a secret door looks like
 char secretdoor(int y, int x)
 {
-    register int i;
-    register struct room *rp;
-    register coord *cpp;
+    int i;
+    struct room *rp;
+    coord *cpp;
     static coord cp;
 
     cp.y = y;
     cp.x = x;
     cpp = &cp;
-    for (rp = rooms, i = 0; i < MAXROOMS; rp++, i++)
+    for(rp = rooms, i = 0; i < MAXROOMS; ++rp, ++i) {
         if((cpp->x <= (rp->r_pos.x +(rp->r_max.x - 1)))
            && (rp->r_pos.x <= cpp->x)
            && (cpp->y <= rp->r_pos.y + (rp->r_max.y - 1))
@@ -276,86 +277,89 @@ char secretdoor(int y, int x)
 		return('|');
             }
         }
-
+    }
+    
     return('p');
 }
 
-/*
- * find_obj:
- *	find the unclaimed object at y, x
- */
-
+// find_obj:
+//     Find the unclaimed object at y, x
 struct linked_list *find_obj(int y, int x)
 {
-    register struct linked_list *obj;
-    register struct object *op;
+    struct linked_list *obj;
+    struct object *op;
 
-    for (obj = lvl_obj; obj != NULL; obj = obj->l_next)
-    {
+    for(obj = lvl_obj; obj != NULL; obj = obj->l_next) {
 	op = (struct object *)obj->l_data;
-	if (op->o_pos.y == y && op->o_pos.x == x)
+	if((op->o_pos.y == y) && (op->o_pos.x == x)) {
 		return obj;
+        }
     }
 
     if(wizard) {
         int args[] = { y, x };
         msg("Non-object %d,%d", args);
     }
+    
     return NULL;
 }
 
-/*
- * eat:
- *	She wants to eat something, so let her try
- */
-
+// eat:
+//     He wants to eat something, so let him try
 int eat()
 {
-    register struct linked_list *item;
-    register struct object *obj;
+    struct linked_list *item;
+    struct object *obj;
 
-    if ((item = get_item("eat", FOOD)) == NULL)
+    item = get_item("ead", FOOD);
+    if(item == NULL) {
 	return 0;
+    }
     obj = (struct object *)item->l_data;
-    if (obj->o_type != FOOD)
-    {
-	if (!terse)
+    if(obj->o_type != FOOD) {
+	if (!terse) {
 	    msg("Ugh, you would get ill if you ate that.", 0);
-	else
+        }
+	else {
 	    msg("That's Inedible!", 0);
+        }
+        
 	return 0;
     }
     inpack--;
-    if (--obj->o_count < 1)
-    {
+    if(--obj->o_count < 1) {
 	_detach(&player.t_pack, item);
 	discard(item);
     }
-    if (obj->o_which == 1)
+    if(obj->o_which == 1) {
 	msg("My, that was a yummy %s", fruit);
-    else
-	if (rnd(100) > 70)
-	{
+    }
+    else {
+	if(rnd(100) > 70) {
 	    msg("Yuk, this food tastes awful", 0);
 	    ++player.t_stats.s_exp;
 	    check_level();
 	}
-	else
+	else {
 	    msg("Yum, that tasted good", 0);
-    if ((food_left += HUNGERTIME + rnd(400) - 200) > STOMACHSIZE)
+        }
+    }
+
+    food_left += (HUNGERTIME + rnd(400) - 200);
+    if(food_left > STOMACHSIZE) {
 	food_left = STOMACHSIZE;
+    }
     hungry_state = 0;
-    if (obj == cur_weapon)
+    if(obj == cur_weapon) {
 	cur_weapon = NULL;
+    }
 
     return 0;
 }
 
-/*
- * Used to modify the playes strength
- * it keeps track of the highest it has been, just in case
- */
-
+// chg_str:
+//     Used to modify the player's strength,
+//     it keeps track of the highest it has been, just in case
 int chg_str(int amt)
 {
     if(amt == 0) {
@@ -393,7 +397,7 @@ int chg_str(int amt)
         }
     }
     else {
-	while(amt++) {
+	while(amt) {
             amt++;
 
 	    if((player.t_stats.s_str.st_str < 18)
@@ -425,11 +429,8 @@ int chg_str(int amt)
     return 0;
 }
 
-/*
- * add_haste:
- *	add a haste to the player
- */
-
+// add_haste:
+//     Add haste to the player
 int add_haste(bool potion)
 {
     if((player.t_flags & ISHASTE) != 0) {
@@ -447,28 +448,25 @@ int add_haste(bool potion)
     return 0;
 }
 
-/*
- * aggravate:
- *	aggravate all the monsters on this level
- */
-
+// aggravate:
+//     Aggravate all the monsters on this level
 int aggravate()
 {
-    register struct linked_list *mi;
+    struct linked_list *mi;
 
-    for (mi = mlist; mi != NULL; mi = mi->l_next)
+    for(mi = mlist; mi != NULL; mi = mi->l_next) {
 	runto(&((struct thing *)mi->l_data)->t_pos, &player.t_pos);
+    }
 
     return 0;
 }
 
-/*
- * for printfs: if string starts with a vowel, return "n" for an "an"
- */
+// vowelstr:
+//     for printf()'s, if string starts with a vowel,
+//     return 'n' for an "an"
 char *vowelstr(char *str)
 {
-    switch (*str)
-    {
+    switch (*str) {
 	case 'a':
 	case 'e':
 	case 'i':
@@ -480,9 +478,8 @@ char *vowelstr(char *str)
     }
 }
 
-/* 
- * see if the object is one of the currently used items
- */
+// is_current:
+//     See if the object is one of the currently used items
 int is_current(struct object *obj)
 {
     if(obj == NULL) {
@@ -505,9 +502,9 @@ int is_current(struct object *obj)
     return FALSE;
 }
 
-/*
- * set up the direction co_ordinate for use in varios "prefix" commands
- */
+// get_dir:
+//     Set up the direction coordinate for use
+//     in various "prefix" commands
 int get_dir()
 {
     char *prompt;

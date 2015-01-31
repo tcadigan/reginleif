@@ -1,8 +1,6 @@
-/*
- * All the fighting gets done here
- *
- * @(#)fight.c	3.28 (Berkeley) 6/15/81
- */
+// All the fighting gets done here
+//
+// @(#)fight.c 3.28 (Berkeley) 6/15/81
 
 #include "fight.h"
 
@@ -22,20 +20,15 @@ long e_levels[] = {
     10L,20L,40L,80L,160L,320L,640L,1280L,2560L,5120L,10240L,20480L,
     40920L, 81920L, 163840L, 327680L, 655360L, 1310720L, 2621440L, 0L };
 
-/*
- * fight:
- *	The player attacks the monster.
- */
-
+// fight:
+//     The player attacks the monster.
 int fight(coord *mp, char mn, struct object *weap, bool thrown)
 {
-    register struct thing *tp;
-    register struct linked_list *item;
-    register bool did_hit = TRUE;
+    struct thing *tp;
+    struct linked_list *item;
+    bool did_hit = TRUE;
 
-    /*
-     * Find the monster we want to fight
-     */
+    // Find the monster we want to fight
     item = find_mons(mp->y, mp->x);
     if(item == NULL) {
         if(wizard) {
@@ -44,15 +37,12 @@ int fight(coord *mp, char mn, struct object *weap, bool thrown)
         }
     }
     tp = (struct thing *)item->l_data;
-    /*
-     * Since we are fighting, things are not quiet so no healing takes
-     * place.
-     */
+
+    // Since we are fighting, things are not quiet so no healing taks place
     quiet = 0;
     runto(mp, &player.t_pos);
-    /*
-     * Let him know it was really a mimic (if it was one).
-     */
+
+    // Let him know it was really a mimic (if it was one)
     if((tp->t_type == 'M')
        && (tp->t_disguise != 'M')
        && ((player.t_flags & ISBLIND) == 0)) {
@@ -60,9 +50,8 @@ int fight(coord *mp, char mn, struct object *weap, bool thrown)
 	tp->t_disguise = 'M';
 	did_hit = thrown;
     }
-    if (did_hit)
-    {
-	register char *mname;
+    if (did_hit) {
+	char *mname;
 
 	did_hit = FALSE;
 
@@ -94,29 +83,28 @@ int fight(coord *mp, char mn, struct object *weap, bool thrown)
 		killed(item, TRUE);
             }
 	}
-	else
-	    if (thrown)
+	else {
+	    if(thrown) {
 		bounce(weap, mname);
-	    else
+            }
+	    else {
 		miss(NULL, mname);
+            }
+        }
     }
     count = 0;
+    
     return did_hit;
 }
 
-/*
- * attack:
- *	The monster attacks the player
- */
-
+// attack:
+//     The monster attacks the player
 int attack(struct thing *mp)
 {
-    register char *mname;
+    char *mname;
 
-    /*
-     * Since this is an attack, stop running and any healing that was
-     * going on at the time.
-     */
+    // Since this is an attack, stop running and any healing that was
+    // going on at the time
     running = FALSE;
     quiet = 0;
 
@@ -137,7 +125,8 @@ int attack(struct thing *mp)
         }
         
 	if(player.t_stats.s_hpt <= 0) {
-	    death(mp->t_type);	/* Bye bye life ... */
+            // Bye bye life...
+	    death(mp->t_type);
         }
 
         if((mp->t_flags & ISCANC) == 0) {
@@ -293,7 +282,8 @@ int attack(struct thing *mp)
 			    _detach(&player.t_pack, steal);
 			    discard(steal);
 			}
-			inpack--;
+                        
+			--inpack;
 		    }
 		}
                 break;
@@ -302,27 +292,26 @@ int attack(struct thing *mp)
 	    }
         }
     }
-    else if (mp->t_type != 'E')
-    {
-	if (mp->t_type == 'F')
-	{
+    else if(mp->t_type != 'E') {
+	if(mp->t_type == 'F') {
 	    player.t_stats.s_hpt -= fung_hit;
-	    if (player.t_stats.s_hpt <= 0)
-		death(mp->t_type);	/* Bye bye life ... */
+	    if(player.t_stats.s_hpt <= 0) {
+                // Bye bye life...
+		death(mp->t_type);
+            }
 	}
 	miss(mname, NULL);
     }
-    /*
-     * Check to see if this is a regenerating monster and let it heal if
-     * it is.
-     */
 
+    // Check to see if this is a regenerating monster and let it headl
+    // if it is
     if(((mp->t_flags & ISREGEN) != 0) && (rnd(100) < 33)) {
 	++mp->t_stats.s_hpt;
     }
     
     if(fight_flush) {
-	raw();	/* flush typeahead */
+        // flush typeahead
+	raw();
 	noraw();
     }
     
@@ -332,24 +321,18 @@ int attack(struct thing *mp)
     return 0;
 }
 
-/*
- * swing:
- *	returns true if the swing hits
- */
-
+// swing:
+//     Returns true if the swing hits
 int swing(int at_lvl, int op_arm, int wplus)
 {
-    register int res = rnd(20)+1;
-    register int need = (21-at_lvl)-op_arm;
+    int res = rnd(20) + 1;
+    int need = (21 - at_lvl) - op_arm;
 
-    return (res+wplus >= need);
+    return ((res + wplus) >= need);
 }
 
-/*
- * check_level:
- *	Check to see if the guy has gone up a level.
- */
-
+// check_level:
+//     Check to see if the guy has gone up a level
 int check_level()
 {
     int i;
@@ -364,7 +347,7 @@ int check_level()
     i++;
     
     if(i > player.t_stats.s_lvl) {
-	add = roll(i - player.t_stats.s_lvl,10);
+	add = roll(i - player.t_stats.s_lvl, 10);
 	max_hp += add;
         player.t_stats.s_hpt += add;
 
@@ -381,20 +364,21 @@ int check_level()
     return 0;
 }
 
-/*
- * roll_em:
- *	Roll several attacks
- */
-
+// roll_em:
+//     Roll several attacks
 int roll_em(struct stats *att, struct stats *def, struct object *weap, bool hurl)
 {
-    register char *cp;
-    register int ndice, nsides, def_arm;
-    register bool did_hit = FALSE;
-    register int prop_hplus, prop_dplus;
-    char *index();
+    char *cp;
+    int ndice;
+    int nsides;
+    int def_arm;
+    bool did_hit = FALSE;
+    int prop_hplus;
+    int prop_dplus;
 
-    prop_hplus = prop_dplus = 0;
+    prop_dplus = 0;
+    prop_hplus = 0;
+
     if(weap == NULL) {
 	cp = att->s_dmg;
     }
@@ -417,15 +401,14 @@ int roll_em(struct stats *att, struct stats *def, struct object *weap, bool hurl
     }
     else {
 	cp = weap->o_damage;
-	/*
-	 * Drain a staff of striking
-	 */
-	if (weap->o_type == STICK && weap->o_which == WS_HIT
-	    && weap->o_ac == 0)
-		{
-		    weap->o_damage = "0d0";
-		    weap->o_hplus = weap->o_dplus = 0;
-		}
+
+        // Drain a staff of striking
+	if((weap->o_type == STICK)
+           && (weap->o_which == WS_HIT)
+           && (weap->o_ac == 0)) {
+            weap->o_damage = "0d0";
+            weap->o_hplus = weap->o_dplus = 0;
+        }
     }
 
     while(1) {
@@ -458,7 +441,7 @@ int roll_em(struct stats *att, struct stats *def, struct object *weap, bool hurl
 	}
         
 	ndice = atoi(cp);
-        cp = index(cp, 'd');
+        cp = strchr(cp, 'd');
         
 	if(cp == NULL) {
 	    break;
@@ -486,9 +469,8 @@ int roll_em(struct stats *att, struct stats *def, struct object *weap, bool hurl
 	    def_arm = def->s_arm;
         }
         
-	if (swing(att->s_lvl, def_arm, hplus+str_plus(&att->s_str)))
-	{
-	    register int proll;
+	if(swing(att->s_lvl, def_arm, hplus + str_plus(&att->s_str))) {
+	    int proll;
 
 	    proll = roll(ndice, nsides);
 	    if(((ndice + nsides) > 0) && (proll < 1)) {
@@ -508,18 +490,20 @@ int roll_em(struct stats *att, struct stats *def, struct object *weap, bool hurl
             
 	    did_hit = TRUE;
 	}
-	if ((cp = index(cp, '/')) == NULL)
+
+        cp = strchr(cp, '/');
+	if(cp == NULL) {
 	    break;
-	cp++;
+        }
+        
+	++cp;
     }
+    
     return did_hit;
 }
 
-/*
- * prname:
- *	The print name of a combatant
- */
-
+// prname:
+//     The print name of a combatant
 char *prname(char *who, bool upper)
 {
     static char tbuf[80];
@@ -544,11 +528,8 @@ char *prname(char *who, bool upper)
     return tbuf;
 }
 
-/*
- * hit:
- *	Print a message to indicate a succesful hit
- */
-
+// hit:
+//     Print a message to indicate a successful hit
 int hit(char *er, char *ee)
 {
     char *s;
@@ -596,11 +577,8 @@ int hit(char *er, char *ee)
     return 0;
 }
 
-/*
- * miss:
- *	Print a message to indicate a poor swing
- */
-
+// miss:
+//     Print a message to indicate a poor swing
 int miss(char *er, char *ee)
 {
     char *s;
@@ -662,79 +640,76 @@ int miss(char *er, char *ee)
     return 0;
 }
 
-/*
- * save_throw:
- *	See if a creature save against something
- */
+// save_throw:
+//     See if a creature saves against something
 int save_throw(int which, struct thing *tp)
 {
-    register int need;
+    int need;
 
-    need = 14 + which - tp->t_stats.s_lvl / 2;
+    need = 14 + which - (tp->t_stats.s_lvl / 2);
     return (roll(1, 20) >= need);
 }
-/*
- * save:
- *	See if he saves against various nasty things
- */
 
+// save:
+//     See if he saves against various nasty things
 int save(int which)
 {
     return save_throw(which, &player);
 }
 
-/*
- * str_plus:
- *	compute bonus/penalties for strength on the "to hit" roll
- */
-
+// str_plus:
+//     Compute bonus/penalties for strength on the "to hit" roll
 int str_plus(str_t *str)
 {
-    if (str->st_str == 18)
-    {
-	if (str->st_add == 100)
+    if(str->st_str == 18) {
+	if(str->st_add == 100) {
 	    return 3;
-	if (str->st_add > 50)
+        }
+	if(str->st_add > 50) {
 	    return 2;
+        }
     }
-    if (str->st_str >= 17)
+    if(str->st_str >= 17) {
 	return 1;
-    if (str->st_str > 6)
+    }
+    if(str->st_str > 6) {
 	return 0;
-    return str->st_str - 7;
+    }
+    
+    return (str->st_str - 7);
 }
 
-/*
- * add_dam:
- *	compute additional damage done for exceptionally high or low strength
- */
-
+// add_dam:
+//     Compute additional damage done for exceptionally high or low strength
 int add_dam(str_t *str)
- {
-    if (str->st_str == 18)
-    {
-	if (str->st_add == 100)
+{
+    if(str->st_str == 18) {
+	if(str->st_add == 100) {
 	    return 6;
-	if (str->st_add > 90)
+        }
+	if(str->st_add > 90) {
 	    return 5;
-	if (str->st_add > 75)
+        }
+	if(str->st_add > 75) {
 	    return 4;
-	if (str->st_add != 0)
+        }
+	if(str->st_add != 0) {
 	    return 3;
+        }
+        
 	return 2;
     }
-    if (str->st_str > 15)
+    if(str->st_str > 15) {
 	return 1;
-    if (str->st_str > 6)
+    }
+    if(str->st_str > 6) {
 	return 0;
-    return str->st_str - 7;
+    }
+    return (str->st_str - 7);
 }
 
-/*
- * raise_level:
- *	The guy just magically went up a level.
- */
-
+// raise_level:
+//     The guy just magically went up a level
 int raise_level()
 {
     player.t_stats.s_exp = e_levels[player.t_stats.s_lvl - 1] + 1L;
@@ -743,43 +718,38 @@ int raise_level()
     return 0;
 }
 
-/*
- * thunk:
- *	A missile hits a monster
- */
-
+// thunk:
+//     A missile hits a monster
 int thunk(struct object *weap, char *mname)
 {
     if(weap->o_type == WEAPON) {
         msg("The %s hits the ", w_names[weap->o_which]);
 	msg("%s", mname);
     }
-    else
+    else {
 	msg("You hit the %s.", mname);
+    }
 
     return 0;
 }
 
-/*
- * bounce:
- *	A missile misses a monster
- */
-
+// bounce:
+//     A missile missed a monster
 int bounce(struct object *weap, char *mname)
 {
     if(weap->o_type == WEAPON) {
         msg("The %s misses the ", w_names[weap->o_which]);
         msg("%s", mname);
     }
-    else
+    else {
 	msg("You missed the %s.", mname);
+    }
 
     return 0;
 }
 
-/*
- * remove a monster from the screen
- */
+// remove_monster:
+//     Remove a monster from the screen
 int remove_monster(coord *mp, struct linked_list *item)
 {
     mvwaddch(mw, mp->y, mp->x, ' ');
@@ -790,18 +760,15 @@ int remove_monster(coord *mp, struct linked_list *item)
     return 0;
 }
 
-/*
- * is_magic:
- *	Returns true if an object radiates magic
- */
-
+// is_magic:
+//     Returns true if an object radiates magic
 int is_magic(struct object *obj)
 {
-    switch (obj->o_type) {
+    switch(obj->o_type) {
     case ARMOR:
         return (obj->o_ac != a_class[obj->o_which]);
     case WEAPON:
-        return (obj->o_hplus != 0 || obj->o_dplus != 0);
+        return ((obj->o_hplus != 0) || (obj->o_dplus != 0));
     case POTION:
     case SCROLL:
     case STICK:
@@ -813,15 +780,13 @@ int is_magic(struct object *obj)
     return FALSE;
 }
 
-/*
- * killed:
- *	Called to put a monster to death
- */
-
+// killed:
+//     Called to put a monster to death
 int killed(struct linked_list *item, bool pr)
 {
-    register struct thing *tp;
-    register struct linked_list *pitem, *nexti;
+    struct thing *tp;
+    struct linked_list *pitem;
+    struct linked_list *nexti;
 
     tp = (struct thing *)item->l_data;
     if(pr) {
@@ -844,13 +809,11 @@ int killed(struct linked_list *item, bool pr)
 	}
     }
     player.t_stats.s_exp += tp->t_stats.s_exp;
-    /*
-     * Do adjustments if he went up a level
-     */
+
+    // Do adjustments if he went up a level
     check_level();
-    /*
-     * If the monster was a violet fungi, un-hold him
-     */
+
+    // If the monster was a violet fungi, un-hold him
     switch(tp->t_type) {
     case 'F':
         player.t_flags &= ~ISHELD;
@@ -862,7 +825,7 @@ int killed(struct linked_list *item, bool pr)
 	    struct room *rp;
 
             rp = roomin(&tp->t_pos);
-	    if(rp == NULL){
+	    if(rp == NULL) {
 		break;
             }
             
@@ -885,17 +848,14 @@ int killed(struct linked_list *item, bool pr)
 	    }
 	}
     }
-    /*
-     * Empty the monsters pack
-     */
+
+    // Empty the monster's pack
     pitem = tp->t_pack;
-    /*
-     * Get rid of the monster.
-     */
+
+    // Get rid of the monster
     remove_monster(&tp->t_pos, item);
-    while (pitem != NULL)
-    {
-	register struct object *obj;
+    while(pitem != NULL) {
+	struct object *obj;
 
 	nexti = tp->t_pack->l_next;
 	obj = (struct object *)pitem->l_data;

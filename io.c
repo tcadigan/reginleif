@@ -1,15 +1,13 @@
-/*
- * Various input/output functions
- *
- * @(#)io.c	3.10 (Berkeley) 6/15/81
- *
- *		Revision History
- *		================
- *	23 Dec 81	DPK	Added the Howard Walter Memorial Kludge
- *				for Braindamaged Terminals.  This kludge
- *				prints a squashed status line on screens
- *				where the line length is < 80.
- */
+// Various input/output functions
+//
+// @(#)io.c 3.10 (Berkeley) 6/15/81
+//
+// Revision History
+// ================
+// 23 Dec 81  DPK  Added the Howard Walter Memorial Kludge
+//                 for Brain Damaged Terminals. This kludge
+//                 prints a squashed status line on screens
+//                 where the line length is < 80.
 
 #include "io.h"
 
@@ -19,39 +17,30 @@
 #include <ncurses.h>
 #include <stdio.h>
 
-/*
- * msg:
- *	Display a message at the top of the screen.
- */
-
 static char msgbuf[BUFSIZ];
 static int newpos = 0;
 
-/*VARARGS1*/
+// msg:
+//     Display a message at the top of the screen.
 int msg(char *fmt, void *args)
 {
-    /*
-     * if the string is "", just clear the line
-     */
-    if (*fmt == '\0')
-    {
+    // If the string is "", just clear the line
+    if(*fmt == '\0') {
 	wmove(cw, 0, 0);
 	wclrtoeol(cw);
 	mpos = 0;
 	return 0;
     }
-    /*
-     * otherwise add to the message and flush it out
-     */
+
+    // Otherwise add to the message and flush it out
     doadd(fmt, args);
     endmsg();
 
     return 0;
 }
 
-/*
- * add things to the current message
- */
+// addmsg:
+//     Add things to the current message
 int addmsg(char *fmt, void *args)
 {
     doadd(fmt, args);
@@ -59,20 +48,19 @@ int addmsg(char *fmt, void *args)
     return 0;
 }
 
-/*
- * Display a new msg (giving him a chance to see the previous one if it
- * is up there with the --More--)
- */
+// endmsg:
+//     Display a new msg (giving him a chance to see the previous one
+//     if it is up there with the --More--)
 int endmsg()
 {
     strcpy(huh, msgbuf);
-    if (mpos)
-    {
+    if(mpos) {
 	wmove(cw, 0, mpos);
 	waddstr(cw, "--More--");
         wrefresh(cw);
 	wait_for(' ');
     }
+
     mvwaddstr(cw, 0, 0, msgbuf);
     wclrtoeol(cw);
     mpos = newpos;
@@ -82,6 +70,8 @@ int endmsg()
     return 0;
 }
 
+// doadd:
+//     Something...
 int doadd(char *fmt, void *args)
 {
     FILE *junk = tmpfile();
@@ -102,14 +92,11 @@ int doadd(char *fmt, void *args)
     return 0;
 }
 
-/*
- * step_ok:
- *	returns true if it is ok to step on ch
- */
+// step_ok:
+//     Returns true if it is ok to step on ch
 int step_ok(char ch)
 {
-    switch (ch)
-    {
+    switch(ch) {
 	case ' ':
 	case '|':
 	case '-':
@@ -120,39 +107,41 @@ int step_ok(char ch)
     }
 }
 
-/*
- * readchar:
- *	flushes stdout so that screen is up to date and then returns
- *	getchar.
- */
+// readchar:
+//     Flushes stdout so that screen is up to date and then
+//     returns getchar
 char readchar()
 {
     char c;
 
     fflush(stdout);
-    while (read(0, &c, 1) < 0)
+    while(read(0, &c, 1) < 0) {
 	continue;
+    }
+    
     return c;
 }
 
-/*
- * status:
- *	Display the important stats line.  Keep the cursor where it was.
- */
-
+// status:
+//     Display the important stats line. Keep the cursor where it was
 int status()
 {
-    register int oy, ox, temp;
-    register char *pb;
+    int ox;
+    int temp;
+    int oy;
+    char *pb;
     static char buf[80];
-    static int hpwidth = 0, s_hungry = -1;
-    static int s_lvl = -1, s_pur, s_hp = -1, s_str, s_add, s_ac = 0;
+    static int hpwidth = 0;
+    static int s_hungry = -1;
+    static int s_lvl = -1;
+    static int s_pur;
+    static int s_hp = -1;
+    static int s_str;
+    static int s_add;
+    static int s_ac = 0;
     static long s_exp = 0;
 
-    /*
-     * If nothing has changed since the last status, don't
-     * bother.
-     */
+    // If nothing has changed since the last status, don't bother
     if(cur_armor != NULL) {
         if ((s_hp == player.t_stats.s_hpt)
             && (s_exp == player.t_stats.s_exp)
@@ -179,11 +168,12 @@ int status()
     }
 	
     getyx(cw, oy, ox);
-    if (s_hp != max_hp)
-    {
+    if(s_hp != max_hp) {
 	temp = s_hp = max_hp;
-	for (hpwidth = 0; temp; hpwidth++)
+
+	for(hpwidth = 0; temp; ++hpwidth) {
 	    temp /= 10;
+        }
     }
 
     int maxx;
@@ -254,10 +244,8 @@ int status()
                     player.t_stats.s_exp);
         }
     }
-    
-    /*
-     * Save old status
-     */
+
+    // Save old status
     s_lvl = level;
     s_pur = purse;
     s_hp = player.t_stats.s_hpt;
@@ -287,6 +275,7 @@ int status()
         waddstr(cw, "  Fainting");
         break;
     }
+
     wclrtoeol(cw);
     s_hungry = hungry_state;
     wmove(cw, oy, ox);
@@ -294,30 +283,29 @@ int status()
     return 0;
 }
 
-/*
- * wait_for
- *	Sit around until the guy types the right key
- */
-
+// wait_for:
+//     Sit around until the guy types the right key
 int wait_for(char ch)
 {
-    register char c;
+    char c;
 
-    if (ch == '\n')
-        while ((c = readchar()) != '\n' && c != '\r')
+    if(ch == '\n') {
+        c = readchar();
+        while((c != '\n') && (c != '\r')) {
+            c = readchar();
+        }
+    }
+    else {
+        while(readchar() != ch) {
 	    continue;
-    else
-        while (readchar() != ch)
-	    continue;
+        }
+    }
 
     return 0;
 }
 
-/*
- * show_win:
- *	function used to display a window and wait before returning
- */
-
+// show_win:
+//     Function used to display a window and wait before returning
 int show_win(WINDOW *scr, char *message)
 {
     mvwaddstr(scr, 0, 0, message);
@@ -330,50 +318,3 @@ int show_win(WINDOW *scr, char *message)
 
     return 0;
 }
-
-/*
- * extra functions by DM
- */
-/* int noecho() */
-/* { */
-/* 	struct sgttyb data; */
-
-/* 	gtty(_tty_ch, &data); */
-/* 	data.sg_flags &= ~ECHO; */
-/* 	stty(_tty_ch, &data); */
-
-/*         return 0; */
-/* } */
-
-/* int noraw() */
-/* { */
-/* 	struct sgttyb data; */
-
-/* 	gtty(_tty_ch, &data); */
-/* 	data.sg_flags &= ~RAW; */
-/* 	stty(_tty_ch, &data); */
-
-/*         return 0; */
-/* } */
-
-/* int crmode() */
-/* { */
-/* 	struct sgttyb data; */
-
-/* 	gtty(_tty_ch, &data); */
-/* 	data.sg_flags |= CBREAK; */
-/* 	stty(_tty_ch, &data); */
-
-/*         return 0; */
-/* } */
-
-/* int raw() */
-/* { */
-/* 	struct sgttyb data; */
-
-/* 	gtty(_tty_ch, &data); */
-/* 	data.sg_flags |= RAW; */
-/* 	stty(_tty_ch, &data); */
-
-/*         return 0; */
-/* } */

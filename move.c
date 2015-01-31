@@ -1,8 +1,6 @@
-/*
- * Hero movement commands
- *
- * @(#)move.c	3.26 (Berkeley) 6/15/81
- */
+// Hero movement commands
+//
+// @(#)move.c 3.26 (Berkeley) 6/15/81
 
 #include "move.h"
 
@@ -20,17 +18,11 @@
 
 #include <ctype.h>
 
-/*
- * Used to hold the new hero position
- */
-
+// Used to hold the new hero position
 coord nh;
 
-/*
- * do_run:
- *	Start the hero running
- */
-
+// do_run:
+//     Start the hero running
 int do_run(char ch)
 {
     running = TRUE;
@@ -40,26 +32,22 @@ int do_run(char ch)
     return 0;
 }
 
-/*
- * do_move:
- *	Check to see that a move is legal.  If it is handle the
- * consequences (fighting, picking up, etc.)
- */
-
+// do_move:
+//     Check to see that a move is legal. If it is handle
+//     the consequences (fighting, picking up, etc.)
 int do_move(int dy, int dx)
 {
-    register char ch;
+    char ch;
 
     firstmove = FALSE;
-    if (no_move)
-    {
-	no_move--;
+    if(no_move) {
+	--no_move;
 	msg("You are still stuck in the bear trap", 0);
+        
 	return 0;
     }
-    /*
-     * Do a confused move (maybe)
-     */
+
+    // Do a confused move (maybe)
     if((rnd(100) < 80) && ((player.t_flags & ISHUH) != 0)) {
 	nh = *rndmove(&player);
     }
@@ -68,17 +56,19 @@ int do_move(int dy, int dx)
 	nh.x = player.t_pos.x + dx;
     }
 
-    /*
-     * Check if he tried to move off the screen or make an illegal
-     * diagonal move, and stop him if he did.
-     */
-    if (nh.x < 0 || nh.x > COLS-1 || nh.y < 0 || nh.y > LINES - 1
-	|| !diag_ok(&player.t_pos, &nh))
-    {
+    // Check if he tried to move off the screen or make an illegal
+    // diagonal move, and stop him if he did
+    if((nh.x < 0)
+       || (nh.x > (COLS - 1))
+       || (nh.y < 0)
+       || (nh.y > (LINES - 1))
+       || !diag_ok(&player.t_pos, &nh)) {
 	after = FALSE;
 	running = FALSE;
+        
 	return 0;
     }
+    
     if(running && (player.t_pos.x == nh.x) && (player.t_pos.y == nh.y)) {
 	after = running = FALSE;
     }
@@ -202,38 +192,38 @@ int do_move(int dy, int dx)
  * Called to illuminate a room.
  * If it is dark, remove anything that might move.
  */
-
+// light:
+//     Called to illuminat a room. If it is dark,
+//     remove anything that might move.
 int light(coord *cp)
 {
-    register struct room *rp;
-    register int j, k;
-    register char ch, rch;
-    register struct linked_list *item;
+    struct room *rp;
+    int j;
+    int k;
+    char ch;
+    char rch;
+    struct linked_list *item;
 
     rp = roomin(cp);
 
     if((rp != NULL) && ((player.t_flags & ISBLIND) == 0)) {
-	for (j = 0; j < rp->r_max.y; j++)
-	{
-	    for (k = 0; k < rp->r_max.x; k++)
-	    {
+	for(j = 0; j < rp->r_max.y; ++j) {
+	    for(k = 0; k < rp->r_max.x; ++k) {
 		ch = show(rp->r_pos.y + j, rp->r_pos.x + k);
 		wmove(cw, rp->r_pos.y + j, rp->r_pos.x + k);
-		/*
-		 * Figure out how to display a secret door
-		 */
-		if (ch == SECRETDOOR)
-		{
-		    if (j == 0 || j == rp->r_max.y - 1)
+
+                // Figure out how to display a secret door
+		if(ch == SECRETDOOR) {
+		    if((j == 0) || (j == (rp->r_max.y - 1))) {
 			ch = '-';
-		    else
+                    }
+		    else {
 			ch = '|';
+                    }
 		}
-		/*
-		 * If the room is a dark room, we might want to remove
-		 * monsters and the like from it (since they might
-		 * move)
-		 */
+
+                // If the room is a dark room, we might want to remove
+                // monster and the like from it (since they might move)
 		if(isupper(ch)) {
 		    item = wake_monster(rp->r_pos.y+j, rp->r_pos.x+k);
                     
@@ -276,11 +266,8 @@ int light(coord *cp)
     return 0;
 }
 
-/*
- * show:
- *	returns what a certain thing will display as to the un-initiated
- */
-
+// show:
+//     Returns what a certain thing will display as to the un-initiated
 char show(int y, int x)
 {
     char ch;
@@ -322,11 +309,8 @@ char show(int y, int x)
     return ch;
 }
 
-/*
- * be_trapped:
- *	The guy stepped on a trap.... Make him pay.
- */
-
+// be_trapped:
+//     The guy stepped on a trap...Make him pay.
 int be_trapped(coord *tc)
 {
     struct trap *tp;
@@ -406,21 +390,19 @@ int be_trapped(coord *tc)
     // Flush typeahead
     raw();
     noraw();
+
     return(ch);
 }
 
-/*
- * trap_at:
- *	find the trap at (y,x) on screen.
- */
-
+// trap_at:
+//     Find the trap at (y, x) on screen
 struct trap *trap_at(int y, int x)
 {
     struct trap *tp;
     struct trap *ep;
 
     ep = &traps[ntraps];
-    for(tp = traps; tp < ep; tp++) {
+    for(tp = traps; tp < ep; ++tp) {
 	if((tp->tr_pos.y == y) && (tp->tr_pos.x == x)) {
 	    break;
         }
@@ -431,65 +413,72 @@ struct trap *trap_at(int y, int x)
             msg("Trap at %d,%d not in array", args);
         }
     }
+    
     return tp;
 }
 
-/*
- * rndmove:
- *	move in a random direction if the monster/person is confused
- */
-
+// rndmove:
+//     Move in a random direction if the monster/person is confused
 coord *rndmove(struct thing *who)
 {
-    register int x, y;
-    register char ch;
-    register int ex, ey, nopen = 0;
-    register struct linked_list *item;
-    register struct object *obj;
-    static coord ret;  /* what we will be returning */
+    int x;
+    int y;
+    char ch;
+    int ex;
+    int ey;
+    int nopen = 0;
+    struct linked_list *item;
+    struct object *obj;
+    // What we will be returning
+    static coord ret;
     static coord dest;
 
     ret = who->t_pos;
-    /*
-     * Now go through the spaces surrounding the player and
-     * set that place in the array to true if the space can be
-     * moved into
-     */
+
+    // Now go through the spaces surrounding the player and
+    // set that place in the array to true if the space can
+    // be moved into
     ey = ret.y + 1;
     ex = ret.x + 1;
-    for (y = who->t_pos.y - 1; y <= ey; y++)
-	if (y >= 0 && y < LINES)
-	    for (x = who->t_pos.x - 1; x <= ex; x++)
-	    {
-		if (x < 0 || x >= COLS)
+    for(y = who->t_pos.y - 1; y <= ey; ++y) {
+	if((y >= 0) && (y < LINES)) {
+	    for(x = who->t_pos.x - 1; x <= ex; ++x) {
+		if((x < 0) || (x >= COLS)) {
 		    continue;
+                }
                 if(mvwinch(mw, y, x) == ' ') {
                     ch = mvwinch(stdscr, y, x);
                 }
                 else {
                     ch = winch(mw);
                 }
-		if (step_ok(ch))
-		{
+		if(step_ok(ch)) {
 		    dest.y = y;
 		    dest.x = x;
-		    if (!diag_ok(&who->t_pos, &dest))
+		    if(!diag_ok(&who->t_pos, &dest)) {
 			continue;
-		    if (ch == SCROLL)
-		    {
+                    }
+		    if(ch == SCROLL) {
 			item = NULL;
-			for (item = lvl_obj; item != NULL; item = item->l_next)
-			{
+			for(item = lvl_obj; item != NULL; item = item->l_next) {
 			    obj = (struct object *)item->l_data;
-			    if (y == obj->o_pos.y && x == obj->o_pos.x)
+			    if((y == obj->o_pos.y) && (x == obj->o_pos.x)) {
 				break;
+                            }
 			}
-			if (item != NULL && obj->o_which == S_SCARE)
+			if((item != NULL) && (obj->o_which == S_SCARE)) {
 			    continue;
+                        }
 		    }
-		    if (rnd(++nopen) == 0)
+                    ++nopen;
+                    
+		    if(rnd(nopen) == 0) {
 			ret = dest;
+                    }
 		}
-	    }
+            }
+        }
+    }
+    
     return &ret;
 }

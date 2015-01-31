@@ -1,46 +1,41 @@
-/*
- * Functions for dealing with linked lists of goodies
- *
- * @(#)list.c	3.3 (Berkeley) 6/15/81
- */
+// Functions for dealing with linked lists of goodies
+//
+// @(#)list.c 3.3 (Berkeley) 6/15/81
 
 #include "list.h"
 
 #include "io.h"
 #include "main.h"
 
-/*
- * detach:
- *	Takes an item out of whatever linked list it might be in
- */
-
+// _detach:
+//     Takes an item out of whatever linked list it might be in
 int _detach(struct linked_list **list, struct linked_list *item)
 {
-    if (*list == item)
+    if(*list == item) {
 	*list = item->l_next;
-    if (item->l_prev != NULL) item->l_prev->l_next = item->l_next;
-    if (item->l_next != NULL) item->l_next->l_prev = item->l_prev;
+    }
+    if(item->l_prev != NULL) {
+        item->l_prev->l_next = item->l_next;
+    }
+    if(item->l_next != NULL) {
+        item->l_next->l_prev = item->l_prev;
+    }
     item->l_next = NULL;
     item->l_prev = NULL;
 
     return 0;
 }
 
-/*
- * _attach:
- *	add an item to the head of a list
- */
-
+// _attach:
+//     Add an item to the head of a list
 int _attach(struct linked_list **list, struct linked_list *item)
 {
-    if (*list != NULL)
-    {
+    if(*list != NULL) {
 	item->l_next = *list;
 	(*list)->l_prev = item;
 	item->l_prev = NULL;
     }
-    else
-    {
+    else {
 	item->l_next = NULL;
 	item->l_prev = NULL;
     }
@@ -50,17 +45,13 @@ int _attach(struct linked_list **list, struct linked_list *item)
     return 0;
 }
 
-/*
- * _free_list:
- *	Throw the whole blamed thing away
- */
-
+// _free_list:
+//     Throw the whole blamed thing away
 int _free_list(struct linked_list **ptr)
 {
-    register struct linked_list *item;
+    struct linked_list *item;
 
-    while (*ptr != NULL)
-    {
+    while(*ptr != NULL) {
 	item = *ptr;
 	*ptr = item->l_next;
 	discard(item);
@@ -69,11 +60,8 @@ int _free_list(struct linked_list **ptr)
     return 0;
 }
 
-/*
- * discard:
- *	free up an item
- */
-
+// discard:
+//     Free up an item
 int discard(struct linked_list *item)
 {
     total -= 2;
@@ -83,35 +71,40 @@ int discard(struct linked_list *item)
     return 0;
 }
 
-/*
- * new_item
- *	get a new item with a specified size
- */
-
+// new_item:
+//     Get a new item with the specified size
 struct linked_list *new_item(int size)
 {
-    register struct linked_list *item;
+    struct linked_list *item;
 
-    if ((item = (struct linked_list *) new(sizeof *item)) == NULL) {
+    item = (struct linked_list *)new(sizeof(*item));
+    if(item == NULL) {
         int args[] = { total };
 	msg("Ran out of memory for header after %d items", args);
     }
-    if ((item->l_data = new(size)) == NULL) {
+
+    item->l_data = new(size);
+    if(item->l_data == NULL) {
         int args[] = { total };
 	msg("Ran out of memory for data after %d items", args);
     }
     item->l_next = item->l_prev = NULL;
+    
     return item;
 }
 
+// new:
+//     Something...
 char *new(int size)
 {
-    register char *space = malloc((unsigned int)size);
+    char *space = malloc((unsigned int)size);
 
-    if (space == NULL) {
+    if(space == NULL) {
 	sprintf(prbuf, "Rogue ran out of memory (%p).  Fatal error!", sbrk(0));
         fatal(prbuf);
     }
-    total++;
+    
+    ++total;
+    
     return space;
 }
