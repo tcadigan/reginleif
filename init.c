@@ -73,20 +73,13 @@ struct monster monsters[26] = {
 };
 
 struct magic_item things[NUMTHINGS] = {
-    // Potion
-    { 0, 27 },
-    // Scroll
-    { 0, 27 },
-    // Food
-    { 0, 18 },
-    // Weapon
-    { 0,  9 },
-    // Armor
-    { 0,  9 },
-    // Ring
-    { 0,  5 },
-    // Stick
-    { 0,  5 }
+    { "Potion",  27, 0 },
+    { "Scroll",  54, 0 },
+    { "Food"  ,  72, 0 },
+    { "Weapon",  81, 0 },
+    { "Armor" ,  90, 0 },
+    { "Ring"  ,  95, 0 },
+    { "Stick" , 100, 0 }
 };
 
 struct magic_item s_magic[MAXSCROLLS] = {
@@ -109,20 +102,20 @@ struct magic_item s_magic[MAXSCROLLS] = {
 };
 
 struct magic_item p_magic[MAXPOTIONS] = {
-    { "confusion"        ,  8,  50 },
-    { "paralysis"        , 10,  50 },
-    { "poison"           ,  8,  50 },
-    { "gain strength"    , 15, 150 },
-    { "see invisible"    ,  2, 170 },
-    { "healing"          , 15, 130 },
-    { "monster detection",  6, 120 },
-    { "magic detection"  ,  6, 105 },
-    { "raise level"      ,  2, 220 },
-    { "extra healing"    ,  5, 180 },
-    { "haste self"       ,  4, 200 },
-    { "restore strength" , 14, 120 },
-    { "blindness"        ,  4,  50 },
-    { "thirst quenching" ,  1,  50 }
+    { "confusion"        ,   8,  50 },
+    { "paralysis"        ,  18,  50 },
+    { "poison"           ,  26,  50 },
+    { "gain strength"    ,  41, 150 },
+    { "see invisible"    ,  43, 170 },
+    { "healing"          ,  58, 130 },
+    { "monster detection",  64, 120 },
+    { "magic detection"  ,  70, 105 },
+    { "raise level"      ,  72, 220 },
+    { "extra healing"    ,  77, 180 },
+    { "haste self"       ,  81, 200 },
+    { "restore strength" ,  95, 120 },
+    { "blindness"        ,  99,  50 },
+    { "thirst quenching" , 100,  50 }
 };
 
 struct magic_item r_magic[MAXRINGS] = {
@@ -194,30 +187,30 @@ int a_chances[MAXARMORS] = {
 // Contains definitions and functions for dealing with things like
 // potions and scrolls
 static char *rainbow[] = {
-    "Red",
-    "Blue",
-    "Green",
-    "Yellow",
-    "Black",
-    "Brown",
-    "Orange",
-    "Pink",
-    "Purple",
-    "Grey",
-    "White",
-    "Silver",
-    "Gold",
-    "Violet",
-    "Clear",
-    "Vermilion",
-    "Ecru",
-    "Turquoise",
-    "Magenta",
-    "Amber",
-    "Topaz",
-    "Plaid",
-    "Tan",
-    "Tangerine"
+    "red",
+    "blue",
+    "green",
+    "yellow",
+    "black",
+    "brown",
+    "orange",
+    "pink",
+    "purple",
+    "grey",
+    "white",
+    "silver",
+    "gold",
+    "violet",
+    "clear",
+    "vermilion",
+    "ecru",
+    "turquoise",
+    "magenta",
+    "amber",
+    "topaz",
+    "plaid",
+    "tan",
+    "tangerine"
 };
 
 static char *sylls[] = {
@@ -447,7 +440,7 @@ static char *metal[] = {
 // init_player:
 //     Roll up the rogue
 int init_player()
-{
+{    
     player.t_stats.s_lvl = 1;
     player.t_stats.s_exp = 0L;
     player.t_stats.s_hpt = 12;
@@ -474,12 +467,6 @@ int init_player()
 //     Initialize the probabilities for types of things
 int init_things()
 {
-    struct magic_item *mp;
-
-    for(mp = &things[1]; mp < &things[NUMTHINGS]; ++mp) {
-	mp->mi_prob += (mp - 1)->mi_prob;
-    }
-    
     badcheck("things", things, NUMTHINGS);
 
     return 0;
@@ -490,24 +477,40 @@ int init_things()
 int init_colors()
 {
     int i;
+    int j;
     char *str;
 
+    int used_colors = 0;
+    int been_used = 0;
+
     for(i = 0; i < MAXPOTIONS; ++i) {
+        been_used = 0;
         str = rainbow[rnd(sizeof(rainbow) / sizeof(char *))];
 
-        while(!isupper(*str)) {
+        for(j = 0; j < used_colors; ++j) {
+            if(strncmp(str, p_colors[j], strlen(p_colors[j])) == 0) {
+                been_used = 1;
+                break;
+            }
+        }
+
+        while(been_used) {
+            been_used = 0;
             str = rainbow[rnd(sizeof(rainbow) / sizeof(char *))];
+
+            for(j = 0; j < used_colors; ++j) {
+                if(strncmp(str, p_colors[j], strlen(p_colors[j])) == 0) {
+                    been_used = 1;
+                    break;
+                }
+            }
         }
         
-	*str = tolower(*str);
 	p_colors[i] = str;
 	p_know[i] = FALSE;
 	p_guess[i] = NULL;
-	if(i > 0) {
-            p_magic[i].mi_prob += p_magic[i - 1].mi_prob;
-        }
     }
-    
+
     badcheck("potions", p_magic, MAXPOTIONS);
 
     return 0;

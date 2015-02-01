@@ -38,7 +38,7 @@ int fight(coord *mp, char mn, struct object *weap, bool thrown)
     }
     tp = (struct thing *)item->l_data;
 
-    // Since we are fighting, things are not quiet so no healing taks place
+    // Since we are fighting, things are not quiet so no healing takes place
     quiet = 0;
     runto(mp, &player.t_pos);
 

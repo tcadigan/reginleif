@@ -142,7 +142,7 @@ int main(int argc, char **argv, char **envp)
         }
     }
     time(&now);
-    lowtime = (int) now;
+    lowtime = (int)now;
 
     if(wizard && (getenv("SEED") != NULL)) {
         dnum = atoi(getenv("SEED"));
