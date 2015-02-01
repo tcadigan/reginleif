@@ -1,10 +1,6 @@
-/*
- * Contains functions for dealing with things like
- * potions and scrolls
- *
- * @(#)things.c	3.37 (Berkeley) 6/15/81
- */
-
+// Contains functions for dealing with things like potions and scrolls
+//
+// @(#)things.c 3.37 (Berkeley) 6/15/81
 #include "things.h"
 
 #include "armor.h"
@@ -22,11 +18,8 @@
 
 #include <ctype.h>
 
-/*
- * inv_name:
- *	return the name of something as it would appear in an
- *	inventory.
- */
+// inv_name:
+//     Return the name of something as it would appear in an inventory
 char *inv_name(struct object *obj, bool drop)
 {
     char *pb;
@@ -225,10 +218,8 @@ char *inv_name(struct object *obj, bool drop)
     return prbuf;
 }
 
-/*
- * money:
- *	Add to characters purse
- */
+// money:
+//     Add to character's purse
 int money()
 {
     struct room *rp;
@@ -257,33 +248,33 @@ int money()
     return 0;
 }
 
-/*
- * drop:
- *	put something down
- */
+// drop:
+//     Put something down
 int drop()
 {
-    register char ch;
-    register struct linked_list *obj, *nobj;
-    register struct object *op;
+    char ch;
+    struct linked_list *obj;
+    struct linked_list *nobj;
+    struct object *op;
 
     ch = mvwinch(stdscr, player.t_pos.y, player.t_pos.x);
-    if (ch != FLOOR && ch != PASSAGE)
-    {
+    if((ch != FLOOR) && (ch != PASSAGE)) {
 	msg("There is something there already", 0);
 	return 0;
     }
-    if ((obj = get_item("drop", 0)) == NULL)
+    obj = get_item("drop", 0);
+    if(obj == NULL) {
 	return 0;
+    }
     op = (struct object *)obj->l_data;
-    if (!dropcheck(op))
+    if(!dropcheck(op)) {
 	return 0;
-    /*
-     * Take it out of the pack
-     */
+    }
+
+    // Take it out of the pack
     if((op->o_count >= 2) && (op->o_type != WEAPON)) {
 	nobj = new_item(sizeof *op);
-	op->o_count--;
+	--op->o_count;
 	op = (struct object *)nobj->l_data;
 	*op = *((struct object *)obj->l_data);
 	op->o_count = 1;
@@ -298,9 +289,8 @@ int drop()
     }
     
     --inpack;
-    /*
-     * Link it into the level object list
-     */
+
+    // Link it into the level object list
     _attach(&lvl_obj, obj);
     mvaddch(player.t_pos.y, player.t_pos.x, op->o_type);
     op->o_pos = player.t_pos;
@@ -309,45 +299,46 @@ int drop()
     return 0;
 }
 
-/*
- * do special checks for dropping or unweilding|unwearing|unringing
- */
+// dropcheck:
+//     Do special checks for dropping/unwielding/unwearing/unringing
 int dropcheck(struct object *op)
 {
     str_t save_max;
 
-    if (op == NULL)
+    if(op == NULL) {
 	return TRUE;
-    if (op != cur_armor && op != cur_weapon
-	&& op != cur_ring[LEFT] && op != cur_ring[RIGHT])
+    }
+    if((op != cur_armor)
+       && (op != cur_weapon)
+       && (op != cur_ring[LEFT])
+       && (op != cur_ring[RIGHT])) {
 	    return TRUE;
-    if (op->o_flags & ISCURSED)
-    {
-	msg("You can't.  It appears to be cursed.", 0);
+    }
+    if(op->o_flags & ISCURSED) {
+	msg("You can't. It appears to be cursed.", 0);
+        
 	return FALSE;
     }
-    if (op == cur_weapon)
+    if(op == cur_weapon) {
 	cur_weapon = NULL;
-    else if (op == cur_armor)
-    {
+    }
+    else if(op == cur_armor) {
 	waste_time();
 	cur_armor = NULL;
     }
-    else if (op == cur_ring[LEFT] || op == cur_ring[RIGHT])
-    {
-	switch (op->o_which)
-	{
-	    case R_ADDSTR:
-		save_max = max_stats.s_str;
-		chg_str(-op->o_ac);
-		max_stats.s_str = save_max;
-		break;
-	    case R_SEEINVIS:
-		player.t_flags &= ~CANSEE;
-		extinguish(unsee);
-		light(&player.t_pos);
-		mvwaddch(cw, player.t_pos.y, player.t_pos.x, PLAYER);
-		break;
+    else if((op == cur_ring[LEFT]) || (op == cur_ring[RIGHT])) {
+	switch(op->o_which) {
+        case R_ADDSTR:
+            save_max = max_stats.s_str;
+            chg_str(-op->o_ac);
+            max_stats.s_str = save_max;
+            break;
+        case R_SEEINVIS:
+            player.t_flags &= ~CANSEE;
+            extinguish(unsee);
+            light(&player.t_pos);
+            mvwaddch(cw, player.t_pos.y, player.t_pos.x, PLAYER);
+            break;
 	}
 
         if(op == cur_ring[LEFT]) {
@@ -357,17 +348,18 @@ int dropcheck(struct object *op)
             cur_ring[RIGHT] = NULL;
         }
     }
+    
     return TRUE;
 }
 
-/*
- * return a new thing
- */
+// new_thing:
+//     Return a new thing
 struct linked_list *new_thing()
 {
     struct linked_list *item;
     struct object *cur;
-    int j, k;
+    int j;
+    int k;
 
     item = new_item(sizeof *cur);
     cur = (struct object *)item->l_data;
@@ -487,26 +479,26 @@ struct linked_list *new_thing()
     return item;
 }
 
-/*
- * pick an item out of a list of nitems possible magic items
- */
+// pick_one:
+//     Pick an item out of a list of nitems possible magic items
 int pick_one(struct magic_item *magic, int nitems)
 {
-    register struct magic_item *end;
-    register int i;
-    register struct magic_item *start;
+    struct magic_item *end;
+    int i;
+    struct magic_item *start;
 
     start = magic;
-    for (end = &magic[nitems], i = rnd(100); magic < end; magic++)
-	if (i < magic->mi_prob)
+    for(end = &magic[nitems], i = rnd(100); magic < end; ++magic) {
+	if(i < magic->mi_prob) {
 	    break;
-    if (magic == end)
-    {
-	if (wizard)
-	{
+        }
+    }
+    
+    if(magic == end) {
+	if(wizard) {
             int args[] = { i, nitems };
             msg("bad pick_one: %d from %d items", args);
-	    for(magic = start; magic < end; magic++) {
+	    for(magic = start; magic < end; ++magic) {
                 msg("%s: ", magic->mi_name);
                 int args[] = { magic->mi_prob };
                 msg("%d%%", args);
@@ -514,5 +506,6 @@ int pick_one(struct magic_item *magic, int nitems)
 	}
 	magic = start;
     }
-    return magic - start;
+    
+    return (magic - start);
 }

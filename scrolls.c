@@ -1,10 +1,6 @@
-
-/*
- * Read a scroll and let it happen
- *
- * @(#)scrolls.c	3.5 (Berkeley) 6/15/81
- */
-
+// Read a scroll and let it happen
+//
+// @(#)scrolls.c 3.5 (Berkeley) 6/15/81
 #include "scrolls.h"
 
 #include "chase.h"
@@ -20,32 +16,38 @@
 
 #include <ctype.h>
 
+// read_scroll:
+//     Something...
 int read_scroll()
 {
-    register struct object *obj;
-    register struct linked_list *item;
-    register struct room *rp;
-    register int i,j;
-    register char ch, nch;
-    register struct linked_list *titem;
+    struct object *obj;
+    struct linked_list *item;
+    struct room *rp;
+    int i;
+    int j;
+    char ch;
+    char nch;
+    struct linked_list *titem;
     char buf[80];
 
     item = get_item("read", SCROLL);
-    if (item == NULL)
+    if(item == NULL) {
 	return 0;
+    }
     obj = (struct object *)item->l_data;
-    if (obj->o_type != SCROLL)
-    {
-	if (!terse)
+    if(obj->o_type != SCROLL) {
+	if(!terse) {
 	    msg("There is nothing on it to read", 0);
-	else
+        }
+	else {
 	    msg("Nothing to read", 0);
+        }
+        
 	return 0;
     }
     msg("As you read the scroll, it vanishes.", 0);
-    /*
-     * Calculate the effect it has on the poor guy.
-     */
+
+    // Calculate the effect is has on the poor guy
     if(obj == cur_weapon) {
 	cur_weapon = NULL;
     }

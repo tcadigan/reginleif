@@ -1,10 +1,7 @@
-/*
- * Special wizard commands (some of which are also non-wizard commands
- * under strange circumstances)
- *
- * @(#)wizard.c	3.8 (Berkeley) 6/3/81
- */
-
+// Special wizard commands (some of which are also non-wizard
+// commands under strange circumstances)
+//
+// @(#)wizard.c 3.8 (Berkeley) 6/3/81
 #include "wizard.h"
 
 #include "io.h"
@@ -20,11 +17,8 @@
 
 #include <ctype.h>
 
-/*
- * whatis:
- *	What a certin object is
- */
-
+// whatis:
+//     What a certain object is
 int whatis()
 {
     struct object *obj;
@@ -78,16 +72,14 @@ int whatis()
     return 0;
 }
 
-/*
- * create_obj:
- *	Wizard command for getting anything he wants
- */
-
+// crete_obj:
+//     Wizard command for getting anything he wants
 int create_obj()
 {
-    register struct linked_list *item;
-    register struct object *obj;
-    register char ch, bless;
+    struct linked_list *item;
+    struct object *obj;
+    char ch;
+    char bless;
 
     item = new_item(sizeof *obj);
     obj = (struct object *)item->l_data;
@@ -108,28 +100,30 @@ int create_obj()
     obj->o_group = 0;
     obj->o_count = 1;
     mpos = 0;
-    if (obj->o_type == WEAPON || obj->o_type == ARMOR)
-    {
+    if((obj->o_type == WEAPON) || (obj->o_type == ARMOR)) {
 	msg("Blessing? (+,-,n)", 0);
 	bless = readchar();
 	mpos = 0;
-	if (bless == '-')
+	if(bless == '-') {
 	    obj->o_flags |= ISCURSED;
-	if (obj->o_type == WEAPON)
-	{
+        }
+	if(obj->o_type == WEAPON) {
 	    init_weapon(obj, obj->o_which);
-	    if (bless == '-')
-		obj->o_hplus -= rnd(3)+1;
-	    if (bless == '+')
-		obj->o_hplus += rnd(3)+1;
+	    if(bless == '-') {
+		obj->o_hplus -= (rnd(3) + 1);
+            }
+	    if(bless == '+') {
+		obj->o_hplus += (rnd(3) + 1);
+            }
 	}
-	else
-	{
+	else {
 	    obj->o_ac = a_class[obj->o_which];
-	    if (bless == '-')
-		obj->o_ac += rnd(3)+1;
-	    if (bless == '+')
-		obj->o_ac -= rnd(3)+1;
+	    if(bless == '-') {
+		obj->o_ac += (rnd(3) + 1);
+            }
+	    if (bless == '+') {
+		obj->o_ac -= (rnd(3) + 1);
+            }
 	}
     }
     else if(obj->o_type == RING) {
@@ -162,14 +156,11 @@ int create_obj()
     return 0;
 }
 
-/*
- * telport:
- *	Bamf the hero someplace else
- */
-
+// teleport:
+//     Bamf the hero someplace else
 int teleport()
 {
-    register int rm;
+    int rm;
     coord c;
 
     c = player.t_pos;
@@ -201,45 +192,44 @@ int teleport()
     light(&c);
     light(&player.t_pos);
     mvwaddch(cw, player.t_pos.y, player.t_pos.x, PLAYER);
-    /*
-     * turn off ISHELD in case teleportation was done while fighting
-     * a Fungi
-     */
+
+    // Turn off ISHELD in case teleportation was done while
+    // fighting a Fungi
     if((player.t_flags & ISHELD) != 0) {
 	player.t_flags &= ~ISHELD;
 	fung_hit = 0;
 	strcpy(monsters['F'-'A'].m_stats.s_dmg, "000d0");
     }
+    
     count = 0;
     running = FALSE;
-    raw();		/* flush typeahead */
+
+    // Flush typeahead
+    raw();
     noraw();
+    
     return rm;
 }
 
-/*
- * passwd:
- *	see if user knows password
- */
-
+// passwd:
+//     See if user knows password
 int passwd()
 {
-    register char *sp, c;
-    char buf[80], *crypt();
+    char *sp;
+    char c;
+    char buf[80];
 
     msg("Wizard's Password:", 0);
     mpos = 0;
     sp = buf;
-    while ((c = getchar()) != '\n' && c != '\r' && c != '\033') {
-	/* if (c == _tty.sg_kill) */
-	/*     sp = buf; */
-	/* else if (c == _tty.sg_erase && sp > buf) */
-	/*     sp--; */
-	/* else */
-	    *sp++ = c;        
+    c = getchar();
+    while((c != '\n') && (c != '\r') && (c != '\033')) {
+        c= getchar();
     }
-    if (sp == buf)
+    if(sp == buf) {
 	return FALSE;
+    }
     *sp = '\0';
+    
     return (strcmp(PASSWD, crypt(buf, "mT")) == 0);
 }

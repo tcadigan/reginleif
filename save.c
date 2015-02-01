@@ -1,9 +1,6 @@
-/*
- * save and restore routines
- *
- * @(#)save.c	3.9 (Berkeley) 6/16/81
- */
-
+// Save and restore routines
+//
+// @(#)save.c 3.9 (Berkeley) 6/16/81
 #include "save.h"
 
 #include "io.h"
@@ -19,7 +16,8 @@
 
 typedef struct stat STAT;
 
-extern char version[], encstr[];
+extern char version[];
+extern char encstr[];
 
 STAT sbuf;
 
@@ -127,25 +125,31 @@ int save_game()
     return TRUE;
 }
 
-/*
- * automatically save a file.  This is used if a HUP signal is
- * recieved
- */
+// auto_save:
+//     Automatically save a file. This is used if a HUP
+//     signal is recieved
 void auto_save(int parameter)
 {
-    register FILE *savef;
-    register int i;
+    FILE *savef;
+    int i;
 
-    for (i = 0; i < NSIG; i++)
+    for(i = 0; i < NSIG; ++i) {
 	signal(i, SIG_IGN);
-    if (file_name[0] != '\0' && (savef = fopen(file_name, "w")) != NULL)
-	save_file(savef);
+    }
+    
+    
+    if(file_name[0] != '\0') {
+        savef = fopen(file_name, "w");
+        if(savef != NULL) {
+            save_file(savef);
+        }
+    }
+    
     exit(1);
 }
 
-/*
- * write the saved game on the file
- */
+// save_file:
+//     Write the saved game on the file
 int save_file(FILE *savef)
 {
     wmove(cw, LINES-1, 0);
@@ -153,33 +157,36 @@ int save_file(FILE *savef)
     fstat(fileno(savef), &sbuf);
     fwrite("junk", 1, 5, savef);
     fseek(savef, 0L, 0);
-    // _endwin = TRUE;
     encwrite(version, (char *)sbrk(0) - version, savef);
     fclose(savef);
 
     return 0;
 }
 
+// restore:
+//     Something...
 int restore(char *file, char **envp)
 {
-    register int inf;
+    int inf;
     extern char **environ;
     char buf[80];
     STAT sbuf2;
 
-    if (strcmp(file, "-r") == 0)
+    if(strcmp(file, "-r") == 0) {
 	file = file_name;
-    if ((inf = open(file, 0)) < 0)
-    {
+    }
+    inf = open(file, 0);
+    if(inf < 0) {
 	perror(file);
+
 	return FALSE;
     }
 
     fflush(stdout);
     encread(buf, strlen(version) + 1, inf);
-    if (strcmp(buf, version) != 0)
-    {
+    if(strcmp(buf, version) != 0) {
 	printf("Sorry, saved game is out of date.\n");
+
 	return FALSE;
     }
 
@@ -188,27 +195,25 @@ int restore(char *file, char **envp)
     brk(version + sbuf2.st_size);
     lseek(inf, 0L, 0);
     encread(version, (unsigned int) sbuf2.st_size, inf);
-    /*
-     * we do not close the file so that we will have a hold of the
-     * inode for as long as possible
-     */
 
+    // We do not close the file so taht we will have a hold of the
+    // inode for as long as possible
     if(!wizard) {
-	if(sbuf2.st_ino != sbuf.st_ino || sbuf2.st_dev != sbuf.st_dev) {
+	if((sbuf2.st_ino != sbuf.st_ino) || (sbuf2.st_dev != sbuf.st_dev)) {
 	    printf("Sorry, saved game is not in the same file.\n");
+            
 	    return FALSE;
 	}
-	else if(sbuf2.st_ctime - sbuf.st_ctime > 300) {
+	else if((sbuf2.st_ctime - sbuf.st_ctime) > 300) {
 	    printf("Sorry, file has been touched.\n");
+            
 	    return FALSE;
 	}
     }
     mpos = 0;
     mvwprintw(cw, 0, 0, "%s: %s", file, ctime(&sbuf2.st_mtime));
 
-    /*
-     * defeat multiple restarting from the same place
-     */
+    // Defeat multiple restarting from the same place
     if(!wizard) {
 	if(sbuf2.st_nlink != 1) {
 	    printf("Cannot restore from a linked file\n");
@@ -221,66 +226,55 @@ int restore(char *file, char **envp)
     }
 
     environ = envp;
-    /* if (!My_term && isatty(2)) */
-    /* { */
-    /*     register char	*sp; */
-
-    /*     _tty_ch = 2; */
-    /*     gettmode(); */
-    /*     if ((sp = getenv("TERM")) == NULL) */
-    /*         sp = Def_term; */
-    /*     setterm(sp); */
-    /* } */
-    /* else */
-    /*     setterm(Def_term); */
     strcpy(file_name, file);
     setup();
     clearok(curscr, TRUE);
     touchwin(cw);
     srand(getpid());
     playit();
-    /*NOTREACHED*/
 
+    /*NOTREACHED*/
     return 0;
 }
 
-/*
- * perform an encrypted write
- */
+// encwrite:
+//     Perform an encrypted write
 int encwrite(char *start, unsigned int size, FILE *outf)
 {
-    register char *ep;
+    char *ep;
 
     ep = encstr;
 
-    while (size--)
-    {
+    while(size--) {
 	putc(*start++ ^ *ep++, outf);
-	if (*ep == '\0')
+	if(*ep == '\0') {
 	    ep = encstr;
+        }
     }
 
     return 0;
 }
 
-/*
- * perform an encrypted read
- */
+// encread:
+//     Perform an encrypted read
 int encread(char *start, unsigned int size, int inf)
 {
-    register char *ep;
-    register int read_size;
+    char *ep;
+    int read_size;
 
-    if ((read_size = read(inf, start, size)) == -1 || read_size == 0)
+    read_size = read(inf, start, size);
+    if((read_size == -1) || (read_size == 0)) {
 	return read_size;
+    }
 
     ep = encstr;
 
-    while (size--)
-    {
+    while(size--) {
 	*start++ ^= *ep++;
-	if (*ep == '\0')
+	if(*ep == '\0') {
 	    ep = encstr;
+        }
     }
+    
     return read_size;
 }

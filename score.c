@@ -1,9 +1,11 @@
+#include "main.h"
+#include "rogue.h"
+#include "machdep.h"
+
 #include <ncurses.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <signal.h>
-#include "rogue.h"
-#include "machdep.h"
 
 int Uid;
 
@@ -27,80 +29,108 @@ struct sc_ent {
     char sc_monster;
 };
 
-typedef struct sc_ent	SCORE;
+typedef struct sc_ent SCORE;
 
-SCORE	*scores;
+SCORE *scores;
 
-score(amount, flags, monst)
-register int amount, flags;
-register char monst;
+// sccomp:
+//     Something...
+int sccomp(SCORE *s1, SCORE *s2)
 {
-    register SCORE *sp, *myscore;
-    register int fd;
-    register FILE *outf;
-    register int uid, i, size;
-    register SCORE *endsp;
+    return (s2->sc_score - s1->sc_score);
+}
+
+// prscore:
+//     Something...
+int prscore(SCORE *sp)
+{
+    register char *killer;
+    static char *reason[] = {
+	"killed",
+	"quit",
+	"A total winner"
+    };
+    char *killname();
+
+    printf("%d\t%d\t%s: %s on level %d",
+           sp - scores + 1,
+           sp->sc_score,
+           sp->sc_name,
+           reason[sp->sc_flags],
+           sp->sc_level);
+    if(sp->sc_flags == 0) {
+	killer = killname(sp->sc_monster);
+	printf(" by a%s %s", vowelstr(killer), killer);
+    }
+    printf(".\n");
+
+    return 0;
+}
+
+// score:
+//     Something...
+int score(int amount, int flags, char monst)
+{
+    SCORE *sp;
+    SCORE *myscore;
+    int fd;
+    FILE *outf;
+    int uid;
+    int i;
+    int size;
+    SCORE *endsp;
     SCORE sbuf;
     static struct stat stbuf;
-    int	endit(), sccomp();
 
-    /*
-     * Open file and read list
-     */
+    // Open file and read list
     fd = open("testroll", 2);
-    if (fd < 0)
+    if(fd < 0) {
 	return;
+    }
     outf = fdopen(fd, "w");
 
     signal(SIGINT, SIG_DFL);
-#if 0
-    if (flags != -1)
-    {
-	endwin();
-	printf("[Press return to continue]");
-	wait_for('\n');
-    }
-#endif
     sp = &sbuf;
     uid = Uid;
     fstat(fd, &stbuf);
     size = -1;
-    for (i = 0; encread(sp, sizeof (SCORE), fd) > 0; i++)
-	if (sp->sc_uid == uid)
-	{
+    for(i = 0; encread(sp, sizeof(SCORE), fd) > 0; ++i) {
+	if(sp->sc_uid == uid) {
 	    size = stbuf.st_size;
 	    break;
 	}
+    }
     printf("uid = %d, size = %d", uid, size);
-    if (size == -1)
-	size = stbuf.st_size + sizeof (SCORE), printf("(%d)", size);
+    if(size == -1) {
+	size = stbuf.st_size + sizeof(SCORE);
+        printf("(%d)", size);
+    }
     scores = (SCORE *) malloc(size);
     printf(", i = %d\n", i);
     lseek(fd, 0L, 0);
-    for (sp = scores; encread(sp, sizeof (SCORE), fd) > 0; sp++)
+    for(sp = scores; encread(sp, sizeof(SCORE), fd) > 0; ++sp) {
 	continue;
-    /*
-     * Insert her in list if need be
-     */
+    }
+    // Insert him in the list if need be
     sp = &scores[i];
-    if (!waswizard && (sp->sc_score < amount || sp->sc_uid != uid))
-    {
+    if(!waswizard && ((sp->sc_score < amount) || (sp->sc_uid != uid))) {
 	sp->sc_score = amount;
 	strcpy(sp->sc_name, whoami);
 	sp->sc_flags = flags;
-	if (flags == 2)
+	if(flags == 2) {
 	    sp->sc_level = max_level;
-	else
+        }
+	else {
 	    sp->sc_level = level;
+        }
 	sp->sc_monster = monst;
 	sp->sc_uid = uid;
     }
-    /*
-     * Print the list
-     */
+
+    // Print the list
     printf("Rank\tScore\tName\n");
-    size /= sizeof (SCORE);
-    qsort(scores, size, sizeof (SCORE), sccomp);
+    size /= sizeof(SCORE);
+    qsort(scores, size, sizeof(SCORE), sccomp);
     for(myscore = scores; myscore->sc_uid != uid; ++myscore) {
 	continue;
     }
@@ -127,30 +157,7 @@ register char monst;
     fseek(outf, (long) i * sizeof (SCORE), 0);
     encwrite(myscore, sizeof (SCORE), outf);
     fclose(outf);
+
+    return 0;
 }
 
-prscore(sp)
-register SCORE *sp;
-{
-    register char *killer;
-    static char *reason[] = {
-	"killed",
-	"quit",
-	"A total winner",
-    };
-    char *killname();
-
-    printf("%d\t%d\t%s: %s on level %d", sp - scores + 1, sp->sc_score,
-	sp->sc_name, reason[sp->sc_flags], sp->sc_level);
-    if (sp->sc_flags == 0) {
-	killer = killname(sp->sc_monster);
-	printf(" by a%s %s", vowelstr(killer), killer);
-    }
-    printf(".\n");
-}
-
-sccomp(s1, s2)
-SCORE *s1, *s2;
-{
-    return s2->sc_score - s1->sc_score;
-}

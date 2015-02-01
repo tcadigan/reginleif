@@ -1,13 +1,10 @@
-/*
- * File for the fun ends
- * Death or a total win
- *
- * @(#)rip.c	3.13 (Berkeley) 6/16/81
- *
- *		Revision History
- *		================
- *	28 Dec 81  DPK	Added code to use RAND locking open on scorefile.
- */
+// File for fun ends, death or a total win
+//
+// @(#)rip.c 3.13 (Berkeley) 6/16/81
+//
+// Revision History
+// ================
+// 28 Dec 81  DPK  Added code to use RAND locking open on scorefile
 
 #include "rip.h"
 
@@ -24,31 +21,29 @@
 #include <pwd.h>
 
 static char *rip[] = {
-"                       __________",
-"                      /          \\",
-"                     /    REST    \\",
-"                    /      IN      \\",
-"                   /     PEACE      \\",
-"                  /                  \\",
-"                  |                  |",
-"                  |                  |",
-"                  |   killed by a    |",
-"                  |                  |",
-"                  |       1981       |",
-"                 *|     *  *  *      | *",
+"                       __________                    ",
+"                      /          \\                  ",
+"                     /    REST    \\                 ",
+"                    /      IN      \\                ",
+"                   /     PEACE      \\               ",
+"                  /                  \\              ",
+"                  |                  |               ",
+"                  |                  |               ",
+"                  |   killed by a    |               ",
+"                  |                  |               ",
+"                  |       1981       |               ",
+"                 *|     *  *  *      | *             ",
 "         ________)/\\\\_//(\\/(/\\)/\\//\\/|_)_______",
-    0
+0
 };
 
-/*
- * death:
- *	Do something really fun when he dies
- */
-
+// death:
+//     Do something really fun when he dies
 int death(char monst)
 {
-    register char **dp = rip, *killer;
-    register struct tm *lt;
+    char **dp = rip;
+    char *killer;
+    struct tm *lt;
     time_t date;
     char buf[80];
     struct tm *localtime();
@@ -57,29 +52,27 @@ int death(char monst)
     lt = localtime(&date);
     clear();
     move(8, 0);
-    while (*dp)
+    while(*dp) {
 	printw("%s\n", *dp++);
-    mvaddstr(14, 28-((strlen(whoami)+1)/2), whoami);
-    purse -= purse/10;
+    }
+    mvaddstr(14, 28 - ((strlen(whoami) + 1) / 2), whoami);
+    purse -= (purse / 10);
     sprintf(buf, "%d Au", purse);
-    mvaddstr(15, 28-((strlen(buf)+1)/2), buf);
+    mvaddstr(15, 28 - ((strlen(buf) + 1) / 2), buf);
     killer = killname(monst);
-    mvaddstr(17, 28-((strlen(killer)+1)/2), killer);
+    mvaddstr(17, 28 - ((strlen(killer) + 1) / 2), killer);
     mvaddstr(16, 33, vowelstr(killer));
     sprintf(prbuf, "%2d", lt->tm_year);
     mvaddstr(18, 28, prbuf);
-    move(LINES-1, 0);
+    move(LINES - 1, 0);
     wrefresh(stdscr);
     score(purse, 0, &monst);
     endwin();
     exit(0);
 }
 
-/*
- * score -- figure score and post it.
- */
-
-/* VARARGS2 */
+// score:
+//     Figure out score and post it
 int score(int amount, int flags, char *monst)
 {
     static struct sc_ent {
@@ -90,13 +83,13 @@ int score(int amount, int flags, char *monst)
 	int sc_uid;
 	char sc_monster;
     } top_ten[10];
-    register struct sc_ent *scp;
-    register int i;
-    register struct sc_ent *sc2;
-    register FILE *outf;
-    register char *killer;
-    register int prflags = 0;
-    register int fd;
+    struct sc_ent *scp;
+    int i;
+    struct sc_ent *sc2;
+    FILE *outf;
+    char *killer;
+    int prflags = 0;
+    int fd;
     static char *reason[] = {
 	"killed",
 	"quit",
@@ -109,8 +102,9 @@ int score(int amount, int flags, char *monst)
 
     for(scp = top_ten; scp < &top_ten[10]; ++scp) {
 	scp->sc_score = 0;
-	for (i = 0; i < 80; i++)
+	for(i = 0; i < 80; ++i) {
 	    scp->sc_name[i] = rnd(255);
+        }
 	scp->sc_flags = rand();
 	scp->sc_level = rand();
 	scp->sc_monster = rand();
@@ -118,28 +112,30 @@ int score(int amount, int flags, char *monst)
     }
 
     signal(SIGINT, SIG_DFL);
-    if (flags != -1)
-    {
+    if(flags != -1) {
 	printf("[Press return to continue]");
 	fflush(stdout);
 	gets(prbuf);
     }
 
-    /*
-     * Open file and read list
-     */
+    // Open file and read list
 #ifndef BRL
-    if ((fd = open(SCOREFILE, O_WRONLY)) < 0)
+    fd = open(SCOREFILE, O_WRONLY);
+    if(fd < 0) {
 	return 0;
+    }
 #else
-    /*
-     *  Use the RAND cooperative locking open to prevent plastering
-     *  the scorefile.   (BRL 6.144)
-     */
-    while ((fd = open (SCOREFILE, 6)) < 0) {
-	if (errno != ETXTBSY)
+    // Use the RAND cooperative locking open to prevent plastering
+    // the scorefile. (BRL 6.144)
+    fd = open(SCOREFILE, 6);
+    while(fd < 0) {
+	if(errno != ETXTBSY) {
 	    return 0;
+        }
+        
 	sleep (1);
+
+        fd = open(SCOREFILE, 6);
     }
 #endif
     outf = fdopen(fd, "w");
@@ -153,71 +149,81 @@ int score(int amount, int flags, char *monst)
         }
     }
     encread((char *) top_ten, sizeof top_ten, fd);
-    /*
-     * Insert her in list if need be
-     */
-    if (!waswizard)
-    {
-	for (scp = top_ten; scp < &top_ten[10]; scp++)
-	    if (amount > scp->sc_score)
+
+    // Insert him in the list if need be
+    if(!waswizard) {
+	for(scp = top_ten; scp < &top_ten[10]; ++scp) {
+	    if(amount > scp->sc_score) {
 		break;
-	if (scp < &top_ten[10])
-	{
-	    for (sc2 = &top_ten[9]; sc2 > scp; sc2--)
-		*sc2 = *(sc2-1);
+            }
+        }
+	if(scp < &top_ten[10]) {
+	    for(sc2 = &top_ten[9]; sc2 > scp; --sc2) {
+		*sc2 = *(sc2 - 1);
+            }
 	    scp->sc_score = amount;
 	    strcpy(scp->sc_name, whoami);
 	    scp->sc_flags = flags;
-	    if (flags == 2)
+	    if(flags == 2) {
 		scp->sc_level = max_level;
-	    else
+            }
+	    else {
 		scp->sc_level = level;
+            }
 	    scp->sc_monster = *monst;
 	    scp->sc_uid = getuid();
 	}
     }
-    /*
-     * Print the list
-     */
+
+    // Print the list
     printf("\nTop Ten Adventurers:\nRank\tScore\tName\n");
-    for (scp = top_ten; scp < &top_ten[10]; scp++) {
-	if (scp->sc_score) {
-	    printf("%ld\t%d\t%s: %s on level %d", scp - top_ten + 1,
-		scp->sc_score, scp->sc_name, reason[scp->sc_flags],
-		scp->sc_level);
-	    if (scp->sc_flags == 0) {
+    for(scp = top_ten; scp < &top_ten[10]; ++scp) {
+	if(scp->sc_score) {
+	    printf("%ld\t%d\t%s: %s on level %d",
+                   scp - top_ten + 1,
+                   scp->sc_score,
+                   scp->sc_name,
+                   reason[scp->sc_flags],
+                   scp->sc_level);
+	    if(scp->sc_flags == 0) {
 		printf(" by a");
 		killer = killname(scp->sc_monster);
-		if (*killer == 'a' || *killer == 'e' || *killer == 'i' ||
-		    *killer == 'o' || *killer == 'u')
-			putchar('n');
+		if((*killer == 'a')
+                   || (*killer == 'e')
+                   || (*killer == 'i')
+                   || (*killer == 'o')
+                   || (*killer == 'u')) {
+                    putchar('n');
+                }
 		printf(" %s", killer);
 	    }
-	    if (prflags == 1)
-	    {
-		struct passwd *pp, *getpwuid();
+	    if(prflags == 1) {
+		struct passwd *pp;
 
-		if ((pp = getpwuid(scp->sc_uid)) == NULL)
+                pp = getpwuid(scp->sc_uid);
+		if(pp == NULL){
 		    printf(" (%d)", scp->sc_uid);
-		else
+                }
+		else {
 		    printf(" (%s)", pp->pw_name);
+                }
 		putchar('\n');
 	    }
-	    else if (prflags == 2) {
+	    else if(prflags == 2) {
 		fflush(stdout);
 		gets(prbuf);
 		if(prbuf[0] == 'd') {
-		    for(sc2 = scp; sc2 < &top_ten[9]; sc2++) {
+		    for(sc2 = scp; sc2 < &top_ten[9]; ++sc2) {
 			*sc2 = *(sc2 + 1);
                     }
 		    top_ten[9].sc_score = 0;
-		    for(i = 0; i < 80; i++) {
+		    for(i = 0; i < 80; ++i) {
 			top_ten[9].sc_name[i] = rnd(255);
                     }
 		    top_ten[9].sc_flags = rand();
 		    top_ten[9].sc_level = rand();
 		    top_ten[9].sc_monster = rand();
-		    scp--;
+		    --scp;
 		}
 	    }
 	    else {
@@ -226,22 +232,23 @@ int score(int amount, int flags, char *monst)
 	}
     }
     fseek(outf, 0L, 0);
-    /*
-     * Update the list file
-     */
+
+    // Update the list file
     encwrite((char *) top_ten, sizeof top_ten, outf);
     fclose(outf);
 
     return 0;
 }
 
+// total_winner:
+//     Something...
 int total_winner()
 {
-    register struct linked_list *item;
-    register struct object *obj;
-    register int worth;
-    register char c;
-    register int oldpurse;
+    struct linked_list *item;
+    struct object *obj;
+    int worth;
+    char c;
+    int oldpurse;
 
     clear();
     standout();
@@ -265,7 +272,7 @@ int total_winner()
     clear();
     mvaddstr(0, 0, "   Worth  Item");
     oldpurse = purse;
-    for(c = 'a', item = player.t_pack; item != NULL; c++, item = item->l_next) {
+    for(c = 'a', item = player.t_pack; item != NULL; ++c, item = item->l_next) {
 	obj = (struct object *)item->l_data;
         
 	switch(obj->o_type) {
@@ -397,20 +404,23 @@ int total_winner()
     exit(0);
 }
 
+// killname:
+//     Something...
 char *killname(char monst)
 {
-    if (isupper(monst))
-	return monsters[monst-'A'].m_name;
-    else
-	switch (monst)
-	{
-	    case 'a':
-		return "arrow";
-	    case 'd':
-		return "dart";
-	    case 'b':
-		return "bolt";
+    if(isupper(monst)) {
+	return monsters[monst - 'A'].m_name;
+    }
+    else {
+	switch(monst) {
+        case 'a':
+            return "arrow";
+        case 'd':
+            return "dart";
+        case 'b':
+            return "bolt";
 	}
-
+    }
+    
     return "";
 }

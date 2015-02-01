@@ -1,9 +1,6 @@
-/*
- * routines dealing specifically with rings
- *
- * @(#)rings.c	3.17 (Berkeley) 6/15/81
- */
-
+// Routines dealing specifically with rings
+//
+// @(#)rings.c 3.17 (Berkeley) 6/15/81
 #include "rings.h"
 
 #include "io.h"
@@ -15,73 +12,76 @@
 #include "things.h"
 #include "weapons.h"
 
+// ring_on:
+//     Something...
 int ring_on()
 {
-    register struct object *obj;
-    register struct linked_list *item;
+    struct object *obj;
+    struct linked_list *item;
     register int ring;
     str_t save_max;
     char buf[80];
 
     item = get_item("put on", RING);
-    /*
-     * Make certain that it is somethings that we want to wear
-     */
-    if (item == NULL)
+    // Make certain that it is something that we want to wear
+    if(item == NULL) {
 	return 0;
+    }
     obj = (struct object *)item->l_data;
-    if (obj->o_type != RING)
-    {
-	if (!terse)
+    if(obj->o_type != RING) {
+	if(!terse) {
 	    msg("It would be difficult to wrap that around a finger", 0);
-	else
+        }
+	else {
 	    msg("Not a ring", 0);
+        }
+        
 	return 0;
     }
 
-    /*
-     * find out which hand to put it on
-     */
-    if (is_current(obj))
+    // Find out which hand to put it on
+    if(is_current(obj)) {
 	return 0;
+    }
 
-    if (cur_ring[LEFT] == NULL && cur_ring[RIGHT] == NULL)
-    {
-	if ((ring = gethand()) < 0)
+    if((cur_ring[LEFT] == NULL) && (cur_ring[RIGHT] == NULL)) {
+        ring = gethand();
+	if(ring < 0) {
 	    return 0;
+        }
     }
-    else if (cur_ring[LEFT] == NULL)
+    else if(cur_ring[LEFT] == NULL) {
 	ring = LEFT;
-    else if (cur_ring[RIGHT] == NULL)
+    }
+    else if(cur_ring[RIGHT] == NULL) {
 	ring = RIGHT;
-    else
-    {
-	if (!terse)
+    }
+    else {
+	if(!terse) {
 	    msg("You already have a ring on each hand", 0);
-	else
+        }
+	else {
 	    msg("Wearing two", 0);
+        }
 	return 0;
     }
     cur_ring[ring] = obj;
 
-    /*
-     * Calculate the effect it has on the poor guy.
-     */
-    switch (obj->o_which)
-    {
-	case R_ADDSTR:
-	    save_max = max_stats.s_str;
-	    chg_str(obj->o_ac);
-	    max_stats.s_str = save_max;
-	    break;
-	case R_SEEINVIS:
-	    player.t_flags |= CANSEE;
-	    light(&player.t_pos);
-	    mvwaddch(cw, player.t_pos.y, player.t_pos.x, PLAYER);
-	    break;
-	case R_AGGR:
-	    aggravate();
-	    break;
+    // Calculate the effect it has on the poor guy
+    switch(obj->o_which) {
+    case R_ADDSTR:
+        save_max = max_stats.s_str;
+        chg_str(obj->o_ac);
+        max_stats.s_str = save_max;
+        break;
+    case R_SEEINVIS:
+        player.t_flags |= CANSEE;
+        light(&player.t_pos);
+        mvwaddch(cw, player.t_pos.y, player.t_pos.x, PLAYER);
+        break;
+    case R_AGGR:
+        aggravate();
+        break;
     }
     
     status();
@@ -92,7 +92,7 @@ int ring_on()
     }
     else if(!r_know[obj->o_which] && askme && (r_guess[obj->o_which] == NULL)) {
 	mpos = 0;
-
+        
         if(terse) {
             msg("Call it: ", 0);
         }
@@ -111,88 +111,106 @@ int ring_on()
     return 0;
 }
 
+// ring_off:
+//     Something...
 int ring_off()
 {
-    register int ring;
-    register struct object *obj;
+    int ring;
+    struct object *obj;
 
-    if (cur_ring[LEFT] == NULL && cur_ring[RIGHT] == NULL)
-    {
-	if (terse)
+    if((cur_ring[LEFT] == NULL) && (cur_ring[RIGHT] == NULL)) {
+	if(terse) {
 	    msg("No rings", 0);
-	else
+        }
+	else {
 	    msg("You aren't wearing any rings", 0);
+        }
+        
 	return 0;
     }
-    else if (cur_ring[LEFT] == NULL)
+    else if(cur_ring[LEFT] == NULL) {
 	ring = RIGHT;
-    else if (cur_ring[RIGHT] == NULL)
+    }
+    else if(cur_ring[RIGHT] == NULL) {
 	ring = LEFT;
-    else
-	if ((ring = gethand()) < 0)
+    }
+    else {
+        ring = gethand();
+	if(ring < 0) {
 	    return 0;
+        }
+    }
     mpos = 0;
     obj = cur_ring[ring];
-    if (obj == NULL)
-    {
+    if(obj == NULL) {
 	msg("Not wearing such a ring", 0);
+
 	return 0;
     }
-    if (dropcheck(obj))
+    if(dropcheck(obj)) {
 	msg("Was wearing %s", inv_name(obj, TRUE));
+    }
 
     return 0;
 }
 
+// gethand:
+//     Something...
 int gethand()
 {
-    register int c;
+    int c;
 
-    for (;;)
-    {
-	if (terse)
+    while(1) {
+	if(terse) {
 	    msg("Left or Right ring? ", 0);
-	else
+        }
+	else {
 	    msg("Left hand or right hand? ", 0);
-	if ((c = readchar()) == 'l' || c == 'L')
+        }
+        c = readchar();
+	if((c == 'l') || (c == 'L')) {
 	    return LEFT;
-	else if (c == 'r' || c == 'R')
+        }
+	else if((c == 'r') || (c == 'R')) {
 	    return RIGHT;
-	else if (c == ESCAPE)
+        }
+	else if(c == ESCAPE) {
 	    return -1;
+        }
 	mpos = 0;
-	if (terse)
+	if(terse) {
 	    msg("L or R", 0);
-	else
+        }
+	else {
 	    msg("Please type L or R", 0);
+        }
     }
 }
 
-/*
- * how much food does this ring use up?
- */
+// ring_eat:
+//     How much food does this ring use up?
 int ring_eat(int hand)
 {
-    if (cur_ring[hand] == NULL)
+    if(cur_ring[hand] == NULL) {
 	return 0;
-    switch (cur_ring[hand]->o_which)
-    {
-	case R_REGEN:
-	    return 2;
-	case R_SUSTSTR:
-	    return 1;
-	case R_SEARCH:
-	    return (rnd(100) < 33);
-	case R_DIGEST:
-	    return -(rnd(100) < 50);
-	default:
-	    return 0;
+    }
+    
+    switch(cur_ring[hand]->o_which) {
+    case R_REGEN:
+        return 2;
+    case R_SUSTSTR:
+        return 1;
+    case R_SEARCH:
+        return (rnd(100) < 33);
+    case R_DIGEST:
+        return -(rnd(100) < 50);
+    default:
+        return 0;
     }
 }
 
-/*
- * print ring bonuses
- */
+// ring_num:
+//     Print ring bonuses
 char *ring_num(struct object *obj)
 {
     static char buf[5];

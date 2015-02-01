@@ -1,10 +1,7 @@
-/*
- * Functions to implement the various sticks one might find
- * while wandering around the dungeon.
- *
- * @(#)sticks.c	3.14 (Berkeley) 6/15/81
- */
-
+// Functions to implement the various sticks one might
+// find while wandering aroud the dungeon
+//
+// @(#)sticks.c 3.14 (Berkeley) 6/15/81
 #include "sticks.h"
 
 #include "chase.h"
@@ -22,6 +19,8 @@
 
 #include <ctype.h>
 
+// fix_stick:
+//     Something...
 int fix_stick(struct object *cur)
 {
     if(strcmp(ws_type[cur->o_which], "staff") == 0) {
@@ -47,34 +46,41 @@ int fix_stick(struct object *cur)
     return 0;
 }
 
+// do_zap:
+//     Something...
 int do_zap(bool gotdir)
 {
-    register struct linked_list *item;
-    register struct object *obj;
-    register struct room *rp;
-    register struct thing *tp;
-    register int y, x;
+    struct linked_list *item;
+    struct object *obj;
+    struct room *rp;
+    struct thing *tp;
+    int y;
+    int x;
 
-    if ((item = get_item("zap with", STICK)) == NULL)
+    item = get_item("zap with", STICK);
+    if(item == NULL) {
 	return 0;
+    }
     obj = (struct object *)item->l_data;
-    if (obj->o_type != STICK)
-    {
+    if(obj->o_type != STICK) {
 	msg("You can't zap with that!", 0);
 	after = FALSE;
 	return 0;
     }
-    if (obj->o_ac == 0)
-    {
+    if(obj->o_ac == 0) {
 	msg("Nothing happens.", 0);
 	return 0;
     }
-    if (!gotdir)
-	do {
-	    delta.y = rnd(3) - 1;
-	    delta.x = rnd(3) - 1;
-	} while (delta.y == 0 && delta.x == 0);
-    
+    if (!gotdir) {
+        delta.y = rnd(3) - 1;
+        delta.x = rnd(3) - 1;
+
+        while((delta.y == 0) && (delta.x == 0)) {
+            delta.y = rnd(3) - 1;
+            delta.x = rnd(3) - 1;
+        }
+    }
+        
     switch(obj->o_which) {
     case WS_LIGHT:
         // Ready kilowatt want. Light up the room
@@ -461,35 +467,34 @@ int do_zap(bool gotdir)
     return 0;
 }
 
-/*
- * drain:
- *	Do drain hit points from player shtick
- */
-
+// drain:
+//     do drain hit points from player attack
 int drain(int ymin, int ymax, int xmin, int xmax)
 {
-    register int i, j, count;
-    register struct thing *ick;
-    register struct linked_list *item;
+    int i;
+    int j;
+    int count;
+    struct thing *ick;
+    struct linked_list *item;
 
-    /*
-     * First count how many things we need to spread the hit points among
-     */
+    // First count how many things we need to spread the hit points among
     count = 0;
-    for (i = ymin; i <= ymax; i++)
-	for (j = xmin; j <= xmax; j++)
-	    if (isupper(mvwinch(mw, i, j)))
-		count++;
-    if (count == 0)
-    {
+    for(i = ymin; i <= ymax; i++) {
+	for(j = xmin; j <= xmax; j++) {
+	    if(isupper(mvwinch(mw, i, j))) {
+		++count;
+            }
+        }
+    }
+    if(count == 0) {
 	msg("You have a tingling feeling", 0);
+
 	return 0;
     }
     count = player.t_stats.s_hpt / count;
     player.t_stats.s_hpt /= 2;
-    /*
-     * Now zot all of the monsters
-     */
+
+    // Now zot all of the monsters
     for(i = ymin; i <= ymax; ++i) {
 	for(j = xmin; j <= xmax; ++j) {
 	    if(isupper(mvwinch(mw, i, j))) {
@@ -510,18 +515,21 @@ int drain(int ymin, int ymax, int xmin, int xmax)
     return 0;
 }
 
-/*
- * charge a wand for wizards.
- */
+// charge_str:
+//     Chared a wand for wizards
 char *charge_str(struct object *obj)
 {
     static char buf[20];
 
-    if (!(obj->o_flags & ISKNOW))
+    if(!(obj->o_flags & ISKNOW)) {
 	buf[0] = '\0';
-    else if (terse)
+    }
+    else if(terse) {
 	sprintf(buf, " [%d]", obj->o_ac);
-    else
+    }
+    else {
 	sprintf(buf, " [%d charges]", obj->o_ac);
+    }
+    
     return buf;
 }

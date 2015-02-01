@@ -1,8 +1,6 @@
-/*
- * 	@(#)potions.c	3.1	3.1	5/7/81
- * Function(s) for dealing with potions
- */
-
+// Functions for dealing with potions
+//
+// @(#)potions.c 3.1 (Berkeley) 5/7/81
 #include "potions.h"
 
 #include "daemon.h"
@@ -16,34 +14,38 @@
 #include "options.h"
 #include "pack.h"
 
+// quaff:
+//     Something...
 int quaff()
 {
-    register struct object *obj;
-    register struct linked_list *item, *titem;
-    register struct thing *th;
+    struct object *obj;
+    struct linked_list *item;
+    struct linked_list *titem;
+    struct thing *th;
     char buf[80];
 
     item = get_item("quaff", POTION);
-    /*
-     * Make certain that it is somethings that we want to drink
-     */
-    if (item == NULL)
-	return 0;
-    obj = (struct object *)item->l_data;
-    if (obj->o_type != POTION)
-    {
-	if (!terse)
-	    msg("Yuk! Why would you want to drink that?", 0);
-	else
-	    msg("That's undrinkable", 0);
+
+    // Make certain that it is something that we want to drink
+    if(item == NULL) {
 	return 0;
     }
-    if (obj == cur_weapon)
+    obj = (struct object *)item->l_data;
+    if(obj->o_type != POTION) {
+	if (!terse) {
+	    msg("Yuk! Why would you want to drink that?", 0);
+        }
+	else {
+	    msg("That's undrinkable", 0);
+        }
+        
+	return 0;
+    }
+    if(obj == cur_weapon) {
 	cur_weapon = NULL;
+    }
 
-    /*
-     * Calculate the effect it has on the poor guy.
-     */
+    // Calculate the effect if has on the poor guy
     switch(obj->o_which) {
     case P_CONFUSE:
         if((player.t_flags & ISHUH) == 0) {

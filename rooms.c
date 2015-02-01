@@ -1,8 +1,6 @@
-/*
- * Draw the nine rooms on the screen
- *
- * @(#)rooms.c	3.8 (Berkeley) 6/15/81
- */
+// Draw the nine rooms on the screen
+//
+// @(#)rooms.c 3.8 (Berkeley) 6/15/81
 
 #include "rooms.h"
 
@@ -13,43 +11,41 @@
 #include "newlevel.h"
 #include "things.h"
 
+// do_rooms:
+//     Something...
 int do_rooms()
 {
-    register int i;
-    register struct room *rp;
-    register struct linked_list *item;
-    register struct thing *tp;
-    register int left_out;
+    int i;
+    struct room *rp;
+    struct linked_list *item;
+    struct thing *tp;
+    int left_out;
     coord top;
     coord bsze;
     coord mp;
 
-    /*
-     * bsze is the maximum room size
-     */
-    bsze.x = COLS/3;
-    bsze.y = LINES/3;
-    /*
-     * Clear things for a new level
-     */
-    for (rp = rooms; rp < &rooms[MAXROOMS]; rp++)
-	rp->r_goldval = rp->r_nexits = rp->r_flags = 0;
-    /*
-     * Put the gone rooms, if any, on the level
-     */
+    // bsze is the maximum room size
+    bsze.x = COLS / 3;
+    bsze.y = LINES / 3;
+
+    // Clear things for a new level
+    for(rp = rooms; rp < &rooms[MAXROOMS]; ++rp) {
+        rp->r_flags = 0;
+        rp->r_nexits = 0;
+        rp->r_goldval = 0;
+    }
+
+    // Put the gone rooms, if any, on the level
     left_out = rnd(4);
-    for (i = 0; i < left_out; i++)
+    for(i = 0; i < left_out; ++i) {
 	rooms[rnd_room()].r_flags |= ISGONE;
-    /*
-     * dig and populate all the rooms on the level
-     */
-    for (i = 0, rp = rooms; i < MAXROOMS; rp++, i++)
-    {
-	/*
-	 * Find upper left corner of box that this room goes in
-	 */
-	top.x = (i%3)*bsze.x + 1;
-	top.y = i/3*bsze.y;
+    }
+
+    // Dig and populate all the rooms on the level
+    for(i = 0, rp = rooms; i < MAXROOMS; rp++, ++i) {
+        // Find the upper left corner of box that this room goes in
+	top.x = ((i % 3) * bsze.x) + 1;
+	top.y = (i / 3 ) * bsze.y;
 	if(rp->r_flags & ISGONE) {
             // Place a gone room. Make certain that there is a blank line
             // for passage drawing.
@@ -97,9 +93,8 @@ int do_rooms()
 	}
         
 	draw_room(rp);
-	/*
-	 * Put the monster in
-	 */
+
+        // Put the monsters in
         if(rp->r_goldval > 0) {
             if(rnd(100) < 80) {
                 item = new_item(sizeof *tp);
@@ -141,64 +136,63 @@ int do_rooms()
     return 0;
 }
 
-/*
- * Draw a box around a room
- */
-
+// draw_room:
+//     Draw a box around a room
 int draw_room(struct room *rp)
 {
-    register int j, k;
+    int j;
+    int k;
 
-    move(rp->r_pos.y, rp->r_pos.x+1);
-    vert(rp->r_max.y-2);				/* Draw left side */
-    move(rp->r_pos.y+rp->r_max.y-1, rp->r_pos.x);
-    horiz(rp->r_max.x);					/* Draw bottom */
+    move(rp->r_pos.y, rp->r_pos.x + 1);
+    // Draw the left side
+    vert(rp->r_max.y - 2);
+    move(rp->r_pos.y + rp->r_max.y - 1, rp->r_pos.x);
+    // Draw bottom
+    horiz(rp->r_max.x);
     move(rp->r_pos.y, rp->r_pos.x);
-    horiz(rp->r_max.x);					/* Draw top */
-    vert(rp->r_max.y-2);				/* Draw right side */
-    /*
-     * Put the floor down
-     */
-    for (j = 1; j < rp->r_max.y-1; j++)
-    {
-	move(rp->r_pos.y + j, rp->r_pos.x+1);
-	for (k = 1; k < rp->r_max.x-1; k++)
+    // Draw top
+    horiz(rp->r_max.x);
+    // Draw right side
+    vert(rp->r_max.y - 2);
+
+    // Put the floor down
+    for(j = 1; j < rp->r_max.y-1; ++j) {
+	move(rp->r_pos.y + j, rp->r_pos.x + 1);
+	for(k = 1; k < rp->r_max.x-1; ++k) {
 	    addch(FLOOR);
+        }
     }
-    /*
-     * Put the gold there
-     */
-    if (rp->r_goldval)
+
+    // Put the gold there
+    if(rp->r_goldval) {
 	mvaddch(rp->r_gold.y, rp->r_gold.x, GOLD);
+    }
 
     return 0;
 }
 
-/*
- * horiz:
- *	draw a horizontal line
- */
-
+// horiz:
+//     Draw a horizontal line
 int horiz(int cnt)
 {
-    while (cnt--)
+    while(cnt--) {
 	addch('-');
+    }
 
     return 0;
 }
 
-/*
- * vert:
- *	draw a vertical line
- */
-
+// vert:
+//     Draw a vertical line
 int vert(int cnt)
 {
-    register int x, y;
+    int x;
+    int y;
 
     getyx(stdscr, y, x);
     x--;
-    while (cnt--) {
+    
+    while(cnt--) {
 	move(++y, x);
 	addch('|');
     }
@@ -206,15 +200,12 @@ int vert(int cnt)
     return 0;
 }
 
-/*
- * rnd_pos:
- *	pick a random spot in a room
- */
-
+// rnd_pos:
+//     Pick a random spot in a room
 int rnd_pos(struct room *rp, coord *cp)
 {
-    cp->x = rp->r_pos.x + rnd(rp->r_max.x-2) + 1;
-    cp->y = rp->r_pos.y + rnd(rp->r_max.y-2) + 1;
+    cp->x = rp->r_pos.x + rnd(rp->r_max.x - 2) + 1;
+    cp->y = rp->r_pos.y + rnd(rp->r_max.y - 2) + 1;
 
     return 0;
 }
