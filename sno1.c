@@ -20,21 +20,29 @@ int fin;
 int fout;
 
 /* Allocates a string to be printed */
-void mes(char *s) {
+void mes(char *s)
+{
     sysput(sno_strstr(s));
 }
 
+/* 
+ * Initialize a string into the namelist
+ * with a given type
+ */
 struct node *init(char *s, int t)
 {
-    struct node *a;
-    struct node *b;
+    struct node *new_node;
+    struct node *namelist_node;
 
-    a = sno_strstr(s);
-    b = look(a);
-    delete(a);
-    b->typ = t;
+    /* Create the new node */
+    new_node = sno_strstr(s);
 
-    return b;
+    /* Get the namelist node */
+    namelist_node = look(new_node);
+    delete(new_node);
+    namelist_node->typ = t;
+
+    return namelist_node;
 }
 
 int main(int argc, char *argv[])
@@ -44,12 +52,12 @@ int main(int argc, char *argv[])
     struct node *c;
 
     if(argc > 1) {
-	fin = open(argv[1], 0);
+	fin = open(argv[1], O_RDONLY);
 	
 	if(fin < 0) {
 	    mes("Cannot open input");
 
-	    return 0;
+	    return 1;
 	}
     }
 
@@ -64,6 +72,10 @@ int main(int argc, char *argv[])
     init("syspit", 3);
     init("syspot", 4);
 
+    /* /\* TC_DEBUG *\/ */
+    /* dump(); */
+    /* exit(42); */
+
     c = compile();
     a = c;
 
@@ -74,7 +86,7 @@ int main(int argc, char *argv[])
     }
 
     cfail = 1;
-    a->p1 = 0;
+    a->p1 = NULL;
 
     if(lookstart->typ == 2) {
 	c = lookstart->p2;
@@ -305,43 +317,49 @@ int nfree(void)
     return result;
 }
 
+/*
+ * Looks for strings in the namelist.
+ * Things go meta here, there is a sentinel
+ * that points to a sentinel that points to
+ * a string (which starts with a entinel itself)
+ */
 struct node *look(struct node *string)
 {
-    struct node *i;
-    struct node *j;
-    struct node *k;
+    struct node *current_name;
+    struct node *new_name;
+    struct node *previous_name;
 
-    k = 0;
-    i = namelist;
+    previous_name = NULL;
+    current_name = namelist;
 
-    while(i) {
-	j = i->p1;
+    while(current_name) {
+	new_name = current_name->p1;
 	
-	if(equal(j->p1, string) == 0) {
-	    return j;
+	if(equal(new_name->p1, string) == 0) {
+	    return new_name;
 	}
 
-	k = i;
-	i = k->p2;
+	previous_name = current_name;
+	current_name = previous_name->p2;
     }
 
-    i = alloc();
-    i->p2 = 0;
+    current_name = alloc();
+    current_name->p2 = NULL;
 
-    if(k) {
-	k->p2 = i;
+    if(previous_name != NULL) {
+	previous_name->p2 = current_name;
     }
     else {
-	namelist = i;
+	namelist = current_name;
     }
 
-    j = alloc();
-    i->p1 = j;
-    j->p1 = copy(string);
-    j->p2 = 0;
-    j->typ = 0;
+    new_name = alloc();
+    current_name->p1 = new_name;
+    new_name->p1 = copy(string);
+    new_name->p2 = NULL;
+    new_name->typ = 0;
 
-    return j;
+    return new_name;
 }
 
 /* 
@@ -375,7 +393,7 @@ struct node *copy(struct node *string)
 	/* Copy last character */
 	new_pos->p1 = alloc();
 	new_pos->p1->p2 = new_pos;
-	new_pos->ch = old_pos->ch;
+	new_pos->p1->ch = old_pos->ch;
 
 	/* Move to last character */
 	new_pos = new_pos->p1;
@@ -386,56 +404,61 @@ struct node *copy(struct node *string)
     return new_head;
 }
 
+/* Determine if two strings are equal */
 int equal(struct node *string1, struct node *string2)
 {
-    struct node *i;
-    struct node *j;
-    struct node *k;
-    struct node *l;
-    int n;
-    int m;
+    struct node *first_pos;
+    struct node *first_end;
+    struct node *second_pos;
+    struct node *second_end;
+    int first_value;
+    int second_value;
 
-    if(string1 == 0) {
-	if(string2 == 0) {
+    /* Handle the empty cases */
+    if(string1 == NULL) {
+	if(string2 == NULL) {
 	    return 0;
 	}
 
 	return -1;
     }
 
-    if(string2 == 0) {
+    if(string2 == NULL) {
 	return 1;
     }
 
-    i = string1;
-    j = string1->p2;
-    k = string2;
-    l = string2->p2;
+    first_pos = string1;
+    first_end = string1->p2;
+    second_pos = string2;
+    second_end = string2->p2;
 
     while(1) {
-	i = i->p1;
-	m = i->ch;
-	k = k->p1;
-	n = k->ch;
-
-	if(m > n) {
-	    return 1;
-	}
+	first_pos = first_pos->p1;
+	first_value = first_pos->ch;
+	second_pos = second_pos->p1;
+	second_value = second_pos->ch;
 	
-	if(m < n) {
-	    return -1;
-	}
-
-	if(i == j) {
-	    if(k == l) {
-		return 0;
-	    }
-
-	    return -1;
-	}
-
-	if(k == l) {
+	/* Compare character values */
+	if(first_value > second_value) {
 	    return 1;
+	}
+	else if(first_value < second_value) {
+	    return -1;
+	}
+	else {
+	    /* The end of the first string*/
+	    if(first_pos == first_end) {
+		if(second_pos == second_end) {
+		    return 0;
+		}
+		
+		return -1;
+	    }
+	    
+	    /* First is longer than the second */
+	    if(second_pos == second_end) {
+		return 1;
+	    }
 	}
     }
 }
@@ -487,45 +510,52 @@ int strbin(struct node *string)
     }
 }
 
+/* Take an number and convert to string */
 struct node *binstr(int binary) {
-    int n;
+    int number;
     int sign;
-    struct node *m;
-    struct node *p;
-    struct node *q;
+    struct node *next;
+    struct node *sentinel;
+    struct node *current;
 
-    n = binary;
-    p = alloc();
-    q = alloc();
+    number = binary;
+    sentinel = alloc();
+    current = alloc();
     sign = 1;
 
+    /* Handle negative numbers */
     if(binary < 0) {
 	sign = -1;
-	n = -binary;
+	number = -binary;
     }
 
-    p->p2 = q;
+    /* Start from the back and move forward */
+    sentinel->p2 = current;
 
+    /*
+     * Determine the string value of the digit,
+     * when complete handle negative sign if needed
+     */
     while(1) {
-	q->ch = (n % 10) + '0';
-	n = n / 10;
+	current->ch = (number % 10) + '0';
+	number = number / 10;
 
-	if(n == 0) {
+	if(number == 0) {
 	    if(sign < 0) {
-		m = alloc();
-		m->p1 = q;
-		q = m;
-		q->ch = '-';
+		next = alloc();
+		next->p1 = current;
+		current = next;
+		current->ch = '-';
 	    }
 
-	    p->p1 = q;
+	    sentinel->p1 = current;
 
-	    return p;
+	    return sentinel;
 	}
 
-	m = alloc();
-	m->p1 = q;
-	q = m;
+	next = alloc();
+	next->p1 = current;
+	current = next;
     }
 }
 
@@ -553,37 +583,53 @@ struct node *sno_div(struct node *string1, struct node *string2)
     return binstr(strbin(string1) / strbin(string2));
 }
 
+/* Concatenate two strings together */
 struct node *cat(struct node *string1, struct node *string2)
 {
     struct node *a;
     struct node *b;
 
-    if(string1 == 0) {
+    if(string1 == NULL) {
 	return copy(string2);
     }
     
-    if(string2 == 0) {
+    if(string2 == NULL) {
 	return copy(string1);
     }
 
     a = copy(string1);
     b = copy(string2);
+
+    /* 
+     * Make the last node of the first string
+     * point to the first node of the second
+     * and vice versa
+     */
     a->p2->p1 = b->p1;
+    b->p1->p2 = a->p2;
+
+    /*
+     * Update the end of the first string to
+     * the end of the second string
+     */
     a->p2 = b->p2;
+
+    /* Remove the sentinel of the second string */
     sno_free(b);
 
     return a;
 }
 
+/* Destructive concatenation */
 struct node *dcat(struct node *a, struct node *b)
 {
-    struct node *c;
+    struct node *result;
 
-    c = cat(a, b);
+    result = cat(a, b);
     delete(a);
     delete(b);
 
-    return c;
+    return result;
 }
 
 /* Delete a string, one node at a time */
@@ -616,32 +662,36 @@ void sysput(struct node *string)
     delete(string);
 }
 
+/* Shortcut to print out the namelist */
 void dump(void)
 {
     dump1(namelist);
 }
 
+/* Print and move through a chain of nodes */
 int dump1(struct node *base)
 {
-    struct node *b;
-    struct node *c;
-    struct node *e;
-    struct node *d;
+    struct node *current_string;
+    struct node *type;
+    struct node *temp;
+    struct node *space;
     
     while(base) {
-	b = base->p1;
-	c = binstr(b->typ);
-	d = sno_strstr("  ");
-	e = dcat(c, d);
-	sysput(cat(e, b->p1));
-	delete(e);
-	
-	if(b->typ == 1) {
-	    c = sno_strstr("   ");
-	    sysput(cat(c, b->p2));
-	    delete(c);
+	current_string = base->p1;
+	type = binstr(current_string->typ);
+	space = sno_strstr("  ");
+	temp = dcat(type, space);
+	sysput(cat(temp, current_string->p1));
+	delete(temp);
+
+	/* Prints out backwards from current point */
+	if(current_string->typ == 1) {
+	    space = sno_strstr("   ");
+	    sysput(cat(space, current_string->p2));
+	    delete(space);
 	}
 
+	/* Move to the end of the current string */
 	base = base->p2;
     }
 

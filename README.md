@@ -9,3 +9,7 @@ Goals:
 2) Get it to compile [Done]
 
 3) Likely above won't work right, reimplement so it does [WIP]
+
+Notable changes:
+
+1) Strings were not strongly linked, they did not link backwards. They now do.
