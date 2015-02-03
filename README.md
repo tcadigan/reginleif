@@ -13,3 +13,5 @@ Goals:
 Notable changes:
 
 1) Strings were not strongly linked, they did not link backwards. They now do.
+
+2) Memory allocation was using sbrk. Re-implemented using malloc. This changes how freespace was handled.

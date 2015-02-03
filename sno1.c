@@ -263,7 +263,7 @@ struct node *alloc(void)
 	}
     }
 
-    /* Expand by freespace nodes */
+    /* Expand by expand_amount nodes */
     if(freespace_head->p1 == NULL) {
 	freespace_position = freespace_head;
 	for(i = 0; i < expand_amount; ++i) {
@@ -291,7 +291,10 @@ struct node *alloc(void)
     return result;
 }
 
-/* Destroy a single node */
+/* 
+ * Destroy a single node,
+ * does not update links from connecting nodes
+ * */
 void sno_free(struct node *pointer)
 {
     pointer->p1 = freespace_head;
@@ -321,7 +324,7 @@ int nfree(void)
  * Looks for strings in the namelist.
  * Things go meta here, there is a sentinel
  * that points to a sentinel that points to
- * a string (which starts with a entinel itself)
+ * a string (which starts with a sentinel itself)
  */
 struct node *look(struct node *string)
 {
