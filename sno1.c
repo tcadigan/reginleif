@@ -9,15 +9,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-struct node *freespace_head = NULL;
-
-int freesize = 0;
-struct node *freespace = NULL;
 struct node *freelist = NULL;
-int *fault = NULL;
-
-int fin;
-int fout;
+int fin = 0;
+int fout = 0;
 
 /* Allocates a string to be printed */
 void mes(char *s)
@@ -103,60 +97,68 @@ int main(int argc, char *argv[])
     return 0;
 }
 
+/* 
+ * Read a line from the input. Caution last line 
+ * should be an empty line it will be deleted
+ */
 struct node *syspit(void)
 {
-    struct node *b;
-    struct node *c;
-    struct node *d;
-    int a;
+    struct node *sentinel;
+    struct node *current;
+    struct node *temp;
+    int character;
 
-    a = getchar();
+    character = getchar();
     
-    if(a == '\n') {
-	return 0;
+    if(character == '\n') {
+	return NULL;
     }
 
-    c = alloc();
-    b = c;
+    current = alloc();
+    sentinel = current;
 
-    while(a != '\n') {
-	d = alloc();
-	c->p1 = d;
-	c = d;
+    /* Read the line character by character */
+    while(character != '\n') {
+	temp = alloc();
+	current->p1 = temp;
+	temp->p2 = current;
+	current = temp;
 
+	/* Special case end of input, drop last line */
 	while(1) {
-	    c->ch = a;
+	    current->ch = character;
 	    
-	    if(a == '\0') {
+	    if(character == EOF) {
 		if(fin) {
 		    close(fin);
 		    fin = 0;
-		    a = getchar();
+		    character = getchar();
 		    continue;
 		}
 
 		rfail = 1;
-		b->p2 = c;
-		b = 0;
+		sentinel->p2 = current;
+		delete(sentinel);
+		sentinel = NULL;
 
-		return b;
+		return sentinel;
 	    }
 	    else {
 		break;
 	    }
 	}
 
-	a = getchar();
+	character = getchar();
     }
 
-    b->p2 = c;
+    sentinel->p2 = current;
     
     if(rfail) {
-	delete(b);
-	b = 0;
+	delete(sentinel);
+	sentinel = NULL;
     }
 
-    return b;
+    return sentinel;
 }
 
 /* Output a string character by character */
@@ -252,10 +254,10 @@ struct node *alloc(void)
     int i;
 
     /* There is no freespace at all */
-    if(freespace_head == NULL) {
-	freespace_head = (struct node *)malloc(sizeof(struct node));
+    if(freelist == NULL) {
+	freelist = (struct node *)malloc(sizeof(struct node));
 	
-	if(freespace_head == NULL) {
+	if(freelist == NULL) {
 	    fflush(stdout);
 	    write(fout, "Out of free space\n", strlen("Out of free space\n"));
 
@@ -264,8 +266,8 @@ struct node *alloc(void)
     }
 
     /* Expand by expand_amount nodes */
-    if(freespace_head->p1 == NULL) {
-	freespace_position = freespace_head;
+    if(freelist->p1 == NULL) {
+	freespace_position = freelist;
 	for(i = 0; i < expand_amount; ++i) {
 	    freespace_position->p1 = (struct node *)malloc(sizeof(struct node));
 	    
@@ -282,9 +284,9 @@ struct node *alloc(void)
     }
 
     /* Break off the head */
-    result = freespace_head;
-    freespace_head = freespace_head->p1;
-    freespace_head->p2 = NULL;
+    result = freelist;
+    freelist = freelist->p1;
+    freelist->p2 = NULL;
 
     result->p1 = NULL;
     
@@ -292,24 +294,24 @@ struct node *alloc(void)
 }
 
 /* 
- * Destroy a single node,
+ * Destroy a single node, return to freelist
  * does not update links from connecting nodes
  * */
 void sno_free(struct node *pointer)
 {
-    pointer->p1 = freespace_head;
+    pointer->p1 = freelist;
     pointer->p2 = NULL;
     pointer->typ = '\0';
     pointer->ch = '\0';
 
-    freespace_head->p2 = pointer;
-    freespace_head = pointer;
+    freelist->p2 = pointer;
+    freelist = pointer;
 }
 
 /* Simple count of the freespace nodes */
 int nfree(void)
 {
-    struct node *pos = freespace_head;
+    struct node *pos = freelist;
     int result = 0;
 
     while(pos != NULL) {
@@ -466,50 +468,56 @@ int equal(struct node *string1, struct node *string2)
     }
 }
 
+/*
+ * A very standard string to integer function
+ * operating on their special string structure
+ */
 int strbin(struct node *string)
 {
-    int n;
-    int m;
+    int result;
+    int digit;
     int sign;
-    struct node *p;
-    struct node *q;
-    struct node *s;
+    struct node *current;
+    struct node *end;
+    struct node *sentinel;
 
-    s = string;
-    n = 0;
+    sentinel = string;
+    result = 0;
     
-    if(s == 0) {
+    if(sentinel == NULL) {
 	return 0;
     }
 
-    p = s->p1;
-    q = s->p2;
+    current = sentinel->p1;
+    end = sentinel->p2;
     sign = 1;
 
-    if(class(p->ch) == 5) {
+    /* '-' sign */
+    if(class(current->ch) == 5) {
 	/* minus */
 	sign = -1;
 
-	if(p == q) {
+	if(current == end) {
 	    return 0;
 	}
 
-	p = p->p1;
+	current = current->p1;
     }
 
+    /* Process digit by digit */
     while(1) {
-	m = p->ch - '0';
-	if((m > 9) || (m <0)) {
+	digit = current->ch - '0';
+	if((digit > 9) || (digit < 0)) {
 	    writes("Bad integer string");
 	}
 
-	n = (n * 10) + m;
+	result = (result * 10) + digit;
 
-	if(p == q) {
-	    return (n * sign);
+	if(current == end) {
+	    return(result * sign);
 	}
 
-	p = p->p1;
+	current = current->p1;
     }
 }
 
@@ -701,11 +709,13 @@ int dump1(struct node *base)
     return 0;
 }
 
+/* Prints the line number and a message */
 int writes(char *s)
 {
     sysput(dcat(binstr(lc), dcat(sno_strstr("\t"), sno_strstr(s))));
     fflush(stdout);
 
+    /* If compilation failure occurred dump the namelist */
     if(cfail) {
 	dump();
 	fflush(stdout);
@@ -713,8 +723,10 @@ int writes(char *s)
 	exit(1);
     }
 
+    /* Read the rest of the line */
     while(sno_getc());
 
+    /* Go back to compiling */
     while(compile());
 
     fflush(stdout);
@@ -722,13 +734,18 @@ int writes(char *s)
     exit(1);
 }
 
+/*
+ * Process a line of input and give it
+ * back character by character
+ */
 struct node *sno_getc(void)
 {
-    struct node *a;
+    struct node *current_char;
     static struct node *line;
-    static int linflg;
+    static int line_finished;
 
-    while(line == 0) {
+    /* Process the next line of input */
+    while(line == NULL) {
 	line = syspit();
 	
 	if(rfail) {
@@ -739,22 +756,25 @@ struct node *sno_getc(void)
 	++lc;
     }
 
-    if(linflg) {
-	line = 0;
-	linflg = 0;
+    /* Finished processing line */
+    if(line_finished) {
+	line = NULL;
+	line_finished = 0;
 
 	return NULL;
     }
 
-    a = line->p1;
+    current_char = line->p1;
 
-    if(a == line->p2) {
+    /* Reached the end of the line */
+    if(current_char == line->p2) {
 	sno_free(line);
-	++linflg;
+	++line_finished;
     }
     else {
-	line->p1 = a->p1;
+	/* Move sentinel of line to next character */
+	line->p1 = current_char->p1;
     }
 
-    return a;
+    return current_char;
 }
