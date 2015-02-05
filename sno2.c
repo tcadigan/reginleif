@@ -4,11 +4,22 @@
 
 #include <stdlib.h>
 
+/*
+ * Checks the class of the node and
+ * sets the appropriate type.
+ * Notes:
+ *   "Literal" strings get sent back as handle to the string
+ *
+ *   "Normal" strings get put in the namelist and sent back as
+ *   handle to the string
+ *
+ *   Unsure of impact of next
+ */
 struct node *compon(void)
 {
-    struct node *a;
-    struct node *b;
-    int c;
+    struct node *result;
+    struct node *sentinel;
+    int quote_ch;
     static int next;
 
     if(next == 0) {
@@ -18,32 +29,36 @@ struct node *compon(void)
 	next = 0;
     }
 
-    if(schar == 0) {
-	a = alloc();
-	a->typ = 0;
+    if(schar == NULL) {
+	result = alloc();
+	result->typ = 0;
 
-	return a;
+	return result;
     }
 
     switch(class(schar->ch)) {
     case 1:
+	/* ')' */
 	schar->typ = 5;
 
-	break;
+	return schar;
     case 2:
+	/* '(' */
 	schar->typ = 16;
 
 	return schar;
     case 3:
-	a = schar;
+	/* '\t' or ' ' */
+	result = schar;
 	
+	/* Keep skipping whitespace */
 	while(1) {
 	    schar = sno_getc();
 	    
-	    if(schar == 0) {
-		a->typ = 0;
+	    if(schar == NULL) {
+		result->typ = 0;
 
-		return a;
+		return result;
 	    }
 	    
 	    if(class(schar->ch) != 3) {
@@ -54,188 +69,204 @@ struct node *compon(void)
 	}
 
 	next = 1;
-	a->typ = 7;
+	result->typ = 7;
 
-	return a;
+	return result;
     case 4:
+	/* '+' */
 	schar->typ = 8;
 	
 	return schar;
     case 5:
+	/* '-' */
 	schar->typ = 9;
 	
 	return schar;
     case 6:
-	a = schar;
+	/* '*' */
+	result = schar;
 	schar = sno_getc();
 	
+	/* Checking for following whitespace */
 	if(class(schar->ch) == 3) {
-	    a->typ = 10;
+	    result->typ = 10;
 	}
 	else {
-	    a->typ = 1;
+	    result->typ = 1;
 	}
 
 	next = 1;
 
-	return a;
+	return result;
     case 7:
-	a = schar;
+	/* '/' */
+	result = schar;
 	schar = sno_getc();
 
+	/* Checking for following '(' */
 	if(class(schar->ch) == 2) {
-	    a->typ = 11;
+	    result->typ = 11;
 	}
 	else {
-	    a->typ = 2;
+	    result->typ = 2;
 	}
 
 	next = 1;
 
-	return a;
+	return result;
     case 8:
+	/* '$' */
 	schar->typ = 12;
 
 	return schar;
     case 9:
-	c = schar->ch;
-	a = sno_getc();
+	/* '"' or '\'' */ 
+	quote_ch = schar->ch;
+	result = sno_getc();
 	
-	if(a == 0) {
-	    writes("Illegal literal string");
-
-	    if(schar->ch == c) {
-		break;
-	    }
-
-	    a->p1 = schar;
-	    a = schar;
-
-	    while(1) {
-		schar = sno_getc();
-		
-		if(schar == 0) {
-		    writes("Illegal literal string");
-		}
-		
-		if(schar->ch == c) {
-		    break;
-		}
-		
-		a->p1 = schar;
-		a = schar;
-	    }
-
-	    b = NULL;
-	    b->p2 = a;
-	    schar->typ = 15;
-	    schar->p1 = b;
-	    
-	    return schar;
+	/* There must be more to the literal string */
+	if(result == NULL) {
+	    writes("Illegal literal result");
 	}
 
-	b = schar;
+	sentinel = schar;
 
-	if(a->ch == c) {
+	/* 
+	 * Checking for the closing quote,
+	 * this is the empty result case
+	 */
+	if(result->ch == quote_ch) {
 	    sno_free(schar);
-	    a->typ = 15;
-	    a->p1 = 0;
+	    result->typ = 15;
+	    result->p1 = NULL;;
 
-	    return a;
+	    return result;
 	}
 
-	b->p1 = a;
+	sentinel->p1 = result;
 
+	/*
+	 * Get the rest of the literal string,
+	 * must end in a closing quote 
+	 */
 	while(1) {
 	    schar = sno_getc();
 
-	    if(schar == 0) {
-		writes("Illegal literal string");
+	    if(schar == NULL) {
+		writes("Illegal literal result");
 	    }
 
-	    if(schar->ch == c) {
+	    if(schar->ch == quote_ch) {
 		break;
 	    }
 
-	    a->p1 = schar;
-	    a = schar;
+	    result->p1 = schar;
+	    schar->p2 = result;
+	    result = schar;
 	}
 
-	b->p2 = a;
+	sentinel->p2 = result;
 	schar->typ = 15;
-	schar->p1 = b;
+	schar->p1 = sentinel;
 	
 	return schar;
     case 10:
+	/* '=' */
 	schar->typ = 3;
 	
 	return schar;
     case 11:
+	/* ',' */
 	schar->typ = 4;
 
 	return schar;
     }
 
-    b = alloc();
-    a = schar;
-    b->p1 = a;
+    /* This is for handling everything else */
+    sentinel = alloc();
+    result = schar;
+    sentinel->p1 = result;
     schar = sno_getc();
 
-    while((schar != 0) && !class(schar->ch)) {
-	a->p1 = schar;
-	a = schar;
+    while((schar != NULL) && !class(schar->ch)) {
+	result->p1 = schar;
+	schar->p2 = result;
+	result = schar;
 	schar = sno_getc();
     }
 
-    b->p2 = a;
+    sentinel->p2 = result;
     next = 1;
-    a = look(b);
-    delete(b);
-    b = alloc();
-    b->typ = 14;
-    b->p1 = a;
 
-    return b;
+    /* 
+     * Find/Put it in the namelist and get the
+     * namelist node
+     */
+    result = look(sentinel);
+    delete(sentinel);
+
+    /* Create a handle to the namelist node */
+    sentinel = alloc();
+    sentinel->typ = 14;
+    sentinel->p1 = result;
+
+    return sentinel;
 }
 
+/* Skip everything that is pure white space */
 struct node *nscomp(void)
 {
-    struct node *c;
+    struct node *result;
+    
+    result = compon();
 
-    c = compon();
-
-    while(c->typ == 7) {
-	sno_free(c);
-	c = compon();
+    /* '\t' or ' ' */
+    while(result->typ == 7) {
+	sno_free(result);
+	result = compon();
     }
 
-    return c;
+    return result;
 }
 
-struct node *push(struct node *stack) {
-    struct node *a;
+/* Push empty node onto the provided stack */
+struct node *push(struct node *stack)
+{
+    struct node *empty_node;
 
-    a = alloc();
-    a->p2 = stack;
+    empty_node = alloc();
+    empty_node->p2 = stack;
+    
+    /* Keep the strongly linked crusade alive */
+    if(stack != NULL) {
+	stack->p1 = empty_node;
+    }
 
-    return a;
+    return empty_node;
 }
 
+/* 
+ * Return the top of the stack to the caller,
+ * and remove from the stack
+ */
 struct node *pop(struct node *stack)
 {
-    struct node *a;
-    struct node *s;
+    struct node *result;
+    struct node *top;
 
-    s = stack;
+    top = stack;
 
-    if(s == 0) {
+    if(top == NULL) {
 	writes("Pop");
     }
+    
+    result = top->p2;
+    sno_free(top);
 
-    a = s->p2;
-    sno_free(s);
+    /* Clean the forward link */
+    top->p1 = NULL;
 
-    return a;
+    return result;
 }
 
 struct node *expr(struct node *start, int eof, struct node *e)

@@ -1,6 +1,8 @@
 # Snobol III
 
-original source: http://minnie.tuhs.org/cgi-bin/utree.pl?file=V6/usr/source/sno
+Date of origin: 1975
+
+Original source: http://minnie.tuhs.org/cgi-bin/utree.pl?file=V6/usr/source/sno
 
 Goals:
 
@@ -14,4 +16,4 @@ Notable changes:
 
 1) Strings were not strongly linked, they did not link backwards. They now do.
 
-2) Memory allocation was using sbrk. Re-implemented using malloc. This changes how freespace was handled.
+2) Memory allocation was using sbrk. Re-implemented using malloc. This changes how freespace was handled/tracked.
