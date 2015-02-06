@@ -138,7 +138,7 @@ struct node *compon(void)
 	if(result->ch == quote_ch) {
 	    sno_free(schar);
 	    result->typ = 15;
-	    result->p1 = NULL;;
+	    result->p1 = NULL;
 
 	    return result;
 	}
@@ -246,8 +246,8 @@ struct node *push(struct node *stack)
 }
 
 /* 
- * Return the top of the stack to the caller,
- * and remove from the stack
+ * Remove from the top of the stack,
+ * return the top top element
  */
 struct node *pop(struct node *stack)
 {
@@ -269,6 +269,95 @@ struct node *pop(struct node *stack)
     return result;
 }
 
+
+/* DEBUG: */
+struct node *Unknown1(int *op,
+		      struct node **stack,
+		      struct node **comp,
+		      struct node **space,
+		      struct node **list);
+
+/* 
+ * strings go on in normal order?
+ * i.e. cat is 'c', 'a', 't'
+ *
+ * higher typ get pushed onto stack, meaning
+ * lower is higher precendence
+ */
+struct node *Unknown1(int *op,
+		      struct node **stack,
+		      struct node **comp,
+		      struct node **space,
+		      struct node **list)
+{
+    int op1;
+    struct node *c;
+    
+    while(1) {
+	op1 = (*stack)->typ;
+	
+	/* if lower precendence push to stack */
+	if(*op > op1) {
+	    *stack = push(*stack);
+	    
+	    /* '(' */
+	    if(*op == 16) {
+		*op = 6;
+	    }
+	    
+	    (*stack)->typ = *op;
+	    (*stack)->p1 = *comp;
+	    
+	    if(*space) {
+		*comp = *space;
+		*space = NULL;
+	    }
+	    else {
+		*comp = compon();
+	    }
+	    
+	    return NULL;
+	}
+	
+	/* Look ahead one char */
+	c = (*stack)->p1;
+	*stack = pop(*stack);
+	
+	if(*stack == NULL) {
+	    (*list)->typ = 0;
+	    
+	    return *comp;
+	}
+	
+	if(op1 == 6) {
+	    if(*op != 5) {
+		writes("Too many ('s");
+	    }
+	    
+	    if(*space) {
+		*comp = *space;
+		*space = NULL;
+	    }
+	    else {
+		*comp = compon();
+	    }
+	    
+	    return NULL;
+	}
+	
+	/* It is not whitespace */
+	if(op1 == 7) {
+	    c = alloc();
+	}
+	
+	/* Add the lookahead to the current list */
+	(*list)->typ = op1;
+	(*list)->p2 = c->p1;
+	(*list)->p1 = c;
+	*list = c;
+    }
+}
+
 struct node *expr(struct node *start, int eof, struct node *e)
 {
     struct node *stack;
@@ -277,17 +366,14 @@ struct node *expr(struct node *start, int eof, struct node *e)
     int operand;
     int op;
     struct node *space;
-    int op1;
     struct node *a;
     struct node *b;
-    struct node *c;
+    struct node *result;
     int d;
-    int f;
 
-    f = 0;
     list = alloc();
     e->p2 = list;
-    stack = push(0);
+    stack = push(NULL);
     stack->typ = eof;
     operand = 0;
     space = start;
@@ -311,13 +397,13 @@ struct node *expr(struct node *start, int eof, struct node *e)
 	    
 	    continue;
 	case 10:
-	    if(space == 0) {
+	    if(space == NULL) {
 		comp->typ = 1;
 
 		continue;
 	    }
 	case 11:
-	    if(space == 0) {
+	    if(space == NULL) {
 		comp->typ = 2;
 	
 		continue;
@@ -331,73 +417,13 @@ struct node *expr(struct node *start, int eof, struct node *e)
 	    operand = 0;
 	    space = 0;
 
-	    while(1) {
-		op1 = stack->typ;
-
-		if(op > op1) {
-		    stack = push(stack);
-
-		    if(op == 16) {
-			op = 6;
-		    }
-
-		    stack->typ = op;
-		    stack->p1 = comp;
-
-		    if(space) {
-			comp = space;
-			space = NULL;
-		    }
-		    else {
-			comp = compon();
-		    }
-
-		    f = 1;
-
-		    break;
-		}
-
-		c = stack->p1;
-		stack = pop(stack);
-
-		if(stack == 0) {
-		    list->typ = 0;
-
-		    return comp;
-		}
-
-		if(op1 == 6) {
-		    if(op != 5) {
-			writes("Too many ('s");
-		    }
-
-		    if(space) {
-			comp = space;
-			space = NULL;
-		    }
-		    else {
-			comp = compon();
-		    }
-
-		    f = 1;
-
-		    break;
-		}
-
-		if(op1 == 7) {
-		    c = alloc();
-		}
-
-		list->typ = op1;
-		list->p2 = c->p1;
-		list->p1 = c;
-		list = c;
-	    }
-
-	    if(f) {
-		f = 0;
-
+	    result = Unknown1(&op, &stack, &comp, &space, &list);
+	    
+	    if(result == NULL) {
 		continue;
+	    }
+	    else {
+		return result;
 	    }
 	case 14:
 	case 15:
@@ -405,615 +431,43 @@ struct node *expr(struct node *start, int eof, struct node *e)
 		operand = 1;
 		space = 0;
 
-		while(1) {
-		    op1 = stack->typ;
-
-		    if(op > op1) {
-			stack = push(stack);
-
-			if(op == 16) {
-			    op = 6;
-			}
-
-			stack->typ = op;
-			stack->p1 = comp;
-
-			if(space) {
-			    comp = space;
-			    space = NULL;
-			}
-			else {
-			    comp = compon();
-			}
-
-			f = 1;
-
-			break;
-		    }
-
-		    c = stack->p1;
-		    stack = pop(stack);
-
-		    if(stack == 0) {
-			list->typ = 0;
-
-			return comp;
-		    }
-
-		    if(op1 == 6) {
-			if(op != 5) {
-			    writes("Too many ('s");
-			}
-
-			if(space) {
-			    comp = space;
-			    space = NULL;
-			}
-			else {
-			    comp = compon();
-			}
-
-			f = 1;
-
-			break;
-		    }
-
-		    if(op1 == 7) {
-			c = alloc();
-		    }
-
-		    list->typ = op1;
-		    list->p2 = c->p1;
-		    list->p1 = c;
-		    list = c;
-		}
-
-		if(f) {
-		    f = 0;
-
+		result = Unknown1(&op, &stack, &comp, &space, &list);
+		
+		if(result == NULL) {
 		    continue;
+		}
+		else {
+		    return result;
 		}
 	    }
 
 	    if(space == 0) {
 		writes("Illegal juxtaposition of operands");
-
-		if(operand == 0) {
-		    space = 0;
-
-		    while(1) {
-			op1 = stack->typ;
-
-			if(op > op1) {
-			    stack = push(stack);
-
-			    if(op == 16) {
-				op = 6;
-			    }
-
-			    stack->typ = op;
-			    stack->p1 = comp;
-
-			    if(space) {
-				comp = space;
-				space = NULL;
-			    }
-			    else {
-				comp = compon();
-			    }
-
-			    f = 1;
-
-			    break;
-			}
-
-			c = stack->p1;
-			stack = pop(stack);
-
-			if(stack == 0) {
-			    list->typ = 0;
-
-			    return comp;
-			}
-
-			if(op1 == 6) {
-			    if(op != 5) {
-				writes("Too many ('s");
-			    }
-
-			    if(space) {
-				comp = space;
-				space = NULL;
-			    }
-			    else {
-				comp = compon();
-			    }
-
-			    f = 1;
-
-			    break;
-			}
-
-			if(op1 == 7) {
-			    c = alloc();
-			}
-
-			list->typ = op1;
-			list->p2 = c->p1;
-			list->p1 = c;
-			list = c;
-		    }
-
-		    if(f) {
-			f = 0;
-
-			continue;
-		    }
-		}
-
-		if(space) {
-		    space = comp;
-		    op = 7;
-		    operand = 0;
-
-		    while(1) {
-			op1 = stack->typ;
-
-			if(op > op1) {
-			    stack = push(stack);
-
-			    if(op == 16) {
-				op = 6;
-			    }
-		    
-			    stack->typ = op;
-			    stack->p1 = comp;
-
-			    if(space) {
-				comp = space;
-				space = NULL;
-			    }
-			    else {
-				comp = compon();
-			    }
-
-			    f = 1;
-
-			    break;
-			}
-
-			c = stack->p1;
-			stack = pop(stack);
-
-			if(stack == 0) {
-			    list->typ = 0;
-
-			    return comp;
-			}
-
-			if(op1 == 6) {
-			    if(op != 5) {
-				writes("Too many ('s");
-			    }
-
-			    if(space) {
-				comp = space;
-				space = NULL;
-			    }
-			    else {
-				comp = compon();
-			    }
-
-			    f = 1;
-
-			    break;
-			}
-
-			if(op1 == 7) {
-			    c = alloc();
-			}
-
-			list->typ = op1;
-			list->p2 = c->p1;
-			list->p1 = c;
-			list = c;
-		    }
-
-		    if(f) {
-			f = 0;
-
-			continue;
-		    }
-		}
-
-		b = compon();
-		comp->typ = 13;
-		op = comp->typ;
-
-		if(b->typ == 5) {
-		    comp->p1 = 0;
-
-		    sno_free(b);
-
-		    while(1) {
-			op1 = stack->typ;
-
-			if(op > op1) {
-			    stack = push(stack);
-
-			    if(op == 16) {
-				op = 6;
-			    }
-
-			    stack->typ = op;
-			    stack->p1 = comp;
-
-			    if(space) {
-				comp = space;
-				space = NULL;
-			    }
-			    else {
-				comp = compon();
-			    }
-
-			    f = 1;
-
-			    break;
-			}
-
-			c = stack->p1;
-			stack = pop(stack);
-
-			if(stack == 0) {
-			    list->typ = 0;
-		    
-			    return comp;
-			}
-
-			if(op1 == 6) {
-			    if(op != 5) {
-				writes("Too many ('s");
-			    }
-
-			    if(space) {
-				comp = space;
-				space = NULL;
-			    }
-			    else {
-				comp = compon();
-			    }
-		    
-			    f = 1;
-
-			    break;
-			}
-
-			if(op1 == 7) {
-			    c = alloc();
-			}
-
-			list->typ = op1;
-			list->p2 = c->p1;
-			list->p1 = c;
-			list = c;
-		    }
-
-		    if(f) {
-			f = 0;
-
-			continue;
-		    }
-		}
-
-		a = alloc();
-		comp->p1 = a;
-		b = expr(b, 6, a);
-		d = b->typ;
-
-		while(d == 4) {
-		    a->p1 = b;
-		    a = b;
-		    b = expr(0, 6, a);
-		    d = b->typ;
-		}
-
-		if(d != 5) {
-		    writes("Error in function");
-		}
-
-		a->p1 = 0;
-		sno_free(b);
-
-		while(1) {
-		    op1 = stack->typ;
-
-		    if(op > op1) {
-			stack = push(stack);
-		
-			if(op == 16) {
-			    op = 6;
-			}
-
-			stack->typ = op;
-			stack->p1 = comp;
-
-			if(space) {
-			    comp = space;
-			    space = NULL;
-			}
-			else {
-			    comp = compon();
-			}
-
-			f = 1;
-
-			break;
-		    }
-
-		    c = stack->p1;
-		    stack = pop(stack);
-
-		    if(stack == 0) {
-			list->typ = 0;
-
-			return comp;
-		    }
-
-		    if(op1 == 6) {
-			if(op != 5) {
-			    writes("Too many ('s");
-			}
-
-			if(space) {
-			    comp = space;
-			    space = NULL;
-			}
-			else {
-			    comp = compon();
-			}
-
-			f = 1;
-
-			break;
-		    }
-
-		    if(op1 == 7) {
-			c = alloc();
-		    }
-
-		    list->typ = op1;
-		    list->p2 = c->p1;
-		    list->p1 = c;
-		    list = c;
-		}
-
-		if(f) {
-		    f = 0;
-
-		    continue;
-		}
-	
-		if(operand == 0) {
-		    writes("No operand at end of expression");
-		}
-
-		space = 0;
-
-		while(1) {
-		    op1 = stack->typ;
-
-		    if(op > op1) {
-			stack = push(stack);
-	    
-			if(op == 16) {
-			    op = 6;
-			}
-	    
-			stack->typ = op;
-			stack->p1 = comp;
-	    
-			if(space) {
-			    comp = space;
-			    space = NULL;
-			}
-			else {
-			    comp = compon();
-			}
-	    
-			f = 1;
-
-			break;
-		    }
-
-		    c = stack->p1;
-		    stack = pop(stack);
-	
-		    if(stack == 0) {
-			list->typ = 0;
-	    
-			return comp;
-		    }
-	
-		    if(op1 == 6) {
-			if(op != 5) {
-			    writes("Too many ('s");
-			}
-	    
-			if(space) {
-			    comp = space;
-			    space = NULL;
-			}
-			else {
-			    comp = compon();
-			}
-	    
-			f = 1;
-			
-			break;
-		    }
-	
-		    if(op1 == 7) {
-			c = alloc();
-		    }
-	
-		    list->typ = op1;
-		    list->p2 = c->p1;
-		    list->p1 = c;
-		    list = c;
-		}
-
-		if(f) {
-		    f = 0;
-
-		    continue;
-		}
-
-		return NULL;
 	    }
 
 	    space = comp;
 	    op = 7;
 	    operand = 0;
-
-	    while(1) {
-		op1 = stack->typ;
-
-		if(op > op1) {
-		    stack = push(stack);
-
-		    if(op == 16) {
-			op = 6;
-		    }
-
-		    stack->typ = op;
-		    stack->p1 = comp;
-
-		    if(space) {
-			comp = space;
-			space = NULL;
-		    }
-		    else {
-			comp = compon();
-		    }
-
-		    f = 1;
-
-		    break;
-		}
-
-		c = stack->p1;
-		stack = pop(stack);
-
-		if(stack == 0) {
-		    list->typ = 0;
-
-		    return comp;
-		}
-
-		if(op1 == 6) {
-		    if(op != 5) {
-			writes("Too many ('s");
-		    }
-
-		    if(space) {
-			comp = space;
-			space = NULL;
-		    }
-		    else {
-			comp = compon();
-		    }
-
-		    f = 1;
-
-		    break;
-		}
-
-		if(op == 7) {
-		    c = alloc();
-		}
-
-		list->typ = op1;
-		list->p2 = c->p1;
-		list->p1 = c;
-		list = c;
-	    }
-
-	    if(f) {
-		f = 0;
-
+	    
+	    result = Unknown1(&op, &stack, &comp, &space, &list);
+	    
+	    if(result == NULL) {
 		continue;
+	    }
+	    else {
+		return result;
 	    }
 	case 12:
 	    if(operand == 0) {
 		space = 0;
 
-		while(1) {
-		    op1 = stack->typ;
-
-		    if(op > op1) {
-			stack = push(stack);
-
-			if(op == 16) {
-			    op = 6;
-			}
-		    
-			stack->typ = op;
-			stack->p1 = comp;
-		    
-			if(space) {
-			    comp = space;
-			    space = NULL;
-			}
-			else {
-			    comp = compon();
-			}
-
-			f = 1;
-
-			break;
-		    }
-
-		    c = stack->p1;
-		    stack = pop(stack);
-
-		    if(stack == 0) {
-			list->typ = 0;
-
-			return comp;
-		    }
-
-		    if(op1 == 6) {
-			if(op != 5) {
-			    writes("Too many ('s");
-			}
-
-			if(space) {
-			    comp = space;
-			    space = NULL;
-			}
-			else {
-			    comp = compon();
-			}
-
-			f = 1;
-
-			break;
-		    }
-
-		    if(op1 == 7) {
-			c = alloc();
-		    }
-
-		    list->typ = op1;
-		    list->p2 = c->p1;
-		    list->p1 = c;
-		    list = c;
-		}
-
-		if(f) {
-		    f = 0;
-
+		result = Unknown1(&op, &stack, &comp, &space, &list);
+		
+		if(result == NULL) {
 		    continue;
+		}
+		else {
+		    return result;
 		}
 	    }
 
@@ -1022,149 +476,28 @@ struct node *expr(struct node *start, int eof, struct node *e)
 		op = 7;
 		operand = 0;
 
-		while(1) {
-		    op1 = stack->typ;
-
-		    if(op > op1) {
-			stack = push(stack);
-
-			if(op == 16) {
-			    op = 6;
-			}
-
-			stack->typ = op;
-			stack->p1 = comp;
-		    
-			if(space) {
-			    comp = space;
-			    space = NULL;
-			}
-			else {
-			    comp = compon();
-			}
-
-			f = 1;
-
-			break;
-		    }
-
-		    c = stack->p1;
-		    stack = pop(stack);
-
-		    if(stack == 0) {
-			list->typ = 0;
-
-			return comp;
-		    }
-
-		    if(op1 == 6) {
-			if(op != 5) {
-			    writes("Too many ('s");
-			}
-
-			if(space) {
-			    comp = space;
-			    space = NULL;
-			}
-			else {
-			    comp = compon();
-			}
-
-			f = 1;
-			
-			break;
-		    }
-
-		    if(op1 == 7) {
-			c = alloc();
-		    }
-
-		    list->typ = op1;
-		    list->p2 = c->p1;
-		    list->p1 = c;
-		    list = c;
-		}
-
-		if(f) {
-		    f = 0;
-
+		result = Unknown1(&op, &stack, &comp, &space, &list);
+		
+		if(result == NULL) {
 		    continue;
+		}
+		else {
+		    return result;
 		}
 	    }
 
 	    writes("Illegal juxtaposition of operands");
-
 	case 16:
 	    if(operand == 0) {
 		space = 0;
 
-		while(1) {
-		    op1 = stack->typ;
-
-		    if(op > op1) {
-			stack = push(stack);
-
-			if(op == 16) {
-			    op = 6;
-			}
-
-			stack->typ = op;
-			stack->p1 = comp;
-
-			if(space) {
-			    comp = space;
-			    space = NULL;
-			}
-			else {
-			    comp = compon();
-			}
-
-			f = 1;
-
-			break;
- 		    }
-
-		    c = stack->p1;
-		    stack = pop(stack);
-
-		    if(stack == 0) {
-			list->typ = 0;
-
-			return comp;
-		    }
-
-		    if(op1 == 6) {
-			if(op != 5) {
-			    writes("Too many ('s");
-			}
-
-			if(space) {
-			    comp = space;
-			    space = NULL;
-			}
-			else {
-			    comp = compon();
-			}
-
-			f = 1;
-
-			break;
-		    }
-
-		    if(op1 == 7) {
-			c = alloc();
-		    }
-
-		    list->typ = op1;
-		    list->p2 = c->p1;
-		    list->p1 = c;
-		    list = c;
-		}
-
-		if(f) {
-		    f = 0;
-
+		result = Unknown1(&op, &stack, &comp, &space, &list);
+		
+		if(result == NULL) {
 		    continue;
+		}
+		else {
+		    return result;
 		}
 	    }
 
@@ -1173,73 +506,13 @@ struct node *expr(struct node *start, int eof, struct node *e)
 		op = 7;
 		operand = 0;
 
-		while(1) {
-		    op1 = stack->typ;
-
-		    if(op > op1) {
-			stack = push(stack);
-
-			if(op == 16) {
-			    op = 6;
-			}
-		    
-			stack->typ = op;
-			stack->p1 = comp;
-
-			if(space) {
-			    comp = space;
-			    space = NULL;
-			}
-			else {
-			    comp = compon();
-			}
-
-			f = 1;
-
-			break;
-		    }
-
-		    c = stack->p1;
-		    stack = pop(stack);
-
-		    if(stack == 0) {
-			list->typ = 0;
-
-			return comp;
-		    }
-
-		    if(op1 == 6) {
-			if(op != 5) {
-			    writes("Too many ('s");
-			}
-
-			if(space) {
-			    comp = space;
-			    space = NULL;
-			}
-			else {
-			    comp = compon();
-			}
-
-			f = 1;
-			
-			break;
-		    }
-
-		    if(op1 == 7) {
-			c = alloc();
-		    }
-
-		    list->typ = op1;
-		    list->p2 = c->p1;
-		    list->p1 = c;
-		    list = c;
-		}
-
-		if(f) {
-		    f = 0;
-
+		result = Unknown1(&op, &stack, &comp, &space, &list);
+		
+		if(result == NULL) {
 		    continue;
+		}
+		else {
+		    return result;
 		}
 	    }
 
@@ -1252,73 +525,13 @@ struct node *expr(struct node *start, int eof, struct node *e)
 
 		sno_free(b);
 
-		while(1) {
-		    op1 = stack->typ;
-
-		    if(op > op1) {
-			stack = push(stack);
-
-			if(op == 16) {
-			    op = 6;
-			}
-
-			stack->typ = op;
-			stack->p1 = comp;
-
-			if(space) {
-			    comp = space;
-			    space = NULL;
-			}
-			else {
-			    comp = compon();
-			}
-
-			f = 1;
-			
-			break;
-		    }
-
-		    c = stack->p1;
-		    stack = pop(stack);
-
-		    if(stack == 0) {
-			list->typ = 0;
-		    
-			return comp;
-		    }
-
-		    if(op1 == 6) {
-			if(op != 5) {
-			    writes("Too many ('s");
-			}
-
-			if(space) {
-			    comp = space;
-			    space = NULL;
-			}
-			else {
-			    comp = compon();
-			}
-		 
-			f = 1;
-
-			break;
-		    }
-
-		    if(op1 == 7) {
-			c = alloc();
-		    }
-
-		    list->typ = op1;
-		    list->p2 = c->p1;
-		    list->p1 = c;
-		    list = c;
-		}
-
-		if(f) {
-		    f = 0;
-
+		result = Unknown1(&op, &stack, &comp, &space, &list);
+		
+		if(result == NULL) {
 		    continue;
+		}
+		else {
+		    return result;
 		}
 	    }
 
@@ -1341,73 +554,13 @@ struct node *expr(struct node *start, int eof, struct node *e)
 	    a->p1 = 0;
 	    sno_free(b);
 
-	    while(1) {
-		op1 = stack->typ;
-
-		if(op > op1) {
-		    stack = push(stack);
-		
-		    if(op == 16) {
-			op = 6;
-		    }
-
-		    stack->typ = op;
-		    stack->p1 = comp;
-
-		    if(space) {
-			comp = space;
-			space = NULL;
-		    }
-		    else {
-			comp = compon();
-		    }
-
-		    f = 1;
-		    
-		    break;
-		}
-
-		c = stack->p1;
-		stack = pop(stack);
-
-		if(stack == 0) {
-		    list->typ = 0;
-
-		    return comp;
-		}
-
-		if(op1 == 6) {
-		    if(op != 5) {
-			writes("Too many ('s");
-		    }
-
-		    if(space) {
-			comp = space;
-			space = NULL;
-		    }
-		    else {
-			comp = compon();
-		    }
-
-		    f = 1;
-		    
-		    break;
-		}
-
-		if(op1 == 7) {
-		    c = alloc();
-		}
-
-		list->typ = op1;
-		list->p2 = c->p1;
-		list->p1 = c;
-		list = c;
-	    }
-
-	    if(f) {
-		f = 0;
-
+	    result = Unknown1(&op, &stack, &comp, &space, &list);
+	    
+	    if(result == NULL) {
 		continue;
+	    }
+	    else {
+		return result;
 	    }
 	}
 
@@ -1417,76 +570,14 @@ struct node *expr(struct node *start, int eof, struct node *e)
 
 	space = 0;
 
-	while(1) {
-	    op1 = stack->typ;
-
-	    if(op > op1) {
-		stack = push(stack);
-	    
-		if(op == 16) {
-		    op = 6;
-		}
-	    
-		stack->typ = op;
-		stack->p1 = comp;
-	    
-		if(space) {
-		    comp = space;
-		    space = NULL;
-		}
-		else {
-		    comp = compon();
-		}
-
-		f = 1;
-
-		break;
-	    }
-
-	    c = stack->p1;
-	    stack = pop(stack);
+	result = Unknown1(&op, &stack, &comp, &space, &list);
 	
-	    if(stack == 0) {
-		list->typ = 0;
-	    
-		return comp;
-	    }
-	
-	    if(op1 == 6) {
-		if(op != 5) {
-		    writes("Too many ('s");
-		}
-	    
-		if(space) {
-		    comp = space;
-		    space = NULL;
-		}
-		else {
-		    comp = compon();
-		}
-	    
-		f = 1;
-
-		break;
-	    }
-
-	    if(op1 == 7) {
-		c = alloc();
-	    }
-	
-	    list->typ = op1;
-	    list->p2 = c->p1;
-	    list->p1 = c;
-	    list = c;
-	}
-
-	if(f) {
-	    f = 0;
-
+	if(result == NULL) {
 	    continue;
 	}
-
-	break;
+	else {
+	    return result;
+	}
     }
 
     return NULL;
