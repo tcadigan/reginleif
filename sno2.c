@@ -551,7 +551,7 @@ struct node *expr(struct node *start, int eof, struct node *e)
 		writes("Error in function");
 	    }
 
-	    a->p1 = 0;
+	    a->p1 = NULL;
 	    sno_free(b);
 
 	    result = Unknown1(&op, &stack, &comp, &space, &list);
@@ -615,7 +615,6 @@ struct node *match(struct node *start, struct node *m)
 	case 7:
 	    sno_free(comp);
 	    comp = compon();
-
 	    i = 0;
 	
 	    continue;
@@ -626,6 +625,7 @@ struct node *match(struct node *start, struct node *m)
 	    term = 0;
 	    comp = expr(comp, 6, list);
 	    list->typ = 1;
+	    i = 1;
 
 	    continue;
 	case 1:
@@ -643,7 +643,7 @@ struct node *match(struct node *start, struct node *m)
 	    b = comp->typ;
 	
 	    if((b == 2) || (b == 5) || (b == 10) || (b == 1)) {
-		a->p1 = 0;
+		a->p1 = NULL;
 	    }
 	    else {
 		comp = expr(comp, 11, a);
@@ -651,7 +651,7 @@ struct node *match(struct node *start, struct node *m)
 	    }
 
 	    if(comp->typ != 2) {
-		a->p2 = 0;
+		a->p2 = NULL;
 	    }
 	    else {
 		free(comp);
@@ -661,8 +661,6 @@ struct node *match(struct node *start, struct node *m)
 	    if(bal) {
 		if(comp->typ != 5) {
 		    writes("Unrecognized component in match");
-
-		    return 0;
 		}
 
 		free(comp);
@@ -673,8 +671,6 @@ struct node *match(struct node *start, struct node *m)
 	
 	    if((b != 1) && (b != 10)) {
 		writes("Unrecognized component in match");
-
-		return 0;
 	    }
 
 	    list->p2 = a;
@@ -684,7 +680,7 @@ struct node *match(struct node *start, struct node *m)
 	    comp = compon();
 
 	    if(bal) {
-		term = 0;
+		term = NULL;
 	    }
 	    else {
 		term = list;
@@ -721,14 +717,15 @@ struct node *compile(void)
     
 
     t = 0;
-    xf = 0;
-    xs = 0;
-    as = 0;
-    l = 0;
-    m = 0;
+    xf = NULL;
+    xs = NULL;
+    as = NULL;
+    l = NULL;
+    m = NULL;
     comp = compon();
     a = comp->typ;
 
+    /* Namelist nodes can start lines */
     if(a == 14) {
 	l = comp->p1;
 	free(comp);
@@ -744,11 +741,12 @@ struct node *compile(void)
     
     if(l == lookfret) {
 	r = nscomp();
-    
+
+	/* First must be in namelist */
 	if(r->typ != 14) {
 	    writes("Illegal component in define");
 	
-	    return 0;
+	    return NULL;
 	}
 
 	l = r->p1;
@@ -767,26 +765,24 @@ struct node *compile(void)
 
 	if(r->typ == 0) {
 	    r = compile();
-	    m->p2 = 0;
+	    m->p2 = NULL;
 	    l->p1 = r;
-	    l->p2 = 0;
+	    l->p2 = NULL;
 	
 	    return r;
 	}
 
+	/* Then it must have '(' */
 	if(r->typ != 16) {
 	    writes("Illegal component in define");
-	
-	    return 0;
 	}
 
 	while(1) {
 	    r = nscomp();
     
+	    /* Then more namelist items */
 	    if(r->typ != 14) {
 		writes("Illegal component in define");
-	
-		return 0;
 	    }
 
 	    m->p2 = r;
@@ -803,27 +799,25 @@ struct node *compile(void)
 	    break;
 	}
     
+	/* Then can not have ') */
 	if(r->typ != 5) {
 	    writes("Illegal component in define");
-	
-	    return 0;
 	}
 
 	sno_free(r);
 	r = compon();
     
+	/* Then it must have a type */
 	if(r->typ != 0) {
 	    writes("Illegal component in define");
-	
-	    return 0;
 	}
 
 	sno_free(r);
 
 	r = compile();
-	m->p2 = 0;
+	m->p2 = NULL;
 	l->p1 = r;
-	l->p2 = 0;
+	l->p2 = NULL;
 
 	return r;
     }
@@ -859,14 +853,14 @@ struct node *compile(void)
 	}
 
 	g = alloc();
-	g->p1 = 0;
+	g->p1 = NULL;
 
 	if(xs) {
 	    g->p1 = xs->p2;
 	    free(xs);
 	}
 
-	g->p2 = 0;
+	g->p2 = NULL;
 
 	if(xf) {
 	    g->p2 = xf->p2;
@@ -886,6 +880,7 @@ struct node *compile(void)
 	    comp = compon();
 	    a = comp->typ;
     
+	    /* '(' */
 	    if(a == 16) {
 		while(1) {
 		    free(comp);
@@ -893,10 +888,9 @@ struct node *compile(void)
 		    xf = alloc();
 		    comp = expr(0, 6, xs);
 	
+		    /* ')' */
 		    if(comp->typ != 5) {
 			writes("Unrecognized component in goto");
-	    
-			continue;
 		    }
 	
 		    xf->p2 = xs->p2;
@@ -904,8 +898,6 @@ struct node *compile(void)
 	
 		    if(comp->typ != 0) {
 			writes("Unrecognized component in goto");
-	    
-			continue;
 		    }
 	
 		    break;
@@ -1008,150 +1000,10 @@ struct node *compile(void)
 		}
 	
 		writes("Unrecognized component in goto");
-    
-		while(1) {
-		    free(comp);
-		    xs = alloc();
-		    xf = alloc();
-		    comp = expr(0, 6, xs);
-	
-		    if(comp->typ != 5) {
-			writes("Unrecognized component in goto");
-	    
-			continue;
-		    }
-	
-		    xf->p2 = xs->p2;
-		    comp = compon();
-	
-		    if(comp->typ != 0) {
-			writes("Unrecognized component in goto");
-	    
-			continue;
-		    }
-	
-		    break;
-		}
-
-		if(l) {
-		    if(l->typ) {
-			writes("Name doubly defined");
-		    }
-
-		    l->p2 = comp;
-
-		    /* type label */
-		    l->typ = 2;
-		}
-
-		comp->p2 = r;
-
-		if(m) {
-		    ++t;
-		    r->p1 = m;
-		    r = m;
-		}
-
-		if(as) {
-		    t += 2;
-		    r->p1 = as;
-		    r = as;
-		}
-
-		g = alloc();
-		g->p1 = 0;
-
-		if(xs) {
-		    g->p1 = xs->p2;
-		    free(xs);
-		}
-
-		g->p2 = 0;
-
-		if(xf) {
-		    g->p2 = xf->p2;
-		    free(xf);
-		}
-
-		r->p1 = g;
-		comp->typ = t;
-		comp->ch = lc;
-
-		return comp;
 	    }
 
 	    if(a != 14) {
 		writes("Unrecognized component in goto");
-    
-		while(1) {
-		    free(comp);
-		    xs = alloc();
-		    xf = alloc();
-		    comp = expr(0, 6, xs);
-	
-		    if(comp->typ != 5) {
-			writes("Unrecognized component in goto");
-	    
-			continue;
-		    }
-	
-		    xf->p2 = xs->p2;
-		    comp = compon();
-	
-		    if(comp->typ != 0) {
-			writes("Unrecognized component in goto");
-	    
-			continue;
-		    }
-	
-		    break;
-		}
-
-		if(l) {
-		    if(l->typ) {
-			writes("Name doubly defined");
-		    }
-
-		    l->p2 = comp;
-
-		    /* type label */
-		    l->typ = 2;
-		}
-
-		comp->p2 = r;
-
-		if(m) {
-		    ++t;
-		    r->p1 = m;
-		    r = m;
-		}
-
-		if(as) {
-		    t += 2;
-		    r->p1 = as;
-		    r = as;
-		}
-
-		g = alloc();
-		g->p1 = 0;
-
-		if(xs) {
-		    g->p1 = xs->p2;
-		    free(xs);
-		}
-
-		g->p2 = 0;
-
-		if(xf) {
-		    g->p2 = xf->p2;
-		    free(xf);
-		}
-
-		r->p1 = g;
-		comp->typ = t;
-		comp->ch = lc;
-
-		return comp;       
 	    }
 
 	    b = comp->p1;
@@ -1160,156 +1012,12 @@ struct node *compile(void)
 	    if(b == looks) {
 		if(xs) {
 		    writes("Unrecognized component in goto");
-    
-		    while(1) {
-			free(comp);
-			xs = alloc();
-			xf = alloc();
-			comp = expr(0, 6, xs);
-	
-			if(comp->typ != 5) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			xf->p2 = xs->p2;
-			comp = compon();
-	
-			if(comp->typ != 0) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			break;
-		    }
-
-		    if(l) {
-			if(l->typ) {
-			    writes("Name doubly defined");
-			}
-
-			l->p2 = comp;
-
-			/* type label */
-			l->typ = 2;
-		    }
-
-		    comp->p2 = r;
-
-		    if(m) {
-			++t;
-			r->p1 = m;
-			r = m;
-		    }
-
-		    if(as) {
-			t += 2;
-			r->p1 = as;
-			r = as;
-		    }
-
-		    g = alloc();
-		    g->p1 = 0;
-
-		    if(xs) {
-			g->p1 = xs->p2;
-			free(xs);
-		    }
-
-		    g->p2 = 0;
-
-		    if(xf) {
-			g->p2 = xf->p2;
-			free(xf);
-		    }
-
-		    r->p1 = g;
-		    comp->typ = t;
-		    comp->ch = lc;
-
-		    return comp;
-
-	  
 		}
 
 		comp = compon();
 
 		if(comp->typ != 16) {
 		    writes("Unrecognized component in goto");
-    
-		    while(1) {
-			free(comp);
-			xs = alloc();
-			xf = alloc();
-			comp = expr(0, 6, xs);
-	
-			if(comp->typ != 5) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			xf->p2 = xs->p2;
-			comp = compon();
-	
-			if(comp->typ != 0) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			break;
-		    }
-
-		    if(l) {
-			if(l->typ) {
-			    writes("Name doubly defined");
-			}
-
-			l->p2 = comp;
-
-			/* type label */
-			l->typ = 2;
-		    }
-
-		    comp->p2 = r;
-
-		    if(m) {
-			++t;
-			r->p1 = m;
-			r = m;
-		    }
-
-		    if(as) {
-			t += 2;
-			r->p1 = as;
-			r = as;
-		    }
-
-		    g = alloc();
-		    g->p1 = 0;
-
-		    if(xs) {
-			g->p1 = xs->p2;
-			free(xs);
-		    }
-
-		    g->p2 = 0;
-
-		    if(xf) {
-			g->p2 = xf->p2;
-			free(xf);
-		    }
-
-		    r->p1 = g;
-		    comp->typ = t;
-		    comp->ch = lc;
-
-		    return comp;
-
-	    
 		}
 
 		xs = alloc();
@@ -1317,78 +1025,6 @@ struct node *compile(void)
 
 		if(comp->typ != 5) {
 		    writes("Unrecognized component in goto");
-    
-		    while(1) {
-			free(comp);
-			xs = alloc();
-			xf = alloc();
-			comp = expr(0, 6, xs);
-	
-			if(comp->typ != 5) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			xf->p2 = xs->p2;
-			comp = compon();
-	
-			if(comp->typ != 0) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			break;
-		    }
-
-		    if(l) {
-			if(l->typ) {
-			    writes("Name doubly defined");
-			}
-
-			l->p2 = comp;
-
-			/* type label */
-			l->typ = 2;
-		    }
-
-		    comp->p2 = r;
-
-		    if(m) {
-			++t;
-			r->p1 = m;
-			r = m;
-		    }
-
-		    if(as) {
-			t += 2;
-			r->p1 = as;
-			r = as;
-		    }
-
-		    g = alloc();
-		    g->p1 = 0;
-
-		    if(xs) {
-			g->p1 = xs->p2;
-			free(xs);
-		    }
-
-		    g->p2 = 0;
-
-		    if(xf) {
-			g->p2 = xf->p2;
-			free(xf);
-		    }
-
-		    r->p1 = g;
-		    comp->typ = t;
-		    comp->ch = lc;
-
-		    return comp;
-
-	    
 		}
 
 		continue;
@@ -1397,155 +1033,11 @@ struct node *compile(void)
 	    if(b == lookf) {
 		if(xf) {
 		    writes("Unrecognized component in goto");
-    
-		    while(1) {
-			free(comp);
-			xs = alloc();
-			xf = alloc();
-			comp = expr(0, 6, xs);
-	
-			if(comp->typ != 5) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			xf->p2 = xs->p2;
-			comp = compon();
-	
-			if(comp->typ != 0) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			break;
-		    }
-
-		    if(l) {
-			if(l->typ) {
-			    writes("Name doubly defined");
-			}
-
-			l->p2 = comp;
-
-			/* type label */
-			l->typ = 2;
-		    }
-
-		    comp->p2 = r;
-
-		    if(m) {
-			++t;
-			r->p1 = m;
-			r = m;
-		    }
-
-		    if(as) {
-			t += 2;
-			r->p1 = as;
-			r = as;
-		    }
-
-		    g = alloc();
-		    g->p1 = 0;
-
-		    if(xs) {
-			g->p1 = xs->p2;
-			free(xs);
-		    }
-
-		    g->p2 = 0;
-
-		    if(xf) {
-			g->p2 = xf->p2;
-			free(xf);
-		    }
-
-		    r->p1 = g;
-		    comp->typ = t;
-		    comp->ch = lc;
-
-		    return comp;
-
-	    
 		}
 
 		comp = compon();
 		if(comp->typ != 16) {
 		    writes("Unrecognized component in goto");
-    
-		    while(1) {
-			free(comp);
-			xs = alloc();
-			xf = alloc();
-			comp = expr(0, 6, xs);
-	
-			if(comp->typ != 5) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			xf->p2 = xs->p2;
-			comp = compon();
-	
-			if(comp->typ != 0) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			break;
-		    }
-
-		    if(l) {
-			if(l->typ) {
-			    writes("Name doubly defined");
-			}
-
-			l->p2 = comp;
-
-			/* type label */
-			l->typ = 2;
-		    }
-
-		    comp->p2 = r;
-
-		    if(m) {
-			++t;
-			r->p1 = m;
-			r = m;
-		    }
-
-		    if(as) {
-			t += 2;
-			r->p1 = as;
-			r = as;
-		    }
-
-		    g = alloc();
-		    g->p1 = 0;
-
-		    if(xs) {
-			g->p1 = xs->p2;
-			free(xs);
-		    }
-
-		    g->p2 = 0;
-
-		    if(xf) {
-			g->p2 = xf->p2;
-			free(xf);
-		    }
-
-		    r->p1 = g;
-		    comp->typ = t;
-		    comp->ch = lc;
-
-		    return comp;
-
-	   
 		}
 
 		xf = alloc();
@@ -1553,156 +1045,15 @@ struct node *compile(void)
 
 		if(comp->typ != 5) {
 		    writes("Unrecognized component in goto");
-    
-		    while(1) {
-			free(comp);
-			xs = alloc();
-			xf = alloc();
-			comp = expr(0, 6, xs);
-	
-			if(comp->typ != 5) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			xf->p2 = xs->p2;
-			comp = compon();
-	
-			if(comp->typ != 0) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			break;
-		    }
-
-		    if(l) {
-			if(l->typ) {
-			    writes("Name doubly defined");
-			}
-
-			l->p2 = comp;
-
-			/* type label */
-			l->typ = 2;
-		    }
-
-		    comp->p2 = r;
-
-		    if(m) {
-			++t;
-			r->p1 = m;
-			r = m;
-		    }
-
-		    if(as) {
-			t += 2;
-			r->p1 = as;
-			r = as;
-		    }
-
-		    g = alloc();
-		    g->p1 = 0;
-
-		    if(xs) {
-			g->p1 = xs->p2;
-			free(xs);
-		    }
-
-		    g->p2 = 0;
-
-		    if(xf) {
-			g->p2 = xf->p2;
-			free(xf);
-		    }
-
-		    r->p1 = g;
-		    comp->typ = t;
-		    comp->ch = lc;
-
-		    return comp;
 		}
-
+		
 		continue;
 	    }
-
+	    
 	    break;
 	}
-
+	
 	writes("Unrecognized component in goto");
-    
-	while(1) {
-	    free(comp);
-	    xs = alloc();
-	    xf = alloc();
-	    comp = expr(0, 6, xs);
-	
-	    if(comp->typ != 5) {
-		writes("Unrecognized component in goto");
-	    
-		continue;
-	    }
-	
-	    xf->p2 = xs->p2;
-	    comp = compon();
-	
-	    if(comp->typ != 0) {
-		writes("Unrecognized component in goto");
-	    
-		continue;
-	    }
-	
-	    break;
-	}
-
-	if(l) {
-	    if(l->typ) {
-		writes("Name doubly defined");
-	    }
-
-	    l->p2 = comp;
-
-	    /* type label */
-	    l->typ = 2;
-	}
-
-	comp->p2 = r;
-
-	if(m) {
-	    ++t;
-	    r->p1 = m;
-	    r = m;
-	}
-
-	if(as) {
-	    t += 2;
-	    r->p1 = as;
-	    r = as;
-	}
-
-	g = alloc();
-	g->p1 = 0;
-
-	if(xs) {
-	    g->p1 = xs->p2;
-	    free(xs);
-	}
-
-	g->p2 = 0;
-
-	if(xf) {
-	    g->p2 = xf->p2;
-	    free(xf);
-	}
-
-	r->p1 = g;
-	comp->typ = t;
-	comp->ch = lc;
-
-	return comp;
-
     }
 
     if(a == 3) {
@@ -1777,8 +1128,6 @@ struct node *compile(void)
 	
 		    if(comp->typ != 5) {
 			writes("Unrecognized component in goto");
-	    
-			continue;
 		    }
 	
 		    xf->p2 = xs->p2;
@@ -1786,8 +1135,6 @@ struct node *compile(void)
 	
 		    if(comp->typ != 0) {
 			writes("Unrecognized component in goto");
-	    
-			continue;
 		    }
 	
 		    break;
@@ -1890,150 +1237,10 @@ struct node *compile(void)
 		}
 	
 		writes("Unrecognized component in goto");
-    
-		while(1) {
-		    free(comp);
-		    xs = alloc();
-		    xf = alloc();
-		    comp = expr(0, 6, xs);
-	
-		    if(comp->typ != 5) {
-			writes("Unrecognized component in goto");
-	    
-			continue;
-		    }
-	
-		    xf->p2 = xs->p2;
-		    comp = compon();
-	
-		    if(comp->typ != 0) {
-			writes("Unrecognized component in goto");
-	    
-			continue;
-		    }
-	
-		    break;
-		}
-
-		if(l) {
-		    if(l->typ) {
-			writes("Name doubly defined");
-		    }
-
-		    l->p2 = comp;
-
-		    /* type label */
-		    l->typ = 2;
-		}
-
-		comp->p2 = r;
-
-		if(m) {
-		    ++t;
-		    r->p1 = m;
-		    r = m;
-		}
-
-		if(as) {
-		    t += 2;
-		    r->p1 = as;
-		    r = as;
-		}
-
-		g = alloc();
-		g->p1 = 0;
-
-		if(xs) {
-		    g->p1 = xs->p2;
-		    free(xs);
-		}
-
-		g->p2 = 0;
-
-		if(xf) {
-		    g->p2 = xf->p2;
-		    free(xf);
-		}
-
-		r->p1 = g;
-		comp->typ = t;
-		comp->ch = lc;
-
-		return comp;
 	    }
 
 	    if(a != 14) {
 		writes("Unrecognized component in goto");
-    
-		while(1) {
-		    free(comp);
-		    xs = alloc();
-		    xf = alloc();
-		    comp = expr(0, 6, xs);
-	
-		    if(comp->typ != 5) {
-			writes("Unrecognized component in goto");
-	    
-			continue;
-		    }
-	
-		    xf->p2 = xs->p2;
-		    comp = compon();
-	
-		    if(comp->typ != 0) {
-			writes("Unrecognized component in goto");
-	    
-			continue;
-		    }
-	
-		    break;
-		}
-
-		if(l) {
-		    if(l->typ) {
-			writes("Name doubly defined");
-		    }
-
-		    l->p2 = comp;
-
-		    /* type label */
-		    l->typ = 2;
-		}
-
-		comp->p2 = r;
-
-		if(m) {
-		    ++t;
-		    r->p1 = m;
-		    r = m;
-		}
-
-		if(as) {
-		    t += 2;
-		    r->p1 = as;
-		    r = as;
-		}
-
-		g = alloc();
-		g->p1 = 0;
-
-		if(xs) {
-		    g->p1 = xs->p2;
-		    free(xs);
-		}
-
-		g->p2 = 0;
-
-		if(xf) {
-		    g->p2 = xf->p2;
-		    free(xf);
-		}
-
-		r->p1 = g;
-		comp->typ = t;
-		comp->ch = lc;
-
-		return comp;       
 	    }
 
 	    b = comp->p1;
@@ -2042,156 +1249,12 @@ struct node *compile(void)
 	    if(b == looks) {
 		if(xs) {
 		    writes("Unrecognized component in goto");
-    
-		    while(1) {
-			free(comp);
-			xs = alloc();
-			xf = alloc();
-			comp = expr(0, 6, xs);
-	
-			if(comp->typ != 5) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			xf->p2 = xs->p2;
-			comp = compon();
-	
-			if(comp->typ != 0) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			break;
-		    }
-
-		    if(l) {
-			if(l->typ) {
-			    writes("Name doubly defined");
-			}
-
-			l->p2 = comp;
-
-			/* type label */
-			l->typ = 2;
-		    }
-
-		    comp->p2 = r;
-
-		    if(m) {
-			++t;
-			r->p1 = m;
-			r = m;
-		    }
-
-		    if(as) {
-			t += 2;
-			r->p1 = as;
-			r = as;
-		    }
-
-		    g = alloc();
-		    g->p1 = 0;
-
-		    if(xs) {
-			g->p1 = xs->p2;
-			free(xs);
-		    }
-
-		    g->p2 = 0;
-
-		    if(xf) {
-			g->p2 = xf->p2;
-			free(xf);
-		    }
-
-		    r->p1 = g;
-		    comp->typ = t;
-		    comp->ch = lc;
-
-		    return comp;
-
-	  
 		}
 
 		comp = compon();
 
 		if(comp->typ != 16) {
 		    writes("Unrecognized component in goto");
-    
-		    while(1) {
-			free(comp);
-			xs = alloc();
-			xf = alloc();
-			comp = expr(0, 6, xs);
-	
-			if(comp->typ != 5) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			xf->p2 = xs->p2;
-			comp = compon();
-	
-			if(comp->typ != 0) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			break;
-		    }
-
-		    if(l) {
-			if(l->typ) {
-			    writes("Name doubly defined");
-			}
-
-			l->p2 = comp;
-
-			/* type label */
-			l->typ = 2;
-		    }
-
-		    comp->p2 = r;
-
-		    if(m) {
-			++t;
-			r->p1 = m;
-			r = m;
-		    }
-
-		    if(as) {
-			t += 2;
-			r->p1 = as;
-			r = as;
-		    }
-
-		    g = alloc();
-		    g->p1 = 0;
-
-		    if(xs) {
-			g->p1 = xs->p2;
-			free(xs);
-		    }
-
-		    g->p2 = 0;
-
-		    if(xf) {
-			g->p2 = xf->p2;
-			free(xf);
-		    }
-
-		    r->p1 = g;
-		    comp->typ = t;
-		    comp->ch = lc;
-
-		    return comp;
-
-	    
 		}
 
 		xs = alloc();
@@ -2199,234 +1262,20 @@ struct node *compile(void)
 
 		if(comp->typ != 5) {
 		    writes("Unrecognized component in goto");
-    
-		    while(1) {
-			free(comp);
-			xs = alloc();
-			xf = alloc();
-			comp = expr(0, 6, xs);
-	
-			if(comp->typ != 5) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			xf->p2 = xs->p2;
-			comp = compon();
-	
-			if(comp->typ != 0) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			break;
-		    }
-
-		    if(l) {
-			if(l->typ) {
-			    writes("Name doubly defined");
-			}
-
-			l->p2 = comp;
-
-			/* type label */
-			l->typ = 2;
-		    }
-
-		    comp->p2 = r;
-
-		    if(m) {
-			++t;
-			r->p1 = m;
-			r = m;
-		    }
-
-		    if(as) {
-			t += 2;
-			r->p1 = as;
-			r = as;
-		    }
-
-		    g = alloc();
-		    g->p1 = 0;
-
-		    if(xs) {
-			g->p1 = xs->p2;
-			free(xs);
-		    }
-
-		    g->p2 = 0;
-
-		    if(xf) {
-			g->p2 = xf->p2;
-			free(xf);
-		    }
-
-		    r->p1 = g;
-		    comp->typ = t;
-		    comp->ch = lc;
-
-		    return comp;
-
-	    
 		}
-
+		
 		continue;
 	    }
-
+	    
 	    if(b == lookf) {
 		if(xf) {
 		    writes("Unrecognized component in goto");
-    
-		    while(1) {
-			free(comp);
-			xs = alloc();
-			xf = alloc();
-			comp = expr(0, 6, xs);
-	
-			if(comp->typ != 5) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			xf->p2 = xs->p2;
-			comp = compon();
-	
-			if(comp->typ != 0) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			break;
-		    }
-
-		    if(l) {
-			if(l->typ) {
-			    writes("Name doubly defined");
-			}
-
-			l->p2 = comp;
-
-			/* type label */
-			l->typ = 2;
-		    }
-
-		    comp->p2 = r;
-
-		    if(m) {
-			++t;
-			r->p1 = m;
-			r = m;
-		    }
-
-		    if(as) {
-			t += 2;
-			r->p1 = as;
-			r = as;
-		    }
-
-		    g = alloc();
-		    g->p1 = 0;
-
-		    if(xs) {
-			g->p1 = xs->p2;
-			free(xs);
-		    }
-
-		    g->p2 = 0;
-
-		    if(xf) {
-			g->p2 = xf->p2;
-			free(xf);
-		    }
-
-		    r->p1 = g;
-		    comp->typ = t;
-		    comp->ch = lc;
-
-		    return comp;
-
-	    
-		}
+    		}
 
 		comp = compon();
 
 		if(comp->typ != 16) {
-		    writes("Unrecognized component in goto");
-    
-		    while(1) {
-			free(comp);
-			xs = alloc();
-			xf = alloc();
-			comp = expr(0, 6, xs);
-	
-			if(comp->typ != 5) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			xf->p2 = xs->p2;
-			comp = compon();
-	
-			if(comp->typ != 0) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			break;
-		    }
-
-		    if(l) {
-			if(l->typ) {
-			    writes("Name doubly defined");
-			}
-
-			l->p2 = comp;
-
-			/* type label */
-			l->typ = 2;
-		    }
-
-		    comp->p2 = r;
-
-		    if(m) {
-			++t;
-			r->p1 = m;
-			r = m;
-		    }
-
-		    if(as) {
-			t += 2;
-			r->p1 = as;
-			r = as;
-		    }
-
-		    g = alloc();
-		    g->p1 = 0;
-
-		    if(xs) {
-			g->p1 = xs->p2;
-			free(xs);
-		    }
-
-		    g->p2 = 0;
-
-		    if(xf) {
-			g->p2 = xf->p2;
-			free(xf);
-		    }
-
-		    r->p1 = g;
-		    comp->typ = t;
-		    comp->ch = lc;
-
-		    return comp;
+		    writes("Unrecognized component in goto");    
 		}
 
 		xf = alloc();
@@ -2434,76 +1283,6 @@ struct node *compile(void)
 
 		if(comp->typ != 5) {
 		    writes("Unrecognized component in goto");
-    
-		    while(1) {
-			free(comp);
-			xs = alloc();
-			xf = alloc();
-			comp = expr(0, 6, xs);
-	
-			if(comp->typ != 5) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			xf->p2 = xs->p2;
-			comp = compon();
-	
-			if(comp->typ != 0) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			break;
-		    }
-
-		    if(l) {
-			if(l->typ) {
-			    writes("Name doubly defined");
-			}
-
-			l->p2 = comp;
-
-			/* type label */
-			l->typ = 2;
-		    }
-
-		    comp->p2 = r;
-
-		    if(m) {
-			++t;
-			r->p1 = m;
-			r = m;
-		    }
-
-		    if(as) {
-			t += 2;
-			r->p1 = as;
-			r = as;
-		    }
-
-		    g = alloc();
-		    g->p1 = 0;
-
-		    if(xs) {
-			g->p1 = xs->p2;
-			free(xs);
-		    }
-
-		    g->p2 = 0;
-
-		    if(xf) {
-			g->p2 = xf->p2;
-			free(xf);
-		    }
-
-		    r->p1 = g;
-		    comp->typ = t;
-		    comp->ch = lc;
-
-		    return comp;
 		}
 
 		continue;
@@ -2513,77 +1292,6 @@ struct node *compile(void)
 	}
 
 	writes("Unrecognized component in goto");
-    
-	while(1) {
-	    free(comp);
-	    xs = alloc();
-	    xf = alloc();
-	    comp = expr(0, 6, xs);
-	
-	    if(comp->typ != 5) {
-		writes("Unrecognized component in goto");
-	    
-		continue;
-	    }
-	
-	    xf->p2 = xs->p2;
-	    comp = compon();
-	
-	    if(comp->typ != 0) {
-		writes("Unrecognized component in goto");
-	    
-		continue;
-	    }
-	
-	    break;
-	}
-
-	if(l) {
-	    if(l->typ) {
-		writes("Name doubly defined");
-	    }
-
-	    l->p2 = comp;
-
-	    /* type label */
-	    l->typ = 2;
-	}
-
-	comp->p2 = r;
-
-	if(m) {
-	    ++t;
-	    r->p1 = m;
-	    r = m;
-	}
-
-	if(as) {
-	    t += 2;
-	    r->p1 = as;
-	    r = as;
-	}
-
-	g = alloc();
-	g->p1 = 0;
-
-	if(xs) {
-	    g->p1 = xs->p2;
-	    free(xs);
-	}
-
-	g->p2 = 0;
-
-	if(xf) {
-	    g->p2 = xf->p2;
-	    free(xf);
-	}
-
-	r->p1 = g;
-	comp->typ = t;
-	comp->ch = lc;
-
-	return comp;
-
     }
 
     m = alloc();
@@ -2653,8 +1361,6 @@ struct node *compile(void)
 	
 		    if(comp->typ != 5) {
 			writes("Unrecognized component in goto");
-	    
-			continue;
 		    }
 	
 		    xf->p2 = xs->p2;
@@ -2662,8 +1368,6 @@ struct node *compile(void)
 	
 		    if(comp->typ != 0) {
 			writes("Unrecognized component in goto");
-	    
-			continue;
 		    }
 	
 		    break;
@@ -2766,150 +1470,10 @@ struct node *compile(void)
 		}
 	
 		writes("Unrecognized component in goto");
-    
-		while(1) {
-		    free(comp);
-		    xs = alloc();
-		    xf = alloc();
-		    comp = expr(0, 6, xs);
-	
-		    if(comp->typ != 5) {
-			writes("Unrecognized component in goto");
-	    
-			continue;
-		    }
-	
-		    xf->p2 = xs->p2;
-		    comp = compon();
-	
-		    if(comp->typ != 0) {
-			writes("Unrecognized component in goto");
-	    
-			continue;
-		    }
-	
-		    break;
-		}
-
-		if(l) {
-		    if(l->typ) {
-			writes("Name doubly defined");
-		    }
-
-		    l->p2 = comp;
-
-		    /* type label */
-		    l->typ = 2;
-		}
-
-		comp->p2 = r;
-
-		if(m) {
-		    ++t;
-		    r->p1 = m;
-		    r = m;
-		}
-
-		if(as) {
-		    t += 2;
-		    r->p1 = as;
-		    r = as;
-		}
-
-		g = alloc();
-		g->p1 = 0;
-
-		if(xs) {
-		    g->p1 = xs->p2;
-		    free(xs);
-		}
-
-		g->p2 = 0;
-
-		if(xf) {
-		    g->p2 = xf->p2;
-		    free(xf);
-		}
-
-		r->p1 = g;
-		comp->typ = t;
-		comp->ch = lc;
-
-		return comp;
 	    }
 
 	    if(a != 14) {
 		writes("Unrecognized component in goto");
-    
-		while(1) {
-		    free(comp);
-		    xs = alloc();
-		    xf = alloc();
-		    comp = expr(0, 6, xs);
-	
-		    if(comp->typ != 5) {
-			writes("Unrecognized component in goto");
-	    
-			continue;
-		    }
-	
-		    xf->p2 = xs->p2;
-		    comp = compon();
-	
-		    if(comp->typ != 0) {
-			writes("Unrecognized component in goto");
-	    
-			continue;
-		    }
-	
-		    break;
-		}
-
-		if(l) {
-		    if(l->typ) {
-			writes("Name doubly defined");
-		    }
-
-		    l->p2 = comp;
-
-		    /* type label */
-		    l->typ = 2;
-		}
-
-		comp->p2 = r;
-
-		if(m) {
-		    ++t;
-		    r->p1 = m;
-		    r = m;
-		}
-
-		if(as) {
-		    t += 2;
-		    r->p1 = as;
-		    r = as;
-		}
-
-		g = alloc();
-		g->p1 = 0;
-
-		if(xs) {
-		    g->p1 = xs->p2;
-		    free(xs);
-		}
-
-		g->p2 = 0;
-
-		if(xf) {
-		    g->p2 = xf->p2;
-		    free(xf);
-		}
-
-		r->p1 = g;
-		comp->typ = t;
-		comp->ch = lc;
-
-		return comp;       
 	    }
 
 	    b = comp->p1;
@@ -2918,152 +1482,12 @@ struct node *compile(void)
 	    if(b == looks) {
 		if(xs) {
 		    writes("Unrecognized component in goto");
-    
-		    while(1) {
-			free(comp);
-			xs = alloc();
-			xf = alloc();
-			comp = expr(0, 6, xs);
-	
-			if(comp->typ != 5) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			xf->p2 = xs->p2;
-			comp = compon();
-	
-			if(comp->typ != 0) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			break;
-		    }
-
-		    if(l) {
-			if(l->typ) {
-			    writes("Name doubly defined");
-			}
-
-			l->p2 = comp;
-
-			/* type label */
-			l->typ = 2;
-		    }
-
-		    comp->p2 = r;
-
-		    if(m) {
-			++t;
-			r->p1 = m;
-			r = m;
-		    }
-
-		    if(as) {
-			t += 2;
-			r->p1 = as;
-			r = as;
-		    }
-
-		    g = alloc();
-		    g->p1 = 0;
-
-		    if(xs) {
-			g->p1 = xs->p2;
-			free(xs);
-		    }
-
-		    g->p2 = 0;
-
-		    if(xf) {
-			g->p2 = xf->p2;
-			free(xf);
-		    }
-
-		    r->p1 = g;
-		    comp->typ = t;
-		    comp->ch = lc;
-
-		    return comp;
 		}
 
 		comp = compon();
 
 		if(comp->typ != 16) {
 		    writes("Unrecognized component in goto");
-    
-		    while(1) {
-			free(comp);
-			xs = alloc();
-			xf = alloc();
-			comp = expr(0, 6, xs);
-	
-			if(comp->typ != 5) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			xf->p2 = xs->p2;
-			comp = compon();
-	
-			if(comp->typ != 0) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			break;
-		    }
-
-		    if(l) {
-			if(l->typ) {
-			    writes("Name doubly defined");
-			}
-
-			l->p2 = comp;
-
-			/* type label */
-			l->typ = 2;
-		    }
-
-		    comp->p2 = r;
-
-		    if(m) {
-			++t;
-			r->p1 = m;
-			r = m;
-		    }
-
-		    if(as) {
-			t += 2;
-			r->p1 = as;
-			r = as;
-		    }
-
-		    g = alloc();
-		    g->p1 = 0;
-
-		    if(xs) {
-			g->p1 = xs->p2;
-			free(xs);
-		    }
-
-		    g->p2 = 0;
-
-		    if(xf) {
-			g->p2 = xf->p2;
-			free(xf);
-		    }
-
-		    r->p1 = g;
-		    comp->typ = t;
-		    comp->ch = lc;
-
-		    return comp;
 		}
 
 		xs = alloc();
@@ -3071,76 +1495,6 @@ struct node *compile(void)
 
 		if(comp->typ != 5) {
 		    writes("Unrecognized component in goto");
-    
-		    while(1) {
-			free(comp);
-			xs = alloc();
-			xf = alloc();
-			comp = expr(0, 6, xs);
-	
-			if(comp->typ != 5) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			xf->p2 = xs->p2;
-			comp = compon();
-	
-			if(comp->typ != 0) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			break;
-		    }
-
-		    if(l) {
-			if(l->typ) {
-			    writes("Name doubly defined");
-			}
-
-			l->p2 = comp;
-
-			/* type label */
-			l->typ = 2;
-		    }
-
-		    comp->p2 = r;
-
-		    if(m) {
-			++t;
-			r->p1 = m;
-			r = m;
-		    }
-
-		    if(as) {
-			t += 2;
-			r->p1 = as;
-			r = as;
-		    }
-
-		    g = alloc();
-		    g->p1 = 0;
-
-		    if(xs) {
-			g->p1 = xs->p2;
-			free(xs);
-		    }
-
-		    g->p2 = 0;
-
-		    if(xf) {
-			g->p2 = xf->p2;
-			free(xf);
-		    }
-
-		    r->p1 = g;
-		    comp->typ = t;
-		    comp->ch = lc;
-
-		    return comp;
 		}
 
 		continue;
@@ -3149,151 +1503,11 @@ struct node *compile(void)
 	    if(b == lookf) {
 		if(xf) {
 		    writes("Unrecognized component in goto");
-    
-		    while(1) {
-			free(comp);
-			xs = alloc();
-			xf = alloc();
-			comp = expr(0, 6, xs);
-	
-			if(comp->typ != 5) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			xf->p2 = xs->p2;
-			comp = compon();
-	
-			if(comp->typ != 0) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			break;
-		    }
-
-		    if(l) {
-			if(l->typ) {
-			    writes("Name doubly defined");
-			}
-
-			l->p2 = comp;
-
-			/* type label */
-			l->typ = 2;
-		    }
-
-		    comp->p2 = r;
-
-		    if(m) {
-			++t;
-			r->p1 = m;
-			r = m;
-		    }
-
-		    if(as) {
-			t += 2;
-			r->p1 = as;
-			r = as;
-		    }
-
-		    g = alloc();
-		    g->p1 = 0;
-
-		    if(xs) {
-			g->p1 = xs->p2;
-			free(xs);
-		    }
-
-		    g->p2 = 0;
-
-		    if(xf) {
-			g->p2 = xf->p2;
-			free(xf);
-		    }
-
-		    r->p1 = g;
-		    comp->typ = t;
-		    comp->ch = lc;
-
-		    return comp;
 		}
 
 		comp = compon();
 		if(comp->typ != 16) {
 		    writes("Unrecognized component in goto");
-    
-		    while(1) {
-			free(comp);
-			xs = alloc();
-			xf = alloc();
-			comp = expr(0, 6, xs);
-	
-			if(comp->typ != 5) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			xf->p2 = xs->p2;
-			comp = compon();
-	
-			if(comp->typ != 0) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			break;
-		    }
-
-		    if(l) {
-			if(l->typ) {
-			    writes("Name doubly defined");
-			}
-
-			l->p2 = comp;
-
-			/* type label */
-			l->typ = 2;
-		    }
-
-		    comp->p2 = r;
-
-		    if(m) {
-			++t;
-			r->p1 = m;
-			r = m;
-		    }
-
-		    if(as) {
-			t += 2;
-			r->p1 = as;
-			r = as;
-		    }
-
-		    g = alloc();
-		    g->p1 = 0;
-
-		    if(xs) {
-			g->p1 = xs->p2;
-			free(xs);
-		    }
-
-		    g->p2 = 0;
-
-		    if(xf) {
-			g->p2 = xf->p2;
-			free(xf);
-		    }
-
-		    r->p1 = g;
-		    comp->typ = t;
-		    comp->ch = lc;
-
-		    return comp;
 		}
 
 		xf = alloc();
@@ -3301,76 +1515,6 @@ struct node *compile(void)
 
 		if(comp->typ != 5) {
 		    writes("Unrecognized component in goto");
-    
-		    while(1) {
-			free(comp);
-			xs = alloc();
-			xf = alloc();
-			comp = expr(0, 6, xs);
-	
-			if(comp->typ != 5) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			xf->p2 = xs->p2;
-			comp = compon();
-	
-			if(comp->typ != 0) {
-			    writes("Unrecognized component in goto");
-	    
-			    continue;
-			}
-	
-			break;
-		    }
-
-		    if(l) {
-			if(l->typ) {
-			    writes("Name doubly defined");
-			}
-
-			l->p2 = comp;
-
-			/* type label */
-			l->typ = 2;
-		    }
-
-		    comp->p2 = r;
-
-		    if(m) {
-			++t;
-			r->p1 = m;
-			r = m;
-		    }
-
-		    if(as) {
-			t += 2;
-			r->p1 = as;
-			r = as;
-		    }
-
-		    g = alloc();
-		    g->p1 = 0;
-
-		    if(xs) {
-			g->p1 = xs->p2;
-			free(xs);
-		    }
-
-		    g->p2 = 0;
-
-		    if(xf) {
-			g->p2 = xf->p2;
-			free(xf);
-		    }
-
-		    r->p1 = g;
-		    comp->typ = t;
-		    comp->ch = lc;
-
-		    return comp;
 		}
 
 		continue;
@@ -3380,78 +1524,6 @@ struct node *compile(void)
 	}
 
 	writes("Unrecognized component in goto");
-    
-	while(1) {
-	    free(comp);
-	    xs = alloc();
-	    xf = alloc();
-	    comp = expr(0, 6, xs);
-	
-	    if(comp->typ != 5) {
-		writes("Unrecognized component in goto");
-	    
-		continue;
-	    }
-	
-	    xf->p2 = xs->p2;
-	    comp = compon();
-	
-	    if(comp->typ != 0) {
-		writes("Unrecognized component in goto");
-	    
-		continue;
-	    }
-	
-	    break;
-	}
-
-	if(l) {
-	    if(l->typ) {
-		writes("Name doubly defined");
-	    }
-
-	    l->p2 = comp;
-
-	    /* type label */
-	    l->typ = 2;
-	}
-
-	comp->p2 = r;
-
-	if(m) {
-	    ++t;
-	    r->p1 = m;
-	    r = m;
-	}
-
-	if(as) {
-	    t += 2;
-	    r->p1 = as;
-	    r = as;
-	}
-
-	g = alloc();
-	g->p1 = 0;
-
-	if(xs) {
-	    g->p1 = xs->p2;
-	    free(xs);
-	}
-
-	g->p2 = 0;
-
-	if(xf) {
-	    g->p2 = xf->p2;
-	    free(xf);
-	}
-
-	r->p1 = g;
-	comp->typ = t;
-	comp->ch = lc;
-
-	return comp;
-
- 
     }
 
     if(a != 3) {
@@ -3529,8 +1601,6 @@ struct node *compile(void)
 	
 		if(comp->typ != 5) {
 		    writes("Unrecognized component in goto");
-	    
-		    continue;
 		}
 	
 		xf->p2 = xs->p2;
@@ -3538,8 +1608,6 @@ struct node *compile(void)
 	
 		if(comp->typ != 0) {
 		    writes("Unrecognized component in goto");
-	    
-		    continue;
 		}
 	
 		break;
@@ -3642,150 +1710,10 @@ struct node *compile(void)
 	    }
 	
 	    writes("Unrecognized component in goto");
-    
-	    while(1) {
-		free(comp);
-		xs = alloc();
-		xf = alloc();
-		comp = expr(0, 6, xs);
-	
-		if(comp->typ != 5) {
-		    writes("Unrecognized component in goto");
-	    
-		    continue;
-		}
-	
-		xf->p2 = xs->p2;
-		comp = compon();
-	
-		if(comp->typ != 0) {
-		    writes("Unrecognized component in goto");
-	    
-		    continue;
-		}
-	
-		break;
-	    }
-
-	    if(l) {
-		if(l->typ) {
-		    writes("Name doubly defined");
-		}
-
-		l->p2 = comp;
-
-		/* type label */
-		l->typ = 2;
-	    }
-
-	    comp->p2 = r;
-
-	    if(m) {
-		++t;
-		r->p1 = m;
-		r = m;
-	    }
-
-	    if(as) {
-		t += 2;
-		r->p1 = as;
-		r = as;
-	    }
-
-	    g = alloc();
-	    g->p1 = 0;
-
-	    if(xs) {
-		g->p1 = xs->p2;
-		free(xs);
-	    }
-
-	    g->p2 = 0;
-
-	    if(xf) {
-		g->p2 = xf->p2;
-		free(xf);
-	    }
-
-	    r->p1 = g;
-	    comp->typ = t;
-	    comp->ch = lc;
-
-	    return comp;
 	}
 
 	if(a != 14) {
 	    writes("Unrecognized component in goto");
-    
-	    while(1) {
-		free(comp);
-		xs = alloc();
-		xf = alloc();
-		comp = expr(0, 6, xs);
-	
-		if(comp->typ != 5) {
-		    writes("Unrecognized component in goto");
-	    
-		    continue;
-		}
-	
-		xf->p2 = xs->p2;
-		comp = compon();
-	
-		if(comp->typ != 0) {
-		    writes("Unrecognized component in goto");
-	    
-		    continue;
-		}
-	
-		break;
-	    }
-
-	    if(l) {
-		if(l->typ) {
-		    writes("Name doubly defined");
-		}
-
-		l->p2 = comp;
-
-		/* type label */
-		l->typ = 2;
-	    }
-
-	    comp->p2 = r;
-
-	    if(m) {
-		++t;
-		r->p1 = m;
-		r = m;
-	    }
-
-	    if(as) {
-		t += 2;
-		r->p1 = as;
-		r = as;
-	    }
-
-	    g = alloc();
-	    g->p1 = 0;
-
-	    if(xs) {
-		g->p1 = xs->p2;
-		free(xs);
-	    }
-
-	    g->p2 = 0;
-
-	    if(xf) {
-		g->p2 = xf->p2;
-		free(xf);
-	    }
-
-	    r->p1 = g;
-	    comp->typ = t;
-	    comp->ch = lc;
-
-	    return comp;       
 	}
 
 	b = comp->p1;
@@ -3794,152 +1722,12 @@ struct node *compile(void)
 	if(b == looks) {
 	    if(xs) {
 		writes("Unrecognized component in goto");
-    
-		while(1) {
-		    free(comp);
-		    xs = alloc();
-		    xf = alloc();
-		    comp = expr(0, 6, xs);
-	
-		    if(comp->typ != 5) {
-			writes("Unrecognized component in goto");
-	    
-			continue;
-		    }
-	
-		    xf->p2 = xs->p2;
-		    comp = compon();
-	
-		    if(comp->typ != 0) {
-			writes("Unrecognized component in goto");
-	    
-			continue;
-		    }
-	
-		    break;
-		}
-
-		if(l) {
-		    if(l->typ) {
-			writes("Name doubly defined");
-		    }
-
-		    l->p2 = comp;
-
-		    /* type label */
-		    l->typ = 2;
-		}
-
-		comp->p2 = r;
-
-		if(m) {
-		    ++t;
-		    r->p1 = m;
-		    r = m;
-		}
-
-		if(as) {
-		    t += 2;
-		    r->p1 = as;
-		    r = as;
-		}
-
-		g = alloc();
-		g->p1 = 0;
-
-		if(xs) {
-		    g->p1 = xs->p2;
-		    free(xs);
-		}
-
-		g->p2 = 0;
-
-		if(xf) {
-		    g->p2 = xf->p2;
-		    free(xf);
-		}
-
-		r->p1 = g;
-		comp->typ = t;
-		comp->ch = lc;
-
-		return comp;
 	    }
 
 	    comp = compon();
 
 	    if(comp->typ != 16) {
 		writes("Unrecognized component in goto");
-    
-		while(1) {
-		    free(comp);
-		    xs = alloc();
-		    xf = alloc();
-		    comp = expr(0, 6, xs);
-	
-		    if(comp->typ != 5) {
-			writes("Unrecognized component in goto");
-	    
-			continue;
-		    }
-	
-		    xf->p2 = xs->p2;
-		    comp = compon();
-	
-		    if(comp->typ != 0) {
-			writes("Unrecognized component in goto");
-	    
-			continue;
-		    }
-	
-		    break;
-		}
-
-		if(l) {
-		    if(l->typ) {
-			writes("Name doubly defined");
-		    }
-
-		    l->p2 = comp;
-
-		    /* type label */
-		    l->typ = 2;
-		}
-
-		comp->p2 = r;
-
-		if(m) {
-		    ++t;
-		    r->p1 = m;
-		    r = m;
-		}
-
-		if(as) {
-		    t += 2;
-		    r->p1 = as;
-		    r = as;
-		}
-
-		g = alloc();
-		g->p1 = 0;
-
-		if(xs) {
-		    g->p1 = xs->p2;
-		    free(xs);
-		}
-
-		g->p2 = 0;
-
-		if(xf) {
-		    g->p2 = xf->p2;
-		    free(xf);
-		}
-
-		r->p1 = g;
-		comp->typ = t;
-		comp->ch = lc;
-
-		return comp;
 	    }
 
 	    xs = alloc();
@@ -3947,76 +1735,6 @@ struct node *compile(void)
 
 	    if(comp->typ != 5) {
 		writes("Unrecognized component in goto");
-    
-		while(1) {
-		    free(comp);
-		    xs = alloc();
-		    xf = alloc();
-		    comp = expr(0, 6, xs);
-	
-		    if(comp->typ != 5) {
-			writes("Unrecognized component in goto");
-	    
-			continue;
-		    }
-	
-		    xf->p2 = xs->p2;
-		    comp = compon();
-	
-		    if(comp->typ != 0) {
-			writes("Unrecognized component in goto");
-	    
-			continue;
-		    }
-	
-		    break;
-		}
-
-		if(l) {
-		    if(l->typ) {
-			writes("Name doubly defined");
-		    }
-
-		    l->p2 = comp;
-
-		    /* type label */
-		    l->typ = 2;
-		}
-
-		comp->p2 = r;
-
-		if(m) {
-		    ++t;
-		    r->p1 = m;
-		    r = m;
-		}
-
-		if(as) {
-		    t += 2;
-		    r->p1 = as;
-		    r = as;
-		}
-
-		g = alloc();
-		g->p1 = 0;
-
-		if(xs) {
-		    g->p1 = xs->p2;
-		    free(xs);
-		}
-
-		g->p2 = 0;
-
-		if(xf) {
-		    g->p2 = xf->p2;
-		    free(xf);
-		}
-
-		r->p1 = g;
-		comp->typ = t;
-		comp->ch = lc;
-
-		return comp;
 	    }
 
 	    continue;
@@ -4025,152 +1743,12 @@ struct node *compile(void)
 	if(b == lookf) {
 	    if(xf) {
 		writes("Unrecognized component in goto");
-    
-		while(1) {
-		    free(comp);
-		    xs = alloc();
-		    xf = alloc();
-		    comp = expr(0, 6, xs);
-	
-		    if(comp->typ != 5) {
-			writes("Unrecognized component in goto");
-	    
-			continue;
-		    }
-	
-		    xf->p2 = xs->p2;
-		    comp = compon();
-	
-		    if(comp->typ != 0) {
-			writes("Unrecognized component in goto");
-	    
-			continue;
-		    }
-	
-		    break;
-		}
-
-		if(l) {
-		    if(l->typ) {
-			writes("Name doubly defined");
-		    }
-
-		    l->p2 = comp;
-
-		    /* type label */
-		    l->typ = 2;
-		}
-
-		comp->p2 = r;
-
-		if(m) {
-		    ++t;
-		    r->p1 = m;
-		    r = m;
-		}
-
-		if(as) {
-		    t += 2;
-		    r->p1 = as;
-		    r = as;
-		}
-
-		g = alloc();
-		g->p1 = 0;
-
-		if(xs) {
-		    g->p1 = xs->p2;
-		    free(xs);
-		}
-
-		g->p2 = 0;
-
-		if(xf) {
-		    g->p2 = xf->p2;
-		    free(xf);
-		}
-
-		r->p1 = g;
-		comp->typ = t;
-		comp->ch = lc;
-
-		return comp;
 	    }
 
 	    comp = compon();
 
 	    if(comp->typ != 16) {
 		writes("Unrecognized component in goto");
-    
-		while(1) {
-		    free(comp);
-		    xs = alloc();
-		    xf = alloc();
-		    comp = expr(0, 6, xs);
-	
-		    if(comp->typ != 5) {
-			writes("Unrecognized component in goto");
-	    
-			continue;
-		    }
-	
-		    xf->p2 = xs->p2;
-		    comp = compon();
-	
-		    if(comp->typ != 0) {
-			writes("Unrecognized component in goto");
-	    
-			continue;
-		    }
-	
-		    break;
-		}
-
-		if(l) {
-		    if(l->typ) {
-			writes("Name doubly defined");
-		    }
-
-		    l->p2 = comp;
-
-		    /* type label */
-		    l->typ = 2;
-		}
-
-		comp->p2 = r;
-
-		if(m) {
-		    ++t;
-		    r->p1 = m;
-		    r = m;
-		}
-
-		if(as) {
-		    t += 2;
-		    r->p1 = as;
-		    r = as;
-		}
-
-		g = alloc();
-		g->p1 = 0;
-
-		if(xs) {
-		    g->p1 = xs->p2;
-		    free(xs);
-		}
-
-		g->p2 = 0;
-
-		if(xf) {
-		    g->p2 = xf->p2;
-		    free(xf);
-		}
-
-		r->p1 = g;
-		comp->typ = t;
-		comp->ch = lc;
-
-		return comp;
 	    }
 
 	    xf = alloc();
@@ -4178,76 +1756,6 @@ struct node *compile(void)
 
 	    if(comp->typ != 5) {
 		writes("Unrecognized component in goto");
-    
-		while(1) {
-		    free(comp);
-		    xs = alloc();
-		    xf = alloc();
-		    comp = expr(0, 6, xs);
-	
-		    if(comp->typ != 5) {
-			writes("Unrecognized component in goto");
-	    
-			continue;
-		    }
-	
-		    xf->p2 = xs->p2;
-		    comp = compon();
-	
-		    if(comp->typ != 0) {
-			writes("Unrecognized component in goto");
-	    
-			continue;
-		    }
-	
-		    break;
-		}
-
-		if(l) {
-		    if(l->typ) {
-			writes("Name doubly defined");
-		    }
-
-		    l->p2 = comp;
-
-		    /* type label */
-		    l->typ = 2;
-		}
-
-		comp->p2 = r;
-
-		if(m) {
-		    ++t;
-		    r->p1 = m;
-		    r = m;
-		}
-
-		if(as) {
-		    t += 2;
-		    r->p1 = as;
-		    r = as;
-		}
-
-		g = alloc();
-		g->p1 = 0;
-
-		if(xs) {
-		    g->p1 = xs->p2;
-		    free(xs);
-		}
-
-		g->p2 = 0;
-
-		if(xf) {
-		    g->p2 = xf->p2;
-		    free(xf);
-		}
-
-		r->p1 = g;
-		comp->typ = t;
-		comp->ch = lc;
-
-		return comp;
 	    }
 
 	    continue;
@@ -4257,74 +1765,6 @@ struct node *compile(void)
     }
 
     writes("Unrecognized component in goto");
-    
-    while(1) {
-	free(comp);
-	xs = alloc();
-	xf = alloc();
-	comp = expr(0, 6, xs);
-	
-	if(comp->typ != 5) {
-	    writes("Unrecognized component in goto");
-	    
-	    continue;
-	}
-	
-	xf->p2 = xs->p2;
-	comp = compon();
-	
-	if(comp->typ != 0) {
-	    writes("Unrecognized component in goto");
-	    
-	    continue;
-	}
-	
-	break;
-    }
 
-    if(l) {
-	if(l->typ) {
-	    writes("Name doubly defined");
-	}
-
-	l->p2 = comp;
-
-	/* type label */
-	l->typ = 2;
-    }
-
-    comp->p2 = r;
-
-    if(m) {
-	++t;
-	r->p1 = m;
-	r = m;
-    }
-
-    if(as) {
-	t += 2;
-	r->p1 = as;
-	r = as;
-    }
-
-    g = alloc();
-    g->p1 = 0;
-
-    if(xs) {
-	g->p1 = xs->p2;
-	free(xs);
-    }
-
-    g->p2 = 0;
-
-    if(xf) {
-	g->p2 = xf->p2;
-	free(xf);
-    }
-
-    r->p1 = g;
-    comp->typ = t;
-    comp->ch = lc;
-
-    return comp;
+    return NULL;
 }
