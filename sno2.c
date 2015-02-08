@@ -725,6 +725,9 @@ struct node *compile(void)
     comp = compon();
     a = comp->typ;
 
+    /* TC_DEBUG */
+    print_node_list(comp);
+
     /* Namelist nodes can start lines */
     if(a == 14) {
 	l = comp->p1;
@@ -732,6 +735,9 @@ struct node *compile(void)
 	comp = compon();
 	a = comp->typ;
     }
+
+    /* TC_DEBUG */
+    print_node_list(comp);
 
     if(a != 7) {
 	writes("No space beginning statement");

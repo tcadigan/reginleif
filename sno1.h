@@ -32,10 +32,11 @@ int dump1(struct node *base);
 int writes(char *s);
 struct node *sno_getc(void);
 
-/* from unistd.h */
-void *sbrk(int increment);
-
 /* from string.h */
 size_t strlen(const char *str);
+
+/* TC_DEBUG */
+void print_node(struct node *n);
+void print_node_list(struct node *n);
 
 #endif /* SNO1_H_ */

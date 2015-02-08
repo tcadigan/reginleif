@@ -66,10 +66,6 @@ int main(int argc, char *argv[])
     init("syspit", 3);
     init("syspot", 4);
 
-    /* /\* TC_DEBUG *\/ */
-    /* dump(); */
-    /* exit(42); */
-
     c = compile();
     a = c;
 
@@ -402,9 +398,9 @@ struct node *copy(struct node *string)
 
 	/* Move to last character */
 	new_pos = new_pos->p1;
-    }
 
-    new_head->p2 = new_pos;
+	new_head->p2 = new_pos;
+    }
 
     return new_head;
 }
@@ -777,4 +773,43 @@ struct node *sno_getc(void)
     }
 
     return current_char;
+}
+
+/* TC_DEBUG: Print a particular node */
+void print_node(struct node *n)
+{
+    printf("%p", n);
+    
+    if(n != NULL) {
+	printf(": (%9p, %2d,", n->p2, n->typ);
+
+	/* Print as a character if it makes sense */
+	if((n->ch >= 32) && (n->ch <= 126)) {
+	    printf(" '%c',", n->ch);
+	}
+	else {
+	    printf(" %3d,", n->ch);
+	}
+
+	printf(" %9p)", n->p1);
+    }
+
+    printf("\n");
+}
+
+/* TC_DEBUG: Print a list of nodes */
+void print_node_list(struct node *n)
+{
+    printf("List:\n");
+
+    if(n == NULL) {
+	printf("\t %p\n", n);
+    }
+    else {
+	while(n != NULL) {
+	    printf("\t");
+	    print_node(n);
+	    n = n->p1;
+	}
+    }
 }
