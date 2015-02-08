@@ -11,6 +11,11 @@
 #include "newlevel.h"
 #include "things.h"
 
+/* TC_DEBUG: Start */
+#include "debug.h"
+#include <stdio.h>
+/* TC_DEBUG: Finish */
+
 // do_rooms:
 //     Something...
 int do_rooms()
@@ -42,7 +47,7 @@ int do_rooms()
     }
 
     // Dig and populate all the rooms on the level
-    for(i = 0, rp = rooms; i < MAXROOMS; rp++, ++i) {
+    for(i = 0, rp = rooms; i < MAXROOMS; ++rp, ++i) {
         // Find the upper left corner of box that this room goes in
 	top.x = ((i % 3) * bsze.x) + 1;
 	top.y = (i / 3 ) * bsze.y;
@@ -64,6 +69,7 @@ int do_rooms()
 
 	    continue;
 	}
+        
 	if(rnd(10) < (level - 1)) {
 	    rp->r_flags |= ISDARK;
         }
@@ -108,7 +114,7 @@ int do_rooms()
                 
                 new_monster(item, randmonster(FALSE), &mp);
                 // See if we want to give it treasure to carry around.
-                if (rnd(100) < monsters[tp->t_type - 'A'].m_carry) {
+                if(rnd(100) < monsters[tp->t_type - 'A'].m_carry) {
                     _attach(&tp->t_pack, new_thing());
                 }
             }
@@ -126,13 +132,18 @@ int do_rooms()
                 
                 new_monster(item, randmonster(FALSE), &mp);
                 // See if we want to give it a treasure to carry around.
-                if (rnd(100) < monsters[tp->t_type - 'A'].m_carry) {
+                if(rnd(100) < monsters[tp->t_type - 'A'].m_carry) {
                     _attach(&tp->t_pack, new_thing());
                 }
             }
         }
     }
 
+    /* TC_DEBUG: Start */
+    refresh();
+    while(1) {};
+    /* TC_DEBUG: Finish */
+    
     return 0;
 }
 
@@ -142,6 +153,13 @@ int draw_room(struct room *rp)
 {
     int j;
     int k;
+    
+    /* TC_DEBUG: Start */
+    FILE *output;
+    output = fopen("debug.txt", "a+");
+    print_room(rp, output);
+    fclose(output);
+    /* TC_DEBUG: Finish */
 
     move(rp->r_pos.y, rp->r_pos.x + 1);
     // Draw the left side

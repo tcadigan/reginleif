@@ -55,11 +55,16 @@ int main(int argc, char **argv, char **envp)
     int lowtime;
     long now;
 
+    /* TC_DEBUG: Start */
+    FILE *output;
+    output = fopen("debug.txt", "w");
+    fclose(output);
+    /* TC_DEBUG: Finish */
+    
     // Lower priority slightly
     if(getuid() != 0) {
         nice(1);
     }
-
 
 #ifdef BRL
     setgid(getgid());
@@ -175,6 +180,7 @@ int main(int argc, char **argv, char **envp)
     init_stones();
     // Set up materials of wands
     init_materials();
+
     // Start up cursor package
     initscr();
     setup();
@@ -262,7 +268,7 @@ void endit(int paramter)
 int fatal(char *s)
 {
     clear();
-    move(LINES-2, 0);
+    move(LINES - 2, 0);
     printw("%s", s);
     wrefresh(stdscr);
     endwin();
@@ -346,6 +352,7 @@ int setup()
 	num_checks = 0;
     }
 #endif
+    
     // cbreak mode
     crmode();
     // Echo off

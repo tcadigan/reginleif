@@ -83,22 +83,22 @@ struct magic_item things[NUMTHINGS] = {
 };
 
 struct magic_item s_magic[MAXSCROLLS] = {
-    { "monster confusion" ,  8, 170 },
-    { "magic mapping"     ,  5, 180 },
-    { "light"             , 10, 100 },
-    { "hold monster"      ,  2, 200 },
-    { "sleep"             ,  5,  50 },
-    { "enchant armor"     ,  8, 130 },
-    { "identify"          , 21, 100 },
-    { "scare monster"     ,  4, 180 },
-    { "gold detection"    ,  4, 110 },
-    { "teleportation"     ,  7, 175 },
-    { "enchant weapon"    , 10, 150 },
-    { "create monster"    ,  5,  75 },
-    { "remove curse"      ,  8, 105 },
-    { "aggravate monsters",  1,  60 },
-    { "blank paper"       ,  1,  50 },
-    { "genocide"          ,  1, 200 }
+    { "monster confusion" ,   8, 170 },
+    { "magic mapping"     ,  13, 180 },
+    { "light"             ,  23, 100 },
+    { "hold monster"      ,  25, 200 },
+    { "sleep"             ,  30,  50 },
+    { "enchant armor"     ,  38, 130 },
+    { "identify"          ,  59, 100 },
+    { "scare monster"     ,  63, 180 },
+    { "gold detection"    ,  67, 110 },
+    { "teleportation"     ,  74, 175 },
+    { "enchant weapon"    ,  84, 150 },
+    { "create monster"    ,  89,  75 },
+    { "remove curse"      ,  97, 105 },
+    { "aggravate monsters",  98,  60 },
+    { "blank paper"       ,  99,  50 },
+    { "genocide"          , 100, 200 }
 };
 
 struct magic_item p_magic[MAXPOTIONS] = {
@@ -119,36 +119,36 @@ struct magic_item p_magic[MAXPOTIONS] = {
 };
 
 struct magic_item r_magic[MAXRINGS] = {
-    { "protection"       ,  9, 200 },
-    { "add strength"     ,  9, 200 },
-    { "sustain strength" ,  5, 180 },
-    { "searching"        , 10, 200 },
-    { "see invisible"    , 10, 175 },
-    { "adornment"        ,  1, 100 },
-    { "aggravate monster", 11, 100 },
-    { "dexterity"        ,  8, 220 },
-    { "increase damage"  ,  8, 220 },
-    { "regeneration"     ,  4, 260 },
-    { "slow digestion"   ,  9, 240 },
-    { "telportation"     ,  9, 100 },
-    { "stealth"          ,  7, 100 }
+    { "protection"       ,   9, 200 },
+    { "add strength"     ,  18, 200 },
+    { "sustain strength" ,  23, 180 },
+    { "searching"        ,  33, 200 },
+    { "see invisible"    ,  43, 175 },
+    { "adornment"        ,  44, 100 },
+    { "aggravate monster",  55, 100 },
+    { "dexterity"        ,  63, 220 },
+    { "increase damage"  ,  71, 220 },
+    { "regeneration"     ,  75, 260 },
+    { "slow digestion"   ,  84, 240 },
+    { "telportation"     ,  93, 100 },
+    { "stealth"          , 100, 100 }
 };
 
 struct magic_item ws_magic[MAXSTICKS] = {
-    { "light"        , 12, 120 },
-    { "striking"     ,  9, 115 },
-    { "lightning"    ,  3, 200 },
-    { "fire"         ,  3, 200 },
-    { "cold"         ,  3, 200 },
-    { "polymorph"    , 15, 210 },
-    { "magic missile", 10, 170 },
-    { "haste monster",  9,  50 },
-    { "slow monster" , 11, 220 },
-    { "drain life"   ,  9, 210 },
-    { "nothing"      ,  1,  70 },
-    { "teleport away",  5, 140 },
-    { "teleport to"  ,  5,  60 },
-    { "cancellation" ,  5, 130 }
+    { "light"        ,  12, 120 },
+    { "striking"     ,  21, 115 },
+    { "lightning"    ,  24, 200 },
+    { "fire"         ,  27, 200 },
+    { "cold"         ,  30, 200 },
+    { "polymorph"    ,  45, 210 },
+    { "magic missile",  55, 170 },
+    { "haste monster",  64,  50 },
+    { "slow monster" ,  75, 220 },
+    { "drain life"   ,  84, 210 },
+    { "nothing"      ,  85,  70 },
+    { "teleport away",  90, 140 },
+    { "teleport to"  ,  95,  60 },
+    { "cancellation" , 100, 130 }
 };
 
 int a_class[MAXARMORS] = {
@@ -530,28 +530,33 @@ int init_names()
 	cp = prbuf;
 	nwords = rnd(4) + 2;
         
-	while(nwords--) {
+	while(nwords) {
 	    nsyl = rnd(3) + 1;
             
-	    while(nsyl--) {
+	    while(nsyl) {
 		sp = sylls[rnd((sizeof sylls) / (sizeof (char *)))];
                 
 		while(*sp) {
-		    *cp++ = *sp++;
+                    *cp = *sp;
+                    ++cp;
+                    ++sp;
                 }
+
+                --nsyl;
 	    }
             
-	    *cp++ = ' ';
+	    *cp = ' ';
+            ++cp;
+            --nwords;
 	}
+
+        --cp;
+	*cp = '\0';
         
-	*--cp = '\0';
-	s_names[i] = (char *) new(strlen(prbuf) + 1);
+	s_names[i] = (char *)new(strlen(prbuf) + 1);
 	s_know[i] = FALSE;
 	s_guess[i] = NULL;
 	strcpy(s_names[i], prbuf);
-	if(i > 0) {
-            s_magic[i].mi_prob += s_magic[i - 1].mi_prob;
-        }
     }
     
     badcheck("scrolls", s_magic, MAXSCROLLS);
@@ -564,22 +569,37 @@ int init_names()
 int init_stones()
 {
     int i;
+    int j;
     char *str;
 
+    int used_stones = 0;
+    int been_used = 0;
+    
     for(i = 0; i < MAXRINGS; ++i) {
+        been_used = 0;
         str = stones[rnd(sizeof(stones) / sizeof(char *))];
 
-        while(!isupper(*str)) {
-            str = stones[rnd(sizeof(stones) / sizeof(char *))];
+        for(j = 0; j < used_stones; ++j) {
+            if(strncmp(str, r_stones[j], strlen(r_stones[j])) == 0) {
+                been_used = 1;
+                break;
+            }
         }
 
-	*str = tolower(*str);
+        while(been_used) {
+            been_used = 0;
+            str = stones[rnd(sizeof(rainbow) / sizeof(char *))];
+
+            for(j = 0; j < used_stones; ++j) {
+                if(strncmp(str, r_stones[j], strlen(r_stones[j])) == 0) {
+                    been_used = 1;
+                    break;
+                }
+            }
+        }
 	r_stones[i] = str;
 	r_know[i] = FALSE;
 	r_guess[i] = NULL;
-	if(i > 0) {
-            r_magic[i].mi_prob += r_magic[i - 1].mi_prob;
-        }
     }
     
     badcheck("rings", r_magic, MAXRINGS);
@@ -592,48 +612,52 @@ int init_stones()
 int init_materials()
 {
     int i;
+    int j;
     char *str;
 
+    int used_materials = 0;
+    int been_used = 0;
+    
     for(i = 0; i < MAXSTICKS; ++i) {
+        been_used = 0;
+        
         if(rnd(100) > 50) {
             str = metal[rnd(sizeof(metal) / sizeof(char *))];
-            
-            if(isupper(*str)) {
-                ws_type[i] = "wand";
-            }
+            ws_type[i] = "wand";
         }
         else {
             str = wood[rnd(sizeof(wood) / sizeof(char *))];
-            
-            if(isupper(*str)) {
-                ws_type[i] = "staff";
+            ws_type[i] = "staff";
+        }
+        
+        for(j = 0; j < used_materials; ++j) {
+            if(strncmp(str, ws_made[j], strlen(ws_made[j])) == 0) {
+                been_used = 1;
+                break;
             }
         }
+        
+        while(been_used) {
+            been_used = 0;
 
-        while(!isupper(*str)) {
-            if(rnd(100) > 50) {
+            if(strncmp("wand", ws_type[i], strlen(ws_type[i])) == 0) {               
                 str = metal[rnd(sizeof(metal) / sizeof(char *))];
-
-                if(isupper(*str)) {
-                    ws_type[i] = "wand";
-                }
             }
             else {
                 str = wood[rnd(sizeof(wood) / sizeof(char *))];
-
-                if(isupper(*str)) {
-                    ws_type[i] = "staff";
+            }
+            
+            for(j = 0; j < used_materials; ++j) {
+                if(strncmp(str, ws_made[j], strlen(ws_made[j])) == 0) {
+                    been_used = 1;
+                    break;
                 }
             }
         }
         
-	*str = tolower(*str);
 	ws_made[i] = str;
 	ws_know[i] = FALSE;
 	ws_guess[i] = NULL;
-	if(i > 0) {
-            ws_magic[i].mi_prob += ws_magic[i - 1].mi_prob;
-        }
     }
     
     badcheck("sticks", ws_magic, MAXSTICKS);

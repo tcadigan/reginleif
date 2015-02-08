@@ -15,6 +15,11 @@
 
 #include <ctype.h>
 
+/* TC_DEBUG: Start */
+#include "debug.h"
+#include <stdio.h>
+/* TC_DEBUG: Finish */
+
 // List of monsters in rough order of vorpalness
 static char *lvl_mons =  "KJBSHEAOZGLCRQNYTWFIXUMVDP";
 static char *wand_mons = "KJBSH AOZG CRQ Y W IXU V  ";
@@ -147,6 +152,13 @@ int new_monster(struct linked_list *item, char type, coord *cp)
 	tp->t_disguise = mch;
     }
 
+    /* TC_DEBUG: Start */
+    FILE *output;
+    output = fopen("debug.txt", "a+");
+    print_thing(tp, output);
+    fclose(output);
+    /* TC_DEBUG: Finish */
+    
     return 0;
 }
 
