@@ -138,11 +138,6 @@ int do_rooms()
             }
         }
     }
-
-    /* TC_DEBUG: Start */
-    refresh();
-    while(1) {};
-    /* TC_DEBUG: Finish */
     
     return 0;
 }

@@ -56,8 +56,12 @@ int do_passages()
     // Find a room to connect with
     j = 0;
     for(i = 0; i < MAXROOMS; ++i) {
-        if(r1->conn[i] && !rdes[i].ingraph && (rnd(++j) == 0)) {
-            r2 = &rdes[i];
+        if(r1->conn[i] && !rdes[i].ingraph) {
+            ++j;
+            
+            if(rnd(j) == 0) {
+                r2 = &rdes[i];
+            }
         }
     }
 
@@ -78,7 +82,7 @@ int do_passages()
         j = r2 - rdes;
         conn(i, j);
         r1->isconn[j] = TRUE;
-        r2->isconn[j] = TRUE;
+        r2->isconn[i] = TRUE;
         ++roomcount;
     }
     
@@ -137,7 +141,12 @@ int do_passages()
 	    r2->isconn[i] = TRUE;
 	}
     }
-    
+
+    /* TC_DEBUG: Start */
+    refresh();
+    while(1) {};
+    /* TC_DEBUG: Finish */
+
     return 0;
 }
 
@@ -218,7 +227,7 @@ int conn(int r1, int r2)
         // How far to turn
 	turn_distance = abs(spos.x - epos.x);
         // Where turn starts
-	turn_spot = rnd(distance-1) + 1;
+	turn_spot = rnd(distance - 1) + 1;
     }
     else if (direc == 'r') {
         // Setup for moving right
@@ -249,7 +258,7 @@ int conn(int r1, int r2)
 
 	turn_delta.x = 0;
 	turn_distance = abs(spos.y - epos.y);
-	turn_spot = rnd(distance-1) + 1;
+	turn_spot = rnd(distance - 1) + 1;
     }
     else {
         if(wizard) {
@@ -271,7 +280,7 @@ int conn(int r1, int r2)
         door(rpt, &epos);
     }
     else {
-        move(spos.y, spos.x);
+        move(epos.y, epos.x);
 	addch('#');
     }
 
@@ -284,11 +293,12 @@ int conn(int r1, int r2)
 	curr.y += delta.y;
         // Check if we are at the turn place, if so do the turn
 	if((distance == turn_spot) && (turn_distance > 0)) {
-	    while(turn_distance--) {
+	    while(turn_distance) {
                 move(curr.y, curr.x);
 		addch(PASSAGE);
 		curr.x += turn_delta.x;
 		curr.y += turn_delta.y;
+                --turn_distance;
 	    }
         }
 

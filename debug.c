@@ -51,10 +51,11 @@ void print_coord_internal(coord *item, int level, int embedded, FILE *output)
         print_indent(level + 1, output);
         fprintf(output, "\"x\": %d,\n", item->x);
         print_indent(level + 1, output);
-        fprintf(output, "\"y\": %d\n", item->y);
-        print_indent(level, output);
+        fprintf(output, "\"y\": %d", item->y);
     }
 
+    fprintf(output, "\n");
+    print_indent(level, output);
     fprintf(output, "}");
     
     if(embedded) {
@@ -281,6 +282,8 @@ void print_stats_internal(struct stats *item, int level, int embedded, FILE *out
         print_indent(level + 1, output);
         fprintf(output, "\"s_str\":\n");
         print_str_t_internal(&item->s_str, level + 1, 1, output);
+        print_indent(level + 1, output);
+        fprintf(output, "\"s_exp\": %ld,\n", item->s_exp);
         print_indent(level + 1, output);
         fprintf(output, "\"s_lvl\": %d,\n", item->s_lvl);
         print_indent(level + 1, output);

@@ -9,6 +9,11 @@
 
 #include <ctype.h>
 
+/* TC_DEBUG: Start */
+#include "debug.h"
+#include <stdio.h>
+/* TC_DEBUG: Finish */
+
 bool playing = TRUE;
 bool running = FALSE;
 bool wizard = FALSE;
@@ -460,6 +465,13 @@ int init_player()
     max_stats = player.t_stats;
     player.t_pack = NULL;
 
+    /* TC_DEBUG: Start */
+    FILE *output;
+    output = fopen("debug.txt", "a+");
+    print_thing(&player, output);
+    fclose(output);
+    /* TC_DEBUG: Finish */
+    
     return 0;
 }
 
