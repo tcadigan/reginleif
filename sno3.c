@@ -15,7 +15,7 @@ int bextend(struct node *str, struct node *last)
     f = 1;
     s = str;
     
-    if(s->p1 == 0) {
+    if(s->p1 == NULL) {
 	return 0;
     }
 
@@ -23,7 +23,7 @@ int bextend(struct node *str, struct node *last)
     b = 0;
     a = s->p2;
 
-    if(a == 0) {
+    if(a == NULL) {
 	a = s->p1;
 	
 	f = 0;
@@ -43,7 +43,7 @@ int bextend(struct node *str, struct node *last)
 	++d;
 	c = class(a->ch);
 
-	/* rp */
+	/* '(' */
 	if(c == 1) {
 	    if(b == 0) {
 		return 0;
@@ -56,13 +56,16 @@ int bextend(struct node *str, struct node *last)
 
 		return d;
 	    }
-
+	    
+	    f = 1;
 	    continue;
 	}
 
-	/* lp */
+	/* ')' */
 	if(c == 2) {
 	    ++b;
+
+	    f = 1;
 
 	    continue;
 	}
@@ -72,6 +75,8 @@ int bextend(struct node *str, struct node *last)
 
 	    return d;
 	}
+
+	f = 1;
     }
 
     return 0;
@@ -86,13 +91,13 @@ int ubextend(struct node *str, struct node *last)
     s = str;
     a = s->p1;
     
-    if(a == 0) {
+    if(a == NULL) {
 	return 0;
     }
 
     b = s->p2;
 
-    if(b == 0) {
+    if(b == NULL) {
 	s->p2 = a;
 
 	return 1;
@@ -127,8 +132,8 @@ struct node *search(struct node *arg, struct node *r)
     a = arg->p2;
     base = alloc();
     list = base;
-    next = 0;
-    last = 0;
+    next = NULL;
+    last = NULL;
 
     while(1) {
 	back = alloc();
@@ -161,7 +166,7 @@ struct node *search(struct node *arg, struct node *r)
 			    b = list->p1;
 			    sno_free(list);
 	    
-			    if(b == 0) {
+			    if(b == NULL) {
 				return a;
 			    }
 	    
@@ -173,10 +178,10 @@ struct node *search(struct node *arg, struct node *r)
 			str = var->p1;
 			etc = var->p2;
 	
-			if((a != 0) && (etc->p1 != 0)) {
-			    if(str->p2 == 0) {
+			if((a != NULL) && (etc->p1 != NULL)) {
+			    if(str->p2 == NULL) {
 				sno_free(str);
-				str = 0;
+				str = NULL;
 			    }
 
 			    assign(etc->p1, copy(str));
@@ -192,7 +197,7 @@ struct node *search(struct node *arg, struct node *r)
 			b = list->p1;
 			sno_free(list);
 	
-			if(b == 0) {
+			if(b == NULL) {
 			    return a;
 			}
 	
@@ -203,9 +208,9 @@ struct node *search(struct node *arg, struct node *r)
 
 		list = base;
 
-		if(r == 0) {
-		    last = 0;
-		    next = 0;
+		if(r == NULL) {
+		    last = NULL;
+		    next = NULL;
 		}
 		else {
 		    next = r->p1;
@@ -217,15 +222,15 @@ struct node *search(struct node *arg, struct node *r)
 		d = list->typ;
 
 		if(d < 2) {
-		    if(var == 0) {
+		    if(var == NULL) {
 			goto advanc;
 		    }
 
-		    if(next == 0) {
+		    if(next == NULL) {
 			while(1) {
 			    a = back->p1;
     
-			    if(a == 0) {
+			    if(a == NULL) {
 				rfail = 1;
 				list = base;
 
@@ -239,7 +244,7 @@ struct node *search(struct node *arg, struct node *r)
 					b = list->p1;
 					sno_free(list);
 	    
-					if(b == 0) {
+					if(b == NULL) {
 					    return a;
 					}
 	    
@@ -251,10 +256,10 @@ struct node *search(struct node *arg, struct node *r)
 				    str = var->p1;
 				    etc = var->p2;
 	
-				    if((a != 0) && (etc->p1 != 0)) {
-					if(str->p2 == 0) {
+				    if((a != NULL) && (etc->p1 != NULL)) {
+					if(str->p2 == NULL) {
 					    sno_free(str);
-					    str = 0;
+					    str = NULL;
 					}
 
 					assign(etc->p1, copy(str));
@@ -270,7 +275,7 @@ struct node *search(struct node *arg, struct node *r)
 				    b = list->p1;
 				    sno_free(list);
 	
-				    if(b == 0) {
+				    if(b == NULL) {
 					return a;
 				    }
 	
@@ -296,7 +301,7 @@ struct node *search(struct node *arg, struct node *r)
 				a = str->p2;
 
 				if(a == last) {
-				    next = 0;
+				    next = NULL;
 				}
 				else {
 				    next = a->p1;
@@ -312,7 +317,7 @@ struct node *search(struct node *arg, struct node *r)
 			    a = str->p2;
     
 			    if(a == last) {
-				next = 0;
+				next = NULL;
 			    }
 			    else {
 				next = a->p1;
@@ -331,7 +336,7 @@ struct node *search(struct node *arg, struct node *r)
 			    while(1) {
 				a = back->p1;
     
-				if(a == 0) {
+				if(a == NULL) {
 				    rfail = 1;
 				    list = base;
 
@@ -345,7 +350,7 @@ struct node *search(struct node *arg, struct node *r)
 					    b = list->p1;
 					    sno_free(list);
 	    
-					    if(b == 0) {
+					    if(b == NULL) {
 						return a;
 					    }
 	    
@@ -357,10 +362,10 @@ struct node *search(struct node *arg, struct node *r)
 					str = var->p1;
 					etc = var->p2;
 	
-					if((a != 0) && (etc->p1 != 0)) {
-					    if(str->p2 == 0) {
+					if((a != NULL) && (etc->p1 != NULL)) {
+					    if(str->p2 == NULL) {
 						sno_free(str);
-						str = 0;
+						str = NULL;
 					    }
 
 					    assign(etc->p1, copy(str));
@@ -376,7 +381,7 @@ struct node *search(struct node *arg, struct node *r)
 					b = list->p1;
 					sno_free(list);
 	
-					if(b == 0) {
+					if(b == NULL) {
 					    return a;
 					}
 	
@@ -402,7 +407,7 @@ struct node *search(struct node *arg, struct node *r)
 				    a = str->p2;
 
 				    if(a == last) {
-					next = 0;
+					next = NULL;
 				    }
 				    else {
 					next = a->p1;
@@ -418,7 +423,7 @@ struct node *search(struct node *arg, struct node *r)
 				a = str->p2;
     
 				if(a == last) {
-				    next = 0;
+				    next = NULL;
 				}
 				else {
 				    next = a->p1;
@@ -430,7 +435,7 @@ struct node *search(struct node *arg, struct node *r)
 
 			if(b == e) {
 			    if(a == last) {
-				next = 0;
+				next = NULL;
 			    }
 			    else {
 				next = a->p1;
@@ -443,7 +448,7 @@ struct node *search(struct node *arg, struct node *r)
 			    while(1) {
 				a = back->p1;
     
-				if(a == 0) {
+				if(a == NULL) {
 				    rfail = 1;
 				    list = base;
 
@@ -457,7 +462,7 @@ struct node *search(struct node *arg, struct node *r)
 					    b = list->p1;
 					    sno_free(list);
 	    
-					    if(b == 0) {
+					    if(b == NULL) {
 						return a;
 					    }
 	    
@@ -469,10 +474,10 @@ struct node *search(struct node *arg, struct node *r)
 					str = var->p1;
 					etc = var->p2;
 	
-					if((a != 0) && (etc->p1 != 0)) {
-					    if(str->p2 == 0) {
+					if((a != NULL) && (etc->p1 != NULL)) {
+					    if(str->p2 == NULL) {
 						sno_free(str);
-						str = 0;
+						str = NULL;
 					    }
 
 					    assign(etc->p1, copy(str));
@@ -488,7 +493,7 @@ struct node *search(struct node *arg, struct node *r)
 					b = list->p1;
 					sno_free(list);
 	
-					if(b == 0) {
+					if(b == NULL) {
 					    return a;
 					}
 	
@@ -514,7 +519,7 @@ struct node *search(struct node *arg, struct node *r)
 				    a = str->p2;
 
 				    if(a == last) {
-					next = 0;
+					next = NULL;
 				    }
 				    else {
 					next = a->p1;
@@ -530,7 +535,7 @@ struct node *search(struct node *arg, struct node *r)
 				a = str->p2;
     
 				if(a == last) {
-				    next = 0;
+				    next = NULL;
 				}
 				else {
 				    next = a->p1;
@@ -548,7 +553,7 @@ struct node *search(struct node *arg, struct node *r)
 		str = var->p1;
 		etc = var->p2;
 		str->p1 = next;
-		str->p1 = 0;
+		str->p1 = NULL;
 
 		if(var->typ == 1) {
 		    d = bextend(str, last);
@@ -557,7 +562,7 @@ struct node *search(struct node *arg, struct node *r)
 			while(1) {
 			    a = back->p1;
     
-			    if(a == 0) {
+			    if(a == NULL) {
 				rfail = 1;
 				list = base;
 
@@ -571,7 +576,7 @@ struct node *search(struct node *arg, struct node *r)
 					b = list->p1;
 					sno_free(list);
 	    
-					if(b == 0) {
+					if(b == NULL) {
 					    return a;
 					}
 	    
@@ -583,10 +588,10 @@ struct node *search(struct node *arg, struct node *r)
 				    str = var->p1;
 				    etc = var->p2;
 	
-				    if((a != 0) && (etc->p1 != 0)) {
-					if(str->p2 == 0) {
+				    if((a != NULL) && (etc->p1 != NULL)) {
+					if(str->p2 == NULL) {
 					    sno_free(str);
-					    str = 0;
+					    str = NULL;
 					}
 
 					assign(etc->p1, copy(str));
@@ -602,7 +607,7 @@ struct node *search(struct node *arg, struct node *r)
 				    b = list->p1;
 				    sno_free(list);
 	
-				    if(b == 0) {
+				    if(b == NULL) {
 					return a;
 				    }
 	
@@ -628,7 +633,7 @@ struct node *search(struct node *arg, struct node *r)
 				a = str->p2;
 
 				if(a == last) {
-				    next = 0;
+				    next = NULL;
 				}
 				else {
 				    next = a->p1;
@@ -644,7 +649,7 @@ struct node *search(struct node *arg, struct node *r)
 			    a = str->p2;
     
 			    if(a == last) {
-				next = 0;
+				next = NULL;
 			    }
 			    else {
 				next = a->p1;
@@ -654,11 +659,11 @@ struct node *search(struct node *arg, struct node *r)
 			goto advanc;
 		    }
 
-		    if(etc->p2 == 0) {
+		    if(etc->p2 == NULL) {
 			a = str->p2;
 
 			if(a == last) {
-			    next = 0;
+			    next = NULL;
 			}
 			else {
 			    next = a->p1;
@@ -674,7 +679,7 @@ struct node *search(struct node *arg, struct node *r)
 			    a = str->p2;
 
 			    if(a == last) {
-				next = 0;
+				next = NULL;
 			    }
 			    else {
 				next = a->p1;
@@ -687,7 +692,7 @@ struct node *search(struct node *arg, struct node *r)
 			    while(1) {
 				a = back->p1;
     
-				if(a == 0) {
+				if(a == NULL) {
 				    rfail = 1;
 				    list = base;
 
@@ -701,7 +706,7 @@ struct node *search(struct node *arg, struct node *r)
 					    b = list->p1;
 					    sno_free(list);
 	    
-					    if(b == 0) {
+					    if(b == NULL) {
 						return a;
 					    }
 	    
@@ -713,10 +718,10 @@ struct node *search(struct node *arg, struct node *r)
 					str = var->p1;
 					etc = var->p2;
 	
-					if((a != 0) && (etc->p1 != 0)) {
-					    if(str->p2 == 0) {
+					if((a != NULL) && (etc->p1 != NULL)) {
+					    if(str->p2 == NULL) {
 						sno_free(str);
-						str = 0;
+						str = NULL;
 					    }
 
 					    assign(etc->p1, copy(str));
@@ -732,7 +737,7 @@ struct node *search(struct node *arg, struct node *r)
 					b = list->p1;
 					sno_free(list);
 	
-					if(b == 0) {
+					if(b == NULL) {
 					    return a;
 					}
 	
@@ -758,7 +763,7 @@ struct node *search(struct node *arg, struct node *r)
 				    a = str->p2;
 
 				    if(a == last) {
-					next = 0;
+					next = NULL;
 				    }
 				    else {
 					next = a->p1;
@@ -774,7 +779,7 @@ struct node *search(struct node *arg, struct node *r)
 				a = str->p2;
     
 				if(a == last) {
-				    next = 0;
+				    next = NULL;
 				}
 				else {
 				    next = a->p1;
@@ -790,7 +795,7 @@ struct node *search(struct node *arg, struct node *r)
 			    while(1) {
 				a = back->p1;
     
-				if(a == 0) {
+				if(a == NULL) {
 				    rfail = 1;
 				    list = base;
 
@@ -804,7 +809,7 @@ struct node *search(struct node *arg, struct node *r)
 					    b = list->p1;
 					    sno_free(list);
 	    
-					    if(b == 0) {
+					    if(b == NULL) {
 						return a;
 					    }
 	    
@@ -816,10 +821,10 @@ struct node *search(struct node *arg, struct node *r)
 					str = var->p1;
 					etc = var->p2;
 	
-					if((a != 0) && (etc->p1 != 0)) {
-					    if(str->p2 == 0) {
+					if((a != NULL) && (etc->p1 != NULL)) {
+					    if(str->p2 == NULL) {
 						sno_free(str);
-						str = 0;
+						str = NULL;
 					    }
 
 					    assign(etc->p1, copy(str));
@@ -835,7 +840,7 @@ struct node *search(struct node *arg, struct node *r)
 					b = list->p1;
 					sno_free(list);
 	
-					if(b == 0) {
+					if(b == NULL) {
 					    return a;
 					}
 	
@@ -861,7 +866,7 @@ struct node *search(struct node *arg, struct node *r)
 				    a = str->p2;
 
 				    if(a == last) {
-					next = 0;
+					next = NULL;
 				    }
 				    else {
 					next = a->p1;
@@ -877,7 +882,7 @@ struct node *search(struct node *arg, struct node *r)
 				a = str->p2;
     
 				if(a == last) {
-				    next = 0;
+				    next = NULL;
 				}
 				else {
 				    next = a->p1;
@@ -890,12 +895,12 @@ struct node *search(struct node *arg, struct node *r)
 		}
 
 		if(c == 0) {
-		    if((d == 3) && (next != 0)) {
+		    if((d == 3) && (next != NULL)) {
 			str->p2 = last;
 			a = str->p2;
 
 			if(a == last) {
-			    next = 0;
+			    next = NULL;
 			}
 			else {
 			    next = a->p1;
@@ -912,7 +917,7 @@ struct node *search(struct node *arg, struct node *r)
 			while(1) {
 			    a = back->p1;
     
-			    if(a == 0) {
+			    if(a == NULL) {
 				rfail = 1;
 				list = base;
 
@@ -926,7 +931,7 @@ struct node *search(struct node *arg, struct node *r)
 					b = list->p1;
 					sno_free(list);
 	    
-					if(b == 0) {
+					if(b == NULL) {
 					    return a;
 					}
 	    
@@ -938,10 +943,10 @@ struct node *search(struct node *arg, struct node *r)
 				    str = var->p1;
 				    etc = var->p2;
 	
-				    if((a != 0) && (etc->p1 != 0)) {
+				    if((a != NULL) && (etc->p1 != NULL)) {
 					if(str->p2 == 0) {
 					    sno_free(str);
-					    str = 0;
+					    str = NULL;
 					}
 
 					assign(etc->p1, copy(str));
@@ -957,7 +962,7 @@ struct node *search(struct node *arg, struct node *r)
 				    b = list->p1;
 				    sno_free(list);
 	
-				    if(b == 0) {
+				    if(b == NULL) {
 					return a;
 				    }
 	
@@ -999,7 +1004,7 @@ struct node *search(struct node *arg, struct node *r)
 			    a = str->p2;
     
 			    if(a == last) {
-				next = 0;
+				next = NULL;
 			    }
 			    else {
 				next = a->p1;
@@ -1013,7 +1018,7 @@ struct node *search(struct node *arg, struct node *r)
 		a = str->p2;
 
 		if(a == last) {
-		    next = 0;
+		    next = NULL;
 		}
 		else {
 		    next = a->p1;
@@ -1039,8 +1044,8 @@ struct node *search(struct node *arg, struct node *r)
 	var->p2 = etc;
 	e = b->p1;
 
-	if(e == 0) {
-	    etc->p1 = 0;
+	if(e == NULL) {
+	    etc->p1 = NULL;
 	}
 	else {
 	    etc->p1 = eval(e, 0);
@@ -1049,7 +1054,7 @@ struct node *search(struct node *arg, struct node *r)
 	e = b->p2;
     
 	if(e == 0) {
-	    etc->p2 = 0;
+	    etc->p2 = NULL;
 	}
 	else {
 	    e = eval(e, 1);
@@ -1060,10 +1065,10 @@ struct node *search(struct node *arg, struct node *r)
 	a = a->p1;
 
 	if(a->typ == 0) {
-	    list->p1 = 0;
+	    list->p1 = NULL;
 	
 	    if(rfail == 1) {
-		a = 0;
+		a = NULL;
 	    
 		list = base;
 
@@ -1077,7 +1082,7 @@ struct node *search(struct node *arg, struct node *r)
 			b = list->p1;
 			sno_free(list);
 	    
-			if(b == 0) {
+			if(b == NULL) {
 			    return a;
 			}
 	    
@@ -1089,10 +1094,10 @@ struct node *search(struct node *arg, struct node *r)
 		    str = var->p1;
 		    etc = var->p2;
 	
-		    if((a != 0) && (etc->p1 != 0)) {
+		    if((a != NULL) && (etc->p1 != NULL)) {
 			if(str->p2 == 0) {
 			    sno_free(str);
-			    str = 0;
+			    str = NULL;
 			}
 
 			assign(etc->p1, copy(str));
@@ -1108,7 +1113,7 @@ struct node *search(struct node *arg, struct node *r)
 		    b = list->p1;
 		    sno_free(list);
 	
-		    if(b == 0) {
+		    if(b == NULL) {
 			return a;
 		    }
 	
@@ -1119,9 +1124,9 @@ struct node *search(struct node *arg, struct node *r)
 
 	    list = base;
 
-	    if(r == 0) {
-		last = 0;
-		next = 0;
+	    if(r == NULL) {
+		last = NULL;
+		next = NULL;
 	    }
 	    else {
 		next = r->p1;
@@ -1133,15 +1138,15 @@ struct node *search(struct node *arg, struct node *r)
 	    d = list->typ;
 
 	    if(d < 2) {
-		if(var == 0) {
+		if(var == NULL) {
 		    goto advanc;
 		}
 
-		if( next == 0) {
+		if(next == NULL) {
 		    while(1) {
 			a = back->p1;
     
-			if(a == 0) {
+			if(a == NULL) {
 			    rfail = 1;
 			    list = base;
 
@@ -1155,7 +1160,7 @@ struct node *search(struct node *arg, struct node *r)
 				    b = list->p1;
 				    sno_free(list);
 	    
-				    if(b == 0) {
+				    if(b == NULL) {
 					return a;
 				    }
 	    
@@ -1167,10 +1172,10 @@ struct node *search(struct node *arg, struct node *r)
 				str = var->p1;
 				etc = var->p2;
 	
-				if((a != 0) && (etc->p1 != 0)) {
-				    if(str->p2 == 0) {
+				if((a != NULL) && (etc->p1 != NULL)) {
+				    if(str->p2 == NULL) {
 					sno_free(str);
-					str = 0;
+					str = NULL;
 				    }
 
 				    assign(etc->p1, copy(str));
@@ -1186,7 +1191,7 @@ struct node *search(struct node *arg, struct node *r)
 				b = list->p1;
 				sno_free(list);
 	
-				if(b == 0) {
+				if(b == NULL) {
 				    return a;
 				}
 	
@@ -1212,7 +1217,7 @@ struct node *search(struct node *arg, struct node *r)
 			    a = str->p2;
 
 			    if(a == last) {
-				next = 0;
+				next = NULL;
 			    }
 			    else {
 				next = a->p1;
@@ -1228,7 +1233,7 @@ struct node *search(struct node *arg, struct node *r)
 			a = str->p2;
     
 			if(a == last) {
-			    next = 0;
+			    next = NULL;
 			}
 			else {
 			    next = a->p1;
@@ -1247,7 +1252,7 @@ struct node *search(struct node *arg, struct node *r)
 			while(1) {
 			    a = back->p1;
     
-			    if(a == 0) {
+			    if(a == NULL) {
 				rfail = 1;
 				list = base;
 
@@ -1261,7 +1266,7 @@ struct node *search(struct node *arg, struct node *r)
 					b = list->p1;
 					sno_free(list);
 	    
-					if(b == 0) {
+					if(b == NULL) {
 					    return a;
 					}
 	    
@@ -1273,10 +1278,10 @@ struct node *search(struct node *arg, struct node *r)
 				    str = var->p1;
 				    etc = var->p2;
 	
-				    if((a != 0) && (etc->p1 != 0)) {
-					if(str->p2 == 0) {
+				    if((a != NULL) && (etc->p1 != NULL)) {
+					if(str->p2 == NULL) {
 					    sno_free(str);
-					    str = 0;
+					    str = NULL;
 					}
 
 					assign(etc->p1, copy(str));
@@ -1292,7 +1297,7 @@ struct node *search(struct node *arg, struct node *r)
 				    b = list->p1;
 				    sno_free(list);
 	
-				    if(b == 0) {
+				    if(b == NULL) {
 					return a;
 				    }
 	
@@ -1318,7 +1323,7 @@ struct node *search(struct node *arg, struct node *r)
 				a = str->p2;
 
 				if(a == last) {
-				    next = 0;
+				    next = NULL;
 				}
 				else {
 				    next = a->p1;
@@ -1334,7 +1339,7 @@ struct node *search(struct node *arg, struct node *r)
 			    a = str->p2;
     
 			    if(a == last) {
-				next = 0;
+				next = NULL;
 			    }
 			    else {
 				next = a->p1;
@@ -1359,7 +1364,7 @@ struct node *search(struct node *arg, struct node *r)
 			while(1) {
 			    a = back->p1;
     
-			    if(a == 0) {
+			    if(a == NULL) {
 				rfail = 1;
 				list = base;
 
@@ -1373,7 +1378,7 @@ struct node *search(struct node *arg, struct node *r)
 					b = list->p1;
 					sno_free(list);
 	    
-					if(b == 0) {
+					if(b == NULL) {
 					    return a;
 					}
 	    
@@ -1385,10 +1390,10 @@ struct node *search(struct node *arg, struct node *r)
 				    str = var->p1;
 				    etc = var->p2;
 	
-				    if((a != 0) && (etc->p1 != 0)) {
-					if(str->p2 == 0) {
+				    if((a != NULL) && (etc->p1 != NULL)) {
+					if(str->p2 == NULL) {
 					    sno_free(str);
-					    str = 0;
+					    str = NULL;
 					}
 
 					assign(etc->p1, copy(str));
@@ -1404,7 +1409,7 @@ struct node *search(struct node *arg, struct node *r)
 				    b = list->p1;
 				    sno_free(list);
 	
-				    if(b == 0) {
+				    if(b == NULL) {
 					return a;
 				    }
 	
@@ -1430,7 +1435,7 @@ struct node *search(struct node *arg, struct node *r)
 				a = str->p2;
 
 				if(a == last) {
-				    next = 0;
+				    next = NULL;
 				}
 				else {
 				    next = a->p1;
@@ -1446,7 +1451,7 @@ struct node *search(struct node *arg, struct node *r)
 			    a = str->p2;
     
 			    if(a == last) {
-				next = 0;
+				next = NULL;
 			    }
 			    else {
 				next = a->p1;
@@ -1464,7 +1469,7 @@ struct node *search(struct node *arg, struct node *r)
 	    str = var->p1;
 	    etc = var->p2;
 	    str->p1 = next;
-	    str->p1 = 0;
+	    str->p1 = NULL;
 
 	    if(var->typ == 1) {
 		d = bextend(str, last);
@@ -1473,7 +1478,7 @@ struct node *search(struct node *arg, struct node *r)
 		    while(1) {
 			a = back->p1;
     
-			if(a == 0) {
+			if(a == NULL) {
 			    rfail = 1;
 			    list = base;
 
@@ -1487,7 +1492,7 @@ struct node *search(struct node *arg, struct node *r)
 				    b = list->p1;
 				    sno_free(list);
 	    
-				    if(b == 0) {
+				    if(b == NULL) {
 					return a;
 				    }
 	    
@@ -1499,10 +1504,10 @@ struct node *search(struct node *arg, struct node *r)
 				str = var->p1;
 				etc = var->p2;
 	
-				if((a != 0) && (etc->p1 != 0)) {
-				    if(str->p2 == 0) {
+				if((a != NULL) && (etc->p1 != NULL)) {
+				    if(str->p2 == NULL) {
 					sno_free(str);
-					str = 0;
+					str = NULL;
 				    }
 
 				    assign(etc->p1, copy(str));
@@ -1518,7 +1523,7 @@ struct node *search(struct node *arg, struct node *r)
 				b = list->p1;
 				sno_free(list);
 	
-				if(b == 0) {
+				if(b == NULL) {
 				    return a;
 				}
 	
@@ -1544,7 +1549,7 @@ struct node *search(struct node *arg, struct node *r)
 			    a = str->p2;
 
 			    if(a == last) {
-				next = 0;
+				next = NULL;
 			    }
 			    else {
 				next = a->p1;
@@ -1560,7 +1565,7 @@ struct node *search(struct node *arg, struct node *r)
 			a = str->p2;
     
 			if(a == last) {
-			    next = 0;
+			    next = NULL;
 			}
 			else {
 			    next = a->p1;
@@ -1570,11 +1575,11 @@ struct node *search(struct node *arg, struct node *r)
 		    goto advanc;
 		}
 
-		if(etc->p2 == 0) {
+		if(etc->p2 == NULL) {
 		    a = str->p2;
 
 		    if(a == last) {
-			next = 0;
+			next = NULL;
 		    }
 		    else {
 			next = a->p1;
@@ -1590,7 +1595,7 @@ struct node *search(struct node *arg, struct node *r)
 			a = str->p2;
 
 			if(a == last) {
-			    next = 0;
+			    next = NULL;
 			}
 			else {
 			    next = a->p1;
@@ -1603,7 +1608,7 @@ struct node *search(struct node *arg, struct node *r)
 			while(1) {
 			    a = back->p1;
     
-			    if(a == 0) {
+			    if(a == NULL) {
 				rfail = 1;
 				list = base;
 
@@ -1617,7 +1622,7 @@ struct node *search(struct node *arg, struct node *r)
 					b = list->p1;
 					sno_free(list);
 	    
-					if(b == 0) {
+					if(b == NULL) {
 					    return a;
 					}
 	    
@@ -1629,10 +1634,10 @@ struct node *search(struct node *arg, struct node *r)
 				    str = var->p1;
 				    etc = var->p2;
 	
-				    if((a != 0) && (etc->p1 != 0)) {
-					if(str->p2 == 0) {
+				    if((a != NULL) && (etc->p1 != NULL)) {
+					if(str->p2 == NULL) {
 					    sno_free(str);
-					    str = 0;
+					    str = NULL;
 					}
 
 					assign(etc->p1, copy(str));
@@ -1648,7 +1653,7 @@ struct node *search(struct node *arg, struct node *r)
 				    b = list->p1;
 				    sno_free(list);
 	
-				    if(b == 0) {
+				    if(b == NULL) {
 					return a;
 				    }
 	
@@ -1674,7 +1679,7 @@ struct node *search(struct node *arg, struct node *r)
 				a = str->p2;
 
 				if(a == last) {
-				    next = 0;
+				    next = NULL;
 				}
 				else {
 				    next = a->p1;
@@ -1690,7 +1695,7 @@ struct node *search(struct node *arg, struct node *r)
 			    a = str->p2;
     
 			    if(a == last) {
-				next = 0;
+				next = NULL;
 			    }
 			    else {
 				next = a->p1;
@@ -1706,7 +1711,7 @@ struct node *search(struct node *arg, struct node *r)
 			while(1) {
 			    a = back->p1;
     
-			    if(a == 0) {
+			    if(a == NULL) {
 				rfail = 1;
 				list = base;
 
@@ -1720,7 +1725,7 @@ struct node *search(struct node *arg, struct node *r)
 					b = list->p1;
 					sno_free(list);
 	    
-					if(b == 0) {
+					if(b == NULL) {
 					    return a;
 					}
 	    
@@ -1732,10 +1737,10 @@ struct node *search(struct node *arg, struct node *r)
 				    str = var->p1;
 				    etc = var->p2;
 	
-				    if((a != 0) && (etc->p1 != 0)) {
-					if(str->p2 == 0) {
+				    if((a != NULL) && (etc->p1 != NULL)) {
+					if(str->p2 == NULL) {
 					    sno_free(str);
-					    str = 0;
+					    str = NULL;
 					}
 
 					assign(etc->p1, copy(str));
@@ -1751,7 +1756,7 @@ struct node *search(struct node *arg, struct node *r)
 				    b = list->p1;
 				    sno_free(list);
 	
-				    if(b == 0) {
+				    if(b == NULL) {
 					return a;
 				    }
 	
@@ -1777,7 +1782,7 @@ struct node *search(struct node *arg, struct node *r)
 				a = str->p2;
 
 				if(a == last) {
-				    next = 0;
+				    next = NULL;
 				}
 				else {
 				    next = a->p1;
@@ -1793,7 +1798,7 @@ struct node *search(struct node *arg, struct node *r)
 			    a = str->p2;
     
 			    if(a == last) {
-				next = 0;
+				next = NULL;
 			    }
 			    else {
 				next = a->p1;
@@ -1806,12 +1811,12 @@ struct node *search(struct node *arg, struct node *r)
 	    }
 
 	    if(c == 0) {
-		if((d == 3) && (next != 0)) {
+		if((d == 3) && (next != NULL)) {
 		    str->p2 = last;
 		    a = str->p2;
 
 		    if(a == last) {
-			next = 0;
+			next = NULL;
 		    }
 		    else {
 			next = a->p1;
@@ -1828,7 +1833,7 @@ struct node *search(struct node *arg, struct node *r)
 		    while(1) {
 			a = back->p1;
     
-			if(a == 0) {
+			if(a == NULL) {
 			    rfail = 1;
 			    list = base;
 
@@ -1842,7 +1847,7 @@ struct node *search(struct node *arg, struct node *r)
 				    b = list->p1;
 				    sno_free(list);
 	    
-				    if(b == 0) {
+				    if(b == NULL) {
 					return a;
 				    }
 	    
@@ -1854,10 +1859,10 @@ struct node *search(struct node *arg, struct node *r)
 				str = var->p1;
 				etc = var->p2;
 	
-				if((a != 0) && (etc->p1 != 0)) {
-				    if(str->p2 == 0) {
+				if((a != NULL) && (etc->p1 != NULL)) {
+				    if(str->p2 == NULL) {
 					sno_free(str);
-					str = 0;
+					str = NULL;
 				    }
 
 				    assign(etc->p1, copy(str));
@@ -1873,7 +1878,7 @@ struct node *search(struct node *arg, struct node *r)
 				b = list->p1;
 				sno_free(list);
 	
-				if(b == 0) {
+				if(b == NULL) {
 				    return a;
 				}
 	
@@ -1899,7 +1904,7 @@ struct node *search(struct node *arg, struct node *r)
 			    a = str->p2;
 
 			    if(a == last) {
-				next = 0;
+				next = NULL;
 			    }
 			    else {
 				next = a->p1;
@@ -1915,7 +1920,7 @@ struct node *search(struct node *arg, struct node *r)
 			a = str->p2;
     
 			if(a == last) {
-			    next = 0;
+			    next = NULL;
 			}
 			else {
 			    next = a->p1;
@@ -1929,7 +1934,7 @@ struct node *search(struct node *arg, struct node *r)
 	    a = str->p2;
 
 	    if(a == last) {
-		next = 0;
+		next = NULL;
 	    }
 	    else {
 		next = a->p1;
@@ -1946,7 +1951,7 @@ struct node *search(struct node *arg, struct node *r)
     while(1) {
 	a = back->p1;
     
-	if(a == 0) {
+	if(a == NULL) {
 	    rfail = 1;
 	    list = base;
 
@@ -1960,7 +1965,7 @@ struct node *search(struct node *arg, struct node *r)
 		    b = list->p1;
 		    sno_free(list);
 	    
-		    if(b == 0) {
+		    if(b == NULL) {
 			return a;
 		    }
 	    
@@ -1972,10 +1977,10 @@ struct node *search(struct node *arg, struct node *r)
 		str = var->p1;
 		etc = var->p2;
 	
-		if((a != 0) && (etc->p1 != 0)) {
-		    if(str->p2 == 0) {
+		if((a != NULL) && (etc->p1 != NULL)) {
+		    if(str->p2 == NULL) {
 			sno_free(str);
-			str = 0;
+			str = NULL;
 		    }
 
 		    assign(etc->p1, copy(str));
@@ -1991,7 +1996,7 @@ struct node *search(struct node *arg, struct node *r)
 		b = list->p1;
 		sno_free(list);
 	
-		if(b == 0) {
+		if(b == NULL) {
 		    return a;
 		}
 	
@@ -2017,7 +2022,7 @@ struct node *search(struct node *arg, struct node *r)
 	    a = str->p2;
 
 	    if(a == last) {
-		next = 0;
+		next = NULL;
 	    }
 	    else {
 		next = a->p1;
@@ -2033,7 +2038,7 @@ struct node *search(struct node *arg, struct node *r)
 	a = str->p2;
     
 	if(a == last) {
-	    next = 0;
+	    next = NULL;
 	}
 	else {
 	    next = a->p1;
@@ -2043,12 +2048,12 @@ struct node *search(struct node *arg, struct node *r)
  advanc:
     a = list->p1;
     
-    if(a == 0) {
+    if(a == NULL) {
 	a = alloc();
 	
-	if(r == 0) {
-	    a->p2 = 0;
-	    a->p1 = 0;
+	if(r == NULL) {
+	    a->p2 = NULL;
+	    a->p1 = NULL;
 	    list = base;
 
 	    while(1) {
@@ -2061,7 +2066,7 @@ struct node *search(struct node *arg, struct node *r)
 		    b = list->p1;
 		    sno_free(list);
 	    
-		    if(b == 0) {
+		    if(b == NULL) {
 			return a;
 		    }
 	    
@@ -2073,10 +2078,10 @@ struct node *search(struct node *arg, struct node *r)
 		str = var->p1;
 		etc = var->p2;
 	
-		if((a != 0) && (etc->p1 != 0)) {
-		    if(str->p2 == 0) {
+		if((a != NULL) && (etc->p1 != NULL)) {
+		    if(str->p2 == NULL) {
 			sno_free(str);
-			str = 0;
+			str = NULL;
 		    }
 
 		    assign(etc->p1, copy(str));
@@ -2092,7 +2097,7 @@ struct node *search(struct node *arg, struct node *r)
 		b = list->p1;
 		sno_free(list);
 	
-		if(b == 0) {
+		if(b == NULL) {
 		    return a;
 		}
 	
@@ -2103,7 +2108,7 @@ struct node *search(struct node *arg, struct node *r)
 	b = r->p1;
 	a->p1 = b;
 
-	if(next == 0) {
+	if(next == NULL) {
 	    a->p2 = r->p2;
 	    list = base;
 
@@ -2117,7 +2122,7 @@ struct node *search(struct node *arg, struct node *r)
 		    b = list->p1;
 		    sno_free(list);
 	    
-		    if(b == 0) {
+		    if(b == NULL) {
 			return a;
 		    }
 	    
@@ -2129,10 +2134,10 @@ struct node *search(struct node *arg, struct node *r)
 		str = var->p1;
 		etc = var->p2;
 	
-		if((a != 0) && (etc->p1 != 0)) {
-		    if(str->p2 == 0) {
+		if((a != NULL) && (etc->p1 != NULL)) {
+		    if(str->p2 == NULL) {
 			sno_free(str);
-			str = 0;
+			str = NULL;
 		    }
 
 		    assign(etc->p1, copy(str));
@@ -2148,7 +2153,7 @@ struct node *search(struct node *arg, struct node *r)
 		b = list->p1;
 		sno_free(list);
 	
-		if(b == 0) {
+		if(b == NULL) {
 		    return a;
 		}
 	
@@ -2173,7 +2178,7 @@ struct node *search(struct node *arg, struct node *r)
 			b = list->p1;
 			sno_free(list);
 	    
-			if(b == 0) {
+			if(b == NULL) {
 			    return a;
 			}
 	    
@@ -2185,10 +2190,10 @@ struct node *search(struct node *arg, struct node *r)
 		    str = var->p1;
 		    etc = var->p2;
 	
-		    if((a != 0) && (etc->p1 != 0)) {
-			if(str->p2 == 0) {
+		    if((a != NULL) && (etc->p1 != NULL)) {
+			if(str->p2 == NULL) {
 			    sno_free(str);
-			    str = 0;
+			    str = NULL;
 			}
 
 			assign(etc->p1, copy(str));
@@ -2204,7 +2209,7 @@ struct node *search(struct node *arg, struct node *r)
 		    b = list->p1;
 		    sno_free(list);
 	
-		    if(b == 0) {
+		    if(b == NULL) {
 			return a;
 		    }
 	
@@ -2222,15 +2227,15 @@ struct node *search(struct node *arg, struct node *r)
     d = list->typ;
 
     if(d < 2) {
-	if(var == 0) {
+	if(var == NULL) {
 	    goto advanc;
 	}
 
-	if(next == 0) {
+	if(next == NULL) {
 	    while(1) {
 		a = back->p1;
     
-		if(a == 0) {
+		if(a == NULL) {
 		    rfail = 1;
 		    list = base;
 
@@ -2244,7 +2249,7 @@ struct node *search(struct node *arg, struct node *r)
 			    b = list->p1;
 			    sno_free(list);
 	    
-			    if(b == 0) {
+			    if(b == NULL) {
 				return a;
 			    }
 	    
@@ -2256,10 +2261,10 @@ struct node *search(struct node *arg, struct node *r)
 			str = var->p1;
 			etc = var->p2;
 	
-			if((a != 0) && (etc->p1 != 0)) {
-			    if(str->p2 == 0) {
+			if((a != NULL) && (etc->p1 != NULL)) {
+			    if(str->p2 == NULL) {
 				sno_free(str);
-				str = 0;
+				str = NULL;
 			    }
 
 			    assign(etc->p1, copy(str));
@@ -2275,7 +2280,7 @@ struct node *search(struct node *arg, struct node *r)
 			b = list->p1;
 			sno_free(list);
 	
-			if(b == 0) {
+			if(b == NULL) {
 			    return a;
 			}
 	
@@ -2301,7 +2306,7 @@ struct node *search(struct node *arg, struct node *r)
 		    a = str->p2;
 
 		    if(a == last) {
-			next = 0;
+			next = NULL;
 		    }
 		    else {
 			next = a->p1;
@@ -2317,7 +2322,7 @@ struct node *search(struct node *arg, struct node *r)
 		a = str->p2;
     
 		if(a == last) {
-		    next = 0;
+		    next = NULL;
 		}
 		else {
 		    next = a->p1;
@@ -2336,7 +2341,7 @@ struct node *search(struct node *arg, struct node *r)
 		while(1) {
 		    a = back->p1;
     
-		    if(a == 0) {
+		    if(a == NULL) {
 			rfail = 1;
 			list = base;
 
@@ -2350,7 +2355,7 @@ struct node *search(struct node *arg, struct node *r)
 				b = list->p1;
 				sno_free(list);
 	    
-				if(b == 0) {
+				if(b == NULL) {
 				    return a;
 				}
 	    
@@ -2362,10 +2367,10 @@ struct node *search(struct node *arg, struct node *r)
 			    str = var->p1;
 			    etc = var->p2;
 	
-			    if((a != 0) && (etc->p1 != 0)) {
-				if(str->p2 == 0) {
+			    if((a != NULL) && (etc->p1 != NULL)) {
+				if(str->p2 == NULL) {
 				    sno_free(str);
-				    str = 0;
+				    str = NULL;
 				}
 
 				assign(etc->p1, copy(str));
@@ -2381,7 +2386,7 @@ struct node *search(struct node *arg, struct node *r)
 			    b = list->p1;
 			    sno_free(list);
 	
-			    if(b == 0) {
+			    if(b == NULL) {
 				return a;
 			    }
 	
@@ -2407,7 +2412,7 @@ struct node *search(struct node *arg, struct node *r)
 			a = str->p2;
 
 			if(a == last) {
-			    next = 0;
+			    next = NULL;
 			}
 			else {
 			    next = a->p1;
@@ -2423,7 +2428,7 @@ struct node *search(struct node *arg, struct node *r)
 		    a = str->p2;
     
 		    if(a == last) {
-			next = 0;
+			next = NULL;
 		    }
 		    else {
 			next = a->p1;
@@ -2435,7 +2440,7 @@ struct node *search(struct node *arg, struct node *r)
 
 	    if(b == e) {
 		if(a == last) {
-		    next = 0;
+		    next = NULL;
 		}
 		else {
 		    next = a->p1;
@@ -2448,7 +2453,7 @@ struct node *search(struct node *arg, struct node *r)
 		while(1) {
 		    a = back->p1;
     
-		    if(a == 0) {
+		    if(a == NULL) {
 			rfail = 1;
 			list = base;
 
@@ -2462,7 +2467,7 @@ struct node *search(struct node *arg, struct node *r)
 				b = list->p1;
 				sno_free(list);
 	    
-				if(b == 0) {
+				if(b == NULL) {
 				    return a;
 				}
 	    
@@ -2474,10 +2479,10 @@ struct node *search(struct node *arg, struct node *r)
 			    str = var->p1;
 			    etc = var->p2;
 	
-			    if((a != 0) && (etc->p1 != 0)) {
-				if(str->p2 == 0) {
+			    if((a != NULL) && (etc->p1 != NULL)) {
+				if(str->p2 == NULL) {
 				    sno_free(str);
-				    str = 0;
+				    str = NULL;
 				}
 
 				assign(etc->p1, copy(str));
@@ -2493,7 +2498,7 @@ struct node *search(struct node *arg, struct node *r)
 			    b = list->p1;
 			    sno_free(list);
 	
-			    if(b == 0) {
+			    if(b == NULL) {
 				return a;
 			    }
 	
@@ -2519,7 +2524,7 @@ struct node *search(struct node *arg, struct node *r)
 			a = str->p2;
 
 			if(a == last) {
-			    next = 0;
+			    next = NULL;
 			}
 			else {
 			    next = a->p1;
@@ -2535,7 +2540,7 @@ struct node *search(struct node *arg, struct node *r)
 		    a = str->p2;
     
 		    if(a == last) {
-			next = 0;
+			next = NULL;
 		    }
 		    else {
 			next = a->p1;
@@ -2553,7 +2558,7 @@ struct node *search(struct node *arg, struct node *r)
     str = var->p1;
     etc = var->p2;
     str->p1 = next;
-    str->p1 = 0;
+    str->p1 = NULL;
 
     if(var->typ == 1) {
 	d = bextend(str, last);
@@ -2562,7 +2567,7 @@ struct node *search(struct node *arg, struct node *r)
 	    while(1) {
 		a = back->p1;
     
-		if(a == 0) {
+		if(a == NULL) {
 		    rfail = 1;
 		    list = base;
 
@@ -2576,7 +2581,7 @@ struct node *search(struct node *arg, struct node *r)
 			    b = list->p1;
 			    sno_free(list);
 	    
-			    if(b == 0) {
+			    if(b == NULL) {
 				return a;
 			    }
 	    
@@ -2588,10 +2593,10 @@ struct node *search(struct node *arg, struct node *r)
 			str = var->p1;
 			etc = var->p2;
 	
-			if((a != 0) && (etc->p1 != 0)) {
-			    if(str->p2 == 0) {
+			if((a != NULL) && (etc->p1 != NULL)) {
+			    if(str->p2 == NULL) {
 				sno_free(str);
-				str = 0;
+				str = NULL;
 			    }
 
 			    assign(etc->p1, copy(str));
@@ -2607,7 +2612,7 @@ struct node *search(struct node *arg, struct node *r)
 			b = list->p1;
 			sno_free(list);
 	
-			if(b == 0) {
+			if(b == NULL) {
 			    return a;
 			}
 	
@@ -2633,7 +2638,7 @@ struct node *search(struct node *arg, struct node *r)
 		    a = str->p2;
 
 		    if(a == last) {
-			next = 0;
+			next = NULL;
 		    }
 		    else {
 			next = a->p1;
@@ -2649,7 +2654,7 @@ struct node *search(struct node *arg, struct node *r)
 		a = str->p2;
     
 		if(a == last) {
-		    next = 0;
+		    next = NULL;
 		}
 		else {
 		    next = a->p1;
@@ -2659,11 +2664,11 @@ struct node *search(struct node *arg, struct node *r)
 	    goto advanc;
 	}
 
-	if(etc->p2 == 0) {
+	if(etc->p2 == NULL) {
 	    a = str->p2;
 
 	    if(a == last) {
-		next = 0;
+		next = NULL;
 	    }
 	    else {
 		next = a->p1;
@@ -2679,7 +2684,7 @@ struct node *search(struct node *arg, struct node *r)
 		a = str->p2;
 
 		if(a == last) {
-		    next = 0;
+		    next = NULL;
 		}
 		else {
 		    next = a->p1;
@@ -2692,7 +2697,7 @@ struct node *search(struct node *arg, struct node *r)
 		while(1) {
 		    a = back->p1;
     
-		    if(a == 0) {
+		    if(a == NULL) {
 			rfail = 1;
 			list = base;
 
@@ -2706,7 +2711,7 @@ struct node *search(struct node *arg, struct node *r)
 				b = list->p1;
 				sno_free(list);
 	    
-				if(b == 0) {
+				if(b == NULL) {
 				    return a;
 				}
 	    
@@ -2718,10 +2723,10 @@ struct node *search(struct node *arg, struct node *r)
 			    str = var->p1;
 			    etc = var->p2;
 	
-			    if((a != 0) && (etc->p1 != 0)) {
-				if(str->p2 == 0) {
+			    if((a != NULL) && (etc->p1 != NULL)) {
+				if(str->p2 == NULL) {
 				    sno_free(str);
-				    str = 0;
+				    str = NULL;
 				}
 
 				assign(etc->p1, copy(str));
@@ -2737,7 +2742,7 @@ struct node *search(struct node *arg, struct node *r)
 			    b = list->p1;
 			    sno_free(list);
 	
-			    if(b == 0) {
+			    if(b == NULL) {
 				return a;
 			    }
 	
@@ -2763,7 +2768,7 @@ struct node *search(struct node *arg, struct node *r)
 			a = str->p2;
 
 			if(a == last) {
-			    next = 0;
+			    next = NULL;
 			}
 			else {
 			    next = a->p1;
@@ -2779,7 +2784,7 @@ struct node *search(struct node *arg, struct node *r)
 		    a = str->p2;
     
 		    if(a == last) {
-			next = 0;
+			next = NULL;
 		    }
 		    else {
 			next = a->p1;
@@ -2795,7 +2800,7 @@ struct node *search(struct node *arg, struct node *r)
 		while(1) {
 		    a = back->p1;
     
-		    if(a == 0) {
+		    if(a == NULL) {
 			rfail = 1;
 			list = base;
 
@@ -2809,7 +2814,7 @@ struct node *search(struct node *arg, struct node *r)
 				b = list->p1;
 				sno_free(list);
 	    
-				if(b == 0) {
+				if(b == NULL) {
 				    return a;
 				}
 	    
@@ -2821,10 +2826,10 @@ struct node *search(struct node *arg, struct node *r)
 			    str = var->p1;
 			    etc = var->p2;
 	
-			    if((a != 0) && (etc->p1 != 0)) {
-				if(str->p2 == 0) {
+			    if((a != NULL) && (etc->p1 != NULL)) {
+				if(str->p2 == NULL) {
 				    sno_free(str);
-				    str = 0;
+				    str = NULL;
 				}
 
 				assign(etc->p1, copy(str));
@@ -2840,7 +2845,7 @@ struct node *search(struct node *arg, struct node *r)
 			    b = list->p1;
 			    sno_free(list);
 	
-			    if(b == 0) {
+			    if(b == NULL) {
 				return a;
 			    }
 	
@@ -2866,7 +2871,7 @@ struct node *search(struct node *arg, struct node *r)
 			a = str->p2;
 
 			if(a == last) {
-			    next = 0;
+			    next = NULL;
 			}
 			else {
 			    next = a->p1;
@@ -2882,7 +2887,7 @@ struct node *search(struct node *arg, struct node *r)
 		    a = str->p2;
     
 		    if(a == last) {
-			next = 0;
+			next = NULL;
 		    }
 		    else {
 			next = a->p1;
@@ -2895,12 +2900,12 @@ struct node *search(struct node *arg, struct node *r)
     }
 
     if(c == 0) {
-	if((d == 3) && (next != 0)) {
+	if((d == 3) && (next != NULL)) {
 	    str->p2 = last;
 	    a = str->p2;
 
 	    if(a == last) {
-		next = 0;
+		next = NULL;
 	    }
 	    else {
 		next = a->p1;
@@ -2917,7 +2922,7 @@ struct node *search(struct node *arg, struct node *r)
 	    while(1) {
 		a = back->p1;
     
-		if(a == 0) {
+		if(a == NULL) {
 		    rfail = 1;
 		    list = base;
 
@@ -2931,7 +2936,7 @@ struct node *search(struct node *arg, struct node *r)
 			    b = list->p1;
 			    sno_free(list);
 	    
-			    if(b == 0) {
+			    if(b == NULL) {
 				return a;
 			    }
 	    
@@ -2943,10 +2948,10 @@ struct node *search(struct node *arg, struct node *r)
 			str = var->p1;
 			etc = var->p2;
 	
-			if((a != 0) && (etc->p1 != 0)) {
-			    if(str->p2 == 0) {
+			if((a != NULL) && (etc->p1 != NULL)) {
+			    if(str->p2 == NULL) {
 				sno_free(str);
-				str = 0;
+				str = NULL;
 			    }
 
 			    assign(etc->p1, copy(str));
@@ -2962,7 +2967,7 @@ struct node *search(struct node *arg, struct node *r)
 			b = list->p1;
 			sno_free(list);
 	
-			if(b == 0) {
+			if(b == NULL) {
 			    return a;
 			}
 	
@@ -2988,7 +2993,7 @@ struct node *search(struct node *arg, struct node *r)
 		    a = str->p2;
 
 		    if(a == last) {
-			next = 0;
+			next = NULL;
 		    }
 		    else {
 			next = a->p1;
@@ -3004,7 +3009,7 @@ struct node *search(struct node *arg, struct node *r)
 		a = str->p2;
     
 		if(a == last) {
-		    next = 0;
+		    next = NULL;
 		}
 		else {
 		    next = a->p1;
@@ -3018,7 +3023,7 @@ struct node *search(struct node *arg, struct node *r)
     a = str->p2;
 
     if(a == last) {
-	next = 0;
+	next = NULL;
     }
     else {
 	next = a->p1;

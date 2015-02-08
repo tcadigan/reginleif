@@ -37,11 +37,6 @@ struct node *and(struct node *ptr)
 	}
 
 	writes("Attempt to take an illegal value");
-
-	a->typ = 1;
-	a = copy(a->p2);
-
-	return a;
     }
 
     return a;
@@ -64,7 +59,7 @@ struct node *eval(struct node *e, int t)
 	return 0;
     }
 
-    stack = 0;
+    stack = NULL;
     list = e;
 
     while(1) {
@@ -122,7 +117,7 @@ struct node *eval(struct node *e, int t)
 	    a3 = alloc();
 	    a3base = a3;
 	    a3->p2 = op->p2;
-	    op->p2 = 0;
+	    op->p2 = NULL;
 	    a1 = a1->p2;
 	    a2 = list->p2;
 
@@ -137,7 +132,7 @@ struct node *eval(struct node *e, int t)
 		a1 = a1->p2;
 		a2 = a2->p1;
 	    
-		if((a1 != 0) && (a2 != 0)) {
+		if((a1 != NULL) && (a2 != NULL)) {
 		    continue;
 		}
 
@@ -174,7 +169,7 @@ struct node *eval(struct node *e, int t)
 		a3 = a4;
 		a1 = a1->p2;
 	    
-		if(a1 == 0) {
+		if(a1 == NULL) {
 		    list = list->p1;
 		
 		    break;
@@ -251,7 +246,7 @@ struct node *doop(int op, struct node *arg1, struct node *arg2)
 	return cat(a1, a2);
     }
 
-    return 0;
+    return NULL;
 }
 
 struct node *execute(struct node *e)
@@ -277,20 +272,20 @@ struct node *execute(struct node *e)
 	    rfail = 0;
 	    b = a->p2;
 
-	    if(b == 0) {
+	    if(b == NULL) {
 		return e->p1;
 	    }
 
 	    b = eval(b, 0);
 
 	    if(b == lookret) {
-		return 0;
+		return NULL;
 	    }
 
 	    if(b == lookfret) {
 		rfail = 1;
 
-		return 0;
+		return NULL;
 	    }
 
 	    if(b->typ != 2) {
@@ -302,20 +297,20 @@ struct node *execute(struct node *e)
 
 	b = a->p1;
     
-	if(b == 0) {
+	if(b == NULL) {
 	    return e->p1;
 	}
 
 	b = eval(b, 0);
 
 	if(b == lookret) {
-	    return 0;
+	    return NULL;
 	}
 
 	if(b == lookfret) {
 	    rfail = 1;
 
-	    return 0;
+	    return NULL;
 	}
 
 	if(b->typ != 2) {
@@ -332,24 +327,24 @@ struct node *execute(struct node *e)
 	c = search(m, b);
 	delete(b);
 
-	if(c == 0) {
+	if(c == NULL) {
 	    rfail = 0;
 	    b = a->p2;
 
-	    if(b == 0) {
+	    if(b == NULL) {
 		return e->p1;
 	    }
 
 	    b = eval(b, 0);
 
 	    if(b == lookret) {
-		return 0;
+		return NULL;
 	    }
 
 	    if(b == lookfret) {
 		rfail = 1;
 
-		return 0;
+		return NULL;
 	    }
 
 	    if(b->typ != 2) {
@@ -365,20 +360,20 @@ struct node *execute(struct node *e)
 	    rfail = 0;
 	    b = a->p2;
 
-	    if(b == 0) {
+	    if(b == NULL) {
 		return e->p1;
 	    }
 
 	    b = eval(b, 0);
 
 	    if(b == lookret) {
-		return 0;
+		return NULL;
 	    }
 
 	    if(b == lookfret) {
 		rfail = 1;
 
-		return 0;
+		return NULL;
 	    }
 
 	    if(b->typ != 2) {
@@ -390,20 +385,20 @@ struct node *execute(struct node *e)
 
 	b = a->p1;
     
-	if(b == 0) {
+	if(b == NULL) {
 	    return e->p1;
 	}
 
 	b = eval(b, 0);
 
 	if(b == lookret) {
-	    return 0;
+	    return NULL;
 	}
 
 	if(b == lookfret) {
 	    rfail = 1;
 
-	    return 0;
+	    return NULL;
 	}
 
 	if(b->typ != 2) {
@@ -421,20 +416,20 @@ struct node *execute(struct node *e)
 	    rfail = 0;
 	    b = a->p2;
 
-	    if(b == 0) {
+	    if(b == NULL) {
 		return e->p1;
 	    }
 
 	    b = eval(b, 0);
 
 	    if(b == lookret) {
-		return 0;
+		return NULL;
 	    }
 
 	    if(b == lookfret) {
 		rfail = 1;
 
-		return 0;
+		return NULL;
 	    }
 
 	    if(b->typ != 2) {
@@ -446,20 +441,20 @@ struct node *execute(struct node *e)
 
 	b = a->p1;
     
-	if(b == 0) {
+	if(b == NULL) {
 	    return e->p1;
 	}
 
 	b = eval(b, 0);
 
 	if(b == lookret) {
-	    return 0;
+	    return NULL;
 	}
 
 	if(b == lookfret) {
 	    rfail = 1;
 
-	    return 0;
+	    return NULL;
 	}
 
 	if(b->typ != 2) {
@@ -479,20 +474,20 @@ struct node *execute(struct node *e)
 	    rfail = 0;
 	    b = a->p2;
 
-	    if(b == 0) {
+	    if(b == NULL) {
 		return e->p1;
 	    }
 
 	    b = eval(b, 0);
 
 	    if(b == lookret) {
-		return 0;
+		return NULL;
 	    }
 
 	    if(b == lookfret) {
 		rfail = 1;
 
-		return 0;
+		return NULL;
 	    }
 
 	    if(b->typ != 2) {
@@ -504,7 +499,7 @@ struct node *execute(struct node *e)
 
 	c = eval(ca->p2, 1);
 
-	if(d->p1 == 0) {
+	if(d->p1 == NULL) {
 	    sno_free(d);
 	    assign(b, cat(c, b->p2));
 	    delete(c);
@@ -513,20 +508,20 @@ struct node *execute(struct node *e)
 		rfail = 0;
 		b = a->p2;
 
-		if(b == 0) {
+		if(b == NULL) {
 		    return e->p1;
 		}
 
 		b = eval(b, 0);
 
 		if(b == lookret) {
-		    return 0;
+		    return NULL;
 		}
 
 		if(b == lookfret) {
 		    rfail = 1;
 
-		    return 0;
+		    return NULL;
 		}
 
 		if(b->typ != 2) {
@@ -538,20 +533,20 @@ struct node *execute(struct node *e)
 
 	    b = a->p1;
     
-	    if(b == 0) {
+	    if(b == NULL) {
 		return e->p1;
 	    }
 
 	    b = eval(b, 0);
 
 	    if(b == lookret) {
-		return 0;
+		return NULL;
 	    }
 
 	    if(b == lookfret) {
 		rfail = 1;
 
-		return 0;
+		return NULL;
 	    }
 
 	    if(b->typ != 2) {
@@ -568,20 +563,20 @@ struct node *execute(struct node *e)
 		rfail = 0;
 		b = a->p2;
 
-		if(b == 0) {
+		if(b == NULL) {
 		    return e->p1;
 		}
 
 		b = eval(b, 0);
 
 		if(b == lookret) {
-		    return 0;
+		    return NULL;
 		}
 
 		if(b == lookfret) {
 		    rfail = 1;
 
-		    return 0;
+		    return NULL;
 		}
 
 		if(b->typ != 2) {
@@ -593,20 +588,20 @@ struct node *execute(struct node *e)
 
 	    b = a->p1;
     
-	    if(b == 0) {
+	    if(b == NULL) {
 		return e->p1;
 	    }
 
 	    b = eval(b, 0);
 
 	    if(b == lookret) {
-		return 0;
+		return NULL;
 	    }
 
 	    if(b == lookfret) {
 		rfail = 1;
 
-		return 0;
+		return NULL;
 	    }
 
 	    if(b->typ != 2) {
@@ -631,20 +626,20 @@ struct node *execute(struct node *e)
 	rfail = 0;
 	b = a->p2;
 
-	if(b == 0) {
+	if(b == NULL) {
 	    return e->p1;
 	}
 
 	b = eval(b, 0);
 
 	if(b == lookret) {
-	    return 0;
+	    return NULL;
 	}
 
 	if(b == lookfret) {
 	    rfail = 1;
 
-	    return 0;
+	    return NULL;
 	}
 
 	if(b->typ != 2) {
@@ -656,20 +651,20 @@ struct node *execute(struct node *e)
 
     b = a->p1;
     
-    if(b == 0) {
+    if(b == NULL) {
 	return e->p1;
     }
 
     b = eval(b, 0);
 
     if(b == lookret) {
-	return 0;
+	return NULL;
     }
 
     if(b == lookfret) {
 	rfail = 1;
 
-	return 0;
+	return NULL;
     }
 
     if(b->typ != 2) {
