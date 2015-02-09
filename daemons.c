@@ -87,7 +87,7 @@ int rollwand()
 int unconfuse()
 {
     player.t_flags &= ~ISHUH;
-    msg("You feel less confused now", 0);
+    msg("You feel less confused now");
 
     return 0;
 }
@@ -110,7 +110,7 @@ int sight()
 	extinguish(sight);
 	player.t_flags &= ~ISBLIND;
 	light(&player.t_pos);
-	msg("The veil of darkness lifts", 0);
+	msg("The veil of darkness lifts");
     }
 
     return 0;
@@ -121,7 +121,7 @@ int sight()
 int nohaste()
 {
     player.t_flags &= ~ISHASTE;
-    msg("You feel yourself slowing down.", 0);
+    msg("You feel yourself slowing down.");
 
     return 0;
 }
@@ -140,10 +140,10 @@ int stomach()
 	no_command = rnd(8) + 4;
         
 	if(!terse) {
-	    addmsg("You feel too weak from lack of food.  ", 0);
+	    addmsg("You feel too weak from lack of food.  ");
         }
         
-	msg("You faint", 0);
+	msg("You faint");
 	running = FALSE;
 	count = 0;
 	hungry_state = 3;
@@ -153,15 +153,15 @@ int stomach()
 	food_left -= (ring_eat(LEFT) + ring_eat(RIGHT) + 1 - amulet);
 
 	if((food_left < MORETIME) && (oldfood >= MORETIME)) {
-	    msg("You are starting to feel weak", 0);
+	    msg("You are starting to feel weak");
 	    hungry_state = 2;
 	}
 	else if(((food_left < 2) * MORETIME) && ((oldfood >= 2) * MORETIME)) {
 	    if(!terse) {
-		msg("You are starting to get hungry", 0);
+		msg("You are starting to get hungry");
             }
 	    else {
-		msg("Getting hungry", 0);
+		msg("Getting hungry");
             }
             
 	    hungry_state = 1;

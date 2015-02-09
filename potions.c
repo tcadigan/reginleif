@@ -33,10 +33,10 @@ int quaff()
     obj = (struct object *)item->l_data;
     if(obj->o_type != POTION) {
 	if (!terse) {
-	    msg("Yuk! Why would you want to drink that?", 0);
+	    msg("Yuk! Why would you want to drink that?");
         }
 	else {
-	    msg("That's undrinkable", 0);
+	    msg("That's undrinkable");
         }
         
 	return 0;
@@ -49,7 +49,7 @@ int quaff()
     switch(obj->o_which) {
     case P_CONFUSE:
         if((player.t_flags & ISHUH) == 0) {
-            msg("Wait, what's going on here. Huh? What? Who?", 0);
+            msg("Wait, what's going on here. Huh? What? Who?");
 
             if((player.t_flags & ISHUH) != 0) {
                 lengthen(unconfuse, rnd(8) + HUHDURATION);
@@ -67,10 +67,10 @@ int quaff()
         if(((cur_ring[LEFT] != NULL) && (cur_ring[LEFT]->o_which == R_SUSTSTR))
            || ((cur_ring[RIGHT] != NULL) && (cur_ring[RIGHT]->o_which == R_SUSTSTR))) {
             chg_str(-(rnd(3) + 1));
-            msg("You feel very sick now.", 0);
+            msg("You feel very sick now.");
         }
         else {
-            msg("You feel momentarily sick", 0);
+            msg("You feel momentarily sick");
         }
         
         p_know[P_POISON] = TRUE;
@@ -83,12 +83,12 @@ int quaff()
             player.t_stats.s_hpt = max_hp;
         }
         
-        msg("You begin to feel better.", 0);
+        msg("You begin to feel better.");
         sight();
         p_know[P_HEALING] = TRUE;
         break;
     case P_STRENGTH:
-        msg("You feel stronger, now.  What bulging muscles!", 0);
+        msg("You feel stronger, now.  What bulging muscles!");
         chg_str(1);
         p_know[P_STRENGTH] = TRUE;
         break;
@@ -102,7 +102,7 @@ int quaff()
             p_know[P_MFIND] = TRUE;
         }
         else {
-            msg("You have a strange feeling for a moment, then it passes.", 0);
+            msg("You have a strange feeling for a moment, then it passes.");
         }
 
         break;
@@ -144,10 +144,10 @@ int quaff()
             }
         }
         
-        msg("You have a strange feeling for a moment, then it passes.", 0);
+        msg("You have a strange feeling for a moment, then it passes.");
         break;
     case P_PARALYZE:
-        msg("You can't move.", 0);
+        msg("You can't move.");
         no_command = HOLDTIME;
         p_know[P_PARALYZE] = TRUE;
         break;
@@ -164,7 +164,7 @@ int quaff()
 
         break;
     case P_RAISE:
-        msg("You suddenly feel much more skillful", 0);
+        msg("You suddenly feel much more skillful");
         p_know[P_RAISE] = TRUE;
         raise_level();
         break;
@@ -176,17 +176,17 @@ int quaff()
             player.t_stats.s_hpt = max_hp;
         }
         
-        msg("You begin to feel much better.", 0);
+        msg("You begin to feel much better.");
         p_know[P_XHEAL] = TRUE;
         sight();
         break;
     case P_HASTE:
         add_haste(TRUE);
-        msg("You feel yourself moving much faster.", 0);
+        msg("You feel yourself moving much faster.");
         p_know[P_HASTE] = TRUE;
         break;
     case P_RESTORE:
-        msg("Hey, this tastes great.  It make you feel warm all over.", 0);
+        msg("Hey, this tastes great.  It make you feel warm all over.");
         if((player.t_stats.s_str.st_str < max_stats.s_str.st_str)
            || ((player.t_stats.s_str.st_str == 18)
                && (player.t_stats.s_str.st_add < max_stats.s_str.st_add))) {
@@ -194,7 +194,7 @@ int quaff()
         }
         break;
     case P_BLIND:
-        msg("A cloak of darkness falls around you.", 0);
+        msg("A cloak of darkness falls around you.");
 
         if((player.t_flags & ISBLIND) == 0) {
             player.t_flags |= ISBLIND;
@@ -206,10 +206,10 @@ int quaff()
         
         break;
     case P_NOP:
-        msg("This potion tastes extremely dull.", 0);
+        msg("This potion tastes extremely dull.");
         break;
     default:
-        msg("What an odd tasting potion!", 0);
+        msg("What an odd tasting potion!");
         return 0;
     }
     
@@ -221,10 +221,10 @@ int quaff()
     }
     else if(!p_know[obj->o_which] && askme && (p_guess[obj->o_which] == NULL)) {
         if(terse) {
-            msg("Call it: ", 0);
+            msg("Call it: ");
         }
         else {
-            msg("What do you want to call it? ", 0);
+            msg("What do you want to call it? ");
         }
         
 	if(get_str(buf, cw) == NORM) {

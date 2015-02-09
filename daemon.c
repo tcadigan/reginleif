@@ -26,7 +26,7 @@ struct delayed_action *d_slot()
     }
 
     if(wizard) {
-        msg("Ran out of fuse slots", 0);
+        msg("Ran out of fuse slots");
     }
 
     return NULL;

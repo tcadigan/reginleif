@@ -183,7 +183,7 @@ char *inv_name(struct object *obj, bool drop)
         break;
     default:
         if(wizard) {
-            msg("Picked up something funny", 0);
+            msg("Picked up something funny");
         }
         
         sprintf(prbuf, "Something bizarre %s", unctrl(obj->o_type));
@@ -228,11 +228,10 @@ int money()
         if((player.t_pos.x == rp->r_gold.x) && (player.t_pos.y == rp->r_gold.y)) {
 	    if(notify) {
 		if(!terse) {
-		    addmsg("You found ", 0);
+		    addmsg("You found ");
                 }
                 
-                int args[] = { rp->r_goldval };
-		msg("%d gold pieces.", args);
+		msg("%d gold pieces.", rp->r_goldval);
 	    }
             
 	    purse += rp->r_goldval;
@@ -243,7 +242,7 @@ int money()
 	}
     }
     
-    msg("That gold must have been counterfeit", 0);
+    msg("That gold must have been counterfeit");
 
     return 0;
 }
@@ -259,7 +258,7 @@ int drop()
 
     ch = mvwinch(stdscr, player.t_pos.y, player.t_pos.x);
     if((ch != FLOOR) && (ch != PASSAGE)) {
-	msg("There is something there already", 0);
+	msg("There is something there already");
 	return 0;
     }
     obj = get_item("drop", 0);
@@ -315,7 +314,7 @@ int dropcheck(struct object *op)
 	    return TRUE;
     }
     if(op->o_flags & ISCURSED) {
-	msg("You can't. It appears to be cursed.", 0);
+	msg("You can't. It appears to be cursed.");
         
 	return FALSE;
     }
@@ -422,8 +421,7 @@ struct linked_list *new_thing()
         
         if(j == MAXARMORS) {
             if(wizard) {
-                int args[] = { k };
-                msg("Picked a bad armor %d", args);
+                msg("Picked a bad armor %d", k);
             }
             
             j = 0;
@@ -470,7 +468,7 @@ struct linked_list *new_thing()
         break;
     default:
         if(wizard) {
-            msg("Picked a bad kind of object", 0);
+            msg("Picked a bad kind of object");
         }
         
         wait_for(' ');
@@ -496,12 +494,9 @@ int pick_one(struct magic_item *magic, int nitems)
     
     if(magic == end) {
 	if(wizard) {
-            int args[] = { i, nitems };
-            msg("bad pick_one: %d from %d items", args);
+            msg("bad pick_one: %d from %d items", i, nitems);
 	    for(magic = start; magic < end; ++magic) {
-                msg("%s: ", magic->mi_name);
-                int args[] = { magic->mi_prob };
-                msg("%d%%", args);
+                msg("%s: %d%%", magic->mi_name, magic->mi_prob);
             }
 	}
 	magic = start;

@@ -83,11 +83,10 @@ int create_obj()
 
     item = new_item(sizeof *obj);
     obj = (struct object *)item->l_data;
-    msg("Type of item: ", 0);
+    msg("Type of item: ");
     obj->o_type = readchar();
     mpos = 0;
-    char args[] = { obj->o_type };
-    msg("Which %c do you want? (0-f)", args);
+    msg("Which %c do you want? (0-f)", obj->o_type);
     ch = readchar();
     
     if(isdigit(ch)) {
@@ -101,7 +100,7 @@ int create_obj()
     obj->o_count = 1;
     mpos = 0;
     if((obj->o_type == WEAPON) || (obj->o_type == ARMOR)) {
-	msg("Blessing? (+,-,n)", 0);
+	msg("Blessing? (+,-,n)");
 	bless = readchar();
 	mpos = 0;
 	if(bless == '-') {
@@ -132,7 +131,7 @@ int create_obj()
         case R_ADDSTR:
         case R_ADDHIT:
         case R_ADDDAM:
-            msg("Blessing? (+,-,n)", 0);
+            msg("Blessing? (+,-,n)");
             bless = readchar();
             mpos = 0;
             if(bless == '-') {
@@ -219,7 +218,7 @@ int passwd()
     char c;
     char buf[80];
 
-    msg("Wizard's Password:", 0);
+    msg("Wizard's Password:");
     mpos = 0;
     sp = buf;
     c = getchar();

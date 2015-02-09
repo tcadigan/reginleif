@@ -142,11 +142,6 @@ int do_passages()
 	}
     }
 
-    /* TC_DEBUG: Start */
-    refresh();
-    while(1) {};
-    /* TC_DEBUG: Finish */
-
     return 0;
 }
 
@@ -262,7 +257,7 @@ int conn(int r1, int r2)
     }
     else {
         if(wizard) {
-            msg("error in connection tables", 0);
+            msg("error in connection tables");
         }
     }
 
@@ -311,7 +306,7 @@ int conn(int r1, int r2)
     curr.y += delta.y;
     
     if(!((curr.x == epos.x) && (curr.y == epos.y))) {
-	msg("Warning, connectivity problem on this level.", 0);
+	msg("Warning, connectivity problem on this level.");
     }
 
     return 0;

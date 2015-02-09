@@ -79,14 +79,12 @@ struct linked_list *new_item(int size)
 
     item = (struct linked_list *)new(sizeof(*item));
     if(item == NULL) {
-        int args[] = { total };
-	msg("Ran out of memory for header after %d items", args);
+	msg("Ran out of memory for header after %d items", total);
     }
 
     item->l_data = new(size);
     if(item->l_data == NULL) {
-        int args[] = { total };
-	msg("Ran out of memory for data after %d items", args);
+	msg("Ran out of memory for data after %d items", total);
     }
     item->l_next = item->l_prev = NULL;
     

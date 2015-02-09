@@ -91,7 +91,6 @@ int command()
     static char countch;
     static char direction;
     static char newcount = FALSE;
-    char *unctrl();
 
     if((player.t_flags & ISHASTE) != 0) {
         ++ntimes;
@@ -136,7 +135,7 @@ int command()
 		ch = readchar();
                 // Erase message if its there
 		if((mpos != 0) && !running) {
-		    msg("", 0);
+		    msg("");
                 }
 	    }
 	}
@@ -148,7 +147,7 @@ int command()
             --no_command;
             
 	    if(no_command == 0) {
-		msg("You can move again.", 0);
+		msg("You can move again.");
             }
 	}
 	else {
@@ -420,7 +419,7 @@ int command()
                 break;
             case CTRL('R'):
                 after = FALSE;
-                msg(huh, 0);
+                msg(huh);
                 
                 break;
             case 'S': 
@@ -444,16 +443,15 @@ int command()
                 
                 if(wizard) {
                     wizard = FALSE;
-                    msg("Not wizard any more", 0);
+                    msg("Not wizard any more");
                 }
                 else {
                     if(wizard == passwd()) {
-                        int args[] = { dnum };
-                        msg("You are suddenly as smart as Ken Arnold in dungeon #%d", args);
+                        msg("You are suddenly as smart as Ken Arnold in dungeon #%d", dnum);
                         waswizard = TRUE;
                     }
                     else {
-                        msg("Sorry", 0);
+                        msg("Sorry");
 		    }
                 }
                 
@@ -470,10 +468,7 @@ int command()
                 if(wizard) {
                     switch(ch) {
                     case '@':
-                        {
-                            int args[] = { player.t_pos.y, player.t_pos.x };
-                            msg("@ %d,%d", args);
-                        }
+                        msg("@ %d,%d", player.t_pos.y, player.t_pos.x );
                         
                         break;
                     case 'C':
@@ -511,17 +506,11 @@ int command()
                         
                         break;
                     case CTRL('E'):
-                        {
-                            int args[] = { food_left };
-                            msg("food left: %d", args);
-                        }
+                        msg("food left: %d", food_left);
                         
                         break;
                     case CTRL('A'):
-                        {
-                            int args[] = { inpack };
-                            msg("%d things in your pack", args);
-                        }
+                        msg("%d things in your pack", inpack);
                         
                         break;
                     case CTRL('C'):
@@ -635,12 +624,12 @@ void quit(int parameter)
 	mpos = 0;
     }
     
-    msg("Really quit?", 0);
+    msg("Really quit?");
     wrefresh(cw);
     
     if(readchar() == 'y') {
 	clear();
-	move(LINES-1, 0);
+	move(LINES - 1, 0);
         wrefresh(stdscr);
 	score(purse, 1, NULL);
 	exit(0);
@@ -723,7 +712,7 @@ int help()
     char helpch;
     int cnt;
 
-    msg("Character you want help for (* for all): ", 0);
+    msg("Character you want help for (* for all): ");
     helpch = readchar();
     mpos = 0;
 
@@ -734,8 +723,7 @@ int help()
         
 	while(strp->h_ch) {
 	    if(strp->h_ch == helpch) {
-		msg("%s", unctrl(strp->h_ch));
-                msg("%s", strp->h_desc);
+		msg("%s%s", unctrl(strp->h_ch), strp->h_desc);
 		break;
 	    }
             
@@ -767,7 +755,7 @@ int help()
 	++strp;
     }
     
-    wmove(hw, LINES-1, 0);
+    wmove(hw, LINES - 1, 0);
     wprintw(hw, "--Press space to continue--");
     wrefresh(hw);
     wait_for(' ');
@@ -788,12 +776,12 @@ int identify()
     char ch;
     char *str;
 
-    msg("What do you want identified? ", 0);
+    msg("What do you want identified? ");
     ch = readchar();
     mpos = 0;
     
     if(ch == ESCAPE) {
-	msg("", 0);
+	msg("");
 	return 0;
     }
     
@@ -876,8 +864,7 @@ int identify()
         }
     }
     
-    msg("'%s' : ", unctrl(ch));
-    msg("%s", str);
+    msg("'%s' : %s", unctrl(ch), str);
 
     return 0;
 }
@@ -888,7 +875,7 @@ int d_level()
 {
     if(mvwinch(mw, player.t_pos.y, player.t_pos.x ) == ' ') {
         if(mvwinch(stdscr, player.t_pos.y, player.t_pos.x) != STAIRS) {
-            msg("I see no way down.", 0);
+            msg("I see no way down.");
         }
         else {
             ++level;
@@ -897,7 +884,7 @@ int d_level()
     }
     else {
         if(winch(mw) != STAIRS) {
-            msg("I see no way down.", 0);
+            msg("I see no way down.");
         }
         else {
             ++level;
@@ -922,7 +909,7 @@ int u_level()
                 }
                 
                 new_level();
-                msg("You feel a wrenching sensation in your gut.", 0);
+                msg("You feel a wrenching sensation in your gut.");
             }
         }
     }
@@ -936,12 +923,12 @@ int u_level()
                 }
                 
                 new_level();
-                msg("You feel a wrenching sensation in your gut.", 0);
+                msg("You feel a wrenching sensation in your gut.");
             }
         }
     }
 
-    msg("I see no way up.", 0);
+    msg("I see no way up.");
     
     return 0;
 }
@@ -956,7 +943,7 @@ int shell()
     // Set the terminal back to original mode
     sh = getenv("SHELL");
     wclear(hw);
-    wmove(hw, LINES-1, 0);
+    wmove(hw, LINES - 1, 0);
     wrefresh(hw);
     endwin();
     in_shell = TRUE;
@@ -1073,29 +1060,29 @@ int call()
 
         break;
     default:
-        msg("You can't call that anything", 0);
+        msg("You can't call that anything");
         return 0;
     }
     
     if(know[obj->o_which]) {
-	msg("That has already been identified", 0);
+	msg("That has already been identified");
 	return 0;
     }
     
     if(terse) {
-	addmsg("C", 0);
+	addmsg("C");
     }
     else {
-	addmsg("Was c", 0);
+	addmsg("Was c");
     }
     
     msg("alled \"%s\"", elsewise);
 
     if(terse) {
-	msg("Call it: ", 0);
+	msg("Call it: ");
     }
     else {
-	msg("What do you want to call it? ", 0);
+	msg("What do you want to call it? ");
     }
     
     if(guess[obj->o_which] != NULL) {

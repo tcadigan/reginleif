@@ -193,7 +193,7 @@ int main(int argc, char **argv, char **envp)
 
     // Draw current level
     new_level();
-
+    
     // Start up daemons and fuses
     start_daemon(doctor, 0, AFTER);
     fuse(swander, 0, WANDERTIME, AFTER);

@@ -42,7 +42,7 @@ int do_move(int dy, int dx)
     firstmove = FALSE;
     if(no_move) {
 	--no_move;
-	msg("You are still stuck in the bear trap", 0);
+	msg("You are still stuck in the bear trap");
         
 	return 0;
     }
@@ -70,7 +70,8 @@ int do_move(int dy, int dx)
     }
     
     if(running && (player.t_pos.x == nh.x) && (player.t_pos.y == nh.y)) {
-	after = running = FALSE;
+        running = FALSE;
+	after = FALSE;
     }
     
     if(mvwinch(mw, nh.y, nh.x) == ' ') {
@@ -81,7 +82,7 @@ int do_move(int dy, int dx)
     }
 
     if(((player.t_flags & ISHELD) != 0) && (ch != 'F')) {
-	msg("You are being held", 0);
+	msg("You are being held");
 	return 0;
     }
     
@@ -90,7 +91,9 @@ int do_move(int dy, int dx)
     case '|':
     case '-':
     case SECRETDOOR:
-        after = running = FALSE;
+        running = FALSE;
+        after = FALSE;
+
         return 0;
     case TRAP:
         {
@@ -176,6 +179,7 @@ int do_move(int dy, int dx)
                 fight(&nh, ch, cur_weapon, FALSE);
                 return 0;
             }
+            
             ch = temp;
             wmove(cw, player.t_pos.y, player.t_pos.x);
             waddch(cw, ch);
@@ -293,7 +297,7 @@ char show(int y, int x)
         it = find_mons(y, x);
         
 	if(it == NULL) {
-	    msg("Can't find monster in show", 0);
+	    msg("Can't find monster in show");
         }
         
 	tp = (struct thing *)it->l_data;
@@ -327,24 +331,24 @@ int be_trapped(coord *tc)
     case TRAPDOOR:
         ++level;
         new_level();
-        msg("You fell into a trap!", 0);
+        msg("You fell into a trap!");
         break;
     case BEARTRAP:
         no_move += BEARTIME;
-        msg("You are caught in a bear trap", 0);
+        msg("You are caught in a bear trap");
         break;
     case SLEEPTRAP:
         no_command += SLEEPTIME;
-        msg("A strange white mist envelops you and you fall asleep", 0);
+        msg("A strange white mist envelops you and you fall asleep");
         break;
     case ARROWTRAP:
         if(swing(player.t_stats.s_lvl - 1, player.t_stats.s_arm, 1)) {
-            msg("Oh no! An arrow shot you", 0);
+            msg("Oh no! An arrow shot you");
 
             player.t_stats.s_hpt -= roll(1, 6);
             
             if(player.t_stats.s_hpt <= 0) {
-                msg("The arrow killed you.", 0);
+                msg("The arrow killed you.");
                 death('a');
             }
         }
@@ -352,7 +356,7 @@ int be_trapped(coord *tc)
             struct linked_list *item;
             struct object *arrow;
             
-            msg("An arrow shoots past you.", 0);
+            msg("An arrow shoots past you.");
             item = new_item(sizeof *arrow);
             arrow = (struct object *)item->l_data;
             arrow->o_type = WEAPON;
@@ -368,12 +372,12 @@ int be_trapped(coord *tc)
         break;
     case DARTTRAP:
         if(swing(player.t_stats.s_lvl + 1, player.t_stats.s_arm, 1)) {
-            msg("A small dart just hit you in the shoulder", 0);
+            msg("A small dart just hit you in the shoulder");
 
             player.t_stats.s_hpt -= roll(1, 4);
             
             if(player.t_stats.s_hpt <= 0) {
-                msg("The dart killed you.", 0);
+                msg("The dart killed you.");
                 death('d');
             }
 
@@ -383,7 +387,7 @@ int be_trapped(coord *tc)
             }
         }
         else {
-            msg("A small dart whizzes by your ear and vanishes.", 0);
+            msg("A small dart whizzes by your ear and vanishes.");
         }
     }
 
@@ -409,8 +413,7 @@ struct trap *trap_at(int y, int x)
     }
     if(tp == ep) {
         if(wizard) {
-            int args[] = { y, x };
-            msg("Trap at %d,%d not in array", args);
+            msg("Trap at %d,%d not in array", y, x);
         }
     }
     

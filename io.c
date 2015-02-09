@@ -14,7 +14,6 @@
 #include "rogue.h"
 
 #include <ctype.h>
-#include <ncurses.h>
 #include <stdio.h>
 
 static char msgbuf[BUFSIZ];
@@ -22,7 +21,7 @@ static int newpos = 0;
 
 // msg:
 //     Display a message at the top of the screen.
-int msg(char *fmt, void *args)
+int msg(char *fmt, ...)
 {
     // If the string is "", just clear the line
     if(*fmt == '\0') {
@@ -33,7 +32,11 @@ int msg(char *fmt, void *args)
     }
 
     // Otherwise add to the message and flush it out
+    va_list args;
+    va_start(args, fmt);
     doadd(fmt, args);
+    va_end(args);
+    
     endmsg();
 
     return 0;
@@ -41,9 +44,12 @@ int msg(char *fmt, void *args)
 
 // addmsg:
 //     Add things to the current message
-int addmsg(char *fmt, void *args)
+int addmsg(char *fmt, ...)
 {
+    va_list args;
+    va_start(args, fmt);
     doadd(fmt, args);
+    va_end(args);
 
     return 0;
 }
@@ -72,22 +78,11 @@ int endmsg()
 
 // doadd:
 //     Something...
-int doadd(char *fmt, void *args)
+int doadd(char *fmt, va_list args)
 {
-    FILE *junk = tmpfile();
-    fprintf(junk, fmt, args);
-    putc('\0', junk);
-    
-    rewind(junk);
-
-    char str[BUFSIZ];
-
-    fgets(str, sizeof(str), junk);
-
-    strcat(msgbuf, str);
-    newpos = strlen(msgbuf);
-
-    fclose(junk);
+    int num_written = vsprintf(msgbuf, fmt, args);
+    msgbuf[newpos + num_written] = '\0';
+    newpos += num_written;
     
     return 0;
 }
@@ -166,10 +161,11 @@ int status()
 	    return 0;
         }
     }
-	
+
     getyx(cw, oy, ox);
     if(s_hp != max_hp) {
-	temp = s_hp = max_hp;
+        s_hp = max_hp;
+        temp = max_hp;
 
 	for(hpwidth = 0; temp; ++hpwidth) {
 	    temp /= 10;

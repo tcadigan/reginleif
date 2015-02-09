@@ -297,8 +297,7 @@ struct linked_list *find_obj(int y, int x)
     }
 
     if(wizard) {
-        int args[] = { y, x };
-        msg("Non-object %d,%d", args);
+        msg("Non-object %d,%d", y, x);
     }
     
     return NULL;
@@ -318,10 +317,10 @@ int eat()
     obj = (struct object *)item->l_data;
     if(obj->o_type != FOOD) {
 	if (!terse) {
-	    msg("Ugh, you would get ill if you ate that.", 0);
+	    msg("Ugh, you would get ill if you ate that.");
         }
 	else {
-	    msg("That's Inedible!", 0);
+	    msg("That's Inedible!");
         }
         
 	return 0;
@@ -336,12 +335,12 @@ int eat()
     }
     else {
 	if(rnd(100) > 70) {
-	    msg("Yuk, this food tastes awful", 0);
+	    msg("Yuk, this food tastes awful");
 	    ++player.t_stats.s_exp;
 	    check_level();
 	}
 	else {
-	    msg("Yum, that tasted good", 0);
+	    msg("Yum, that tasted good");
         }
     }
 
@@ -434,7 +433,7 @@ int chg_str(int amt)
 int add_haste(bool potion)
 {
     if((player.t_flags & ISHASTE) != 0) {
-	msg("You faint from exhaustion.", 0);
+	msg("You faint from exhaustion.");
 	no_command += rnd(8);
 	extinguish(nohaste);
     }
@@ -491,10 +490,10 @@ int is_current(struct object *obj)
        || (obj == cur_ring[LEFT])
        || (obj == cur_ring[RIGHT])) {
         if(terse) {
-            msg("In use.", 0);
+            msg("In use.");
         }
         else {
-            msg("That's already in use.", 0);
+            msg("That's already in use.");
         }
         
 	return TRUE;
@@ -511,7 +510,8 @@ int get_dir()
     bool gotit;
 
     if(!terse) {
-	msg(prompt = "Which direction? ", 0);
+        prompt = "Which direction? ";
+	msg("%s", prompt);
     }
     else {
 	prompt = "Direction: ";
@@ -564,7 +564,7 @@ int get_dir()
         return FALSE;
     default:
         mpos = 0;
-        msg(prompt, 0);
+        msg(prompt);
         gotit = FALSE;
     }
 
@@ -616,7 +616,7 @@ int get_dir()
             return FALSE;
         default:
             mpos = 0;
-            msg(prompt, 0);
+            msg(prompt);
             gotit = FALSE;
 	}
     }

@@ -2,11 +2,12 @@
 #define IO_H_
 
 #include <ncurses.h>
+#include <stdarg.h>
 
-int msg(char *fmt, void *args);
-int addmsg(char *fmt, void *args);
+int msg(char *fmt, ...);
+int addmsg(char *fmt, ...);
 int endmsg();
-int doadd(char *fmt, void *args);
+int doadd(char *fmt, va_list args);
 int step_ok(char ch);
 char readchar();
 int status();

@@ -54,12 +54,12 @@ int save_game()
             }
 
             while(savef == NULL) {
-                msg("File name: ", 0);
+                msg("File name: ");
                 mpos = 0;
                 buf[0] = '\0';
 
                 if(get_str(buf, cw) == QUIT) {
-                    msg("", 0);
+                    msg("");
 
                     return FALSE;
                 }
@@ -81,12 +81,12 @@ int save_game()
 	}
     }
 
-    msg("File name: ", 0);
+    msg("File name: ");
     mpos = 0;
     buf[0] = '\0';
 
     if(get_str(buf, cw) == QUIT) {
-        msg("", 0);
+        msg("");
         return FALSE;
     }
 
@@ -99,12 +99,12 @@ int save_game()
     }
 
     while(savef == NULL) {
-        msg("File name: ", 0);
+        msg("File name: ");
         mpos = 0;
         buf[0] = '\0';
 
         if(get_str(buf, cw) == QUIT) {
-            msg("", 0);
+            msg("");
             return FALSE;
         }
 

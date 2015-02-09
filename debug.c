@@ -415,7 +415,7 @@ void print_object_internal(struct object *item, int level, int embedded, FILE *o
     print_indent(level + 1, output);
     fprintf(output, "\"type\": \"object\",\n");
     print_indent(level + 1, output);
-    fprintf(output, "\"address\": \"%p\",", item);
+    fprintf(output, "\"address\": \"%p\"", item);
 
     if(item != NULL) {
         fprintf(output, ",\n");
@@ -427,7 +427,7 @@ void print_object_internal(struct object *item, int level, int embedded, FILE *o
         print_indent(level + 1, output);
         fprintf(output, "\"o_text\": \"%s\",\n", item->o_text);
         print_indent(level + 1, output);
-        fprintf(output, "\"o_launch\": \"%c\",\n", item->o_launch);
+        fprintf(output, "\"o_launch\": \"%d\",\n", item->o_launch);
         print_indent(level + 1, output);
         fprintf(output, "\"o_damage\": \"%s\",\n", item->o_damage);
         print_indent(level + 1, output);

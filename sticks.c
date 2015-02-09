@@ -63,12 +63,12 @@ int do_zap(bool gotdir)
     }
     obj = (struct object *)item->l_data;
     if(obj->o_type != STICK) {
-	msg("You can't zap with that!", 0);
+	msg("You can't zap with that!");
 	after = FALSE;
 	return 0;
     }
     if(obj->o_ac == 0) {
-	msg("Nothing happens.", 0);
+	msg("Nothing happens.");
 	return 0;
     }
     if (!gotdir) {
@@ -88,12 +88,12 @@ int do_zap(bool gotdir)
         rp = roomin(&player.t_pos);
         
         if(rp == NULL) {
-            msg("The corridor glows and then fades", 0);
+            msg("The corridor glows and then fades");
         }
         else {
-            addmsg("The room is lit", 0);
+            addmsg("The room is lit");
             if(!terse) {
-                addmsg(" by a shimmering blue light.", 0);
+                addmsg(" by a shimmering blue light.");
             }
             endmsg();
             rp->r_flags &= ~ISDARK;
@@ -108,7 +108,7 @@ int do_zap(bool gotdir)
         // evenly from the monster in the room (or next to hero
         // if he is in a passage)
         if(player.t_stats.s_hpt < 2) {
-            msg("You are too weak to use it.", 0);
+            msg("You are too weak to use it.");
             return 0;
         }
         
@@ -245,10 +245,10 @@ int do_zap(bool gotdir)
                 hit_monster(bolt.o_pos.y, bolt.o_pos.x, &bolt);
             }
 	    else if(terse) {
-		msg("Missle vanishes", 0);
+		msg("Missle vanishes");
             }
 	    else {
-		msg("The missle vanishes with a puff of smoke", 0);
+		msg("The missle vanishes with a puff of smoke");
             }
             
 	    ws_know[WS_MISSILE] = TRUE;
@@ -402,7 +402,7 @@ int do_zap(bool gotdir)
                     delta.y = -delta.y;
                     delta.x = -delta.x;
                     y--;
-                    msg("The bolt bounces", 0);
+                    msg("The bolt bounces");
                     break;
                 default:
                     if(!bounced && isupper(ch)) {
@@ -416,8 +416,7 @@ int do_zap(bool gotdir)
                                 msg("%s misses", name);
                             }
                             else {
-                                char *args[] = { name, monsters[ch - 'A'].m_name };
-                                msg("The %s whizzes past the %s", args);
+                                msg("The %s whizzes past the %s", name, monsters[ch - 'A'].m_name);
                             }
                             runto(&pos, &player.t_pos);
                         }
@@ -460,7 +459,7 @@ int do_zap(bool gotdir)
 	}
         break;
     default:
-        msg("What a bizarre schtick!", 0);
+        msg("What a bizarre schtick!");
     }
     --obj->o_ac;
 
@@ -487,7 +486,7 @@ int drain(int ymin, int ymax, int xmin, int xmax)
         }
     }
     if(count == 0) {
-	msg("You have a tingling feeling", 0);
+	msg("You have a tingling feeling");
 
 	return 0;
     }

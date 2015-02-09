@@ -20,9 +20,9 @@ int wear()
     struct object *obj;
 
     if(cur_armor != NULL) {
-	addmsg("You are already wearing some", 0);
+	addmsg("You are already wearing some");
 	if(!terse) {
-	    addmsg(".  You'll have to take it off first", 0);
+	    addmsg(".  You'll have to take it off first");
         }
 	endmsg();
 	after = FALSE;
@@ -34,15 +34,15 @@ int wear()
     }
     obj = (struct object *)item->l_data;
     if(obj->o_type != ARMOR) {
-	msg("You can't wear that.", 0);
+	msg("You can't wear that.");
 	return 0;
     }
     waste_time();
     if(!terse) {
-	addmsg("You are now w", 0);
+	addmsg("You are now w");
     }
     else {
-	addmsg("W", 0);
+	addmsg("W");
     }
     msg("earing %s.", a_names[obj->o_which]);
     cur_armor = obj;
@@ -60,10 +60,10 @@ int take_off()
     obj = cur_armor;
     if(obj == NULL) {
 	if(terse) {
-            msg("Not wearing armor", 0);
+            msg("Not wearing armor");
         }
 	else {
-            msg("You aren't wearing any armor", 0);
+            msg("You aren't wearing any armor");
         }
 	return 0;
     }
@@ -72,14 +72,12 @@ int take_off()
     }
     cur_armor = NULL;
     if(terse) {
-	addmsg("Was", 0);
+	addmsg("Was");
     }
     else {
-	addmsg("You used to be ", 0);
+	addmsg("You used to be ");
     }
-    int args[] = { pack_char(obj) };
-    addmsg(" wearing %c) ", args);
-    addmsg("%s", inv_name(obj, TRUE));
+    addmsg(" wearing %c) %s", pack_char(obj), inv_name(obj, TRUE));
 
     return 0;
 }

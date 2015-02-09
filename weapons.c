@@ -305,7 +305,7 @@ int wield()
     obj = (struct object *)item->l_data;
     
     if(obj->o_type == ARMOR) {
-	msg("You can't wield armor", 0);
+	msg("You can't wield armor");
         after = FALSE;
         
         return 0;
@@ -318,10 +318,10 @@ int wield()
     }
 
     if(terse) {
-	addmsg("W", 0);
+	addmsg("W");
     }
     else {
-	addmsg("You are now w", 0);
+	addmsg("You are now w");
     }
     
     msg("ielding %s", inv_name(obj, TRUE));

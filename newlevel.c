@@ -12,6 +12,11 @@
 #include "rooms.h"
 #include "things.h"
 
+/* TC_DEBUG: Start */
+#include "debug.h"
+#include <stdio.h>
+/* TC_DEBUG: Finish */
+
 // new_level:
 //     Dig and draw a new level
 int new_level()
@@ -35,14 +40,15 @@ int new_level()
     do_rooms();
     // Draw passages
     do_passages();
-    no_food++;
+    ++no_food;
+
     // Place objects (if any)
     put_things();
 
     // Place the staircase down
     rm = rnd_room();
     rnd_pos(&rooms[rm], &stairs);
-
+    
     char temp;
     if(mvwinch(mw, stairs.y, stairs.x) == ' ') {
         temp = mvwinch(stdscr, stairs.y, stairs.x);
@@ -64,6 +70,7 @@ int new_level()
     }
 
     addch(STAIRS);
+
     // Place the traps
     if(rnd(10) < level) {
 	ntraps = rnd(level / 4) + 1;
@@ -72,7 +79,7 @@ int new_level()
         }
 	i = ntraps;
 	while(i) {
-            i--;
+            --i;
             rm = rnd_room();
             rnd_pos(&rooms[rm], &stairs);
 
@@ -144,7 +151,7 @@ int new_level()
             temp = winch(mw);
         }
     }
-
+    
     light(&player.t_pos);
     wmove(cw, player.t_pos.y, player.t_pos.x);
     waddch(cw, PLAYER);
@@ -219,6 +226,13 @@ int put_things() {
 
 	    mvaddch(tp.y, tp.x, cur->o_type);
 	    cur->o_pos = tp;
+
+            /* TC_DEBUG: Start */
+            FILE *output;
+            output = fopen("debug.txt", "a+");
+            print_object(cur, output);
+            fclose(output);
+            /* TC_DEBUG: Finish */
 	}
     }
 

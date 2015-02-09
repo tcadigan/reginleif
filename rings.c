@@ -30,10 +30,10 @@ int ring_on()
     obj = (struct object *)item->l_data;
     if(obj->o_type != RING) {
 	if(!terse) {
-	    msg("It would be difficult to wrap that around a finger", 0);
+	    msg("It would be difficult to wrap that around a finger");
         }
 	else {
-	    msg("Not a ring", 0);
+	    msg("Not a ring");
         }
         
 	return 0;
@@ -58,10 +58,10 @@ int ring_on()
     }
     else {
 	if(!terse) {
-	    msg("You already have a ring on each hand", 0);
+	    msg("You already have a ring on each hand");
         }
 	else {
-	    msg("Wearing two", 0);
+	    msg("Wearing two");
         }
 	return 0;
     }
@@ -94,10 +94,10 @@ int ring_on()
 	mpos = 0;
         
         if(terse) {
-            msg("Call it: ", 0);
+            msg("Call it: ");
         }
         else {
-            msg("What do you want to call it? ", 0);
+            msg("What do you want to call it? ");
         }
 
 	if(get_str(buf, cw) == NORM) {
@@ -105,7 +105,7 @@ int ring_on()
 	    strcpy(r_guess[obj->o_which], buf);
 	}
         
-	msg("", 0);
+	msg("");
     }
 
     return 0;
@@ -120,10 +120,10 @@ int ring_off()
 
     if((cur_ring[LEFT] == NULL) && (cur_ring[RIGHT] == NULL)) {
 	if(terse) {
-	    msg("No rings", 0);
+	    msg("No rings");
         }
 	else {
-	    msg("You aren't wearing any rings", 0);
+	    msg("You aren't wearing any rings");
         }
         
 	return 0;
@@ -143,7 +143,7 @@ int ring_off()
     mpos = 0;
     obj = cur_ring[ring];
     if(obj == NULL) {
-	msg("Not wearing such a ring", 0);
+	msg("Not wearing such a ring");
 
 	return 0;
     }
@@ -162,10 +162,10 @@ int gethand()
 
     while(1) {
 	if(terse) {
-	    msg("Left or Right ring? ", 0);
+	    msg("Left or Right ring? ");
         }
 	else {
-	    msg("Left hand or right hand? ", 0);
+	    msg("Left hand or right hand? ");
         }
         c = readchar();
 	if((c == 'l') || (c == 'L')) {
@@ -179,10 +179,10 @@ int gethand()
         }
 	mpos = 0;
 	if(terse) {
-	    msg("L or R", 0);
+	    msg("L or R");
         }
 	else {
-	    msg("Please type L or R", 0);
+	    msg("Please type L or R");
         }
     }
 }

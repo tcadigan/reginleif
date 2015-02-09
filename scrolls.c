@@ -37,15 +37,15 @@ int read_scroll()
     obj = (struct object *)item->l_data;
     if(obj->o_type != SCROLL) {
 	if(!terse) {
-	    msg("There is nothing on it to read", 0);
+	    msg("There is nothing on it to read");
         }
 	else {
-	    msg("Nothing to read", 0);
+	    msg("Nothing to read");
         }
         
 	return 0;
     }
-    msg("As you read the scroll, it vanishes.", 0);
+    msg("As you read the scroll, it vanishes.");
 
     // Calculate the effect is has on the poor guy
     if(obj == cur_weapon) {
@@ -55,7 +55,7 @@ int read_scroll()
     switch(obj->o_which) {
     case S_CONFUSE:
         // Scroll of monster confusion. Give him that power.
-        msg("Your hands begin to glow red", 0);
+        msg("Your hands begin to glow red");
         player.t_flags |= CANHUH;
         break;
     case S_LIGHT:
@@ -63,12 +63,12 @@ int read_scroll()
         rp = roomin(&player.t_pos);
         
         if(rp == NULL) {
-            msg("The corridor glows and then fades", 0);
+            msg("The corridor glows and then fades");
         }
         else {
-            addmsg("The room is lit", 0);
+            addmsg("The room is lit");
             if(!terse) {
-                addmsg(" by a shimmering blue light.", 0);
+                addmsg(" by a shimmering blue light.");
             }
 
             endmsg();
@@ -81,7 +81,7 @@ int read_scroll()
         break;
     case S_ARMOR:
         if(cur_armor != NULL) {
-		msg("Your armor glows faintly for a moment", 0);
+		msg("Your armor glows faintly for a moment");
 		--cur_armor->o_ac;
 		cur_armor->o_flags &= ~ISCURSED;
         }
@@ -113,8 +113,8 @@ int read_scroll()
     case S_SLEEP:
         // Scroll which makes you fall asleep
         s_know[S_SLEEP] = TRUE;
-        msg("You fall asleep.", 0);
-        no_command += 4 + rnd(SLEEPTIME);
+        msg("You fall asleep.");
+        no_command += (4 + rnd(SLEEPTIME));
         break;
     case S_CREATE:
         // Create a monster. First look in a circle around him, next try his
@@ -157,20 +157,20 @@ int read_scroll()
                 new_monster(titem, randmonster(FALSE), &mp);
             }
             else {
-                msg("You hear a faint cry of anguish in the distance.", 0);
+                msg("You hear a faint cry of anguish in the distance.");
             }
         }
         break;
     case S_IDENT:
         // Identify, let the rogue figure something out
-        msg("This scroll is an identify scroll", 0);
+        msg("This scroll is an identify scroll");
         s_know[S_IDENT] = TRUE;
         whatis();
         break;
     case S_MAP:
         // Scroll of magic mapping
         s_know[S_MAP] = TRUE;
-        msg("Oh, now this scroll has a map on it.", 0);
+        msg("Oh, now this scroll has a map on it.");
         overwrite(stdscr, hw);
 
         // Take all the things we want to keep hidden out of the window
@@ -232,7 +232,7 @@ int read_scroll()
                          "You begin to feel greedy and you sense gold.--More--");
             }
             else {
-                msg("You begin to feel a pull downward", 0);
+                msg("You begin to feel a pull downward");
             }
         }
         break;
@@ -251,7 +251,7 @@ int read_scroll()
         break;
     case S_ENCH:
         if(cur_weapon == NULL) {
-            msg("You feel a strange sense of loss.", 0);
+            msg("You feel a strange sense of loss.");
         }
         else {
             cur_weapon->o_flags &= ~ISCURSED;
@@ -268,7 +268,7 @@ int read_scroll()
         // A monster will refuse to step on a scare monster scroll
         // if it is dropped. Thus reading it is a mistake and produces
         // laughter at the poor rogue's boo boo.
-        msg("You hear maniacal laughter in the distance.", 0);
+        msg("You hear maniacal laughter in the distance.");
         break;
     case S_REMOVE:
         if(cur_armor != NULL) {
@@ -287,24 +287,24 @@ int read_scroll()
             cur_ring[RIGHT]->o_flags &= ~ISCURSED;
         }
         
-        msg("You feel as if somebody is watching over you.", 0);
+        msg("You feel as if somebody is watching over you.");
         break;
     case S_AGGR:
         // This scroll aggravates all the monsters on the current
         // level and set them running towards the hero
         aggravate();
-        msg("You hear a high pitched humming noise.", 0);
+        msg("You hear a high pitched humming noise.");
         break;
     case S_NOP:
-        msg("This scroll seems to be blank.", 0);
+        msg("This scroll seems to be blank.");
         break;
     case S_GENOCIDE:
-        msg("You have been granted the boon of genocide", 0);
+        msg("You have been granted the boon of genocide");
         genocide();
         s_know[S_GENOCIDE] = TRUE;
         break;
     default:
-        msg("What a puzzling scroll!", 0);
+        msg("What a puzzling scroll!");
         return 0;
     }
 
@@ -317,10 +317,10 @@ int read_scroll()
     }
     else if(!s_know[obj->o_which] && askme && (s_guess[obj->o_which] == NULL)) {
         if(terse) {
-            msg("Call it: ", 0);
+            msg("Call it: ");
         }
         else {
-            msg("What do you want to call it? ", 0);
+            msg("What do you want to call it? ");
         }
 
 	if(get_str(buf, cw) == NORM) {

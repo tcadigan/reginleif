@@ -66,12 +66,10 @@ int add_pack(struct linked_list *item, bool silent)
                 obj = (struct object *)item->l_data;
                 if(notify && !silent) {
                     if(!terse) {
-                        addmsg("You now have ", 0);
+                        addmsg("You now have ");
                     }
 
-                    msg("%s ", inv_name(obj, !terse));
-                    int args[] = { pack_char(obj) };
-                    msg("(%c)", args);
+                    msg("%s (%c)", inv_name(obj, !terse), pack_char(obj));
                 }
 
                 if(obj->o_type == AMULET) {
@@ -85,14 +83,14 @@ int add_pack(struct linked_list *item, bool silent)
 
     // Check if there is room
     if(inpack == MAXPACK - 1) {
-	msg("You can't carry anything else.", 0);
+	msg("You can't carry anything else.");
 	return 0;
     }
 
     // Check for and deal with scare monster scrolls
     if(obj->o_type == SCROLL && obj->o_which == S_SCARE) {
 	if(obj->o_flags & ISFOUND) {
-	    msg("The scroll turns to dust as you pick it up.", 0);
+	    msg("The scroll turns to dust as you pick it up.");
 	    _detach(&lvl_obj, item);
 	    mvaddch(player.t_pos.y, player.t_pos.x, FLOOR);
 
@@ -185,12 +183,10 @@ int add_pack(struct linked_list *item, bool silent)
     obj = (struct object *)item->l_data;
     if(notify && !silent) {
 	if(!terse) {
-	    addmsg("You now have ", 0);
+	    addmsg("You now have ");
         }
 
-        msg("%s ", inv_name(obj, !terse));
-        int args[] = { pack_char(obj) };
-	msg("(%c)", args);
+        msg("%s (%c)", inv_name(obj, !terse), pack_char(obj));
     }
     
     if(obj->o_type == AMULET) {
@@ -242,9 +238,7 @@ int inventory(struct linked_list *list, int type)
         default:
             // Print the line for this object
             if(slow_invent) {
-                int args[] = { ch };
-                msg("%c) ", args);
-                msg("%s", inv_name(obj, FALSE));
+                msg("%c) %s", ch, inv_name(obj, FALSE));
             }
             else {
                 wprintw(hw, "%c) %s\n", ch, inv_name(obj, FALSE));
@@ -255,18 +249,18 @@ int inventory(struct linked_list *list, int type)
     if(n_objs == 0) {
 	if(terse) {
             if(type == 0) {
-                msg("Empty handed.", 0);
+                msg("Empty handed.");
             }
             else {
-                msg("Nothing appropriate", 0);
+                msg("Nothing appropriate");
             }
         }
 	else {
             if(type == 0) {
-                msg("You are empty handed.", 0);
+                msg("You are empty handed.");
             }
             else {
-                msg("You don't have anything appropriate", 0);
+                msg("You don't have anything appropriate");
             }
         }
         
@@ -300,7 +294,7 @@ int pick_up(char ch)
         break;
     default:
         if(wizard) {
-            msg("Where did you pick that up???", 0);
+            msg("Where did you pick that up???");
         }
     case ARMOR:
     case POTION:
@@ -326,30 +320,28 @@ int picky_inven()
     char mch;
 
     if(player.t_pack == NULL) {
-	msg("You aren't carrying anything", 0);
+	msg("You aren't carrying anything");
     }
     else if(player.t_pack->l_next == NULL) {
 	msg("a) %s", inv_name((struct object *)player.t_pack->l_data, FALSE));
     }
     else {
         if(terse) {
-            msg("Item: ", 0);
+            msg("Item: ");
         }
         else {
-            msg("Which item do you wish to inventory", 0);
+            msg("Which item do you wish to inventory");
         }
 
 	mpos = 0;
         mch = readchar();
 	if(mch == ESCAPE) {
-	    msg("", 0);
+	    msg("");
 	    return 0;
 	}
 	for(ch = 'a', item = player.t_pack; item != NULL; item = item->l_next, ++ch) {
 	    if(ch == mch) {
-                int args[] = { ch };
-                msg("%c) ", args);
-		msg("%s", inv_name((struct object *)item->l_data, FALSE));
+                msg("%c) %s", ch, inv_name((struct object *)item->l_data, FALSE));
                 
 		return 0;
 	    }
@@ -358,8 +350,8 @@ int picky_inven()
 	    msg("'%s' not in pack", unctrl(mch));
         }
         
-        int args[] = { --ch };
-	msg("Range is 'a' to '%c'", args);
+        --ch;
+	msg("Range is 'a' to '%c'", ch);
     }
 
     return 0;
@@ -374,25 +366,25 @@ struct linked_list *get_item(char *purpose, int type)
     char och;
 
     if(player.t_pack == NULL) {
-	msg("You aren't carrying anything.", 0);
+	msg("You aren't carrying anything.");
     }
     else {
         while(1) {
 	    if(!terse) {
-		addmsg("Which object do you want to ", 0);
+		addmsg("Which object do you want to ");
             }
 	    addmsg("%s", purpose);
 	    if(terse) {
-		addmsg(" what", 0);
+		addmsg(" what");
             }
-	    msg("? (* for list): ", 0);
+	    msg("? (* for list): ");
 	    ch = readchar();
 	    mpos = 0;
 
             // Give the poor player a chance to abore the command
 	    if((ch == ESCAPE) || (ch == CTRL('G'))) {
 		after = FALSE;
-		msg("", 0);
+		msg("");
                 
 		return NULL;
 	    }
@@ -413,8 +405,7 @@ struct linked_list *get_item(char *purpose, int type)
             }
 
 	    if(obj == NULL) {
-                int args[] = { och - 1 };
-		msg("Please specify a letter between 'a' and '%c'", args);
+		msg("Please specify a letter between 'a' and '%c'", och - 1);
 		continue;
 	    }
 	    else { 

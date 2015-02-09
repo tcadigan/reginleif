@@ -32,8 +32,7 @@ int fight(coord *mp, char mn, struct object *weap, bool thrown)
     item = find_mons(mp->y, mp->x);
     if(item == NULL) {
         if(wizard) {
-            int args[] = { mp->y, mp->x };
-            msg("Fight what @ %d,%d", args);
+            msg("Fight what @ %d,%d", mp->y, mp->x);
         }
     }
     tp = (struct thing *)item->l_data;
@@ -46,7 +45,7 @@ int fight(coord *mp, char mn, struct object *weap, bool thrown)
     if((tp->t_type == 'M')
        && (tp->t_disguise != 'M')
        && ((player.t_flags & ISBLIND) == 0)) {
-	msg("Wait! That's a mimic!", 0);
+	msg("Wait! That's a mimic!");
 	tp->t_disguise = 'M';
 	did_hit = thrown;
     }
@@ -73,8 +72,9 @@ int fight(coord *mp, char mn, struct object *weap, bool thrown)
             }
 
             if((player.t_flags & CANHUH) != 0) {
-		msg("Your hands stop glowing red", 0);
-		msg("The %s appears confused.", mname);
+		msg("Your hands stop glowing red. The %s appears confused.",
+                    mname);
+                
 		tp->t_flags |= ISHUH;
 		player.t_flags &= ~CANHUH;
 	    }
@@ -135,10 +135,10 @@ int attack(struct thing *mp)
                 // If a rust monster hits, you lose armor
                 if((cur_armor != NULL) && (cur_armor->o_ac < 9)) {
                     if(!terse) {
-                        msg("Your armor appears to be weaker now. Oh my!", 0);
+                        msg("Your armor appears to be weaker now. Oh my!");
                     }
                     else {
-                        msg("Your armor weakens", 0);
+                        msg("Your armor weakens");
                     }
                     ++cur_armor->o_ac;
                 }
@@ -150,9 +150,9 @@ int attack(struct thing *mp)
                 }
                 
                 if(!no_command) {
-                    addmsg("You are transfixed", 0);
+                    addmsg("You are transfixed");
                     if(!terse) {
-                        addmsg(" by the gaze of the floating eye.", 0);
+                        addmsg(" by the gaze of the floating eye.");
                     }
                     endmsg();
                 }
@@ -165,18 +165,18 @@ int attack(struct thing *mp)
                          || ((cur_ring[RIGHT] != NULL) && (cur_ring[RIGHT]->o_which == R_SUSTSTR)))) {
                         chg_str(-1);
                         if(!terse) {
-                            msg("You feel a sting in your arm and now feel weaker", 0);
+                            msg("You feel a sting in your arm and now feel weaker");
                         }
                         else {
-                            msg("A sting has weakened you", 0);
+                            msg("A sting has weakened you");
                         }
                     }
                     else {
                         if(!terse) {
-                            msg("A sting momentarily weakens you", 0);
+                            msg("A sting momentarily weakens you");
                         }
                         else {
-                            msg("Sting has no effect", 0);
+                            msg("Sting has no effect");
                         }
                     }
                 }
@@ -191,7 +191,7 @@ int attack(struct thing *mp)
                         death('W');
                     }
                     
-                    msg("You suddenly feel weaker.", 0);
+                    msg("You suddenly feel weaker.");
                     --player.t_stats.s_lvl;
                     if(player.t_stats.s_lvl == 0) {
                         player.t_stats.s_exp = 0;
@@ -237,7 +237,7 @@ int attack(struct thing *mp)
 			purse = 0;
                     }
 		    if(purse != lastpurse) {
-			msg("Your purse feels lighter", 0);
+			msg("Your purse feels lighter");
                     }
 		    remove_monster(&mp->t_pos, find_mons(mp->t_pos.y, mp->t_pos.x));
 		}
@@ -355,8 +355,7 @@ int check_level()
 	    player.t_stats.s_hpt = max_hp;
         }
         
-        int args[] = { i };
-	msg("Welcome to level %d", args);
+	msg("Welcome to level %d", i);
     }
     
     player.t_stats.s_lvl = i;
@@ -475,8 +474,7 @@ int roll_em(struct stats *att, struct stats *def, struct object *weap, bool hurl
 	    proll = roll(ndice, nsides);
 	    if(((ndice + nsides) > 0) && (proll < 1)) {
                 if(wizard) {
-                    int args[] = { ndice, nsides, proll };
-                    msg("Damage for %dd%d came out %d.", args);
+                    msg("Damage for %dd%d came out %d.", ndice, nsides, proll);
                 }
             }
 	    damage = dplus + proll + add_dam(&att->s_str);
@@ -723,8 +721,7 @@ int raise_level()
 int thunk(struct object *weap, char *mname)
 {
     if(weap->o_type == WEAPON) {
-        msg("The %s hits the ", w_names[weap->o_which]);
-	msg("%s", mname);
+        msg("The %s hits the %s", w_names[weap->o_which], mname);
     }
     else {
 	msg("You hit the %s.", mname);
@@ -738,8 +735,7 @@ int thunk(struct object *weap, char *mname)
 int bounce(struct object *weap, char *mname)
 {
     if(weap->o_type == WEAPON) {
-        msg("The %s misses the ", w_names[weap->o_which]);
-        msg("%s", mname);
+        msg("The %s misses the %s", w_names[weap->o_which], mname);
     }
     else {
 	msg("You missed the %s.", mname);
@@ -791,18 +787,18 @@ int killed(struct linked_list *item, bool pr)
     tp = (struct thing *)item->l_data;
     if(pr) {
         if(terse) {
-            addmsg("Defeated ", 0);
+            addmsg("Defeated ");
         }
         else {
-            addmsg("You have defeated ", 0);
+            addmsg("You have defeated ");
         }
 
         if((player.t_flags & ISBLIND) != 0) {
-	    msg("it.", 0);
+	    msg("it.");
         }
 	else {
 	    if(!terse) {
-		addmsg("the ", 0);
+		addmsg("the ");
             }
             
 	    msg("%s.", monsters[tp->t_type - 'A'].m_name);

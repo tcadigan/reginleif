@@ -185,8 +185,7 @@ int wanderer()
         
         if(ch == ERR) {
             if(wizard) {
-                int args[] = { cp.y, cp.x };
-                msg("Routine wanderer: mvwinch failed to %d,%d", args);
+                msg("Routine wanderer: mvwinch failed to %d,%d", cp.y, cp.x);
             }
             
             wait_for('\n');
@@ -205,8 +204,7 @@ int wanderer()
             
             if(ch == ERR) {
                 if(wizard) {
-                    int args[] = { cp.y, cp.x };
-                    msg("Routine wanderer: mvwinch failed to %d,%d", args);
+                    msg("Routine wanderer: mvwinch failed to %d,%d", cp.y, cp.x);
                 }
 
                 wait_for('\n');
@@ -239,7 +237,7 @@ struct linked_list *wake_monster(int y, int x)
 
     it = find_mons(y, x);
     if(it == NULL) {
-	msg("Can't find monster in show", 0);
+	msg("Can't find monster in show");
     }
     tp = (struct thing *)it->l_data;
     ch = tp->t_type;
@@ -261,7 +259,7 @@ struct linked_list *wake_monster(int y, int x)
 	if(((rp != NULL) && !(rp->r_flags & ISDARK))
            || (distance < 3)) {
             if(((tp->t_flags & ISFOUND) == 0) && !save(VS_MAGIC)) {
-		msg("The umber hulk's gaze has confused you.", 0);
+		msg("The umber hulk's gaze has confused you.");
 
                 if((player.t_flags & ISHUH) != 0) {
 		    lengthen(unconfuse, rnd(20) + HUHDURATION);
@@ -302,11 +300,11 @@ int genocide()
     int i;
     struct linked_list *nip;
 
-    addmsg("Which monster", 0);
+    addmsg("Which monster");
     if(!terse) {
-	addmsg(" do you wish to wipe out", 0);
+	addmsg(" do you wish to wipe out");
     }
-    msg("? ", 0);
+    msg("? ");
     c = readchar();
     while(!isalpha(c)) {
 	if(c == ESCAPE) {
@@ -314,7 +312,7 @@ int genocide()
         }
 	else {
 	    mpos = 0;
-	    msg("Please specifiy a letter between 'A' and 'Z'", 0);
+	    msg("Please specifiy a letter between 'A' and 'Z'");
 	}
 
         c = readchar();
