@@ -4,6 +4,9 @@
 
 #include <stdlib.h>
 
+/* TC_DEBUG */
+#include <stdio.h>
+
 /*
  * Checks the class of the node and
  * sets the appropriate type.
@@ -292,11 +295,19 @@ struct node *Unknown1(int *op,
 {
     int op1;
     struct node *c;
-    
+   
     while(1) {
+	/* TC_DEBUG: Start */
+	printf("TC_DEBUG: op -> %d\n", *op);
+	print_node_list(*stack, "unknown1 stack");
+	print_node_list(*comp, "unknown1 comp");
+	print_node_list(*space, "unknown1 space");
+	print_node_list(*list, "unknown1 list");
+	/* TC_DEBUG: Finish */
+ 
 	op1 = (*stack)->typ;
 	
-	/* if lower precendence push to stack */
+	/* if lower precendence (higher type) push to stack */
 	if(*op > op1) {
 	    *stack = push(*stack);
 	    
@@ -322,7 +333,7 @@ struct node *Unknown1(int *op,
 	/* Look ahead one char */
 	c = (*stack)->p1;
 	*stack = pop(*stack);
-	
+
 	if(*stack == NULL) {
 	    (*list)->typ = 0;
 	    
@@ -387,6 +398,9 @@ struct node *expr(struct node *start, int eof, struct node *e)
     }
 
     while(1) {
+	/* TC_DEBUG */
+	print_node_list(comp, "expr comp");
+
 	op = comp->typ;
 	
 	switch(op) {
@@ -725,8 +739,10 @@ struct node *compile(void)
     comp = compon();
     a = comp->typ;
 
-    /* TC_DEBUG */
-    print_node_list(comp);
+    /* TC_DEBUG: Start */
+    print_node_list(comp, "compile first comp");
+    print_node_list(comp->p1, "compile comp->p1");
+    /* TC_DEBUG: Finish */
 
     /* Namelist nodes can start lines */
     if(a == 14) {
@@ -737,7 +753,7 @@ struct node *compile(void)
     }
 
     /* TC_DEBUG */
-    print_node_list(comp);
+    print_node_list(comp, "compile second comp");
 
     if(a != 7) {
 	writes("No space beginning statement");
@@ -745,7 +761,7 @@ struct node *compile(void)
 
     free(comp);
     
-    if(l == lookfret) {
+    if(l == lookdef) {
 	r = nscomp();
 
 	/* First must be in namelist */
@@ -829,8 +845,11 @@ struct node *compile(void)
     }
     
     r = alloc();
-    comp = expr(0, 11, r);
+    comp = expr(NULL, 11, r);
     a = comp->typ;
+
+    /* TC_DEBUG: */
+    print_node_list(comp, "compile third comp");
 
     if(a == 0) {
 	if(l) {
@@ -876,6 +895,9 @@ struct node *compile(void)
 	r->p1 = g;
 	comp->typ = t;
 	comp->ch = lc;
+
+	/* TC_DEBUG */
+	print_node_list(comp, "compile a == 0 comp return");
 
 	return comp;
     }

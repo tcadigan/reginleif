@@ -37,6 +37,6 @@ size_t strlen(const char *str);
 
 /* TC_DEBUG */
 void print_node(struct node *n);
-void print_node_list(struct node *n);
+void print_node_list(struct node *n, char const *name);
 
 #endif /* SNO1_H_ */

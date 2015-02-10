@@ -45,6 +45,9 @@ int main(int argc, char *argv[])
     struct node *b;
     struct node *c;
 
+    /* TC_DEBUG: */
+    struct node *reverse_namelist;
+
     if(argc > 1) {
 	fin = open(argv[1], O_RDONLY);
 	
@@ -65,6 +68,15 @@ int main(int argc, char *argv[])
     lookfret = init("freturn", 0);
     init("syspit", 3);
     init("syspot", 4);
+
+    /* TC_DEBUG: Start */
+    reverse_namelist = namelist;
+    
+    while(reverse_namelist != NULL) {
+	print_node_list(reverse_namelist, NULL);
+	reverse_namelist = reverse_namelist->p2;
+    }
+    /* TC_DEBUG: Finish */
 
     c = compile();
     a = c;
@@ -323,6 +335,10 @@ int nfree(void)
  * Things go meta here, there is a sentinel
  * that points to a sentinel that points to
  * a string (which starts with a sentinel itself)
+ *
+ * Unless it is a match then it is only a sentinel
+ * pointing to a string (which starts with a
+ * sentinel itself)
  */
 struct node *look(struct node *string)
 {
@@ -798,9 +814,14 @@ void print_node(struct node *n)
 }
 
 /* TC_DEBUG: Print a list of nodes */
-void print_node_list(struct node *n)
+void print_node_list(struct node *n, char const *name)
 {
-    printf("List:\n");
+    if(name == NULL) {
+	printf("(unnamed):\n");
+    }
+    else {
+	printf("\"%s\":\n", name);
+    }
 
     if(n == NULL) {
 	printf("\t %p\n", n);
@@ -809,7 +830,13 @@ void print_node_list(struct node *n)
 	while(n != NULL) {
 	    printf("\t");
 	    print_node(n);
-	    n = n->p1;
+
+	    if((n->p1 > n) || (n->p1 == NULL)) {
+		n = n->p1;
+	    }
+	    else {
+		break;
+	    }
 	}
     }
 }
