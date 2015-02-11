@@ -123,7 +123,7 @@ struct node *compon(void)
 
 	return schar;
     case 9:
-	/* '"' or '\'' */ 
+	/* '"' or '\'' */
 	quote_ch = schar->ch;
 	result = sno_getc();
 	
@@ -134,7 +134,7 @@ struct node *compon(void)
 
 	sentinel = schar;
 
-	/* 
+	/*
 	 * Checking for the closing quote,
 	 * this is the empty result case
 	 */
@@ -150,7 +150,7 @@ struct node *compon(void)
 
 	/*
 	 * Get the rest of the literal string,
-	 * must end in a closing quote 
+	 * must end in a closing quote
 	 */
 	while(1) {
 	    schar = sno_getc();
@@ -201,7 +201,7 @@ struct node *compon(void)
     sentinel->p2 = result;
     next = 1;
 
-    /* 
+    /*
      * Find/Put it in the namelist and get the
      * namelist node
      */
@@ -337,6 +337,10 @@ struct node *Unknown1(int *op,
 	if(*stack == NULL) {
 	    (*list)->typ = 0;
 	    
+	    /* TC_DEBUG: Start */
+	    print_node_list(*comp, "unknown1 returning comp");
+	    /* TC_DEBUG: Finish */
+
 	    return *comp;
 	}
 	
@@ -405,25 +409,34 @@ struct node *expr(struct node *start, int eof, struct node *e)
 	
 	switch(op) {
 	case 7:
+	    printf("TC_DEBUG: case 7\n");
+
 	    space = list;
 	    sno_free(comp);
 	    comp = compon();
 	    
 	    continue;
 	case 10:
+	    printf("TC_DEBUG: case 10\n");
+
 	    if(space == NULL) {
 		comp->typ = 1;
 
 		continue;
 	    }
 	case 11:
+	    printf("TC_DEBUG: case 11\n");
+
 	    if(space == NULL) {
 		comp->typ = 2;
 	
 		continue;
 	    }
 	case 8:
+	    printf("TC_DEBUG: case 8\n");
 	case 9:
+	    printf("TC_DEBUG: case 9\n");
+
 	    if(operand == 0) {
 		writes("No operand preceding operator");
 	    }
@@ -440,13 +453,19 @@ struct node *expr(struct node *start, int eof, struct node *e)
 		return result;
 	    }
 	case 14:
+	    printf("TC_DEBUG: case 14\n");
 	case 15:
+	    printf("TC_DEBUG: case 15\n");
 	    if(operand == 0) {
 		operand = 1;
 		space = 0;
 
 		result = Unknown1(&op, &stack, &comp, &space, &list);
-		
+
+		/* TC_DEBUG: Start */
+		print_node_list(result, "case 15 result");
+		/* TC_DEBUG: Finish */
+
 		if(result == NULL) {
 		    continue;
 		}
@@ -472,6 +491,7 @@ struct node *expr(struct node *start, int eof, struct node *e)
 		return result;
 	    }
 	case 12:
+	    printf("TC_DEBUG: case 12\n");
 	    if(operand == 0) {
 		space = 0;
 
@@ -502,6 +522,7 @@ struct node *expr(struct node *start, int eof, struct node *e)
 
 	    writes("Illegal juxtaposition of operands");
 	case 16:
+	    printf("TC_DEBUG: case 16\n");
 	    if(operand == 0) {
 		space = 0;
 
@@ -578,18 +599,30 @@ struct node *expr(struct node *start, int eof, struct node *e)
 	    }
 	}
 
+	printf("TC_DEBUG: after switch\n");
+
 	if(operand == 0) {
 	    writes("No operand at end of expression");
 	}
 
 	space = 0;
 
+	printf("TC_DEBUG: before unknown\n");
+
 	result = Unknown1(&op, &stack, &comp, &space, &list);
+
+	printf("TC_DEBUG: after unknown\n");
 	
+	/* TC_DEBUG: Start */
+	print_node_list(result, "end result");
+	/* TC_DEBUG: Finish */
+
 	if(result == NULL) {
+	    printf("TC_DEBUG: continue\n");
 	    continue;
 	}
 	else {
+	    printf("TC_DEBUG: return result\n");
 	    return result;
 	}
     }

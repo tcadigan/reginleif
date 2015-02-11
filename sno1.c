@@ -27,7 +27,7 @@ struct node *init(char *s, int t)
 {
     struct node *new_node;
     struct node *namelist_node;
-
+    
     /* Create the new node */
     new_node = sno_strstr(s);
 
