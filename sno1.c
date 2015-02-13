@@ -45,9 +45,6 @@ int main(int argc, char *argv[])
     struct node *b;
     struct node *c;
 
-    /* TC_DEBUG: */
-    struct node *reverse_namelist;
-
     if(argc > 1) {
 	fin = open(argv[1], O_RDONLY);
 	
@@ -68,15 +65,6 @@ int main(int argc, char *argv[])
     lookfret = init("freturn", 0);
     init("syspit", 3);
     init("syspot", 4);
-
-    /* TC_DEBUG: Start */
-    reverse_namelist = namelist;
-    
-    while(reverse_namelist != NULL) {
-	print_node_list(reverse_namelist, NULL);
-	reverse_namelist = reverse_namelist->p2;
-    }
-    /* TC_DEBUG: Finish */
 
     c = compile();
     a = c;
@@ -174,21 +162,17 @@ void syspot(struct node *string)
 {
     struct node *pos;
     struct node *end;
+    struct node *s;
 
+    s = string;
     if(string != NULL) {
-	pos = string->p1;
-	end = string->p2;
+	pos = s;
+	end = s->p2;
 
 	while(pos != end) {
-	    putchar(pos->ch);
 	    pos = pos->p1;
+	    putchar(pos->ch);
 	}
-
-	/* 
-	 * The final character, 
-	 * one exists because non-NULL
-	 */
-	putchar(pos->ch);
     }
 
     putchar('\n');
@@ -199,26 +183,27 @@ void syspot(struct node *string)
  * to last char, and forwards to first char.
  * Every char backward links as well.
  */
-struct node *sno_strstr(char *s)
+
+struct node *sno_strstr(char s[])
 {
-    char *str_pos = s;
-    struct node *pos;
-    struct node *head;
+	int c;
+	struct node *e;
+	struct node *f;
+	struct node *d;
 
-    pos = alloc();
-    head = pos;
-
-    while(*str_pos != '\0') {
-	pos->p1 = alloc();
-	pos->p1->p2 = pos;
-	pos->p1->ch = *str_pos;
-	pos = pos->p1;
-	++str_pos;
-    }
-
-    head->p2 = pos;
-
-    return head;
+	f = alloc();
+	d = f;
+	c = *s;
+	while(c !='\0') {
+	    ++s;
+	    e = alloc();
+	    e->ch = c;
+		f->p1 = e;
+		f = e;
+		c = *s;
+	}
+	d->p2 = e;
+	return(d);
 }
 
 /* Provide quasi-enumeration for the symbols */
@@ -385,40 +370,28 @@ struct node *look(struct node *string)
  */
 struct node *copy(struct node *string)
 {
-    struct node *new_pos = NULL;
-    struct node *new_head = NULL;
-    struct node *old_pos = NULL;
-    struct node *old_tail = NULL;
+    struct node *j;
+    struct node *l;
+    struct node *m;
+    struct node *i;
+    struct node *k;
 
-    if(string != NULL) {
-	new_pos = alloc();
-	new_head = new_pos;
-
-	old_pos = string->p1;
-	old_tail = string->p2;
-
-	while(old_pos != old_tail) {
-	    new_pos->p1 = alloc();
-	    new_pos->p1->p2 = new_pos;
-	    new_pos->p1->ch = old_pos->ch;
-	    new_pos = new_pos->p1;
-
-	    /* Move forward in the old string */
-	    old_pos = old_pos->p1;
-	}
-
-	/* Copy last character */
-	new_pos->p1 = alloc();
-	new_pos->p1->p2 = new_pos;
-	new_pos->p1->ch = old_pos->ch;
-
-	/* Move to last character */
-	new_pos = new_pos->p1;
-
-	new_head->p2 = new_pos;
+    if(string == 0) {
+		return(0);
     }
-
-    return new_head;
+    l = alloc();
+    i = l;
+	j = string;
+	k = string->p2;
+	while(j != k) {
+		m = alloc();
+		j = j->p1;
+		m->ch = j->ch;
+		l->p1 = m;
+		l = m;
+	}
+	i->p2 = l;
+	return(i);
 }
 
 /* Determine if two strings are equal */
@@ -606,43 +579,26 @@ struct node *sno_div(struct node *string1, struct node *string2)
     return binstr(strbin(string1) / strbin(string2));
 }
 
-/* Concatenate two strings together */
-struct node *cat(struct node *string1, struct node *string2)
+struct node *cat(struct node *string1, struct node *string2) 
 {
     struct node *a;
     struct node *b;
 
-    if(string1 == NULL) {
-	return copy(string2);
+    if(string1 == 0) {
+		return(copy(string2));
     }
-    
-    if(string2 == NULL) {
-	return copy(string1);
-    }
-
-    a = copy(string1);
-    b = copy(string2);
-
-    /* 
-     * Make the last node of the first string
-     * point to the first node of the second
-     * and vice versa
-     */
-    a->p2->p1 = b->p1;
-    b->p1->p2 = a->p2;
-
-    /*
-     * Update the end of the first string to
-     * the end of the second string
-     */
-    a->p2 = b->p2;
-
-    /* Remove the sentinel of the second string */
-    sno_free(b);
-
-    return a;
+	if(string2 == 0) {
+		return(copy(string1));
+	}
+	a = copy(string1);
+	b = copy(string2);
+	a->p2->p1 = b->p1;
+	a->p2 = b->p2;
+	free(b);
+	return(a);
 }
 
+ 
 /* Destructive concatenation */
 struct node *dcat(struct node *a, struct node *b)
 {
@@ -655,27 +611,23 @@ struct node *dcat(struct node *a, struct node *b)
     return result;
 }
 
-/* Delete a string, one node at a time */
 void delete(struct node *string)
 {
-    struct node *pos;
-    struct node *end;
+    struct node *a;
+    struct node *b;
+    struct node *c;
 
-    if(string != NULL) {
-	pos = string->p1;
-	end = string->p2;
-
-	while(pos != end) {
-	    pos = pos->p1;
-	    sno_free(pos->p2);
-	}
-
-	/*
-	 * The final character,
-	 * one exists because non-NULL
-	 */
-	sno_free(pos);
+    if(string == 0) {
+		return;
     }
+	a = string;
+	b = string->p2;
+	while(a != b) {
+		c = a->p1;
+		sno_free(a);
+		a = c;
+	}
+	sno_free(a);
 }
 
 /* Print string then delete it */
@@ -691,152 +643,71 @@ void dump(void)
     dump1(namelist);
 }
 
-/* Print and move through a chain of nodes */
-int dump1(struct node *base)
+
+void dump1(struct node *base)
 {
-    struct node *current_string;
-    struct node *type;
-    struct node *temp;
-    struct node *space;
-    
-    while(base) {
-	current_string = base->p1;
-	type = binstr(current_string->typ);
-	space = sno_strstr("  ");
-	temp = dcat(type, space);
-	sysput(cat(temp, current_string->p1));
-	delete(temp);
+    struct node *b;
+    struct node *c;
+    struct node *e;
+	struct node *d;
 
-	/* Prints out backwards from current point */
-	if(current_string->typ == 1) {
-	    space = sno_strstr("   ");
-	    sysput(cat(space, current_string->p2));
-	    delete(space);
+	while(base) {
+		b = base->p1;
+		c = binstr(b->typ);
+		d = sno_strstr("  ");
+		e = dcat(c, d);
+		sysput(cat(e, b->p1));
+		delete(e);
+		if(b->typ == 1) {
+			c = sno_strstr("   ");
+			sysput(cat(c, b->p2));
+			delete(c);
+		}
+		base = base->p2;
 	}
-
-	/* Move to the end of the current string */
-	base = base->p2;
-    }
-
-    return 0;
 }
 
-/* Prints the line number and a message */
 int writes(char *s)
 {
-    sysput(dcat(binstr(lc), dcat(sno_strstr("\t"), sno_strstr(s))));
-    fflush(stdout);
-
-    /* If compilation failure occurred dump the namelist */
-    if(cfail) {
-	dump();
+	sysput(dcat(binstr(lc),dcat(sno_strstr("\t"),sno_strstr(s))));
 	fflush(stdout);
-
+	if(cfail) {
+		dump();
+		fflush(stdout);
+		exit(1);
+	}
+	while(sno_getc());
+	while(compile());
+	fflush(stdout);
 	exit(1);
-    }
-
-    /* Read the rest of the line */
-    while(sno_getc());
-
-    /* Go back to compiling */
-    while(compile());
-
-    fflush(stdout);
-
-    exit(1);
 }
 
-/*
- * Process a line of input and give it
- * back character by character
- */
 struct node *sno_getc(void)
 {
-    struct node *current_char;
-    static struct node *line;
-    static int line_finished;
+     struct node *a;
+     static struct node *line;
+     static int linflg;
 
-    /* Process the next line of input */
-    while(line == NULL) {
-	line = syspit();
-	
-	if(rfail) {
-	    ++cfail;
-	    writes("EOF on input");
+     while(line == 0) {
+		line = syspit();
+		if(rfail) {
+			cfail++;
+			writes("eof on input");
+		}
+		lc++;
 	}
-
-	++lc;
-    }
-
-    /* Finished processing line */
-    if(line_finished) {
-	line = NULL;
-	line_finished = 0;
-
-	return NULL;
-    }
-
-    current_char = line->p1;
-
-    /* Reached the end of the line */
-    if(current_char == line->p2) {
-	sno_free(line);
-	++line_finished;
-    }
-    else {
-	/* Move sentinel of line to next character */
-	line->p1 = current_char->p1;
-    }
-
-    return current_char;
-}
-
-/* TC_DEBUG: Print a particular node */
-void print_node(struct node *n)
-{
-    printf("%p", n);
-    
-    if(n != NULL) {
-	printf(": (%9p, %2d,", n->p2, n->typ);
-
-	/* Print as a character if it makes sense */
-	if((n->ch >= 32) && (n->ch <= 126)) {
-	    printf(" '%c',", n->ch);
+	if(linflg) {
+		line = 0;
+		linflg = 0;
+		return(0);
+	}
+	a = line->p1;
+	if(a == line->p2) {
+		sno_free(line);
+		linflg++;
 	}
 	else {
-	    printf(" %3d,", n->ch);
+		line->p1 = a->p1;
 	}
-
-	printf(" %9p)", n->p1);
-    }
-
-    printf("\n");
-}
-
-/* TC_DEBUG: Print a list of nodes */
-void print_node_list(struct node *n, char const *name)
-{
-    if(name == NULL) {
-	printf("(unnamed):\n");
-    }
-    else {
-	printf("\"%s\":\n", name);
-    }
-
-    if(n == NULL) {
-	printf("\t %p\n", n);
-    }
-    else {
-	while(n != NULL) {
-	    printf("\t");
-	    print_node(n);
-
-	    if((n->p1 > n) || (n->p1 == NULL)) {
-		n = n->p1;
-	    }
-	    else {
-		break;
-	    }
-	}
-    }
+	return(a);
 }

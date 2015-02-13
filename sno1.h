@@ -28,15 +28,11 @@ struct node *dcat(struct node *a, struct node *b);
 void delete(struct node *string);
 void sysput(struct node *string);
 void dump(void);
-int dump1(struct node *base);
+void dump1(struct node *base);
 int writes(char *s);
 struct node *sno_getc(void);
 
 /* from string.h */
 size_t strlen(const char *str);
-
-/* TC_DEBUG */
-void print_node(struct node *n);
-void print_node_list(struct node *n, char const *name);
 
 #endif /* SNO1_H_ */
