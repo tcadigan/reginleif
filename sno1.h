@@ -10,7 +10,6 @@ struct node *init(char *s, int t);
 struct node *syspit(void);
 void syspot(struct node *string);
 struct node *sno_strstr(char *s);
-int class(int c);
 struct node *alloc(void);
 void sno_free(struct node *pointer);
 int nfree(void);

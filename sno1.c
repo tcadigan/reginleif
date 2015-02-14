@@ -186,56 +186,24 @@ void syspot(struct node *string)
 
 struct node *sno_strstr(char s[])
 {
-	int c;
-	struct node *e;
-	struct node *f;
-	struct node *d;
+    int c;
+    struct node *e;
+    struct node *f;
+    struct node *d;
 
-	f = alloc();
-	d = f;
+    f = alloc();
+    d = f;
+    c = *s;
+    while(c !='\0') {
+	++s;
+	e = alloc();
+	e->ch = c;
+	f->p1 = e;
+	f = e;
 	c = *s;
-	while(c !='\0') {
-	    ++s;
-	    e = alloc();
-	    e->ch = c;
-		f->p1 = e;
-		f = e;
-		c = *s;
-	}
-	d->p2 = e;
-	return(d);
-}
-
-/* Provide quasi-enumeration for the symbols */
-int class(int c) {
-    switch(c) {
-    case ')':
-	return 1;
-    case '(':
-	return 2;
-    case '\t':
-    case ' ':
-	return 3;
-    case '+':
-	return 4;
-    case '-':
-	return 5;
-    case '*':
-	return 6;
-    case '/':
-	return 7;
-    case '$':
-	return 8;
-    case '"':
-    case '\'':
-	return 9;
-    case '=':
-	return 10;
-    case ',':
-	return 11;
-    default:
-	return 0;
     }
+    d->p2 = e;
+    return(d);
 }
 
 /* Get nodes from a pool of created ones */
@@ -377,21 +345,21 @@ struct node *copy(struct node *string)
     struct node *k;
 
     if(string == 0) {
-		return(0);
+	return(0);
     }
     l = alloc();
     i = l;
-	j = string;
-	k = string->p2;
-	while(j != k) {
-		m = alloc();
-		j = j->p1;
-		m->ch = j->ch;
-		l->p1 = m;
-		l = m;
-	}
-	i->p2 = l;
-	return(i);
+    j = string;
+    k = string->p2;
+    while(j != k) {
+	m = alloc();
+	j = j->p1;
+	m->ch = j->ch;
+	l->p1 = m;
+	l = m;
+    }
+    i->p2 = l;
+    return(i);
 }
 
 /* Determine if two strings are equal */
@@ -478,7 +446,7 @@ int strbin(struct node *string)
     sign = 1;
 
     /* '-' sign */
-    if(class(current->ch) == 5) {
+    if(current->ch == '-') {
 	/* minus */
 	sign = -1;
 
@@ -585,17 +553,17 @@ struct node *cat(struct node *string1, struct node *string2)
     struct node *b;
 
     if(string1 == 0) {
-		return(copy(string2));
+	return(copy(string2));
     }
-	if(string2 == 0) {
-		return(copy(string1));
-	}
-	a = copy(string1);
-	b = copy(string2);
-	a->p2->p1 = b->p1;
-	a->p2 = b->p2;
-	free(b);
-	return(a);
+    if(string2 == 0) {
+	return(copy(string1));
+    }
+    a = copy(string1);
+    b = copy(string2);
+    a->p2->p1 = b->p1;
+    a->p2 = b->p2;
+    free(b);
+    return(a);
 }
 
  
@@ -618,16 +586,16 @@ void delete(struct node *string)
     struct node *c;
 
     if(string == 0) {
-		return;
+	return;
     }
-	a = string;
-	b = string->p2;
-	while(a != b) {
-		c = a->p1;
-		sno_free(a);
-		a = c;
-	}
+    a = string;
+    b = string->p2;
+    while(a != b) {
+	c = a->p1;
 	sno_free(a);
+	a = c;
+    }
+    sno_free(a);
 }
 
 /* Print string then delete it */
@@ -649,65 +617,65 @@ void dump1(struct node *base)
     struct node *b;
     struct node *c;
     struct node *e;
-	struct node *d;
+    struct node *d;
 
-	while(base) {
-		b = base->p1;
-		c = binstr(b->typ);
-		d = sno_strstr("  ");
-		e = dcat(c, d);
-		sysput(cat(e, b->p1));
-		delete(e);
-		if(b->typ == 1) {
-			c = sno_strstr("   ");
-			sysput(cat(c, b->p2));
-			delete(c);
-		}
-		base = base->p2;
+    while(base) {
+	b = base->p1;
+	c = binstr(b->typ);
+	d = sno_strstr("  ");
+	e = dcat(c, d);
+	sysput(cat(e, b->p1));
+	delete(e);
+	if(b->typ == 1) {
+	    c = sno_strstr("   ");
+	    sysput(cat(c, b->p2));
+	    delete(c);
 	}
+	base = base->p2;
+    }
 }
 
 int writes(char *s)
 {
-	sysput(dcat(binstr(lc),dcat(sno_strstr("\t"),sno_strstr(s))));
-	fflush(stdout);
-	if(cfail) {
-		dump();
-		fflush(stdout);
-		exit(1);
-	}
-	while(sno_getc());
-	while(compile());
+    sysput(dcat(binstr(lc),dcat(sno_strstr("\t"),sno_strstr(s))));
+    fflush(stdout);
+    if(cfail) {
+	dump();
 	fflush(stdout);
 	exit(1);
+    }
+    while(sno_getc());
+    while(compile());
+    fflush(stdout);
+    exit(1);
 }
 
 struct node *sno_getc(void)
 {
-     struct node *a;
-     static struct node *line;
-     static int linflg;
+    struct node *a;
+    static struct node *line;
+    static int linflg;
 
-     while(line == 0) {
-		line = syspit();
-		if(rfail) {
-			cfail++;
-			writes("eof on input");
-		}
-		lc++;
+    while(line == 0) {
+	line = syspit();
+	if(rfail) {
+	    cfail++;
+	    writes("eof on input");
 	}
-	if(linflg) {
-		line = 0;
-		linflg = 0;
-		return(0);
-	}
-	a = line->p1;
-	if(a == line->p2) {
-		sno_free(line);
-		linflg++;
-	}
-	else {
-		line->p1 = a->p1;
-	}
-	return(a);
+	lc++;
+    }
+    if(linflg) {
+	line = 0;
+	linflg = 0;
+	return(0);
+    }
+    a = line->p1;
+    if(a == line->p2) {
+	sno_free(line);
+	linflg++;
+    }
+    else {
+	line->p1 = a->p1;
+    }
+    return(a);
 }

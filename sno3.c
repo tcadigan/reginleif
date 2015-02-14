@@ -29,15 +29,15 @@ int bextend(struct node *str, struct node *last)
     a = a->p1;
  eb2:
     d++;
-    c = class(a->ch);
-    if(c == 1) { /* rp */
+    c = a->ch;
+    if(c == ')') { /* rp */
 	if(b == 0) {
 	    goto bad;
 	}
 	b--;
 	goto eb3;
     }
-    if(c == 2) { /* lp */
+    if(c == '(') { /* lp */
 	b++;
 	goto eb1;
     }

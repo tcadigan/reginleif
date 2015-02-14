@@ -27,16 +27,17 @@ struct node *compon(void)
 	return(a);
     }
 
-    switch(class(schar->ch)) {
-    case 1:
+    switch(schar->ch) {
+    case ')':
 	schar->typ = 5;
 	return(schar);
 
-    case 2:
+    case '(':
 	schar->typ = 16;
 	return(schar);
 
-    case 3:
+    case '\t':
+    case ' ':
 	a = schar;
 	while(1) {
 	    schar = sno_getc();
@@ -44,26 +45,27 @@ struct node *compon(void)
 		a->typ = 0;
 		return(a);
 	    }
-	    if(class(schar->ch) != 3)
+	    if((schar->ch != '\t') || (schar->ch != ' ')) {
 		break;
+	    }
 	    sno_free(schar);
 	}
 	next = 1;
 	a->typ = 7;
 	return(a);
 
-    case 4:
+    case '+':
 	schar->typ = 8;
 	return(schar);
 
-    case 5:
+    case '-':
 	schar->typ = 9;
 	return(schar);
 
-    case 6:
+    case '*':
 	a = schar;
 	schar = sno_getc();
-	if(class(schar->ch) == 3) {
+	if((schar->ch == '\t') || (schar->ch == ' ')) {
 	    a->typ = 10; 
 	} 
 	else {
@@ -72,10 +74,10 @@ struct node *compon(void)
 	next = 1;
 	return(a);
 
-    case 7:
+    case '/':
 	a = schar;
 	schar = sno_getc();
-	if(class(schar->ch) == 3) {
+	if((schar->ch == '\t') || (schar->ch == ' ')) {
 	    a->typ = 11; 
 	}
 	else {
@@ -84,11 +86,12 @@ struct node *compon(void)
 	next = 1;
 	return(a);
 
-    case 8:
+    case '$':
 	schar->typ = 12;
 	return(schar);
 
-    case 9:
+    case '\"':
+    case '\'':
 	c = schar->ch;
 	a = sno_getc();
 	if(a == 0) {
@@ -119,11 +122,11 @@ struct node *compon(void)
 	schar->p1 = b;
 	return(schar);
 
-    case 10:
+    case '=':
 	schar->typ = 3;
 	return(schar);
 
-    case 11:
+    case ',':
 	schar->typ = 4;
 	return(schar);
 
@@ -131,7 +134,7 @@ struct node *compon(void)
     b = alloc();
     b->p1 = a = schar;
     schar = sno_getc();
-    while((schar != 0) && (!class(schar->ch))) {
+    while((schar != NULL) && (!schar->ch)) {
 	a->p1 = schar;
 	a = schar;
 	schar = sno_getc();
