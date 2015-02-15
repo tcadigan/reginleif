@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <ncurses.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <term.h>
 
@@ -50,7 +51,7 @@ int save_game()
 
             if(savef == NULL) {
                 // Fake perror()
-                msg("%s", (char *)sys_errlist[errno]);
+                msg("%s", strerror(errno));
             }
 
             while(savef == NULL) {
@@ -69,7 +70,7 @@ int save_game()
 
                 if(savef == NULL) {
                     // Fake perror()
-                    msg("%s", (char *)sys_errlist[errno]);
+                    msg("%s", strerror(errno));
                 }
             }
 
@@ -95,7 +96,7 @@ int save_game()
     
     if(savef == NULL) {
         // Fake perror()
-        msg("%s", (char *)sys_errlist[errno]);
+        msg("%s", strerror(errno));
     }
 
     while(savef == NULL) {
@@ -113,7 +114,7 @@ int save_game()
 
         if(savef == NULL) {
             // Fake perror()
-            msg("%s", (char *)sys_errlist[errno]);
+            msg("%s", strerror(errno));
         }
     }
 
@@ -196,7 +197,7 @@ int restore(char *file, char **envp)
     lseek(inf, 0L, 0);
     encread(version, (unsigned int) sbuf2.st_size, inf);
 
-    // We do not close the file so taht we will have a hold of the
+    // We do not close the file so that we will have a hold of the
     // inode for as long as possible
     if(!wizard) {
 	if((sbuf2.st_ino != sbuf.st_ino) || (sbuf2.st_dev != sbuf.st_dev)) {
@@ -233,7 +234,7 @@ int restore(char *file, char **envp)
     srand(getpid());
     playit();
 
-    /*NOTREACHED*/
+    /*NOT REACHED*/
     return 0;
 }
 

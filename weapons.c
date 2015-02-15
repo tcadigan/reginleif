@@ -57,7 +57,7 @@ static struct init_weps init_dam[MAXWEAPONS] = {
     // Dart
     { "1d1" , "1d3" , 100     , ISMANY|ISMISL },
     // Crossbow
-    { "1d1" , "1d1" , 100     ,       0       },
+    { "1d1" , "1d1" , 100     , 0             },
     // Crosbow bolt
     { "1d2" , "1d10", CROSSBOW, ISMANY|ISMISL },
     // Spear
