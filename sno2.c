@@ -136,7 +136,7 @@ struct node *compon(void)
     schar = sno_getc();
     while((schar != NULL) 
 	  && (schar->ch != ')')
-	  && (schar->ch != ')')
+	  && (schar->ch != '(')
 	  && (schar->ch != '\t')
 	  && (schar->ch != ' ')
 	  && (schar->ch != '+')
