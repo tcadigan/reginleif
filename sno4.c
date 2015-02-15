@@ -19,22 +19,25 @@ struct node *and(struct node *ptr)
 	case 0:
 	    a->typ = 1;
 	case 1:
-	    goto l1;
+	    a = copy(a->p2);
+	    return a;
 	case 3:
 	    fflush(stdout);
 	    return(syspit());
 	case 5:
 	    a = a->p2->p1;
-	    goto l1;
+	    a = copy(a->p2);
+	    return a;
 	case 6:
 	    return(binstr(nfree()));
 	}
 	writes("attempt to take an illegal value");
 	goto case0;
-    l1:
+
 	a = copy(a->p2);
     }
-    return(a);
+
+    return a;
 }
 
 struct node *eval(struct node *e, int t)
@@ -70,7 +73,7 @@ struct node *eval(struct node *e, int t)
 	a1 = stack->p1;
     e1:
 	stack = pop(stack);
-	if(stack) {
+	if(stack != NULL) {
 	    writes("phase error");
 	}
 	return(a1);
@@ -81,7 +84,7 @@ struct node *eval(struct node *e, int t)
 	stack->typ = 0;
 	goto advanc;
     case 13:
-	if(stack->typ) {
+	if(stack->typ != 0) {
 	    writes("illegal function");
 	}
 	a1 = stack->p1;
@@ -114,7 +117,7 @@ struct node *eval(struct node *e, int t)
 	goto f1;
     f3:
 	op = execute(op); /* recursive */
-	if(op) {
+	if(op != NULL) {
 	    goto f3;
 	}
 	a1 = stack->p1->p2;
@@ -168,7 +171,6 @@ struct node *doop(int op, struct node *arg1, struct node *arg2)
     a1 = arg1;
     a2 = arg2;
     switch(op) {
-
     case 11:
 	return(sno_div(a1, a2));
     case 10:
@@ -248,7 +250,7 @@ struct node *execute(struct node *e)
 	goto xsuc;
     }
  xsuc:
-    if(rfail) {
+    if(rfail != 0) {
 	goto xfail;
     }
     b = a->p1;
@@ -257,7 +259,7 @@ struct node *execute(struct node *e)
     rfail = 0;
     b = a->p2;
  xboth:
-    if(b == 0) {
+    if(b == NULL) {
 	return(e->p1);
     }
     b = eval(b, 0);

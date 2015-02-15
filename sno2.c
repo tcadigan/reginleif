@@ -21,7 +21,7 @@ struct node *compon(void)
 	next = 0;
     }
 
-    if(schar == 0) {
+    if(schar == NULL) {
 	a = alloc();
 	a->typ = 0;
 	return(a);
@@ -134,7 +134,20 @@ struct node *compon(void)
     b = alloc();
     b->p1 = a = schar;
     schar = sno_getc();
-    while((schar != NULL) && (!schar->ch)) {
+    while((schar != NULL) 
+	  && (schar->ch != ')')
+	  && (schar->ch != ')')
+	  && (schar->ch != '\t')
+	  && (schar->ch != ' ')
+	  && (schar->ch != '+')
+	  && (schar->ch != '-')
+	  && (schar->ch != '*')
+	  && (schar->ch != '/')
+	  && (schar->ch != '$')
+	  && (schar->ch != '\"')
+	  && (schar->ch != '\'')
+	  && (schar->ch != '=')
+	  && (schar->ch != ',')) {
 	a->p1 = schar;
 	a = schar;
 	schar = sno_getc();

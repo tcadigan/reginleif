@@ -13,7 +13,7 @@ int bextend(struct node *str, struct node *last)
 
     s = str;
     if(s->p1 == 0) {
-	goto bad;
+	return 0;
     }
     d = 0;
     b = 0;
@@ -24,7 +24,7 @@ int bextend(struct node *str, struct node *last)
     }
  eb1:
     if(a == last) {
-	goto bad;
+	return 0;
     }
     a = a->p1;
  eb2:
@@ -32,7 +32,7 @@ int bextend(struct node *str, struct node *last)
     c = a->ch;
     if(c == ')') { /* rp */
 	if(b == 0) {
-	    goto bad;
+	    return 0;
 	}
 	b--;
 	goto eb3;
@@ -47,8 +47,6 @@ int bextend(struct node *str, struct node *last)
 	return(d);
     }
     goto eb1;
- bad:
-    return(0);
 }
 
 int ubextend(struct node *str, struct node *last)
@@ -60,21 +58,20 @@ int ubextend(struct node *str, struct node *last)
     s = str;
     a = s->p1;
     if(a == 0) {
-	goto bad;
+	return 0;
     }
     b = s->p2;
     if(b == 0) {
-	goto good;
+	s->p2 = a;
+	return 1;
     }
     if(b == last) {
-	goto bad;
+	return 0;
     }
     a = b->p1;
- good:
     s->p2 = a;
-    return(1);
- bad:
-    return(0);
+
+    return 1;
 }
 
 struct node *search(struct node *arg, struct node *r)
@@ -157,7 +154,7 @@ struct node *search(struct node *arg, struct node *r)
 
  retard:
     a = back->p1;
-    if(a == 0) {
+    if(a == NULL) {
 	rfail = 1;
 	goto fail;
     }
@@ -166,7 +163,7 @@ struct node *search(struct node *arg, struct node *r)
     var = back->p2;
     str = var->p1;
     etc = var->p2;
-    if(etc->ch) {
+    if(etc->ch != 0) {
 	goto retard;
     }
     if(var->typ == 1) {
@@ -273,10 +270,12 @@ struct node *search(struct node *arg, struct node *r)
 	}
 	goto advanc;
     }
-    while(etc->ch--) {
+    while(etc->ch) {
 	if(ubextend(str, last) == 0) {
 	    goto retard;
 	}
+
+	--etc->ch;
     }
     goto adv0;
 
@@ -307,7 +306,7 @@ struct node *search(struct node *arg, struct node *r)
 	}
 	assign(etc->p1, copy(str));
     }
-    if(str) {
+    if(str != NULL) {
 	sno_free(str);
     }
     sno_free(etc);

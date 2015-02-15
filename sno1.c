@@ -186,25 +186,20 @@ void syspot(struct node *string)
 
 struct node *sno_strstr(char s[])
 {
-    int c;
-    struct node *e;
-    struct node *f;
-    struct node *d;
-
-    f = alloc();
-    d = f;
-    c = *s;
-    while(c !='\0') {
-	++s;
-	e = alloc();
-	e->ch = c;
-	f->p1 = e;
-	f = e;
-	c = *s;
+    char *str_pos = s;
+    struct node *pos;
+    struct node *head;
+    pos = alloc();
+    head = pos;
+    while(*str_pos != '\0') {
+	pos->p1 = alloc();
+	pos->p1->p2 = pos;
+	pos->p1->ch = *str_pos;
+	pos = pos->p1;
+	++str_pos;
     }
-    d->p2 = e;
-    return(d);
-}
+    head->p2 = pos;
+    return head;}
 
 /* Get nodes from a pool of created ones */
 struct node *alloc(void)
@@ -635,7 +630,7 @@ void dump1(struct node *base)
     }
 }
 
-int writes(char *s)
+void writes(char *s)
 {
     sysput(dcat(binstr(lc),dcat(sno_strstr("\t"),sno_strstr(s))));
     fflush(stdout);
@@ -656,7 +651,7 @@ struct node *sno_getc(void)
     static struct node *line;
     static int linflg;
 
-    while(line == 0) {
+    while(line == NULL) {
 	line = syspit();
 	if(rfail) {
 	    cfail++;
@@ -665,9 +660,9 @@ struct node *sno_getc(void)
 	lc++;
     }
     if(linflg) {
-	line = 0;
+	line = NULL;
 	linflg = 0;
-	return(0);
+	return(NULL);
     }
     a = line->p1;
     if(a == line->p2) {

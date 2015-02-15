@@ -28,7 +28,7 @@ void delete(struct node *string);
 void sysput(struct node *string);
 void dump(void);
 void dump1(struct node *base);
-int writes(char *s);
+void writes(char *s);
 struct node *sno_getc(void);
 
 /* from string.h */
