@@ -52,7 +52,7 @@ int add_pack(struct linked_list *item, bool silent)
 		if(from_floor){
 		    _detach(&lvl_obj, item);
                     
-                    if(roomin(&player.t_pos)) {
+                    if(roomin(&player.t_pos) == NULL) {
                         mvaddch(player.t_pos.y, player.t_pos.x, PASSAGE);
                     }
                     else {
@@ -105,7 +105,7 @@ int add_pack(struct linked_list *item, bool silent)
     if(from_floor) {
 	_detach(&lvl_obj, item);
 
-        if(roomin(&player.t_pos)) {
+        if(roomin(&player.t_pos) == NULL) {
             mvaddch(player.t_pos.y, player.t_pos.x, PASSAGE);
         }
         else {

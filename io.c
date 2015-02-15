@@ -16,6 +16,11 @@
 #include <ctype.h>
 #include <stdio.h>
 
+/* TC_DEBUG: Start */
+#include "debug.h"
+#include <stdio.h>
+/* TC_DEBUG: Finish */
+
 static char msgbuf[BUFSIZ];
 static int newpos = 0;
 
@@ -80,7 +85,7 @@ int endmsg()
 //     Something...
 int doadd(char *fmt, va_list args)
 {
-    int num_written = vsprintf(msgbuf, fmt, args);
+    int num_written = vsprintf(msgbuf + newpos, fmt, args);
     msgbuf[newpos + num_written] = '\0';
     newpos += num_written;
     
