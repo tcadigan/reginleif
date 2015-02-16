@@ -12,7 +12,7 @@ CFILES = vers.c armor.c chase.c command.c daemon.c daemons.c fight.c \
          options.c pack.c passages.c potions.c rings.c rip.c rooms.c \
          save.c scrolls.c sticks.c things.c weapons.c wizard.c debug.c
 CFLAGS = -O -g -Wall -Werror
-LIB = -lncurses -lbsd -lcrypt
+LIB = -lncurses
 MISC = Makefile TODO
 CC = gcc
 

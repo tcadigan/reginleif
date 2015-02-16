@@ -37,6 +37,10 @@
 #include <termios.h>
 #include <unistd.h>
 
+#ifdef __APPLE__
+#undef LOADAV
+#endif
+
 #ifdef LOADAV
 #include <bsd/nlist.h>
 #endif
@@ -357,7 +361,7 @@ int setup()
     signal(SIGHUP, auto_save);
     signal(SIGILL, auto_save);
     signal(SIGTRAP, auto_save);
-    signal(SIGIOT, auto_save);
+    signal(SIGABRT, auto_save);
     signal(SIGFPE, auto_save);
     signal(SIGBUS, auto_save);
     signal(SIGSEGV, auto_save);
@@ -523,6 +527,11 @@ int loadav(double *avg)
     lseek(kmem, (long) avenrun.n_value, 0);
     read(kmem, avg, 3 * sizeof (double));
 
+    return 0;
+}
+#else
+int loadav(double *avg)
+{
     return 0;
 }
 #endif
