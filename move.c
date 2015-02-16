@@ -392,8 +392,8 @@ int be_trapped(coord *tc)
     }
 
     // Flush typeahead
-    raw();
-    noraw();
+    /* raw(); */
+    /* noraw(); */
 
     return(ch);
 }

@@ -310,7 +310,7 @@ int eat()
     struct linked_list *item;
     struct object *obj;
 
-    item = get_item("ead", FOOD);
+    item = get_item("eat", FOOD);
     if(item == NULL) {
 	return 0;
     }

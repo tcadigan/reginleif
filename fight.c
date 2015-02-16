@@ -303,7 +303,7 @@ int attack(struct thing *mp)
 	miss(mname, NULL);
     }
 
-    // Check to see if this is a regenerating monster and let it headl
+    // Check to see if this is a regenerating monster and let it heal
     // if it is
     if(((mp->t_flags & ISREGEN) != 0) && (rnd(100) < 33)) {
 	++mp->t_stats.s_hpt;
