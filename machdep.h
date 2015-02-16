@@ -10,9 +10,9 @@
 #define MAXUSERS 8
 
 // 10 * max 15 minute load average
-#undef MAXLOAD 40
+#define MAXLOAD 40
 
-#ifdef MAXUSERS|MAXLOAD
+#if defined(MAXUSERS) || defined(MAXLOAD)
 // Number of minutes between load checks.
 // If not defined, checks are only on startup
 #define	CHECKTIME 10

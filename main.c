@@ -11,6 +11,8 @@
 //  1 Jan 82  DPK  Added code to print out rogue news on startup.
 //                 If RNOTS is defined, the file is opened and printed
 
+#define _XOPEN_SOURCE 700
+
 #include "main.h"
 
 #include "chase.h"
@@ -29,12 +31,14 @@
 #include "save.h"
 #include "weapons.h"
 
+#include <fcntl.h>
 #include <pwd.h>
 #include <signal.h>
+#include <termios.h>
 #include <unistd.h>
 
 #ifdef LOADAV
-#include <nlist.h>
+#include <bsd/nlist.h>
 #endif
 
 #ifdef UCOUNT
@@ -84,11 +88,35 @@ int main(int argc, char **argv, char **envp)
 
     // Check to see if he is a wizard
     if((argc >= 2) && (argv[1][0] == '\0')) {
-	if(strcmp(PASSWD, crypt(getpass("Wizard's password: "), "mT")) == 0) {
+	FILE *input;
+	input = fopen("/dev/tty", "r");
+
+	printf("Wizard's password: ");
+
+	struct termios terminal;
+	tcgetattr(fileno(input), &terminal);
+	terminal.c_lflag &= ~ECHO;
+	tcsetattr(fileno(input), TCSANOW, &terminal);
+
+	char *line = NULL;
+	size_t read_length = 0;
+	ssize_t line_length;
+
+	line_length = getline(&line, &read_length, input);
+
+	tcgetattr(fileno(input), &terminal);
+	terminal.c_lflag &= ECHO;
+	tcsetattr(fileno(input), TCSANOW, &terminal);
+
+	line[line_length - 1] = '\0';
+
+	if(strcmp(PASSWD, crypt(line, "mT")) == 0) {
 	    wizard = TRUE;
 	    ++argv;
 	    --argc;
 	}
+
+	free(line);
     }
 
     // Get home and options from environment
@@ -330,7 +358,6 @@ int setup()
     signal(SIGILL, auto_save);
     signal(SIGTRAP, auto_save);
     signal(SIGIOT, auto_save);
-    signal(SIGEMT, auto_save);
     signal(SIGFPE, auto_save);
     signal(SIGBUS, auto_save);
     signal(SIGSEGV, auto_save);
@@ -464,12 +491,12 @@ int chmsg(char *fmt, void *args)
 
 #ifdef LOADAV
 struct nlist avenrun = {
-    "_avenrun"
+    {"_avenrun"}
 };
 
 // ladav:
 //     Something...
-int loadav(double avg)
+int loadav(double *avg)
 {
     int kmem;
 

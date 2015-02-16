@@ -2,6 +2,9 @@
 // commands under strange circumstances)
 //
 // @(#)wizard.c 3.8 (Berkeley) 6/3/81
+
+#define _XOPEN_SOURCE 700
+
 #include "wizard.h"
 
 #include "io.h"
@@ -16,6 +19,7 @@
 #include "weapons.h"
 
 #include <ctype.h>
+#include <unistd.h>
 
 // whatis:
 //     What a certain object is

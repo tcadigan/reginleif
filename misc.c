@@ -68,7 +68,7 @@ char *tr_name(char ch)
         }
         
         break;
-    case DARTTRAP:
+    default:
         if(terse) {
             s = "A dart trap.";
         }

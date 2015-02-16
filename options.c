@@ -307,10 +307,11 @@ int parse_opts(char *str)
 //     Copy string using unctrl for things
 int strucpy(char *s1, char *s2, int len)
 {
-    char *sp;
+    char const *sp;
 
     while(len--) {
-	strcpy(s1, (sp = unctrl(*s2++)));
+	sp = unctrl(*s2++);
+	strcpy(s1, sp);
 	s1 += strlen(sp);
     }
     *s1 = '\0';

@@ -21,7 +21,7 @@ struct roomdes {
 int do_passages()
 {
     struct roomdes *r1;
-    struct roomdes *r2;
+    struct roomdes *r2 = NULL;
     int i;
     int j;
     int roomcount;

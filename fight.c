@@ -553,15 +553,13 @@ int hit(char *er, char *ee)
             }
 
             break;
-        case 3:
+        default:
             if(er == 0) {
                 s = " swing and hit ";
             }
             else {
                 s = " swings and hits ";
             }
-
-            break;
 	}
     }
     

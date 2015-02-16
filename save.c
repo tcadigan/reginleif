@@ -12,6 +12,7 @@
 #include <fcntl.h>
 #include <ncurses.h>
 #include <string.h>
+#include <signal.h>
 #include <sys/stat.h>
 #include <term.h>
 

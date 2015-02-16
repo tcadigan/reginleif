@@ -103,24 +103,24 @@ int new_level()
             }
             
 	    switch(rnd(6)) {
-		case 0:
-                    ch = TRAPDOOR;
-                    break;
-		case 1:
-                    ch = BEARTRAP;
-                    break;
-		case 2:
-                    ch = SLEEPTRAP;
-                    break;
-		case 3:
-                    ch = ARROWTRAP;
-                    break;
-		case 4:
-                    ch = TELTRAP;
-                    break;
-		case 5:
-                    ch = DARTTRAP;
-                    break;
+	    case 0:
+		ch = TRAPDOOR;
+		break;
+	    case 1:
+		ch = BEARTRAP;
+		break;
+	    case 2:
+		ch = SLEEPTRAP;
+		break;
+	    case 3:
+		ch = ARROWTRAP;
+		break;
+	    case 4:
+		ch = TELTRAP;
+		break;
+	    default:
+		ch = DARTTRAP;
+		break;
 	    }
 
 	    addch(TRAP);

@@ -142,7 +142,7 @@ int new_monster(struct linked_list *item, char type, coord *cp)
                 mch = STICK;
                 
                 break;
-            case 8:
+	    default:
                 mch = AMULET;
                 
                 break;
@@ -167,8 +167,8 @@ int new_monster(struct linked_list *item, char type, coord *cp)
 int wanderer()
 {
     int i;
-    int ch;
-    struct room *rp;
+    int ch = ERR;
+    struct room *rp = NULL;
     struct room *hr = roomin(&player.t_pos);
     struct linked_list *item;
     struct thing *tp;
@@ -232,7 +232,7 @@ struct linked_list *wake_monster(int y, int x)
 {
     struct thing *tp;
     struct linked_list *it;
-    struct room *rp;
+    struct room *rp = NULL;
     char ch;
 
     it = find_mons(y, x);

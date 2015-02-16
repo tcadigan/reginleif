@@ -366,7 +366,7 @@ int do_zap(bool gotdir)
                 }
                 break;
             case 2:
-            case -2:
+            default:
                 dirch = '\\';
 	    }
 

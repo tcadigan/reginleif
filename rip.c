@@ -19,6 +19,7 @@
 #include <ctype.h>
 #include <fcntl.h>
 #include <pwd.h>
+#include <signal.h>
 
 static char *rip[] = {
 "                       __________                    ",
@@ -390,7 +391,7 @@ int total_winner()
             worth = ws_magic[obj->o_which].mi_worth;
             worth += 20 * obj->o_ac;
             break;
-        case AMULET:
+	default:
             worth = 1000;
 	}
         

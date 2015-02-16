@@ -31,6 +31,7 @@
 #include <sgtty.h>
 #include <signal.h>
 #include <stdlib.h>
+#include <sys/wait.h>
 
 struct h_list helpstr[] = {
     {'?',	"	prints help"},

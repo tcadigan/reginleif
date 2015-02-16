@@ -177,9 +177,7 @@ int status()
         }
     }
 
-    int maxx;
-    int maxy;
-    getmaxyx(stdscr, maxy, maxx);
+    int maxx = getmaxx(stdscr);
     
     if(maxx > 79) {
         sprintf(buf,
@@ -211,7 +209,7 @@ int status()
 
     pb = &buf[strlen(buf)];
 
-    getmaxyx(stdscr, maxy, maxx);
+    maxx = getmaxx(stdscr);
     
     if(maxx > 79) {
         if(cur_armor != NULL) {

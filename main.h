@@ -13,7 +13,7 @@ int too_much();
 int author();
 void checkout(int parameter);
 int chmsg(char *fmt, void *args);
-int loadav(double avg);
+int loadav(double *avg);
 int ucount();
 int roguenotes();
 
