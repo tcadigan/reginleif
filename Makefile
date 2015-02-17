@@ -12,12 +12,18 @@ CFILES = vers.c armor.c chase.c command.c daemon.c daemons.c fight.c \
          options.c pack.c passages.c potions.c rings.c rip.c rooms.c \
          save.c scrolls.c sticks.c things.c weapons.c wizard.c debug.c
 CFLAGS = -O -g -Wall -Werror
-LIB = -lncurses
+LINUX_LIB = -lncurses -lcrypt -lbsd
+MAC_LIB = -lncurses
 MISC = Makefile TODO
 CC = gcc
+ARCH = $(shell uname -s)
 
 a.out: $(HDRS) $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) $(LIB)
+ifeq ($(ARCH), Linux)
+	$(CC) $(CFLAGS) $(OBJS) $(LINUX_LIB)
+else
+	$(CC) $(CFLAGS) $(OBJS) $(MAC_LIB)
+endif
 
 rogue: a.out
 	cp a.out rogue
