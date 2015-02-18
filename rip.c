@@ -20,6 +20,7 @@
 #include <fcntl.h>
 #include <pwd.h>
 #include <signal.h>
+#include <time.h>
 
 static char *rip[] = {
 "                       __________                    ",
@@ -47,14 +48,13 @@ int death(char monst)
     struct tm *lt;
     time_t date;
     char buf[80];
-    struct tm *localtime();
 
     time(&date);
     lt = localtime(&date);
     clear();
     move(8, 0);
     while(*dp) {
-	printw("%s\n", *dp++);
+    	printw("%s\n", *dp++);
     }
     mvaddstr(14, 28 - ((strlen(whoami) + 1) / 2), whoami);
     purse -= (purse / 10);
@@ -63,10 +63,11 @@ int death(char monst)
     killer = killname(monst);
     mvaddstr(17, 28 - ((strlen(killer) + 1) / 2), killer);
     mvaddstr(16, 33, vowelstr(killer));
-    sprintf(prbuf, "%2d", lt->tm_year);
-    mvaddstr(18, 28, prbuf);
-    move(LINES - 1, 0);
+    sprintf(prbuf, "%4d", lt->tm_year + 1900);
+    mvaddstr(18, 26, prbuf);
+    mvaddstr(LINES - 1, 0, "--Press space to continue--");
     wrefresh(stdscr);
+    wait_for(' ');
     score(purse, 0, &monst);
     endwin();
     exit(0);
