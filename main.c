@@ -9,7 +9,7 @@
 // ================
 // 22 Dec 81  DPK  Added set[ug]id code to main
 //  1 Jan 82  DPK  Added code to print out rogue news on startup.
-//                 If RNOTS is defined, the file is opened and printed
+//                 If RNOTES is defined, the file is opened and printed
 
 #define _XOPEN_SOURCE 700
 
@@ -104,9 +104,8 @@ int main(int argc, char **argv, char **envp)
 
 	char *line = NULL;
 	size_t read_length = 0;
-	ssize_t line_length;
 
-	line_length = getline(&line, &read_length, input);
+	ssize_t line_length = getline(&line, &read_length, input);
 
 	tcgetattr(fileno(input), &terminal);
 	terminal.c_lflag &= ECHO;

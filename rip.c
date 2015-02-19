@@ -21,6 +21,7 @@
 #include <pwd.h>
 #include <signal.h>
 #include <time.h>
+#include <unistd.h>
 
 static char *rip[] = {
 "                       __________                    ",
@@ -113,23 +114,34 @@ int score(int amount, int flags, char *monst)
 	scp->sc_uid = rand();
     }
 
+    printf("TC_DEBUG: got here %d\n", flags);
+
     signal(SIGINT, SIG_DFL);
+    char *input_line = NULL;
     if(flags != -1) {
-	printf("[Press return to continue]");
+	printf("[Press return to continue]\n");
 	fflush(stdout);
-	gets(prbuf);
+
+	size_t read_length = 0;
+	ssize_t line_length = getline(&input_line, &read_length, stdin);
+
+	while(line_length == -1) {
+	    line_length = getline(&input_line, &read_length, stdin);
+	}
+	
+	input_line[line_length - 1] = '\0';
     }
 
     // Open file and read list
 #ifndef BRL
-    fd = open(SCOREFILE, O_WRONLY);
+    fd = open(SCOREFILE, O_WRONLY | O_CREAT);
     if(fd < 0) {
 	return 0;
     }
 #else
     // Use the RAND cooperative locking open to prevent plastering
     // the scorefile. (BRL 6.144)
-    fd = open(SCOREFILE, 6);
+    fd = open(SCOREFILE, O_WRONLY | O_CREAT);
     while(fd < 0) {
 	if(errno != ETXTBSY) {
 	    return 0;
@@ -143,14 +155,16 @@ int score(int amount, int flags, char *monst)
     outf = fdopen(fd, "w");
 
     if(wizard) {
-	if(strcmp(prbuf, "names") == 0) {
+	if(strcmp(input_line, "names") == 0) {
 	    prflags = 1;
         }
-	else if(strcmp(prbuf, "edit") == 0) {
+	else if(strcmp(input_line, "edit") == 0) {
 	    prflags = 2;
         }
     }
-    encread((char *) top_ten, sizeof top_ten, fd);
+
+    free(input_line);
+    encread((char *)top_ten, sizeof(top_ten), fd);
 
     // Insert him in the list if need be
     if(!waswizard) {
