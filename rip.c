@@ -114,8 +114,6 @@ int score(int amount, int flags, char *monst)
 	scp->sc_uid = rand();
     }
 
-    printf("TC_DEBUG: got here %d\n", flags);
-
     signal(SIGINT, SIG_DFL);
     char *input_line = NULL;
     if(flags != -1) {
@@ -134,14 +132,14 @@ int score(int amount, int flags, char *monst)
 
     // Open file and read list
 #ifndef BRL
-    fd = open(SCOREFILE, O_WRONLY | O_CREAT);
+    fd = open(SCOREFILE, O_RDWR);
     if(fd < 0) {
 	return 0;
     }
 #else
     // Use the RAND cooperative locking open to prevent plastering
     // the scorefile. (BRL 6.144)
-    fd = open(SCOREFILE, O_WRONLY | O_CREAT);
+    fd = open(SCOREFILE, O_RDWR);
     while(fd < 0) {
 	if(errno != ETXTBSY) {
 	    return 0;
@@ -164,6 +162,7 @@ int score(int amount, int flags, char *monst)
     }
 
     free(input_line);
+
     encread((char *)top_ten, sizeof(top_ten), fd);
 
     // Insert him in the list if need be
@@ -251,6 +250,7 @@ int score(int amount, int flags, char *monst)
 
     // Update the list file
     encwrite((char *) top_ten, sizeof top_ten, outf);
+
     fclose(outf);
 
     return 0;

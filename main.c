@@ -283,6 +283,10 @@ int main(int argc, char **argv, char **envp)
     obj->o_which = 0;
     add_pack(item, TRUE);
 
+    /* TC_DEBUG: Start */
+    death('W');
+    /* TC_DEBUG: Finish */
+
     playit();
 
     return 0;
