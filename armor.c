@@ -22,7 +22,7 @@ int wear()
     if(cur_armor != NULL) {
 	addmsg("You are already wearing some");
 	if(!terse) {
-	    addmsg(".  You'll have to take it off first");
+	    addmsg(". You'll have to take it off first");
         }
 	endmsg();
 	after = FALSE;
@@ -75,10 +75,11 @@ int take_off()
 	addmsg("Was");
     }
     else {
-	addmsg("You used to be ");
+	addmsg("You used to be");
     }
     addmsg(" wearing %c) %s", pack_char(obj), inv_name(obj, TRUE));
-
+    endmsg();
+    
     return 0;
 }
 

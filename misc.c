@@ -123,6 +123,14 @@ int look(bool wakeup)
                     continue;
                 }
                 
+		/* TC_DEBUG: Start */
+		FILE *output;
+		output = fopen("debug.txt", "a+");
+		fprintf(output, "TC_DEBUG: here\n");
+		fprintf(output, "TC_DEBUG: %d %d\n", y, x);
+		fclose(output);
+		/* TC_DEBUG: Finish */
+
                 if(isupper(mvwinch(mw, y, x))) {
                     struct linked_list *it;
                     struct thing *tp;

@@ -166,6 +166,8 @@ int new_monster(struct linked_list *item, char type, coord *cp)
 //     A wandering monster has awakened and is headed for the player
 int wanderer()
 {
+    // TODO: there is a seg fault here, cp
+    //       can be unset at time of new_monster()
     int i;
     int ch = ERR;
     struct room *rp = NULL;

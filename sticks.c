@@ -19,6 +19,11 @@
 
 #include <ctype.h>
 
+/* TC_DEBUG: Start */
+#include "debug.h"
+#include <stdio.h>
+/* TC_DEBUG: Finish */
+
 // fix_stick:
 //     Something...
 int fix_stick(struct object *cur)
@@ -71,7 +76,7 @@ int do_zap(bool gotdir)
 	msg("Nothing happens.");
 	return 0;
     }
-    if (!gotdir) {
+    if(!gotdir) {
         delta.y = rnd(3) - 1;
         delta.x = rnd(3) - 1;
 
@@ -80,7 +85,14 @@ int do_zap(bool gotdir)
             delta.x = rnd(3) - 1;
         }
     }
-        
+
+    /* TC_DEBUG: Start */
+    FILE *output;
+    output = fopen("debug.txt", "a+");
+    print_object(obj, output);
+    fclose(output);
+    /* TC_DEBUG: Finish */
+
     switch(obj->o_which) {
     case WS_LIGHT:
         // Ready kilowatt want. Light up the room

@@ -226,8 +226,18 @@ int score(int amount, int flags, char *monst)
 	    }
 	    else if(prflags == 2) {
 		fflush(stdout);
-		gets(prbuf);
-		if(prbuf[0] == 'd') {
+
+		char *more_input = NULL;
+		size_t read_length = 0;
+		ssize_t line_length = getline(&more_input, &read_length, stdin);
+
+		while(line_length == -1) {
+		    line_length = getline(&more_input, &read_length, stdin);
+		}
+
+		more_input[line_length - 1] = '\0';
+
+		if(more_input[0] == 'd') {
 		    for(sc2 = scp; sc2 < &top_ten[9]; ++sc2) {
 			*sc2 = *(sc2 + 1);
                     }
@@ -240,6 +250,8 @@ int score(int amount, int flags, char *monst)
 		    top_ten[9].sc_monster = rand();
 		    --scp;
 		}
+
+		free(more_input);
 	    }
 	    else {
 		printf(".\n");

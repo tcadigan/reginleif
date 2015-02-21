@@ -317,6 +317,8 @@ int command()
                 after = FALSE;
                 
                 quit(0);
+
+		break;
             case 'i':
                 after = FALSE;
                 inventory(player.t_pack, 0);
@@ -625,7 +627,7 @@ void quit(int parameter)
 	mpos = 0;
     }
     
-    msg("Really quit?");
+    msg("Really quit? ");
     wrefresh(cw);
     
     if(readchar() == 'y') {
