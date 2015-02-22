@@ -560,7 +560,7 @@ int get_dir()
         delta.y = 1;
         delta.x = 1;
         break;
-    case ESCAPE:
+    case ESCAPE_KEY:
         return FALSE;
     default:
         mpos = 0;
@@ -612,7 +612,7 @@ int get_dir()
             delta.y = 1;
             delta.x = 1;
             break;
-        case ESCAPE:
+        case ESCAPE_KEY:
             return FALSE;
         default:
             mpos = 0;

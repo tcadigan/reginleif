@@ -174,7 +174,7 @@ int gethand()
 	else if((c == 'r') || (c == 'R')) {
 	    return RIGHT;
         }
-	else if(c == ESCAPE) {
+	else if(c == ESCAPE_KEY) {
 	    return -1;
         }
 	mpos = 0;

@@ -40,6 +40,9 @@
 
 #endif
 
+/* The wizard password */
+#define PASSWD "mTQTOe4GHXZEI"
+
 // BRL Addition:
 //     If RNOTES is defined, then the filename it is defined as
 //     is printed on the terminal whenever rogue is invoked.

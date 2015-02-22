@@ -335,7 +335,7 @@ int picky_inven()
 
 	mpos = 0;
         mch = readchar();
-	if(mch == ESCAPE) {
+	if(mch == ESCAPE_KEY) {
 	    msg("");
 	    return 0;
 	}
@@ -382,7 +382,7 @@ struct linked_list *get_item(char *purpose, int type)
 	    mpos = 0;
 
             // Give the poor player a chance to abore the command
-	    if((ch == ESCAPE) || (ch == CTRL('G'))) {
+	    if((ch == ESCAPE_KEY) || (ch == CTRL('G'))) {
 		after = FALSE;
 		msg("");
                 

@@ -9,6 +9,7 @@
 
 #include "io.h"
 #include "list.h"
+#include "machdep.h"
 #include "main.h"
 #include "move.h"
 #include "newlevel.h"

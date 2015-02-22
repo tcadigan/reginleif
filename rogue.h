@@ -13,193 +13,228 @@
 
 #include <ncurses.h>
 
+// Various constants
+enum constants {
+    CALLABLE    =   -1,
+    BOLT_LENGTH =    6,
+    // Number of types of things (scrolls, rings, etc.)
+    NUMTHINGS   =    7,
+    ESCAPE_KEY  =   27,
+    STOMACHSIZE = 2000
+};
+
 // Maximum number of different things
-#define MAXROOMS 9
-#define MAXTHINGS 9
-#define MAXOBJ 9
-#define MAXPACK 23
-#define MAXTRAPS 10
-// Number of types of things (scrolls, rings, etc.)
-#define	NUMTHINGS 7
+enum maximums {
+    MAXROOMS  =  9,
+    MAXTHINGS =  9,
+    MAXOBJ    =  9,
+    MAXPACK   = 23,
+    MAXTRAPS  = 10
+};
 
 // Return values for get functions
-// Normal exit
-#define	NORM 0
-// Quit option setting
-#define	QUIT 1
-// Back up one option
-#define	MINUS 2
+enum return_values {
+    // Normal exit
+    NORM = 0,
+    // Quit option setting
+    QUIT,
+    // Back up one level
+    MINUS
+};
 
 // Things that appear on screens
-#define PASSAGE '#'
-#define DOOR '+'
-#define FLOOR '.'
-#define PLAYER '@'
-#define TRAP '^'
-#define TRAPDOOR '>'
-#define ARROWTRAP '{'
-#define SLEEPTRAP '$'
-#define BEARTRAP '}'
-#define TELTRAP '~'
-#define DARTTRAP '`'
-#define SECRETDOOR '&'
-#define STAIRS '%'
-#define GOLD '*'
-#define POTION '!'
-#define SCROLL '?'
-#define MAGIC '$'
-#define FOOD ':'
-#define WEAPON ')'
-#define ARMOR ']'
-#define AMULET ','
-#define RING '='
-#define STICK '/'
-#define CALLABLE -1
+enum syombols {
+    PASSAGE    = '#',
+    DOOR       = '+',
+    FLOOR      = '.',
+    PLAYER     = '@',
+    TRAP       = '^',
+    TRAPDOOR   = '>',
+    ARROWTRAP  = '{',
+    SLEEPTRAP  = '$',
+    BEARTRAP   = '}',
+    TELTRAP    = '~',
+    DARTTRAP   = '`',
+    SECRETDOOR = '&',
+    STAIRS     = '%',
+    GOLD       = '*',
+    POTION     = '!',
+    SCROLL     = '?',
+    MAGIC      = '$',
+    FOOD       = ':',
+    WEAPON     = ')',
+    ARMOR      = ']',
+    AMULET     = ',',
+    RING       = '=',
+    STICK      = '/'
+};
 
-// Various constants
-#define PASSWD "mTQTOe4GHXZEI"
-#define BEARTIME 3
-#define SLEEPTIME 5
-#define HEALTIME 30
-#define HOLDTIME 2
-#define WANDERTIME 150
-#define BEFORE 1
-#define AFTER 2
-#define HUHDURATION 20
-#define SEEDURATION 850
-#define HUNGERTIME 1300
-#define MORETIME 150
-#define STOMACHSIZE 2000
-#define ESCAPE 27
-#define LEFT 0
-#define RIGHT 1
-#define BOLT_LENGTH 6
+enum times {
+    HOLDTIME   =    2,
+    BEARTIME   =    3,
+    SLEEPTIME  =    5,
+    HEALTIME   =   30,
+    WANDERTIME =  150,
+    MORETIME   =  150,
+    HUNGERTIME = 1300
+};
+
+enum durations {
+    HUHDURATION =  20,
+    SEEDURATION = 850
+};
+
+enum orderings {
+    BEFORE = 0,
+    AFTER
+};
+
+enum directions {
+    LEFT = 0,
+    RIGHT
+};
 
 // Save against things
-#define VS_POISON 00
-#define VS_PARALYZATION 00
-#define VS_DEATH 00
-#define VS_PETRIFICATION 01
-#define VS_BREATH 02
-#define VS_MAGIC  03
+enum saves {
+    VS_POISON        = 0x0000,
+    VS_PARALYZATION  = 0x0000,
+    VS_DEATH         = 0x0000,
+    VS_PETRIFICATION = 0x0001,
+    VS_BREATH        = 0x0002,
+    VS_MAGIC         = 0x0003
+};
 
 // Various flag bits
-#define ISDARK	0000001
-#define ISCURSED 000001
-#define ISBLIND 0000001
-#define ISGONE	0000002
-#define ISKNOW  0000002
-#define ISRUN	0000004
-#define ISFOUND 0000010
-#define ISINVIS 0000020
-#define ISMEAN  0000040
-#define ISGREED 0000100
-#define ISBLOCK 0000200
-#define ISHELD  0000400
-#define ISHUH   0001000
-#define ISREGEN 0002000
-#define CANHUH  0004000
-#define CANSEE  0010000
-#define ISMISL  0020000
-#define ISCANC	0020000
-#define ISMANY  0040000
-#define ISSLOW	0040000
-#define ISHASTE 0100000
+enum flags {
+    ISDARK   = 0x0000,
+    ISCURSED = ISDARK,
+    ISBLIND  = ISDARK,
+    ISGONE   = 0x0001,
+    ISKNOW   = ISGONE,
+    ISRUN    = 0x0002,
+    ISFOUND  = 0x0004,
+    ISINVIS  = 0x0008,
+    ISMEAN   = 0x0010,
+    ISGREED  = 0x0020,
+    ISBLOCK  = 0x0040,
+    ISHELD   = 0x0080,
+    ISHUH    = 0x0100,
+    ISREGEN  = 0x0200,
+    CANHUH   = 0x0400,
+    CANSEE   = 0x0800,
+    ISMISL   = 0x1000,
+    ISCANC   = ISMISL,
+    ISMANY   = 0x2000,
+    ISSLOW   = 0x2000,
+    ISHASTE  = 0x4000
+};
 
 // Potion types
-#define P_CONFUSE 0
-#define P_PARALYZE 1
-#define P_POISON 2
-#define P_STRENGTH 3
-#define P_SEEINVIS 4
-#define P_HEALING 5
-#define P_MFIND 6
-#define P_TFIND 7
-#define P_RAISE 8
-#define P_XHEAL 9
-#define P_HASTE 10
-#define P_RESTORE 11
-#define P_BLIND 12
-#define P_NOP 13
-#define MAXPOTIONS 14
+enum potion_type {
+    P_CONFUSE = 0,
+    P_PARALYZE,
+    P_POISON,
+    P_STRENGTH,
+    P_SEEINVIS,
+    P_HEALING,
+    P_MFIND,
+    P_TFIND,
+    P_RAISE,
+    P_XHEAL,
+    P_HASTE,
+    P_RESTORE,
+    P_BLIND,
+    P_NOP,
+    MAXPOTIONS
+};
 
 // Scroll types
-#define S_CONFUSE 0
-#define S_MAP 1
-#define S_LIGHT 2
-#define S_HOLD 3
-#define S_SLEEP 4
-#define S_ARMOR 5
-#define S_IDENT 6
-#define S_SCARE 7
-#define S_GFIND 8
-#define S_TELEP 9
-#define S_ENCH 10
-#define S_CREATE 11
-#define S_REMOVE 12
-#define S_AGGR 13
-#define S_NOP 14
-#define S_GENOCIDE 15
-#define MAXSCROLLS 16
+enum scroll_type {
+    S_CONFUSE = 0,
+    S_MAP,
+    S_LIGHT,
+    S_HOLD,
+    S_SLEEP,
+    S_ARMOR,
+    S_IDENT,
+    S_SCARE,
+    S_GFIND,
+    S_TELEP,
+    S_ENCH,
+    S_CREATE,
+    S_REMOVE,
+    S_AGGR,
+    S_NOP,
+    S_GENOCIDE,
+    MAXSCROLLS
+};
 
 // Weapon types
-#define MACE 0
-#define SWORD 1
-#define BOW 2
-#define ARROW 3
-#define DAGGER 4
-#define ROCK 5
-#define TWOSWORD 6
-#define SLING 7
-#define DART 8
-#define CROSSBOW 9
-#define BOLT 10
-#define SPEAR 11
-#define MAXWEAPONS 12
+enum weapon_type {
+    MACE = 0,
+    SWORD,
+    BOW,
+    ARROW,
+    DAGGER,
+    ROCK,
+    TWOSWORD,
+    SLING,
+    DART,
+    CROSSBOW,
+    BOLT,
+    SPEAR,
+    MAXWEAPONS
+};
 
 // Armor types
-#define LEATHER 0
-#define RING_MAIL 1
-#define STUDDED_LEATHER 2
-#define SCALE_MAIL 3
-#define CHAIN_MAIL 4
-#define SPLINT_MAIL 5
-#define BANDED_MAIL 6
-#define PLATE_MAIL 7
-#define MAXARMORS 8
+enum armor_type {
+    LEATHER = 0,
+    RING_MAIL,
+    STUDDED_LEATHER,
+    SCALE_MAIL,
+    CHAIN_MAIL,
+    SPLINT_MAIL,
+    BANDED_MAIL,
+    PLATE_MAIL,
+    MAXARMORS
+};
 
 // Ring types
-#define R_PROTECT 0
-#define R_ADDSTR 1
-#define R_SUSTSTR 2
-#define R_SEARCH 3
-#define R_SEEINVIS 4
-#define R_NOP 5
-#define R_AGGR 6
-#define R_ADDHIT 7
-#define R_ADDDAM 8
-#define R_REGEN 9
-#define R_DIGEST 10
-#define R_TELEPORT 11
-#define R_STEALTH 12
-#define MAXRINGS 13
+enum ring_type {
+    R_PROTECT = 0,
+    R_ADDSTR,
+    R_SUSTSTR,
+    R_SEARCH,
+    R_SEEINVIS,
+    R_NOP,
+    R_AGGR,
+    R_ADDHIT,
+    R_ADDDAM,
+    R_REGEN,
+    R_DIGEST,
+    R_TELEPORT,
+    R_STEALTH,
+    MAXRINGS
+};
 
 // Rod/wand/staff types
-#define WS_LIGHT 0
-#define WS_HIT 1
-#define WS_ELECT 2
-#define WS_FIRE 3
-#define WS_COLD 4
-#define WS_POLYMORPH 5
-#define WS_MISSILE 6
-#define WS_HASTE_M 7
-#define WS_SLOW_M 8
-#define WS_DRAIN 9
-#define WS_NOP 10
-#define WS_TELAWAY 11
-#define WS_TELTO 12
-#define WS_CANCEL 13
-#define MAXSTICKS 14
+enum stick_type {
+    WS_LIGHT = 0,
+    WS_HIT,
+    WS_ELECT,
+    WS_FIRE,
+    WS_COLD,
+    WS_POLYMORPH,
+    WS_MISSILE,
+    WS_HASTE_M,
+    WS_SLOW_M,
+    WS_DRAIN,
+    WS_NOP,
+    WS_TELAWAY,
+    WS_TELTO,
+    WS_CANCEL,
+    MAXSTICKS
+};
 
 // Now we define the structures and types
 

@@ -34,51 +34,51 @@
 #include <sys/wait.h>
 
 struct h_list helpstr[] = {
-    {'?',	"	prints help"},
-    {'/',	"	identify object"},
-    {'h',	"	left"},
-    {'j',	"	down"},
-    {'k',	"	up"},
-    {'l',	"	right"},
-    {'y',	"	up & left"},
-    {'u',	"	up & right"},
-    {'b',	"	down & left"},
-    {'n',	"	down & right"},
-    {'H',	"	run left"},
-    {'J',	"	run down"},
-    {'K',	"	run up"},
-    {'L',	"	run right"},
-    {'Y',	"	run up & left"},
-    {'U',	"	run up & right"},
-    {'B',	"	run down & left"},
-    {'N',	"	run down & right"},
-    {'t',	"<dir>	throw something"},
-    {'f',	"<dir>	forward until find something"},
-    {'p',	"<dir>	zap a wand in a direction"},
-    {'z',	"	zap a wand or staff"},
-    {'>',	"	go down a staircase"},
-    {'s',	"	search for trap/secret door"},
-    {' ',	"	(space) rest for a while"},
-    {'i',	"	inventory"},
-    {'I',	"	inventory single item"},
-    {'q',	"	quaff potion"},
-    {'r',	"	read paper"},
-    {'e',	"	eat food"},
-    {'w',	"	wield a weapon"},
-    {'W',	"	wear armor"},
-    {'T',	"	take armor off"},
-    {'P',	"	put on ring"},
-    {'R',	"	remove ring"},
-    {'d',	"	drop object"},
-    {'c',	"	call object"},
-    {'o',	"	examine/set options"},
-    {CTRL('L'),	"	redraw screen"},
-    {CTRL('R'),	"	repeat last message"},
-    {ESCAPE,	"	cancel command"},
-    {'v',	"	print program version number"},
-    {'!',	"	shell escape"},
-    {'S',	"	save game"},
-    {'Q',	"	quit"},
+    {'?',	 "       prints help"},
+    {'/',	 "       identify object"},
+    {'h',	 "       left"},
+    {'j',	 "       down"},
+    {'k',	 "       up"},
+    {'l',	 "       right"},
+    {'y',	 "       up & left"},
+    {'u',	 "       up & right"},
+    {'b',	 "       down & left"},
+    {'n',	 "       down & right"},
+    {'H',	 "       run left"},
+    {'J',	 "       run down"},
+    {'K',	 "       run up"},
+    {'L',	 "       run right"},
+    {'Y',	 "       run up & left"},
+    {'U',	 "       run up & right"},
+    {'B',	 "       run down & left"},
+    {'N',	 "       run down & right"},
+    {'t',	 "<dir>	 throw something"},
+    {'f',	 "<dir>	 forward until find something"},
+    {'p',	 "<dir>	 zap a wand in a direction"},
+    {'z',	 "       zap a wand or staff"},
+    {'>',	 "       go down a staircase"},
+    {'s',	 "       search for trap/secret door"},
+    {' ',	 "       (space) rest for a while"},
+    {'i',	 "       inventory"},
+    {'I',	 "       inventory single item"},
+    {'q',	 "       quaff potion"},
+    {'r',	 "       read paper"},
+    {'e',	 "       eat food"},
+    {'w',	 "       wield a weapon"},
+    {'W',	 "       wear armor"},
+    {'T',	 "       take armor off"},
+    {'P',	 "       put on ring"},
+    {'R',	 "       remove ring"},
+    {'d',	 "       drop object"},
+    {'c',	 "       call object"},
+    {'o',	 "       examine/set options"},
+    {CTRL('L'),	 "       redraw screen"},
+    {CTRL('R'),	 "       repeat last message"},
+    {ESCAPE_KEY, "       cancel command"},
+    {'v',	 "       print program version number"},
+    {'!',	 "       shell escape"},
+    {'S',	 "       save game"},
+    {'Q',	 "       quit"},
     {0, 0}
 };
 
@@ -459,7 +459,7 @@ int command()
                 }
                 
                 break;
-            case ESCAPE:
+            case ESCAPE_KEY:
                 door_stop = FALSE;
                 count = 0;
                 after = FALSE;
@@ -783,7 +783,7 @@ int identify()
     ch = readchar();
     mpos = 0;
     
-    if(ch == ESCAPE) {
+    if(ch == ESCAPE_KEY) {
 	msg("");
 	return 0;
     }

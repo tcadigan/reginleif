@@ -309,7 +309,7 @@ int genocide()
     msg("? ");
     c = readchar();
     while(!isalpha(c)) {
-	if(c == ESCAPE) {
+	if(c == ESCAPE_KEY) {
 	    return 0;
         }
 	else {
