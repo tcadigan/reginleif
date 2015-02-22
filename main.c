@@ -436,10 +436,10 @@ int too_much()
 int author()
 {
     switch(getuid()) {
-	case 0:
-	    return TRUE;
-	default:
-	    return FALSE;
+    case 0:
+	return TRUE;
+    default:
+	return FALSE;
     }
 }
 #endif
@@ -571,23 +571,23 @@ int ucount()
 //     Something...
 int roguenotes()
 {
-     FILE *notef;
-     char buf[512];
-     short nread;
-
-     notef = fopen(RNOTES, "R");
-     if(notef != NULL) {
-         nread = fread(buf, 1, sizeof(buf), notef);
-         while(nread != 0) {
-             fwrite(buf, 1, nread, stdout);
-             nread = fread(buf, 1, sizeof(buf), notef);
-         }
-         fclose(notef);
-         printf("\n[Press return to continue]");
-         fflush(stdout);
-         wait_for('\n');
-     }
-
-     return 0;
+    FILE *notef;
+    char buf[512];
+    short nread;
+    
+    notef = fopen(RNOTES, "R");
+    if(notef != NULL) {
+	nread = fread(buf, 1, sizeof(buf), notef);
+	while(nread != 0) {
+	    fwrite(buf, 1, nread, stdout);
+	    nread = fread(buf, 1, sizeof(buf), notef);
+	}
+	fclose(notef);
+	printf("\n[Press return to continue]");
+	fflush(stdout);
+	wait_for('\n');
+    }
+    
+    return 0;
 }
 #endif

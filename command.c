@@ -58,7 +58,7 @@ struct h_list helpstr[] = {
     {'z',	"	zap a wand or staff"},
     {'>',	"	go down a staircase"},
     {'s',	"	search for trap/secret door"},
-    {'{',	"	(space) rest for a while"},
+    {' ',	"	(space) rest for a while"},
     {'i',	"	inventory"},
     {'I',	"	inventory single item"},
     {'q',	"	quaff potion"},
@@ -565,8 +565,8 @@ int command()
                         
                         break;
                     default:
-			    msg("Illegal command '%s'.", unctrl(ch));
-			    count = 0;
+			msg("Illegal command '%s'.", unctrl(ch));
+			count = 0;
 		    }
                 }
                 else {

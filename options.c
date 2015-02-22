@@ -284,8 +284,8 @@ int parse_opts(char *str)
 		break;
 	    }
 	    else if((op->o_putfunc == put_bool)
-                     && (strncmp(str, "no", 2) == 0)
-                     && (strncmp(str + 2, op->o_name, len - 2) == 0)) {
+		    && (strncmp(str, "no", 2) == 0)
+		    && (strncmp(str + 2, op->o_name, len - 2) == 0)) {
                 // Check for "noname" for boolean
 		*(bool *)op->o_opt = FALSE;
 		break;

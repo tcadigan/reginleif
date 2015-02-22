@@ -97,13 +97,13 @@ int doadd(char *fmt, va_list args)
 int step_ok(char ch)
 {
     switch(ch) {
-	case ' ':
-	case '|':
-	case '-':
-	case SECRETDOOR:
-	    return FALSE;
-	default:
-	    return (!isalpha(ch));
+    case ' ':
+    case '|':
+    case '-':
+    case SECRETDOOR:
+	return FALSE;
+    default:
+	return (!isalpha(ch));
     }
 }
 

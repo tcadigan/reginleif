@@ -215,7 +215,7 @@ int inventory(struct linked_list *list, int type)
                     || (obj->o_type == POTION)
                     || (obj->o_type == RING)
                     || (obj->o_type == STICK)))) {
-		continue;
+	    continue;
         }
         
 	switch(n_objs++) {

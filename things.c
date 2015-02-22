@@ -42,7 +42,7 @@ char *inv_name(struct object *obj, bool drop)
             sprintf(pb, "called %s", s_guess[obj->o_which]);
         }
         else {
-		sprintf(pb, "titled '%s'", s_names[obj->o_which]);
+	    sprintf(pb, "titled '%s'", s_names[obj->o_which]);
         }
         break;
     case POTION:
@@ -94,7 +94,7 @@ char *inv_name(struct object *obj, bool drop)
                 strcpy(prbuf, "Some food");
             }
             else {
-		    sprintf(prbuf, "%d rations of food", obj->o_count);
+		sprintf(prbuf, "%d rations of food", obj->o_count);
             }
         }
         break;
@@ -311,7 +311,7 @@ int dropcheck(struct object *op)
        && (op != cur_weapon)
        && (op != cur_ring[LEFT])
        && (op != cur_ring[RIGHT])) {
-	    return TRUE;
+	return TRUE;
     }
     if(op->o_flags & ISCURSED) {
 	msg("You can't. It appears to be cursed.");

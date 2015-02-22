@@ -109,7 +109,7 @@ int missile(int ydelta, int xdelta)
     // or if it misses (combat) the monster, put it on the floor
     if (!isupper(mvwinch(mw, obj->o_pos.y, obj->o_pos.x))
 	|| !hit_monster(obj->o_pos.y, obj->o_pos.x, obj)) {
-	    fall(item, TRUE);
+	fall(item, TRUE);
     }
     mvwaddch(cw, player.t_pos.y, player.t_pos.x, PLAYER);
 
@@ -152,10 +152,10 @@ int do_motion(struct object *obj, int ydelta, int xdelta)
             // to display it if it is alright
 	    if (cansee(obj->o_pos.y, obj->o_pos.x) &&
 		mvwinch(cw, obj->o_pos.y, obj->o_pos.x) != ' ')
-	    {
-		mvwaddch(cw, obj->o_pos.y, obj->o_pos.x, obj->o_type);
-                wrefresh(cw);
-	    }
+		{
+		    mvwaddch(cw, obj->o_pos.y, obj->o_pos.x, obj->o_type);
+		    wrefresh(cw);
+		}
 	    continue;
 	}
 	break;

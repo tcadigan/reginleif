@@ -81,9 +81,9 @@ int read_scroll()
         break;
     case S_ARMOR:
         if(cur_armor != NULL) {
-		msg("Your armor glows faintly for a moment");
-		--cur_armor->o_ac;
-		cur_armor->o_flags &= ~ISCURSED;
+	    msg("Your armor glows faintly for a moment");
+	    --cur_armor->o_ac;
+	    cur_armor->o_flags &= ~ISCURSED;
         }
         break;
     case S_HOLD:

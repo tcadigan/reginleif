@@ -122,14 +122,6 @@ int look(bool wakeup)
                 if((y <= 0) || (y >= (LINES - 1))) {
                     continue;
                 }
-                
-		/* TC_DEBUG: Start */
-		FILE *output;
-		output = fopen("debug.txt", "a+");
-		fprintf(output, "TC_DEBUG: here\n");
-		fprintf(output, "TC_DEBUG: %d %d\n", y, x);
-		fclose(output);
-		/* TC_DEBUG: Finish */
 
                 if(isupper(mvwinch(mw, y, x))) {
                     struct linked_list *it;
@@ -209,9 +201,9 @@ int look(bool wakeup)
                         break;
                     case 'u':
                         if(((y - x) - (player.t_pos.y - player.t_pos.x)) >= 1) {
-                        continue;
+			    continue;
                         }
-                    break;
+			break;
                     case 'n':
                         if(((x + y) - (player.t_pos.x + player.t_pos.y)) <= -1) {
                             continue;
@@ -300,7 +292,7 @@ struct linked_list *find_obj(int y, int x)
     for(obj = lvl_obj; obj != NULL; obj = obj->l_next) {
 	op = (struct object *)obj->l_data;
 	if((op->o_pos.y == y) && (op->o_pos.x == x)) {
-		return obj;
+	    return obj;
         }
     }
 
@@ -474,14 +466,14 @@ int aggravate()
 char *vowelstr(char *str)
 {
     switch (*str) {
-	case 'a':
-	case 'e':
-	case 'i':
-	case 'o':
-	case 'u':
-	    return "n";
-	default:
-	    return "";
+    case 'a':
+    case 'e':
+    case 'i':
+    case 'o':
+    case 'u':
+	return "n";
+    default:
+	return "";
     }
 }
 

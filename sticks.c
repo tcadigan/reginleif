@@ -86,13 +86,6 @@ int do_zap(bool gotdir)
         }
     }
 
-    /* TC_DEBUG: Start */
-    FILE *output;
-    output = fopen("debug.txt", "a+");
-    print_object(obj, output);
-    fclose(output);
-    /* TC_DEBUG: Finish */
-
     switch(obj->o_which) {
     case WS_LIGHT:
         // Ready kilowatt want. Light up the room
@@ -446,7 +439,7 @@ int do_zap(bool gotdir)
 
                             player.t_stats.s_hpt -= roll(6, 6);
                             if(player.t_stats.s_hpt <= 0) {
-				    death('b');
+				death('b');
                             }
                             used = TRUE;
                         }
