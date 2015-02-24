@@ -385,6 +385,7 @@ struct linked_list *new_thing()
     case 1:
         cur->o_type = SCROLL;
         cur->o_which = pick_one(s_magic, MAXSCROLLS);
+	break;
     case 2:
         no_food = 0;
         cur->o_type = FOOD;

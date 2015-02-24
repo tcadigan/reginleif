@@ -260,7 +260,7 @@ int main(int argc, char **argv, char **envp)
     obj->o_type = WEAPON;
     obj->o_which = ARROW;
     init_weapon(obj, ARROW);
-    obj->o_count = 25+rnd(15);
+    obj->o_count = 25 + rnd(15);
     obj->o_hplus = obj->o_dplus = 0;
     obj->o_flags |= ISKNOW;
     add_pack(item, TRUE);
