@@ -5,7 +5,12 @@
 #include "daemon.h"
 
 #include "io.h"
-#include "rogue.h"
+
+/* TC_DEBUG: Start */
+#include "debug.h"
+#include <stdio.h>
+/* TC_DEBUG: Finish */
+
 
 struct delayed_action d_list[20] = {
     { 0 }, { 0 }, { 0 }, { 0 }, { 0 }, { 0 }, { 0 }, { 0 }, { 0 }, { 0 },
@@ -50,7 +55,7 @@ struct delayed_action *find_slot(int (*func)())
 
 // start_daemon:
 //     Start a daemon, takes a function
-int start_daemon(int (*func)(), int arg, int type)
+void start_daemon(int (*func)(), int arg, int type)
 {
     struct delayed_action *dev;
 
@@ -59,32 +64,26 @@ int start_daemon(int (*func)(), int arg, int type)
     dev->d_func = func;
     dev->d_arg = arg;
     dev->d_time = -1;
-
-    return 0;
 }
 
 // kill_daemon:
 //     Remove a daemon from the list
-int kill_daemon(int (*func)()) 
+void kill_daemon(int (*func)()) 
 {
     struct delayed_action *dev;
 
     dev = find_slot(func);
     
-    if(dev == NULL) {
-	return 0;
+    if(dev != NULL) {
+	// Take it out of the list
+	dev->d_type = 0;
     }
-
-    // Take it out of the list
-    dev->d_type = 0;
-
-    return 0;
 }
 
 // do_daemons:
 //     Run all the daemons that are active with the current flag,
 //     passing the argument to the function
-int do_daemons(int flag)
+void do_daemons(int flag)
 {
     struct delayed_action *dev;
 
@@ -92,16 +91,25 @@ int do_daemons(int flag)
     for(dev = d_list; dev < &d_list[20]; ++dev) {
         // Executing each one, giving it the proper arguments
 	if((dev->d_type == flag) && (dev->d_time == -1)) {
-	    (*dev->d_func)(dev->d_arg);
+	    if(dev->d_func != NULL) {
+		(*dev->d_func)(dev->d_arg);
+	    }
+	    else {
+		/* TC_DEBUG: Start */
+		FILE *output;
+		output = fopen("debug.txt", "a+");
+		fprintf(output, "ERROR: Encountered NULL d_func ");
+		fprintf(output, "in do_daemons()!\n");
+		fclose(output);
+		/* TC_DEBUG: Finish */
+	    }
         }
     }
-    
-    return 0;
 }
 
 // fuse:
 //     Start a fuse to go off in a certain number of turns
-int fuse(int (*func)(), int arg, int time, int type)
+void fuse(int (*func)(), int arg, int time, int type)
 {
     struct delayed_action *wire;
 
@@ -110,47 +118,37 @@ int fuse(int (*func)(), int arg, int time, int type)
     wire->d_func = func;
     wire->d_arg = arg;
     wire->d_time = time;
-
-    return 0;
 }
 
 // lengthen:
 //     Increase the time until a fuse goes off
-int lengthen(int (*func)(), int xtime)
+void lengthen(int (*func)(), int xtime)
 {
     struct delayed_action *wire;
 
     wire = find_slot(func);
-    
-    if(wire == NULL) {
-	return 0;
+ 
+    if(wire != NULL) {
+	wire->d_time += xtime;
     }
-    
-    wire->d_time += xtime;
-
-    return 0;
 }
 
 // extinguish:
 //     Put out a fuse
-int extinguish(int (*func)())
+void extinguish(int (*func)())
 {
     struct delayed_action *wire;
 
     wire = find_slot(func);
     
-    if(wire == NULL) {
-	return 0;
+    if(wire != NULL) {
+	wire->d_type = 0;
     }
-    
-    wire->d_type = 0;
-
-    return 0;
 }
 
 // do_fuses:
 //     Decrement counters and start needed fuses
-int do_fuses(int flag)
+void do_fuses(int flag)
 {
     struct delayed_action *wire;
 
@@ -163,10 +161,20 @@ int do_fuses(int flag)
             
             if(wire->d_time == 0) {
                 wire->d_type = 0;
-                (*wire->d_func)(wire->d_arg);
+
+		if(wire->d_func != NULL) {
+		    (*wire->d_func)(wire->d_arg);
+		}
+		else {
+		    /* TC_DEBUG: Start */
+		    FILE *output;
+		    output = fopen("debug.txt", "a+");
+		    fprintf(output, "ERROR: Encountered NULL d_func ");
+		    fprintf(output, "in do_fuses()!\n");
+		    fclose(output);
+		    /* TC_DEBUG: Finish */
+		}
             }
         }
     }
-    
-    return 0;
 }

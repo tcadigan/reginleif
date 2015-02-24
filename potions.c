@@ -52,10 +52,10 @@ int quaff()
             msg("Wait, what's going on here. Huh? What? Who?");
 
             if((player.t_flags & ISHUH) != 0) {
-                lengthen(unconfuse, rnd(8) + HUHDURATION);
+                lengthen(&unconfuse, rnd(8) + HUHDURATION);
             }
             else {
-                fuse(unconfuse, 0, rnd(8) + HUHDURATION, AFTER);
+                fuse(&unconfuse, 0, rnd(8) + HUHDURATION, AFTER);
             }
             
             player.t_flags |= ISHUH;
@@ -156,7 +156,7 @@ int quaff()
 
         if((player.t_flags & CANSEE) == 0) {
             player.t_flags |= CANSEE;
-            fuse(unsee, 0, SEEDURATION, AFTER);
+            fuse(&unsee, 0, SEEDURATION, AFTER);
             light(&player.t_pos);
         }
 
@@ -198,7 +198,7 @@ int quaff()
 
         if((player.t_flags & ISBLIND) == 0) {
             player.t_flags |= ISBLIND;
-            fuse(sight, 0, SEEDURATION, AFTER);
+            fuse(&sight, 0, SEEDURATION, AFTER);
             look(FALSE);
         }
         

@@ -226,10 +226,10 @@ int main(int argc, char **argv, char **envp)
     new_level();
     
     // Start up daemons and fuses
-    start_daemon(doctor, 0, AFTER);
-    fuse(swander, 0, WANDERTIME, AFTER);
-    start_daemon(stomach, 0, AFTER);
-    start_daemon(runners, 0, AFTER);
+    start_daemon(&doctor, 0, AFTER);
+    fuse(&swander, 0, WANDERTIME, AFTER);
+    start_daemon(&stomach, 0, AFTER);
+    start_daemon(&runners, 0, AFTER);
 
     // Give the rogue his weaponry, first a mace
     item = new_item(sizeof *obj);

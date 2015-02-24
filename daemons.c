@@ -57,7 +57,7 @@ int doctor()
 //     Called when it is time to start rolling for wandering monsters
 int swander()
 {
-    start_daemon(rollwand, 0, BEFORE);
+    start_daemon(&rollwand, 0, BEFORE);
 
     return 0;
 }
@@ -73,8 +73,8 @@ int rollwand()
     if(between >= 4) {
 	if(roll(1, 6) == 4) {
 	    wanderer();
-	    kill_daemon(rollwand);
-	    fuse(swander, 0, WANDERTIME, BEFORE);
+	    kill_daemon(&rollwand);
+	    fuse(&swander, 0, WANDERTIME, BEFORE);
 	}
 	between = 0;
     }
@@ -107,7 +107,7 @@ int unsee()
 int sight()
 {
     if((player.t_flags & ISBLIND) != 0) {
-	extinguish(sight);
+	extinguish(&sight);
 	player.t_flags &= ~ISBLIND;
 	light(&player.t_pos);
 	msg("The veil of darkness lifts");

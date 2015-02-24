@@ -435,12 +435,12 @@ int add_haste(bool potion)
     if((player.t_flags & ISHASTE) != 0) {
 	msg("You faint from exhaustion.");
 	no_command += rnd(8);
-	extinguish(nohaste);
+	extinguish(&nohaste);
     }
     else {
 	player.t_flags |= ISHASTE;
 	if(potion) {
-	    fuse(nohaste, 0, rnd(4) + 4, AFTER);
+	    fuse(&nohaste, 0, rnd(4) + 4, AFTER);
         }
     }
 

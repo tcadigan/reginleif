@@ -264,10 +264,10 @@ struct linked_list *wake_monster(int y, int x)
 		msg("The umber hulk's gaze has confused you.");
 
                 if((player.t_flags & ISHUH) != 0) {
-		    lengthen(unconfuse, rnd(20) + HUHDURATION);
+		    lengthen(&unconfuse, rnd(20) + HUHDURATION);
                 }
 		else {
-		    fuse(unconfuse, 0, rnd(20) + HUHDURATION, AFTER);
+		    fuse(&unconfuse, 0, rnd(20) + HUHDURATION, AFTER);
                 }
                 
 		player.t_flags |= ISHUH;

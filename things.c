@@ -334,7 +334,7 @@ int dropcheck(struct object *op)
             break;
         case R_SEEINVIS:
             player.t_flags &= ~CANSEE;
-            extinguish(unsee);
+            extinguish(&unsee);
             light(&player.t_pos);
             mvwaddch(cw, player.t_pos.y, player.t_pos.x, PLAYER);
             break;
