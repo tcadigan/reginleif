@@ -209,8 +209,7 @@ int teleport()
     running = FALSE;
 
     // Flush typeahead
-    raw();
-    noraw();
+    flushinp();
     
     return rm;
 }

@@ -383,8 +383,8 @@ struct linked_list *new_thing()
         cur->o_which = pick_one(p_magic, MAXPOTIONS);
         break;
     case 1:
-        cur->o_type = SCROLL;
-        cur->o_which = pick_one(s_magic, MAXSCROLLS);
+	cur->o_type = SCROLL;
+	cur->o_which = pick_one(s_magic, MAXSCROLLS);
 	break;
     case 2:
         no_food = 0;

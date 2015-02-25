@@ -348,8 +348,7 @@ void tstp(int parameter)
     touchwin(cw);
     wrefresh(cw);
     // Flush input
-    raw();
-    noraw();
+    flushinp();
 }
 #endif
 
