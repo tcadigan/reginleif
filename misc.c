@@ -369,59 +369,60 @@ int chg_str(int amt)
 	while(amt) {
             amt--;
             
-	    if(player.t_stats.s_str.st_str < 18) {
-		++player.t_stats.s_str.st_str;
+	    if(player.t_stats.st_str < 18) {
+		++player.t_stats.st_str;
             }
-	    else if(player.t_stats.s_str.st_add == 0) {
-		player.t_stats.s_str.st_add = rnd(50) + 1;
+	    else if(player.t_stats.st_add == 0) {
+		player.t_stats.st_add = rnd(50) + 1;
             }
-	    else if(player.t_stats.s_str.st_add <= 50) {
-		player.t_stats.s_str.st_add = 51 + rnd(24);
+	    else if(player.t_stats.st_add <= 50) {
+		player.t_stats.st_add = 51 + rnd(24);
             }
-	    else if(player.t_stats.s_str.st_add <= 75) {
-		player.t_stats.s_str.st_add = 76 + rnd(14);
+	    else if(player.t_stats.st_add <= 75) {
+		player.t_stats.st_add = 76 + rnd(14);
             }
-	    else if(player.t_stats.s_str.st_add <= 90) {
-		player.t_stats.s_str.st_add = 91;
+	    else if(player.t_stats.st_add <= 90) {
+		player.t_stats.st_add = 91;
             }
-	    else if(player.t_stats.s_str.st_add < 100) {
-		++player.t_stats.s_str.st_add;
+	    else if(player.t_stats.st_add < 100) {
+		++player.t_stats.st_add;
             }
 	}
         
-	if((player.t_stats.s_str.st_str > max_stats.s_str.st_str)
-           || ((player.t_stats.s_str.st_str == 18)
-               && (player.t_stats.s_str.st_add > max_stats.s_str.st_add))) {
-            max_stats.s_str = player.t_stats.s_str;
+	if((player.t_stats.st_str > max_stats.st_str)
+           || ((player.t_stats.st_str == 18)
+               && (player.t_stats.st_add > max_stats.st_add))) {
+            max_stats.st_str = player.t_stats.st_str;
+	    max_stats.st_add = player.t_stats.st_add;
         }
     }
     else {
 	while(amt) {
             amt++;
 
-	    if((player.t_stats.s_str.st_str < 18)
-               || (player.t_stats.s_str.st_add == 0)) {
-		--player.t_stats.s_str.st_str;
+	    if((player.t_stats.st_str < 18)
+               || (player.t_stats.st_add == 0)) {
+		--player.t_stats.st_str;
             }
-	    else if(player.t_stats.s_str.st_add < 51) {
-		player.t_stats.s_str.st_add = 0;
+	    else if(player.t_stats.st_add < 51) {
+		player.t_stats.st_add = 0;
             }
-	    else if(player.t_stats.s_str.st_add < 76) {
-		player.t_stats.s_str.st_add = 1 + rnd(50);
+	    else if(player.t_stats.st_add < 76) {
+		player.t_stats.st_add = 1 + rnd(50);
             }
-	    else if(player.t_stats.s_str.st_add < 91) {
-		player.t_stats.s_str.st_add = 51 + rnd(25);
+	    else if(player.t_stats.st_add < 91) {
+		player.t_stats.st_add = 51 + rnd(25);
             }
-	    else if(player.t_stats.s_str.st_add < 100) {
-		player.t_stats.s_str.st_add = 76 + rnd(14);
+	    else if(player.t_stats.st_add < 100) {
+		player.t_stats.st_add = 76 + rnd(14);
             }
 	    else {
-		player.t_stats.s_str.st_add = 91 + rnd(8);
+		player.t_stats.st_add = 91 + rnd(8);
             }
 	}
         
-	if(player.t_stats.s_str.st_str < 3) {
-	    player.t_stats.s_str.st_str = 3;
+	if(player.t_stats.st_str < 3) {
+	    player.t_stats.st_str = 3;
         }
     }
 

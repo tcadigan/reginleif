@@ -9,9 +9,6 @@ void print_h_list_internal(struct h_list *item, int level, int embedded, FILE *o
 void print_coord(coord *item, FILE *output);
 void print_coord_internal(coord *item, int level, int embedded, FILE *output);
 
-void print_str_t(str_t *item, FILE *output);
-void print_str_t_internal(str_t *item, int level, int embedded, FILE *output);
-
 void print_linked_list(struct linked_list *item, FILE *output);
 void print_linked_list_internal(struct linked_list *item, int level, int embedded, FILE *output);
 

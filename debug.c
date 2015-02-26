@@ -65,39 +65,6 @@ void print_coord_internal(coord *item, int level, int embedded, FILE *output)
     fprintf(output, "\n");
 }
 
-void print_str_t(str_t *item, FILE *output)
-{
-    print_str_t_internal(item, 0, 0, output);
-}
-
-void print_str_t_internal(str_t *item, int level, int embedded, FILE *output)
-{
-    print_indent(level, output);
-    fprintf(output, "{\n");
-    print_indent(level + 1, output);
-    fprintf(output, "\"type\": \"str_t\",\n");
-    print_indent(level + 1, output);
-    fprintf(output, "\"address\": \"%p\"", item);
-
-    if(item != NULL) {
-        fprintf(output, ",\n");
-        print_indent(level + 1, output);
-        fprintf(output, "\"st_str\": %d,\n", item->st_str);
-        print_indent(level + 1, output);
-        fprintf(output, "\"st_add\": %d", item->st_add);
-    }
-
-    fprintf(output, "\n");
-    print_indent(level, output);
-    fprintf(output, "}");
-
-    if(embedded) {
-        fprintf(output, ",");
-    }
-
-    fprintf(output, "\n");
-};
-
 void print_linked_list(struct linked_list *item, FILE *output)
 {
     print_linked_list_internal(item, 0, 0, output);
@@ -280,8 +247,9 @@ void print_stats_internal(struct stats *item, int level, int embedded, FILE *out
     if(item != NULL) {
         fprintf(output, ",\n");
         print_indent(level + 1, output);
-        fprintf(output, "\"s_str\":\n");
-        print_str_t_internal(&item->s_str, level + 1, 1, output);
+        fprintf(output, "\"st_str\": %d,\n", item->st_str);
+        print_indent(level + 1, output);
+        fprintf(output, "\"st_add\": %d", item->st_add);
         print_indent(level + 1, output);
         fprintf(output, "\"s_exp\": %ld,\n", item->s_exp);
         print_indent(level + 1, output);

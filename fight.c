@@ -468,7 +468,7 @@ int roll_em(struct stats *att, struct stats *def, struct object *weap, bool hurl
 	    def_arm = def->s_arm;
         }
         
-	if(swing(att->s_lvl, def_arm, hplus + str_plus(&att->s_str))) {
+	if(swing(att->s_lvl, def_arm, hplus + str_plus(att))) {
 	    int proll;
 
 	    proll = roll(ndice, nsides);
@@ -477,7 +477,7 @@ int roll_em(struct stats *att, struct stats *def, struct object *weap, bool hurl
                     msg("Damage for %dd%d came out %d.", ndice, nsides, proll);
                 }
             }
-	    damage = dplus + proll + add_dam(&att->s_str);
+	    damage = dplus + proll + add_dam(att);
 
             if(0 > damage) {
                 def->s_hpt -= 0;
@@ -655,53 +655,53 @@ int save(int which)
 
 // str_plus:
 //     Compute bonus/penalties for strength on the "to hit" roll
-int str_plus(str_t *str)
+int str_plus(struct stats *stats)
 {
-    if(str->st_str == 18) {
-	if(str->st_add == 100) {
+    if(stats->st_str == 18) {
+	if(stats->st_add == 100) {
 	    return 3;
         }
-	if(str->st_add > 50) {
+	if(stats->st_add > 50) {
 	    return 2;
         }
     }
-    if(str->st_str >= 17) {
+    if(stats->st_str >= 17) {
 	return 1;
     }
-    if(str->st_str > 6) {
+    if(stats->st_str > 6) {
 	return 0;
     }
     
-    return (str->st_str - 7);
+    return (stats->st_str - 7);
 }
 
 // add_dam:
 //     Compute additional damage done for exceptionally high or low strength
-int add_dam(str_t *str)
+int add_dam(struct stats *stats)
 {
-    if(str->st_str == 18) {
-	if(str->st_add == 100) {
+    if(stats->st_str == 18) {
+	if(stats->st_add == 100) {
 	    return 6;
         }
-	if(str->st_add > 90) {
+	if(stats->st_add > 90) {
 	    return 5;
         }
-	if(str->st_add > 75) {
+	if(stats->st_add > 75) {
 	    return 4;
         }
-	if(str->st_add != 0) {
+	if(stats->st_add != 0) {
 	    return 3;
         }
         
 	return 2;
     }
-    if(str->st_str > 15) {
+    if(stats->st_str > 15) {
 	return 1;
     }
-    if(str->st_str > 6) {
+    if(stats->st_str > 6) {
 	return 0;
     }
-    return (str->st_str - 7);
+    return (stats->st_str - 7);
 }
 
 // raise_level:

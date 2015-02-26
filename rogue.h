@@ -250,11 +250,6 @@ typedef struct {
     int y;
 } coord;
 
-typedef struct {
-    short st_str;
-    short st_add;
-} str_t;
-
 // Linked list data type
 struct linked_list {
     struct linked_list *l_next;
@@ -301,7 +296,8 @@ struct trap {
 // Structure describing a fighting being
 struct stats {
     // Strength
-    str_t s_str;
+    short st_str;
+    short st_add;
     // Experience
     long s_exp;
     // Level of mastery

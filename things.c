@@ -302,7 +302,8 @@ int drop()
 //     Do special checks for dropping/unwielding/unwearing/unringing
 int dropcheck(struct object *op)
 {
-    str_t save_max;
+    short save_max_st_str;
+    short save_max_st_add;
 
     if(op == NULL) {
 	return TRUE;
@@ -328,9 +329,11 @@ int dropcheck(struct object *op)
     else if((op == cur_ring[LEFT]) || (op == cur_ring[RIGHT])) {
 	switch(op->o_which) {
         case R_ADDSTR:
-            save_max = max_stats.s_str;
+	    save_max_st_str = max_stats.st_str;
+	    save_max_st_add = max_stats.st_add;
             chg_str(-op->o_ac);
-            max_stats.s_str = save_max;
+	    max_stats.st_str = save_max_st_str;
+	    max_stats.st_add = save_max_st_add;
             break;
         case R_SEEINVIS:
             player.t_flags &= ~CANSEE;

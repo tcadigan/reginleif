@@ -187,10 +187,11 @@ int quaff()
         break;
     case P_RESTORE:
         msg("Hey, this tastes great.  It make you feel warm all over.");
-        if((player.t_stats.s_str.st_str < max_stats.s_str.st_str)
-           || ((player.t_stats.s_str.st_str == 18)
-               && (player.t_stats.s_str.st_add < max_stats.s_str.st_add))) {
-	    player.t_stats.s_str = max_stats.s_str;
+        if((player.t_stats.st_str < max_stats.st_str)
+           || ((player.t_stats.st_str == 18)
+               && (player.t_stats.st_add < max_stats.st_add))) {
+	    player.t_stats.st_str = max_stats.st_str;
+	    player.t_stats.st_add = max_stats.st_add;
         }
         break;
     case P_BLIND:

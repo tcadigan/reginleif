@@ -49,32 +49,32 @@ int lastscore = -1;
 
 struct monster monsters[26] = {
     // Name,             CARRY, FLAG,             str,    exp, lvl, arm, hpt, dmg
-    { "giant ant"        ,   0,	ISMEAN        ,	{ {1, 1},   10,  2,  3, 1, "1d6"             } },
-    { "bat"              ,   0,	0             ,	{ {1, 1},    1,  1,  3, 1, "1d2"             } },
-    { "centaur"          ,  15,	0             ,	{ {1, 1},   15,  4,  4, 1, "1d6/1d6"         } },
-    { "dragon"           , 100,	ISGREED       , { {1, 1}, 9000, 10, -1, 1, "1d8/1d8/3d10"    } },
-    { "floating eye"     ,   0,	0             ,	{ {1, 1},    5,  1,  9, 1, "0d0"             } },
-    { "violet fungi"     ,   0,	ISMEAN        ,	{ {1, 1},   85,  8,  3, 1, "000d0"           } },
-    { "gnome"            ,  10,	0             ,	{ {1, 1},    8,  1,  5, 1, "1d6"             } },
-    { "hobgoblin"        ,   0,	ISMEAN        ,	{ {1, 1},    3,  1,  5, 1, "1d8"             } },
-    { "invisible stalker",   0, ISINVIS       , { {1, 1},  120,  8,  3, 1, "4d4"             } },
-    { "jackal"           ,   0,	ISMEAN        ,	{ {1, 1},    2,  1,  7, 1, "1d2"             } },
-    { "kobold"           ,   0,	ISMEAN        ,	{ {1, 1},    1,  1,  7, 1, "1d4"             } },
-    { "leprechaun"       ,   0,	0             ,	{ {1, 1},   10,  3,  8, 1, "1d1"             } },
-    { "mimic"            ,  30,	0             ,	{ {1, 1},  140,  7,  7, 1, "3d4"             } },
-    { "nymph"            , 100,	0             ,	{ {1, 1},   40,  3,  9, 1, "0d0"             } },
-    { "orc"              ,  15,	ISBLOCK       , { {1, 1},    5,  1,  6, 1, "1d8"             } },
-    { "purple worm"      ,  70,	0             ,	{ {1, 1}, 7000, 15,  6, 1, "2d12/2d4"        } },
-    { "quasit"           ,  30,	ISMEAN        ,	{ {1, 1},   35,  3,  2, 1, "1d2/1d2/1d4"     } },
-    { "rust monster"     ,   0,	ISMEAN        ,	{ {1, 1},   25,  5,  2, 1, "0d0/0d0"         } },
-    { "snake"            ,   0,	ISMEAN        ,	{ {1, 1},    3,  1,  5, 1, "1d3"             } },
-    { "troll"            ,  50,	ISREGEN|ISMEAN, { {1, 1},   55,  6,  4, 1, "1d8/1d8/2d6"     } },
-    { "umber hulk"       ,  40,	ISMEAN        ,	{ {1, 1},  130,  8,  2, 1, "3d4/3d4/2d5"     } },
-    { "vampire"          ,  20,	ISREGEN|ISMEAN, { {1, 1},  380,  8,  1, 1, "1d10"            } },
-    { "wraith"           ,   0,	0             ,	{ {1, 1},   55,  5,  4, 1, "1d6"             } },
-    { "xorn"             ,   0,	ISMEAN        ,	{ {1, 1},  120,  7, -2, 1, "1d3/1d3/1d3/4d6" } },
-    { "yeti"             ,  30,	0             ,	{ {1, 1},   50,  4,  6, 1, "1d6/1d6"         } },
-    { "zombie"           ,   0,	ISMEAN        ,	{ {1, 1},    7,  2,  8, 1, "1d8"             } }
+    { "giant ant"        ,   0,	ISMEAN        ,	{ 1, 1,   10,  2,  3, 1, "1d6"             } },
+    { "bat"              ,   0,	0             ,	{ 1, 1,    1,  1,  3, 1, "1d2"             } },
+    { "centaur"          ,  15,	0             ,	{ 1, 1,   15,  4,  4, 1, "1d6/1d6"         } },
+    { "dragon"           , 100,	ISGREED       , { 1, 1, 9000, 10, -1, 1, "1d8/1d8/3d10"    } },
+    { "floating eye"     ,   0,	0             ,	{ 1, 1,    5,  1,  9, 1, "0d0"             } },
+    { "violet fungi"     ,   0,	ISMEAN        ,	{ 1, 1,   85,  8,  3, 1, "000d0"           } },
+    { "gnome"            ,  10,	0             ,	{ 1, 1,    8,  1,  5, 1, "1d6"             } },
+    { "hobgoblin"        ,   0,	ISMEAN        ,	{ 1, 1,    3,  1,  5, 1, "1d8"             } },
+    { "invisible stalker",   0, ISINVIS       , { 1, 1,  120,  8,  3, 1, "4d4"             } },
+    { "jackal"           ,   0,	ISMEAN        ,	{ 1, 1,    2,  1,  7, 1, "1d2"             } },
+    { "kobold"           ,   0,	ISMEAN        ,	{ 1, 1,    1,  1,  7, 1, "1d4"             } },
+    { "leprechaun"       ,   0,	0             ,	{ 1, 1,   10,  3,  8, 1, "1d1"             } },
+    { "mimic"            ,  30,	0             ,	{ 1, 1,  140,  7,  7, 1, "3d4"             } },
+    { "nymph"            , 100,	0             ,	{ 1, 1,   40,  3,  9, 1, "0d0"             } },
+    { "orc"              ,  15,	ISBLOCK       , { 1, 1,    5,  1,  6, 1, "1d8"             } },
+    { "purple worm"      ,  70,	0             ,	{ 1, 1, 7000, 15,  6, 1, "2d12/2d4"        } },
+    { "quasit"           ,  30,	ISMEAN        ,	{ 1, 1,   35,  3,  2, 1, "1d2/1d2/1d4"     } },
+    { "rust monster"     ,   0,	ISMEAN        ,	{ 1, 1,   25,  5,  2, 1, "0d0/0d0"         } },
+    { "snake"            ,   0,	ISMEAN        ,	{ 1, 1,    3,  1,  5, 1, "1d3"             } },
+    { "troll"            ,  50,	ISREGEN|ISMEAN, { 1, 1,   55,  6,  4, 1, "1d8/1d8/2d6"     } },
+    { "umber hulk"       ,  40,	ISMEAN        ,	{ 1, 1,  130,  8,  2, 1, "3d4/3d4/2d5"     } },
+    { "vampire"          ,  20,	ISREGEN|ISMEAN, { 1, 1,  380,  8,  1, 1, "1d10"            } },
+    { "wraith"           ,   0,	0             ,	{ 1, 1,   55,  5,  4, 1, "1d6"             } },
+    { "xorn"             ,   0,	ISMEAN        ,	{ 1, 1,  120,  7, -2, 1, "1d3/1d3/1d3/4d6" } },
+    { "yeti"             ,  30,	0             ,	{ 1, 1,   50,  4,  6, 1, "1d6/1d6"         } },
+    { "zombie"           ,   0,	ISMEAN        ,	{ 1, 1,    7,  2,  8, 1, "1d8"             } }
 };
 
 struct magic_item things[NUMTHINGS] = {
@@ -452,12 +452,12 @@ int init_player()
     max_hp = player.t_stats.s_hpt;
 
     if(rnd(100) == 7) {
-	player.t_stats.s_str.st_str = 18;
-	player.t_stats.s_str.st_add = rnd(100) + 1;
+	player.t_stats.st_str = 18;
+	player.t_stats.st_add = rnd(100) + 1;
     }
     else {
-	player.t_stats.s_str.st_str = 16;
-	player.t_stats.s_str.st_add = 0;
+	player.t_stats.st_str = 16;
+	player.t_stats.st_add = 0;
     }
     
     player.t_stats.s_dmg = "1d4";

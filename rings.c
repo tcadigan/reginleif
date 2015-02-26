@@ -19,7 +19,8 @@ int ring_on()
     struct object *obj;
     struct linked_list *item;
     register int ring;
-    str_t save_max;
+    short save_max_st_str;
+    short save_max_st_add;
     char buf[80];
 
     item = get_item("put on", RING);
@@ -70,9 +71,11 @@ int ring_on()
     // Calculate the effect it has on the poor guy
     switch(obj->o_which) {
     case R_ADDSTR:
-        save_max = max_stats.s_str;
+	save_max_st_str = max_stats.st_str;
+	save_max_st_add = max_stats.st_add;
         chg_str(obj->o_ac);
-        max_stats.s_str = save_max;
+	max_stats.st_str = save_max_st_str;
+	max_stats.st_add = save_max_st_add;
         break;
     case R_SEEINVIS:
         player.t_flags |= CANSEE;

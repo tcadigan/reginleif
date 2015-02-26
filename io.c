@@ -147,8 +147,8 @@ int status()
             && (s_exp == player.t_stats.s_exp)
             && (s_pur == purse)
             && (s_ac == cur_armor->o_ac)
-            && (s_str == player.t_stats.s_str.st_str)
-            && (s_add == player.t_stats.s_str.st_add)
+            && (s_str == player.t_stats.st_str)
+            && (s_add == player.t_stats.st_add)
             && (s_lvl == level)
             && (s_hungry == hungry_state)) {
 	    return 0;
@@ -159,8 +159,8 @@ int status()
             && (s_exp == player.t_stats.s_exp)
             && (s_pur == purse)
             && (s_ac == player.t_stats.s_arm)
-            && (s_str == player.t_stats.s_str.st_str)
-            && (s_add == player.t_stats.s_str.st_add)
+            && (s_str == player.t_stats.st_str)
+            && (s_add == player.t_stats.st_add)
             && (s_lvl == level)
             && (s_hungry == hungry_state)) {
 	    return 0;
@@ -188,7 +188,7 @@ int status()
                 player.t_stats.s_hpt,
                 hpwidth,
                 max_hp,
-                player.t_stats.s_str.st_str);
+                player.t_stats.st_str);
     }
     else {
         sprintf(buf,
@@ -199,12 +199,12 @@ int status()
                 player.t_stats.s_hpt,
                 hpwidth,
                 max_hp,
-                player.t_stats.s_str.st_str);
+                player.t_stats.st_str);
     }
     
-    if(player.t_stats.s_str.st_add != 0) {
+    if(player.t_stats.st_add != 0) {
 	pb = &buf[strlen(buf)];
-	sprintf(pb, "/%d", player.t_stats.s_str.st_add);
+	sprintf(pb, "/%d", player.t_stats.st_add);
     }
 
     pb = &buf[strlen(buf)];
@@ -248,8 +248,8 @@ int status()
     s_lvl = level;
     s_pur = purse;
     s_hp = player.t_stats.s_hpt;
-    s_str = player.t_stats.s_str.st_str;
-    s_add = player.t_stats.s_str.st_add;
+    s_str = player.t_stats.st_str;
+    s_add = player.t_stats.st_add;
     s_exp = player.t_stats.s_exp;
 
     if(cur_armor != NULL) {
