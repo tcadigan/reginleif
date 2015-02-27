@@ -789,7 +789,7 @@ int identify()
     }
     
     if(isalpha(ch) && isupper(ch)) {
-	str = monsters[ch-'A'].m_name;
+	str = monsters[ch-'A'].t_name;
     }
     else {
         switch(ch) {

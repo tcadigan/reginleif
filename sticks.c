@@ -421,7 +421,7 @@ int do_zap(bool gotdir)
                                 msg("%s misses", name);
                             }
                             else {
-                                msg("The %s whizzes past the %s", name, monsters[ch - 'A'].m_name);
+                                msg("The %s whizzes past the %s", name, monsters[ch - 'A'].t_name);
                             }
                             runto(&pos, &player.t_pos);
                         }

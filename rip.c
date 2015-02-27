@@ -437,7 +437,7 @@ int total_winner()
 char *killname(char monst)
 {
     if(isupper(monst)) {
-	return monsters[monst - 'A'].m_name;
+	return monsters[monst - 'A'].t_name;
     }
     else {
 	switch(monst) {

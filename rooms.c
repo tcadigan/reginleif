@@ -114,7 +114,7 @@ int do_rooms()
                 
                 new_monster(item, randmonster(FALSE), &mp);
                 // See if we want to give it treasure to carry around.
-                if(rnd(100) < monsters[tp->t_type - 'A'].m_carry) {
+                if(rnd(100) < monsters[tp->t_type - 'A'].t_carry) {
                     _attach(&tp->t_pack, new_thing());
                 }
             }
@@ -132,7 +132,7 @@ int do_rooms()
                 
                 new_monster(item, randmonster(FALSE), &mp);
                 // See if we want to give it a treasure to carry around.
-                if(rnd(100) < monsters[tp->t_type - 'A'].m_carry) {
+                if(rnd(100) < monsters[tp->t_type - 'A'].t_carry) {
                     _attach(&tp->t_pack, new_thing());
                 }
             }

@@ -47,34 +47,371 @@ int hungry_state = 0;
 int lastscore = -1;
 
 
-struct monster monsters[26] = {
-    // Name,             CARRY, FLAG,             str,    exp, lvl, arm, hpt, dmg
-    { "giant ant"        ,   0,	ISMEAN        ,	{ 1, 1,   10,  2,  3, 1, "1d6"             } },
-    { "bat"              ,   0,	0             ,	{ 1, 1,    1,  1,  3, 1, "1d2"             } },
-    { "centaur"          ,  15,	0             ,	{ 1, 1,   15,  4,  4, 1, "1d6/1d6"         } },
-    { "dragon"           , 100,	ISGREED       , { 1, 1, 9000, 10, -1, 1, "1d8/1d8/3d10"    } },
-    { "floating eye"     ,   0,	0             ,	{ 1, 1,    5,  1,  9, 1, "0d0"             } },
-    { "violet fungi"     ,   0,	ISMEAN        ,	{ 1, 1,   85,  8,  3, 1, "000d0"           } },
-    { "gnome"            ,  10,	0             ,	{ 1, 1,    8,  1,  5, 1, "1d6"             } },
-    { "hobgoblin"        ,   0,	ISMEAN        ,	{ 1, 1,    3,  1,  5, 1, "1d8"             } },
-    { "invisible stalker",   0, ISINVIS       , { 1, 1,  120,  8,  3, 1, "4d4"             } },
-    { "jackal"           ,   0,	ISMEAN        ,	{ 1, 1,    2,  1,  7, 1, "1d2"             } },
-    { "kobold"           ,   0,	ISMEAN        ,	{ 1, 1,    1,  1,  7, 1, "1d4"             } },
-    { "leprechaun"       ,   0,	0             ,	{ 1, 1,   10,  3,  8, 1, "1d1"             } },
-    { "mimic"            ,  30,	0             ,	{ 1, 1,  140,  7,  7, 1, "3d4"             } },
-    { "nymph"            , 100,	0             ,	{ 1, 1,   40,  3,  9, 1, "0d0"             } },
-    { "orc"              ,  15,	ISBLOCK       , { 1, 1,    5,  1,  6, 1, "1d8"             } },
-    { "purple worm"      ,  70,	0             ,	{ 1, 1, 7000, 15,  6, 1, "2d12/2d4"        } },
-    { "quasit"           ,  30,	ISMEAN        ,	{ 1, 1,   35,  3,  2, 1, "1d2/1d2/1d4"     } },
-    { "rust monster"     ,   0,	ISMEAN        ,	{ 1, 1,   25,  5,  2, 1, "0d0/0d0"         } },
-    { "snake"            ,   0,	ISMEAN        ,	{ 1, 1,    3,  1,  5, 1, "1d3"             } },
-    { "troll"            ,  50,	ISREGEN|ISMEAN, { 1, 1,   55,  6,  4, 1, "1d8/1d8/2d6"     } },
-    { "umber hulk"       ,  40,	ISMEAN        ,	{ 1, 1,  130,  8,  2, 1, "3d4/3d4/2d5"     } },
-    { "vampire"          ,  20,	ISREGEN|ISMEAN, { 1, 1,  380,  8,  1, 1, "1d10"            } },
-    { "wraith"           ,   0,	0             ,	{ 1, 1,   55,  5,  4, 1, "1d6"             } },
-    { "xorn"             ,   0,	ISMEAN        ,	{ 1, 1,  120,  7, -2, 1, "1d3/1d3/1d3/4d6" } },
-    { "yeti"             ,  30,	0             ,	{ 1, 1,   50,  4,  6, 1, "1d6/1d6"         } },
-    { "zombie"           ,   0,	ISMEAN        ,	{ 1, 1,    7,  2,  8, 1, "1d8"             } }
+struct thing monsters[26] = {
+    { "giant ant", /* Name */
+      { 0, 0 },    /* Current position */
+      0,           /* Turn to move */
+      'A',         /* Type */
+      '\0',        /* Prior location character */
+      NULL,        /* Destination */
+      ISMEAN,      /* Flags */
+      '\0',        /* Mimic disguise */
+      0,           /* Probability to carry */
+
+      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
+      {    1,         1,   10,   2,     3,  1,             "1d6" },
+      NULL         /* Pack */
+    },
+    { "bat",    /* Name */
+      { 0, 0 }, /* Current position */
+      0,        /* Turn to move */
+      'B',      /* Type */
+      '\0',     /* Prior location character */
+      NULL,     /* Destination */
+      0,        /* Flags */
+      '\0',     /* Mimic disguise */
+      0,        /* Probability to carry */
+
+      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
+      {    1,         1,    1,   4,     4,  1,             "1d2" },
+      NULL      /* Pack */
+    },
+    { "centaur", /* Name */
+      { 0, 0 },  /* Current position */
+      0,         /* Turn to move */
+      'C',       /* Type */
+      '\0',      /* Prior location character */
+      NULL,      /* Destination */
+      0,         /* Flags */
+      '\0',      /* Mimic disguise */
+      15,        /* Probability to carry */
+
+      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
+      {    1,         1,   15,   4,     4,  1,         "1d6/1d6" },
+      NULL       /* Pack */
+    },
+    { "dragon", /* Name */
+      { 0, 0 }, /* Current position */
+      0,        /* Turn to move */
+      'D',      /* Type */
+      '\0',     /* Prior location character */
+      NULL,     /* Destination */
+      ISGREED,  /* Flags */
+      '\0',     /* Mimic disguise */
+      100,      /* Probability to carry */
+
+      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,                Dmg */
+      {    1,         1, 9000,  10,    -1,  1,     "1d8/1d8/3d10" },
+      NULL      /* Pack */
+    },
+    { "floating eye", /* Name */
+      { 0, 0 },       /* Current position */
+      0,              /* Turn to move */
+      'E',            /* Type */
+      '\0',           /* Prior location character */
+      NULL,           /* Destination */
+      0,              /* Flags */
+      '\0',           /* Mimic disguise */
+      0,              /* Probability to carry */
+
+      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,                Dmg */
+      {    1,         1,    5,   1,     9,  1,              "0d0" },
+      NULL            /* Pack */
+    },
+    { "violet fungi", /* Name */
+      { 0, 0 },       /* Current position */
+      0,              /* Turn to move */
+      'F',            /* Type */
+      '\0',           /* Prior location character */
+      NULL,           /* Destination */
+      ISMEAN,         /* Flags */
+      '\0',           /* Mimic disguise */
+      0,              /* Probability to carry */
+
+      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,                Dmg */
+      {    1,         1,   85,   8,     3,  1,            "000d0" },
+      NULL            /* Pack */
+    },
+    { "gnome",  /* Name */
+      { 0, 0 }, /* Current position */
+      0,        /* Turn to move */
+      'G',      /* Type */
+      '\0',     /* Prior location character */
+      NULL,     /* Destination */
+      0,        /* Flags */
+      '\0',     /* Mimic disguise */
+      10,       /* Probability to carry */
+
+      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,                Dmg */
+      {    1,         1,    8,   1,     5,  1,              "1d6" },
+      NULL      /* Pack */
+    },
+    { "hobgoblin", /* Name */
+      { 0, 0 },    /* Current position */
+      0,           /* Turn to move */
+      'H',         /* Type */
+      '\0',        /* Prior location character */
+      NULL,        /* Destination */
+      ISMEAN,      /* Flags */
+      '\0',        /* Mimic disguise */
+      0,           /* Probability to carry */
+
+      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
+      {    1,         1,    3,   1,     5,  1,             "1d8" },
+      NULL         /* Pack */
+    },
+    { "invisible stalker", /* Name */
+      { 0, 0 },            /* Current position */
+      0,                   /* Turn to move */
+      'I',                 /* Type */
+      '\0',                /* Prior location character */
+      NULL,                /* Destination */
+      ISINVIS,             /* Flags */
+      '\0',                /* Mimic disguise */
+      0,                   /* Probability to carry */
+
+      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
+      {    1,         1,  120,   8,     3,  1,              "4d4" },
+      NULL                 /* Pack */
+    },
+    { "jackel", /* Name */
+      { 0, 0 }, /* Current position */
+      0,        /* Turn to move */
+      'J',      /* Type */
+      '\0',     /* Prior location character */
+      NULL,     /* Destination */
+      ISMEAN,   /* Flags */
+      '\0',     /* Mimic disguise */
+      0,        /* Probabilty to carry */
+
+      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
+      {    1,         1,    2,   7,     1,  1,             "1d2" },
+      NULL      /* Pack */
+    },
+    { "kobold", /* Name */
+      { 0, 0 }, /* Current position */
+      0,        /* Turn to move */
+      'K',      /* Type */
+      '\0',     /* Prior location character */
+      NULL,     /* Destination */
+      ISMEAN,   /* Flags */
+      '\0',     /* Mimic disguise */
+      0,        /* Probability to carry */
+
+      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
+      {    1,         1,    1,   1,     7,   1,            "1d4" },
+      NULL      /* Pack */
+    },
+    { "leprechaun", /* Name */
+      { 0, 0 },     /* Current position */
+      0,            /* Turn to move */
+      'L',          /* Type */
+      '\0',         /* Prior location character */
+      NULL,         /* Destination */
+      0,            /* Flags */
+      '\0',         /* Mimic disguise */
+      0,            /* Probability to carry */
+
+      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
+      {    1,         1,   10,   3,     8,  1,             "1d1" },
+      NULL          /* Pack */
+    },
+    { "mimic",  /* Name */
+      { 0, 0 }, /* Current position */
+      0,        /* Turn to move */
+      'M',      /* Type */
+      '\0',     /* Prior location character */
+      NULL,     /* Destination */
+      0,        /* Flags */
+      '\0',     /* Mimic disguise */
+      30,       /* Probability to carry */
+
+      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
+      {    1,         1,  140,   7,     7,  1,             "3d4" },
+      NULL      /* Pack */
+    },
+    { "nymph",  /* Name */
+      { 0, 0 }, /* Current position */
+      0,        /* Turn to move */
+      'N',      /* Type */
+      '\0',     /* Prior location character */
+      NULL,     /* Destination */
+      0,        /* Flags */
+      '\0',     /* Mimic disguise */
+      100,      /* Probability to carry */
+
+      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
+      {    1,         1,   40,   3,     9,  1,             "0d0" },
+      NULL      /* Pack */
+    },
+    { "orc",    /* Name */
+      { 0, 0 }, /* Current position */
+      0,        /* Turn to move */
+      'O',      /* Type */
+      '\0',     /* Prior location character */
+      NULL,     /* Destination */
+      ISBLOCK,  /* Flags */
+      '\0',     /* Mimic disguise */
+      15,       /* Probability to carry */
+
+      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
+      {    1,         1,    5,   1,     6,  1,             "1d8" },
+      NULL      /* Pack */
+    },
+    { "purple worm", /* Name */
+      { 0, 0 },      /* Current position */
+      0,             /* Turn to move */
+      'P',           /* Type */
+      '\0',          /* Prior location character */
+      NULL,          /* Destination */
+      0,             /* Flags */
+      '\0',          /* Mimic disguise */
+      70,            /* Probability to carry */
+
+      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
+      {    1,         1, 7000,  15,     6,  1,        "2d12/2d4" },
+      NULL           /* Pack */
+    },
+    { "quasit", /* Name */
+      { 0, 0 }, /* Current position */
+      0,        /* Turn to move */
+      'Q',      /* Type */
+      '\0',     /* Prior location character */
+      NULL,     /* Destination */
+      ISMEAN,   /* Flags */
+      '\0',     /* Mimic disguise */
+      30,       /* Probability to carry */
+
+      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
+      {    1,         1,   35,   3,     2,  1,     "1d2/1d2/1d4" },
+      NULL      /* Pack */
+    },
+    { "rust monster", /* Name */
+      { 0, 0 },       /* Current position */
+      0,              /* Turn to move */
+      'R',            /* Type */
+      '\0',           /* Prior location character */
+      NULL,           /* Destination */
+      ISMEAN,         /* Flags */
+      '\0',           /* Mimic disguise */
+      0,              /* Probability to carry */
+
+      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
+      {    1,         1,   25,   5,     2,  1,         "0d0/0d0" },
+      NULL            /* Pack */
+    },
+    { "snake",  /* Name */
+      { 0, 0 }, /* Current position */
+      0,        /* Turn to move */
+      'S',      /* Type */
+      '\0',     /* Prior location character */
+      NULL,     /* Destination */
+      ISMEAN,   /* Flags */
+      '\0',     /* Mimic disguise */
+      0,        /* Probability to carry */
+
+      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
+      {    1,         1,    3,   1,     5,  1,             "1d3" },
+      NULL      /* Pack */
+    },
+    { "troll",          /* Name */
+      { 0, 0 },         /* Current position */
+      0,                /* Turn to move */
+      'T',              /* Type */
+      '\0',             /* Prior location character */
+      NULL,             /* Destination */
+      ISREGEN | ISMEAN, /* Flags */
+      '\0',             /* Mimic disguise */
+      50,               /* Probability to carry */
+
+      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
+      {    1,         1,   55,   6,     4,  1,     "1d8/1d8/2d6" },
+      NULL              /* Pack */
+    },
+    { "umber hulk", /* Name */
+      { 0, 0 },     /* Current position */
+      0,            /* Turn to move */
+      'U',          /* Type */
+      '\0',         /* Prior location character */
+      NULL,         /* Destination */
+      ISMEAN,       /* Flags */
+      '\0',         /* Mimic disguise */
+      40,           /* Probability to carry */
+
+      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
+      {    1,         1,  130,   8,     2,  1,     "3d4/3d4/2d5" },
+      NULL          /* Pack */
+    },
+    { "vampire",        /* Name */
+      { 0, 0 },         /* Current position */
+      0,                /* Turn to move */
+      'V',              /* Type */
+      '\0',             /* Prior location character */
+      NULL,             /* Destination */
+      ISREGEN | ISMEAN, /* Flags */
+      '\0',             /* Mimic disguise */
+      20,               /* Probability to carry */
+
+      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
+      {    1,         1,  380,   8,     1,  1,            "1d10" },
+      NULL              /* Pack */
+    },
+    { "wraith", /* Name */
+      { 0, 0 }, /* Current position */
+      0,        /* Turn to move */
+      'W',      /* Type */
+      '\0',     /* Prior location character */
+      NULL,     /* Destination */
+      0,        /* Flags */
+      '\0',     /* Mimic disguise */
+      0,        /* Probability to carry */
+
+      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
+      {    1,         1,   55,   5,     4,  1,             "1d6" },
+      NULL      /* Pack */
+    },
+    { "xorn",   /* Name */
+      { 0, 0 }, /* Current position */
+      0,        /* Turn to move */
+      'X',      /* Type */
+      '\0',     /* Prior location character */
+      NULL,     /* Destination */
+      ISMEAN,   /* Flags */
+      '\0',     /* Mimic disguise */
+      0,        /* Probability to carry */
+
+      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
+      {    1,         1,  120,   7,    -2,  1, "1d3/1d3/1d3/4d5" },
+      NULL      /* Pack */
+    },
+    { "yeti",   /* Name */
+      { 0, 0 }, /* Current position */
+      0,        /* Turn to move */
+      'Y',      /* Type */
+      '\0',     /* Prior location character */
+      NULL,     /* Destination */
+      0,        /* Flags */
+      '\0',     /* Mimic disguise */
+      30,       /* Probability to carry */
+
+      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
+      {    1,         1,   50,   5,     6,  1,         "1d6/1d6" },
+      NULL      /* Pack */
+    },
+    { "zombie", /* Name */
+      { 0, 0 }, /* Current position */
+      0,        /* Turn to move */
+      'Z',      /* Type */
+      '\0',     /* Prio location character */
+      NULL,     /* Destination */
+      ISMEAN,   /* Flags */
+      '\0',     /* Mimic disguise */
+      0,        /* Probability to carry */
+
+      /* Str, Bonus str, Exp, Lvl, Armor, Hp,                Dmg */
+      {    1,         1,   7,   2,     4,  1,               "1d8" },
+      NULL      /* Pack */
+    }
 };
 
 struct magic_item things[NUMTHINGS] = {

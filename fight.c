@@ -58,7 +58,7 @@ int fight(coord *mp, char mn, struct object *weap, bool thrown)
 	    mname = "it";
         }
 	else {
-	    mname = monsters[mn-'A'].m_name;
+	    mname = monsters[mn - 'A'].t_name;
         }
         
 	if(roll_em(&player.t_stats, &tp->t_stats, weap, thrown)) {
@@ -116,7 +116,7 @@ int attack(struct thing *mp)
 	mname = "it";
     }
     else {
-	mname = monsters[mp->t_type - 'A'].m_name;
+	mname = monsters[mp->t_type - 'A'].t_name;
     }
     
     if(roll_em(&mp->t_stats, &player.t_stats, NULL, FALSE)) {
@@ -217,7 +217,7 @@ int attack(struct thing *mp)
 		{
                     // Violet fungi stops the poor guy from moving
                     player.t_flags |= ISHELD;
-		    sprintf(monsters['F'-'A'].m_stats.s_dmg, "%dd1", ++fung_hit);
+		    sprintf(monsters['F' - 'A'].t_stats.s_dmg, "%dd1", ++fung_hit);
                 }
                 break;
             case 'L':
@@ -799,7 +799,7 @@ int killed(struct linked_list *item, bool pr)
 		addmsg("the ");
             }
             
-	    msg("%s.", monsters[tp->t_type - 'A'].m_name);
+	    msg("%s.", monsters[tp->t_type - 'A'].t_name);
 	}
     }
     player.t_stats.s_exp += tp->t_stats.s_exp;
@@ -812,7 +812,7 @@ int killed(struct linked_list *item, bool pr)
     case 'F':
         player.t_flags &= ~ISHELD;
         fung_hit = 0;
-        strcpy(monsters['F'-'A'].m_stats.s_dmg, "000d0");
+        strcpy(monsters['F' - 'A'].t_stats.s_dmg, "000d0");
         break;
     case'L':
 	{

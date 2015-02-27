@@ -312,37 +312,42 @@ struct stats {
 
 // Structure for monsters and player
 struct thing {
+    /* What to call the thing */
+    char *t_name;
     // Position
     coord t_pos;
     // If slowed, is it a turn to move
     bool t_turn;
     // What is it
     char t_type;
-    // What mimic looks like
-    char t_disguise;
     // Character that was where it was
     char t_oldch;
     // Where it is running to
     coord *t_dest;
     // State word
     short t_flags;
+
+    /* These things are specific to monsters */
+    char t_disguise; /* What mimic looks like */
+    short t_carry; /* Probability of carrying something */
+
     // Physical description
     struct stats t_stats;
     // what the thing is carrying
     struct linked_list *t_pack;
 };
 
-// Array containing information on all the various types of monsters
-struct monster {
-    // What to call the monster
-    char *m_name;
-    // Probability of carrying something
-    short m_carry;
-    // Things about the monster
-    short m_flags;
-    // Initial stat
-    struct stats m_stats;
-};
+/* // Array containing information on all the various types of monsters */
+/* struct monster { */
+/*     // What to call the monster */
+/*     char *m_name; */
+/*     // Probability of carrying something */
+/*     short m_carry; */
+/*     // Things about the monster */
+/*     short m_flags; */
+/*     // Initial stat */
+/*     struct stats m_stats; */
+/* }; */
 
 // Struct for a thing that the rogue can carry
 struct object {
@@ -387,7 +392,7 @@ struct thing player;
 // The maximum for the player
 struct stats max_stats;
 // The initial monster stats
-extern struct monster monsters[26];
+extern struct thing monsters[26];
 // List of objects on this level
 struct linked_list *lvl_obj;
 // WHich weapon he is wielding

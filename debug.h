@@ -27,9 +27,6 @@ void print_stats_internal(struct stats *item, int level, int embedded, FILE *out
 void print_thing(struct thing *item, FILE *output);
 void print_thing_internal(struct thing *item, int level, int embedded, FILE *output);
 
-void print_monster(struct monster *item, FILE *output);
-void print_monster_internal(struct monster *item, int level, int embedded, FILE *output);
-
 void print_object(struct object *item, FILE *output);
 void print_object_internal(struct object *item, int level, int embedded, FILE *output);
 

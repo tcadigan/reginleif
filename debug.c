@@ -290,6 +290,9 @@ void print_thing_internal(struct thing *item, int level, int embedded, FILE *out
     if(item != NULL) {
         fprintf(output, ",\n");
         print_indent(level + 1, output);
+        fprintf(output, "\"t_name\": \"%s\",\n", item->t_name);
+        fprintf(output, ",\n");
+        print_indent(level + 1, output);
         fprintf(output, "\"t_pos\":\n");
         print_coord_internal(&item->t_pos, level + 1, 1, output);
         print_indent(level + 1, output);
@@ -297,6 +300,12 @@ void print_thing_internal(struct thing *item, int level, int embedded, FILE *out
         print_indent(level + 1, output);
         fprintf(output, "\"t_type\": \"%c\",\n", item->t_type);
         print_indent(level + 1, output);
+        fprintf(output, "\"t_oldch\": \"%c\",\n", item->t_oldch);
+        print_indent(level + 1, output);
+        fprintf(output, "\"t_dest\":\n");
+        print_coord_internal(item->t_dest, level + 1, 1, output);
+        print_indent(level + 1, output);
+        fprintf(output, "\"t_flags\": %d,\n", item->t_flags);
         if(item->t_disguise == 0) {
             fprintf(output, "\"t_disguise\": %d,\n", item->t_disguise);
         }
@@ -304,63 +313,19 @@ void print_thing_internal(struct thing *item, int level, int embedded, FILE *out
             fprintf(output, "\"t_disguise\": \"%c\",\n", item->t_disguise);
         }
         print_indent(level + 1, output);
-        fprintf(output, "\"t_oldch\": \"%c\",\n", item->t_oldch);
-        print_indent(level + 1, output);
-        fprintf(output, "\"t_dest\":\n");
-        print_coord_internal(item->t_dest, level + 1, 1, output);
-        print_indent(level + 1, output);
-        fprintf(output, "\"t_flags\": %d,\n", item->t_flags);
+        fprintf(output, "\"t_carry\": %d,\n", item->t_carry);
         print_indent(level + 1, output);
         fprintf(output, "\"t_stats\":\n");
         print_stats_internal(&item->t_stats, level + 1, 1, output);
         print_indent(level + 1, output);
         fprintf(output, "\"t_pack\":\n");
         print_linked_list_internal(item->t_pack, level + 1, 0, output);
+        print_indent(level + 1, output);
     }
     else {
         fprintf(output, "\n");
     }
    
-    print_indent(level, output);
-    fprintf(output, "}");
-
-    if(embedded) {
-        fprintf(output, ",");
-    }
-
-    fprintf(output, "\n");
-}
-
-void print_monster(struct monster *item, FILE *output)
-{
-    print_monster_internal(item, 0, 0, output);
-}
-
-void print_monster_internal(struct monster *item, int level, int embedded, FILE *output)
-{
-    print_indent(level, output);
-    fprintf(output, "{\n");
-    print_indent(level + 1, output);
-    fprintf(output, "\"type\": \"monster\",\n");
-    print_indent(level + 1, output);
-    fprintf(output, "\"address\": \"%p\"", item);
-
-    if(item != NULL) {
-        fprintf(output, ",\n");
-        print_indent(level + 1, output);
-        fprintf(output, "\"m_name\": \"%s\",\n", item->m_name);
-        print_indent(level + 1, output);
-        fprintf(output, "\"m_carry\": %d,\n", item->m_carry);
-        print_indent(level + 1, output);
-        fprintf(output, "\"m_flags\": %d,\n", item->m_flags);
-        print_indent(level + 1, output);
-        fprintf(output, "\"m_stats\":\n");
-        print_stats_internal(&item->m_stats, level + 1, 1, output);
-    }
-    else {
-        fprintf(output, "\n");
-    }
-    
     print_indent(level, output);
     fprintf(output, "}");
 
