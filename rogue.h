@@ -265,6 +265,12 @@ struct magic_item {
     int mi_worth;
 };
 
+struct armor_item {
+    char *a_name;
+    int a_class;
+    int a_prob;
+};
+
 // Room structure
 struct room {
     // Upper left corner
@@ -337,18 +343,6 @@ struct thing {
     struct linked_list *t_pack;
 };
 
-/* // Array containing information on all the various types of monsters */
-/* struct monster { */
-/*     // What to call the monster */
-/*     char *m_name; */
-/*     // Probability of carrying something */
-/*     short m_carry; */
-/*     // Things about the monster */
-/*     short m_flags; */
-/*     // Initial stat */
-/*     struct stats m_stats; */
-/* }; */
-
 // Struct for a thing that the rogue can carry
 struct object {
     // What kind of object it is
@@ -411,6 +405,8 @@ extern struct magic_item p_magic[MAXPOTIONS];
 extern struct magic_item r_magic[MAXRINGS];
 // Names and chances for sticks
 extern struct magic_item ws_magic[MAXSTICKS];
+// Names and chances for armor
+extern struct armor_item armors[MAXARMORS];
 
 // What leve rogue is on
 int level;
@@ -430,10 +426,6 @@ int inpack;
 int max_hp;
 // Total dynamic memory bytes
 int total;
-// Probabilities for armor
-extern int a_chances[MAXARMORS];
-// Armor class for various armors
-extern int a_class[MAXARMORS];
 // Score before this turn
 int lastscore;
 // Number of levels without food
@@ -473,8 +465,6 @@ char *p_colors[MAXPOTIONS];
 char *r_stones[MAXRINGS];
 // Names of the various weapons
 char *w_names[MAXWEAPONS];
-// Names of armor types
-extern char *a_names[MAXARMORS];
 // What sticks are made of
 char *ws_made[MAXSTICKS];
 // Release number of rogue

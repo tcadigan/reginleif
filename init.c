@@ -493,37 +493,15 @@ struct magic_item ws_magic[MAXSTICKS] = {
     { "cancellation" , 100, 130 }
 };
 
-int a_class[MAXARMORS] = {
-    8,
-    7,
-    7,
-    6,
-    5,
-    4,
-    4,
-    3
-};
-
-char *a_names[MAXARMORS] = {
-    "leather armor",
-    "ring mail",
-    "studded leather armor",
-    "scale mail",
-    "chain mail",
-    "splint mail",
-    "banded mail",
-    "plate mail"
-};
-
-int a_chances[MAXARMORS] = {
-    20,
-    35,
-    50,
-    63,
-    75,
-    85,
-    95,
-    100
+struct armor_item armors[MAXARMORS] = {
+    { "leather armor"        , 8,  20 },
+    { "ring mail"            , 7,  35 },
+    { "studded leather armor", 7,  50 },
+    { "scale mail"           , 6,  63 },
+    { "cahin mail"           , 5,  75 },
+    { "splint mail"          , 4,  85 }, 
+    { "banded mail"          , 4,  95 },
+    { "plate mail"           , 3, 100 }
 };
 
 // Contains definitions and functions for dealing with things like

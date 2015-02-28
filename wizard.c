@@ -121,7 +121,7 @@ int create_obj()
             }
 	}
 	else {
-	    obj->o_ac = a_class[obj->o_which];
+	    obj->o_ac = armors[obj->o_which].a_class;
 	    if(bless == '-') {
 		obj->o_ac += (rnd(3) + 1);
             }
