@@ -185,7 +185,7 @@ struct thing monsters[26] = {
       0,        /* Probabilty to carry */
 
       /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
-      {    1,         1,    2,   7,     1,  1,             "1d2" },
+      {    1,         1,    2,   1,     7,  1,             "1d2" },
       NULL      /* Pack */
     },
     { "kobold", /* Name */
@@ -495,7 +495,7 @@ struct magic_item ws_magic[MAXSTICKS] = {
 
 struct object armors[MAXARMORS] = {
     { "leather armor", /* Name */
-      NULL,            /* Read text */
+      "",              /* Read text */
       ARMOR,           /* Type */
       LEATHER,         /* Which of type */
       -1,              /* Group */
@@ -505,13 +505,13 @@ struct object armors[MAXARMORS] = {
       0,               /* Flags */
       8,               /* Armor class */
       '\0',            /* Lancher */
-      NULL,            /* Damage */
-      NULL,            /* Hurl damage */
+      "",              /* Damage */
+      "",              /* Hurl damage */
       0,               /* Hit bonus */
       0                /* Damage bonus */
     },
     { "ring mail", /* Name */
-      NULL,        /* Read text */
+      "",          /* Read text */
       ARMOR,       /* Type */
       RING_MAIL,   /* Which of type */
       -1,          /* Group */
@@ -521,13 +521,13 @@ struct object armors[MAXARMORS] = {
       0,           /* Flags */
       7,           /* Armor class */
       '\0',        /* Launcher */
-      NULL,        /* Damage */
-      NULL,        /* Hurl damage */
+      "",          /* Damage */
+      "",          /* Hurl damage */
       0,           /* Hit bonus */
       0            /* Damage bonus */
     },
     { "studded leather armor", /* Name */
-      NULL,                    /* Read text */
+      "",                      /* Read text */
       ARMOR,                   /* Type */
       STUDDED_LEATHER,         /* Which of type */
       -1,                      /* Group */
@@ -537,13 +537,13 @@ struct object armors[MAXARMORS] = {
       0,                       /* Flags */
       7,                       /* Armor class */
       '\0',                    /* Launcher */
-      NULL,                    /* Damage */
-      NULL,                    /* Hurl Damage */
+      "",                      /* Damage */
+      "",                      /* Hurl Damage */
       0,                       /* Hit bonus */
       0                        /* Damage bonus */
     },
     { "scale mail", /* Name */
-      NULL,         /* Read text */
+      "",           /* Read text */
       ARMOR,        /* Type */
       SCALE_MAIL,   /* Which of type */
       -1,           /* Group */
@@ -553,13 +553,13 @@ struct object armors[MAXARMORS] = {
       0,            /* Flags */
       6,            /* Armor class */
       '\0',         /* Launcher */
-      NULL,         /* Damage */
-      NULL,         /* Hurl damage */
+      "",           /* Damage */
+      "",           /* Hurl damage */
       0,            /* Hit bonus */
       0             /* Damage bonus */
     },
     { "chain mail", /* Name */
-      NULL,         /* Read text */
+      "",           /* Read text */
       ARMOR,        /* Type */
       CHAIN_MAIL,   /* Which of type */
       -1,           /* Group */
@@ -569,13 +569,13 @@ struct object armors[MAXARMORS] = {
       0,            /* Flags */
       5,            /* Armor class */
       '\0',         /* Launcher */
-      NULL,         /* Damage */
-      NULL,         /* Hurl damage */
+      "",           /* Damage */
+      "",           /* Hurl damage */
       0,            /* Hit bonus */
       0             /* Damage bonus */
     },
     { "splint mail", /* Name */
-      NULL,          /* Read text */
+      "",            /* Read text */
       ARMOR,         /* Type */
       SPLINT_MAIL,   /* Which of type */
       -1,            /* Group */
@@ -585,13 +585,13 @@ struct object armors[MAXARMORS] = {
       0,             /* Flags */
       4,             /* Armor class */
       '\0',          /* Launcher */
-      NULL,          /* Damage */
-      NULL,          /* Hurl damage */
+      "",            /* Damage */
+      "",            /* Hurl damage */
       0,             /* Hit bonus */
       0              /* Damage bonus */
     },
     { "banded mail", /* Name */
-      NULL,          /* Read text */
+      "",            /* Read text */
       ARMOR,         /* Type */
       BANDED_MAIL,   /* Which of type */
       -1,            /* Group */
@@ -601,13 +601,13 @@ struct object armors[MAXARMORS] = {
       0,             /* Flags */
       4,             /* Armor class */
       '\0',          /* Launcher */
-      NULL,          /* Damage */
-      NULL,          /* Hurl damage */
+      "",            /* Damage */
+      "",            /* Hurl damage */
       0,             /* Hit bonus */
       0              /* Damage bonus */
     },
     { "plate mail", /* Name */
-      NULL,         /* Read text */
+      "",           /* Read text */
       ARMOR,        /* Type */
       PLATE_MAIL,   /* Which of type */
       -1,           /* Group */
@@ -617,23 +617,12 @@ struct object armors[MAXARMORS] = {
       0,            /* Flags */
       3,            /* Armor class */
       '\0',         /* Launcher */
-      NULL,         /* Damage */
-      NULL,         /* Hurl Damage */
+      "",           /* Damage */
+      "",           /* Hurl Damage */
       0,            /* Hit bonus */
       0             /* Damage bonus */
     }
 };
-
-/* struct armor_item armors[MAXARMORS] = { */
-/*     { "leather armor"        , 8,  20 }, */
-/*     { "ring mail"            , 7,  35 }, */
-/*     { "studded leather armor", 7,  50 }, */
-/*     { "scale mail"           , 6,  63 }, */
-/*     { "chain mail"           , 5,  75 }, */
-/*     { "splint mail"          , 4,  85 },  */
-/*     { "banded mail"          , 4,  95 }, */
-/*     { "plate mail"           , 3, 100 } */
-/* }; */
 
 // Contains definitions and functions for dealing with things like
 // potions and scrolls

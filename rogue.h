@@ -374,13 +374,6 @@ struct object {
     int o_dplus;
 };
 
-/* struct armor_item { */
-/*     char *a_name; */
-/*     int a_class; */
-/*     int a_prob; */
-/* }; */
-
-
 // Now all the global variables
 
 // One for each room, A level

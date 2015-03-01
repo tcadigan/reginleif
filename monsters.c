@@ -76,20 +76,28 @@ int new_monster(struct linked_list *item, char type, coord *cp)
 
     _attach(&mlist, item);
     tp = (struct thing *)item->l_data;
-    tp->t_type = type;
     tp->t_pos = *cp;
+    tp->t_turn = TRUE;
+    tp->t_type = type;
+
+    mp = &monsters[tp->t_type - 'A'];
+
     tp->t_oldch = mvwinch(cw, cp->y, cp->x);
-    mvwaddch(mw, cp->y, cp->x, tp->t_type);
-    mp = &monsters[tp->t_type-'A'];
-    tp->t_stats.s_hpt = roll(mp->t_stats.s_lvl, 8);
+    tp->t_dest = &player.t_pos;
+    tp->t_flags = mp->t_flags;
+    tp->t_disguise = '\0';
+    tp->t_carry = 0;
+    tp->t_stats.st_str = 10;
+    tp->t_stats.st_add = 0;
+    tp->t_stats.s_exp = mp->t_stats.s_exp;
     tp->t_stats.s_lvl = mp->t_stats.s_lvl;
     tp->t_stats.s_arm = mp->t_stats.s_arm;
+    tp->t_stats.s_hpt = roll(mp->t_stats.s_lvl, 8);
     tp->t_stats.s_dmg = mp->t_stats.s_dmg;
-    tp->t_stats.s_exp = mp->t_stats.s_exp;
-    tp->t_stats.st_str = 10;
-    tp->t_flags = mp->t_flags;
-    tp->t_turn = TRUE;
     tp->t_pack = NULL;
+
+    mvwaddch(mw, cp->y, cp->x, tp->t_type);
+
 
     if(((cur_ring[LEFT] != NULL) && (cur_ring[LEFT]->o_which == R_AGGR))
        || ((cur_ring[RIGHT] != NULL) && (cur_ring[RIGHT]->o_which == R_AGGR))) {
@@ -167,7 +175,7 @@ int new_monster(struct linked_list *item, char type, coord *cp)
 int wanderer()
 {
     // TODO: there is a seg fault here, cp
-    //       can be unset at time of new_monster()
+    //       can be unset (or just wrong) at time of new_monster()
     int i;
     int ch = ERR;
     struct room *rp = NULL;

@@ -365,12 +365,22 @@ struct linked_list *new_thing()
 
     item = new_item(sizeof *cur);
     cur = (struct object *)item->l_data;
-    cur->o_hplus = cur->o_dplus = 0;
-    cur->o_damage = cur->o_hurldmg = "0d0";
-    cur->o_ac = 11;
-    cur->o_count = 1;
+    cur->o_name = "";
+    cur->o_text = "";
+    cur->o_type = 0;
+    cur->o_which = 0;
     cur->o_group = 0;
+    cur->o_pos.x = 0;
+    cur->o_pos.y = 0;
+    cur->o_prob = 0;
+    cur->o_count = 1;
     cur->o_flags = 0;
+    cur->o_ac = 11;
+    cur->o_launch = '\0';
+    cur->o_damage = "0d0";
+    cur->o_hurldmg = "0d0";
+    cur->o_hplus = 0;
+    cur->o_dplus = 0;
 
     // Decide what kind of object it will be,
     // if we haven't had food for a while, let it be food.
