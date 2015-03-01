@@ -241,7 +241,21 @@ int do_zap(bool gotdir)
     case WS_MISSILE:
 	{
 	    static struct object bolt = {
-                '*' , {0, 0}, "", 0, 0, "1d4" , 0, 0, 100, 1
+		"bolt",   /* Name */
+		"",       /* Read text */
+		'*',      /* Type */
+		0,        /* Which of type */
+		1,        /* Group */
+		{ 0, 0 }, /* Position */
+		0,        /* Probability */
+		1,        /* count of object */
+		100,      /* Flags */
+		0,        /* Armor class */
+		'\0',     /* Launcher */
+		NULL,     /* Damage */
+		"1d4",    /* Hurl damage */
+		0,        /* Hit bonus */
+		0         /* Damage bonus */
             };
 
 	    do_motion(&bolt, delta.y, delta.x);
@@ -353,7 +367,21 @@ int do_zap(bool gotdir)
 	    coord pos;
 	    coord spotpos[BOLT_LENGTH];
 	    static struct object bolt = {
-		'*' , {0, 0}, "", 0, 0, "6d6" , 0, 0, 100, 0
+		"bolt",    /* Name */
+		"",        /* Read text */
+		'*',       /* Type */
+		0,         /* Type */
+		1,         /* Which of type */
+		{ 0 , 0 }, /* Position */
+		0,         /* Probability */
+		1,         /* Count of object */
+		100,       /* Flags */
+		0,         /* Armor class */
+		'\0',      /* Launcher */
+		NULL,      /* Damage */
+		"6d6",     /* Hurl damage */
+		0,         /* Hit bonus */
+		0          /* Damage bonus */
 	    };
             
             

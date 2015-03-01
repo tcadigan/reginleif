@@ -44,7 +44,7 @@ int wear()
     else {
 	addmsg("W");
     }
-    msg("earing %s.", armors[obj->o_which].a_name);
+    msg("earing %s.", armors[obj->o_which].o_name);
     cur_armor = obj;
     obj->o_flags |= ISKNOW;
 

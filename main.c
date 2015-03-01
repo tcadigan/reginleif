@@ -270,7 +270,7 @@ int main(int argc, char **argv, char **envp)
     obj = (struct object *)item->l_data;
     obj->o_type = ARMOR;
     obj->o_which = RING_MAIL;
-    obj->o_ac = armors[RING_MAIL].a_class - 1;
+    obj->o_ac = armors[RING_MAIL].o_ac - 1;
     obj->o_flags |= ISKNOW;
     cur_armor = obj;
     add_pack(item, TRUE);

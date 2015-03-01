@@ -126,11 +126,11 @@ char *inv_name(struct object *obj, bool drop)
         if(obj->o_flags & ISKNOW) {
             sprintf(prbuf,
                     "%s %s",
-                    num(armors[obj->o_which].a_class - obj->o_ac, 0),
-		    armors[obj->o_which].a_name);
+                    num(armors[obj->o_which].o_ac - obj->o_ac, 0),
+		    armors[obj->o_which].o_name);
         }
         else {
-            sprintf(prbuf, "%s", armors[obj->o_which].a_name);
+            sprintf(prbuf, "%s", armors[obj->o_which].o_name);
         }
         break;
     case AMULET:
@@ -418,7 +418,7 @@ struct linked_list *new_thing()
         cur->o_type = ARMOR;
         
         for(j = 0, k = rnd(100); j < MAXARMORS; ++j) {
-            if(k < armors[j].a_prob) {
+            if(k < armors[j].o_prob) {
                 break;
             }
         }
@@ -432,7 +432,7 @@ struct linked_list *new_thing()
         }
         
         cur->o_which = j;
-        cur->o_ac = armors[j].a_class;
+        cur->o_ac = armors[j].o_ac;
         
         k = rnd(100);
         

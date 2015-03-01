@@ -265,12 +265,6 @@ struct magic_item {
     int mi_worth;
 };
 
-struct armor_item {
-    char *a_name;
-    int a_class;
-    int a_prob;
-};
-
 // Room structure
 struct room {
     // Upper left corner
@@ -345,33 +339,47 @@ struct thing {
 
 // Struct for a thing that the rogue can carry
 struct object {
-    // What kind of object it is
-    int o_type;
-    // Where it lives on the screen
-    coord o_pos;
+    // The name of the object
+    char *o_name;
     // What it says if you read it
     char *o_text;
+    // What kind of object it is
+    int o_type;
+    // Which object of a type it is
+    int o_which;
+    // Group number for this object
+    int o_group;
+
+    // Where it lives on the screen
+    coord o_pos;
+    // Probability of the object
+    int o_prob;
+    // Count for plural objects
+    int o_count;
+    // Information about objects
+    int o_flags;
+
+    // Armor class
+    int o_ac;    
+
     // What you need to launch it
     char o_launch;
     // Damage if used like a sword
     char *o_damage;
     // Damage if thrown
     char *o_hurldmg;
-    // Count for plural objects
-    int o_count;
-    // Which object of a type it is
-    int o_which;
     // Plusses to hit
     int o_hplus;
     // Plusses to damage
     int o_dplus;
-    // Armor class
-    int o_ac;
-    // Information about objects
-    int o_flags;
-    // Group number for this object
-    int o_group;
 };
+
+/* struct armor_item { */
+/*     char *a_name; */
+/*     int a_class; */
+/*     int a_prob; */
+/* }; */
+
 
 // Now all the global variables
 
@@ -406,7 +414,7 @@ extern struct magic_item r_magic[MAXRINGS];
 // Names and chances for sticks
 extern struct magic_item ws_magic[MAXSTICKS];
 // Names and chances for armor
-extern struct armor_item armors[MAXARMORS];
+extern struct object armors[MAXARMORS];
 
 // What leve rogue is on
 int level;

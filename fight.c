@@ -760,7 +760,7 @@ int is_magic(struct object *obj)
 {
     switch(obj->o_type) {
     case ARMOR:
-        return (obj->o_ac != armors[obj->o_which].a_class);
+        return (obj->o_ac != armors[obj->o_which].o_ac);
     case WEAPON:
         return ((obj->o_hplus != 0) || (obj->o_dplus != 0));
     case POTION:

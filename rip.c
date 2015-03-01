@@ -383,7 +383,7 @@ int total_winner()
                 worth = 0;
             }
             
-            worth *= (1 + (10 * (armors[obj->o_which].a_class - obj->o_ac)));
+            worth *= (1 + (10 * (armors[obj->o_which].o_ac - obj->o_ac)));
             obj->o_flags |= ISKNOW;
             break;
         case SCROLL:
