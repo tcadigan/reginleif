@@ -194,42 +194,6 @@ void print_room_internal(struct room *item, int level, int embedded, FILE *outpu
     fprintf(output, "\n");
 }
 
-void print_trap(struct trap *item, FILE *output)
-{
-    print_trap_internal(item, 0, 0, output);
-}
-
-void print_trap_internal(struct trap *item, int level, int embedded, FILE *output)
-{
-    print_indent(level, output);
-    fprintf(output, "{\n");
-    print_indent(level + 1, output);
-    fprintf(output, "\"type\": \"trap\",\n");
-    print_indent(level + 1, output);
-    fprintf(output, "\"address\": \"%p\"", item);
-
-    if(item != NULL) {
-        fprintf(output, ",\n");
-        print_indent(level + 1, output);
-        fprintf(output, "\"tr_pos:\n");
-        print_coord_internal(&item->tr_pos, level + 1, 1, output);
-        print_indent(level + 1, output);
-        fprintf(output, "\"tr_type: \"%c\",\n", item->tr_type);
-        print_indent(level + 1, output);
-        fprintf(output, "\"tr_flags: %d", item->tr_flags);
-    }
-
-    fprintf(output, "\n");
-    print_indent(level, output);
-    fprintf(output, "}");
-    
-    if(embedded) {
-        fprintf(output, ",");
-    }
-
-    fprintf(output, "\n");
-}
-
 void print_stats(struct stats *item, FILE *output)
 {
     print_stats_internal(item, 0, 0, output);

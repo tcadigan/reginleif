@@ -1117,7 +1117,7 @@ int init_materials()
 int badcheck(char *name, struct magic_item *magic, int bound)
 {
     struct magic_item *end;
-
+    
     if(magic[bound - 1].mi_prob == 100) {
 	return 0;
     }

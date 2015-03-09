@@ -79,12 +79,12 @@ int death(char monst)
 int score(int amount, int flags, char *monst)
 {
     static struct sc_ent {
-	int sc_score;
-	char sc_name[80];
-	int sc_flags;
-	int sc_level;
-	int sc_uid;
-	char sc_monster;
+        int sc_score;
+        char sc_name[80];
+        int sc_flags;
+        int sc_level;
+        int sc_uid;
+        char sc_monster;
     } top_ten[10];
     struct sc_ent *scp;
     int i;
@@ -94,58 +94,58 @@ int score(int amount, int flags, char *monst)
     int prflags = 0;
     int fd;
     static char *reason[] = {
-	"killed",
-	"quit",
-	"A total winner",
+        "killed",
+        "quit",
+        "A total winner",
     };
 
     if(flags != -1) {
-	endwin();
+        endwin();
     }
 
     for(scp = top_ten; scp < &top_ten[10]; ++scp) {
-	scp->sc_score = 0;
-	for(i = 0; i < 80; ++i) {
-	    scp->sc_name[i] = rnd(255);
+        scp->sc_score = 0;
+        for(i = 0; i < 80; ++i) {
+            scp->sc_name[i] = rnd(255);
         }
-	scp->sc_flags = rand();
-	scp->sc_level = rand();
-	scp->sc_monster = rand();
-	scp->sc_uid = rand();
+        scp->sc_flags = rand();
+        scp->sc_level = rand();
+        scp->sc_monster = rand();
+        scp->sc_uid = rand();
     }
 
     signal(SIGINT, SIG_DFL);
     char *input_line = NULL;
     if(flags != -1) {
-	printf("[Press return to continue]\n");
-	fflush(stdout);
+        printf("[Press return to continue]\n");
+        fflush(stdout);
 
-	size_t read_length = 0;
-	ssize_t line_length = getline(&input_line, &read_length, stdin);
+        size_t read_length = 0;
+        ssize_t line_length = getline(&input_line, &read_length, stdin);
 
-	while(line_length == -1) {
-	    line_length = getline(&input_line, &read_length, stdin);
-	}
+        while(line_length == -1) {
+            line_length = getline(&input_line, &read_length, stdin);
+        }
 	
-	input_line[line_length - 1] = '\0';
+        input_line[line_length - 1] = '\0';
     }
 
     // Open file and read list
 #ifndef BRL
     fd = open(SCOREFILE, O_RDWR);
     if(fd < 0) {
-	return 0;
+        return 0;
     }
 #else
     // Use the RAND cooperative locking open to prevent plastering
     // the scorefile. (BRL 6.144)
     fd = open(SCOREFILE, O_RDWR);
     while(fd < 0) {
-	if(errno != ETXTBSY) {
-	    return 0;
+        if(errno != ETXTBSY) {
+            return 0;
         }
         
-	sleep (1);
+        sleep (1);
 
         fd = open(SCOREFILE, 6);
     }
@@ -153,11 +153,11 @@ int score(int amount, int flags, char *monst)
     outf = fdopen(fd, "w");
 
     if(wizard) {
-	if(strcmp(input_line, "names") == 0) {
-	    prflags = 1;
+        if(strcmp(input_line, "names") == 0) {
+            prflags = 1;
         }
-	else if(strcmp(input_line, "edit") == 0) {
-	    prflags = 2;
+        else if(strcmp(input_line, "edit") == 0) {
+            prflags = 2;
         }
     }
 
@@ -167,96 +167,96 @@ int score(int amount, int flags, char *monst)
 
     // Insert him in the list if need be
     if(!waswizard) {
-	for(scp = top_ten; scp < &top_ten[10]; ++scp) {
-	    if(amount > scp->sc_score) {
-		break;
+        for(scp = top_ten; scp < &top_ten[10]; ++scp) {
+            if(amount > scp->sc_score) {
+                break;
             }
         }
-	if(scp < &top_ten[10]) {
-	    for(sc2 = &top_ten[9]; sc2 > scp; --sc2) {
-		*sc2 = *(sc2 - 1);
+        if(scp < &top_ten[10]) {
+            for(sc2 = &top_ten[9]; sc2 > scp; --sc2) {
+                *sc2 = *(sc2 - 1);
             }
-	    scp->sc_score = amount;
-	    strcpy(scp->sc_name, whoami);
-	    scp->sc_flags = flags;
-	    if(flags == 2) {
-		scp->sc_level = max_level;
+            scp->sc_score = amount;
+            strcpy(scp->sc_name, whoami);
+            scp->sc_flags = flags;
+            if(flags == 2) {
+                scp->sc_level = max_level;
             }
-	    else {
-		scp->sc_level = level;
+            else {
+                scp->sc_level = level;
             }
-	    scp->sc_monster = *monst;
-	    scp->sc_uid = getuid();
-	}
+            scp->sc_monster = *monst;
+            scp->sc_uid = getuid();
+        }
     }
 
     // Print the list
     printf("\nTop Ten Adventurers:\nRank\tScore\tName\n");
     for(scp = top_ten; scp < &top_ten[10]; ++scp) {
-	if(scp->sc_score) {
-	    printf("%ld\t%d\t%s: %s on level %d",
+        if(scp->sc_score) {
+            printf("%ld\t%d\t%s: %s on level %d",
                    scp - top_ten + 1,
                    scp->sc_score,
                    scp->sc_name,
                    reason[scp->sc_flags],
                    scp->sc_level);
-	    if(scp->sc_flags == 0) {
-		printf(" by a");
-		killer = killname(scp->sc_monster);
-		if((*killer == 'a')
+            if(scp->sc_flags == 0) {
+                printf(" by a");
+                killer = killname(scp->sc_monster);
+                if((*killer == 'a')
                    || (*killer == 'e')
                    || (*killer == 'i')
                    || (*killer == 'o')
                    || (*killer == 'u')) {
                     putchar('n');
                 }
-		printf(" %s", killer);
-	    }
-	    if(prflags == 1) {
-		struct passwd *pp;
+                printf(" %s", killer);
+            }
+            if(prflags == 1) {
+                struct passwd *pp;
 
                 pp = getpwuid(scp->sc_uid);
-		if(pp == NULL){
-		    printf(" (%d)", scp->sc_uid);
+                if(pp == NULL){
+                    printf(" (%d)", scp->sc_uid);
                 }
-		else {
-		    printf(" (%s)", pp->pw_name);
+                else {
+                    printf(" (%s)", pp->pw_name);
                 }
-		putchar('\n');
-	    }
-	    else if(prflags == 2) {
-		fflush(stdout);
-
-		char *more_input = NULL;
-		size_t read_length = 0;
-		ssize_t line_length = getline(&more_input, &read_length, stdin);
-
-		while(line_length == -1) {
-		    line_length = getline(&more_input, &read_length, stdin);
-		}
-
-		more_input[line_length - 1] = '\0';
-
-		if(more_input[0] == 'd') {
-		    for(sc2 = scp; sc2 < &top_ten[9]; ++sc2) {
-			*sc2 = *(sc2 + 1);
-                    }
-		    top_ten[9].sc_score = 0;
-		    for(i = 0; i < 80; ++i) {
-			top_ten[9].sc_name[i] = rnd(255);
-                    }
-		    top_ten[9].sc_flags = rand();
-		    top_ten[9].sc_level = rand();
-		    top_ten[9].sc_monster = rand();
-		    --scp;
-		}
-
-		free(more_input);
-	    }
-	    else {
-		printf(".\n");
+                putchar('\n');
             }
-	}
+            else if(prflags == 2) {
+                fflush(stdout);
+
+                char *more_input = NULL;
+                size_t read_length = 0;
+                ssize_t line_length = getline(&more_input, &read_length, stdin);
+
+                while(line_length == -1) {
+                    line_length = getline(&more_input, &read_length, stdin);
+                }
+
+                more_input[line_length - 1] = '\0';
+
+                if(more_input[0] == 'd') {
+                    for(sc2 = scp; sc2 < &top_ten[9]; ++sc2) {
+                        *sc2 = *(sc2 + 1);
+                    }
+                    top_ten[9].sc_score = 0;
+                    for(i = 0; i < 80; ++i) {
+                        top_ten[9].sc_name[i] = rnd(255);
+                    }
+                    top_ten[9].sc_flags = rand();
+                    top_ten[9].sc_level = rand();
+                    top_ten[9].sc_monster = rand();
+                    --scp;
+                }
+
+                free(more_input);
+            }
+            else {
+                printf(".\n");
+            }
+        }
     }
     fseek(outf, 0L, 0);
 
@@ -301,9 +301,9 @@ int total_winner()
     mvaddstr(0, 0, "   Worth  Item");
     oldpurse = purse;
     for(c = 'a', item = player.t_pack; item != NULL; ++c, item = item->l_next) {
-	obj = (struct object *)item->l_data;
+        obj = (struct object *)item->l_data;
         
-	switch(obj->o_type) {
+        switch(obj->o_type) {
         case FOOD:
             worth = 2 * obj->o_count;
             break;
@@ -416,14 +416,14 @@ int total_winner()
             obj->o_flags |= ISKNOW;
             ws_know[obj->o_which] = TRUE;
             worth = ws_magic[obj->o_which].mi_worth;
-            worth += 20 * obj->o_ac;
+            worth += (20 * obj->o_ac);
             break;
-	default:
+        default:
             worth = 1000;
-	}
+        }
         
-	mvprintw(c - 'a' + 1, 0, "%c) %5d  %s", c, worth, inv_name(obj, FALSE));
-	purse += worth;
+        mvprintw(c - 'a' + 1, 0, "%c) %5d  %s", c, worth, inv_name(obj, FALSE));
+        purse += worth;
     }
     
     mvprintw(c - 'a' + 1, 0,"   %5d  Gold Peices          ", oldpurse);
@@ -437,17 +437,17 @@ int total_winner()
 char *killname(char monst)
 {
     if(isupper(monst)) {
-	return monsters[monst - 'A'].t_name;
+        return monsters[monst - 'A'].t_name;
     }
     else {
-	switch(monst) {
+        switch(monst) {
         case 'a':
             return "arrow";
         case 'd':
             return "dart";
         case 'b':
             return "bolt";
-	}
+        }
     }
     
     return "";

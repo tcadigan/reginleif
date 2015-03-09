@@ -18,9 +18,6 @@ void print_magic_item_internal(struct magic_item *item, int level, int embedded,
 void print_room(struct room *item, FILE *output);
 void print_room_internal(struct room *item, int level, int embedded, FILE *output);
 
-void print_trap(struct trap *item, FILE *output);
-void print_trap_internal(struct trap *item, int level, int embedded, FILE *output);
-
 void print_stats(struct stats *item, FILE *output);
 void print_stats_internal(struct stats *item, int level, int embedded, FILE *output);
 

@@ -27,7 +27,7 @@ int new_level()
     coord stairs;
 
     if(level > max_level) {
-	max_level = level;
+        max_level = level;
     }
     wclear(cw);
     wclear(mw);
@@ -73,12 +73,12 @@ int new_level()
 
     // Place the traps
     if(rnd(10) < level) {
-	ntraps = rnd(level / 4) + 1;
-	if(ntraps > MAXTRAPS) {
-	    ntraps = MAXTRAPS;
+        ntraps = rnd(level / 4) + 1;
+        if(ntraps > MAXTRAPS) {
+            ntraps = MAXTRAPS;
         }
-	i = ntraps;
-	while(i) {
+        i = ntraps;
+        while(i) {
             --i;
             rm = rnd_room();
             rnd_pos(&rooms[rm], &stairs);
@@ -102,32 +102,44 @@ int new_level()
                 }
             }
             
-	    switch(rnd(6)) {
-	    case 0:
-		ch = TRAPDOOR;
-		break;
-	    case 1:
-		ch = BEARTRAP;
-		break;
-	    case 2:
-		ch = SLEEPTRAP;
-		break;
-	    case 3:
-		ch = ARROWTRAP;
-		break;
-	    case 4:
-		ch = TELTRAP;
-		break;
-	    default:
-		ch = DARTTRAP;
-		break;
-	    }
+            switch(rnd(6)) {
+            case 0:
+                ch = TRAPDOOR;
+                break;
+            case 1:
+                ch = BEARTRAP;
+                break;
+            case 2:
+                ch = SLEEPTRAP;
+                break;
+            case 3:
+                ch = ARROWTRAP;
+                break;
+            case 4:
+                ch = TELTRAP;
+                break;
+            default:
+                ch = DARTTRAP;
+                break;
+            }
 
-	    addch(TRAP);
-	    traps[i].tr_type = ch;
-	    traps[i].tr_flags = 0;
-	    traps[i].tr_pos = stairs;
-	}
+            addch(TRAP);
+            traps[i].o_name = "Trap";
+            traps[i].o_text = "";
+            traps[i].o_type = ch;
+            traps[i].o_which = -1;
+            traps[i].o_group = -1;
+            traps[i].o_pos = stairs;
+            traps[i].o_prob = -1;
+            traps[i].o_count = 1;
+            traps[i].o_flags = 0;
+            traps[i].o_flags = 11;
+            traps[i].o_launch = '\0';
+            traps[i].o_damage = "";
+            traps[i].o_hurldmg = "";
+            traps[i].o_hplus = 0;
+            traps[i].o_dplus = 0;
+        }
     }
 
     rm = rnd_room();
@@ -189,19 +201,19 @@ int put_things() {
     // Once you have found the amulet, the only way to get new stuff
     // is to go down into the dungeon.
     if(amulet && (level < max_level)) {
-	return 0;
+        return 0;
     }
 
     // Do MAXOBJ attempts to put things on a level
     for(i = 0; i < MAXOBJ; ++i) {
-	if(rnd(100) < 35) {
+        if(rnd(100) < 35) {
             // Pick a new object and link it in the list
-	    item = new_thing();
-	    _attach(&lvl_obj, item);
-	    cur = (struct object *)item->l_data;
+            item = new_thing();
+            _attach(&lvl_obj, item);
+            cur = (struct object *)item->l_data;
 
             // Put it somewhere
-	    rm = rnd_room();
+            rm = rnd_room();
 
             rnd_pos(&rooms[rm], &tp);
 
@@ -224,8 +236,8 @@ int put_things() {
                 }
             }
 
-	    mvaddch(tp.y, tp.x, cur->o_type);
-	    cur->o_pos = tp;
+            mvaddch(tp.y, tp.x, cur->o_type);
+            cur->o_pos = tp;
 
             /* TC_DEBUG: Start */
             FILE *output;
@@ -233,22 +245,22 @@ int put_things() {
             print_object(cur, output);
             fclose(output);
             /* TC_DEBUG: Finish */
-	}
+        }
     }
 
     // If he is really deep in the dungeon and he hasn't found the
     // amulet yet, put it somewhere on the ground
     if((level > 25) && !amulet) {
-	item = new_item(sizeof *cur);
-	_attach(&lvl_obj, item);
-	cur = (struct object *)item->l_data;
-	cur->o_hplus = cur->o_dplus = 0;
-	cur->o_damage = cur->o_hurldmg = "0d0";
-	cur->o_ac = 11;
-	cur->o_type = AMULET;
+        item = new_item(sizeof *cur);
+        _attach(&lvl_obj, item);
+        cur = (struct object *)item->l_data;
+        cur->o_hplus = cur->o_dplus = 0;
+        cur->o_damage = cur->o_hurldmg = "0d0";
+        cur->o_ac = 11;
+        cur->o_type = AMULET;
 
         // Put it somewhere
-	rm = rnd_room();
+        rm = rnd_room();
 
         rnd_pos(&rooms[rm], &tp);
 
@@ -271,8 +283,8 @@ int put_things() {
             }
         }
 
-	mvaddch(tp.y, tp.x, cur->o_type);
-	cur->o_pos = tp;
+        mvaddch(tp.y, tp.x, cur->o_type);
+        cur->o_pos = tp;
     }
 
     return 0;

@@ -138,7 +138,7 @@ int look(bool wakeup)
                     tp->t_oldch = mvinch(y, x);
                     
                     if(tp->t_oldch == TRAP) {
-                        if(trap_at(y,x)->tr_flags & ISFOUND) {
+                        if(trap_at(y,x)->o_flags & ISFOUND) {
                             tp->t_oldch = TRAP;
                         }
                         else {

@@ -258,13 +258,6 @@ struct linked_list {
     char *l_data;
 };
 
-// Stuff about magic items
-struct magic_item {
-    char *mi_name;
-    int mi_prob;
-    int mi_worth;
-};
-
 // Room structure
 struct room {
     // Upper left corner
@@ -282,16 +275,6 @@ struct room {
     // Where the exits are
     coord r_exit[4];
 };
-
-// Array of all traps on this level
-struct trap {
-    // Where the trap is
-    coord tr_pos;
-    // What kind of trap
-    char tr_type;
-    // Info about trap (i.e ISFOUND)
-    int tr_flags;
-} traps[MAXTRAPS];
 
 // Structure describing a fighting being
 struct stats {
@@ -374,8 +357,17 @@ struct object {
     int o_dplus;
 };
 
+// Stuff about magic items
+struct magic_item {
+    char *mi_name;
+    int mi_prob;
+    int mi_worth;
+};
+
 // Now all the global variables
 
+// Array of all traps on this level
+struct object traps[MAXTRAPS];
 // One for each room, A level
 struct room rooms[MAXROOMS];
 // Roomin(&oldpos)

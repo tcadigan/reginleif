@@ -286,7 +286,7 @@ char show(int y, int x)
     }
     
     if(ch == TRAP) {
-        if(trap_at(y,x)->tr_flags & ISFOUND) {
+        if(trap_at(y,x)->o_flags & ISFOUND) {
             return TRAP;
         }
         else {
@@ -317,15 +317,15 @@ char show(int y, int x)
 //     The guy stepped on a trap...Make him pay.
 int be_trapped(coord *tc)
 {
-    struct trap *tp;
+    struct object *tp;
     char ch;
 
     tp = trap_at(tc->y, tc->x);
     count = running = FALSE;
-    mvwaddch(cw, tp->tr_pos.y, tp->tr_pos.x, TRAP);
-    tp->tr_flags |= ISFOUND;
+    mvwaddch(cw, tp->o_pos.y, tp->o_pos.x, TRAP);
+    tp->o_flags |= ISFOUND;
 
-    ch = tp->tr_type;
+    ch = tp->o_type;
     
     switch(ch) {
     case TRAPDOOR:
@@ -391,24 +391,20 @@ int be_trapped(coord *tc)
         }
     }
 
-    // Flush typeahead
-    /* raw(); */
-    /* noraw(); */
-
     return(ch);
 }
 
 // trap_at:
 //     Find the trap at (y, x) on screen
-struct trap *trap_at(int y, int x)
+struct object *trap_at(int y, int x)
 {
-    struct trap *tp;
-    struct trap *ep;
+    struct object *tp;
+    struct object *ep;
 
     ep = &traps[ntraps];
     for(tp = traps; tp < ep; ++tp) {
-	if((tp->tr_pos.y == y) && (tp->tr_pos.x == x)) {
-	    break;
+        if((tp->o_pos.y == y) && (tp->o_pos.x == x)) {
+            break;
         }
     }
     if(tp == ep) {

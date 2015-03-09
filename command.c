@@ -681,7 +681,7 @@ int search()
                 break;
             case TRAP:
                 {
-                    struct trap *tp;
+                    struct object *tp;
                     
                     if(mvwinch(cw, y, x) == TRAP) {
                         break;
@@ -692,11 +692,11 @@ int search()
                     }
                     
                     tp = trap_at(y, x);
-                    tp->tr_flags |= ISFOUND;
+                    tp->o_flags |= ISFOUND;
                     mvwaddch(cw, y, x, TRAP);
                     count = 0;
                     running = FALSE;
-                    msg("%s", tr_name(tp->tr_type));
+                    msg("%s", tr_name(tp->o_type));
                 }
                     
                 break;
