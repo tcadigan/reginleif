@@ -24,7 +24,7 @@ int new_level()
     int rm;
     int i;
     char ch;
-    coord stairs;
+    struct coord stairs;
 
     if(level > max_level) {
         max_level = level;
@@ -193,7 +193,7 @@ int put_things() {
     struct linked_list *item;
     struct object *cur;
     int rm;
-    coord tp;
+    struct coord tp;
 
     // Throw away stuff left on the previous level (if anything)
     _free_list(&lvl_obj);

@@ -13,7 +13,7 @@
 #include <ncurses.h>
 
 // Where chasing takes you
-coord ch_ret;
+struct coord ch_ret;
 
 // runners:
 //     Make all the running monsters move.
@@ -23,18 +23,18 @@ int runners()
     struct thing *tp;
 
     for(item = mlist; item != NULL; item = item->l_next) {
-	tp = (struct thing *)item->l_data;
+        tp = (struct thing *)item->l_data;
 
         if(((tp->t_flags & ISHELD) == 0) && ((tp->t_flags & ISRUN) != 0)) {
             if(((tp->t_flags & ISSLOW) == 0) || tp->t_turn) {
-		do_chase(tp);
+                do_chase(tp);
             }
 
             if((tp->t_flags & ISHASTE) != 0) {
-		do_chase(tp);
+                do_chase(tp);
             }
-	    tp->t_turn ^= TRUE;
-	}
+            tp->t_turn ^= TRUE;
+        }
     }
 
     return 0;
@@ -55,7 +55,7 @@ int do_chase(struct thing *th)
     bool stoprun = FALSE;
     char sch;
     // Temporary destination for chaser
-    coord this;
+    struct coord this;
 
     // Find room of chaser
     rer = roomin(&th->t_pos);
@@ -64,7 +64,7 @@ int do_chase(struct thing *th)
 
     // We don't count doors as inside rooms for this routine
     if(mvwinch(stdscr, th->t_pos.y, th->t_pos.x) == DOOR) {
-	rer = NULL;
+        rer = NULL;
     }
     this = *th->t_dest;
 
@@ -72,7 +72,7 @@ int do_chase(struct thing *th)
     // we are not in a corridor, run to the door nearest to our goal.
     if((rer != NULL) && (rer != ree)) {
         // Loop through doors
-	for(i = 0; i < rer->r_nexits; i++) {
+        for(i = 0; i < rer->r_nexits; i++) {
             dist = ((rer->r_exit[1].x - th->t_dest->x) * (rer->r_exit[1].x - th->t_dest->x)) + ((rer->r_exit[i].y - th->t_dest->y) * (rer->r_exit[i].y - th->t_dest->y));
 
             // Minimize distance
@@ -88,15 +88,15 @@ int do_chase(struct thing *th)
     // or stop running
     if(!chase(th, &this)) {
         if((this.x == player.t_pos.x) && (this.y == player.t_pos.y)) {
-	    attack(th);
-	    return 0;
-	}
-	else if(th->t_type != 'F') {
-	    stoprun = TRUE;
+            attack(th);
+            return 0;
+        }
+        else if(th->t_type != 'F') {
+            stoprun = TRUE;
         }
     }
     else if(th->t_type == 'F') {
-	return 0;
+        return 0;
     }
     mvwaddch(cw, th->t_pos.y, th->t_pos.x, th->t_oldch);
     sch = mvwinch(cw, ch_ret.y, ch_ret.x);
@@ -111,7 +111,7 @@ int do_chase(struct thing *th)
         th->t_oldch = ' ';
     }
     else {
-	th->t_oldch = sch;
+        th->t_oldch = sch;
     }
 
     if(cansee(ch_ret.y, ch_ret.x) && ((th->t_flags & ISINVIS) == 0)) {
@@ -122,7 +122,7 @@ int do_chase(struct thing *th)
     th->t_pos = ch_ret;
     // And stop running if need be
     if(stoprun && (th->t_pos.x == th->t_dest->x) && (th->t_pos.y == th->t_dest->y)) {
-	th->t_flags &= ~ISRUN;
+        th->t_flags &= ~ISRUN;
     }
 
     return 0;
@@ -131,7 +131,7 @@ int do_chase(struct thing *th)
 // runto:
 //     Set a monster running after something or stop it from
 //     running (for when it dies)
-int runto(coord *runner, coord *spot)
+int runto(struct coord *runner, struct coord *spot)
 {
     struct linked_list *item;
     struct thing *tp;
@@ -160,7 +160,7 @@ int runto(coord *runner, coord *spot)
 //     Find the spot for the chaser (er) to move closer to the
 //     chasee (ee). Returns TRUE if we want to keep on chasing later
 //     FALSE if we reach the goal
-int chase(struct thing *tp, coord *ee)
+int chase(struct thing *tp, struct coord *ee)
 {
     int x;
     int y;
@@ -168,9 +168,9 @@ int chase(struct thing *tp, coord *ee)
     int thisdist;
     struct linked_list *item;
     struct object *obj;
-    coord *er = &tp->t_pos;
+    struct coord *er = &tp->t_pos;
     char ch;
-
+    
     // If the thing is confused, let it move randomly. Invisible
     // Stalkers are slightly confused all of the time, and Bats are
     // quite confused all the time
@@ -178,67 +178,67 @@ int chase(struct thing *tp, coord *ee)
        || (tp->t_type == 'I' && rnd(100) < 20)
        || (tp->t_type == 'B' && rnd(100) < 50)) {
         // Get a valid random move
-	ch_ret = *rndmove(tp);
+        ch_ret = *rndmove(tp);
         dist = ((ee->x - ch_ret.x) * (ee->x - ch_ret.x)) + ((ee->y - ch_ret.y) * (ee->y - ch_ret.y));
-
+        
         // Small chance that it will become unconfused
-	if(rnd(1000) < 50) {
-	    tp->t_flags &= ~ISHUH;
+        if(rnd(1000) < 50) {
+            tp->t_flags &= ~ISHUH;
         }
     }
     // Otherwise, find the empty spot next to the chaser that is
     // closest to the chasee
     else {
-	int ey;
+        int ey;
         int ex;
-
+        
         // This will eventually hold where we move to get closer.
         // If we can't find an empty spot, we stay where we are.
         dist = ((ee->x - er->x) * (ee->x - er->x)) + ((ee->y - er->y) * (ee->y - er->y));
-	ch_ret = *er;
-
-	ey = er->y + 1;
-	ex = er->x + 1;
-	for(x = er->x - 1; x <= ex; ++x) {
-	    for(y = er->y - 1; y <= ey; ++y) {
-		coord tryp;
-
-		tryp.x = x;
-		tryp.y = y;
-		if(!diag_ok(er, &tryp)) {
-		    continue;
+        ch_ret = *er;
+        
+        ey = er->y + 1;
+        ex = er->x + 1;
+        for(x = er->x - 1; x <= ex; ++x) {
+            for(y = er->y - 1; y <= ey; ++y) {
+                struct coord tryp;
+                
+                tryp.x = x;
+                tryp.y = y;
+                if(!diag_ok(er, &tryp)) {
+                    continue;
                 }
-
+                
                 if(mvwinch(mw, y, x) == ' ') {
                     ch = mvwinch(stdscr, y, x);
                 }
                 else {
                     ch = winch(mw);
                 }
-		if(step_ok(ch)) {
+                if(step_ok(ch)) {
                     // If it is a scroll, it might be a scare monster scroll
                     // so we neet to look it up and see what type it is.
-		    if(ch == SCROLL) {
+                    if(ch == SCROLL) {
                         for(item = lvl_obj; item != NULL; item = item->l_next) {
-			    obj = (struct object *)item->l_data;
-			    if((y == obj->o_pos.y) && (x == obj->o_pos.x)) {
-				break;
+                            obj = (struct object *)item->l_data;
+                            if((y == obj->o_pos.y) && (x == obj->o_pos.x)) {
+                                break;
                             }
-			}
-			if((item != NULL) && (obj->o_which == S_SCARE)) {
-			    continue;
                         }
-		    }
-
+                        if((item != NULL) && (obj->o_which == S_SCARE)) {
+                            continue;
+                        }
+                    }
+                    
                     // If we didn't find any scrolls at this place or it
                     // wasn't a scare scroll, then this place counts
                     thisdist = ((ee->x - x) * (ee->x - x)) + ((ee->y - y) * (ee->y - y));
-		    if(thisdist < dist) {
-			ch_ret = tryp;
-			dist = thisdist;
-		    }
-		}
-	    }
+                    if(thisdist < dist) {
+                        ch_ret = tryp;
+                        dist = thisdist;
+                    }
+                }
+            }
         }
     }
     
@@ -248,7 +248,7 @@ int chase(struct thing *tp, coord *ee)
 // roomin:
 //     Find what room some coordinates are in, NULL means they aren't
 //     in any room
-struct room *roomin(coord *cp)
+struct room *roomin(struct coord *cp)
 {
     struct room *rp;
 
@@ -257,7 +257,7 @@ struct room *roomin(coord *cp)
            && (rp->r_pos.x <= cp->x)
            && (cp->y <= (rp->r_pos.y + (rp->r_max.y - 1)))
            && (rp->r_pos.y <= cp->y)) {
-	    return rp;
+            return rp;
         }
     }
     
@@ -272,9 +272,9 @@ struct linked_list *find_mons(int y, int x)
     struct thing *th;
 
     for(item = mlist; item != NULL; item = item->l_next) {
-	th = (struct thing *)item->l_data;
-	if((th->t_pos.y == y) && (th->t_pos.x == x)) {
-	    return item;
+        th = (struct thing *)item->l_data;
+        if((th->t_pos.y == y) && (th->t_pos.x == x)) {
+            return item;
         }
     }
     
@@ -283,10 +283,10 @@ struct linked_list *find_mons(int y, int x)
 
 // diag_ok:
 //     Check to see if the move is legal if it is diagonal
-int diag_ok(coord *sp, coord *ep)
+int diag_ok(struct coord *sp, struct coord *ep)
 {
     if((ep->x == sp->x) || (ep->y == sp->y)) {
-	return TRUE;
+        return TRUE;
     }
     
     return (step_ok(mvinch(ep->y, sp->x)) && step_ok(mvinch(sp->y, ep->x)));
@@ -297,20 +297,20 @@ int diag_ok(coord *sp, coord *ep)
 int cansee(int y, int x)
 {
     struct room *rer;
-    coord tp;
-
+    struct coord tp;
+    
     if((player.t_flags & ISBLIND) != 0) {
-	return FALSE;
+        return FALSE;
     }
     
     tp.y = y;
     tp.x = x;
     rer = roomin(&tp);
-
+    
     // We can only see if the hero is in the same room as
     // the coordinates and the room is lit or if it is close
     int distance = ((player.t_pos.x - x) * (player.t_pos.x - x)) + ((player.t_pos.y - y) * (player.t_pos.y - y));
-
+    
     return (((rer != NULL)
              && (rer == roomin(&player.t_pos))
              && !(rer->r_flags&ISDARK))

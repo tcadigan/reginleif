@@ -165,7 +165,7 @@ int create_obj()
 int teleport()
 {
     int rm;
-    coord c;
+    struct coord c;
 
     c = player.t_pos;
     mvwaddch(cw, player.t_pos.y, player.t_pos.x, mvwinch(stdscr, player.t_pos.y, player.t_pos.x));

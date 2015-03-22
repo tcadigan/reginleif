@@ -19,7 +19,7 @@
 #include <ctype.h>
 
 // Used to hold the new hero position
-coord nh;
+struct coord nh;
 
 // do_run:
 //     Start the hero running
@@ -41,19 +41,19 @@ int do_move(int dy, int dx)
 
     firstmove = FALSE;
     if(no_move) {
-	--no_move;
-	msg("You are still stuck in the bear trap");
+        --no_move;
+        msg("You are still stuck in the bear trap");
         
-	return 0;
+        return 0;
     }
 
     // Do a confused move (maybe)
     if((rnd(100) < 80) && ((player.t_flags & ISHUH) != 0)) {
-	nh = *rndmove(&player);
+        nh = *rndmove(&player);
     }
     else {
-	nh.y = player.t_pos.y + dy;
-	nh.x = player.t_pos.x + dx;
+        nh.y = player.t_pos.y + dy;
+        nh.x = player.t_pos.x + dx;
     }
 
     // Check if he tried to move off the screen or make an illegal
@@ -63,15 +63,15 @@ int do_move(int dy, int dx)
        || (nh.y < 0)
        || (nh.y > (LINES - 1))
        || !diag_ok(&player.t_pos, &nh)) {
-	after = FALSE;
-	running = FALSE;
+        after = FALSE;
+        running = FALSE;
         
-	return 0;
+        return 0;
     }
     
     if(running && (player.t_pos.x == nh.x) && (player.t_pos.y == nh.y)) {
         running = FALSE;
-	after = FALSE;
+        after = FALSE;
     }
     
     if(mvwinch(mw, nh.y, nh.x) == ' ') {
@@ -82,8 +82,8 @@ int do_move(int dy, int dx)
     }
 
     if(((player.t_flags & ISHELD) != 0) && (ch != 'F')) {
-	msg("You are being held");
-	return 0;
+        msg("You are being held");
+        return 0;
     }
     
     switch(ch) {
@@ -99,9 +99,9 @@ int do_move(int dy, int dx)
         {
             char temp;
             
-	    ch = be_trapped(&nh);
-	    if((ch == TRAPDOOR) || (ch == TELTRAP)) {
-		return 0;
+            ch = be_trapped(&nh);
+            if((ch == TRAPDOOR) || (ch == TELTRAP)) {
+                return 0;
             }
 
             if(mvwinch(mw, player.t_pos.y, player.t_pos.x) == ' ') {
@@ -192,14 +192,10 @@ int do_move(int dy, int dx)
     return 0;
 }
 
-/*
- * Called to illuminate a room.
- * If it is dark, remove anything that might move.
- */
 // light:
-//     Called to illuminat a room. If it is dark,
+//     Called to illuminate a room. If it is dark,
 //     remove anything that might move.
-int light(coord *cp)
+int light(struct coord *cp)
 {
     struct room *rp;
     int j;
@@ -211,36 +207,36 @@ int light(coord *cp)
     rp = roomin(cp);
 
     if((rp != NULL) && ((player.t_flags & ISBLIND) == 0)) {
-	for(j = 0; j < rp->r_max.y; ++j) {
-	    for(k = 0; k < rp->r_max.x; ++k) {
-		ch = show(rp->r_pos.y + j, rp->r_pos.x + k);
-		wmove(cw, rp->r_pos.y + j, rp->r_pos.x + k);
+        for(j = 0; j < rp->r_max.y; ++j) {
+            for(k = 0; k < rp->r_max.x; ++k) {
+                ch = show(rp->r_pos.y + j, rp->r_pos.x + k);
+                wmove(cw, rp->r_pos.y + j, rp->r_pos.x + k);
 
                 // Figure out how to display a secret door
-		if(ch == SECRETDOOR) {
-		    if((j == 0) || (j == (rp->r_max.y - 1))) {
-			ch = '-';
+                if(ch == SECRETDOOR) {
+                    if((j == 0) || (j == (rp->r_max.y - 1))) {
+                        ch = '-';
                     }
-		    else {
-			ch = '|';
+                    else {
+                        ch = '|';
                     }
-		}
+                }
 
                 // If the room is a dark room, we might want to remove
                 // monster and the like from it (since they might move)
-		if(isupper(ch)) {
-		    item = wake_monster(rp->r_pos.y+j, rp->r_pos.x+k);
+                if(isupper(ch)) {
+                    item = wake_monster(rp->r_pos.y+j, rp->r_pos.x+k);
                     
-		    if(((struct thing *)item->l_data)->t_oldch == ' ') {
-			if(!(rp->r_flags & ISDARK)) {
-			    ((struct thing *)item->l_data)->t_oldch =
-				mvwinch(stdscr, rp->r_pos.y + j, rp->r_pos.x + k);
+                    if(((struct thing *)item->l_data)->t_oldch == ' ') {
+                        if(!(rp->r_flags & ISDARK)) {
+                            ((struct thing *)item->l_data)->t_oldch =
+                                mvwinch(stdscr, rp->r_pos.y + j, rp->r_pos.x + k);
                         }
                     }
-		}
-		if(rp->r_flags & ISDARK) {
-		    rch = mvwinch(cw, rp->r_pos.y + j, rp->r_pos.x + k);
-		    switch(rch) {
+                }
+                if(rp->r_flags & ISDARK) {
+                    rch = mvwinch(cw, rp->r_pos.y + j, rp->r_pos.x + k);
+                    switch(rch) {
                     case DOOR:
                     case STAIRS:
                     case TRAP:
@@ -260,11 +256,11 @@ int light(coord *cp)
                         break;
                     default:
                         ch = ' ';
-		    }
-		}
-		mvwaddch(cw, rp->r_pos.y+j, rp->r_pos.x+k, ch);
-	    }
-	}
+                    }
+                }
+                mvwaddch(cw, rp->r_pos.y+j, rp->r_pos.x+k, ch);
+            }
+        }
     }
 
     return 0;
@@ -296,18 +292,18 @@ char show(int y, int x)
     else if((ch == 'M') || (ch == 'I')) {
         it = find_mons(y, x);
         
-	if(it == NULL) {
-	    msg("Can't find monster in show");
+        if(it == NULL) {
+            msg("Can't find monster in show");
         }
         
-	tp = (struct thing *)it->l_data;
+        tp = (struct thing *)it->l_data;
         
-	if(ch == 'M') {
-	    ch = tp->t_disguise;
+        if(ch == 'M') {
+            ch = tp->t_disguise;
         }
         else if((player.t_flags & CANSEE) == 0) {
             // Hide the invisible monsters
-	    ch = mvwinch(stdscr, y, x);
+            ch = mvwinch(stdscr, y, x);
         }
     }
     return ch;
@@ -315,7 +311,7 @@ char show(int y, int x)
 
 // be_trapped:
 //     The guy stepped on a trap...Make him pay.
-int be_trapped(coord *tc)
+int be_trapped(struct coord *tc)
 {
     struct object *tp;
     char ch;
@@ -418,7 +414,7 @@ struct object *trap_at(int y, int x)
 
 // rndmove:
 //     Move in a random direction if the monster/person is confused
-coord *rndmove(struct thing *who)
+struct coord *rndmove(struct thing *who)
 {
     int x;
     int y;
@@ -429,8 +425,8 @@ coord *rndmove(struct thing *who)
     struct linked_list *item;
     struct object *obj;
     // What we will be returning
-    static coord ret;
-    static coord dest;
+    static struct coord ret;
+    static struct coord dest;
 
     ret = who->t_pos;
 
@@ -440,10 +436,10 @@ coord *rndmove(struct thing *who)
     ey = ret.y + 1;
     ex = ret.x + 1;
     for(y = who->t_pos.y - 1; y <= ey; ++y) {
-	if((y >= 0) && (y < LINES)) {
-	    for(x = who->t_pos.x - 1; x <= ex; ++x) {
-		if((x < 0) || (x >= COLS)) {
-		    continue;
+        if((y >= 0) && (y < LINES)) {
+            for(x = who->t_pos.x - 1; x <= ex; ++x) {
+                if((x < 0) || (x >= COLS)) {
+                    continue;
                 }
                 if(mvwinch(mw, y, x) == ' ') {
                     ch = mvwinch(stdscr, y, x);
@@ -451,30 +447,30 @@ coord *rndmove(struct thing *who)
                 else {
                     ch = winch(mw);
                 }
-		if(step_ok(ch)) {
-		    dest.y = y;
-		    dest.x = x;
-		    if(!diag_ok(&who->t_pos, &dest)) {
-			continue;
+                if(step_ok(ch)) {
+                    dest.y = y;
+                    dest.x = x;
+                    if(!diag_ok(&who->t_pos, &dest)) {
+                        continue;
                     }
-		    if(ch == SCROLL) {
-			item = NULL;
-			for(item = lvl_obj; item != NULL; item = item->l_next) {
-			    obj = (struct object *)item->l_data;
-			    if((y == obj->o_pos.y) && (x == obj->o_pos.x)) {
-				break;
+                    if(ch == SCROLL) {
+                        item = NULL;
+                        for(item = lvl_obj; item != NULL; item = item->l_next) {
+                            obj = (struct object *)item->l_data;
+                            if((y == obj->o_pos.y) && (x == obj->o_pos.x)) {
+                                break;
                             }
-			}
-			if((item != NULL) && (obj->o_which == S_SCARE)) {
-			    continue;
                         }
-		    }
+                        if((item != NULL) && (obj->o_which == S_SCARE)) {
+                            continue;
+                        }
+                    }
                     ++nopen;
                     
-		    if(rnd(nopen) == 0) {
-			ret = dest;
+                    if(rnd(nopen) == 0) {
+                        ret = dest;
                     }
-		}
+                }
             }
         }
     }

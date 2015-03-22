@@ -7,6 +7,6 @@ int do_rooms();
 int draw_room(struct room *rp);
 int horiz(int cnt);
 int vert(int cnt);
-int rnd_pos(struct room *rp, coord *cp);
+int rnd_pos(struct room *rp, struct coord *cp);
 
 #endif

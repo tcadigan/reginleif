@@ -5,10 +5,10 @@
 
 int do_run(char ch);
 int do_move(int dy, int dx);
-int light(coord *cp);
+int light(struct coord *cp);
 char show(int y, int x);
-int be_trapped(coord *tc);
+int be_trapped(struct coord *tc);
 struct object *trap_at(int y, int x);
-coord *rndmove(struct thing *who);
+struct coord *rndmove(struct thing *who);
 
 #endif

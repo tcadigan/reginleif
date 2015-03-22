@@ -10,6 +10,6 @@ int init_weapon(struct object *weap, char type);
 int hit_monster(int y, int x, struct object *obj);
 char *num(int n1, int n2);
 int wield();
-int fallpos(coord *pos, coord *newpos, bool passages);
+int fallpos(struct coord *pos, struct coord *newpos, bool passages);
 
 #endif

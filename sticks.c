@@ -29,10 +29,10 @@
 int fix_stick(struct object *cur)
 {
     if(strcmp(ws_type[cur->o_which], "staff") == 0) {
-	cur->o_damage = "2d3";
+        cur->o_damage = "2d3";
     }
     else {
-	cur->o_damage = "1d1";
+        cur->o_damage = "1d1";
     }
     
     cur->o_hurldmg = "1d1";
@@ -64,17 +64,17 @@ int do_zap(bool gotdir)
 
     item = get_item("zap with", STICK);
     if(item == NULL) {
-	return 0;
+        return 0;
     }
     obj = (struct object *)item->l_data;
     if(obj->o_type != STICK) {
-	msg("You can't zap with that!");
-	after = FALSE;
-	return 0;
+        msg("You can't zap with that!");
+        after = FALSE;
+        return 0;
     }
     if(obj->o_ac == 0) {
-	msg("Nothing happens.");
-	return 0;
+        msg("Nothing happens.");
+        return 0;
     }
     if(!gotdir) {
         delta.y = rnd(3) - 1;
@@ -133,13 +133,13 @@ int do_zap(bool gotdir)
     case WS_TELAWAY:
     case WS_TELTO:
     case WS_CANCEL:
-	{
+        {
             char monster;
             char oldch;
-	    int rm;
+            int rm;
             
-	    y = player.t_pos.y;
-	    x = player.t_pos.x;
+            y = player.t_pos.y;
+            x = player.t_pos.x;
             
             char temp;
             if(mvwinch(mw, y, x) == ' ') {
@@ -149,9 +149,9 @@ int do_zap(bool gotdir)
                 temp = winch(mw);
             }
             
-	    while(step_ok(temp)) {
-		y += delta.y;
-		x += delta.x;
+            while(step_ok(temp)) {
+                y += delta.y;
+                x += delta.x;
                 
                 if(mvwinch(mw, y, x) == ' ') {
                     temp = mvwinch(stdscr, y, x);
@@ -159,41 +159,41 @@ int do_zap(bool gotdir)
                 else {
                     temp = winch(mw);
                 }
-	    }
+            }
 
             monster = mvwinch(mw, y, x);
-	    if(isupper(monster)) {
-		char omonst = monster;
+            if(isupper(monster)) {
+                char omonst = monster;
 
-		if(monster == 'F') {
-		    player.t_flags &= ~ISHELD;
+                if(monster == 'F') {
+                    player.t_flags &= ~ISHELD;
                 }
                 
-		item = find_mons(y, x);
-		tp = (struct thing *)item->l_data;
-		if(obj->o_which == WS_POLYMORPH) {
-		    _detach(&mlist, item);
-		    oldch = tp->t_oldch;
-		    delta.y = y;
-		    delta.x = x;
-		    new_monster(item, monster = rnd(26) + 'A', &delta);
-		    if(!(tp->t_flags & ISRUN)) {
-			runto(&delta, &player.t_pos);
+                item = find_mons(y, x);
+                tp = (struct thing *)item->l_data;
+                if(obj->o_which == WS_POLYMORPH) {
+                    _detach(&mlist, item);
+                    oldch = tp->t_oldch;
+                    delta.y = y;
+                    delta.x = x;
+                    new_monster(item, monster = rnd(26) + 'A', &delta);
+                    if(!(tp->t_flags & ISRUN)) {
+                        runto(&delta, &player.t_pos);
                     }
                     
-		    if(isupper(mvwinch(cw, y, x))) {
-			mvwaddch(cw, y, x, monster);
+                    if(isupper(mvwinch(cw, y, x))) {
+                        mvwaddch(cw, y, x, monster);
                     }
                     
-		    tp->t_oldch = oldch;
-		    ws_know[WS_POLYMORPH] |= (monster != omonst);
-		}
-		else if(obj->o_which == WS_CANCEL) {
-		    tp->t_flags |= ISCANC;
-		    tp->t_flags &= ~ISINVIS;
-		}
-		else {
-		    if(obj->o_which == WS_TELAWAY) {
+                    tp->t_oldch = oldch;
+                    ws_know[WS_POLYMORPH] |= (monster != omonst);
+                }
+                else if(obj->o_which == WS_CANCEL) {
+                    tp->t_flags |= ISCANC;
+                    tp->t_flags &= ~ISINVIS;
+                }
+                else {
+                    if(obj->o_which == WS_TELAWAY) {
                         rm = rnd_room();
                         rnd_pos(&rooms[rm], &tp->t_pos);
 
@@ -215,70 +215,70 @@ int do_zap(bool gotdir)
                                 temp = winch(mw);
                             }
                         }
-		    }
-		    else {
-			tp->t_pos.y = player.t_pos.y + delta.y;
-			tp->t_pos.x = player.t_pos.x + delta.x;
-		    }
-                    
-		    if(isupper(mvwinch(cw, y, x))) {
-			mvwaddch(cw, y, x, tp->t_oldch);
+                    }
+                    else {
+                        tp->t_pos.y = player.t_pos.y + delta.y;
+                        tp->t_pos.x = player.t_pos.x + delta.x;
                     }
                     
-		    tp->t_dest = &player.t_pos;
-		    tp->t_flags |= ISRUN;
-		    mvwaddch(mw, y, x, ' ');
-		    mvwaddch(mw, tp->t_pos.y, tp->t_pos.x, monster);
+                    if(isupper(mvwinch(cw, y, x))) {
+                        mvwaddch(cw, y, x, tp->t_oldch);
+                    }
+                    
+                    tp->t_dest = &player.t_pos;
+                    tp->t_flags |= ISRUN;
+                    mvwaddch(mw, y, x, ' ');
+                    mvwaddch(mw, tp->t_pos.y, tp->t_pos.x, monster);
 
                     if((tp->t_pos.y != y)
                        || (tp->t_pos.x != x)) {
-			tp->t_oldch = mvwinch(cw, tp->t_pos.y, tp->t_pos.x);
+                        tp->t_oldch = mvwinch(cw, tp->t_pos.y, tp->t_pos.x);
                     }
-		}
-	    }
-	}
+                }
+            }
+        }
         break;
     case WS_MISSILE:
-	{
-	    static struct object bolt = {
-		"bolt",   /* Name */
-		"",       /* Read text */
-		'*',      /* Type */
-		0,        /* Which of type */
-		1,        /* Group */
-		{ 0, 0 }, /* Position */
-		0,        /* Probability */
-		1,        /* count of object */
-		100,      /* Flags */
-		0,        /* Armor class */
-		'\0',     /* Launcher */
-		NULL,     /* Damage */
-		"1d4",    /* Hurl damage */
-		0,        /* Hit bonus */
-		0         /* Damage bonus */
+        {
+            static struct object bolt = {
+                "bolt",   /* Name */
+                "",       /* Read text */
+                '*',      /* Type */
+                0,        /* Which of type */
+                1,        /* Group */
+                { 0, 0 }, /* Position */
+                0,        /* Probability */
+                1,        /* count of object */
+                100,      /* Flags */
+                0,        /* Armor class */
+                '\0',     /* Launcher */
+                NULL,     /* Damage */
+                "1d4",    /* Hurl damage */
+                0,        /* Hit bonus */
+                0         /* Damage bonus */
             };
 
-	    do_motion(&bolt, delta.y, delta.x);
-	    if(isupper(mvwinch(mw, bolt.o_pos.y, bolt.o_pos.x)) 
+            do_motion(&bolt, delta.y, delta.x);
+            if(isupper(mvwinch(mw, bolt.o_pos.y, bolt.o_pos.x)) 
                && !save_throw(VS_MAGIC, (struct thing *)find_mons(bolt.o_pos.y, bolt.o_pos.y)->l_data)) {
                 hit_monster(bolt.o_pos.y, bolt.o_pos.x, &bolt);
             }
-	    else if(terse) {
-		msg("Missle vanishes");
+            else if(terse) {
+                msg("Missle vanishes");
             }
-	    else {
-		msg("The missle vanishes with a puff of smoke");
+            else {
+                msg("The missle vanishes with a puff of smoke");
             }
             
-	    ws_know[WS_MISSILE] = TRUE;
-	}
+            ws_know[WS_MISSILE] = TRUE;
+        }
         break;
     case WS_HIT:
-	{
+        {
             char ch;
             
-	    delta.y += player.t_pos.y;
-	    delta.x += player.t_pos.x;
+            delta.y += player.t_pos.y;
+            delta.x += player.t_pos.x;
             
             if(mvwinch(mw, delta.y, delta.x) == ' ') {
                 ch = mvwinch(stdscr, delta.y, delta.x);
@@ -287,19 +287,19 @@ int do_zap(bool gotdir)
                 ch = winch(mw);
             }
 
-	    if(isupper(ch)) {
-		if(rnd(20) == 0) {
-		    obj->o_damage = "3d8";
-		    obj->o_dplus = 9;
-		}
-		else {
-		    obj->o_damage = "1d8";
-		    obj->o_dplus = 3;
-		}
+            if(isupper(ch)) {
+                if(rnd(20) == 0) {
+                    obj->o_damage = "3d8";
+                    obj->o_dplus = 9;
+                }
+                else {
+                    obj->o_damage = "1d8";
+                    obj->o_dplus = 3;
+                }
                 
-		fight(&delta, ch, obj, FALSE);
-	    }
-	}
+                fight(&delta, ch, obj, FALSE);
+            }
+        }
         break;
     case WS_HASTE_M:
     case WS_SLOW_M:
@@ -358,34 +358,34 @@ int do_zap(bool gotdir)
     case WS_ELECT:
     case WS_FIRE:
     case WS_COLD:
-	{
-	    char dirch;
+        {
+            char dirch;
             char ch;
             char *name;
             bool bounced;
             bool used;
-	    coord pos;
-	    coord spotpos[BOLT_LENGTH];
-	    static struct object bolt = {
-		"bolt",    /* Name */
-		"",        /* Read text */
-		'*',       /* Type */
-		0,         /* Type */
-		1,         /* Which of type */
-		{ 0 , 0 }, /* Position */
-		0,         /* Probability */
-		1,         /* Count of object */
-		100,       /* Flags */
-		0,         /* Armor class */
-		'\0',      /* Launcher */
-		NULL,      /* Damage */
-		"6d6",     /* Hurl damage */
-		0,         /* Hit bonus */
-		0          /* Damage bonus */
-	    };
+            struct coord pos;
+            struct coord spotpos[BOLT_LENGTH];
+            static struct object bolt = {
+                "bolt",    /* Name */
+                "",        /* Read text */
+                '*',       /* Type */
+                0,         /* Type */
+                1,         /* Which of type */
+                { 0 , 0 }, /* Position */
+                0,         /* Probability */
+                1,         /* Count of object */
+                100,       /* Flags */
+                0,         /* Armor class */
+                '\0',      /* Launcher */
+                NULL,      /* Damage */
+                "6d6",     /* Hurl damage */
+                0,         /* Hit bonus */
+                0          /* Damage bonus */
+            };
             
             
-	    switch (delta.y + delta.x) {
+            switch (delta.y + delta.x) {
             case 0:
                 dirch = '/';
                 break;
@@ -401,22 +401,22 @@ int do_zap(bool gotdir)
             case 2:
             default:
                 dirch = '\\';
-	    }
+            }
 
-	    pos = player.t_pos;
-	    bounced = FALSE;
-	    used = FALSE;
-	    if(obj->o_which == WS_ELECT) {
-		name = "bolt";
+            pos = player.t_pos;
+            bounced = FALSE;
+            used = FALSE;
+            if(obj->o_which == WS_ELECT) {
+                name = "bolt";
             }
-	    else if(obj->o_which == WS_FIRE) {
-		name = "flame";
+            else if(obj->o_which == WS_FIRE) {
+                name = "flame";
             }
-	    else {
-		name = "ice";
+            else {
+                name = "ice";
             }
             
-	    for(y = 0; y < BOLT_LENGTH && !used; ++y) {
+            for(y = 0; y < BOLT_LENGTH && !used; ++y) {
                 if(mvwinch(mw, pos.y, pos.y) == ' ') {
                     ch = mvwinch(stdscr, pos.y, pos.x);
                 }
@@ -424,8 +424,8 @@ int do_zap(bool gotdir)
                     ch = winch(mw);
                 }
 
-		spotpos[y] = pos;
-		switch(ch) {
+                spotpos[y] = pos;
+                switch(ch) {
                 case DOOR:
                 case SECRETDOOR:
                 case '|':
@@ -467,7 +467,7 @@ int do_zap(bool gotdir)
 
                             player.t_stats.s_hpt -= roll(6, 6);
                             if(player.t_stats.s_hpt <= 0) {
-				death('b');
+                                death('b');
                             }
                             used = TRUE;
                         }
@@ -478,18 +478,18 @@ int do_zap(bool gotdir)
                     
                     mvwaddch(cw, pos.y, pos.x, dirch);
                     wrefresh(cw);
-		}
+                }
                 
-		pos.y += delta.y;
-		pos.x += delta.x;
-	    }
-            
-	    for(x = 0; x < y; ++x) {
-		mvwaddch(cw, spotpos[x].y, spotpos[x].x, show(spotpos[x].y, spotpos[x].x));
+                pos.y += delta.y;
+                pos.x += delta.x;
             }
             
-	    ws_know[obj->o_which] = TRUE;
-	}
+            for(x = 0; x < y; ++x) {
+                mvwaddch(cw, spotpos[x].y, spotpos[x].x, show(spotpos[x].y, spotpos[x].x));
+            }
+            
+            ws_know[obj->o_which] = TRUE;
+        }
         break;
     default:
         msg("What a bizarre schtick!");
@@ -512,24 +512,24 @@ int drain(int ymin, int ymax, int xmin, int xmax)
     // First count how many things we need to spread the hit points among
     count = 0;
     for(i = ymin; i <= ymax; i++) {
-	for(j = xmin; j <= xmax; j++) {
-	    if(isupper(mvwinch(mw, i, j))) {
-		++count;
+        for(j = xmin; j <= xmax; j++) {
+            if(isupper(mvwinch(mw, i, j))) {
+                ++count;
             }
         }
     }
     if(count == 0) {
-	msg("You have a tingling feeling");
+        msg("You have a tingling feeling");
 
-	return 0;
+        return 0;
     }
     count = player.t_stats.s_hpt / count;
     player.t_stats.s_hpt /= 2;
 
     // Now zot all of the monsters
     for(i = ymin; i <= ymax; ++i) {
-	for(j = xmin; j <= xmax; ++j) {
-	    if(isupper(mvwinch(mw, i, j))) {
+        for(j = xmin; j <= xmax; ++j) {
+            if(isupper(mvwinch(mw, i, j))) {
                 item = find_mons(i, j);
                 
                 if(item != NULL) {
@@ -540,7 +540,7 @@ int drain(int ymin, int ymax, int xmin, int xmax)
                         killed(item, cansee(i, j) && ((ick->t_flags & ISINVIS) == 0));
                     }
                 }
-	    }
+            }
         }
     }
 
@@ -554,13 +554,13 @@ char *charge_str(struct object *obj)
     static char buf[20];
 
     if(!(obj->o_flags & ISKNOW)) {
-	buf[0] = '\0';
+        buf[0] = '\0';
     }
     else if(terse) {
-	sprintf(buf, " [%d]", obj->o_ac);
+        sprintf(buf, " [%d]", obj->o_ac);
     }
     else {
-	sprintf(buf, " [%d charges]", obj->o_ac);
+        sprintf(buf, " [%d charges]", obj->o_ac);
     }
     
     return buf;

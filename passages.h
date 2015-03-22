@@ -5,7 +5,7 @@
 
 int do_passages();
 int conn(int r1, int r2);
-int door(struct room *rm, coord *cp);
+int door(struct room *rm, struct coord *cp);
 int add_pass();
 
 #endif

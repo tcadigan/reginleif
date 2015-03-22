@@ -69,7 +69,7 @@ char randmonster(bool wander)
 
 // new_monster:
 //     Pick a new monster and add it to the list
-int new_monster(struct linked_list *item, char type, coord *cp)
+int new_monster(struct linked_list *item, char type, struct coord *cp)
 {
     struct thing *tp;
     struct thing *mp;
@@ -182,7 +182,7 @@ int wanderer()
     struct room *hr = roomin(&player.t_pos);
     struct linked_list *item;
     struct thing *tp;
-    coord cp;
+    struct coord cp;
 
     item = new_item(sizeof *tp);
 

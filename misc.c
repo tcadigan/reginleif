@@ -258,8 +258,8 @@ char secretdoor(int y, int x)
 {
     int i;
     struct room *rp;
-    coord *cpp;
-    static coord cp;
+    struct coord *cpp;
+    static struct coord cp;
 
     cp.y = y;
     cp.x = x;

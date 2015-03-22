@@ -75,32 +75,32 @@ int missile(int ydelta, int xdelta)
     // Get which thing we are hurling
     item = get_item("throw", WEAPON);
     if(item == NULL) {
-	return 0;
+        return 0;
     }
     obj = (struct object *)item->l_data;
     if (!dropcheck(obj) || is_current(obj)) {
-	return 0;
+        return 0;
     }
 
     // Get rid of the thing. If it is a non-multiple item object,
     // or if it is the last thing, just drop it. Otherwise, create a
     // new item with a count of one.
     if(obj->o_count < 2) {
-	_detach(&player.t_pack, item);
-	--inpack;
+        _detach(&player.t_pack, item);
+        --inpack;
     }
     else {
-	--obj->o_count;
+        --obj->o_count;
 
         if(obj->o_group == 0) {
-	    --inpack;
+            --inpack;
         }
         
-	nitem = (struct linked_list *) new_item(sizeof *obj);
-	obj = (struct object *)nitem->l_data;
-	*obj = *((struct object *)item->l_data);
-	obj->o_count = 1;
-	item = nitem;
+        nitem = (struct linked_list *) new_item(sizeof *obj);
+        obj = (struct object *)nitem->l_data;
+        *obj = *((struct object *)item->l_data);
+        obj->o_count = 1;
+        item = nitem;
     }
 
     do_motion(obj, ydelta, xdelta);
@@ -108,8 +108,8 @@ int missile(int ydelta, int xdelta)
     // AHA! Here it has hit something. If it is a wall or a door,
     // or if it misses (combat) the monster, put it on the floor
     if (!isupper(mvwinch(mw, obj->o_pos.y, obj->o_pos.x))
-	|| !hit_monster(obj->o_pos.y, obj->o_pos.x, obj)) {
-	fall(item, TRUE);
+        || !hit_monster(obj->o_pos.y, obj->o_pos.x, obj)) {
+        fall(item, TRUE);
     }
     mvwaddch(cw, player.t_pos.y, player.t_pos.x, PLAYER);
 
@@ -124,10 +124,10 @@ int do_motion(struct object *obj, int ydelta, int xdelta)
     // Come fly with us...
     obj->o_pos = player.t_pos;
     while(1) {
-	int ch;
+        int ch;
 
         // Erase the old one
-	if(!((obj->o_pos.x == player.t_pos.x) && (obj->o_pos.y == player.t_pos.y))
+        if(!((obj->o_pos.x == player.t_pos.x) && (obj->o_pos.y == player.t_pos.y))
            && cansee(obj->o_pos.y, obj->o_pos.x)
            && mvwinch(cw, obj->o_pos.y, obj->o_pos.x) != ' ') {
             mvwaddch(cw,
@@ -137,8 +137,8 @@ int do_motion(struct object *obj, int ydelta, int xdelta)
         }
 
         // Get the new position
-	obj->o_pos.y += ydelta;
-	obj->o_pos.x += xdelta;
+        obj->o_pos.y += ydelta;
+        obj->o_pos.x += xdelta;
 
         if(mvwinch(mw, obj->o_pos.y, obj->o_pos.y) == ' ') {
             ch = mvwinch(stdscr, obj->o_pos.y, obj->o_pos.x);
@@ -147,18 +147,18 @@ int do_motion(struct object *obj, int ydelta, int xdelta)
             ch = winch(mw);
         }
 
-	if(step_ok(ch) && (ch != DOOR)) {
+        if(step_ok(ch) && (ch != DOOR)) {
             // It hasn't hit anything yet,
             // to display it if it is alright
-	    if (cansee(obj->o_pos.y, obj->o_pos.x) &&
-		mvwinch(cw, obj->o_pos.y, obj->o_pos.x) != ' ')
-		{
-		    mvwaddch(cw, obj->o_pos.y, obj->o_pos.x, obj->o_type);
-		    wrefresh(cw);
-		}
-	    continue;
-	}
-	break;
+            if (cansee(obj->o_pos.y, obj->o_pos.x) &&
+                mvwinch(cw, obj->o_pos.y, obj->o_pos.x) != ' ')
+                {
+                    mvwaddch(cw, obj->o_pos.y, obj->o_pos.x, obj->o_type);
+                    wrefresh(cw);
+                }
+            continue;
+        }
+        break;
     }
 
     return 0;
@@ -170,23 +170,23 @@ int fall(struct linked_list *item, bool pr)
 {
     struct object *obj;
     struct room *rp;
-    static coord fpos;
+    static struct coord fpos;
 
     obj = (struct object *)item->l_data;
     if(fallpos(&obj->o_pos, &fpos, TRUE)) {
-	mvaddch(fpos.y, fpos.x, obj->o_type);
-	obj->o_pos = fpos;
+        mvaddch(fpos.y, fpos.x, obj->o_type);
+        obj->o_pos = fpos;
         rp = roomin(&player.t_pos);
-	if((rp != NULL) && !(rp->r_flags & ISDARK)) {
-	    light(&player.t_pos);
-	    mvwaddch(cw, player.t_pos.y, player.t_pos.x, PLAYER);
-	}
-	_attach(&lvl_obj, item);
+        if((rp != NULL) && !(rp->r_flags & ISDARK)) {
+            light(&player.t_pos);
+            mvwaddch(cw, player.t_pos.y, player.t_pos.x, PLAYER);
+        }
+        _attach(&lvl_obj, item);
         
-	return 0;
+        return 0;
     }
     if(pr) {
-	msg("Your %s vanishes as it hits the ground.", w_names[obj->o_which]);
+        msg("Your %s vanishes as it hits the ground.", w_names[obj->o_which]);
     }
     
     discard(item);
@@ -206,12 +206,12 @@ int init_weapon(struct object *weap, char type)
     weap->o_launch = iwp->iw_launch;
     weap->o_flags = iwp->iw_flags;
     if(weap->o_flags & ISMANY) {
-	weap->o_count = rnd(8) + 8;
+        weap->o_count = rnd(8) + 8;
         ++group;
-	weap->o_group = group;
+        weap->o_group = group;
     }
     else {
-	weap->o_count = 1;
+        weap->o_count = 1;
     }
 
     return 0;
@@ -221,7 +221,7 @@ int init_weapon(struct object *weap, char type)
 //     Does the missile hit the monster
 int hit_monster(int y, int x, struct object *obj)
 {
-    static coord mp;
+    static struct coord mp;
 
     mp.y = y;
     mp.x = x;
@@ -244,7 +244,7 @@ char *num(int n1, int n2)
     static char numbuf[80];
 
     if((n1 == 0) && (n2 == 0)) {
-	return "+0";
+        return "+0";
     }
     if(n2 == 0) {
         if(n1 < 0) {
@@ -288,24 +288,24 @@ int wield()
     oweapon = cur_weapon;
     
     if(!dropcheck(cur_weapon)) {
-	cur_weapon = oweapon;
+        cur_weapon = oweapon;
         
-	return 0;
+        return 0;
     }
     
     cur_weapon = oweapon;
     item = get_item("wield", WEAPON);
 
     if(item == NULL) {
-	after = FALSE;
+        after = FALSE;
         
-	return 0;
+        return 0;
     }
 
     obj = (struct object *)item->l_data;
     
     if(obj->o_type == ARMOR) {
-	msg("You can't wield armor");
+        msg("You can't wield armor");
         after = FALSE;
         
         return 0;
@@ -318,10 +318,10 @@ int wield()
     }
 
     if(terse) {
-	addmsg("W");
+        addmsg("W");
     }
     else {
-	addmsg("You are now w");
+        addmsg("You are now w");
     }
     
     msg("ielding %s", inv_name(obj, TRUE));
@@ -332,7 +332,7 @@ int wield()
 
 // fallpos:
 //     Pick a random position around the given (y, x) coordinates
-int fallpos(coord *pos, coord *newpos, bool passages)
+int fallpos(struct coord *pos, struct coord *newpos, bool passages)
 {
     int y;
     int x;
@@ -341,12 +341,12 @@ int fallpos(coord *pos, coord *newpos, bool passages)
 
     cnt = 0;
     for(y = pos->y - 1; y <= pos->y + 1; ++y) {
-	for(x = pos->x - 1; x <= pos->x + 1; ++x) {
+        for(x = pos->x - 1; x <= pos->x + 1; ++x) {
             // Check to make certain the spot is empty,
             // if it is, put the object there, set it in
             // the level list and redraw the room if he can see it
-	    if((y == player.t_pos.y) && (x == player.t_pos.x)) {
-		continue;
+            if((y == player.t_pos.y) && (x == player.t_pos.x)) {
+                continue;
             }
             
             if(mvwinch(mw, y, x) == ' ') {
@@ -356,12 +356,12 @@ int fallpos(coord *pos, coord *newpos, bool passages)
                 ch = winch(mw);
             }
             
-	    if(((ch == FLOOR) || (passages && ch == PASSAGE))
+            if(((ch == FLOOR) || (passages && ch == PASSAGE))
                && (rnd(++cnt) == 0)) {
-		newpos->y = y;
-		newpos->x = x;
-	    }
-	}
+                newpos->y = y;
+                newpos->x = x;
+            }
+        }
     }
     
     return (cnt != 0);

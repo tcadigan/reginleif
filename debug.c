@@ -32,12 +32,12 @@ void print_h_list_internal(struct h_list *item, int level, int embedded, FILE *o
     fprintf(output, "\n");
 }
 
-void print_coord(coord *item, FILE *output)
+void print_coord(struct coord *item, FILE *output)
 {
     print_coord_internal(item, 0, 0, output);
 }
 
-void print_coord_internal(coord *item, int level, int embedded, FILE *output)
+void print_coord_internal(struct coord *item, int level, int embedded, FILE *output)
 {
     print_indent(level, output);
     fprintf(output, "{\n");

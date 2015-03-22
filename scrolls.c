@@ -123,7 +123,7 @@ int read_scroll()
             int x;
             int y;
             bool appear = 0;
-            coord mp;
+            struct coord mp;
 
             // Search for an open place
             for(y = player.t_pos.y; y <= player.t_pos.y + 1; ++y) {

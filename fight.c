@@ -22,7 +22,7 @@ long e_levels[] = {
 
 // fight:
 //     The player attacks the monster.
-int fight(coord *mp, char mn, struct object *weap, bool thrown)
+int fight(struct coord *mp, char mn, struct object *weap, bool thrown)
 {
     struct thing *tp;
     struct linked_list *item;
@@ -744,7 +744,7 @@ int bounce(struct object *weap, char *mname)
 
 // remove_monster:
 //     Remove a monster from the screen
-int remove_monster(coord *mp, struct linked_list *item)
+int remove_monster(struct coord *mp, struct linked_list *item)
 {
     mvwaddch(mw, mp->y, mp->x, ' ');
     mvwaddch(cw, mp->y, mp->x, ((struct thing *)item->l_data)->t_oldch);

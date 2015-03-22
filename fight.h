@@ -3,7 +3,7 @@
 
 #include "rogue.h"
 
-int fight(coord *mp, char mn, struct object *weap, bool thrown);
+int fight(struct coord *mp, char mn, struct object *weap, bool thrown);
 int attack(struct thing *mp);
 int swing(int at_lvl, int op_arm, int wplus);
 int check_level();
@@ -18,7 +18,7 @@ int add_dam(struct stats *stats);
 int raise_level();
 int thunk(struct object *weap, char *mname);
 int bounce(struct object *weap, char *mname);
-int remove_monster(coord *mp, struct linked_list *item);
+int remove_monster(struct coord *mp, struct linked_list *item);
 int is_magic(struct object *obj);
 int killed(struct linked_list *item, bool pr);
 

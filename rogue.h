@@ -245,10 +245,10 @@ struct h_list {
 };
 
 // Coordinate data type
-typedef struct {
+struct coord {
     int x;
     int y;
-} coord;
+};
 
 // Linked list data type
 struct linked_list {
@@ -261,11 +261,11 @@ struct linked_list {
 // Room structure
 struct room {
     // Upper left corner
-    coord r_pos;
+    struct coord r_pos;
     // Size of room
-    coord r_max;
+    struct coord r_max;
     // Where the gold is
-    coord r_gold;
+    struct coord r_gold;
     // How much gold is worth
     int r_goldval;
     // Info about the room
@@ -273,7 +273,7 @@ struct room {
     // Number of exits
     int r_nexits;
     // Where the exits are
-    coord r_exit[4];
+    struct coord r_exit[4];
 };
 
 // Structure describing a fighting being
@@ -298,7 +298,7 @@ struct thing {
     /* What to call the thing */
     char *t_name;
     // Position
-    coord t_pos;
+    struct coord t_pos;
     // If slowed, is it a turn to move
     bool t_turn;
     // What is it
@@ -306,7 +306,7 @@ struct thing {
     // Character that was where it was
     char t_oldch;
     // Where it is running to
-    coord *t_dest;
+    struct coord *t_dest;
     // State word
     short t_flags;
 
@@ -334,7 +334,7 @@ struct object {
     int o_group;
 
     // Where it lives on the screen
-    coord o_pos;
+    struct coord o_pos;
     // Probability of the object
     int o_prob;
     // Count for plural objects
@@ -530,8 +530,8 @@ extern bool amulet;
 extern bool in_shell;
 
 // Position before last look() call
-coord oldpos;
+struct coord oldpos;
 // Change indicated to get_dir()
-coord delta;
+struct coord delta;
 
 #endif
