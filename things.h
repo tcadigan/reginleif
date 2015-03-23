@@ -8,6 +8,6 @@ int money();
 int drop();
 int dropcheck(struct object *op);
 struct linked_list *new_thing();
-int pick_one(struct magic_item *magic, int nitems);
+int pick_one(struct object *magic, int nitems);
 
 #endif

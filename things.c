@@ -36,13 +36,13 @@ char *inv_name(struct object *obj, bool drop)
         pb = &prbuf[strlen(prbuf)];
         
         if(s_know[obj->o_which]) {
-            sprintf(pb, "of %s", s_magic[obj->o_which].mi_name);
+            sprintf(pb, "of %s", s_magic[obj->o_which].o_name);
         }
         else if(s_guess[obj->o_which]) {
             sprintf(pb, "called %s", s_guess[obj->o_which]);
         }
         else {
-	    sprintf(pb, "titled '%s'", s_names[obj->o_which]);
+            sprintf(pb, "titled '%s'", s_names[obj->o_which]);
         }
         break;
     case POTION:
@@ -58,26 +58,26 @@ char *inv_name(struct object *obj, bool drop)
         if(p_know[obj->o_which]) {
             sprintf(pb,
                     "of %s(%s)",
-                    p_magic[obj->o_which].mi_name,
+                    p_magic[obj->o_which].o_name,
                     p_colors[obj->o_which]);
         }
         else if(p_guess[obj->o_which]) {
             sprintf(pb,
                     "called %s(%s)",
                     p_guess[obj->o_which],
-		    p_colors[obj->o_which]);
+                    p_colors[obj->o_which]);
         }
         else if(obj->o_count == 1) {
             sprintf(prbuf,
                     "A%s %s potion",
-		    vowelstr(p_colors[obj->o_which]),
-		    p_colors[obj->o_which]);
+                    vowelstr(p_colors[obj->o_which]),
+                    p_colors[obj->o_which]);
         }
         else {
             sprintf(prbuf,
                     "%d %s potions",
                     obj->o_count,
-		    p_colors[obj->o_which]);
+                    p_colors[obj->o_which]);
         }
         break;
     case FOOD:
@@ -94,7 +94,7 @@ char *inv_name(struct object *obj, bool drop)
                 strcpy(prbuf, "Some food");
             }
             else {
-		sprintf(prbuf, "%d rations of food", obj->o_count);
+                sprintf(prbuf, "%d rations of food", obj->o_count);
             }
         }
         break;
@@ -127,7 +127,7 @@ char *inv_name(struct object *obj, bool drop)
             sprintf(prbuf,
                     "%s %s",
                     num(armors[obj->o_which].o_ac - obj->o_ac, 0),
-		    armors[obj->o_which].o_name);
+                    armors[obj->o_which].o_name);
         }
         else {
             sprintf(prbuf, "%s", armors[obj->o_which].o_name);
@@ -143,21 +143,21 @@ char *inv_name(struct object *obj, bool drop)
         if(ws_know[obj->o_which]) {
             sprintf(pb,
                     "of %s%s(%s)",
-                    ws_magic[obj->o_which].mi_name,
-		    charge_str(obj),
+                    ws_magic[obj->o_which].o_name,
+                    charge_str(obj),
                     ws_made[obj->o_which]);
         }
         else if(ws_guess[obj->o_which]) {
             sprintf(pb,
                     "called %s(%s)",
                     ws_guess[obj->o_which],
-		    ws_made[obj->o_which]);
+                    ws_made[obj->o_which]);
         }
         else {
             sprintf(&prbuf[2],
                     "%s %s",
                     ws_made[obj->o_which],
-		    ws_type[obj->o_which]);
+                    ws_type[obj->o_which]);
         }
         break;
     case RING:
@@ -165,20 +165,20 @@ char *inv_name(struct object *obj, bool drop)
             sprintf(prbuf,
                     "A%s ring of %s(%s)",
                     ring_num(obj),
-		    r_magic[obj->o_which].mi_name,
+                    r_magic[obj->o_which].o_name,
                     r_stones[obj->o_which]);
         }
         else if (r_guess[obj->o_which]) {
             sprintf(prbuf,
                     "A ring called %s(%s)",
-		    r_guess[obj->o_which],
+                    r_guess[obj->o_which],
                     r_stones[obj->o_which]);
         }
         else {
             sprintf(prbuf,
                     "A%s %s ring",
                     vowelstr(r_stones[obj->o_which]),
-		    r_stones[obj->o_which]);
+                    r_stones[obj->o_which]);
         }
         break;
     default:
@@ -190,29 +190,29 @@ char *inv_name(struct object *obj, bool drop)
     }
     
     if(obj == cur_armor) {
-	strcat(prbuf, " (being worn)");
+        strcat(prbuf, " (being worn)");
     }
     
     if(obj == cur_weapon) {
-	strcat(prbuf, " (weapon in hand)");
+        strcat(prbuf, " (weapon in hand)");
     }
     
     if(obj == cur_ring[LEFT]) {
-	strcat(prbuf, " (on left hand)");
+        strcat(prbuf, " (on left hand)");
     }
     else if(obj == cur_ring[RIGHT]) {
-	strcat(prbuf, " (on right hand)");
+        strcat(prbuf, " (on right hand)");
     }
     
     if(drop && isupper(prbuf[0])) {
-	prbuf[0] = tolower(prbuf[0]);
+        prbuf[0] = tolower(prbuf[0]);
     }
     else if(!drop && islower(*prbuf)) {
-	*prbuf = toupper(*prbuf);
+        *prbuf = toupper(*prbuf);
     }
     
     if(!drop) {
-	strcat(prbuf, ".");
+        strcat(prbuf, ".");
     }
     
     return prbuf;
@@ -226,20 +226,20 @@ int money()
 
     for(rp = rooms; rp < &rooms[MAXROOMS]; ++rp) {
         if((player.t_pos.x == rp->r_gold.x) && (player.t_pos.y == rp->r_gold.y)) {
-	    if(notify) {
-		if(!terse) {
-		    addmsg("You found ");
+            if(notify) {
+                if(!terse) {
+                    addmsg("You found ");
                 }
                 
-		msg("%d gold pieces.", rp->r_goldval);
-	    }
+                msg("%d gold pieces.", rp->r_goldval);
+            }
             
-	    purse += rp->r_goldval;
-	    rp->r_goldval = 0;
+            purse += rp->r_goldval;
+            rp->r_goldval = 0;
             move(rp->r_gold.y, rp->r_gold.x);
-	    addch(FLOOR);
-	    return 0;
-	}
+            addch(FLOOR);
+            return 0;
+        }
     }
     
     msg("That gold must have been counterfeit");
@@ -258,33 +258,33 @@ int drop()
 
     ch = mvwinch(stdscr, player.t_pos.y, player.t_pos.x);
     if((ch != FLOOR) && (ch != PASSAGE)) {
-	msg("There is something there already");
-	return 0;
+        msg("There is something there already");
+        return 0;
     }
     obj = get_item("drop", 0);
     if(obj == NULL) {
-	return 0;
+        return 0;
     }
     op = (struct object *)obj->l_data;
     if(!dropcheck(op)) {
-	return 0;
+        return 0;
     }
 
     // Take it out of the pack
     if((op->o_count >= 2) && (op->o_type != WEAPON)) {
-	nobj = new_item(sizeof *op);
-	--op->o_count;
-	op = (struct object *)nobj->l_data;
-	*op = *((struct object *)obj->l_data);
-	op->o_count = 1;
-	obj = nobj;
+        nobj = new_item(sizeof *op);
+        --op->o_count;
+        op = (struct object *)nobj->l_data;
+        *op = *((struct object *)obj->l_data);
+        op->o_count = 1;
+        obj = nobj;
         
-	if(op->o_group != 0) {
+        if(op->o_group != 0) {
             ++inpack;
         }
     }
     else {
-	_detach(&player.t_pack, obj);
+        _detach(&player.t_pack, obj);
     }
     
     --inpack;
@@ -306,34 +306,34 @@ int dropcheck(struct object *op)
     short save_max_st_add;
 
     if(op == NULL) {
-	return TRUE;
+        return TRUE;
     }
     if((op != cur_armor)
        && (op != cur_weapon)
        && (op != cur_ring[LEFT])
        && (op != cur_ring[RIGHT])) {
-	return TRUE;
+        return TRUE;
     }
     if(op->o_flags & ISCURSED) {
-	msg("You can't. It appears to be cursed.");
+        msg("You can't. It appears to be cursed.");
         
-	return FALSE;
+        return FALSE;
     }
     if(op == cur_weapon) {
-	cur_weapon = NULL;
+        cur_weapon = NULL;
     }
     else if(op == cur_armor) {
-	waste_time();
-	cur_armor = NULL;
+        waste_time();
+        cur_armor = NULL;
     }
     else if((op == cur_ring[LEFT]) || (op == cur_ring[RIGHT])) {
-	switch(op->o_which) {
+        switch(op->o_which) {
         case R_ADDSTR:
-	    save_max_st_str = max_stats.st_str;
-	    save_max_st_add = max_stats.st_add;
+            save_max_st_str = max_stats.st_str;
+            save_max_st_add = max_stats.st_add;
             chg_str(-op->o_ac);
-	    max_stats.st_str = save_max_st_str;
-	    max_stats.st_add = save_max_st_add;
+            max_stats.st_str = save_max_st_str;
+            max_stats.st_add = save_max_st_add;
             break;
         case R_SEEINVIS:
             player.t_flags &= ~CANSEE;
@@ -341,7 +341,7 @@ int dropcheck(struct object *op)
             light(&player.t_pos);
             mvwaddch(cw, player.t_pos.y, player.t_pos.x, PLAYER);
             break;
-	}
+        }
 
         if(op == cur_ring[LEFT]) {
             cur_ring[LEFT] = NULL;
@@ -396,9 +396,9 @@ struct linked_list *new_thing()
         cur->o_which = pick_one(p_magic, MAXPOTIONS);
         break;
     case 1:
-	cur->o_type = SCROLL;
-	cur->o_which = pick_one(s_magic, MAXSCROLLS);
-	break;
+        cur->o_type = SCROLL;
+        cur->o_which = pick_one(s_magic, MAXSCROLLS);
+        break;
     case 2:
         no_food = 0;
         cur->o_type = FOOD;
@@ -493,27 +493,27 @@ struct linked_list *new_thing()
 
 // pick_one:
 //     Pick an item out of a list of nitems possible magic items
-int pick_one(struct magic_item *magic, int nitems)
+int pick_one(struct object *magic, int nitems)
 {
-    struct magic_item *end;
+    struct object *end;
     int i;
-    struct magic_item *start;
+    struct object *start;
 
     start = magic;
     for(end = &magic[nitems], i = rnd(100); magic < end; ++magic) {
-	if(i < magic->mi_prob) {
-	    break;
+        if(i < magic->o_prob) {
+            break;
         }
     }
     
     if(magic == end) {
-	if(wizard) {
+        if(wizard) {
             msg("bad pick_one: %d from %d items", i, nitems);
-	    for(magic = start; magic < end; ++magic) {
-                msg("%s: %d%%", magic->mi_name, magic->mi_prob);
+            for(magic = start; magic < end; ++magic) {
+                msg("%s: %d%%", magic->o_name, magic->o_prob);
             }
-	}
-	magic = start;
+        }
+        magic = start;
     }
     
     return (magic - start);

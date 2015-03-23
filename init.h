@@ -9,6 +9,6 @@ int init_colors();
 int init_names();
 int init_stones();
 int init_materials();
-int badcheck(char *name, struct magic_item *magic, int bound);
+int badcheck(char *name, struct object *magic, int bound);
 
 #endif

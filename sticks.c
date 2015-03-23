@@ -250,9 +250,10 @@ int do_zap(bool gotdir)
                 0,        /* Probability */
                 1,        /* count of object */
                 100,      /* Flags */
-                0,        /* Armor class */
+                0,        /* Worth */
+                11,       /* Armor class */
                 '\0',     /* Launcher */
-                NULL,     /* Damage */
+                "",       /* Damage */
                 "1d4",    /* Hurl damage */
                 0,        /* Hit bonus */
                 0         /* Damage bonus */
@@ -376,9 +377,10 @@ int do_zap(bool gotdir)
                 0,         /* Probability */
                 1,         /* Count of object */
                 100,       /* Flags */
-                0,         /* Armor class */
+                0,         /* Worth */
+                11,        /* Armor class */
                 '\0',      /* Launcher */
-                NULL,      /* Damage */
+                "",        /* Damage */
                 "6d6",     /* Hurl damage */
                 0,         /* Hit bonus */
                 0          /* Damage bonus */

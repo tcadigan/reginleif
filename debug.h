@@ -12,9 +12,6 @@ void print_coord_internal(struct coord *item, int level, int embedded, FILE *out
 void print_linked_list(struct linked_list *item, FILE *output);
 void print_linked_list_internal(struct linked_list *item, int level, int embedded, FILE *output);
 
-void print_magic_item(struct magic_item *item, FILE *output);
-void print_magic_item_internal(struct magic_item *item, int level, int embedded, FILE *output);
-
 void print_room(struct room *item, FILE *output);
 void print_room_internal(struct room *item, int level, int embedded, FILE *output);
 

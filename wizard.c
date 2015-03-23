@@ -32,7 +32,7 @@ int whatis()
     item = get_item("identify", 0);
     
     if(item == NULL) {
-	return 0;
+        return 0;
     }
     
     obj = (struct object *)item->l_data;
@@ -105,33 +105,33 @@ int create_obj()
     obj->o_count = 1;
     mpos = 0;
     if((obj->o_type == WEAPON) || (obj->o_type == ARMOR)) {
-	msg("Blessing? (+,-,n)");
-	bless = readchar();
-	mpos = 0;
-	if(bless == '-') {
-	    obj->o_flags |= ISCURSED;
+        msg("Blessing? (+,-,n)");
+        bless = readchar();
+        mpos = 0;
+        if(bless == '-') {
+            obj->o_flags |= ISCURSED;
         }
-	if(obj->o_type == WEAPON) {
-	    init_weapon(obj, obj->o_which);
-	    if(bless == '-') {
-		obj->o_hplus -= (rnd(3) + 1);
+        if(obj->o_type == WEAPON) {
+            init_weapon(obj, obj->o_which);
+            if(bless == '-') {
+                obj->o_hplus -= (rnd(3) + 1);
             }
-	    if(bless == '+') {
-		obj->o_hplus += (rnd(3) + 1);
+            if(bless == '+') {
+                obj->o_hplus += (rnd(3) + 1);
             }
-	}
-	else {
-	    obj->o_ac = armors[obj->o_which].o_ac;
-	    if(bless == '-') {
-		obj->o_ac += (rnd(3) + 1);
+        }
+        else {
+            obj->o_ac = armors[obj->o_which].o_ac;
+            if(bless == '-') {
+                obj->o_ac += (rnd(3) + 1);
             }
-	    if (bless == '+') {
-		obj->o_ac -= (rnd(3) + 1);
+            if (bless == '+') {
+                obj->o_ac -= (rnd(3) + 1);
             }
-	}
+        }
     }
     else if(obj->o_type == RING) {
-	switch (obj->o_which) {
+        switch (obj->o_which) {
         case R_PROTECT:
         case R_ADDSTR:
         case R_ADDHIT:
@@ -149,10 +149,10 @@ int create_obj()
             else {
                 obj->o_ac = rnd(2) + 1;
             }
-	}
+        }
     }
     else if(obj->o_type == STICK) {
-	fix_stick(obj);
+        fix_stick(obj);
     }
     
     add_pack(item, FALSE);
@@ -200,9 +200,9 @@ int teleport()
     // Turn off ISHELD in case teleportation was done while
     // fighting a Fungi
     if((player.t_flags & ISHELD) != 0) {
-	player.t_flags &= ~ISHELD;
-	fung_hit = 0;
-	strcpy(monsters['F'-'A'].t_stats.s_dmg, "000d0");
+        player.t_flags &= ~ISHELD;
+        fung_hit = 0;
+        strcpy(monsters['F'-'A'].t_stats.s_dmg, "000d0");
     }
     
     count = 0;
@@ -230,7 +230,7 @@ int passwd()
         c= getchar();
     }
     if(sp == buf) {
-	return FALSE;
+        return FALSE;
     }
     *sp = '\0';
     

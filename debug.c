@@ -100,41 +100,6 @@ void print_linked_list_internal(struct linked_list *item, int level, int embedde
     fprintf(output, "\n");
 }
 
-void print_magic_item(struct magic_item *item, FILE *output)
-{
-    print_magic_item_internal(item, 0, 0, output);
-}
-
-void print_magic_item_internal(struct magic_item *item, int level, int embedded, FILE *output)
-{
-    print_indent(level, output);
-    fprintf(output, "{\n");
-    print_indent(level + 1, output);
-    fprintf(output, "\"type\": \"magic_item\",\n");
-    print_indent(level + 1, output);
-    fprintf(output, "\"address\": \"%p\"", item);
-
-    if(item != NULL) {
-        fprintf(output, ",\n");
-        print_indent(level + 1, output);
-        fprintf(output, "\"mi_name\": \"%s\",\n", item->mi_name);
-        print_indent(level + 1, output);
-        fprintf(output, "\"mi_prob\": %d,\n", item->mi_prob);
-        print_indent(level + 1, output);
-        fprintf(output, "\"mi_worth\": %d", item->mi_worth);
-    }
-
-    fprintf(output, "\n");
-    print_indent(level, output);
-    fprintf(output, "}");
-
-    if(embedded) {
-        fprintf(output, ",");
-    }
-
-    fprintf(output, "\n");
-}
-
 void print_room(struct room *item, FILE *output)
 {
     print_room_internal(item, 0, 0, output);

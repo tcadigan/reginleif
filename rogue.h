@@ -341,9 +341,11 @@ struct object {
     int o_count;
     // Information about objects
     int o_flags;
+    // How much it is worth
+    int o_worth;
 
     // Armor class
-    int o_ac;    
+    int o_ac;
 
     // What you need to launch it
     char o_launch;
@@ -355,13 +357,6 @@ struct object {
     int o_hplus;
     // Plusses to damage
     int o_dplus;
-};
-
-// Stuff about magic items
-struct magic_item {
-    char *mi_name;
-    int mi_prob;
-    int mi_worth;
 };
 
 // Now all the global variables
@@ -389,15 +384,15 @@ struct object *cur_armor;
 // Which rings are being worn
 struct object *cur_ring[2];
 // Chances for each type of item
-extern struct magic_item things[NUMTHINGS];
+extern struct object things[NUMTHINGS];
 // Names and chances for scrolls
-extern struct magic_item s_magic[MAXSCROLLS];
+extern struct object s_magic[MAXSCROLLS];
 // Names and chances for potions
-extern struct magic_item p_magic[MAXPOTIONS];
+extern struct object p_magic[MAXPOTIONS];
 // Names and chances for rings
-extern struct magic_item r_magic[MAXRINGS];
+extern struct object r_magic[MAXRINGS];
 // Names and chances for sticks
-extern struct magic_item ws_magic[MAXSTICKS];
+extern struct object ws_magic[MAXSTICKS];
 // Names and chances for armor
 extern struct object armors[MAXARMORS];
 

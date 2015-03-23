@@ -388,18 +388,18 @@ int total_winner()
             break;
         case SCROLL:
             s_know[obj->o_which] = TRUE;
-            worth = s_magic[obj->o_which].mi_worth;
+            worth = s_magic[obj->o_which].o_worth;
             worth *= obj->o_count;
             break;
         case POTION:
             p_know[obj->o_which] = TRUE;
-            worth = p_magic[obj->o_which].mi_worth;
+            worth = p_magic[obj->o_which].o_worth;
             worth *= obj->o_count;
             break;
         case RING:
             obj->o_flags |= ISKNOW;
             r_know[obj->o_which] = TRUE;
-            worth = r_magic[obj->o_which].mi_worth;
+            worth = r_magic[obj->o_which].o_worth;
             if((obj->o_which == R_ADDSTR)
                || (obj->o_which == R_ADDDAM)
                || (obj->o_which == R_PROTECT)
@@ -415,7 +415,7 @@ int total_winner()
         case STICK:
             obj->o_flags |= ISKNOW;
             ws_know[obj->o_which] = TRUE;
-            worth = ws_magic[obj->o_which].mi_worth;
+            worth = ws_magic[obj->o_which].o_worth;
             worth += (20 * obj->o_ac);
             break;
         default:
