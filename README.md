@@ -10,5 +10,5 @@ I would certainly get back into doing these, they were awesome fun.
 
 ![Project Euler Profile](https://projecteuler.net/profile/tcadigan.png)
 
-Statistics:
+Statistics:  
 1-100, 145, 206
