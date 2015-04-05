@@ -1,0 +1,11 @@
+4
+XXXX                XXXXX
+XXX               XXXXXXX
+XXXXX                XXXX
+XX                 XXXXXX
+2
+X                       X
+XXXXXXXXXXXXXXXXXXXXXXXXX
+1
+XXXXXXXXX              XX
+0
