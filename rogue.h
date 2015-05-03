@@ -377,7 +377,7 @@ struct stats max_stats;
 extern struct thing monsters[26];
 // List of objects on this level
 struct linked_list *lvl_obj;
-// WHich weapon he is wielding
+// Which weapon he is wielding
 struct object *cur_weapon;
 // What a well dressed rogue wears
 struct object *cur_armor;
