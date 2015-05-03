@@ -4,5 +4,5 @@ compiler:
   - clang
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -y libbsd-dev
+  - sudo apt-get install -y libbsd-dev libncurses5-dev
 script: make
