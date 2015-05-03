@@ -2,7 +2,7 @@
 
 Back in university I was into competitive programming. 
 
-Fro practice we did some of the UVa challenges (http://uva.onlinejudge.org/index.php).
+For practice we did some of the UVa challenges (http://uva.onlinejudge.org/index.php).
 
 These as well are quite old. Likely not the best of code quality, but they got the job done. Some of them had really exotic test cases if I remember right.
 
