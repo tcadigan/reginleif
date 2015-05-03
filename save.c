@@ -194,7 +194,12 @@ int restore(char *file, char **envp)
 
     fstat(inf, &sbuf2);
     fflush(stdout);
-    brk(version + sbuf2.st_size);
+
+    int res = brk(version + sbuf2.st_size);
+    if(res == -1) {
+        printf("restore: Unable to brk()\n");
+    }
+
     lseek(inf, 0L, 0);
     encread(version, (unsigned int) sbuf2.st_size, inf);
 
