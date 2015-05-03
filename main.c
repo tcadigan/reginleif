@@ -71,7 +71,10 @@ int main(int argc, char **argv, char **envp)
     
     // Lower priority slightly
     if(getuid() != 0) {
-        nice(1);
+        int res = nice(1);
+        if(res == -1) {
+            printf("main: Unable to nice()\n");
+        }
     }
 
 #ifdef BRL
@@ -81,9 +84,9 @@ int main(int argc, char **argv, char **envp)
 
     // Check for print-score option
     if((argc == 2) && (strcmp(argv[1], "-s") == 0)) {
-	waswizard = TRUE;
-	score(0, -1, NULL);
-	exit(0);
+        waswizard = TRUE;
+        score(0, -1, NULL);
+        exit(0);
     }
 
 #ifdef RNOTES
@@ -92,40 +95,40 @@ int main(int argc, char **argv, char **envp)
 
     // Check to see if he is a wizard
     if((argc >= 2) && (argv[1][0] == '\0')) {
-	FILE *input;
-	input = fopen("/dev/tty", "r");
+        FILE *input;
+        input = fopen("/dev/tty", "r");
 
-	printf("Wizard's password: ");
+        printf("Wizard's password: ");
 
-	struct termios terminal;
-	tcgetattr(fileno(input), &terminal);
-	terminal.c_lflag &= ~ECHO;
-	tcsetattr(fileno(input), TCSANOW, &terminal);
+        struct termios terminal;
+        tcgetattr(fileno(input), &terminal);
+        terminal.c_lflag &= ~ECHO;
+        tcsetattr(fileno(input), TCSANOW, &terminal);
 
-	char *line = NULL;
-	size_t read_length = 0;
+        char *line = NULL;
+        size_t read_length = 0;
 
-	ssize_t line_length = getline(&line, &read_length, input);
+        ssize_t line_length = getline(&line, &read_length, input);
 
-	tcgetattr(fileno(input), &terminal);
-	terminal.c_lflag &= ECHO;
-	tcsetattr(fileno(input), TCSANOW, &terminal);
+        tcgetattr(fileno(input), &terminal);
+        terminal.c_lflag &= ECHO;
+        tcsetattr(fileno(input), TCSANOW, &terminal);
 
-	line[line_length - 1] = '\0';
+        line[line_length - 1] = '\0';
 
-	if(strcmp(PASSWD, crypt(line, "mT")) == 0) {
-	    wizard = TRUE;
-	    ++argv;
-	    --argc;
-	}
+        if(strcmp(PASSWD, crypt(line, "mT")) == 0) {
+            wizard = TRUE;
+            ++argv;
+            --argc;
+        }
 
-	free(line);
+        free(line);
     }
 
     // Get home and options from environment
     env = getenv("HOME");
     if(env != NULL) {
-	strcpy(home, env);
+        strcpy(home, env);
     }
     else {
         pw = getpwuid(getuid());
@@ -145,36 +148,36 @@ int main(int argc, char **argv, char **envp)
 
     env = getenv("ROGUEOPTS");
     if(env != NULL) {
-	parse_opts(env);
+        parse_opts(env);
     }
     if((env == NULL) || (whoami[0] == '\0')) {
         pw = getpwuid(getuid());
-	if(pw == NULL) {
-	    printf("Say, who the hell are you?\n");
-	    exit(1);
-	}
-	else {
-	    strucpy(whoami, pw->pw_name, strlen(pw->pw_name));
+        if(pw == NULL) {
+            printf("Say, who the hell are you?\n");
+            exit(1);
+        }
+        else {
+            strucpy(whoami, pw->pw_name, strlen(pw->pw_name));
         }
     }
     if((env == NULL) || (fruit[0] == '\0')) {
-	strcpy(fruit, "slime-mold");
+        strcpy(fruit, "slime-mold");
     }
 
 #ifdef MAXUSERS
     if(too_much() && !wizard && !author()) {
-	printf("Sorry, %s, but the system is too loaded now.\n", whoami);
-	printf("Try again later.  Meanwhile, why not enjoy a%s %s?\n",
+        printf("Sorry, %s, but the system is too loaded now.\n", whoami);
+        printf("Try again later.  Meanwhile, why not enjoy a%s %s?\n",
                vowelstr(fruit),
                fruit);
-	exit(1);
+        exit(1);
     }
 #endif
     
     if(argc == 2) {
         // Note: restore() will never return
-	if(!restore(argv[1], envp)) {
-	    exit(1);
+        if(!restore(argv[1], envp)) {
+            exit(1);
         }
     }
     time(&now);
@@ -188,10 +191,10 @@ int main(int argc, char **argv, char **envp)
     }
 
     if(wizard) {
-	printf("Hello %s, welcome to dungeon #%d\n", whoami, dnum);
+        printf("Hello %s, welcome to dungeon #%d\n", whoami, dnum);
     }
     else {
-	printf("Hello %s, just a moment while I dig the dungeon...\n", whoami);
+        printf("Hello %s, just a moment while I dig the dungeon...\n", whoami);
     }
     
     fflush(stdout);
@@ -326,7 +329,7 @@ int roll(int number, int sides)
     int dtotal = 0;
 
     while(number--) {
-	dtotal += (rnd(sides) + 1);
+        dtotal += (rnd(sides) + 1);
     }
     
     return dtotal;
@@ -377,9 +380,9 @@ int setup()
 #endif
 #ifdef CHECKTIME
     if(!author()) {
-	signal(SIGALRM, checkout);
-	alarm(CHECKTIME * 60);
-	num_checks = 0;
+        signal(SIGALRM, checkout);
+        alarm(CHECKTIME * 60);
+        num_checks = 0;
     }
 #endif
     
@@ -401,14 +404,14 @@ int playit()
     // Parse environment declaration of options
     opts = getenv("ROGUEOPTS");
     if(opts != NULL) {
-	parse_opts(opts);
+        parse_opts(opts);
     }
 
     oldpos = player.t_pos;
     oldrp = roomin(&player.t_pos);
     while(playing) {
         // Command execution
-	command();
+        command();
     }
     
     endit(0);
@@ -436,9 +439,9 @@ int author()
 {
     switch(getuid()) {
     case 0:
-	return TRUE;
+        return TRUE;
     default:
-	return FALSE;
+        return FALSE;
     }
 }
 #endif
@@ -449,28 +452,28 @@ int author()
 void checkout(int parameter)
 {
     static char *msgs[] = {
-	"The load is too high to be playing.  Please leave in %d minutes",
-	"Please save your game.  You have %d minutes",
-	"Last warning.  You have %d minutes to leave"
+        "The load is too high to be playing.  Please leave in %d minutes",
+        "Please save your game.  You have %d minutes",
+        "Last warning.  You have %d minutes to leave"
     };
     int checktime;
 
     signal(SIGALRM, checkout);
     if(too_much()) {
-	if (num_checks == 3) {
-	    fatal("Sorry. You took to long. You are dead\n");
+        if (num_checks == 3) {
+            fatal("Sorry. You took to long. You are dead\n");
         }
-	checktime = CHECKTIME / (num_checks + 1);
+        checktime = CHECKTIME / (num_checks + 1);
         int args[] = { checktime };
-	chmsg(msgs[num_checks++], args);
-	alarm(checktime * 60);
+        chmsg(msgs[num_checks++], args);
+        alarm(checktime * 60);
     }
     else {
-	if(num_checks) {
-	    chmsg("The load has dropped back down.  You have a reprieve.", NULL);
-	    num_checks = 0;
-	}
-	alarm(CHECKTIME * 60);
+        if(num_checks) {
+            chmsg("The load has dropped back down.  You have a reprieve.", NULL);
+            num_checks = 0;
+        }
+        alarm(CHECKTIME * 60);
     }
 }
 
@@ -480,12 +483,12 @@ void checkout(int parameter)
 int chmsg(char *fmt, void *args)
 {
     if(in_shell) {
-	printf(fmt, args);
-	putchar('\n');
-	fflush(stdout);
+        printf(fmt, args);
+        putchar('\n');
+        fflush(stdout);
     }
     else {
-	msg(fmt, args);
+        msg(fmt, args);
     }
 
     return 0;
@@ -520,11 +523,14 @@ int loadav(double *avg)
         avg[1] = 0.0;
         avg[0] = 0.0;
         
-	return 0;
+        return 0;
     }
     
     lseek(kmem, (long) avenrun.n_value, 0);
-    read(kmem, avg, 3 * sizeof (double));
+    int res = read(kmem, avg, 3 * sizeof (double));
+    if(res == -1) {
+        chmsg("loadav: Unable to read()", NULL);
+    }
 
     return 0;
 }
@@ -548,15 +554,15 @@ int ucount()
 
     utmp = fopen(UTMP, "r");
     if(utmp == NULL) {
-	return 0;
+        return 0;
     }
 
     up = &buf;
     count = 0;
 
     while(fread(up, 1, sizeof (*up), utmp) > 0) {
-	if(buf.ut_user[0] != '\0') {
-	    ++count;
+        if(buf.ut_user[0] != '\0') {
+            ++count;
         }
     }
     
@@ -576,15 +582,15 @@ int roguenotes()
     
     notef = fopen(RNOTES, "R");
     if(notef != NULL) {
-	nread = fread(buf, 1, sizeof(buf), notef);
-	while(nread != 0) {
-	    fwrite(buf, 1, nread, stdout);
-	    nread = fread(buf, 1, sizeof(buf), notef);
-	}
-	fclose(notef);
-	printf("\n[Press return to continue]");
-	fflush(stdout);
-	wait_for('\n');
+        nread = fread(buf, 1, sizeof(buf), notef);
+        while(nread != 0) {
+            fwrite(buf, 1, nread, stdout);
+            nread = fread(buf, 1, sizeof(buf), notef);
+        }
+        fclose(notef);
+        printf("\n[Press return to continue]");
+        fflush(stdout);
+        wait_for('\n');
     }
     
     return 0;
