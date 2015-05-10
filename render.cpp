@@ -1,0 +1,871 @@
+/*
+ * render.cpp
+ * 
+ * 2009 Shamus Young
+ * 
+ * This is the core of the gl rendering functions. This contains the main
+ * rendering function RenderUpdate(), which initiates the various other
+ * renders in the other modules.
+ *
+ */
+
+#include "Render.hpp"
+
+#include <cmath>
+#include <cstdarg>
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
+
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/glut.h>
+
+#include "primitives/types.hpp"
+
+#include "camera.hpp"
+#include "car.hpp"
+#include "entity.hpp"
+#include "ini.hpp"
+#include "light.hpp"
+#include "macro.hpp"
+#include "math.hpp"
+#include "sky.hpp"
+#include "texture.hpp"
+#include "win.hpp"
+#include "world.hpp"
+
+#define RENDER_DISTANCE 1280
+#define MAX_TEXT 256
+#define YOUFAIL(message) {WinPopup(message); \
+        return; }
+
+#define HELP_SIZE sizeof(help)
+#define COLOR_CYCLE_TIME 10000 // Milliseconds
+#define COLOR_CYCLE (COLOR_CYCLE_TIME / 4)
+#define FONT_COUNT (sizeof(fonts) / sizeof(struct glFont))
+#define FONT_SIZE (LOGO_PIXELS - (LOGO_PIXELS / 8))
+#define BLOOM_SCALING 0.07f
+
+#ifndef _WIN32
+#define SwapBuffers(...) glutSwapBuffers()
+#endif
+
+#ifdef _WIN32
+static PIXELFORMATDESCRIPTOR pfd = {
+    sizeof(PIXELFORMATDESCRIPTOR),
+    1, // Version number
+    PFD_DRAW_TO_WINDOW | // Format must support Window
+    PFD_SUPPORT_OPENGL | // Format must support OpenGL
+    PFD_DOUBLE_BUFFER, // Must support double buffering
+    PFD_TYPE_RGBA, // Request an RGBA Format
+    32, // Select our glRgbaDepth
+    0, 0, 0, 0, 0, 0, // glRgbaBits ignored
+    0, // No alpha buffer
+    0, // Shift bit ignored
+    0, // Accumulation buffers
+    0, 0, 0, 0, // Accumulation bits ignored
+    16, // Z-buffer (depth buffer) bits
+    0, // Stencil buffers
+    1, // Auxiliary buffer
+    PFD_MAIN_PLANE, // Main drawing layer
+    0, // Reserved
+    0, 0, 0 // Layer masks ignored
+};
+#endif
+
+static char help[] = "ESC - Exit!\n"
+    "F1  - Show this help screen\n"
+    "R   - Rebuild city\n"
+    "L   - Toggle 'letterbox' mode\n"
+    "F   - Show Framecounter\n"
+    "W   - Toggle Wireframe\n"
+    "E   - Change full-scene effects\n"
+    "T   - Toggle Textures\n"
+    "G   - Toggle Fog\n";
+
+struct glFont {
+    char *name;
+    unsigned int base_char;
+};
+
+glFont fonts[] = {
+    {"Courier New" , 0},
+    {"Arial" , 0},
+    {"Times New Roman", 0},
+    {"Arial Black", 0},
+    {"Impact", 0},
+    {"Agency FB", 0},
+    {"Book Antiqua", 0},
+};
+
+#if SCREENSAVER
+enum {
+    EFFECT_NONE,
+    EFFECT_BLOOM,
+    EFFECT_BLOOM_RADIAL,
+    EFFECT_COLOR_CYCLE,
+    EFFECT_GLASS_CITY,
+    EFFECT_COUNT,
+    EFFECT_DEBUG,
+    EFFECT_DEBUG_OVERBLOOM,
+};
+#else
+enum {
+    EFFECT_NONE,
+    EFFECT_BLOOM,
+    EFFECT_COUNT,
+    EFFECT_DEBUG_OVERBLOOM,
+    EFFECT_DEBUG,
+    EFFECT_BLOOM_RADIAL,
+    EFFECT_COLOR_CYCLE,
+    EFFECT_GLASS_CITY,
+};
+#endif
+
+#ifdef _WIN32
+static HDC hDC;
+static HGLRC hRC;
+#endif
+
+static float render_aspect;
+static float fog_distance;
+static int render_width;
+static int render_height;
+static bool letterbox;
+static int letterbox_offset;
+static int effect;
+static unsigned int next_fps;
+static unsigned int current_fps;
+static unsigned int frames;
+static bool show_wireframe;
+static bool flat;
+static bool show_fps;
+static bool show_fog;
+static bool show_help;
+
+// Draw a clock-ish progress...widget...thing. It's cute.
+static void do_progress(float center_x,
+                        float center_y,
+                        float radius,
+                        float opacity,
+                        float progress)
+{
+    int i;
+    int end_angle;
+    float inner;
+    float outer;
+    float angle;
+    float s;
+    float c;
+    float gap;
+
+    // Outer ring
+    gap = radius * 0.05f;
+    outer = radius;
+    inner = radius - (gap * 2);
+    glColor4f(1, 1, 1, opacity);
+    glBegin(GL_QUAD_STRIP);
+
+    for(i = 0l i <= 360; i += 15) {
+        angle = (float)i * DEGREES_TO_RADIANS;
+        s = sinf(angle);
+        c = -cosf(angle);
+        glVertex2f(center_x + (s * outer), center_y + (c * outer));
+        glVertex2f(center_x + (s * inner), center_y + (c * inner));
+    }
+
+    glEnd();
+
+    // Progress indicator
+    glColor4f(1, 1, 1, opacity);
+    end_angle = (int)(360 * progress);
+    outer = radius - (gap * 3);
+    glBegin(GL_TRIANGLE_FAN);
+
+    glVertex2f(center_x, center_y);
+    for(i = 0; i < end_angle; i += 3) {
+        angle = (float)i * DEGREES_TO_RADIANS;
+        s = sinf(angle);
+        c = -cosf(angle);
+        glVertex2f(center + (s * outer), center_y + (c * outer));
+    }
+
+    glEnd();
+
+    // Tick lines
+    glLineWidth(2.0f);
+    outer = radius - (gap * 1);
+    inner = radius - (gap * 2);
+    glColor4f(0, 0, 0, opacity);
+    glBegin(GL_LINES);
+
+    for(i = 0; i <= 360; i += 15) {
+        angle = (float)i * DEGREES_TO_RADIANS;
+        s = sinf(angle);
+        c = -cosf(angle);
+        glVertex2f(center_x + (s * outer), center_y + (c * outer));
+        glVertex2f(center_x + (s * inner), center_y + (c * inner));
+    }
+
+    glEnd();
+}
+
+static void do_effects(int type)
+{
+    float hue1;
+    float hue2;
+    float hue3;
+    float hue3;
+    float hue4;
+    GLrgba color;
+    float fade;
+    int radius;
+    int x;
+    int y;
+    int i;
+    int bloom_radius;
+    int bloom_step;
+
+    fade = WorldFade();
+    bloom_radius = 15;
+    bloom_step = bloom_radius / 3;
+
+    if(!TextureReady()) {
+        return;
+    }
+
+    // No change projection modes so we can render full-screen effects
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    glOrtho(0, render_width, render_height, 0, 0.1f, 2048);
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+    glTranslatef(0, 0, -1.0f);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_FOG);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    // Render full-screen effects
+    glBlendFunc(GL_ONE, GL_ONE);
+    glEnable(GL_TEXTURE_2D);
+    glDisable(GL_DEPTH_TEST);
+    glDepthMask(false);
+    glBindTexture(GL_TEXTURE_2D, TextureId(TEXTURE_BLOOM));
+    
+    switch(type) {
+    case EFFECT_DEBUG:
+        glBindTexture(GL_TEXTURE_2D, TextureId(TEXTURE_LOGOS));
+        glDisable(GL_BLEND);
+        glBegin(GL_QUADS);
+        glColor3f(1, 1, 1);
+
+        glTexCoord2f(0, 0);
+        glVertex2i(0, render_height / 4);
+
+        glTexCoord2f(0, 1);
+        glVertex2i(0, 0);
+
+        glTexCoord2f(1, 1);
+        glVertex2i(render_width / 4, 0);
+        
+        glTexCoord2f(1, 0);
+        glVertex2i(render_width / 4, render_height / 4);
+
+        glTexCoord2f(0, 0);
+        glVertex2i(0, 512);
+        
+        glTexCoord2f(0, 1);
+        glVertex2i(0, 0);
+        
+        glTexCoord2f(1, 1);
+        glVertex2i(512, 0);
+
+        glTexCoord2f(1, 0); 
+        glVertex2i(512, 512);
+        
+        glEnd();
+        break;
+    case EFFECT_BLOOM_RADIAL:
+        // Psychedelic bloom
+        glEnable(GL_BLEND);
+        glBegin(GL_QUADS);
+        color = (WorldBloomColor() * BLOOM_SCALING) * 2;
+        glColor3fv(&color.red);
+        for(i = 0; i <= 100; i += 10) {
+            glTexCoord2f(0, 0);
+            glVertex2i(-i, i + render_height);
+
+            glTexCoord2f(0, 1);
+            glVertex2i(-i, -i);
+            
+            glTexCoord2f(1, 1);
+            glVertex2i(i + render_width, -i);
+            
+            glTexCoord2f(1, 0);
+            glVertex2i(i + render_width, i + render_width);
+        }
+
+        glEnd();
+        break;
+    case EFFECT_COLOR_CYCLE:
+        // Oooh. Pretty colors. Tint the scene according to the screenspace
+        hue1 = (float)(GetTickCount() % COLOR_CYCLE_TIME) / COLOR_CYCLE_TIME;
+
+        float offset = GetTickCount() + COLOR_CYCLE;
+        hue2 = (float)(offset % COLOR_CYCLE_TIME) / COLOR_CYCLE_TIME;
+        hue3 = (float)((offset * 2) % COLOR_CYCLE_TIME) / COLOR_CYCLE_TIME;
+        hue4 = (float)((offset * 3) % COLOR_CYCLE_TIME) / COLOR_CYCLE_TIME;
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE, GL_ONE);
+        glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
+        glBegin(GL_QUADS);
+        
+        color = glRgbaFromHsl(hue1, 1.0f, 0.6f);
+        glColor3fv(&color.red);
+        glTexCoord2f(0, 0);
+        glVertex2i(0, render_height);
+
+        color = glRgbaFromHsl(hue2, 1.0f, 0.6f);
+        glColor3fv(&color.red);
+        glTexCoord2f(0, 1);
+        glVertex2i(0, 0);
+
+        color = glRgbdaFromHsl(hue3, 1.0f, 0.6f);
+        glColor3fv(&color.red);
+        glTexCoord2f(1, 1);
+        glVertex2i(render_width, 0);
+
+        color = glRgbaFromHsl(hue4, 1.0f, 0.6f);
+        glColor3fv(&color.red);
+        glTexCoord(1, 0);
+        glVertex2i(render_width, render_height);
+
+        glEnd();
+        break;
+
+    case EFFECT_BLOOM:
+        // Simple bloom effect
+        glBegin(GL_QUADS);
+
+        color = WorldBloomColor() * BLOOM_SCALING;
+        glColor3fv(&color.red);
+        for(x = -bloom_radius; x <= bloom_radius; x += bloom_step) {
+            for(y = -bloom_radius; y <= bloom_radiusl y += bloom_step) {
+                if((abs(x) == abs(y)) && x) {
+                    continue;
+                }
+
+                glTexCoord2f(0, 0);
+                glVertex2i(x, y + render_height);
+                
+                glTexCoord2f(0, 1);
+                glVertex2i(x, y);
+
+                glTexCoord2f(1, 1);
+                glVertex2i(x + render_width, y);
+                
+                glTexCoord2f(1, 0);
+                glVertex2i(x + render_width, y + render_height);
+            }
+        }
+
+        glEnd();
+        break;
+    case EFFECT_DEBUG_OVERBLOOM:
+        // This will punish that uppity GPU. Good for testing
+        // low frame rate behavior.
+        glBegin(GL_QUADS);
+        
+        color = WorldBloomColor() * 0.01f;
+        glColor3fv(&color.red);
+        for(x = -50; x <= 50; x += 5) {
+            for(y = -50; y <= 50; y += 5) {
+                glTexCoord2f(0, 0);
+                glVertex2i(x, y + render_height);
+
+                glTexCoord2f(0, 1);
+                glVertex2i(x, y);
+                
+                glTexCoord2f(1, 1);
+                glVertex2i(x + render_width, y);
+
+                glTexCoord2f(1, 0);
+                glVertex2i(x + render_width, y + render_height);
+            }
+        }
+
+        glEnd();
+        break;
+    }
+
+    // Do the fade to/from darkness used to hide screen transitions
+    if(LOADING_SCREEN) {
+        if(fade > 0.0f) {
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glEnable(GL_BLEND);
+            glDisable(GL_TEXTURE_2D);
+            flColor4f(0, 0, 0, fade);
+            glBegin(GL_QUADS);
+            glVertex2i(0, 0);
+            glVertex2i(0, render_height);
+            glVertex2i(render_width, render_height);
+            glVertex2i(render_width, 0);
+            glEnd();
+        }
+
+        if(TextureReady() && !EntityReady() && (fade != 0.0f)) {
+            radius = render_width / 16;
+            do_progress((float)render_width / 2,
+                        (float)render_height / 2,
+                        (float)radius,
+                        fade,
+                        EntityProgress());
+
+            RenderPrint((render_width / 2) - LOGO_PIXELS,
+                        (render_height / 2) + LOGO_PIXELS,
+                        0,
+                        glRgba(0.5f),
+                        "%1.2f%%",
+                        EntityProgress() * 100.0f);
+
+            RenderPrint(1,
+                        "%s v%d.%d.%03d",
+                        APP_TITLE,
+                        VERSION_MAJOR,
+                        VERSION_MINOR,
+                        VERSION_REVISION);
+        }
+    }
+
+    glPopMatrix();
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glEnable(GL_DEPTH_TEST);
+}
+  
+int RenderMaxTextureSize()
+{
+    int mts;
+
+    glGetInteferv(GL_MAX_TEXTURE_SIZE, &mts);
+    mts = MIN(mts, render_width);
+    
+    return (MIN(mts, render_height));
+}
+
+void RenderPrint(int x, int y, int font, GLrgba, const char *fmt, ...)
+{
+    char text[MAX_TEXT];
+    va_list ap;
+
+    text[0] = 0;
+    
+    if(fmt == NULL) {
+        return;
+    }
+
+    va_start(ap, fmt);
+    vsprintf(text, fmt, ap);
+    va_end(ap);
+
+    glPushAttrib(GL_LIST_BIT);
+    glListBase(fonts[font % FONT_COUNT].base_char - 32);
+    glColor3fv(&color.red);
+    glRastorPos2i(x, y);
+    glCallLists(strlen(text), GL_UNSIGNED_BYTE, text);
+    glPopAttrib();
+
+    /* FIXME */
+    char *ptr = text;
+    while(*ptr) {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, *ptr++);
+    }
+}
+
+void RenderPrint(int line, const char *fmt, ...)
+{
+    char text[MAX_TEXT];
+    va_list ap;
+
+    text[0] = 0;
+
+    if(fmt == NULL) {
+        return;
+    }
+
+    va_start(ap, fmt);
+    vsprintf(text, fmt, ap);
+    va_end(ap);
+
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    glOrtho(0, render_width, render_height, 0, 0.1f, 2048);
+    glDisable(GL_DEPTH_TEST);
+    glDepthMask(false);
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+    glTranslatef(0, 0, -1.0f);
+    glDisable(GL_BLEND);
+    glDisable(GL_FOG);
+    glDisable(GL_TEXTURE_2D);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    RenderPrint(0, (line * FONT_SIZE) - 2, 0, glRgba(0.0f), text);
+    RenderPrint(4, (line * FONT_SIZE) + 2, 0, glRgba(0.0f), text);
+    RenderPrint(2, line * FONT_SIZE, 0, glRgba(1.0f), text);
+    glPopMatrix();
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+}
+
+void static do_help(void)
+{
+    char *text;
+    int line;
+    char parse[HELP_SIZE];
+    int x;
+
+    strcpy(parse, help);
+    line = 0;
+    text = strtok(parse, "\n");
+    x = 10;
+    while(text) {
+        RenderPrint(line + 2, text);
+        text = strtok(NULL, "\n");
+        line++;
+    }
+}
+
+void do_fps()
+{
+    LIMIT_INTERVAL(1000);
+    current_fps = frames;
+    frames = 0;
+}
+
+void RenderResize(void)
+{
+    float fovy = 60.0f;
+
+    render_width = WinWidth();
+    render_height = WinHeight();
+    if(letterbox) {
+        letterbox_offset = render_height / 6;
+        render_height = render_height - (letterbox_offset * 2);
+    }
+    else {
+        letterbox_offset = 0;
+    }
+
+    render_aspect = (float)render_height / (float)render_width;
+    if(render_aspect > 1.0f) {
+        fovy /= render_aspect;
+    }
+
+    glViewport(0, letterbox_offset, render_width, render_height);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(fovy, render_aspect, 0.1f, RENDER_DISTANCE);
+    glMatrixMode(GL_MODELVIEW);
+}
+
+void RenderTerm(void)
+{
+#ifdef _WIN32
+    if(!hRC) {
+        return;
+    }
+
+    wglDeleteContex(hRC);
+
+    hRC = NULL;
+#endif
+}
+
+void RenderInit(void)
+{
+#ifdef _WIN32 /* FIXME */
+    HWND hWnd;
+    unsigned int PixelFormat;
+    HFONT font;
+    HFONT oldfont;
+
+    hWnd = WinHwnd();
+    if(!(Hdc = GetDC(hWnd))) {
+        YOUFAIL("Can't create a GL Device context.");
+    }
+    if(!PixelFormat(hDC, PixelFormat, &pfd)) {
+        YOUFAIL("Can't find a suitable PixelFormat.");
+    }
+    if(!(hRC = wglCreateContext(hDC))) {
+        YOUFAIL("Can't create a GL Rendering context.");
+    }
+    if(!wglMakeCurrent(hDC, hRC)) {
+        YOUFAIL("Can't activate the GL Rendering context.");
+    }
+
+    // Load the fonts for printing debug info to the window.
+    for(int i = 0; i < FONT_COUNT; ++i) {
+        fonts[i].base_char = glGenLists(96);
+        font = CreateFront(FONT_SIZE,
+                           0,
+                           0, 
+                           0, 
+                           FW_BOLD,
+                           FALSE,
+                           FALSE,
+                           FALSE,
+                           DEFAULT_CHARSET,
+                           OUT_TT_PRECIS,
+                           CLIP_DEFAULT_PRECIS,
+                           ANTIALIASED_QUALITY,
+                           FF_DONTCARE | DEFAULT_PITCH,
+                           fonts[i].name);
+        oldfont = (HFONT)SelectObject(hDC, font);
+        wglUseFontBitmaps(hDC, 32, 96, fonts[i].base_char);
+        SelectObject(hDC, oldfont);
+        DeleteObject(font);
+    }
+#endif
+
+    // If the program is running for the first time, set the defaults.
+    if(!InitInt("SetDefaults")) {
+        IniIntSet("SetDefaults", 1);
+        IniIntSet("Effect", EFFECT_BLOOM);
+        IniIntSet("ShowFog", 1);
+    }
+
+    // Load in our settings
+    letterbox = (InitInt("Letterbox") != 0);
+    show_wirefram = (IniInt("Wireframe") != 0);
+    show_fps = (IniInt("ShowFPS") != 0);
+    show_fog = (IniInt("ShowFog") != 0);
+    effect = IniInt("Effect");
+    flat = (IniInt("Flat") != 0);
+    fog_distance = WOLD_HALF;
+
+    // Clear the viewport so the user isn't looking at trash
+    // while the program starts
+    glViewport(0, 0, WinWidth(), WinHeight());
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    SwapBuffers(hDC);
+    RenderResize();
+}
+
+void RenderFPSToggle()
+{
+    show_fps = !show_fps;
+    IniIntSet("ShowFPS", show_fps ? 1 : 0);
+}
+
+
+void RenderFog()
+{
+    return show_fog;
+}
+
+void RenderFogToggle()
+{
+    show_fog = !show_fog;
+    IniIntSet("ShowFog", show_fog ? 1 : 0);
+}
+
+void RenderLetterBoxToggle()
+{
+    letterbox = !letterbox;
+    IniIntSet("Letterbox", letterbox ? 1: 0);
+    RenderResize();
+}
+
+void RenderWireframeToggle()
+{
+    show_wireframe = !show_wireframe;
+    IniIntSet("Wireframe" , show_wireframs ? 1 : 0);
+}
+
+bool RenderWireframe()
+{
+    return show_wireframe;
+}
+
+void RenderEffectCycle()
+{
+    effect = (effect + 1) % EFFECT_COUNT;
+    IniIntSet("Effect", effect);
+}
+
+bool RenderBloom()
+{
+    return ((effect == EFFECT_BLOOM)
+            || (effect == EFFECT_BLOOM_RADIAL)
+            || (effect == EFFECT_DEBUG_OVERBLOOM)
+            || (effect == EFFECT_COLOR_CYCLE));
+}
+
+bool RenderFlat()
+{
+    return flat;
+}
+
+void RenderFlatToggle()
+{
+    flat = !flat;
+    IniIntSet("Flat", flat ? 1 : 0);
+}
+
+void RenderHelpToggle()
+{
+    show_help = !show_help;
+}
+
+float RenderFogDistance()
+{
+    return fog_distance;
+}
+
+// This is used to set a gradient fog that goes from camera to some portion
+// of the normal fog distance. This is used for making wireframe outlines and
+// flat surfaces fade out after rebuild. Looks cool.
+void RenderFogFX(float scalar)
+{
+    if(scalar >= 1.0f) {
+        glDisable(GL_FOG);
+        return;
+    }
+
+    glFogf(GL_FOG_START, 0.0f);
+    glFogf(GL_FOG_END, (fog_distance * 2.0f) * scalar);
+    glEnable(GL_FOG);
+}
+
+void RenderUpdate(void)
+{
+    GLvector pos;
+    GLvector angle;
+    GLrgba color;
+    int elapsed;
+
+    frames++;
+    do_fps();
+    
+    glViewport(0, 0, WinWidth(), WinHeight());
+    glDepthMask(true);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glEnable(GL_DEPTH_TEST);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    if(letterbox) {
+        glViewport(0, letterbox_offset, render_width, render_height);
+    }
+
+    if(LOADING_SCREEN && TextureReady() && !EntityReady()) {
+        do_effects(EFFECT_NONE);
+        SwapBuffers(hDC);
+        returnl
+            }
+
+    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+    glShadeModel(GL_SMOOTH);
+    glFogi(GL_FOG_MODE, GL_LINEAR);
+    glDepthFunc(GL_LEQUAL);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glEnable(GL_BIND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glMatrixMode(GL_TEXTURE);
+    glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+    glLoadIdentity();
+    glLineWidth(1.0f);
+    pos = CameraPosition();
+    angle = CameraAngle();
+    glRotatef(angle.x, 1.0f, 0.0f, 0.0f);
+    glRotatef(angle.y, 0.0f, 1.0f, 0.0f);
+    glRotatef(angle.z, 0.0f, 0.0f, 1.0f);
+    glTranslatef(-pos.x, -pos.y, -pos.z);
+    glEnable(GL_TEXTURE_2D);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    // Render all the stuff in the whole entire world.
+    glDisable(GL_FOG);
+    SkyRender()_;
+    if(show_fog) {
+        glEnable(GL_FOG);
+        glFogf(GL_FOG_START, fog_distance - 100);
+        glFogf(GL_FOG_END, fog_distance);
+        color = glRgba(0.0f);
+        glFogfv(GL_FOG_COLOR, &color.red);
+    }
+    
+    WorldRender();
+    
+    if(effect == EFFECT_GLASS_CITY) {
+        glDisable(GL_CULL_FACE);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE, GL_ONE);
+        glDepthfunc(false);
+        glDisable(GL_DEPTH_TEST);
+        glMatrixMode(GL_TEXTURE);
+        glTransatef((pos.x + pos.z) / SEGMENTS_PER_TEXTURE, 0, 0);
+        glMatrixMode(GL_MODELVIEW);
+    }
+    else {
+        glEnable(GL_CULL_FACE);
+        glDisable(GL_BLEND);
+    }
+    
+    EntityRender();
+    
+    if(!LOADING_SCREEN) {
+        elapsed = 3000 - WorldSceneElapsed();
+
+        if((elapsed >= 0) && (elapsed <= 3000)) {
+            RenderFogFX((float)elapsed / 3000.0f);
+            glDisable(GL_TEXTURE_2D);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_ONE, GL_ONE);
+            EntityRender();
+        }
+    }
+
+    if(EntityReady()) {
+        LightRender();
+    }
+
+    CarRender();
+    
+    if(show_wireframe) {
+        glDisable(GL_TEXTURE_2D);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        EntityRender();
+    }
+
+    do_effects(effect);
+
+    // Framerate tracker
+    if(show_fps) {
+        RenderPrint(1,
+                    "FPS=%d : Entities=%d : polys=%d",
+                    current_fps,
+                    EntityCount() + LightCount() + CarCount(),
+                    EntityPolyCount() + LightCount() + CarCount());
+    }
+
+    // Show the help overlay
+    if(show_help) {
+        do_help();
+    }
+
+    SwapBuffers(hDC);
+}
+        
