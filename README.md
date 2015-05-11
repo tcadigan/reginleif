@@ -1,5 +1,7 @@
 # Rogue 3.6
 
+Date of orgin: 1981
+
 Original source: http://rogue.rogueforge.net/files/rogue3.6/rogue-3.1.tar
 
 Goals:
