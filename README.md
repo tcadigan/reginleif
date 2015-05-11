@@ -1,4 +1,4 @@
-# Rogue_3.6
+# Rogue 3.6
 
 Original source: http://rogue.rogueforge.net/files/rogue3.6/rogue-3.1.tar
 
