@@ -13,4 +13,5 @@ Goals:
 3) Likely the above won't work right, reimplement so it does [TBD]
 
 Notes:
+
 I lost access to the machine that I was developing on, so the effort has been put on hold until I get another environment set up.
