@@ -14,4 +14,4 @@ Goals:
 
 Notes:
 
-This is one of the first generation rogue-like games (arguably THE on). This has been a serious pain to do, they implemented some rather crazy control (label jumping, conditionals with numerous side effects, etc.). This will take some rather serious work to get working correctly.
+This is one of the first generation rogue-like games (arguably THE one). This has been a serious pain to do, they implemented some rather crazy control (label jumping, conditionals with numerous side effects, etc.). This will take some rather serious work to get working correctly.
