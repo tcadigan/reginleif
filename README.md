@@ -1,8 +1,8 @@
 # Omega 0.75
 
-Date of origin: 
+Date of origin: 1991 (I think...)
 
-Original source:
+Original source: http://www.alcyone.com/binaries/omega/omega-0.75-src.tar.gz
 
 Goals:
 
