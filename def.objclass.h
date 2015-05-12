@@ -58,3 +58,4 @@ extern struct objclass objects[];
  * hack.eat.c: otmp = getobj("%", "eat");
  * hack.invent.c: if(index("!%?[)=*(0/\"", sym)) {
  * hack.invent.c: || index("%?!*", otmp->olet))) {
+ */
