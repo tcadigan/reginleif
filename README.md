@@ -6,9 +6,9 @@ Original source: http://nethackwiki.com/wiki/Hack_1.0#Availability
 
 Goals:
 
-1) Re-type all source code [WIP]
+1) Re-type all source code [Done]
 
-2) Get it to compile [TBD]
+2) Get it to compile [WIP]
 
 3) Likely above won't work right, reimplement so it does [TBD]
 
