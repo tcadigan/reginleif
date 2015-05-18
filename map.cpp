@@ -39,9 +39,9 @@
 // Keep in mind we don't need much
 #define UPDATE_TIME 1
 
-// Here are some macros to make the code more readable and easier to typ
-#define SCALE(x, y) scale[x + (y * MAP_SIZE)]
-#define LIMIT(x) (CLAMP(x, 0, MAP_SIZE))
+// Here are some macros to make the code more readable and easier to type
+#define SCALE(x, y) scale[(x) + ((y) * MAP_SIZE)]
+#define LIMIT(x) (CLAMP((x), 0, MAP_SIZE))
 #define CELL(x, y) (LIMIT(x) + (LIMIT(y) * MAP_SIZE))
 
 // This controls the radius of the spherical area around the camera where

@@ -6,7 +6,7 @@
  * Here is where the magic happens. This generates the terrain and renders is.
  */
 
-#define POINT(x, y) m_point[x + (y * m_map_size)]
+#define POINT(x, y) point_[(x) + ((y) * map_size_)]
 
 // Magic number: Fiddle with this to adjust how aggressive the program should be
 // in removing polygons. Higher numbers result in fewer terrain polygons
@@ -24,26 +24,24 @@
 // You can set both to 1 if you like as well.
 #define DO_SOLID 1
 
+#include "terrain.hpp"
+
 #include <SDL.h>
-#include <math.h>
 #include <GL/gl.h>
 
 #include "camera.hpp"
 #include "console.hpp"
 #include "macro.hpp"
 #include "map.hpp"
-#include "mapTexture.hpp"
-#include "math.hpp"
-#include "terrain.hpp"
-#include "glTypes.hpp"
+#include "map-texture.hpp"
 
 // Used during compile: Add a vertex
 void CTerrain::CompileVertex(int x, int y)
 {
-    glTexCoord2fv(&m_zone_uv[(x - m_zone_origin_x) + ((y - m_zone_origin_y) * (m_zone_size + 1))].x);
+    glTexCoord2fv(&zone_uv_[(x - zone_origin_x_) + ((y - zone_origin_y_) * (zone_size_ + 1))].x);
     GLvector p = MapPosition(x, y);
     glVertex3fv(&p.x);
-    ++m_vertices;
+    ++vertices_;
 }
 
 // Used during compile: Add a triangle to the render list
@@ -52,7 +50,7 @@ void CTerrain::CompileTriangle(int x1, int y1, int x2, int y2, int x3, int y3)
     CompileVertex(x3, y3);
     CompileVertex(x2, y2);
     CompileVertex(x1, y1);
-    ++m_triangles;
+    ++triangles_;
 }
 
 // Used during compile: Add a triangle fan to the render list
@@ -75,7 +73,7 @@ void CTerrain::CompileFan(int x1,
     CompileVertex(x3, y3);
     CompileVertex(x2, y2);
     glEnd();
-    m_triangles += 3;
+    triangles_ += 3;
     glBegin(GL_TRIANGLES);
 }
 
@@ -102,7 +100,7 @@ void CTerrain::CompileFan(int x1,
     CompileVertex(x3, y3);
     CompileVertex(x2, y2);
     glEnd();
-    m_triangles += 4;
+    triangles_ += 4;
     glBegin(GL_TRIANGLES);
 }
 
@@ -123,7 +121,7 @@ void CTerrain::CompileStrip(int x1,
     CompileVertex(x3, y3);
     CompileVertex(x4, y4);
     glEnd();
-    m_triangles += 2;
+    triangles_ += 2;
     glBegin(GL_TRIANGLES);
 }
 
@@ -196,7 +194,7 @@ void CTerrain::CompileBlock(int x, int y, int size)
         if(POINT(x, yc)) {
             // W
             CompileVertex(x, yc);
-            ++m_triangles;
+            ++triangles_;
         }
 
         CompileVertex(x, y2);
@@ -205,12 +203,12 @@ void CTerrain::CompileBlock(int x, int y, int size)
         if(POINT(x2, yc)) {
             // E
             CompileVertex(x2, yc);
-            ++m_triangles;
+            ++triangles_;
         }
 
         CompileVertex(x2, y);
         CompileVertex(x, y);
-        m_triangles += 4;
+        triangles_ += 4;
         glEnd();
         glBegin(GL_TRIANGLES);
 
@@ -229,7 +227,7 @@ void CTerrain::CompileBlock(int x, int y, int size)
         if(POINT(xc, y2)) {
             // S
             CompileVertex(xc, y2);
-            ++m_triangles;
+            ++triangles_;
         }
 
         CompileVertex(x2, y2);
@@ -238,11 +236,11 @@ void CTerrain::CompileBlock(int x, int y, int size)
         if(POINT(xc, y)) {
             // N
             CompileVertex(xc, y);
-            ++m_triangles;
+            ++triangles_;
         }
 
         CompileVertex(x, y);
-        m_triangles += 4;
+        triangles_ += 4;
         glEnd();
         glBegin(GL_TRIANGLES);
         
@@ -268,7 +266,7 @@ void CTerrain::CompileBlock(int x, int y, int size)
             if(POINT(x2, yc)) {
                 // EL
                 CompileVertex(x2, yc);
-                ++m_triangles;
+                ++triangles_;
             }
 
             CompileVertex(x2, y);
@@ -277,10 +275,10 @@ void CTerrain::CompileBlock(int x, int y, int size)
             if(POINT(x, yc)) {
                 // WR
                 CompileVertex(x, yc);
-                ++m_triangles;
+                ++triangles_;
             }
 
-            ++m_triangles;
+            ++triangles_;
             glEnd();
             glBegin(GL_TRIANGLES);
         }
@@ -299,7 +297,7 @@ void CTerrain::CompileBlock(int x, int y, int size)
 
             if(POINT(x, yc)) {
                 CompileVertex(x, yc);
-                ++m_triangles;
+                ++triangles_;
             }
 
             CompileVertex(x, y2);
@@ -307,10 +305,10 @@ void CTerrain::CompileBlock(int x, int y, int size)
 
             if(POINT(x2, yc)) {
                 CompileVertex(x2, yc);
-                ++m_triangles;
+                ++triangles_;
             }
 
-            ++m_triangles;
+            ++triangles_;
             glEnd();
             glBegin(GL_TRIANGLES);
         }
@@ -330,7 +328,7 @@ void CTerrain::CompileBlock(int x, int y, int size)
             if(POINT(xc, y)) {
                 // NL
                 CompileVertex(xc, y);
-                ++m_triangles;
+                ++triangles_;
             }
 
             CompileVertex(x, y);
@@ -339,10 +337,10 @@ void CTerrain::CompileBlock(int x, int y, int size)
             if(POINT(xc, y2)) {
                 // SR
                 CompileVertex(xc, y2);
-                ++m_triangles;
+                ++triangles_;
             }
 
-            ++m_triangles;
+            ++triangles_;
             glEnd();
             glBegin(GL_TRIANGLES);
         }
@@ -361,7 +359,7 @@ void CTerrain::CompileBlock(int x, int y, int size)
             if(POINT(xc, yc)) {
                 // SL
                 CompileVertex(xc, y2);
-                ++m_triangles;
+                ++triangles_;
             }
 
             CompileVertex(x2, y2);
@@ -370,10 +368,10 @@ void CTerrain::CompileBlock(int x, int y, int size)
             if(POINT(xc, y)) {
                 // NR
                 CompileVertex(xc, y);
-                ++m_triangles;
+                ++triangles_;
             }
             
-            ++m_triangles;
+            ++triangles_;
             glEnd();
             glBegin(GL_TRIANGLES);
         }
@@ -418,25 +416,25 @@ void CTerrain::Compile(void)
 
     compile_start = SDL_GetTicks();
     
-    if(m_compile_back != 0) {
-        list = m_list_back + m_zone;
+    if(compile_back_ != 0) {
+        list = list_back_ + zone_;
     }
     else {
-        list = m_list_front + m_zone;
+        list = list_front_ + zone_;
     }
 
-    if(m_zone == 0) {
-        m_vertices = 0;
-        m_triangles = 0;
-        m_compile_time = 0;
+    if(zone_ == 0) {
+        vertices_ = 0;
+        triangles_ = 0;
+        compile_time_ = 0;
     }
 
-    x = m_zone % ZONE_GRID;
-    y = (m_zone - x) / ZONE_GRID;
-    m_zone_origin_x = x * m_zone_size;
-    m_zone_origin_y = y * m_zone_size;
+    x = zone_ % ZONE_GRID;
+    y = (zone_ - x) / ZONE_GRID;
+    zone_origin_x_ = x * zone_size_;
+    zone_origin_y_ = y * zone_size_;
     glNewList(list, GL_COMPILE);
-    glBindTexture(GL_TEXTURE_2D, MapTexture(m_zone));
+    glBindTexture(GL_TEXTURE_2D, MapTexture(zone_));
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
@@ -448,9 +446,9 @@ void CTerrain::Compile(void)
         glDisable(GL_BLEND);
         glDisable(GL_COLOR_MATERIAL);
         glColor3f(1.0f, 1.0f, 1.0f);
-        m_use_color = false;
+        use_color_ = false;
         glBegin(GL_TRIANGLES);
-        CompileBlock(x * m_zone_size, y * m_zone_size, m_zone_size);
+        CompileBlock(x * zone_size_, y * zone_size_, zone_size_);
         glEnd();
         glDisable(GL_BLEND);
     }
@@ -465,30 +463,30 @@ void CTerrain::Compile(void)
         glLineWidth(2.0f);
         glBegin(GL_TRIANGLES);
         glEnable(GL_COLOR_MATERIAL);
-        CompileBlock(x * m_zone_size, y * m_zone_size, m_zone_size);
+        CompileBlock(x * zone_size_, y * zone_size_, zone_size_);
         glEnd();
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 
     glEndList();
-    ++m_zone;
+    ++zone_;
 
-    if(m_zone == ZONES) {
+    if(zone_ == ZONES) {
         if((DO_WIREFRAME != 0) && (DO_SOLID != 0)) {
-            m_vertices /= 2;
-            m_triangles /= 2;
+            vertices_ /= 2;
+            triangles_ /= 2;
         }
 
-        m_zone = 0;
-        ++m_stage;
+        zone_ = 0;
+        ++stage_;
         // Console("Compiled %d polygons, %d vertices in %dms",
-        //         m_triangles,
-        //         m_vertices,
-        //         m_compile_time);
+        //         triangles_,
+        //         vertices_,
+        //         compile_time_);
     }
 
-    m_compile_time += (SDL_GetTicks() - compile_start);
+    compile_time_ += (SDL_GetTicks() - compile_start);
 }
 
 /*
@@ -498,16 +496,16 @@ void CTerrain::Compile(void)
  */
 void CTerrain::GridStep(void)
 {
-    ++m_x;
+    ++x_;
     
-    if(m_x > m_map_size) {
-        m_x = 0;
-        ++m_y;
+    if(x_ > map_size_) {
+        x_ = 0;
+        ++y_;
 
-        if(m_y > m_map_size) {
-            m_x = 0;
-            m_y = 0;
-            ++m_stage;
+        if(y_ > map_size_) {
+            x_ = 0;
+            y_ = 0;
+            ++stage_;
         }
     }
 }
@@ -516,68 +514,63 @@ void CTerrain::GridStep(void)
  * Constructor
  */
 CTerrain::CTerrain(int size)
+    : list_front_(glGenLists(ZONES))
+    , list_back_(glGenLists(ZONES))
+    , stage_(STAGE_IDLE)
+    , map_size_(size)
+    , map_half_(size / 2)
+    , tolerance_(TOLERANCE)
+    , zone_size_(map_size_ / 2)
+    , viewpoint_(glVector(0.0f, 0.0f, 0.0f))
+    , boundary_(new short[size])
+    , point_(new bool[size * size])
 {
-    m_list_front = glGenLists(ZONES);
-    m_list_back = glGenLists(ZONES);
-    m_stage = STAGE_IDLE;
-    m_vertices = 0;
-    m_triangles = 0;
-    m_compile_time = 0;
-    m_build_time = 0;
-    m_fade = false;
-    m_map_size = size;
-    m_map_half = size / 2;
-    m_tolerance = TOLERANCE;
-    m_zone_size = m_map_size / ZONE_GRID;
-    m_viewpoint = glVector(0.0f, 0.0f, 0.0f);
-    m_boundry = new short[size];
-    m_point = new bool[size * size];
-    m_entity_type = "terrain";
+    entity_type_ = "terrain";
 
     // This finds the largest power-of-two dimension for the given number.
     // This is used to determine what level of the quadtree a grid
     // position occupies.
     for(int n = 0; n < size; ++n) {
-        m_boundry[n] = -1;
+        boundary_[n] = -1;
 
         if(n == 0) {
-            m_boundry[n] = m_map_size;
+            boundary_[n] = map_size_;
         }
         else {
-            for(int level = m_map_size; level > 1; level /= 2) {
+            for(int level = map_size_; level > 1; level /= 2) {
                 if((n % level) == 0) {
-                    m_boundry[n] = level;
+                    boundary_[n] = level;
                     
                     break;
                 }
             }
 
-            if(m_boundry[n] == -1) {
-                m_boundry[n] = 1;
+            if(boundary_[n] == -1) {
+                boundary_[n] = 1;
             }
         }
     }
 
     // This maps out a grid of uv values so that a texture
     // will fit exactly over a zone
-    m_zone_uv = new GLvector2[(m_zone_size + 1) * (m_zone_size + 1)];
+    zone_uv_ = new GLvector2[(zone_size_ + 1) * (zone_size_ + 1)];
     
-    for(int x = 0; x <= m_zone_size; ++x) {
-        for(int y = 0; y <= m_zone_size; ++y) {
-            m_zone_uv[x + (y * (m_zone_size + 1))].x = 
-                (float)x / (float)m_zone_size;
+    for(int x = 0; x <= zone_size_; ++x) {
+        for(int y = 0; y <= zone_size_; ++y) {
+            zone_uv_[x + (y * (zone_size_ + 1))].x = 
+                (float)x / (float)zone_size_;
 
-            m_zone_uv[x + (y * (m_zone_size + 1))].y =
-                (float)y / (float)m_zone_size;
+            zone_uv_[x + (y * (zone_size_ + 1))].y =
+                (float)y / (float)zone_size_;
         }
     }
 }
 
 CTerrain::~CTerrain()
 {
-    delete[] m_point;
-    delete[] m_boundry;
-    delete[] m_zone_uv;
+    delete[] point_;
+    delete[] boundary_;
+    delete[] zone_uv_;
 }
 
 /*
@@ -592,18 +585,18 @@ void CTerrain::RenderFadeIn()
     int i;
 
     // If we are not fading in, then just render normally
-    if(!m_fade) {
+    if(!fade_) {
         Render();
         
         return;
     }
 
     // Otherwise render OPPOSITE of the normal order
-    if(!m_compile_back) {
-        list = m_list_front;
+    if(!compile_back_) {
+        list = list_front_;
     }
     else {
-        list = m_list_back;
+        list = list_back_;
     }
 
     for(i = 0; i < ZONES; ++i) {
@@ -619,11 +612,11 @@ void CTerrain::Render()
     unsigned int list;
     int i;
 
-    if(m_compile_back) {
-        list = m_list_front;
+    if(compile_back_) {
+        list = list_front_;
     }
     else {
-        list = m_list_back;
+        list = list_back_;
     }
 
     for(i = 0; i < ZONES; ++i) {
@@ -646,7 +639,7 @@ void CTerrain::PointActivate(int x, int y)
     int yl;
     int level;
 
-    if((x < 0) || (x > (int)m_map_size) || (y < 0) || (y > (int)m_map_size)) {
+    if((x < 0) || (x > (int)map_size_) || (y < 0) || (y > (int)map_size_)) {
         return;
     }
 
@@ -655,8 +648,8 @@ void CTerrain::PointActivate(int x, int y)
     }
 
     POINT(x, y) = true;
-    xl = m_boundry[x];
-    yl = m_boundry[y];
+    xl = boundary_[x];
+    yl = boundary_[y];
     level = MIN(xl, yl);
 
     if(xl > yl) {
@@ -727,7 +720,7 @@ void CTerrain::DoQuad(int x1, int y1, int size)
     yc = y1 + half;
     y2 = y1 + size;
     
-    if((x2 > m_map_size) || (y2 > m_map_size) || (x1 < 0) || (y1 < 0)) {
+    if((x2 > map_size_) || (y2 > map_size_) || (x1 < 0) || (y1 < 0)) {
         return;
     }
 
@@ -759,10 +752,10 @@ void CTerrain::DoQuad(int x1, int y1, int size)
     }
 
     // Smaller quads are much less important
-    size_bias = (float)(m_map_size + size) / (float)(m_map_size * 2);
+    size_bias = (float)(map_size_ + size) / (float)(map_size_ * 2);
     delta *= size_bias;
 
-    if(delta > m_tolerance) {
+    if(delta > tolerance_) {
         PointActivate(xc, yc);
     }
 }
@@ -770,16 +763,16 @@ void CTerrain::DoQuad(int x1, int y1, int size)
 // Again, this is part of the disable fade in/fade out system
 void CTerrain::FadeStart(void)
 {
-    if((m_stage == STAGE_WAIT_FOR_FADE) && !m_fade) {
-        m_fade = true;
-        ++m_stage;
+    if((stage_ == STAGE_WAIT_FOR_FADE) && !fade_) {
+        fade_ = true;
+        ++stage_;
         
         return;
     }
     
-    if(m_fade) {
-        m_fade = false;
-        m_compile_back = !m_compile_back;
+    if(fade_) {
+        fade_ = false;
+        compile_back_ = !compile_back_;
     }
 }
 
@@ -800,51 +793,51 @@ void CTerrain::Update(void)
     end = now + UPDATE_TIME;
 
     while(SDL_GetTicks() < end) {
-        switch(m_stage) {
+        switch(stage_) {
         case STAGE_IDLE:
-            if(m_fade) {
+            if(fade_) {
                 return;
             }
 
             newpos = CameraPosition();
-            m_build_start = 0;
-            m_viewpoint = CameraPosition();
-            ++m_stage;
+            build_start_ = 0;
+            viewpoint_ = CameraPosition();
+            ++stage_;
 
             break;
         case STAGE_CLEAR:
-            memset(m_point, 0, m_map_size * m_map_size);
-            ++m_stage;
-            m_zone = 0;
-            m_layer = 0;
-            m_x = 0;
-            m_y = 0;
-            m_build_time = 0;
+            memset(point_, 0, map_size_ * map_size_);
+            ++stage_;
+            zone_ = 0;
+            layer_ = 0;
+            x_ = 0;
+            y_ = 0;
+            build_time_ = 0;
 
             // No matter how simple the terrain is, we need to break it
             // up enough so that the blocks aren't bigger than the 
             // compile grid
             for(xx = 0; xx < ZONE_GRID; ++xx) {
                 for(yy = 0; yy < ZONE_GRID; ++yy) {
-                    PointActivate((xx * m_zone_size) + (m_zone_size / 2),
-                                  (yy * m_zone_size) + (m_zone_size / 2));
+                    PointActivate((xx * zone_size_) + (zone_size_ / 2),
+                                  (yy * zone_size_) + (zone_size_ / 2));
 
-                    PointActivate(xx * m_zone_size, yy * m_zone_size);
+                    PointActivate(xx * zone_size_, yy * zone_size_);
                 }
             }
 
             break;
         case STAGE_QUADTREE:
-            if(POINT(m_x, m_y)) {
+            if(POINT(x_, y_)) {
                 GridStep();
                 
                 break;
             }
 
-            xx = m_boundry[m_x];
-            yy = m_boundry[m_y];
+            xx = boundary_[x_];
+            yy = boundary_[y_];
             level = MIN(xx, yy);
-            DoQuad(m_x - level, m_y - level, level * 2);
+            DoQuad(x_ - level, y_ - level, level * 2);
             GridStep();
 
             break;
@@ -857,21 +850,21 @@ void CTerrain::Update(void)
             return;
         case STAGE_DONE:
             Console("Build %d polygons, %d vertices in %dms (%d)",
-                    m_triangles,
-                    m_vertices,
-                    m_build_time,
-                    m_compile_time);
+                    triangles_,
+                    vertices_,
+                    build_time_,
+                    compile_time_);
 
-            m_stage = STAGE_IDLE;
+            stage_ = STAGE_IDLE;
 
             return;
         default:
             // Any stages not used end up here, skip it
-            ++m_stage;
+            ++stage_;
 
             break;
         }
     }
 
-    m_build_time += (SDL_GetTicks() - now);
+    build_time_ += (SDL_GetTicks() - now);
 }

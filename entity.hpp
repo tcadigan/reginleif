@@ -16,10 +16,10 @@ public:
     virtual char const *Type(void);
 
 protected:
-    char const *m_entity_type;
+    char const *entity_type_;
 
 private:
-    CEntity *next;
+    CEntity *next_;
 };
 
 void EntityUpdate(void);

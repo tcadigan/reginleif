@@ -1,6 +1,7 @@
 #ifndef SKY_HPP_
 #define SKY_HPP_
 
+#include "glTypes.hpp"
 #include "entity.hpp"
 
 #define SKY_GRID 21
@@ -19,7 +20,7 @@ public:
     void Update(void);
 
 private:
-    sky_point m_grid[SKY_GRID][SKY_GRID];
+    sky_point grid_[SKY_GRID][SKY_GRID];
 };
 
 #endif

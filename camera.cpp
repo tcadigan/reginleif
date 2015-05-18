@@ -10,10 +10,11 @@
 #define EYE_HEIGHT 2.0f
 #define MAX_PITCH 85
 
-#include <cstdlib>
-#include <math.h>
+#include "camera.hpp"
 
-#include "glTypes.hpp"
+#include <cstdlib>
+#include <cmath>
+
 #include "ini.hpp"
 #include "macro.hpp"
 #include "map.hpp"

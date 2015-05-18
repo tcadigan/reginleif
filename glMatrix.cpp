@@ -5,7 +5,7 @@
  * function useful for manipulating the Matrix struct.
  */
 
-#define M(e, x, y) (e.elements[x][y])
+#define M(e, x, y) ((e).elements[(x)][(y)])
 
 #include <math.h>
 #include "macro.hpp"

@@ -7,13 +7,11 @@
  * X-Y plane, so the Z value should always be zero.
  */
 
-#include <SDL.h>
-#include <math.h>
+#include "world.hpp"
 
-#include "glTypes.hpp"
-#include "macro.hpp"
+#include <SDL.h>
+
 #include "map.hpp"
-#include "math.hpp"
 #include "entity.hpp"
 #include "sky.hpp"
 #include "pointer.hpp"

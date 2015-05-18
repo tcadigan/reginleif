@@ -5,10 +5,10 @@
  * Various useful math functions.
  */
 
-#include <math.h>
-
-#include "macro.hpp"
 #include "math.hpp"
+
+#include <cmath>
+#include "macro.hpp"
 
 // Get an angle between two given points on a grid
 float MathAngle(float x1, float y1, float x2, float y2)

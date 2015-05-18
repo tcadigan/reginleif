@@ -1,6 +1,7 @@
 #ifndef TERRAIN_HPP_
 #define TERRAIN_HPP_
 
+#include "glTypes.hpp"
 #include "entity.hpp"
 
 enum build_stage {
@@ -28,31 +29,32 @@ public:
     void FadeStart(void);
     
 private:
-    GLvector m_viewpoint;
-    GLvector2 *m_zone_uv;
-    char m_stage;
-    int m_x;
-    int m_y;
-    int m_map_size;
-    int m_map_half;
-    int m_layer;
-    int m_zone;
-    int m_zone_origin_x;
-    int m_zone_origin_y;
-    int m_zone_size;
-    short *m_boundry;
-    bool m_compile_back;
-    bool m_use_color;
-    bool m_fade;
-    bool *m_point;
-    unsigned int m_list_back;
-    unsigned int m_list_front;
-    long m_triangles;
-    long m_vertices;
-    long m_build_start;
-    long m_build_time;
-    long m_compile_time;
-    float m_tolerance;
+    unsigned int list_front_;
+    unsigned int list_back_;
+    char stage_;
+    int map_size_;
+    int map_half_;
+    float tolerance_;
+    int zone_size_;
+    GLvector viewpoint_;
+    short *boundary_;
+    bool *point_;
+
+    GLvector2 *zone_uv_;
+    int x_;
+    int y_;
+    int layer_;
+    int zone_;
+    int zone_origin_x_;
+    int zone_origin_y_;
+    bool compile_back_;
+    bool use_color_;
+    bool fade_;
+    long triangles_;
+    long vertices_;
+    long build_start_;
+    long build_time_;
+    long compile_time_;
 
     void Compile(void);
     void CompileBlock(int x, int y, int size);

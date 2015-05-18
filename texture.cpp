@@ -7,12 +7,12 @@
 
 #define MAX_STRING 128
 
-#include <stdio.h>
+#include "texture.hpp"
+
+#include <cstdio>
 #include <cstring>
 #include <cstdlib>
 #include <GL/gl.h>
-
-#include "console.hpp"
 
 struct texture {
     struct texture *next;

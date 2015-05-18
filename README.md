@@ -20,4 +20,4 @@ This is OpenGL but it is developed for Windows. Thus, all the window and mouse h
 
 Intrusive linked lists are used for the entities, which I am not fond of. This isn't without precendent: http://fabiensanglard.net/doom3_documentation/DOOM-3-BFG-Technical-Note.pdf.
 
-Header and object layout also don't match my style. It was too much to change as I go along. 
+Have I mentioned that I despise macros no matter the use case?

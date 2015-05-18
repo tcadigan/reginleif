@@ -5,15 +5,13 @@
  * Cheapo gradient sky. This is really lame. Seriously.
  */
 
-#include <math.h>
+#include "sky.hpp"
+
 #include <GL/gl.h>
 
 #include "camera.hpp"
-#include "console.hpp"
 #include "macro.hpp"
 #include "math.hpp"
-#include "sky.hpp"
-#include "glTypes.hpp"
 #include "world.hpp"
 
 void CSky::Render()
@@ -59,10 +57,10 @@ void CSky::Render()
         glBegin(GL_QUAD_STRIP);
         
         for(x = 0; x < SKY_GRID; ++x) {
-            glColor3fv(&m_grid[x][y].color.red);
-            glVertex3fv(&m_grid[x][y].position.x);
-            glColor3fv(&m_grid[x][y + 1].color.red);
-            glVertex3fv(&m_grid[x][y + 1].position.x);
+            glColor3fv(&grid_[x][y].color.red);
+            glVertex3fv(&grid_[x][y].position.x);
+            glColor3fv(&grid_[x][y + 1].color.red);
+            glVertex3fv(&grid_[x][y + 1].position.x);
         }
 
         glEnd();
@@ -98,17 +96,17 @@ CSky::CSky()
                                 (float)SKY_HALF);
 
             scale = CLAMP((dist / SKY_HALF), 0.0f, 1.0f);
-            m_grid[x][y].position.x = (float)(x - SKY_HALF);
-            m_grid[x][y].position.y = 1.0f - (scale * 1.5f);
-            m_grid[x][y].position.z = (float)(y - SKY_HALF);
-            m_grid[x][y].color = top;
+            grid_[x][y].position.x = (float)(x - SKY_HALF);
+            grid_[x][y].position.y = 1.0f - (scale * 1.5f);
+            grid_[x][y].position.z = (float)(y - SKY_HALF);
+            grid_[x][y].color = top;
             fade = MathSmoothStep(scale, 0.0f, 0.6f);
-            m_grid[x][y].color =
-                glRgbaInterpolate(m_grid[x][y].color, edge, fade);
+            grid_[x][y].color =
+                glRgbaInterpolate(grid_[x][y].color, edge, fade);
 
             fade = MathSmoothStep(scale, 0.5f, 0.99f);
-            m_grid[x][y].color = 
-                glRgbaInterpolate(m_grid[x][y].color, fog, fade);
+            grid_[x][y].color = 
+                glRgbaInterpolate(grid_[x][y].color, fog, fade);
         }
     }
 }

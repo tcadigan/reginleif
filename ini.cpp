@@ -11,12 +11,10 @@
 #define INIT_FILE ".\\" APP ".ini"
 #define SECTION "Settings"
 
-#include <sstream>
-#include <stdio.h>
-#include "glTypes.hpp"
-
-#include "app.hpp"
 #include "ini.hpp"
+
+#include <sstream>
+#include <cstdio>
 
 static char result[MAX_RESULT];
 

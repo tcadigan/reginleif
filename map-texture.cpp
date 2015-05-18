@@ -1,5 +1,5 @@
 /*
- * mapTexture.cpp
+ * map-texture.cpp
  * 2006 Shamus Young
  *
  * This generates the zone textures. I'm still not happy with how this works,
@@ -25,7 +25,7 @@
 // a 512x512!
 #define MAX_RESOLUTION 256
 #define MAX_PIXELS (MAX_RESOLUTION * MAX_RESOLUTION)
-#define OPPOSITE(g) (g == GRID_FRONT ? GRID_BACK : GRID_FRONT)
+#define OPPOSITE(g) ((g) == GRID_FRONT ? GRID_BACK : GRID_FRONT)
 
 // How much time to spedn drawing the next set of textures. Tradeoffs abound.
 #define UPDATE_TIME 10
@@ -37,7 +37,7 @@
 // one. Tune this depending on how tight you want the detail.
 #define UV_SCALE 1
 
-#include "mapTexture.hpp"
+#include "map-texture.hpp"
 
 #include <SDL.h>
 #include <GL/gl.h>

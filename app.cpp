@@ -6,16 +6,17 @@
  */
 
 #include "app.hpp"
-#include "camera.hpp"
-#include "console.hpp"
-#include "entity.hpp"
-#include "glTypes.hpp"
-#include "map.hpp"
-#include "mapTexture.hpp"
-#include "render.hpp"
-#include "texture.hpp"
-#include "win.hpp"
-#include "world.hpp"
+
+// #include "camera.hpp"
+// #include "console.hpp"
+// #include "entity.hpp"
+// #include "glTypes.hpp"
+// #include "map.hpp"
+// #include "mapTexture.hpp"
+// #include "render.hpp"
+// #include "texture.hpp"
+// #include "win.hpp"
+// #include "world.hpp"
 
 // #pragma comment (lib, "opengl32.lib")
 // #pragma comment (lib, "glu32.lib")

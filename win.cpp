@@ -9,18 +9,6 @@
 #define CONSOLE_PAGE 1000
 #define MOUSE_MOVEMENT 0.4f
 
-#include <math.h>
-#include <stdarg.h>
-#include <string.h>
-#include <stdio.h>
-
-#include "app.hpp"
-#include "camera.hpp"
-#include "console.hpp"
-#include "macro.hpp"
-#include "math.hpp"
-#include "map.hpp"
-#include "pointer.hpp"
 #include "win.hpp"
 
 // static HWND hwnd;

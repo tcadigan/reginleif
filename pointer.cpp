@@ -15,21 +15,18 @@
 #define PT_SIZE 8
 #define PT_HALF (PT_SIZE / 2)
 
+#include "pointer.hpp"
+ 
 #include <SDL.h>
 #include <cstring>
-#include <math.h>
+#include <cmath>
 #include <GL/gl.h>
 #include <GL/glu.h>
 
 #include "camera.hpp"
-#include "console.hpp"
 #include "macro.hpp"
 #include "map.hpp"
-#include "glTypes.hpp"
 #include "texture.hpp"
-#include "world.hpp"
-#include "win.hpp"
-#include "pointer.hpp"
 
 void CPointer::Render()
 {
@@ -44,43 +41,43 @@ void CPointer::Render()
     glDisable(GL_FOG);
     glEnable(GL_BLEND);
     glEnable(GL_ALPHA);
-    glBindTexture(GL_TEXTURE_2D, m_texture);
+    glBindTexture(GL_TEXTURE_2D, texture_);
     glDisable(GL_CULL_FACE);
     glBlendFunc(GL_ONE, GL_ONE);
     glLineWidth(3.5f);
     glColor3f(1.0f, 0.5f, 0.0f);
     cell_x = (int)(pos.x - 0.5f) + (MapSize() / 2);
     cell_y = (int)(pos.z - 0.5f) + (MapSize() / 2);
-    cell_x = m_last_cell.x;
-    cell_y = m_last_cell.y;
+    cell_x = last_cell_.x;
+    cell_y = last_cell_.y;
 
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 0.0f);
     p = MapPosition(cell_x - PT_HALF, cell_y - PT_HALF);
-    p.x -= m_pulse;
+    p.x -= pulse_;
     p.y += 2.0f;
-    p.z -= m_pulse;
+    p.z -= pulse_;
     glVertex3fv(&p.x);
 
     glTexCoord2f(0.0f, 1.0f);
     p = MapPosition(cell_x - PT_HALF, cell_y + PT_HALF);
-    p.x -= m_pulse;
+    p.x -= pulse_;
     p.y += 2.0f;
-    p.z += m_pulse;
+    p.z += pulse_;
     glVertex3fv(&p.x);
 
     glTexCoord2f(1.0f, 1.0f);
     p = MapPosition(cell_x + PT_HALF, cell_y + PT_HALF);
-    p.x += m_pulse;
+    p.x += pulse_;
     p.y += 2.0f;
-    p.z += m_pulse;
+    p.z += pulse_;
     glVertex3fv(&p.x);
 
     glTexCoord2f(1.0f, 0.0f);
     p = MapPosition(cell_x + PT_HALF, cell_y - PT_HALF);
-    p.x += m_pulse;
+    p.x += pulse_;
     p.y += 2.0f;
-    p.z -= m_pulse;
+    p.z -= pulse_;
     glVertex3fv(&p.x);
     glEnd();
     glPopAttrib();
@@ -157,14 +154,14 @@ void CPointer::Update()
     unsigned long t;
 
     t = SDL_GetTicks() % 3600;
-    m_pulse = (float)sin(((float)t / 10.0f) * DEGREES_TO_RADIANS) * 1.0f;
+    pulse_ = (float)sin(((float)t / 10.0f) * DEGREES_TO_RADIANS) * 1.0f;
     // WinMousePosition(&p.x, &p.y);
 
-    if((m_last_mouse.x == p.x) && (m_last_mouse.y == p.y)) {
+    if((last_mouse_.x == p.x) && (last_mouse_.y == p.y)) {
         return;
     }
 
-    m_last_mouse = p;
+    last_mouse_ = p;
 
     // This sets the viewport[4] to the size and location
     // of the screen relative to the window
@@ -197,22 +194,23 @@ void CPointer::Update()
     glRotatef(angle.y, 0.0f, 1.0f, 0.0f);
     glRotatef(angle.z, 0.0f, 0.0f, 1.0f);
     glTranslatef(-pos.x, -pos.y, -pos.z);
-    m_last_cell = DrawGrid();
+    last_cell_ = DrawGrid();
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
 }
 
 CPointer::CPointer()
+    : CEntity()
+    , texture_(TextureFromName("ring"))
 {
-    m_last_cell.y = -1;
-    m_last_cell.x = m_last_cell.y;
-    m_texture = TextureFromName("ring");
-    m_entity_type = "pointer";
+    entity_type_ = "pointer";
+    last_cell_.y = -1;
+    last_cell_.x = last_cell_.y;
 }
 
 point CPointer::Selected()
 {
-    return m_last_cell;
+    return last_cell_;
 }
     

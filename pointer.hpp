@@ -1,6 +1,7 @@
 #ifndef POINTER_HPP_
 #define POINTER_HPP_
 
+#include "glTypes.hpp"
 #include "entity.hpp"
 
 struct point {
@@ -18,11 +19,12 @@ public:
     point Selected(void);
 
 private:
-    GLvector m_position;
-    point m_last_mouse;
-    point m_last_cell;
-    int m_texture;
-    float m_pulse;
+    int texture_;
+
+    GLvector position_;
+    point last_mouse_;
+    point last_cell_;
+    float pulse_;
 };
 
 #endif

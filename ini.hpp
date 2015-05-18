@@ -1,6 +1,8 @@
 #ifndef INI_HPP_
 #define INI_HPP_
 
+#include "glTypes.hpp"
+
 int IniInit(char const *entry);
 void IniIntSet(char const *entry, int val);
 float IniFloat(char const *entry);

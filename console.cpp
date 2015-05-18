@@ -12,7 +12,7 @@
  * to the console and get feedback while it's building.
  */
 
-#include <stdio.h>
+#include <cstdio>
 #include <cstdarg>
 
 void Console(char const *message, ...)

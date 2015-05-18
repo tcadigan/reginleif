@@ -9,12 +9,14 @@
 
 #define RENDER_DISTANCE 2048
 
+#include "render.hpp"
+
 #include <GL/gl.h>
 #include <GL/glu.h>
 
+#include "glTypes.hpp"
 #include "camera.hpp"
 #include "entity.hpp"
-#include "win.hpp"
 #include "world.hpp"
 
 // static PIXELFORMATDESCRIPTOR pfd = {

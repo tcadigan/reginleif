@@ -6,15 +6,10 @@
  * An entity is any renderable object in the worl. This is an abstract class.
  */
 
-#include <math.h>
-#include <cstring>
-#include <GL/gl.h>
-
-#include "camera.hpp"
 #include "entity.hpp"
-#include "map.hpp"
-#include "sky.hpp"
-#include "terrain.hpp"
+
+#include <cstdlib>
+#include <cstring>
 
 static class CEntity *head;
 
@@ -90,15 +85,15 @@ void EntityFadeStart(void)
 }
 
 CEntity::CEntity(void)
+    : entity_type_("none")
+    , next_(head)
 {
-    next = head;
     head = this;
-    m_entity_type = "none";
 }
 
 class CEntity *CEntity::Next(void)
 {
-    return next;
+    return next_;
 }
 
 void CEntity::Render(void)
@@ -121,7 +116,7 @@ void CEntity::FadeStart()
 
 char const *CEntity::Type()
 {
-    return m_entity_type;
+    return entity_type_;
 }
 
 CEntity::~CEntity(void)
