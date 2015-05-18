@@ -24,23 +24,18 @@
 // You can set both to 1 if you like as well.
 #define DO_SOLID 1
 
-#include <windows.h>
+#include <SDL.h>
 #include <math.h>
-#include <gl\gl.h>
-#include <gl\glu.h>
-#include <gl\glext.h>
+#include <GL/gl.h>
 
 #include "camera.hpp"
 #include "console.hpp"
 #include "macro.hpp"
 #include "map.hpp"
-#include "maptexture.hpp"
+#include "mapTexture.hpp"
 #include "math.hpp"
 #include "terrain.hpp"
-#include "time.hpp"
 #include "glTypes.hpp"
-
-static unsigned int layer_texture[LAYER_COUNT]
 
 // Used during compile: Add a vertex
 void CTerrain::CompileVertex(int x, int y)
@@ -80,7 +75,7 @@ void CTerrain::CompileFan(int x1,
     CompileVertex(x3, y3);
     CompileVertex(x2, y2);
     glEnd();
-    m_triangle += 3;
+    m_triangles += 3;
     glBegin(GL_TRIANGLES);
 }
 
@@ -126,7 +121,7 @@ void CTerrain::CompileStrip(int x1,
     CompileVertex(x1, y1);
     CompileVertex(x2, y2);
     CompileVertex(x3, y3);
-    compileVertex(x4, y4);
+    CompileVertex(x4, y4);
     glEnd();
     m_triangles += 2;
     glBegin(GL_TRIANGLES);
@@ -200,7 +195,7 @@ void CTerrain::CompileBlock(int x, int y, int size)
 
         if(POINT(x, yc)) {
             // W
-            compilVertex(x, yc);
+            CompileVertex(x, yc);
             ++m_triangles;
         }
 
@@ -217,7 +212,7 @@ void CTerrain::CompileBlock(int x, int y, int size)
         CompileVertex(x, y);
         m_triangles += 4;
         glEnd();
-        glBegin(GL_TIRANGLES);
+        glBegin(GL_TRIANGLES);
 
         return;
     }
@@ -303,7 +298,7 @@ void CTerrain::CompileBlock(int x, int y, int size)
             CompileVertex(xc, yc);
 
             if(POINT(x, yc)) {
-                compileVertex(x, yc);
+                CompileVertex(x, yc);
                 ++m_triangles;
             }
 
@@ -421,7 +416,7 @@ void CTerrain::Compile(void)
     int x;
     int y;
 
-    compile_start = GetTickCount();
+    compile_start = SDL_GetTicks();
     
     if(m_compile_back != 0) {
         list = m_list_back + m_zone;
@@ -448,7 +443,7 @@ void CTerrain::Compile(void)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 
     if(DO_SOLID != 0) {
-        glPolygonMode(GL_FRONT_AN_BACK, GL_FILL);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glEnable(GL_CULL_FACE);
         glDisable(GL_BLEND);
         glDisable(GL_COLOR_MATERIAL);
@@ -468,7 +463,7 @@ void CTerrain::Compile(void)
         glColor4f(0.4f, 0.4f, 1.0f, 0.1f);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glLineWidth(2.0f);
-        glBegin(GL_TIRANGLES);
+        glBegin(GL_TRIANGLES);
         glEnable(GL_COLOR_MATERIAL);
         CompileBlock(x * m_zone_size, y * m_zone_size, m_zone_size);
         glEnd();
@@ -480,9 +475,9 @@ void CTerrain::Compile(void)
     ++m_zone;
 
     if(m_zone == ZONES) {
-        if((DO_WIREFRAM != 0) && (DO_SOLID != 0)) {
+        if((DO_WIREFRAME != 0) && (DO_SOLID != 0)) {
             m_vertices /= 2;
-            m_triangles / 2;
+            m_triangles /= 2;
         }
 
         m_zone = 0;
@@ -493,7 +488,7 @@ void CTerrain::Compile(void)
         //         m_compile_time);
     }
 
-    m_compile_time += (GetTickcount() - compile_start);
+    m_compile_time += (SDL_GetTicks() - compile_start);
 }
 
 /*
@@ -661,7 +656,7 @@ void CTerrain::PointActivate(int x, int y)
 
     POINT(x, y) = true;
     xl = m_boundry[x];
-    y1 = m_boundry[y];
+    yl = m_boundry[y];
     level = MIN(xl, yl);
 
     if(xl > yl) {
@@ -708,7 +703,7 @@ void CTerrain::PointActivate(int x, int y)
  * compared to the elvation of the center. Teh greater the difference between
  * these two values, the more non-coplaner this quad is
  */
-void CTerrain::DoQaud(int x1, int y1, int size)
+void CTerrain::DoQuad(int x1, int y1, int size)
 {
     int xc;
     int yc;
@@ -765,7 +760,7 @@ void CTerrain::DoQaud(int x1, int y1, int size)
 
     // Smaller quads are much less important
     size_bias = (float)(m_map_size + size) / (float)(m_map_size * 2);
-    delta *= size_bais;
+    delta *= size_bias;
 
     if(delta > m_tolerance) {
         PointActivate(xc, yc);
@@ -801,10 +796,10 @@ void CTerrain::Update(void)
     int level;
     GLvector newpos;
 
-    now = GetTickCount();
+    now = SDL_GetTicks();
     end = now + UPDATE_TIME;
 
-    while(GetTickCount() < end) {
+    while(SDL_GetTicks() < end) {
         switch(m_stage) {
         case STAGE_IDLE:
             if(m_fade) {
@@ -878,5 +873,5 @@ void CTerrain::Update(void)
         }
     }
 
-    m_build_time += (GetTickCount() - now);
+    m_build_time += (SDL_GetTicks() - now);
 }

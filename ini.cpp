@@ -11,7 +11,7 @@
 #define INIT_FILE ".\\" APP ".ini"
 #define SECTION "Settings"
 
-#include <windows.h>
+#include <sstream>
 #include <stdio.h>
 #include "glTypes.hpp"
 
@@ -20,60 +20,62 @@
 
 static char result[MAX_RESULT];
 
-int IniInt(char *entry)
+int IniInt(char const *entry)
 {
-    int result;
+    int result = -1;
 
-    result = GetPrivateProfileInt(SECTION, entry, -1, INIT_FILE);
+    // result = GetPrivateProfileInt(SECTION, entry, -1, INIT_FILE);
     
     return result;
 }
 
-void IniIntSet(char *entry, int val)
+void IniIntSet(char const *entry, int val)
 {
     char buf[20];
 
     sprintf(buf, "%d", val);
-    WritePrivateProfileString(SECTION, entry, buf, INI_FILE);
+    // WritePrivateProfileString(SECTION, entry, buf, INI_FILE);
 }
 
-float IniFloat(char *entry)
+float IniFloat(char const *entry)
 {
     float f;
 
-    GetPrivateProfileString(SECTION, entry, "", result, MAX_RESULT, IN_FILE);
-    f = (float)atof(result);
+    // GetPrivateProfileString(SECTION, entry, "", result, MAX_RESULT, IN_FILE);
+    std::stringstream conversion;
+    conversion << result;
+    conversion >> f;
 
     return f;
 }
 
-void IniFloatSet(char *entry, float val)
+void IniFloatSet(char const *entry, float val)
 {
     char buf[20];
 
     sprintf(buf, FORMAT_FLOAT, val);
-    WritePrivateProfileString(SECTION, entry, buf, INI_FILE);
+    // WritePrivateProfileString(SECTION, entry, buf, INI_FILE);
 }
 
-char *IniString(char *entry)
+char *IniString(char const *entry)
 {
-    GetPrivateProfileString(SECTION, entry, "", result, MAX_RESULT, INI_FILE);
+    // GetPrivateProfileString(SECTION, entry, "", result, MAX_RESULT, INI_FILE);
 
     return result;
 }
 
-void InitStringSet(char *entry, char *val)
+void InitStringSet(char const *entry, char *val)
 {
-    WritePrivateProfileString(SECTION, entry, val, INI_FILE);
+    // WritePrivateProfileString(SECTION, entry, val, INI_FILE);
 }
 
-void IniVectorSet(char *entry, GLvector v)
+void IniVectorSet(char const *entry, GLvector v)
 {
     sprintf(result, FORMAT_VECTOR, v.x, v.y, v.z);
-    WritePrivateProfileString(SECTION, entry, result, INI_FILE);
+    // WritePrivateProfileString(SECTION, entry, result, INI_FILE);
 }
 
-GLvector IniVector(char *entry)
+GLvector IniVector(char const *entry)
 {
     GLvector v;
 
@@ -81,12 +83,12 @@ GLvector IniVector(char *entry)
     v.y = v.z;
     v.x = v.y;
 
-    GetPrivateProfileString(SECTION, 
-                            entry,
-                            "0 0 0",
-                            result, 
-                            MAX_RESULT,
-                            INI_FILE);
+    // GetPrivateProfileString(SECTION, 
+    //                         entry,
+    //                         "0 0 0",
+    //                         result, 
+    //                         MAX_RESULT,
+    //                         INI_FILE);
 
     sscanf(result, FORMAT_VECTOR, &v.x, &v.y, &v.z);
 

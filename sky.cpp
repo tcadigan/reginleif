@@ -5,9 +5,8 @@
  * Cheapo gradient sky. This is really lame. Seriously.
  */
 
-#include <windows.h>
 #include <math.h>
-#include <gl\gl.h>
+#include <GL/gl.h>
 
 #include "camera.hpp"
 #include "console.hpp"
@@ -56,14 +55,14 @@ void CSky::Render()
     glClearColor(sky.red, sky.green, sky.blue, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     
-    for(y = 0; u < (SKY_GRID - 1); ++y) {
+    for(y = 0; y < (SKY_GRID - 1); ++y) {
         glBegin(GL_QUAD_STRIP);
         
         for(x = 0; x < SKY_GRID; ++x) {
             glColor3fv(&m_grid[x][y].color.red);
             glVertex3fv(&m_grid[x][y].position.x);
-            glColor3fv(&m_grid[x][y + 1].position.red);
-            glVertex3fv(&m_grid[s][y + 1].position.x);
+            glColor3fv(&m_grid[x][y + 1].color.red);
+            glVertex3fv(&m_grid[x][y + 1].position.x);
         }
 
         glEnd();

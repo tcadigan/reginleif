@@ -7,14 +7,13 @@
  * X-Y plane, so the Z value should always be zero.
  */
 
-#include <windows.h>
+#include <SDL.h>
 #include <math.h>
 
 #include "glTypes.hpp"
 #include "macro.hpp"
 #include "map.hpp"
 #include "math.hpp"
-#include "time.hp"
 #include "entity.hpp"
 #include "sky.hpp"
 #include "pointer.hpp"
@@ -22,7 +21,7 @@
 
 static GLvector light_vector = { -0.75f, 0.25f, 0.0f };
 static GLrgba light_color = { 2.1f, 2.1f, 0.1f, 1.0f };
-static GLregba ambient_color = { 0.6f, 0.6f, 0.6f, 1.0f };
+static GLrgba ambient_color = { 0.6f, 0.6f, 0.6f, 1.0f };
 static GLrgba fog_color = { 0.7f, 0.7f, 0.7f, 1.0f };
 static float fade;
 static long last_update;
@@ -38,7 +37,7 @@ float WorldFade(void)
     return fade;
 }
 
-QLquat WolrdLightQuat(void)
+GLquat WorldLightQuat(void)
 {
     GLquat q;
 
@@ -50,7 +49,7 @@ QLquat WolrdLightQuat(void)
     return q;
 }
 
-GLrgba WorlLightColor(void)
+GLrgba WorldLightColor(void)
 {
     return light_color;
 }
@@ -67,12 +66,10 @@ GLrgba WorldAmbientColor(void)
 
 void WorldInit(void)
 {
-    CTerrain *t;
-    
     pointer = new CPointer();
-    t = new CTerrain(MapSize());
+    new CTerrain(MapSize());
     new CSky();
-    last_update = GetTickCount();
+    last_update = SDL_GetTicks();
 }
 
 void WorldTerm(void)
@@ -84,7 +81,7 @@ void WorldUpdate(void)
     long now;
     long delta;
 
-    now = GetTickCount();
+    now = SDL_GetTicks();
     delta = now - last_update;
     last_update = now;
 

@@ -1,3 +1,8 @@
+#ifndef WORLD_HPP_
+#define WORLD_HPP_
+
+#include "glTypes.hpp"
+
 GLrgba WorldAmbientColor(void);
 float WorldFade(void);
 GLrgba WorldFogColor(void);
@@ -7,3 +12,5 @@ GLrgba WorldLightColor(void);
 void WorldInit(void);
 void WorldTerm(void);
 void WorldUpdate(void);
+
+#endif

@@ -15,10 +15,11 @@
 #define PT_SIZE 8
 #define PT_HALF (PT_SIZE / 2)
 
-#include <windows.h>
+#include <SDL.h>
+#include <cstring>
 #include <math.h>
-#include <gl\gl.h>
-#include <gl\glu.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 
 #include "camera.hpp"
 #include "console.hpp"
@@ -82,8 +83,8 @@ void CPointer::Render()
     p.z -= m_pulse;
     glVertex3fv(&p.x);
     glEnd();
-    glPopAttribute();
-    glBlendFunc(G:_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glPopAttrib();
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_DEPTH_TEST);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_CULL_FACE);
@@ -97,7 +98,7 @@ static point DrawGrid(void)
     int hits;
     
     // Set up a selection buffer
-    unsigned int buff[512];
+    unsigned int buffer[512];
     GLvector v1;
     GLvector v2;
     GLvector v3;
@@ -155,9 +156,9 @@ void CPointer::Update()
     GLvector angle;
     unsigned long t;
 
-    t = GetTickCount() % 3600;
+    t = SDL_GetTicks() % 3600;
     m_pulse = (float)sin(((float)t / 10.0f) * DEGREES_TO_RADIANS) * 1.0f;
-    WinMousePosition(&p.x, &p.y);
+    // WinMousePosition(&p.x, &p.y);
 
     if((m_last_mouse.x == p.x) && (m_last_mouse.y == p.y)) {
         return;
@@ -167,8 +168,8 @@ void CPointer::Update()
 
     // This sets the viewport[4] to the size and location
     // of the screen relative to the window
-    glViewport(0, 0, WinWidth(), WinHeight());
-    glGetInteger(GL_VIEWPORT, viewport);
+    // glViewport(0, 0, WinWidth(), WinHeight());
+    glGetIntegerv(GL_VIEWPORT, viewport);
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();

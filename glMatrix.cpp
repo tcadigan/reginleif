@@ -35,7 +35,7 @@ void *glMatrixCreate(void)
     return (void *)m;
 }
 
-GLMatrix glMatrixIdentity(void)
+GLmatrix glMatrixIdentity(void)
 {
     GLmatrix m;
     int x;
@@ -70,7 +70,7 @@ void glMatrixElementsSet(GLmatrix *m, float *in)
     m->elements[3][0] = in[12];
     m->elements[3][1] = in[13];
     m->elements[3][2] = in[14];
-    m->elemnnts[3][3] = in[15];
+    m->elements[3][3] = in[15];
 }
 
 // A matrix multiplication (dot product) of two 4x4 matrices.
@@ -90,7 +90,7 @@ GLmatrix glMatrixMultiply(GLmatrix a, GLmatrix b)
         + (M(a, 1, 0) * M(b, 2, 1))
         + (M(a, 2, 0) * M(b, 2, 2));
     
-    M(result, 3, 0) = (M(a, 0, 0) * M(n, 3, 0))
+    M(result, 3, 0) = (M(a, 0, 0) * M(b, 3, 0))
         + (M(a, 1, 0) * M(b, 3, 1))
         + (M(a, 2, 0) * M(b, 3, 2))
         + M(a, 3, 0);

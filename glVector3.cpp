@@ -5,10 +5,7 @@
  * Functions for dealing with 3D vectors.
  */
 
-#include <windows.h>
-#include <float.h>
 #include <math.h>
-#include <gl\gl.h>
 #include "macro.hpp"
 #include "math.hpp"
 #include "glTypes.hpp"

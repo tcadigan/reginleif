@@ -1,3 +1,8 @@
+#ifndef MAP_HPP_
+#define MAP_HPP_
+
+#include "glTypes.hpp"
+
 // This defines how many zones the terrain is broken into
 // There are lots of important tradeoffs going on here
 // This affects the density of zones, zone textures, the time
@@ -17,7 +22,7 @@ enum {
 };
 
 GLrgba MapLight(int x, int y);
-float Mapdistance(int x, int y);
+float MapDistance(int x, int y);
 float MapDot(int x, int y);
 float MapElevation(float x, float y);
 float MapLayer(int x, int y, int layer);
@@ -28,3 +33,5 @@ void MapInit(void);
 void MapTerm(void);
 void MapUpdate(void);
 int MapSize(void);
+
+#endif

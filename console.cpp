@@ -12,10 +12,10 @@
  * to the console and get feedback while it's building.
  */
 
-#include <windows.h>
 #include <stdio.h>
+#include <cstdarg>
 
-void Console(char *message, ...)
+void Console(char const *message, ...)
 {
     char msg_text[256];
     va_list marker;

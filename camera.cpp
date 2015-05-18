@@ -10,7 +10,7 @@
 #define EYE_HEIGHT 2.0f
 #define MAX_PITCH 85
 
-#include <windows.h>
+#include <cstdlib>
 #include <math.h>
 
 #include "glTypes.hpp"
@@ -22,8 +22,6 @@
 
 static GLvector angle;
 static GLvector position;
-static float distance;
-static float boost;
 static float movement;
 static bool moving;
 
@@ -86,7 +84,7 @@ void CameraselectionPitch(float delta)
     }
 
     center = MapPosition(selected_cell.x, selected_cell.y);
-    ver_dist = position.y - center.y;
+    vert_dist = position.y - center.y;
     yaw_to = MathAngle(center.x, center.z, position.x, position.z);
     horz_dist = MathDistance(center.x, center.z, position.x, position.z);
     total_dist = MathDistance(0.0f, 0.0f, horz_dist, vert_dist);
@@ -107,7 +105,7 @@ void CameraSelectionZoom(float delta)
     GLvector offset;
     float total_dist;
     CPointer *ptr;
-    point = selected_cell;
+    point  selected_cell;
 
     moving = true;
     ptr = (CPointer *)EntityFindType("pointer", NULL);
@@ -134,17 +132,16 @@ void CameraSelectionYaw(float delta)
     GLvector center;
     float yaw_to;
     float horz_dist;
-    float total_dist;
     float vert_dist;
     CPointer *ptr;
     point selected_cell;
 
-    moving true;
+    moving = true;
     ptr = (CPointer *)EntityFindType("pointer", NULL);
     selected_cell = ptr->Selected();
     delta *= movement;
 
-    if((selecte_cell.x == -1) || (selected_cell.y == -1)) {
+    if((selected_cell.x == -1) || (selected_cell.y == -1)) {
         angle.y -= delta;
 
         return;
@@ -154,7 +151,6 @@ void CameraSelectionYaw(float delta)
     vert_dist = position.y - center.y;
     yaw_to = MathAngle(center.x, center.z, position.x, position.z);
     horz_dist = MathDistance(center.x, center.z, position.x, position.z);
-    total_dist = MathDistance(0.0f, 0.0f, horz_dist, vert_dist);
     angle.y -= MathAngleDifference(angle.y, -yaw_to + 180.0f) / 15.0f;
     yaw_to += delta;
     angle.y -= delta;
@@ -227,5 +223,5 @@ void CameraTerm(void)
 {
     // Just store our most recent position in the ini
     IniVectorSet("CameraAngle", angle);
-    InivectorSet("CameraPosition", position);
+    IniVectorSet("CameraPosition", position);
 }

@@ -1,6 +1,7 @@
-#ifndef TYPES
+#ifndef CAMERA_HPP_
+#define CAMERA_HPP_
+
 #include "glTypes.hpp"
-#endif
 
 GLvector CameraAngle(void);
 void CameraAngleSet(GLvector new_angle);
@@ -18,3 +19,5 @@ void CameraSelectionZoom(float dleta_y);
 void CameraPan(float delta_x);
 void CameraPitch(float delta_y);
 void CameraYaw (float delta_x);
+
+#endif

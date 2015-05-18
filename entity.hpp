@@ -1,22 +1,22 @@
-#ifdnef TYPES
-#include "glTypes.hpp"
-#endif
+#ifndef ENTITY_HPP_
+#define ENTITY_HPP_
 
-#ifndef ENTITY
-#define ENTITY
+#include "glTypes.hpp"
 
 class CEntity {
 public:
     CEntity(void);
-    class CEntity *Next(void);
+    virtual ~CEntity(void);
+
+    CEntity *Next(void);
     virtual void Render(void);
     virtual void RenderFadeIn(void);
     virtual void FadeStart(void);
     virtual void Update(void);
-    virtual char *Type(void);
+    virtual char const *Type(void);
 
 protected:
-    char *m_entity_type;
+    char const *m_entity_type;
 
 private:
     CEntity *next;
@@ -24,7 +24,7 @@ private:
 
 void EntityUpdate(void);
 void EntityInit(void);
-CEntity *EntityFindTryp(char *type, CEntity *start);
+CEntity *EntityFindType(char const *type, CEntity *start);
 void EntityTerm(void);
 void EntityRender(void);
 void EntityRenderFadeIn(void);

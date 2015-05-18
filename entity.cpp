@@ -6,15 +6,15 @@
  * An entity is any renderable object in the worl. This is an abstract class.
  */
 
-#include <windows.h>
 #include <math.h>
-#include <gl\gl.h>
+#include <cstring>
+#include <GL/gl.h>
 
 #include "camera.hpp"
 #include "entity.hpp"
 #include "map.hpp"
 #include "sky.hpp"
-#inlcude "terrain.hpp"
+#include "terrain.hpp"
 
 static class CEntity *head;
 
@@ -31,16 +31,16 @@ void EntityInit(void)
 {
 }
 
-CEntity *EntityFindType(char *type, CEntity *start)
+CEntity *EntityFindType(char const *type, CEntity *start)
 {
     CEntity *e;
 
     if(start != NULL) {
-        stat = head;
+        start = head;
     }
 
     for(e = start; e != NULL; e = e->Next()) {
-        if(stricmp(typ, e->Type()) == 0) {
+        if(strcmp(type, e->Type()) == 0) {
             return e;
         }
     }
@@ -51,7 +51,7 @@ CEntity *EntityFindType(char *type, CEntity *start)
 void EntityTerm(void)
 {
     CEntity *e;
-    Centity *next;
+    CEntity *next;
 
     e = head;
     
@@ -62,7 +62,7 @@ void EntityTerm(void)
     }
 }
 
-void EntityReader(void)
+void EntityRender(void)
 {
     class CEntity *e;
     
@@ -86,15 +86,6 @@ void EntityFadeStart(void)
 
     for(e = head; e != NULL; e = e->Next()) {
         e->RenderFadeIn();
-    }
-}
-
-void EntityFadeStart(void)
-{
-    class CEntity *e;
-
-    for(e = head; e != NULL; e = e->Next()) {
-        e->FadeStart();
     }
 }
 
@@ -128,7 +119,11 @@ void CEntity::FadeStart()
 {
 }
 
-char *CEntity::Type()
+char const *CEntity::Type()
 {
     return m_entity_type;
+}
+
+CEntity::~CEntity(void)
+{
 }

@@ -7,12 +7,10 @@
 
 #define MAX_STRING 128
 
-#include <windows.h>
 #include <stdio.h>
-#include <gl\gl.h>
-#include <gl\glu.h>
-#include <gl\glaux.h>
-#include <gl\glext.h>
+#include <cstring>
+#include <cstdlib>
+#include <GL/gl.h>
 
 #include "console.hpp"
 
@@ -22,32 +20,32 @@ struct texture {
     char name[16];
     char *image_name;
     char *mask_name;
-    AUX_RGBImageRec *image;
+    // AUX_RGBImageRec *image;
 };
 
 static struct texture *head_texture;
 
-static AUX_RGBImageRec *LoadBMP(char *Filename)
-{
-    FILE *File = NULL;
+// static AUX_RGBImageRec *LoadBMP(char *Filename)
+// {
+//     FILE *File = NULL;
     
-    if(Filename == NULL) {
-        return NULL;
-    }
+//     if(Filename == NULL) {
+//         return NULL;
+//     }
 
-    File = fopen(Filename, "r");
+//     File = fopen(Filename, "r");
 
-    if(File != 0) {
-        fclose(file);
+//     if(File != 0) {
+//         fclose(file);
 
-        return auxDIBImageLoad(Filename);
-    }
+//         return auxDIBImageLoad(Filename);
+//     }
 
-    return NULL;
-}
+//     return NULL;
+// }
 
 // Texture id
-static struct texture *LoadTexture(char *name)
+static struct texture *LoadTexture(char const *name)
 {
     char filename[MAX_STRING];
     struct texture *t;
@@ -55,13 +53,13 @@ static struct texture *LoadTexture(char *name)
     t = new struct texture;
     strcpy(t->name, name);
     sprintf(filename, "textures/%s.bmp", name);
-    t->image = LoadBMP(filename);
+    // t->image = LoadBMP(filename);
 
-    if(t->image == NULL) {
-        t->id = 0;
+    // if(t->image == NULL) {
+    //     t->id = 0;
         
-        return t;
-    }
+    //     return t;
+    // }
 
     // Create the texture
     glGenTextures(1, &t->id);
@@ -69,18 +67,18 @@ static struct texture *LoadTexture(char *name)
     // Typical texture generation using data from the bitmap
     glBindTexture(GL_TEXTURE_2D, t->id);
 
-    // Generate the texture
-    glTexImage2D(GL_TEXTURE_2D,
-                 0,
-                 3, 
-                 t->image->sizeX,
-                 t->image->sizeY,
-                 0,
-                 GL_RGB,
-                 GL_UNSIGNED_BYTE,
-                 t->image->data);
+    // // Generate the texture
+    // glTexImage2D(GL_TEXTURE_2D,
+    //              0,
+    //              3, 
+    //              t->image->sizeX,
+    //              t->image->sizeY,
+    //              0,
+    //              GL_RGB,
+    //              GL_UNSIGNED_BYTE,
+    //              t->image->data);
 
-    free(t->image);
+    // free(t->image);
     
     // Linear filtering
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -94,12 +92,12 @@ static struct texture *LoadTexture(char *name)
     return t;
 }
 
-unsigned int TextureFromName(char *name)
+unsigned int TextureFromName(char const*name)
 {
     struct texture *t;
     
     for(t = head_texture; t != NULL; t = t->next) {
-        if(stricmp(name, t->name) == 0) {
+        if(strcmp(name, t->name) == 0) {
             return t->id;
         }
     }

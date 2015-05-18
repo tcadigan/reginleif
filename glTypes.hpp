@@ -1,5 +1,5 @@
-#ifndef GLTYPES
-#define GLTYPES
+#ifndef GL_TYPES_HPP_
+#define GL_TYPES_HPP_
 
 struct GLquat {
     float x;
@@ -14,7 +14,7 @@ struct GLvector {
     float z;
 };
 
-typedef GLVector GLvector3;
+typedef GLvector GLvector3;
 
 struct GLvector2 {
     float x;
@@ -28,11 +28,11 @@ struct GLrgba {
     float alpha;
 };
 
-struct GLmatix {
+struct GLmatrix {
     float elements[4][4];
 };
 
-struct GLBbox {
+struct GLbbox {
     GLvector3 min;
     GLvector3 max;
 };
@@ -45,16 +45,16 @@ GLrgba glRgba(float red, float green, float blue);
 GLrgba glRgba(float luminance);
 GLrgba glRgba(float red, float green, float blue, float alpha);
 GLrgba glRgba(long c);
-GLrgba glRgbaAdd(GLrgba c1, GLrgba c1);
+GLrgba glRgbaAdd(GLrgba c1, GLrgba c2);
 GLrgba glRgbaSubtract(GLrgba c1, GLrgba c2);
 GLrgba glRgbaInterpolate(GLrgba c1, GLrgba c2, float delta);
 GLrgba glRgbaScale(GLrgba c, float scale);
 GLrgba glRgbaMultiply(GLrgba c1, GLrgba c2);
 
 GLmatrix glMatrixIdentity(void);
-void glMatrixElementsSet(GLMatrix *m, float* in);
+void glMatrixElementsSet(GLmatrix *m, float *in);
 GLmatrix glMatrixMultiply(GLmatrix a, GLmatrix b);
-GLvector glMatrixTransformPoint(GLMatrix m, GLvector in);
+GLvector glMatrixTransformPoint(GLmatrix m, GLvector in);
 GLmatrix glMatrixRotate(GLmatrix m, float theta, float x, float y, float z);
 
 GLquat glQuat(float x, float y, float z, float w);
@@ -76,8 +76,4 @@ GLvector2 glVector(float x, float y);
 GLvector2 glVectorAdd(GLvector2 val1, GLvector val2);
 GLvector2 glVectorSubtract(GLvector2 val1, GLvector val2);
 
-#endif
-
-#ifndef NULL
-#define NULL 0
 #endif

@@ -5,8 +5,7 @@
  * Functions for dealing with RGBA color values.
  */
 
-#include <windows.h>
-#include <gl\gl.h>
+#include <GL/gl.h>
 #include "math.hpp"
 #include "glTypes.hpp"
 
@@ -22,12 +21,12 @@ GLrgba glRgbaInterpolate(GLrgba c1, GLrgba c2, float delta)
     return result;
 }
 
-GLrgba glRgba(GLrgba c1, GLrgba c2)
+GLrgba glRgbaAdd(GLrgba c1, GLrgba c2)
 {
     GLrgba result;
 
     result.red = c1.red + c2.red;
-    result.green = c1.green + c2.gree;
+    result.green = c1.green + c2.green;
     result.blue = c1.blue + c2.blue;
 
     return result;
@@ -44,7 +43,7 @@ GLrgba glRgbaSubtract(GLrgba c1, GLrgba c2)
     return result;
 }
 
-GLrgba glRgbaMultiply(GLrgba c1, Glrgba c2)
+GLrgba glRgbaMultiply(GLrgba c1, GLrgba c2)
 {
     GLrgba result;
 
@@ -92,9 +91,9 @@ GLrgba glRgba(long c)
 {
     GLrgba result;
 
-    result.red = (float)GetRValue(c) / 255.0f;
-    result.green = (float)GetGValue(c) / 255.0f;
-    result.blue = (float)GetBValue(c) / 255.0f;
+    result.red = (float)((c & 0x000000FF) >> 16) / 255.0f;
+    result.green = (float)((c & 0x0000FF00) >> 8) / 255.0f;
+    result.blue = (float)(c & 0x00FF0000) / 255.0f;
     result.alpha = 1.0f;
 
     return result;

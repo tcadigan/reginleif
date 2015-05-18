@@ -1,3 +1,6 @@
+#ifndef MATH_HPP_
+#define MATH_HPP_
+
 float MathAngle(float x1, float y1, float x2, float y2);
 float MathAngleDifference(float a1, float a2);
 float MathAverage(float n1, float n2);
@@ -12,3 +15,5 @@ float MathLine_distance(float x1,
 float MathDistance(float x1, float y1, float x2, float y2);
 float MathDistance2(float x1, float y1, float x2, float y2);
 float MathSmoothStep(float val, float a, float b);
+
+#endif

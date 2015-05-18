@@ -1,6 +1,7 @@
-#ifndef ENTITY
+#ifndef SKY_HPP_
+#define SKY_HPP_
+
 #include "entity.hpp"
-#endif
 
 #define SKY_GRID 21
 #define SKY_HALF (SKY_GRID / 2)
@@ -20,3 +21,5 @@ public:
 private:
     sky_point m_grid[SKY_GRID][SKY_GRID];
 };
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef MACRO_HPP_
+#define MACRO_HPP_
+
 #define DEGREES_TO_RADIANS .017453292f
 #define RADIANS_TO_DEGREES 57.29577951f
 #define PI (double)3.1415926535f
@@ -13,3 +16,5 @@
 #define MAX(x, y) ((x) > (y) ? x : y)
 #define POW(x, y) (float)pow(x, y)
 #define SWAP(a, b) {int temp = a; a = b; b = temp;}
+
+#endif

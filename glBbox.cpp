@@ -14,7 +14,7 @@
 #include "glTypes.hpp"
 
 // Does the given point fall within the given Bbox?
-bool glBboxTestPoint(GLBbox box, GLvector point)
+bool glBboxTestPoint(GLbbox box, GLvector point)
 {
     if((point.x > box.max.x) || (point.x < box.min.x)) {
         return false;

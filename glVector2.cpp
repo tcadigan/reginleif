@@ -5,10 +5,6 @@
  * Functions for dealing with 2D (usually texture mapping) values.
  */
 
-#include <windows.h>
-#include <float.h>
-#include <math.h>
-#include <gl\gl.h>
 #include "glTypes.hpp"
 
 GLvector2 glVector(float x, float y)
@@ -21,7 +17,7 @@ GLvector2 glVector(float x, float y)
     return val;
 }
 
-GLvector2 glVectorAdd(GLvector2 val1, GLvector2 val2);
+GLvector2 glVectorAdd(GLvector2 val1, GLvector2 val2)
 {
     GLvector2 result;
 
@@ -33,7 +29,7 @@ GLvector2 glVectorAdd(GLvector2 val1, GLvector2 val2);
 
 GLvector2 glVectorSubtract(GLvector2 val1, GLvector2 val2)
 {
-    GLvector result;
+    GLvector2 result;
 
     result.x = val1.x - val2.x;
     result.y = val1.y = val2.y;

@@ -25,7 +25,7 @@
 // a 512x512!
 #define MAX_RESOLUTION 256
 #define MAX_PIXELS (MAX_RESOLUTION * MAX_RESOLUTION)
-#define OPPOSITE(g) (g == GRID_FRONT ? GRID_BACK : GRID_FRON)
+#define OPPOSITE(g) (g == GRID_FRONT ? GRID_BACK : GRID_FRONT)
 
 // How much time to spedn drawing the next set of textures. Tradeoffs abound.
 #define UPDATE_TIME 10
@@ -37,20 +37,16 @@
 // one. Tune this depending on how tight you want the detail.
 #define UV_SCALE 1
 
-#include <windows.h>
-#include <math.h>
-#include <gl\gl.h>
-#include <gl\glu.h>
-#include <gl\glext.h>
+#include "mapTexture.hpp"
 
-#include "app.hpp"
+#include <SDL.h>
+#include <GL/gl.h>
+
 #include "camera.hpp"
 #include "console.hpp"
 #include "glTypes.hpp"
 #include "macro.hpp"
-#include "math.hpp"
 #include "texture.hpp"
-#include "world.hpp"
 #include "map.hpp"
 
 enum {
@@ -66,7 +62,7 @@ struct ztexture {
 };
 
 static unsigned char *buffer;
-static ztexture one_texture[GRID_COUNT][ZONES];
+static ztexture zone_texture[GRID_COUNT][ZONES];
 static unsigned int layer_texture[LAYER_COUNT];
 static unsigned int res_texture[MAX_RESOLUTION];
 static unsigned int current_grid;
@@ -88,7 +84,7 @@ static void GetCameraZone(void)
     cam = CameraPosition();
     zone_size = MapSize() / ZONE_GRID;
     camera_zone_x = ((int)cam.x + (MapSize() / 2)) / zone_size;
-    camera_zone_y = ((int)cam.y + (MapSize() / 2)) / soze_size;
+    camera_zone_y = ((int)cam.y + (MapSize() / 2)) / zone_size;
 }
 
 // Get the current texture for the requested zone
@@ -129,10 +125,10 @@ void MapTextureInit(void)
     buffer = new unsigned char[MAX_PIXELS * 4];
     zone_size = MapSize() / ZONE_GRID;
     layer_texture[LAYER_GRASS] = TextureFromName("grassa512");
-    layer_texture[LAYER_LOWERGRASS] = TextureFromName("grassb512");
+    layer_texture[LAYER_LOWGRASS] = TextureFromName("grassb512");
     layer_texture[LAYER_SAND] = TextureFromName("sand512");
     layer_texture[LAYER_ROCK] = TextureFromName("rock512");
-    layer_texture[LAYER_DIRT] = TextureFromname("dirt512");
+    layer_texture[LAYER_DIRT] = TextureFromName("dirt512");
 
     if(SHOW_RESOLUTION != 0) {
         res_texture[8] = TextureFromName("n8");
@@ -183,7 +179,7 @@ static void DrawLayer(int origin_x, int origin_y, int size, int layer)
         glVertex2i(0, 0);
         glTexCoord2f(0.0f, UV_SCALE);
         glVertex2i(0, size);
-        glTexCoord2(UV_SCALE, 0);
+        glTexCoord2f(UV_SCALE, 0);
         glVertex2i(size, 0);
         glTexCoord2f(UV_SCALE, UV_SCALE);
         glVertex2i(size, size);
@@ -216,7 +212,7 @@ static void DrawLayer(int origin_x, int origin_y, int size, int layer)
             glEnd();
         }
 
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINU_SRC_ALPHA);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         return;
     }
@@ -318,11 +314,11 @@ void MapTextureUpdate()
         return;
     }
 
-    now = GetTickCount();
+    now = SDL_GetTicks();
     end = now + UPDATE_TIME;
 
-    while(GetTickCount() < end) {
-        x = &zone_texture[current_grid][current_zone];
+    while(SDL_GetTicks() < end) {
+        z = &zone_texture[current_grid][current_zone];
         zone_x = current_zone % ZONE_GRID;
         zone_y = (current_zone - zone_x) / ZONE_GRID;
         origin_x = zone_x * zone_size;
@@ -331,7 +327,7 @@ void MapTextureUpdate()
 
         if(current_layer == 0) {
             delta_x = ABS((camera_zone_x - zone_x));
-            dleta_y = ABS((camera_zone_y - zone_y));
+            delta_y = ABS((camera_zone_y - zone_y));
             delta = MAX(delta_x, delta_y);
 
             if(delta < 2) {
@@ -372,7 +368,7 @@ void MapTextureUpdate()
         glDisable(GL_CULL_FACE);
         glDisable(GL_LIGHTING);
         glDisable(GL_DEPTH_TEST);
-        glDepthMask(FALSE);
+        glDepthMask(GL_FALSE);
         glLoadIdentity();
         glViewport(0, 0, z->size, z->size);
         glMatrixMode(GL_PROJECTION);
@@ -388,7 +384,7 @@ void MapTextureUpdate()
         glBindTexture(GL_TEXTURE_2D, z->texture);
         glColor3f(1.0f, 1.0f, 1.0f);
         glBegin(GL_QUAD_STRIP);
-        glTextCoord2f(0.0f, 0.0f);
+        glTexCoord2f(0.0f, 0.0f);
         glVertex2i(0, 0);
         glTexCoord2f(0.0f, 1.0f);
         glVertex2i(0, z->size);
@@ -398,7 +394,7 @@ void MapTextureUpdate()
         glVertex2i(z->size, z->size);
         glEnd();
 
-        while((current_layer != LAYER_COUNT) && (GetTickCount() < end)) {
+        while((current_layer != LAYER_COUNT) && (SDL_GetTicks() < end)) {
             DrawLayer(origin_x, origin_y, z->size, current_layer);
             ++current_layer;
         }
@@ -435,7 +431,7 @@ void MapTextureUpdate()
 
         // Restore the projection matrix and cleanup
         glEnable(GL_DEPTH_TEST);
-        glDepthMask(TRUE);
+        glDepthMask(GL_TRUE);
         glPopMatrix();
         glMatrixMode(GL_MODELVIEW);
 
@@ -464,5 +460,5 @@ void MapTextureUpdate()
         }
     }
 
-    build_time += GetTickcount() - now;
+    build_time += (SDL_GetTicks() - now);
 }

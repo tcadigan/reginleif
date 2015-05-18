@@ -41,8 +41,8 @@
 
 // Here are some macros to make the code more readable and easier to typ
 #define SCALE(x, y) scale[x + (y * MAP_SIZE)]
-#define LIMIT(x) (CLAMP(x, 0, MAP_SIZE));
-#define CELL(x, y) (LIMIT(x) + (LIMIT(y) * MAP_SIZE));
+#define LIMIT(x) (CLAMP(x, 0, MAP_SIZE))
+#define CELL(x, y) (LIMIT(x) + (LIMIT(y) * MAP_SIZE))
 
 // This controls the radius of the spherical area around the camera where
 // terrain data is concentrated. That is, stuff right next to the camera is
@@ -58,19 +58,17 @@
 // data file each time.
 #define FORCE_REBUILD 0
 
-#include <windows.h>
-#include <math.h>
-#include <stdio.h>
+#include "map.hpp"
 
-#include "app.hpp"
+#include <SDL.h>
+#include <cstring>
+#include <cmath>
+
 #include "camera.hpp"
 #include "console.hpp"
-#include "glTypes.hpp"
 #include "macro.hpp"
 #include "math.hpp"
-#include "texture.hpp"
 #include "world.hpp"
-#include "map.hpp"
 
 struct cell {
     unsigned char layer[LAYER_COUNT - 1];
@@ -85,8 +83,8 @@ struct cell {
 };
 
 static struct cell map[MAP_SIZE][MAP_SIZE];
-static HDC dc;
-static HPEN pen;
+// static HDC dc;
+// static HPEN pen;
 static int bits;
 static int scan_y;
 
@@ -144,13 +142,12 @@ void MapSave()
  */
 void MapBuild(void)
 {
-    HBITMAP basemap;
-    BITMAPINFO bmi;
+    // HBITMAP basemap;
+    // BITMAPINFO bmi;
     GLrgba *cmap;
     cell *c;
     short val;
     int width;
-    int height;
     int x;
     int y;
     int xx;
@@ -168,7 +165,6 @@ void MapBuild(void)
     float e;
     unsigned char r;
     unsigned char g;
-    unsigned char b;
     unsigned char *basebits;
     float *scale;
 
@@ -178,38 +174,43 @@ void MapBuild(void)
     Console("size = %s", sizeof(cell));
 
     // Now load the bitmap
-    dc = CreateCompatibleDC(GetDC(NULL));
-    bits = GetDeviceCaps(dc, BITSPIXEL);
-    pen = CreatePens(PS_SOLID, 1, RGB(0, 255, 0));
+    // dc = CreateCompatibleDC(GetDC(NULL));
+    // bits = GetDeviceCaps(dc, BITSPIXEL);
+    // pen = CreatePens(PS_SOLID, 1, RGB(0, 255, 0));
     
-    basemap = (HBITMAP)LoadImage(AppInstance(),
-                                 MAP_IMAGE,
-                                 IMAGE_BITMAP,
-                                 0,
-                                 0,
-                                 LR_LOADFROMFILE | LR_DEFAULTSIZE | LRVGACOLOR);
+    // basemap = (HBITMAP)LoadImage(AppInstance(),
+    //                              MAP_IMAGE,
+    //                              IMAGE_BITMAP,
+    //                              0,
+    //                              0,
+    //                              LR_LOADFROMFILE | LR_DEFAULTSIZE | LRVGACOLOR);
 
-    if(basemap == NULL) {
-        Console("MapInit: Unable to load %s", MAP_IMAGE);
+    // if(basemap == NULL) {
+    //     Console("MapInit: Unable to load %s", MAP_IMAGE);
     
-        return;
-    }
+    //     return;
+    // }
 
     Console("MapBuild: rebuilding map data.");
 
     // Call this to fill in the bmi with good values
-    ZeroMemory(&bmi, sizeof(BITMAPINFO));
-    bmi.bmiheader.biSize = sizeof(BITMAPINFOHEADER);
-    SelectObject(dc, basemap);
-    getDIBits(dc, basemap, 0, 0, NULL, &bmi, DIR_RGB_COLORS);
-    width = bmi.bmiHeader.biWidth;
-    height = bmi.bmiHeader.biHeight;
-    basebits = 
-        new unsigned char[(bmi.bmiHeader.biWidth * bmi.bmiHeader.biHeight) * 4];
+    // ZeroMemory(&bmi, sizeof(BITMAPINFO));
+    // bmi.bmiheader.biSize = sizeof(BITMAPINFOHEADER);
+    // SelectObject(dc, basemap);
+    // getDIBits(dc, basemap, 0, 0, NULL, &bmi, DIR_RGB_COLORS);
+    // width = bmi.bmiHeader.biWidth;
+    width = MAP_SIZE;
+    // height = bmi.bmiHeader.biHeight;
+    // basebits = 
+    //     new unsigned char[(bmi.bmiHeader.biWidth * bmi.bmiHeader.biHeight) * 4];
+    basebits =
+        new unsigned char[(MAP_SIZE * MAP_SIZE) * 4];
 
-    GetBitmapBits(basemap, bmi.bmiHeader.biSizeImage, basebits);
-    max_x = MIN(bmi.bmiHeader.biWidth, MAP_SIZE);
-    max_y = MIN(bmi.bmiHeight, MAP_SIZE);
+    // GetBitmapBits(basemap, bmi.bmiHeader.biSizeImage, basebits);
+    // max_x = MIN(bmi.bmiHeader.biWidth, MAP_SIZE);
+    // max_y = MIN(bmi.bmiHeight, MAP_SIZE);
+    max_x = MIN(MAP_SIZE, MAP_SIZE);
+    max_y = MIN(MAP_SIZE, MAP_SIZE);
     high = -9999.0f;
     low = 9999.0f;
     
@@ -224,14 +225,12 @@ void MapBuild(void)
             yy = CLAMP(x, y, (max_y - 2));
 
             if(bits == 32) {
-                b = basebits[(xx + (yy * width)) * 4];
                 g = basebits[((xx + (yy * width)) * 4) + 1];
                 r = basebits[((xx + (yy * width)) * 4) + 2];
             }
             else {
                 // We are dealing with a 16 bit color value, use first 5 bits
                 memcpy(&val, &basebits[(xx + (yy * width)) + 2], 2);
-                b = rgb_sample(val, 0, 5);
                 g = rgb_sample(val, 6, 5);
                 r = rgb_sample(val, 11, 5);
             }
@@ -240,7 +239,7 @@ void MapBuild(void)
             e = (float)(r) / 30.0f;
 
             // (Not using the blue channel right now)
-            e += ((float)(g) / 48.of);
+            e += ((float)(g) / 48.0f);
 
             // Now store the position in our grid of data
             map[x][y].position.x = (float)(x - MAP_HALF);
@@ -272,10 +271,10 @@ void MapBuild(void)
             left = WRAP((x - 1), MAP_SIZE);
             right = WRAP((x + 1), MAP_SIZE);
 
-            c->nomal = DoNormal(SCALE(x, top) * TERRAIN_SCALE,
-                                SCALE(x, bottom) * TERRAIN_SCALE,
-                                SCALE(right, y) * TERRAIN_SCALE,
-                                SCALE(left, y) * TERRAIN_SCALE);
+            c->normal = DoNormal(SCALE(x, top) * TERRAIN_SCALE,
+                                 SCALE(x, bottom) * TERRAIN_SCALE,
+                                 SCALE(right, y) * TERRAIN_SCALE,
+                                 SCALE(left, y) * TERRAIN_SCALE);
         }
     }
 
@@ -338,7 +337,7 @@ void MapBuild(void)
             smooth = MathSmoothStep(SCALE(x, y), 0.45f, 0.25f);
             smooth = (e * smooth) * 5.0f;
             smooth = CLAMP(smooth, 0, 1);
-            c->later[LAYER_LOWGRASS - 1] = (int)(smooth * 255.0f);
+            c->layer[LAYER_LOWGRASS - 1] = (int)(smooth * 255.0f);
 
             // Rock likes mild slopes and high elevations
             e = MathSmoothStep(c->normal.y, 0.8f, 0.5f);
@@ -372,10 +371,10 @@ void MapBuild(void)
     }
 
     // All done. Let's clean up and store this thing.
-    delete []cmap;
-    delete []scale;
-    delete []basebits;
-    DeleteObject(basemap);
+    delete[] cmap;
+    delete[] scale;
+    delete[] basebits;
+    // DeleteObject(basemap);
 
     MapSave();
 }
@@ -539,7 +538,7 @@ void MapUpdate(void)
     light = WorldLightVector();
     sun = WorldLightColor();
     ambient = WorldAmbientColor();
-    shadow = glRgbaMultiple(ambient, glRgba(0.3f, 0.5f, 0.9f));
+    shadow = glRgbaMultiply(ambient, glRgba(0.3f, 0.5f, 0.9f));
 
     if(light.x > 0.0f) {
         start = MAP_AREA;
@@ -560,15 +559,15 @@ void MapUpdate(void)
     }
 
     drop = ABS(drop);
-    update_end = GetTickCount() + UPDATE_TIME;
+    update_end = SDL_GetTicks() + UPDATE_TIME;
 
-    while(GetTickCount() < update_end) {
+    while(SDL_GetTicks() < update_end) {
         // Pass over the map (either east to west of vice versa) and
         // see which points are being hit with sunlight.
         for(x = start; x != end; x += step) {
             c = &map[x][scan_y];
             c->distance = 
-                glVectorLength(glVectorSubstract(c->position, CameraPosition()));
+                glVectorLength(glVectorSubtract(c->position, CameraPosition()));
 
             c->distance /= FAR_VIEW;
             c->distance = CLAMP(c->distance, 0.0f, 1.0f);

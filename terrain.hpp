@@ -1,6 +1,7 @@
-#ifndef ENTITY
+#ifndef TERRAIN_HPP_
+#define TERRAIN_HPP_
+
 #include "entity.hpp"
-#endif
 
 enum build_stage {
     // Check for the need to begin building
@@ -54,7 +55,7 @@ private:
     float m_tolerance;
 
     void Compile(void);
-    void CompileBack(int x, int y, int size);
+    void CompileBlock(int x, int y, int size);
     void CompileTriangle(int x1, int y1, int x2, int y2, int x3, int y3);
     void CompileVertex(int x, int y);
     void CompileStrip(int x1,
@@ -74,7 +75,7 @@ private:
                     int y3,
                     int x4,
                     int y4,
-                    inx x5,
+                    int x5,
                     int y5);
 
     void CompileFan(int x1,
@@ -82,6 +83,8 @@ private:
                     int x2,
                     int y2,
                     int x3,
+                    int y3,
+                    int x4,
                     int y4,
                     int x5,
                     int y5,
@@ -90,6 +93,7 @@ private:
 
     void GridStep(void);
     void DoQuad(int x, int y, int size);
-    void PointActivate(int x, int y)
+    void PointActivate(int x, int y);
 };
     
+#endif
