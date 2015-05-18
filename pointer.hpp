@@ -1,8 +1,8 @@
 #ifndef POINTER_HPP_
 #define POINTER_HPP_
 
-#include "glTypes.hpp"
 #include "entity.hpp"
+#include "gl-vector3.hpp"
 
 struct point {
     int x;
@@ -21,7 +21,7 @@ public:
 private:
     int texture_;
 
-    GLvector position_;
+    GLvector3 position_;
     point last_mouse_;
     point last_cell_;
     float pulse_;

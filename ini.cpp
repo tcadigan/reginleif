@@ -67,15 +67,15 @@ void InitStringSet(char const *entry, char *val)
     // WritePrivateProfileString(SECTION, entry, val, INI_FILE);
 }
 
-void IniVectorSet(char const *entry, GLvector v)
+void IniVectorSet(char const *entry, GLvector3 v)
 {
     sprintf(result, FORMAT_VECTOR, v.x, v.y, v.z);
     // WritePrivateProfileString(SECTION, entry, result, INI_FILE);
 }
 
-GLvector IniVector(char const *entry)
+GLvector3 IniVector(char const *entry)
 {
-    GLvector v;
+    GLvector3 v;
 
     v.z = 0.0f;
     v.y = v.z;

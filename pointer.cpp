@@ -32,8 +32,8 @@ void CPointer::Render()
 {
     int cell_x;
     int cell_y;
-    GLvector p;
-    GLvector pos = CameraPosition();
+    GLvector3 p;
+    GLvector3 pos = CameraPosition();
 
     glPushAttrib(GL_POLYGON_BIT | GL_LIGHTING_BIT | GL_FOG_BIT);
     glDisable(GL_DEPTH_TEST);
@@ -96,10 +96,10 @@ static point DrawGrid(void)
     
     // Set up a selection buffer
     unsigned int buffer[512];
-    GLvector v1;
-    GLvector v2;
-    GLvector v3;
-    GLvector v4;
+    GLvector3 v1;
+    GLvector3 v2;
+    GLvector3 v3;
+    GLvector3 v4;
     point cell;
 
     memset(buffer, 0, sizeof(buffer));
@@ -149,8 +149,8 @@ void CPointer::Update()
 {
     point p;
     int viewport[4];
-    GLvector pos;
-    GLvector angle;
+    GLvector3 pos;
+    GLvector3 angle;
     unsigned long t;
 
     t = SDL_GetTicks() % 3600;

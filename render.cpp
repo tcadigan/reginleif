@@ -14,7 +14,7 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include "glTypes.hpp"
+#include "gl-rgba.hpp"
 #include "camera.hpp"
 #include "entity.hpp"
 #include "world.hpp"
@@ -130,8 +130,8 @@ void RenderUpdate(void)
     GLrgba light_color;
     GLrgba ambient_color;
     GLrgba fog_color;
-    GLvector pos;
-    GLvector angle;
+    GLvector3 pos;
+    GLvector3 angle;
 
     light_vector = WorldLightQuat();
     light_color = WorldLightColor();

@@ -77,8 +77,8 @@ struct cell {
     // Move this to low-res sub-map?
     float distance;
     
-    GLvector position;
-    GLvector normal;
+    GLvector3 position;
+    GLvector3 normal;
     GLrgba  light;
 };
 
@@ -92,9 +92,9 @@ static int scan_y;
  * This will take the given elevations and calculate the resulting 
  * surface normal.
  */
-static GLvector DoNormal(float north, float south, float east, float west)
+static GLvector3 DoNormal(float north, float south, float east, float west)
 {
-    GLvector result;
+    GLvector3 result;
 
     result.x = west - east;
     result.y = 2.0f;
@@ -466,7 +466,7 @@ int MapSize()
     return MAP_AREA;
 }
 
-GLvector MapPosition(int x, int y)
+GLvector3 MapPosition(int x, int y)
 {
     x = CLAMP(x, 0, MAP_AREA);
     y = CLAMP(y, 0, MAP_AREA);
@@ -524,7 +524,7 @@ void MapUpdate(void)
     int start;
     int end;
     int step;
-    GLvector light;
+    GLvector3 light;
     GLrgba ambient;
     GLrgba sun;
     GLrgba shadow;

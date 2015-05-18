@@ -17,7 +17,7 @@
 #include "pointer.hpp"
 #include "terrain.hpp"
 
-static GLvector light_vector = { -0.75f, 0.25f, 0.0f };
+static GLvector3 light_vector = { -0.75f, 0.25f, 0.0f };
 static GLrgba light_color = { 2.1f, 2.1f, 0.1f, 1.0f };
 static GLrgba ambient_color = { 0.6f, 0.6f, 0.6f, 1.0f };
 static GLrgba fog_color = { 0.7f, 0.7f, 0.7f, 1.0f };
@@ -25,7 +25,7 @@ static float fade;
 static long last_update;
 static CPointer *pointer;
 
-GLvector WorldLightVector(void)
+GLvector3 WorldLightVector(void)
 {
     return light_vector;
 }

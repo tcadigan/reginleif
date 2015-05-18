@@ -1,8 +1,6 @@
 #ifndef ENTITY_HPP_
 #define ENTITY_HPP_
 
-#include "glTypes.hpp"
-
 class CEntity {
 public:
     CEntity(void);

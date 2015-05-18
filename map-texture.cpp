@@ -44,7 +44,6 @@
 
 #include "camera.hpp"
 #include "console.hpp"
-#include "glTypes.hpp"
 #include "macro.hpp"
 #include "texture.hpp"
 #include "map.hpp"
@@ -78,7 +77,7 @@ static int zone_size;
 // Which zone is the camera over?
 static void GetCameraZone(void)
 {
-    GLvector cam;
+    GLvector3 cam;
     int zone_size;
 
     cam = CameraPosition();

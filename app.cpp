@@ -10,7 +10,6 @@
 // #include "camera.hpp"
 // #include "console.hpp"
 // #include "entity.hpp"
-// #include "glTypes.hpp"
 // #include "map.hpp"
 // #include "mapTexture.hpp"
 // #include "render.hpp"

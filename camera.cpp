@@ -21,8 +21,8 @@
 #include "math.hpp"
 #include "pointer.hpp"
 
-static GLvector angle;
-static GLvector position;
+static GLvector3 angle;
+static GLvector3 position;
 static float movement;
 static bool moving;
 
@@ -64,7 +64,7 @@ void CameraForward(float delta)
 
 void CameraselectionPitch(float delta)
 {
-    GLvector center;
+    GLvector3 center;
     float pitch_to;
     float yaw_to;
     float horz_dist;
@@ -102,8 +102,8 @@ void CameraselectionPitch(float delta)
 
 void CameraSelectionZoom(float delta)
 {
-    GLvector center;
-    GLvector offset;
+    GLvector3 center;
+    GLvector3 offset;
     float total_dist;
     CPointer *ptr;
     point  selected_cell;
@@ -130,7 +130,7 @@ void CameraSelectionZoom(float delta)
 
 void CameraSelectionYaw(float delta)
 {
-    GLvector center;
+    GLvector3 center;
     float yaw_to;
     float horz_dist;
     float vert_dist;
@@ -161,12 +161,12 @@ void CameraSelectionYaw(float delta)
     position.z = center.z - (float)cos(yaw_to * DEGREES_TO_RADIANS) * horz_dist;
 }
 
-GLvector CameraPosition(void)
+GLvector3 CameraPosition(void)
 {
     return position;
 }
 
-void CameraPositionSet(GLvector new_pos)
+void CameraPositionSet(GLvector3 new_pos)
 {
     float limit;
     float elevation;
@@ -180,12 +180,12 @@ void CameraPositionSet(GLvector new_pos)
     position.y = MAX(elevation, position.y);
 }
 
-GLvector CameraAngle(void)
+GLvector3 CameraAngle(void)
 {
     return angle;
 }
 
-void CameraAngleSet(GLvector new_angle)
+void CameraAngleSet(GLvector3 new_angle)
 {
     angle = new_angle;
     angle.x = CLAMP(angle.x, -80.0f, 80.0f);

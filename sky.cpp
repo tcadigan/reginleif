@@ -16,13 +16,13 @@
 
 void CSky::Render()
 {
-    GLvector angle;
-    GLvector top;
-    GLvector bottom;
-    GLvector left;
-    GLvector right;
-    GLvector front;
-    GLvector back;
+    GLvector3 angle;
+    GLvector3 top;
+    GLvector3 bottom;
+    GLvector3 left;
+    GLvector3 right;
+    GLvector3 front;
+    GLvector3 back;
     GLrgba horizon;
     GLrgba sky;
     int x;

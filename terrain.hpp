@@ -1,7 +1,8 @@
 #ifndef TERRAIN_HPP_
 #define TERRAIN_HPP_
 
-#include "glTypes.hpp"
+#include "gl-vector3.hpp"
+#include "gl-vector2.hpp"
 #include "entity.hpp"
 
 enum build_stage {
@@ -36,7 +37,7 @@ private:
     int map_half_;
     float tolerance_;
     int zone_size_;
-    GLvector viewpoint_;
+    GLvector3 viewpoint_;
     short *boundary_;
     bool *point_;
 

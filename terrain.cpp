@@ -39,7 +39,7 @@
 void CTerrain::CompileVertex(int x, int y)
 {
     glTexCoord2fv(&zone_uv_[(x - zone_origin_x_) + ((y - zone_origin_y_) * (zone_size_ + 1))].x);
-    GLvector p = MapPosition(x, y);
+    GLvector3 p = MapPosition(x, y);
     glVertex3fv(&p.x);
     ++vertices_;
 }
@@ -712,7 +712,7 @@ void CTerrain::DoQuad(int x1, int y1, int size)
     float delta;
     float dist;
     float size_bias;
-    GLvector pos;
+    GLvector3 pos;
 
     half = size / 2;
     xc = x1 + half;
@@ -787,7 +787,7 @@ void CTerrain::Update(void)
     int xx;
     int yy;
     int level;
-    GLvector newpos;
+    GLvector3 newpos;
 
     now = SDL_GetTicks();
     end = now + UPDATE_TIME;
