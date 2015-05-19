@@ -27,7 +27,7 @@
 #include "terrain.hpp"
 
 #include <SDL.h>
-#include <GL/gl.h>
+#include <SDL_opengl.h>
 
 #include "camera.hpp"
 #include "console.hpp"

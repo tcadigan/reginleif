@@ -12,16 +12,12 @@
  * side of the hill.
  */
 
-#define PT_SIZE 8
-#define PT_HALF (PT_SIZE / 2)
-
 #include "pointer.hpp"
  
 #include <SDL.h>
-#include <cstring>
+#include <SDL_opengl.h>
 #include <cmath>
-#include <GL/gl.h>
-#include <GL/glu.h>
+#include <cstring>
 
 #include "camera.hpp"
 #include "macro.hpp"
@@ -53,28 +49,28 @@ void CPointer::Render()
 
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 0.0f);
-    p = MapPosition(cell_x - PT_HALF, cell_y - PT_HALF);
+    p = MapPosition(cell_x - (PT_SIZE / 2), cell_y - (PT_SIZE / 2));
     p.x -= pulse_;
     p.y += 2.0f;
     p.z -= pulse_;
     glVertex3fv(&p.x);
 
     glTexCoord2f(0.0f, 1.0f);
-    p = MapPosition(cell_x - PT_HALF, cell_y + PT_HALF);
+    p = MapPosition(cell_x - (PT_SIZE / 2), cell_y + (PT_SIZE / 2));
     p.x -= pulse_;
     p.y += 2.0f;
     p.z += pulse_;
     glVertex3fv(&p.x);
 
     glTexCoord2f(1.0f, 1.0f);
-    p = MapPosition(cell_x + PT_HALF, cell_y + PT_HALF);
+    p = MapPosition(cell_x + (PT_SIZE / 2), cell_y + (PT_SIZE / 2));
     p.x += pulse_;
     p.y += 2.0f;
     p.z += pulse_;
     glVertex3fv(&p.x);
 
     glTexCoord2f(1.0f, 0.0f);
-    p = MapPosition(cell_x + PT_HALF, cell_y - PT_HALF);
+    p = MapPosition(cell_x + (PT_SIZE / 2), cell_y - (PT_SIZE / 2));
     p.x += pulse_;
     p.y += 2.0f;
     p.z -= pulse_;
@@ -138,8 +134,8 @@ static point DrawGrid(void)
 
     if(hits > 0) {
         block = buffer[3];
-        cell.x = (block % MapSize()) + PT_HALF;
-        cell.y = ((block - cell.x) / MapSize()) + PT_HALF;
+        cell.x = (block % MapSize()) + (PT_SIZE / 2);
+        cell.y = ((block - cell.x) / MapSize()) + (PT_SIZE / 2);
     }
 
     return cell;

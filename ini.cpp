@@ -5,16 +5,11 @@
  * This takes various types of data and dumps them into a predefined ini file.
  */
 
-#define FORMAT_VECTOR "%f %f %f"
-#define MAX_RESULT 256
-#define FORMAT_FLOAT "%1.2f"
-#define INIT_FILE ".\\" APP ".ini"
-#define SECTION "Settings"
 
 #include "ini.hpp"
 
-#include <sstream>
 #include <cstdio>
+#include <sstream>
 
 static char result[MAX_RESULT];
 

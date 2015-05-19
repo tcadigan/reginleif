@@ -3,6 +3,13 @@
 
 #include "gl-vector3.hpp"
 
+// Constants
+#define FORMAT_VECTOR "%f %f %f"
+#define MAX_RESULT 256
+#define FORMAT_FLOAT "%1.2f"
+#define INIT_FILE ".\\" APP ".ini"
+#define SECTION "Settings"
+
 int IniInit(char const *entry);
 void IniIntSet(char const *entry, int val);
 float IniFloat(char const *entry);

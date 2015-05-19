@@ -7,7 +7,7 @@
 
 #include "sky.hpp"
 
-#include <GL/gl.h>
+#include <SDL_opengl.h>
 
 #include "camera.hpp"
 #include "macro.hpp"

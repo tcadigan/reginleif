@@ -7,16 +7,13 @@
  * renders in the other modules.
  */
 
-#define RENDER_DISTANCE 2048
-
 #include "render.hpp"
 
-#include <GL/gl.h>
-#include <GL/glu.h>
+#include <SDL_opengl.h>
 
-#include "gl-rgba.hpp"
-#include "camera.hpp"
 #include "entity.hpp"
+#include "camera.hpp"
+#include "gl-rgba.hpp"
 #include "world.hpp"
 
 // static PIXELFORMATDESCRIPTOR pfd = {

@@ -4,6 +4,9 @@
 #include "entity.hpp"
 #include "gl-vector3.hpp"
 
+// Constants
+#define PT_SIZE 8
+
 struct point {
     int x;
     int y;

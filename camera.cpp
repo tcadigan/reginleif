@@ -7,9 +7,6 @@
  * point on the terrain.
  */
 
-#define EYE_HEIGHT 2.0f
-#define MAX_PITCH 85
-
 #include "camera.hpp"
 
 #include <cstdlib>

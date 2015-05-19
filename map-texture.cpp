@@ -18,29 +18,10 @@
  * texture set.
  */
 
-// This defines the highest resolution of the zone textures. Note that becuase
-// of the way this thing draws the textures, this cannot be bigger than the
-// viewport. So, if you make the window 640x480, then textures can't be 512,
-// because the window isn't tall enough to act as a canvas for drawing
-// a 512x512!
-#define MAX_RESOLUTION 256
-#define MAX_PIXELS (MAX_RESOLUTION * MAX_RESOLUTION)
-#define OPPOSITE(g) ((g) == GRID_FRONT ? GRID_BACK : GRID_FRONT)
-
-// How much time to spedn drawing the next set of textures. Tradeoffs abound.
-#define UPDATE_TIME 10
-
-// For debugging: Put the texture size onto the texture
-#define SHOW_RESOLUTION 0
-
-// How many times textures should repeat over a zone. This has to be at least
-// one. Tune this depending on how tight you want the detail.
-#define UV_SCALE 1
-
 #include "map-texture.hpp"
 
 #include <SDL.h>
-#include <GL/gl.h>
+#include <SDL_opengl.h>
 
 #include "camera.hpp"
 #include "console.hpp"
@@ -91,7 +72,12 @@ unsigned int MapTexture(int zone)
 {
     int grid;
 
-    grid = OPPOSITE(current_grid);
+    if(current_grid == GRID_FRONT) {
+        grid = GRID_BACK;
+    }
+    else {
+        grid = GRID_FRONT;
+    }
 
     // If the very last texture is requested, then we know the terrain is about
     // to change over to a new set, and we can increment our ref count.
@@ -121,7 +107,7 @@ void MapTextureInit(void)
         }
     }
 
-    buffer = new unsigned char[MAX_PIXELS * 4];
+    buffer = new unsigned char[(MAX_RESOLUTION * MAX_RESOLUTION) * 4];
     zone_size = MapSize() / ZONE_GRID;
     layer_texture[LAYER_GRASS] = TextureFromName("grassa512");
     layer_texture[LAYER_LOWGRASS] = TextureFromName("grassb512");
@@ -451,7 +437,14 @@ void MapTextureUpdate()
 
                 pixel_count = 0;
                 build_time = 0;
-                current_grid = OPPOSITE(current_grid);
+                
+                if(current_grid == GRID_FRONT) {
+                    current_grid = GRID_BACK;
+                }
+                else {
+                    current_grid = GRID_FRONT;
+                }
+
                 current_zone = 0;
                 ref_count = 0;
                 GetCameraZone();

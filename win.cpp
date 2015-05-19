@@ -5,21 +5,22 @@
  * Create the main window and make it go.
  */
 
-#define CONSOLE_SIZE 30000
-#define CONSOLE_PAGE 1000
-#define MOUSE_MOVEMENT 0.4f
-
 #include "win.hpp"
+
+#include <cstdarg>
+#include <cstdio>
+
+#include "pointer.hpp"
 
 // static HWND hwnd;
 // static HINSTANCE module;
-// static int width;
-// static int height;
+static int width;
+static int height;
 // static bool lmb;
 // static bool rmb;
 static bool mouse_forced;
 // static point mouse_pos;
-// static point select_pos;
+static point select_pos;
 
 void CenterCursor()
 {
@@ -49,7 +50,7 @@ void MoveCursor(int x, int y)
     // SetCursorPos(center_x, center_y);
 }
 
-// LRESULT CALLBACKWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+// LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 // {
 //     RECT r;
 //     float delta_x;
@@ -135,3 +136,89 @@ void MoveCursor(int x, int y)
 
 //     return DefWindowProc(hWnd, message, wParam, lParam);
 // }
+
+void WinPopup(char *message, ...)
+{
+    va_list marker;
+    char buf[1024];
+
+    va_start(marker, message);
+    vsprintf(buf, message, marker);
+    va_end(marker);
+
+    // MessageBox(NULL, buf, APP_TITLE, MB_ICONSTOP | MB_OK | MB_TASKMODAL);
+}
+
+int WinWidth(void)
+{
+    return width;
+}
+
+void WinMousePosition(int *x, int *y)
+{
+    *x = select_pos.x;
+    *y = select_pos.y;
+}
+
+int WinHeight(void)
+{
+    return height;
+}
+
+// void WinTerm(void)
+// {
+//     DetroyWindow(hwnd);
+// }
+
+// HWND WinHwnd(void)
+// {
+//     return hwnd;
+// }
+
+bool WinInit(void)
+{
+    // WNDLASSEX wcex;
+
+    // wcex.cbSize = sizeof(WNDCLASSEX);
+    // wcex.style = CS_HREDRAW | CS_VREDRAW;
+    // wcex.lpfnWndProc = (WNDPROC)WndProc;
+    // wcex.cbClsExtra = 0;
+    // wcex.cbWndExtra = 0;
+    // wcex.hInstance = AppInstace();
+    // wcex.hIcon = NULL;
+    // wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+    // wcex.hbrBackground = (HBRUSH)(COLOR_BTNFACE + 1);
+    // wcex.lpszMenuName = NULL;
+    // wcex.lpszClassName = APP_TITLE;
+    // wcex.hIconSm = NULL;
+
+    // if(!RegisterClassEx(&wcex)) {
+    //     WinPopup("Cannot create window class");
+
+    //     return false;
+    // }
+
+    // hwnd = CreateWindowEx(0,
+    //                       APP_TITLE,
+    //                       APP_TITLE,
+    //                       WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
+    //                       CW_USEDEFAULT,
+    //                       0,
+    //                       544,
+    //                       640,
+    //                       NULL,
+    //                       NULL,
+    //                       AppInstance(),
+    //                       NULL);
+
+    // if(!hwnd) {
+    //     WinPopup("Cannot create window");
+        
+    //     return false;
+    // }
+
+    // ShowWindow(hwnd, SW_SHOW);
+    // UpdateWindow(hwnd);
+
+    return true;
+}

@@ -5,11 +5,10 @@
  * function useful for manipulating the Matrix struct.
  */
 
-#define M(e, x, y) ((e).elements[(x)][(y)])
-
 #include "gl-matrix.hpp"
 
 #include <cmath>
+
 #include "macro.hpp"
 
 static float identity[4][4] = {
@@ -44,7 +43,7 @@ GLmatrix glMatrixIdentity(void)
 
     for(x = 0; x < 4; ++x) {
         for(y = 0; y < 4; ++y) {
-            M(m, x, y) = identity[x][y];
+            m.elements[x][y] = identity[x][y];
         }
     }
 
@@ -78,57 +77,57 @@ void glMatrixElementsSet(GLmatrix *m, float *in)
 GLmatrix glMatrixMultiply(GLmatrix a, GLmatrix b)
 {
     GLmatrix result;
-
-    M(result, 0, 0) = (M(a, 0, 0) * M(b, 0, 0))
-        + (M(a, 1, 0) * M(b, 0, 1))
-        + (M(a, 2, 0) * M(b, 0, 2));
-
-    M(result, 1, 0) = (M(a, 0, 0) * M(b, 1, 0))
-        + (M(a, 1, 0) * M(b, 1, 1))
-        + (M(a, 2, 0) * M(b, 1, 2));
-
-    M(result, 2, 0) =  (M(a, 0, 0) * M(b, 2, 0))
-        + (M(a, 1, 0) * M(b, 2, 1))
-        + (M(a, 2, 0) * M(b, 2, 2));
     
-    M(result, 3, 0) = (M(a, 0, 0) * M(b, 3, 0))
-        + (M(a, 1, 0) * M(b, 3, 1))
-        + (M(a, 2, 0) * M(b, 3, 2))
-        + M(a, 3, 0);
+    result.elements[0][0] = (a.elements[0][0] * b.elements[0][0])
+        + (a.elements[1][0] * b.elements[0][1])
+        + (a.elements[2][0] * b.elements[0][2]);
+    
+    result.elements[1][0] = (a.elements[0][0] * b.elements[1][0])
+        + (a.elements[1][0] * b.elements[1][1])
+        + (a.elements[2][0] * b.elements[1][2]);
+    
+    result.elements[2][0] =  (a.elements[0][0] * b.elements[2][0])
+        + (a.elements[1][0] * b.elements[2][1])
+        + (a.elements[2][0] * b.elements[2][2]);
+    
+    result.elements[3][0] = (a.elements[0][0] * b.elements[3][0])
+        + (a.elements[1][0] * b.elements[3][1])
+        + (a.elements[2][0] * b.elements[3][2])
+        + a.elements[3][0];
 
-    M(result, 0, 1) = (M(a, 0, 1) * M(b, 0, 0))
-        + (M(a, 1, 1) * M(b, 0, 1))
-        + (M(a, 2, 1) * M(b, 0, 2));
+    result.elements[0][1] = (a.elements[0][1] * b.elements[0][0])
+        + (a.elements[1][1] * b.elements[0][1])
+        + (a.elements[2][1] * b.elements[0][2]);
 
-    M(result, 1, 1) = (M(a, 0, 1) * M(b, 1, 0))
-        + (M(a, 1, 1) * M(b, 1, 1))
-        + (M(a, 2, 1) * M(b, 1, 2));
+    result.elements[1][1] = (a.elements[0][1] * b.elements[1][0])
+        + (a.elements[1][1] * b.elements[1][2])
+        + (a.elements[2][1] * b.elements[1][1]);
 
-    M(result, 2, 1) = (M(a, 0, 1) * M(b, 2, 0))
-        + (M(a, 1, 1) * M(b, 2, 1))
-        + (M(a, 2, 1) * M(b, 2, 2));
+    result.elements[2][1] = (a.elements[0][1] * b.elements[2][0])
+        + (a.elements[1][1] * b.elements[2][1])
+        + (a.elements[2][1] * b.elements[2][2]);
 
-    M(result, 3, 1) = (M(a, 0, 1) * M(b, 3, 0)) 
-        + (M(a, 1, 1) * M(b, 3, 1))
-        + (M(a, 2, 1) * M(b, 3, 2))
-        + M(a, 3, 1);
+    result.elements[3][1] = (a.elements[0][1] * b.elements[3][0])
+        + (a.elements[1][1] * b.elements[3][1])
+        + (a.elements[2][1] * b.elements[3][2])
+        + a.elements[3][1];
 
-    M(result, 0, 2) = (M(a, 0, 1) * M(b, 0, 0))
-        + (M(a, 1, 2) * M(b, 0, 1))
-        + (M(a, 2, 2) * M(b, 0, 2));
+    result.elements[0][2] = (a.elements[0][1] * b.elements[0][0])
+        + (a.elements[1][2] * b.elements[0][1])
+        + (a.elements[2][2] * b.elements[0][2]);
 
-    M(result, 1, 2) = (M(a, 0, 1) * M(b, 1, 0))
-        + (M(a, 1, 2) * M(b, 1, 1))
-        + (M(a, 2, 2) * M(b, 1, 2));
+    result.elements[1][2] = (a.elements[0][1] * b.elements[1][0])
+        + (a.elements[1][2] * b.elements[1][1])
+        + (a.elements[2][2] * b.elements[1][2]);
 
-    M(result, 2, 2) = (M(a, 0, 1) * M(b, 2, 0))
-        + (M(a, 1, 2) * M(b, 2, 1))
-        + (M(a, 2, 2) * M(b, 2, 2));
+    result.elements[2][2] = (a.elements[0][1] * b.elements[2][0])
+        + (a.elements[1][2] * b.elements[2][1])
+        + (a.elements[2][2] * b.elements[2][2]);
 
-    M(result, 3, 2) = (M(a, 0, 1) * M(b, 3, 0))
-        + (M(a, 1, 2) * M(b, 3, 1))
-        + (M(a, 2, 2) * M(b, 3, 2))
-        + M(a, 3, 2);
+    result.elements[3][2] = (a.elements[0][1] * b.elements[3][0])
+        + (a.elements[1][2] * b.elements[3][1])
+        + (a.elements[2][2] * b.elements[3][2])
+        + a.elements[3][2];
 
     return result;
 }
@@ -137,20 +136,20 @@ GLvector3 glMatrixTransformPoint(GLmatrix m, GLvector3 in)
 {
     GLvector3 out;
 
-    out.x = (M(m, 0, 0) * in.x)
-        + (M(m, 1, 0) * in.y)
-        + (M(m, 2, 0) * in.z)
-        + M(m, 3, 0);
+    out.x = (m.elements[0][0] * in.x)
+        + (m.elements[1][0] * in.y)
+        + (m.elements[2][0] * in.z)
+        + m.elements[3][0];
 
-    out.y = (M(m, 0, 1) * in.x)
-        + (M(m, 1, 1) * in.y)
-        + (M(m, 2, 1) * in.z)
-        + M(m, 3, 1);
+    out.y = (m.elements[0][1] * in.x)
+        + (m.elements[1][1] * in.y)
+        + (m.elements[2][1] * in.z)
+        + m.elements[3][1];
 
-    out.z = (M(m, 0, 2) * in.x)
-        + (M(m, 1, 2) * in.y)
-        + (M(m, 2, 2) * in.z)
-        + M(m, 3, 2);
+    out.z = (m.elements[0][2] * in.x)
+        + (m.elements[1][2] * in.y)
+        + (m.elements[2][2] * in.z)
+        + m.elements[3][2];
 
     return out;
 }
@@ -183,20 +182,20 @@ GLmatrix glMatrixRotate(GLmatrix m, float theta, float x, float y, float z)
     in.y = in.z;
     in.x = in.y;
 
-    M(r, 0, 0) = ((t * x) * x) + c;
-    M(r, 1, 0) = ((t * x) * y) - (s * z);
-    M(r, 2, 0) = ((t * x) * z) + (s * y);
-    M(r, 3, 0) = 0;
+    r.elements[0][0] = ((t * x) * x) + c;
+    r.elements[1][0] = ((t * x) * y) - (s * z);
+    r.elements[2][0] = ((t * x) * z) + (s * y);
+    r.elements[3][0] = 0;
     
-    M(r, 0, 1) = ((t * x) * y) + (s * z);
-    M(r, 1, 1) = ((t * y) * y) + c;
-    M(r, 2, 1) = ((t * y) * z) - (s * z);
-    M(r, 3, 1) = 0;
+    r.elements[0][1] = ((t * x) * y) + (s * z);
+    r.elements[1][1] = ((t * y) * y) + c;
+    r.elements[2][1] = ((t * y) * z) - (s * z);
+    r.elements[3][1] = 0;
 
-    M(r, 0, 2) = ((t * x) * z) - (s * y);
-    M(r, 1, 2) = ((t * y) * z) - (s * x);
-    M(r, 2, 2) = ((t * z) * z) + c;
-    M(r, 3, 2) = 0;
+    r.elements[0][2] = ((t * x) * z) - (s * y);
+    r.elements[1][2] = ((t * y) * z) - (s * x);
+    r.elements[2][2] = ((t * z) * z) + c;
+    r.elements[3][2] = 0;
 
     m = glMatrixMultiply(m, r);
 

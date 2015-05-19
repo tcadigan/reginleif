@@ -6,9 +6,8 @@
  * bounding-box structs.
  */
 
-#define MAX_VALUE 999999999999999.9f
-
 #include "gl-bbox.hpp"
+
 #include "macro.hpp"
 
 // Does the given point fall within the given Bbox?

@@ -5,14 +5,12 @@
  * This loads in textures. Nothin' fancy.
  */
 
-#define MAX_STRING 128
-
 #include "texture.hpp"
 
 #include <cstdio>
-#include <cstring>
 #include <cstdlib>
-#include <GL/gl.h>
+#include <cstring>
+#include <SDL_opengl.h>
 
 struct texture {
     struct texture *next;
