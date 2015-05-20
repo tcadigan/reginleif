@@ -5,6 +5,22 @@
 #include "gl-vector2.hpp"
 #include "entity.hpp"
 
+// Magic number: Fiddle with this to adjust how aggressive the program should be
+// in removing polygons. Higher numbers result in fewer terrain polygons
+#define TOLERANCE 0.07f
+
+// How many milliseconds to spend each frame on the terrain
+#define UPDATE_TIME 10
+
+// Set this to 1 to force a wireframe overlay on the terrain, so you can
+// see the polygons
+#define DO_WIREFRAME 0
+
+// Set this to 0 to skip rendering the terrains as solid. You'll ne to set
+// either this one of DO_WIREFRAME to 1, or you won't render anything!
+// You can set both to 1 if you like as well.
+#define DO_SOLID 1
+
 enum build_stage {
     // Check for the need to begin building
     STAGE_IDLE, 

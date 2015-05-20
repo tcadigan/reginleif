@@ -42,7 +42,7 @@ struct ztexture {
 };
 
 static unsigned char *buffer;
-static ztexture zone_texture[GRID_COUNT][ZONES];
+static ztexture zone_texture[GRID_COUNT][ZONE_GRID * ZONE_GRID];
 static unsigned int layer_texture[LAYER_COUNT];
 static unsigned int res_texture[MAX_RESOLUTION];
 static unsigned int current_grid;
@@ -84,7 +84,7 @@ unsigned int MapTexture(int zone)
     // Once this reaches 2, we know both terrains (the one being built and the
     // one in use) are using our latest texture set, and it is safe to work on
     // the old set.
-    if(zone == (ZONES - 1)) {
+    if(zone == ((ZONE_GRID * ZONE_GRID) - 1)) {
         ++ref_count;
     }
     if(!zone_texture[grid][zone].ready) {
@@ -100,7 +100,7 @@ void MapTextureInit(void)
     int zone;
 
     for(grid = GRID_FRONT; grid < GRID_COUNT; ++grid) {
-        for(zone = 0; zone < ZONES; ++zone) {
+        for(zone = 0; zone < (ZONE_GRID * ZONE_GRID); ++zone) {
             zone_texture[grid][zone].size = 0;
             zone_texture[grid][zone].ready = false;
             glGenTextures(1, &zone_texture[grid][zone].texture);
@@ -300,7 +300,7 @@ void MapTextureUpdate()
     }
 
     now = SDL_GetTicks();
-    end = now + UPDATE_TIME;
+    end = now + MAP_TEXTURE_UPDATE_TIME;
 
     while(SDL_GetTicks() < end) {
         z = &zone_texture[current_grid][current_zone];
@@ -311,9 +311,24 @@ void MapTextureUpdate()
         glBindTexture(GL_TEXTURE_2D, z->texture);
 
         if(current_layer == 0) {
-            delta_x = ABS((camera_zone_x - zone_x));
-            delta_y = ABS((camera_zone_y - zone_y));
-            delta = MAX(delta_x, delta_y);
+            delta_x = (camera_zone_x - zone_x);
+
+            if((camera_zone_x - zone_x) < 0) {
+                delta_x *= -1;
+            }
+
+            delta_y = (camera_zone_y - zone_y);
+
+            if((camera_zone_y - zone_y) < 0) {
+                delta_y *= -1;
+            }
+
+            if(delta_x > delta_y) {
+                delta = delta_x;
+            }
+            else {
+                delta = delta_y;
+            }
 
             if(delta < 2) {
                 z->size = MAX_RESOLUTION;
@@ -337,7 +352,13 @@ void MapTextureUpdate()
                 z->size = MAX_RESOLUTION / 64;
             }
 
-            z->size = CLAMP(z->size, 8, 512);
+            if(z->size < 8) {
+                z->size = 8;
+            }
+            else if(z->size > 512) {
+                z->size = 512;
+            }
+
             glTexImage2D(GL_TEXTURE_2D,
                          0,
                          3,
@@ -427,7 +448,7 @@ void MapTextureUpdate()
             z->ready = true;
             ++current_zone;
 
-            if(current_zone == ZONES) {
+            if(current_zone == (ZONE_GRID * ZONE_GRID)) {
                 // Little debug stuff here. Figure out how many 
                 // Mb of memory we just ate.
                 float meg = (float)pixel_count / 1048576.0f;

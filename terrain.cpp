@@ -6,24 +6,6 @@
  * Here is where the magic happens. This generates the terrain and renders is.
  */
 
-#define POINT(x, y) point_[(x) + ((y) * map_size_)]
-
-// Magic number: Fiddle with this to adjust how aggressive the program should be
-// in removing polygons. Higher numbers result in fewer terrain polygons
-#define TOLERANCE 0.07f
-
-// How many milliseconds to spend each frame on the terrain
-#define UPDATE_TIME 10
-
-// Set this to 1 to force a wireframe overlay on the terrain, so you can
-// see the polygons
-#define DO_WIREFRAME 0
-
-// Set this to 0 to skip rendering the terrains as solid. You'll ne to set
-// either this one of DO_WIREFRAME to 1, or you won't render anything!
-// You can set both to 1 if you like as well.
-#define DO_SOLID 1
-
 #include "terrain.hpp"
 
 #include <SDL.h>
@@ -170,14 +152,17 @@ void CTerrain::CompileBlock(int x, int y, int size)
 
     // If this is the smallest block, or the center is inactive, then
     // just cut into two triangles as shown in Figure a
-    if((size == 1) || POINT(xc, yc)) {
+    if((size == 1) || point_[xc + (yc * map_size_)]) {
         CompileStrip(x, y, x, y2, x2, y, x2, y2);
 
         return;
     }
 
     // If the edges are inactive, we need 4 triangles (Figure b)
-    if(!POINT(xc, y) && !POINT(xc, y2) && !POINT(x, yc) && !POINT(x2, yc)) {
+    if(!point_[xc + (y * map_size_)]
+       && !point_[xc + (y2 * map_size_)]
+       && !point_[x + (yc * map_size_)]
+       && !point_[x2 + (yc * map_size_)]) {
         CompileFan(xc, yc, x, y, x2, y, x2, y2, x, y2, x, y);
 
         return;
@@ -185,13 +170,13 @@ void CTerrain::CompileBlock(int x, int y, int size)
 
     // If the top and bottom edges are inactive, it is impossible
     // to have sub-blocks, so we can make a single fan
-    if(!POINT(xc, y) && !POINT(xc, y2)) {
+    if(!point_[xc + (y * map_size_)] && !point_[xc * (y2 * map_size_)]) {
         glEnd();
         glBegin(GL_TRIANGLE_FAN);
         CompileVertex(xc, yc);
         CompileVertex(x, y);
 
-        if(POINT(x, yc)) {
+        if(point_[x + (yc * map_size_)]) {
             // W
             CompileVertex(x, yc);
             ++triangles_;
@@ -200,7 +185,7 @@ void CTerrain::CompileBlock(int x, int y, int size)
         CompileVertex(x, y2);
         CompileVertex(x2, y2);
         
-        if(POINT(x2, yc)) {
+        if(point_[x2 + (yc * map_size_)]) {
             // E
             CompileVertex(x2, yc);
             ++triangles_;
@@ -217,14 +202,14 @@ void CTerrain::CompileBlock(int x, int y, int size)
 
     // If the left and right edges are inactive, it is impossible
     // to have sub-blocks, so we can make a single fan
-    if(!POINT(x, yc) && !POINT(x2, yc)) {
+    if(!point_[x + (yc * map_size_)] && !point_[x2 + (yc * map_size_)]) {
         glEnd();
         glBegin(GL_TRIANGLE_FAN);
         CompileVertex(xc, yc);
         CompileVertex(x, y);
         CompileVertex(x, y2);
         
-        if(POINT(xc, y2)) {
+        if(point_[xc + (y2 * map_size_)]) {
             // S
             CompileVertex(xc, y2);
             ++triangles_;
@@ -233,7 +218,7 @@ void CTerrain::CompileBlock(int x, int y, int size)
         CompileVertex(x2, y2);
         CompileVertex(x2, y);
         
-        if(POINT(xc, y)) {
+        if(point_[xc + (y * map_size_)]) {
             // N
             CompileVertex(xc, y);
             ++triangles_;
@@ -251,9 +236,9 @@ void CTerrain::CompileBlock(int x, int y, int size)
     // combination of triangle strips and sub-blocks. Brace yourself,
     // this is not for the timid. The frist test is to find out
     // which triangles we need
-    if(!POINT(xc, y)) {
+    if(!point_[xc + (y * map_size_)]) {
         // Is the top edge inactive?
-        if(POINT(x, yc) && POINT(x2, yc)) {
+        if(point_[x + (yc * map_size_)] && point_[x2 + (yc * map_size_)]) {
             // Left and right edge active?
             CompileFan(xc, yc, x, yc, x, y, x2, y, x2, yc);
         }
@@ -263,7 +248,7 @@ void CTerrain::CompileBlock(int x, int y, int size)
             glBegin(GL_TRIANGLE_FAN);
             CompileVertex(xc, yc);
 
-            if(POINT(x2, yc)) {
+            if(point_[x2 + (yc * map_size_)]) {
                 // EL
                 CompileVertex(x2, yc);
                 ++triangles_;
@@ -272,7 +257,7 @@ void CTerrain::CompileBlock(int x, int y, int size)
             CompileVertex(x2, y);
             CompileVertex(x, y);
             
-            if(POINT(x, yc)) {
+            if(point_[x + (yc * map_size_)]) {
                 // WR
                 CompileVertex(x, yc);
                 ++triangles_;
@@ -284,9 +269,9 @@ void CTerrain::CompileBlock(int x, int y, int size)
         }
     }
 
-    if(!POINT(xc, y2)) {
+    if(!point_[xc + (y2 * map_size_)]) {
         // Is the bottom edge inactive
-        if(POINT(x, yc) && POINT(x2, yc)) {
+        if(point_[x + (yc * map_size_)] && point_[x2 + (yc * map_size_)]) {
             // Top and bottom edge active?
             CompileFan(xc, yc, x2, yc, x2, y2, x, y2, x, yc);
         }
@@ -295,7 +280,7 @@ void CTerrain::CompileBlock(int x, int y, int size)
             glBegin(GL_TRIANGLE_FAN);
             CompileVertex(xc, yc);
 
-            if(POINT(x, yc)) {
+            if(point_[x + (yc * map_size_)]) {
                 CompileVertex(x, yc);
                 ++triangles_;
             }
@@ -303,7 +288,7 @@ void CTerrain::CompileBlock(int x, int y, int size)
             CompileVertex(x, y2);
             CompileVertex(x2, y2);
 
-            if(POINT(x2, yc)) {
+            if(point_[x2 + (yc * map_size_)]) {
                 CompileVertex(x2, yc);
                 ++triangles_;
             }
@@ -314,9 +299,9 @@ void CTerrain::CompileBlock(int x, int y, int size)
         }
     }
 
-    if(!POINT(x, yc)) {
+    if(!point_[x + (yc * map_size_)]) {
         // Is the left edge inactive?
-        if(POINT(xc, y) && POINT(xc, y2)) {
+        if(point_[xc + (y * map_size_)] && point_[xc + (y2 * map_size_)]) {
             // Top and bottom edge active?
             CompileFan(xc, yc, xc, y2, x, y2, x, y, xc, y);
         }
@@ -325,7 +310,7 @@ void CTerrain::CompileBlock(int x, int y, int size)
             glBegin(GL_TRIANGLE_FAN);
             CompileVertex(xc, yc);
 
-            if(POINT(xc, y)) {
+            if(point_[xc + (y * map_size_)]) {
                 // NL
                 CompileVertex(xc, y);
                 ++triangles_;
@@ -334,7 +319,7 @@ void CTerrain::CompileBlock(int x, int y, int size)
             CompileVertex(x, y);
             CompileVertex(x, y2);
 
-            if(POINT(xc, y2)) {
+            if(point_[xc + (y2 * map_size_)]) {
                 // SR
                 CompileVertex(xc, y2);
                 ++triangles_;
@@ -346,9 +331,9 @@ void CTerrain::CompileBlock(int x, int y, int size)
         }
     }
 
-    if(!POINT(x2, yc)) {
+    if(!point_[x2 + (yc * map_size_)]) {
         // Right edge inactive?
-        if(POINT(xc, y) && POINT(xc, y2)) {
+        if(point_[xc + (y * map_size_)] && point_[xc + (y2 * map_size_)]) {
             CompileFan(xc, yc, xc, y, x2, y, x2, y2, xc, y2);
         }
         else {
@@ -356,7 +341,7 @@ void CTerrain::CompileBlock(int x, int y, int size)
             glBegin(GL_TRIANGLE_FAN);
             CompileVertex(xc, yc);
 
-            if(POINT(xc, yc)) {
+            if(point_[xc + (yc * map_size_)]) {
                 // SL
                 CompileVertex(xc, y2);
                 ++triangles_;
@@ -365,7 +350,7 @@ void CTerrain::CompileBlock(int x, int y, int size)
             CompileVertex(x2, y2);
             CompileVertex(x2, y);
             
-            if(POINT(xc, y)) {
+            if(point_[xc + (y * map_size_)]) {
                 // NR
                 CompileVertex(xc, y);
                 ++triangles_;
@@ -379,22 +364,22 @@ void CTerrain::CompileBlock(int x, int y, int size)
     
     // Now that the various triangles hanve been added, we add th
     // various sub-blocks. This is recursive.
-    if(POINT(xc, y) && POINT(x, yc)) {
+    if(point_[xc + (y * map_size_)] && point_[x + (yc * map_size_)]) {
         // Sub-block A
         CompileBlock(x, y, next_size);
     }
     
-    if(POINT(xc, y) && POINT(x2, yc)) {
+    if(point_[xc + (y * map_size_)] && point_[x2 + (yc * map_size_)]) {
         // Sub-block B
         CompileBlock(x + next_size, y, next_size);
     }
 
-    if(POINT(x, yc) && POINT(xc, y2)) {
+    if(point_[x + (yc * map_size_)] && point_[xc + (y2 * map_size_)]) {
         // Sub-block C
         CompileBlock(x, y + next_size, next_size);
     }
 
-    if(POINT(x2, yc) && POINT(xc, y2)) {
+    if(point_[x2 + (yc * map_size_)] && point_[xc + (y2 * map_size_)]) {
         // Sub-block D
         CompileBlock(x + next_size, y + next_size, next_size);
     }
@@ -472,7 +457,7 @@ void CTerrain::Compile(void)
     glEndList();
     ++zone_;
 
-    if(zone_ == ZONES) {
+    if(zone_ == (ZONE_GRID * ZONE_GRID)) {
         if((DO_WIREFRAME != 0) && (DO_SOLID != 0)) {
             vertices_ /= 2;
             triangles_ /= 2;
@@ -514,8 +499,8 @@ void CTerrain::GridStep(void)
  * Constructor
  */
 CTerrain::CTerrain(int size)
-    : list_front_(glGenLists(ZONES))
-    , list_back_(glGenLists(ZONES))
+    : list_front_(glGenLists(ZONE_GRID * ZONE_GRID))
+    , list_back_(glGenLists(ZONE_GRID * ZONE_GRID))
     , stage_(STAGE_IDLE)
     , map_size_(size)
     , map_half_(size / 2)
@@ -599,7 +584,7 @@ void CTerrain::RenderFadeIn()
         list = list_back_;
     }
 
-    for(i = 0; i < ZONES; ++i) {
+    for(i = 0; i < (ZONE_GRID * ZONE_GRID); ++i) {
         glCallList(list + i);
     }
 }
@@ -619,7 +604,7 @@ void CTerrain::Render()
         list = list_back_;
     }
 
-    for(i = 0; i < ZONES; ++i) {
+    for(i = 0; i < (ZONE_GRID * ZONE_GRID); ++i) {
         glCallList(list + i);
     }
 }
@@ -643,14 +628,20 @@ void CTerrain::PointActivate(int x, int y)
         return;
     }
 
-    if(POINT(x, y)) {
+    if(point_[x + (y * map_size_)]) {
         return;
     }
 
-    POINT(x, y) = true;
+    point_[x + (y * map_size_)] = true;
     xl = boundary_[x];
     yl = boundary_[y];
-    level = MIN(xl, yl);
+
+    if(xl < yl) {
+        level = xl;
+    }
+    else {
+        level = yl;
+    }
 
     if(xl > yl) {
         PointActivate(x - level, y);
@@ -738,7 +729,11 @@ void CTerrain::DoQuad(int x1, int y1, int size)
     average = (((ul + lr) + ll) + ur) / 4.0f;
 
     // Look for a delta between the center point and the average calculation
-    delta = ABS((average - center)) * 5.0f;
+    delta = (average - center) * 5.0f;
+
+    if((average - center) < 0) {
+        delta *= -1;
+    }
 
     // Scale the delta based on the size of the quad we are dealing with
     delta /= (float)size;
@@ -828,7 +823,7 @@ void CTerrain::Update(void)
 
             break;
         case STAGE_QUADTREE:
-            if(POINT(x_, y_)) {
+            if(point_[x_ + (y_ * map_size_)]) {
                 GridStep();
                 
                 break;
@@ -836,7 +831,14 @@ void CTerrain::Update(void)
 
             xx = boundary_[x_];
             yy = boundary_[y_];
-            level = MIN(xx, yy);
+
+            if(xx < yy) {
+                level = xx;
+            }
+            else {
+                level = yy;
+            }
+
             DoQuad(x_ - level, y_ - level, level * 2);
             GridStep();
 

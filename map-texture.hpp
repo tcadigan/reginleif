@@ -9,7 +9,7 @@
 #define MAX_RESOLUTION 256
 
 // How much time to spedn drawing the next set of textures. Tradeoffs abound.
-#define UPDATE_TIME 10
+#define MAP_TEXTURE_UPDATE_TIME 10
 
 // For debugging: Put the texture size onto the texture
 #define SHOW_RESOLUTION 0

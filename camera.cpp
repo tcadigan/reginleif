@@ -170,11 +170,33 @@ void CameraPositionSet(GLvector3 new_pos)
     
     limit = (float)MapSize();
     position = new_pos;
-    position.x = CLAMP(position.x, -limit, limit);
-    position.y = CLAMP(position.y, -512.0f, 512.0f);
-    position.z = CLAMP(position.z, -limit, limit);
+
+    if(position.x < -limit) {
+        position.x = -limit;
+    }
+    else if(position.x > limit) {
+        position.x = limit;
+    }
+
+    if(position.y < -512.0f) {
+        position.y = -512.0f;
+    }
+    else if(position.y > 512.0f) {
+        position.y = 512.0f;
+    }
+
+    if(position.z < -limit) {
+        position.z = -limit;
+    }
+    else if(position.z > limit) {
+        position.z = limit;
+    }
+
     elevation = MapElevation(position.x, position.z) + EYE_HEIGHT;
-    position.y = MAX(elevation, position.y);
+
+    if(elevation > position.y) {
+        position.y = elevation;
+    }
 }
 
 GLvector3 CameraAngle(void)
@@ -185,7 +207,13 @@ GLvector3 CameraAngle(void)
 void CameraAngleSet(GLvector3 new_angle)
 {
     angle = new_angle;
-    angle.x = CLAMP(angle.x, -80.0f, 80.0f);
+
+    if(angle.x < -80.f) {
+        angle.x = -80.0f;
+    }
+    else if(angle.x > 80.0f) {
+        angle.x = 80.0f;
+    }
 }
 
 void CameraInit(void)
@@ -206,14 +234,50 @@ void CameraUpdate(void)
         movement = 0.0f;
     }
 
-    movement = CLAMP(movement, 0.01f, 1.0f);
+    if(movement < 0.01f) {
+        movement = 0.01f;
+    }
+    else if(movement > 1.0f) {
+        movement = 1.0f;
+    }
+
     limit = (float)MapSize() * 1.5f;
-    position.x = CLAMP(position.x, -limit, limit);
-    position.y = CLAMP(position.y, -512.0f, 512.0f);
-    position.z = CLAMP(position.z, -limit, limit);
+
+    if(position.x < -limit) {
+        position.x = -limit;
+    }
+    else if(position.x > limit) {
+        position.x = limit;
+    }
+
+    if(position.y < -512.0f) {
+        position.y = -512.0f;
+    }
+    else if(position.y > 512.0f) {
+        position.y = 512.0f;
+    }
+
+    if(position.z < -limit) {
+        position.z = -limit;
+    }
+    else if(position.z > limit) {
+        position.z = limit;
+    }
+
     elevation = MapElevation(position.x, position.z) + EYE_HEIGHT;
-    position.y = MAX(elevation, position.y);
-    angle.x = CLAMP(angle.x, -MAX_PITCH, MAX_PITCH);
+
+    if(elevation > position.y) {
+        position.y = elevation;
+    }
+
+
+    if(angle.x < -MAX_PITCH) {
+        angle.x = -MAX_PITCH;
+    }
+    else if(angle.x > MAX_PITCH) {
+        angle.x = MAX_PITCH;
+    }
+
     moving = false;
 }
 

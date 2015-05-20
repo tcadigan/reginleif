@@ -19,5 +19,3 @@ Notes:
 This is OpenGL but it is developed for Windows. Thus, all the window and mouse handling will need to be replaced with SDL. Shouldn't be too bad.
 
 Intrusive linked lists are used for the entities, which I am not fond of. This isn't without precendent: http://fabiensanglard.net/doom3_documentation/DOOM-3-BFG-Technical-Note.pdf.
-
-Have I mentioned that I despise macros no matter the use case?

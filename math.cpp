@@ -111,7 +111,15 @@ float MathSmoothStep(float val, float a, float b)
     val -= a;
     val /= (b - a);
     
-    return CLAMP(val, 0.0f, 1.0f);
+    if(val < 0.0f) {
+        return 0.0f;
+    }
+    else if(val > 1.0f) {
+        return 1.0f;
+    }
+    else {
+        return val;
+    }
 }
 
 // Average two values

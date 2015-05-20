@@ -31,13 +31,29 @@ bool glBboxTestPoint(GLbbox box, GLvector3 point)
 // Expand BBox (if needed) to contain given point
 GLbbox glBboxContainPoint(GLbbox box, GLvector3 point)
 {
-    box.min.x = MIN(box.min.x, point.x);
-    box.min.y = MIN(box.min.y, point.y);
-    box.min.z = MIN(box.min.z, point.z);
+    if(box.min.x >= point.x) {
+        box.min.x = point.x;
+    }
 
-    box.max.x = MAX(box.max.x, point.x);
-    box.max.y = MAX(box.max.y, point.y);
-    box.max.z = MAX(box.max.z, point.z);
+    if(box.min.y >= point.y) {
+        box.min.y = point.y;
+    }
+
+    if(box.min.z >= point.z) {
+        box.min.z = point.z;
+    }
+
+    if(box.max.x <= point.x) {
+        box.max.x = point.x;
+    }
+
+    if(box.max.y <= point.y) {
+        box.max.y = point.y;
+    }
+
+    if(box.max.z <= point.z) {
+        box.max.z = point.z;
+    }
 
     return box;
 }

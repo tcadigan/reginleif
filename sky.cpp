@@ -92,13 +92,22 @@ CSky::CSky()
         for(x = 0; x < SKY_GRID; ++x) {
             dist = MathDistance((float)x,
                                 (float)y,
-                                (float)SKY_HALF,
-                                (float)SKY_HALF);
+                                (float)(SKY_GRID / 2),
+                                (float)(SKY_GRID / 2));
 
-            scale = CLAMP((dist / SKY_HALF), 0.0f, 1.0f);
-            grid_[x][y].position.x = (float)(x - SKY_HALF);
+            if((dist / (SKY_GRID / 2)) < 0.0f) {
+                scale = 0.0f;
+            }
+            else if((dist / (SKY_GRID / 2)) > 1.0f) {
+                scale = 1.0f;
+            }
+            else {
+                scale = dist / (SKY_GRID / 2);
+            }
+
+            grid_[x][y].position.x = (float)(x - (SKY_GRID / 2));
             grid_[x][y].position.y = 1.0f - (scale * 1.5f);
-            grid_[x][y].position.z = (float)(y - SKY_HALF);
+            grid_[x][y].position.z = (float)(y - (SKY_GRID / 2));
             grid_[x][y].color = top;
             fade = MathSmoothStep(scale, 0.0f, 0.6f);
             grid_[x][y].color =

@@ -91,9 +91,9 @@ GLrgba glRgba(long c)
 {
     GLrgba result;
 
-    result.red = (float)((c & 0x000000FF) >> 16) / 255.0f;
-    result.green = (float)((c & 0x0000FF00) >> 8) / 255.0f;
-    result.blue = (float)(c & 0x00FF0000) / 255.0f;
+    result.red = (float)((c & 0xFF0000) >> 24) / 255.0f;
+    result.green = (float)((c & 0x00FF0000) >> 16) / 255.0f;
+    result.blue = (float)((c & 0x0000FF00) >> 8)/ 255.0f;
     result.alpha = 1.0f;
 
     return result;
