@@ -9,17 +9,83 @@
 #include "ini.hpp"
 
 #include <cstdio>
+#include <fstream>
 #include <sstream>
+#include <cstring>
+
+using namespace std;
 
 static char result[MAX_RESULT];
 
 int IniInt(char const *entry)
 {
-    int result = -1;
-
-    // result = GetPrivateProfileInt(SECTION, entry, -1, INIT_FILE);
     
-    return result;
+    int result_value = -1;
+
+    if(entry == NULL) {
+        return result_value;
+    }
+
+    string local_entry(entry);
+
+    for(unsigned int i = 0; i < local_entry.size(); ++i) {
+        local_entry.at(i) = tolower(local_entry.at(i));
+    }
+
+    string local_section(SECTION);
+    for(unsigned int i = 0; i < local_section.size(); ++i) {
+        local_section.at(i) = tolower(local_section.at(i));
+    }
+
+    ifstream input;
+    input.open(INIT_FILE);
+    if(!input.good()) {
+        return result_value;
+    }
+
+    string line;
+    getline(input, line);
+
+    bool found_section = false;
+    while(input.good()) {
+        if(!line.empty()) {
+            if((*line.begin() == '[') && (*line.rbegin() == ']')) {
+                for(unsigned int i = 0; i < line.size(); ++i) {
+                    line.at(i) = tolower(line.at(i));
+                }
+                
+                if(line.substr(1, line.size() - 2) == local_section) {
+                    found_section = true;
+                }
+                else {
+                    found_section = false;
+                }
+            }
+            else if(found_section 
+                    && (line.at(0) != ';')
+                    && (line.find_first_of('=') != string::npos)) {
+                string key = line.substr(0, line.find_first_of('='));
+                
+                for(unsigned int i = 0; i < key.size(); ++i) {
+                    key.at(i) = tolower(key.at(i));
+                }
+                
+                if(key == local_entry) {
+                    stringstream conversion;
+                    conversion << line.substr(line.find_first_of('=') + 1);
+                    conversion >> result_value;
+                    
+                    break;
+                }
+            }
+        }
+
+        getline(input, line);
+    }
+
+    input.close();
+    
+    return result_value;
 }
 
 void IniIntSet(char const *entry, int val)
@@ -32,14 +98,72 @@ void IniIntSet(char const *entry, int val)
 
 float IniFloat(char const *entry)
 {
-    float f;
+    float result_value = 0;
 
-    // GetPrivateProfileString(SECTION, entry, "", result, MAX_RESULT, IN_FILE);
-    std::stringstream conversion;
-    conversion << result;
-    conversion >> f;
+    if(entry == NULL) {
+        return result_value;
+    }
 
-    return f;
+    string local_entry(entry);
+
+    for(unsigned int i = 0; i < local_entry.size(); ++i) {
+        local_entry.at(i) = tolower(local_entry.at(i));
+    }
+
+    string local_section(SECTION);
+    for(unsigned int i = 0; i < local_section.size(); ++i) {
+        local_section.at(i) = tolower(local_section.at(i));
+    }
+    
+    ifstream input;
+    input.open(INIT_FILE);
+    if(!input.good()) {
+        return result_value;
+    }
+
+    string line;
+    getline(input, line);
+
+    bool found_section = false;
+    while(input.good()) {
+        if(!line.empty()) {
+            if((*line.begin() == '[') && (*line.rbegin() == ']')) {
+                for(unsigned int i = 0; i < line.size(); ++i) {
+                    line.at(i) = tolower(line.at(i));
+                }
+                
+                if(line.substr(1, line.size() - 2) == local_section) {
+                    found_section = true;
+                }
+                else {
+                    found_section = false;
+                }
+            }
+            else if(found_section 
+                    && (line.at(0) != ';')
+                    && (line.find_first_of('=') != string::npos)) {
+                string key = line.substr(0, line.find_first_of('='));
+                
+                for(unsigned int i = 0; i < key.size(); ++i) {
+                    key.at(i) = tolower(key.at(i));
+                }
+                
+                if(key == local_entry) {
+                    stringstream conversion;
+                    conversion << line.substr(line.find_first_of('=') + 1);
+                    conversion >> result;
+                    
+                    break;
+                }
+            }
+        }
+
+        getline(input, line);
+    }
+
+    input.close();
+    
+    return result_value;
 }
 
 void IniFloatSet(char const *entry, float val)
@@ -52,8 +176,82 @@ void IniFloatSet(char const *entry, float val)
 
 char *IniString(char const *entry)
 {
-    // GetPrivateProfileString(SECTION, entry, "", result, MAX_RESULT, INI_FILE);
+    string local_entry;
 
+    if(entry != NULL) {
+        local_entry = entry;
+
+        for(unsigned int i = 0; i < local_entry.size(); ++i) {
+            local_entry.at(i) = tolower(local_entry.at(i));
+        }
+    }
+
+    string local_section(SECTION);
+    for(unsigned int i = 0; i < local_section.size(); ++i) {
+        local_section.at(i) = tolower(local_section.at(i));
+    }
+
+    result[0] = '\0';
+    
+    ifstream input;
+    input.open(INIT_FILE);
+    if(!input.good()) {
+        return result;
+    }
+
+    string line;
+    getline(input, line);
+
+    string result_string;
+    bool found_section = false;
+    while(input.good()) {
+        if(!line.empty()) {
+            if((*line.begin() == '[') && (*line.rbegin() == ']')) {
+                for(unsigned int i = 0; i < line.size(); ++i) {
+                    line.at(i) = tolower(line.at(i));
+                }
+                
+                if(line.substr(1, line.size() - 2) == local_section) {
+                    found_section = true;
+                }
+                else {
+                    found_section = false;
+                }
+            }
+            else if(found_section 
+                    && (line.at(0) != ';')
+                    && (line.find_first_of('=') != string::npos)) {
+                string key = line.substr(0, line.find_first_of('='));
+                
+                for(unsigned int i = 0; i < key.size(); ++i) {
+                    key.at(i) = tolower(key.at(i));
+                }
+                
+                result_string.append(line.substr(line.find_first_of('=') + 1));
+                result_string.append('\0');
+                
+                if(key == local_entry) {
+                    break;
+                }
+            }
+        }
+
+        getline(input, line);
+    }
+
+    for(unsigned int i = 0; i < MAX_RESULT; ++i) {
+        if(i < result_string.size()) {
+            result[i] = result_string.at(i);
+        }
+        else {
+            result[i] = '\0';
+        }
+    }
+
+    if(result_string.size() > MAX_RESULT) {
+        result[MAX_RESULT - 2] = '\0';
+    }
+    
     return result;
 }
 
@@ -76,14 +274,70 @@ GLvector3 IniVector(char const *entry)
     v.y = v.z;
     v.x = v.y;
 
-    // GetPrivateProfileString(SECTION, 
-    //                         entry,
-    //                         "0 0 0",
-    //                         result, 
-    //                         MAX_RESULT,
-    //                         INI_FILE);
+    if(entry == NULL) {
+        return v;
+    }
 
-    sscanf(result, FORMAT_VECTOR, &v.x, &v.y, &v.z);
+    string local_entry(entry);
+
+    for(unsigned int i = 0; i < local_entry.size(); ++i) {
+        local_entry.at(i) = tolower(local_entry.at(i));
+    }
+
+    string local_section(SECTION);
+    for(unsigned int i = 0; i < local_section.size(); ++i) {
+        local_section.at(i) = tolower(local_section.at(i));
+    }
+    
+    ifstream input;
+    input.open(INIT_FILE);
+    if(!input.good()) {
+        return v;
+    }
+
+    string line;
+    getline(input, line);
+
+    bool found_section = false;
+    while(input.good()) {
+        if(!line.empty()) {
+            if((*line.begin() == '[') && (*line.rbegin() == ']')) {
+                for(unsigned int i = 0; i < line.size(); ++i) {
+                    line.at(i) = tolower(line.at(i));
+                }
+                
+                if(line.substr(1, line.size() - 2) == local_section) {
+                    found_section = true;
+                }
+                else {
+                    found_section = false;
+                }
+            }
+            else if(found_section 
+                    && (line.at(0) != ';')
+                    && (line.find_first_of('=') != string::npos)) {
+                string key = line.substr(0, line.find_first_of('='));
+                
+                for(unsigned int i = 0; i < key.size(); ++i) {
+                    key.at(i) = tolower(key.at(i));
+                }
+                
+                if(key == local_entry) {
+                    stringstream conversion;
+                    conversion << line.substr(line.find_first_of('=') + 1);
+                    conversion >> v.x;
+                    conversion >> v.y;
+                    conversion >> v.z;
+                    
+                    break;
+                }
+            }
+        }
+            
+        getline(input, line);
+    }
+
+    input.close();
 
     return v;
 }
