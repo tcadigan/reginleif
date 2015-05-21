@@ -221,17 +221,20 @@ char *IniString(char const *entry)
             else if(found_section 
                     && (line.at(0) != ';')
                     && (line.find_first_of('=') != string::npos)) {
-                string key = line.substr(0, line.find_first_of('='));
+                size_t delim_location = line.find_first_of('=');
+                string key = line.substr(0, delim_location);
                 
                 for(unsigned int i = 0; i < key.size(); ++i) {
                     key.at(i) = tolower(key.at(i));
                 }
+
+                if(local_entry.empty() || (key == local_entry)) {
+                    result_string.append(line.substr(delim_location + 1));
+                    result_string.append('\0');
                 
-                result_string.append(line.substr(line.find_first_of('=') + 1));
-                result_string.append('\0');
-                
-                if(key == local_entry) {
-                    break;
+                    if(key == local_entry) {
+                        break;
+                    }
                 }
             }
         }
