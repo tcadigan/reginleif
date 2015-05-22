@@ -5,342 +5,257 @@
  * This takes various types of data and dumps them into a predefined ini file.
  */
 
-
 #include "ini.hpp"
 
-#include <cstdio>
 #include <fstream>
 #include <sstream>
-#include <cstring>
 
-using namespace std;
-
-static char result[MAX_RESULT];
-
-int IniInt(char const *entry)
+IniManager::IniManager()
+    : ini_filename_(INI_FILE)
 {
-    
-    int result_value = -1;
-
-    if(entry == NULL) {
-        return result_value;
-    }
-
-    string local_entry(entry);
-
-    for(unsigned int i = 0; i < local_entry.size(); ++i) {
-        local_entry.at(i) = tolower(local_entry.at(i));
-    }
-
-    string local_section(SECTION);
-    for(unsigned int i = 0; i < local_section.size(); ++i) {
-        local_section.at(i) = tolower(local_section.at(i));
-    }
-
-    ifstream input;
-    input.open(INIT_FILE);
-    if(!input.good()) {
-        return result_value;
-    }
-
-    string line;
-    getline(input, line);
-
-    bool found_section = false;
-    while(input.good()) {
-        if(!line.empty()) {
-            if((*line.begin() == '[') && (*line.rbegin() == ']')) {
-                for(unsigned int i = 0; i < line.size(); ++i) {
-                    line.at(i) = tolower(line.at(i));
-                }
-                
-                if(line.substr(1, line.size() - 2) == local_section) {
-                    found_section = true;
-                }
-                else {
-                    found_section = false;
-                }
-            }
-            else if(found_section 
-                    && (line.at(0) != ';')
-                    && (line.find_first_of('=') != string::npos)) {
-                string key = line.substr(0, line.find_first_of('='));
-                
-                for(unsigned int i = 0; i < key.size(); ++i) {
-                    key.at(i) = tolower(key.at(i));
-                }
-                
-                if(key == local_entry) {
-                    stringstream conversion;
-                    conversion << line.substr(line.find_first_of('=') + 1);
-                    conversion >> result_value;
-                    
-                    break;
-                }
-            }
-        }
-
-        getline(input, line);
-    }
-
-    input.close();
-    
-    return result_value;
+    parse_contents();
 }
 
-void IniIntSet(char const *entry, int val)
+IniManager::IniManager(string const &ini_filename)
+    : ini_filename_(ini_filename)
 {
-    char buf[20];
-
-    sprintf(buf, "%d", val);
-    // WritePrivateProfileString(SECTION, entry, buf, INI_FILE);
+    parse_contents();
 }
 
-float IniFloat(char const *entry)
+IniManager::~IniManager()
 {
-    float result_value = 0;
-
-    if(entry == NULL) {
-        return result_value;
+    ofstream output;
+    output.open(ini_filename_.c_str(), ofstream::out | ofstream::trunc);
+    if(!output.good()) {
+        return;
     }
 
-    string local_entry(entry);
+    map<string, map<string, string> >::iterator itr;
+    map<string, string>::iterator itr2;
 
-    for(unsigned int i = 0; i < local_entry.size(); ++i) {
-        local_entry.at(i) = tolower(local_entry.at(i));
-    }
+    for(itr = contents_.begin(); itr != contents_.end(); ++itr) {
+        output << "[" << itr->first << "]" << endl;
 
-    string local_section(SECTION);
-    for(unsigned int i = 0; i < local_section.size(); ++i) {
-        local_section.at(i) = tolower(local_section.at(i));
-    }
-    
-    ifstream input;
-    input.open(INIT_FILE);
-    if(!input.good()) {
-        return result_value;
-    }
-
-    string line;
-    getline(input, line);
-
-    bool found_section = false;
-    while(input.good()) {
-        if(!line.empty()) {
-            if((*line.begin() == '[') && (*line.rbegin() == ']')) {
-                for(unsigned int i = 0; i < line.size(); ++i) {
-                    line.at(i) = tolower(line.at(i));
-                }
-                
-                if(line.substr(1, line.size() - 2) == local_section) {
-                    found_section = true;
-                }
-                else {
-                    found_section = false;
-                }
-            }
-            else if(found_section 
-                    && (line.at(0) != ';')
-                    && (line.find_first_of('=') != string::npos)) {
-                string key = line.substr(0, line.find_first_of('='));
-                
-                for(unsigned int i = 0; i < key.size(); ++i) {
-                    key.at(i) = tolower(key.at(i));
-                }
-                
-                if(key == local_entry) {
-                    stringstream conversion;
-                    conversion << line.substr(line.find_first_of('=') + 1);
-                    conversion >> result;
-                    
-                    break;
-                }
-            }
+        for(itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2) {
+            output << itr2->first << "=" << itr2->second << endl;
         }
-
-        getline(input, line);
     }
-
-    input.close();
-    
-    return result_value;
 }
 
-void IniFloatSet(char const *entry, float val)
+void IniManager::set_int(string const &entry, int value)
 {
-    char buf[20];
+    string value_str;
+    stringstream input;
 
-    sprintf(buf, FORMAT_FLOAT, val);
-    // WritePrivateProfileString(SECTION, entry, buf, INI_FILE);
+    input << value;
+    input >> value_str;
+
+    set_string(entry, value_str);
 }
 
-char *IniString(char const *entry)
+void IniManager::set_float(string const &entry, float value)
 {
-    string local_entry;
+    string value_str;
+    stringstream input;
 
-    if(entry != NULL) {
-        local_entry = entry;
+    input << value;
+    input >> value_str;
 
-        for(unsigned int i = 0; i < local_entry.size(); ++i) {
-            local_entry.at(i) = tolower(local_entry.at(i));
-        }
+    set_string(entry, value_str);
+}
+
+void IniManager::set_string(string const &entry, string const &value)
+{
+    string section_str(SECTION);
+    for(unsigned int i = 0; i < section_str.size(); ++i) {
+        section_str[i] = tolower(section_str[i]);
     }
 
-    string local_section(SECTION);
-    for(unsigned int i = 0; i < local_section.size(); ++i) {
-        local_section.at(i) = tolower(local_section.at(i));
-    }
+    map<string, map<string, string> >::iterator itr = 
+        contents_.find(section_str);
 
-    result[0] = '\0';
-    
-    ifstream input;
-    input.open(INIT_FILE);
-    if(!input.good()) {
-        return result;
-    }
-
-    string line;
-    getline(input, line);
-
-    string result_string;
-    bool found_section = false;
-    while(input.good()) {
-        if(!line.empty()) {
-            if((*line.begin() == '[') && (*line.rbegin() == ']')) {
-                for(unsigned int i = 0; i < line.size(); ++i) {
-                    line.at(i) = tolower(line.at(i));
-                }
-                
-                if(line.substr(1, line.size() - 2) == local_section) {
-                    found_section = true;
-                }
-                else {
-                    found_section = false;
-                }
-            }
-            else if(found_section 
-                    && (line.at(0) != ';')
-                    && (line.find_first_of('=') != string::npos)) {
-                size_t delim_location = line.find_first_of('=');
-                string key = line.substr(0, delim_location);
-                
-                for(unsigned int i = 0; i < key.size(); ++i) {
-                    key.at(i) = tolower(key.at(i));
-                }
-
-                if(local_entry.empty() || (key == local_entry)) {
-                    result_string.append(line.substr(delim_location + 1));
-                    result_string.append('\0');
-                
-                    if(key == local_entry) {
-                        break;
-                    }
-                }
-            }
-        }
-
-        getline(input, line);
-    }
-
-    for(unsigned int i = 0; i < MAX_RESULT; ++i) {
-        if(i < result_string.size()) {
-            result[i] = result_string.at(i);
+    if(itr != contents_.end()) {
+        if(entry.empty()) {
+            contents_.erase(itr);
         }
         else {
-            result[i] = '\0';
+            string entry_str(entry);
+            for(unsigned int i = 0; i < entry_str.size(); ++i) {
+                entry_str[i] = tolower(entry_str[i]);
+            }
+
+            map<string, string>::iterator inner_itr = 
+                itr->second.find(entry_str);
+            
+            if(inner_itr != itr->second.end()) {
+                if(value.empty()) {
+                    itr->second.erase(inner_itr);
+                }
+                else {
+                    inner_itr->second = value;
+                }
+            }
         }
     }
+    else {
+        if(!entry.empty() && !value.empty()) {
+            string entry_str(entry);
+            for(unsigned int i = 0; i < entry_str.size(); ++i) {
+                entry_str[i] = tolower(entry_str[i]);
+            }
 
-    if(result_string.size() > MAX_RESULT) {
-        result[MAX_RESULT - 2] = '\0';
+            contents_[section_str][entry_str] = value;
+        }
     }
-    
+}
+
+void IniManager::set_vector(string const &entry, GLvector3 const &value)
+{
+    stringstream input;
+
+    input << value.x << " "
+          << value.y << " "
+          << value.z;
+
+    set_string(entry, input.str());
+}
+
+int IniManager::get_int(string const &entry)
+{
+    int result;
+    stringstream output;
+
+    output << inner_get_string(entry, "-1");
+
+    output >> result;
+
     return result;
 }
 
-void InitStringSet(char const *entry, char *val)
+float IniManager::get_float(string const &entry)
 {
-    // WritePrivateProfileString(SECTION, entry, val, INI_FILE);
+    float result;
+    stringstream output;
+
+    output << inner_get_string(entry, "0");
+    output >> result;
+
+    return result;
 }
 
-void IniVectorSet(char const *entry, GLvector3 v)
+string IniManager::get_string(string const &entry)
 {
-    sprintf(result, FORMAT_VECTOR, v.x, v.y, v.z);
-    // WritePrivateProfileString(SECTION, entry, result, INI_FILE);
+    string result;
+    stringstream output;
+
+    output << inner_get_string(entry, "");
+    output >> result;
+
+    return result;
 }
 
-GLvector3 IniVector(char const *entry)
+GLvector3 IniManager::get_vector(string const &entry)
 {
-    GLvector3 v;
+    GLvector3 result;
+    result.x = 0;
+    result.y = 0;
+    result.z = 0;
 
-    v.z = 0.0f;
-    v.y = v.z;
-    v.x = v.y;
+    stringstream output;
 
-    if(entry == NULL) {
-        return v;
+    output << inner_get_string(entry, "0 0 0");
+    output >> result.x >> result.y >> result.z;
+
+    return result;
+}
+
+string IniManager::inner_get_string(string const &entry, 
+                                    string const &default_value)
+{
+    stringstream output;
+
+    string section_str(SECTION);
+    for(unsigned int i = 0; i < section_str.size(); ++i) {
+        section_str[i] = tolower(section_str[i]);
     }
 
-    string local_entry(entry);
+    map<string, map<string, string> >::iterator itr;
 
-    for(unsigned int i = 0; i < local_entry.size(); ++i) {
-        local_entry.at(i) = tolower(local_entry.at(i));
+    if(section_str.empty()) {
+        for(itr = contents_.begin(); itr != contents_.end(); ++itr) {
+            output << itr->first << " ";
+        }
+    }
+    else {
+        itr = contents_.find(SECTION);
+
+        if(itr != contents_.end()) {
+            map<string, string>::iterator itr2;
+            map<string, string> &inner_map = itr->second;
+
+            if(entry.empty()) {
+                for(itr2 = inner_map.begin(); itr2 != inner_map.end(); ++itr2) {
+                    output << itr2->first << " ";
+                }
+            }
+            else{
+                string entry_str(entry);
+                for(unsigned int i = 0; i < entry_str.size(); ++i) {
+                    entry_str[i] = tolower(entry_str[i]);
+                }
+
+                itr2 = itr->second.find(entry);
+                
+                if(itr2 != itr->second.end()) {
+                    output << itr2->second;
+                }
+                else {
+                    output << default_value;
+                }
+            }
+        }
+        else {
+            output << default_value;
+        }
     }
 
-    string local_section(SECTION);
-    for(unsigned int i = 0; i < local_section.size(); ++i) {
-        local_section.at(i) = tolower(local_section.at(i));
-    }
-    
+    return output.str();
+}
+
+void IniManager::parse_contents()
+{
     ifstream input;
-    input.open(INIT_FILE);
+    input.open(ini_filename_.c_str());
     if(!input.good()) {
-        return v;
+        return;
     }
 
     string line;
-    getline(input, line);
 
-    bool found_section = false;
-    while(input.good()) {
+    string current_section;
+    while(getline(input, line)) {
         if(!line.empty()) {
             if((*line.begin() == '[') && (*line.rbegin() == ']')) {
                 for(unsigned int i = 0; i < line.size(); ++i) {
                     line.at(i) = tolower(line.at(i));
                 }
                 
-                if(line.substr(1, line.size() - 2) == local_section) {
-                    found_section = true;
-                }
-                else {
-                    found_section = false;
-                }
+                current_section = line;
             }
-            else if(found_section 
+            else if(!current_section.empty()
                     && (line.at(0) != ';')
                     && (line.find_first_of('=') != string::npos)) {
                 string key = line.substr(0, line.find_first_of('='));
-                
                 for(unsigned int i = 0; i < key.size(); ++i) {
-                    key.at(i) = tolower(key.at(i));
+                    key[i] = tolower(key[i]);
                 }
-                
-                if(key == local_entry) {
-                    stringstream conversion;
-                    conversion << line.substr(line.find_first_of('=') + 1);
-                    conversion >> v.x;
-                    conversion >> v.y;
-                    conversion >> v.z;
-                    
-                    break;
-                }
+
+                string value = line.substr(line.find_first_of('=') + 1);
+
+                contents_[current_section][key] = value;
             }
         }
-            
-        getline(input, line);
     }
 
     input.close();
-
-    return v;
 }

@@ -218,8 +218,10 @@ void CameraAngleSet(GLvector3 new_angle)
 
 void CameraInit(void)
 {
-    angle = IniVector("CameraAngle");
-    position = IniVector("CameraPosition");
+    IniManager ini_mgr;
+
+    angle = ini_mgr.get_vector("CameraAngle");
+    position = ini_mgr.get_vector("CameraPosition");
 }
 
 void CameraUpdate(void)
@@ -283,7 +285,9 @@ void CameraUpdate(void)
 
 void CameraTerm(void)
 {
+    IniManager ini_mgr;
+
     // Just store our most recent position in the ini
-    IniVectorSet("CameraAngle", angle);
-    IniVectorSet("CameraPosition", position);
+    ini_mgr.set_vector("CameraAngle", angle);
+    ini_mgr.set_vector("CameraPosition", position);
 }
