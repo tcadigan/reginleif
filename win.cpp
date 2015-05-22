@@ -10,6 +10,7 @@
 #include <cstdarg>
 #include <cstdio>
 
+#include "ini.hpp"
 #include "pointer.hpp"
 
 // static HWND hwnd;
@@ -21,6 +22,7 @@ static int height;
 static bool mouse_forced;
 // static point mouse_pos;
 static point select_pos;
+static float mouse_movement;
 
 void CenterCursor()
 {
@@ -108,8 +110,8 @@ void MoveCursor(int x, int y)
 //         }
 //         else if(rmb || lmb) {
 //             CenterCursor();
-//             delta_x = (float)(mouse_pos.x - p.x) / MOUSE_MOVEMENT;
-//             delta_y = (float)(mouse_pos.y - p.y) / MOUSE_MOVEMENT;
+//             delta_x = (float)(mouse_pos.x - p.x) / mouse_movement;
+//             delta_y = (float)(mouse_pos.y - p.y) / mouse_movement;
 
 //             if(rmb && lmb) {
 //                 CameraSelectionYaw(delta_x);
@@ -177,6 +179,10 @@ int WinHeight(void)
 
 bool WinInit(void)
 {
+    IniManager ini_mgr;
+
+    mouse_movement = ini_mgr.get_float("Settings", "mouse movement");
+
     // WNDLASSEX wcex;
 
     // wcex.cbSize = sizeof(WNDCLASSEX);

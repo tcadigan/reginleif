@@ -11,7 +11,7 @@
 #include <sstream>
 
 IniManager::IniManager()
-    : ini_filename_(INI_FILE)
+    : ini_filename_("terrain.ini")
 {
     parse_contents();
 }
@@ -42,7 +42,9 @@ IniManager::~IniManager()
     }
 }
 
-void IniManager::set_int(string const &entry, int value)
+void IniManager::set_int(string const &section,
+                         string const &entry,
+                         int value)
 {
     string value_str;
     stringstream input;
@@ -50,10 +52,12 @@ void IniManager::set_int(string const &entry, int value)
     input << value;
     input >> value_str;
 
-    set_string(entry, value_str);
+    set_string(section, entry, value_str);
 }
 
-void IniManager::set_float(string const &entry, float value)
+void IniManager::set_float(string const &section,
+                           string const &entry,
+                           float value)
 {
     string value_str;
     stringstream input;
@@ -61,12 +65,14 @@ void IniManager::set_float(string const &entry, float value)
     input << value;
     input >> value_str;
 
-    set_string(entry, value_str);
+    set_string(section, entry, value_str);
 }
 
-void IniManager::set_string(string const &entry, string const &value)
+void IniManager::set_string(string const &section,
+                            string const &entry, 
+                            string const &value)
 {
-    string section_str(SECTION);
+    string section_str(section);
     for(unsigned int i = 0; i < section_str.size(); ++i) {
         section_str[i] = tolower(section_str[i]);
     }
@@ -109,7 +115,9 @@ void IniManager::set_string(string const &entry, string const &value)
     }
 }
 
-void IniManager::set_vector(string const &entry, GLvector3 const &value)
+void IniManager::set_vector(string const &section,
+                            string const &entry,
+                            GLvector3 const &value)
 {
     stringstream input;
 
@@ -117,44 +125,44 @@ void IniManager::set_vector(string const &entry, GLvector3 const &value)
           << value.y << " "
           << value.z;
 
-    set_string(entry, input.str());
+    set_string(section, entry, input.str());
 }
 
-int IniManager::get_int(string const &entry)
+int IniManager::get_int(string const &section, string const &entry)
 {
     int result;
     stringstream output;
 
-    output << inner_get_string(entry, "-1");
+    output << inner_get_string(section, entry, "-1");
 
     output >> result;
 
     return result;
 }
 
-float IniManager::get_float(string const &entry)
+float IniManager::get_float(string const &section, string const &entry)
 {
     float result;
     stringstream output;
 
-    output << inner_get_string(entry, "0");
+    output << inner_get_string(section, entry, "0");
     output >> result;
 
     return result;
 }
 
-string IniManager::get_string(string const &entry)
+string IniManager::get_string(string const &section, string const &entry)
 {
     string result;
     stringstream output;
 
-    output << inner_get_string(entry, "");
+    output << inner_get_string(section, entry, "");
     output >> result;
 
     return result;
 }
 
-GLvector3 IniManager::get_vector(string const &entry)
+GLvector3 IniManager::get_vector(string const &section, string const &entry)
 {
     GLvector3 result;
     result.x = 0;
@@ -163,18 +171,19 @@ GLvector3 IniManager::get_vector(string const &entry)
 
     stringstream output;
 
-    output << inner_get_string(entry, "0 0 0");
+    output << inner_get_string(section, entry, "0 0 0");
     output >> result.x >> result.y >> result.z;
 
     return result;
 }
 
-string IniManager::inner_get_string(string const &entry, 
+string IniManager::inner_get_string(string const &section,
+                                    string const &entry, 
                                     string const &default_value)
 {
     stringstream output;
 
-    string section_str(SECTION);
+    string section_str(section);
     for(unsigned int i = 0; i < section_str.size(); ++i) {
         section_str[i] = tolower(section_str[i]);
     }
@@ -187,7 +196,7 @@ string IniManager::inner_get_string(string const &entry,
         }
     }
     else {
-        itr = contents_.find(SECTION);
+        itr = contents_.find(section_str);
 
         if(itr != contents_.end()) {
             map<string, string>::iterator itr2;

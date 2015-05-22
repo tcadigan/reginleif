@@ -220,8 +220,8 @@ void CameraInit(void)
 {
     IniManager ini_mgr;
 
-    angle = ini_mgr.get_vector("CameraAngle");
-    position = ini_mgr.get_vector("CameraPosition");
+    angle = ini_mgr.get_vector("Settings", "CameraAngle");
+    position = ini_mgr.get_vector("Settings", "CameraPosition");
 }
 
 void CameraUpdate(void)
@@ -288,6 +288,6 @@ void CameraTerm(void)
     IniManager ini_mgr;
 
     // Just store our most recent position in the ini
-    ini_mgr.set_vector("CameraAngle", angle);
-    ini_mgr.set_vector("CameraPosition", position);
+    ini_mgr.set_vector("Settings", "CameraAngle", angle);
+    ini_mgr.set_vector("Settings", "CameraPosition", position);
 }

@@ -14,6 +14,7 @@
 #include "entity.hpp"
 #include "camera.hpp"
 #include "gl-rgba.hpp"
+#include "ini.hpp"
 #include "world.hpp"
 
 // static PIXELFORMATDESCRIPTOR pfd = {
@@ -43,6 +44,7 @@ static int render_width;
 static int render_height;
 static float render_aspect;
 static unsigned char *buffer;
+static int render_distance;
 
 void RenderResize(void)
 {
@@ -61,7 +63,7 @@ void RenderResize(void)
     glViewport(left, top, render_width, render_height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(45.0f, render_aspect, 0.1f, RENDER_DISTANCE);
+    gluPerspective(45.0f, render_aspect, 0.1f, render_distance);
     glMatrixMode(GL_MODELVIEW);
     // buffer = new unsigned char[(WinWidth() * WinHeight()) * 4];
 }
@@ -78,6 +80,10 @@ void RenderTerm(void)
 
 void RenderInit(void)
 {
+    IniManager ini_mgr;
+
+    render_distance = ini_mgr.get_int("Render Settings", "render distance");
+
     // HWND hWnd;
     // unsigned int PixelFormat;
 
