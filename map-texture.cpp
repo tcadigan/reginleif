@@ -25,6 +25,7 @@
 
 #include "camera.hpp"
 #include "console.hpp"
+#include "ini.hpp"
 #include "macro.hpp"
 #include "texture.hpp"
 #include "map.hpp"
@@ -44,7 +45,7 @@ struct ztexture {
 static unsigned char *buffer;
 static ztexture zone_texture[GRID_COUNT][ZONE_GRID * ZONE_GRID];
 static unsigned int layer_texture[LAYER_COUNT];
-static unsigned int res_texture[MAX_RESOLUTION];
+static unsigned int *res_texture;
 static unsigned int current_grid;
 static unsigned int current_zone;
 static unsigned int current_layer;
@@ -54,6 +55,10 @@ static int ref_count;
 static int camera_zone_x;
 static int camera_zone_y;
 static int zone_size;
+static int max_resolution;
+static int map_texture_update_time;
+static int show_resolution;
+static int uv_scale;
 
 // Which zone is the camera over?
 static void GetCameraZone(void)
@@ -96,6 +101,17 @@ unsigned int MapTexture(int zone)
 
 void MapTextureInit(void)
 {
+    IniManager ini_mgr;
+    max_resolution = ini_mgr.get_int("Map Texture", "max_resolution");
+
+    res_texture = new unsigned int[max_resolution];
+
+    map_texture_update_time = 
+        ini_mgr.get_int("Map Texture", "map_texture_update_time");
+
+    show_resolution = ini_mgr.get_int("Map Texture", "show_resolution");
+    uv_scale = ini_mgr.get_int("Map Texture", "uv_scale");
+
     int grid;
     int zone;
 
@@ -107,7 +123,7 @@ void MapTextureInit(void)
         }
     }
 
-    buffer = new unsigned char[(MAX_RESOLUTION * MAX_RESOLUTION) * 4];
+    buffer = new unsigned char[(max_resolution * max_resolution) * 4];
     zone_size = MapSize() / ZONE_GRID;
     layer_texture[LAYER_GRASS] = TextureFromName("grassa512");
     layer_texture[LAYER_LOWGRASS] = TextureFromName("grassb512");
@@ -115,7 +131,7 @@ void MapTextureInit(void)
     layer_texture[LAYER_ROCK] = TextureFromName("rock512");
     layer_texture[LAYER_DIRT] = TextureFromName("dirt512");
 
-    if(SHOW_RESOLUTION != 0) {
+    if(show_resolution != 0) {
         res_texture[8] = TextureFromName("n8");
         res_texture[16] = TextureFromName("n16");
         res_texture[32] = TextureFromName("n32");
@@ -130,6 +146,7 @@ void MapTextureInit(void)
 
 void MapTextureTerm(void)
 {
+    delete[] res_texture;
     delete[] buffer;
 }
 
@@ -162,11 +179,11 @@ static void DrawLayer(int origin_x, int origin_y, int size, int layer)
         glBegin(GL_QUAD_STRIP);
         glTexCoord2f(0.0f, 0.0f);
         glVertex2i(0, 0);
-        glTexCoord2f(0.0f, UV_SCALE);
+        glTexCoord2f(0.0f, uv_scale);
         glVertex2i(0, size);
-        glTexCoord2f(UV_SCALE, 0);
+        glTexCoord2f(uv_scale, 0);
         glVertex2i(size, 0);
-        glTexCoord2f(UV_SCALE, UV_SCALE);
+        glTexCoord2f(uv_scale, uv_scale);
         glVertex2i(size, size);
         glEnd();
 
@@ -261,15 +278,15 @@ static void DrawLayer(int origin_x, int origin_y, int size, int layer)
 
             if(drawing) {
                 glColor4fv(&color1.red);
-                glTexCoord2f(((float)x / (float)zone_size) * UV_SCALE,
-                             ((float)y / (float)zone_size) * UV_SCALE);
+                glTexCoord2f(((float)x / (float)zone_size) * uv_scale,
+                             ((float)y / (float)zone_size) * uv_scale);
 
                 glVertex2i((int)((float)x * cell_size),
                            (int)((float)y * cell_size));
 
                 glColor4fv(&color2.red);
-                glTexCoord2f(((float)x / (float)zone_size) * UV_SCALE,
-                             ((float)y / (float)zone_size) * UV_SCALE);
+                glTexCoord2f(((float)x / (float)zone_size) * uv_scale,
+                             ((float)y / (float)zone_size) * uv_scale);
 
                 glVertex2i((int)((float)x * cell_size),
                            (int)((float)y * cell_size));
@@ -300,7 +317,7 @@ void MapTextureUpdate()
     }
 
     now = SDL_GetTicks();
-    end = now + MAP_TEXTURE_UPDATE_TIME;
+    end = now + map_texture_update_time;
 
     while(SDL_GetTicks() < end) {
         z = &zone_texture[current_grid][current_zone];
@@ -331,25 +348,25 @@ void MapTextureUpdate()
             }
 
             if(delta < 2) {
-                z->size = MAX_RESOLUTION;
+                z->size = max_resolution;
             }
             else if(delta < 3) {
-                z->size = MAX_RESOLUTION / 2;
+                z->size = max_resolution / 2;
             }
             else if(delta < 4) {
-                z->size = MAX_RESOLUTION / 4;
+                z->size = max_resolution / 4;
             }
             else if(delta < 6) {
-                z->size = MAX_RESOLUTION / 8;
+                z->size = max_resolution / 8;
             }
             else if(delta < 7) {
-                z->size = MAX_RESOLUTION / 16;
+                z->size = max_resolution / 16;
             }
             else if(delta < 8) {
-                z->size = MAX_RESOLUTION / 32;
+                z->size = max_resolution / 32;
             }
             else {
-                z->size = MAX_RESOLUTION / 64;
+                z->size = max_resolution / 64;
             }
 
             if(z->size < 8) {
@@ -405,7 +422,7 @@ void MapTextureUpdate()
             ++current_layer;
         }
 
-        if((SHOW_RESOLUTION != 0) && (current_layer == LAYER_COUNT)) {
+        if((show_resolution != 0) && (current_layer == LAYER_COUNT)) {
             DrawLayer(origin_x, origin_y, z->size, LAYER_SPECIAL);
         }
         

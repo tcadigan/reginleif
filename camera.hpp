@@ -3,10 +3,6 @@
 
 #include "gl-vector3.hpp"
 
-// Constants
-#define EYE_HEIGHT 2.0f
-#define MAX_PITCH 85
-
 GLvector3 CameraAngle(void);
 void CameraAngleSet(GLvector3 new_angle);
 float CameraDistance(void);

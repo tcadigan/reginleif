@@ -22,6 +22,8 @@ static GLvector3 angle;
 static GLvector3 position;
 static float movement;
 static bool moving;
+static float eye_height;
+static int max_pitch;
 
 void CameraView(float delta)
 {
@@ -192,7 +194,7 @@ void CameraPositionSet(GLvector3 new_pos)
         position.z = limit;
     }
 
-    elevation = MapElevation(position.x, position.z) + EYE_HEIGHT;
+    elevation = MapElevation(position.x, position.z) + eye_height;
 
     if(elevation > position.y) {
         position.y = elevation;
@@ -220,8 +222,11 @@ void CameraInit(void)
 {
     IniManager ini_mgr;
 
-    angle = ini_mgr.get_vector("Settings", "CameraAngle");
-    position = ini_mgr.get_vector("Settings", "CameraPosition");
+    angle = ini_mgr.get_vector("Camera Settings", "CameraAngle");
+    position = ini_mgr.get_vector("Camera Settings", "CameraPosition");
+
+    eye_height = ini_mgr.get_float("Camera Settings", "eye_height");
+    max_pitch = ini_mgr.get_int("Camera Settings", "max_pitch");
 }
 
 void CameraUpdate(void)
@@ -266,18 +271,18 @@ void CameraUpdate(void)
         position.z = limit;
     }
 
-    elevation = MapElevation(position.x, position.z) + EYE_HEIGHT;
+    elevation = MapElevation(position.x, position.z) + eye_height;
 
     if(elevation > position.y) {
         position.y = elevation;
     }
 
 
-    if(angle.x < -MAX_PITCH) {
-        angle.x = -MAX_PITCH;
+    if(angle.x < -max_pitch) {
+        angle.x = -max_pitch;
     }
-    else if(angle.x > MAX_PITCH) {
-        angle.x = MAX_PITCH;
+    else if(angle.x > max_pitch) {
+        angle.x = max_pitch;
     }
 
     moving = false;

@@ -3,9 +3,6 @@
 
 #include "gl-vector3.hpp"
 
-// Constants
-#define MAX_VALUE 999999999999999.9f
-
 class GLbbox {
 public:
     GLvector3 min;

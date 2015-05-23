@@ -40,6 +40,8 @@ IniManager::~IniManager()
             output << itr2->first << "=" << itr2->second << endl;
         }
     }
+
+    output.close();
 }
 
 void IniManager::set_int(string const &section,

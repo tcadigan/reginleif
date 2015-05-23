@@ -5,9 +5,6 @@
 #include "gl-vector3.hpp"
 #include "gl-rgba.hpp"
 
-// Constants
-#define SKY_GRID 21
-
 struct sky_point {
     GLrgba color;
     GLvector3 position;
@@ -16,12 +13,14 @@ struct sky_point {
 class CSky : public CEntity {
 public:
     CSky();
+    virtual ~CSky();
     
     void Render(void);
     void Update(void);
 
 private:
-    sky_point grid_[SKY_GRID][SKY_GRID];
+    int sky_grid_;
+    sky_point **grid_;
 };
 
 #endif

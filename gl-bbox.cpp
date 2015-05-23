@@ -8,6 +8,7 @@
 
 #include "gl-bbox.hpp"
 
+#include <cfloat>
 #include "macro.hpp"
 
 // Does the given point fall within the given Bbox?
@@ -63,8 +64,8 @@ GLbbox glBboxClear(void)
 {
     GLbbox result;
 
-    result.max = glVector(-MAX_VALUE, -MAX_VALUE, -MAX_VALUE);
-    result.min = glVector(MAX_VALUE, MAX_VALUE, MAX_VALUE);
+    result.max = glVector(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+    result.min = glVector(FLT_MAX, FLT_MAX, FLT_MAX);
 
     return result;
 }

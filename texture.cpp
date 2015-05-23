@@ -45,7 +45,7 @@ static struct texture *head_texture;
 // Texture id
 static struct texture *LoadTexture(char const *name)
 {
-    char filename[MAX_STRING];
+    char filename[128];
     struct texture *t;
 
     t = new struct texture;
