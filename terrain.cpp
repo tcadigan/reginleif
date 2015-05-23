@@ -13,6 +13,7 @@
 
 #include "camera.hpp"
 #include "console.hpp"
+#include "ini.hpp"
 #include "macro.hpp"
 #include "map.hpp"
 #include "map-texture.hpp"
@@ -414,8 +415,8 @@ void CTerrain::Compile(void)
         compile_time_ = 0;
     }
 
-    x = zone_ % ZONE_GRID;
-    y = (zone_ - x) / ZONE_GRID;
+    x = zone_ % zone_grid_;
+    y = (zone_ - x) / zone_grid_;
     zone_origin_x_ = x * zone_size_;
     zone_origin_y_ = y * zone_size_;
     glNewList(list, GL_COMPILE);
@@ -425,7 +426,7 @@ void CTerrain::Compile(void)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 
-    if(DO_SOLID != 0) {
+    if(do_solid_ != 0) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glEnable(GL_CULL_FACE);
         glDisable(GL_BLEND);
@@ -438,7 +439,7 @@ void CTerrain::Compile(void)
         glDisable(GL_BLEND);
     }
 
-    if(DO_WIREFRAME != 0) {
+    if(do_wireframe_ != 0) {
         glDisable(GL_CULL_FACE);
         glEnable(GL_LINE_SMOOTH);
         glEnable(GL_BLEND);
@@ -457,8 +458,8 @@ void CTerrain::Compile(void)
     glEndList();
     ++zone_;
 
-    if(zone_ == (ZONE_GRID * ZONE_GRID)) {
-        if((DO_WIREFRAME != 0) && (DO_SOLID != 0)) {
+    if(zone_ == (zone_grid_ * zone_grid_)) {
+        if((do_wireframe_ != 0) && (do_solid_ != 0)) {
             vertices_ /= 2;
             triangles_ /= 2;
         }
@@ -499,17 +500,25 @@ void CTerrain::GridStep(void)
  * Constructor
  */
 CTerrain::CTerrain(int size)
-    : list_front_(glGenLists(ZONE_GRID * ZONE_GRID))
-    , list_back_(glGenLists(ZONE_GRID * ZONE_GRID))
-    , stage_(STAGE_IDLE)
+    : stage_(STAGE_IDLE)
     , map_size_(size)
     , map_half_(size / 2)
-    , tolerance_(TOLERANCE)
     , zone_size_(map_size_ / 2)
     , viewpoint_(glVector(0.0f, 0.0f, 0.0f))
     , boundary_(new short[size])
     , point_(new bool[size * size])
 {
+    IniManager ini_mgr;
+
+    tolerance_ = ini_mgr.get_float("Terrain Settings", "tolerance");
+    update_time_ = ini_mgr.get_int("Terrain Settings", "update_time");
+    do_wireframe_ = ini_mgr.get_int("Terrain Settings", "do_wireframe");
+    do_solid_ = ini_mgr.get_int("Terrain Settings", "do_solid");
+    zone_grid_ = ini_mgr.get_int("Map Settings", "zone_grid");
+
+    list_front_ = glGenLists(zone_grid_ * zone_grid_);
+    list_back_ = glGenLists(zone_grid_ * zone_grid_);
+
     entity_type_ = "terrain";
 
     // This finds the largest power-of-two dimension for the given number.
@@ -584,7 +593,7 @@ void CTerrain::RenderFadeIn()
         list = list_back_;
     }
 
-    for(i = 0; i < (ZONE_GRID * ZONE_GRID); ++i) {
+    for(i = 0; i < (zone_grid_ * zone_grid_); ++i) {
         glCallList(list + i);
     }
 }
@@ -604,7 +613,7 @@ void CTerrain::Render()
         list = list_back_;
     }
 
-    for(i = 0; i < (ZONE_GRID * ZONE_GRID); ++i) {
+    for(i = 0; i < (zone_grid_ * zone_grid_); ++i) {
         glCallList(list + i);
     }
 }
@@ -773,7 +782,7 @@ void CTerrain::FadeStart(void)
 
 /*
  * This is called every frame. This is where the terrain mesh is evaluated,
- * cut into triangles, and compiled fro rendering.
+ * cut into triangles, and compiled for rendering.
  */
 void CTerrain::Update(void)
 {
@@ -785,7 +794,7 @@ void CTerrain::Update(void)
     GLvector3 newpos;
 
     now = SDL_GetTicks();
-    end = now + UPDATE_TIME;
+    end = now + update_time_;
 
     while(SDL_GetTicks() < end) {
         switch(stage_) {
@@ -812,8 +821,8 @@ void CTerrain::Update(void)
             // No matter how simple the terrain is, we need to break it
             // up enough so that the blocks aren't bigger than the 
             // compile grid
-            for(xx = 0; xx < ZONE_GRID; ++xx) {
-                for(yy = 0; yy < ZONE_GRID; ++yy) {
+            for(xx = 0; xx < zone_grid_; ++xx) {
+                for(yy = 0; yy < zone_grid_; ++yy) {
                     PointActivate((xx * zone_size_) + (zone_size_ / 2),
                                   (yy * zone_size_) + (zone_size_ / 2));
 

@@ -148,7 +148,7 @@ void WinPopup(char *message, ...)
     vsprintf(buf, message, marker);
     va_end(marker);
 
-    // MessageBox(NULL, buf, APP_TITLE, MB_ICONSTOP | MB_OK | MB_TASKMODAL);
+    // MessageBox(NULL, buf, "Terrain Viewer", MB_ICONSTOP | MB_OK | MB_TASKMODAL);
 }
 
 int WinWidth(void)
@@ -195,7 +195,7 @@ bool WinInit(void)
     // wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
     // wcex.hbrBackground = (HBRUSH)(COLOR_BTNFACE + 1);
     // wcex.lpszMenuName = NULL;
-    // wcex.lpszClassName = APP_TITLE;
+    // wcex.lpszClassName = "Terrain Viewer";
     // wcex.hIconSm = NULL;
 
     // if(!RegisterClassEx(&wcex)) {
@@ -205,8 +205,8 @@ bool WinInit(void)
     // }
 
     // hwnd = CreateWindowEx(0,
-    //                       APP_TITLE,
-    //                       APP_TITLE,
+    //                       "Terrain Viewer",
+    //                       "Terrain Viewer",
     //                       WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
     //                       CW_USEDEFAULT,
     //                       0,

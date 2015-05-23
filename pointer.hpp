@@ -4,9 +4,6 @@
 #include "entity.hpp"
 #include "gl-vector3.hpp"
 
-// Constants
-#define PT_SIZE 8
-
 struct point {
     int x;
     int y;
@@ -28,6 +25,7 @@ private:
     point last_mouse_;
     point last_cell_;
     float pulse_;
+    int pt_size_;
 };
 
 #endif

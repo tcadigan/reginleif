@@ -20,6 +20,7 @@
 #include <cstring>
 
 #include "camera.hpp"
+#include "ini.hpp"
 #include "macro.hpp"
 #include "map.hpp"
 #include "texture.hpp"
@@ -49,28 +50,28 @@ void CPointer::Render()
 
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 0.0f);
-    p = MapPosition(cell_x - (PT_SIZE / 2), cell_y - (PT_SIZE / 2));
+    p = MapPosition(cell_x - (pt_size_ / 2), cell_y - (pt_size_ / 2));
     p.x -= pulse_;
     p.y += 2.0f;
     p.z -= pulse_;
     glVertex3fv(&p.x);
 
     glTexCoord2f(0.0f, 1.0f);
-    p = MapPosition(cell_x - (PT_SIZE / 2), cell_y + (PT_SIZE / 2));
+    p = MapPosition(cell_x - (pt_size_ / 2), cell_y + (pt_size_ / 2));
     p.x -= pulse_;
     p.y += 2.0f;
     p.z += pulse_;
     glVertex3fv(&p.x);
 
     glTexCoord2f(1.0f, 1.0f);
-    p = MapPosition(cell_x + (PT_SIZE / 2), cell_y + (PT_SIZE / 2));
+    p = MapPosition(cell_x + (pt_size_ / 2), cell_y + (pt_size_ / 2));
     p.x += pulse_;
     p.y += 2.0f;
     p.z += pulse_;
     glVertex3fv(&p.x);
 
     glTexCoord2f(1.0f, 0.0f);
-    p = MapPosition(cell_x + (PT_SIZE / 2), cell_y - (PT_SIZE / 2));
+    p = MapPosition(cell_x + (pt_size_ / 2), cell_y - (pt_size_ / 2));
     p.x += pulse_;
     p.y += 2.0f;
     p.z -= pulse_;
@@ -98,6 +99,9 @@ static point DrawGrid(void)
     GLvector3 v4;
     point cell;
 
+    IniManager ini_mgr;
+    int pt_size = ini_mgr.get_int("Pointer Settings", "pt_size");
+
     memset(buffer, 0, sizeof(buffer));
 
     // Tell OpenGL to use our array for selection
@@ -110,14 +114,14 @@ static point DrawGrid(void)
     block = 0;
     glDisable(GL_CULL_FACE);
 
-    for(y = 0; y < MapSize(); y += PT_SIZE) {
-        for(x = 0; x < MapSize(); x += PT_SIZE) {
+    for(y = 0; y < MapSize(); y += pt_size) {
+        for(x = 0; x < MapSize(); x += pt_size) {
             block = x + (y * MapSize());
             glLoadName(block);
             v1 = MapPosition(x, y);
-            v2 = MapPosition(x, y + PT_SIZE);
-            v3 = MapPosition(x + PT_SIZE, y + PT_SIZE);
-            v4 = MapPosition(x + PT_SIZE, y);
+            v2 = MapPosition(x, y + pt_size);
+            v3 = MapPosition(x + pt_size, y + pt_size);
+            v4 = MapPosition(x + pt_size, y);
 
             glBegin(GL_QUADS);
             glVertex3fv(&v1.x);
@@ -134,8 +138,8 @@ static point DrawGrid(void)
 
     if(hits > 0) {
         block = buffer[3];
-        cell.x = (block % MapSize()) + (PT_SIZE / 2);
-        cell.y = ((block - cell.x) / MapSize()) + (PT_SIZE / 2);
+        cell.x = (block % MapSize()) + (pt_size / 2);
+        cell.y = ((block - cell.x) / MapSize()) + (pt_size / 2);
     }
 
     return cell;
@@ -200,6 +204,9 @@ CPointer::CPointer()
     : CEntity()
     , texture_(TextureFromName("ring"))
 {
+    IniManager ini_mgr;
+    pt_size_ = ini_mgr.get_int("Pointer Settings", "pt_size");
+
     entity_type_ = "pointer";
     last_cell_.y = -1;
     last_cell_.x = last_cell_.y;

@@ -5,22 +5,6 @@
 #include "gl-vector2.hpp"
 #include "entity.hpp"
 
-// Magic number: Fiddle with this to adjust how aggressive the program should be
-// in removing polygons. Higher numbers result in fewer terrain polygons
-#define TOLERANCE 0.07f
-
-// How many milliseconds to spend each frame on the terrain
-#define UPDATE_TIME 10
-
-// Set this to 1 to force a wireframe overlay on the terrain, so you can
-// see the polygons
-#define DO_WIREFRAME 0
-
-// Set this to 0 to skip rendering the terrains as solid. You'll ne to set
-// either this one of DO_WIREFRAME to 1, or you won't render anything!
-// You can set both to 1 if you like as well.
-#define DO_SOLID 1
-
 enum build_stage {
     // Check for the need to begin building
     STAGE_IDLE, 
@@ -46,16 +30,22 @@ public:
     void FadeStart(void);
     
 private:
-    unsigned int list_front_;
-    unsigned int list_back_;
     char stage_;
     int map_size_;
     int map_half_;
-    float tolerance_;
     int zone_size_;
     GLvector3 viewpoint_;
     short *boundary_;
     bool *point_;
+
+    float tolerance_;
+    int update_time_;
+    int do_wireframe_;
+    int do_solid_;
+    int zone_grid_;
+
+    unsigned int list_front_;
+    unsigned int list_back_;
 
     GLvector2 *zone_uv_;
     int x_;

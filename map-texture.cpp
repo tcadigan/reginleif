@@ -43,7 +43,7 @@ struct ztexture {
 };
 
 static unsigned char *buffer;
-static ztexture zone_texture[GRID_COUNT][ZONE_GRID * ZONE_GRID];
+static ztexture **zone_texture;
 static unsigned int layer_texture[LAYER_COUNT];
 static unsigned int *res_texture;
 static unsigned int current_grid;
@@ -59,6 +59,7 @@ static int max_resolution;
 static int map_texture_update_time;
 static int show_resolution;
 static int uv_scale;
+static unsigned int zone_grid;
 
 // Which zone is the camera over?
 static void GetCameraZone(void)
@@ -67,13 +68,13 @@ static void GetCameraZone(void)
     int zone_size;
 
     cam = CameraPosition();
-    zone_size = MapSize() / ZONE_GRID;
+    zone_size = MapSize() / zone_grid;
     camera_zone_x = ((int)cam.x + (MapSize() / 2)) / zone_size;
     camera_zone_y = ((int)cam.y + (MapSize() / 2)) / zone_size;
 }
 
 // Get the current texture for the requested zone
-unsigned int MapTexture(int zone)
+unsigned int MapTexture(unsigned int zone)
 {
     int grid;
 
@@ -89,7 +90,7 @@ unsigned int MapTexture(int zone)
     // Once this reaches 2, we know both terrains (the one being built and the
     // one in use) are using our latest texture set, and it is safe to work on
     // the old set.
-    if(zone == ((ZONE_GRID * ZONE_GRID) - 1)) {
+    if(zone == ((zone_grid * zone_grid) - 1)) {
         ++ref_count;
     }
     if(!zone_texture[grid][zone].ready) {
@@ -111,12 +112,20 @@ void MapTextureInit(void)
 
     show_resolution = ini_mgr.get_int("Map Texture", "show_resolution");
     uv_scale = ini_mgr.get_int("Map Texture", "uv_scale");
+    zone_grid = ini_mgr.get_int("Map Settings", "zone_grid");
+
+    zone_texture = new struct ztexture*[GRID_COUNT];
+    zone_texture[0] = new struct ztexture[GRID_COUNT * (zone_grid * zone_grid)];
+
+    for(int i = 1; i < GRID_COUNT; ++i) {
+        zone_texture[i] = zone_texture[i - 1] + (zone_grid * zone_grid);
+    }
 
     int grid;
-    int zone;
+    unsigned int zone;
 
     for(grid = GRID_FRONT; grid < GRID_COUNT; ++grid) {
-        for(zone = 0; zone < (ZONE_GRID * ZONE_GRID); ++zone) {
+        for(zone = 0; zone < (zone_grid * zone_grid); ++zone) {
             zone_texture[grid][zone].size = 0;
             zone_texture[grid][zone].ready = false;
             glGenTextures(1, &zone_texture[grid][zone].texture);
@@ -124,7 +133,7 @@ void MapTextureInit(void)
     }
 
     buffer = new unsigned char[(max_resolution * max_resolution) * 4];
-    zone_size = MapSize() / ZONE_GRID;
+    zone_size = MapSize() / zone_grid;
     layer_texture[LAYER_GRASS] = TextureFromName("grassa512");
     layer_texture[LAYER_LOWGRASS] = TextureFromName("grassb512");
     layer_texture[LAYER_SAND] = TextureFromName("sand512");
@@ -321,8 +330,8 @@ void MapTextureUpdate()
 
     while(SDL_GetTicks() < end) {
         z = &zone_texture[current_grid][current_zone];
-        zone_x = current_zone % ZONE_GRID;
-        zone_y = (current_zone - zone_x) / ZONE_GRID;
+        zone_x = current_zone % zone_grid;
+        zone_y = (current_zone - zone_x) / zone_grid;
         origin_x = zone_x * zone_size;
         origin_y = zone_y * zone_size;
         glBindTexture(GL_TEXTURE_2D, z->texture);
@@ -465,7 +474,7 @@ void MapTextureUpdate()
             z->ready = true;
             ++current_zone;
 
-            if(current_zone == (ZONE_GRID * ZONE_GRID)) {
+            if(current_zone == (zone_grid * zone_grid)) {
                 // Little debug stuff here. Figure out how many 
                 // Mb of memory we just ate.
                 float meg = (float)pixel_count / 1048576.0f;
