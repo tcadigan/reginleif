@@ -24,27 +24,15 @@
 #include <string>
 
 #include "camera.hpp"
+#include "cell.hpp"
 #include "console.hpp"
 #include "ini.hpp"
-#include "macro.hpp"
 #include "math.hpp"
 #include "world.hpp"
 
 using namespace std;
 
-struct cell {
-    unsigned char layer[LAYER_COUNT - 1];
-    bool shadow;
-    
-    // Move this to low-res sub-map?
-    float distance;
-    
-    GLvector3 position;
-    GLvector3 normal;
-    GLrgba  light;
-};
-
-static struct cell **terrain_map;
+static cell **terrain_map;
 // static HDC dc;
 // static HPEN pen;
 static int bits;
@@ -63,15 +51,13 @@ static int force_rebuild;
  * This will take the given elevations and calculate the resulting 
  * surface normal.
  */
-static GLvector3 DoNormal(float north, float south, float east, float west)
+static gl_vector_3d DoNormal(float north, float south, float east, float west)
 {
-    GLvector3 result;
+    gl_vector_3d result(west - east,
+                        2.0f,
+                        north - south);
 
-    result.x = west - east;
-    result.y = 2.0f;
-    result.z = north - south;
-
-    return glVectorNormalize(result);
+    return gl_vector_normalize(result);
 }
 
 /*
@@ -90,7 +76,7 @@ static unsigned char rgb_sample(short val, int shift, int numbits)
     return (r & 255);
 }
 
-void MapSave()
+void map_save()
 {
     FILE *f;
 
@@ -98,7 +84,7 @@ void MapSave()
     fwrite(terrain_map, sizeof(terrain_map), 1, f);
     fclose(f);
 
-    Console("Saved %s (%d bytes)", map_file.c_str(), sizeof(terrain_map));
+    console("Saved %s (%d bytes)", map_file.c_str(), sizeof(terrain_map));
 }
 
 /*
@@ -111,11 +97,11 @@ void MapSave()
  * This one function is really our "level editor", and it should be a separate
  * program with all sorts of options for controlling these magic numbers.
  */
-void MapBuild(void)
+void map_build(void)
 {
     // HBITMAP basemap;
     // BITMAPINFO bmi;
-    GLrgba *cmap;
+    gl_rgba *cmap;
     cell *c;
     short val;
     int width;
@@ -141,8 +127,8 @@ void MapBuild(void)
 
     // Get a couple of temp buffers to use below
     scale = new float[(map_area + 1) * (map_area + 1)];
-    cmap = new GLrgba[(map_area + 1) * (map_area + 1)];
-    Console("size = %s", sizeof(cell));
+    cmap = new gl_rgba[(map_area + 1) * (map_area + 1)];
+    console("size = %s", sizeof(cell));
 
     // Now load the bitmap
     // dc = CreateCompatibleDC(GetDC(NULL));
@@ -157,12 +143,12 @@ void MapBuild(void)
     //                              LR_LOADFROMFILE | LR_DEFAULTSIZE | LRVGACOLOR);
 
     // if(basemap == NULL) {
-    //     Console("MapInit: Unable to load %s", map_image);
+    //     console("MapInit: Unable to load %s", map_image);
     
     //     return;
     // }
 
-    Console("MapBuild: rebuilding map data.");
+    console("MapBuild: rebuilding map data.");
 
     // Call this to fill in the bmi with good values
     // ZeroMemory(&bmi, sizeof(BITMAPINFO));
@@ -243,18 +229,18 @@ void MapBuild(void)
             e += ((float)(g) / 48.0f);
 
             // Now store the position in our grid of data
-            terrain_map[x][y].position.x = (float)(x - (map_area / 2));
-            terrain_map[x][y].position.y = e;
-            terrain_map[x][y].position.z = (float)(y - (map_area / 2));
-            terrain_map[x][y].shadow = false;
+            terrain_map[x][y].position_.x_ = (float)(x - (map_area / 2));
+            terrain_map[x][y].position_.y_ = e;
+            terrain_map[x][y].position_.z_ = (float)(y - (map_area / 2));
+            terrain_map[x][y].shadow_ = false;
 
             // Keep track of high/low, which is used to normalize the data later
-            if(high <= terrain_map[x][y].position.y) {
-                high = terrain_map[x][y].position.y;
+            if(high <= terrain_map[x][y].position_.y_) {
+                high = terrain_map[x][y].position_.y_;
             }
 
-            if(low >= terrain_map[x][y].position.y) {
-                low = terrain_map[x][y].position.y;
+            if(low >= terrain_map[x][y].position_.y_) {
+                low = terrain_map[x][y].position_.y_;
             }
         }
     }
@@ -265,7 +251,7 @@ void MapBuild(void)
         for(y = 0; y < (map_area + 1); ++y) {
             c = &terrain_map[x][y];
             scale[x + (y * (map_area + 1))] =
-                (c->position.y - low) / (high - low);
+                (c->position_.y_ - low) / (high - low);
         }
     }
 
@@ -278,7 +264,7 @@ void MapBuild(void)
             left = (unsigned int)(x - 1) % (map_area + 1);
             right = (unsigned int)(x + 1) % (map_area + 1);
 
-            c->normal = 
+            c->normal_ = 
                 DoNormal(scale[x * (top * (map_area + 1))] * terrain_scale,
                          scale[x * (bottom * (map_area + 1))] * terrain_scale,
                          scale[right * (y * (map_area + 1))] * terrain_scale,
@@ -320,7 +306,7 @@ void MapBuild(void)
                 }
             }
 
-            c->position.y = (smooth / (float)samples) * terrain_scale;
+            c->position_.y_ = (smooth / (float)samples) * terrain_scale;
         }
     }
 
@@ -328,16 +314,17 @@ void MapBuild(void)
     for(x = 0; x < (map_area + 1); ++x) {
         for(y = 0; y < (map_area + 1); ++y) {
             c = &terrain_map[x][y];
-            c->distance =
-                glVectorLength(glVectorSubtract(c->position, CameraPosition()));
+            c->distance_ = 
+                gl_vector_length(gl_vector_subtract(c->position_,
+                                                    camera_position()));
 
-            c->distance /= far_view;
+            c->distance_ /= far_view;
 
-            if(c->distance < 0.0f) {
-                c->distance = 0.0f;
+            if(c->distance_ < 0.0f) {
+                c->distance_ = 0.0f;
             }
-            else if(c->distance > 1.0f) {
-                c->distance = 1.0f;
+            else if(c->distance_ > 1.0f) {
+                c->distance_ = 1.0f;
             }
         }
     }
@@ -354,21 +341,21 @@ void MapBuild(void)
     for(x = 0; x < (map_area + 1); ++x) {
         for(y = 0; y < (map_area + 1); ++y) {
             c = &terrain_map[x][y];
-            c->layer[LAYER_LOWGRASS - 1] = 0;
-            c->layer[LAYER_DIRT - 1] = 0;
-            c->layer[LAYER_SAND - 1] = 0;
-            c->layer[LAYER_ROCK - 1] = 0;
+            c->layer_[LAYER_LOWGRASS - 1] = 0;
+            c->layer_[LAYER_DIRT - 1] = 0;
+            c->layer_[LAYER_SAND - 1] = 0;
+            c->layer_[LAYER_ROCK - 1] = 0;
 
             // Sand is in the lowest parts of the map
             smooth = 
-                MathSmoothStep(scale[x + (y * (map_area + 1))], 0.3f, 0.1f);
+                math_smooth_step(scale[x + (y * (map_area + 1))], 0.3f, 0.1f);
 
-            c->layer[LAYER_SAND - 1] = (int)(smooth * 255.0f);
+            c->layer_[LAYER_SAND - 1] = (int)(smooth * 255.0f);
 
             // The deep lush grass likes lowlands and flat areas
-            e = MathSmoothStep(c->normal.y, 0.75f, 0.1f);
+            e = math_smooth_step(c->normal_.y_, 0.75f, 0.1f);
             smooth = 
-                MathSmoothStep(scale[x + (y * (map_area + 1))], 0.45f, 0.25f);
+                math_smooth_step(scale[x + (y * (map_area + 1))], 0.45f, 0.25f);
 
             smooth = (e * smooth) * 5.0f;
 
@@ -379,11 +366,11 @@ void MapBuild(void)
                 smooth = 1;
             }
 
-            c->layer[LAYER_LOWGRASS - 1] = (int)(smooth * 255.0f);
+            c->layer_[LAYER_LOWGRASS - 1] = (int)(smooth * 255.0f);
 
             // Rock likes mild slopes and high elevations
-            e = MathSmoothStep(c->normal.y, 0.8f, 0.5f);
-            e += MathSmoothStep(scale[x + (y * (map_area + 1))], 0.7f, 1.0f);
+            e = math_smooth_step(c->normal_.y_, 0.8f, 0.5f);
+            e += math_smooth_step(scale[x + (y * (map_area + 1))], 0.7f, 1.0f);
 
             if(e < 0) {
                 smooth = 0;
@@ -395,11 +382,11 @@ void MapBuild(void)
                 smooth = e;
             }
 
-            c->layer[LAYER_ROCK - 1] = (int)(smooth * 255.0f);
+            c->layer_[LAYER_ROCK - 1] = (int)(smooth * 255.0f);
 
             // Dirt likes very steep slopes
-            e = MathSmoothStep(c->normal.y, 0.7f, 0.4f);
-            c->layer[LAYER_DIRT - 1] = (int)(e * 255.0f);
+            e = math_smooth_step(c->normal_.y_, 0.7f, 0.4f);
+            c->layer_[LAYER_DIRT - 1] = (int)(e * 255.0f);
         }
     }
 
@@ -415,10 +402,10 @@ void MapBuild(void)
             left = (unsigned int)(x - 1) % (map_area + 1);
             right = (unsigned int)(x + 1) % (map_area + 1);
 
-            c->normal = DoNormal(terrain_map[x][top].position.y,
-                                 terrain_map[x][bottom].position.y,
-                                 terrain_map[right][y].position.y,
-                                 terrain_map[left][y].position.y);
+            c->normal_ = DoNormal(terrain_map[x][top].position_.y_,
+                                  terrain_map[x][bottom].position_.y_,
+                                  terrain_map[right][y].position_.y_,
+                                  terrain_map[left][y].position_.y_);
         }
     }
 
@@ -428,10 +415,10 @@ void MapBuild(void)
     delete[] basebits;
     // DeleteObject(basemap);
 
-    MapSave();
+    map_save();
 }
 
-bool MapLoad()
+bool map_load()
 {
     FILE *f;
     int r;
@@ -439,7 +426,7 @@ bool MapLoad()
     f = fopen(map_file.c_str(), "rb");
     
     if(f == NULL) {
-        Console("MapLoad: Unable to load %s", map_file.c_str());
+        console("MapLoad: Unable to load %s", map_file.c_str());
 
         return false;
     }
@@ -447,7 +434,7 @@ bool MapLoad()
     r = fread(terrain_map, sizeof(terrain_map), 1, f);
 
     if(r < 1) {
-        Console("MapLoad: Error loading %s", map_file.c_str());
+        console("MapLoad: Error loading %s", map_file.c_str());
 
         return false;
     }
@@ -457,9 +444,9 @@ bool MapLoad()
     return true;
 }
 
-void MapInit()
+void map_init()
 {
-    IniManager ini_mgr;
+    ini_manager ini_mgr;
     
     zone_grid = ini_mgr.get_int("Map Settings", "zone_grid");
     map_area = ini_mgr.get_int("Map Settings", "map_area");
@@ -471,19 +458,19 @@ void MapInit()
     terrain_scale = ini_mgr.get_int("Map Settings", "terrain_scale");
     force_rebuild = ini_mgr.get_int("Map Settings", "force_rebuild");
 
-    terrain_map = new struct cell*[map_area + 1];
-    terrain_map[0] = new struct cell[(map_area + 1) * (map_area + 1)];
+    terrain_map = new cell*[map_area + 1];
+    terrain_map[0] = new cell[(map_area + 1) * (map_area + 1)];
 
     for(int i = 1; i < (map_area + 1); ++i) {
         terrain_map[i] = terrain_map[i - 1] + (map_area + 1);
     }
 
-    if(!MapLoad() || force_rebuild) {
-        MapBuild();
+    if(!map_load() || force_rebuild) {
+        map_build();
     }
 }
 
-float MapElevation(int x, int y)
+float map_elevation(int x, int y)
 {
     if(x < y) {
         x = y;
@@ -499,12 +486,12 @@ float MapElevation(int x, int y)
         y = map_area;
     }
 
-    return terrain_map[x][y].position.y;
+    return terrain_map[x][y].position_.y_;
 }
 
 // Get the elevation of an arbitrary point over the terrain. This will
 // interpolate between points so that we can have collision with the surface.
-float MapElevation(float x, float y)
+float map_elevation(float x, float y)
 {
     int cell_x;
     int cell_y;
@@ -524,10 +511,10 @@ float MapElevation(float x, float y)
     dy = y - (float)cell_y;
     cell_x += (map_area / 2);
     cell_y += (map_area / 2);
-    y0 = MapElevation(cell_x, cell_y);
-    y1 = MapElevation(cell_x + 1, cell_y);
-    y2 = MapElevation(cell_x, cell_y + 1);
-    y3 = MapElevation(cell_x + 1, cell_y + 1);
+    y0 = map_elevation(cell_x, cell_y);
+    y1 = map_elevation(cell_x + 1, cell_y);
+    y2 = map_elevation(cell_x, cell_y + 1);
+    y3 = map_elevation(cell_x + 1, cell_y + 1);
 
     if(dx < dy) {
         c = y2 - y0;
@@ -543,12 +530,12 @@ float MapElevation(float x, float y)
     return ((a + (b * dx)) + (c * dy));
 }
 
-int MapSize()
+int map_size()
 {
     return map_area;
 }
 
-GLvector3 MapPosition(int x, int y)
+gl_vector_3d map_position(int x, int y)
 {
     if(x < 0) {
         x = 0;
@@ -564,7 +551,7 @@ GLvector3 MapPosition(int x, int y)
         y = map_area;
     }
 
-    return terrain_map[x][y].position;
+    return terrain_map[x][y].position_;
 }
 
 // This is a little goofy. There are several different texture layers on the
@@ -572,7 +559,7 @@ GLvector3 MapPosition(int x, int y)
 // entry out of the array. This means we have to subtract 1 from the given
 // index. Confusing, but this grid is big and there is no sense in storing
 // half a million redundant values.
-float MapLayer(int x, int y, int layer)
+float map_layer(int x, int y, int layer)
 {
     // The base later is always opaque
     if(layer == LAYER_GRASS) {
@@ -595,13 +582,13 @@ float MapLayer(int x, int y, int layer)
         y = map_area;
     }
 
-    return ((float)terrain_map[x][y].layer[layer] / 255.0f);
+    return ((float)terrain_map[x][y].layer_[layer] / 255.0f);
 }
 
 // How far is the given point from the camera? These values are updated during
 // TerrainUpdate() and are rarely 100% accurate. These are used when calculating
 // detail on the terrain.
-float MapDistance(int x, int y)
+float map_distance(int x, int y)
 {
     if(x < 0) {
         x = 0;
@@ -618,11 +605,11 @@ float MapDistance(int x, int y)
         y = map_area;
     }
 
-    return terrain_map[x][y].distance;
+    return terrain_map[x][y].distance_;
 }
 
 // The lighting color of the given point.
-GLrgba MapLight(int x, int y)
+gl_rgba map_light(int x, int y)
 {
     if(x < 0) {
         x = 0;
@@ -638,26 +625,26 @@ GLrgba MapLight(int x, int y)
         y = map_area;
     }
 
-    return terrain_map[x][y].light;
+    return terrain_map[x][y].light_;
 }
 
-void MapTerm(void)
+void map_term(void)
 {
     delete terrain_map[0];
     delete terrain_map;
 }
 
-void MapUpdate(void)
+void map_update(void)
 {
     int x;
     int samples;
     int start;
     int end;
     int step;
-    GLvector3 light;
-    GLrgba ambient;
-    GLrgba sun;
-    GLrgba shadow;
+    gl_vector_3d light;
+    gl_rgba ambient;
+    gl_rgba sun;
+    gl_rgba shadow;
     float dot;
     float top;
     float drop;
@@ -665,12 +652,12 @@ void MapUpdate(void)
     cell *c;
     unsigned int update_end;
 
-    light = WorldLightVector();
-    sun = WorldLightColor();
-    ambient = WorldAmbientColor();
-    shadow = glRgbaMultiply(ambient, glRgba(0.3f, 0.5f, 0.9f));
+    light = world_light_vector();
+    sun = world_light_color();
+    ambient = world_ambient_color();
+    shadow = gl_rgba_multiply(ambient, gl_rgba(0.3f, 0.5f, 0.9f));
 
-    if(light.x > 0.0f) {
+    if(light.x_ > 0.0f) {
         start = map_area;
         end = -1;
         step = -1;
@@ -681,11 +668,11 @@ void MapUpdate(void)
         step = 1;
     }
 
-    if(light.x == 0.0f) {
+    if(light.x_ == 0.0f) {
         drop = FLT_MAX;
     }
     else {
-        drop = light.y / light.x;
+        drop = light.y_ / light.x_;
     }
 
     if(drop < 0) {
@@ -699,38 +686,39 @@ void MapUpdate(void)
         // see which points are being hit with sunlight.
         for(x = start; x != end; x += step) {
             c = &terrain_map[x][scan_y];
-            c->distance = 
-                glVectorLength(glVectorSubtract(c->position, CameraPosition()));
+            c->distance_ = 
+                gl_vector_length(gl_vector_subtract(c->position_,
+                                                    camera_position()));
 
-            c->distance /= far_view;
+            c->distance_ /= far_view;
 
-            if(c->distance < 0.0f) {
-                c->distance = 0.0f;
+            if(c->distance_ < 0.0f) {
+                c->distance_ = 0.0f;
             }
-            else if(c->distance > 1.0f) {
-                c->distance = 1.0f;
+            else if(c->distance_ > 1.0f) {
+                c->distance_ = 1.0f;
             }
             
             if(x == start) {
                 // First point is always in sunlight
-                top = c->position.y;
-                c->shadow = false;
+                top = c->position_.y_;
+                c->shadow_ = false;
             }
             else {
                 top -= drop;
 
-                if(c->position.y > top) {
+                if(c->position_.y_ > top) {
                     // Is this point high enough to be out of the shadow?
-                    c->shadow = false;
-                    top = c->position.y;
+                    c->shadow_ = false;
+                    top = c->position_.y_;
                 }
                 else {
                     // Nope!
-                    c->shadow = true;
+                    c->shadow_ = true;
                 }
             }
 
-            dot = glVectorDotProduct(light, c->normal);
+            dot = gl_vector_dot_product(light, c->normal_);
 
             if(dot < 0.0f) {
                 dot = 0.0f;
@@ -766,7 +754,7 @@ void MapUpdate(void)
                         tmp_y = map_area + 1;
                     }
 
-                    if(terrain_map[tmp_x][tmp_y].shadow != 0) {
+                    if(terrain_map[tmp_x][tmp_y].shadow_ != 0) {
                         shade += 1.0f;
                     }
 
@@ -777,10 +765,12 @@ void MapUpdate(void)
             // Finally! We know how much light is hitting this point and
             // if it is in shadow, now figure out what colour this
             // point is
-            c->light = 
-                glRgbaInterpolate(glRgbaAdd(ambient, glRgbaScale(sun, dot)),
-                                  glRgbaAdd(shadow, glRgbaScale(ambient, dot)),
-                                  shade / (float)samples);
+            c->light_ = 
+                gl_rgba_interpolate(gl_rgba_add(ambient,
+                                                gl_rgba_scale(sun, dot)),
+                                    gl_rgba_add(shadow, 
+                                                gl_rgba_scale(ambient, dot)),
+                                    shade / (float)samples);
         }
 
         scan_y = (scan_y + 1) % (map_area + 1);

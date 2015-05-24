@@ -2,21 +2,15 @@
 #define SKY_HPP_
 
 #include "entity.hpp"
-#include "gl-vector3.hpp"
-#include "gl-rgba.hpp"
+#include "sky-point.hpp"
 
-struct sky_point {
-    GLrgba color;
-    GLvector3 position;
-};
-
-class CSky : public CEntity {
+class sky : public entity {
 public:
-    CSky();
-    virtual ~CSky();
+    sky();
+    virtual ~sky();
     
-    void Render(void);
-    void Update(void);
+    void render(void);
+    void update(void);
 
 private:
     int sky_grid_;

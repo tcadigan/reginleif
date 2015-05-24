@@ -1,16 +1,19 @@
 #ifndef GL_BBOX_HPP_
 #define GL_BBOX_HPP_
 
-#include "gl-vector3.hpp"
+#include "gl-vector-3d.hpp"
 
-class GLbbox {
+class gl_bbox {
 public:
-    GLvector3 min;
-    GLvector3 max;
+    gl_bbox();
+    virtual ~gl_bbox();
+
+    gl_vector_3d min_;
+    gl_vector_3d max_;
 };
 
-bool glBboxTestPoint(GLbbox box, GLvector3 point);
-GLbbox glBboxContainPoint(GLbbox box, GLvector3 point);
-GLbbox glBboxClear(void);
+bool gl_bbox_test_point(gl_bbox box, gl_vector_3d point);
+gl_bbox gl_bbox_contain_point(gl_bbox box, gl_vector_3d point);
+gl_bbox gl_bbox_clear(void);
 
 #endif

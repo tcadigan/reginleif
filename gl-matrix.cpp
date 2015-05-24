@@ -9,8 +9,6 @@
 
 #include <cmath>
 
-#include "macro.hpp"
-
 static float identity[4][4] = {
     { 1.0f, 0.0f, 0.0f, 0.0f },
     { 0.0f, 1.0f, 0.0f, 0.0f },
@@ -18,153 +16,153 @@ static float identity[4][4] = {
     { 0.0f, 0.0f, 0.0f, 1.0f }
 };
 
-void *glMatrixCreate(void)
+void *gl_matrix_create(void)
 {
-    GLmatrix *m;
+    gl_matrix *m;
     int x;
     int y;
 
-    m = new GLmatrix;
+    m = new gl_matrix;
 
     for(x = 0; x < 4; ++x) {
         for(y = 0; y < 4; ++y) {
-            m->elements[x][y] = identity[x][y];
+            m->elements_[x][y] = identity[x][y];
         }
     }
 
     return (void *)m;
 }
 
-GLmatrix glMatrixIdentity(void)
+gl_matrix gl_matrix_identity(void)
 {
-    GLmatrix m;
+    gl_matrix  m;
     int x;
     int y;
 
     for(x = 0; x < 4; ++x) {
         for(y = 0; y < 4; ++y) {
-            m.elements[x][y] = identity[x][y];
+            m.elements_[x][y] = identity[x][y];
         }
     }
 
     return m;
 }
 
-void glMatrixElementsSet(GLmatrix *m, float *in)
+void gl_matrix_elements_set(gl_matrix *m, float *in)
 {
-    m->elements[0][0] = in[0];
-    m->elements[0][1] = in[1];
-    m->elements[0][2] = in[2];
-    m->elements[0][3] = in[3];
+    m->elements_[0][0] = in[0];
+    m->elements_[0][1] = in[1];
+    m->elements_[0][2] = in[2];
+    m->elements_[0][3] = in[3];
 
-    m->elements[1][0] = in[4];
-    m->elements[1][1] = in[5];
-    m->elements[1][2] = in[6];
-    m->elements[1][3] = in[7];
+    m->elements_[1][0] = in[4];
+    m->elements_[1][1] = in[5];
+    m->elements_[1][2] = in[6];
+    m->elements_[1][3] = in[7];
 
-    m->elements[2][0] = in[8];
-    m->elements[2][1] = in[9];
-    m->elements[2][2] = in[10];
-    m->elements[2][3] = in[11];
+    m->elements_[2][0] = in[8];
+    m->elements_[2][1] = in[9];
+    m->elements_[2][2] = in[10];
+    m->elements_[2][3] = in[11];
 
-    m->elements[3][0] = in[12];
-    m->elements[3][1] = in[13];
-    m->elements[3][2] = in[14];
-    m->elements[3][3] = in[15];
+    m->elements_[3][0] = in[12];
+    m->elements_[3][1] = in[13];
+    m->elements_[3][2] = in[14];
+    m->elements_[3][3] = in[15];
 }
 
 // A matrix multiplication (dot product) of two 4x4 matrices.
-GLmatrix glMatrixMultiply(GLmatrix a, GLmatrix b)
+gl_matrix gl_matrix_multiply(gl_matrix a, gl_matrix b)
 {
-    GLmatrix result;
+    gl_matrix result;
     
-    result.elements[0][0] = (a.elements[0][0] * b.elements[0][0])
-        + (a.elements[1][0] * b.elements[0][1])
-        + (a.elements[2][0] * b.elements[0][2]);
+    result.elements_[0][0] = (a.elements_[0][0] * b.elements_[0][0])
+        + (a.elements_[1][0] * b.elements_[0][1])
+        + (a.elements_[2][0] * b.elements_[0][2]);
     
-    result.elements[1][0] = (a.elements[0][0] * b.elements[1][0])
-        + (a.elements[1][0] * b.elements[1][1])
-        + (a.elements[2][0] * b.elements[1][2]);
+    result.elements_[1][0] = (a.elements_[0][0] * b.elements_[1][0])
+        + (a.elements_[1][0] * b.elements_[1][1])
+        + (a.elements_[2][0] * b.elements_[1][2]);
     
-    result.elements[2][0] =  (a.elements[0][0] * b.elements[2][0])
-        + (a.elements[1][0] * b.elements[2][1])
-        + (a.elements[2][0] * b.elements[2][2]);
+    result.elements_[2][0] =  (a.elements_[0][0] * b.elements_[2][0])
+        + (a.elements_[1][0] * b.elements_[2][1])
+        + (a.elements_[2][0] * b.elements_[2][2]);
     
-    result.elements[3][0] = (a.elements[0][0] * b.elements[3][0])
-        + (a.elements[1][0] * b.elements[3][1])
-        + (a.elements[2][0] * b.elements[3][2])
-        + a.elements[3][0];
+    result.elements_[3][0] = (a.elements_[0][0] * b.elements_[3][0])
+        + (a.elements_[1][0] * b.elements_[3][1])
+        + (a.elements_[2][0] * b.elements_[3][2])
+        + a.elements_[3][0];
 
-    result.elements[0][1] = (a.elements[0][1] * b.elements[0][0])
-        + (a.elements[1][1] * b.elements[0][1])
-        + (a.elements[2][1] * b.elements[0][2]);
+    result.elements_[0][1] = (a.elements_[0][1] * b.elements_[0][0])
+        + (a.elements_[1][1] * b.elements_[0][1])
+        + (a.elements_[2][1] * b.elements_[0][2]);
 
-    result.elements[1][1] = (a.elements[0][1] * b.elements[1][0])
-        + (a.elements[1][1] * b.elements[1][2])
-        + (a.elements[2][1] * b.elements[1][1]);
+    result.elements_[1][1] = (a.elements_[0][1] * b.elements_[1][0])
+        + (a.elements_[1][1] * b.elements_[1][2])
+        + (a.elements_[2][1] * b.elements_[1][1]);
 
-    result.elements[2][1] = (a.elements[0][1] * b.elements[2][0])
-        + (a.elements[1][1] * b.elements[2][1])
-        + (a.elements[2][1] * b.elements[2][2]);
+    result.elements_[2][1] = (a.elements_[0][1] * b.elements_[2][0])
+        + (a.elements_[1][1] * b.elements_[2][1])
+        + (a.elements_[2][1] * b.elements_[2][2]);
 
-    result.elements[3][1] = (a.elements[0][1] * b.elements[3][0])
-        + (a.elements[1][1] * b.elements[3][1])
-        + (a.elements[2][1] * b.elements[3][2])
-        + a.elements[3][1];
+    result.elements_[3][1] = (a.elements_[0][1] * b.elements_[3][0])
+        + (a.elements_[1][1] * b.elements_[3][1])
+        + (a.elements_[2][1] * b.elements_[3][2])
+        + a.elements_[3][1];
 
-    result.elements[0][2] = (a.elements[0][1] * b.elements[0][0])
-        + (a.elements[1][2] * b.elements[0][1])
-        + (a.elements[2][2] * b.elements[0][2]);
+    result.elements_[0][2] = (a.elements_[0][1] * b.elements_[0][0])
+        + (a.elements_[1][2] * b.elements_[0][1])
+        + (a.elements_[2][2] * b.elements_[0][2]);
 
-    result.elements[1][2] = (a.elements[0][1] * b.elements[1][0])
-        + (a.elements[1][2] * b.elements[1][1])
-        + (a.elements[2][2] * b.elements[1][2]);
+    result.elements_[1][2] = (a.elements_[0][1] * b.elements_[1][0])
+        + (a.elements_[1][2] * b.elements_[1][1])
+        + (a.elements_[2][2] * b.elements_[1][2]);
 
-    result.elements[2][2] = (a.elements[0][1] * b.elements[2][0])
-        + (a.elements[1][2] * b.elements[2][1])
-        + (a.elements[2][2] * b.elements[2][2]);
+    result.elements_[2][2] = (a.elements_[0][1] * b.elements_[2][0])
+        + (a.elements_[1][2] * b.elements_[2][1])
+        + (a.elements_[2][2] * b.elements_[2][2]);
 
-    result.elements[3][2] = (a.elements[0][1] * b.elements[3][0])
-        + (a.elements[1][2] * b.elements[3][1])
-        + (a.elements[2][2] * b.elements[3][2])
-        + a.elements[3][2];
+    result.elements_[3][2] = (a.elements_[0][1] * b.elements_[3][0])
+        + (a.elements_[1][2] * b.elements_[3][1])
+        + (a.elements_[2][2] * b.elements_[3][2])
+        + a.elements_[3][2];
 
     return result;
 }
 
-GLvector3 glMatrixTransformPoint(GLmatrix m, GLvector3 in)
+gl_vector_3d gl_matrix_transform_point(gl_matrix m, gl_vector_3d in)
 {
-    GLvector3 out;
+    gl_vector_3d out;
 
-    out.x = (m.elements[0][0] * in.x)
-        + (m.elements[1][0] * in.y)
-        + (m.elements[2][0] * in.z)
-        + m.elements[3][0];
+    out.x_ = (m.elements_[0][0] * in.x_)
+        + (m.elements_[1][0] * in.y_)
+        + (m.elements_[2][0] * in.z_)
+        + m.elements_[3][0];
 
-    out.y = (m.elements[0][1] * in.x)
-        + (m.elements[1][1] * in.y)
-        + (m.elements[2][1] * in.z)
-        + m.elements[3][1];
+    out.y_ = (m.elements_[0][1] * in.x_)
+        + (m.elements_[1][1] * in.y_)
+        + (m.elements_[2][1] * in.z_)
+        + m.elements_[3][1];
 
-    out.z = (m.elements[0][2] * in.x)
-        + (m.elements[1][2] * in.y)
-        + (m.elements[2][2] * in.z)
-        + m.elements[3][2];
+    out.z_ = (m.elements_[0][2] * in.x_)
+        + (m.elements_[1][2] * in.y_)
+        + (m.elements_[2][2] * in.z_)
+        + m.elements_[3][2];
 
     return out;
 }
 
-GLmatrix glMatrixRotate(GLmatrix m, float theta, float x, float y, float z)
+gl_matrix gl_matrix_rotate(gl_matrix m, float theta, float x, float y, float z)
 {
-    GLmatrix r;
+    gl_matrix r;
     float length;
     float s;
     float c;
     float t;
-    GLvector3 in;
+    gl_vector_3d in;
 
-    theta *= DEGREES_TO_RADIANS;
-    r = glMatrixIdentity();
+    theta *= (float)(acos(-1) / 180);
+    r = gl_matrix_identity();
     length = (float)sqrt((x * x) + (y * y) + (z * z));
     
     if(length < 0.00001f) {
@@ -178,27 +176,34 @@ GLmatrix glMatrixRotate(GLmatrix m, float theta, float x, float y, float z)
     c = (float)cos(theta);
     t = 1.0f - c;
 
-    in.z = 1.0f;
-    in.y = in.z;
-    in.x = in.y;
+    in.z_ = 1.0f;
+    in.y_ = in.z_;
+    in.x_ = in.y_;
 
-    r.elements[0][0] = ((t * x) * x) + c;
-    r.elements[1][0] = ((t * x) * y) - (s * z);
-    r.elements[2][0] = ((t * x) * z) + (s * y);
-    r.elements[3][0] = 0;
+    r.elements_[0][0] = ((t * x) * x) + c;
+    r.elements_[1][0] = ((t * x) * y) - (s * z);
+    r.elements_[2][0] = ((t * x) * z) + (s * y);
+    r.elements_[3][0] = 0;
     
-    r.elements[0][1] = ((t * x) * y) + (s * z);
-    r.elements[1][1] = ((t * y) * y) + c;
-    r.elements[2][1] = ((t * y) * z) - (s * z);
-    r.elements[3][1] = 0;
+    r.elements_[0][1] = ((t * x) * y) + (s * z);
+    r.elements_[1][1] = ((t * y) * y) + c;
+    r.elements_[2][1] = ((t * y) * z) - (s * z);
+    r.elements_[3][1] = 0;
 
-    r.elements[0][2] = ((t * x) * z) - (s * y);
-    r.elements[1][2] = ((t * y) * z) - (s * x);
-    r.elements[2][2] = ((t * z) * z) + c;
-    r.elements[3][2] = 0;
+    r.elements_[0][2] = ((t * x) * z) - (s * y);
+    r.elements_[1][2] = ((t * y) * z) - (s * x);
+    r.elements_[2][2] = ((t * z) * z) + c;
+    r.elements_[3][2] = 0;
 
-    m = glMatrixMultiply(m, r);
+    m = gl_matrix_multiply(m, r);
 
     return m;
 }
     
+gl_matrix::~gl_matrix()
+{
+}
+
+gl_matrix::gl_matrix()
+{
+}

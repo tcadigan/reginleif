@@ -12,16 +12,15 @@
 #include <cstring>
 #include <SDL_opengl.h>
 
-struct texture {
-    struct texture *next;
-    GLuint id;
-    char name[16];
-    char *image_name;
-    char *mask_name;
-    // AUX_RGBImageRec *image;
-};
+static texture *head_texture;
 
-static struct texture *head_texture;
+texture::texture()
+{
+}
+
+texture::~texture()
+{
+}
 
 // static AUX_RGBImageRec *LoadBMP(char *Filename)
 // {
@@ -43,13 +42,13 @@ static struct texture *head_texture;
 // }
 
 // Texture id
-static struct texture *LoadTexture(char const *name)
+static texture *load_texture(char const *name)
 {
     char filename[128];
-    struct texture *t;
+    texture *t;
 
-    t = new struct texture;
-    strcpy(t->name, name);
+    t = new texture;
+    strcpy(t->name_, name);
     sprintf(filename, "textures/%s.bmp", name);
     // t->image = LoadBMP(filename);
 
@@ -60,10 +59,10 @@ static struct texture *LoadTexture(char const *name)
     // }
 
     // Create the texture
-    glGenTextures(1, &t->id);
+    glGenTextures(1, &t->id_);
 
     // Typical texture generation using data from the bitmap
-    glBindTexture(GL_TEXTURE_2D, t->id);
+    glBindTexture(GL_TEXTURE_2D, t->id_);
 
     // // Generate the texture
     // glTexImage2D(GL_TEXTURE_2D,
@@ -84,41 +83,41 @@ static struct texture *LoadTexture(char const *name)
     // Linear filtering
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    t->next = head_texture;
+    t->next_ = head_texture;
     head_texture = t;
     
     return t;
 }
 
-unsigned int TextureFromName(char const*name)
+unsigned int texture_from_name(char const*name)
 {
-    struct texture *t;
+    texture *t;
     
-    for(t = head_texture; t != NULL; t = t->next) {
-        if(strcmp(name, t->name) == 0) {
-            return t->id;
+    for(t = head_texture; t != NULL; t = t->next_) {
+        if(strcmp(name, t->name_) == 0) {
+            return t->id_;
         }
     }
 
-    t = LoadTexture(name);
+    t = load_texture(name);
 
     if(t != NULL) {
-        return t->id;
+        return t->id_;
     }
 
     return 0;
 }
 
-void TextureInit()
+void texture_init()
 {
 }
 
-void TextureTerm(void)
+void texture_term(void)
 {
-    struct texture *t;
+    texture *t;
 
     while(head_texture != NULL) {
-        t = head_texture->next;
+        t = head_texture->next_;
         free(head_texture);
         head_texture = t;
     }

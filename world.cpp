@@ -14,67 +14,65 @@
 #include "map.hpp"
 #include "entity.hpp"
 #include "sky.hpp"
-#include "pointer.hpp"
+#include "mouse-pointer.hpp"
 #include "terrain.hpp"
 
-static GLvector3 light_vector = { -0.75f, 0.25f, 0.0f };
-static GLrgba light_color = { 2.1f, 2.1f, 0.1f, 1.0f };
-static GLrgba ambient_color = { 0.6f, 0.6f, 0.6f, 1.0f };
-static GLrgba fog_color = { 0.7f, 0.7f, 0.7f, 1.0f };
+static gl_vector_3d light_vector(-0.75f, 0.25f, 0.0f);
+static gl_rgba light_color(2.1f, 2.1f, 0.1f, 1.0f);
+static gl_rgba ambient_color(0.6f, 0.6f, 0.6f, 1.0f);
+static gl_rgba fog_color(0.7f, 0.7f, 0.7f, 1.0f);
 static float fade;
 static long last_update;
-static CPointer *pointer;
+static mouse_pointer *pointer;
 
-GLvector3 WorldLightVector(void)
+gl_vector_3d world_light_vector(void)
 {
     return light_vector;
 }
 
-float WorldFade(void)
+float world_fade(void)
 {
     return fade;
 }
 
-GLquat WorldLightQuat(void)
+gl_quat world_light_quat(void)
 {
-    GLquat q;
-
-    q.x = light_vector.x;
-    q.y = light_vector.y;
-    q.z = light_vector.z;
-    q.w = 0.0f;
+    gl_quat q(light_vector.x_,
+              light_vector.y_,
+              light_vector.z_,
+              0.0f);
 
     return q;
 }
 
-GLrgba WorldLightColor(void)
+gl_rgba world_light_color(void)
 {
     return light_color;
 }
 
-GLrgba WorldFogColor(void)
+gl_rgba world_fog_color(void)
 {
     return fog_color;
 }
 
-GLrgba WorldAmbientColor(void)
+gl_rgba world_ambient_color(void)
 {
     return ambient_color;
 }
 
-void WorldInit(void)
+void world_init(void)
 {
-    pointer = new CPointer();
-    new CTerrain(MapSize());
-    new CSky();
+    pointer = new mouse_pointer();
+    new terrain(map_size());
+    new sky();
     last_update = SDL_GetTicks();
 }
 
-void WorldTerm(void)
+void world_term(void)
 {
 }
 
-void WorldUpdate(void)
+void world_update(void)
 {
     long now;
     long delta;
@@ -86,7 +84,7 @@ void WorldUpdate(void)
     fade += ((float)delta / 500.0f);
 
     if(fade > 1.0f) {
-        EntityFadeStart();
+        entity_fade_start();
         fade = 0.0f;
     }
 }

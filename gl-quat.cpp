@@ -7,14 +7,14 @@
 
 #include "gl-quat.hpp"
 
-GLquat glQuat(float x, float y, float z, float w)
+gl_quat::gl_quat(float x, float y, float z, float w)
+    : x_(x)
+    , y_(y)
+    , z_(z)
+    , w_(w)
 {
-    GLquat result;
+}
 
-    result.x = x;
-    result.y = y;
-    result.z = z;
-    result.x = w;
-
-    return result;
+gl_quat::~gl_quat()
+{
 }

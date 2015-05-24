@@ -1,31 +1,35 @@
 #ifndef ENTITY_HPP_
 #define ENTITY_HPP_
 
-class CEntity {
-public:
-    CEntity(void);
-    virtual ~CEntity(void);
+#include <string>
 
-    CEntity *Next(void);
-    virtual void Render(void);
-    virtual void RenderFadeIn(void);
-    virtual void FadeStart(void);
-    virtual void Update(void);
-    virtual char const *Type(void);
+using namespace std;
+
+class entity {
+public:
+    entity(void);
+    virtual ~entity(void);
+
+    entity *next(void);
+    virtual void render(void);
+    virtual void render_fade_in(void);
+    virtual void fade_start(void);
+    virtual void update(void);
+    virtual string type(void);
 
 protected:
-    char const *entity_type_;
+    string entity_type_;
 
 private:
-    CEntity *next_;
+    entity *next_;
 };
 
-void EntityUpdate(void);
-void EntityInit(void);
-CEntity *EntityFindType(char const *type, CEntity *start);
-void EntityTerm(void);
-void EntityRender(void);
-void EntityRenderFadeIn(void);
-void EntityFadeStart(void);
+void entity_update(void);
+void entity_init(void);
+entity *entity_find_type(string const &type, entity *start);
+void entity_term(void);
+void entity_render(void);
+void entity_render_fade_in(void);
+void entity_fade_start(void);
 
 #endif

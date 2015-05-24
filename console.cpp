@@ -15,7 +15,7 @@
 #include <cstdio>
 #include <cstdarg>
 
-void Console(char const *message, ...)
+void console(char const *message, ...)
 {
     char msg_text[256];
     va_list marker;
@@ -28,10 +28,10 @@ void Console(char const *message, ...)
     // it or something...
 }
 
-void ConsoleTerm(void)
+void console_term(void)
 {
 }
 
-void ConsoleInit(void)
+void console_init(void)
 {
 }

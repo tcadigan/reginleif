@@ -4,15 +4,15 @@
 #include <map>
 #include <string>
 
-#include "gl-vector3.hpp"
+#include "gl-vector-3d.hpp"
 
 using namespace std;
 
-class IniManager {
+class ini_manager {
 public:
-    IniManager();
-    IniManager(string const &ini_filename);
-    virtual ~IniManager();
+    ini_manager();
+    ini_manager(string const &ini_filename);
+    virtual ~ini_manager();
 
     void set_int(string const &section, string const &entry, int value);
     void set_float(string const &section, string const &entry, float value);
@@ -22,12 +22,12 @@ public:
 
     void set_vector(string const &section, 
                     string const &entry,
-                    GLvector3 const &value);
+                    gl_vector_3d const &value);
 
     int get_int(string const &section, string const &entry);
     float get_float(string const &section, string const &entry);
     string get_string(string const &section, string const &entry);
-    GLvector3 get_vector(string const &section, string const &entry);
+    gl_vector_3d get_vector(string const &section, string const &entry);
     
 private:
     string inner_get_string(string const &section,

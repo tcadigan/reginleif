@@ -26,20 +26,14 @@
 #include "camera.hpp"
 #include "console.hpp"
 #include "ini.hpp"
-#include "macro.hpp"
 #include "texture.hpp"
 #include "map.hpp"
+#include "ztexture.hpp"
 
 enum {
     GRID_FRONT,
     GRID_BACK,
     GRID_COUNT,
-};
-
-struct ztexture {
-    bool ready;
-    int size;
-    unsigned int texture;
 };
 
 static unsigned char *buffer;
@@ -62,19 +56,19 @@ static int uv_scale;
 static unsigned int zone_grid;
 
 // Which zone is the camera over?
-static void GetCameraZone(void)
+static void get_camera_zone(void)
 {
-    GLvector3 cam;
+    gl_vector_3d cam;
     int zone_size;
 
-    cam = CameraPosition();
-    zone_size = MapSize() / zone_grid;
-    camera_zone_x = ((int)cam.x + (MapSize() / 2)) / zone_size;
-    camera_zone_y = ((int)cam.y + (MapSize() / 2)) / zone_size;
+    cam = camera_position();
+    zone_size = map_size() / zone_grid;
+    camera_zone_x = ((int)cam.x_ + (map_size() / 2)) / zone_size;
+    camera_zone_y = ((int)cam.y_ + (map_size() / 2)) / zone_size;
 }
 
 // Get the current texture for the requested zone
-unsigned int MapTexture(unsigned int zone)
+unsigned int map_texture(unsigned int zone)
 {
     int grid;
 
@@ -93,16 +87,16 @@ unsigned int MapTexture(unsigned int zone)
     if(zone == ((zone_grid * zone_grid) - 1)) {
         ++ref_count;
     }
-    if(!zone_texture[grid][zone].ready) {
+    if(!zone_texture[grid][zone].ready_) {
         return 0;
     }
 
-    return zone_texture[grid][zone].texture;
+    return zone_texture[grid][zone].texture_;
 }
 
-void MapTextureInit(void)
+void map_texture_init(void)
 {
-    IniManager ini_mgr;
+    ini_manager ini_mgr;
     max_resolution = ini_mgr.get_int("Map Texture", "max_resolution");
 
     res_texture = new unsigned int[max_resolution];
@@ -114,8 +108,8 @@ void MapTextureInit(void)
     uv_scale = ini_mgr.get_int("Map Texture", "uv_scale");
     zone_grid = ini_mgr.get_int("Map Settings", "zone_grid");
 
-    zone_texture = new struct ztexture*[GRID_COUNT];
-    zone_texture[0] = new struct ztexture[GRID_COUNT * (zone_grid * zone_grid)];
+    zone_texture = new ztexture*[GRID_COUNT];
+    zone_texture[0] = new ztexture[GRID_COUNT * (zone_grid * zone_grid)];
 
     for(int i = 1; i < GRID_COUNT; ++i) {
         zone_texture[i] = zone_texture[i - 1] + (zone_grid * zone_grid);
@@ -126,43 +120,43 @@ void MapTextureInit(void)
 
     for(grid = GRID_FRONT; grid < GRID_COUNT; ++grid) {
         for(zone = 0; zone < (zone_grid * zone_grid); ++zone) {
-            zone_texture[grid][zone].size = 0;
-            zone_texture[grid][zone].ready = false;
-            glGenTextures(1, &zone_texture[grid][zone].texture);
+            zone_texture[grid][zone].size_ = 0;
+            zone_texture[grid][zone].ready_ = false;
+            glGenTextures(1, &zone_texture[grid][zone].texture_);
         }
     }
 
     buffer = new unsigned char[(max_resolution * max_resolution) * 4];
-    zone_size = MapSize() / zone_grid;
-    layer_texture[LAYER_GRASS] = TextureFromName("grassa512");
-    layer_texture[LAYER_LOWGRASS] = TextureFromName("grassb512");
-    layer_texture[LAYER_SAND] = TextureFromName("sand512");
-    layer_texture[LAYER_ROCK] = TextureFromName("rock512");
-    layer_texture[LAYER_DIRT] = TextureFromName("dirt512");
+    zone_size = map_size() / zone_grid;
+    layer_texture[LAYER_GRASS] = texture_from_name("grassa512");
+    layer_texture[LAYER_LOWGRASS] = texture_from_name("grassb512");
+    layer_texture[LAYER_SAND] = texture_from_name("sand512");
+    layer_texture[LAYER_ROCK] = texture_from_name("rock512");
+    layer_texture[LAYER_DIRT] = texture_from_name("dirt512");
 
     if(show_resolution != 0) {
-        res_texture[8] = TextureFromName("n8");
-        res_texture[16] = TextureFromName("n16");
-        res_texture[32] = TextureFromName("n32");
-        res_texture[64] = TextureFromName("n64");
-        res_texture[128] = TextureFromName("n128");
-        res_texture[256] = TextureFromName("n256");
-        res_texture[512] = TextureFromName("n512");
+        res_texture[8] = texture_from_name("n8");
+        res_texture[16] = texture_from_name("n16");
+        res_texture[32] = texture_from_name("n32");
+        res_texture[64] = texture_from_name("n64");
+        res_texture[128] = texture_from_name("n128");
+        res_texture[256] = texture_from_name("n256");
+        res_texture[512] = texture_from_name("n512");
     }
 
-    GetCameraZone();
+    get_camera_zone();
 }
 
-void MapTextureTerm(void)
+void map_texture_term(void)
 {
     delete[] res_texture;
     delete[] buffer;
 }
 
-static void DrawLayer(int origin_x, int origin_y, int size, int layer)
+static void draw_layer(int origin_x, int origin_y, int size, int layer)
 {
-    GLrgba color1;
-    GLrgba color2;
+    gl_rgba color1;
+    gl_rgba color2;
     int step;
     int x;
     int y;
@@ -209,13 +203,13 @@ static void DrawLayer(int origin_x, int origin_y, int size, int layer)
             glBegin(GL_QUAD_STRIP);
             for(x = -1; x < ((zone_size + step) + 1); x += step) {
                 xx = origin_x + x;
-                color1 = MapLight(xx, yy);
-                color2 = MapLight(xx, yy + step);
-                glColor3fv(&color1.red);
+                color1 = map_light(xx, yy);
+                color2 = map_light(xx, yy + step);
+                glColor3fv(&color1.red_);
                 glVertex2i((int)((float)x * cell_size),
                            (int)((float)y * cell_size));
 
-                glColor3fv(&color2.red);
+                glColor3fv(&color2.red_);
                 glVertex2i((int)((float)x * cell_size),
                            (int)((float)y2 * cell_size));
             }
@@ -255,7 +249,7 @@ static void DrawLayer(int origin_x, int origin_y, int size, int layer)
         return;
     }
 
-    color2 = glRgba(1.0f);
+    color2 = gl_rgba(1.0f);
     color1 = color2;
 
     for(y = -1; y < ((zone_size + step) + step); y += step) {
@@ -266,10 +260,10 @@ static void DrawLayer(int origin_x, int origin_y, int size, int layer)
 
         for(x = -1; x < ((zone_size + step) + 1); x += step) {
             xx = origin_x + x;
-            color1.alpha = MapLayer(xx, yy, layer);
-            color2.alpha = MapLayer(xx, yy + step, layer);
+            color1.alpha_ = map_layer(xx, yy, layer);
+            color2.alpha_ = map_layer(xx, yy + step, layer);
 
-            if((color1.alpha == 0.0f) && (color2.alpha == 0.0f)) {
+            if((color1.alpha_ == 0.0f) && (color2.alpha_ == 0.0f)) {
                 if(blank) {
                     if(drawing) {
                         glEnd();
@@ -286,14 +280,14 @@ static void DrawLayer(int origin_x, int origin_y, int size, int layer)
             }
 
             if(drawing) {
-                glColor4fv(&color1.red);
+                glColor4fv(&color1.red_);
                 glTexCoord2f(((float)x / (float)zone_size) * uv_scale,
                              ((float)y / (float)zone_size) * uv_scale);
 
                 glVertex2i((int)((float)x * cell_size),
                            (int)((float)y * cell_size));
 
-                glColor4fv(&color2.red);
+                glColor4fv(&color2.red_);
                 glTexCoord2f(((float)x / (float)zone_size) * uv_scale,
                              ((float)y / (float)zone_size) * uv_scale);
 
@@ -308,7 +302,7 @@ static void DrawLayer(int origin_x, int origin_y, int size, int layer)
     }
 }
 
-void MapTextureUpdate()
+void map_texture_update()
 {
     ztexture *z;
     unsigned long end;
@@ -334,7 +328,7 @@ void MapTextureUpdate()
         zone_y = (current_zone - zone_x) / zone_grid;
         origin_x = zone_x * zone_size;
         origin_y = zone_y * zone_size;
-        glBindTexture(GL_TEXTURE_2D, z->texture);
+        glBindTexture(GL_TEXTURE_2D, z->texture_);
 
         if(current_layer == 0) {
             delta_x = (camera_zone_x - zone_x);
@@ -357,39 +351,39 @@ void MapTextureUpdate()
             }
 
             if(delta < 2) {
-                z->size = max_resolution;
+                z->size_ = max_resolution;
             }
             else if(delta < 3) {
-                z->size = max_resolution / 2;
+                z->size_ = max_resolution / 2;
             }
             else if(delta < 4) {
-                z->size = max_resolution / 4;
+                z->size_ = max_resolution / 4;
             }
             else if(delta < 6) {
-                z->size = max_resolution / 8;
+                z->size_ = max_resolution / 8;
             }
             else if(delta < 7) {
-                z->size = max_resolution / 16;
+                z->size_ = max_resolution / 16;
             }
             else if(delta < 8) {
-                z->size = max_resolution / 32;
+                z->size_ = max_resolution / 32;
             }
             else {
-                z->size = max_resolution / 64;
+                z->size_ = max_resolution / 64;
             }
 
-            if(z->size < 8) {
-                z->size = 8;
+            if(z->size_ < 8) {
+                z->size_ = 8;
             }
-            else if(z->size > 512) {
-                z->size = 512;
+            else if(z->size_ > 512) {
+                z->size_ = 512;
             }
 
             glTexImage2D(GL_TEXTURE_2D,
                          0,
                          3,
-                         z->size, 
-                         z->size,
+                         z->size_, 
+                         z->size_,
                          0,
                          GL_RGB,
                          GL_UNSIGNED_BYTE,
@@ -402,51 +396,51 @@ void MapTextureUpdate()
         glDisable(GL_DEPTH_TEST);
         glDepthMask(GL_FALSE);
         glLoadIdentity();
-        glViewport(0, 0, z->size, z->size);
+        glViewport(0, 0, z->size_, z->size_);
         glMatrixMode(GL_PROJECTION);
         glPushMatrix();
         glLoadIdentity();
-        glOrtho(0.0f, z->size, 0, z->size, 0, 1.0f);
+        glOrtho(0.0f, z->size_, 0, z->size_, 0, 1.0f);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         glEnable(GL_BLEND);
-        glBindTexture(GL_TEXTURE_2D, z->texture);
+        glBindTexture(GL_TEXTURE_2D, z->texture_);
         glColor3f(1.0f, 1.0f, 1.0f);
         glBegin(GL_QUAD_STRIP);
         glTexCoord2f(0.0f, 0.0f);
         glVertex2i(0, 0);
         glTexCoord2f(0.0f, 1.0f);
-        glVertex2i(0, z->size);
+        glVertex2i(0, z->size_);
         glTexCoord2f(1.0f, 0.0f);
-        glVertex2i(z->size, 0);
+        glVertex2i(z->size_, 0);
         glTexCoord2f(1.0f, 1.0f);
-        glVertex2i(z->size, z->size);
+        glVertex2i(z->size_, z->size_);
         glEnd();
 
         while((current_layer != LAYER_COUNT) && (SDL_GetTicks() < end)) {
-            DrawLayer(origin_x, origin_y, z->size, current_layer);
+            draw_layer(origin_x, origin_y, z->size_, current_layer);
             ++current_layer;
         }
 
         if((show_resolution != 0) && (current_layer == LAYER_COUNT)) {
-            DrawLayer(origin_x, origin_y, z->size, LAYER_SPECIAL);
+            draw_layer(origin_x, origin_y, z->size_, LAYER_SPECIAL);
         }
         
         if(current_layer == LAYER_COUNT) {
-            DrawLayer(origin_x, origin_y, z->size, LAYER_LIGHTING);
+            draw_layer(origin_x, origin_y, z->size_, LAYER_LIGHTING);
         }
 
         // Save the result in our block texture
-        glBindTexture(GL_TEXTURE_2D, z->texture);
-        glReadPixels(0, 0, z->size, z->size, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+        glBindTexture(GL_TEXTURE_2D, z->texture_);
+        glReadPixels(0, 0, z->size_, z->size_, GL_RGB, GL_UNSIGNED_BYTE, buffer);
         glTexImage2D(GL_TEXTURE_2D,
                      0,
                      3,
-                     z->size,
-                     z->size,
+                     z->size_,
+                     z->size_,
                      0,
                      GL_RGB,
                      GL_UNSIGNED_BYTE,
@@ -469,16 +463,16 @@ void MapTextureUpdate()
 
         if(current_layer == LAYER_COUNT) {
             // Did we just finish this texture?
-            pixel_count += (z->size * z->size);
+            pixel_count += (z->size_ * z->size_);
             current_layer = 0;
-            z->ready = true;
+            z->ready_ = true;
             ++current_zone;
 
             if(current_zone == (zone_grid * zone_grid)) {
                 // Little debug stuff here. Figure out how many 
                 // Mb of memory we just ate.
                 float meg = (float)pixel_count / 1048576.0f;
-                Console("Zonemap: %1.2fMb of data in %dms",
+                console("Zonemap: %1.2fMb of data in %dms",
                         meg * 4.0f,
                         build_time);
 
@@ -494,7 +488,7 @@ void MapTextureUpdate()
 
                 current_zone = 0;
                 ref_count = 0;
-                GetCameraZone();
+                get_camera_zone();
             }
         }
     }

@@ -1,14 +1,15 @@
 #ifndef GL_QUAT_HPP_
 #define GL_QUAT_HPP_
 
-class GLquat {
+class gl_quat {
 public:
-    float x;
-    float y;
-    float z;
-    float w;
-};
+    gl_quat(float x, float y, float z, float w);
+    virtual ~gl_quat();
 
-GLquat glQuat(float x, float y, float z, float w);
+    float x_;
+    float y_;
+    float z_;
+    float w_;
+};
 
 #endif

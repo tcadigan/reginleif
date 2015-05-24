@@ -1,8 +1,8 @@
 #ifndef TERRAIN_HPP_
 #define TERRAIN_HPP_
 
-#include "gl-vector3.hpp"
-#include "gl-vector2.hpp"
+#include "gl-vector-3d.hpp"
+#include "gl-vector-2d.hpp"
 #include "entity.hpp"
 
 enum build_stage {
@@ -19,22 +19,22 @@ enum build_stage {
     STAGE_DONE
 };
 
-class CTerrain : public CEntity {
+class terrain : public entity {
 public:
-    CTerrain(int size);
-    ~CTerrain();
+    terrain(int size);
+    ~terrain();
 
-    void Render(void);
-    void RenderFadeIn(void);
-    void Update(void);
-    void FadeStart(void);
+    void render(void);
+    void render_fade_in(void);
+    void update(void);
+    void fade_start(void);
     
 private:
     char stage_;
     int map_size_;
     int map_half_;
     int zone_size_;
-    GLvector3 viewpoint_;
+    gl_vector_3d viewpoint_;
     short *boundary_;
     bool *point_;
 
@@ -47,7 +47,7 @@ private:
     unsigned int list_front_;
     unsigned int list_back_;
 
-    GLvector2 *zone_uv_;
+    gl_vector_2d *zone_uv_;
     int x_;
     int y_;
     int layer_;
@@ -63,11 +63,11 @@ private:
     long build_time_;
     long compile_time_;
 
-    void Compile(void);
-    void CompileBlock(int x, int y, int size);
-    void CompileTriangle(int x1, int y1, int x2, int y2, int x3, int y3);
-    void CompileVertex(int x, int y);
-    void CompileStrip(int x1,
+    void compile(void);
+    void compile_block(int x, int y, int size);
+    void compile_triangle(int x1, int y1, int x2, int y2, int x3, int y3);
+    void compile_vertex(int x, int y);
+    void compile_strip(int x1,
                       int y1,
                       int x2,
                       int y2,
@@ -76,7 +76,7 @@ private:
                       int x4,
                       int y4);
 
-    void CompileFan(int x1,
+    void compile_fan(int x1,
                     int y1,
                     int x2,
                     int y2,
@@ -87,7 +87,7 @@ private:
                     int x5,
                     int y5);
 
-    void CompileFan(int x1,
+    void compile_fan(int x1,
                     int y1,
                     int x2,
                     int y2,
@@ -100,9 +100,9 @@ private:
                     int x6,
                     int y6);
 
-    void GridStep(void);
-    void DoQuad(int x, int y, int size);
-    void PointActivate(int x, int y);
+    void grid_step(void);
+    void do_quad(int x, int y, int size);
+    void point_activate(int x, int y);
 };
     
 #endif

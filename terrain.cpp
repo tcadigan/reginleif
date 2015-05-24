@@ -14,54 +14,53 @@
 #include "camera.hpp"
 #include "console.hpp"
 #include "ini.hpp"
-#include "macro.hpp"
 #include "map.hpp"
 #include "map-texture.hpp"
 
 // Used during compile: Add a vertex
-void CTerrain::CompileVertex(int x, int y)
+void terrain::compile_vertex(int x, int y)
 {
-    glTexCoord2fv(&zone_uv_[(x - zone_origin_x_) + ((y - zone_origin_y_) * (zone_size_ + 1))].x);
-    GLvector3 p = MapPosition(x, y);
-    glVertex3fv(&p.x);
+    glTexCoord2fv(&zone_uv_[(x - zone_origin_x_) + ((y - zone_origin_y_) * (zone_size_ + 1))].x_);
+    gl_vector_3d p = map_position(x, y);
+    glVertex3fv(&p.x_);
     ++vertices_;
 }
 
 // Used during compile: Add a triangle to the render list
-void CTerrain::CompileTriangle(int x1, int y1, int x2, int y2, int x3, int y3)
+void terrain::compile_triangle(int x1, int y1, int x2, int y2, int x3, int y3)
 {
-    CompileVertex(x3, y3);
-    CompileVertex(x2, y2);
-    CompileVertex(x1, y1);
+    compile_vertex(x3, y3);
+    compile_vertex(x2, y2);
+    compile_vertex(x1, y1);
     ++triangles_;
 }
 
 // Used during compile: Add a triangle fan to the render list
-void CTerrain::CompileFan(int x1,
-                          int y1,
-                          int x2,
-                          int y2,
-                          int x3,
-                          int y3,
-                          int x4,
-                          int y4,
-                          int x5,
-                          int y5)
+void terrain::compile_fan(int x1,
+                         int y1,
+                         int x2,
+                         int y2,
+                         int x3,
+                         int y3,
+                         int x4,
+                         int y4,
+                         int x5,
+                         int y5)
 {
     glEnd();
     glBegin(GL_TRIANGLE_FAN);
-    CompileVertex(x1, y1);
-    CompileVertex(x5, y5);
-    CompileVertex(x4, y4);
-    CompileVertex(x3, y3);
-    CompileVertex(x2, y2);
+    compile_vertex(x1, y1);
+    compile_vertex(x5, y5);
+    compile_vertex(x4, y4);
+    compile_vertex(x3, y3);
+    compile_vertex(x2, y2);
     glEnd();
     triangles_ += 3;
     glBegin(GL_TRIANGLES);
 }
 
 // Used during compile: Add a triangle fan to the render list
-void CTerrain::CompileFan(int x1,
+void terrain::compile_fan(int x1,
                           int y1,
                           int x2, 
                           int y2,
@@ -76,33 +75,33 @@ void CTerrain::CompileFan(int x1,
 {
     glEnd();
     glBegin(GL_TRIANGLE_FAN);
-    CompileVertex(x1, y1);
-    CompileVertex(x6, y6);
-    CompileVertex(x5, y5);
-    CompileVertex(x4, y4);
-    CompileVertex(x3, y3);
-    CompileVertex(x2, y2);
+    compile_vertex(x1, y1);
+    compile_vertex(x6, y6);
+    compile_vertex(x5, y5);
+    compile_vertex(x4, y4);
+    compile_vertex(x3, y3);
+    compile_vertex(x2, y2);
     glEnd();
     triangles_ += 4;
     glBegin(GL_TRIANGLES);
 }
 
 // Used during compile: Add triangle strip to the render list
-void CTerrain::CompileStrip(int x1,
-                            int y1,
-                            int x2,
-                            int y2,
-                            int x3,
-                            int y3,
-                            int x4,
-                            int y4)
+void terrain::compile_strip(int x1,
+                           int y1,
+                           int x2,
+                           int y2,
+                           int x3,
+                           int y3,
+                           int x4,
+                           int y4)
 {
     glEnd();
     glBegin(GL_TRIANGLE_STRIP);
-    CompileVertex(x1, y1);
-    CompileVertex(x2, y2);
-    CompileVertex(x3, y3);
-    CompileVertex(x4, y4);
+    compile_vertex(x1, y1);
+    compile_vertex(x2, y2);
+    compile_vertex(x3, y3);
+    compile_vertex(x4, y4);
     glEnd();
     triangles_ += 2;
     glBegin(GL_TRIANGLES);
@@ -133,7 +132,7 @@ void CTerrain::CompileStrip(int x1,
  * the block is cut into a combination of smaller triangles (figure c)
  * and then sub-blocks (figure d).
  */
-void CTerrain::CompileBlock(int x, int y, int size)
+void terrain::compile_block(int x, int y, int size)
 {
     int x2;
     int y2;
@@ -154,7 +153,7 @@ void CTerrain::CompileBlock(int x, int y, int size)
     // If this is the smallest block, or the center is inactive, then
     // just cut into two triangles as shown in Figure a
     if((size == 1) || point_[xc + (yc * map_size_)]) {
-        CompileStrip(x, y, x, y2, x2, y, x2, y2);
+        compile_strip(x, y, x, y2, x2, y, x2, y2);
 
         return;
     }
@@ -164,7 +163,7 @@ void CTerrain::CompileBlock(int x, int y, int size)
        && !point_[xc + (y2 * map_size_)]
        && !point_[x + (yc * map_size_)]
        && !point_[x2 + (yc * map_size_)]) {
-        CompileFan(xc, yc, x, y, x2, y, x2, y2, x, y2, x, y);
+        compile_fan(xc, yc, x, y, x2, y, x2, y2, x, y2, x, y);
 
         return;
     }
@@ -174,26 +173,26 @@ void CTerrain::CompileBlock(int x, int y, int size)
     if(!point_[xc + (y * map_size_)] && !point_[xc * (y2 * map_size_)]) {
         glEnd();
         glBegin(GL_TRIANGLE_FAN);
-        CompileVertex(xc, yc);
-        CompileVertex(x, y);
+        compile_vertex(xc, yc);
+        compile_vertex(x, y);
 
         if(point_[x + (yc * map_size_)]) {
             // W
-            CompileVertex(x, yc);
+            compile_vertex(x, yc);
             ++triangles_;
         }
 
-        CompileVertex(x, y2);
-        CompileVertex(x2, y2);
+        compile_vertex(x, y2);
+        compile_vertex(x2, y2);
         
         if(point_[x2 + (yc * map_size_)]) {
             // E
-            CompileVertex(x2, yc);
+            compile_vertex(x2, yc);
             ++triangles_;
         }
 
-        CompileVertex(x2, y);
-        CompileVertex(x, y);
+        compile_vertex(x2, y);
+        compile_vertex(x, y);
         triangles_ += 4;
         glEnd();
         glBegin(GL_TRIANGLES);
@@ -206,26 +205,26 @@ void CTerrain::CompileBlock(int x, int y, int size)
     if(!point_[x + (yc * map_size_)] && !point_[x2 + (yc * map_size_)]) {
         glEnd();
         glBegin(GL_TRIANGLE_FAN);
-        CompileVertex(xc, yc);
-        CompileVertex(x, y);
-        CompileVertex(x, y2);
+        compile_vertex(xc, yc);
+        compile_vertex(x, y);
+        compile_vertex(x, y2);
         
         if(point_[xc + (y2 * map_size_)]) {
             // S
-            CompileVertex(xc, y2);
+            compile_vertex(xc, y2);
             ++triangles_;
         }
 
-        CompileVertex(x2, y2);
-        CompileVertex(x2, y);
+        compile_vertex(x2, y2);
+        compile_vertex(x2, y);
         
         if(point_[xc + (y * map_size_)]) {
             // N
-            CompileVertex(xc, y);
+            compile_vertex(xc, y);
             ++triangles_;
         }
 
-        CompileVertex(x, y);
+        compile_vertex(x, y);
         triangles_ += 4;
         glEnd();
         glBegin(GL_TRIANGLES);
@@ -241,26 +240,26 @@ void CTerrain::CompileBlock(int x, int y, int size)
         // Is the top edge inactive?
         if(point_[x + (yc * map_size_)] && point_[x2 + (yc * map_size_)]) {
             // Left and right edge active?
-            CompileFan(xc, yc, x, yc, x, y, x2, y, x2, yc);
+            compile_fan(xc, yc, x, yc, x, y, x2, y, x2, yc);
         }
         else {
             // Either left or right edge is inactive
             glEnd();
             glBegin(GL_TRIANGLE_FAN);
-            CompileVertex(xc, yc);
+            compile_vertex(xc, yc);
 
             if(point_[x2 + (yc * map_size_)]) {
                 // EL
-                CompileVertex(x2, yc);
+                compile_vertex(x2, yc);
                 ++triangles_;
             }
 
-            CompileVertex(x2, y);
-            CompileVertex(x, y);
+            compile_vertex(x2, y);
+            compile_vertex(x, y);
             
             if(point_[x + (yc * map_size_)]) {
                 // WR
-                CompileVertex(x, yc);
+                compile_vertex(x, yc);
                 ++triangles_;
             }
 
@@ -274,23 +273,23 @@ void CTerrain::CompileBlock(int x, int y, int size)
         // Is the bottom edge inactive
         if(point_[x + (yc * map_size_)] && point_[x2 + (yc * map_size_)]) {
             // Top and bottom edge active?
-            CompileFan(xc, yc, x2, yc, x2, y2, x, y2, x, yc);
+            compile_fan(xc, yc, x2, yc, x2, y2, x, y2, x, yc);
         }
         else {
             glEnd();
             glBegin(GL_TRIANGLE_FAN);
-            CompileVertex(xc, yc);
+            compile_vertex(xc, yc);
 
             if(point_[x + (yc * map_size_)]) {
-                CompileVertex(x, yc);
+                compile_vertex(x, yc);
                 ++triangles_;
             }
 
-            CompileVertex(x, y2);
-            CompileVertex(x2, y2);
+            compile_vertex(x, y2);
+            compile_vertex(x2, y2);
 
             if(point_[x2 + (yc * map_size_)]) {
-                CompileVertex(x2, yc);
+                compile_vertex(x2, yc);
                 ++triangles_;
             }
 
@@ -304,25 +303,25 @@ void CTerrain::CompileBlock(int x, int y, int size)
         // Is the left edge inactive?
         if(point_[xc + (y * map_size_)] && point_[xc + (y2 * map_size_)]) {
             // Top and bottom edge active?
-            CompileFan(xc, yc, xc, y2, x, y2, x, y, xc, y);
+            compile_fan(xc, yc, xc, y2, x, y2, x, y, xc, y);
         }
         else {
             glEnd();
             glBegin(GL_TRIANGLE_FAN);
-            CompileVertex(xc, yc);
+            compile_vertex(xc, yc);
 
             if(point_[xc + (y * map_size_)]) {
                 // NL
-                CompileVertex(xc, y);
+                compile_vertex(xc, y);
                 ++triangles_;
             }
 
-            CompileVertex(x, y);
-            CompileVertex(x, y2);
+            compile_vertex(x, y);
+            compile_vertex(x, y2);
 
             if(point_[xc + (y2 * map_size_)]) {
                 // SR
-                CompileVertex(xc, y2);
+                compile_vertex(xc, y2);
                 ++triangles_;
             }
 
@@ -335,25 +334,25 @@ void CTerrain::CompileBlock(int x, int y, int size)
     if(!point_[x2 + (yc * map_size_)]) {
         // Right edge inactive?
         if(point_[xc + (y * map_size_)] && point_[xc + (y2 * map_size_)]) {
-            CompileFan(xc, yc, xc, y, x2, y, x2, y2, xc, y2);
+            compile_fan(xc, yc, xc, y, x2, y, x2, y2, xc, y2);
         }
         else {
             glEnd();
             glBegin(GL_TRIANGLE_FAN);
-            CompileVertex(xc, yc);
+            compile_vertex(xc, yc);
 
             if(point_[xc + (yc * map_size_)]) {
                 // SL
-                CompileVertex(xc, y2);
+                compile_vertex(xc, y2);
                 ++triangles_;
             }
 
-            CompileVertex(x2, y2);
-            CompileVertex(x2, y);
+            compile_vertex(x2, y2);
+            compile_vertex(x2, y);
             
             if(point_[xc + (y * map_size_)]) {
                 // NR
-                CompileVertex(xc, y);
+                compile_vertex(xc, y);
                 ++triangles_;
             }
             
@@ -367,22 +366,22 @@ void CTerrain::CompileBlock(int x, int y, int size)
     // various sub-blocks. This is recursive.
     if(point_[xc + (y * map_size_)] && point_[x + (yc * map_size_)]) {
         // Sub-block A
-        CompileBlock(x, y, next_size);
+        compile_block(x, y, next_size);
     }
     
     if(point_[xc + (y * map_size_)] && point_[x2 + (yc * map_size_)]) {
         // Sub-block B
-        CompileBlock(x + next_size, y, next_size);
+        compile_block(x + next_size, y, next_size);
     }
 
     if(point_[x + (yc * map_size_)] && point_[xc + (y2 * map_size_)]) {
         // Sub-block C
-        CompileBlock(x, y + next_size, next_size);
+        compile_block(x, y + next_size, next_size);
     }
 
     if(point_[x2 + (yc * map_size_)] && point_[xc + (y2 * map_size_)]) {
         // Sub-block D
-        CompileBlock(x + next_size, y + next_size, next_size);
+        compile_block(x + next_size, y + next_size, next_size);
     }
 }
 
@@ -393,7 +392,7 @@ void CTerrain::CompileBlock(int x, int y, int size)
  * (If we did them all at once it woulc cause a massive pause) Once they
  * are all complete, we start rendering the new grid of lists.
  */
-void CTerrain::Compile(void)
+void terrain::compile(void)
 {
     unsigned long compile_start;
     unsigned int list;
@@ -420,7 +419,7 @@ void CTerrain::Compile(void)
     zone_origin_x_ = x * zone_size_;
     zone_origin_y_ = y * zone_size_;
     glNewList(list, GL_COMPILE);
-    glBindTexture(GL_TEXTURE_2D, MapTexture(zone_));
+    glBindTexture(GL_TEXTURE_2D, map_texture(zone_));
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
@@ -434,7 +433,7 @@ void CTerrain::Compile(void)
         glColor3f(1.0f, 1.0f, 1.0f);
         use_color_ = false;
         glBegin(GL_TRIANGLES);
-        CompileBlock(x * zone_size_, y * zone_size_, zone_size_);
+        compile_block(x * zone_size_, y * zone_size_, zone_size_);
         glEnd();
         glDisable(GL_BLEND);
     }
@@ -449,7 +448,7 @@ void CTerrain::Compile(void)
         glLineWidth(2.0f);
         glBegin(GL_TRIANGLES);
         glEnable(GL_COLOR_MATERIAL);
-        CompileBlock(x * zone_size_, y * zone_size_, zone_size_);
+        compile_block(x * zone_size_, y * zone_size_, zone_size_);
         glEnd();
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -480,7 +479,7 @@ void CTerrain::Compile(void)
  * cause X and Y to traverse the entire mesh, and then advance to the
  * next stage of building.
  */
-void CTerrain::GridStep(void)
+void terrain::grid_step(void)
 {
     ++x_;
     
@@ -496,19 +495,16 @@ void CTerrain::GridStep(void)
     }
 }
 
-/*
- * Constructor
- */
-CTerrain::CTerrain(int size)
+terrain::terrain(int size)
     : stage_(STAGE_IDLE)
     , map_size_(size)
     , map_half_(size / 2)
     , zone_size_(map_size_ / 2)
-    , viewpoint_(glVector(0.0f, 0.0f, 0.0f))
+    , viewpoint_(gl_vector_3d(0.0f, 0.0f, 0.0f))
     , boundary_(new short[size])
     , point_(new bool[size * size])
 {
-    IniManager ini_mgr;
+    ini_manager ini_mgr;
 
     tolerance_ = ini_mgr.get_float("Terrain Settings", "tolerance");
     update_time_ = ini_mgr.get_int("Terrain Settings", "update_time");
@@ -547,20 +543,20 @@ CTerrain::CTerrain(int size)
 
     // This maps out a grid of uv values so that a texture
     // will fit exactly over a zone
-    zone_uv_ = new GLvector2[(zone_size_ + 1) * (zone_size_ + 1)];
+    zone_uv_ = new gl_vector_2d[(zone_size_ + 1) * (zone_size_ + 1)];
     
     for(int x = 0; x <= zone_size_; ++x) {
         for(int y = 0; y <= zone_size_; ++y) {
-            zone_uv_[x + (y * (zone_size_ + 1))].x = 
+            zone_uv_[x + (y * (zone_size_ + 1))].x_ = 
                 (float)x / (float)zone_size_;
 
-            zone_uv_[x + (y * (zone_size_ + 1))].y =
+            zone_uv_[x + (y * (zone_size_ + 1))].y_ =
                 (float)y / (float)zone_size_;
         }
     }
 }
 
-CTerrain::~CTerrain()
+terrain::~terrain()
 {
     delete[] point_;
     delete[] boundary_;
@@ -573,14 +569,14 @@ CTerrain::~CTerrain()
  * disabled it, but the code is still here. You can re-enable the system
  * in Render.cpp
  */
-void CTerrain::RenderFadeIn()
+void terrain::render_fade_in()
 {
     unsigned int list;
     int i;
 
     // If we are not fading in, then just render normally
     if(!fade_) {
-        Render();
+        render();
         
         return;
     }
@@ -601,7 +597,7 @@ void CTerrain::RenderFadeIn()
 /*
  * Cause the terrain to be rendered
  */
-void CTerrain::Render()
+void terrain::render()
 {
     unsigned int list;
     int i;
@@ -627,7 +623,7 @@ void CTerrain::Render()
  * want to know more, Google for Peter Lindstrom, the inventor of
  * this very clever system.
  */
-void CTerrain::PointActivate(int x, int y)
+void terrain::point_activate(int x, int y)
 {
     int xl;
     int yl;
@@ -653,12 +649,12 @@ void CTerrain::PointActivate(int x, int y)
     }
 
     if(xl > yl) {
-        PointActivate(x - level, y);
-        PointActivate(x + level, y);
+        point_activate(x - level, y);
+        point_activate(x + level, y);
     }
     else if(xl < yl) {
-        PointActivate(x, y + level);
-        PointActivate(x, y - level);
+        point_activate(x, y + level);
+        point_activate(x, y - level);
     }
     else {
         int x2;
@@ -668,12 +664,12 @@ void CTerrain::PointActivate(int x, int y)
         y2 = y & (level * 2);
         
         if(x2 == y2) {
-            PointActivate(x - level, y + level);
-            PointActivate(x + level, y - level);
+            point_activate(x - level, y + level);
+            point_activate(x + level, y - level);
         }
         else {
-            PointActivate(x + level, y + level);
-            PointActivate(x - level, y - level);
+            point_activate(x + level, y + level);
+            point_activate(x - level, y - level);
         }
     }
 }
@@ -696,7 +692,7 @@ void CTerrain::PointActivate(int x, int y)
  * compared to the elvation of the center. Teh greater the difference between
  * these two values, the more non-coplaner this quad is
  */
-void CTerrain::DoQuad(int x1, int y1, int size)
+void terrain::do_quad(int x1, int y1, int size)
 {
     int xc;
     int yc;
@@ -712,7 +708,7 @@ void CTerrain::DoQuad(int x1, int y1, int size)
     float delta;
     float dist;
     float size_bias;
-    GLvector3 pos;
+    gl_vector_3d pos;
 
     half = size / 2;
     xc = x1 + half;
@@ -724,17 +720,17 @@ void CTerrain::DoQuad(int x1, int y1, int size)
         return;
     }
 
-    dist = MapDistance(xc, yc);
-    pos = MapPosition(x1, y1);
-    ul = pos.y;
-    pos = MapPosition(x2, y1);
-    ur = pos.y;
-    pos = MapPosition(x1, y2);
-    ll = pos.y;
-    pos = MapPosition(x2, y2);
-    lr = pos.y;
-    pos = MapPosition(xc, yc);
-    center = pos.y;
+    dist = map_distance(xc, yc);
+    pos = map_position(x1, y1);
+    ul = pos.y_;
+    pos = map_position(x2, y1);
+    ur = pos.y_;
+    pos = map_position(x1, y2);
+    ll = pos.y_;
+    pos = map_position(x2, y2);
+    lr = pos.y_;
+    pos = map_position(xc, yc);
+    center = pos.y_;
     average = (((ul + lr) + ll) + ur) / 4.0f;
 
     // Look for a delta between the center point and the average calculation
@@ -760,12 +756,12 @@ void CTerrain::DoQuad(int x1, int y1, int size)
     delta *= size_bias;
 
     if(delta > tolerance_) {
-        PointActivate(xc, yc);
+        point_activate(xc, yc);
     }
 }
 
 // Again, this is part of the disable fade in/fade out system
-void CTerrain::FadeStart(void)
+void terrain::fade_start(void)
 {
     if((stage_ == STAGE_WAIT_FOR_FADE) && !fade_) {
         fade_ = true;
@@ -784,14 +780,14 @@ void CTerrain::FadeStart(void)
  * This is called every frame. This is where the terrain mesh is evaluated,
  * cut into triangles, and compiled for rendering.
  */
-void CTerrain::Update(void)
+void terrain::update(void)
 {
     unsigned long end;
     unsigned long now;
     int xx;
     int yy;
     int level;
-    GLvector3 newpos;
+    gl_vector_3d newpos;
 
     now = SDL_GetTicks();
     end = now + update_time_;
@@ -803,9 +799,9 @@ void CTerrain::Update(void)
                 return;
             }
 
-            newpos = CameraPosition();
+            newpos = camera_position();
             build_start_ = 0;
-            viewpoint_ = CameraPosition();
+            viewpoint_ = camera_position();
             ++stage_;
 
             break;
@@ -823,17 +819,17 @@ void CTerrain::Update(void)
             // compile grid
             for(xx = 0; xx < zone_grid_; ++xx) {
                 for(yy = 0; yy < zone_grid_; ++yy) {
-                    PointActivate((xx * zone_size_) + (zone_size_ / 2),
+                    point_activate((xx * zone_size_) + (zone_size_ / 2),
                                   (yy * zone_size_) + (zone_size_ / 2));
 
-                    PointActivate(xx * zone_size_, yy * zone_size_);
+                    point_activate(xx * zone_size_, yy * zone_size_);
                 }
             }
 
             break;
         case STAGE_QUADTREE:
             if(point_[x_ + (y_ * map_size_)]) {
-                GridStep();
+                grid_step();
                 
                 break;
             }
@@ -848,19 +844,19 @@ void CTerrain::Update(void)
                 level = yy;
             }
 
-            DoQuad(x_ - level, y_ - level, level * 2);
-            GridStep();
+            do_quad(x_ - level, y_ - level, level * 2);
+            grid_step();
 
             break;
         case STAGE_COMPILE:
-            Compile();
+            compile();
 
             break;
         case STAGE_WAIT_FOR_FADE:
             
             return;
         case STAGE_DONE:
-            Console("Build %d polygons, %d vertices in %dms (%d)",
+            console("Build %d polygons, %d vertices in %dms (%d)",
                     triangles_,
                     vertices_,
                     build_time_,

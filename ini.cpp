@@ -10,19 +10,19 @@
 #include <fstream>
 #include <sstream>
 
-IniManager::IniManager()
+ini_manager::ini_manager()
     : ini_filename_("terrain.ini")
 {
     parse_contents();
 }
 
-IniManager::IniManager(string const &ini_filename)
+ini_manager::ini_manager(string const &ini_filename)
     : ini_filename_(ini_filename)
 {
     parse_contents();
 }
 
-IniManager::~IniManager()
+ini_manager::~ini_manager()
 {
     ofstream output;
     output.open(ini_filename_.c_str(), ofstream::out | ofstream::trunc);
@@ -44,9 +44,9 @@ IniManager::~IniManager()
     output.close();
 }
 
-void IniManager::set_int(string const &section,
-                         string const &entry,
-                         int value)
+void ini_manager::set_int(string const &section,
+                          string const &entry,
+                          int value)
 {
     string value_str;
     stringstream input;
@@ -57,9 +57,9 @@ void IniManager::set_int(string const &section,
     set_string(section, entry, value_str);
 }
 
-void IniManager::set_float(string const &section,
-                           string const &entry,
-                           float value)
+void ini_manager::set_float(string const &section,
+                            string const &entry,
+                            float value)
 {
     string value_str;
     stringstream input;
@@ -70,9 +70,9 @@ void IniManager::set_float(string const &section,
     set_string(section, entry, value_str);
 }
 
-void IniManager::set_string(string const &section,
-                            string const &entry, 
-                            string const &value)
+void ini_manager::set_string(string const &section,
+                             string const &entry, 
+                             string const &value)
 {
     string section_str(section);
     for(unsigned int i = 0; i < section_str.size(); ++i) {
@@ -117,20 +117,20 @@ void IniManager::set_string(string const &section,
     }
 }
 
-void IniManager::set_vector(string const &section,
-                            string const &entry,
-                            GLvector3 const &value)
+void ini_manager::set_vector(string const &section,
+                             string const &entry,
+                             gl_vector_3d const &value)
 {
     stringstream input;
 
-    input << value.x << " "
-          << value.y << " "
-          << value.z;
+    input << value.x_ << " "
+          << value.y_ << " "
+          << value.z_;
 
     set_string(section, entry, input.str());
 }
 
-int IniManager::get_int(string const &section, string const &entry)
+int ini_manager::get_int(string const &section, string const &entry)
 {
     int result;
     stringstream output;
@@ -142,7 +142,7 @@ int IniManager::get_int(string const &section, string const &entry)
     return result;
 }
 
-float IniManager::get_float(string const &section, string const &entry)
+float ini_manager::get_float(string const &section, string const &entry)
 {
     float result;
     stringstream output;
@@ -153,7 +153,7 @@ float IniManager::get_float(string const &section, string const &entry)
     return result;
 }
 
-string IniManager::get_string(string const &section, string const &entry)
+string ini_manager::get_string(string const &section, string const &entry)
 {
     string result;
     stringstream output;
@@ -164,24 +164,21 @@ string IniManager::get_string(string const &section, string const &entry)
     return result;
 }
 
-GLvector3 IniManager::get_vector(string const &section, string const &entry)
+gl_vector_3d ini_manager::get_vector(string const &section, string const &entry)
 {
-    GLvector3 result;
-    result.x = 0;
-    result.y = 0;
-    result.z = 0;
+    gl_vector_3d result(0, 0, 0);
 
     stringstream output;
 
     output << inner_get_string(section, entry, "0 0 0");
-    output >> result.x >> result.y >> result.z;
+    output >> result.x_ >> result.y_ >> result.z_;
 
     return result;
 }
 
-string IniManager::inner_get_string(string const &section,
-                                    string const &entry, 
-                                    string const &default_value)
+string ini_manager::inner_get_string(string const &section,
+                                     string const &entry, 
+                                     string const &default_value)
 {
     stringstream output;
 
@@ -233,7 +230,7 @@ string IniManager::inner_get_string(string const &section,
     return output.str();
 }
 
-void IniManager::parse_contents()
+void ini_manager::parse_contents()
 {
     ifstream input;
     input.open(ini_filename_.c_str());

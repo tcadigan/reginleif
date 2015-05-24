@@ -1,7 +1,0 @@
-#ifndef MACRO_HPP_
-#define MACRO_HPP_
-
-#define DEGREES_TO_RADIANS .017453292f
-#define RADIANS_TO_DEGREES 57.29577951f
-
-#endif

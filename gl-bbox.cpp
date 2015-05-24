@@ -9,20 +9,19 @@
 #include "gl-bbox.hpp"
 
 #include <cfloat>
-#include "macro.hpp"
 
 // Does the given point fall within the given Bbox?
-bool glBboxTestPoint(GLbbox box, GLvector3 point)
+bool gl_bbox_test_point(gl_bbox box, gl_vector_3d point)
 {
-    if((point.x > box.max.x) || (point.x < box.min.x)) {
+    if((point.x_ > box.max_.x_) || (point.x_ < box.min_.x_)) {
         return false;
     }
 
-    if((point.y > box.max.y) || (point.y < box.min.y)) {
+    if((point.y_ > box.max_.y_) || (point.y_ < box.min_.y_)) {
         return false;
     }
      
-    if((point.z > box.max.z) || (point.z < box.min.z)) {
+    if((point.z_ > box.max_.z_) || (point.z_ < box.min_.z_)) {
         return false;
     }
 
@@ -30,42 +29,50 @@ bool glBboxTestPoint(GLbbox box, GLvector3 point)
 }
 
 // Expand BBox (if needed) to contain given point
-GLbbox glBboxContainPoint(GLbbox box, GLvector3 point)
+gl_bbox gl_bbox_contain_point(gl_bbox box, gl_vector_3d point)
 {
-    if(box.min.x >= point.x) {
-        box.min.x = point.x;
+    if(box.min_.x_ >= point.x_) {
+        box.min_.x_ = point.x_;
     }
 
-    if(box.min.y >= point.y) {
-        box.min.y = point.y;
+    if(box.min_.y_ >= point.y_) {
+        box.min_.y_ = point.y_;
     }
 
-    if(box.min.z >= point.z) {
-        box.min.z = point.z;
+    if(box.min_.z_ >= point.z_) {
+        box.min_.z_ = point.z_;
     }
 
-    if(box.max.x <= point.x) {
-        box.max.x = point.x;
+    if(box.max_.x_ <= point.x_) {
+        box.max_.x_ = point.x_;
     }
 
-    if(box.max.y <= point.y) {
-        box.max.y = point.y;
+    if(box.max_.y_ <= point.y_) {
+        box.max_.y_ = point.y_;
     }
 
-    if(box.max.z <= point.z) {
-        box.max.z = point.z;
+    if(box.max_.z_ <= point.z_) {
+        box.max_.z_ = point.z_;
     }
 
     return box;
 }
 
 // This will invalidate the bbox.
-GLbbox glBboxClear(void)
+gl_bbox gl_bbox_clear(void)
 {
-    GLbbox result;
+    gl_bbox result;
 
-    result.max = glVector(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-    result.min = glVector(FLT_MAX, FLT_MAX, FLT_MAX);
+    result.max_ = gl_vector_3d(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+    result.min_ = gl_vector_3d(FLT_MAX, FLT_MAX, FLT_MAX);
 
     return result;
+}
+
+gl_bbox::gl_bbox()
+{
+}
+
+gl_bbox::~gl_bbox()
+{
 }

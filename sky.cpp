@@ -11,21 +11,20 @@
 
 #include "camera.hpp"
 #include "ini.hpp"
-#include "macro.hpp"
 #include "math.hpp"
 #include "world.hpp"
 
-void CSky::Render()
+void sky::render()
 {
-    GLvector3 angle;
-    GLvector3 top;
-    GLvector3 bottom;
-    GLvector3 left;
-    GLvector3 right;
-    GLvector3 front;
-    GLvector3 back;
-    GLrgba horizon;
-    GLrgba sky;
+    gl_vector_3d angle;
+    gl_vector_3d top;
+    gl_vector_3d bottom;
+    gl_vector_3d left;
+    gl_vector_3d right;
+    gl_vector_3d front;
+    gl_vector_3d back;
+    gl_rgba horizon;
+    gl_rgba sky;
     int x;
     int y;
 
@@ -38,30 +37,30 @@ void CSky::Render()
     glDisable(GL_TEXTURE_2D);
     glPushMatrix();
     glLoadIdentity();
-    angle = CameraAngle();
-    glRotatef(angle.x, 1.0f, 0.0f, 0.0f);
-    glRotatef(angle.y, 0.0f, 1.0f, 0.0f);
-    glRotatef(angle.z, 0.0f, 0.0f, 1.0f);
-    top = glVector(0.0f, 0.8f, 0.0f);
-    bottom = glVector(0.0f, -3.0f, 0.0f);
-    left = glVector(10.0f, 0.0f, 0.0f);
-    right = glVector(-10.0f, 0.0f, 0.0f);
-    front = glVector(0.0f, 0.0f, 10.0f);
-    back = glVector(0.0f, 0.0f, -10.0f);
-    horizon = WorldFogColor();
-    sky = glRgba(0.6f, 0.7f, 0.9f);
-    sky = WorldFogColor();
-    glClearColor(sky.red, sky.green, sky.blue, 1.0f);
+    angle = camera_angle();
+    glRotatef(angle.x_, 1.0f, 0.0f, 0.0f);
+    glRotatef(angle.y_, 0.0f, 1.0f, 0.0f);
+    glRotatef(angle.z_, 0.0f, 0.0f, 1.0f);
+    top = gl_vector_3d(0.0f, 0.8f, 0.0f);
+    bottom = gl_vector_3d(0.0f, -3.0f, 0.0f);
+    left = gl_vector_3d(10.0f, 0.0f, 0.0f);
+    right = gl_vector_3d(-10.0f, 0.0f, 0.0f);
+    front = gl_vector_3d(0.0f, 0.0f, 10.0f);
+    back = gl_vector_3d(0.0f, 0.0f, -10.0f);
+    horizon = world_fog_color();
+    sky = gl_rgba(0.6f, 0.7f, 0.9f);
+    sky = world_fog_color();
+    glClearColor(sky.red_, sky.green_, sky.blue_, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     
     for(y = 0; y < (sky_grid_ - 1); ++y) {
         glBegin(GL_QUAD_STRIP);
         
         for(x = 0; x < sky_grid_; ++x) {
-            glColor3fv(&grid_[x][y].color.red);
-            glVertex3fv(&grid_[x][y].position.x);
-            glColor3fv(&grid_[x][y + 1].color.red);
-            glVertex3fv(&grid_[x][y + 1].position.x);
+            glColor3fv(&grid_[x][y].color_.red_);
+            glVertex3fv(&grid_[x][y].position_.x_);
+            glColor3fv(&grid_[x][y + 1].color_.red_);
+            glVertex3fv(&grid_[x][y + 1].position_.x_);
         }
 
         glEnd();
@@ -72,13 +71,13 @@ void CSky::Render()
     glDepthMask(true);
 }
 
-void CSky::Update()
+void sky::update()
 {
 }
 
-CSky::CSky()
+sky::sky()
 {
-    IniManager ini_mgr;
+    ini_manager ini_mgr;
 
     sky_grid_ = ini_mgr.get_int("Sky Settings", "sky_grid");
 
@@ -91,18 +90,18 @@ CSky::CSky()
 
     int x;
     int y;
-    GLrgba top = { 0.0f, 0.0f, 1.0f };
-    GLrgba edge = { 0.0f, 1.0f, 1.0f };
-    GLrgba fog;
+    gl_rgba top(0.0f, 0.0f, 1.0f);
+    gl_rgba edge(0.0f, 1.0f, 1.0f);
+    gl_rgba fog;
     float scale;
     float dist;
     float fade;
     
-    fog = WorldFogColor();
+    fog = world_fog_color();
 
     for(y = 0; y < sky_grid_; ++y) {
         for(x = 0; x < sky_grid_; ++x) {
-            dist = MathDistance((float)x,
+            dist = math_distance((float)x,
                                 (float)y,
                                 (float)(sky_grid_ / 2),
                                 (float)(sky_grid_ / 2));
@@ -117,22 +116,22 @@ CSky::CSky()
                 scale = dist / (sky_grid_ / 2);
             }
 
-            grid_[x][y].position.x = (float)(x - (sky_grid_ / 2));
-            grid_[x][y].position.y = 1.0f - (scale * 1.5f);
-            grid_[x][y].position.z = (float)(y - (sky_grid_ / 2));
-            grid_[x][y].color = top;
-            fade = MathSmoothStep(scale, 0.0f, 0.6f);
-            grid_[x][y].color =
-                glRgbaInterpolate(grid_[x][y].color, edge, fade);
+            grid_[x][y].position_.x_ = (float)(x - (sky_grid_ / 2));
+            grid_[x][y].position_.y_ = 1.0f - (scale * 1.5f);
+            grid_[x][y].position_.z_ = (float)(y - (sky_grid_ / 2));
+            grid_[x][y].color_ = top;
+            fade = math_smooth_step(scale, 0.0f, 0.6f);
+            grid_[x][y].color_ =
+                gl_rgba_interpolate(grid_[x][y].color_, edge, fade);
 
-            fade = MathSmoothStep(scale, 0.5f, 0.99f);
-            grid_[x][y].color = 
-                glRgbaInterpolate(grid_[x][y].color, fog, fade);
+            fade = math_smooth_step(scale, 0.5f, 0.99f);
+            grid_[x][y].color_ = 
+                gl_rgba_interpolate(grid_[x][y].color_, fog, fade);
         }
     }
 }
 
-CSky::~CSky()
+sky::~sky()
 {
     delete[] grid_[0];
     delete[] grid_;

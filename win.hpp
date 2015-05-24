@@ -1,12 +1,12 @@
 #ifndef WIN_HPP_
 #define WIN_HPP_
 
-// HWND WinHwnd(void);
-void WinPopup(char *message, ...);
-void WinTerm(void);
-bool WinInit(void);
-int WinWidth(void);
-int WinHeight(void);
-void WinMousePosition(int *x, int *y);
+// HWND win_hwnd(void);
+void win_popup(char *message, ...);
+void win_term(void);
+bool win_init(void);
+int win_width(void);
+int win_height(void);
+void win_mouse_position(int *x, int *y);
 
 #endif

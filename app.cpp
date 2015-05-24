@@ -24,12 +24,12 @@
 static bool quit;
 // static HINSTANCE instance;
 
-// HINSTANCE AppInstance()
+// HINSTANCE app_instance()
 // {
 //     return instance;
 // }
 
-void AppQuit()
+void app_quit()
 {
     quit = true;
 }

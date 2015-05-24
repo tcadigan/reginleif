@@ -1,22 +1,25 @@
 #ifndef GL_RGBA_HPP_
 #define GL_RGBA_HPP_
 
-class GLrgba {
+class gl_rgba {
 public:
-    float red;
-    float green;
-    float blue;
-    float alpha;
+    gl_rgba();
+    gl_rgba(float red, float green, float blue);
+    gl_rgba(float luminance);
+    gl_rgba(float red, float green, float blue, float alpha);
+    gl_rgba(long c);
+    virtual ~gl_rgba();
+
+    float red_;
+    float green_;
+    float blue_;
+    float alpha_;
 };
 
-GLrgba glRgba(float red, float green, float blue);
-GLrgba glRgba(float luminance);
-GLrgba glRgba(float red, float green, float blue, float alpha);
-GLrgba glRgba(long c);
-GLrgba glRgbaAdd(GLrgba c1, GLrgba c2);
-GLrgba glRgbaSubtract(GLrgba c1, GLrgba c2);
-GLrgba glRgbaInterpolate(GLrgba c1, GLrgba c2, float delta);
-GLrgba glRgbaScale(GLrgba c, float scale);
-GLrgba glRgbaMultiply(GLrgba c1, GLrgba c2);
+gl_rgba gl_rgba_add(gl_rgba c1, gl_rgba c2);
+gl_rgba gl_rgba_subtract(gl_rgba c1, gl_rgba c2);
+gl_rgba gl_rgba_interpolate(gl_rgba c1, gl_rgba c2, float delta);
+gl_rgba gl_rgba_scale(gl_rgba c, float scale);
+gl_rgba gl_rgba_multiply(gl_rgba c1, gl_rgba c2);
 
 #endif

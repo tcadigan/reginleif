@@ -11,7 +11,7 @@
 #include <cstdio>
 
 #include "ini.hpp"
-#include "pointer.hpp"
+#include "mouse-pointer.hpp"
 
 // static HWND hwnd;
 // static HINSTANCE module;
@@ -158,8 +158,8 @@ int WinWidth(void)
 
 void WinMousePosition(int *x, int *y)
 {
-    *x = select_pos.x;
-    *y = select_pos.y;
+    *x = select_pos.x_;
+    *y = select_pos.y_;
 }
 
 int WinHeight(void)
@@ -179,7 +179,7 @@ int WinHeight(void)
 
 bool WinInit(void)
 {
-    IniManager ini_mgr;
+    ini_manager ini_mgr;
 
     mouse_movement = ini_mgr.get_float("Settings", "mouse movement");
 

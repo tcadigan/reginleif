@@ -46,7 +46,7 @@ static float render_aspect;
 static unsigned char *buffer;
 static int render_distance;
 
-void RenderResize(void)
+void render_resize(void)
 {
     int left;
     int top;
@@ -68,7 +68,7 @@ void RenderResize(void)
     // buffer = new unsigned char[(WinWidth() * WinHeight()) * 4];
 }
 
-void RenderTerm(void)
+void render_term(void)
 {
     // if(!hRC) {
     //     return;
@@ -78,9 +78,9 @@ void RenderTerm(void)
     // hRC = NULL;
 }
 
-void RenderInit(void)
+void render_init(void)
 {
-    IniManager ini_mgr;
+    ini_manager ini_mgr;
 
     render_distance = ini_mgr.get_int("Render Settings", "render distance");
 
@@ -124,22 +124,18 @@ void RenderInit(void)
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // SwapBuffers(hDC);
-    RenderResize();
+    render_resize();
 }
 
-void RenderUpdate(void)
+void render_update(void)
 {
-    GLquat light_vector;
-    GLrgba light_color;
-    GLrgba ambient_color;
-    GLrgba fog_color;
-    GLvector3 pos;
-    GLvector3 angle;
+    gl_vector_3d pos;
+    gl_vector_3d angle;
 
-    light_vector = WorldLightQuat();
-    light_color = WorldLightColor();
-    fog_color = WorldFogColor();
-    ambient_color = WorldAmbientColor();
+    gl_quat light_vector = world_light_quat();
+    gl_rgba light_color = world_light_color();
+    gl_rgba fog_color = world_fog_color();
+    gl_rgba ambient_color = world_ambient_color();
     // glViewport(0, 0, WinWidth(), WinHeight());
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
     glShadeModel(GL_SMOOTH);
@@ -152,7 +148,7 @@ void RenderUpdate(void)
     glFogi(GL_FOG_MODE, GL_LINEAR);
     glFogf(GL_FOG_START, 484.0f);
     glFogf(GL_FOG_END, 5880.0f);
-    glFogfv(GL_FOG_COLOR, &light_color.red);
+    glFogfv(GL_FOG_COLOR, &light_color.red_);
     glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -160,22 +156,22 @@ void RenderUpdate(void)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glLoadIdentity();
-    pos = CameraPosition();
-    angle = CameraAngle();
-    glRotatef(angle.x, 1.0f, 0.0f, 0.0f);
-    glRotatef(angle.y, 0.0f, 1.0f, 0.0f);
-    glRotatef(angle.x, 0.0f, 0.0f, 1.0f);
-    glTranslatef(-pos.x, -pos.y, -pos.z);
+    pos = camera_position();
+    angle = camera_angle();
+    glRotatef(angle.x_, 1.0f, 0.0f, 0.0f);
+    glRotatef(angle.y_, 0.0f, 1.0f, 0.0f);
+    glRotatef(angle.x_, 0.0f, 0.0f, 1.0f);
+    glTranslatef(-pos.x_, -pos.y_, -pos.z_);
 
     // This was part of a failed experiment. I made a system to allow stuff to
     // fade in over time, like in Grand Theft Auto. This is very effective,
     // but since the scene is drawn twice it is quite hard on framerate.
     if(0) {
         glDrawBuffer(GL_AUX0);
-        glFogfv(GL_FOG_COLOR, &fog_color.red);
+        glFogfv(GL_FOG_COLOR, &fog_color.red_);
         glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
         glClear(GL_DEPTH_BUFFER_BIT);
-        EntityRenderFadeIn();
+        entity_render_fade_in();
 
         glEnable(GL_BLEND);
         glDisable(GL_TEXTURE_2D);
@@ -192,7 +188,7 @@ void RenderUpdate(void)
         glReadBuffer(GL_BACK);
         glDrawBuffer(GL_BACK);
         glColor4f(1.0f, 1.0f, 1.0f, 0.1f);
-        glPixelTransferf(GL_ALPHA_SCALE, WorldFade());
+        glPixelTransferf(GL_ALPHA_SCALE, world_fade());
         glDisable(GL_FOG);
         // glDrawPixels(WinWidth(), 
         //              WinHeight(), 
@@ -208,7 +204,7 @@ void RenderUpdate(void)
         // This will just render everything once, with no fancy fade
         glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_DEPTH_BUFFER_BIT);
-        EntityRender();
+        entity_render();
     }
 
     // SwapBuffers(hDC);

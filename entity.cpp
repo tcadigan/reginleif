@@ -11,31 +11,31 @@
 #include <cstdlib>
 #include <cstring>
 
-static class CEntity *head;
+static entity *head;
 
-void EntityUpdate(void)
+void entity_update(void)
 {
-    CEntity *e;
+    entity *e;
     
-    for(e = head; e != NULL; e = e->Next()) {
-        e->Update();
+    for(e = head; e != NULL; e = e->next()) {
+        e->update();
     }
 }
 
-void EntityInit(void)
+void entity_init(void)
 {
 }
 
-CEntity *EntityFindType(char const *type, CEntity *start)
+entity *entity_find_type(string const &type, entity *start)
 {
-    CEntity *e;
+    entity *e;
 
     if(start != NULL) {
         start = head;
     }
 
-    for(e = start; e != NULL; e = e->Next()) {
-        if(strcmp(type, e->Type()) == 0) {
+    for(e = start; e != NULL; e = e->next()) {
+        if(type == e->type()) {
             return e;
         }
     }
@@ -43,82 +43,82 @@ CEntity *EntityFindType(char const *type, CEntity *start)
     return NULL;
 }
 
-void EntityTerm(void)
+void entity_term(void)
 {
-    CEntity *e;
-    CEntity *next;
+    entity *e;
+    entity *next;
 
     e = head;
     
     while(e != NULL) {
-        next = e->Next();
+        next = e->next();
         delete e;
         e = next;
     }
 }
 
-void EntityRender(void)
+void entity_render(void)
 {
-    class CEntity *e;
+    entity *e;
     
-    for(e = head; e != NULL; e = e->Next()) {
-        e->Render();
+    for(e = head; e != NULL; e = e->next()) {
+        e->render();
     }
 }
 
-void EntityRenderFadeIn(void)
+void entity_render_fade_in(void)
 {
-    class CEntity *e;
+    entity *e;
 
-    for(e = head; e != NULL; e = e->Next()) {
-        e->RenderFadeIn();
+    for(e = head; e != NULL; e = e->next()) {
+        e->render_fade_in();
     }
 }
 
-void EntityFadeStart(void)
+void entity_fade_start(void)
 {
-    class CEntity *e;
+    entity *e;
 
-    for(e = head; e != NULL; e = e->Next()) {
-        e->RenderFadeIn();
+    for(e = head; e != NULL; e = e->next()) {
+        e->render_fade_in();
     }
 }
 
-CEntity::CEntity(void)
+entity::entity(void)
     : entity_type_("none")
     , next_(head)
 {
     head = this;
 }
 
-class CEntity *CEntity::Next(void)
+entity *entity::next(void)
 {
     return next_;
 }
 
-void CEntity::Render(void)
+void entity::render(void)
 {
 }
 
-void CEntity::RenderFadeIn(void)
+void entity::render_fade_in(void)
 {
     // By default, perform a normal render for the LOD fade-in
-    Render();
+    render();
 }
 
-void CEntity::Update(void)
+void entity::update(void)
 {
 }
 
-void CEntity::FadeStart()
+void entity::fade_start()
 {
 }
 
-char const *CEntity::Type()
+string entity::type()
 {
     return entity_type_;
 }
 
-CEntity::~CEntity(void)
+entity::~entity(void)
 {
 }
