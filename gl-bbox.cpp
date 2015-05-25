@@ -10,18 +10,26 @@
 
 #include <cfloat>
 
-// Does the given point fall within the given Bbox?
-bool gl_bbox_test_point(gl_bbox box, gl_vector_3d point)
+gl_bbox::gl_bbox()
 {
-    if((point.x_ > box.max_.x_) || (point.x_ < box.min_.x_)) {
+}
+
+gl_bbox::~gl_bbox()
+{
+}
+
+// Does the given point fall within the given Bbox?
+bool gl_bbox::test_point(gl_vector3 const &point)
+{
+    if((point.get_x() > max_.get_x()) || (point.get_x() < min_.get_x())) {
         return false;
     }
 
-    if((point.y_ > box.max_.y_) || (point.y_ < box.min_.y_)) {
+    if((point.get_y() > max_.get_y()) || (point.get_y() < min_.get_y())) {
         return false;
     }
-     
-    if((point.z_ > box.max_.z_) || (point.z_ < box.min_.z_)) {
+
+    if((point.get_z() > max_.get_z()) || (point.get_z() < min_.get_z())) {
         return false;
     }
 
@@ -29,50 +37,61 @@ bool gl_bbox_test_point(gl_bbox box, gl_vector_3d point)
 }
 
 // Expand BBox (if needed) to contain given point
-gl_bbox gl_bbox_contain_point(gl_bbox box, gl_vector_3d point)
+void gl_bbox::contain_point(gl_vector3 const &point)
 {
-    if(box.min_.x_ >= point.x_) {
-        box.min_.x_ = point.x_;
+    if(min_.get_x() >= point.get_x()) {
+        min_.set_x(point.get_x());
     }
 
-    if(box.min_.y_ >= point.y_) {
-        box.min_.y_ = point.y_;
+    if(min_.get_y() >= point.get_y()) {
+        min_.set_y(point.get_y());
+    }
+                                                
+    if(min_.get_z() >= point.get_z()) {
+        min_.set_z(point.get_z());
+    }
+    
+    if(max_.get_x() <= point.get_x()) {
+        max_.set_x(point.get_x());
+    }
+                                                
+    if(max_.get_y() <= point.get_y()) {
+        max_.set_y(point.get_y());
     }
 
-    if(box.min_.z_ >= point.z_) {
-        box.min_.z_ = point.z_;
+    if(max_.get_z() <= point.get_z()) {
+        max_.set_z(point.get_z());
     }
-
-    if(box.max_.x_ <= point.x_) {
-        box.max_.x_ = point.x_;
-    }
-
-    if(box.max_.y_ <= point.y_) {
-        box.max_.y_ = point.y_;
-    }
-
-    if(box.max_.z_ <= point.z_) {
-        box.max_.z_ = point.z_;
-    }
-
-    return box;
 }
 
 // This will invalidate the bbox.
-gl_bbox gl_bbox_clear(void)
+void gl_bbox::clear()
 {
-    gl_bbox result;
+    max_.set_x(-FLT_MAX);
+    max_.set_y(-FLT_MAX);
+    max_.set_z(-FLT_MAX);
 
-    result.max_ = gl_vector_3d(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-    result.min_ = gl_vector_3d(FLT_MAX, FLT_MAX, FLT_MAX);
-
-    return result;
+    min_.set_x(FLT_MAX);
+    min_.set_y(FLT_MAX);
+    min_.set_z(FLT_MAX);
 }
 
-gl_bbox::gl_bbox()
+void gl_bbox::set_min(gl_vector3 const &min)
 {
+    min_ = min;
 }
 
-gl_bbox::~gl_bbox()
+void gl_bbox::set_max(gl_vector3 const &max)
 {
+    max_ = max;
+}
+
+gl_vector3 gl_bbox::get_min() const
+{
+    return min_;
+}
+
+gl_vector3 gl_bbox::get_max() const
+{
+    return max_;
 }

@@ -8,16 +8,18 @@ public:
     texture();
     virtual ~texture();
 
-    texture *next_;
+    void init();
+    void term();
+
+    GLuint from_name(char const *name);
+
+private:
+    texture *load(char const *name);
+
     GLuint id_;
+    texture *next_;
     char name_[16];
-    char *image_name_;
-    char *mask_name_;
     // AUX_RGBImageRec *image_;
 };
-
-unsigned int texture_from_name(char const *name);
-void texture_init(void);
-void texture_term(void);
 
 #endif

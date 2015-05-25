@@ -1,108 +1,108 @@
 #ifndef TERRAIN_HPP_
 #define TERRAIN_HPP_
 
-#include "gl-vector-3d.hpp"
-#include "gl-vector-2d.hpp"
+#include "camera.hpp"
 #include "entity.hpp"
-
-enum build_stage {
-    // Check for the need to begin building
-    STAGE_IDLE, 
-    // Reset the mesh
-    STAGE_CLEAR,
-    // Run the quad tree and figure out what points will be in the final mesh
-    STAGE_QUADTREE, 
-    STAGE_TEXTURES,
-    // Build the final glList
-    STAGE_COMPILE,
-    STAGE_WAIT_FOR_FADE,
-    STAGE_DONE
-};
+#include "gl-vector3.hpp"
+#include "gl-vector2.hpp"
+#include "ini-manager.hpp"
+#include "terrain-map.hpp"
+#include "terrain-texture.hpp"
 
 class terrain : public entity {
 public:
-    terrain(int size);
+    terrain(GLint size,
+            terrain_texture &terrain_texture,
+            terrain_map const &map,
+            camera const &camera,
+            ini_manager const &ini_mgr);
     ~terrain();
+
+    void update(void);
 
     void render(void);
     void render_fade_in(void);
-    void update(void);
     void fade_start(void);
     
 private:
-    char stage_;
-    int map_size_;
-    int map_half_;
-    int zone_size_;
-    gl_vector_3d viewpoint_;
-    short *boundary_;
-    bool *point_;
+    terrain_texture &terrain_texture_;
+    terrain_map const &map_;
+    camera const &camera_;
+    ini_manager const &ini_mgr_;
 
-    float tolerance_;
-    int update_time_;
-    int do_wireframe_;
-    int do_solid_;
-    int zone_grid_;
+    GLshort stage_;
+    GLint map_size_;
+    GLint map_half_;
+    GLint zone_size_;
+    gl_vector3 viewpoint_;
+    GLshort *boundary_;
+    GLboolean *point_;
 
-    unsigned int list_front_;
-    unsigned int list_back_;
+    GLfloat tolerance_;
+    GLint update_time_;
+    GLint do_wireframe_;
+    GLint do_solid_;
+    GLint zone_grid_;
 
-    gl_vector_2d *zone_uv_;
-    int x_;
-    int y_;
-    int layer_;
-    int zone_;
-    int zone_origin_x_;
-    int zone_origin_y_;
-    bool compile_back_;
-    bool use_color_;
-    bool fade_;
-    long triangles_;
-    long vertices_;
-    long build_start_;
-    long build_time_;
-    long compile_time_;
+    GLuint list_front_;
+    GLuint list_back_;
+
+    gl_vector2 *zone_uv_;
+    GLint x_;
+    GLint y_;
+    GLint layer_;
+    GLint zone_;
+    GLint zone_origin_x_;
+    GLint zone_origin_y_;
+    GLboolean compile_back_;
+    GLboolean use_color_;
+    GLboolean fade_;
+    GLuint triangles_;
+    GLuint vertices_;
+    GLuint build_start_;
+    GLuint build_time_;
+    GLuint compile_time_;
 
     void compile(void);
-    void compile_block(int x, int y, int size);
-    void compile_triangle(int x1, int y1, int x2, int y2, int x3, int y3);
-    void compile_vertex(int x, int y);
-    void compile_strip(int x1,
-                      int y1,
-                      int x2,
-                      int y2,
-                      int x3,
-                      int y3,
-                      int x4,
-                      int y4);
+    void compile_block(GLint x, GLint y, GLint size);
+    void compile_triangle(GLint x1, GLint y1, GLint x2, GLint y2, GLint x3, GLint y3);
+    void compile_vertex(GLint x, GLint y);
+    void compile_strip(GLint x1,
+                      GLint y1,
+                      GLint x2,
+                      GLint y2,
+                      GLint x3,
+                      GLint y3,
+                      GLint x4,
+                      GLint y4);
 
-    void compile_fan(int x1,
-                    int y1,
-                    int x2,
-                    int y2,
-                    int x3,
-                    int y3,
-                    int x4,
-                    int y4,
-                    int x5,
-                    int y5);
+    void compile_fan(GLint x1,
+                    GLint y1,
+                    GLint x2,
+                    GLint y2,
+                    GLint x3,
+                    GLint y3,
+                    GLint x4,
+                    GLint y4,
+                    GLint x5,
+                    GLint y5);
 
-    void compile_fan(int x1,
-                    int y1,
-                    int x2,
-                    int y2,
-                    int x3,
-                    int y3,
-                    int x4,
-                    int y4,
-                    int x5,
-                    int y5,
-                    int x6,
-                    int y6);
+    void compile_fan(GLint x1,
+                    GLint y1,
+                    GLint x2,
+                    GLint y2,
+                    GLint x3,
+                    GLint y3,
+                    GLint x4,
+                    GLint y4,
+                    GLint x5,
+                    GLint y5,
+                    GLint x6,
+                    GLint y6);
 
     void grid_step(void);
-    void do_quad(int x, int y, int size);
-    void point_activate(int x, int y);
+    void do_quad(GLint x, GLint y, GLint size);
+    void point_activate(GLint x, GLint y);
 };
     
 #endif

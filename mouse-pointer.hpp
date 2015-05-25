@@ -1,28 +1,42 @@
-#ifndef POINTER_HPP_
-#define POINTER_HPP_
+#ifndef MOUSE_POINTER_HPP_
+#define MOUSE_POINTER_HPP_
 
+#include "camera.hpp"
 #include "entity.hpp"
+#include "gl-vector3.hpp"
+#include "ini-manager.hpp"
 #include "point.hpp"
-#include "gl-vector-3d.hpp"
+#include "terrain-map.hpp"
+#include "texture.hpp"
 
 class mouse_pointer : public entity {
 public:
-    mouse_pointer();
+    mouse_pointer(texture &texture,
+                  terrain_map const &map,
+                  camera const &camera,
+                  ini_manager const &ini_mgr);
     virtual ~mouse_pointer();
+
+    void update();
     
-    void render_fade(void);
-    void render(void);
-    void update(void);
-    point selected(void);
+    void render();
+    point get_selected();
 
 private:
-    int texture_;
+    point draw_grid();
 
-    gl_vector_3d position_;
+    texture &texture_;
+    terrain_map const &map_;
+    camera const &camera_;
+    ini_manager const &ini_mgr_;
+    
+    GLint texture_id_;
+
+    gl_vector3 position_;
     point last_mouse_;
     point last_cell_;
-    float pulse_;
-    int pt_size_;
+    GLfloat pulse_;
+    GLint pt_size_;
 };
 
 #endif

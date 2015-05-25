@@ -11,81 +11,91 @@
 
 #include <SDL.h>
 
-#include "map.hpp"
-#include "entity.hpp"
-#include "sky.hpp"
-#include "mouse-pointer.hpp"
-#include "terrain.hpp"
-
-static gl_vector_3d light_vector(-0.75f, 0.25f, 0.0f);
-static gl_rgba light_color(2.1f, 2.1f, 0.1f, 1.0f);
-static gl_rgba ambient_color(0.6f, 0.6f, 0.6f, 1.0f);
-static gl_rgba fog_color(0.7f, 0.7f, 0.7f, 1.0f);
-static float fade;
-static long last_update;
-static mouse_pointer *pointer;
-
-gl_vector_3d world_light_vector(void)
-{
-    return light_vector;
-}
-
-float world_fade(void)
-{
-    return fade;
-}
-
-gl_quat world_light_quat(void)
-{
-    gl_quat q(light_vector.x_,
-              light_vector.y_,
-              light_vector.z_,
-              0.0f);
-
-    return q;
-}
-
-gl_rgba world_light_color(void)
-{
-    return light_color;
-}
-
-gl_rgba world_fog_color(void)
-{
-    return fog_color;
-}
-
-gl_rgba world_ambient_color(void)
-{
-    return ambient_color;
-}
-
-void world_init(void)
-{
-    pointer = new mouse_pointer();
-    new terrain(map_size());
-    new sky();
-    last_update = SDL_GetTicks();
-}
-
-void world_term(void)
+world::world()
+    : ini_mgr_(new ini_manager())
+    , texture_(new texture())
+    , camera_(new camera(*ini_mgr_))
+    , sky_entity_(new sky(*camera_, *ini_mgr_))
+    , map_(new terrain_map(*camera_, *ini_mgr_))
+    , pointer_(new mouse_pointer(*texture_, *map_, *camera_, *ini_mgr_))
+    , terrain_texture_(new terrain_texture(*texture_, *map_, *camera_, *ini_mgr_))
+    , terrain_(new terrain(map_->get_size(), *terrain_texture_, *map_, *camera_, *ini_mgr_))
+    , light_vector_(gl_vector3(-0.75f, 0.25f, 0.0f))
+    , light_color_(gl_rgba(2.1f, 2.1f, 0.1f, 1.0f))
+    , ambient_color_(gl_rgba(0.6f, 0.6f, 0.6f, 1.0f))
+    , fog_color_(gl_rgba(0.7f, 0.7f, 0.7f, 1.0f))
 {
 }
 
-void world_update(void)
+world::~world()
+{
+    delete ini_mgr_;
+    delete texture_;
+    delete camera_;
+    delete sky_entity_;
+    delete map_;
+    delete pointer_;
+    delete terrain_texture_;
+    delete terrain_;
+}
+
+void world::init()
+{
+    last_update_ = SDL_GetTicks();
+}
+
+void world::update()
 {
     long now;
     long delta;
-
+    
     now = SDL_GetTicks();
-    delta = now - last_update;
-    last_update = now;
+    delta = now - last_update_;
+    last_update_ = now;
 
-    fade += ((float)delta / 500.0f);
+    fade_ += ((float)delta / 500.0f);
 
-    if(fade > 1.0f) {
+    if(fade_ > 1.0f) {
         entity_fade_start();
-        fade = 0.0f;
+        fade_ = 0.0f;
     }
 }
+
+void world::term()
+{
+}
+
+gl_vector3 world::get_light_vector() const
+{
+    return light_vector_;
+}
+
+GLfloat world::get_fade() const
+{
+    return fade_;
+}
+
+gl_quat world::get_light_quat() const
+{
+    return gl_quat(light_vector_.get_x(),
+                   light_vector_.get_y(),
+                   light_vector_.get_z(),
+                   0.0f);
+}
+
+gl_rgba world::get_light_color() const
+{
+    return light_color_;
+}
+
+gl_rgba world::get_fog_color() const
+{
+    return fog_color_;
+}
+
+gl_rgba world::get_ambient_color() const
+{
+    return ambient_color_;
+}
+
 

@@ -9,13 +9,24 @@
 
 #include "render.hpp"
 
-#include <SDL_opengl.h>
-
 #include "entity.hpp"
-#include "camera.hpp"
 #include "gl-rgba.hpp"
-#include "ini.hpp"
 #include "world.hpp"
+
+render::render(camera const &camera,
+               ini_manager const &ini_mgr)
+    : camera_(camera)
+    , ini_mgr_(ini_mgr)
+    , render_width_(0)
+    , render_height_(0)
+    , render_distance_(0)
+    , render_aspect_(0)
+{
+}
+
+render::~render()
+{
+}
 
 // static PIXELFORMATDESCRIPTOR pfd = {
 //     sizeof(PIXELFORMATDESCRIPTOR),
@@ -38,51 +49,9 @@
 //     0, 0, 0              // Layer masks ignored
 // };
 
-// static HDC hDc;
-// static HGLRC hRC;
-static int render_width;
-static int render_height;
-static float render_aspect;
-static unsigned char *buffer;
-static int render_distance;
-
-void render_resize(void)
+void render::init(void)
 {
-    int left;
-    int top;
-
-    if(buffer != NULL) {
-        delete[] buffer;
-    }
-
-    // render_width = WinWidth();
-    // render_height = WinHeight();
-    left = 0;
-    top = 0;
-    render_aspect = (float)render_width / (float)render_height;
-    glViewport(left, top, render_width, render_height);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(45.0f, render_aspect, 0.1f, render_distance);
-    glMatrixMode(GL_MODELVIEW);
-    // buffer = new unsigned char[(WinWidth() * WinHeight()) * 4];
-}
-
-void render_term(void)
-{
-    // if(!hRC) {
-    //     return;
-    // }
-
-    // wglDeletecontext(hRC);
-    // hRC = NULL;
-}
-
-void render_init(void)
-{
-    ini_manager ini_mgr;
-
-    render_distance = ini_mgr.get_int("Render Settings", "render distance");
+    render_distance_ = ini_mgr_.get_int("Render Settings", "render distance");
 
     // HWND hWnd;
     // unsigned int PixelFormat;
@@ -124,18 +93,18 @@ void render_init(void)
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // SwapBuffers(hDC);
-    render_resize();
+    resize();
 }
 
-void render_update(void)
+void render::update(world const &world_object)
 {
-    gl_vector_3d pos;
-    gl_vector_3d angle;
+    gl_vector3 pos;
+    gl_vector3 angle;
 
-    gl_quat light_vector = world_light_quat();
-    gl_rgba light_color = world_light_color();
-    gl_rgba fog_color = world_fog_color();
-    gl_rgba ambient_color = world_ambient_color();
+    gl_quat light_vector = world_object.get_light_quat();
+    gl_rgba light_color = world_object.get_light_color();
+    gl_rgba fog_color = world_object.get_fog_color();
+    gl_rgba ambient_color = world_object.get_ambient_color();
     // glViewport(0, 0, WinWidth(), WinHeight());
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
     glShadeModel(GL_SMOOTH);
@@ -148,7 +117,7 @@ void render_update(void)
     glFogi(GL_FOG_MODE, GL_LINEAR);
     glFogf(GL_FOG_START, 484.0f);
     glFogf(GL_FOG_END, 5880.0f);
-    glFogfv(GL_FOG_COLOR, &light_color.red_);
+    glFogfv(GL_FOG_COLOR, light_color.get_data());
     glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -156,19 +125,19 @@ void render_update(void)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glLoadIdentity();
-    pos = camera_position();
-    angle = camera_angle();
-    glRotatef(angle.x_, 1.0f, 0.0f, 0.0f);
-    glRotatef(angle.y_, 0.0f, 1.0f, 0.0f);
-    glRotatef(angle.x_, 0.0f, 0.0f, 1.0f);
-    glTranslatef(-pos.x_, -pos.y_, -pos.z_);
+    pos = camera_.get_position();
+    angle = camera_.get_angle();
+    glRotatef(angle.get_x(), 1.0f, 0.0f, 0.0f);
+    glRotatef(angle.get_y(), 0.0f, 1.0f, 0.0f);
+    glRotatef(angle.get_z(), 0.0f, 0.0f, 1.0f);
+    glTranslatef(-pos.get_z(), -pos.get_y(), -pos.get_z());
 
     // This was part of a failed experiment. I made a system to allow stuff to
     // fade in over time, like in Grand Theft Auto. This is very effective,
     // but since the scene is drawn twice it is quite hard on framerate.
     if(0) {
         glDrawBuffer(GL_AUX0);
-        glFogfv(GL_FOG_COLOR, &fog_color.red_);
+        glFogfv(GL_FOG_COLOR, fog_color.get_data());
         glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
         glClear(GL_DEPTH_BUFFER_BIT);
         entity_render_fade_in();
@@ -188,7 +157,7 @@ void render_update(void)
         glReadBuffer(GL_BACK);
         glDrawBuffer(GL_BACK);
         glColor4f(1.0f, 1.0f, 1.0f, 0.1f);
-        glPixelTransferf(GL_ALPHA_SCALE, world_fade());
+        glPixelTransferf(GL_ALPHA_SCALE, world_object.get_fade());
         glDisable(GL_FOG);
         // glDrawPixels(WinWidth(), 
         //              WinHeight(), 
@@ -209,4 +178,35 @@ void render_update(void)
 
     // SwapBuffers(hDC);
 }
-               
+
+void render::term(void)
+{
+    // if(!hRC) {
+    //     return;
+    // }
+
+    // wglDeletecontext(hRC);
+    // hRC = NULL;
+}
+
+void render::resize(void)
+{
+    int left;
+    int top;
+
+    if(buffer_ != NULL) {
+        delete[] buffer_;
+    }
+
+    // render_width = WinWidth();
+    // render_height = WinHeight();
+    left = 0;
+    top = 0;
+    render_aspect_ = (float)render_width_ / (float)render_height_;
+    glViewport(left, top, render_width_, render_height_);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(45.0f, render_aspect_, 0.1f, render_distance_);
+    glMatrixMode(GL_MODELVIEW);
+    // buffer = new unsigned char[(WinWidth() * WinHeight()) * 4];
+}

@@ -10,7 +10,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <SDL_opengl.h>
 
 static texture *head_texture;
 
@@ -22,27 +21,42 @@ texture::~texture()
 {
 }
 
-// static AUX_RGBImageRec *LoadBMP(char *Filename)
-// {
-//     FILE *File = NULL;
+void texture::init()
+{
+}
+
+void texture::term(void)
+{
+    texture *t;
+
+    while(head_texture != NULL) {
+        t = head_texture->next_;
+        free(head_texture);
+        head_texture = t;
+    }
+}
+
+GLuint texture::from_name(char const *name)
+{
+    texture *t;
     
-//     if(Filename == NULL) {
-//         return NULL;
-//     }
+    for(t = head_texture; t != NULL; t = t->next_) {
+        if(strcmp(name, t->name_) == 0) {
+            return t->id_;
+        }
+    }
 
-//     File = fopen(Filename, "r");
+    t = load(name);
 
-//     if(File != 0) {
-//         fclose(file);
+    if(t != NULL) {
+        return t->id_;
+    }
 
-//         return auxDIBImageLoad(Filename);
-//     }
-
-//     return NULL;
-// }
+    return 0;
+}
 
 // Texture id
-static texture *load_texture(char const *name)
+texture *texture::load(char const *name)
 {
     char filename[128];
     texture *t;
@@ -89,36 +103,21 @@ static texture *load_texture(char const *name)
     return t;
 }
 
-unsigned int texture_from_name(char const*name)
-{
-    texture *t;
+// static AUX_RGBImageRec *LoadBMP(char *Filename)
+// {
+//     FILE *File = NULL;
     
-    for(t = head_texture; t != NULL; t = t->next_) {
-        if(strcmp(name, t->name_) == 0) {
-            return t->id_;
-        }
-    }
+//     if(Filename == NULL) {
+//         return NULL;
+//     }
 
-    t = load_texture(name);
+//     File = fopen(Filename, "r");
 
-    if(t != NULL) {
-        return t->id_;
-    }
+//     if(File != 0) {
+//         fclose(file);
 
-    return 0;
-}
+//         return auxDIBImageLoad(Filename);
+//     }
 
-void texture_init()
-{
-}
-
-void texture_term(void)
-{
-    texture *t;
-
-    while(head_texture != NULL) {
-        t = head_texture->next_;
-        free(head_texture);
-        head_texture = t;
-    }
-}
+//     return NULL;
+// }

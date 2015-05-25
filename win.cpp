@@ -10,42 +10,127 @@
 #include <cstdarg>
 #include <cstdio>
 
-#include "ini.hpp"
 #include "mouse-pointer.hpp"
 
-// static HWND hwnd;
-// static HINSTANCE module;
-static int width;
-static int height;
-// static bool lmb;
-// static bool rmb;
-static bool mouse_forced;
-// static point mouse_pos;
-static point select_pos;
-static float mouse_movement;
+win::win(ini_manager const &ini_mgr)
+    : ini_mgr_(ini_mgr)
+{
+}
 
-void CenterCursor()
+win::~win()
+{
+}
+
+GLboolean win::init()
+{
+    mouse_movement_ = ini_mgr_.get_float("Settings", "mouse movement");
+
+    // WNDLASSEX wcex;
+
+    // wcex.cbSize = sizeof(WNDCLASSEX);
+    // wcex.style = CS_HREDRAW | CS_VREDRAW;
+    // wcex.lpfnWndProc = (WNDPROC)WndProc;
+    // wcex.cbClsExtra = 0;
+    // wcex.cbWndExtra = 0;
+    // wcex.hInstance = AppInstace();
+    // wcex.hIcon = NULL;
+    // wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+    // wcex.hbrBackground = (HBRUSH)(COLOR_BTNFACE + 1);
+    // wcex.lpszMenuName = NULL;
+    // wcex.lpszClassName = "Terrain Viewer";
+    // wcex.hIconSm = NULL;
+
+    // if(!RegisterClassEx(&wcex)) {
+    //     WinPopup("Cannot create window class");
+
+    //     return false;
+    // }
+
+    // hwnd = CreateWindowEx(0,
+    //                       "Terrain Viewer",
+    //                       "Terrain Viewer",
+    //                       WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
+    //                       CW_USEDEFAULT,
+    //                       0,
+    //                       544,
+    //                       640,
+    //                       NULL,
+    //                       NULL,
+    //                       AppInstance(),
+    //                       NULL);
+
+    // if(!hwnd) {
+    //     WinPopup("Cannot create window");
+        
+    //     return false;
+    // }
+
+    // ShowWindow(hwnd, SW_SHOW);
+    // UpdateWindow(hwnd);
+
+    return true;
+}
+
+void win::term()
+{
+    // DetroyWindow(hwnd);
+}
+
+// HWND WinHwnd(void)
+// {
+//     return hwnd;
+// }
+
+void win::popup(char *message, ...)
+{
+    va_list marker;
+    char buf[1024];
+
+    va_start(marker, message);
+    vsprintf(buf, message, marker);
+    va_end(marker);
+
+    // MessageBox(NULL, buf, "Terrain Viewer", MB_ICONSTOP | MB_OK | MB_TASKMODAL);
+}
+
+GLint win::get_width()
+{
+    return width_;
+}
+
+int win::get_height()
+{
+    return height_;
+}
+
+void win::mouse_position(GLint *x, GLint *y)
+{
+    *x = select_pos_.get_x();
+    *y = select_pos_.get_y();
+}
+
+void win::center_cursor()
 {
     // int center_x;
     // int center_y;
     // RECT rect;
 
     // SetCursor(NULL);
-    mouse_forced = true;
+    mouse_forced_ = true;
     // GetWindowRect(hwnd, &rect);
     // center_x = rect.left + ((rect.right - rect.left) / 2);
     // center_y = rect.top + ((rect.bottom - rect.top) / 2);
     // SetCursorPos(center_x, center_y);
 }
 
-void MoveCursor(int x, int y)
+void win::move_cursor(GLint x, GLint y)
 {
     // int center_x;
     // int center_y;
     // RECT rect;
 
     // SetCursor(NULL);
-    mouse_forced = true;
+    mouse_forced_ = true;
     // GetWindowRect(hwnd, &rect);
     // center_x = rect.left + x;
     // center_y = rect.top + y;
@@ -138,93 +223,3 @@ void MoveCursor(int x, int y)
 
 //     return DefWindowProc(hWnd, message, wParam, lParam);
 // }
-
-void WinPopup(char *message, ...)
-{
-    va_list marker;
-    char buf[1024];
-
-    va_start(marker, message);
-    vsprintf(buf, message, marker);
-    va_end(marker);
-
-    // MessageBox(NULL, buf, "Terrain Viewer", MB_ICONSTOP | MB_OK | MB_TASKMODAL);
-}
-
-int WinWidth(void)
-{
-    return width;
-}
-
-void WinMousePosition(int *x, int *y)
-{
-    *x = select_pos.x_;
-    *y = select_pos.y_;
-}
-
-int WinHeight(void)
-{
-    return height;
-}
-
-// void WinTerm(void)
-// {
-//     DetroyWindow(hwnd);
-// }
-
-// HWND WinHwnd(void)
-// {
-//     return hwnd;
-// }
-
-bool WinInit(void)
-{
-    ini_manager ini_mgr;
-
-    mouse_movement = ini_mgr.get_float("Settings", "mouse movement");
-
-    // WNDLASSEX wcex;
-
-    // wcex.cbSize = sizeof(WNDCLASSEX);
-    // wcex.style = CS_HREDRAW | CS_VREDRAW;
-    // wcex.lpfnWndProc = (WNDPROC)WndProc;
-    // wcex.cbClsExtra = 0;
-    // wcex.cbWndExtra = 0;
-    // wcex.hInstance = AppInstace();
-    // wcex.hIcon = NULL;
-    // wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-    // wcex.hbrBackground = (HBRUSH)(COLOR_BTNFACE + 1);
-    // wcex.lpszMenuName = NULL;
-    // wcex.lpszClassName = "Terrain Viewer";
-    // wcex.hIconSm = NULL;
-
-    // if(!RegisterClassEx(&wcex)) {
-    //     WinPopup("Cannot create window class");
-
-    //     return false;
-    // }
-
-    // hwnd = CreateWindowEx(0,
-    //                       "Terrain Viewer",
-    //                       "Terrain Viewer",
-    //                       WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
-    //                       CW_USEDEFAULT,
-    //                       0,
-    //                       544,
-    //                       640,
-    //                       NULL,
-    //                       NULL,
-    //                       AppInstance(),
-    //                       NULL);
-
-    // if(!hwnd) {
-    //     WinPopup("Cannot create window");
-        
-    //     return false;
-    // }
-
-    // ShowWindow(hwnd, SW_SHOW);
-    // UpdateWindow(hwnd);
-
-    return true;
-}

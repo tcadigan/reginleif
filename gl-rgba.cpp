@@ -9,92 +9,143 @@
 
 #include "math.hpp"
 
-gl_rgba gl_rgba_interpolate(gl_rgba c1, gl_rgba c2, float delta)
-{
-    gl_rgba result(math_interpolate(c1.red_, c2.red_, delta),
-                   math_interpolate(c1.green_, c2.green_, delta),
-                   math_interpolate(c1.blue_, c2.blue_, delta),
-                   math_interpolate(c1.alpha_, c2.alpha_, delta));
-
-    return result;
-}
-
-gl_rgba gl_rgba_add(gl_rgba c1, gl_rgba c2)
-{
-    gl_rgba result(c1.red_ + c2.red_,
-                   c1.green_ + c2.green_,
-                   c1.blue_ + c2.blue_);
-
-    return result;
-}
-
-gl_rgba gl_rgba_subtract(gl_rgba c1, gl_rgba c2)
-{
-    gl_rgba result(c1.red_ - c2.red_,
-                   c1.green_ - c2.green_,
-                   c1.blue_ - c2.blue_);
-
-    return result;
-}
-
-gl_rgba gl_rgba_multiply(gl_rgba c1, gl_rgba c2)
-{
-    gl_rgba result(c1.red_ * c2.red_,
-                   c1.green_ * c2.green_,
-                   c1.blue_ * c2.blue_);
-
-    return result;
-}
-
-gl_rgba gl_rgba_scale(gl_rgba c, float scale)
-{
-    c.red_ *= scale;
-    c.green_ *= scale;
-    c.blue_ *= scale;
-
-    return c;
-}
-
 gl_rgba::gl_rgba()
-    : red_(0.0f)
-    , green_(0.0f)
-    , blue_(0.0f)
-    , alpha_(1.0f)
 {
+    data_[0] = 0;
+    data_[1] = 0;
+    data_[2] = 0;
+    data_[3] = 1.0f;
 }
 
-gl_rgba::gl_rgba(float red, float green, float blue)
-    : red_(red)
-    , green_(green)
-    , blue_(blue)
-    , alpha_(1.0f)
+gl_rgba::gl_rgba(GLfloat red, GLfloat green, GLfloat blue)
 {
+    data_[0] = red;
+    data_[1] = green;
+    data_[2] = blue;
+    data_[3] = 1.0f;
 }
 
-gl_rgba::gl_rgba(float red, float green, float blue, float alpha)
-    : red_(red)
-    , green_(green)
-    , blue_(blue)
-    , alpha_(alpha)
+gl_rgba::gl_rgba(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
 {
+    data_[0] = red;
+    data_[1] = green;
+    data_[2] = blue;
+    data_[3] = alpha;
 }
 
-gl_rgba::gl_rgba(long c)
-    : red_((float)((c & 0xFF000000) >> 24) / 255.0f)
-    , green_((float)((c & 0x00FF0000) >> 16) / 255.0f)
-    , blue_((float)((c & 0x0000FF00) >> 8) / 255.0f)
-    , alpha_(1.0f)
+gl_rgba::gl_rgba(GLint c)
 {
+    data_[0] = (GLfloat)((c & 0xFF000000) >> 24) / 255.0f;
+    data_[1] = (GLfloat)((c & 0x00FF0000) >> 16) / 255.0f;
+    data_[2] = (GLfloat)((c & 0x0000FF00) >> 8) / 255.0f;
+    data_[3] = 1.0f;
 }
 
-gl_rgba::gl_rgba(float luminance)
-  : red_(luminance)
-  , green_(luminance)
-  , blue_(luminance)
-  , alpha_(1.0f)
+gl_rgba::gl_rgba(GLfloat luminance)
 {
+    data_[0] = luminance;
+    data_[1] = luminance;
+    data_[2] = luminance;
+    data_[3] = 1.0f;
 }
 
 gl_rgba::~gl_rgba()
 {
+}
+
+gl_rgba &gl_rgba::operator+=(gl_rgba const &rhs)
+{
+    data_[0] += rhs.data_[0];
+    data_[1] += rhs.data_[1];
+    data_[2] += rhs.data_[2];
+
+    return *this;
+}
+
+gl_rgba &gl_rgba::operator-=(gl_rgba const &rhs)
+{
+    data_[0] -= rhs.data_[0];
+    data_[1] -= rhs.data_[1];
+    data_[2] -= rhs.data_[2];
+
+    return *this;
+}
+
+gl_rgba &gl_rgba::operator*=(gl_rgba const &rhs)
+{
+    data_[0] *= rhs.data_[0];
+    data_[1] *= rhs.data_[1];
+    data_[2] *= rhs.data_[2];
+
+    return *this;
+}
+
+gl_rgba &gl_rgba::operator*=(GLfloat const &rhs)
+{
+    data_[0] *= rhs;
+    data_[1] *= rhs;
+    data_[2] *= rhs;
+
+    return *this;
+}
+
+gl_rgba gl_rgba::interpolate(gl_rgba const &rhs, GLfloat delta) const
+{
+    return gl_rgba(math_interpolate(data_[0], rhs.data_[0], delta),
+                   math_interpolate(data_[1], rhs.data_[1], delta),
+                   math_interpolate(data_[2], rhs.data_[2], delta),
+                   math_interpolate(data_[3], rhs.data_[3], delta));
+}
+
+void gl_rgba::set_data(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
+{
+    data_[0] = red;
+    data_[1] = green;
+    data_[2] = blue;
+    data_[3] = alpha;
+}
+
+void gl_rgba::set_red(GLfloat red)
+{
+    data_[0] = red;
+}
+
+void gl_rgba::set_green(GLfloat green)
+{
+    data_[1] = green;
+}
+
+void gl_rgba::set_blue(GLfloat blue)
+{
+    data_[2] = blue;
+}
+
+void gl_rgba::set_alpha(GLfloat alpha)
+{
+    data_[3] = alpha;
+}
+
+GLfloat *gl_rgba::get_data()
+{
+    return data_;
+}
+
+GLfloat gl_rgba::get_red() const
+{
+    return data_[0];
+}
+
+GLfloat gl_rgba::get_green() const
+{
+    return data_[1];
+}
+
+GLfloat gl_rgba::get_blue() const
+{
+    return data_[2];
+}
+
+GLfloat gl_rgba::get_alpha() const
+{
+    return data_[3];
 }

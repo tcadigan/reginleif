@@ -1,10 +1,10 @@
-#ifndef INI_HPP_
-#define INI_HPP_
+#ifndef INI_MANAGER_HPP_
+#define INI_MANAGER_HPP_
 
 #include <map>
 #include <string>
 
-#include "gl-vector-3d.hpp"
+#include "gl-vector3.hpp"
 
 using namespace std;
 
@@ -22,17 +22,17 @@ public:
 
     void set_vector(string const &section, 
                     string const &entry,
-                    gl_vector_3d const &value);
+                    gl_vector3 const &value);
 
-    int get_int(string const &section, string const &entry);
-    float get_float(string const &section, string const &entry);
-    string get_string(string const &section, string const &entry);
-    gl_vector_3d get_vector(string const &section, string const &entry);
+    int get_int(string const &section, string const &entry) const;
+    float get_float(string const &section, string const &entry) const;
+    string get_string(string const &section, string const &entry) const;
+    gl_vector3 get_vector(string const &section, string const &entry) const;
     
 private:
     string inner_get_string(string const &section,
                             string const &entry,
-                            string const &default_value);
+                            string const &default_value) const;
 
     void parse_contents();
 

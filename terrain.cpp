@@ -11,100 +11,336 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
 
-#include "camera.hpp"
 #include "console.hpp"
-#include "ini.hpp"
-#include "map.hpp"
-#include "map-texture.hpp"
+#include "terrain-texture.hpp"
 
-// Used during compile: Add a vertex
-void terrain::compile_vertex(int x, int y)
+terrain::terrain(GLint size,
+                 terrain_texture &terrain_texture,
+                 terrain_map const &map,
+                 camera const &camera,
+                 ini_manager const &ini_mgr)
+    : terrain_texture_(terrain_texture)
+    , map_(map)
+    , camera_(camera)
+    , ini_mgr_(ini_mgr)
+    , stage_(terrainspace::STAGE_IDLE)
+    , map_size_(size)
+    , map_half_(size / 2)
+    , zone_size_(map_size_ / 2)
+    , viewpoint_(gl_vector3(0.0f, 0.0f, 0.0f))
+    , boundary_(new short[size])
+    , point_(new GLboolean[size * size])
 {
-    glTexCoord2fv(&zone_uv_[(x - zone_origin_x_) + ((y - zone_origin_y_) * (zone_size_ + 1))].x_);
-    gl_vector_3d p = map_position(x, y);
-    glVertex3fv(&p.x_);
-    ++vertices_;
+    tolerance_ = ini_mgr_.get_float("Terrain Settings", "tolerance");
+    update_time_ = ini_mgr_.get_int("Terrain Settings", "update_time");
+    do_wireframe_ = ini_mgr_.get_int("Terrain Settings", "do_wireframe");
+    do_solid_ = ini_mgr_.get_int("Terrain Settings", "do_solid");
+    zone_grid_ = ini_mgr_.get_int("Map Settings", "zone_grid");
+
+    list_front_ = glGenLists(zone_grid_ * zone_grid_);
+    list_back_ = glGenLists(zone_grid_ * zone_grid_);
+
+    entity_type_ = "terrain";
+
+    // This finds the largest power-of-two dimension for the given number.
+    // This is used to determine what level of the quadtree a grid
+    // position occupies.
+    for(int n = 0; n < size; ++n) {
+        boundary_[n] = -1;
+
+        if(n == 0) {
+            boundary_[n] = map_size_;
+        }
+        else {
+            for(int level = map_size_; level > 1; level /= 2) {
+                if((n % level) == 0) {
+                    boundary_[n] = level;
+                    
+                    break;
+                }
+            }
+
+            if(boundary_[n] == -1) {
+                boundary_[n] = 1;
+            }
+        }
+    }
+
+    // This maps out a grid of uv values so that a texture
+    // will fit exactly over a zone
+    zone_uv_ = new gl_vector2[(zone_size_ + 1) * (zone_size_ + 1)];
+    
+    for(int x = 0; x <= zone_size_; ++x) {
+        for(int y = 0; y <= zone_size_; ++y) {
+            zone_uv_[x + (y * (zone_size_ + 1))].set_x((float)x / (float)zone_size_);
+
+            zone_uv_[x + (y * (zone_size_ + 1))].set_y((float)y / (float)zone_size_);
+        }
+    }
 }
 
-// Used during compile: Add a triangle to the render list
-void terrain::compile_triangle(int x1, int y1, int x2, int y2, int x3, int y3)
+terrain::~terrain()
 {
-    compile_vertex(x3, y3);
-    compile_vertex(x2, y2);
-    compile_vertex(x1, y1);
-    ++triangles_;
+    delete[] point_;
+    delete[] boundary_;
+    delete[] zone_uv_;
 }
 
-// Used during compile: Add a triangle fan to the render list
-void terrain::compile_fan(int x1,
-                         int y1,
-                         int x2,
-                         int y2,
-                         int x3,
-                         int y3,
-                         int x4,
-                         int y4,
-                         int x5,
-                         int y5)
+/*
+ * This is called every frame. This is where the terrain mesh is evaluated,
+ * cut into triangles, and compiled for rendering.
+ */
+void terrain::update()
 {
-    glEnd();
-    glBegin(GL_TRIANGLE_FAN);
-    compile_vertex(x1, y1);
-    compile_vertex(x5, y5);
-    compile_vertex(x4, y4);
-    compile_vertex(x3, y3);
-    compile_vertex(x2, y2);
-    glEnd();
-    triangles_ += 3;
-    glBegin(GL_TRIANGLES);
+    unsigned long end;
+    unsigned long now;
+    int xx;
+    int yy;
+    int level;
+    gl_vector3 newpos;
+
+    now = SDL_GetTicks();
+    end = now + update_time_;
+
+    while(SDL_GetTicks() < end) {
+        switch(stage_) {
+        case terrainspace::STAGE_IDLE:
+            if(fade_) {
+                return;
+            }
+
+            newpos = camera_.get_position();
+            build_start_ = 0;
+            viewpoint_ = camera_.get_position();
+            ++stage_;
+
+            break;
+        case terrainspace::STAGE_CLEAR:
+            memset(point_, 0, map_size_ * map_size_);
+            ++stage_;
+            zone_ = 0;
+            layer_ = 0;
+            x_ = 0;
+            y_ = 0;
+            build_time_ = 0;
+
+            // No matter how simple the terrain is, we need to break it
+            // up enough so that the blocks aren't bigger than the 
+            // compile grid
+            for(xx = 0; xx < zone_grid_; ++xx) {
+                for(yy = 0; yy < zone_grid_; ++yy) {
+                    point_activate((xx * zone_size_) + (zone_size_ / 2),
+                                   (yy * zone_size_) + (zone_size_ / 2));
+
+                    point_activate(xx * zone_size_, yy * zone_size_);
+                }
+            }
+
+            break;
+        case terrainspace::STAGE_QUADTREE:
+            if(point_[x_ + (y_ * map_size_)]) {
+                grid_step();
+                
+                break;
+            }
+
+            xx = boundary_[x_];
+            yy = boundary_[y_];
+
+            if(xx < yy) {
+                level = xx;
+            }
+            else {
+                level = yy;
+            }
+
+            do_quad(x_ - level, y_ - level, level * 2);
+            grid_step();
+
+            break;
+        case terrainspace::STAGE_COMPILE:
+            compile();
+
+            break;
+        case terrainspace::STAGE_WAIT_FOR_FADE:
+            
+            return;
+        case terrainspace::STAGE_DONE:
+            console("Build %d polygons, %d vertices in %dms (%d)",
+                    triangles_,
+                    vertices_,
+                    build_time_,
+                    compile_time_);
+
+            stage_ = terrainspace::STAGE_IDLE;
+
+            return;
+        default:
+            // Any stages not used end up here, skip it
+            ++stage_;
+
+            break;
+        }
+    }
+
+    build_time_ += (SDL_GetTicks() - now);
 }
 
-// Used during compile: Add a triangle fan to the render list
-void terrain::compile_fan(int x1,
-                          int y1,
-                          int x2, 
-                          int y2,
-                          int x3,
-                          int y3,
-                          int x4,
-                          int y4,
-                          int x5,
-                          int y5,
-                          int x6,
-                          int y6)
+/*
+ * Cause the terrain to be rendered
+ */
+void terrain::render()
 {
-    glEnd();
-    glBegin(GL_TRIANGLE_FAN);
-    compile_vertex(x1, y1);
-    compile_vertex(x6, y6);
-    compile_vertex(x5, y5);
-    compile_vertex(x4, y4);
-    compile_vertex(x3, y3);
-    compile_vertex(x2, y2);
-    glEnd();
-    triangles_ += 4;
-    glBegin(GL_TRIANGLES);
+    unsigned int list;
+    int i;
+
+    if(compile_back_) {
+        list = list_front_;
+    }
+    else {
+        list = list_back_;
+    }
+
+    for(i = 0; i < (zone_grid_ * zone_grid_); ++i) {
+        glCallList(list + i);
+    }
 }
 
-// Used during compile: Add triangle strip to the render list
-void terrain::compile_strip(int x1,
-                           int y1,
-                           int x2,
-                           int y2,
-                           int x3,
-                           int y3,
-                           int x4,
-                           int y4)
+/*
+ * Cause the terrain to be rendered. This was part of a fade in/fade out
+ * system I experimented with. It was too hard on framerate, and so I
+ * disabled it, but the code is still here. You can re-enable the system
+ * in Render.cpp
+ */
+void terrain::render_fade_in()
 {
-    glEnd();
-    glBegin(GL_TRIANGLE_STRIP);
-    compile_vertex(x1, y1);
-    compile_vertex(x2, y2);
-    compile_vertex(x3, y3);
-    compile_vertex(x4, y4);
-    glEnd();
-    triangles_ += 2;
-    glBegin(GL_TRIANGLES);
+    unsigned int list;
+    int i;
+
+    // If we are not fading in, then just render normally
+    if(!fade_) {
+        render();
+        
+        return;
+    }
+
+    // Otherwise render OPPOSITE of the normal order
+    if(!compile_back_) {
+        list = list_front_;
+    }
+    else {
+        list = list_back_;
+    }
+
+    for(i = 0; i < (zone_grid_ * zone_grid_); ++i) {
+        glCallList(list + i);
+    }
+}
+
+// Again, this is part of the disable fade in/fade out system
+void terrain::fade_start()
+{
+    if((stage_ == terrainspace::STAGE_WAIT_FOR_FADE) && !fade_) {
+        fade_ = true;
+        ++stage_;
+        
+        return;
+    }
+    
+    if(fade_) {
+        fade_ = false;
+        compile_back_ = !compile_back_;
+    }
+}
+
+
+/*
+ * Once the mesh is optimized and we know which points are active, we're
+ * ready to compile. The terrain is a grid of zones. Each zone goes into
+ * its own glList. So, we can compile zones a few at a time during updates.
+ * (If we did them all at once it woulc cause a massive pause) Once they
+ * are all complete, we start rendering the new grid of lists.
+ */
+void terrain::compile()
+{
+    unsigned long compile_start;
+    unsigned int list;
+    int x;
+    int y;
+
+    compile_start = SDL_GetTicks();
+    
+    if(compile_back_ != 0) {
+        list = list_back_ + zone_;
+    }
+    else {
+        list = list_front_ + zone_;
+    }
+
+    if(zone_ == 0) {
+        vertices_ = 0;
+        triangles_ = 0;
+        compile_time_ = 0;
+    }
+
+    x = zone_ % zone_grid_;
+    y = (zone_ - x) / zone_grid_;
+    zone_origin_x_ = x * zone_size_;
+    zone_origin_y_ = y * zone_size_;
+    glNewList(list, GL_COMPILE);
+    glBindTexture(GL_TEXTURE_2D, terrain_texture_.get_texture(zone_));
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+
+    if(do_solid_ != 0) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glEnable(GL_CULL_FACE);
+        glDisable(GL_BLEND);
+        glDisable(GL_COLOR_MATERIAL);
+        glColor3f(1.0f, 1.0f, 1.0f);
+        use_color_ = false;
+        glBegin(GL_TRIANGLES);
+        compile_block(x * zone_size_, y * zone_size_, zone_size_);
+        glEnd();
+        glDisable(GL_BLEND);
+    }
+
+    if(do_wireframe_ != 0) {
+        glDisable(GL_CULL_FACE);
+        glEnable(GL_LINE_SMOOTH);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE, GL_ONE);
+        glColor4f(0.4f, 0.4f, 1.0f, 0.1f);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glLineWidth(2.0f);
+        glBegin(GL_TRIANGLES);
+        glEnable(GL_COLOR_MATERIAL);
+        compile_block(x * zone_size_, y * zone_size_, zone_size_);
+        glEnd();
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+
+    glEndList();
+    ++zone_;
+
+    if(zone_ == (zone_grid_ * zone_grid_)) {
+        if((do_wireframe_ != 0) && (do_solid_ != 0)) {
+            vertices_ /= 2;
+            triangles_ /= 2;
+        }
+
+        zone_ = 0;
+        ++stage_;
+        // Console("Compiled %d polygons, %d vertices in %dms",
+        //         triangles_,
+        //         vertices_,
+        //         compile_time_);
+    }
+
+    compile_time_ += (SDL_GetTicks() - compile_start);
 }
 
 /*
@@ -132,7 +368,7 @@ void terrain::compile_strip(int x1,
  * the block is cut into a combination of smaller triangles (figure c)
  * and then sub-blocks (figure d).
  */
-void terrain::compile_block(int x, int y, int size)
+void terrain::compile_block(GLint x, GLint y, GLint size)
 {
     int x2;
     int y2;
@@ -385,101 +621,103 @@ void terrain::compile_block(int x, int y, int size)
     }
 }
 
-/*
- * Once the mesh is optimized and we know which points are active, we're
- * ready to compile. The terrain is a grid of zones. Each zone goes into
- * its own glList. So, we can compile zones a few at a time during updates.
- * (If we did them all at once it woulc cause a massive pause) Once they
- * are all complete, we start rendering the new grid of lists.
- */
-void terrain::compile(void)
+// Used during compile: Add a triangle to the render list
+void terrain::compile_triangle(GLint x1, GLint y1, GLint x2, GLint y2, GLint x3, GLint y3)
 {
-    unsigned long compile_start;
-    unsigned int list;
-    int x;
-    int y;
-
-    compile_start = SDL_GetTicks();
-    
-    if(compile_back_ != 0) {
-        list = list_back_ + zone_;
-    }
-    else {
-        list = list_front_ + zone_;
-    }
-
-    if(zone_ == 0) {
-        vertices_ = 0;
-        triangles_ = 0;
-        compile_time_ = 0;
-    }
-
-    x = zone_ % zone_grid_;
-    y = (zone_ - x) / zone_grid_;
-    zone_origin_x_ = x * zone_size_;
-    zone_origin_y_ = y * zone_size_;
-    glNewList(list, GL_COMPILE);
-    glBindTexture(GL_TEXTURE_2D, map_texture(zone_));
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-
-    if(do_solid_ != 0) {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        glEnable(GL_CULL_FACE);
-        glDisable(GL_BLEND);
-        glDisable(GL_COLOR_MATERIAL);
-        glColor3f(1.0f, 1.0f, 1.0f);
-        use_color_ = false;
-        glBegin(GL_TRIANGLES);
-        compile_block(x * zone_size_, y * zone_size_, zone_size_);
-        glEnd();
-        glDisable(GL_BLEND);
-    }
-
-    if(do_wireframe_ != 0) {
-        glDisable(GL_CULL_FACE);
-        glEnable(GL_LINE_SMOOTH);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_ONE, GL_ONE);
-        glColor4f(0.4f, 0.4f, 1.0f, 0.1f);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        glLineWidth(2.0f);
-        glBegin(GL_TRIANGLES);
-        glEnable(GL_COLOR_MATERIAL);
-        compile_block(x * zone_size_, y * zone_size_, zone_size_);
-        glEnd();
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    }
-
-    glEndList();
-    ++zone_;
-
-    if(zone_ == (zone_grid_ * zone_grid_)) {
-        if((do_wireframe_ != 0) && (do_solid_ != 0)) {
-            vertices_ /= 2;
-            triangles_ /= 2;
-        }
-
-        zone_ = 0;
-        ++stage_;
-        // Console("Compiled %d polygons, %d vertices in %dms",
-        //         triangles_,
-        //         vertices_,
-        //         compile_time_);
-    }
-
-    compile_time_ += (SDL_GetTicks() - compile_start);
+    compile_vertex(x3, y3);
+    compile_vertex(x2, y2);
+    compile_vertex(x1, y1);
+    ++triangles_;
 }
+
+// Used during compile: Add a vertex
+void terrain::compile_vertex(GLint x, GLint y)
+{
+    glTexCoord2fv(zone_uv_[(x - zone_origin_x_) + ((y - zone_origin_y_) * (zone_size_ + 1))].get_data());
+    gl_vector3 p = map_.get_position(x, y);
+    glVertex3fv(p.get_data());
+    ++vertices_;
+}
+
+// Used during compile: Add triangle strip to the render list
+void terrain::compile_strip(GLint x1,
+                            GLint y1,
+                            GLint x2,
+                            GLint y2,
+                            GLint x3,
+                            GLint y3,
+                            GLint x4,
+                            GLint y4)
+{
+    glEnd();
+    glBegin(GL_TRIANGLE_STRIP);
+    compile_vertex(x1, y1);
+    compile_vertex(x2, y2);
+    compile_vertex(x3, y3);
+    compile_vertex(x4, y4);
+    glEnd();
+    triangles_ += 2;
+    glBegin(GL_TRIANGLES);
+}
+
+// Used during compile: Add a triangle fan to the render list
+void terrain::compile_fan(GLint x1,
+                          GLint y1,
+                          GLint x2,
+                          GLint y2,
+                          GLint x3,
+                          GLint y3,
+                          GLint x4,
+                          GLint y4,
+                          GLint x5,
+                          GLint y5)
+{
+    glEnd();
+    glBegin(GL_TRIANGLE_FAN);
+    compile_vertex(x1, y1);
+    compile_vertex(x5, y5);
+    compile_vertex(x4, y4);
+    compile_vertex(x3, y3);
+    compile_vertex(x2, y2);
+    glEnd();
+    triangles_ += 3;
+    glBegin(GL_TRIANGLES);
+}
+
+// Used during compile: Add a triangle fan to the render list
+void terrain::compile_fan(GLint x1,
+                          GLint y1,
+                          GLint x2, 
+                          GLint y2,
+                          GLint x3,
+                          GLint y3,
+                          GLint x4,
+                          GLint y4,
+                          GLint x5,
+                          GLint y5,
+                          GLint x6,
+                          GLint y6)
+{
+    glEnd();
+    glBegin(GL_TRIANGLE_FAN);
+    compile_vertex(x1, y1);
+    compile_vertex(x6, y6);
+    compile_vertex(x5, y5);
+    compile_vertex(x4, y4);
+    compile_vertex(x3, y3);
+    compile_vertex(x2, y2);
+    glEnd();
+    triangles_ += 4;
+    glBegin(GL_TRIANGLES);
+}
+
 
 /*
  * This is used by the incremental building code in Update(). This will
  * cause X and Y to traverse the entire mesh, and then advance to the
  * next stage of building.
  */
-void terrain::grid_step(void)
+void terrain::grid_step()
 {
     ++x_;
     
@@ -495,124 +733,92 @@ void terrain::grid_step(void)
     }
 }
 
-terrain::terrain(int size)
-    : stage_(STAGE_IDLE)
-    , map_size_(size)
-    , map_half_(size / 2)
-    , zone_size_(map_size_ / 2)
-    , viewpoint_(gl_vector_3d(0.0f, 0.0f, 0.0f))
-    , boundary_(new short[size])
-    , point_(new bool[size * size])
-{
-    ini_manager ini_mgr;
-
-    tolerance_ = ini_mgr.get_float("Terrain Settings", "tolerance");
-    update_time_ = ini_mgr.get_int("Terrain Settings", "update_time");
-    do_wireframe_ = ini_mgr.get_int("Terrain Settings", "do_wireframe");
-    do_solid_ = ini_mgr.get_int("Terrain Settings", "do_solid");
-    zone_grid_ = ini_mgr.get_int("Map Settings", "zone_grid");
-
-    list_front_ = glGenLists(zone_grid_ * zone_grid_);
-    list_back_ = glGenLists(zone_grid_ * zone_grid_);
-
-    entity_type_ = "terrain";
-
-    // This finds the largest power-of-two dimension for the given number.
-    // This is used to determine what level of the quadtree a grid
-    // position occupies.
-    for(int n = 0; n < size; ++n) {
-        boundary_[n] = -1;
-
-        if(n == 0) {
-            boundary_[n] = map_size_;
-        }
-        else {
-            for(int level = map_size_; level > 1; level /= 2) {
-                if((n % level) == 0) {
-                    boundary_[n] = level;
-                    
-                    break;
-                }
-            }
-
-            if(boundary_[n] == -1) {
-                boundary_[n] = 1;
-            }
-        }
-    }
-
-    // This maps out a grid of uv values so that a texture
-    // will fit exactly over a zone
-    zone_uv_ = new gl_vector_2d[(zone_size_ + 1) * (zone_size_ + 1)];
-    
-    for(int x = 0; x <= zone_size_; ++x) {
-        for(int y = 0; y <= zone_size_; ++y) {
-            zone_uv_[x + (y * (zone_size_ + 1))].x_ = 
-                (float)x / (float)zone_size_;
-
-            zone_uv_[x + (y * (zone_size_ + 1))].y_ =
-                (float)y / (float)zone_size_;
-        }
-    }
-}
-
-terrain::~terrain()
-{
-    delete[] point_;
-    delete[] boundary_;
-    delete[] zone_uv_;
-}
-
 /*
- * Cause the terrain to be rendered. This was part of a fade in/fade out
- * system I experimented with. It was too hard on framerate, and so I
- * disabled it, but the code is still here. You can re-enable the system
- * in Render.cpp
+ *    upper
+ * ul-------ur
+ *  |\      |
+ * l| \     |r
+ * e|  \    |i
+ * f|   c   |g
+ * t|    \  |h
+ *  |     \ |t
+ *  |      \|
+ * ll-------lr
+ *    lower
+ *
+ * this considers a quad for splitting. This is done by looking to see how
+ * coplaner the quad is. The elevation of the corner are average, and
+ * compared to the elvation of the center. Teh greater the difference between
+ * these two values, the more non-coplaner this quad is
  */
-void terrain::render_fade_in()
+void terrain::do_quad(GLint x1, GLint y1, GLint size)
 {
-    unsigned int list;
-    int i;
+    int xc;
+    int yc;
+    int x2;
+    int y2;
+    int half;
+    float ul;
+    float ur;
+    float ll;
+    float lr;
+    float center;
+    float average;
+    float delta;
+    float dist;
+    float size_bias;
+    gl_vector3 pos;
 
-    // If we are not fading in, then just render normally
-    if(!fade_) {
-        render();
-        
+    half = size / 2;
+    xc = x1 + half;
+    x2 = x1 + size;
+    yc = y1 + half;
+    y2 = y1 + size;
+    
+    if((x2 > map_size_) || (y2 > map_size_) || (x1 < 0) || (y1 < 0)) {
         return;
     }
 
-    // Otherwise render OPPOSITE of the normal order
-    if(!compile_back_) {
-        list = list_front_;
-    }
-    else {
-        list = list_back_;
+    dist = map_.get_distance(xc, yc);
+    pos = map_.get_position(x1, y1);
+    ul = pos.get_y();
+    pos = map_.get_position(x2, y1);
+    ur = pos.get_y();
+    pos = map_.get_position(x1, y2);
+    ll = pos.get_y();
+    pos = map_.get_position(x2, y2);
+    lr = pos.get_y();
+    pos = map_.get_position(xc, yc);
+    center = pos.get_y();
+    average = (((ul + lr) + ll) + ur) / 4.0f;
+
+    // Look for a delta between the center point and the average calculation
+    delta = (average - center) * 5.0f;
+
+    if((average - center) < 0) {
+        delta *= -1;
     }
 
-    for(i = 0; i < (zone_grid_ * zone_grid_); ++i) {
-        glCallList(list + i);
+    // Scale the delta based on the size of the quad we are dealing with
+    delta /= (float)size;
+    
+    // Scale based on distance
+    delta *= (1.0f - (dist * 0.85f));
+
+    // If the distance is very close, then we want a lot more detail
+    if(dist < 0.15f) {
+        delta *= 10.0f;
+    }
+
+    // Smaller quads are much less important
+    size_bias = (float)(map_size_ + size) / (float)(map_size_ * 2);
+    delta *= size_bias;
+
+    if(delta > tolerance_) {
+        point_activate(xc, yc);
     }
 }
 
-/*
- * Cause the terrain to be rendered
- */
-void terrain::render()
-{
-    unsigned int list;
-    int i;
-
-    if(compile_back_) {
-        list = list_front_;
-    }
-    else {
-        list = list_back_;
-    }
-
-    for(i = 0; i < (zone_grid_ * zone_grid_); ++i) {
-        glCallList(list + i);
-    }
-}
 
 /*
  * This is tricky stuff. When there is called, it means that the
@@ -623,7 +829,7 @@ void terrain::render()
  * want to know more, Google for Peter Lindstrom, the inventor of
  * this very clever system.
  */
-void terrain::point_activate(int x, int y)
+void terrain::point_activate(GLint x, GLint y)
 {
     int xl;
     int yl;
@@ -672,206 +878,4 @@ void terrain::point_activate(int x, int y)
             point_activate(x - level, y - level);
         }
     }
-}
-
-/*
- *    upper
- * ul-------ur
- *  |\      |
- * l| \     |r
- * e|  \    |i
- * f|   c   |g
- * t|    \  |h
- *  |     \ |t
- *  |      \|
- * ll-------lr
- *    lower
- *
- * this considers a quad for splitting. This is done by looking to see how
- * coplaner the quad is. The elevation of the corner are average, and
- * compared to the elvation of the center. Teh greater the difference between
- * these two values, the more non-coplaner this quad is
- */
-void terrain::do_quad(int x1, int y1, int size)
-{
-    int xc;
-    int yc;
-    int x2;
-    int y2;
-    int half;
-    float ul;
-    float ur;
-    float ll;
-    float lr;
-    float center;
-    float average;
-    float delta;
-    float dist;
-    float size_bias;
-    gl_vector_3d pos;
-
-    half = size / 2;
-    xc = x1 + half;
-    x2 = x1 + size;
-    yc = y1 + half;
-    y2 = y1 + size;
-    
-    if((x2 > map_size_) || (y2 > map_size_) || (x1 < 0) || (y1 < 0)) {
-        return;
-    }
-
-    dist = map_distance(xc, yc);
-    pos = map_position(x1, y1);
-    ul = pos.y_;
-    pos = map_position(x2, y1);
-    ur = pos.y_;
-    pos = map_position(x1, y2);
-    ll = pos.y_;
-    pos = map_position(x2, y2);
-    lr = pos.y_;
-    pos = map_position(xc, yc);
-    center = pos.y_;
-    average = (((ul + lr) + ll) + ur) / 4.0f;
-
-    // Look for a delta between the center point and the average calculation
-    delta = (average - center) * 5.0f;
-
-    if((average - center) < 0) {
-        delta *= -1;
-    }
-
-    // Scale the delta based on the size of the quad we are dealing with
-    delta /= (float)size;
-    
-    // Scale based on distance
-    delta *= (1.0f - (dist * 0.85f));
-
-    // If the distance is very close, then we want a lot more detail
-    if(dist < 0.15f) {
-        delta *= 10.0f;
-    }
-
-    // Smaller quads are much less important
-    size_bias = (float)(map_size_ + size) / (float)(map_size_ * 2);
-    delta *= size_bias;
-
-    if(delta > tolerance_) {
-        point_activate(xc, yc);
-    }
-}
-
-// Again, this is part of the disable fade in/fade out system
-void terrain::fade_start(void)
-{
-    if((stage_ == STAGE_WAIT_FOR_FADE) && !fade_) {
-        fade_ = true;
-        ++stage_;
-        
-        return;
-    }
-    
-    if(fade_) {
-        fade_ = false;
-        compile_back_ = !compile_back_;
-    }
-}
-
-/*
- * This is called every frame. This is where the terrain mesh is evaluated,
- * cut into triangles, and compiled for rendering.
- */
-void terrain::update(void)
-{
-    unsigned long end;
-    unsigned long now;
-    int xx;
-    int yy;
-    int level;
-    gl_vector_3d newpos;
-
-    now = SDL_GetTicks();
-    end = now + update_time_;
-
-    while(SDL_GetTicks() < end) {
-        switch(stage_) {
-        case STAGE_IDLE:
-            if(fade_) {
-                return;
-            }
-
-            newpos = camera_position();
-            build_start_ = 0;
-            viewpoint_ = camera_position();
-            ++stage_;
-
-            break;
-        case STAGE_CLEAR:
-            memset(point_, 0, map_size_ * map_size_);
-            ++stage_;
-            zone_ = 0;
-            layer_ = 0;
-            x_ = 0;
-            y_ = 0;
-            build_time_ = 0;
-
-            // No matter how simple the terrain is, we need to break it
-            // up enough so that the blocks aren't bigger than the 
-            // compile grid
-            for(xx = 0; xx < zone_grid_; ++xx) {
-                for(yy = 0; yy < zone_grid_; ++yy) {
-                    point_activate((xx * zone_size_) + (zone_size_ / 2),
-                                  (yy * zone_size_) + (zone_size_ / 2));
-
-                    point_activate(xx * zone_size_, yy * zone_size_);
-                }
-            }
-
-            break;
-        case STAGE_QUADTREE:
-            if(point_[x_ + (y_ * map_size_)]) {
-                grid_step();
-                
-                break;
-            }
-
-            xx = boundary_[x_];
-            yy = boundary_[y_];
-
-            if(xx < yy) {
-                level = xx;
-            }
-            else {
-                level = yy;
-            }
-
-            do_quad(x_ - level, y_ - level, level * 2);
-            grid_step();
-
-            break;
-        case STAGE_COMPILE:
-            compile();
-
-            break;
-        case STAGE_WAIT_FOR_FADE:
-            
-            return;
-        case STAGE_DONE:
-            console("Build %d polygons, %d vertices in %dms (%d)",
-                    triangles_,
-                    vertices_,
-                    build_time_,
-                    compile_time_);
-
-            stage_ = STAGE_IDLE;
-
-            return;
-        default:
-            // Any stages not used end up here, skip it
-            ++stage_;
-
-            break;
-        }
-    }
-
-    build_time_ += (SDL_GetTicks() - now);
 }

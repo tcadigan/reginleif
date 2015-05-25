@@ -1,11 +1,11 @@
 /*
- * ini.cpp
+ * ini-manager.cpp
  * 2006 Shamus Young
  *
  * This takes various types of data and dumps them into a predefined ini file.
  */
 
-#include "ini.hpp"
+#include "ini-manager.hpp"
 
 #include <fstream>
 #include <sstream>
@@ -119,18 +119,18 @@ void ini_manager::set_string(string const &section,
 
 void ini_manager::set_vector(string const &section,
                              string const &entry,
-                             gl_vector_3d const &value)
+                             gl_vector3 const &value)
 {
     stringstream input;
 
-    input << value.x_ << " "
-          << value.y_ << " "
-          << value.z_;
+    input << value.get_x() << " "
+          << value.get_y() << " "
+          << value.get_z();
 
     set_string(section, entry, input.str());
 }
 
-int ini_manager::get_int(string const &section, string const &entry)
+int ini_manager::get_int(string const &section, string const &entry) const
 {
     int result;
     stringstream output;
@@ -142,7 +142,7 @@ int ini_manager::get_int(string const &section, string const &entry)
     return result;
 }
 
-float ini_manager::get_float(string const &section, string const &entry)
+float ini_manager::get_float(string const &section, string const &entry) const
 {
     float result;
     stringstream output;
@@ -153,7 +153,7 @@ float ini_manager::get_float(string const &section, string const &entry)
     return result;
 }
 
-string ini_manager::get_string(string const &section, string const &entry)
+string ini_manager::get_string(string const &section, string const &entry) const
 {
     string result;
     stringstream output;
@@ -164,21 +164,32 @@ string ini_manager::get_string(string const &section, string const &entry)
     return result;
 }
 
-gl_vector_3d ini_manager::get_vector(string const &section, string const &entry)
+gl_vector3 ini_manager::get_vector(string const &section, string const &entry) const
 {
-    gl_vector_3d result(0, 0, 0);
+    gl_vector3 result(0, 0, 0);
 
     stringstream output;
 
     output << inner_get_string(section, entry, "0 0 0");
-    output >> result.x_ >> result.y_ >> result.z_;
+    
+    GLfloat value = 0.0f;
+    output >> value;
+    result.set_x(value);
+    
+    value = 0.0f;
+    output >> value;
+    result.set_y(value);
+
+    value = 0.0f;
+    output >> value;
+    result.set_z(value);
 
     return result;
 }
 
 string ini_manager::inner_get_string(string const &section,
                                      string const &entry, 
-                                     string const &default_value)
+                                     string const &default_value) const
 {
     stringstream output;
 
@@ -187,7 +198,7 @@ string ini_manager::inner_get_string(string const &section,
         section_str[i] = tolower(section_str[i]);
     }
 
-    map<string, map<string, string> >::iterator itr;
+    map<string, map<string, string> >::const_iterator itr;
 
     if(section_str.empty()) {
         for(itr = contents_.begin(); itr != contents_.end(); ++itr) {
@@ -198,8 +209,8 @@ string ini_manager::inner_get_string(string const &section,
         itr = contents_.find(section_str);
 
         if(itr != contents_.end()) {
-            map<string, string>::iterator itr2;
-            map<string, string> &inner_map = itr->second;
+            map<string, string>::const_iterator itr2;
+            map<string, string> const &inner_map = itr->second;
 
             if(entry.empty()) {
                 for(itr2 = inner_map.begin(); itr2 != inner_map.end(); ++itr2) {
