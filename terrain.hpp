@@ -73,37 +73,37 @@ private:
     void compile_triangle(GLint x1, GLint y1, GLint x2, GLint y2, GLint x3, GLint y3);
     void compile_vertex(GLint x, GLint y);
     void compile_strip(GLint x1,
-                      GLint y1,
-                      GLint x2,
-                      GLint y2,
-                      GLint x3,
-                      GLint y3,
-                      GLint x4,
-                      GLint y4);
+                       GLint y1,
+                       GLint x2,
+                       GLint y2,
+                       GLint x3,
+                       GLint y3,
+                       GLint x4,
+                       GLint y4);
 
     void compile_fan(GLint x1,
-                    GLint y1,
-                    GLint x2,
-                    GLint y2,
-                    GLint x3,
-                    GLint y3,
-                    GLint x4,
-                    GLint y4,
-                    GLint x5,
-                    GLint y5);
+                     GLint y1,
+                     GLint x2,
+                     GLint y2,
+                     GLint x3,
+                     GLint y3,
+                     GLint x4,
+                     GLint y4,
+                     GLint x5,
+                     GLint y5);
 
     void compile_fan(GLint x1,
-                    GLint y1,
-                    GLint x2,
-                    GLint y2,
-                    GLint x3,
-                    GLint y3,
-                    GLint x4,
-                    GLint y4,
-                    GLint x5,
-                    GLint y5,
-                    GLint x6,
-                    GLint y6);
+                     GLint y1,
+                     GLint x2,
+                     GLint y2,
+                     GLint x3,
+                     GLint y3,
+                     GLint x4,
+                     GLint y4,
+                     GLint x5,
+                     GLint y5,
+                     GLint x6,
+                     GLint y6);
 
     void grid_step(void);
     void do_quad(GLint x, GLint y, GLint size);

@@ -13,7 +13,7 @@
 
 static entity *head;
 
-void entity_update(void)
+void entity_update()
 {
     entity *e;
     
@@ -22,7 +22,7 @@ void entity_update(void)
     }
 }
 
-void entity_init(void)
+void entity_init()
 {
 }
 
@@ -43,7 +43,7 @@ entity *entity_find_type(string const &type, entity *start)
     return NULL;
 }
 
-void entity_term(void)
+void entity_term()
 {
     entity *e;
     entity *next;
@@ -57,7 +57,7 @@ void entity_term(void)
     }
 }
 
-void entity_render(void)
+void entity_render()
 {
     entity *e;
     
@@ -66,7 +66,7 @@ void entity_render(void)
     }
 }
 
-void entity_render_fade_in(void)
+void entity_render_fade_in()
 {
     entity *e;
 
@@ -75,7 +75,7 @@ void entity_render_fade_in(void)
     }
 }
 
-void entity_fade_start(void)
+void entity_fade_start()
 {
     entity *e;
 
@@ -84,29 +84,29 @@ void entity_fade_start(void)
     }
 }
 
-entity::entity(void)
+entity::entity()
     : entity_type_("none")
     , next_(head)
 {
     head = this;
 }
 
-entity *entity::next(void)
+entity *entity::next()
 {
     return next_;
 }
 
-void entity::render(void)
+void entity::render()
 {
 }
 
-void entity::render_fade_in(void)
+void entity::render_fade_in()
 {
     // By default, perform a normal render for the LOD fade-in
     render();
 }
 
-void entity::update(void)
+void entity::update()
 {
 }
 
@@ -119,6 +119,6 @@ string entity::type()
     return entity_type_;
 }
 
-entity::~entity(void)
+entity::~entity()
 {
 }

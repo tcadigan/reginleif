@@ -1,19 +1,21 @@
 #ifndef MATH_HPP_
 #define MATH_HPP_
 
-float math_angle(float x1, float y1, float x2, float y2);
-float math_angle_difference(float a1, float a2);
-float math_average(float n1, float n2);
-float math_interpolate(float n1, float n2, float delta);
-float math_line_distance(float x1, 
-                        float y1,
-                        float x2,
-                        float y2,
-                        float px,
-                        float py);
+#include <SDL_opengl.h>
 
-float math_distance(float x1, float y1, float x2, float y2);
-float math_distance_squared(float x1, float y1, float x2, float y2);
-float math_smooth_step(float val, float a, float b);
+GLfloat math_angle(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
+GLfloat math_angle_difference(GLfloat a1, GLfloat a2);
+GLfloat math_average(GLfloat n1, GLfloat n2);
+GLfloat math_interpolate(GLfloat n1, GLfloat n2, GLfloat delta);
+GLfloat math_line_distance(GLfloat x1, 
+                           GLfloat y1,
+                           GLfloat x2,
+                           GLfloat y2,
+                           GLfloat px,
+                           GLfloat py);
+
+GLfloat math_distance(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
+GLfloat math_distance_squared(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
+GLfloat math_smooth_step(GLfloat val, GLfloat a, GLfloat b);
 
 #endif

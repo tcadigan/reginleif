@@ -43,7 +43,7 @@ void terrain::init(terrain_texture &terrain_texture_object,
     map_size_ = map_->get_size();
     map_half_ = map_size_ / 2;
     zone_size_ = map_size_ / 2;
-    boundary_ = new short[map_size_];
+    boundary_ = new GLshort[map_size_];
     point_ = new GLboolean[map_size_ * map_size_];
 
     tolerance_ = ini_mgr_->get_float("Terrain Settings", "tolerance");
@@ -58,14 +58,14 @@ void terrain::init(terrain_texture &terrain_texture_object,
     // This finds the largest power-of-two dimension for the given number.
     // This is used to determine what level of the quadtree a grid
     // position occupies.
-    for(int n = 0; n < map_size_; ++n) {
+    for(GLint n = 0; n < map_size_; ++n) {
         boundary_[n] = -1;
 
         if(n == 0) {
             boundary_[n] = map_size_;
         }
         else {
-            for(int level = map_size_; level > 1; level /= 2) {
+            for(GLint level = map_size_; level > 1; level /= 2) {
                 if((n % level) == 0) {
                     boundary_[n] = level;
                     
@@ -83,11 +83,11 @@ void terrain::init(terrain_texture &terrain_texture_object,
     // will fit exactly over a zone
     zone_uv_ = new gl_vector2[(zone_size_ + 1) * (zone_size_ + 1)];
     
-    for(int x = 0; x <= zone_size_; ++x) {
-        for(int y = 0; y <= zone_size_; ++y) {
-            zone_uv_[x + (y * (zone_size_ + 1))].set_x((float)x / (float)zone_size_);
+    for(GLint x = 0; x <= zone_size_; ++x) {
+        for(GLint y = 0; y <= zone_size_; ++y) {
+            zone_uv_[x + (y * (zone_size_ + 1))].set_x((GLfloat)x / (GLfloat)zone_size_);
 
-            zone_uv_[x + (y * (zone_size_ + 1))].set_y((float)y / (float)zone_size_);
+            zone_uv_[x + (y * (zone_size_ + 1))].set_y((GLfloat)y / (GLfloat)zone_size_);
         }
     }
 }
@@ -98,11 +98,11 @@ void terrain::init(terrain_texture &terrain_texture_object,
  */
 void terrain::update()
 {
-    unsigned long end;
-    unsigned long now;
-    int xx;
-    int yy;
-    int level;
+    GLuint end;
+    GLuint now;
+    GLint xx;
+    GLint yy;
+    GLint level;
     gl_vector3 newpos;
 
     now = SDL_GetTicks();
@@ -201,8 +201,8 @@ void terrain::term()
  */
 void terrain::render()
 {
-    unsigned int list;
-    int i;
+    GLuint list;
+    GLint i;
 
     if(compile_back_) {
         list = list_front_;
@@ -224,8 +224,8 @@ void terrain::render()
  */
 void terrain::render_fade_in()
 {
-    unsigned int list;
-    int i;
+    GLuint list;
+    GLint i;
 
     // If we are not fading in, then just render normally
     if(!fade_) {
@@ -263,7 +263,6 @@ void terrain::fade_start()
     }
 }
 
-
 /*
  * Once the mesh is optimized and we know which points are active, we're
  * ready to compile. The terrain is a grid of zones. Each zone goes into
@@ -273,10 +272,10 @@ void terrain::fade_start()
  */
 void terrain::compile()
 {
-    unsigned long compile_start;
-    unsigned int list;
-    int x;
-    int y;
+    GLuint compile_start;
+    GLuint list;
+    GLint x;
+    GLint y;
 
     compile_start = SDL_GetTicks();
     
@@ -380,11 +379,11 @@ void terrain::compile()
  */
 void terrain::compile_block(GLint x, GLint y, GLint size)
 {
-    int x2;
-    int y2;
-    int xc;
-    int yc;
-    int next_size;
+    GLint x2;
+    GLint y2;
+    GLint xc;
+    GLint yc;
+    GLint next_size;
 
     // Define the shape of this block. x and y are the
     // upper-left (Northwest) origin, xc and yc define the center,
@@ -763,20 +762,20 @@ void terrain::grid_step()
  */
 void terrain::do_quad(GLint x1, GLint y1, GLint size)
 {
-    int xc;
-    int yc;
-    int x2;
-    int y2;
-    int half;
-    float ul;
-    float ur;
-    float ll;
-    float lr;
-    float center;
-    float average;
-    float delta;
-    float dist;
-    float size_bias;
+    GLint xc;
+    GLint yc;
+    GLint x2;
+    GLint y2;
+    GLint half;
+    GLfloat ul;
+    GLfloat ur;
+    GLfloat ll;
+    GLfloat lr;
+    GLfloat center;
+    GLfloat average;
+    GLfloat delta;
+    GLfloat dist;
+    GLfloat size_bias;
     gl_vector3 pos;
 
     half = size / 2;
@@ -810,7 +809,7 @@ void terrain::do_quad(GLint x1, GLint y1, GLint size)
     }
 
     // Scale the delta based on the size of the quad we are dealing with
-    delta /= (float)size;
+    delta /= (GLfloat)size;
     
     // Scale based on distance
     delta *= (1.0f - (dist * 0.85f));
@@ -821,7 +820,7 @@ void terrain::do_quad(GLint x1, GLint y1, GLint size)
     }
 
     // Smaller quads are much less important
-    size_bias = (float)(map_size_ + size) / (float)(map_size_ * 2);
+    size_bias = (GLfloat)(map_size_ + size) / (GLfloat)(map_size_ * 2);
     delta *= size_bias;
 
     if(delta > tolerance_) {
@@ -841,11 +840,11 @@ void terrain::do_quad(GLint x1, GLint y1, GLint size)
  */
 void terrain::point_activate(GLint x, GLint y)
 {
-    int xl;
-    int yl;
-    int level;
+    GLint xl;
+    GLint yl;
+    GLint level;
 
-    if((x < 0) || (x > (int)map_size_) || (y < 0) || (y > (int)map_size_)) {
+    if((x < 0) || (x > (GLint)map_size_) || (y < 0) || (y > (GLint)map_size_)) {
         return;
     }
 
@@ -873,8 +872,8 @@ void terrain::point_activate(GLint x, GLint y)
         point_activate(x, y - level);
     }
     else {
-        int x2;
-        int y2;
+        GLint x2;
+        GLint y2;
         
         x2 = x & (level * 2);
         y2 = y & (level * 2);

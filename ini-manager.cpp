@@ -59,7 +59,7 @@ void ini_manager::term()
 
 void ini_manager::set_int(string const &section,
                           string const &entry,
-                          int value)
+                          GLint value)
 {
     string value_str;
     stringstream input;
@@ -72,7 +72,7 @@ void ini_manager::set_int(string const &section,
 
 void ini_manager::set_float(string const &section,
                             string const &entry,
-                            float value)
+                            GLfloat value)
 {
     string value_str;
     stringstream input;
@@ -88,7 +88,7 @@ void ini_manager::set_string(string const &section,
                              string const &value)
 {
     string section_str(section);
-    for(unsigned int i = 0; i < section_str.size(); ++i) {
+    for(GLuint i = 0; i < section_str.size(); ++i) {
         section_str[i] = tolower(section_str[i]);
     }
 
@@ -101,7 +101,7 @@ void ini_manager::set_string(string const &section,
         }
         else {
             string entry_str(entry);
-            for(unsigned int i = 0; i < entry_str.size(); ++i) {
+            for(GLuint i = 0; i < entry_str.size(); ++i) {
                 entry_str[i] = tolower(entry_str[i]);
             }
 
@@ -121,7 +121,7 @@ void ini_manager::set_string(string const &section,
     else {
         if(!entry.empty() && !value.empty()) {
             string entry_str(entry);
-            for(unsigned int i = 0; i < entry_str.size(); ++i) {
+            for(GLuint i = 0; i < entry_str.size(); ++i) {
                 entry_str[i] = tolower(entry_str[i]);
             }
 
@@ -143,9 +143,9 @@ void ini_manager::set_vector(string const &section,
     set_string(section, entry, input.str());
 }
 
-int ini_manager::get_int(string const &section, string const &entry) const
+GLint ini_manager::get_int(string const &section, string const &entry) const
 {
-    int result;
+    GLint result;
     stringstream output;
 
     output << inner_get_string(section, entry, "-1");
@@ -155,9 +155,9 @@ int ini_manager::get_int(string const &section, string const &entry) const
     return result;
 }
 
-float ini_manager::get_float(string const &section, string const &entry) const
+GLfloat ini_manager::get_float(string const &section, string const &entry) const
 {
-    float result;
+    GLfloat result;
     stringstream output;
 
     output << inner_get_string(section, entry, "0");
@@ -207,7 +207,7 @@ string ini_manager::inner_get_string(string const &section,
     stringstream output;
 
     string section_str(section);
-    for(unsigned int i = 0; i < section_str.size(); ++i) {
+    for(GLuint i = 0; i < section_str.size(); ++i) {
         section_str[i] = tolower(section_str[i]);
     }
 
@@ -232,7 +232,7 @@ string ini_manager::inner_get_string(string const &section,
             }
             else{
                 string entry_str(entry);
-                for(unsigned int i = 0; i < entry_str.size(); ++i) {
+                for(GLuint i = 0; i < entry_str.size(); ++i) {
                     entry_str[i] = tolower(entry_str[i]);
                 }
 
@@ -268,7 +268,7 @@ void ini_manager::parse_contents()
     while(getline(input, line)) {
         if(!line.empty()) {
             if((*line.begin() == '[') && (*line.rbegin() == ']')) {
-                for(unsigned int i = 0; i < line.size(); ++i) {
+                for(GLuint i = 0; i < line.size(); ++i) {
                     line.at(i) = tolower(line.at(i));
                 }
                 
@@ -278,7 +278,7 @@ void ini_manager::parse_contents()
                     && (line.at(0) != ';')
                     && (line.find_first_of('=') != string::npos)) {
                 string key = line.substr(0, line.find_first_of('='));
-                for(unsigned int i = 0; i < key.size(); ++i) {
+                for(GLuint i = 0; i < key.size(); ++i) {
                     key[i] = tolower(key[i]);
                 }
 

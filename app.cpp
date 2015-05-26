@@ -7,6 +7,8 @@
 
 #include "app.hpp"
 
+#include <SDL_opengl.h>
+
 // #include "camera.hpp"
 // #include "console.hpp"
 // #include "entity.hpp"
@@ -17,7 +19,7 @@
 // #include "win.hpp"
 // #include "world.hpp"
  
-static bool quit;
+static GLboolean quit;
 // static HINSTANCE instance;
 
 // HINSTANCE app_instance()

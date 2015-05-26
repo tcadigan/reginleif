@@ -11,6 +11,7 @@
 #include "gl-vector3.hpp"
 #include "gl-rgba.hpp"
 #include "ini-manager.hpp"
+#include "sun.hpp"
 #include "world-fwd.hpp"
 
 using namespace std;
@@ -20,7 +21,8 @@ public:
     terrain_map(world const &world_object);
     virtual ~terrain_map();
 
-    void init(camera const &camera,
+    void init(camera const &camera_object,
+              sun const &sun_object,
               ini_manager const &ini_mgr);
     void update();
     void term();
@@ -48,6 +50,7 @@ private:
 
     world const &world_;
     camera const *camera_;
+    sun const *sun_;
     ini_manager const *ini_mgr_;
 
     cell **terrain_data_;

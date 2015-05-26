@@ -38,8 +38,8 @@ void camera::init(terrain_map const &terrain_map,
 
 void camera::update()
 {
-    float limit;
-    float elevation;
+    GLfloat limit;
+    GLfloat elevation;
 
     if(moving_) {
         movement_ *= 1.1f;
@@ -55,7 +55,7 @@ void camera::update()
         movement_ = 1.0f;
     }
 
-    limit = (float)terrain_map_->get_size() * 1.5f;
+    limit = (GLfloat)terrain_map_->get_size() * 1.5f;
 
     if(position_.get_x() < -limit) {
         position_.set_x(-limit);
@@ -104,50 +104,50 @@ void camera::term(void)
     ini_mgr.set_vector("Settings", "CameraPosition", position_);
 }
 
-void camera::pitch(float delta)
+void camera::pitch(GLfloat delta)
 {
     moving_ = true;
     angle_.set_x(angle_.get_x() - delta);
 }
 
-void camera::yaw(float delta)
+void camera::yaw(GLfloat delta)
 {
     moving_ = true;
     angle_.set_y(angle_.get_y() - delta);
 }
 
-void camera::pan(float delta)
+void camera::pan(GLfloat delta)
 {
-    float move_x;
-    float move_y;
+    GLfloat move_x;
+    GLfloat move_y;
 
     moving_ = true;
-    move_x = (float)sin(-angle_.get_y() * (float)(acos(-1) / 180)) / 10.0f;
-    move_y = (float)cos(-angle_.get_y() * (float)(acos(-1) / 180)) / 10.0f;
+    move_x = (GLfloat)sin(-angle_.get_y() * (GLfloat)(acos(-1) / 180)) / 10.0f;
+    move_y = (GLfloat)cos(-angle_.get_y() * (GLfloat)(acos(-1) / 180)) / 10.0f;
     position_.set_x(position_.get_x() - (move_y * delta));
     position_.set_z(position_.get_z() - (-move_x * delta));
 }
 
-void camera::forward(float delta)
+void camera::forward(GLfloat delta)
 {
-    float move_x;
-    float move_y;
+    GLfloat move_x;
+    GLfloat move_y;
 
     moving_ = true;
-    move_y = (float)sin(-angle_.get_y() * (float)(acos(-1) / 180)) / 10.0f;
-    move_x = (float)cos(-angle_.get_y() * (float)(acos(-1) / 180)) / 10.0f;
+    move_y = (float)sin(-angle_.get_y() * (GLfloat)(acos(-1) / 180)) / 10.0f;
+    move_x = (float)cos(-angle_.get_y() * (GLfloat)(acos(-1) / 180)) / 10.0f;
     position_.set_x(position_.get_x() - (move_y * delta));
     position_.set_z(position_.get_z() - (move_x * delta));
 }
 
-void camera::selection_pitch(float delta)
+void camera::selection_pitch(GLfloat delta)
 {
     gl_vector3 center;
-    float pitch_to;
-    float yaw_to;
-    float horz_dist;
-    float total_dist;
-    float vert_dist;
+    GLfloat pitch_to;
+    GLfloat yaw_to;
+    GLfloat horz_dist;
+    GLfloat total_dist;
+    GLfloat vert_dist;
     mouse_pointer *ptr;
     point selected_cell;
 
@@ -179,19 +179,19 @@ void camera::selection_pitch(float delta)
     angle_.set_x(angle_.get_x() + delta);
     pitch_to += delta;
     angle_.set_x(angle_.get_x() - math_angle_difference(angle_.get_x(), pitch_to) / 15.0f);
-    vert_dist = (float)sin(pitch_to * (float)(acos(-1) / 180)) * total_dist;
-    horz_dist = (float)cos(pitch_to * (float)(acos(-1) / 180)) * total_dist;
-    position_.set_x(center.get_x() - (float)sin(yaw_to * (float)(acos(-1) / 180)) * horz_dist);
+    vert_dist = (GLfloat)sin(pitch_to * (GLfloat)(acos(-1) / 180)) * total_dist;
+    horz_dist = (GLfloat)cos(pitch_to * (GLfloat)(acos(-1) / 180)) * total_dist;
+    position_.set_x(center.get_x() - (GLfloat)sin(yaw_to * (GLfloat)(acos(-1) / 180)) * horz_dist);
     position_.set_y(center.get_y() + vert_dist);
-    position_.set_x(center.get_z() - (float)cos(yaw_to * (float)(acos(-1) / 180)) * horz_dist);
+    position_.set_x(center.get_z() - (GLfloat)cos(yaw_to * (GLfloat)(acos(-1) / 180)) * horz_dist);
 }
 
-void camera::selection_yaw(float delta)
+void camera::selection_yaw(GLfloat delta)
 {
     gl_vector3 center;
-    float yaw_to;
-    float horz_dist;
-    float vert_dist;
+    GLfloat yaw_to;
+    GLfloat horz_dist;
+    GLfloat vert_dist;
     mouse_pointer *ptr;
     point selected_cell;
 
@@ -222,16 +222,16 @@ void camera::selection_yaw(float delta)
     yaw_to += delta;
     angle_.set_y(angle_.get_y() - delta);
 
-    position_.set_x(center.get_x() - (float)sin(yaw_to * (float)(acos(-1) / 180)) * horz_dist);
+    position_.set_x(center.get_x() - (GLfloat)sin(yaw_to * (GLfloat)(acos(-1) / 180)) * horz_dist);
     position_.set_y(center.get_y() + vert_dist);
-    position_.set_z(center.get_z() - (float)cos(yaw_to * (float)(acos(-1) / 180)) * horz_dist);
+    position_.set_z(center.get_z() - (GLfloat)cos(yaw_to * (GLfloat)(acos(-1) / 180)) * horz_dist);
 }
 
-void camera::selection_zoom(float delta)
+void camera::selection_zoom(GLfloat delta)
 {
     gl_vector3 center;
     gl_vector3 offset;
-    float total_dist;
+    GLfloat total_dist;
     mouse_pointer *ptr;
     point selected_cell;
 
@@ -267,10 +267,10 @@ gl_vector3 camera::get_angle() const
 
 void camera::set_position(gl_vector3 new_pos)
 {
-    float limit;
-    float elevation;
+    GLfloat limit;
+    GLfloat elevation;
     
-    limit = (float)terrain_map_->get_size();
+    limit = (GLfloat)terrain_map_->get_size();
     position_ = new_pos;
 
     if(position_.get_x() < -limit) {

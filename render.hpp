@@ -5,11 +5,13 @@
 
 #include "camera.hpp"
 #include "ini-manager.hpp"
+#include "sun.hpp"
 #include "world-fwd.hpp"
 
 class render {
 public:
-    render(camera const &cmaera,
+    render(camera const &camera_object,
+           sun const &sun_object,
            ini_manager const &ini_mgr);
     virtual ~render();
 
@@ -21,6 +23,7 @@ private:
     void resize();
 
     camera const &camera_;
+    sun const &sun_;
     ini_manager const &ini_mgr_;
 
     // HDC hDc;

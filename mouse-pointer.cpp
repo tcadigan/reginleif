@@ -49,13 +49,13 @@ void mouse_pointer::init(terrain_map const &terrain_map_entity,
 void mouse_pointer::update()
 {
     point p;
-    int viewport[4];
+    GLint viewport[4];
     gl_vector3 pos;
     gl_vector3 angle;
     unsigned long t;
 
     t = SDL_GetTicks() % 3600;
-    pulse_ = (float)sin(((float)t / 10.0f) * (float)(acos(-1) / 180)) * 1.0f;
+    pulse_ = (GLfloat)sin(((GLfloat)t / 10.0f) * (GLfloat)(acos(-1) / 180)) * 1.0f;
     // WinMousePosition(&p.x, &p.y);
 
     if((last_mouse_.get_x() == p.get_x()) && (last_mouse_.get_y() == p.get_y())) {
@@ -82,7 +82,7 @@ void mouse_pointer::update()
 
     // Apply the perspective matrix
     gluPerspective(45.0f,
-                   (float)(viewport[2] - viewport[0]) / (float)(viewport[3] - viewport[1]),
+                   (GLfloat)(viewport[2] - viewport[0]) / (GLfloat)(viewport[3] - viewport[1]),
                    0.1f,
                    1024.0f);
 
@@ -107,8 +107,8 @@ void mouse_pointer::term()
 
 void mouse_pointer::render()
 {
-    int cell_x;
-    int cell_y;
+    GLint cell_x;
+    GLint cell_y;
     gl_vector3 p;
     gl_vector3 pos = camera_->get_position();
 
@@ -123,8 +123,8 @@ void mouse_pointer::render()
     glBlendFunc(GL_ONE, GL_ONE);
     glLineWidth(3.5f);
     glColor3f(1.0f, 0.5f, 0.0f);
-    cell_x = (int)(pos.get_x() - 0.5f) + (map_->get_size() / 2);
-    cell_y = (int)(pos.get_z() - 0.5f) + (map_->get_size() / 2);
+    cell_x = (GLint)(pos.get_x() - 0.5f) + (map_->get_size() / 2);
+    cell_y = (GLint)(pos.get_z() - 0.5f) + (map_->get_size() / 2);
     cell_x = last_cell_.get_x();
     cell_y = last_cell_.get_y();
 
@@ -171,13 +171,13 @@ point mouse_pointer::get_selected()
 
 point mouse_pointer::draw_grid()
 {
-    int x;
-    int y;
-    int block;
-    int hits;
+    GLint x;
+    GLint y;
+    GLint block;
+    GLint hits;
     
     // Set up a selection buffer
-    unsigned int buffer[512];
+    GLuint buffer[512];
     gl_vector3 v1;
     gl_vector3 v2;
     gl_vector3 v3;
@@ -185,7 +185,7 @@ point mouse_pointer::draw_grid()
     point cell;
 
     ini_manager ini_mgr;
-    int pt_size = ini_mgr.get_int("Pointer Settings", "pt_size");
+    GLint pt_size = ini_mgr.get_int("Pointer Settings", "pt_size");
 
     memset(buffer, 0, sizeof(buffer));
 

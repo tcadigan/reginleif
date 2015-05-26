@@ -20,8 +20,7 @@ world::world()
     , mouse_pointer_entity_(new mouse_pointer(*this, *texture_))
     , terrain_texture_(new terrain_texture(*this))
     , terrain_entity_(new terrain(*this))
-    , light_vector_(gl_vector3(-0.75f, 0.25f, 0.0f))
-    , light_color_(gl_rgba(2.1f, 2.1f, 0.1f, 1.0f))
+    , sun_(new sun)
     , ambient_color_(gl_rgba(0.6f, 0.6f, 0.6f, 1.0f))
     , fog_color_(gl_rgba(0.7f, 0.7f, 0.7f, 1.0f))
 {
@@ -37,10 +36,14 @@ world::~world()
     delete mouse_pointer_entity_;
     delete terrain_texture_;
     delete terrain_entity_;
+    delete sun_;
 }
 
 void world::init()
 {
+    sun_->set_position(gl_vector3(-0.75f, 0.25f, 0.0f));
+    sun_->set_color(gl_rgba(2.1f, 2.1f, 0.1f, 1.0f));
+
     // ini_manager needs:
     //     <nothing>
     ini_mgr_->init();
@@ -52,8 +55,9 @@ void world::init()
 
     // Terrain Map needs:
     //     camera (Completed)
+    //     sun
     //     ini_manager
-    terrain_map_entity_->init(*camera_, *ini_mgr_);
+    terrain_map_entity_->init(*camera_, *sun_, *ini_mgr_);
 
     // Sky needs:
     //     camera
@@ -71,7 +75,10 @@ void world::init()
     //     terrain map
     //     camera
     //     ini_manager
-    terrain_texture_->init(*texture_, *terrain_map_entity_, *camera_, *ini_mgr_);
+    terrain_texture_->init(*texture_,
+                           *terrain_map_entity_,
+                           *camera_,
+                           *ini_mgr_);
 
     // Terrain needs:
     //     terrain texture
@@ -88,14 +95,14 @@ void world::init()
 
 void world::update()
 {
-    long now;
-    long delta;
+    GLuint now;
+    GLuint delta;
     
     now = SDL_GetTicks();
     delta = now - last_update_;
     last_update_ = now;
 
-    fade_ += ((float)delta / 500.0f);
+    fade_ += ((GLfloat)delta / 500.0f);
 
     if(fade_ > 1.0f) {
         entity_fade_start();
@@ -107,27 +114,9 @@ void world::term()
 {
 }
 
-gl_vector3 world::get_light_vector() const
-{
-    return light_vector_;
-}
-
 GLfloat world::get_fade() const
 {
     return fade_;
-}
-
-gl_quat world::get_light_quat() const
-{
-    return gl_quat(light_vector_.get_x(),
-                   light_vector_.get_y(),
-                   light_vector_.get_z(),
-                   0.0f);
-}
-
-gl_rgba world::get_light_color() const
-{
-    return light_color_;
 }
 
 gl_rgba world::get_fog_color() const

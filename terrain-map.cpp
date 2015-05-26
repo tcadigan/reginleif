@@ -40,10 +40,12 @@ terrain_map::~terrain_map()
 {
 }
 
-void terrain_map::init(camera const &camera,
+void terrain_map::init(camera const &camera_object,
+                       sun const &sun_object,
                        ini_manager const &ini_mgr)
 {
-    camera_ = &camera;
+    camera_ = &camera_object;
+    sun_ = &sun_object;
     ini_mgr_ = &ini_mgr;
 
     zone_grid_ = ini_mgr_->get_int("Map Settings", "zone_grid");
@@ -70,28 +72,24 @@ void terrain_map::init(camera const &camera,
 
 void terrain_map::update()
 {
-    int x;
-    int samples;
-    int start;
-    int end;
-    int step;
-    gl_vector3 light;
+    GLint x;
+    GLint samples;
+    GLint start;
+    GLint end;
+    GLint step;
     gl_rgba ambient;
-    gl_rgba sun;
     gl_rgba shadow;
-    float dot;
-    float top;
-    float drop;
-    float shade;
+    GLfloat dot;
+    GLfloat top;
+    GLfloat drop;
+    GLfloat shade;
     cell *c;
-    unsigned int update_end;
+    GLuint update_end;
 
-    light = world_.get_light_vector();
-    sun = world_.get_light_color();
     ambient = world_.get_ambient_color();
     shadow = ambient * gl_rgba(0.3f, 0.5f, 0.9f);
 
-    if(light.get_x() > 0.0f) {
+    if(sun_->get_position().get_x() > 0.0f) {
         start = map_area_;
         end = -1;
         step = -1;
@@ -102,11 +100,11 @@ void terrain_map::update()
         step = 1;
     }
 
-    if(light.get_x() == 0.0f) {
+    if(sun_->get_position().get_x() == 0.0f) {
         drop = FLT_MAX;
     }
     else {
-        drop = light.get_y() / light.get_x();
+        drop = sun_->get_position().get_y() / sun_->get_position().get_x();
     }
 
     if(drop < 0) {
@@ -150,7 +148,7 @@ void terrain_map::update()
                 }
             }
             
-            dot = light.dot_product(c->get_normal());
+            dot = sun_->get_position().dot_product(c->get_normal());
 
             if(dot < 0.0f) {
                 dot = 0.0f;
@@ -166,8 +164,8 @@ void terrain_map::update()
             // of shadows. Totally not needed, and it slows this down a bit.
             // You only need this if the terrain is going to be viewed in
             // close a lot
-            for(int xx = -1; xx <= 1; ++xx) {
-                int tmp_x = x + xx;
+            for(GLint xx = -1; xx <= 1; ++xx) {
+                GLint tmp_x = x + xx;
 
                 if(tmp_x < 0) {
                     tmp_x = 0;
@@ -176,8 +174,8 @@ void terrain_map::update()
                     tmp_x = map_area_ + 1;
                 }
 
-                for(int yy = -1; yy <= 1; ++yy) {
-                    int tmp_y = scan_y_ + yy;
+                for(GLint yy = -1; yy <= 1; ++yy) {
+                    GLint tmp_y = scan_y_ + yy;
 
                     if(tmp_y < 0) {
                         tmp_y = 0;
@@ -197,10 +195,10 @@ void terrain_map::update()
             // Finally! We know how much light is hitting this point and
             // if it is in shadow, now figure out what colour this
             // point is
-            gl_rgba scaled_ambient(ambient + (sun * dot));
+            gl_rgba scaled_ambient(ambient + (sun_->get_color() * dot));
             gl_rgba scaled_shadow(shadow + (ambient * dot));
             c->set_light(scaled_ambient.interpolate(scaled_shadow,
-                                                    shade / (float)samples));
+                                                    shade / (GLfloat)samples));
         }
 
         scan_y_ = (scan_y_ + 1) % (map_area_ + 1);
@@ -229,30 +227,30 @@ void terrain_map::build()
     // BITMAPINFO bmi;
     gl_rgba *cmap;
     cell *c;
-    short val;
-    int width;
-    int x;
-    int y;
-    int xx;
-    int yy;
-    int max_x;
-    int max_y;
-    int left;
-    int right;
-    int top;
-    int bottom;
-    int samples;
-    float high;
-    float low;
-    float smooth;
-    float e;
-    unsigned char r;
-    unsigned char g;
-    unsigned char *basebits;
-    float *scale;
+    GLshort val;
+    GLint width;
+    GLint x;
+    GLint y;
+    GLint xx;
+    GLint yy;
+    GLint max_x;
+    GLint max_y;
+    GLint left;
+    GLint right;
+    GLint top;
+    GLint bottom;
+    GLint samples;
+    GLfloat high;
+    GLfloat low;
+    GLfloat smooth;
+    GLfloat e;
+    GLubyte r;
+    GLubyte g;
+    GLubyte *basebits;
+    GLfloat *scale;
 
     // Get a couple of temp buffers to use below
-    scale = new float[(map_area_ + 1) * (map_area_ + 1)];
+    scale = new GLfloat[(map_area_ + 1) * (map_area_ + 1)];
     cmap = new gl_rgba[(map_area_ + 1) * (map_area_ + 1)];
     console("size = %s", sizeof(cell));
 
@@ -287,7 +285,7 @@ void terrain_map::build()
     // basebits = 
     //     new unsigned char[(bmi.bmiHeader.biWidth * bmi.bmiHeader.biHeight) * 4];
     basebits =
-        new unsigned char[((map_area_ + 1) * (map_area_ + 1)) * 4];
+        new GLubyte[((map_area_ + 1) * (map_area_ + 1)) * 4];
 
     // GetBitmapBits(basemap, bmi.bmiHeader.biSizeImage, basebits);
     // max_x = MIN(bmi.bmiHeader.biWidth, map_area + 1);
@@ -349,15 +347,15 @@ void terrain_map::build()
             }
 
             // Now we have the rgb values, scale them however seems best
-            e = (float)(r) / 30.0f;
+            e = (GLfloat)(r) / 30.0f;
 
             // (Not using the blue channel right now)
-            e += ((float)(g) / 48.0f);
+            e += ((GLfloat)(g) / 48.0f);
 
             // Now store the position in our grid of data
-            terrain_data_[x][y].get_position().set_x((float)(x - (map_area_ / 2)));
+            terrain_data_[x][y].get_position().set_x((GLfloat)(x - (map_area_ / 2)));
             terrain_data_[x][y].get_position().set_y(e);
-            terrain_data_[x][y].get_position().set_z((float)(y - (map_area_ / 2)));
+            terrain_data_[x][y].get_position().set_z((GLfloat)(y - (map_area_ / 2)));
             terrain_data_[x][y].set_shadow(false);
 
             // Keep track of high/low, which is used to normalize the data later
@@ -385,10 +383,10 @@ void terrain_map::build()
     for(x = 0; x < (map_area_ + 1); ++x) {
         for(y = 0; y < (map_area_ + 1); ++y) {
             c = &terrain_data_[x][y];
-            top = (unsigned int)(y -1) % (map_area_ + 1);
-            bottom = (unsigned int)(y + 1) % (map_area_ + 1);
-            left = (unsigned int)(x - 1) % (map_area_ + 1);
-            right = (unsigned int)(x + 1) % (map_area_ + 1);
+            top = (GLuint)(y -1) % (map_area_ + 1);
+            bottom = (GLuint)(y + 1) % (map_area_ + 1);
+            left = (GLuint)(x - 1) % (map_area_ + 1);
+            right = (GLuint)(x + 1) % (map_area_ + 1);
 
             c->set_normal(do_normal(scale[x * (top * (map_area_ + 1))] * terrain_scale_,
                                     scale[x * (bottom * (map_area_ + 1))] * terrain_scale_,
@@ -406,7 +404,7 @@ void terrain_map::build()
             samples = 0;
             
             for(xx = -blend_range_; xx <= blend_range_; ++xx) {
-                int tmp_x = x + xx;
+                GLint tmp_x = x + xx;
 
                 if(tmp_x < 0) {
                     tmp_x = 0;
@@ -416,7 +414,7 @@ void terrain_map::build()
                 }
 
                 for(yy = -blend_range_; yy <= blend_range_; ++yy) {
-                    int tmp_y = y + yy;
+                    GLint tmp_y = y + yy;
 
                     if(tmp_y < 0) {
                         tmp_y = 0;
@@ -431,7 +429,7 @@ void terrain_map::build()
                 }
             }
 
-            c->get_position().set_y((smooth / (float)samples) * terrain_scale_);
+            c->get_position().set_y((smooth / (GLfloat)samples) * terrain_scale_);
         }
     }
 
@@ -473,7 +471,7 @@ void terrain_map::build()
             smooth = 
                 math_smooth_step(scale[x + (y * (map_area_ + 1))], 0.3f, 0.1f);
 
-            c->set_layer((int)(smooth * 255.0f), terrainspace::LAYER_SAND - 1);
+            c->set_layer((GLint)(smooth * 255.0f), terrainspace::LAYER_SAND - 1);
 
             // The deep lush grass likes lowlands and flat areas
             e = math_smooth_step(c->get_normal().get_y(), 0.75f, 0.1f);
@@ -489,7 +487,7 @@ void terrain_map::build()
                 smooth = 1;
             }
 
-            c->set_layer((int)(smooth * 255.0f), terrainspace::LAYER_LOWGRASS - 1);
+            c->set_layer((GLint)(smooth * 255.0f), terrainspace::LAYER_LOWGRASS - 1);
 
             // Rock likes mild slopes and high elevations
             e = math_smooth_step(c->get_normal().get_y(), 0.8f, 0.5f);
@@ -505,11 +503,11 @@ void terrain_map::build()
                 smooth = e;
             }
 
-            c->set_layer((int)(smooth * 255.0f), terrainspace::LAYER_ROCK - 1);
+            c->set_layer((GLint)(smooth * 255.0f), terrainspace::LAYER_ROCK - 1);
 
             // Dirt likes very steep slopes
             e = math_smooth_step(c->get_normal().get_y(), 0.7f, 0.4f);
-            c->set_layer((int)(e * 255.0f), terrainspace::LAYER_DIRT - 1);
+            c->set_layer((GLint)(e * 255.0f), terrainspace::LAYER_DIRT - 1);
         }
     }
 
@@ -520,10 +518,10 @@ void terrain_map::build()
     for(x = 0; x < (map_area_ + 1); ++x) {
         for(y = 0; y < (map_area_ + 1); ++y) {
             c = &terrain_data_[x][y];
-            top = (unsigned int)(y - 1) % (map_area_ + 1);
-            bottom = (unsigned int)(y + 1) % (map_area_ + 1);
-            left = (unsigned int)(x - 1) % (map_area_ + 1);
-            right = (unsigned int)(x + 1) % (map_area_ + 1);
+            top = (GLuint)(y - 1) % (map_area_ + 1);
+            bottom = (GLuint)(y + 1) % (map_area_ + 1);
+            left = (GLuint)(x - 1) % (map_area_ + 1);
+            right = (GLuint)(x + 1) % (map_area_ + 1);
 
             c->set_normal(do_normal(terrain_data_[x][top].get_position().get_y(),
                                     terrain_data_[x][bottom].get_position().get_y(),
@@ -555,7 +553,7 @@ void terrain_map::save()
 GLboolean terrain_map::load()
 {
     FILE *f;
-    int r;
+    GLint r;
     
     f = fopen(map_file_.c_str(), "rb");
     
@@ -578,12 +576,12 @@ GLboolean terrain_map::load()
     return true;
 }
 
-int terrain_map::get_size() const
+GLint terrain_map::get_size() const
 {
     return map_area_;
 }
 
-float terrain_map::get_elevation(GLint x, GLint y) const
+GLfloat terrain_map::get_elevation(GLint x, GLint y) const
 {
     if(x < y) {
         x = y;
@@ -604,24 +602,24 @@ float terrain_map::get_elevation(GLint x, GLint y) const
 
 // Get the elevation of an arbitrary point over the terrain. This will
 // interpolate between points so that we can have collision with the surface.
-float terrain_map::get_elevation(GLfloat x, GLfloat y) const
+GLfloat terrain_map::get_elevation(GLfloat x, GLfloat y) const
 {
-    int cell_x;
-    int cell_y;
-    float a;
-    float b;
-    float c;
-    float y0;
-    float y1;
-    float y2;
-    float y3;
-    float dx;
-    float dy;
+    GLint cell_x;
+    GLint cell_y;
+    GLfloat a;
+    GLfloat b;
+    GLfloat c;
+    GLfloat y0;
+    GLfloat y1;
+    GLfloat y2;
+    GLfloat y3;
+    GLfloat dx;
+    GLfloat dy;
 
-    cell_x = (int)x;
-    cell_y = (int)y;
-    dx = x - (float)cell_x;
-    dy = y - (float)cell_y;
+    cell_x = (GLint)x;
+    cell_y = (GLint)y;
+    dx = x - (GLfloat)cell_x;
+    dy = y - (GLfloat)cell_y;
     cell_x += (map_area_ / 2);
     cell_y += (map_area_ / 2);
     y0 = get_elevation(cell_x, cell_y);
@@ -671,7 +669,7 @@ GLfloat terrain_map::get_layer(GLint x, GLint y, GLint layer) const
         y = map_area_;
     }
 
-    return ((float)terrain_data_[x][y].get_layer(layer) / 255.0f);
+    return ((GLfloat)terrain_data_[x][y].get_layer(layer) / 255.0f);
 }
 
 // How far is the given point from the camera? These values are updated during
@@ -764,7 +762,7 @@ GLushort terrain_map::rgb_sample(GLshort val, GLint shift, GLint numbits) const
     unsigned char r;
 
     r = val >> shift;
-    r &= (int)(pow(2, numbits) - 1);
+    r &= (GLint)(pow(2, numbits) - 1);
     r = r << (8 - numbits);
 
     return (r & 255);

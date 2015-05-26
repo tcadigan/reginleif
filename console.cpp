@@ -14,6 +14,7 @@
 
 #include <cstdio>
 #include <cstdarg>
+#include <SDL_opengl.h>
 
 void console(char const *message, ...)
 {

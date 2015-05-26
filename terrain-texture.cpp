@@ -57,12 +57,12 @@ void terrain_texture::init(texture &texture_mgr,
     zone_texture_ = new ztexture*[terrainspace::GRID_COUNT];
     zone_texture_[0] = new ztexture[terrainspace::GRID_COUNT * (zone_grid_ * zone_grid_)];
 
-    for(int i = 1; i < terrainspace::GRID_COUNT; ++i) {
+    for(GLint i = 1; i < terrainspace::GRID_COUNT; ++i) {
         zone_texture_[i] = zone_texture_[i - 1] + (zone_grid_ * zone_grid_);
     }
 
-    int grid;
-    unsigned int zone;
+    GLint grid;
+    GLuint zone;
 
     for(grid = terrainspace::GRID_FRONT; grid < terrainspace::GRID_COUNT; ++grid) {
         for(zone = 0; zone < (zone_grid_ * zone_grid_); ++zone) {
@@ -96,15 +96,15 @@ void terrain_texture::init(texture &texture_mgr,
 void terrain_texture::update()
 {
     ztexture *z;
-    unsigned long end;
-    unsigned long now;
-    int delta_x;
-    int delta_y;
-    int delta;
-    int zone_x;
-    int zone_y;
-    int origin_x;
-    int origin_y;
+    GLuint end;
+    GLuint now;
+    GLint delta_x;
+    GLint delta_y;
+    GLint delta;
+    GLint zone_x;
+    GLint zone_y;
+    GLint origin_x;
+    GLint origin_y;
 
     if(ref_count_ < 2) {
         return;
@@ -262,7 +262,7 @@ void terrain_texture::update()
             if(current_zone_ == (zone_grid_ * zone_grid_)) {
                 // Little debug stuff here. Figure out how many 
                 // Mb of memory we just ate.
-                float meg = (float)pixel_count_ / 1048576.0f;
+                GLfloat meg = (float)pixel_count_ / 1048576.0f;
                 console("Zonemap: %1.2fMb of data in %dms",
                         meg * 4.0f,
                         build_time_);
@@ -297,7 +297,7 @@ void terrain_texture::term(void)
 // Get the current texture for the requested zone
 GLuint terrain_texture::get_texture(GLuint zone)
 {
-    int grid;
+    GLint grid;
 
     if(current_grid_ == terrainspace::GRID_FRONT) {
         grid = terrainspace::GRID_BACK;
@@ -328,18 +328,18 @@ void terrain_texture::draw_layer(GLint origin_x,
 {
     gl_rgba color1;
     gl_rgba color2;
-    int step;
-    int x;
-    int y;
-    int xx;
-    int yy;
-    int y2;
-    float cell_size;
-    bool drawing;
-    bool blank;
+    GLint step;
+    GLint x;
+    GLint y;
+    GLint xx;
+    GLint yy;
+    GLint y2;
+    GLfloat cell_size;
+    GLboolean drawing;
+    GLboolean blank;
 
     glBindTexture(GL_TEXTURE_2D, layer_texture_[layer]);
-    cell_size = size / (float)zone_size_;
+    cell_size = size / (GLfloat)zone_size_;
 
     if(cell_size >= 1.0f) {
         step = 1;
@@ -377,12 +377,12 @@ void terrain_texture::draw_layer(GLint origin_x,
                 color1 = map_->get_light(xx, yy);
                 color2 = map_->get_light(xx, yy + step);
                 glColor3fv(color1.get_data());
-                glVertex2i((int)((float)x * cell_size),
-                           (int)((float)y * cell_size));
+                glVertex2i((GLint)((GLfloat)x * cell_size),
+                           (GLint)((GLfloat)y * cell_size));
 
                 glColor3fv(color2.get_data());
-                glVertex2i((int)((float)x * cell_size),
-                           (int)((float)y2 * cell_size));
+                glVertex2i((GLint)((GLfloat)x * cell_size),
+                           (GLint)((GLfloat)y2 * cell_size));
             }
 
             glEnd();
@@ -452,18 +452,18 @@ void terrain_texture::draw_layer(GLint origin_x,
 
             if(drawing) {
                 glColor4fv(color1.get_data());
-                glTexCoord2f(((float)x / (float)zone_size_) * uv_scale_,
-                             ((float)y / (float)zone_size_) * uv_scale_);
+                glTexCoord2f(((GLfloat)x / (GLfloat)zone_size_) * uv_scale_,
+                             ((GLfloat)y / (GLfloat)zone_size_) * uv_scale_);
 
-                glVertex2i((int)((float)x * cell_size),
-                           (int)((float)y * cell_size));
+                glVertex2i((GLint)((GLfloat)x * cell_size),
+                           (GLint)((GLfloat)y * cell_size));
 
                 glColor4fv(color2.get_data());
-                glTexCoord2f(((float)x / (float)zone_size_) * uv_scale_,
-                             ((float)y / (float)zone_size_) * uv_scale_);
+                glTexCoord2f(((GLfloat)x / (GLfloat)zone_size_) * uv_scale_,
+                             ((GLfloat)y / (GLfloat)zone_size_) * uv_scale_);
 
-                glVertex2i((int)((float)x * cell_size),
-                           (int)((float)y * cell_size));
+                glVertex2i((GLint)((GLfloat)x * cell_size),
+                           (GLint)((GLfloat)y * cell_size));
             }
         }
 
@@ -474,13 +474,13 @@ void terrain_texture::draw_layer(GLint origin_x,
 }
 
 // Which zone is the camera over?
-void terrain_texture::get_camera_zone(void)
+void terrain_texture::get_camera_zone()
 {
     gl_vector3 cam;
-    int zone_size_;
+    GLint zone_size_;
 
     cam = camera_->get_position();
     zone_size_ = map_->get_size() / zone_grid_;
-    camera_zone_x_ = ((int)cam.get_x() + (map_->get_size() / 2)) / zone_size_;
-    camera_zone_y_ = ((int)cam.get_y() + (map_->get_size() / 2)) / zone_size_;
+    camera_zone_x_ = ((GLint)cam.get_x() + (map_->get_size() / 2)) / zone_size_;
+    camera_zone_y_ = ((GLint)cam.get_y() + (map_->get_size() / 2)) / zone_size_;
 }

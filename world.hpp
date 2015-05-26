@@ -6,12 +6,11 @@
 #include <SDL_opengl.h>
 
 #include "camera-fwd.hpp"
-#include "gl-quat.hpp"
 #include "gl-rgba.hpp"
-#include "gl-vector3.hpp"
 #include "ini-manager.hpp"
 #include "mouse-pointer.hpp"
 #include "sky.hpp"
+#include "sun.hpp"
 #include "terrain.hpp"
 #include "terrain-map-fwd.hpp"
 #include "terrain-texture.hpp"
@@ -26,10 +25,7 @@ public:
     void update();
     void term();
     
-    gl_vector3 get_light_vector() const;
     GLfloat get_fade() const;
-    gl_quat get_light_quat() const;
-    gl_rgba get_light_color() const;
     gl_rgba get_fog_color() const;
     gl_rgba get_ambient_color() const;
 
@@ -42,9 +38,8 @@ private:
     mouse_pointer *mouse_pointer_entity_;
     terrain_texture *terrain_texture_;
     terrain *terrain_entity_;
-
-    gl_vector3 light_vector_;
-    gl_rgba light_color_;
+    sun *sun_;
+    
     gl_rgba ambient_color_;
     gl_rgba fog_color_;
     GLfloat fade_;

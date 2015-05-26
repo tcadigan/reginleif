@@ -18,8 +18,8 @@ public:
     void update();
     void term();
 
-    void set_int(string const &section, string const &entry, int value);
-    void set_float(string const &section, string const &entry, float value);
+    void set_int(string const &section, string const &entry, GLint value);
+    void set_float(string const &section, string const &entry, GLfloat value);
     void set_string(string const &section, 
                     string const &entry,
                     string const &value);
@@ -28,8 +28,8 @@ public:
                     string const &entry,
                     gl_vector3 const &value);
 
-    int get_int(string const &section, string const &entry) const;
-    float get_float(string const &section, string const &entry) const;
+    GLint get_int(string const &section, string const &entry) const;
+    GLfloat get_float(string const &section, string const &entry) const;
     string get_string(string const &section, string const &entry) const;
     gl_vector3 get_vector(string const &section, string const &entry) const;
     

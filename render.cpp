@@ -13,9 +13,11 @@
 #include "gl-rgba.hpp"
 #include "world.hpp"
 
-render::render(camera const &camera,
+render::render(camera const &camera_object,
+               sun const &sun_object,
                ini_manager const &ini_mgr)
-    : camera_(camera)
+    : camera_(camera_object)
+    , sun_(sun_object)
     , ini_mgr_(ini_mgr)
     , render_width_(0)
     , render_height_(0)
@@ -101,8 +103,7 @@ void render::update(world const &world_object)
     gl_vector3 pos;
     gl_vector3 angle;
 
-    gl_quat light_vector = world_object.get_light_quat();
-    gl_rgba light_color = world_object.get_light_color();
+    gl_quat light_vector = sun_.get_position_quat();
     gl_rgba fog_color = world_object.get_fog_color();
     gl_rgba ambient_color = world_object.get_ambient_color();
     // glViewport(0, 0, WinWidth(), WinHeight());
@@ -117,7 +118,7 @@ void render::update(world const &world_object)
     glFogi(GL_FOG_MODE, GL_LINEAR);
     glFogf(GL_FOG_START, 484.0f);
     glFogf(GL_FOG_END, 5880.0f);
-    glFogfv(GL_FOG_COLOR, light_color.get_data());
+    glFogfv(GL_FOG_COLOR, sun_.get_color().get_data());
     glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -191,8 +192,8 @@ void render::term(void)
 
 void render::resize(void)
 {
-    int left;
-    int top;
+    GLint left;
+    GLint top;
 
     if(buffer_ != NULL) {
         delete[] buffer_;
@@ -202,7 +203,7 @@ void render::resize(void)
     // render_height = WinHeight();
     left = 0;
     top = 0;
-    render_aspect_ = (float)render_width_ / (float)render_height_;
+    render_aspect_ = (GLfloat)render_width_ / (GLfloat)render_height_;
     glViewport(left, top, render_width_, render_height_);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();

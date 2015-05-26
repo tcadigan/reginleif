@@ -120,9 +120,9 @@ gl_vector3 gl_matrix::transform_point(gl_vector3 const &in)
 
 void gl_matrix::rotate(GLfloat theta, gl_vector3 const &point)
 {
-    float s;
-    float c;
-    float t;
+    GLfloat s;
+    GLfloat c;
+    GLfloat t;
     gl_vector3 in = point;
 
     theta *= (float)(acos(-1) / 180);
@@ -135,8 +135,8 @@ void gl_matrix::rotate(GLfloat theta, gl_vector3 const &point)
     if(in.length() >= 0.00001f) {
         in.normalize();
 
-        s = (float)sin(theta);
-        c = (float)cos(theta);
+        s = (GLfloat)sin(theta);
+        c = (GLfloat)cos(theta);
         t = 1.0f - c;
         
         elements_[0][0] = ((t * in.get_x()) * in.get_x()) + c;
