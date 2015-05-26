@@ -17,12 +17,12 @@ using namespace std;
 
 class terrain_map {
 public:
-    terrain_map(camera const &camera,
-                ini_manager const &ini_mgr);
+    terrain_map(world const &world_object);
     virtual ~terrain_map();
 
-    void init();
-    void update(world const &world_object);
+    void init(camera const &camera,
+              ini_manager const &ini_mgr);
+    void update();
     void term();
 
     void build();
@@ -46,8 +46,9 @@ private:
 
     GLushort rgb_sample(GLshort, GLint shift, GLint numbits) const;
 
-    camera const &camera_;
-    ini_manager const &ini_mgr_;
+    world const &world_;
+    camera const *camera_;
+    ini_manager const *ini_mgr_;
 
     cell **terrain_data_;
 

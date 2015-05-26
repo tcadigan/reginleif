@@ -16,10 +16,6 @@
 // #include "texture.hpp"
 // #include "win.hpp"
 // #include "world.hpp"
-
-// #pragma comment (lib, "opengl32.lib")
-// #pragma comment (lib, "glu32.lib")
-// #pramga comment (lib, "GLaux.lib")
  
 static bool quit;
 // static HINSTANCE instance;
@@ -71,7 +67,7 @@ int main(int argc, char *argv[])
 //         }
 //         else {
 //             // Update
-//             cameraUpdate();
+//             CameraUpdate();
 //             EntityUpdate();
 //             MapUpdate();
 //             MapTextureUpdate();

@@ -3,7 +3,7 @@
  * 2006 Shamus Young
  *
  * Member functions for the base terrain class.
- * Here is where the magic happens. This generates the terrain and renders is.
+ * Here is where the magic happens. This generates the terrain and renders it.
  */
 
 #include "terrain.hpp"
@@ -14,38 +14,51 @@
 #include "console.hpp"
 #include "terrain-texture.hpp"
 
-terrain::terrain(GLint size,
-                 terrain_texture &terrain_texture,
-                 terrain_map const &map,
-                 camera const &camera,
-                 ini_manager const &ini_mgr)
-    : terrain_texture_(terrain_texture)
-    , map_(map)
-    , camera_(camera)
-    , ini_mgr_(ini_mgr)
+terrain::terrain(world const &world_object)
+    : entity()
+    , world_(world_object)
     , stage_(terrainspace::STAGE_IDLE)
-    , map_size_(size)
-    , map_half_(size / 2)
-    , zone_size_(map_size_ / 2)
     , viewpoint_(gl_vector3(0.0f, 0.0f, 0.0f))
-    , boundary_(new short[size])
-    , point_(new GLboolean[size * size])
 {
-    tolerance_ = ini_mgr_.get_float("Terrain Settings", "tolerance");
-    update_time_ = ini_mgr_.get_int("Terrain Settings", "update_time");
-    do_wireframe_ = ini_mgr_.get_int("Terrain Settings", "do_wireframe");
-    do_solid_ = ini_mgr_.get_int("Terrain Settings", "do_solid");
-    zone_grid_ = ini_mgr_.get_int("Map Settings", "zone_grid");
+    entity_type_ = "terrain";
+}
+
+terrain::~terrain()
+{
+    delete[] point_;
+    delete[] boundary_;
+    delete[] zone_uv_;
+}
+
+void terrain::init(terrain_texture &terrain_texture_object,
+                   terrain_map const &terrain_map_entity,
+                   camera const &camera_object,
+                   ini_manager const &ini_mgr)
+{
+    terrain_texture_ = &terrain_texture_object;
+    map_ = &terrain_map_entity;
+    camera_ = &camera_object;
+    ini_mgr_ = &ini_mgr;
+
+    map_size_ = map_->get_size();
+    map_half_ = map_size_ / 2;
+    zone_size_ = map_size_ / 2;
+    boundary_ = new short[map_size_];
+    point_ = new GLboolean[map_size_ * map_size_];
+
+    tolerance_ = ini_mgr_->get_float("Terrain Settings", "tolerance");
+    update_time_ = ini_mgr_->get_int("Terrain Settings", "update_time");
+    do_wireframe_ = ini_mgr_->get_int("Terrain Settings", "do_wireframe");
+    do_solid_ = ini_mgr_->get_int("Terrain Settings", "do_solid");
+    zone_grid_ = ini_mgr_->get_int("Map Settings", "zone_grid");
 
     list_front_ = glGenLists(zone_grid_ * zone_grid_);
     list_back_ = glGenLists(zone_grid_ * zone_grid_);
 
-    entity_type_ = "terrain";
-
     // This finds the largest power-of-two dimension for the given number.
     // This is used to determine what level of the quadtree a grid
     // position occupies.
-    for(int n = 0; n < size; ++n) {
+    for(int n = 0; n < map_size_; ++n) {
         boundary_[n] = -1;
 
         if(n == 0) {
@@ -79,13 +92,6 @@ terrain::terrain(GLint size,
     }
 }
 
-terrain::~terrain()
-{
-    delete[] point_;
-    delete[] boundary_;
-    delete[] zone_uv_;
-}
-
 /*
  * This is called every frame. This is where the terrain mesh is evaluated,
  * cut into triangles, and compiled for rendering.
@@ -109,9 +115,9 @@ void terrain::update()
                 return;
             }
 
-            newpos = camera_.get_position();
+            newpos = camera_->get_position();
             build_start_ = 0;
-            viewpoint_ = camera_.get_position();
+            viewpoint_ = camera_->get_position();
             ++stage_;
 
             break;
@@ -184,6 +190,10 @@ void terrain::update()
     }
 
     build_time_ += (SDL_GetTicks() - now);
+}
+
+void terrain::term()
+{
 }
 
 /*
@@ -288,7 +298,7 @@ void terrain::compile()
     zone_origin_x_ = x * zone_size_;
     zone_origin_y_ = y * zone_size_;
     glNewList(list, GL_COMPILE);
-    glBindTexture(GL_TEXTURE_2D, terrain_texture_.get_texture(zone_));
+    glBindTexture(GL_TEXTURE_2D, terrain_texture_->get_texture(zone_));
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
@@ -634,7 +644,7 @@ void terrain::compile_triangle(GLint x1, GLint y1, GLint x2, GLint y2, GLint x3,
 void terrain::compile_vertex(GLint x, GLint y)
 {
     glTexCoord2fv(zone_uv_[(x - zone_origin_x_) + ((y - zone_origin_y_) * (zone_size_ + 1))].get_data());
-    gl_vector3 p = map_.get_position(x, y);
+    gl_vector3 p = map_->get_position(x, y);
     glVertex3fv(p.get_data());
     ++vertices_;
 }
@@ -779,16 +789,16 @@ void terrain::do_quad(GLint x1, GLint y1, GLint size)
         return;
     }
 
-    dist = map_.get_distance(xc, yc);
-    pos = map_.get_position(x1, y1);
+    dist = map_->get_distance(xc, yc);
+    pos = map_->get_position(x1, y1);
     ul = pos.get_y();
-    pos = map_.get_position(x2, y1);
+    pos = map_->get_position(x2, y1);
     ur = pos.get_y();
-    pos = map_.get_position(x1, y2);
+    pos = map_->get_position(x1, y2);
     ll = pos.get_y();
-    pos = map_.get_position(x2, y2);
+    pos = map_->get_position(x2, y2);
     lr = pos.get_y();
-    pos = map_.get_position(xc, yc);
+    pos = map_->get_position(xc, yc);
     center = pos.get_y();
     average = (((ul + lr) + ll) + ur) / 4.0f;
 

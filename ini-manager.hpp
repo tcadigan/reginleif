@@ -14,6 +14,10 @@ public:
     ini_manager(string const &ini_filename);
     virtual ~ini_manager();
 
+    void init();
+    void update();
+    void term();
+
     void set_int(string const &section, string const &entry, int value);
     void set_float(string const &section, string const &entry, float value);
     void set_string(string const &section, 

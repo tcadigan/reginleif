@@ -38,10 +38,10 @@ private:
     texture *texture_;
     camera *camera_;
     sky *sky_entity_;
-    terrain_map *map_;
-    mouse_pointer *pointer_;
+    terrain_map *terrain_map_entity_;
+    mouse_pointer *mouse_pointer_entity_;
     terrain_texture *terrain_texture_;
-    terrain *terrain_;
+    terrain *terrain_entity_;
 
     gl_vector3 light_vector_;
     gl_rgba light_color_;

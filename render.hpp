@@ -30,7 +30,6 @@ private:
     GLint render_distance_;
     GLfloat render_aspect_;
     GLushort *buffer_;
-
 };
 
 #endif

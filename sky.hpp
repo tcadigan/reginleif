@@ -9,23 +9,25 @@
 #include "entity.hpp"
 #include "ini-manager.hpp"
 #include "sky-point.hpp"
-#include "world.hpp"
+#include "world-fwd.hpp"
 
 class sky : public entity {
 public:
-    sky(camera const &camera,
-        ini_manager const &ini_mgr);
+    sky(world const &world_object);
 
     virtual ~sky();
 
-    void init(world const &world_object);
+    void init(camera const &camera_object,
+              ini_manager const &ini_mgr);
     void update();
+    void term();
     
-    void render(world const &world_object);
+    void render();
 
 private:
-    camera const &camera_;
-    ini_manager const &ini_mgr_;
+    world const &world_;
+    camera const *camera_;
+    ini_manager const *ini_mgr_;
 
     GLint sky_grid_;
     sky_point **grid_;

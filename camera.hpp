@@ -8,30 +8,32 @@
 #include "gl-vector3.hpp"
 #include "ini-manager.hpp"
 #include "terrain-map-fwd.hpp"
+#include "world-fwd.hpp"
 
 using namespace std;
 
 class camera {
 public:
-    camera(ini_manager const &ini_mgr);
+    camera(world const &world);
     virtual ~camera();
 
-    void init();
-    void update(terrain_map const &map);
+    void init(terrain_map const &terrain_map,
+              ini_manager const &ini_mgr);
+    void update();
     void term();
 
     void yaw(GLfloat delta);
     void pitch(GLfloat delta);
     void pan(GLfloat delta);
     void forward(GLfloat delta);
-    // void selection_pitch(GLfloat delta);
-    // void selection_yaw(GLfloat delta);
-    // void selection_zoom(GLfloat delta);
+    void selection_pitch(GLfloat delta);
+    void selection_yaw(GLfloat delta);
+    void selection_zoom(GLfloat delta);
 
     gl_vector3 get_position() const;
     gl_vector3 get_angle() const;
 
-    void set_position(gl_vector3 new_pos, terrain_map const &map);
+    void set_position(gl_vector3 new_pos);
     void set_angle(gl_vector3 new_angle);
 
 private:
@@ -42,7 +44,9 @@ private:
     GLfloat eye_height_;
     GLint max_pitch_;
 
-    ini_manager const &ini_mgr_;
+    world const &world_;
+    terrain_map const *terrain_map_;
+    ini_manager const *ini_mgr_;
 };
 
 #endif

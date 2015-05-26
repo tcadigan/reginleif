@@ -23,16 +23,10 @@
 #include <SDL.h>
 
 #include "console.hpp"
-#include "texture.hpp"
+#include "world.hpp"
 
-terrain_texture::terrain_texture(texture &texture,
-                                 terrain_map const &map,
-                                 camera const &camera,
-                                 ini_manager const &ini_mgr)
-    : texture_(texture)
-    , map_(map)
-    , camera_(camera)
-    , ini_mgr_(ini_mgr)
+terrain_texture::terrain_texture(world const &world_object)
+    : world_(world_object)
 {
 }
 
@@ -40,18 +34,25 @@ terrain_texture::~terrain_texture()
 {
 }
 
-void terrain_texture::init(void)
+void terrain_texture::init(texture &texture_mgr,
+                           terrain_map const &terrain_map_entity,
+                           camera const &camera_object,
+                           ini_manager const &ini_mgr)
 {
-    max_resolution_ = ini_mgr_.get_int("Map Texture", "max_resolution");
+    map_ = &terrain_map_entity;
+    camera_ = &camera_object;
+    ini_mgr_ = &ini_mgr;
+
+    max_resolution_ = ini_mgr_->get_int("Map Texture", "max_resolution");
 
     res_texture_ = new unsigned int[max_resolution_];
 
     map_texture_update_time_ = 
-        ini_mgr_.get_int("Map Texture", "map_texture_update_time");
+        ini_mgr_->get_int("Map Texture", "map_texture_update_time");
 
-    show_resolution_ = ini_mgr_.get_int("Map Texture", "show_resolution");
-    uv_scale_ = ini_mgr_.get_int("Map Texture", "uv_scale");
-    zone_grid_ = ini_mgr_.get_int("Map Settings", "zone_grid");
+    show_resolution_ = ini_mgr_->get_int("Map Texture", "show_resolution");
+    uv_scale_ = ini_mgr_->get_int("Map Texture", "uv_scale");
+    zone_grid_ = ini_mgr_->get_int("Map Settings", "zone_grid");
 
     zone_texture_ = new ztexture*[terrainspace::GRID_COUNT];
     zone_texture_[0] = new ztexture[terrainspace::GRID_COUNT * (zone_grid_ * zone_grid_)];
@@ -72,21 +73,21 @@ void terrain_texture::init(void)
     }
 
     buffer_ = new GLushort[(max_resolution_ * max_resolution_) * 4];
-    zone_size_ = map_.get_size() / zone_grid_;
-    layer_texture_[terrainspace::LAYER_GRASS] = texture_.from_name("grassa512");
-    layer_texture_[terrainspace::LAYER_LOWGRASS] = texture_.from_name("grassb512");
-    layer_texture_[terrainspace::LAYER_SAND] = texture_.from_name("sand512");
-    layer_texture_[terrainspace::LAYER_ROCK] = texture_.from_name("rock512");
-    layer_texture_[terrainspace::LAYER_DIRT] = texture_.from_name("dirt512");
+    zone_size_ = map_->get_size() / zone_grid_;
+    layer_texture_[terrainspace::LAYER_GRASS] = texture_mgr.from_name("grassa512");
+    layer_texture_[terrainspace::LAYER_LOWGRASS] = texture_mgr.from_name("grassb512");
+    layer_texture_[terrainspace::LAYER_SAND] = texture_mgr.from_name("sand512");
+    layer_texture_[terrainspace::LAYER_ROCK] = texture_mgr.from_name("rock512");
+    layer_texture_[terrainspace::LAYER_DIRT] = texture_mgr.from_name("dirt512");
 
     if(show_resolution_ != 0) {
-        res_texture_[8] = texture_.from_name("n8");
-        res_texture_[16] = texture_.from_name("n16");
-        res_texture_[32] = texture_.from_name("n32");
-        res_texture_[64] = texture_.from_name("n64");
-        res_texture_[128] = texture_.from_name("n128");
-        res_texture_[256] = texture_.from_name("n256");
-        res_texture_[512] = texture_.from_name("n512");
+        res_texture_[8] = texture_mgr.from_name("n8");
+        res_texture_[16] = texture_mgr.from_name("n16");
+        res_texture_[32] = texture_mgr.from_name("n32");
+        res_texture_[64] = texture_mgr.from_name("n64");
+        res_texture_[128] = texture_mgr.from_name("n128");
+        res_texture_[256] = texture_mgr.from_name("n256");
+        res_texture_[512] = texture_mgr.from_name("n512");
     }
 
     get_camera_zone();
@@ -373,8 +374,8 @@ void terrain_texture::draw_layer(GLint origin_x,
             glBegin(GL_QUAD_STRIP);
             for(x = -1; x < ((zone_size_ + step) + 1); x += step) {
                 xx = origin_x + x;
-                color1 = map_.get_light(xx, yy);
-                color2 = map_.get_light(xx, yy + step);
+                color1 = map_->get_light(xx, yy);
+                color2 = map_->get_light(xx, yy + step);
                 glColor3fv(color1.get_data());
                 glVertex2i((int)((float)x * cell_size),
                            (int)((float)y * cell_size));
@@ -430,8 +431,8 @@ void terrain_texture::draw_layer(GLint origin_x,
 
         for(x = -1; x < ((zone_size_ + step) + 1); x += step) {
             xx = origin_x + x;
-            color1.set_alpha(map_.get_layer(xx, yy, layer));
-            color2.set_alpha(map_.get_layer(xx, yy + step, layer));
+            color1.set_alpha(map_->get_layer(xx, yy, layer));
+            color2.set_alpha(map_->get_layer(xx, yy + step, layer));
 
             if((color1.get_alpha() == 0.0f) && (color2.get_alpha() == 0.0f)) {
                 if(blank) {
@@ -478,8 +479,8 @@ void terrain_texture::get_camera_zone(void)
     gl_vector3 cam;
     int zone_size_;
 
-    cam = camera_.get_position();
-    zone_size_ = map_.get_size() / zone_grid_;
-    camera_zone_x_ = ((int)cam.get_x() + (map_.get_size() / 2)) / zone_size_;
-    camera_zone_y_ = ((int)cam.get_y() + (map_.get_size() / 2)) / zone_size_;
+    cam = camera_->get_position();
+    zone_size_ = map_->get_size() / zone_grid_;
+    camera_zone_x_ = ((int)cam.get_x() + (map_->get_size() / 2)) / zone_size_;
+    camera_zone_y_ = ((int)cam.get_y() + (map_->get_size() / 2)) / zone_size_;
 }

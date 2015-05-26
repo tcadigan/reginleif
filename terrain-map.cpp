@@ -31,10 +31,8 @@
 #include "math.hpp"
 #include "world.hpp"
 
-terrain_map::terrain_map(camera const &camera,
-                         ini_manager const &ini_mgr)
-    : camera_(camera)
-    , ini_mgr_(ini_mgr)
+terrain_map::terrain_map(world const &world_object)
+    : world_(world_object)
 {
 }
 
@@ -42,17 +40,21 @@ terrain_map::~terrain_map()
 {
 }
 
-void terrain_map::init()
+void terrain_map::init(camera const &camera,
+                       ini_manager const &ini_mgr)
 {
-    zone_grid_ = ini_mgr_.get_int("Map Settings", "zone_grid");
-    map_area_ = ini_mgr_.get_int("Map Settings", "map_area");
-    map_image_ = ini_mgr_.get_string("Map Settings", "map_image");
-    map_file_ = ini_mgr_.get_string("Map Settings", "map_file");
-    blend_range_ = ini_mgr_.get_int("Map Settings", "blend_range");
-    map_update_time_ = ini_mgr_.get_int("Map Settings", "map_update_time");
-    far_view_ = ini_mgr_.get_int("Map Settings", "far_view");
-    terrain_scale_ = ini_mgr_.get_int("Map Settings", "terrain_scale");
-    force_rebuild_ = ini_mgr_.get_int("Map Settings", "force_rebuild");
+    camera_ = &camera;
+    ini_mgr_ = &ini_mgr;
+
+    zone_grid_ = ini_mgr_->get_int("Map Settings", "zone_grid");
+    map_area_ = ini_mgr_->get_int("Map Settings", "map_area");
+    map_image_ = ini_mgr_->get_string("Map Settings", "map_image");
+    map_file_ = ini_mgr_->get_string("Map Settings", "map_file");
+    blend_range_ = ini_mgr_->get_int("Map Settings", "blend_range");
+    map_update_time_ = ini_mgr_->get_int("Map Settings", "map_update_time");
+    far_view_ = ini_mgr_->get_int("Map Settings", "far_view");
+    terrain_scale_ = ini_mgr_->get_int("Map Settings", "terrain_scale");
+    force_rebuild_ = ini_mgr_->get_int("Map Settings", "force_rebuild");
 
     terrain_data_ = new cell*[map_area_ + 1];
     terrain_data_[0] = new cell[(map_area_ + 1) * (map_area_ + 1)];
@@ -66,7 +68,7 @@ void terrain_map::init()
     }
 }
 
-void terrain_map::update(world const &world_object)
+void terrain_map::update()
 {
     int x;
     int samples;
@@ -84,9 +86,9 @@ void terrain_map::update(world const &world_object)
     cell *c;
     unsigned int update_end;
 
-    light = world_object.get_light_vector();
-    sun = world_object.get_light_color();
-    ambient = world_object.get_ambient_color();
+    light = world_.get_light_vector();
+    sun = world_.get_light_color();
+    ambient = world_.get_ambient_color();
     shadow = ambient * gl_rgba(0.3f, 0.5f, 0.9f);
 
     if(light.get_x() > 0.0f) {
@@ -114,12 +116,12 @@ void terrain_map::update(world const &world_object)
     update_end = SDL_GetTicks() + map_update_time_;
 
     while(SDL_GetTicks() < update_end) {
-        // Pass over the map (either east to west of vice versa) and
+        // Pass over the map (either east to west or vice versa) and
         // see which points are being hit with sunlight.
         for(x = start; x != end; x += step) {
             c = &terrain_data_[x][scan_y_];
             
-            gl_vector3 temp_pos(c->get_position() - camera_.get_position());
+            gl_vector3 temp_pos(c->get_position() - camera_->get_position());
             c->set_distance(temp_pos.length() / far_view_);
 
             if(c->get_distance() < 0.0f) {
@@ -147,7 +149,6 @@ void terrain_map::update(world const &world_object)
                     c->set_shadow(true);
                 }
             }
-
             
             dot = light.dot_product(c->get_normal());
 
@@ -206,7 +207,7 @@ void terrain_map::update(world const &world_object)
     }
 }
 
-void terrain_map::term(void)
+void terrain_map::term()
 {
     delete terrain_data_[0];
     delete terrain_data_;
@@ -222,7 +223,7 @@ void terrain_map::term(void)
  * This one function is really our "level editor", and it should be a separate
  * program with all sorts of options for controlling these magic numbers.
  */
-void terrain_map::build(void)
+void terrain_map::build()
 {
     // HBITMAP basemap;
     // BITMAPINFO bmi;
@@ -439,7 +440,7 @@ void terrain_map::build(void)
         for(y = 0; y < (map_area_ + 1); ++y) {
             c = &terrain_data_[x][y];
 
-            gl_vector3 temp_pos(c->get_position() - camera_.get_position());
+            gl_vector3 temp_pos(c->get_position() - camera_->get_position());
             c->set_distance(temp_pos.length() / far_view_);
 
             if(c->get_distance() < 0.0f) {

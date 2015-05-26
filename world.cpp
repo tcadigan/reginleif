@@ -14,12 +14,12 @@
 world::world()
     : ini_mgr_(new ini_manager())
     , texture_(new texture())
-    , camera_(new camera(*ini_mgr_))
-    , sky_entity_(new sky(*camera_, *ini_mgr_))
-    , map_(new terrain_map(*camera_, *ini_mgr_))
-    , pointer_(new mouse_pointer(*texture_, *map_, *camera_, *ini_mgr_))
-    , terrain_texture_(new terrain_texture(*texture_, *map_, *camera_, *ini_mgr_))
-    , terrain_(new terrain(map_->get_size(), *terrain_texture_, *map_, *camera_, *ini_mgr_))
+    , camera_(new camera(*this))
+    , sky_entity_(new sky(*this))
+    , terrain_map_entity_(new terrain_map(*this))
+    , mouse_pointer_entity_(new mouse_pointer(*this, *texture_))
+    , terrain_texture_(new terrain_texture(*this))
+    , terrain_entity_(new terrain(*this))
     , light_vector_(gl_vector3(-0.75f, 0.25f, 0.0f))
     , light_color_(gl_rgba(2.1f, 2.1f, 0.1f, 1.0f))
     , ambient_color_(gl_rgba(0.6f, 0.6f, 0.6f, 1.0f))
@@ -33,14 +33,56 @@ world::~world()
     delete texture_;
     delete camera_;
     delete sky_entity_;
-    delete map_;
-    delete pointer_;
+    delete terrain_map_entity_;
+    delete mouse_pointer_entity_;
     delete terrain_texture_;
-    delete terrain_;
+    delete terrain_entity_;
 }
 
 void world::init()
 {
+    // ini_manager needs:
+    //     <nothing>
+    ini_mgr_->init();
+
+    // Camera needs:
+    //     terrain_map
+    //     ini_manager
+    camera_->init(*terrain_map_entity_, *ini_mgr_);
+
+    // Terrain Map needs:
+    //     camera (Completed)
+    //     ini_manager
+    terrain_map_entity_->init(*camera_, *ini_mgr_);
+
+    // Sky needs:
+    //     camera
+    //     ini_manager
+    sky_entity_->init(*camera_, *ini_mgr_);
+
+    // Mouse Pointer needs:
+    //     terrain map
+    //     camera
+    //     ini_manager
+    mouse_pointer_entity_->init(*terrain_map_entity_, *camera_, *ini_mgr_);
+
+    // Terrain Texture needs:
+    //     texture
+    //     terrain map
+    //     camera
+    //     ini_manager
+    terrain_texture_->init(*texture_, *terrain_map_entity_, *camera_, *ini_mgr_);
+
+    // Terrain needs:
+    //     terrain texture
+    //     terrain map
+    //     camera
+    //     ini_manager
+    terrain_entity_->init(*terrain_texture_,
+                          *terrain_map_entity_,
+                          *camera_, 
+                          *ini_mgr_);
+
     last_update_ = SDL_GetTicks();
 }
 

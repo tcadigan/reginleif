@@ -12,47 +12,49 @@
 #include "math.hpp"
 #include "world.hpp"
 
-sky::sky(camera const &camera,
-         ini_manager const &ini_mgr)
-    : camera_(camera)
-    , ini_mgr_(ini_mgr)
+sky::sky(world const &world_object)
+    : world_(world_object)
 {
-    sky_grid_ = ini_mgr_.get_int("Sky Settings", "sky_grid");
-
-    grid_ = new sky_point*[sky_grid_];
-    grid_[0] = new sky_point[sky_grid_ * sky_grid_];
-
-    for(int i = 1; i < sky_grid_; ++i) {
-        grid_[i] = grid_[i - 1] + sky_grid_;
-    }
 }
 
 sky::~sky()
 {
-    delete[] grid_[0];
-    delete[] grid_;
+    term();
 }
 
-void sky::init(world const &world_object)
+void sky::init(camera const &camera_object,
+               ini_manager const &ini_mgr)
 {
-   int x;
-    int y;
+    camera_ = &camera_object;
+    ini_mgr_ = &ini_mgr;
+
+    GLint x;
+    GLint y;
     gl_rgba top(0.0f, 0.0f, 1.0f);
     gl_rgba edge(0.0f, 1.0f, 1.0f);
     gl_rgba fog;
-    float scale;
-    float dist;
-    float fade;
-    
-    fog = world_object.get_fog_color();
+    GLfloat scale;
+    GLfloat dist;
+    GLfloat fade;
 
+    sky_grid_ = ini_mgr_->get_int("Sky Settings", "sky_grid");
+
+    grid_ = new sky_point*[sky_grid_];
+    grid_[0] = new sky_point[sky_grid_ * sky_grid_];
+
+    for(GLint i = 1; i < sky_grid_; ++i) {
+        grid_[i] = grid_[i - 1] + sky_grid_;
+    }
+    
+    fog = world_.get_fog_color();
+    
     for(y = 0; y < sky_grid_; ++y) {
         for(x = 0; x < sky_grid_; ++x) {
-            dist = math_distance((float)x,
-                                (float)y,
-                                (float)(sky_grid_ / 2),
-                                (float)(sky_grid_ / 2));
-
+            dist = math_distance((GLfloat)x,
+                                 (GLfloat)y,
+                                 (GLfloat)(sky_grid_ / 2),
+                                 (GLfloat)(sky_grid_ / 2));
+            
             if((dist / (sky_grid_ / 2)) < 0.0f) {
                 scale = 0.0f;
             }
@@ -62,26 +64,37 @@ void sky::init(world const &world_object)
             else {
                 scale = dist / (sky_grid_ / 2);
             }
-
-            grid_[x][y].get_position().set_x((float)(x - (sky_grid_ / 2)));
+            
+            grid_[x][y].get_position().set_x((GLfloat)(x - (sky_grid_ / 2)));
             grid_[x][y].get_position().set_y(1.0f - (scale * 1.5f));
-            grid_[x][y].get_position().set_z((float)(y - (sky_grid_ / 2)));
+            grid_[x][y].get_position().set_z((GLfloat)(y - (sky_grid_ / 2)));
             grid_[x][y].set_color(top);
             fade = math_smooth_step(scale, 0.0f, 0.6f);
             
             grid_[x][y].set_color(grid_[x][y].get_color().interpolate(edge, fade));
-
+            
             fade = math_smooth_step(scale, 0.5f, 0.99f);
             grid_[x][y].set_color(grid_[x][y].get_color().interpolate(fog, fade));
         }
     }
 }
- 
+
 void sky::update()
 {
 }
 
-void sky::render(world const &world_object)
+void sky::term()
+{
+    if(grid_[0] != NULL) {
+        delete[] grid_[0];
+    }
+
+    if(grid_ != NULL) {
+        delete[] grid_;
+    }
+}
+
+void sky::render()
 {
     gl_vector3 angle;
     gl_vector3 top;
@@ -92,8 +105,8 @@ void sky::render(world const &world_object)
     gl_vector3 back;
     gl_rgba horizon;
     gl_rgba sky;
-    int x;
-    int y;
+    GLint x;
+    GLint y;
 
     glDepthMask(false);
     glPushAttrib(GL_POLYGON_BIT | GL_LIGHTING_BIT | GL_FOG_BIT);
@@ -104,7 +117,7 @@ void sky::render(world const &world_object)
     glDisable(GL_TEXTURE_2D);
     glPushMatrix();
     glLoadIdentity();
-    angle = camera_.get_angle();
+    angle = camera_->get_angle();
     glRotatef(angle.get_x(), 1.0f, 0.0f, 0.0f);
     glRotatef(angle.get_y(), 0.0f, 1.0f, 0.0f);
     glRotatef(angle.get_z(), 0.0f, 0.0f, 1.0f);
@@ -114,9 +127,9 @@ void sky::render(world const &world_object)
     right = gl_vector3(-10.0f, 0.0f, 0.0f);
     front = gl_vector3(0.0f, 0.0f, 10.0f);
     back = gl_vector3(0.0f, 0.0f, -10.0f);
-    horizon = world_object.get_fog_color();
+    horizon = world_.get_fog_color();
     sky = gl_rgba(0.6f, 0.7f, 0.9f);
-    sky = world_object.get_fog_color();
+    sky = world_.get_fog_color();
     glClearColor(sky.get_red(), sky.get_green(), sky.get_blue(), 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     

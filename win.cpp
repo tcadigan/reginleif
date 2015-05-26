@@ -175,7 +175,7 @@ void win::move_cursor(GLint x, GLint y)
         
 //         if(!lmb) {
 //             ReleaseCapture();
-//             MoveCursor(selecte_pos.x, select_pos.y);
+//             MoveCursor(select_pos.x, select_pos.y);
 //         }
 
 //         break;

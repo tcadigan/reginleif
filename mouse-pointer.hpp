@@ -8,16 +8,19 @@
 #include "point.hpp"
 #include "terrain-map.hpp"
 #include "texture.hpp"
+#include "world-fwd.hpp"
 
 class mouse_pointer : public entity {
 public:
-    mouse_pointer(texture &texture,
-                  terrain_map const &map,
-                  camera const &camera,
-                  ini_manager const &ini_mgr);
+    mouse_pointer(world const &world_object,
+                  texture &texture);
     virtual ~mouse_pointer();
 
+    void init(terrain_map const &terrain_map_entity,
+              camera const &camera_object,
+              ini_manager const &ini_mgr);
     void update();
+    void term();
     
     void render();
     point get_selected();
@@ -25,12 +28,13 @@ public:
 private:
     point draw_grid();
 
-    texture &texture_;
-    terrain_map const &map_;
-    camera const &camera_;
-    ini_manager const &ini_mgr_;
-    
+    world const &world_;
     GLint texture_id_;
+    
+    terrain_map const *map_;
+    camera const *camera_;
+    ini_manager const *ini_mgr_;
+    
 
     gl_vector3 position_;
     point last_mouse_;

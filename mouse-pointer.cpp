@@ -18,19 +18,14 @@
 #include <cmath>
 #include <cstring>
 
-mouse_pointer::mouse_pointer(texture &texture,
-                             terrain_map const &map,
-                             camera const &camera,
-                             ini_manager const &ini_mgr)
-    : entity()
-    , texture_(texture)
-    , map_(map)
-    , camera_(camera)
-    , ini_mgr_(ini_mgr)
-    , texture_id_(texture_.from_name("ring"))
-{
-    pt_size_ = ini_mgr_.get_int("Pointer Settings", "pt_size");
+#include "world.hpp"
 
+mouse_pointer::mouse_pointer(world const &world_object,
+                             texture &texture_object)
+    : entity()
+    , world_(world_object)
+    , texture_id_(texture_object.from_name("ring"))
+{
     entity_type_ = "pointer";
     last_cell_.set_y(-1);
     last_cell_.set_x(-1);
@@ -38,6 +33,17 @@ mouse_pointer::mouse_pointer(texture &texture,
 
 mouse_pointer::~mouse_pointer()
 {
+}
+
+void mouse_pointer::init(terrain_map const &terrain_map_entity,
+                         camera const &camera_object,
+                         ini_manager const &ini_mgr)
+{
+    map_ = &terrain_map_entity;
+    camera_ = &camera_object;
+    ini_mgr_ = &ini_mgr;
+
+    pt_size_ = ini_mgr_->get_int("Pointer Settings", "pt_size");
 }
 
 void mouse_pointer::update()
@@ -83,8 +89,8 @@ void mouse_pointer::update()
     // Select the modelview matrix
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    pos = camera_.get_position();
-    angle = camera_.get_angle();
+    pos = camera_->get_position();
+    angle = camera_->get_angle();
     glRotatef(angle.get_x(), 1.0f, 0.0f, 0.0f);
     glRotatef(angle.get_y(), 0.0f, 1.0f, 0.0f);
     glRotatef(angle.get_z(), 0.0f, 0.0f, 1.0f);
@@ -95,13 +101,16 @@ void mouse_pointer::update()
     glMatrixMode(GL_MODELVIEW);
 }
 
+void mouse_pointer::term()
+{
+}
 
 void mouse_pointer::render()
 {
     int cell_x;
     int cell_y;
     gl_vector3 p;
-    gl_vector3 pos = camera_.get_position();
+    gl_vector3 pos = camera_->get_position();
 
     glPushAttrib(GL_POLYGON_BIT | GL_LIGHTING_BIT | GL_FOG_BIT);
     glDisable(GL_DEPTH_TEST);
@@ -114,35 +123,35 @@ void mouse_pointer::render()
     glBlendFunc(GL_ONE, GL_ONE);
     glLineWidth(3.5f);
     glColor3f(1.0f, 0.5f, 0.0f);
-    cell_x = (int)(pos.get_x() - 0.5f) + (map_.get_size() / 2);
-    cell_y = (int)(pos.get_z() - 0.5f) + (map_.get_size() / 2);
+    cell_x = (int)(pos.get_x() - 0.5f) + (map_->get_size() / 2);
+    cell_y = (int)(pos.get_z() - 0.5f) + (map_->get_size() / 2);
     cell_x = last_cell_.get_x();
     cell_y = last_cell_.get_y();
 
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 0.0f);
-    p = map_.get_position(cell_x - (pt_size_ / 2), cell_y - (pt_size_ / 2));
+    p = map_->get_position(cell_x - (pt_size_ / 2), cell_y - (pt_size_ / 2));
     p.set_x(p.get_x() - pulse_);
     p.set_y(p.get_y() + 2.0f);
     p.set_z(p.get_z() - pulse_);
     glVertex3fv(p.get_data());
 
     glTexCoord2f(0.0f, 1.0f);
-    p = map_.get_position(cell_x - (pt_size_ / 2), cell_y + (pt_size_ / 2));
+    p = map_->get_position(cell_x - (pt_size_ / 2), cell_y + (pt_size_ / 2));
     p.set_x(p.get_x() - pulse_);
     p.set_y(p.get_y() + 2.0f);
     p.set_z(p.get_z() + pulse_);
     glVertex3fv(p.get_data());
 
     glTexCoord2f(1.0f, 1.0f);
-    p = map_.get_position(cell_x + (pt_size_ / 2), cell_y + (pt_size_ / 2));
+    p = map_->get_position(cell_x + (pt_size_ / 2), cell_y + (pt_size_ / 2));
     p.set_x(p.get_x() + pulse_);
     p.set_y(p.get_y() + 2.0f);
     p.set_z(p.get_z() + pulse_);
     glVertex3fv(p.get_data());
 
     glTexCoord2f(1.0f, 0.0f);
-    p = map_.get_position(cell_x + (pt_size_ / 2), cell_y - (pt_size_ / 2));
+    p = map_->get_position(cell_x + (pt_size_ / 2), cell_y - (pt_size_ / 2));
     p.set_x(p.get_x() + pulse_);
     p.set_y(p.get_y() + 2.0f);
     p.set_z(p.get_z() - pulse_);
@@ -190,14 +199,14 @@ point mouse_pointer::draw_grid()
     block = 0;
     glDisable(GL_CULL_FACE);
 
-    for(y = 0; y < map_.get_size(); y += pt_size) {
-        for(x = 0; x < map_.get_size(); x += pt_size) {
-            block = x + (y * map_.get_size());
+    for(y = 0; y < map_->get_size(); y += pt_size) {
+        for(x = 0; x < map_->get_size(); x += pt_size) {
+            block = x + (y * map_->get_size());
             glLoadName(block);
-            v1 = map_.get_position(x, y);
-            v2 = map_.get_position(x, y + pt_size);
-            v3 = map_.get_position(x + pt_size, y + pt_size);
-            v4 = map_.get_position(x + pt_size, y);
+            v1 = map_->get_position(x, y);
+            v2 = map_->get_position(x, y + pt_size);
+            v3 = map_->get_position(x + pt_size, y + pt_size);
+            v4 = map_->get_position(x + pt_size, y);
 
             glBegin(GL_QUADS);
             glVertex3fv(v1.get_data());
@@ -214,8 +223,8 @@ point mouse_pointer::draw_grid()
 
     if(hits > 0) {
         block = buffer[3];
-        cell.set_x((block % map_.get_size()) + (pt_size / 2));
-        cell.set_y(((block - cell.get_x()) / map_.get_size()) + (pt_size / 2));
+        cell.set_x((block % map_->get_size()) + (pt_size / 2));
+        cell.set_y(((block - cell.get_x()) / map_->get_size()) + (pt_size / 2));
     }
 
     return cell;

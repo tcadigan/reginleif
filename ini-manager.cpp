@@ -19,10 +19,23 @@ ini_manager::ini_manager()
 ini_manager::ini_manager(string const &ini_filename)
     : ini_filename_(ini_filename)
 {
-    parse_contents();
 }
 
 ini_manager::~ini_manager()
+{
+}
+
+void ini_manager::init()
+{
+    parse_contents();
+}
+
+void ini_manager::update()
+{
+    // nothing
+}
+
+void ini_manager::term()
 {
     ofstream output;
     output.open(ini_filename_.c_str(), ofstream::out | ofstream::trunc);

@@ -11,30 +11,35 @@
 
 class terrain : public entity {
 public:
-    terrain(GLint size,
-            terrain_texture &terrain_texture,
-            terrain_map const &map,
-            camera const &camera,
-            ini_manager const &ini_mgr);
+    terrain(world const &world_object);
     ~terrain();
 
-    void update(void);
+    void init(terrain_texture &terrain_texture,
+              terrain_map const &map,
+              camera const &camera,
+              ini_manager const &ini_mgr);
 
-    void render(void);
-    void render_fade_in(void);
-    void fade_start(void);
+    void update();
+    void term();
+
+    void render();
+    void render_fade_in();
+    void fade_start();
     
 private:
-    terrain_texture &terrain_texture_;
-    terrain_map const &map_;
-    camera const &camera_;
-    ini_manager const &ini_mgr_;
 
+    world const &world_;
     GLshort stage_;
+    gl_vector3 viewpoint_;
+
+    terrain_texture *terrain_texture_;
+    terrain_map const *map_;
+    camera const *camera_;
+    ini_manager const *ini_mgr_;
+
     GLint map_size_;
     GLint map_half_;
     GLint zone_size_;
-    gl_vector3 viewpoint_;
     GLshort *boundary_;
     GLboolean *point_;
 

@@ -9,16 +9,17 @@
 #include "terrain-map.hpp"
 #include "texture.hpp"
 #include "ztexture.hpp"
+#include "world-fwd.hpp"
 
 class terrain_texture {
 public:
-    terrain_texture(texture &texture,
-                    terrain_map const &map,
-                    camera const &camera,
-                    ini_manager const &ini_mgr);
+    terrain_texture(world const &world_object);
     virtual ~terrain_texture();
 
-    void init();
+    void init(texture &texture_mgr,
+              terrain_map const &terrain_map_entity,
+              camera const &camera_object,
+              ini_manager const &ini_mgr);
     void update();
     void term();
 
@@ -28,10 +29,11 @@ private:
     void draw_layer(GLint origin_x, GLint origin_y, GLint size, GLint layer);
     void get_camera_zone();
 
-    texture &texture_;
-    terrain_map const &map_;
-    camera const &camera_;
-    ini_manager const &ini_mgr_;
+    world const &world_;
+
+    terrain_map const *map_;
+    camera const *camera_;
+    ini_manager const *ini_mgr_;
 
     GLushort *buffer_;
     ztexture **zone_texture_;
