@@ -20,11 +20,10 @@
 
 #include "world.hpp"
 
-mouse_pointer::mouse_pointer(world const &world_object,
-                             texture &texture_object)
+mouse_pointer::mouse_pointer(world const &world_object)
     : entity()
     , world_(world_object)
-    , texture_id_(texture_object.from_name("ring"))
+    , texture_id_(0)
 {
     entity_type_ = "pointer";
     last_cell_.set_y(-1);
@@ -35,10 +34,13 @@ mouse_pointer::~mouse_pointer()
 {
 }
 
-void mouse_pointer::init(terrain_map const &terrain_map_entity,
+void mouse_pointer::init(texture_manager &texture_mgr,
+                         terrain_map const &terrain_map_entity,
                          camera const &camera_object,
                          ini_manager const &ini_mgr)
 {
+    texture_id_ = texture_mgr.from_name("ring");
+
     map_ = &terrain_map_entity;
     camera_ = &camera_object;
     ini_mgr_ = &ini_mgr;

@@ -13,11 +13,11 @@
 
 world::world()
     : ini_mgr_(new ini_manager())
-    , texture_(new texture())
+    , texture_mgr_(new texture_manager())
     , camera_(new camera(*this))
     , sky_entity_(new sky(*this))
     , terrain_map_entity_(new terrain_map(*this))
-    , mouse_pointer_entity_(new mouse_pointer(*this, *texture_))
+    , mouse_pointer_entity_(new mouse_pointer(*this))
     , terrain_texture_(new terrain_texture(*this))
     , terrain_entity_(new terrain(*this))
     , sun_(new sun)
@@ -29,7 +29,7 @@ world::world()
 world::~world()
 {
     delete ini_mgr_;
-    delete texture_;
+    delete texture_mgr_;
     delete camera_;
     delete sky_entity_;
     delete terrain_map_entity_;
@@ -68,14 +68,17 @@ void world::init()
     //     terrain map
     //     camera
     //     ini_manager
-    mouse_pointer_entity_->init(*terrain_map_entity_, *camera_, *ini_mgr_);
+    mouse_pointer_entity_->init(*texture_mgr_,
+                                *terrain_map_entity_,
+                                *camera_,
+                                *ini_mgr_);
 
     // Terrain Texture needs:
     //     texture
     //     terrain map
     //     camera
     //     ini_manager
-    terrain_texture_->init(*texture_,
+    terrain_texture_->init(*texture_mgr_,
                            *terrain_map_entity_,
                            *camera_,
                            *ini_mgr_);

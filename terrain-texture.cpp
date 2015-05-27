@@ -34,7 +34,7 @@ terrain_texture::~terrain_texture()
 {
 }
 
-void terrain_texture::init(texture &texture_mgr,
+void terrain_texture::init(texture_manager &texture_mgr,
                            terrain_map const &terrain_map_entity,
                            camera const &camera_object,
                            ini_manager const &ini_mgr)

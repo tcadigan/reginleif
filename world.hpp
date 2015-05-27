@@ -14,7 +14,7 @@
 #include "terrain.hpp"
 #include "terrain-map-fwd.hpp"
 #include "terrain-texture.hpp"
-#include "texture.hpp"
+#include "texture-manager.hpp"
 
 class world {
 public:
@@ -31,7 +31,7 @@ public:
 
 private:
     ini_manager *ini_mgr_;
-    texture *texture_;
+    texture_manager *texture_mgr_;
     camera *camera_;
     sky *sky_entity_;
     terrain_map *terrain_map_entity_;

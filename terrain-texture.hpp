@@ -7,7 +7,7 @@
 #include "enums.hpp"
 #include "ini-manager.hpp"
 #include "terrain-map.hpp"
-#include "texture.hpp"
+#include "texture-manager.hpp"
 #include "ztexture.hpp"
 #include "world-fwd.hpp"
 
@@ -16,7 +16,7 @@ public:
     terrain_texture(world const &world_object);
     virtual ~terrain_texture();
 
-    void init(texture &texture_mgr,
+    void init(texture_manager &texture_mgr,
               terrain_map const &terrain_map_entity,
               camera const &camera_object,
               ini_manager const &ini_mgr);
