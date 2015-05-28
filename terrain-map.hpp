@@ -14,8 +14,6 @@
 #include "sun.hpp"
 #include "world-fwd.hpp"
 
-using namespace std;
-
 class terrain_map {
 public:
     terrain_map(world const &world_object);
@@ -55,8 +53,8 @@ private:
 
     cell **terrain_data_;
 
-    string map_image_;
-    string map_file_;
+    std::string map_image_;
+    std::string map_file_;
 
     // HDC dc;
     // HPEN pen;

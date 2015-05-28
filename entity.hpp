@@ -3,8 +3,6 @@
 
 #include <string>
 
-using namespace std;
-
 class entity {
 public:
     entity();
@@ -15,10 +13,10 @@ public:
     virtual void render_fade_in();
     virtual void fade_start();
     virtual void update();
-    virtual string type();
+    virtual std::string type();
 
 protected:
-    string entity_type_;
+    std::string entity_type_;
 
 private:
     entity *next_;
@@ -26,7 +24,7 @@ private:
 
 void entity_update();
 void entity_init();
-entity *entity_find_type(string const &type, entity *start);
+entity *entity_find_type(std::string const &type, entity *start);
 void entity_term();
 void entity_render();
 void entity_render_fade_in();

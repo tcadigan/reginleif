@@ -10,8 +10,6 @@
 #include "terrain-map-fwd.hpp"
 #include "world-fwd.hpp"
 
-using namespace std;
-
 class camera {
 public:
     camera(world const &world);

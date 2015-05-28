@@ -65,6 +65,7 @@ void world::init()
     sky_entity_->init(*camera_, *ini_mgr_);
 
     // Mouse Pointer needs:
+    //     texture
     //     terrain map
     //     camera
     //     ini_manager

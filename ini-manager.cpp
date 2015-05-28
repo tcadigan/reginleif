@@ -16,7 +16,7 @@ ini_manager::ini_manager()
     parse_contents();
 }
 
-ini_manager::ini_manager(string const &ini_filename)
+ini_manager::ini_manager(std::string const &ini_filename)
     : ini_filename_(ini_filename)
 {
 }
@@ -37,32 +37,34 @@ void ini_manager::update()
 
 void ini_manager::term()
 {
-    ofstream output;
-    output.open(ini_filename_.c_str(), ofstream::out | ofstream::trunc);
+    std::ofstream output;
+    output.open(ini_filename_.c_str(), 
+                std::ofstream::out | std::ofstream::trunc);
+
     if(!output.good()) {
         return;
     }
 
-    map<string, map<string, string> >::iterator itr;
-    map<string, string>::iterator itr2;
+    std::map<std::string, std::map<std::string, std::string> >::iterator itr;
+    std::map<std::string, std::string>::iterator itr2;
 
     for(itr = contents_.begin(); itr != contents_.end(); ++itr) {
-        output << "[" << itr->first << "]" << endl;
+        output << "[" << itr->first << "]" << std::endl;
 
         for(itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2) {
-            output << itr2->first << "=" << itr2->second << endl;
+            output << itr2->first << "=" << itr2->second << std::endl;
         }
     }
 
     output.close();
 }
 
-void ini_manager::set_int(string const &section,
-                          string const &entry,
+void ini_manager::set_int(std::string const &section,
+                          std::string const &entry,
                           GLint value)
 {
-    string value_str;
-    stringstream input;
+    std::string value_str;
+    std::stringstream input;
 
     input << value;
     input >> value_str;
@@ -70,12 +72,12 @@ void ini_manager::set_int(string const &section,
     set_string(section, entry, value_str);
 }
 
-void ini_manager::set_float(string const &section,
-                            string const &entry,
+void ini_manager::set_float(std::string const &section,
+                            std::string const &entry,
                             GLfloat value)
 {
-    string value_str;
-    stringstream input;
+    std::string value_str;
+    std::stringstream input;
 
     input << value;
     input >> value_str;
@@ -83,16 +85,16 @@ void ini_manager::set_float(string const &section,
     set_string(section, entry, value_str);
 }
 
-void ini_manager::set_string(string const &section,
-                             string const &entry, 
-                             string const &value)
+void ini_manager::set_string(std::string const &section,
+                             std::string const &entry, 
+                             std::string const &value)
 {
-    string section_str(section);
+    std::string section_str(section);
     for(GLuint i = 0; i < section_str.size(); ++i) {
         section_str[i] = tolower(section_str[i]);
     }
 
-    map<string, map<string, string> >::iterator itr = 
+    std::map<std::string, std::map<std::string, std::string> >::iterator itr = 
         contents_.find(section_str);
 
     if(itr != contents_.end()) {
@@ -100,12 +102,12 @@ void ini_manager::set_string(string const &section,
             contents_.erase(itr);
         }
         else {
-            string entry_str(entry);
+            std::string entry_str(entry);
             for(GLuint i = 0; i < entry_str.size(); ++i) {
                 entry_str[i] = tolower(entry_str[i]);
             }
 
-            map<string, string>::iterator inner_itr = 
+            std::map<std::string, std::string>::iterator inner_itr = 
                 itr->second.find(entry_str);
             
             if(inner_itr != itr->second.end()) {
@@ -120,7 +122,7 @@ void ini_manager::set_string(string const &section,
     }
     else {
         if(!entry.empty() && !value.empty()) {
-            string entry_str(entry);
+            std::string entry_str(entry);
             for(GLuint i = 0; i < entry_str.size(); ++i) {
                 entry_str[i] = tolower(entry_str[i]);
             }
@@ -130,11 +132,11 @@ void ini_manager::set_string(string const &section,
     }
 }
 
-void ini_manager::set_vector(string const &section,
-                             string const &entry,
+void ini_manager::set_vector(std::string const &section,
+                             std::string const &entry,
                              gl_vector3 const &value)
 {
-    stringstream input;
+    std::stringstream input;
 
     input << value.get_x() << " "
           << value.get_y() << " "
@@ -143,10 +145,11 @@ void ini_manager::set_vector(string const &section,
     set_string(section, entry, input.str());
 }
 
-GLint ini_manager::get_int(string const &section, string const &entry) const
+GLint ini_manager::get_int(std::string const &section,
+                           std::string const &entry) const
 {
     GLint result;
-    stringstream output;
+    std::stringstream output;
 
     output << inner_get_string(section, entry, "-1");
 
@@ -155,10 +158,11 @@ GLint ini_manager::get_int(string const &section, string const &entry) const
     return result;
 }
 
-GLfloat ini_manager::get_float(string const &section, string const &entry) const
+GLfloat ini_manager::get_float(std::string const &section, 
+                               std::string const &entry) const
 {
     GLfloat result;
-    stringstream output;
+    std::stringstream output;
 
     output << inner_get_string(section, entry, "0");
     output >> result;
@@ -166,10 +170,11 @@ GLfloat ini_manager::get_float(string const &section, string const &entry) const
     return result;
 }
 
-string ini_manager::get_string(string const &section, string const &entry) const
+std::string ini_manager::get_string(std::string const &section,
+                                    std::string const &entry) const
 {
-    string result;
-    stringstream output;
+    std::string result;
+    std::stringstream output;
 
     output << inner_get_string(section, entry, "");
     output >> result;
@@ -177,11 +182,12 @@ string ini_manager::get_string(string const &section, string const &entry) const
     return result;
 }
 
-gl_vector3 ini_manager::get_vector(string const &section, string const &entry) const
+gl_vector3 ini_manager::get_vector(std::string const &section,
+                                   std::string const &entry) const
 {
     gl_vector3 result(0, 0, 0);
 
-    stringstream output;
+    std::stringstream output;
 
     output << inner_get_string(section, entry, "0 0 0");
     
@@ -200,18 +206,18 @@ gl_vector3 ini_manager::get_vector(string const &section, string const &entry) c
     return result;
 }
 
-string ini_manager::inner_get_string(string const &section,
-                                     string const &entry, 
-                                     string const &default_value) const
+std::string ini_manager::inner_get_string(std::string const &section,
+                                          std::string const &entry, 
+                                          std::string const &default_value) const
 {
-    stringstream output;
+    std::stringstream output;
 
-    string section_str(section);
+    std::string section_str(section);
     for(GLuint i = 0; i < section_str.size(); ++i) {
         section_str[i] = tolower(section_str[i]);
     }
 
-    map<string, map<string, string> >::const_iterator itr;
+    std::map<std::string, std::map<std::string, std::string> >::const_iterator itr;
 
     if(section_str.empty()) {
         for(itr = contents_.begin(); itr != contents_.end(); ++itr) {
@@ -222,8 +228,8 @@ string ini_manager::inner_get_string(string const &section,
         itr = contents_.find(section_str);
 
         if(itr != contents_.end()) {
-            map<string, string>::const_iterator itr2;
-            map<string, string> const &inner_map = itr->second;
+            std::map<std::string, std::string>::const_iterator itr2;
+            std::map<std::string, std::string> const &inner_map = itr->second;
 
             if(entry.empty()) {
                 for(itr2 = inner_map.begin(); itr2 != inner_map.end(); ++itr2) {
@@ -231,7 +237,7 @@ string ini_manager::inner_get_string(string const &section,
                 }
             }
             else{
-                string entry_str(entry);
+                std::string entry_str(entry);
                 for(GLuint i = 0; i < entry_str.size(); ++i) {
                     entry_str[i] = tolower(entry_str[i]);
                 }
@@ -256,15 +262,15 @@ string ini_manager::inner_get_string(string const &section,
 
 void ini_manager::parse_contents()
 {
-    ifstream input;
+    std::ifstream input;
     input.open(ini_filename_.c_str());
     if(!input.good()) {
         return;
     }
 
-    string line;
+    std::string line;
 
-    string current_section;
+    std::string current_section;
     while(getline(input, line)) {
         if(!line.empty()) {
             if((*line.begin() == '[') && (*line.rbegin() == ']')) {
@@ -276,13 +282,13 @@ void ini_manager::parse_contents()
             }
             else if(!current_section.empty()
                     && (line.at(0) != ';')
-                    && (line.find_first_of('=') != string::npos)) {
-                string key = line.substr(0, line.find_first_of('='));
+                    && (line.find_first_of('=') != std::string::npos)) {
+                std::string key = line.substr(0, line.find_first_of('='));
                 for(GLuint i = 0; i < key.size(); ++i) {
                     key[i] = tolower(key[i]);
                 }
 
-                string value = line.substr(line.find_first_of('=') + 1);
+                std::string value = line.substr(line.find_first_of('=') + 1);
 
                 contents_[current_section][key] = value;
             }

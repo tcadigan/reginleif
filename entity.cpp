@@ -26,7 +26,7 @@ void entity_init()
 {
 }
 
-entity *entity_find_type(string const &type, entity *start)
+entity *entity_find_type(std::string const &type, entity *start)
 {
     entity *e;
 
@@ -114,7 +114,7 @@ void entity::fade_start()
 {
 }
 
-string entity::type()
+std::string entity::type()
 {
     return entity_type_;
 }
