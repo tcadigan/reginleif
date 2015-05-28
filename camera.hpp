@@ -3,6 +3,8 @@
 
 #include "camera-fwd.hpp"
 
+#include "entity.hpp"
+
 #include <SDL_opengl.h>
 
 #include "gl-vector3.hpp"
@@ -10,14 +12,14 @@
 #include "terrain-map-fwd.hpp"
 #include "world-fwd.hpp"
 
-class camera {
+class camera : public entity {
 public:
     camera(world const &world);
     virtual ~camera();
 
     void init(terrain_map const &terrain_map,
               ini_manager const &ini_mgr);
-    void update();
+
     void term();
 
     void yaw(GLfloat delta);
@@ -33,6 +35,9 @@ public:
 
     void set_position(gl_vector3 new_pos);
     void set_angle(gl_vector3 new_angle);
+
+    virtual void update();
+    virtual void render();
 
 private:
     gl_vector3 angle_;

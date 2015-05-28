@@ -54,17 +54,17 @@ void terrain_texture::init(texture_manager &texture_mgr,
     uv_scale_ = ini_mgr_->get_int("Map Texture", "uv_scale");
     zone_grid_ = ini_mgr_->get_int("Map Settings", "zone_grid");
 
-    zone_texture_ = new ztexture*[terrainspace::GRID_COUNT];
-    zone_texture_[0] = new ztexture[terrainspace::GRID_COUNT * (zone_grid_ * zone_grid_)];
+    zone_texture_ = new ztexture*[terrain::enums::GRID_COUNT];
+    zone_texture_[0] = new ztexture[terrain::enums::GRID_COUNT * (zone_grid_ * zone_grid_)];
 
-    for(GLint i = 1; i < terrainspace::GRID_COUNT; ++i) {
+    for(GLint i = 1; i < terrain::enums::GRID_COUNT; ++i) {
         zone_texture_[i] = zone_texture_[i - 1] + (zone_grid_ * zone_grid_);
     }
 
     GLint grid;
     GLuint zone;
 
-    for(grid = terrainspace::GRID_FRONT; grid < terrainspace::GRID_COUNT; ++grid) {
+    for(grid = terrain::enums::GRID_FRONT; grid < terrain::enums::GRID_COUNT; ++grid) {
         for(zone = 0; zone < (zone_grid_ * zone_grid_); ++zone) {
             zone_texture_[grid][zone].set_size(0);
             zone_texture_[grid][zone].set_ready(false);
@@ -74,11 +74,11 @@ void terrain_texture::init(texture_manager &texture_mgr,
 
     buffer_ = new GLushort[(max_resolution_ * max_resolution_) * 4];
     zone_size_ = map_->get_size() / zone_grid_;
-    layer_texture_[terrainspace::LAYER_GRASS] = texture_mgr.from_name("grassa512");
-    layer_texture_[terrainspace::LAYER_LOWGRASS] = texture_mgr.from_name("grassb512");
-    layer_texture_[terrainspace::LAYER_SAND] = texture_mgr.from_name("sand512");
-    layer_texture_[terrainspace::LAYER_ROCK] = texture_mgr.from_name("rock512");
-    layer_texture_[terrainspace::LAYER_DIRT] = texture_mgr.from_name("dirt512");
+    layer_texture_[terrain::enums::LAYER_GRASS] = texture_mgr.from_name("grassa512");
+    layer_texture_[terrain::enums::LAYER_LOWGRASS] = texture_mgr.from_name("grassb512");
+    layer_texture_[terrain::enums::LAYER_SAND] = texture_mgr.from_name("sand512");
+    layer_texture_[terrain::enums::LAYER_ROCK] = texture_mgr.from_name("rock512");
+    layer_texture_[terrain::enums::LAYER_DIRT] = texture_mgr.from_name("dirt512");
 
     if(show_resolution_ != 0) {
         res_texture_[8] = texture_mgr.from_name("n8");
@@ -92,6 +92,41 @@ void terrain_texture::init(texture_manager &texture_mgr,
 
     get_camera_zone();
 }
+
+void terrain_texture::term(void)
+{
+    delete[] res_texture_;
+    delete[] buffer_;
+}
+
+
+// Get the current texture for the requested zone
+GLuint terrain_texture::get_texture(GLuint zone)
+{
+    GLint grid;
+
+    if(current_grid_ == terrain::enums::GRID_FRONT) {
+        grid = terrain::enums::GRID_BACK;
+    }
+    else {
+        grid = terrain::enums::GRID_FRONT;
+    }
+
+    // If the very last texture is requested, then we know the terrain is about
+    // to change over to a new set, and we can increment our ref count.
+    // Once this reaches 2, we know both terrains (the one being built and the
+    // one in use) are using our latest texture set, and it is safe to work on
+    // the old set.
+    if(zone == ((zone_grid_ * zone_grid_) - 1)) {
+        ++ref_count_;
+    }
+    if(!zone_texture_[grid][zone].get_ready()) {
+        return 0;
+    }
+
+    return zone_texture_[grid][zone].get_texture();
+}
+
 
 void terrain_texture::update()
 {
@@ -211,17 +246,17 @@ void terrain_texture::update()
         glVertex2i(z->get_size(), z->get_size());
         glEnd();
 
-        while((current_layer_ != terrainspace::LAYER_COUNT) && (SDL_GetTicks() < end)) {
+        while((current_layer_ != terrain::enums::LAYER_COUNT) && (SDL_GetTicks() < end)) {
             draw_layer(origin_x, origin_y, z->get_size(), current_layer_);
             ++current_layer_;
         }
 
-        if((show_resolution_ != 0) && (current_layer_ == terrainspace::LAYER_COUNT)) {
-            draw_layer(origin_x, origin_y, z->get_size(), terrainspace::LAYER_SPECIAL);
+        if((show_resolution_ != 0) && (current_layer_ == terrain::enums::LAYER_COUNT)) {
+            draw_layer(origin_x, origin_y, z->get_size(), terrain::enums::LAYER_SPECIAL);
         }
         
-        if(current_layer_ == terrainspace::LAYER_COUNT) {
-            draw_layer(origin_x, origin_y, z->get_size(), terrainspace::LAYER_LIGHTING);
+        if(current_layer_ == terrain::enums::LAYER_COUNT) {
+            draw_layer(origin_x, origin_y, z->get_size(), terrain::enums::LAYER_LIGHTING);
         }
 
         // Save the result in our block texture
@@ -252,7 +287,7 @@ void terrain_texture::update()
         glPopMatrix();
         glMatrixMode(GL_MODELVIEW);
 
-        if(current_layer_ == terrainspace::LAYER_COUNT) {
+        if(current_layer_ == terrain::enums::LAYER_COUNT) {
             // Did we just finish this texture?
             pixel_count_ += (z->get_size() * z->get_size());
             current_layer_ = 0;
@@ -270,11 +305,11 @@ void terrain_texture::update()
                 pixel_count_ = 0;
                 build_time_ = 0;
                 
-                if(current_grid_ == terrainspace::GRID_FRONT) {
-                    current_grid_ = terrainspace::GRID_BACK;
+                if(current_grid_ == terrain::enums::GRID_FRONT) {
+                    current_grid_ = terrain::enums::GRID_BACK;
                 }
                 else {
-                    current_grid_ = terrainspace::GRID_FRONT;
+                    current_grid_ = terrain::enums::GRID_FRONT;
                 }
 
                 current_zone_ = 0;
@@ -287,38 +322,9 @@ void terrain_texture::update()
     build_time_ += (SDL_GetTicks() - now);
 }
 
-void terrain_texture::term(void)
+void terrain_texture::render()
 {
-    delete[] res_texture_;
-    delete[] buffer_;
-}
-
-
-// Get the current texture for the requested zone
-GLuint terrain_texture::get_texture(GLuint zone)
-{
-    GLint grid;
-
-    if(current_grid_ == terrainspace::GRID_FRONT) {
-        grid = terrainspace::GRID_BACK;
-    }
-    else {
-        grid = terrainspace::GRID_FRONT;
-    }
-
-    // If the very last texture is requested, then we know the terrain is about
-    // to change over to a new set, and we can increment our ref count.
-    // Once this reaches 2, we know both terrains (the one being built and the
-    // one in use) are using our latest texture set, and it is safe to work on
-    // the old set.
-    if(zone == ((zone_grid_ * zone_grid_) - 1)) {
-        ++ref_count_;
-    }
-    if(!zone_texture_[grid][zone].get_ready()) {
-        return 0;
-    }
-
-    return zone_texture_[grid][zone].get_texture();
+    // no-op
 }
 
 void terrain_texture::draw_layer(GLint origin_x, 
@@ -348,7 +354,7 @@ void terrain_texture::draw_layer(GLint origin_x,
         step = (int)(1.0f / cell_size);
     }
 
-    if(layer == terrainspace::LAYER_GRASS) {
+    if(layer == terrain::enums::LAYER_GRASS) {
         glColor3f(1, 1, 1);
         glBegin(GL_QUAD_STRIP);
         glTexCoord2f(0.0f, 0.0f);
@@ -364,7 +370,7 @@ void terrain_texture::draw_layer(GLint origin_x,
         return;
     }
 
-    if(layer == terrainspace::LAYER_LIGHTING) {
+    if(layer == terrain::enums::LAYER_LIGHTING) {
         glBindTexture(GL_TEXTURE_2D, 0);
         glBlendFunc(GL_DST_COLOR, GL_ZERO);
 
@@ -393,11 +399,11 @@ void terrain_texture::draw_layer(GLint origin_x,
         return;
     }
 
-    if(layer == terrainspace::LAYER_SPECIAL) {
+    if(layer == terrain::enums::LAYER_SPECIAL) {
         glBindTexture(GL_TEXTURE_2D, res_texture_[size]);
         glBlendFunc(GL_SRC_COLOR, GL_ONE);
 
-        if(current_grid_ != terrainspace::GRID_FRONT) {
+        if(current_grid_ != terrain::enums::GRID_FRONT) {
             glColor4f(0.6f, 0.0f, 0.6f, 0.3f);
         }
         else {

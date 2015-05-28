@@ -23,7 +23,7 @@ void texture_manager::init()
 
 void texture_manager::term(void)
 {
-    std::list<texture_item *>::iterator itr;
+    std::vector<texture_item *>::iterator itr;
 
     for(itr = textures_.begin(); itr != textures_.end(); ++itr) {
         delete *itr;
@@ -33,19 +33,17 @@ void texture_manager::term(void)
 GLuint texture_manager::from_name(std::string const &basename)
 {
     GLuint result = 0;
-    bool found = false;
-    std::list<texture_item *>::iterator itr;
+    std::vector<texture_item *>::iterator itr;
 
     for(itr = textures_.begin(); itr != textures_.end(); ++itr) {
         if((*itr)->get_name() == basename) {
             result = (*itr)->get_id();
 
-            found = true;
             break;
         }
     }
 
-    if(!found) {
+    if(itr == textures_.end()) {
         texture_item *t = load(basename);
 
         if(t != NULL) {
@@ -126,9 +124,9 @@ texture_item *texture_manager::load(std::string const &basename)
     // Free the surface
     SDL_FreeSurface(image);
 
-    textures_.push_front(t);
+    textures_.push_back(t);
 
-    return textures_.front();
+    return textures_.back();
 }
 
 SDL_Surface *texture_manager::load_bmp(std::string const &filename)

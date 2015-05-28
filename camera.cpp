@@ -36,65 +36,6 @@ void camera::init(terrain_map const &terrain_map,
     max_pitch_ = ini_mgr_->get_int("Camera Settings", "max_pitch");
 }
 
-void camera::update()
-{
-    GLfloat limit;
-    GLfloat elevation;
-
-    if(moving_) {
-        movement_ *= 1.1f;
-    }
-    else {
-        movement_ = 0.0f;
-    }
-
-    if(movement_ < 0.01f) {
-        movement_ = 0.01f;
-    }
-    else if(movement_ > 1.0f) {
-        movement_ = 1.0f;
-    }
-
-    limit = (GLfloat)terrain_map_->get_size() * 1.5f;
-
-    if(position_.get_x() < -limit) {
-        position_.set_x(-limit);
-    }
-    else if(position_.get_x() > limit) {
-        position_.set_x(limit);
-    }
-
-    if(position_.get_y() < -512.0f) {
-        position_.set_y(-512.0f);
-    }
-    else if(position_.get_y() > 512.0f) {
-        position_.set_y(512.0f);
-    }
-
-    if(position_.get_z() < -limit) {
-        position_.set_z(-limit);
-    }
-    else if(position_.get_z() > limit) {
-        position_.set_z(limit);
-    }
-
-    elevation = 
-        terrain_map_->get_elevation(position_.get_x(), position_.get_z()) + eye_height_;
-
-    if(elevation > position_.get_y()) {
-        position_.set_y(elevation);
-    }
-
-    if(angle_.get_x() < -max_pitch_) {
-        angle_.set_x(-max_pitch_);
-    }
-    else if(angle_.get_x() > max_pitch_) {
-        angle_.set_x(max_pitch_);
-    }
-
-    moving_ = false;
-}
-
 void camera::term(void)
 {
     ini_manager ini_mgr;
@@ -312,4 +253,68 @@ void camera::set_angle(gl_vector3 new_angle)
     else if(angle_.get_x() > 80.0f) {
         angle_.set_x(80.0f);
     }
+}
+
+void camera::update()
+{
+    GLfloat limit;
+    GLfloat elevation;
+
+    if(moving_) {
+        movement_ *= 1.1f;
+    }
+    else {
+        movement_ = 0.0f;
+    }
+
+    if(movement_ < 0.01f) {
+        movement_ = 0.01f;
+    }
+    else if(movement_ > 1.0f) {
+        movement_ = 1.0f;
+    }
+
+    limit = (GLfloat)terrain_map_->get_size() * 1.5f;
+
+    if(position_.get_x() < -limit) {
+        position_.set_x(-limit);
+    }
+    else if(position_.get_x() > limit) {
+        position_.set_x(limit);
+    }
+
+    if(position_.get_y() < -512.0f) {
+        position_.set_y(-512.0f);
+    }
+    else if(position_.get_y() > 512.0f) {
+        position_.set_y(512.0f);
+    }
+
+    if(position_.get_z() < -limit) {
+        position_.set_z(-limit);
+    }
+    else if(position_.get_z() > limit) {
+        position_.set_z(limit);
+    }
+
+    elevation = 
+        terrain_map_->get_elevation(position_.get_x(), position_.get_z()) + eye_height_;
+
+    if(elevation > position_.get_y()) {
+        position_.set_y(elevation);
+    }
+
+    if(angle_.get_x() < -max_pitch_) {
+        angle_.set_x(-max_pitch_);
+    }
+    else if(angle_.get_x() > max_pitch_) {
+        angle_.set_x(max_pitch_);
+    }
+
+    moving_ = false;
+}
+
+void camera::render()
+{
+    // no-op
 }

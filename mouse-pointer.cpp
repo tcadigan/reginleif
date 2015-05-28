@@ -25,7 +25,7 @@ mouse_pointer::mouse_pointer(world const &world_object)
     , world_(world_object)
     , texture_id_(0)
 {
-    entity_type_ = "pointer";
+    set_type("pointer");
     last_cell_.set_y(-1);
     last_cell_.set_x(-1);
 }

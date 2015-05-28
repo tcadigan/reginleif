@@ -8,18 +8,19 @@ public:
     entity();
     virtual ~entity();
 
-    entity *next();
-    virtual void render();
+    std::string get_type() const;
+    void  set_type(std::string const &type);
+
+    virtual void update() = 0;
+
+    virtual void render() = 0;
+
+    // Unused
     virtual void render_fade_in();
     virtual void fade_start();
-    virtual void update();
-    virtual std::string type();
-
-protected:
-    std::string entity_type_;
 
 private:
-    entity *next_;
+    std::string entity_type_;
 };
 
 void entity_update();

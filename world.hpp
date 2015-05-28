@@ -11,23 +11,25 @@
 #include "mouse-pointer.hpp"
 #include "sky.hpp"
 #include "sun.hpp"
-#include "terrain.hpp"
+#include "terrain-entity.hpp"
 #include "terrain-map-fwd.hpp"
 #include "terrain-texture.hpp"
 #include "texture-manager.hpp"
 
-class world {
+class world : public entity {
 public:
     world();
     virtual ~world();
 
     void init();
-    void update();
     void term();
     
     GLfloat get_fade() const;
     gl_rgba get_fog_color() const;
     gl_rgba get_ambient_color() const;
+
+    virtual void update();
+    virtual void render();
 
 private:
     ini_manager *ini_mgr_;
@@ -37,7 +39,7 @@ private:
     terrain_map *terrain_map_entity_;
     mouse_pointer *mouse_pointer_entity_;
     terrain_texture *terrain_texture_;
-    terrain *terrain_entity_;
+    terrain_entity *terrain_entity_;
     sun *sun_;
     
     gl_rgba ambient_color_;

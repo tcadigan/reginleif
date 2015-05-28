@@ -13,7 +13,6 @@ public:
     virtual ~ini_manager();
 
     void init();
-    void update();
     void term();
 
     void set_int(std::string const &section,

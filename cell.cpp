@@ -11,7 +11,7 @@ cell::cell()
     : shadow_(false)
     , distance_(0.0f)
 {
-    memset(layer_, 0, sizeof(GLushort) * (terrainspace::LAYER_COUNT - 1));
+    memset(layer_, 0, sizeof(GLushort) * (terrain::enums::LAYER_COUNT - 1));
 }
 
 cell::~cell()

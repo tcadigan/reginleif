@@ -11,7 +11,7 @@
 #include "ztexture.hpp"
 #include "world-fwd.hpp"
 
-class terrain_texture {
+class terrain_texture : public entity {
 public:
     terrain_texture(world const &world_object);
     virtual ~terrain_texture();
@@ -20,10 +20,12 @@ public:
               terrain_map const &terrain_map_entity,
               camera const &camera_object,
               ini_manager const &ini_mgr);
-    void update();
     void term();
 
     GLuint get_texture(GLuint zone);
+
+    virtual void update();
+    virtual void render();
 
 private:
     void draw_layer(GLint origin_x, GLint origin_y, GLint size, GLint layer);
@@ -37,7 +39,7 @@ private:
 
     GLushort *buffer_;
     ztexture **zone_texture_;
-    GLuint layer_texture_[terrainspace::LAYER_COUNT];
+    GLuint layer_texture_[terrain::enums::LAYER_COUNT];
     GLuint *res_texture_;
     GLuint current_grid_;
     GLuint current_zone_;

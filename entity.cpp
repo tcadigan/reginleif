@@ -11,15 +11,13 @@
 #include <cstdlib>
 #include <cstring>
 
-static entity *head;
-
 void entity_update()
 {
-    entity *e;
+    // entity *e;
     
-    for(e = head; e != NULL; e = e->next()) {
-        e->update();
-    }
+    // for(e = head; e != NULL; e = e->next()) {
+    //     e->update();
+    // }
 }
 
 void entity_init()
@@ -28,72 +26,67 @@ void entity_init()
 
 entity *entity_find_type(std::string const &type, entity *start)
 {
-    entity *e;
+    // entity *e;
 
-    if(start != NULL) {
-        start = head;
-    }
+    // if(start != NULL) {
+    //     start = head;
+    // }
 
-    for(e = start; e != NULL; e = e->next()) {
-        if(type == e->type()) {
-            return e;
-        }
-    }
+    // for(e = start; e != NULL; e = e->next()) {
+    //     if(type == e->type()) {
+    //         return e;
+    //     }
+    // }
 
     return NULL;
 }
 
 void entity_term()
 {
-    entity *e;
-    entity *next;
+    // entity *e;
+    // entity *next;
 
-    e = head;
+    // e = head;
     
-    while(e != NULL) {
-        next = e->next();
-        delete e;
-        e = next;
-    }
+    // while(e != NULL) {
+    //     next = e->next();
+    //     delete e;
+    //     e = next;
+    // }
 }
 
 void entity_render()
 {
-    entity *e;
+    // entity *e;
     
-    for(e = head; e != NULL; e = e->next()) {
-        e->render();
-    }
+    // for(e = head; e != NULL; e = e->next()) {
+    //     e->render();
+    // }
 }
 
 void entity_render_fade_in()
 {
-    entity *e;
+    // entity *e;
 
-    for(e = head; e != NULL; e = e->next()) {
-        e->render_fade_in();
-    }
+    // for(e = head; e != NULL; e = e->next()) {
+    //     e->render_fade_in();
+    // }
 }
 
 void entity_fade_start()
 {
-    entity *e;
+    // entity *e;
 
-    for(e = head; e != NULL; e = e->next()) {
-        e->render_fade_in();
-    }
+    // for(e = head; e != NULL; e = e->next()) {
+    //     e->render_fade_in();
+    // }
 }
 
 entity::entity()
     : entity_type_("none")
-    , next_(head)
+    // , next_(head)
 {
-    head = this;
-}
-
-entity *entity::next()
-{
-    return next_;
+    // head = this;
 }
 
 void entity::render()
@@ -114,9 +107,14 @@ void entity::fade_start()
 {
 }
 
-std::string entity::type()
+std::string entity::get_type() const
 {
     return entity_type_;
+}
+
+void entity::set_type(std::string const &type) 
+{
+    entity_type_ = type;
 }
 
 entity::~entity()

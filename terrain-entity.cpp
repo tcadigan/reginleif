@@ -1,12 +1,12 @@
 /*
- * terrain.cpp
+ * terrain-entity.cpp
  * 2006 Shamus Young
  *
  * Member functions for the base terrain class.
  * Here is where the magic happens. This generates the terrain and renders it.
  */
 
-#include "terrain.hpp"
+#include "terrain-entity.hpp"
 
 #include <SDL.h>
 #include <SDL_opengl.h>
@@ -14,23 +14,23 @@
 #include "console.hpp"
 #include "terrain-texture.hpp"
 
-terrain::terrain(world const &world_object)
+terrain_entity::terrain_entity(world const &world_object)
     : entity()
     , world_(world_object)
-    , stage_(terrainspace::STAGE_IDLE)
+    , stage_(terrain::enums::STAGE_IDLE)
     , viewpoint_(gl_vector3(0.0f, 0.0f, 0.0f))
 {
-    entity_type_ = "terrain";
+    set_type("terrain");
 }
 
-terrain::~terrain()
+terrain_entity::~terrain_entity()
 {
     delete[] point_;
     delete[] boundary_;
     delete[] zone_uv_;
 }
 
-void terrain::init(terrain_texture &terrain_texture_object,
+void terrain_entity::init(terrain_texture &terrain_texture_object,
                    terrain_map const &terrain_map_entity,
                    camera const &camera_object,
                    ini_manager const &ini_mgr)
@@ -96,7 +96,7 @@ void terrain::init(terrain_texture &terrain_texture_object,
  * This is called every frame. This is where the terrain mesh is evaluated,
  * cut into triangles, and compiled for rendering.
  */
-void terrain::update()
+void terrain_entity::update()
 {
     GLuint end;
     GLuint now;
@@ -110,7 +110,7 @@ void terrain::update()
 
     while(SDL_GetTicks() < end) {
         switch(stage_) {
-        case terrainspace::STAGE_IDLE:
+        case terrain::enums::STAGE_IDLE:
             if(fade_) {
                 return;
             }
@@ -121,7 +121,7 @@ void terrain::update()
             ++stage_;
 
             break;
-        case terrainspace::STAGE_CLEAR:
+        case terrain::enums::STAGE_CLEAR:
             memset(point_, 0, map_size_ * map_size_);
             ++stage_;
             zone_ = 0;
@@ -143,7 +143,7 @@ void terrain::update()
             }
 
             break;
-        case terrainspace::STAGE_QUADTREE:
+        case terrain::enums::STAGE_QUADTREE:
             if(point_[x_ + (y_ * map_size_)]) {
                 grid_step();
                 
@@ -164,21 +164,21 @@ void terrain::update()
             grid_step();
 
             break;
-        case terrainspace::STAGE_COMPILE:
+        case terrain::enums::STAGE_COMPILE:
             compile();
 
             break;
-        case terrainspace::STAGE_WAIT_FOR_FADE:
+        case terrain::enums::STAGE_WAIT_FOR_FADE:
             
             return;
-        case terrainspace::STAGE_DONE:
+        case terrain::enums::STAGE_DONE:
             console("Build %d polygons, %d vertices in %dms (%d)",
                     triangles_,
                     vertices_,
                     build_time_,
                     compile_time_);
 
-            stage_ = terrainspace::STAGE_IDLE;
+            stage_ = terrain::enums::STAGE_IDLE;
 
             return;
         default:
@@ -192,14 +192,14 @@ void terrain::update()
     build_time_ += (SDL_GetTicks() - now);
 }
 
-void terrain::term()
+void terrain_entity::term()
 {
 }
 
 /*
  * Cause the terrain to be rendered
  */
-void terrain::render()
+void terrain_entity::render()
 {
     GLuint list;
     GLint i;
@@ -222,7 +222,7 @@ void terrain::render()
  * disabled it, but the code is still here. You can re-enable the system
  * in Render.cpp
  */
-void terrain::render_fade_in()
+void terrain_entity::render_fade_in()
 {
     GLuint list;
     GLint i;
@@ -248,9 +248,9 @@ void terrain::render_fade_in()
 }
 
 // Again, this is part of the disable fade in/fade out system
-void terrain::fade_start()
+void terrain_entity::fade_start()
 {
-    if((stage_ == terrainspace::STAGE_WAIT_FOR_FADE) && !fade_) {
+    if((stage_ == terrain::enums::STAGE_WAIT_FOR_FADE) && !fade_) {
         fade_ = true;
         ++stage_;
         
@@ -270,7 +270,7 @@ void terrain::fade_start()
  * (If we did them all at once it woulc cause a massive pause) Once they
  * are all complete, we start rendering the new grid of lists.
  */
-void terrain::compile()
+void terrain_entity::compile()
 {
     GLuint compile_start;
     GLuint list;
@@ -377,7 +377,7 @@ void terrain::compile()
  * the block is cut into a combination of smaller triangles (figure c)
  * and then sub-blocks (figure d).
  */
-void terrain::compile_block(GLint x, GLint y, GLint size)
+void terrain_entity::compile_block(GLint x, GLint y, GLint size)
 {
     GLint x2;
     GLint y2;
@@ -631,7 +631,7 @@ void terrain::compile_block(GLint x, GLint y, GLint size)
 }
 
 // Used during compile: Add a triangle to the render list
-void terrain::compile_triangle(GLint x1, GLint y1, GLint x2, GLint y2, GLint x3, GLint y3)
+void terrain_entity::compile_triangle(GLint x1, GLint y1, GLint x2, GLint y2, GLint x3, GLint y3)
 {
     compile_vertex(x3, y3);
     compile_vertex(x2, y2);
@@ -640,7 +640,7 @@ void terrain::compile_triangle(GLint x1, GLint y1, GLint x2, GLint y2, GLint x3,
 }
 
 // Used during compile: Add a vertex
-void terrain::compile_vertex(GLint x, GLint y)
+void terrain_entity::compile_vertex(GLint x, GLint y)
 {
     glTexCoord2fv(zone_uv_[(x - zone_origin_x_) + ((y - zone_origin_y_) * (zone_size_ + 1))].get_data());
     gl_vector3 p = map_->get_position(x, y);
@@ -649,7 +649,7 @@ void terrain::compile_vertex(GLint x, GLint y)
 }
 
 // Used during compile: Add triangle strip to the render list
-void terrain::compile_strip(GLint x1,
+void terrain_entity::compile_strip(GLint x1,
                             GLint y1,
                             GLint x2,
                             GLint y2,
@@ -670,7 +670,7 @@ void terrain::compile_strip(GLint x1,
 }
 
 // Used during compile: Add a triangle fan to the render list
-void terrain::compile_fan(GLint x1,
+void terrain_entity::compile_fan(GLint x1,
                           GLint y1,
                           GLint x2,
                           GLint y2,
@@ -694,7 +694,7 @@ void terrain::compile_fan(GLint x1,
 }
 
 // Used during compile: Add a triangle fan to the render list
-void terrain::compile_fan(GLint x1,
+void terrain_entity::compile_fan(GLint x1,
                           GLint y1,
                           GLint x2, 
                           GLint y2,
@@ -726,7 +726,7 @@ void terrain::compile_fan(GLint x1,
  * cause X and Y to traverse the entire mesh, and then advance to the
  * next stage of building.
  */
-void terrain::grid_step()
+void terrain_entity::grid_step()
 {
     ++x_;
     
@@ -760,7 +760,7 @@ void terrain::grid_step()
  * compared to the elvation of the center. Teh greater the difference between
  * these two values, the more non-coplaner this quad is
  */
-void terrain::do_quad(GLint x1, GLint y1, GLint size)
+void terrain_entity::do_quad(GLint x1, GLint y1, GLint size)
 {
     GLint xc;
     GLint yc;
@@ -838,7 +838,7 @@ void terrain::do_quad(GLint x1, GLint y1, GLint size)
  * want to know more, Google for Peter Lindstrom, the inventor of
  * this very clever system.
  */
-void terrain::point_activate(GLint x, GLint y)
+void terrain_entity::point_activate(GLint x, GLint y)
 {
     GLint xl;
     GLint yl;

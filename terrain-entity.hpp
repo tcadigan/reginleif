@@ -1,5 +1,5 @@
-#ifndef TERRAIN_HPP_
-#define TERRAIN_HPP_
+#ifndef TERRAIN_ENTITY_HPP_
+#define TERRAIN_ENTITY_HPP_
 
 #include "camera.hpp"
 #include "entity.hpp"
@@ -9,10 +9,10 @@
 #include "terrain-map.hpp"
 #include "terrain-texture.hpp"
 
-class terrain : public entity {
+class terrain_entity : public entity {
 public:
-    terrain(world const &world_object);
-    ~terrain();
+    terrain_entity(world const &world_object);
+    ~terrain_entity();
 
     void init(terrain_texture &terrain_texture,
               terrain_map const &map,

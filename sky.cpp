@@ -28,8 +28,6 @@ void sky::init(camera const &camera_object,
     camera_ = &camera_object;
     ini_mgr_ = &ini_mgr;
 
-    GLint x;
-    GLint y;
     gl_rgba top(0.0f, 0.0f, 1.0f);
     gl_rgba edge(0.0f, 1.0f, 1.0f);
     gl_rgba fog;
@@ -38,20 +36,15 @@ void sky::init(camera const &camera_object,
     GLfloat fade;
 
     sky_grid_ = ini_mgr_->get_int("Sky Settings", "sky_grid");
-
-    grid_ = new sky_point*[sky_grid_];
-    grid_[0] = new sky_point[sky_grid_ * sky_grid_];
-
-    for(GLint i = 1; i < sky_grid_; ++i) {
-        grid_[i] = grid_[i - 1] + sky_grid_;
-    }
     
     fog = world_.get_fog_color();
+
+    grid_.reserve(sky_grid_ * sky_grid_);
     
-    for(y = 0; y < sky_grid_; ++y) {
-        for(x = 0; x < sky_grid_; ++x) {
-            dist = math_distance((GLfloat)x,
-                                 (GLfloat)y,
+    for(GLint col = 0; col < sky_grid_; ++col) {
+        for(GLint row = 0; row < sky_grid_; ++row) {
+            dist = math_distance((GLfloat)row,
+                                 (GLfloat)col,
                                  (GLfloat)(sky_grid_ / 2),
                                  (GLfloat)(sky_grid_ / 2));
             
@@ -64,17 +57,21 @@ void sky::init(camera const &camera_object,
             else {
                 scale = dist / (sky_grid_ / 2);
             }
-            
-            grid_[x][y].get_position().set_x((GLfloat)(x - (sky_grid_ / 2)));
-            grid_[x][y].get_position().set_y(1.0f - (scale * 1.5f));
-            grid_[x][y].get_position().set_z((GLfloat)(y - (sky_grid_ / 2)));
-            grid_[x][y].set_color(top);
+
+            sky_point *s_point = new sky_point();
+
+            s_point->get_position().set_x((GLfloat)(row - (sky_grid_ / 2)));
+            s_point->get_position().set_y(1.0f - (scale * 1.5f));
+            s_point->get_position().set_z((GLfloat)(col - (sky_grid_ / 2)));
+            s_point->set_color(top);
             fade = math_smooth_step(scale, 0.0f, 0.6f);
             
-            grid_[x][y].set_color(grid_[x][y].get_color().interpolate(edge, fade));
+            s_point->set_color(s_point->get_color().interpolate(edge, fade));
             
             fade = math_smooth_step(scale, 0.5f, 0.99f);
-            grid_[x][y].set_color(grid_[x][y].get_color().interpolate(fog, fade));
+            s_point->set_color(s_point->get_color().interpolate(fog, fade));
+
+            grid_[(row * sky_grid_) + col] = s_point;
         }
     }
 }
@@ -85,12 +82,10 @@ void sky::update()
 
 void sky::term()
 {
-    if(grid_[0] != NULL) {
-        delete[] grid_[0];
-    }
+    std::vector<sky_point *>::iterator itr;
 
-    if(grid_ != NULL) {
-        delete[] grid_;
+    for(itr = grid_.begin(); itr != grid_.begin(); ++itr) {
+        delete *itr;
     }
 }
 
@@ -105,8 +100,6 @@ void sky::render()
     gl_vector3 back;
     gl_rgba horizon;
     gl_rgba sky;
-    GLint x;
-    GLint y;
 
     glDepthMask(false);
     glPushAttrib(GL_POLYGON_BIT | GL_LIGHTING_BIT | GL_FOG_BIT);
@@ -133,14 +126,18 @@ void sky::render()
     glClearColor(sky.get_red(), sky.get_green(), sky.get_blue(), 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     
-    for(y = 0; y < (sky_grid_ - 1); ++y) {
+    for(GLint col = 0; col < (sky_grid_ - 1); ++col) {
         glBegin(GL_QUAD_STRIP);
         
-        for(x = 0; x < sky_grid_; ++x) {
-            glColor3fv(grid_[x][y].get_color().get_data());
-            glVertex3fv(grid_[x][y].get_position().get_data());
-            glColor3fv(grid_[x][y + 1].get_color().get_data());
-            glVertex3fv(grid_[x][y + 1].get_position().get_data());
+        for(GLint row = 0; row < sky_grid_; ++row) {
+            sky_point *s_point = grid_[(row * sky_grid_) + col];
+
+            glColor3fv(s_point->get_color().get_data());
+            glVertex3fv(s_point->get_position().get_data());
+
+            sky_point *next_s_point = grid_[(row * sky_grid_) + (col + 1)];
+            glColor3fv(next_s_point->get_color().get_data());
+            glVertex3fv(next_s_point->get_position().get_data());
         }
 
         glEnd();

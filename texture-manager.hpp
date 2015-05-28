@@ -1,12 +1,12 @@
 #ifndef TEXTURE_MANAGER_HPP_
 #define TEXTURE_MANAGER_HPP_
 
-#include <list>
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include <string>
 
 #include "texture-item.hpp"
+#include <vector>
 
 class texture_manager {
 public:
@@ -22,7 +22,7 @@ private:
     texture_item *load(std::string const &basename);
     SDL_Surface *load_bmp(std::string const &filename);
 
-    std::list<texture_item *> textures_;
+    std::vector<texture_item *> textures_;
 };
 
 #endif

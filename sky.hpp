@@ -4,6 +4,7 @@
 #include "sky-fwd.hpp"
 
 #include <SDL_opengl.h>
+#include <vector>
 
 #include "camera.hpp"
 #include "entity.hpp"
@@ -19,10 +20,11 @@ public:
 
     void init(camera const &camera_object,
               ini_manager const &ini_mgr);
-    void update();
+
     void term();
-    
-    void render();
+
+    virtual void update();
+    virtual void render();
 
 private:
     world const &world_;
@@ -30,7 +32,7 @@ private:
     ini_manager const *ini_mgr_;
 
     GLint sky_grid_;
-    sky_point **grid_;
+    std::vector<sky_point *> grid_;
 };
 
 #endif

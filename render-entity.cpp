@@ -1,5 +1,5 @@
 /*
- * render.cpp
+ * render-entity.cpp
  * 2006 Shamus Young
  *
  * This is the core of the gl rndering functions. This contains the main
@@ -7,18 +7,14 @@
  * renders in the other modules.
  */
 
-#include "render.hpp"
+#include "render-entity.hpp"
 
 #include "entity.hpp"
 #include "gl-rgba.hpp"
 #include "world.hpp"
 
-render::render(camera const &camera_object,
-               sun const &sun_object,
-               ini_manager const &ini_mgr)
-    : camera_(camera_object)
-    , sun_(sun_object)
-    , ini_mgr_(ini_mgr)
+render_entity::render_entity(world const &world_object)
+    : world_(world_object)
     , render_width_(0)
     , render_height_(0)
     , render_distance_(0)
@@ -26,7 +22,7 @@ render::render(camera const &camera_object,
 {
 }
 
-render::~render()
+render_entity::~render_entity()
 {
 }
 
@@ -51,9 +47,15 @@ render::~render()
 //     0, 0, 0              // Layer masks ignored
 // };
 
-void render::init(void)
+void render_entity::init(camera const &camera_object,
+                  sun const &sun_object,
+                  ini_manager const &ini_mgr)
 {
-    render_distance_ = ini_mgr_.get_int("Render Settings", "render distance");
+    camera_ = &camera_object;
+    sun_ = &sun_object;
+    ini_mgr_ = &ini_mgr;
+
+    render_distance_ = ini_mgr_->get_int("Render Settings", "render distance");
 
     // HWND hWnd;
     // unsigned int PixelFormat;
@@ -98,14 +100,46 @@ void render::init(void)
     resize();
 }
 
-void render::update(world const &world_object)
+void render_entity::term()
+{
+    // if(!hRC) {
+    //     return;
+    // }
+
+    // wglDeletecontext(hRC);
+    // hRC = NULL;
+}
+
+void render_entity::resize()
+{
+    GLint left;
+    GLint top;
+
+    if(buffer_ != NULL) {
+        delete[] buffer_;
+    }
+
+    // render_width = WinWidth();
+    // render_height = WinHeight();
+    left = 0;
+    top = 0;
+    render_aspect_ = (GLfloat)render_width_ / (GLfloat)render_height_;
+    glViewport(left, top, render_width_, render_height_);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(45.0f, render_aspect_, 0.1f, render_distance_);
+    glMatrixMode(GL_MODELVIEW);
+    // buffer = new unsigned char[(WinWidth() * WinHeight()) * 4];
+}
+
+void render_entity::update()
 {
     gl_vector3 pos;
     gl_vector3 angle;
 
-    gl_quat light_vector = sun_.get_position_quat();
-    gl_rgba fog_color = world_object.get_fog_color();
-    gl_rgba ambient_color = world_object.get_ambient_color();
+    gl_quat light_vector = sun_->get_position_quat();
+    gl_rgba fog_color = world_.get_fog_color();
+    gl_rgba ambient_color = world_.get_ambient_color();
     // glViewport(0, 0, WinWidth(), WinHeight());
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
     glShadeModel(GL_SMOOTH);
@@ -118,7 +152,7 @@ void render::update(world const &world_object)
     glFogi(GL_FOG_MODE, GL_LINEAR);
     glFogf(GL_FOG_START, 484.0f);
     glFogf(GL_FOG_END, 5880.0f);
-    glFogfv(GL_FOG_COLOR, sun_.get_color().get_data());
+    glFogfv(GL_FOG_COLOR, sun_->get_color().get_data());
     glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -126,8 +160,8 @@ void render::update(world const &world_object)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glLoadIdentity();
-    pos = camera_.get_position();
-    angle = camera_.get_angle();
+    pos = camera_->get_position();
+    angle = camera_->get_angle();
     glRotatef(angle.get_x(), 1.0f, 0.0f, 0.0f);
     glRotatef(angle.get_y(), 0.0f, 1.0f, 0.0f);
     glRotatef(angle.get_z(), 0.0f, 0.0f, 1.0f);
@@ -158,7 +192,7 @@ void render::update(world const &world_object)
         glReadBuffer(GL_BACK);
         glDrawBuffer(GL_BACK);
         glColor4f(1.0f, 1.0f, 1.0f, 0.1f);
-        glPixelTransferf(GL_ALPHA_SCALE, world_object.get_fade());
+        glPixelTransferf(GL_ALPHA_SCALE, world_.get_fade());
         glDisable(GL_FOG);
         // glDrawPixels(WinWidth(), 
         //              WinHeight(), 
@@ -180,34 +214,7 @@ void render::update(world const &world_object)
     // SwapBuffers(hDC);
 }
 
-void render::term(void)
+void render_entity::render()
 {
-    // if(!hRC) {
-    //     return;
-    // }
-
-    // wglDeletecontext(hRC);
-    // hRC = NULL;
-}
-
-void render::resize(void)
-{
-    GLint left;
-    GLint top;
-
-    if(buffer_ != NULL) {
-        delete[] buffer_;
-    }
-
-    // render_width = WinWidth();
-    // render_height = WinHeight();
-    left = 0;
-    top = 0;
-    render_aspect_ = (GLfloat)render_width_ / (GLfloat)render_height_;
-    glViewport(left, top, render_width_, render_height_);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(45.0f, render_aspect_, 0.1f, render_distance_);
-    glMatrixMode(GL_MODELVIEW);
-    // buffer = new unsigned char[(WinWidth() * WinHeight()) * 4];
+    // no-op
 }

@@ -70,141 +70,6 @@ void terrain_map::init(camera const &camera_object,
     }
 }
 
-void terrain_map::update()
-{
-    GLint x;
-    GLint samples;
-    GLint start;
-    GLint end;
-    GLint step;
-    gl_rgba ambient;
-    gl_rgba shadow;
-    GLfloat dot;
-    GLfloat top;
-    GLfloat drop;
-    GLfloat shade;
-    cell *c;
-    GLuint update_end;
-
-    ambient = world_.get_ambient_color();
-    shadow = ambient * gl_rgba(0.3f, 0.5f, 0.9f);
-
-    if(sun_->get_position().get_x() > 0.0f) {
-        start = map_area_;
-        end = -1;
-        step = -1;
-    }
-    else {
-        start = 0;
-        end = map_area_ + 1;
-        step = 1;
-    }
-
-    if(sun_->get_position().get_x() == 0.0f) {
-        drop = FLT_MAX;
-    }
-    else {
-        drop = sun_->get_position().get_y() / sun_->get_position().get_x();
-    }
-
-    if(drop < 0) {
-        drop *= -1;
-    }
-
-    update_end = SDL_GetTicks() + map_update_time_;
-
-    while(SDL_GetTicks() < update_end) {
-        // Pass over the map (either east to west or vice versa) and
-        // see which points are being hit with sunlight.
-        for(x = start; x != end; x += step) {
-            c = &terrain_data_[x][scan_y_];
-            
-            gl_vector3 temp_pos(c->get_position() - camera_->get_position());
-            c->set_distance(temp_pos.length() / far_view_);
-
-            if(c->get_distance() < 0.0f) {
-                c->set_distance(0.0f);
-            }
-            else if(c->get_distance() > 1.0f) {
-                c->set_distance(1.0f);
-            }
-            
-            if(x == start) {
-                // First point is always in sunlight
-                top = c->get_position().get_y();
-                c->set_shadow(false);
-            }
-            else {
-                top -= drop;
-
-                if(c->get_position().get_y() > top) {
-                    // Is this point high enough to be out of the shadow?
-                    c->set_shadow(false);
-                    top = c->get_position().get_y();
-                }
-                else {
-                    // Nope!
-                    c->set_shadow(true);
-                }
-            }
-            
-            dot = sun_->get_position().dot_product(c->get_normal());
-
-            if(dot < 0.0f) {
-                dot = 0.0f;
-            }
-            else if(dot > 1.0f) {
-                dot = 1.0f;
-            }
-
-            samples = 0;
-            shade = 0.0f;
-
-            // Blend this shadow with adjoining ones to soften the edges
-            // of shadows. Totally not needed, and it slows this down a bit.
-            // You only need this if the terrain is going to be viewed in
-            // close a lot
-            for(GLint xx = -1; xx <= 1; ++xx) {
-                GLint tmp_x = x + xx;
-
-                if(tmp_x < 0) {
-                    tmp_x = 0;
-                }
-                else if(tmp_x > (map_area_ + 1)) {
-                    tmp_x = map_area_ + 1;
-                }
-
-                for(GLint yy = -1; yy <= 1; ++yy) {
-                    GLint tmp_y = scan_y_ + yy;
-
-                    if(tmp_y < 0) {
-                        tmp_y = 0;
-                    }
-                    else if(tmp_y > (map_area_ + 1)) {
-                        tmp_y = map_area_ + 1;
-                    }
-
-                    if(terrain_data_[tmp_x][tmp_y].get_shadow() != 0) {
-                        shade += 1.0f;
-                    }
-
-                    ++samples;
-                }
-            }
-
-            // Finally! We know how much light is hitting this point and
-            // if it is in shadow, now figure out what colour this
-            // point is
-            gl_rgba scaled_ambient(ambient + (sun_->get_color() * dot));
-            gl_rgba scaled_shadow(shadow + (ambient * dot));
-            c->set_light(scaled_ambient.interpolate(scaled_shadow,
-                                                    shade / (GLfloat)samples));
-        }
-
-        scan_y_ = (scan_y_ + 1) % (map_area_ + 1);
-    }
-}
-
 void terrain_map::term()
 {
     delete terrain_data_[0];
@@ -462,16 +327,16 @@ void terrain_map::build()
     for(x = 0; x < (map_area_ + 1); ++x) {
         for(y = 0; y < (map_area_ + 1); ++y) {
             c = &terrain_data_[x][y];
-            c->set_layer(0, terrainspace::LAYER_LOWGRASS - 1);
-            c->set_layer(0, terrainspace::LAYER_DIRT - 1);
-            c->set_layer(0, terrainspace::LAYER_SAND - 1);
-            c->set_layer(0, terrainspace::LAYER_ROCK - 1);
+            c->set_layer(0, terrain::enums::LAYER_LOWGRASS - 1);
+            c->set_layer(0, terrain::enums::LAYER_DIRT - 1);
+            c->set_layer(0, terrain::enums::LAYER_SAND - 1);
+            c->set_layer(0, terrain::enums::LAYER_ROCK - 1);
 
             // Sand is in the lowest parts of the map
             smooth = 
                 math_smooth_step(scale[x + (y * (map_area_ + 1))], 0.3f, 0.1f);
 
-            c->set_layer((GLint)(smooth * 255.0f), terrainspace::LAYER_SAND - 1);
+            c->set_layer((GLint)(smooth * 255.0f), terrain::enums::LAYER_SAND - 1);
 
             // The deep lush grass likes lowlands and flat areas
             e = math_smooth_step(c->get_normal().get_y(), 0.75f, 0.1f);
@@ -487,7 +352,7 @@ void terrain_map::build()
                 smooth = 1;
             }
 
-            c->set_layer((GLint)(smooth * 255.0f), terrainspace::LAYER_LOWGRASS - 1);
+            c->set_layer((GLint)(smooth * 255.0f), terrain::enums::LAYER_LOWGRASS - 1);
 
             // Rock likes mild slopes and high elevations
             e = math_smooth_step(c->get_normal().get_y(), 0.8f, 0.5f);
@@ -503,11 +368,11 @@ void terrain_map::build()
                 smooth = e;
             }
 
-            c->set_layer((GLint)(smooth * 255.0f), terrainspace::LAYER_ROCK - 1);
+            c->set_layer((GLint)(smooth * 255.0f), terrain::enums::LAYER_ROCK - 1);
 
             // Dirt likes very steep slopes
             e = math_smooth_step(c->get_normal().get_y(), 0.7f, 0.4f);
-            c->set_layer((GLint)(e * 255.0f), terrainspace::LAYER_DIRT - 1);
+            c->set_layer((GLint)(e * 255.0f), terrain::enums::LAYER_DIRT - 1);
         }
     }
 
@@ -649,7 +514,7 @@ GLfloat terrain_map::get_elevation(GLfloat x, GLfloat y) const
 GLfloat terrain_map::get_layer(GLint x, GLint y, GLint layer) const
 {
     // The base later is always opaque
-    if(layer == terrainspace::LAYER_GRASS) {
+    if(layer == terrain::enums::LAYER_GRASS) {
         return 1.0f;
     }
 
@@ -766,4 +631,144 @@ GLushort terrain_map::rgb_sample(GLshort val, GLint shift, GLint numbits) const
     r = r << (8 - numbits);
 
     return (r & 255);
+}
+
+void terrain_map::update()
+{
+    GLint x;
+    GLint samples;
+    GLint start;
+    GLint end;
+    GLint step;
+    gl_rgba ambient;
+    gl_rgba shadow;
+    GLfloat dot;
+    GLfloat top;
+    GLfloat drop;
+    GLfloat shade;
+    cell *c;
+    GLuint update_end;
+
+    ambient = world_.get_ambient_color();
+    shadow = ambient * gl_rgba(0.3f, 0.5f, 0.9f);
+
+    if(sun_->get_position().get_x() > 0.0f) {
+        start = map_area_;
+        end = -1;
+        step = -1;
+    }
+    else {
+        start = 0;
+        end = map_area_ + 1;
+        step = 1;
+    }
+
+    if(sun_->get_position().get_x() == 0.0f) {
+        drop = FLT_MAX;
+    }
+    else {
+        drop = sun_->get_position().get_y() / sun_->get_position().get_x();
+    }
+
+    if(drop < 0) {
+        drop *= -1;
+    }
+
+    update_end = SDL_GetTicks() + map_update_time_;
+
+    while(SDL_GetTicks() < update_end) {
+        // Pass over the map (either east to west or vice versa) and
+        // see which points are being hit with sunlight.
+        for(x = start; x != end; x += step) {
+            c = &terrain_data_[x][scan_y_];
+            
+            gl_vector3 temp_pos(c->get_position() - camera_->get_position());
+            c->set_distance(temp_pos.length() / far_view_);
+
+            if(c->get_distance() < 0.0f) {
+                c->set_distance(0.0f);
+            }
+            else if(c->get_distance() > 1.0f) {
+                c->set_distance(1.0f);
+            }
+            
+            if(x == start) {
+                // First point is always in sunlight
+                top = c->get_position().get_y();
+                c->set_shadow(false);
+            }
+            else {
+                top -= drop;
+
+                if(c->get_position().get_y() > top) {
+                    // Is this point high enough to be out of the shadow?
+                    c->set_shadow(false);
+                    top = c->get_position().get_y();
+                }
+                else {
+                    // Nope!
+                    c->set_shadow(true);
+                }
+            }
+            
+            dot = sun_->get_position().dot_product(c->get_normal());
+
+            if(dot < 0.0f) {
+                dot = 0.0f;
+            }
+            else if(dot > 1.0f) {
+                dot = 1.0f;
+            }
+
+            samples = 0;
+            shade = 0.0f;
+
+            // Blend this shadow with adjoining ones to soften the edges
+            // of shadows. Totally not needed, and it slows this down a bit.
+            // You only need this if the terrain is going to be viewed in
+            // close a lot
+            for(GLint xx = -1; xx <= 1; ++xx) {
+                GLint tmp_x = x + xx;
+
+                if(tmp_x < 0) {
+                    tmp_x = 0;
+                }
+                else if(tmp_x > (map_area_ + 1)) {
+                    tmp_x = map_area_ + 1;
+                }
+
+                for(GLint yy = -1; yy <= 1; ++yy) {
+                    GLint tmp_y = scan_y_ + yy;
+
+                    if(tmp_y < 0) {
+                        tmp_y = 0;
+                    }
+                    else if(tmp_y > (map_area_ + 1)) {
+                        tmp_y = map_area_ + 1;
+                    }
+
+                    if(terrain_data_[tmp_x][tmp_y].get_shadow() != 0) {
+                        shade += 1.0f;
+                    }
+
+                    ++samples;
+                }
+            }
+
+            // Finally! We know how much light is hitting this point and
+            // if it is in shadow, now figure out what colour this
+            // point is
+            gl_rgba scaled_ambient(ambient + (sun_->get_color() * dot));
+            gl_rgba scaled_shadow(shadow + (ambient * dot));
+            c->set_light(scaled_ambient.interpolate(scaled_shadow,
+                                                    shade / (GLfloat)samples));
+        }
+
+        scan_y_ = (scan_y_ + 1) % (map_area_ + 1);
+    }
+}
+
+void terrain_map::render()
+{
+    // no-op
 }

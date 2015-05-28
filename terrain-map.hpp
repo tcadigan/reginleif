@@ -3,6 +3,8 @@
 
 #include "terrain-map-fwd.hpp"
 
+#include "entity.hpp"
+
 #include <SDL_opengl.h>
 #include <string>
 
@@ -14,7 +16,7 @@
 #include "sun.hpp"
 #include "world-fwd.hpp"
 
-class terrain_map {
+class terrain_map : public entity {
 public:
     terrain_map(world const &world_object);
     virtual ~terrain_map();
@@ -22,7 +24,6 @@ public:
     void init(camera const &camera_object,
               sun const &sun_object,
               ini_manager const &ini_mgr);
-    void update();
     void term();
 
     void build();
@@ -37,6 +38,9 @@ public:
     GLfloat get_distance(GLint x, GLint y) const;
     gl_rgba get_light(GLint x, GLint y) const;
     gl_vector3 get_position(GLint x, GLint y) const;
+
+    virtual void update();
+    virtual void render();
 
 private:
     gl_vector3 do_normal(GLfloat north,

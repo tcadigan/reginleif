@@ -19,7 +19,7 @@ world::world()
     , terrain_map_entity_(new terrain_map(*this))
     , mouse_pointer_entity_(new mouse_pointer(*this))
     , terrain_texture_(new terrain_texture(*this))
-    , terrain_entity_(new terrain(*this))
+    , terrain_entity_(new terrain_entity(*this))
     , sun_(new sun)
     , ambient_color_(gl_rgba(0.6f, 0.6f, 0.6f, 1.0f))
     , fog_color_(gl_rgba(0.7f, 0.7f, 0.7f, 1.0f))
@@ -97,23 +97,6 @@ void world::init()
     last_update_ = SDL_GetTicks();
 }
 
-void world::update()
-{
-    GLuint now;
-    GLuint delta;
-    
-    now = SDL_GetTicks();
-    delta = now - last_update_;
-    last_update_ = now;
-
-    fade_ += ((GLfloat)delta / 500.0f);
-
-    if(fade_ > 1.0f) {
-        entity_fade_start();
-        fade_ = 0.0f;
-    }
-}
-
 void world::term()
 {
 }
@@ -133,4 +116,24 @@ gl_rgba world::get_ambient_color() const
     return ambient_color_;
 }
 
+void world::update()
+{
+    GLuint now;
+    GLuint delta;
+    
+    now = SDL_GetTicks();
+    delta = now - last_update_;
+    last_update_ = now;
 
+    fade_ += ((GLfloat)delta / 500.0f);
+
+    if(fade_ > 1.0f) {
+        entity_fade_start();
+        fade_ = 0.0f;
+    }
+}
+
+void world::render()
+{
+    // no op
+}

@@ -30,11 +30,6 @@ void ini_manager::init()
     parse_contents();
 }
 
-void ini_manager::update()
-{
-    // nothing
-}
-
 void ini_manager::term()
 {
     std::ofstream output;

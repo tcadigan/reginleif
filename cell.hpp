@@ -28,7 +28,7 @@ private:
     GLboolean shadow_;
     // Move this to low-res sub-map?
     GLfloat distance_;
-    GLushort layer_[terrainspace::LAYER_COUNT - 1];
+    GLushort layer_[terrain::enums::LAYER_COUNT - 1];
     gl_vector3 position_;
     gl_vector3 normal_;
     gl_rgba light_;
