@@ -1,6 +1,8 @@
 #ifndef TERRAIN_TEXTURE_HPP_
 #define TERRAIN_TEXTURE_HPP_
 
+#include "entity-manager.hpp"
+
 #include <SDL_opengl.h>
 
 #include "camera.hpp"
@@ -11,7 +13,7 @@
 #include "ztexture.hpp"
 #include "world-fwd.hpp"
 
-class terrain_texture : public entity {
+class terrain_texture : public entity_item {
 public:
     terrain_texture(world const &world_object);
     virtual ~terrain_texture();

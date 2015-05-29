@@ -15,7 +15,7 @@
 #include "terrain-texture.hpp"
 
 terrain_entity::terrain_entity(world const &world_object)
-    : entity()
+    : entity_item()
     , world_(world_object)
     , stage_(terrain::enums::STAGE_IDLE)
     , viewpoint_(gl_vector3(0.0f, 0.0f, 0.0f))

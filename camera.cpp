@@ -25,9 +25,11 @@ camera::~camera()
 }
 
 void camera::init(terrain_map const &terrain_map,
+                  entity_manager const &entity_mgr,
                   ini_manager const &ini_mgr)
 {
     terrain_map_ = &terrain_map;
+    entity_mgr_ = &entity_mgr;
     ini_mgr_ = &ini_mgr;
 
     angle_ = ini_mgr_->get_vector("Camera Settings", "CameraAngle");
@@ -93,7 +95,7 @@ void camera::selection_pitch(GLfloat delta)
     point selected_cell;
 
     moving_ = true;
-    ptr = (mouse_pointer *)entity_find_type("pointer", NULL);
+    ptr = (mouse_pointer *)entity_mgr_->find_type("pointer");
     selected_cell = ptr->get_selected();
     delta *= movement_;
 
@@ -137,7 +139,7 @@ void camera::selection_yaw(GLfloat delta)
     point selected_cell;
 
     moving_ = true;
-    ptr = (mouse_pointer *)entity_find_type("pointer", NULL);
+    ptr = (mouse_pointer *)entity_mgr_->find_type("pointer");
     selected_cell = ptr->get_selected();
     delta *= movement_;
 
@@ -177,7 +179,7 @@ void camera::selection_zoom(GLfloat delta)
     point selected_cell;
 
     moving_ = true;
-    ptr = (mouse_pointer *)entity_find_type("pointer", NULL);
+    ptr = (mouse_pointer *)entity_mgr_->find_type("pointer");
     selected_cell = ptr->get_selected();
     delta *= movement_;
 

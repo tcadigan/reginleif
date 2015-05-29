@@ -3,21 +3,23 @@
 
 #include "camera-fwd.hpp"
 
-#include "entity.hpp"
+#include "entity-item.hpp"
 
 #include <SDL_opengl.h>
 
+#include "entity-manager.hpp"
 #include "gl-vector3.hpp"
 #include "ini-manager.hpp"
 #include "terrain-map-fwd.hpp"
 #include "world-fwd.hpp"
 
-class camera : public entity {
+class camera : public entity_item {
 public:
     camera(world const &world);
     virtual ~camera();
 
     void init(terrain_map const &terrain_map,
+              entity_manager const &entity_mgr,
               ini_manager const &ini_mgr);
 
     void term();
@@ -49,6 +51,7 @@ private:
 
     world const &world_;
     terrain_map const *terrain_map_;
+    entity_manager const *entity_mgr_;
     ini_manager const *ini_mgr_;
 };
 

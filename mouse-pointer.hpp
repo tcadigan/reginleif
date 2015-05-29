@@ -1,8 +1,9 @@
 #ifndef MOUSE_POINTER_HPP_
 #define MOUSE_POINTER_HPP_
 
+#include "entity-item.hpp"
+
 #include "camera.hpp"
-#include "entity.hpp"
 #include "gl-vector3.hpp"
 #include "ini-manager.hpp"
 #include "point.hpp"
@@ -10,7 +11,7 @@
 #include "texture-manager.hpp"
 #include "world-fwd.hpp"
 
-class mouse_pointer : public entity {
+class mouse_pointer : public entity_item {
 public:
     mouse_pointer(world const &world_object);
     virtual ~mouse_pointer();

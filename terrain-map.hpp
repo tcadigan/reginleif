@@ -3,7 +3,7 @@
 
 #include "terrain-map-fwd.hpp"
 
-#include "entity.hpp"
+#include "entity-item.hpp"
 
 #include <SDL_opengl.h>
 #include <string>
@@ -16,7 +16,7 @@
 #include "sun.hpp"
 #include "world-fwd.hpp"
 
-class terrain_map : public entity {
+class terrain_map : public entity_item {
 public:
     terrain_map(world const &world_object);
     virtual ~terrain_map();

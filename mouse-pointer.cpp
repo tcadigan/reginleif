@@ -21,7 +21,7 @@
 #include "world.hpp"
 
 mouse_pointer::mouse_pointer(world const &world_object)
-    : entity()
+    : entity_item()
     , world_(world_object)
     , texture_id_(0)
 {

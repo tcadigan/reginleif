@@ -13,6 +13,7 @@
 
 world::world()
     : ini_mgr_(new ini_manager())
+    , entity_mgr_(new entity_manager())
     , texture_mgr_(new texture_manager())
     , camera_(new camera(*this))
     , sky_entity_(new sky(*this))
@@ -29,6 +30,7 @@ world::world()
 world::~world()
 {
     delete ini_mgr_;
+    delete entity_mgr_;
     delete texture_mgr_;
     delete camera_;
     delete sky_entity_;
@@ -51,7 +53,7 @@ void world::init()
     // Camera needs:
     //     terrain_map
     //     ini_manager
-    camera_->init(*terrain_map_entity_, *ini_mgr_);
+    camera_->init(*terrain_map_entity_, *entity_mgr_, *ini_mgr_);
 
     // Terrain Map needs:
     //     camera (Completed)
@@ -128,7 +130,7 @@ void world::update()
     fade_ += ((GLfloat)delta / 500.0f);
 
     if(fade_ > 1.0f) {
-        entity_fade_start();
+        entity_mgr_->fade_start();
         fade_ = 0.0f;
     }
 }

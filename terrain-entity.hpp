@@ -1,15 +1,16 @@
 #ifndef TERRAIN_ENTITY_HPP_
 #define TERRAIN_ENTITY_HPP_
 
+#include "entity-item.hpp"
+
 #include "camera.hpp"
-#include "entity.hpp"
 #include "gl-vector3.hpp"
 #include "gl-vector2.hpp"
 #include "ini-manager.hpp"
 #include "terrain-map.hpp"
 #include "terrain-texture.hpp"
 
-class terrain_entity : public entity {
+class terrain_entity : public entity_item {
 public:
     terrain_entity(world const &world_object);
     ~terrain_entity();

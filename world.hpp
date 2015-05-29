@@ -3,9 +3,12 @@
 
 #include "world-fwd.hpp"
 
+#include "entity-item.hpp"
+
 #include <SDL_opengl.h>
 
 #include "camera-fwd.hpp"
+#include "entity-manager.hpp"
 #include "gl-rgba.hpp"
 #include "ini-manager.hpp"
 #include "mouse-pointer.hpp"
@@ -16,7 +19,7 @@
 #include "terrain-texture.hpp"
 #include "texture-manager.hpp"
 
-class world : public entity {
+class world : public entity_item {
 public:
     world();
     virtual ~world();
@@ -33,6 +36,7 @@ public:
 
 private:
     ini_manager *ini_mgr_;
+    entity_manager *entity_mgr_;
     texture_manager *texture_mgr_;
     camera *camera_;
     sky *sky_entity_;

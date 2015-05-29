@@ -9,7 +9,6 @@
 
 #include "render-entity.hpp"
 
-#include "entity.hpp"
 #include "gl-rgba.hpp"
 #include "world.hpp"
 
@@ -47,12 +46,14 @@ render_entity::~render_entity()
 //     0, 0, 0              // Layer masks ignored
 // };
 
-void render_entity::init(camera const &camera_object,
-                  sun const &sun_object,
-                  ini_manager const &ini_mgr)
+void render_entity::init(entity_manager &entity_mgr,
+                         camera const &camera_object,
+                         sun const &sun_object,
+                         ini_manager const &ini_mgr)
 {
     camera_ = &camera_object;
     sun_ = &sun_object;
+    entity_mgr_ = &entity_mgr;
     ini_mgr_ = &ini_mgr;
 
     render_distance_ = ini_mgr_->get_int("Render Settings", "render distance");
@@ -175,7 +176,7 @@ void render_entity::update()
         glFogfv(GL_FOG_COLOR, fog_color.get_data());
         glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
         glClear(GL_DEPTH_BUFFER_BIT);
-        entity_render_fade_in();
+        entity_mgr_->fade_in();
 
         glEnable(GL_BLEND);
         glDisable(GL_TEXTURE_2D);
@@ -208,7 +209,7 @@ void render_entity::update()
         // This will just render everything once, with no fancy fade
         glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_DEPTH_BUFFER_BIT);
-        entity_render();
+        entity_mgr_->render();
     }
 
     // SwapBuffers(hDC);
