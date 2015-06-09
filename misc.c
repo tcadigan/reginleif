@@ -135,7 +135,7 @@ int look(bool wakeup)
                     }
                     
                     tp = (struct thing *)it->l_data;
-                    tp->t_oldch = mvinch(y, x) & A_TEXTCHAR;
+                    tp->t_oldch = mvinch(y, x) & A_CHARTEXT;
                     
                     if(tp->t_oldch == TRAP) {
                         if(trap_at(y,x)->o_flags & ISFOUND) {
