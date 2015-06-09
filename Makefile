@@ -2,10 +2,9 @@ NAME = sno
 SRCS = sno1.c sno2.c sno3.c sno4.c
 OBJS = sno1.o sno2.o sno3.o sno4.o
 CFLAGS = -Wall -Wextra -Werror \
-	 -fno-builtin \
-	 -std=c89 -pedantic \
-	 -Wmissing-prototypes -Wstrict-prototypes
-CC = gcc
+		 -fno-builtin \
+		 -std=c89 -pedantic \
+	 	 -Wmissing-prototypes -Wstrict-prototypes
 
 all: ${OBJS}
 	${CC} ${CFLAGS} -o ${NAME} ${OBJS}
