@@ -253,7 +253,7 @@ void Decoration::CreateLightTrim(GLvector *chain,
 
     color_ = color;
     center_ = glVector(0.0f, 0.0f, 0.0f);
-    qs.index_list.reserved((count * 2) + 2);
+    qs.index_list.reserve((count * 2) + 2);
 
     for(i = 0; i < count; ++i) {
         center_ += chain[i];
