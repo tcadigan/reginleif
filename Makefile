@@ -15,7 +15,6 @@ CFLAGS = -O -g -Wall -Werror
 LINUX_LIB = -lncurses -lcrypt -lbsd
 MAC_LIB = -lncurses
 MISC = Makefile TODO
-CC = gcc
 ARCH = $(shell uname -s)
 
 a.out: $(HDRS) $(OBJS)
