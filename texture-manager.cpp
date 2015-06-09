@@ -98,6 +98,7 @@ texture_item *texture_manager::load(std::string const &basename)
     }
     else {
         // Some other color, likely a problem
+        return NULL;
     }
 
     // Create the texture

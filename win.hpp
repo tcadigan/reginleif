@@ -30,8 +30,6 @@ private:
     // static HWND hwnd;
     SDL_Surface *surface_;
     // static HINSTANCE module;
-    GLint width_;
-    GLint height_;
     // bool lmb;
     // bool rmb;
     GLboolean mouse_forced_;

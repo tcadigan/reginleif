@@ -15,8 +15,7 @@
 #include "math.hpp"
 #include "mouse-pointer.hpp"
 
-camera::camera(world const &world_object)
-    : world_(world_object)
+camera::camera()
 {
 }
 

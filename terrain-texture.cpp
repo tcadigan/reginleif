@@ -25,8 +25,7 @@
 #include "console.hpp"
 #include "world.hpp"
 
-terrain_texture::terrain_texture(world const &world_object)
-    : world_(world_object)
+terrain_texture::terrain_texture()
 {
 }
 

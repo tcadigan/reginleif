@@ -15,7 +15,7 @@
 
 class camera : public entity_item {
 public:
-    camera(world const &world);
+    camera();
     virtual ~camera();
 
     void init(terrain_map const &terrain_map,
@@ -49,7 +49,6 @@ private:
     GLfloat eye_height_;
     GLint max_pitch_;
 
-    world const &world_;
     terrain_map const *terrain_map_;
     entity_manager const *entity_mgr_;
     ini_manager const *ini_mgr_;

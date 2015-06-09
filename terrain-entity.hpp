@@ -12,7 +12,7 @@
 
 class terrain_entity : public entity_item {
 public:
-    terrain_entity(world const &world_object);
+    terrain_entity();
     ~terrain_entity();
 
     void init(terrain_texture &terrain_texture,
@@ -28,8 +28,6 @@ public:
     void fade_start();
     
 private:
-
-    world const &world_;
     GLshort stage_;
     gl_vector3 viewpoint_;
 

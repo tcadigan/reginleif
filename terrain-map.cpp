@@ -177,7 +177,7 @@ void terrain_map::build()
     for(y = 0; y < (map_area_ + 1); ++y) {
         for(x = 0; x < (map_area_ + 1); ++x) {
             if((x == map_area_) && (y == map_area_)) {
-                x = x;
+                xx = x;
             }
 
             if(x < y) {

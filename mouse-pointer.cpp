@@ -20,9 +20,8 @@
 
 #include "world.hpp"
 
-mouse_pointer::mouse_pointer(world const &world_object)
+mouse_pointer::mouse_pointer()
     : entity_item()
-    , world_(world_object)
     , texture_id_(0)
 {
     set_type("pointer");

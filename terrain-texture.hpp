@@ -15,7 +15,7 @@
 
 class terrain_texture : public entity_item {
 public:
-    terrain_texture(world const &world_object);
+    terrain_texture();
     virtual ~terrain_texture();
 
     void init(texture_manager &texture_mgr,
@@ -32,8 +32,6 @@ public:
 private:
     void draw_layer(GLint origin_x, GLint origin_y, GLint size, GLint layer);
     void get_camera_zone();
-
-    world const &world_;
 
     terrain_map const *map_;
     camera const *camera_;

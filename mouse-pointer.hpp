@@ -13,7 +13,7 @@
 
 class mouse_pointer : public entity_item {
 public:
-    mouse_pointer(world const &world_object);
+    mouse_pointer();
     virtual ~mouse_pointer();
 
     void init(texture_manager &texture_mgr,
@@ -30,7 +30,6 @@ public:
 private:
     point draw_grid();
 
-    world const &world_;
     GLint texture_id_;
     
     terrain_map const *map_;
