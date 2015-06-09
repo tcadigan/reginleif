@@ -4,6 +4,8 @@ Date of origin: 1975
 
 Original source: http://minnie.tuhs.org/cgi-bin/utree.pl?file=V6/usr/source/sno
 
+[![Build Status](https://travis-ci.org/tcadigan/snobol_III.svg?branch=master)](https://travis-ci.org/tcadigan/snobol_III)
+
 Goals:
 
 1) Re-type all source code [Done]
