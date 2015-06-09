@@ -1,4 +1,4 @@
-#ifndef DEAMON_H_
+#ifndef DAEMON_H_
 #define DAEMON_H_
 
 struct delayed_action {
