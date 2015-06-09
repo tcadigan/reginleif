@@ -1,6 +1,8 @@
 #ifndef WIN_HPP_
 #define WIN_HPP_
 
+
+#include <SDL.h>
 #include <SDL_opengl.h>
 
 #include "ini-manager.hpp"
@@ -14,8 +16,7 @@ public:
     GLboolean init(void);
     void term(void);
 
-    // HWND win_hwnd(void);
-    void popup(char *message, ...);
+    SDL_Surface *handle();
     GLint get_width(void);
     GLint get_height(void);
     void mouse_position(GLint *x, GLint *y);
@@ -27,6 +28,7 @@ private:
     ini_manager const &ini_mgr_;
 
     // static HWND hwnd;
+    SDL_Surface *surface_;
     // static HINSTANCE module;
     GLint width_;
     GLint height_;

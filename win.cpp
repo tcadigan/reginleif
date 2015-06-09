@@ -7,8 +7,7 @@
 
 #include "win.hpp"
 
-#include <cstdarg>
-#include <cstdio>
+#include <SDL.h>
 
 #include "mouse-pointer.hpp"
 
@@ -25,82 +24,42 @@ GLboolean win::init()
 {
     mouse_movement_ = ini_mgr_.get_float("Settings", "mouse movement");
 
-    // WNDLASSEX wcex;
+    if(SDL_Init(SDL_INIT_VIDEO) != 0) {
+        return false;
+    }
 
-    // wcex.cbSize = sizeof(WNDCLASSEX);
-    // wcex.style = CS_HREDRAW | CS_VREDRAW;
-    // wcex.lpfnWndProc = (WNDPROC)WndProc;
-    // wcex.cbClsExtra = 0;
-    // wcex.cbWndExtra = 0;
-    // wcex.hInstance = AppInstace();
-    // wcex.hIcon = NULL;
-    // wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-    // wcex.hbrBackground = (HBRUSH)(COLOR_BTNFACE + 1);
-    // wcex.lpszMenuName = NULL;
-    // wcex.lpszClassName = "Terrain Viewer";
-    // wcex.hIconSm = NULL;
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-    // if(!RegisterClassEx(&wcex)) {
-    //     WinPopup("Cannot create window class");
+    surface_ = SDL_SetVideoMode(/* width */ 544,
+                               /* height */ 640,
+                               /* bpp */ 32,
+                               SDL_OPENGL | SDL_RESIZABLE);
 
-    //     return false;
-    // }
-
-    // hwnd = CreateWindowEx(0,
-    //                       "Terrain Viewer",
-    //                       "Terrain Viewer",
-    //                       WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
-    //                       CW_USEDEFAULT,
-    //                       0,
-    //                       544,
-    //                       640,
-    //                       NULL,
-    //                       NULL,
-    //                       AppInstance(),
-    //                       NULL);
-
-    // if(!hwnd) {
-    //     WinPopup("Cannot create window");
-        
-    //     return false;
-    // }
-
-    // ShowWindow(hwnd, SW_SHOW);
-    // UpdateWindow(hwnd);
+    if(surface_ == NULL) {
+        return false;
+    }
 
     return true;
 }
 
 void win::term()
 {
-    // DetroyWindow(hwnd);
+    SDL_FreeSurface(surface_);
 }
 
-// HWND WinHwnd(void)
-// {
-//     return hwnd;
-// }
-
-void win::popup(char *message, ...)
+SDL_Surface *win::handle()
 {
-    va_list marker;
-    char buf[1024];
-
-    va_start(marker, message);
-    vsprintf(buf, message, marker);
-    va_end(marker);
-
-    // MessageBox(NULL, buf, "Terrain Viewer", MB_ICONSTOP | MB_OK | MB_TASKMODAL);
+    return surface_;
 }
 
 GLint win::get_width()
 {
-    return width_;
+    return surface_->w;
 }
 
 int win::get_height()
 {
-    return height_;
+    return surface_->h;
 }
 
 void win::mouse_position(GLint *x, GLint *y)
