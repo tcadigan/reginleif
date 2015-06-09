@@ -1,5 +1,5 @@
 #ifndef SNO3_H_
-#define SNO3_H
+#define SNO3_H_
 
 #include "sno.h"
 
