@@ -52,13 +52,13 @@ char randmonster(bool wander)
     --d;
     
     while(mons[d] == ' ') {        
-	d = level + (rnd(10) - 5);
-	if(d < 1) {
-	    d = rnd(5) + 1;
+        d = level + (rnd(10) - 5);
+        if(d < 1) {
+            d = rnd(5) + 1;
         }
         
-	if(d > 26) {
-	    d = rnd(5) + 22;
+        if(d > 26) {
+            d = rnd(5) + 22;
         }
 
         --d;
@@ -82,7 +82,7 @@ int new_monster(struct linked_list *item, char type, struct coord *cp)
 
     mp = &monsters[tp->t_type - 'A'];
 
-    tp->t_oldch = mvwinch(cw, cp->y, cp->x);
+    tp->t_oldch = mvwinch(cw, cp->y, cp->x) & A_CHARTEXT;
     tp->t_dest = &player.t_pos;
     tp->t_flags = mp->t_flags;
     tp->t_disguise = '\0';
@@ -101,23 +101,23 @@ int new_monster(struct linked_list *item, char type, struct coord *cp)
 
     if(((cur_ring[LEFT] != NULL) && (cur_ring[LEFT]->o_which == R_AGGR))
        || ((cur_ring[RIGHT] != NULL) && (cur_ring[RIGHT]->o_which == R_AGGR))) {
-	runto(cp, &player.t_pos);
+        runto(cp, &player.t_pos);
     }
     
     if(type == 'M') {
-	char mch;
+        char mch;
         
-	if(tp->t_pack != NULL) {
-	    mch = ((struct object *)tp->t_pack->l_data)->o_type;
+        if(tp->t_pack != NULL) {
+            mch = ((struct object *)tp->t_pack->l_data)->o_type;
         }
-	else {
+        else {
             int value = 8;
             
             if(level > 25) {
                 value = 9;
             }
             
-	    switch(rnd(value)) {
+            switch(rnd(value)) {
             case 0:
                 mch = GOLD;
                 
@@ -150,14 +150,14 @@ int new_monster(struct linked_list *item, char type, struct coord *cp)
                 mch = STICK;
                 
                 break;
-	    default:
+            default:
                 mch = AMULET;
                 
                 break;
-	    }
+            }
         }
         
-	tp->t_disguise = mch;
+        tp->t_disguise = mch;
     }
 
     /* TC_DEBUG: Start */
@@ -191,7 +191,7 @@ int wanderer()
     
     if(rp != hr) {
         rnd_pos(rp, &cp);
-        ch = mvwinch(stdscr, cp.y, cp.x);
+        ch = mvwinch(stdscr, cp.y, cp.x) & A_CHARTEXT;
         
         if(ch == ERR) {
             if(wizard) {
@@ -210,7 +210,7 @@ int wanderer()
 
         if(rp != hr) {
             rnd_pos(rp, &cp);
-            ch = mvwinch(stdscr, cp.y, cp.x);
+            ch = mvwinch(stdscr, cp.y, cp.x) & A_CHARTEXT;
             
             if(ch == ERR) {
                 if(wizard) {
@@ -230,7 +230,7 @@ int wanderer()
     tp->t_pos = cp;
     tp->t_dest = &player.t_pos;
     if(wizard) {
-	msg("Started a wandering %s", monsters[tp->t_type - 'A'].t_name);
+        msg("Started a wandering %s", monsters[tp->t_type - 'A'].t_name);
     }
 
     return 0;
@@ -247,7 +247,7 @@ struct linked_list *wake_monster(int y, int x)
 
     it = find_mons(y, x);
     if(it == NULL) {
-	msg("Can't find monster in show");
+        msg("Can't find monster in show");
     }
     tp = (struct thing *)it->l_data;
     ch = tp->t_type;
@@ -258,43 +258,43 @@ struct linked_list *wake_monster(int y, int x)
        && ((tp->t_flags & ISHELD) == 0)
        && !(((cur_ring[LEFT] != NULL) && (cur_ring[LEFT]->o_which == R_STEALTH))
             || ((cur_ring[RIGHT] != NULL) && (cur_ring[RIGHT]->o_which == R_STEALTH)))) {
-	tp->t_dest = &player.t_pos;
-	tp->t_flags |= ISRUN;
+        tp->t_dest = &player.t_pos;
+        tp->t_flags |= ISRUN;
     }
 
     if((ch == 'U') && ((player.t_flags & ISBLIND) == 0)) {
         rp = roomin(&player.t_pos);
         int distance = ((player.t_pos.x - x) * (player.t_pos.x - x)) + ((player.t_pos.y - y) * (player.t_pos.y - y));
         
-	if(((rp != NULL) && !(rp->r_flags & ISDARK))
+        if(((rp != NULL) && !(rp->r_flags & ISDARK))
            || (distance < 3)) {
             if(((tp->t_flags & ISFOUND) == 0) && !save(VS_MAGIC)) {
-		msg("The umber hulk's gaze has confused you.");
+                msg("The umber hulk's gaze has confused you.");
 
                 if((player.t_flags & ISHUH) != 0) {
-		    lengthen(&unconfuse, rnd(20) + HUHDURATION);
+                    lengthen(&unconfuse, rnd(20) + HUHDURATION);
                 }
-		else {
-		    fuse(&unconfuse, 0, rnd(20) + HUHDURATION, AFTER);
+                else {
+                    fuse(&unconfuse, 0, rnd(20) + HUHDURATION, AFTER);
                 }
                 
-		player.t_flags |= ISHUH;
-	    }
-	    tp->t_flags |= ISFOUND;
-	}
+                player.t_flags |= ISHUH;
+            }
+            tp->t_flags |= ISFOUND;
+        }
     }
 
     // Hide the invisible monsters
     if(((tp->t_flags & ISINVIS) != 0) && ((player.t_flags & CANSEE) == 0)) {
-	ch = mvwinch(stdscr, y, x);
+        ch = mvwinch(stdscr, y, x) & A_CHARTEXT;
     }
     
     // Let the greedy ones guard gold
     if(((tp->t_flags & ISGREED) != 0) && ((tp->t_flags & ISRUN) == 0)) {
-	if((rp != NULL) && (rp->r_goldval)) {
-	    tp->t_dest = &rp->r_gold;
-	    tp->t_flags |= ISRUN;
-	}
+        if((rp != NULL) && (rp->r_goldval)) {
+            tp->t_dest = &rp->r_gold;
+            tp->t_flags |= ISRUN;
+        }
     }
     
     return it;
@@ -312,38 +312,38 @@ int genocide()
 
     addmsg("Which monster");
     if(!terse) {
-	addmsg(" do you wish to wipe out");
+        addmsg(" do you wish to wipe out");
     }
     msg("? ");
     c = readchar();
     while(!isalpha(c)) {
-	if(c == ESCAPE_KEY) {
-	    return 0;
+        if(c == ESCAPE_KEY) {
+            return 0;
         }
-	else {
-	    mpos = 0;
-	    msg("Please specifiy a letter between 'A' and 'Z'");
-	}
+        else {
+            mpos = 0;
+            msg("Please specifiy a letter between 'A' and 'Z'");
+        }
 
         c = readchar();
     }
     if(islower(c)) {
-	c = toupper(c);
+        c = toupper(c);
     }
     
     for(ip = mlist; ip; ip = nip) {
-	mp = (struct thing *)ip->l_data;
-	nip = ip->l_next;
-	if(mp->t_type == c) {
-	    remove_monster(&mp->t_pos, ip);
+        mp = (struct thing *)ip->l_data;
+        nip = ip->l_next;
+        if(mp->t_type == c) {
+            remove_monster(&mp->t_pos, ip);
         }
     }
     for(i = 0; i < 26; ++i) {
-	if(lvl_mons[i] == c) {
-	    lvl_mons[i] = ' ';
-	    wand_mons[i] = ' ';
-	    break;
-	}
+        if(lvl_mons[i] == c) {
+            lvl_mons[i] = ' ';
+            wand_mons[i] = ' ';
+            break;
+        }
     }
     
     return 0;
