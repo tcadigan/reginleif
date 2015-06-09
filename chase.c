@@ -99,7 +99,7 @@ int do_chase(struct thing *th)
         return 0;
     }
     mvwaddch(cw, th->t_pos.y, th->t_pos.x, th->t_oldch);
-    sch = mvwinch(cw, ch_ret.y, ch_ret.x);
+    sch = mvwinch(cw, ch_ret.y, ch_ret.x) & A_CHARTEXT;
 
     int distance = ((th->t_pos.x - ch_ret.x) * (th->t_pos.x - ch_ret.x)) + ((th->t_pos.y - ch_ret.y) * (th->t_pos.y - ch_ret.y));
 
@@ -210,7 +210,7 @@ int chase(struct thing *tp, struct coord *ee)
                 }
                 
                 if(mvwinch(mw, y, x) == ' ') {
-                    ch = mvwinch(stdscr, y, x);
+                    ch = mvwinch(stdscr, y, x) & A_CHARTEXT;
                 }
                 else {
                     ch = winch(mw);
@@ -289,7 +289,8 @@ int diag_ok(struct coord *sp, struct coord *ep)
         return TRUE;
     }
     
-    return (step_ok(mvinch(ep->y, sp->x)) && step_ok(mvinch(sp->y, ep->x)));
+    return (step_ok(mvinch(ep->y, sp->x) & A_CHARTEXT)
+            && step_ok(mvinch(sp->y, ep->x) & A_CHARTEXT));
 }
 
 // cansee:
