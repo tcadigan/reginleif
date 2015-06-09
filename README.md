@@ -4,6 +4,8 @@ Date of origin: 2006
 
 Original source: http://www.shamusyoung.com/files/terrain_source.zip
 
+[![Build Status](https://travis-ci.org/tcadigan/snobol_III.svg?branch=master)](https://travis-ci.org/tcadigan/snobol_III)
+
 Goals:
 
 1) Re-type all source code [DONE]

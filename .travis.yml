@@ -4,5 +4,5 @@ compiler:
   - clang
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get-install -y libsdl1.2-dev libglu1-mesa-dev mesa-common-dev
+  - sudo apt-get install -y libsdl1.2-dev libglu1-mesa-dev mesa-common-dev
 script: make
