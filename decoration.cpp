@@ -130,7 +130,7 @@ void Decoration::CreateLogo(GLvector2 start,
     float top;
     float height;
     float length;
-    GLvector2 venter2d;
+    GLvector2 center2d;
     GLvector to;
     GLvector out;
     int logo_index;
@@ -152,7 +152,7 @@ void Decoration::CreateLogo(GLvector2 start,
     center2d = (start + end) / 2;
     center_ = glVector(center2d.x, bottom, center2d.y);
     length = glVectorLength(start - end);
-    height (length / 8.0f) * 1.5f;
+    height = (length / 8.0f) * 1.5f;
     top = bottom + height;
     u1 = 0.0f;
     u2 = 0.5f; // We actually only use the left half of the texture
@@ -247,7 +247,7 @@ void Decoration::CreateLightTrim(GLvector *chain,
     int next;
     float u;
     float v1;
-    float v1;
+    float v2;
     float row;
     quad_strip qs;
 

@@ -1,12 +1,12 @@
 NAME    = PixelCity
 SRCS    = $(wildcard *.cpp)
 OBJS    = $(patsubst %.cpp,%.o,$(SRCS))
-CFLAGS  = -Wall 
-LDFLAGS = -lGL -lGLU -lglut
+CXXFLAGS  = -Wall 
+LDFLAGS = -lGL -lGLU
 CXX     = g++
 
 all: ${OBJS}
-	${CXX} ${CFLAGS} ${LDFLAGS} -o ${NAME} ${OBJS}
+	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME) $(LDFLAGS) 
 
 clean:
 	rm -rf ${OBJS}

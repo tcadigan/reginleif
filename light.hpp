@@ -6,7 +6,7 @@ public:
     Light(GLvector pos, GLrgba color, int size);
     Light *next_;
     void Render();
-    void BLink();
+    void Blink();
 
 private:
     GLvector position_;

@@ -7,7 +7,7 @@
  *
  */
 
-#include "Car.hpp"
+#include "car.hpp"
 
 #include <cmath>
 
@@ -32,7 +32,7 @@
 #define STUCK_TIME 230
 #define UPDATE_INTERVAL 50 // milliseconds
 #define MOVEMENT_SPEED 0.61f
-#define CAR_SIZE
+#define CAR_SIZE 3.0f
 
 static GLvector direction[] = {
     0.0f, 0.0f, -1.0f,
@@ -79,7 +79,7 @@ void CarRender()
     }
 
     glDepthMask(false);
-    glEnable(GL_BIND);
+    glEnable(GL_BLEND);
     glDisable(GL_CULL_FACE);
     glBlendFunc(GL_ONE, GL_ONE);
     glBindTexture(GL_TEXTURE_2D, 0);
