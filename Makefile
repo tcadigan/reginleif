@@ -1,7 +1,6 @@
 NAME = terrain
 CXXFLAGS = -Wall `sdl-config --cflags`
 LDFLAGS = -lGL -lGLU `sdl-config --libs`
-CXX = g++
 
 HDRS = app.hpp camera.hpp console.hpp entity-manager.hpp ini-manager.hpp \
 	   terrain-map.hpp cell.hpp terrain-texture.hpp math.hpp mouse-pointer.hpp \
