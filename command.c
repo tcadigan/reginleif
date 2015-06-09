@@ -665,7 +665,7 @@ int search()
     for(x = player.t_pos.x - 1; x <= player.t_pos.x + 1; ++x) {
 	for(y = player.t_pos.y - 1; y <= player.t_pos.y + 1; ++y) {
             if(mvwinch(mw, y, x) == ' ') {
-                ch = mvwinch(stdscr, y, x);
+                ch = mvwinch(stdscr, y, x) & A_CHARTEXT;
             }
             else {
                 ch = winch(mw);
