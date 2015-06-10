@@ -1,7 +1,7 @@
 #ifndef CAR_HPP_
 #define CAR_HPP_
 
-#include "primitives/types.hpp"
+#include "types.hpp"
 
 class Car {
 public:

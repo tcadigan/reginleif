@@ -21,7 +21,7 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include "primitives/types.hpp"
+#include "types.hpp"
 
 #include "building.hpp"
 #include "camera.hpp"

@@ -1,7 +1,7 @@
 #ifndef ENTITY_HPP_
 #define ENTITY_HPP_
 
-#include "primitives/types.hpp"
+#include "types.hpp"
 
 class Entity {
 public:

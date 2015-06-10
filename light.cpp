@@ -18,7 +18,7 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include "primitives/types.hpp"
+#include "types.hpp"
 
 #include "camera.hpp"
 #include "entity.hpp"

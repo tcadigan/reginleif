@@ -1,7 +1,7 @@
 #ifndef CAMERA_HPP_
 #define CAMERA_HPP_
 
-#include "primitives/types.hpp"
+#include "types.hpp"
 
 GLvector CameraAngle(void);
 void CameraAngleSet(GLvector new_angle);

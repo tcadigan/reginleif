@@ -13,7 +13,7 @@
 
 #include <GL/gl.h>
 
-#include "primitives/types.hpp"
+#include "types.hpp"
 
 #include "decoration.hpp"
 #include "light.hpp"
@@ -140,9 +140,7 @@ void Building::ConstructCube(int left,
     float v2;
     float mapping;
     int base_index;
-    int height;
 
-    height = top - bottom;
     x1 = (float)left;
     x2 = (float)right;
     y1 = (float)bottom;
@@ -275,7 +273,6 @@ void Building::ConstructRoof(float left,
     float ac_base;
     float ac_size;
     float ac_height;
-    float tower_height;
     float logo_offset;
     Decoration *d;
     GLvector2 start;
@@ -402,7 +399,6 @@ void Building::ConstructRoof(float left,
 
     if(height_ > 45) {
         d = new Decoration;
-        tower_height = (float)(12 + RandomVal(8));
         d->CreateRadioTower(glVector((float)(left + right) / 2.0f,
                                      (float)bottom,
                                      (float)(front + back) / 2.0f),
@@ -547,6 +543,8 @@ float Building::ConstructWall(int start_x,
     }
 
     mesh_->QuadStripAdd(qs);
+
+    return v.uv.x;
 }
 
 /*
@@ -844,7 +842,6 @@ void Building::CreateModern()
     int cap_height;
     int half_depth;
     int half_width;
-    float dist;
     float length;
     quad_strip qs;
     fan f;
@@ -881,7 +878,6 @@ void Building::CreateModern()
     half_width = width_ / 2;
     center = glVector((float)(x_ + half_width), 0.0f, (float)(y_ + half_depth));
     radius = glVector((float)half_width, (float)half_depth);
-    dist = 0;
     windows = 0;
     p.uv.x = 0.0f;
     points = 0;
@@ -998,20 +994,18 @@ void Building::CreateTower()
     float ledge;
     float uv_start;
     bool blank_corners;
-    bool roof_spike;
-    bool tower;
 
     // How much ledges protrude from the building
     ledge = (float)RandomVal(3) * 0.25f;
     
     // How tall the ledges are, in stories
     ledge_height = RandomVal(4) + 1;
+
+    // If the corner of the building have no windows
+    blank_corners = RandomVal(4) > 0;
     
     // How the windows are grouped
     grouping = RandomVal(3) + 2;
-
-    // If the roof is pointed or has infrastructure on it
-    roof_spike = (RandomVal(3) == 0);
 
     // What fraction of the remaining height should be given to each tier
     tier_fraction = 2 + RandomVal(4);
@@ -1021,9 +1015,6 @@ void Building::CreateTower()
 
     // The height of the windowless slab at the bottom
     foundation = 2 + RandomVal(3);
-
-    // The odds that we'll have a bit fancy spiky top
-    tower = ((RandomVal(5) != 0) && (height_ > 40));
 
     // Set our initial parameters
     left = x_;

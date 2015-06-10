@@ -11,11 +11,10 @@
 
 #include "camera.hpp"
 
+#include <SDL.h>
 #include <cmath>
 #include <ctime>
 #include <string>
-
-#include "primitives/types.hpp"
 
 #include "ini.hpp"
 #include "macro.hpp"
@@ -48,7 +47,6 @@ static GLvector angle;
 static GLvector position;
 static GLvector auto_angle;
 static GLvector auto_position;
-static float distance;
 static GLvector movement;
 static bool cam_auto;
 static float tracker;
@@ -96,13 +94,12 @@ static GLvector flycam_position(unsigned int t)
 static void do_auto_cam()
 {
     float dist;
-    unsigned int t;
     unsigned int elapsed;
     unsigned int now;
     int behavior;
     GLvector target;
 
-    now = GetTickCount();
+    now = SDL_GetTicks();
     elapsed = now - last_update;
     elapsed = MIN(elapsed, 50); // Limit to 1/20th second worth of time
     if(elapsed == 0) {
@@ -110,13 +107,8 @@ static void do_auto_cam()
     }
 
     last_update = now;
-    t = time(NULL) % CAMERA_CYCLE_LENGTH;
 
-#if SCREENSAVER
-    behavior = t / CAMERA_CHANGE_INTERVAL;
-#else
     behavior = camera_behavior;
-#endif
 
     tracker += ((float)elapsed / 300.0f);
     // behavior = CAMERA_FLYCAM;
@@ -238,19 +230,19 @@ void CameraForward(float delta)
 void CameraVertical(float val)
 {
     movement.y += val;
-    last_move = GetTickCount();
+    last_move = SDL_GetTicks();
 }
 
 void CameraLateral(float val)
 {
     movement.x += val;
-    last_move = GetTickCount();
+    last_move = SDL_GetTicks();
 }
 
 void CameraMedial(float val)
 {
     movement.z += val;
-    last_move = GetTickCount();
+    last_move = SDL_GetTicks();
 }
 
 GLvector CameraPosition(void)
@@ -306,17 +298,13 @@ void CameraUpdate(void)
     CameraPan(movement.x);
     CameraForward(movement.z);
     position.y += (movement.y / 10.0f);
-    if((GetTickCount() - last_move) > 1000) {
+    if((SDL_GetTicks() - last_move) > 1000) {
         movement *= 0.9f;
     }
     else {
         movement *= 0.99f;
     }
-    
-    if(SCREENSAVER) {
-        cam_auto = true;
-    }
-    
+        
     if(cam_auto) {
         do_auto_cam();
     }

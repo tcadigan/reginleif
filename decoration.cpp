@@ -15,8 +15,6 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include "primitives/types.hpp"
-
 #include "light.hpp"
 #include "macro.hpp"
 #include "math.hpp"

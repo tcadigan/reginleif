@@ -9,12 +9,13 @@
 
 #include "car.hpp"
 
+#include <SDL.h>
 #include <cmath>
 
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include "primitives/types.hpp"
+#include "types.hpp"
 
 #include "building.hpp"
 #include "camera.hpp"
@@ -35,10 +36,10 @@
 #define CAR_SIZE 3.0f
 
 static GLvector direction[] = {
-    0.0f, 0.0f, -1.0f,
-    1.0f, 0.0f, 0.0f,
-    0.0f, 0.0f, 1.0f,
-    -1.0f, 0.0f, 0.0f,
+    {  0.0f, 0.0f, -1.0f },
+    {  1.0f, 0.0f,  0.0f },
+    {  0.0f, 0.0f,  1.0f },
+    { -1.0f, 0.0f,  0.0f },
 };
 
 static int dangles[] = { 0, 90, 180, 270 };
@@ -63,7 +64,7 @@ void CarClear()
         c->Park();
     }
 
-    ZeroMemory(carmap, sizeof(carmap));
+    memset(carmap, '\0', sizeof(carmap));
     count = 0;
 }
 
@@ -100,7 +101,7 @@ void CarUpdate()
         return;
     }
 
-    now = GetTickCount();
+    now = SDL_GetTicks();
     
     if(next_update > now) {
         return;
@@ -253,7 +254,7 @@ void Car::Update(void)
         else if(direction_ == SOUTH) {
             front_ = (camera.z > position_.z);
         }
-        else if(direction_ = EAST) {
+        else if(direction_ == EAST) {
             front_ = (camera.z > position_.x);
         }
         else {

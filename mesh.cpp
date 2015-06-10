@@ -20,7 +20,7 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include "primitives/types.hpp"
+#include "types.hpp"
 
 Mesh::Mesh()
 {

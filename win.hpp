@@ -8,9 +8,6 @@
 #define VERSION_MINOR 0
 #define VERSION_REVISION 10
 
-// Best to disable screensaver mode when working on the program
-#define SCREENSAVER 0
-
 // Do we hide scene building behind a loading screen or show it?
 #define LOADING_SCREEN 1
 
@@ -21,10 +18,10 @@
 #define WORLD_EDGE 200
 
 // How often to rebuild the city
-#define RESET_INTERVAL (SCREENSAVER ? 120000 : 999999) // Milliseconds
+#define RESET_INTERVAL (999999) // Milliseconds
 
 // How long the screen fade takes when transitioning to a new city
-#define FADE_TIME (SCREENSAVER ? 1500 : 1) // Milliseconds
+#define FADE_TIME (1) // Milliseconds
 
 // Debug ground texture that shows traffic lanes
 #define SHOW_DEBUG_GROUND 0
@@ -53,32 +50,6 @@ enum {
     SOUTH,
     WEST
 };
-
-#ifndef _WIN32
-// Win32 compatibility
-#include <sys/time.h>
-static inline long GetTickCount(void)
-{
-    struct timeval time;
-    gettimeofday(&time, NULL);
-
-    return ((time.tv_sec * 1000) + (time.tv_usec / 1000));
-}
-
-#include <string.h>
-static inline void ZeroMemory(void *dest, size_t length)
-{
-    memset(dest, 0, length);
-}
-
-#define GetRValue(rgb) ((unsigned char)(rgb))
-#define GetGValue(rgb) ((unsigned char)((rgb) >> 8))
-#define GetBValue(rgb) ((unsigned char)((rgb) >> 16))
-#endif
-
-#ifdef _WIN32
-HWND WinHwnd(void);
-#endif
 
 void WinPopup(char *message, ...);
 void WinTerm(void);

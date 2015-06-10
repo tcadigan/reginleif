@@ -10,8 +10,8 @@
 
 #include <cmath>
 
-#include "glTypes.hpp"
-#include "Macro.hpp"
+#include "types.hpp"
+#include "macro.hpp"
 
 #define MAX_VALUE 999999999999999.9f
 
@@ -34,7 +34,7 @@ bool glBboxTestPoint(GLbbox box, GLvector point)
 }
 
 // Expand BBox (if needed) to contain given point
-Glbbox glBboxContainPoint(GLbbox box, GLvector point)
+GLbbox glBboxContainPoint(GLbbox box, GLvector point)
 {
     box.min.x = MIN(box.min.x, point.x);
     box.min.y = MIN(box.min.y, point.y);

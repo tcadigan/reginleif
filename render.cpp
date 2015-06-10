@@ -19,9 +19,8 @@
 
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include <GL/glut.h>
 
-#include "primitives/types.hpp"
+#include "types.hpp"
 
 #include "camera.hpp"
 #include "car.hpp"
@@ -46,33 +45,6 @@
 #define FONT_COUNT (sizeof(fonts) / sizeof(struct glFont))
 #define FONT_SIZE (LOGO_PIXELS - (LOGO_PIXELS / 8))
 #define BLOOM_SCALING 0.07f
-
-#ifndef _WIN32
-#define SwapBuffers(...) glutSwapBuffers()
-#endif
-
-#ifdef _WIN32
-static PIXELFORMATDESCRIPTOR pfd = {
-    sizeof(PIXELFORMATDESCRIPTOR),
-    1, // Version number
-    PFD_DRAW_TO_WINDOW | // Format must support Window
-    PFD_SUPPORT_OPENGL | // Format must support OpenGL
-    PFD_DOUBLE_BUFFER, // Must support double buffering
-    PFD_TYPE_RGBA, // Request an RGBA Format
-    32, // Select our glRgbaDepth
-    0, 0, 0, 0, 0, 0, // glRgbaBits ignored
-    0, // No alpha buffer
-    0, // Shift bit ignored
-    0, // Accumulation buffers
-    0, 0, 0, 0, // Accumulation bits ignored
-    16, // Z-buffer (depth buffer) bits
-    0, // Stencil buffers
-    1, // Auxiliary buffer
-    PFD_MAIN_PLANE, // Main drawing layer
-    0, // Reserved
-    0, 0, 0 // Layer masks ignored
-};
-#endif
 
 static char help[] = "ESC - Exit!\n"
     "F1  - Show this help screen\n"
@@ -99,18 +71,6 @@ glFont fonts[] = {
     {"Book Antiqua", 0},
 };
 
-#if SCREENSAVER
-enum {
-    EFFECT_NONE,
-    EFFECT_BLOOM,
-    EFFECT_BLOOM_RADIAL,
-    EFFECT_COLOR_CYCLE,
-    EFFECT_GLASS_CITY,
-    EFFECT_COUNT,
-    EFFECT_DEBUG,
-    EFFECT_DEBUG_OVERBLOOM,
-};
-#else
 enum {
     EFFECT_NONE,
     EFFECT_BLOOM,
@@ -121,12 +81,6 @@ enum {
     EFFECT_COLOR_CYCLE,
     EFFECT_GLASS_CITY,
 };
-#endif
-
-#ifdef _WIN32
-static HDC hDC;
-static HGLRC hRC;
-#endif
 
 static float render_aspect;
 static float fog_distance;
@@ -482,10 +436,10 @@ void RenderPrint(int x, int y, int font, GLrgba, const char *fmt, ...)
     glPopAttrib();
 
     /* FIXME */
-    char *ptr = text;
-    while(*ptr) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, *ptr++);
-    }
+    // char *ptr = text;
+    // while(*ptr) {
+    //     glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, *ptr++);
+    // }
 }
 
 void RenderPrint(int line, const char *fmt, ...)
@@ -579,63 +533,10 @@ void RenderResize(void)
 
 void RenderTerm(void)
 {
-#ifdef _WIN32
-    if(!hRC) {
-        return;
-    }
-
-    wglDeleteContex(hRC);
-
-    hRC = NULL;
-#endif
 }
 
 void RenderInit(void)
 {
-#ifdef _WIN32 /* FIXME */
-    HWND hWnd;
-    unsigned int PixelFormat;
-    HFONT font;
-    HFONT oldfont;
-
-    hWnd = WinHwnd();
-    if(!(Hdc = GetDC(hWnd))) {
-        YOUFAIL("Can't create a GL Device context.");
-    }
-    if(!PixelFormat(hDC, PixelFormat, &pfd)) {
-        YOUFAIL("Can't find a suitable PixelFormat.");
-    }
-    if(!(hRC = wglCreateContext(hDC))) {
-        YOUFAIL("Can't create a GL Rendering context.");
-    }
-    if(!wglMakeCurrent(hDC, hRC)) {
-        YOUFAIL("Can't activate the GL Rendering context.");
-    }
-
-    // Load the fonts for printing debug info to the window.
-    for(int i = 0; i < FONT_COUNT; ++i) {
-        fonts[i].base_char = glGenLists(96);
-        font = CreateFront(FONT_SIZE,
-                           0,
-                           0, 
-                           0, 
-                           FW_BOLD,
-                           FALSE,
-                           FALSE,
-                           FALSE,
-                           DEFAULT_CHARSET,
-                           OUT_TT_PRECIS,
-                           CLIP_DEFAULT_PRECIS,
-                           ANTIALIASED_QUALITY,
-                           FF_DONTCARE | DEFAULT_PITCH,
-                           fonts[i].name);
-        oldfont = (HFONT)SelectObject(hDC, font);
-        wglUseFontBitmaps(hDC, 32, 96, fonts[i].base_char);
-        SelectObject(hDC, oldfont);
-        DeleteObject(font);
-    }
-#endif
-
     // If the program is running for the first time, set the defaults.
     if(!InitInt("SetDefaults")) {
         IniIntSet("SetDefaults", 1);

@@ -1,7 +1,7 @@
 #ifndef INI_HPP_
 #define INI_HPP_
 
-#include "primitives/types.hpp"
+#include "types.hpp"
 
 int IniInt(char *entry);
 void IniIntSet(char *entry, int val);

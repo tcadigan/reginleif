@@ -15,7 +15,7 @@
 
 #include <GL/gl.h>
 
-#include "primitives/types.hpp"
+#include "types.hpp"
 
 #include "camera.hpp"
 #include "macro.hpp"
