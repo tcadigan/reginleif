@@ -75,7 +75,7 @@ int do_move(int dy, int dx)
     }
     
     if(mvwinch(mw, nh.y, nh.x) == ' ') {
-        ch = mvwinch(stdscr, nh.y, nh.x);
+        ch = mvwinch(stdscr, nh.y, nh.x) & A_CHARTEXT;
     }
     else {
         ch = winch(mw);
@@ -105,7 +105,7 @@ int do_move(int dy, int dx)
             }
 
             if(mvwinch(mw, player.t_pos.y, player.t_pos.x) == ' ') {
-                temp = mvwinch(stdscr, player.t_pos.y, player.t_pos.x);
+                temp = mvwinch(stdscr, player.t_pos.y, player.t_pos.x) & A_CHARTEXT;
             }
             else {
                 temp = winch(mw);
@@ -155,7 +155,7 @@ int do_move(int dy, int dx)
             char temp;
             
             if(mvwinch(mw, player.t_pos.y, player.t_pos.x) == ' ') {
-                temp = mvwinch(stdscr, player.t_pos.y, player.t_pos.x);
+                temp = mvwinch(stdscr, player.t_pos.y, player.t_pos.x) & A_CHARTEXT;
             }
             else {
                 temp = winch(mw);
@@ -230,7 +230,7 @@ int light(struct coord *cp)
                     if(((struct thing *)item->l_data)->t_oldch == ' ') {
                         if(!(rp->r_flags & ISDARK)) {
                             ((struct thing *)item->l_data)->t_oldch =
-                                mvwinch(stdscr, rp->r_pos.y + j, rp->r_pos.x + k);
+                                mvwinch(stdscr, rp->r_pos.y + j, rp->r_pos.x + k) & A_CHARTEXT;
                         }
                     }
                 }
@@ -275,7 +275,7 @@ char show(int y, int x)
     struct thing *tp;
 
     if(mvwinch(mw, y, x) == ' ') {
-        ch = mvwinch(stdscr, y, x);
+        ch = mvwinch(stdscr, y, x) & A_CHARTEXT;
     }
     else {
         ch = winch(mw);
@@ -303,7 +303,7 @@ char show(int y, int x)
         }
         else if((player.t_flags & CANSEE) == 0) {
             // Hide the invisible monsters
-            ch = mvwinch(stdscr, y, x);
+            ch = mvwinch(stdscr, y, x) & A_CHARTEXT;
         }
     }
     return ch;
@@ -442,7 +442,7 @@ struct coord *rndmove(struct thing *who)
                     continue;
                 }
                 if(mvwinch(mw, y, x) == ' ') {
-                    ch = mvwinch(stdscr, y, x);
+                    ch = mvwinch(stdscr, y, x) & A_CHARTEXT;
                 }
                 else {
                     ch = winch(mw);
