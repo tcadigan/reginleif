@@ -150,9 +150,9 @@ int do_passages()
 int conn(int r1, int r2)
 {
     struct room *rpf;
-    struct room *rpt;
+    struct room *rpt = NULL;
     char rmt;
-    int distance;
+    int distance = 0;
     int turn_spot;
     int turn_distance;
     int rm;
@@ -341,7 +341,7 @@ int add_pass()
 
     for(y = 1; y < LINES - 2; ++y) {
         for (x = 0; x < COLS; ++x) {
-            ch = mvinch(y, x);
+            ch = mvinch(y, x) * A_CHARTEXT;
             if((ch == PASSAGE) || (ch == DOOR) || (ch == SECRETDOOR)) {
                 mvwaddch(cw, y, x, ch);
             }
