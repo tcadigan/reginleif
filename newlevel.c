@@ -51,7 +51,7 @@ int new_level()
     
     char temp;
     if(mvwinch(mw, stairs.y, stairs.x) == ' ') {
-        temp = mvwinch(stdscr, stairs.y, stairs.x);
+        temp = mvwinch(stdscr, stairs.y, stairs.x) & A_CHARTEXT;
     }
     else {
         temp = winch(mw);
@@ -62,7 +62,7 @@ int new_level()
         rnd_pos(&rooms[rm], &stairs);
 
         if(mvwinch(mw, stairs.y, stairs.x) == ' ') {
-            temp = mvwinch(stdscr, stairs.y, stairs.x);
+            temp = mvwinch(stdscr, stairs.y, stairs.x) & A_CHARTEXT;
         }
         else {
             temp = winch(mw);
@@ -84,7 +84,7 @@ int new_level()
             rnd_pos(&rooms[rm], &stairs);
 
             if(mvwinch(mw, stairs.y, stairs.x) == ' ') {
-                temp = mvwinch(stdscr, stairs.y, stairs.x);
+                temp = mvwinch(stdscr, stairs.y, stairs.x) & A_CHARTEXT;
             }
             else {
                 temp = winch(mw);
@@ -95,7 +95,7 @@ int new_level()
                 rnd_pos(&rooms[rm], &stairs);
 
                 if(mvwinch(mw, stairs.y, stairs.x) == ' ') {
-                    temp = mvwinch(stdscr, stairs.y, stairs.y);
+                    temp = mvwinch(stdscr, stairs.y, stairs.y) & A_CHARTEXT;
                 }
                 else {
                     temp = winch(mw);
@@ -146,7 +146,7 @@ int new_level()
     rnd_pos(&rooms[rm], &player.t_pos);
 
     if(mvwinch(mw, player.t_pos.y, player.t_pos.x) == ' ') {
-        temp = mvwinch(stdscr, player.t_pos.y, player.t_pos.x);
+        temp = mvwinch(stdscr, player.t_pos.y, player.t_pos.x) & A_CHARTEXT;
     }
     else {
         temp = winch(mw);
@@ -157,7 +157,7 @@ int new_level()
         rnd_pos(&rooms[rm], &player.t_pos);
 
         if(mvwinch(mw, player.t_pos.y, player.t_pos.x) == ' ') {
-            temp = mvwinch(stdscr, player.t_pos.y, player.t_pos.x);
+            temp = mvwinch(stdscr, player.t_pos.y, player.t_pos.x) & A_CHARTEXT;
         }
         else {
             temp = winch(mw);
@@ -219,7 +219,7 @@ int put_things() {
 
             char temp;
             if(mvwinch(mw, tp.y, tp.x) == ' ') {
-                temp = mvwinch(stdscr, tp.y, tp.x);
+                temp = mvwinch(stdscr, tp.y, tp.x) & A_CHARTEXT;
             }
             else {
                 temp = winch(mw);
@@ -229,7 +229,7 @@ int put_things() {
                 rnd_pos(&rooms[rm], &tp);
 
                 if(mvwinch(mw, tp.y, tp.x) == ' ') {
-                    temp = mvwinch(stdscr, tp.y, tp.x);
+                    temp = mvwinch(stdscr, tp.y, tp.x) & A_CHARTEXT;
                 }
                 else {
                     temp = winch(mw);
@@ -266,7 +266,7 @@ int put_things() {
 
         char temp;
         if(mvwinch(mw, tp.y, tp.x) == ' ') {
-            temp = mvwinch(stdscr, tp.y, tp.x);
+            temp = mvwinch(stdscr, tp.y, tp.x) & A_CHARTEXT;
         }
         else {
             temp = winch(mw);
@@ -276,7 +276,7 @@ int put_things() {
             rnd_pos(&rooms[rm], &tp);
 
             if(mvwinch(mw, tp.y, tp.x) == ' ') {
-                temp = mvwinch(stdscr, tp.y, tp.x);
+                temp = mvwinch(stdscr, tp.y, tp.x) & A_CHARTEXT;
             }
             else {
                 temp = winch(mw);

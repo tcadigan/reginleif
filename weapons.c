@@ -141,7 +141,7 @@ int do_motion(struct object *obj, int ydelta, int xdelta)
         obj->o_pos.x += xdelta;
 
         if(mvwinch(mw, obj->o_pos.y, obj->o_pos.y) == ' ') {
-            ch = mvwinch(stdscr, obj->o_pos.y, obj->o_pos.x);
+            ch = mvwinch(stdscr, obj->o_pos.y, obj->o_pos.x) & A_CHARTEXT;
         }
         else {
             ch = winch(mw);
@@ -228,7 +228,7 @@ int hit_monster(int y, int x, struct object *obj)
 
     char temp;
     if(mvwinch(mw, y, x) == ' ') {
-        temp = mvwinch(stdscr, y, x);
+        temp = mvwinch(stdscr, y, x) & A_CHARTEXT;
     }
     else {
         temp = winch(mw);
@@ -350,7 +350,7 @@ int fallpos(struct coord *pos, struct coord *newpos, bool passages)
             }
             
             if(mvwinch(mw, y, x) == ' ') {
-                ch = mvwinch(stdscr, y, x);
+                ch = mvwinch(stdscr, y, x) & A_CHARTEXT;
             }
             else {
                 ch = winch(mw);

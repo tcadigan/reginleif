@@ -143,7 +143,7 @@ int do_zap(bool gotdir)
             
             char temp;
             if(mvwinch(mw, y, x) == ' ') {
-                temp = mvwinch(stdscr, y, x);
+                temp = mvwinch(stdscr, y, x) & A_CHARTEXT;
             }
             else {
                 temp = winch(mw);
@@ -154,14 +154,14 @@ int do_zap(bool gotdir)
                 x += delta.x;
                 
                 if(mvwinch(mw, y, x) == ' ') {
-                    temp = mvwinch(stdscr, y, x);
+                    temp = mvwinch(stdscr, y, x) & A_CHARTEXT;
                 }
                 else {
                     temp = winch(mw);
                 }
             }
 
-            monster = mvwinch(mw, y, x);
+            monster = mvwinch(mw, y, x) & A_CHARTEXT;
             if(isupper(monster)) {
                 char omonst = monster;
 
@@ -198,7 +198,7 @@ int do_zap(bool gotdir)
                         rnd_pos(&rooms[rm], &tp->t_pos);
 
                         if(mvwinch(mw, tp->t_pos.y, tp->t_pos.x) == ' ') {
-                            temp = mvwinch(stdscr, tp->t_pos.y, tp->t_pos.x);
+                            temp = mvwinch(stdscr, tp->t_pos.y, tp->t_pos.x) & A_CHARTEXT;;
                         }
                         else {
                             temp = winch(mw);
@@ -209,7 +209,7 @@ int do_zap(bool gotdir)
                             rnd_pos(&rooms[rm], &tp->t_pos);
 
                             if(mvwinch(mw, tp->t_pos.y, tp->t_pos.x) == ' ') {
-                                temp = mvwinch(stdscr, tp->t_pos.y, tp->t_pos.x);
+                                temp = mvwinch(stdscr, tp->t_pos.y, tp->t_pos.x) & A_CHARTEXT;
                             }
                             else {
                                 temp = winch(mw);
@@ -232,7 +232,7 @@ int do_zap(bool gotdir)
 
                     if((tp->t_pos.y != y)
                        || (tp->t_pos.x != x)) {
-                        tp->t_oldch = mvwinch(cw, tp->t_pos.y, tp->t_pos.x);
+                        tp->t_oldch = mvwinch(cw, tp->t_pos.y, tp->t_pos.x) & A_CHARTEXT;
                     }
                 }
             }
@@ -282,7 +282,7 @@ int do_zap(bool gotdir)
             delta.x += player.t_pos.x;
             
             if(mvwinch(mw, delta.y, delta.x) == ' ') {
-                ch = mvwinch(stdscr, delta.y, delta.x);
+                ch = mvwinch(stdscr, delta.y, delta.x) & A_CHARTEXT;
             }
             else {
                 ch = winch(mw);
@@ -310,7 +310,7 @@ int do_zap(bool gotdir)
             
             char temp;
             if(mvwinch(mw, y, x) == ' ') {
-                temp = mvwinch(stdscr, y, x);
+                temp = mvwinch(stdscr, y, x) & A_CHARTEXT;
             }
             else {
                 temp = winch(mw);
@@ -321,7 +321,7 @@ int do_zap(bool gotdir)
                 x += delta.x;
                 
                 if(mvwinch(mw, y, x) == ' ') {
-                    temp = mvwinch(stdscr, y, x);
+                    temp = mvwinch(stdscr, y, x) & A_CHARTEXT;
                 }
                 else {
                     temp = winch(mw);
@@ -420,7 +420,7 @@ int do_zap(bool gotdir)
             
             for(y = 0; y < BOLT_LENGTH && !used; ++y) {
                 if(mvwinch(mw, pos.y, pos.y) == ' ') {
-                    ch = mvwinch(stdscr, pos.y, pos.x);
+                    ch = mvwinch(stdscr, pos.y, pos.x) & A_CHARTEXT;
                 }
                 else {
                     ch = winch(mw);

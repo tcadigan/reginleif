@@ -256,7 +256,7 @@ int drop()
     struct linked_list *nobj;
     struct object *op;
 
-    ch = mvwinch(stdscr, player.t_pos.y, player.t_pos.x);
+    ch = mvwinch(stdscr, player.t_pos.y, player.t_pos.x) & A_CHARTEXT;
     if((ch != FLOOR) && (ch != PASSAGE)) {
         msg("There is something there already");
         return 0;

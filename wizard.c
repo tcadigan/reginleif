@@ -175,7 +175,7 @@ int teleport()
 
     char temp;
     if(mvwinch(mw, player.t_pos.y, player.t_pos.x) == ' ') {
-        temp = mvwinch(stdscr, player.t_pos.y, player.t_pos.x);
+        temp = mvwinch(stdscr, player.t_pos.y, player.t_pos.x) & A_CHARTEXT;
     }
     else {
         temp = winch(mw);
@@ -186,7 +186,7 @@ int teleport()
         rnd_pos(&rooms[rm], &player.t_pos);
 
         if(mvwinch(mw, player.t_pos.y, player.t_pos.x) == ' ') {
-            temp = mvwinch(stdscr, player.t_pos.y, player.t_pos.x);
+            temp = mvwinch(stdscr, player.t_pos.y, player.t_pos.x) & A_CHARTEXT;
         }
         else {
             temp = winch(mw);

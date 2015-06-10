@@ -136,7 +136,7 @@ int read_scroll()
                     // Or anything else nasty
                     char temp;
                     if(mvwinch(mw, y, x) == ' ') {
-                        temp = mvwinch(stdscr, y, x);
+                        temp = mvwinch(stdscr, y, x) & A_CHARTEXT;
                     }
                     else {
                         temp = winch(mw);
@@ -176,7 +176,7 @@ int read_scroll()
         // Take all the things we want to keep hidden out of the window
         for(i = 0; i < LINES; ++i) {
             for(j = 0; j < COLS; ++j) {
-                ch = mvwinch(hw, i, j);
+                ch = mvwinch(hw, i, j) & A_CHARTEXT;
                 nch = ch;
                 switch(nch) {
                 case SECRETDOOR:
