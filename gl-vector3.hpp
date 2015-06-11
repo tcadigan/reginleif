@@ -26,8 +26,6 @@ public:
     gl_vector3 cross_product(gl_vector3 const &rhs) const;
     gl_vector3 interpolate(gl_vector3 const &rhs, GLfloat scalar) const;
 
-    bool operator==(GLvector const &rhs);
-
     void set_data(GLfloat x, GLfloat y, GLfloat z);
     void set_x(GLfloat x);
     void set_y(GLfloat y);
@@ -106,4 +104,16 @@ inline GLfloat dot_product(gl_vector3 const &lhs, gl_vector3 const &rhs)
 inline gl_vector3 cross_product(gl_vector3 const &lhs, gl_vector3 const &rhs)
 {
     return lhs.cross-product(lhs);
+}
+
+inline bool operator==(gl_vector3 const &lhs, gl_vector3 const &rhs)
+{
+    return ((lhs.data_[0] == rhs.data_[0])
+            && (lhs.data_[1] == rhs.data_[1])
+            && (lhs.data_[2] == rhs.data_[2]));
+}
+
+inline bool operator!=(gl_vector3 const &lhs, gl_vector3 const &rhs)
+{
+    return !operator==(lhs, rhs);
 }

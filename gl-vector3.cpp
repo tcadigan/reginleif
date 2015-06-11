@@ -138,14 +138,6 @@ gl_vector3 gl_vector::interpolate(gl_vector3 const &rhs, GLfloat scalar) const
                       math_interpolate(data_[2], rhs.data_[2], scalar));
 }
 
-
-bool gl_vector3::operator==(GLvector const &rhs)
-{
-    return ((data_[0] == rhs.data_[0])
-            && (data_[1] == rhs.data_[1])
-            && (data_[2] == rhs.data_[2]))
-}
-
 void gl_vector3::set_data(GLfloat x, GLfloat y, GLfloat z)
 {
     data_[0] = x;
