@@ -31,15 +31,6 @@ struct GLquat {
     float w;
 };
 
-struct GLvector {
-    float x;
-    float y;
-    float z;
-    OPERATORS(GLvector);
-};
-
-typedef GLvector GLvector3;
-
 struct GLvector2 {
     float x;
     float y;
@@ -56,11 +47,6 @@ struct GLrgba {
 
 struct GLmatrix {
     float elements[4][4];
-};
-
-struct GLbbox {
-    GLvector min;
-    GLvector max;
 };
 
 struct GLvertex {
@@ -140,10 +126,6 @@ struct GLtriangle {
 //     float m_length;
 // };
 
-GLbbox glBboxClear(void);
-GLbbox glBboxContainPoint(GLbbox box, GLvector point);
-bool glBboxTestPoint(GLbbox box, GLvector point);
-
 GLrgba glRgba(char *string);
 GLrgba glRgba(float red, float green, float blue);
 GLrgba glRgba(float luminance);
@@ -168,15 +150,6 @@ GLvector glMatrixToEuler(GLmatrix mat, int order);
 
 GLquat glQuat(float x, float y, float z, float w);
 GLvector glQuatToEuler(GLquat q, int order);
-
-GLvector glVector(float x, float y, float z);
-GLvector glVectorCrossProduct(GLvector v1, GLvector v2);
-float glVectorDotProduct(GLvector v1, GLvector v2);
-void glVectorGl(GLvector v);
-GLvector glVectorInterpolate(GLvector v1, GLvector v2, float scalar);
-float glVectorLength(GLvector v);
-GLvector glVectorNormalize(GLvector v);
-GLvector glVectorReflect(GLvector3 ray, GLvector3 normal);
 
 GLvector2 glVector(float x, float y);
 GLvector2 glVectorAdd(GLvector2 val1, GLvector2 val2);
