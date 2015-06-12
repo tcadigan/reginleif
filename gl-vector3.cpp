@@ -58,38 +58,11 @@ gl_vector3 &gl_vector3::operator+=(gl_vector3 const &rhs)
     return *this;
 }
 
-gl_vector3 &gl_vector3::operator+=(GLfloat const &rhs)
-{
-    data_[0] += rhs;
-    data_[1] += rhs;
-    data_[2] += rhs;
-
-    return *this;
-}
-
 gl_vector3 &gl_vector3::operator-=(gl_vector3 const &rhs)
 {
     data_[0] -= rhs.data_[0];
     data_[1] -= rhs.data_[1];
     data_[2] -= rhs.data_[2];
-
-    return *this;
-}
-
-gl_vector3 &gl_vector3::operator-=(GLfloat const &rhs)
-{
-    data_[0] -= rhs;
-    data_[1] -= rhs;
-    data_[2] -= rhs;
-
-    return *this;
-}
-
-gl_vector3 &gl_vector3::operator*=(gl_vector3 const &rhs)
-{
-    data_[0] *= rhs.data_[0];
-    data_[1] *= rhs.data_[1];
-    data_[2] *= rhs.data_[2];
 
     return *this;
 }
@@ -110,13 +83,6 @@ gl_vector3 &gl_vector3::operator/=(gl_vector3 const &rhs)
     data_[2] /= rhs.data_[2];
 }
 
-gl_vector3 &gl_vector3::operator/=(GLfloat const &rhs)
-{
-    data_[0] /= rhs;
-    data_[1] /= rhs;
-    data_[2] /= rhs;
-}
-
 GLfloat gl_vector3::dot_product(gl_vector3 const &rhs) const
 {
     return (GLfloat)((data_[0] * rhs.data_[0])
@@ -131,7 +97,7 @@ gl_vector3 gl_vector3::cross_product(gl_vector3 const &rhs) const
                       (data_[0] * rhs.data_[1]) - (rhs.data_[0] * data_[1]));
 }
 
-gl_vector3 gl_vector::interpolate(gl_vector3 const &rhs, GLfloat scalar) const
+gl_vector3 gl_vector3::interpolate(gl_vector3 const &rhs, GLfloat scalar) const
 {
     return gl_vector3(math_interpolate(data_[0], rhs.data_[0], scalar),
                       math_interpolate(data_[1], rhs.data_[1], scalar),

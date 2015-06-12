@@ -11,15 +11,11 @@ public:
 
     GLfloat length();
     void normalize();
-    void reflect(gl_vector3 const &nomal);
+    void reflect(gl_vector3 const &normal);
 
     gl_vector3 &operator+=(gl_vector3 const &rhs);
-    gl_vector3 &operator+=(GLfloat const &rhs);
     gl_vector3 &operator-=(gl_vector3 const &rhs);
-    gl_vector3 &operator-=(GLfloat const &rhs);
-    gl_vector3 &operator*=(gl_Vector const &rhs);
     gl_vector3 &operator*=(GLfloat const &rhs);
-    gl_vector3 &operator/=(gl_vector const &rhs);
     gl_vector3 &operator/=(GLfloat const &rhs);
 
     GLfloat dot_product(gl_vector3 const &rhs) const;
@@ -47,21 +43,7 @@ inline gl_vector3 operator+(gl_vector3 lhs, gl_vector3 const &rhs)
     return lhs;
 }
 
-inline gl_vector3 operator+(gl_vector3 lhs, GLfloat const rhs)
-{
-    lhs += rhs;
-
-    return lhs;
-}
-
 inline gl_vector3 operator-(gl_vector3 lhs, gl_vector3 const &rhs)
-{
-    lhs -= rhs;
-
-    return lhs;
-}
-
-inline gl_vector3 operator-(gl_vector3 lhs, GLfloat const &rhs)
 {
     lhs -= rhs;
 
@@ -75,25 +57,11 @@ inline gl_vector operator*(gl_vector3 lhs, gl_vector3 const &rhs)
     return lhs;
 }
 
-inline gl_vector operator*(gl_vector3 lhs, GLfloat const &rhs)
-{
-    lhs *= rhs;
-
-    return lhs;
-}
-
 inline gl_vector operator/(gl_vector3 lhs, gl_vector const &rhs)
 {
     lhs /= rhs;
 
     return lhs;
-}
-
-inline gl_vector operator/(gl_vector3 lhs, GLfloat const &rhs)
-{
-    lhs /= rhs;
-
-    return ls;
 }
 
 inline GLfloat dot_product(gl_vector3 const &lhs, gl_vector3 const &rhs)

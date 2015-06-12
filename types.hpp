@@ -31,12 +31,6 @@ struct GLquat {
     float w;
 };
 
-struct GLvector2 {
-    float x;
-    float y;
-    OPERATORS(GLvector2);
-};
-
 struct GLrgba {
     float red;
     float green;
@@ -150,17 +144,5 @@ GLvector glMatrixToEuler(GLmatrix mat, int order);
 
 GLquat glQuat(float x, float y, float z, float w);
 GLvector glQuatToEuler(GLquat q, int order);
-
-GLvector2 glVector(float x, float y);
-GLvector2 glVectorAdd(GLvector2 val1, GLvector2 val2);
-GLvector2 glVectorSubtract(GLvector val1, GLvector2 val2);
-GLvector2 glVectoreNormalize(GLvector2 v);
-GLvector2 glVectorInterpolate(GLvector2 v1, GLvector v2, float scalar);
-GLvector2 glVectorSinCos(float angle);
-float geVectorLength(GLvector2 v);
-
-#ifndef NULL
-#define NULL 0
-#endif
 
 #endif /* TYPES_HPP_ */
