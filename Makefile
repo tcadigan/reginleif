@@ -5,7 +5,7 @@ LDFLAGS = -lGL -lGLU `sdl-config --libs`
 HDRS = building.hpp camera.hpp decoration.hpp entity.hpp ini.hpp light.hpp \
 	   macro.hpp math.hpp mesh.hpp random.hpp render.hpp sky.hpp texture.hpp \
 	   types.hpp visible.hpp win.hpp world.hpp gl-bbox.hpp gl-vector3.hpp \
-	   gl-vector2.hpp \
+	   gl-vector2.hpp gl-rgba.hpp \
 
 OBJS = building.o camera.o car.o decoration.o entity.o gl-bbox.o ini.o \
 	   light.o math.o matrix.o mesh.o quaternion.o random.o render.o gl-rgba.o \

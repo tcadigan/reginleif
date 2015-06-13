@@ -31,14 +31,6 @@ struct GLquat {
     float w;
 };
 
-struct GLrgba {
-    float red;
-    float green;
-    float blue;
-    float alpha;
-    OPERATORS(GLrgba);
-};
-
 struct GLmatrix {
     float elements[4][4];
 };
@@ -119,20 +111,6 @@ struct GLtriangle {
 //     int m_segment_count;
 //     float m_length;
 // };
-
-GLrgba glRgba(char *string);
-GLrgba glRgba(float red, float green, float blue);
-GLrgba glRgba(float luminance);
-GLrgba glRgba(float red, float green, float blue, float alpha);
-GLrgba glRgba(long c);
-GLrgba glRgba(int red, int green, int blue);
-GLrgba glRgbaAdd(GLrgba c1, GLrgba c2);
-GLrgba glRgbaSubtract(GLrgba c1, GLrgba c2);
-GLrgba glRgbaInterpolate(GLrgba c1, GLrgba c2, float delta);
-GLrgba glRgbaScale(GLrgba c, float scale);
-GLrgba glRgbaMultiply(GLrgba c1, GLrgba c2);
-GLrgba glRgbaUnique(int i);
-GLrgba glRgbaFromHsl(float h, float s, float l);
 
 GLmatrix glMatrixIdentity(void);
 void glMatrixElementsSet(GLmatrix *m, float *in);
