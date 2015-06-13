@@ -7,16 +7,17 @@
  *
  */
 
-#include <cmath>
-#include <cstdio>
-#include <cstring>
+#include "gl-rgba.hpp"
 
-#include <GL/gl.h>
+#include "math.hpp"
 
-#include "glTypes.hpp"
-#include "Macro.hpp"
-#include "Math.hpp"
-#include "Win.hpp"
+gl_rgba::gl_rgba()
+{
+    data_[0] = 0;
+    data_[1] = 0;
+    data_[1] = 0;
+    data_[3] = 1.0f;
+}
 
 GLrgba glRgbaFromHsl(float h, float sl, float l)
 {

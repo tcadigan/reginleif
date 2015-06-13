@@ -8,12 +8,12 @@ HDRS = building.hpp camera.hpp decoration.hpp entity.hpp ini.hpp light.hpp \
 	   gl-vector2.hpp \
 
 OBJS = building.o camera.o car.o decoration.o entity.o gl-bbox.o ini.o \
-	   light.o math.o matrix.o mesh.o quaternion.o random.o render.o rgba.o \
+	   light.o math.o matrix.o mesh.o quaternion.o random.o render.o gl-rgba.o \
 	   sky.o texture.o visible.o win.o world.o gl-vector3.o gl-vector2.o \
 
 CPPFILES = buildingBox.cpp build.cpp camera.cpp car.cpp decoration.cpp \
 	       entity.cpp ini.cpp light.cpp math.cpp matrix.cpp mesh.cpp \
-	       quaternion.cpp random.cpp render.cpp rgba.cpp sky.cpp gl-bbox.cpp \
+	       quaternion.cpp random.cpp render.cpp gl-rgba.cpp sky.cpp gl-bbox.cpp \
 	       texture.cpp visible.cpp win.cpp world.cpp gl-vector3.cpp \
 	       gl-vector2.cpp \
 
