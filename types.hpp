@@ -3,33 +3,7 @@
 
 #define GL_CLAMP_TO_EDGE 0x812F
 
-#define OPERATORS(type)                         \
-    type operator+(type const &c);              \
-    type operator+(float const &c);             \
-    void operator+=(type const &c);             \
-    void operator+=(float const &c);            \
-    type operator-(type const &c);              \
-    type operator-(float const &c);             \
-    void operator-=(type const &c);             \
-    void operator-=(float const &c);            \
-    type operator*(type const &c);              \
-    type operator*(float const &c);             \
-    void operator*=(type const &c);             \
-    void operator*=(float const &c);            \
-    type operator/(type const &c);              \
-    type operator/(float const &c);             \
-    void operator/=(type const &c);             \
-    void operator/=(float const &c);            \
-    bool operator==(type const &c);
-
 #define JOINT_MAX_CHILDREN 8
-
-struct GLquat {
-    float x;
-    float y;
-    float z;
-    float w;
-};
 
 struct GLmatrix {
     float elements[4][4];
@@ -119,8 +93,5 @@ GLvector glMatrixTransformPoint(GLmatrix m, GLvector in);
 GLmatrix glMatrixTranslate(GLmatrix m, GLvector in);
 GLmatrix glMatrixRotate(GLmatrix m, float theta, float x, float y, float z);
 GLvector glMatrixToEuler(GLmatrix mat, int order);
-
-GLquat glQuat(float x, float y, float z, float w);
-GLvector glQuatToEuler(GLquat q, int order);
 
 #endif /* TYPES_HPP_ */
