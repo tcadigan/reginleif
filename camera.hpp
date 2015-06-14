@@ -1,17 +1,17 @@
 #ifndef CAMERA_HPP_
 #define CAMERA_HPP_
 
-#include "types.hpp"
+#include "gl-vector3.hpp"
 
-GLvector CameraAngle(void);
-void CameraAngleSet(GLvector new_angle);
+gl_vector3 CameraAngle(void);
+void CameraAngleSet(gl_vector3 new_angle);
 void AmeraAutoToggle();
 float CameraDistance(void);
 void CameraDistanceSet(float new_distance);
 void CameraInit(void);
 void CameraNextBehavior(void);
-GLvector CameraPosition(void);
-void CameraPositionSet(GLvector new_pos);
+gl_vector3 CameraPosition(void);
+void CameraPositionSet(gl_vector3 new_pos);
 void CameraReset();
 void CameraUpdate(void);
 void CameraTerm(void);

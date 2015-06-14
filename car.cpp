@@ -15,10 +15,9 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include "types.hpp"
-
 #include "building.hpp"
 #include "camera.hpp"
+#include "gl-vector2.hpp"
 #include "macro.hpp"
 #include "math.hpp"
 #include "mesh.hpp"
@@ -35,16 +34,16 @@
 #define MOVEMENT_SPEED 0.61f
 #define CAR_SIZE 3.0f
 
-static GLvector direction[] = {
-    {  0.0f, 0.0f, -1.0f },
-    {  1.0f, 0.0f,  0.0f },
-    {  0.0f, 0.0f,  1.0f },
-    { -1.0f, 0.0f,  0.0f },
+static gl_vector3 direction[] = {
+    gl_vector3(0.0f, 0.0f, -1.0f),
+    gl_vector3(1.0f, 0.0f,  0.0f),
+    gl_vector3(0.0f, 0.0f,  1.0f),
+    gl_vector3(-1.0f, 0.0f,  0.0f)
 };
 
 static int dangles[] = { 0, 90, 180, 270 };
 
-static GLvector2 angles[360];
+static gl_vector2 angles[360];
 static bool angles_done;
 static unsigned char carmap[WORLD_SIZE][WORLD_SIZE];
 static Car *head;
@@ -74,8 +73,8 @@ void CarRender()
 
     if(!angles_done) {
         for(int i = 0; i < 360; ++i) {
-            angles[i].x = (float)cos((float)i * DEGREES_TO_RADIANS) * CAR_SIZE;
-            angles[i].y = (float)sin((float)i * DEGREES_TO_RADIANS) * CAR_SIZE;
+            angles[i].set_x((float)cos((float)i * DEGREES_TO_RADIANS) * CAR_SIZE);
+            angles[i].set_y((float)sin((float)i * DEGREES_TO_RADIANS) * CAR_SIZE);
         }
     }
 
@@ -141,8 +140,8 @@ void Car::Update(void)
 {
     int new_row;
     int new_col;
-    GLvector old_pos;
-    GLvector camera;
+    gl_vector3 old_pos;
+    gl_vector3 camera;
 
     // If the car isn't ready, place it on the map and get it moving
     camera = CameraPosition();
@@ -161,12 +160,12 @@ void Car::Update(void)
             return;
         }
 
-        if(!Visible(glVector((float)row_, 0.0f, (float)col_))) {
+        if(!Visible(gl_vector3((float)row_, 0.0f, (float)col_))) {
             return;
         }
 
         // Good spot. Place the car
-        position_ = glVector((float)row_, 0.1f, (float)col_);
+        position_ = gl_vector3((float)row_, 0.1f, (float)col_);
         drive_position_ = position_;
         ready_ = true;
 
@@ -200,25 +199,25 @@ void Car::Update(void)
     position_ += direction[direction_] * MOVEMENT_SPEED * speed_;
     
     // If the car has moved out of view, there's no need to keep simulating it
-    if(!Visible(glVector((float)row_, 0.0f, (float)col_))) {
+    if(!Visible(gl_vector3((float)row_, 0.0f, (float)col_))) {
         ready_ = false;
     }
     
     // If the car is far away, remove it. We use Manhattan units because
     // buildings almost always block views of cars on the diagonal.
-    float x_dist = fabs(camera.x - position_.x);
-    float z_dist = fabs(camera.z - position_.z);
+    float x_dist = fabs(camera.get_x() - position_.get_x());
+    float z_dist = fabs(camera.get_z() - position_.get_z());
     if((x_dist + z_dist) > RenderFogDistance()) {
         ready_ = false;
     }
 
     // If the car gets too close to the edge of the map, take it out of play
-    if((position_.x < DEAD_ZONE)
-       || (position_.x > (WORLD_SIZE - DEAD_ZONE))) {
+    if((position_.get_x() < DEAD_ZONE)
+       || (position_.get_x() > (WORLD_SIZE - DEAD_ZONE))) {
         ready_ = false;
     }
-    if((position_.z < DEAD_ZONE)
-       || (position_.z > (WORLD_SIZE - DEAD_ZONE))) {
+    if((position_.get_z() < DEAD_ZONE)
+       || (position_.get_z() > (WORLD_SIZE - DEAD_ZONE))) {
         ready_ = false;
     }
 
@@ -231,8 +230,8 @@ void Car::Update(void)
     }
 
     // Check the new position and make sure its not in another car
-    new_row = (int)position_.x;
-    new_col = (int)position_.z;
+    new_row = (int)position_.get_x();
+    new_col = (int)position_.get_z();
     if((new_row != row_) || (new_col != col_)) {
         // See if the new position places us on top of another car
         if(carmap[new_row][new_col]) {
@@ -249,16 +248,16 @@ void Car::Update(void)
         change_--;
         stuck_ = 0;
         if(direction_ == NORTH) {
-            front_ = (camera.z < position_.z);
+            front_ = (camera.get_z() < position_.get_z());
         }
         else if(direction_ == SOUTH) {
-            front_ = (camera.z > position_.z);
+            front_ = (camera.get_z() > position_.get_z());
         }
         else if(direction_ == EAST) {
-            front_ = (camera.z > position_.x);
+            front_ = (camera.get_z() > position_.get_x());
         }
         else {
-            front_ = (camera.x < position_.x);
+            front_ = (camera.get_x() < position_.get_x());
         }
     }
 
@@ -270,7 +269,7 @@ void Car::Update(void)
 
 void Car::Render()
 {
-    GLvector pos;
+    gl_vector3 pos;
     int angle;
     int turn;
     float top;
@@ -296,20 +295,35 @@ void Car::Render()
     
     angle = dangles[direction_];
     pos = drive_position_;
-    angle = 360 - (int)MathAngle(position_.x, position_.z, pos.x, pos.z);
+    angle = 360 - (int)MathAngle(position_.get_x(),
+                                 position_.get_z(),
+                                 pos.get_x(),
+                                 pos.get_z());
+
     angle %= 360;
     turn = (int)MathAngleDifference((float)drive_angle_, (float)angle);
     drive_angle_ += SIGN(turn);
-    pos += glVector(0.5f, 0.0f, 0.5f);
+    pos += gl_vector3(0.5f, 0.0f, 0.5f);
 
     glTexCoord2f(0, 0);
-    glVertex3f(pos.x + angles[angle].x, -CAR_SIZE, pos.z + angles[angle].y);
+    glVertex3f(pos.get_x() + angles[angle].get_x(), 
+               -CAR_SIZE,
+               pos.get_z() + angles[angle].get_y());
+
     glTexCoord2f(1, 0);
-    glVertex3f(pos.x - angles[angle].x, -CAR_SIZE, pos.z - angles[angle].y);
+    glVertex3f(pos.get_x() - angles[angle].get_x(),
+               -CAR_SIZE,
+               pos.get_z() - angles[angle].get_y());
+
     glTexCoord2f(1, 1);
-    glVertex3f(pos.x - angles[angle].x, top, pos.z - angles[angle].y);
+    glVertex3f(pos.get_x() - angles[angle].get_x(),
+               top,
+               pos.get_z() - angles[angle].get_y());
+
     glTexCoord2f(0, 1);
-    glVertex3f(pos.x + angles[angle].x, top, pos.z + angles[angle].y);
+    glVertex3f(pos.get_x() + angles[angle].get_x(),
+               top,
+               pos.get_z() + angles[angle].get_y());
 
     glEnd();
 }

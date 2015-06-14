@@ -1,7 +1,7 @@
 #ifndef CAR_HPP_
 #define CAR_HPP_
 
-#include "types.hpp"
+#include "gl-vector3.hpp"
 
 class Car {
 public:
@@ -14,8 +14,8 @@ public:
     Car *next_;
 
 private:
-    GLvector position_;
-    GLvector drive_position_;
+    gl_vector3 position_;
+    gl_vector3 drive_position_;
     bool ready_;
     bool front_;
     int drive_angle_;

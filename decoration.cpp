@@ -40,7 +40,7 @@ Decoration::Decoration()
 
 void Decoration::Render()
 {
-    glColor3fv(&color_.red);
+    glColor3fv(color_.get_data());
     mesh_->Render();
 }
 
@@ -63,7 +63,7 @@ unsigned Decoration::Texture()
     return texture_;
 }
 
-void Decoration::CreateRadioTower(GLvector pos, float height)
+void Decoration::CreateRadioTower(gl_vector3 pos, float height)
 {
     Light *l;
     float offset;
