@@ -22,19 +22,19 @@
 
 static char result[MAX_RESULT];
 
-int IniInt(char *entry)
+int IniInt(char const *entry)
 {
     return 0;
 }
 
-void IniIntSet(char *entry, int val)
+void IniIntSet(char const *entry, int val)
 {
     char buf[20];
 
     sprintf(buf, "%d", val);
 }
 
-float IniFloat(char *entry)
+float IniFloat(char const *entry)
 {
     float f;
 
@@ -42,28 +42,28 @@ float IniFloat(char *entry)
     return f;
 }
 
-void IniFloatSet(char *entry, float val)
+void IniFloatSet(char const *entry, float val)
 {
     char buf[20];
 
     sprintf(buf, FORMAT_FLOAT, val);
 }
 
-char *IniString(char *entry)
+char *IniString(char const *entry)
 {
     return result;
 }
 
-void IniStringSet(char *entry, char *val)
+void IniStringSet(char const *entry, char *val)
 {
 }
 
-void IniVectorSet(char *entry, gl_vector3 v)
+void IniVectorSet(char const *entry, gl_vector3 v)
 {
     sprintf(result, FORMAT_VECTOR, v.get_x(), v.get_y(), v.get_z());
 }
 
-gl_vector3 IniVector(char *entry)
+gl_vector3 IniVector(char const *entry)
 {
     GLfloat x = 0.0f;
     GLfloat y = 0.0f;

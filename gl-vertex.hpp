@@ -12,7 +12,7 @@ public:
 
     void set_position(gl_vector3 const &position);
     void set_uv(gl_vector2 const &uv);
-    void set_rgba(gl_rgba const &color);
+    void set_color(gl_rgba const &color);
 
     gl_vector3 get_position() const;
     gl_vector2 get_uv() const;

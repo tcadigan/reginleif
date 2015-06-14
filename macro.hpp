@@ -1,11 +1,14 @@
 #ifndef MACRO_HPP_
 #define MACRO_HPP_
 
-#define LIMIT_INTERVAL(interval) { static long next_update; \
-    if(next_update > GetTickCount()) {                      \
-        return;                                             \
-    }                                                       \
-    next_update = GetTickCount() + (interval); }
+#define LIMIT_INTERVAL(interval)                            \
+    {                                                       \
+        static long next_update;                            \
+        if(next_update > SDL_GetTicks()) {                  \
+            return;                                         \
+        }                                                   \
+        next_update = SDL_GetTicks() + (interval);          \
+    }
 
 #define DEGREES_TO_RADIANS .017453292F
 #define RADIANS_TO_DEGREES 57.29577951F

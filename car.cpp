@@ -12,9 +12,6 @@
 #include <SDL.h>
 #include <cmath>
 
-#include <GL/gl.h>
-#include <GL/glu.h>
-
 #include "building.hpp"
 #include "camera.hpp"
 #include "gl-vector2.hpp"

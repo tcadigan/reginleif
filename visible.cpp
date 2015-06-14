@@ -14,8 +14,7 @@
 #include "visible.hpp"
 
 #include <cmath>
-
-#include "types.hpp"
+#include <cstring>
 
 #include "camera.hpp"
 #include "macro.hpp"
@@ -25,9 +24,9 @@
 
 static bool vis_grid[GRID_SIZE][GRID_SIZE];
 
-bool Visible(GLvector pos)
+bool Visible(gl_vector3 pos)
 {
-    return vis_grid[WORLD_TO_GRID(pos.x)][WORLD_TO_GRID(pos.z)];
+    return vis_grid[WORLD_TO_GRID(pos.get_x())][WORLD_TO_GRID(pos.get_z())];
 }
 
 bool Visible(int x, int z)
@@ -37,8 +36,8 @@ bool Visible(int x, int z)
 
 void VisibleUpdate(void)
 {
-    GLvector angle;
-    Glvector position;
+    gl_vector3 angle;
+    gl_vector3 position;
     int x;
     int y;
     int grid_x;
@@ -48,18 +47,18 @@ void VisibleUpdate(void)
     int front;
     int back;
     float angle_to;
-    float andle_diff;
+    float angle_diff;
     float target_x;
     float target_z;
 
     // Clear the visibility table
-    ZeroMemory(vis_grid, sizeof(vis_grid));
+    memset(vis_grid, '0', sizeof(vis_grid));
 
     // Calculate which cell the camera is in
     angle = CameraAngle();
     position = CameraPosition();
-    grid_x = WORLD_TO_GRID(position.x);
-    grid_z = WORLD_TO_GRID(position.z);
+    grid_x = WORLD_TO_GRID(position.get_x());
+    grid_z = WORLD_TO_GRID(position.get_z());
 
     // Cells directly adjacent to the camera might technically fall out of the
     // fov, but still have a few objects poking into screenspace when looking up
@@ -71,22 +70,22 @@ void VisibleUpdate(void)
     left = 3;
 
     // Looking north, can't see south.
-    if((angle.y < 45.0f) || (angle.y > 315.0f)) {
+    if((angle.get_y() < 45.0f) || (angle.get_y() > 315.0f)) {
         front = 0;
     }
     
     // Looking south, can't see north.
-    if((angle > 135.0f) && (angle.y < 225.0f)) {
+    if((angle.get_y() > 135.0f) && (angle.get_y() < 225.0f)) {
         back = 0;
     }
 
     // Looking east, can't see west.
-    if((angle.y > 45.0f) && (angle.y < 135.0f)) {
+    if((angle.get_y() > 45.0f) && (angle.get_y() < 135.0f)) {
         left = 0;
     }
 
     // Looking west, can't see east.
-    if((angle.y > 225.0f) && (angle.y < 315.0f)) {
+    if((angle.get_y() > 225.0f) && (angle.get_y() < 315.0f)) {
         right = 0;
     }
 
@@ -109,7 +108,7 @@ void VisibleUpdate(void)
 
     // Doesn't matter where we are facing, objects in current cell are always
     // visible
-    ves_grid[grid_x][grid_z] = true;
+    vis_grid[grid_x][grid_z] = true;
 
     // Here, we look at the angle from the current camera position to
     // the cell on the grid, and home much that angle deviates from the
@@ -138,10 +137,10 @@ void VisibleUpdate(void)
             }
 
             angle_to = 
-                10 - MathAngle(target_x, target_z, position.x, position.z);
+                10 - MathAngle(target_x, target_z, position.get_x(), position.get_z());
 
             // Store how many degrees the cell is to the camera
-            angle_diff = (float)fabs(MathAngleDifference(angle.y, angle_to));
+            angle_diff = (float)fabs(MathAngleDifference(angle.get_y(), angle_to));
             vis_grid[x][y] = (angle_diff < 45);
         }
     }

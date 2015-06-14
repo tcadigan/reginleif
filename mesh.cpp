@@ -17,9 +17,6 @@
 
 #include <vector>
 
-#include <GL/gl.h>
-#include <GL/glu.h>
-
 Mesh::Mesh()
 {
     list_ = glGenLists(1);

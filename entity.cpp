@@ -17,8 +17,6 @@
 #include <cmath>
 #include <cstdlib>
 
-#include <GL/gl.h>
-
 #include "camera.hpp"
 #include "macro.hpp"
 #include "math.hpp"
@@ -373,6 +371,10 @@ Entity::Entity(void)
     add(this);
 }
 
+Entity::~Entity()
+{
+}
+
 void Entity::Render(void)
 {
 }
@@ -385,3 +387,22 @@ void Entity::Update(void)
 {
 }
 
+gl_vector3 Entity::Center()
+{
+    return center_;
+}
+
+bool Entity::Alpha()
+{
+    return false;
+}
+
+unsigned int Entity::Texture()
+{
+    return -1;
+}
+
+int Entity::PolyCount()
+{
+    return 0;
+}

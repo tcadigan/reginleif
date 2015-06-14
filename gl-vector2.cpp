@@ -7,9 +7,12 @@
  *
  */
 
-#include <cstring>
-
 #include "gl-vector2.hpp"
+
+#include <cstring>
+#include <cmath>
+
+#include "math.hpp"
 
 gl_vector2::gl_vector2()
 {
@@ -22,7 +25,7 @@ gl_vector2::gl_vector2(GLfloat x, GLfloat y)
     data_[1] = y;
 }
 
-gl_vector2::~gl_vector()
+gl_vector2::~gl_vector2()
 {
 }
 
@@ -34,7 +37,7 @@ GLfloat gl_vector2::length()
 
 void gl_vector2::normalize()
 {
-    if(length < 0.000001f) {
+    if(length() < 0.000001f) {
         *this *= (1.0f / length());
     }
 }
@@ -71,7 +74,7 @@ gl_vector2 &gl_vector2::operator/=(GLfloat const &rhs)
     return *this;
 }
 
-GLfloat gl_vector2::dot_product(gl_vector const &rhs) const
+GLfloat gl_vector2::dot_product(gl_vector2 const &rhs) const
 {
     return (GLfloat)((data_[0] * rhs.data_[0])
                      + (data_[1] * rhs.data_[1]));
@@ -79,8 +82,8 @@ GLfloat gl_vector2::dot_product(gl_vector const &rhs) const
 
 gl_vector2 gl_vector2::interpolate(gl_vector2 const &rhs, GLfloat scalar) const
 {
-    return gl_vector2(math_interpolate(data_[0], rhs.data_[0], scalar),
-                      math_interpolate(data_[1], rhs.data_[1], scalar));
+    return gl_vector2(MathInterpolate(data_[0], rhs.data_[0], scalar),
+                      MathInterpolate(data_[1], rhs.data_[1], scalar));
 }
 
 void gl_vector2::set_data(GLfloat x, GLfloat y)

@@ -1,12 +1,15 @@
 #ifndef SKY_HPP_
 #define SKY_HPP_
 
+#include "gl-rgba.hpp"
+#include "gl-vector3.hpp"
+
 #define SKY_GRID 21
 #define SKY_HALF (SKY_GRID / 2)
 
 struct sky_point {
-    GLrgba color;
-    GLvector position;
+    gl_rgba color;
+    gl_vector3 position;
 };
 
 class Sky {

@@ -11,13 +11,13 @@
 
 #include "world.hpp"
 
+#include <SDL.h>
+
 #include <cmath>
+#include <cstring>
 #include <cstdlib>
 #include <ctime>
 #include <vector>
-
-#include <GL/gl.h>
-#include <GL/glu.h>
 
 #include "building.hpp"
 #include "camera.hpp"
@@ -41,7 +41,7 @@ using namespace std;
 
 struct plot {
     int x;
-    int a;
+    int z;
     int width;
     int depth;
 };
@@ -89,10 +89,10 @@ static HSL light_colors[] = {
     {0.65, 0.0f, 0.6f}, // Dimmest white
 };
 
-static GLrgba bloom_color;
+static gl_rgba bloom_color;
 static long int last_update;
 static char world[WORLD_SIZE][WORLD_SIZE];
-static CSky *sky;
+static Sky *sky;
 static int fade_state;
 static unsigned int fade_start;
 static float fade_current;
@@ -101,17 +101,18 @@ static int tower_count;
 static int blocky_count;
 static bool reset_needed;
 static int skyscrapers;
-static GLbbox hot_zone;
+static gl_bbox hot_zone;
 static int logo_index;
 static unsigned int start_time;
 static int scene_begin;
 
-static GLrgba get_light_color(float sat, float lum)
+static gl_rgba get_light_color(float sat, float lum)
 {
     int index;
 
     index = RandomVal(LIGHT_COLOR_COUNT);
-    return glRgbaFromHsl(light_colors[index].hue, sat, lum);
+    gl_rgba temp;
+    return temp.from_hsl(light_colors[index].hue, sat, lum);
 }
 
 static void claim(int x, int y, int width, int depth, int val)
@@ -121,8 +122,8 @@ static void claim(int x, int y, int width, int depth, int val)
 
     for(xx = x; xx < (x + width); ++xx) {
         for(yy = y; yy < (y + depth); ++yy) {
-            int x_index = CLAMP(xx, 0, WORLDSIZE - 1);
-            int y_index = CLAMP(yy, 0, WORLDSIZE - 1);
+            int x_index = CLAMP(xx, 0, WORLD_SIZE - 1);
+            int y_index = CLAMP(yy, 0, WORLD_SIZE - 1);
 
             world[x_index][y_index] |= val;
         }
@@ -148,7 +149,7 @@ static bool claimed(int x, int y, int width, int depth)
     return false;
 }
 
-static build_road(int x1, int y1, int width, int depth)
+static void build_road(int x1, int y1, int width, int depth)
 {
     int lanes;
     int divider;
@@ -260,7 +261,7 @@ void do_building(plot p)
     int seed;
     int area;
     int type;
-    GLrgba color;
+    gl_rgba color;
     bool square;
 
     // Now we know how bit the rectangle plot is.
@@ -278,7 +279,7 @@ void do_building(plot p)
         if(COIN_FLIP) {
             p.width /= 2;
             if(COIN_FLIP) {
-                do_building(make_plot(p.x, p.z p.width, p.depth));
+                do_building(make_plot(p.x, p.z, p.width, p.depth));
             }
             else {
                 do_building(make_plot(p.x + p.width, p.z, p.width, p.depth));
@@ -315,14 +316,14 @@ void do_building(plot p)
         height = 45 + RandomVal(10);
         modern_count++;
         skyscrapers++;
-        new CBuilding(BUILDING_MODERN, 
-                      p.x,
-                      p.z,
-                      height,
-                      p.width,
-                      p.depth,
-                      seed,
-                      color);
+        new Building(BUILDING_MODERN, 
+                     p.x,
+                     p.z,
+                     height,
+                     p.width,
+                     p.depth,
+                     seed,
+                     color);
 
         return;
     }
@@ -332,7 +333,7 @@ void do_building(plot p)
     // if((p.width > (p.depth * 2)) 
     //    || ((p.depth > (p.width * 2)) && (area > 800))) {
     //     height = 20 + RandomVal(10);
-    //     block_count++;
+    //     blocky_count++;
     //     skyscrapers++;
     //     new CBuilding(BUILDING_BLOCKY,
     //                   p.x,
@@ -350,7 +351,7 @@ void do_building(plot p)
 
     // This spot isn't ideal for any particular building, but try to keep
     // a good mix
-    if((tower_count < modern_count) && (tower_count < block_count)) {
+    if((tower_count < modern_count) && (tower_count < blocky_count)) {
         type = BUILDING_TOWER;
         tower_count++;
     }
@@ -365,26 +366,27 @@ void do_building(plot p)
 
     height = 45 + RandomVal(10);
 
-    new CBuilding(type, p.x p.z, height, p.width, p.depth, seed, color);
+    new Building(type, p.x, p.z, height, p.width, p.depth, seed, color);
     skyscrapers++;
 }
 
-static int build_light_strip(int x2, int z1, int direction)
+static int build_light_strip(int x1, int z1, int direction)
 {
-    CDeco *d;
-    GLrgba color;
+    Decoration *d;
+    gl_rgba color;
     int x2;
     int z2;
     int length;
     int width;
     int depth;
     int dir_x;
-    int dir_y;
+    int dir_z;
     float size_adjust;
 
     // We adjust the size of the lights with this.
     size_adjust = 2.5f;
-    color = glRgbaFromHsl(0.09f, 0.99f, 0.85f);
+    gl_rgba temp;
+    color = temp.from_hsl(0.09f, 0.99f, 0.85f);
 
     switch(direction) {
     case NORTH:
@@ -429,7 +431,7 @@ static int build_light_strip(int x2, int z1, int direction)
     width = MAX(abs(x2 - x1), 1);
     depth = MAX(abs(z2 - z1), 1);
 
-    d = new CDeco;
+    d = new Decoration();
 
     if(direction == EAST) {
         d->CreateLightStrip((float)x1,
@@ -478,12 +480,12 @@ static void do_reset(void)
     bool broadway_done;
     bool road_left;
     bool road_right;
-    GLrgba light_color;
-    GLrgba building_color;
+    gl_rgba light_color;
+    gl_rgba building_color;
     float west_street;
     float north_street;
     float east_street;
-    float sout_street;
+    float south_street;
 
     // Re-init Random to make the same city each time.
     // Helpful when running tests.
@@ -496,7 +498,7 @@ static void do_reset(void)
     modern_count = 0;
     blocky_count = 0;
     tower_count = 0;
-    hot_zone = glBboxClear();
+    hot_zone.clear();
     EntityClear();
     LightClear();
     CarClear();
@@ -504,8 +506,9 @@ static void do_reset(void)
 
     // Pink a tint for the bloom
     bloom_color = get_light_color(0.5f + ((float)RandomVal(10) / 20.0f), 0.75f);
-    light_color = glRgbaFromHsl(0.11f, 1.0f, 0.65f);
-    ZeroMemory(world, WORLD_SIZE * WORLD_SIZE);
+    gl_rgba temp;
+    light_color = temp.from_hsl(0.11f, 1.0f, 0.65f);
+    memset(world, '0', WORLD_SIZE * WORLD_SIZE);
     y = WORLD_EDGE;
     for(/* empty */; y < (WORLD_SIZE - WORLD_EDGE); y += RandomVal(25) + 25) {
         if(!broadway_done && (y > (WORLD_HALF - 20))) {
@@ -552,11 +555,9 @@ static void do_reset(void)
     // high-detail hot zone in the middle of the world. Save this in a 
     // bounding box so that late we can have the camera fly around without
     // clipping through buildings.
-    hot_zone = 
-        glBBoxContainPoint(hot_zone, glVector(west_street, 0.0f, north_street));
+    hot_zone.contain_point(gl_vector3(west_street, 0.0f, north_street));
 
-    hot_zone = 
-        glBBoxContainPoint(hot_zone, glVector(east_street, 0.0f, south_street));
+    hot_zone.contain_point(gl_vector3(east_street, 0.0f, south_street));
 
     // Scan for places to put runs of streetlights on the east and west
     // size of the road
@@ -628,7 +629,7 @@ static void do_reset(void)
     attempts = 0;
     while((skyscrapers < 50) && (attempts < 350)) {
         x = (WORLD_HALF / 2) + (RandomVal() % WORLD_HALF);
-        y = (WROLD_HALF / 2) + (RandomVal() % WORLD_HALF);
+        y = (WORLD_HALF / 2) + (RandomVal() % WORLD_HALF);
         if(!claimed(x, y, 1, 1)) {
             do_building(find_plot(x, y));
             skyscrapers++;
@@ -664,20 +665,20 @@ static void do_reset(void)
                     building_color = WorldLightColor(RandomVal());
 
                     // If we're out of the host zone use simple builings
-                    if((x < hot_zone.min.x)
-                       || (x > hot_zone.max.x)
-                       || (y < hot_zone.min.z)
-                       || (y > hot_zone.max.z)) {
+                    if((x < hot_zone.get_min().get_x())
+                       || (x > hot_zone.get_max().get_x())
+                       || (y < hot_zone.get_min().get_z())
+                       || (y > hot_zone.get_max().get_z())) {
                         height = 5 + RandomVal(height) + RandomVal(height);
 
-                        new CBuilding(BUILDING_SIMPLE,
-                                      x + 1,
-                                      y + 1,
-                                      height,
-                                      width - 2,
-                                      depth - 2,
-                                      RandomVal(),
-                                      building_color);
+                        new Building(BUILDING_SIMPLE,
+                                     x + 1,
+                                     y + 1,
+                                     height,
+                                     width - 2,
+                                     depth - 2,
+                                     RandomVal(),
+                                     building_color);
                     }
                     else {
                         // Use fancy buildings.
@@ -685,24 +686,24 @@ static void do_reset(void)
                         width -= 2;
                         depth -= 2;
                         if(COIN_FLIP) {
-                            new CBuilding(BUILDING_TOWER,
-                                          x + 1,
-                                          y + 1,
-                                          height,
-                                          width,
-                                          depth,
-                                          RandomVal(),
-                                          building_color);
+                            new Building(BUILDING_TOWER,
+                                         x + 1,
+                                         y + 1,
+                                         height,
+                                         width,
+                                         depth,
+                                         RandomVal(),
+                                         building_color);
                         }
                         else {
-                            new CBuilding(BUILDING_BLOCKY,
-                                          x + 1,
-                                          y + 1,
-                                          height,
-                                          width - 2,
-                                          depth - 2,
-                                          RandomVal(),
-                                          building_color);
+                            new Building(BUILDING_BLOCKY,
+                                         x + 1,
+                                         y + 1,
+                                         height,
+                                         width - 2,
+                                         depth - 2,
+                                         RandomVal(),
+                                         building_color);
                         }
                     }
                     
@@ -729,10 +730,11 @@ static void do_reset(void)
 
 // This will return a random color which is suitable for light sources, taken
 // from a narrow group of hues. (Yellows, oranges, blues.)
-GLrgba WorldLightColor(unsigned int index)
+gl_rgba WorldLightColor(unsigned int index)
 {
     index %= LIGHT_COLOR_COUNT;
-    return glRgbaFromHsl(light_colors[index].hue,
+    gl_rgba temp;
+    return temp.from_hsl(light_colors[index].hue,
                          light_colors[index].sat,
                          light_colors[index].lum);
 }
@@ -745,7 +747,7 @@ char WorldCell(int x, int y)
     return world[x_index][y_index];
 }
 
-GLrgba WorldBloomColor()
+gl_rgba WorldBloomColor()
 {
     return bloom_color;
 }
@@ -755,7 +757,8 @@ int WorldLogoIndex()
     return logo_index++;
 }
 
-GLbbox WorldHotZone()
+
+gl_bbox WorldHotZone()
 {
     return hot_zone;
 }
@@ -776,7 +779,7 @@ void WorldReset(void)
     // If reset is called but the world isn't ready, then don't
     // bother fading out. The program probably just started.
     fade_state = FADE_OUT;
-    fade_start = GetTickCount();
+    fade_start = SDL_GetTicks();
 }
 
 void WorldRender()
@@ -798,7 +801,7 @@ void WorldRender()
     glTexCoord2f(0, 0);
     glVertex3f(0, 0, 0);
     
-    glTextCoord2f(0, 1);
+    glTexCoord2f(0, 1);
     glVertex3f(0, 0, 1024);
 
     glTexCoord2f(1, 1);
@@ -832,7 +835,7 @@ int WorldSceneElapsed()
         elapsed = 1;
     }
     else {
-        elapsed = GetTickCount() - WorldSceneBegin();
+        elapsed = SDL_GetTicks() - WorldSceneBegin();
     }
 
     elapsed = MAX(elapsed, 1);
@@ -842,10 +845,10 @@ int WorldSceneElapsed()
 
 void WorldUpdate(void)
 {
-    unisnged fade_delta;
+    unsigned fade_delta;
     int now;
 
-    now = GetTickCount();
+    now = SDL_GetTicks();
     if(reset_needed) {
         // Now we've faded out the scene, rebuild it
         do_reset();
@@ -871,7 +874,7 @@ void WorldUpdate(void)
                 fade_start = FADE_IDLE;
                 fade_current = 0.0f;
                 start_time = time(NULL);
-                scene_begin = GetTickCount();
+                scene_begin = SDL_GetTicks();
             }
         }
         else {
@@ -902,12 +905,12 @@ void WorldUpdate(void)
 
 void WorldInit(void)
 {
-    last_update = GetTickcount();
+    last_update = SDL_GetTicks();
     for(int i = 0; i < CARS; ++i) {
-        new CCar();
+        new Car();
     }
 
-    sky = new CSky();
+    sky = new Sky();
     WorldReset();
     fade_state = FADE_OUT;
     fade_start = 0;

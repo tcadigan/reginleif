@@ -11,6 +11,9 @@
 
 #include "math.hpp"
 
+#include <cmath>
+#include <sstream>
+
 gl_rgba::gl_rgba()
 {
     data_[0] = 0;
@@ -35,7 +38,7 @@ gl_rgba::gl_rgba(GLfloat red, GLfloat green, GLfloat blue)
     data_[3] = 1.0f;
 }
 
-gl_rgba::gl_rgba(GLfloat red, GLfloat green, Glfloat blue, GLfloat alpha)
+gl_rgba::gl_rgba(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
 {
     data_[0] = red;
     data_[1] = green;
@@ -45,9 +48,9 @@ gl_rgba::gl_rgba(GLfloat red, GLfloat green, Glfloat blue, GLfloat alpha)
 
 gl_rgba::gl_rgba(GLint color)
 {
-    data_[0] = (GLfloat)getRValue(color) / 255.0f;
-    data_[1] = (GLfloat)getGValue(color) / 255.0f;
-    data_[2] = (GLfloat)getBValue(color) / 255.0f;
+    data_[0] = (GLfloat)(color & 0x000000FF) / 255.0f;
+    data_[1] = (GLfloat)((color & 0x0000FF00) >> 8) / 255.0f;
+    data_[2] = (GLfloat)((color & 0x00FF0000) >> 16) / 255.0f;
     data_[3] = 1.0f;
 }
 
@@ -59,18 +62,18 @@ gl_rgba::gl_rgba(GLfloat luminance)
     data_[3] = 1.0f;
 }
 
-gl_rgba::gl_rgba(string const &color)
+gl_rgba::gl_rgba(std::string const &color)
 {
-    stringstream stream;
+    std::stringstream stream;
 
-    stream << string;
+    stream << color;
 
-    GLfloat color;
+    GLint value;
 
-    if(stream >> color) {
-        data_[0] = (GLfloat)getRValue(color) / 255.0f;
-        data_[1] = (GLfloat)getGValue(color) / 255.0f;
-        data_[2] = (GLfloat)getBValue(color) / 255.0f;
+    if(stream >> value) {
+        data_[0] = (GLfloat)(value & 0x000000FF) / 255.0f;
+        data_[1] = (GLfloat)((value & 0x0000FF00) >> 8) / 255.0f;
+        data_[2] = (GLfloat)((value & 0x00FF0000) >> 16) / 255.0f;
         data_[3] = 1.0f;
     }
     else {
@@ -123,9 +126,9 @@ gl_rgba &gl_rgba::operator/=(GLfloat const &rhs)
 
 gl_rgba gl_rgba::interpolate(gl_rgba const &rhs, GLfloat delta) const
 {
-    return gl_rgba(math_interpolate(data_[0], rhs.data_[0], delta),
-                   math_interpolate(data_[1], rhs.data_[1], delta),
-                   math_interpolate(data_[2], rhs.data_[2], delta));
+    return gl_rgba(MathInterpolate(data_[0], rhs.data_[0], delta),
+                   MathInterpolate(data_[1], rhs.data_[1], delta),
+                   MathInterpolate(data_[2], rhs.data_[2], delta));
 }
 
 gl_rgba gl_rgba::from_hsl(GLfloat hue,
@@ -136,7 +139,7 @@ gl_rgba gl_rgba::from_hsl(GLfloat hue,
         return gl_rgba(0);
     }
 
-    if((staturation < 0) || (saturation > 1)) {
+    if((saturation < 0) || (saturation > 1)) {
         return gl_rgba(0);
     }
 
@@ -156,11 +159,11 @@ gl_rgba gl_rgba::from_hsl(GLfloat hue,
     GLfloat hue_prime = hue / 60;
     GLfloat X = chroma;
     
-    if(((hue_prime % 2) - 1) < 0) {
-        X *= (1 - (-1 * ((hue_prime % 2) - 1)));
+    if((fmod(hue_prime, 2) - 1) < 0) {
+        X *= (1 - (-1 * (fmod(hue_prime, 2) - 1)));
     }
     else {
-        X *= (1 - ((hue_prime % 2) - 1));
+        X *= (1 - (fmod(hue_prime, 2) - 1));
     }
 
     GLfloat match = lightness - (0.5 * chroma);
@@ -198,9 +201,9 @@ gl_rgba gl_rgba::unique(GLint index) const
     GLfloat blue = 0.4f;
     GLfloat alpha = 1.0f;
 
-    if(i & 1) {
-        if(i & 8) {
-            if(i & 64) {
+    if(index & 1) {
+        if(index & 8) {
+            if(index & 64) {
                 red += 0.2f;
             }
             else {
@@ -208,7 +211,7 @@ gl_rgba gl_rgba::unique(GLint index) const
             }
         }
         else {
-            if(i & 64) {
+            if(index & 64) {
                 red -= 0.1f;
             }
             else {
@@ -217,21 +220,21 @@ gl_rgba gl_rgba::unique(GLint index) const
         }
     }
     else {
-        if(i & 8) {
-            if(!(i & 64)) {
+        if(index & 8) {
+            if(!(index & 64)) {
                 red += 0.3f;
             }
         }
         else {
-            if(i & 64) {
+            if(index & 64) {
                 red -= 0.3;
             }
         }
     }
  
-    if(i & 2) {
-        if(i & 32) {
-            if(i & 128) {
+    if(index & 2) {
+        if(index & 32) {
+            if(index & 128) {
                 green += 0.2f;
             }
             else {
@@ -239,7 +242,7 @@ gl_rgba gl_rgba::unique(GLint index) const
             }
         }
         else {
-            if(i & 128) {
+            if(index & 128) {
                 green -= 0.1f;
             }
             else {
@@ -248,21 +251,21 @@ gl_rgba gl_rgba::unique(GLint index) const
         }
     }
     else {
-        if(i & 32) {
-            if(!(i & 128)) {
+        if(index & 32) {
+            if(!(index & 128)) {
                 green += 0.3f;
             }
         }
         else {
-            if(i & 128) {
+            if(index & 128) {
                 green -= 0.3f;
             }
         }
     }
 
-    if(i & 4) {
-        if(i & 16) {
-            if(i & 256) {
+    if(index & 4) {
+        if(index & 16) {
+            if(index & 256) {
                 blue += 0.2f;
             }
             else {
@@ -270,7 +273,7 @@ gl_rgba gl_rgba::unique(GLint index) const
             }
         }
         else {
-            if(i & 256) {
+            if(index & 256) {
                 blue -= 0.1f;
             }
             else {
@@ -279,13 +282,13 @@ gl_rgba gl_rgba::unique(GLint index) const
         }
     }
     else {
-        if(i & 16) {
-            if(!(i & 256)) {
+        if(index & 16) {
+            if(!(index & 256)) {
                 blue += 0.3f;
             }
         }
         else {
-            if(i & 256) {
+            if(index & 256) {
                 blue -= 0.3f;
             }
         }

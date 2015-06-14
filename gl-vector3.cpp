@@ -19,7 +19,7 @@ gl_vector3::gl_vector3()
     memset(data_, 0, sizeof(GLfloat) * 3);
 }
 
-gl_vector3::gl_vector3(GLfloat x, Glfloat y, GLfloat z)
+gl_vector3::gl_vector3(GLfloat x, GLfloat y, GLfloat z)
 {
     data_[0] = x;
     data_[1] = y;
@@ -76,11 +76,13 @@ gl_vector3 &gl_vector3::operator*=(GLfloat const &rhs)
     return *this;
 }
 
-gl_vector3 &gl_vector3::operator/=(gl_vector3 const &rhs)
+gl_vector3 &gl_vector3::operator/=(GLfloat const &rhs)
 {
-    data_[0] /= rhs.data_[0];
-    data_[1] /= rhs.data_[1];
-    data_[2] /= rhs.data_[2];
+    data_[0] /= rhs;
+    data_[1] /= rhs;
+    data_[2] /= rhs;
+
+    return *this;
 }
 
 GLfloat gl_vector3::dot_product(gl_vector3 const &rhs) const
@@ -99,9 +101,9 @@ gl_vector3 gl_vector3::cross_product(gl_vector3 const &rhs) const
 
 gl_vector3 gl_vector3::interpolate(gl_vector3 const &rhs, GLfloat scalar) const
 {
-    return gl_vector3(math_interpolate(data_[0], rhs.data_[0], scalar),
-                      math_interpolate(data_[1], rhs.data_[1], scalar),
-                      math_interpolate(data_[2], rhs.data_[2], scalar));
+    return gl_vector3(MathInterpolate(data_[0], rhs.data_[0], scalar),
+                      MathInterpolate(data_[1], rhs.data_[1], scalar),
+                      MathInterpolate(data_[2], rhs.data_[2], scalar));
 }
 
 void gl_vector3::set_data(GLfloat x, GLfloat y, GLfloat z)

@@ -11,8 +11,6 @@
 
 #include <cmath>
 
-#include <GL/gl.h>
-
 #include "decoration.hpp"
 #include "gl-vector2.hpp"
 #include "gl-vector3.hpp"

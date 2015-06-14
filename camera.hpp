@@ -5,7 +5,7 @@
 
 gl_vector3 CameraAngle(void);
 void CameraAngleSet(gl_vector3 new_angle);
-void AmeraAutoToggle();
+void CameraAutoToggle();
 float CameraDistance(void);
 void CameraDistanceSet(float new_distance);
 void CameraInit(void);

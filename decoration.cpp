@@ -12,9 +12,6 @@
 
 #include <cmath>
 
-#include <GL/gl.h>
-#include <GL/glu.h>
-
 #include "light.hpp"
 #include "macro.hpp"
 #include "math.hpp"
