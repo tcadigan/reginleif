@@ -3,6 +3,8 @@
 
 #include <SDL_opengl.h>
 
+#include <string>
+
 class gl_rgba {
 public:
     gl_rgba();
@@ -11,7 +13,7 @@ public:
     gl_rgba(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
     gl_rgba(GLint color);
     gl_rgba(GLfloat luminance);
-    gl_rgba(string const &color);
+    gl_rgba(std::string const &color);
     virtual ~gl_rgba();
 
     gl_rgba &operator+=(gl_rgba const &rhs);
@@ -69,12 +71,14 @@ inline gl_rgba operator/(gl_rgba lhs, GLfloat const &rhs)
 
 inline bool operator==(gl_rgba const &lhs, gl_rgba const &rhs)
 {
-    return ((lhs.data_[0] == rhs.data_[0]
-             && (lhs.data_[1] == rhs.data_[1])
-             && (lhs.data_[2] == rhs.data_[2])));
+    return ((lhs.get_red() == rhs.get_red())
+            && (lhs.get_green() == rhs.get_green())
+            && (lhs.get_blue() == rhs.get_blue()));
 }
 
 inline bool operator!=(gl_rgba const &lhs, gl_rgba const &rhs)
 {
     return !operator==(lhs, rhs);
 }
+
+#endif

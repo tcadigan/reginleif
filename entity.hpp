@@ -1,7 +1,7 @@
 #ifndef ENTITY_HPP_
 #define ENTITY_HPP_
 
-#include "types.hpp"
+#include "gl-vector3.hpp"
 
 class Entity {
 public:
@@ -13,10 +13,10 @@ public:
     virtual void Update(void);
     virtual bool Alpha();
     virtual int PolyCount();
-    GLvector Center();
+    gl_vector3 Center();
 
 protected:
-    GLvector center_;
+    gl_vector3 center_;
 };
 
 void EntityClear();

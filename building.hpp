@@ -2,6 +2,8 @@
 #define BUILDING_HPP_
 
 #include "entity.hpp"
+
+#include "gl-rgba.hpp"
 #include "mesh.hpp"
 
 enum {
@@ -14,13 +16,13 @@ enum {
 class Building: public Entity {
 public:
     Building(int type, 
-              int x, 
-              int y,
-              int height,
-              int width,
-              int depth,
-              int seed,
-              GLrgba color);
+             int x, 
+             int y,
+             int height,
+             int width,
+             int depth,
+             int seed,
+             gl_rgba color);
     ~Building();
 
     void Render(void);
@@ -37,8 +39,8 @@ private:
     int texture_type_;
     int seed_;
     int roof_tiers_;
-    GLrgba color_;
-    GLrgba trim_color_;
+    gl_rgba color_;
+    gl_rgba trim_color_;
     Mesh *mesh_;
     Mesh *mesh_flat_;
     bool have_lights_;

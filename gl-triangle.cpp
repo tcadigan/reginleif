@@ -22,7 +22,7 @@ void gl_triangle::set_vertex(GLint vertex, GLint value)
         v3_ = value;
     }
     else {
-        throw range_error("Out of bounds vertex");
+        throw std::range_error("Out of bounds vertex");
     }
 }
 
@@ -35,10 +35,10 @@ void gl_triangle::set_normal(GLint normal, GLint value)
         normal2_ = value;
     }
     else if(normal == 3) {
-        normal3_ == value;
+        normal3_ = value;
     }
     else {
-        throw range_error("Out of bounds normal");
+        throw std::range_error("Out of bounds normal");
     }
 }
 
@@ -54,7 +54,7 @@ GLint gl_triangle::get_vertex(GLint vertex) const
         return v3_;
     }
     else {
-        throw range_error("Out of bounds vertex");
+        throw std::range_error("Out of bounds vertex");
     }
 }
 
@@ -70,6 +70,6 @@ GLint gl_triangle::get_normal(GLint normal) const
         return normal3_;
     }
     else {
-        throw range_error("Out of bounds normal");
+        throw std::range_error("Out of bounds normal");
     }
 }

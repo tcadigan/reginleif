@@ -47,14 +47,14 @@ inline gl_vector2 operator-(gl_vector2 lhs, gl_vector2 const &rhs)
     return lhs;
 }
 
-inline gl_vector2 operator*(gl_vector2 lhs, gl_vector2 const &rhs)
+inline gl_vector2 operator*(gl_vector2 lhs, GLfloat const &rhs)
 {
     lhs *= rhs;
 
     return lhs;
 }
 
-inline gl_vector2 operator/(gl_vector2 lhs, gl_vector2 const &rhs)
+inline gl_vector2 operator/(gl_vector2 lhs, GLfloat const &rhs)
 {
     lhs /= rhs;
 
@@ -68,11 +68,13 @@ inline GLfloat dot_product(gl_vector2 const &lhs, gl_vector2 const &rhs)
 
 inline bool operator==(gl_vector2 const &lhs, gl_vector2 const &rhs)
 {
-    return ((lhs.data_[0] == rhs.data_[0])
-            && (lhs.data_[1] == rhs.data_[1]));
+    return ((lhs.get_x() == rhs.get_x())
+            && (lhs.get_y() == rhs.get_y()));
 }
 
 inline bool operator!=(gl_vector2 const &lhs, gl_vector2 const &rhs)
 {
     return !operator==(lhs, rhs);
 }
+
+#endif

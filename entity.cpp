@@ -36,7 +36,7 @@ struct cell {
     unsigned int list_flat;
     unsigned int list_flat_wireframe;
     unsigned int list_alpha;
-    GLvector pos;
+    gl_vector3 pos;
 };
 
 static cell cell_list[GRID_SIZE][GRID_SIZE];
@@ -113,7 +113,7 @@ static void do_compile()
                                    (float)y * GRID_RESOLUTION);
 
     for(i = 0; i < entity_count; ++i) {
-        GLvector pos = entity_list[i].object->Center();
+        gl_vector3 pos = entity_list[i].object->Center();
         if((WORLD_TO_GRID(pos.x) == x)
            && (WORLD_TO_GRID(pos.z) == y)
            && !entity_list[i].object->Alpha()) {
@@ -135,7 +135,7 @@ static void do_compile()
                                    (float)y * GRID_RESOLUTION);
 
     for(i = 0; i < entity_count; ++i) {
-        GLvector pos = entity_list[i].object->Center();
+        gl_vector3 pos = entity_list[i].object->Center();
         if((WORLD_TO_GRID(pos.x) == x)
            && (WORLD_TO_GRID(pos.z) == y)
            && !entity_list[i].object->Alpha()) {
@@ -156,7 +156,7 @@ static void do_compile()
                                    (float)y * GRID_RESOLUTION);
     
     for(i = 0; i < entity_count; ++i) {
-        GLvector post = entity_list[i].object->Center();
+        gl_vector3 post = entity_list[i].object->Center();
         if((WORLD_TO_GRID(pos.x) == x)
            && (WORLD_TO_GRID(pos.z) == y)
            && !entity_list[i].object->Alpha()) {

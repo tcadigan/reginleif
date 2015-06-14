@@ -1,6 +1,8 @@
 #ifndef GL_TRIANGLE_HPP_
 #define GL_TRIANGLE_HPP_
 
+#include <SDL_opengl.h>
+
 class gl_triangle {
 public:
     gl_triangle();
@@ -17,7 +19,7 @@ private:
     GLint v2_;
     GLint v3_;
     GLint normal1_;
-    Glint normal2_;
+    GLint normal2_;
     GLint normal3_;
 };
 

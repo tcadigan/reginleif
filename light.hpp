@@ -1,16 +1,19 @@
 #ifndef LIGHT_HPP_
 #define LIGHT_HPP_
 
+#include "gl-rgba.hpp"
+#include "gl-vector3.hpp"
+
 class Light {
 public:
-    Light(GLvector pos, GLrgba color, int size);
+    Light(gl_vector3 pos, gl_rgba color, int size);
     Light *next_;
     void Render();
     void Blink();
 
 private:
-    GLvector position_;
-    GLrgba color_;
+    gl_vector3 position_;
+    gl_rgba color_;
     int size_;
     float vert_size_;
     float flat_size_;

@@ -4,7 +4,7 @@ LDFLAGS = -lGL -lGLU `sdl-config --libs`
 
 HDRS = building.hpp camera.hpp decoration.hpp entity.hpp ini.hpp light.hpp \
 	   macro.hpp math.hpp mesh.hpp random.hpp render.hpp sky.hpp texture.hpp \
-	   visible.hpp win.hpp world.hpp gl-bbox.hpp gl-vector3.hpp gl-triangle \
+	   visible.hpp win.hpp world.hpp gl-bbox.hpp gl-vector3.hpp gl-triangle.hpp \
 	   gl-vector2.hpp gl-rgba.hpp gl-quat.hpp gl-matrix.hpp gl-vertex.hpp \
 	   gl-rect.hpp \
 

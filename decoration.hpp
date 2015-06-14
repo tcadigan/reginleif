@@ -2,32 +2,36 @@
 #define DECORATION_HPP_
 
 #include "entity.hpp"
+
+#include "gl-rgba.hpp"
+#include "gl-vector2.hpp"
+#include "gl-vector3.hpp"
 #include "mesh.hpp"
 
 class Decoration : Entity {
 public:
     Decoration();
     ~Decoration();
-    void CreateLogo(GLvector2 start,
-                    GLvector2 end,
+    void CreateLogo(gl_vector2 start,
+                    gl_vector2 end,
                     float base,
                     int seed, 
-                    GLrgba color);
+                    gl_rgba color);
 
     void CreateLightStrip(float x,
                           float z,
                           float width,
                           float depth,
                           float height,
-                          GLrgba color);
+                          gl_rgba color);
 
-    void CreateLightTrim(GLvector *chain,
+    void CreateLightTrim(gl_vector3 *chain,
                          int count,
                          float height,
                          int seed,
-                         GLrgba color);
+                         gl_rgba color);
 
-    void CreateRadioTower(GLvector pos, float height);
+    void CreateRadioTower(gl_vector3 pos, float height);
     void Render(void);
     void RenderFlat(bool colored);
     bool Alpha();
@@ -35,7 +39,7 @@ public:
     unsigned Texture();
 
 private:
-    GLrgba color_;
+    gl_rgba color_;
     Mesh *mesh_;
     int type_;
     unsigned texture_;
