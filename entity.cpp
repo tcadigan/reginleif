@@ -13,6 +13,7 @@
 
 #include "entity.hpp"
 
+#include <SDL.h>
 #include <cmath>
 #include <cstdlib>
 
@@ -93,7 +94,7 @@ static void do_compile()
     }
 
     x = compile_x;
-    x = compile_y;
+    y = compile_y;
 
     // Changing texture is pretty expensive, and thus sorting the entities
     // so that they are grouped by texture used can really improve
@@ -108,14 +109,14 @@ static void do_compile()
     }
 
     glNewList(cell_list[x][y].list_textured, GL_COMPILE);
-    cell_list[x][y].pos = glVector(GRID_TO_WORLD(x), 
-                                   0.0f, 
-                                   (float)y * GRID_RESOLUTION);
+    cell_list[x][y].pos = gl_vector3(GRID_TO_WORLD(x), 
+                                     0.0f, 
+                                     (float)y * GRID_RESOLUTION);
 
     for(i = 0; i < entity_count; ++i) {
         gl_vector3 pos = entity_list[i].object->Center();
-        if((WORLD_TO_GRID(pos.x) == x)
-           && (WORLD_TO_GRID(pos.z) == y)
+        if((WORLD_TO_GRID(pos.get_x()) == x)
+           && (WORLD_TO_GRID(pos.get_z()) == y)
            && !entity_list[i].object->Alpha()) {
             glBindTexture(GL_TEXTURE_2D, entity_list[i].object->Texture());
             entity_list[i].object->Render();
@@ -130,14 +131,14 @@ static void do_compile()
 
     glNewList(cell_list[x][y].list_flat, GL_COMPILE);
     glEnable(GL_CULL_FACE);
-    cell_list[x][y].pos = glVector(GRID_TO_WORLD(x),
-                                   0.0f, 
-                                   (float)y * GRID_RESOLUTION);
+    cell_list[x][y].pos = gl_vector3(GRID_TO_WORLD(x),
+                                     0.0f, 
+                                     (float)y * GRID_RESOLUTION);
 
     for(i = 0; i < entity_count; ++i) {
         gl_vector3 pos = entity_list[i].object->Center();
-        if((WORLD_TO_GRID(pos.x) == x)
-           && (WORLD_TO_GRID(pos.z) == y)
+        if((WORLD_TO_GRID(pos.get_x()) == x)
+           && (WORLD_TO_GRID(pos.get_z()) == y)
            && !entity_list[i].object->Alpha()) {
             entity_list[i].object->RenderFlat(false);
         }
@@ -149,16 +150,16 @@ static void do_compile()
         cell_list[x][y].list_flat_wireframe = glGenLists(1);
     }
 
-    glNewList(cell_list[x][y].list_flat_wireframw, GL_COMPILE);
+    glNewList(cell_list[x][y].list_flat_wireframe, GL_COMPILE);
     glEnable(GL_CULL_FACE);
-    cell_list[x][y].pos = glVector(GRID_TO_WORLD(x),
-                                   0.0f,
-                                   (float)y * GRID_RESOLUTION);
+    cell_list[x][y].pos = gl_vector3(GRID_TO_WORLD(x),
+                                     0.0f,
+                                     (float)y * GRID_RESOLUTION);
     
     for(i = 0; i < entity_count; ++i) {
-        gl_vector3 post = entity_list[i].object->Center();
-        if((WORLD_TO_GRID(pos.x) == x)
-           && (WORLD_TO_GRID(pos.z) == y)
+        gl_vector3 pos = entity_list[i].object->Center();
+        if((WORLD_TO_GRID(pos.get_x()) == x)
+           && (WORLD_TO_GRID(pos.get_z()) == y)
            && !entity_list[i].object->Alpha()) {
             entity_list[i].object->RenderFlat(true);
         }
@@ -171,16 +172,16 @@ static void do_compile()
     }
     
     glNewList(cell_list[x][y].list_alpha, GL_COMPILE);
-    cell_list[x][y].pos = glVector(GRID_TO_WORLD(x),
-                                   0.0f,
-                                   (float)y * GRID_RESOLUTION);
+    cell_list[x][y].pos = gl_vector3(GRID_TO_WORLD(x),
+                                     0.0f,
+                                     (float)y * GRID_RESOLUTION);
     glDepthMask(false);
     glEnable(GL_BLEND);
     glDisable(GL_CULL_FACE);
     for(i = 0; i < entity_count; ++i) {
-        Glvector pos = entity_list[i].object->Center();
-        if((WORLD_TO_GRID(pos.x) == x)
-           && (WORLD_TO_GRID(pos.z) == y)
+        gl_vector3 pos = entity_list[i].object->Center();
+        if((WORLD_TO_GRID(pos.get_x()) == x)
+           && (WORLD_TO_GRID(pos.get_z()) == y)
            && entity_list[i].object->Alpha()) {
             glBindTexture(GL_TEXTURE_2D, entity_list[i].object->Texture());
             entity_list[i].object->Render();
@@ -193,12 +194,12 @@ static void do_compile()
     compile_x++;
     if(compile_x == GRID_SIZE) {
         compile_x = 0;
-        compil_y++;
+        compile_y++;
         if(compile_y == GRID_SIZE) {
             compiled = true;
         }
 
-        compile_end = GetTickCount();
+        compile_end = SDL_GetTicks();
     }
 
     compile_count++;
@@ -233,8 +234,8 @@ void EntityUpdate()
     if(LOADING_SCREEN) {
         // If we're using a loading screen, we want to build as
         // fast as possible
-        stop_time = GetTickCount() + 100;
-        while(!compiled && (GetTickCount() < stop_time)) {
+        stop_time = SDL_GetTicks() + 100;
+        while(!compiled && (SDL_GetTicks() < stop_time)) {
             do_compile();
         }
     }
@@ -253,7 +254,7 @@ void EntityRender()
     int elapsed;
 
     // Draw all textured objects
-    getGetIntegerv(GL_POLYGON_MODE, &polymode[0]);
+    glGetIntegerv(GL_POLYGON_MODE, &polymode[0]);
     wireframe = (polymode[0] != GL_FILL);
     if(RenderFlat()) {
         glDisable(GL_TEXTURE_2D);
@@ -318,7 +319,7 @@ void EntityClear()
     }
 
     entity_list = NULL;
-    entit_count = 0;
+    entity_count = 0;
     compile_x = 0;
     compile_y = 0;
     compile_count = 0;

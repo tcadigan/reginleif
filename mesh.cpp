@@ -20,8 +20,6 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include "types.hpp"
-
 Mesh::Mesh()
 {
     list_ = glGenLists(1);
@@ -38,7 +36,7 @@ Mesh::~Mesh()
     cube_.clear();
 }
 
-void Mesh::VertexAdd(const GLvertex &v)
+void Mesh::VertexAdd(const gl_vertex &v)
 {
     vertex_.push_back(v);
 }
@@ -87,8 +85,8 @@ void Mesh::Render()
         glBegin(GL_QUAD_STRIP);
         
         for(n = qsi->index_list.begin(); n < qsi->index_list.end(); ++n) {
-            glTexCoord2fv(&vertex_[*n].uv.x);
-            glVertex3fv(&vertex_[*n].position.x);
+            glTexCoord2fv(vertex_[*n].get_uv().get_data());
+            glVertex3fv(vertex_[*n].get_position().get_data());
         }
 
         glEnd();
@@ -98,26 +96,26 @@ void Mesh::Render()
         glBegin(GL_QUAD_STRIP);
 
         for(n = ci->index_list.begin(); n < ci->index_list.end(); ++n) {
-            glTexCoord2fv(&vertex_[*n].uv.x);
-            glVertex3fv(&vertex_[*n].position.x);
+            glTexCoord2fv(vertex_[*n].get_uv().get_data());
+            glVertex3fv(vertex_[*n].get_position().get_data());
         }
 
         glEnd();
 
         glBegin(GL_QUADS);
-        glTexCoord2fv(&vertex_[ci->index_list[7]].uv.x);
-        glVertex3fv(&vertex_[ci->index_list[7]].position.x);
-        glVertex3fv(&vertex_[ci->index_list[5]].position.x);
-        glVertex3fv(&vertex_[ci->index_list[3]].position.x);
-        glVertex3fv(&vertex_[ci->index_list[1]].position.x);
+        glTexCoord2fv(vertex_[ci->index_list[7]].get_uv().get_data());
+        glVertex3fv(vertex_[ci->index_list[7]].get_position().get_data());
+        glVertex3fv(vertex_[ci->index_list[5]].get_position().get_data());
+        glVertex3fv(vertex_[ci->index_list[3]].get_position().get_data());
+        glVertex3fv(vertex_[ci->index_list[1]].get_position().get_data());
         glEnd();
 
         glBegin(GL_QUADS);
-        glTexCoord2fv(&vertex_[ci->index_list[6]].uv.x);
-        glVertex3fv(&vertex_[ci->index_list[0]].position.x);
-        glVertex3fv(&vertex_[ci->index_list[2]].position.x);
-        glVertex3fv(&vertex_[ci->index_list[4]].position.x);
-        glVertex3fv(&vertex_[ci->index_list[6]].position.x);
+        glTexCoord2fv(vertex_[ci->index_list[6]].get_uv().get_data());
+        glVertex3fv(vertex_[ci->index_list[0]].get_position().get_data());
+        glVertex3fv(vertex_[ci->index_list[2]].get_position().get_data());
+        glVertex3fv(vertex_[ci->index_list[4]].get_position().get_data());
+        glVertex3fv(vertex_[ci->index_list[6]].get_position().get_data());
         glEnd();
     }
 
@@ -125,8 +123,8 @@ void Mesh::Render()
         glBegin(GL_TRIANGLE_FAN);
         
         for(n = fi->index_list.begin(); n < fi->index_list.end(); ++n) {
-            glTexCoord2fv(&vertex_[*n].uv.x);
-            glVertex3fv(&vertex_[*n].position.x);
+            glTexCoord2fv(vertex_[*n].get_uv().get_data());
+            glVertex3fv(vertex_[*n].get_position().get_data());
         }
 
         glEnd();

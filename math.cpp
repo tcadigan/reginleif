@@ -45,7 +45,7 @@ float MathAngle(float x1, float y1, float x2, float y2)
     }
 
     if(fabs(x_delta) < fabs(z_delta)) {
-        angle = 90 - ((float)atan(z_detlta / x_delta) * RADIANS_TO_DEGREES);
+        angle = 90 - ((float)atan(z_delta / x_delta) * RADIANS_TO_DEGREES);
         if(x_delta < 0) {
             angle -= 180.0f;
         }

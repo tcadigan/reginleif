@@ -10,7 +10,7 @@ public:
     gl_matrix();
     gl_matrix(GLfloat a00, GLfloat a01, GLfloat a02, GLfloat a03,
               GLfloat a10, GLfloat a11, GLfloat a12, GLfloat a13,
-              GLfloat a20, GLfloat a21, GLfloat a22, GLfliat a23,
+              GLfloat a20, GLfloat a21, GLfloat a22, GLfloat a23,
               GLfloat a30, GLfloat a31, GLfloat a32, GLfloat a33);
     virtual ~gl_matrix();
 
@@ -22,7 +22,7 @@ public:
     void set_index(GLfloat value, GLint row, GLint column);
 
     // GLfloat *get_data() const;
-    glFloat get_index(GLint row, GLint column) const;
+    GLfloat get_index(GLint row, GLint column) const;
 
 private:
     GLfloat elements_[4][4];

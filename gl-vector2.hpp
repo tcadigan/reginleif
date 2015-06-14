@@ -11,7 +11,7 @@ public:
 
     GLfloat length();
     void normalize();
-    void reflect(gl_vector3 const &normal);
+    void reflect(gl_vector2 const &normal);
 
     gl_vector2 &operator+=(gl_vector2 const &rhs);
     gl_vector2 &operator-=(gl_vector2 const &rhs);

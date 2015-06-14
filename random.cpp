@@ -33,7 +33,7 @@ unsigned long RandomVal(void)
     unsigned long y;
 
     if(k == N) {
-        for(kk = 0l kk < (N - M); ++kk) {
+        for(kk = 0; kk < (N - M); ++kk) {
             y = (ptgfsr[kk] & UPPER_MASK) | (ptgfsr[kk + 1] & LOWER_MASK);
             ptgfsr[kk] = (ptgfsr[kk + M] ^ (y >> 1)) ^ mag01[y & 0x1];
         }
@@ -71,7 +71,7 @@ void RandomInit(unsigned long seed)
     ptgfsr[0] = seed;
 
     for(k = 1; k < N; ++k) {
-        ptgfsr[k] = 69069 * ptgsfsr[k - 1];
+        ptgfsr[k] = 69069 * ptgfsr[k - 1];
     }
 
     k = 1;

@@ -9,7 +9,7 @@ public:
     gl_quat(GLfloat x, GLfloat y, GLfloat z, GLfloat w);
     virtual ~gl_quat();
 
-    void set_data(GLfloat x, GLfloat y, GLfloat z, GLfloat z);
+    void set_data(GLfloat x, GLfloat y, GLfloat z, GLfloat w);
     void set_x(GLfloat x);
     void set_y(GLfloat y);
     void set_z(GLfloat z);

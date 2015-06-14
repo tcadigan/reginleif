@@ -13,15 +13,15 @@
 
 #include "light.hpp"
 
+#include <SDL.h>
 #include <cmath>
 
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include "types.hpp"
-
 #include "camera.hpp"
 #include "entity.hpp"
+#include "gl-vector2.hpp"
 #include "macro.hpp"
 #include "math.hpp"
 #include "random.hpp"
@@ -32,9 +32,9 @@
 
 #define MAX_SIZE 5
 
-static GLvector2 angles[5][360];
+static gl_vector2 angles[5][360];
 static Light *head;
-static bool anlges_done;
+static bool angles_done;
 static int count;
 
 void LightClear()
@@ -65,16 +65,16 @@ void LightRender()
 
     if(!angles_done) {
         for(int size = 0; size < MAX_SIZE; ++size) {
-            for(int i = 0l i < 360; ++i) {
+            for(int i = 0; i < 360; ++i) {
                 float radians = (float)i * DEGREES_TO_RADIANS;
-                angles[size][i].x = cosf(radians) * ((float)size + 0.5f);
-                angles[size][i].y = sinf(radians) * ((float)size + 0.5f);
+                angles[size][i].set_x(cosf(radians) * ((float)size + 0.5f));
+                angles[size][i].set_y(sinf(radians) * ((float)size + 0.5f));
             }
         }
     }
 
     glDepthMask(false);
-    glEnable(GL_BEND);
+    glEnable(GL_BLEND);
     glDisable(GL_CULL_FACE);
     glBlendFunc(GL_ONE, GL_ONE);
     glBindTexture(GL_TEXTURE_2D, TextureId(TEXTURE_LIGHT));
@@ -89,16 +89,16 @@ void LightRender()
     glDepthMask(true);
 }
 
-Light::Light(GLvector pos, GLrgba color, int size)
+Light::Light(gl_vector3 pos, gl_rgba color, int size)
 {
     position_ = pos;
     color_ = color;
     size_ = CLAMP(size, 0, (MAX_SIZE - 1));
-    vert_size_ = (float)_size + 0.5f;
+    vert_size_ = (float)size_ + 0.5f;
     flat_size_ = vert_size_ + 0.5f;
     blink_ = false;
-    cell_x_ = WORLD_TO_GRID(pos.x);
-    cell_z_ = WORLD_TO_GRID(pos.z);
+    cell_x_ = WORLD_TO_GRID(pos.get_x());
+    cell_z_ = WORLD_TO_GRID(pos.get_z());
     next_ = head;
     head = this;
     count++;
@@ -116,10 +116,10 @@ void Light::Blink()
 void Light::Render()
 {
     int angle;
-    GLvector pos;
-    GLvector camera;
-    GLvector camera_position;
-    GLvector2 offset;
+    gl_vector3 pos;
+    gl_vector3 camera;
+    gl_vector3 camera_position;
+    gl_vector2 offset;
 
     if(!Visible(cell_x_, cell_z_)) {
         return;
@@ -128,30 +128,38 @@ void Light::Render()
     camera = CameraAngle();
     camera_position = CameraPosition();
     
-    if(fabs(camera_position.x - position_.x) > RenderFogDistance()) {
+    if(fabs(camera_position.get_x() - position_.get_x()) > RenderFogDistance()) {
         return;
     }
-    if(fabs(camera_position.x - position_.z) > RenderFogDistance()) {
+    if(fabs(camera_position.get_x() - position_.get_z()) > RenderFogDistance()) {
         return;
     }
-    if(blink_ && ((GetTickCount() % blink_interval_) > 200)) {
+    if(blink_ && ((SDL_GetTicks() % blink_interval_) > 200)) {
         return;
     }
 
-    angle = (int)MathAngle(camera.y);
+    angle = (int)MathAngle(camera.get_y());
     offset = angles[size_][angle];
     pos = position_;
-    glColor4fv(&color_.red);
+    glColor4fv(color_.get_data());
     
     glTexCoord2f(0, 0);
-    glVertex3f(pos.x + offset.x, pos.y - vert_size_, pos.z + offset.y);
+    glVertex3f(pos.get_x() + offset.get_x(),
+               pos.get_y() - vert_size_,
+               pos.get_z() + offset.get_y());
     
     glTexCoord2f(0, 1);
-    glVertex3f(pos.x - offset.x, pos.y - vert_size_, pos.z - offset.y);
+    glVertex3f(pos.get_x() - offset.get_x(), 
+               pos.get_y() - vert_size_,
+               pos.get_z() - offset.get_y());
     
     glTexCoord2f(1, 1);
-    glVertex3f(pos.x - offset.x, pos.y + vert_size_, pos.z - offset.y);
+    glVertex3f(pos.get_x() - offset.get_x(),
+               pos.get_y() + vert_size_,
+               pos.get_z() - offset.get_y());
 
     glTexCoord2f(1, 0);
-    glVertex3f(pos.x + offset.x, pos.y + vert_size_, pos.z + offset.y);
+    glVertex3f(pos.get_x() + offset.get_x(), 
+               pos.get_y() + vert_size_, 
+               pos.get_z() + offset.get_y());
 }

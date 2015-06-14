@@ -77,7 +77,7 @@ GLfloat gl_vector2::dot_product(gl_vector const &rhs) const
                      + (data_[1] * rhs.data_[1]));
 }
 
-gl_vector3 gl_vector2::interpolate(gl_vector3 const &rhs, GLfloat scalar) const
+gl_vector2 gl_vector2::interpolate(gl_vector2 const &rhs, GLfloat scalar) const
 {
     return gl_vector2(math_interpolate(data_[0], rhs.data_[0], scalar),
                       math_interpolate(data_[1], rhs.data_[1], scalar));

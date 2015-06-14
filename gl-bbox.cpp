@@ -59,14 +59,12 @@ void gl_bbox::contain_point(gl_vector3 const &point)
     }
 
     if(max_.get_y() <= point.get_y()) {
-        max_.get_y(point.get_y());
+        max_.set_y(point.get_y());
     }
 
     if(max_.get_z() <= point.get_z()) {
-        max_.get_z(point.get_z());
+        max_.set_z(point.get_z());
     }
-
-    return box;
 }
 
 // This will invalidate the bbox

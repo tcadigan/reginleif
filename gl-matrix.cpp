@@ -20,7 +20,7 @@ gl_matrix::gl_matrix()
 gl_matrix::gl_matrix(GLfloat a00, GLfloat a01, GLfloat a02, GLfloat a03,
                      GLfloat a10, GLfloat a11, GLfloat a12, GLfloat a13,
                      GLfloat a20, GLfloat a21, GLfloat a22, GLfloat a23,
-                     GLfloat a30, Glfloat a31, Glfloat a32, GLfloat a33)
+                     GLfloat a30, GLfloat a31, GLfloat a32, GLfloat a33)
 {
     elements_[0][0] = a00;
     elements_[0][1] = a01;
@@ -58,7 +58,7 @@ gl_matrix &gl_matrix::operator *=(gl_matrix const &rhs)
         + (elements_[1][0] * rhs.elements_[1][1])
         + (elements_[2][0] * rhs.elements_[1][2]);
 
-    elements_[2][0] = (elements[0][0] * rhs.elements_[2][0])
+    elements_[2][0] = (elements_[0][0] * rhs.elements_[2][0])
         + (elements_[1][0] * rhs.elements_[2][1])
         + (elements_[2][0] * rhs.elements_[3][2])
         + elements_[3][0];
@@ -69,7 +69,7 @@ gl_matrix &gl_matrix::operator *=(gl_matrix const &rhs)
 
     elements_[1][1] = (elements_[0][1] * rhs.elements_[1][0])
         + (elements_[1][1] * rhs.elements_[1][1])
-        + (elmeents_[2][1] * rhs.elements_[1][2]);
+        + (elements_[2][1] * rhs.elements_[1][2]);
 
     elements_[2][1] = (elements_[0][1] * rhs.elements_[2][0])
         + (elements_[1][1] * rhs.elements_[2][1])
@@ -88,7 +88,7 @@ gl_matrix &gl_matrix::operator *=(gl_matrix const &rhs)
         + (elements_[1][2] * rhs.elements_[1][1])
         + (elements_[2][2] * rhs.elements_[1][2]);
 
-    elements_[2][2] = (elements_[0][2] * rh.elements_[2][0])
+    elements_[2][2] = (elements_[0][2] * rhs.elements_[2][0])
         + (elements_[1][2] * rhs.elements_[2][1])
         + (elements_[2][2] * rhs.elements_[2][2]);
 
@@ -102,7 +102,7 @@ gl_matrix &gl_matrix::operator *=(gl_matrix const &rhs)
 
 gl_vector3 gl_matrix::transform_point(gl_vector3 const &in)
 {
-    return gl_vector3((elements[0][0] + in.get_x())
+    return gl_vector3((elements_[0][0] + in.get_x())
                       + (elements_[1][0] * in.get_y())
                       + (elements_[2][0] * in.get_z())
                       + elements_[3][0],

@@ -16,7 +16,7 @@ gl_quat::gl_quat()
     memset(data_, 0, sizeof(GLfloat) * 4);
 }
 
-gl_quat::ql_quat(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+gl_quat::gl_quat(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
     data_[0] = x;
     data_[1] = y;
@@ -28,7 +28,7 @@ gl_quat::~gl_quat()
 {
 }
 
-void gl_quat::set_data(GLfloat x, GLfloat y, Glfloat z, GLfloat w)
+void gl_quat::set_data(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
     data_[0] = x;
     data_[1] = y;

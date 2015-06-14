@@ -12,8 +12,6 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include "types.hpp"
-
 #include "win.hpp"
 
 #define FORMAT_VECTOR "%f %f %f"
@@ -60,20 +58,18 @@ void IniStringSet(char *entry, char *val)
 {
 }
 
-void IniVectorSet(char *entry, GLvector v)
+void IniVectorSet(char *entry, gl_vector3 v)
 {
-    sprintf(result, FORMAT_VECTOR, v.x, v.y, v.z);
+    sprintf(result, FORMAT_VECTOR, v.get_x(), v.get_y(), v.get_z());
 }
 
-GLVector IniVector(char *entry)
+gl_vector3 IniVector(char *entry)
 {
-    GLvector v;
+    GLfloat x = 0.0f;
+    GLfloat y = 0.0f;
+    GLfloat z = 0.0f;
     
-    v.x = 0.0f;
-    v.y = 0.0f;
-    v.z = 0.0f;
+    sscanf(result, FORMAT_VECTOR, &x, &y, &z);
 
-    sscanf(result, FORMAT_VECTOR, &v.x, &v.y, &v.z);
-
-    return z;
+    return gl_vector3(x, y, z);
 }
