@@ -5,15 +5,10 @@
 
 #define JOINT_MAX_CHILDREN 8
 
-struct GLmatrix {
-    float elements[4][4];
-};
-
 struct GLvertex {
     GLvector3 position;
     GLvector2 uv;
     GLrgba color;
-    int bone;
 };
 
 struct GLrect {
@@ -85,13 +80,5 @@ struct GLtriangle {
 //     int m_segment_count;
 //     float m_length;
 // };
-
-GLmatrix glMatrixIdentity(void);
-void glMatrixElementsSet(GLmatrix *m, float *in);
-GLmatrix glMatrixMultiply(GLmatrix a, GLmatrix b);
-GLvector glMatrixTransformPoint(GLmatrix m, GLvector in);
-GLmatrix glMatrixTranslate(GLmatrix m, GLvector in);
-GLmatrix glMatrixRotate(GLmatrix m, float theta, float x, float y, float z);
-GLvector glMatrixToEuler(GLmatrix mat, int order);
 
 #endif /* TYPES_HPP_ */
