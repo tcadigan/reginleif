@@ -115,20 +115,20 @@ void Light::Render()
     int angle;
     gl_vector3 pos;
     gl_vector3 camera;
-    gl_vector3 camera_position;
+    gl_vector3 camera_pos;
     gl_vector2 offset;
 
     if(!Visible(cell_x_, cell_z_)) {
         return;
     }
 
-    camera = CameraAngle();
-    camera_position = CameraPosition();
+    camera = camera_angle();
+    camera_pos = camera_position();
     
-    if(fabs(camera_position.get_x() - position_.get_x()) > RenderFogDistance()) {
+    if(fabs(camera_pos.get_x() - position_.get_x()) > RenderFogDistance()) {
         return;
     }
-    if(fabs(camera_position.get_x() - position_.get_z()) > RenderFogDistance()) {
+    if(fabs(camera_pos.get_x() - position_.get_z()) > RenderFogDistance()) {
         return;
     }
     if(blink_ && ((SDL_GetTicks() % blink_interval_) > 200)) {

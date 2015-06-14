@@ -693,8 +693,8 @@ void RenderUpdate(void)
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
     glLoadIdentity();
     glLineWidth(1.0f);
-    pos = CameraPosition();
-    angle = CameraAngle();
+    pos = camera_position();
+    angle = camera_angle();
     glRotatef(angle.get_x(), 1.0f, 0.0f, 0.0f);
     glRotatef(angle.get_y(), 0.0f, 1.0f, 0.0f);
     glRotatef(angle.get_z(), 0.0f, 0.0f, 1.0f);

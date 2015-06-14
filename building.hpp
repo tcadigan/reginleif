@@ -3,6 +3,8 @@
 
 #include "entity.hpp"
 
+#include <SDL_opengl.h>
+
 #include "gl-rgba.hpp"
 #include "mesh.hpp"
 
@@ -15,79 +17,79 @@ enum {
 
 class Building: public Entity {
 public:
-    Building(int type, 
-             int x, 
-             int y,
-             int height,
-             int width,
-             int depth,
-             int seed,
+    Building(GLint type, 
+             GLint x, 
+             GLint y,
+             GLint height,
+             GLint width,
+             GLint depth,
+             GLint seed,
              gl_rgba color);
     ~Building();
 
-    void Render(void);
-    int PolyCount();
-    void RenderFlat(bool colored);
-    unsigned int Texture();
+    void render(void);
+    GLint poly_count();
+    void render_flat(GLboolean colored);
+    GLuint texture();
 
 private:
-    int x_;
-    int y_;
-    int width_;
-    int depth_;
-    int height_;
-    int texture_type_;
-    int seed_;
-    int roof_tiers_;
+    GLint x_;
+    GLint y_;
+    GLint width_;
+    GLint depth_;
+    GLint height_;
+    GLint texture_type_;
+    GLint seed_;
+    GLint roof_tiers_;
     gl_rgba color_;
     gl_rgba trim_color_;
     Mesh *mesh_;
     Mesh *mesh_flat_;
-    bool have_lights_;
-    bool have_trim_;
-    bool have_logo_;
+    GLboolean have_lights_;
+    GLboolean have_trim_;
+    GLboolean have_logo_;
 
-    void CreateSimple();
-    void CreateBlocky();
-    void CreateModern();
-    void CreateTower();
+    void create_simple();
+    void create_blocky();
+    void create_modern();
+    void create_tower();
 
-    float ConstructWall(int start_x,
-                        int start_y,
-                        int start_z,
-                        int direction,
-                        int length,
-                        int height,
-                        int window_groups,
-                        float uv_start,
-                        bool blank_corners);
+    GLfloat construct_wall(GLint start_x,
+                           GLint start_y,
+                           GLint start_z,
+                           GLint direction,
+                           GLint length,
+                           GLint height,
+                           GLint window_groups,
+                           GLfloat uv_start,
+                           GLboolean blank_corners);
 
-    void ConstructSpike(int left,
-                        int right,
-                        int front,
-                        int back,
-                        int bottom,
-                        int top);
+    void construct_spike(GLint left,
+                         GLint right,
+                         GLint front,
+                         GLint back,
+                         GLint bottom,
+                         GLint top);
 
-    void ConstructCube(int left,
-                       int right,
-                       int front,
-                       int back,
-                       int bottom,
-                       int top);
+    void construct_cube(GLint left,
+                        GLint right,
+                        GLint front,
+                        GLint back,
+                        GLint bottom,
+                        GLint top);
 
-    void ConstructCube(float left,
-                       float right,
-                       float front,
-                       float back,
-                       float bottom,
-                       float top);
+    void construct_cube(GLfloat left,
+                        GLfloat right,
+                        GLfloat front,
+                        GLfloat back,
+                        GLfloat bottom,
+                        GLfloat top);
 
-    void ConstructRoof(float left,
-                       float right,
-                       float front,
-                       float back,
-                       float bottom);
+    void construct_roof(GLfloat left,
+                        GLfloat right,
+                        GLfloat front,
+                        GLfloat back,
+                        GLfloat bottom);
 };
 
 #endif /* BUILDING_HPP_ */

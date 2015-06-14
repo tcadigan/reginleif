@@ -141,7 +141,7 @@ void Car::Update(void)
     gl_vector3 camera;
 
     // If the car isn't ready, place it on the map and get it moving
-    camera = CameraPosition();
+    camera = camera_position();
     if(!ready_) {
         // If the car isn't ready, we need to place it somewhere on the map
         row_ = DEAD_ZONE + RandomVal(WORLD_SIZE - (DEAD_ZONE * 2));

@@ -60,7 +60,7 @@ void AppQuit()
 
 void AppUpdate()
 {
-    CameraUpdate();
+    camera_update();
     EntityUpdate();
     WorldUpdate();
     TextureUpdate();
@@ -72,7 +72,7 @@ void AppUpdate()
 void AppInit(void)
 {
     RandomInit(time(NULL));
-    CameraInit();
+    camera_init();
     RenderInit();
     TextureInit();
     WorldInit();
@@ -83,7 +83,7 @@ void AppTerm(void)
     TextureTerm();
     WorldTerm();
     RenderTerm();
-    CameraTerm();
+    camera_term();
     WinTerm();
 }
 

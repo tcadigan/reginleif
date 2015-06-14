@@ -54,16 +54,16 @@ static int do_compare(const void *arg1, const void *arg2)
     struct entity *e1 = (struct entity *)arg1;
     struct entity *e2 = (struct entity *)arg2;
 
-    if(e1->object->Alpha() && !e2->object->Alpha()) {
+    if(e1->object->alpha() && !e2->object->alpha()) {
         return 1;
     }
-    if(!e1->object->Alpha() && e2->object->Alpha()) {
+    if(!e1->object->alpha() && e2->object->alpha()) {
         return -1;
     }
-    if(e1->object->Texture() > e2->object->Texture()) {
+    if(e1->object->texture() > e2->object->texture()) {
         return 1;
     }
-    else if(e1->object->Texture() < e2->object->Texture()) {
+    else if(e1->object->texture() < e2->object->texture()) {
         return -1;
     }
 
@@ -112,12 +112,12 @@ static void do_compile()
                                      (float)y * GRID_RESOLUTION);
 
     for(i = 0; i < entity_count; ++i) {
-        gl_vector3 pos = entity_list[i].object->Center();
+        gl_vector3 pos = entity_list[i].object->center();
         if((WORLD_TO_GRID(pos.get_x()) == x)
            && (WORLD_TO_GRID(pos.get_z()) == y)
-           && !entity_list[i].object->Alpha()) {
-            glBindTexture(GL_TEXTURE_2D, entity_list[i].object->Texture());
-            entity_list[i].object->Render();
+           && !entity_list[i].object->alpha()) {
+            glBindTexture(GL_TEXTURE_2D, entity_list[i].object->texture());
+            entity_list[i].object->render();
         }
     }
     glEndList();
@@ -134,11 +134,11 @@ static void do_compile()
                                      (float)y * GRID_RESOLUTION);
 
     for(i = 0; i < entity_count; ++i) {
-        gl_vector3 pos = entity_list[i].object->Center();
+        gl_vector3 pos = entity_list[i].object->center();
         if((WORLD_TO_GRID(pos.get_x()) == x)
            && (WORLD_TO_GRID(pos.get_z()) == y)
-           && !entity_list[i].object->Alpha()) {
-            entity_list[i].object->RenderFlat(false);
+           && !entity_list[i].object->alpha()) {
+            entity_list[i].object->render_flat(false);
         }
     }
     glEndList();
@@ -155,11 +155,11 @@ static void do_compile()
                                      (float)y * GRID_RESOLUTION);
     
     for(i = 0; i < entity_count; ++i) {
-        gl_vector3 pos = entity_list[i].object->Center();
+        gl_vector3 pos = entity_list[i].object->center();
         if((WORLD_TO_GRID(pos.get_x()) == x)
            && (WORLD_TO_GRID(pos.get_z()) == y)
-           && !entity_list[i].object->Alpha()) {
-            entity_list[i].object->RenderFlat(true);
+           && !entity_list[i].object->alpha()) {
+            entity_list[i].object->render_flat(true);
         }
     }
     glEndList();
@@ -177,12 +177,12 @@ static void do_compile()
     glEnable(GL_BLEND);
     glDisable(GL_CULL_FACE);
     for(i = 0; i < entity_count; ++i) {
-        gl_vector3 pos = entity_list[i].object->Center();
+        gl_vector3 pos = entity_list[i].object->center();
         if((WORLD_TO_GRID(pos.get_x()) == x)
            && (WORLD_TO_GRID(pos.get_z()) == y)
-           && entity_list[i].object->Alpha()) {
-            glBindTexture(GL_TEXTURE_2D, entity_list[i].object->Texture());
-            entity_list[i].object->Render();
+           && entity_list[i].object->alpha()) {
+            glBindTexture(GL_TEXTURE_2D, entity_list[i].object->texture());
+            entity_list[i].object->render();
         }
     }
     glDepthMask(true);
@@ -360,7 +360,7 @@ int EntityPolyCount(void)
     }
 
     for(int i = 0; i < entity_count; ++i) {
-        polycount += entity_list[i].object->PolyCount();
+        polycount += entity_list[i].object->poly_count();
     }
 
     return polycount;
@@ -375,34 +375,34 @@ Entity::~Entity()
 {
 }
 
-void Entity::Render(void)
+void Entity::render(void)
 {
 }
 
-void Entity::RenderFlat(bool wireframe)
+void Entity::render_flat(bool wireframe)
 {
 }
 
-void Entity::Update(void)
+void Entity::update(void)
 {
 }
 
-gl_vector3 Entity::Center()
+gl_vector3 Entity::center()
 {
     return center_;
 }
 
-bool Entity::Alpha()
+bool Entity::alpha()
 {
     return false;
 }
 
-unsigned int Entity::Texture()
+unsigned int Entity::texture()
 {
     return -1;
 }
 
-int Entity::PolyCount()
+int Entity::poly_count()
 {
     return 0;
 }

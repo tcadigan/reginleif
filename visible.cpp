@@ -55,8 +55,8 @@ void VisibleUpdate(void)
     memset(vis_grid, '0', sizeof(vis_grid));
 
     // Calculate which cell the camera is in
-    angle = CameraAngle();
-    position = CameraPosition();
+    angle = camera_angle();
+    position = camera_position();
     grid_x = WORLD_TO_GRID(position.get_x());
     grid_z = WORLD_TO_GRID(position.get_z());
 

@@ -59,8 +59,8 @@ void Sky::Render()
     glDisable(GL_FOG);
     glPushMatrix();
     glLoadIdentity();
-    angle = CameraAngle();
-    position = CameraPosition();
+    angle = camera_angle();
+    position = camera_position();
     glRotatef(angle.get_x(), 1.0f, 0.0f, 0.0f);
     glRotatef(angle.get_y(), 0.0f, 1.0f, 0.0f);
     glRotatef(angle.get_z(), 0.0f, 0.0f, 1.0f);
