@@ -4,9 +4,18 @@
  *
  * This is the program which forks and execs the Rogue and the Player
  */
-#include <stdio.h>
+#include "setup.h"
+
 #include <signal.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+
+#include "findscore.h"
 #include "install.h"
+#include "scorefile.h"
+#include "utility.h"
 
 #define READ 0
 #define WRITE 1
@@ -21,7 +30,7 @@ int main(int argc, char *argv[])
 {
     int ptc[2];
     int ctp[2];
-    int char;
+    int child;
     int score = 0;
     int oldgame = 0;
     int cheat = 0;
@@ -35,7 +44,7 @@ int main(int argc, char *argv[])
     int user = 0;
     int quitat = 2147483647;
     char *rfile = "";
-    char *rfliearg = "";
+    char *rfilearg = "";
     char options[32];
     char ropts[128];
     char roguename[128];
@@ -124,7 +133,7 @@ int main(int argc, char *argv[])
             rfile = rfilearg;
         }
         else {
-            perror(rfilelog);
+            perror(rfilearg);
             exit(1);
         }
     }
@@ -213,18 +222,33 @@ int main(int argc, char *argv[])
         close(1);
         dup(ctp[WRITE]);
 
-        putenv("TERMCAP", ROGUETERM);
-        putevn("ROGUEOPTS", ropts);
+        char *termcap_env_var = 
+            (char *)malloc(sizeof(char) * (strlen("TERMCAP=") + strlen(ROGUETERM) + 1));
+        strncpy(termcap_env_var, "TERMCAP=", strlen("TERMCAP="));
+        strncpy(termcap_env_var + strlen("TERMCAP="), ROGUETERM, strlen(ROGUETERM));
+        termcap_env_var[strlen("TERMCAP=") + strlen(ROGUETERM)] = '\0';
+
+        putenv(termcap_env_var);
+        free(termcap_env_var);
+
+        char *rogueopts_env_var =
+            (char *)malloc(sizeof(char) * (strlen("ROGUEOPTS=") + strlen(ropts) + 1));
+        strncpy(rogueopts_env_var, "ROGUEOPTS=", strlen("ROGUEOPTS="));
+        strncpy(rogueopts_env_var + strlen("ROGUEOPTS="), ropts, strlen(ropts));
+        rogueopts_env_var[strlen("ROGUEOPTS=") + strlen(ropts)] = '\0';
+
+        putenv(rogueopts_env_var);
+        free(rogueopts_env_var);
 
         if(oldgame) {
-            execl(rfile, rfile, "-r", 0);
+            execl(rfile, rfile, "-r", NULL);
         }
 
         if(argc) {
-            execl(rfile, rfile, argv[0], 0);
+            execl(rfile, rfile, argv[0], NULL);
         }
 
-        execl(rfile, rfile, 0);
+        execl(rfile, rfile, NULL);
 
         _exit(1);
     }
@@ -243,15 +267,17 @@ int main(int argc, char *argv[])
             nice(4);
         }
 
-        execl("player", "player", ft, rp, options, roguename, 0);
+        execl("player", "player", ft, rp, options, roguename, NULL);
 
 #ifdef PLAYER
-        execl(PLAYER, "player", ft, rp, options, roguename, 0);
+        execl(PLAYER, "player", ft, rp, options, roguename, NULL);
 #endif
         
         printf("Rogomatic not avialable, 'player' binary missing.\n");
         kill(child, SIGKILL);
     }
+
+    return 0;
 }
 
 /*
@@ -262,10 +288,10 @@ int main(int argc, char *argv[])
  */
 void replaylog(char *fname, char *options)
 {
-    execl("player", "player", "ZZ", "0", options, fname, 0);
+    execl("player", "player", "ZZ", "0", options, fname, NULL);
 
 #ifdef PLAYER
-    execl(PLAYER, "player", "ZZ", "0", options, fname, 0);
+    execl(PLAYER, "player", "ZZ", "0", options, fname, NULL);
 #endif
 
     printf("Replay not available, 'player' binary missing.\n");

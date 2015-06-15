@@ -160,7 +160,7 @@ void reset_int()
 /*
  * int_exit: Set up a funciton to call if we get an interrupt
  */
-void int_exit(int(*exitproc)())
+void int_exit(void (*exitproc)())
 {
     if(signal(SIGHUP, SIG_IGN) != SIG_IGN) {
         signal(SIGHUP, exitproc);

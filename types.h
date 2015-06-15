@@ -6,8 +6,11 @@
  */
 
 /* the unctrl macro for systems where curses doesn't define it */
+#ifndef TYPES_H_
+#define TYPES_H_
+
 #ifndef unctrl
-extern char *_unctrl[]
+extern char *_unctrl[];
 
 #define unctrl(ch) _unctrl[ch & 0177]
 #endif
@@ -278,7 +281,7 @@ extern char *_unctrl[]
 #define forget(obj, trait) ((obj >= 0) ? (inven[obj].traits &= ~(trait)) : 0)
 
 /* The types of objects */
-typedef enum {
+typedef enum{
     strange,
     food,
     potion,
@@ -334,7 +337,7 @@ typedef struct {
 } lrnrec;
 
 typedef struct {
-    char m_name[NAMSIZ];
+    char m_name[NAMESIZ];
     probability wehit;
     probability theyhit;
     probability arrowhit;
@@ -357,3 +360,5 @@ typedef struct {
     int activity[T_LISTLEN];
     int timestamp;
 } timerec;
+
+#endif

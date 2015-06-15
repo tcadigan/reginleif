@@ -8,18 +8,23 @@
  * contains new scores, and whenever the score file is printed the delta
  * file is sorted and merged into the rgmscore file.
  */
+#include "scorefile.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <unistd.h>
+
 #include "types.h"
 #include "globals.h"
 #include "install.h"
+#include "utility.h"
 
 #define LINESIZE 2048
 #define SCORE(s, p) atoi(s + p)
 
-static char lockfil[100];
+static char lokfil[100];
 
 /*
  * add_score: Write a new score line out to the correct rogomatic score
@@ -34,7 +39,7 @@ void add_score(char *new_line, char *vers, int ntrm)
     char newfil[100];
     FILE *newlog;
 
-    sprintf(lockfil, "%s %s", LOCKFILE, vers);
+    sprintf(lokfil, "%s %s", LOCKFILE, vers);
     sprintf(newfil, "%s/rgmdelta%s", RGMDIR, vers);
 
     /* Defer interrupts while mucking with the score file */
@@ -45,7 +50,7 @@ void add_score(char *new_line, char *vers, int ntrm)
      * wishes to wait. If so, then try lock_file ifve times and then ask
      * again.
      */
-    while(lock_file(lockfil, MAXLOCK) == 0) {
+    while(lock_file(lokfil, MAXLOCK) == 0) {
         if((--wantscore < 1) && !ntrm) {
             printf("The score file is busy, do you wish to wait? [y/n] ");
             
@@ -113,7 +118,7 @@ void dumpscore(char *vers)
     }
 
     deltaf = fopen(delfil, "r");
-    scoref = fopen(dcrfil, "r");
+    scoref = fopen(scrfil, "r");
 
     /* If there are new scores, sort and merge them into the score file */
     if(deltaf != NULL) {
@@ -141,7 +146,7 @@ void dumpscore(char *vers)
 
             if(filelength(allfil) != (filelength(delfil) + filelength(scrfil))) {
                 fprintf(stderr, "Error, new file is wrong length!\n");
-                unline(newfil);
+                unlink(newfil);
                 unlink(allfil);
                 unlock_file(lokfil);
 
@@ -155,13 +160,13 @@ void dumpscore(char *vers)
                 unlink(allfil);
             }
 
-            scoref = fopen(srcfil, "r");
+            scoref = fopen(scrfil, "r");
         }
         else { /* Only have delta file, sort into score file and unlink delta */
             sprintf(cmd, "sort +4nr -o %s %s", scrfil, delfil);
             system(cmd);
             unlink(delfil);
-            scorefil = fopen(scrfil, "r");
+            scoref = fopen(scrfil, "r");
         }
 
         /* Restore umask */

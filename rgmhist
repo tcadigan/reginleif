@@ -4,5 +4,5 @@
 # hplot: Rog-O-Matic XIV (CMU Thu Jul 3 16:35:59 1986 - mlm
 # Copyright (C) 2015 by A. Appel, G. Jacobson, L. Hamey, and M. Mauldin
 #
-./rogomatic/bin/rogomatic -s | \
-    ./rogomatic/bin/histplot $*
+./.rogomatic/bin/rogomatic -s | \
+    ./.rogomatic/bin/histplot $*

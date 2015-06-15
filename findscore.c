@@ -12,13 +12,19 @@
  * 6-Jul-86 Michael Mauldin (mlm) at Carnegie-Mellon University
  *     Created.
  */
+#include "findscore.h"
 
-#include <cstdio.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
 #include "install.h"
+#include "utility.h"
+
 #define TEMPFL "/tmp/RscoreXXXXXX"
 #define ISDIGIT(c) (((c) >= '0') && ((c) <= '9'))
 
-int best(char *rogue, char *roguename)
+int findscore(char *rogue, char *roguename)
 {
     int score;
     int best = 1;
@@ -33,7 +39,7 @@ int best(char *rogue, char *roguename)
     system(cmd);
 
     /* If no temp file created, return default score */
-    tmpfile = fopen(tmpfname, "r");
+    tmpfil = fopen(tmpfname, "r");
     if(tmpfil == NULL) {
         return best;
     }
