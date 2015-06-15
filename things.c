@@ -612,7 +612,7 @@ int haveuseless()
 /*
  * willrust: Return true if a suit of armor can rust
  */
-int willrus(int obj)
+int willrust(int obj)
 {
     if(!(protected
          || (armorclass(obj) > 8)

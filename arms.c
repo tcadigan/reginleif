@@ -5,10 +5,15 @@
  * This file contains all utility functions which exist for armor,
  * weapons and rings.
  */
+#include "arms.h"
 
 #include <curses.h>
-#include "types.h"
+
+#include "debug.h"
 #include "globals.h"
+#include "things.h"
+#include "types.h"
+#include "utility.h"
 
 /*
  * havearmor: Return Kth best armor. K should be in the rang 1 to invcount.
@@ -16,7 +21,7 @@
  *            then NONE is returned. Will not return cursed armor or
  *            Armor wors than wearing nothing.
  */
-int haveamor(int k, int print, int rustproof)
+int havearmor(int k, int print, int rustproof)
 {
     int i;
     int j;
@@ -29,8 +34,8 @@ int haveamor(int k, int print, int rustproof)
     /* Sort armor by armor class (best first) */
     for(i = 0; i < invcount; ++i) {
         if(inven[i].count
-           && (inven[i] == armor)
-           && !(rustproof && willrus(i))) {
+           && (inven[i].type == armor_obj)
+           && !(rustproof && willrust(i))) {
             ++n;
             w = armorclass(i);
 
@@ -83,7 +88,7 @@ int armorclass(int i)
 {
     int class;
     
-    if(inven[i].type != armor) {
+    if(inven[i].type != armor_obj) {
         return 1000;
     }
 
@@ -119,7 +124,7 @@ int armorclass(int i)
     if(inven[i].phit != UNKNOWN) {
         class -= inven[i].phit;
     }
-    else if(havenamed(scroll, "remove curse") != NONE) {
+    else if(havenamed(scroll_obj, "remove curse") != NONE) {
         /* Can remove curse, so assume it's a +2 armor */
         class -= 2;
     }
@@ -156,14 +161,14 @@ int haveweapon(int k, int print)
                 for(j = n - 1; (j > 0) && (w >= weapval[j - 1]); --j) {
                     t = weapind[j];
                     weapind[j] = weapind[j - 1];
-                    weapind[j - 1] = weapind[j];
+                    weapind[j - 1] = t;
                     t = weapval[j];
                     weapval[j] = weapval[j - 1];
-                    weapval[j - 1] = weapval[j];
+                    weapval[j - 1] = t;
                 }
 
                 weapind[j] = i;
-                weapval = w;
+                weapval[j] = w;
             }
         }
 
@@ -182,7 +187,7 @@ int haveweapon(int k, int print)
                    && !itemis(i, KNOWN)) {
                     t = weapind[j];
                     weapind[j] = weapind[j - 1];
-                    weapind[j - 1] = weapind[j];
+                    weapind[j - 1] = t;
                 }
             }
         }
@@ -222,10 +227,10 @@ int weaponclass(int i)
     int damplus = 0;
 
     /* Swords and maces are always valid weapons */
-    if(inven[i].type == hitter) {
+    if(inven[i].type == hitter_obj) {
     }
     else if(cheat
-            && (inven[i].type == missile)
+            && (inven[i].type == missile_obj)
             && stlmatch(inven[i].str, "arrow")) {
         /* Under special circumstances, arrows are valid weapons (Hee hee) */
     }
@@ -265,7 +270,7 @@ int weaponclass(int i)
         hitplus += inven[i].phit;
 
         if(inven[i].pdam != UNKNOWN) {
-            damplus = inven[pdam];
+            damplus = inven[i].pdam;
         }
     }
     else if(cheat 
@@ -286,7 +291,7 @@ int weaponclass(int i)
             && (version <= RV36B)
             && stlmatch(inven[i].str, "arrow")
             && (inven[i].count == 1)
-            && !itemis(i, worthless)
+            && !itemis(i, WORTHLESS)
             && (!badarrow || (i != currentweapon))) {
         hitplus = 50;
         damplus = 50;
@@ -333,7 +338,7 @@ int havering(int k, int print)
 
                 for(j = n - 1; (j > 0) && (r >= ringval[j - 1]); --j) {
                     t = ringind[j];
-                    ringind[j] = rindind[j - 1];
+                    ringind[j] = ringind[j - 1];
                     ringind[j - 1] = t;
                     t = ringval[j];
                     ringval[j] = ringval[j - 1];
@@ -389,7 +394,7 @@ int ringclass(int i)
     int class = 0;
     int magicplus = 0;
 
-    if(inven[i].type != ring) {
+    if(inven[i].type != ring_obj) {
         return 0;
     }
 
@@ -702,6 +707,13 @@ int havebow(int k, int print)
                      itemstr(bowind[i]));
         }
     }
+
+    if(k <= n) {
+        return bowind[k - 1];
+    }
+    else {
+        return NONE;
+    }
 }
 
 /*
@@ -715,9 +727,9 @@ int bowclass(int i)
     int hitplus = 0;
     int damplus = 0;
 
-    if((inven[i].type == thrower)
+    if((inven[i].type == thrower_obj)
        && stlmatch(inven[i].str, "short bow")
-       && (havemult(missile, "arrow", 5) != NONE)) {
+       && (havemult(missile_obj, "arrow", 5) != NONE)) {
         class = 35;
     }
     else {
@@ -746,11 +758,11 @@ int havemissile()
     int fewest = 9999;
     int obj = NONE;
 
-    if(wielding(thrower)) { /* Wielding bow, use arrows */
+    if(wielding(thrower_obj)) { /* Wielding bow, use arrows */
         for(i = 0; i < invcount; ++i) {
             if((inven[i].count > 0)
                && (inven[i].count < fewest)
-               && (inven[i].type == missile)
+               && (inven[i].type == missile_obj)
                && stlmatch(inven[i].str, "arrow")) {
                 obj = i;
                 fewest = inven[i].count;
@@ -763,13 +775,13 @@ int havemissile()
             if((inven[i].count > 0)
                && (inven[i].count < fewest)
                && !itemis(i, INUSE)
-               && ((inven[i].type == missile)
+               && ((inven[i].type == missile_obj)
                    || stlmatch(inven[i].str, "spear")
                    || stlmatch(inven[i].str, "dagger")
-                   || stlmatch(inven[i].str, "mace")
-                   && inven[i].phit <= 0
-                   || stlmatch(inven.str, "long sword")
-                   && inven[i].phit < 0)) {
+                   || (stlmatch(inven[i].str, "mace")
+                       && inven[i].phit <= 0)
+                   || (stlmatch(inven[i].str, "long sword")
+                       && inven[i].phit < 0))) {
                 obj = i;
                 fewest = inven[i].count;
             }
@@ -794,7 +806,7 @@ int havearrow()
     int arr;
 
     for(arr = 0; arr < invcount; ++arr) {
-        if((inven[arr].type == missile)
+        if((inven[arr].type == missile_obj)
            && (inven[arr].count == 1)
            && stlmatch(inven[arr].str, "arrow")) {
             return arr;
@@ -865,7 +877,7 @@ int damagebonus(int strength)
 {
     int bonus = 0;
 
-    if(strnegth < 700) {
+    if(strength < 700) {
         bonus = (strength / 100) - 7;
     }
     else if(version > RV36B) {

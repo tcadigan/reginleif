@@ -79,11 +79,11 @@ rgmplot.o: rgmplot.c
 rgmplot: rgmplot.o utility.o
 	$(CC) $(CCFLAGS) -o rgmplot rgmplot.o utility.o
 rogomatic: setup.o findscore.o scorefile.o utility.o
-	$(CC) $(CCFLAGS) -o rogomatic setup.o findsocre.o scorefile.o utility.o
+	$(CC) $(CCFLAGS) -o rogomatic setup.o findscore.o scorefile.o utility.o
 	size rogomatic
 rooms.o: types.h globals.h
 	$(CC) -c $(CCFLAGS) rooms.c
-scorefile.o: types.h globals.h install.h
+scorefile.o: types.h globals.h install.h utility.h scorefile.h
 	$(CC) -c $(CCFLAGS) scorefile.c
 search.o: types.h globals.h
 	$(CC) -c $(CCFLAGS) search.c
@@ -105,7 +105,7 @@ titlepage.o: titlepage.c
 	$(CC) -c $(CCFLAGS) titlepage.c
 titler.o: titler.c
 	$(CC) -c titler.c
-utility.o: install.h
+utility.o: install.h utility.h
 	$(CC) -c $(CCFLAGS) utility.c
 worth.o: types.h globals.h
 	$(CC) -c $(CCFLAGS) worth.c
@@ -119,6 +119,7 @@ backup:
 	chmod ugo-w backup.tar.gz
 clean:
 	rm -f *.o datesub.c
+	rm -rf $(BINARIES)
 install:
 	strip $(BINARIES)
 	rm -f $(BINDIR)/player

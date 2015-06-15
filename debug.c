@@ -7,9 +7,12 @@
  * had an incredible number of bugs, with no way to repeat an error
  * (because Rogue uses a different dungeon each time).
  */
+#include "debug.h"
 
 #include <curses.h>
 #include <setjmp.h>
+#include <stdarg.h>
+
 #include "types.h"
 #include "globals.h"
 #include "install.h"
@@ -20,23 +23,17 @@
  * typed. To use, just put a "dwait(type, "messagE");" whever you need
  * debugging messages, and hit a space of a cr to continue
  */
-int dwait(int msgtype,
-          char *f,
-          int a1,
-          int a2,
-          int a3,
-          int a4,
-          int a5,
-          int a6, 
-          int a7,
-          int a8)
+int dwait(int msgtype, char *f, ...)
 {
     char msg[128];
     int r;
     int c;
 
     /* Build the actual message */
-    sprintf(msg, f, a1, a2, a3, a4, a5, a6, a7, a8);
+    va_list args;
+    va_start(args, f);
+    vsprintf(msg, f, args);
+    va_end(args);
 
     /* Log the message if the error is severe enough */
     if(!replaying && (msgtype & (D_FATAL | D_ERROR | D_WARNING))) {

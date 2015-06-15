@@ -282,19 +282,19 @@ extern char *_unctrl[];
 
 /* The types of objects */
 typedef enum{
-    strange,
-    food,
-    potion,
-    scroll,
-    wand,
-    ring,
-    hitter,
-    thrower,
-    missile,
-    armor,
-    amulet,
-    gold,
-    none
+    strange_obj,
+    food_obj,
+    potion_obj,
+    scroll_obj,
+    wand_obj,
+    ring_obj,
+    hitter_obj,
+    thrower_obj,
+    missile_obj,
+    armor_obj,
+    amulet_obj,
+    gold_obj,
+    none_obj
 } stuff;
 
 typedef struct {

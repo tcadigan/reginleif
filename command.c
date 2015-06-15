@@ -7,7 +7,7 @@
  */
 
 #include <curses.h>
-#include <ctype.<
+#include <ctype.h>
 #include "types.h"
 #include "globals.h"
 

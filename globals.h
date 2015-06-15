@@ -7,6 +7,8 @@
 #ifndef GLOBALS_H_
 #define GLOBALS_H_
 
+#include "types.h"
+
 /* global files */
 extern FILE *frogue; /* From Rogue */
 extern FILE *trogue; /* To Rogue */
@@ -131,6 +133,7 @@ extern int quitat; /* Score we are trying to beat */
 extern int redhands; /* True if our hands are red */
 extern int replaying; /* True if replaying old game */
 extern int revvideo; /* True if in rev. video mode */
+extern int rightring; /* Index of our right ring */
 extern int rogpid; /* Process id of Rogue process */
 extern int room[]; /* Flags for each room */
 extern int row; /* Where is the cursor? */
@@ -145,6 +148,7 @@ extern int transparent; /* True ==> user mode */
 extern int trapc; /* Column of last trap */
 extern int trapr; /* Row of last trap */
 extern int urocnt; /* Un-identified Rogue Object count */
+extern int usesynch; /* Have we finished using something? */
 extern int usingarrow; /* True if wielding an arrow from a trap */
 extern int version; /* From types.h, set by getrogueversion */
 extern int wplusdam; /* Weapon damage bonus */

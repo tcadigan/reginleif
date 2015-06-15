@@ -8,12 +8,19 @@
  * If CMU is not defined, then various functions from libcmu.a are
  * defined here (oterhwise the functions from -lcmu are used).
  */
+#include "utility.h"
 
+#include <fcntl.h>
+#include <pwd.h>
 #include <sgtty.h>
-#include <stdio.h>
 #include <signal.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <termios.h>
+#include <unistd.h>
 
 #include "install.h"
 
@@ -31,27 +38,11 @@
  */
 short baudrate()
 {
-    static short baud_convert[] = {
-        0, 50, 75, 110, 135, 150, 200, 
-        300, 600, 1200, 1800, 2400, 4800, 9600
-    };
+    struct termios term;
 
-    static struct sgttyb sg;
-    static short buad_rate;
+    tcgetattr(STDOUT_FILENO, &term);
 
-    gtty(fileno(stdin), &sg);
-
-    if(sg.sg_ospeed == 0) {
-        baud_rate = 1200;
-    }
-    else if(sg.sg_ospeed < (sizeof(baud_convert) / sizeof(baud_convert[0]))) {
-        baud_rate = baud_convert[sg.sg_ospeed];
-    }
-    else {
-        baud_rate = 9600;
-    }
-
-    return buad_rate;
+    return cfgetospeed(&term);
 }
 
 /*
@@ -60,16 +51,11 @@ short baudrate()
 char *getname()
 {
     static char name[100];
-    int i;
     
-    getpw(getuid(), name);
-    i = 0;
+    struct passwd *pass = getpwuid(getuid());
 
-    while((name[i] != ':') && (name[i] != ',')) {
-        ++i;
-    }
-
-    name[i] = '\0';
+    strncpy(name, pass->pw_name, strlen(pass->pw_name));
+    name[strlen(pass->pw_name)] = '\0';
 
     return name;
 }
@@ -122,10 +108,10 @@ int filelength(char *f)
 /*
  * critical: Disable interrupts
  */
-static int (*hstat)();
-static int (*istat)();
-static int (*qstat)();
-static int (*pstat)();
+static void (*hstat)();
+static void (*istat)();
+static void (*qstat)();
+static void (*pstat)();
 
 void critical()
 {
@@ -175,7 +161,7 @@ void int_exit(void (*exitproc)())
     }
 
     if(signal(SIGQUIT, SIG_IGN) != SIG_IGN) {
-        signal(SIGQUIT, exit_proc);
+        signal(SIGQUIT, exitproc);
     }
 }
 
@@ -231,7 +217,6 @@ void unlock_file(char *lokfil)
     unlink(lokfil);
 }
 
-#ifndef CMU
 /*
  * quit: Defined for compatibility with Berkeley 4.2 system
  */
@@ -284,213 +269,3 @@ int stlmatch(char *small, char *big)
 
     return 0;
 }
-
-/*
- * putenv -- Put value into environment
- *
- * Usage: i = putenv(name, value);
- * int i;
- * char *name;
- * char *value;
- *
- * Puenv associates "value" with the environment parameter "name".
- * If "value" is 0, then "name" will be deleted from the environment.
- * Putenv returns 0 normally, -1 on error (not enough core for malloc).
- *
- * Putenv may need to add a new name into the environment, or to
- * associates a value longer than the current value with a particular
- * name. So, to make life simpler, putenv() copies your entire
- * environment into the heap (i.e. malloc()) from the stack
- * (i.e. where it resides when your process is initiated) the first
- * time you call it.
- *
- * HISTORY
- * 25-Nov-82 Michael Mauldin (mlm) at Carnegie-Mellon University
- *     Ripped out of CMU lib for Rog-O-Matic portability
- * 20-Nov-79 Steven Shafer (sas) at Carnegie-Mellon University
- *     Created for VAX. Too bad Bell Labs didn't provide this. It's
- *     unfortunate that you have to copy the whole environment onto the
- *     heap, but the bookkeeping-and-not-so-much-copying approach turns
- *     out to be much hairier. So, I decided to do the simple thing,
- *     copying the entire environment onto the heap the first time you
- *     call putenv(), then doing realloc() uniformly later on.
- *     Note that "putenv(name, getenv(name))" is a no-op; that's the reason
- *     for the use of a 0 pointer to tell putenv() to delete an entry.
- */
-#define EXTRASIZE 5 /* increment to add to environment size */
-
-char *index();
-char *malloc();
-char *realloc();
-int strlen();
-
-static int envsize = -1; /* current size of environment */
-extern char **environ; /* the global whihc is your environment */
-
-static int findenv(); /* look for a name in the environment */
-static int newenv(); /* copy environment from stack to heap */
-static int moreenv(); /* increase size of environment */
-
-int putenv(char *name, char *value)
-{
-    int i;
-    int j;
-    char *p;
-
-    /* first time putenv called */
-    if(envsize < 0) {
-        /* copy environment to heap */
-        if(newenv() < 0) {
-            return -1;
-        }
-    }
-
-    /* look for name in environment */
-    i = findenv(name);
-
-    /* put value into environment */
-    if(value != NULL) {
-        /* name must be added */
-        if(i < 0) {
-            i = 0;
-
-            while(environ[i] != NULL) {
-                ++i;
-            }
-
-            /* need new slot */
-            if(i >= (envsize - 1)) {
-                if(moreenv() < 0) {
-                    return -1;
-                }
-            }
-
-            p = malloc(strlen(name) + strlen(value) + 2);
-
-            /* not enough core */
-            if(p == 0) {
-                return -1;
-            }
-
-            /* new end of environment */
-            environ[i + 1] = 0;
-        }
-        else { /* name already in environment */
-            p = realloc(environ[i], strlen(name) + strlen(value) + 2);
-
-            if(p == 0) {
-                return -1;
-            }
-        }
-
-        /* copy into environment */
-        sprintf(p, "%s=%s", name, value);
-
-        environ[i] = p;
-    }
-    else { /* delete from environment */
-        /* name is currently in environment */
-        if(i >= 0) {
-            free(environ[i]);
-
-            j = 0;
-
-            while(environ[j] != NULL) {
-                ++j;
-            }
-
-            environ[i] = environ[j - 1];
-            environ[j - 1] = 0;
-        }
-    }
-
-    return 0;
-}
-
-static int findenv(char *name)
-{
-    char *namechar;
-    char *envchar;
-    int i;
-    int found;
-
-    found = 0;
-
-    for(i = 0; (environ[i] != NULL) && !found; ++i) {
-        envchar = environ[i];
-        namechar = name;
-
-        while(*namechar && (*namechar == *envchar)) {
-            ++namechar;
-            ++envchar;
-        }
-
-        if((*namechar == '\0') && (*envchar == '=')) {
-            found = 1;
-        }
-        else {
-            found = 0;
-        }
-    }
-
-    if(found) {
-        return(i - 1);
-    }
-    else {
-        return -1;
-    }
-}
-
-static int newenv()
-{
-    char **env;
-    char *elem;
-    int i;
-    int esize;
-
-    i = 0;
-    while(environ[i] != NULL) {
-        ++i;
-    }
-
-    esize = i + EXTRASIZE + 1;
-    env = (char **)malloc(esize * sizeof(elem));
-    if(env == 0) {
-        return -1;
-    }
-
-    for(i = 0; environ[i] != NULL; ++i) {
-        elem = malloc(strlen(environ[i]) + 1);
-
-        if(elem == 0) {
-            return -1;
-        }
-
-        env[i] = elem;
-        strcpy(elem, environ[i]);
-    }
-
-    env[i] = 0;
-    environ = env;
-    envsize = esize;
-
-    return 0;
-}
-
-static int moreenv()
-{
-    int esize;
-    char **env;
-
-    esize = envsize + EXTRASIZE;
-    env = (char **)realloc(environ, esize * sizeof(*env));
-    if(env == 0) {
-        return -1;
-    }
-
-    environ = env;
-    envsize = esize;
-
-    return 0;
-}
-#endif
