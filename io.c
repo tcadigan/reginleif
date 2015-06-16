@@ -4,6 +4,7 @@
  *
  * This file contains all of the functions which deal with the real world.
  */
+#include "io.h"
 
 #include <curses.h>
 #include <ctype.h>
@@ -729,12 +730,15 @@ void sendcnow(char c)
  */
 #define bump(p, sizeq) (p) = ((p) + 1) % sizeq
 
-void send(char *f, int a1, int a2, int a3, int a4)
+void send(char *f, ...)
 {
     char cmd[128];
     char *s = cmd;
 
-    sprintf(s, f, a1, a2, a3, a4);
+    va_list args;
+    va_start(args, f);
+    vsprintf(s, f, args);
+    va_end(args);
 
     while(*s) {
         queue[tail] = *(s++);
@@ -1129,21 +1133,13 @@ void waitfor(char *mess)
 /*
  * say: Display a message on the top line. Restore cursor to Rogue.
  */
-void say(char *f, 
-         int a1,
-         int a2,
-         int a3, 
-         int a4,
-         int a5,
-         int a6,
-         int a7,
-         int a8)
+void say(char *f, va_list args)
 {
     char buf[BUFSIZ];
     char *b;
 
     if(!emacs && !terse) {
-        sprintf(buf, f, a1, a2, a3, a4, a5, a6, a6, a7, a8);
+        vsprintf(buf, f, args);
         at(0, 0);
         
         for(b = buf; *b; ++b) {
@@ -1159,18 +1155,13 @@ void say(char *f,
  * saynow: Display a message on the top line. Restore cursor to Rogue,
  *         and refresh the screen.
  */
-void saynow(char *f,
-            int a1,
-            int a2, 
-            int a3,
-            int a4,
-            int a5,
-            int a6,
-            int a7,
-            int a8)
+void saynow(char *f, ...)
 {
     if(!emacs && !ters) {
-        say(f, a1, a2, a3, a4, a5, a6, a7, a8);
+        va_list args;
+        va_start(args, f);
+        say(f, args);
+        va_end(args);
         refresh();
     }   
 }

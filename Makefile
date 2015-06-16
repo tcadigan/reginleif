@@ -15,7 +15,8 @@ SRCS= arms.c command.c database.c debug.c explore.c io.c learn.c \
       scorefile.c search.c stats.c strategy.c survival.c tactics.c \
 	  things.c titlepage.c utility.c worth.c
 HDRS= types.h globals.h install.h termtokens.h utility.h scorefile.h \
-	  setup.h findscore.h
+	  setup.h findscore.h command.h monsters.h pack.h database.h \
+	  io.h
 OTHERS= setup.c fidscore.c datesub.l histplot.c rgmplot.c gene.c \
 	    rplot Bugreport
 
@@ -30,7 +31,7 @@ all: $(BINARIES)
 #
 arms.o: types.h globals.h
 	$(CC) -c $(CCFLAGS) arms.c
-command.o: types.h globals.h
+command.o: types.h globals.h command.h monsters.h pack.h database.h arms.h io.h
 	$(CC) -c $(CCFLAGS) command.c
 database.o: types.h globals.h
 	$(CC) -c $(CCFLAGS) database.c

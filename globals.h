@@ -55,7 +55,7 @@ extern int ammo; /* Number of missiles in pack */
 extern int arglen; /* Length of argument space */
 extern int arrowshot; /* True if trap fired at us this round */
 extern int atrow; /* Where is the '@'? (us) */
-extern int arcol; /* Where is the '@'? (us( */
+extern int atcol; /* Where is the '@'? (us( */
 extern int atrow0; /* Where was the '@' last time */
 extern int atrow1; /* Where was the '@' last time */
 extern int attempt; /* Number of times we have explored this level */

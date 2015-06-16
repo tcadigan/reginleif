@@ -8,5 +8,6 @@ int weaponclass(int i);
 int ringclass(int i);
 int hitbonus(int strength);
 int damagebonus(int strength);
+void setbonuses();
 
 #endif

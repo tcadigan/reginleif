@@ -5,11 +5,23 @@
  * This file contains all of the functions which send commands to
  * Rogue, this file and 'things.c' make up the effector interface.
  */
+#include "command.h"
 
-#include <curses.h>
 #include <ctype.h>
-#include "types.h"
+#include <curses.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "arms.h"
+#include "database.h"
+#include "debug.h"
 #include "globals.h"
+#include "io.h"
+#include "monsters.h"
+#include "pack.h"
+#include "things.h"
+#include "types.h"
+#include "utility.h"
 
 #define EQUAL 0
 
@@ -50,7 +62,7 @@ void mmove(int d, int mode)
  * include movement commands, sitting, and physical actions. Actions which
  * gether information are sent to Rogue using the 'send' function.
  */
-void command(int tmode, char *f, int a1, int a2, int a3, int a4)
+void command(int tmode, char *f, ...)
 {
     int times;
     char cmd[128];
@@ -58,7 +70,10 @@ void command(int tmode, char *f, int a1, int a2, int a3, int a4)
     static char lastcom[32] = "";
 
     /* Build the command */
-    sprintf(cmd, f, a1, a2, a3, a4);
+    va_list args;
+    va_start(args, f);
+    vsprintf(cmd, f, args);
+    va_end(args);
 
     /* Echo the command if in transparent mode */
     if(transparent) {
@@ -69,7 +84,7 @@ void command(int tmode, char *f, int a1, int a2, int a3, int a4)
     }
 
     /* Figure out whether and in which direction we are moving */
-    switch((function(cmd) & 037) | 0100) {
+    switch((functionchar(cmd) & 037) | 0100) {
     case 'L':
         movedir = 0;
         wakemonster(movedir);
@@ -148,10 +163,10 @@ void command(int tmode, char *f, int a1, int a2, int a3, int a4)
     timespent[Level].timestamp = turns;
 
     if(times > 1) {
-        timespent[Level].activity += times;
+        timespent[Level].activity[tmode] += times;
     }
     else {
-        timespent[Level].activity += 1;
+        timespent[Level].activity[tmode] += 1;
     }
 
     /* Do the inventory stuff */
@@ -225,7 +240,7 @@ void adjustpack(char *cmd)
         removeinv(OBJECT(commandarg(cmd, 1)));
         Ms[0] = 'X';
         newring = 1;
-        laststate = turns;
+        lastate = turns;
 
         break;
     case 'i':
@@ -274,7 +289,7 @@ void adjustpack(char *cmd)
 
         remember(currentweapon, INUSE);
 
-        if(inven[currentweapon].type == missile) {
+        if(inven[currentweapon].type == missile_obj) {
             usingarrow = 1;
         }
         else {
@@ -304,7 +319,7 @@ void adjustpack(char *cmd)
         useobj(inven[lastwand].str);
 
         /* Update number of charges */
-        if(inven[lastwand].cahrges > 0) {
+        if(inven[lastwand].charges > 0) {
             if((version >= RV52A) && stlmatch(inven[lastwand].str, "striking")) {
                 inven[lastwand].charges -= 2;
             }
@@ -364,7 +379,7 @@ void adjustpack(char *cmd)
         }
         else {
             lastdrop = rightring;
-            rightring = NON;
+            rightring = NONE;
         }
 
         usemsg("Taking off", lastdrop);
@@ -402,7 +417,7 @@ void bumpsearchcount()
 
     for(dr = -1; dr <= 1; ++dr) {
         for(dc = -1; dc <= 1; ++dc) {
-            ++timesearched[atrow + dr][atcol + dc];
+            ++timessearched[atrow + dr][atcol + dc];
         }
     }
 }
@@ -422,12 +437,12 @@ int replaycommand()
 
 /*
  * showcommand:     Echo a string in the lower right hand corner.
- * clearcommand:    Remove the command we showed.
  */
 void showcommand(char *cmd)
 {
     char *s;
-    at(23, 72);
+    move(23, 72);
+    refresh();
     standout();
     printw(" ");
     
@@ -436,18 +451,23 @@ void showcommand(char *cmd)
     }
 
     printw(" ");
-    standard();
+    standend();
     clrtoeol();
-    at(row, col);
+    move(row, col);
     refresh();
     cmdonscreen = 1;
 }
 
+/*
+ * clearcommand:    Remove the command we showed.
+ */
 void clearcommand()
 {
-    at(23, 72);
+    move(23, 72);
+    refresh();
     clrtoeol();
-    at(row, col);
+    move(row, col);
+    refresh();
     cmdonscreen = 0;
 }
 

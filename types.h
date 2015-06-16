@@ -198,7 +198,7 @@ extern char *_unctrl[];
 
 /* Micellaneous macros */
 #define LETTER(i) ((char)((i) + 'a'))
-#define DIGIT(c) ((int)((c) - 'a')
+#define DIGIT(c) ((int)((c) - 'a'))
 #define OBJECT(c) DIGIT(c)
 #define ISDIGIT(c) (((c) >= '0') && ((c) <= '9'))
 #define plural(n) ((n == 1) ? "" : "s")
