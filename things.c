@@ -4,11 +4,13 @@
  *
  * This file contains much of the code to handle Rog-O-Matic's inventory.
  */
+#include "things.h"
 
 #include <ctype.h>
 #include <curses.h>
-#include "types.h"
+
 #include "globals.h"
+#include "types.h"
 
 /*
  * wear: This primitive function issues a command to put on armor.

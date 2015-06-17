@@ -5,11 +5,13 @@
  * mess.c: Thie file contains all of the functions which parse the
  * message line.
  */
+#include "mess.h"
 
-#include <curses.h>
 #include <ctype.h>
-#include "types.h"
+#include <curses.h>
+
 #include "globals.h"
+#include "types.h"
 
 /* Matching macros */
 #define MATCH(p) smatch(mess, p, result)
@@ -1570,7 +1572,7 @@ void countgold(char *amount)
 /*
  * Summary: print a summary of the game.
  */
-void summary(FILE *g, char sep)
+void summary(FILE *f, char sep)
 {
     int m;
     char s[1024];

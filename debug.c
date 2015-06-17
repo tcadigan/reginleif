@@ -12,10 +12,18 @@
 #include <curses.h>
 #include <setjmp.h>
 #include <stdarg.h>
+#include <string.h>
 
-#include "types.h"
+#include "database.h"
 #include "globals.h"
 #include "install.h"
+#include "io.h"
+#include "mess.h"
+#include "monsters.h"
+#include "pack.h"
+#include "survival.h"
+#include "things.h"
+#include "types.h"
 
 /*
  * Debugging wait loop: Handle the usual Rogomatic command chars, and also
@@ -61,12 +69,12 @@ int dwait(int msgtype, char *f, ...)
     }
 
     if(msgtype & D_FATAL) {
-        extern jmp_buf; /* From play */
+        extern jmp_buf commandtop; /* From play */
         saynow(msg);
         playing = 0;
         quitrogue("fatal error trap", Gold, SAVED);
 
-        longjmp(commandtop);
+        longjmp(commandtop, 0);
     }
 
     if(!debug(msgtype | D_INFORM)) { /* If debugoff */
@@ -94,13 +102,15 @@ int dwait(int msgtype, char *f, ...)
         
         switch(fgetc(stdin)) {
         case '?':
-            say("i = inv, d = debug, ! = stf, @ = mon, #=wls, $ = id, ^ = flg, & = chr");
+            saynow("i = inv, d = debug, ! = stf, @ = mon, #=wls, $ = id, ^ = flg, & = chr");
 
             break;
         case 'i':
-            at(1,0);
+            move(1, 0);
+            refresh();
             dumpinv((FILE *)NULL);
-            at(row, col);
+            move(row, col);
+            refresh();
             
             break;
         case 'd':
@@ -135,12 +145,14 @@ int dwait(int msgtype, char *f, ...)
             break;
         case '(':
             dumpdatabase();
-            at(row, col);
+            move(row, col);
+            refresh();
 
             break;
         case ')':
             markcycles(DOPRINT);
-            at(row, col);
+            move(row, col);
+            refresh();
 
             break;
         case '~':
@@ -152,7 +164,8 @@ int dwait(int msgtype, char *f, ...)
 
             break;
         default:
-            at(row, col);
+            move(row, col);
+            refresh();
 
             return 1;
         }
@@ -171,7 +184,8 @@ void promptforflags()
         mvprintw(0, 0, "Flags for %d,%d ", r, c);
         dumpflags(r, c);
         clrtoeol();
-        at(row, col);
+        move(row, col);
+        refresh();
     }
 }
 
@@ -225,7 +239,7 @@ void timehistory(FILE *f, char sep)
     for(i = 0; i <= MaxLevel; ++i) {
         sprintf(s, "%slevel %2d:     ", s, i);
 
-        for(j = T_OTHER; j < T_LISTEN; ++j) {
+        for(j = T_OTHER; j < T_LISTLEN; ++j) {
             sprintf(s, "%s%5d", s, timespent[i].activity[j]);
         }
 
@@ -259,7 +273,7 @@ void toggledebug()
         debugging = D_NORMAL | D_SEARCH;
     }
     else if(type == D_SEARCH) {
-        debugging = D_NORMAL | D_BATTLE:
+        debugging = D_NORMAL | D_BATTLE;
     }
     else if(type == D_BATTLE) {
         debugging = D_NORMAL | D_MESSAGE;
@@ -338,7 +352,7 @@ void toggledebug()
 /*
  * getscrpos: Prompt the user for an x,y coordinate on the screen
  */
-int getscrpos(cha r*msg, int *r, int *c)
+int getscrpos(char *msg, int *r, int *c)
 {
     char buf[256];
 
@@ -347,15 +361,16 @@ int getscrpos(cha r*msg, int *r, int *c)
     if(fgets(buf, 256, stdin)) {
         sscanf(buf, "%d,%d", r, c);
 
-        if((*r >= 1) && (*r < 23) && (*c >= 0) && (c <= 79)) {
+        if((*r >= 1) && (*r < 23) && (*c >= 0) && (*c <= 79)) {
             return 1;
         }
         else {
-            say("%d,%d is not on the screen!", *r, *c);
+            saynow("%d,%d is not on the screen!", *r, *c);
         }
     }
 
-    at(rol, col);
+    move(row, col);
+    refresh();
 
     return 0;
 }

@@ -4,12 +4,14 @@
  *
  * This file contains all of the monster specific functions.
  */
+#include "monsters.h"
 
-#include <stdio.h>
 #include <ctype.h>
 #include <curses.h>
-#include "types.h"
+#include <stdio.h>
+
 #include "globals.h"
+#include "types.h"
 
 #define ADJACENT(m) \
     (max(abs(mlist[m].mrow - atrow), abs(mlist[m].mcol - atcol)) == 1)

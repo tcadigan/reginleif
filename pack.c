@@ -4,9 +4,12 @@
  *
  * This file contains functions which mess with Rog-O-Matic's pack
  */
+#include "pack.h"
+
 #include <curses.h>
-#include "types.h"
+
 #include "globals.h"
+#include "types.h"
 
 static char *stuffmess[] = {
     "strange object",

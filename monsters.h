@@ -3,5 +3,6 @@
 
 void wakemonster(int dir);
 void sleepmonster();
+void dumpmonster();
 
 #endif

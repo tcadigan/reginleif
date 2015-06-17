@@ -12,17 +12,21 @@
  *     know(name)                  returns TRUE if we have inferred name
  *     realname(oldname)           returns the inferred name of obj
  */
+#include "database.h"
 
 #include <curses.h>
-#include "types.h"
+#include <string.h>
+
+#include "debug.h"
 #include "globals.h"
+#include "types.h"
 
 #define TABLESIZE 101
 #define NOTFOUND -1
 
 struct row {
     char fakename[64];
-    char roguename[64];
+    char roguenam[64];
 };
 
 struct row dbase[TABLESIZE];
@@ -38,7 +42,7 @@ int findentry(char *string)
     int i;
 
     for(i = 0; i < datalen; ++i) {
-        if((streq(dbase[i].fakename, string) || *dbase[i].rougnam)
+        if((streq(dbase[i].fakename, string) || *dbase[i].roguenam)
            && streq(dbase[i].roguenam, string)) {
             return i;
         }
@@ -145,7 +149,8 @@ void dumpdatabase()
     int i;
 
     for(i = 0; i < datalen; ++i) {
-        at(i + 1, 0);
-        printw("%-32s '%s'", dbase[i].rougnam, dbase[i].fakename);
+        move(i + 1, 0);
+        refresh();
+        printw("%-32s '%s'", dbase[i].roguenam, dbase[i].fakename);
     }
 }

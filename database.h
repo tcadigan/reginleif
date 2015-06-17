@@ -2,5 +2,6 @@
 #define DATABASE_H_
 
 void useobj(char *oldname);
+void dumpdatabase();
 
 #endif

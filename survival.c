@@ -6,12 +6,14 @@
  * Well, almost all of the run away code.
  * At least I think it has something to do with running away.
  */
+#include "survival.h"
 
-#include <stdio.h>
 #include <ctype.h>
 #include <curses.h>
-#include "types.h"
+#include <stdio.h>
+
 #include "globals.h"
+#include "types.h"
 
 #define SO 1
 #define SE 0

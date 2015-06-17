@@ -16,7 +16,7 @@ SRCS= arms.c command.c database.c debug.c explore.c io.c learn.c \
 	  things.c titlepage.c utility.c worth.c
 HDRS= types.h globals.h install.h termtokens.h utility.h scorefile.h \
 	  setup.h findscore.h command.h monsters.h pack.h database.h \
-	  io.h
+	  io.h things.h survival.h mess.h
 OTHERS= setup.c fidscore.c datesub.l histplot.c rgmplot.c gene.c \
 	    rplot Bugreport
 
@@ -29,11 +29,11 @@ all: $(BINARIES)
 #
 # General makefile stuff:
 #
-arms.o: types.h globals.h
+arms.o: arms.h debug.h globals.h things.h types.h utility.h
 	$(CC) -c $(CCFLAGS) arms.c
-command.o: types.h globals.h command.h monsters.h pack.h database.h arms.h io.h
+command.o: arms.h database.h debug.h globals.h io.h monsters.h pack.h things.h types.h utility.h command.h
 	$(CC) -c $(CCFLAGS) command.c
-database.o: types.h globals.h
+database.o: database.h debug.h globals.h types.h
 	$(CC) -c $(CCFLAGS) database.c
 datesub.c: datesub.l
 	lex datesub.l
@@ -42,7 +42,7 @@ datesub.o: datesub.c
 	$(CC) -c $(CCFLAGS) datesub.c
 datesub: datesub.o
 	$(CC) $(LDFLAGS) -o datesub datesub.o
-debug.o: types.h globals.h install.h
+debug.o: database.h globals.h install.h io.h mess.h monsters.h pack.h survival.h things.h types.h debug.h
 	$(CC) -c $(CCFLAGS) debug.c
 explore.o: types.h globals.h
 	$(CC) -c $(CCFLAGS) explore.c

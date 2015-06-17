@@ -9,5 +9,6 @@ int wielding(stuff otype);
 int havemult(stuff otype, char *name, int count);
 int havefood(int n);
 int havenamed(stuff otype, char *name);
+void dumpstuff();
 
 #endif

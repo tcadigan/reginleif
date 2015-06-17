@@ -100,7 +100,7 @@ extern int hasted; /* True if hasted */
 extern int head; /* Endpoints of circular queue */
 extern int tail; /* Endpoints of circular queue */
 extern int hitstokill; /* Number of hits to kill last monster */
-extern int interrupted; /* True if at commandtop form onintr() */
+extern int interrupted; /* True if at commandtop from onintr() */
 extern int knowident; /* Found an identify scroll? */
 extern int larder; /* Number of foods left */
 extern int lastate; /* Time we last ate */
