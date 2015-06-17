@@ -4,11 +4,13 @@
  *
  * This file contains the very basic search mechanisms for exploration etc.
  */
+#include "search.h"
 
-#include <stdio.h>
 #include <curses.h>
-#include "types.h"
+#include <stdio.h>
+
 #include "globals.h"
+#include "types.h"
 
 #define QSIZE 4000
 
@@ -30,7 +32,7 @@ static int didinit = 0;
  * makemove: Repeat move from here towards some sort of target.
  * Modified to use findmove. (5/13 MLM)
  */
-int makemov(int movetype, int (*evalinit)(), int (*evaluate)(), int reevaluate)
+int makemove(int movetype, int (*evalinit)(), int (*evaluate)(), int reevaluate)
 {
     if(findmove(movetype, evalint, evaluate, reevaluate)) {
         return followmap(movetype);

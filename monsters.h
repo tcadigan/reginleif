@@ -4,5 +4,6 @@
 void wakemonster(int dir);
 void sleepmonster();
 void dumpmonster();
+char *monname(char m);
 
 #endif

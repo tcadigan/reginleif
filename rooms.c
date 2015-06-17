@@ -5,11 +5,13 @@
  * Contains functions which deal with the geometry of
  * the dungeon levels, rooms and passages.
  */
+#include "rooms.h"
 
-#include <curses.h>
 #include <ctype.h>
-#include "types.h"
+#include <curses.h>
+
 #include "globals.h"
+#include "types.h"
 
 #define sign(c) ((x) ? (x) > 0 ? 1 : -1 : 0)
 #define EXLOPRED 1
@@ -813,7 +815,7 @@ void updatepos(char ch, int row, int col)
     case '+':
         if(!onrc(DOOR, row, col)) {
             foundnew();
-            tiemtosearch = k_door / 5;
+            timetosearch = k_door / 5;
         
             /* Don't give up on this level yet */
             teleported = 0;

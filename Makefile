@@ -16,7 +16,7 @@ SRCS= arms.c command.c database.c debug.c explore.c io.c learn.c \
 	  things.c titlepage.c utility.c worth.c
 HDRS= types.h globals.h install.h termtokens.h utility.h scorefile.h \
 	  setup.h findscore.h command.h monsters.h pack.h database.h \
-	  io.h things.h survival.h mess.h
+	  io.h things.h survival.h mess.h explore.h
 OTHERS= setup.c fidscore.c datesub.l histplot.c rgmplot.c gene.c \
 	    rplot Bugreport
 
@@ -44,7 +44,7 @@ datesub: datesub.o
 	$(CC) $(LDFLAGS) -o datesub datesub.o
 debug.o: database.h globals.h install.h io.h mess.h monsters.h pack.h survival.h things.h types.h debug.h
 	$(CC) -c $(CCFLAGS) debug.c
-explore.o: types.h globals.h
+explore.o: explore.h command.h debug.h globals.h io.h monsters.h rooms.h search.h survival.h things.h types.h
 	$(CC) -c $(CCFLAGS) explore.c
 findscore.o: install.h findscore.h utility.h
 	$(CC) -c $(CCFLAGS) findscore.c

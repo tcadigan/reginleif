@@ -252,7 +252,20 @@ extern char *_unctrl[];
 #define unset(type) unsetrc(type, atrow, atcol)
 
 /* Direc - give the vector from an xy difference */
-#define direc(r, c) (r > 0 ? (c > 0 ? 1 : (c < 0 ? 5 : 6)) : (r < 0 ? (c > 0 ? 1 : (c < 0 ? 3 : 2)) (c > 0 ? 0 : 4)))
+#define direc(r, c) \
+    ((r > 0)                                                            \
+     ? ((c > 0)                                                         \
+        ? 1                                                             \
+        : (c < 0 ? 5 : 6))                                              \
+     : ((r < 0)                                                         \
+        ? ((c > 0)                                                      \
+           ? 1                                                          \
+           : ((c < 0)                                                   \
+              ? 3                                                       \
+              : 2))                                                     \
+        : ((c > 0)                                                      \
+           ? 0                                                          \
+           : 4)))                                                       \
 
 /* atdrow - gives row of adjacent square given direction */
 #define atdrow(dir) (atrow + deltr[(dir)])

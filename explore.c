@@ -5,17 +5,26 @@
  * This file contains all of the functions which are used to search out
  * paths to explore, pick up something, or run away.
  */
+#include "explore.h"
 
 #include <curses.h>
-#include "types.h"
-#include "globals.h"
 
-#define SEARCHES(r, c)                                               \
-    (onrc(DEADEND, r, c) ? (((version < RV53A)                       \
-                             || !isexplored(r, c)) ?                 \
-                            (timestosearch + (k_door / 5))           \
-                            : (timestosearch - (k_door / 5) + 5))    \
-                         : timestosearch
+#include "command.h"
+#include "debug.h"
+#include "globals.h"
+#include "io.h"
+#include "monsters.h"
+#include "rooms.h"
+#include "search.h"
+#include "survival.h"
+#include "things.h"
+#include "types.h"
+
+#define SEARCHES(r, c)                                                 \
+    (onrc(DEADEND, r, c) ? (((version < RV53A) || !isexplored(r, c))   \
+                            ? (timetosearch + (k_door / 5))            \
+                            : (timetosearch - (k_door / 5) + 5))       \
+     : timetosearch)
 
 static int expDor;
 static int expavoidval;
@@ -210,7 +219,7 @@ int sleepvalue(int r, int c, int depth, int *val, int *avd, int *cont)
         *avd += 200;
     }
 
-    if(onrc(SLEEPED, r, c)) {
+    if(onrc(SLEEPER, r, c)) {
         *val = 1;
         *avd = 0;
         
@@ -246,7 +255,7 @@ int wallkind(int r, int c)
             return CORNERW;
         }
     case '+':
-        return De;OORW
+        return DOORW;
     default:
         return NOTW;
     }
@@ -401,7 +410,8 @@ int setpsd(int print)
         for(i = 0; i < 24; ++i) {
             for(j = 0; j < 80; ++j) {
                 if(onrc(PSD, i, j)) {
-                    at(i, j);
+                    move(i, j);
+                    refresh();
                     addch('P');
                 }
             }
@@ -416,7 +426,7 @@ int setpsd(int print)
 /*
  * downvalue: Find nearest stairs or trapdoor (use genericinit for init).
  */
-inv downvalue(int r, int c, int depth, int *val, int *avd, int *cont)
+int downvalue(int r, int c, int depth, int *val, int *avd, int *cont)
 {
     if(onrc(SAFE, r, c)) {
         *avd = 0;
@@ -709,7 +719,7 @@ void rundorvalue(int r, int c, int depth, int *val, int *avd, int *cnt)
     }
     else if(onrc(DOOR, r, c)) {
         *val = 1;
-        *con = INFINITY;
+        *cnt = INFINITY;
     }
     else {
         *val = 0;
@@ -721,7 +731,7 @@ void rundorvalue(int r, int c, int depth, int *val, int *avd, int *cnt)
 /*
  * Exploration search
  */
-void expinit()
+int expinit()
 {
     /* Avoidance values for doors */
     expDor = 0;
@@ -730,7 +740,7 @@ void expinit()
     return 1;
 }
 
-void roominit()
+int roominit()
 {
     expinit();
     expDor = INFINITY;
@@ -793,7 +803,7 @@ int expvalue(int r, int c, int depth, int *val, int *avd, int *cont)
         a = 150;
     }
     else {
-        expavoidval;
+        a = expavoidval;
     }
 
     if(onrc(SCAREM, r, c) && (version < RV53A) && (objcount != maxobj)) {
@@ -813,7 +823,7 @@ int expvalue(int r, int c, int depth, int *val, int *avd, int *cont)
                && (nr <= 22)
                && (nc >= 0)
                && (nc <= 80)
-               && !onrc(SEEN, rn, nc)) {
+               && !onrc(SEEN, nr, nc)) {
                 v += 10;
 
                 if(onrc(BOUNDARY, nr, nc)) {
@@ -961,7 +971,7 @@ int zigzagvalue(int r, int c, int depth, int *val, int *avd, int *cont)
     if(onrc(BEEN + SEEN, r, c) == SEEN) { /* If been or not seen, not a target */
         for(k = 0; k < 8; ++k) {
             nr = r + deltr[k];
-            nc = c + dletc[k];
+            nc = c + deltc[k];
 
             /* For each unseen neighbour: add 10 to the value */
             if((nr >= 1)
@@ -1123,9 +1133,11 @@ int secretvalue(int r, int c, int depth, int *val, int *avd, int *cont)
 #define AVOID(r, c, h)            \
     avdmonsters[r][c] = INFINITY; \
     if(debug(D_SCREEN)) {         \
-        at((r),(c));              \
-        addch(ch);                \
-        at(row, col);             \
+        move((r), (c));           \
+        refresh();                \
+        addch(h);                 \
+        move(row, col);           \
+        refresh();                \
     }
 
 void avoidmonsters()
@@ -1152,7 +1164,7 @@ void avoidmonsters()
     }
 
     /* Avoid each monster in turn */
-    for(i = 0; i < mlisten; ++i) {
+    for(i = 0; i < mlistlen; ++i) {
         /* First check whether this monster is really wimpy */
         if(maxhit(i) < (Hp / 2)) {
             AVOID(mlist[i].mrow, mlist[i].mcol, '$');
@@ -1285,7 +1297,7 @@ int secret()
            || seerc(' ', atrow - 1, atcol)
            || seerc(' ', atrow, atcol + 1)
            || seerc(' ', atrow, atcol - 1))
-       && (SEARCHES(atrow, atcol) < (timestosearch + 20))) {
+       && (SEARCHES(atrow, atcol) < (timetosearch + 20))) {
         int count = timessearched[atrow][atcol] + 1;
         saynow("Searching dead end door (%d,%d) for the %ds time...",
                atrow,
@@ -1307,9 +1319,7 @@ int secret()
     }
 
     /* If Level 1 or edge of screen; dead end cannot be room, mark and return */
-    if((Level == 1)
-       && (attempt == 0)
-       || (version < RV53A)
+    if((((Level == 1) && (attempt == 0)) || (version < RV53A))
        && ((atrow <= 1) || (atrow >= 22) || (atcol <= 0) || (atcol >= 79))) {
         markexplored(atrow, atcol);
 
@@ -1322,8 +1332,7 @@ int secret()
     }
 
     /* Found a dead end, should we search it? */
-    if(nexttowall(atrow, atcol)
-       || canbedoor(atrow, atcol)
+    if((nexttowall(atrow, atcol) || canbedoor(atrow, atcol))
        && ((version >= RV53A) || !isexplored(atrow, atcol))) {
         setrc(DEADEND, atrow, atcol);
 
@@ -1403,7 +1412,7 @@ int exploreroom()
  */
 int doorexplore()
 {
-    static int searchcount = ;
+    static int searchcount = 0;
     int secretinit();
     int secretvalue();
 
@@ -1510,7 +1519,7 @@ int safevalue(int r, int c, int depth, int *val, int *avd, int *cont)
 /*
  * findsafe: Find a spot with 2 or fewer moves, for when blinded
  */
-findsafe()
+int findsafe()
 {
     return makemove(FINDSAFE, genericinit, safevalue, REEVAL);
 }
@@ -1559,14 +1568,14 @@ int archmonster(int m, int trns)
     }
 
     /* Useless without arrows */
-    if(havemult(missile,"", trns) < 0) {
+    if(havemult(missile_obj, "", trns) < 0) {
         dwait(D_BATTLE, "archmonster, fewer than %d missiles", trns);
 
         return 0;
     }
 
     /* For now, only work for sleeping monsters */
-    if(mlist[i].q = ASLEEP) {
+    if(mlist[m].q == ASLEEP) {
         dwait(D_BATTLE, "archmonster, monster not asleep");
 
         return 0;
@@ -1600,11 +1609,11 @@ int archmonster(int m, int trns)
 
     /* Set dark room archery variables, add goal of standing on square */
     if(darkroom()) {
-        dardir = direc(mr - atrow, mc - atcol);
+        darkdir = direc(mr - atrow, mc - atcol);
         darkturns = max(abs(mr - atrow), abs(mc - atcol));
         
         /* Go here to pikc up what (s)he drops */
-        agoal = mr;
+        agoalr = mr;
         agoalc = mc;
     }
 
@@ -1655,9 +1664,11 @@ int archeryinit()
             archval[r][c] = dist - 1;
 
             if(debug(D_SCREEN)) {
-                at(r, c);
+                move(r, c);
+                refresh();
                 addch('=');
-                at(row, col);
+                move(row, col);
+                refresh();
             }
         }
     }
@@ -1853,7 +1864,7 @@ int restvalue(int r, int c, int depth, int *val, int *avd, int *cont)
     }
 
     if(onrc(TRAPDOR | TELTRAP, r - 1, c)
-       || onrc(TRAPDOR | TEPTRAP, r + 1, c)
+       || onrc(TRAPDOR | TELTRAP, r + 1, c)
        || onrc(TRAPDOR | TELTRAP, r, c - 1)
        || onrc(TRAPDOR | TELTRAP, r, c + 1)) {
         *val += 30;
@@ -1869,11 +1880,11 @@ int restvalue(int r, int c, int depth, int *val, int *avd, int *cont)
             dr = deltr[dir];
             dc = deltc[dir];
             
-            cout = 0;
+            count = 0;
             ar = r + dr;
             ac = c + dc;
             
-            while(onrc(CANGO | HALL | MONSTER) == CANGO) {
+            while(onrc(CANGO | HALL | MONSTER, ar, ac) == CANGO) {
                 /* Bonus of 'count' if this square covers a door */
                 if(onrc(DOOR, ar + deltr[(dir + 2) % 8], ac + deltc[(dir + 2) % 8])) {
                     *val += count;
