@@ -5,12 +5,14 @@
  * This file contains functions for maintaining a database of "long
  * term memory"
  */
+#include "ltm.h"
 
 #include <curses.h>
 #include <math.h>
-#include "types.h"
+
 #include "globals.h"
 #include "install.h"
+#include "types.h"
 
 /* True ==> Don't write ltm back out */
 static int nosave = 0;

@@ -6,6 +6,7 @@
 void dumpinv(FILE *f);
 void deleteinv(int pos);
 void removeinv(int pos);
+void resetinv();
 void doresetinv();
 
 #endif

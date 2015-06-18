@@ -6,6 +6,7 @@ int filelength(char *f);
 void critical();
 void uncritical();
 void int_exit(void(*exitproc)());
+void reset_int();
 int lock_file(char *lockfil, int maxtime);
 void unlock_file(char *lokfil);
 char *getname();

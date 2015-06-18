@@ -10,5 +10,7 @@ int havemult(stuff otype, char *name, int count);
 int havefood(int n);
 int havenamed(stuff otype, char *name);
 void dumpstuff();
+void initstuff();
+void deletestuff(int row, int col);
 
 #endif

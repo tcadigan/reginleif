@@ -1210,7 +1210,7 @@ int haveexplored(int n)
 /*
  * printexplored: List the explored rooms
  */
-ovid printexplored()
+void printexplored()
 {
     int rm;
 

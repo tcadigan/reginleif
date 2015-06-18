@@ -279,7 +279,7 @@ void addstuff(char ch, int row, int col)
 /* 
  * deletestuff: Remove the object form the stuff list at location (x,y)
  */
-void deletestuff(int ro, int col)
+void deletestuff(int row, int col)
 {
     int i;
 

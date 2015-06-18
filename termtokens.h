@@ -6,7 +6,7 @@
  */
 
 #define BS_TOK ctrl('H')
-#define CD_CHR ctrl('S')
+#define CE_CHR ctrl('S')
 #define CE_TOK -2
 #define CL_CHR ctrl('L')
 #define CL_TOK ctrl('L')
@@ -14,7 +14,7 @@
 #define CM_TOK -3
 #define CR_TOK ctrl('M')
 #define DO_CHR '<'
-#define CO_TOK -4
+#define DO_TOK -4
 #define ER_TOK -5
 #define LF_TOK ctrl('J')
 #define ND_CHR '='

@@ -23,10 +23,10 @@
  *  parsestat:  Parse a statistic from a string.
  *  writestat:  Write a statistic to a file.
  */
+#include "stats.h"
 
-#include <stdio.h>
 #include <math.h>
-#include "types.h"
+#include <stdio.h>
 
 /*
  * clearprob: Zero a probability structure.

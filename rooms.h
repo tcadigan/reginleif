@@ -9,6 +9,13 @@ int canbedoor(int deadr, int deadc);
 int whichroom(int r, int c);
 int darkroom();
 int isexplored(int row, int col);
+void printexplored();
 int nexttowall(int r, int c);
+void currentrectangle();
+void newlevel();
+void updatepos(char ch, int row, int col);
+void updateat();
+void mapinfer();
+void inferhall();
 
 #endif

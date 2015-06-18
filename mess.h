@@ -4,5 +4,6 @@
 #include <stdio.h>
 
 void summary(FILE *f, char sep);
+void terpmes();
 
 #endif

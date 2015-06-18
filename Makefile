@@ -54,7 +54,7 @@ histplot: histplot.o utility.o
 	$(CC) $(LDFLAGS) -o histplot histplot.o utility.o
 histplot.o:
 	$(CC) -c histplot.c
-io.o: types.h globals.h install.h termtokens.h
+io.o: io.h arms.h command.h debug.h globals.h install.h ltm.h mess.h monsters.h pack.h rooms.h scorefile.h search.h stats.h termtokens.h things.h types.h utility.h
 	$(CC) -c $(CCFLAGS) io.c
 mess.o: types.h globals.h
 	$(CC) -c $(CCFLAGS) mess.c

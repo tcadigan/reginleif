@@ -6,20 +6,31 @@
  */
 #include "io.h"
 
-#include <curses.h>
 #include <ctype.h>
-
-#include "install.h"
-
-#ifdef BSD41
+#include <curses.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/ioctl.h>
+#include <sys/wait.h>
 #include <time.h>
-#else
-#include <sys/time.h>
-#endif
 
-#include "types.h"
+#include "arms.h"
+#include "command.h"
+#include "debug.h"
 #include "globals.h"
+#include "install.h"
+#include "ltm.h"
+#include "mess.h"
+#include "monsters.h"
+#include "pack.h"
+#include "rooms.h"
+#include "scorefile.h"
+#include "search.h"
+#include "stats.h"
 #include "termtokens.h"
+#include "things.h"
+#include "types.h"
+#include "utility.h"
 
 #define READ 0
 
@@ -27,7 +38,7 @@
  * charonscreen returns the current character on the screen (using
  * curses(3)). This macro is based on the winch(win) macro.
  */
-#define charonscreen(X, Y) (stdscr->_y[X][Y])
+#define charonscreen(X, Y) (mvinch(int y, int x))
 
 char *month[] = {
     "Jan",
@@ -246,7 +257,8 @@ void getrogue(char *waitstr, int onat)
             }
 
             if(row) {
-                at(row, col);
+                move(row, col);
+                refresh();
                 clrtoeol();
             }
             else if(col == 0) {
@@ -324,7 +336,8 @@ void getrogue(char *waitstr, int onat)
                 waitforspace();
             }
             else if(row) {
-                at(row, col);
+                move(row, col);
+                refresh();
                 
                 if(!emacs && !terse) {
                     addch(ch);
@@ -423,7 +436,8 @@ void getrogue(char *waitstr, int onat)
         }
     }
 
-    at(row, col);
+    move(row, col);
+    refresh();
 
     if(!emacs && !terse) {
         refresh();
@@ -457,7 +471,7 @@ void terpbot()
     /* Read the bottom line, there are three versions of the status line */
     if(version < RV52A) { /* Rogue 3.6, Rogue 4.7? */
         sscanf(screen[23],
-               " Level: %d Gold: %d %Hp: %d(%d) Str: %s Ac: %d Exp: %d/%d %s",
+               " Level: %d Gold: %d Hp: %d(%d) Str: %s Ac: %d Exp: %d/%d %s",
                &Level,
                &Gold,
                &Hp,
@@ -494,7 +508,7 @@ void terpbot()
     }
     else { /* Rogue 5.3 (and beyond???) */
         sscanf(screen[23],
-               " Level: %d Gold %d Hp: %d(%d) Str: %d(%d) Ac: %d Exp %d/%d %d",
+               " Level: %d Gold %d Hp: %d(%d) Str: %d(%d) Ac: %d Exp %d/%d %s",
                &Level,
                &Gold,
                &Hp,
@@ -553,7 +567,7 @@ void terpbot()
                 rogpid,
                 geneid,
                 Level,
-                gold,
+                Gold,
                 Hp,
                 Hpmax,
                 Str / 100,
@@ -604,9 +618,9 @@ void dumpwalls()
 
     for(r = 1; r < 23; ++r) {
         for(c = 0; c < 80; ++c) {
-            S = srcmap[r][c];
+            S = scrmap[r][c];
 
-            if(ARROWS & S) {
+            if(ARROW & S) {
                 ch = 'a';
             }
             else if(TELTRAP & S) {
@@ -682,18 +696,22 @@ void dumpwalls()
         }
     }
 
-    at(row, col);
+    move(row, col);
+    refresh();
 }
 
 /*
  * sendnow: Send a string to the Rogue process.
  */
-void sendnow(char *f, int a1, int a2, int a3, int a4)
+void sendnow(char *f, ...)
 {
     char cmd[128];
     char *s = cmd;
 
-    sprintf(cmd, f, a1, a2, a3, a4);
+    va_list args;
+    va_start(args, f);
+    vsprintf(cmd, f, args);
+    va_end(args);
 
     while(*s) {
         sendcnow(*s);
@@ -798,7 +816,7 @@ int pending()
  * getroguetoken: Get a command from Rogue (either a character or a
  * cursor motion sequence).
  */
-char getroguetoken();
+char getroguetoken()
 {
     char ch;
     char getlogtoken();
@@ -875,7 +893,7 @@ char getroguetoken();
                 fprintf(fecho, "{bs}");
                 
                 break;
-            case C_TOK:
+            case CE_TOK:
                 fprintf(fecho, "{ce}");
                 
                 break;
@@ -920,7 +938,7 @@ char getroguetoken();
 
                 break;
             case ER_TOK:
-                fprintf(fecho, "{ERRESC}", ch);
+                fprintf(fecho, "{ERRESC}");
 
                 break;
             default:
@@ -972,7 +990,7 @@ void deadrogue()
     }
 
     while(*killend == ' ') {
-        *(killend--) == '\0';
+        *(killend--) = '\0';
     }
 
     /* Record the death blow if killed by a monster */
@@ -983,7 +1001,7 @@ void deadrogue()
         addstat(&monhist[mh].damage, Hp);
     }
 
-    quitroque(killer, Gold, DIED);
+    quitrogue(killer, Gold, DIED);
 }
 
 /*
@@ -997,7 +1015,6 @@ void deadrogue()
  * terminationtype: SAVED, FINISHED, or DIED */
 void quitrogue(char *reason, int gld, int terminationtype)
 {
-    struct tm *localtime();
     struct tm *ts;
     long clock;
     char *k;
@@ -1017,6 +1034,10 @@ void quitrogue(char *reason, int gld, int terminationtype)
     if(!replaying || !logdigested) {
         playing = 0;
     }
+
+    /* Not get the current time, so we can data the score */
+    clock = time(&clock);
+    ts = localtime(&clock);
 
     /* Now get the current time, so we can date the score */
     if(cheat) {
@@ -1047,7 +1068,7 @@ void quitrogue(char *reason, int gld, int terminationtype)
     }
 
     if(Str % 100) {
-        sprintf(sumline, "%s%2d.%2d", sumlin, Str / 100, Str % 100);
+        sprintf(sumline, "%s%2d.%2d", sumline, Str / 100, Str % 100);
     }
     else {
         sprintf(sumline, "%s  %2d", sumline, Str / 100);
@@ -1157,7 +1178,7 @@ void say(char *f, va_list args)
  */
 void saynow(char *f, ...)
 {
-    if(!emacs && !ters) {
+    if(!emacs && !terse) {
         va_list args;
         va_start(args, f);
         say(f, args);
@@ -1273,7 +1294,7 @@ void getrogver()
                 ch = fgetc(logfile);
             }
 
-            *--verstr = '\0';
+            *--vstr = '\0';
         }
         else { /* Use default version */
             sprintf(versionstr, DEFVER);
@@ -1289,7 +1310,7 @@ void getrogver()
         ch = getroguetoken();
         
         while(ch != ' ') {
-            *(verstr++) = ch;
+            *(vstr++) = ch;
             
             ch = getroguetoken();
         }
@@ -1366,7 +1387,7 @@ void redrawscreen()
  * toggleecho: Toggle the I/O echo feature. If first time, open the
  * roguelog file.
  */
-void togglecho()
+void toggleecho()
 {
     if(replaying) {
         return;
@@ -1382,7 +1403,7 @@ void togglecho()
             saynow("can't open %s", ROGUELOG);
         }
         else {
-            fprintf(echo, "Rogomatic Game Log\n\n");
+            fprintf(fecho, "Rogomatic Game Log\n\n");
             saynow("Logging to file %s", ROGUELOG);
             cecho = 1;
 
@@ -1477,13 +1498,17 @@ void printsnap(FILE *f)
     fprintf(f, "\n");
     
     for(i = 0; i < 24; ++i) {
-        for(length = 79; (length >= 0) && (charonscreen(i, length) == ' '); --length) {
+        for(length = 79; length >= 0; --length) {
+            if((mvinch(i, length) & A_CHARTEXT) == ' ') {
+                break;
+            }
+
             for(j = 0; j <= length; ++j) {
-                fprintf(f, "%c", charonscreen(i, j));
+                fprintf(f, "%c", (char)(mvinch(i, j) & A_CHARTEXT));
             }
         }
 
-        fprintf("\n");
+        fprintf(f, "\n");
     }
 
     putn('-', f, 79);
@@ -1492,7 +1517,7 @@ void printsnap(FILE *f)
     fprintf(f, "\n\n%s\n\n", statusline());
 
     /* Print the inventory */
-    dumpinv();
+    dumpinv(f);
     fprintf(f, "\n");
     putn('-', f, 79);
     fprintf(f, "\n");
@@ -1521,9 +1546,9 @@ char getlogtoken()
             if(ch == ':') {
                 ch = GETLOGCHAR;
 
-                if(ch = ' ') {
+                if(ch == ' ') {
                     ch = GETLOGCHAR;
-                    acceptline;
+                    acceptline = 1;
                 }
             }
         }
@@ -1550,7 +1575,7 @@ char getlogtoken()
         case 'c':
             switch(ch2) {
             case 'e':
-                ch = C_TOK;
+                ch = CE_TOK;
 
                 break;
             case 'm':
@@ -1688,7 +1713,7 @@ void clearscreen()
     for(i = 0; i < 24; ++i) {
         for(j = 0; j < 80; ++j) {
             screen[i][j] = ' ';
-            unsterc(STUFF, i, j);
+            unsetrc(STUFF, i, j);
         }
     }
 
@@ -1710,7 +1735,7 @@ char *statusline()
 
     sprintf(s, "Status: ");
 
-    if(aggreavated) {
+    if(aggravated) {
         strcat(s, "aggravated, ");
     }
     
@@ -1738,11 +1763,11 @@ char *statusline()
         strcat(s, "cursed weapon, ");
     }
 
-    if(doubehasted) {
+    if(doublehasted) {
         strcat(s, "perm hasted, ");
     }
 
-    if(droppsedscare) {
+    if(droppedscare) {
         strcat(s, "dropped scare, ");
     }
 
@@ -1763,7 +1788,7 @@ char *statusline()
     }
     
     if(Level == didreadmap) {
-        stcat(s, "mapped, ");
+        strcat(s, "mapped, ");
     }
 
     if(*genocided) {

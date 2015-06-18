@@ -57,7 +57,7 @@ extern int arrowshot; /* True if trap fired at us this round */
 extern int atrow; /* Where is the '@'? (us) */
 extern int atcol; /* Where is the '@'? (us( */
 extern int atrow0; /* Where was the '@' last time */
-extern int atrow1; /* Where was the '@' last time */
+extern int atcol0; /* Where was the '@' last time */
 extern int attempt; /* Number of times we have explored this level */
 extern int badarrow; /* True if we missed with this arrow */
 extern int beingheld; /* True if being held by a fungus */

@@ -2,5 +2,6 @@
 #define SEARCH_H_
 
 int makemove(int movetype, int (*evalinit)(), int (*evaluate)(), int reevaluate);
+void setnewgoal();
 
 #endif
