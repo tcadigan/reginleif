@@ -503,7 +503,7 @@ int exprunvalue(int r, int c, int depth, int *val, int *avd, int *cont)
 
     if(*val > 0) {
         *val = (*val * 1000) + depth;
-        *cont = INFINITY;
+        *cont = INFINITE;
     }
 
     *avd += avdmonsters[r][c];
@@ -543,7 +543,7 @@ int expunpinvalue(int r, int c, int depth, int *val, int *avd, int *cont)
 
     if(*val > 0) {
         *val = (*val * 1000) + depth;
-        *cont = INFINITY;
+        *cont = INFINITE;
     }
     
     *avd += avdmonsters[r][c];
@@ -586,10 +586,10 @@ void runvalue(int r, int c, int depth, int *val, int *avd, int *cont)
         *avd = 0;
     }
     else if(onrc(GASTRAP, r, c)) {
-        *avd = INFINITY;
+        *avd = INFINITE;
     }
     else if(onrc(BEARTRP, r, c)) {
-        *avd = INFINITY;
+        *avd = INFINITE;
     }
     else if(onrc(DARTRAP, r, c)) {
         *avd = 100;
@@ -623,23 +623,23 @@ void runvalue(int r, int c, int depth, int *val, int *avd, int *cont)
     }
     else if(onrc(RUNOK, r, c)) {
         *val = 4000;
-        *cont = INFINITY;
+        *cont = INFINITE;
     }
     else if(onrc(DOOR | BEEN, r, c) == DOOR) {
         *val = 2000 + depth;
-        *cont = INFINITY;
+        *cont = INFINITE;
     }
     else if(onrc(DOOR, r, c)) {
         *val = 1000 + depth;
-        *cont = INFINITY;
+        *cont = INFINITE;
     }
     else if(onrc(HALL, r, c)) {
         *val = depth;
-        *cont = INFINITY;
+        *cont = INFINITE;
     }
     /* else if(onrc(CANGO | TRAP, r, c) == CANGO) { */
     /*     *val = 1 + depth; */
-    /*     *cont = INFINITY; */
+    /*     *cont = INFINITE; */
     /* } */
     else {
         *val = 0;
@@ -695,10 +695,10 @@ void rundorvalue(int r, int c, int depth, int *val, int *avd, int *cnt)
         *avd = 0;
     }
     else if(onrc(GASTRAP, r, c)) {
-        *avd = INFINITY;
+        *avd = INFINITE;
     }
     else if(onrc(BEARTRP, r, c)) {
-        *avd = INFINITY;
+        *avd = INFINITE;
     }
     else if(onrc(DARTRAP, r, c)) {
         *avd = 100;
@@ -719,7 +719,7 @@ void rundorvalue(int r, int c, int depth, int *val, int *avd, int *cnt)
     }
     else if(onrc(DOOR, r, c)) {
         *val = 1;
-        *cnt = INFINITY;
+        *cnt = INFINITE;
     }
     else {
         *val = 0;
@@ -743,7 +743,7 @@ int expinit()
 int roominit()
 {
     expinit();
-    expDor = INFINITY;
+    expDor = INFINITE;
 
     return 1;
 }
@@ -1131,7 +1131,7 @@ int secretvalue(int r, int c, int depth, int *val, int *avd, int *cont)
  * Establish avoidance map to avoid monsters.
  */
 #define AVOID(r, c, h)            \
-    avdmonsters[r][c] = INFINITY; \
+    avdmonsters[r][c] = INFINITE; \
     if(debug(D_SCREEN)) {         \
         move((r), (c));           \
         refresh();                \
@@ -1467,7 +1467,7 @@ int safevalue(int r, int c, int depth, int *val, int *avd, int *cont)
         *avd = 0;
     }
     else if(onrc(TRAPDOR | BEARTRP | GASTRAP, r, c)) {
-        *avd = INFINITY;
+        *avd = INFINITE;
     }
     else if(onrc(ARROW, r, c)) {
         *avd = 50;
@@ -1690,10 +1690,10 @@ int archervalue(int r, int c, int depth, int *val, int *avd, int *cont)
         *avd = 0;
     }
     else if(onrc(TRAPDOR, r, c)) {
-        *avd = INFINITY;
+        *avd = INFINITE;
     }
     else if(onrc(HALL, r, c)) {
-        *avd = INFINITY;
+        *avd = INFINITE;
     }
     else if(onrc(ARROW, r, c)) {
         *avd = 50;
@@ -1727,7 +1727,7 @@ int archervalue(int r, int c, int depth, int *val, int *avd, int *cont)
     }
 
     *val = archval[r][c];
-    *cont = INFINITY;
+    *cont = INFINITE;
 
     return 1;
 }
@@ -1820,12 +1820,12 @@ int restvalue(int r, int c, int depth, int *val, int *avd, int *cont)
 
     /* Set base value of square */
     if(onrc(TRAP | MONSTER, r, c)) {
-        *avd = INFINITY;
+        *avd = INFINITE;
         
         return 0;
     }
     else if(restinroom && onrc(DOOR, r, c)) {
-        *avd = INFINITY;
+        *avd = INFINITE;
 
         return 0;
     }
@@ -1836,7 +1836,7 @@ int restvalue(int r, int c, int depth, int *val, int *avd, int *cont)
             return 1;
         }
         else{
-            *avd = INFINITY;
+            *avd = INFINITE;
 
             return 0;
         }

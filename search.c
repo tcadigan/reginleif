@@ -524,7 +524,7 @@ int searchto(int row, int col, int (*evaluate)(), char dir[24][80], int *trow, i
                 moveval[r][c] = val;
                 movecont[r][c] = cont;
 
-                if(avd >= INFINITY) { /* Infinite avoidance */
+                if(avd >= INFINITE) { /* Infinite avoidance */
                     /* We can't get here */
                     dir[r][c] = UNREACHABLE;
 

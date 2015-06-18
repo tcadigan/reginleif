@@ -14,8 +14,8 @@
 #include <pwd.h>
 #include <sgtty.h>
 #include <signal.h>
+#include <stdarg.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -220,9 +220,12 @@ void unlock_file(char *lokfil)
 /*
  * quit: Defined for compatibility with Berkeley 4.2 system
  */
-void quit(int code, char *fmt, int a1, int a2, int a3, int a4)
+void quit(int code, char *fmt, ...)
 {
-    fprintf(stderr, fmt, a1, a2, a3, a4);
+    va_list args;
+    va_start(args, fmt);
+    vfprintf(stderr, fmt, args);
+    va_end(args);
 
     exit(0);
 }

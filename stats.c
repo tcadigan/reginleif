@@ -26,7 +26,6 @@
 #include "stats.h"
 
 #include <math.h>
-#include <stdio.h>
 
 /*
  * clearprob: Zero a probability structure.

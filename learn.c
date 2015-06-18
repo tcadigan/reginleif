@@ -12,10 +12,18 @@
  *  5-Jul-86  Michael Mauldin (mlm) at Carnegie-Mellon University
  *     Created.
  */
+#include "learn.h"
 
+#include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
+#include <time.h>
+
+#include "rand.h"
+#include "stats.h"
 #include "types.h"
+#include "utility.h"
 
 #define TRIALS(g) ((g)->score.count)
 #define NONE -1
@@ -35,13 +43,8 @@ typedef struct {
 } genotype;
 
 extern int knob[];
-extern double mean();
-extern double stdev();
-extern double sqrt();
-extern FILE *wopen();
-extern char *malloc();
 
-static int inittime = 0;
+static time_t inittime = 0;
 static int trialno = 0;
 static int lastid = 0;
 static int crosses = 0;
@@ -62,14 +65,29 @@ static double step = 0.33;
 static FILE *glog = NULL;
 
 static int compgene();
+static void makeunique(int new);
+static void randompool(int m);
+static void summgene(FILE *f, genotype *gene);
+static void printdna(FILE *f, genotype *gene);
+static int untested();
+static int selectgene(int e1, int e2);
+static int badgene(int e1, int e2);
+static int youngest();
+static void shift(int father, int new);
+static void mutate(int father, int new);
+static void cross(int father, int mother, int ew);
+static void birth(FILE *f, genotype *gene);
+static void initgene(genotype *gene);
+static void parsegene(char *buf, genotype *gene);
+static void writegene(FILE *gfil, genotype *g);
+static int triangle(int n);
+static int unique(int new);
 
 /*
  * Start a new gene pool
  */
 void initpool(int k, int m)
 {
-    char *ctime();
-
     inittime = time(0);
 
     if(glog) {
@@ -96,12 +114,12 @@ void analyzepool(int full)
     printf("Gene pool size %d, started %s", length, ctime(&inittime));
     printf("Trials %d, births %d (crosses %d, mutations %d, shifts %d)\n",
            trialno,
-           lastd,
+           lastid,
            crosses,
            mutations,
            shifts);
 
-    printf("Mean score %1.0lf+1.0lf, Mean level %3.1lf+%3.1lf\n\n",
+    printf("Mean score %1.0lf+%1.0lf, Mean level %3.1lf+%3.1lf\n\n",
            mean(&g_score),
            stdev(&g_score),
            mean(&g_level),
@@ -111,7 +129,7 @@ void analyzepool(int full)
     if(full == 2) {
         statistic gs;
         int k;
-        char *knob_name[];
+        extern char *knob_name[];
 
         for(k = 0; k < MAXKNOB; ++k) {
             clearstat(&gs);
@@ -200,7 +218,7 @@ void evalknobs(int gid, int score, int level)
 
     if(glog) {
         fprintf(glog,
-                "Trial %4d, Id %3d -> %4/%-2d  ",
+                "Trial %4d, Id %3d -> %4d/%-2d  ",
                 trialno,
                 genes[g]->id,
                 score,
@@ -281,7 +299,7 @@ int pickgenotype()
         /* Mutate a single genotype with probability pmutate */
         if(glog) {
             fprintf(glog, "Select: ");
-            summgene(glg, genes[father]);
+            summgene(glog, genes[father]);
             fprintf(glog, "Death:  ");
             summgene(glog, genes[new]);
         }
@@ -319,7 +337,7 @@ int pickgenotype()
 int readgenes(char *genepool)
 {
     char buf[BUFSIZ];
-    char *;
+    char *b;
     int g = 0;
     FILE *gfil;
 
@@ -339,7 +357,7 @@ int readgenes(char *genepool)
     fgets(b, BUFSIZ, gfil);
     sscanf(b,
            "%d %d %d %d %d %d",
-           &inittime,
+           (int *)&inittime,
            &trialno,
            &lastid,
            &crosses,
@@ -421,7 +439,7 @@ void writegenes(char *genepool)
     /* Write the header line */
     fprintf(gfil,
             "%d %d %d %d %d %d",
-            inittime,
+            (int)inittime,
             trialno,
             lastid,
             crosses,
@@ -459,7 +477,7 @@ static void writegene(FILE *gfil, genotype *g)
 
     /* Write out dna */
     for(i = 0; i < MAXKNOB; ++i) {
-        fprintf(gfil, "%2d", g->dan[i]);
+        fprintf(gfil, "%2d", g->dna[i]);
         
         if(i < (MAXKNOB - 1)) {
             fprintf(gfil, " ");
@@ -606,10 +624,10 @@ static void cross(int father, int mother, int new)
     /* Copy the dna over */
     for(i = 0; i < MAXKNOB; ++i) {
         if(i < cpoint) {
-            genes[new]->dna[i] = dna[father]->dna[i];
+            genes[new]->dna[i] = genes[father]->dna[i];
         }
         else {
-            genes[new]->dna[i] = dna[mother]->dna[i];
+            genes[new]->dna[i] = genes[mother]->dna[i];
         }
     }
 
@@ -651,7 +669,7 @@ static void mutate(int father, int new)
     i = randint(MAXKNOB);
     genes[new]->dna[i] = (genes[new]->dna[i] + triangle(20) + ALLELE) % ALLELE;
 
-    while(!unique) {
+    while(!unique(new)) {
         i = randint(MAXKNOB);
         genes[new]->dna[i] = 
             (genes[new]->dna[i] + triangle(20) + ALLELE) % ALLELE;
@@ -662,7 +680,7 @@ static void mutate(int father, int new)
         fprintf(glog, 
                 "Mutating %d produces %d\n", 
                 genes[father]->id, 
-                genes[mother]->id);
+                genes[new]->id);
     }
 
     ++mutations;
@@ -678,7 +696,7 @@ static void shift(int father, int new)
 
     /* Set the new genotype's info */
     genes[new]->id = ++lastid;
-    genes[new]->creation = trilano;
+    genes[new]->creation = trialno;
     genes[new]->father = genes[father]->id;
     genes[new]->mother = 0;
     clearstat(&(genes[new]->score));
@@ -735,7 +753,7 @@ static void randompool(int m)
 /*
  * selectgene: Select a random gene, weighted by mean score.
  */
-static void selectgene(int e1, int e2)
+static int selectgene(int e1, int e2)
 {
     int total = 0;
     int g;
@@ -790,14 +808,14 @@ static int unique(int new)
 
     for(g = 0; g < length; ++g) {
         if(g != new) {
-            sumsquare = 0;
+            sumsquares = 0;
 
             for(i = 0; i < MAXKNOB; ++i) {
                 delta = genes[g]->dna[i] - genes[new]->dna[i];
-                sumsquare += (delta * delta);
+                sumsquares += (delta * delta);
             }
 
-            if(sumsquare < mindiff) {
+            if(sumsquares < mindiff) {
                 return 0;
             }
         }
@@ -829,7 +847,7 @@ static int untested()
 
         if(TRIALS(genes[g]) < ((newtrials / (4 * length)) + mintrials)) {
             y = g;
-            trials - TRIALS(genes[g]);
+            trials = TRIALS(genes[g]);
         }
     }
 
@@ -855,6 +873,8 @@ static int youngest()
             trials = newtrials;
         }
     }
+
+    return y;
 }
 
 /*
