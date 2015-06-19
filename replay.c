@@ -5,11 +5,13 @@
  * Make a table of offsets to the beginning of each level of a
  * Rog-O-Matic log file.
  */
+#include "replay.h"
 
-#include <curses.h>
 #include <ctype.h>
-#include "types.h"
+#include <curses.h>
+
 #include "globals.h"
+#include "types.h"
 
 #define MAXNUMLEV 50
 #define FIRSTLEVSTR "\nR: "

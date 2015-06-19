@@ -31,7 +31,7 @@ static int sumgold = 0;
 static int sumsqgold = 0;
 static int numgold = 0;
 
-static int mhit - 0;
+static int mhit = 0;
 static int mmiss = 0;
 static int mtarget = NONE;
 

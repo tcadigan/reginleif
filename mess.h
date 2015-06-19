@@ -5,5 +5,6 @@
 
 void summary(FILE *f, char sep);
 void terpmes();
+void versiondep();
 
 #endif

@@ -99,14 +99,38 @@
  *  on a UTexas computer.
  *************************************************************************
  */
+#include "main.h"
 
-#include <curses.h>
 #include <ctype.h>
-#include <signal.h>
+#include <curses.h>
 #include <setjmp.h>
-#include "types.h"
-#include "termtokens.h"
+#include <signal.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#include "arms.h"
+#include "command.h"
+#include "database.h"
+#include "debug.h"
+#include "explore.h"
+#include "globals.h"
 #include "install.h"
+#include "io.h"
+#include "learn.h"
+#include "ltm.h"
+#include "mess.h"
+#include "monsters.h"
+#include "pack.h"
+#include "replay.h"
+#include "rooms.h"
+#include "search.h"
+#include "strategy.h"
+#include "survival.h"
+#include "termtokens.h"
+#include "things.h"
+#include "types.h"
+#include "utility.h"
 
 /* Global data - see globals.h for current definitions */
 
@@ -245,11 +269,7 @@ int zone = NONE;          /* Current screen zone, 0..8 */
 int zonemap[9][9];        /* Map of zone's connections */
 
 /* Functions */
-int(*istat)();
-int onintr();
-char getroguetoken();
-char *getname();
-FILE *openlog();
+void (*istat)();
 
 /* Stuff list, list of objects on this level */
 stuffrec slist[MAXSTUFF];
@@ -293,7 +313,7 @@ char *knob_name[MAXKNOB] = {
 };
 
 /* Door search map */
-char timessearched[24][80];
+int timessearched[24][80];
 char timestosearch;
 int searchstartr = NONE;
 int searchstartc = NONE;
@@ -334,22 +354,22 @@ int movedir;
 
 /* Map characters on screen into object types */
 stuff translate[128] = {
-    none, none, none, none, none, none, none, none,       /* \00x */
-    none, none, none, none, none, none, none, none,       /* \01x */
-    none, none, none, none, none, none, none, none,       /* \02x */
-    none, none, none, none, none, none, none, none,       /* \03x */
-    none, potion, none, none, none, none, none, none,     /* \04x */
-    hitter, hitter, gold, none, amulet, none, none, wand, /* \05x */
-    none, none, none, none, none, none, none, none,       /* \06x */
-    none, none, food, none, none, ring, none, scroll,     /* \07x */
-    none, none, none, none, none, none, none, none,       /* \10x */
-    none, none, none, none, none, none, none, none,       /* \11x */
-    none, none, none, none, none, none, none, none,       /* \12x */
-    none, none, none, armor, none, armor, none, none,     /* \13x */
-    none, none, none, none, none, none, none, none,       /* \14x */
-    none, none, none, none, none, none, none, none,       /* \15x */
-    none, none, none, none, none, none, none, none,       /* \16x */
-    none, none, none, none, none, none, none, none        /* \17x */
+    none_obj, none_obj, none_obj, none_obj, none_obj, none_obj, none_obj, none_obj,   /* \00x */
+    none_obj, none_obj, none_obj, none_obj, none_obj, none_obj, none_obj, none_obj,   /* \01x */
+    none_obj, none_obj, none_obj, none_obj, none_obj, none_obj, none_obj, none_obj,   /* \02x */
+    none_obj, none_obj, none_obj, none_obj, none_obj, none_obj, none_obj, none_obj,   /* \03x */
+    none_obj, potion_obj, none_obj, none_obj, none_obj, none_obj, none_obj, none_obj, /* \04x */
+    hitter_obj, hitter_obj, gold_obj, none_obj, amulet_obj, none_obj, none_obj, wand_obj, /* \05x */
+    none_obj, none_obj, none_obj, none_obj, none_obj, none_obj, none_obj, none_obj,   /* \06x */
+    none_obj, none_obj, food_obj, none_obj, none_obj, ring_obj, none_obj, scroll_obj, /* \07x */
+    none_obj, none_obj, none_obj, none_obj, none_obj, none_obj, none_obj, none_obj,   /* \10x */
+    none_obj, none_obj, none_obj, none_obj, none_obj, none_obj, none_obj, none_obj,   /* \11x */
+    none_obj, none_obj, none_obj, none_obj, none_obj, none_obj, none_obj, none_obj,   /* \12x */
+    none_obj, none_obj, none_obj, armor_obj, none_obj, armor_obj, none_obj, none_obj, /* \13x */
+    none_obj, none_obj, none_obj, none_obj, none_obj, none_obj, none_obj, none_obj,   /* \14x */
+    none_obj, none_obj, none_obj, none_obj, none_obj, none_obj, none_obj, none_obj,   /* \15x */
+    none_obj, none_obj, none_obj, none_obj, none_obj, none_obj, none_obj, none_obj,   /* \16x */
+    none_obj, none_obj, none_obj, none_obj, none_obj, none_obj, none_obj, none_obj    /* \17x */
 };
 
 /* Inventory, contents of our pack */
@@ -357,7 +377,7 @@ invrec inven[MAXINV];
 int invcount = 0;
 
 /* Time history */
-timrec timespent[50];
+timerec timespent[50];
 
 /* End of game messages */
 char *termination = "perditus";
@@ -382,11 +402,8 @@ int main(int argc, char *argv[])
     
 
     /* Initialize some storage */
-    sprtinf(genocided, "");
-    sprintf(lascmd, "i");
+    sprintf(lastcmd, "i");
     sprintf(ourkiller, "unknown");
-    sprintf(sumline, "");
-    sprintf(versionstr, "");
 
     i = 80 * 24;
     
@@ -523,7 +540,7 @@ int main(int argc, char *argv[])
      * older Rogue 3.6 form Rogue 3.6 with extra magic...
      */
     if(version < RV53A) {
-        sendnow("%c//;", crtl('l'));
+        sendnow("%c//;", ctrl('l'));
     }
     else {
         sendnow("%c;", ctrl('r'));
@@ -614,7 +631,7 @@ int main(int argc, char *argv[])
          * there is no user (noterm mode) then user ROGQUIT to signal a
          * quit command.
          */
-        if((trasparent && !singlestep)
+        if((transparent && !singlestep)
            || (!emacs && charsavail())
            || !strategize()) {
             if(noterm) {
@@ -701,7 +718,7 @@ int main(int argc, char *argv[])
             case '<':
                 if((atrow == stairrow)
                    && (atcol == staircol)
-                   && (have(amulet) != NONE)) {
+                   && (have(amulet_obj) != NONE)) {
                     command(T_OTHER, "<");
                 }
 
@@ -714,12 +731,14 @@ int main(int argc, char *argv[])
                 break;
             case ')':
                 markcycles(DOPRINT);
-                at(row, col);
+                move(row, col);
+                refresh();
 
                 break;
             case '+':
                 setpsd(DOPRINT);
-                at(row,col);
+                move(row, col);
+                refresh();
 
                 break;
             case 'A':
@@ -741,10 +760,10 @@ int main(int argc, char *argv[])
                          k_wake,
                          k_food,
                          genebest,
-                         genavg);
+                         geneavg);
 
                 clrtoeol();
-                at(row,col);
+                move(row, col);
                 refresh();
 
                 break;
@@ -752,10 +771,10 @@ int main(int argc, char *argv[])
                 chicken = !chicken;
                 
                 if(chicken) {
-                    say("chicken");
+                    saynow("chicken");
                 }
                 else {
-                    say("aggresive");
+                    saynow("aggresive");
                 }
 
                 break;
@@ -775,7 +794,8 @@ int main(int argc, char *argv[])
 
                 break;
             case '[':
-                at(0, 0);
+                move(0, 0);
+                refresh();
                 printw("%s = %d, %s = %d, %s = %d, %s = %d.",
                        "hitstokill",
                        hitstokill,
@@ -787,7 +807,8 @@ int main(int argc, char *argv[])
                        goodarrow);
 
                 clrtoeol();
-                at(row, col);
+                move(row, col);
+                refresh();
                 refresh();
 
                 break;
@@ -809,7 +830,7 @@ int main(int argc, char *argv[])
                 break;
             case 'r':
                 resetinv();
-                sate("Inventory reset.");
+                saynow("Inventory reset.");
                 
                 break;
             case 'i':
@@ -832,10 +853,10 @@ int main(int argc, char *argv[])
                 cheat = !cheat;
 
                 if(cheat) {
-                    say("cheating");
+                    saynow("cheating");
                 }
                 else {
-                    say("righteous");
+                    saynow("righteous");
                 }
 
                 break;
@@ -890,7 +911,7 @@ int main(int argc, char *argv[])
 
                 break;
             case '{':
-                promtforflags();
+                promptforflags();
                 
                 break;
             case '&':
@@ -953,7 +974,7 @@ int main(int argc, char *argv[])
                 break;
             case ROGQUIT:
                 dwait(D_ERROR, "Strategize failed, gave up.");
-                quitrogue("gave up", gold, SAVED);
+                quitrogue("gave up", Gold, SAVED);
 
                 break;
             }
@@ -972,7 +993,8 @@ int main(int argc, char *argv[])
     }
 
     /* Print termination messages */
-    at(23, 0);
+    move(23, 0);
+    refresh();
     clrtoeol();
     refresh();
     endwin();
@@ -1005,10 +1027,10 @@ int main(int argc, char *argv[])
         char lognam[128];
 
         /* Make up a new log file name */
-        sprintf(lognam, "%0.4s.%d.%d", outkiller, MaxLevel, ourscore);
+        sprintf(lognam, "%.4s.%d.%d", ourkiller, MaxLevel, ourscore);
 
         /* Close the open file */
-        toggeecho();
+        toggleecho();
 
         /* Rename the log file */
         if(link(ROGUELOG, lognam) == 0) {
@@ -1057,7 +1079,7 @@ void onintr()
     noterm = 0;
 
     /* Back to command Process */
-    longjmp(commandtop);
+    longjmp(commandtop, 0);
 }
 
 /*
@@ -1127,7 +1149,7 @@ void startlesson()
 void endlesson()
 {
     if((geneid > 0) 
-       && (sltmatch(termination, "perditus")
+       && (stlmatch(termination, "perditus")
            || stlmatch(termination, "victorius")
            || stlmatch(termination, "callidus"))) {
         /* Disbale interrupts */

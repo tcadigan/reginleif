@@ -1557,7 +1557,7 @@ int nexttowall(int r, int c)
 /*
  * dumpmazedoor: Show all squares which which mazedoor(r, c) is true.
  */
-void dumpmazdoor()
+void dumpmazedoor()
 {
     int r;
     int c;

@@ -5,6 +5,7 @@ void markmissingrooms();
 int markexplored(int row, int col);
 int nextto(int type, int r, int c);
 int mazedoor(int row, int col);
+void dumpmazedoor();
 int canbedoor(int deadr, int deadc);
 int whichroom(int r, int c);
 int darkroom();

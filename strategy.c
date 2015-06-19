@@ -4,13 +4,15 @@
  *
  * This file contains all of the 'high level intelligence' of Rog-O-Matic.
  */
+#include "strategy.h"
 
-#include <stdio.h>
 #include <ctype.h>
 #include <curses.h>
-#include "types.h"
+#include <stdio.h>
+
 #include "globals.h"
 #include "install.h"
+#include "types.h"
 
 /*
  * foughtmonster recrods whether we engaged in battle recently. This

@@ -15,10 +15,18 @@ void sendcnow(char c);
 void terpbot();
 void toggleecho();
 void clearscreen();
+void clearsendqueue();
 void waitforspace();
 void dumpwalls();
 void quitrogue(char *reason, int gld, int terminationtype);
+void pauserogue();
 void deadrogue();
 void redrawscreen();
+void startreplay(FILE **logf, char *logfname);
+void getrogver();
+void getrogue(char *waitstr, int onat);
+int resend();
+void givehelp();
+int charsavail();
 
 #endif

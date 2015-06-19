@@ -17,7 +17,8 @@ SRCS= arms.c command.c database.c debug.c explore.c io.c learn.c \
 HDRS= types.h globals.h install.h termtokens.h utility.h scorefile.h \
 	  setup.h findscore.h command.h monsters.h pack.h database.h \
 	  io.h things.h survival.h mess.h explore.h arms.h debug.h \
-	  ltm.h rooms.h seach.h stats.h termtokens.h learn.h rand.h 
+	  ltm.h rooms.h seach.h stats.h termtokens.h learn.h rand.h \
+	  main.h replay.h strategy.h
 OTHERS= setup.c fidscore.c datesub.l histplot.c rgmplot.c gene.c \
 	    rplot Bugreport
 
@@ -61,9 +62,9 @@ mess.o: types.h globals.h
 	$(CC) -c $(CCFLAGS) mess.c
 learn.o: learn.h rand.h stats.h types.h utility.h
 	$(CC) -c $(CCFLAGS) learn.c
-ltm.o: types.h globals.h install.h
+ltm.o: ltm.h debug.h globals.h install.h io.h monsters.h stats.h types.h utility.h
 	$(CC) -c $(CCFLAGS) ltm.c
-main.o: install.h termtokens.h types.h globals.h
+main.o: main.h arms.h command.h database.h debug.h explore.h globals.h install.h io.h learn.h ltm.h mess.h monsters.h pack.h replay.h rooms.h search.h strategy.h survival.h termtokens.h things.h types.h utility.h
 	$(CC) -c $(CCFLAGS) main.c
 monsters.o: types.h globals.h
 	$(CC) -c $(CCFLAGS) monsters.c

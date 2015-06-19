@@ -9,10 +9,17 @@
 
 #include <curses.h>
 #include <math.h>
+#include <string.h>
+#include <time.h>
 
+#include "debug.h"
 #include "globals.h"
 #include "install.h"
+#include "io.h"
+#include "monsters.h"
+#include "stats.h"
 #include "types.h"
+#include "utility.h"
 
 /* True ==> Don't write ltm back out */
 static int nosave = 0;
@@ -173,9 +180,9 @@ void restoreltm()
             readltm();
         }
         else {
-            d_wait(D_CONTROL | D_SAY,
-                   "Starting long term memory file '%s'...",
-                   ltmnam);
+            dwait(D_CONTROL | D_SAY,
+                  "Starting long term memory file '%s'...",
+                  ltmnam);
 
             ltm.timeswritten = 0;
             ltm.gamesum = ltm.timeswritten;
@@ -208,7 +215,7 @@ void readltm()
         nosave = 1;
         dwait(D_WARNING | D_SAY,
               "Could not read long term memory file '%s'...",
-              lmtnam);
+              ltmnam);
     }
     else { /* Read the ltm file header */
         if(fgets(buf, BUFSIZ, ltmfil)) {
@@ -235,11 +242,10 @@ void readltm()
 void parsemonster(char *monster)
 {
     char *attrs;
-    char *index();
     int m;
 
     /* Separate the monster name from the attributes */
-    attrs = index(monster, "|");
+    attrs = index(monster, '|');
     
     if(attrs == NULL) {
         return;
@@ -259,9 +265,9 @@ void parsemonster(char *monster)
     SKIPTO('|', attrs);
     parsestat(attrs, &monhist[m].htokill);
     SKIPTO('|', attrs);
-    parsestat(attrs, &monhits[m].damage);
+    parsestat(attrs, &monhist[m].damage);
     SKIPTO('|', attrs);
-    prasestat(attrs, &monhits[m].atokill);
+    parsestat(attrs, &monhist[m].atokill);
     SKIPTO('|', attrs);
 }
 
@@ -299,10 +305,12 @@ void dumpmonstertable()
 
     for(m = 0; m < 26; ++m) {
         if(m < 13) {
-            at(m + 2, 0);
+            move(m + 2, 0);
+            refresh();
         }
         else {
-            at(m - 11, 40);
+            move(m - 11, 40);
+            refresh();
         }
 
         printw("%c: %s", monc, monname(monc));
