@@ -4,13 +4,15 @@
  *
  * This file contains all of the 'medium level intelligence' of Rog-O-Matic.
  */
+#include "tactics.h"
 
-#include <stdio.h>
 #include <ctype.h>
 #include <curses.h>
-#include "types.h"
+#include <stdio.h>
+
 #include "globals.h"
 #include "install.h"
+#include "types.h"
 
 /*
  * handlearmor: This routine is called to determine whether we should

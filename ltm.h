@@ -12,5 +12,6 @@ void saveltm(int score);
 void analyzeltm();
 void restoreltm();
 void dumpmonstertable();
+void mapcharacter(char ch, char *str);
 
 #endif

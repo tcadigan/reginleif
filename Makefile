@@ -18,7 +18,7 @@ HDRS= types.h globals.h install.h termtokens.h utility.h scorefile.h \
 	  setup.h findscore.h command.h monsters.h pack.h database.h \
 	  io.h things.h survival.h mess.h explore.h arms.h debug.h \
 	  ltm.h rooms.h seach.h stats.h termtokens.h learn.h rand.h \
-	  main.h replay.h strategy.h
+	  main.h replay.h strategy.h tactics.h
 OTHERS= setup.c fidscore.c datesub.l histplot.c rgmplot.c gene.c \
 	    rplot Bugreport
 
@@ -44,6 +44,7 @@ datesub.o: datesub.c
 	$(CC) -c $(CCFLAGS) datesub.c
 datesub: datesub.o
 	$(CC) $(LDFLAGS) -o datesub datesub.o
+	size datesub
 debug.o: database.h globals.h install.h io.h mess.h monsters.h pack.h survival.h things.h types.h debug.h
 	$(CC) -c $(CCFLAGS) debug.c
 explore.o: explore.h command.h debug.h globals.h io.h monsters.h rooms.h search.h survival.h things.h types.h
@@ -52,13 +53,15 @@ findscore.o: install.h findscore.h utility.h
 	$(CC) -c $(CCFLAGS) findscore.c
 gene: gene.c rand.o learn.o stats.o utility.o types.h install.h
 	$(CC) $(CCFLAGS) -o gene gene.c rand.o learn.o stats.o utility.o $(LDFLAGS)
+	size gene
 histplot: histplot.o utility.o
 	$(CC) $(LDFLAGS) -o histplot histplot.o utility.o
+	size histplot
 histplot.o:
 	$(CC) -c histplot.c
 io.o: io.h arms.h command.h debug.h globals.h install.h ltm.h mess.h monsters.h pack.h rooms.h scorefile.h search.h stats.h termtokens.h things.h types.h utility.h
 	$(CC) -c $(CCFLAGS) io.c
-mess.o: types.h globals.h
+mess.o: mess.h arms.h database.h debug.h globals.h io.h ltm.h monsters.h pack.h rooms.h search.h stats.h tactics.h things.h types.h utility.h
 	$(CC) -c $(CCFLAGS) mess.c
 learn.o: learn.h rand.h stats.h types.h utility.h
 	$(CC) -c $(CCFLAGS) learn.c
@@ -81,6 +84,7 @@ rgmplot.o: rgmplot.c
 	$(CC) -c $(CCFLAGS) rgmplot.c
 rgmplot: rgmplot.o utility.o
 	$(CC) $(CCFLAGS) -o rgmplot rgmplot.o utility.o
+	size rgmplot
 rogomatic: setup.o findscore.o scorefile.o utility.o
 	$(CC) $(CCFLAGS) -o rogomatic setup.o findscore.o scorefile.o utility.o
 	size rogomatic

@@ -9,9 +9,24 @@
 
 #include <ctype.h>
 #include <curses.h>
+#include <stdlib.h>
+#include <string.h>
 
+#include "arms.h"
+#include "database.h"
+#include "debug.h"
 #include "globals.h"
+#include "io.h"
+#include "ltm.h"
+#include "monsters.h"
+#include "pack.h"
+#include "rooms.h"
+#include "search.h"
+#include "stats.h"
+#include "tactics.h"
+#include "things.h"
 #include "types.h"
+#include "utility.h"
 
 /* Matching macros */
 #define MATCH(p) smatch(mess, p, result)
@@ -42,10 +57,10 @@ static int gushed = 0; /* True ==> water on head msg recently */
 static int echoit; /* True ==> echo this message to the user */
 
 /* Results from start matcher */
-static char res1[NAMSIZ];
-static char res2[NAMSIZ];
-static char res3[NAMSIZ];
-static char res4[NAMSIZ];
+static char res1[NAMESIZ];
+static char res2[NAMESIZ];
+static char res3[NAMESIZ];
+static char res4[NAMESIZ];
 
 static char *result[] = {
     res1,
@@ -70,7 +85,7 @@ void terpmes()
     char mess[128];
     char *m;
     char *mend;
-    char *s = scrren[0];
+    char *s = screen[0];
     char *t;
 
     /* Set 't' to the tail of the message, skip bckward over blank and dot */
@@ -138,7 +153,7 @@ void parsemsg(char *mess, char *mend)
     }
     else if(mess[1] == ')') {
         /* Message describes an old item already in our pack */
-        echo = identifying;
+        echoit = identifying;
         justreadid = 0;
         identifying = justreadid;
         inventory(mess, mend);
@@ -404,7 +419,7 @@ void parsemsg(char *mess, char *mend)
                 didreadmap = Level;
             }
             else if(MATCH("oh, bummer!  everything is dark!  help!")) {
-                inter("blindness");
+                infer("blindness");
                 blinded = 1;
             }
             else if(MATCH("oh, wow!  everything seems so cosmic!")) {
@@ -447,7 +462,7 @@ void parsemsg(char *mess, char *mend)
             if(MATCH("range is 'a' or '*'")) {
                 echoit = 0;
 
-                if((*res - 'a' + 1) != invcount) {
+                if((*res1 - 'a' + 1) != invcount) {
                     dwait(D_INFORM, "Range check failed...");
                     usesynch = 0;
                 }
@@ -536,18 +551,18 @@ void parsemsg(char *mess, char *mend)
             }
             else if(MATCH("this scroll is an * scroll")) {
                 if(stlmatch(res1, "identify")) {
-                    readidnt(res1);
+                    readident(res1);
                 }
             }
             else if(MATCH("that's not a valid item")) {
-                if(justreadit < 1) {
+                if(justreadid < 1) {
                     echoit = 1;
                 }
                 else {
                     echoit = 0;
                 }
 
-                if(justread-- == 0) {
+                if(justreadid-- == 0) {
                     sendnow(" *");
                 }
 
@@ -641,7 +656,7 @@ void parsemsg(char *mess, char *mend)
             }
             else if(MATCH("what a*feeling")) {
                 infer("confusion");
-                confuse = 1;
+                confused = 1;
             }
             else if(MATCH("what a*piece of paper")) {
                 infer("blank paper");
@@ -683,7 +698,7 @@ void parsemsg(char *mess, char *mend)
                 beingheld = 30;
             }
             else if(MATCH("you can move again")) {
-                echoif = 0;
+                echoit = 0;
             }
             else if(MATCH("you are still stuck *")) {
                 nametrap(BEARTRP, HERE);
@@ -831,7 +846,7 @@ void parsemsg(char *mess, char *mend)
                 infer("create monster");
             }
             else if(MATCH("you fall asleep")) {
-                infer(sleep);
+                infer("sleep");
             }
             else if(MATCH("you have been granted the boon of genocide")) {
                 infer("genocide");
@@ -1009,10 +1024,10 @@ void readident(char *name)
     int obj;
 
     /* Default is "* for a list" */
-    char id = *;
+    char id = '*';
 
     if(!replaying
-       && (versin < RV53A)
+       && (version < RV53A)
        && ((nextid < LETTER(0)) || (nextid > LETTER(invcount)))) {
         dwait(D_FATAL,
               "Readident: nextid %d, afterid %d, invcount %d.",
@@ -1040,13 +1055,13 @@ void readident(char *name)
     }
     else { /* Rogue 5.3 */
         if(streq(name, "identify scroll")) {
-            obj = unknown(scroll);
+            obj = unknown(scroll_obj);
 
             if(obj != NONE) {
-                id = LETTER(OBJ);
+                id = LETTER(obj);
             }
             else {
-                obj = have(scroll);
+                obj = have(scroll_obj);
 
                 if(obj != NONE) {
                     id = LETTER(obj);
@@ -1054,13 +1069,13 @@ void readident(char *name)
             }
         }
         else if(streq(name, "identify potion")) {
-            obj = unknown(potion);
+            obj = unknown(potion_obj);
             
             if(obj != NONE) {
                 id = LETTER(obj);
             }
             else {
-                obj = have(potion);
+                obj = have(potion_obj);
 
                 if(obj != NONE) {
                     id = LETTER(obj);
@@ -1068,13 +1083,13 @@ void readident(char *name)
             }
         }
         else if(streq(name, "identify armor")) {
-            obj = unknown(armor);
+            obj = unknown(armor_obj);
 
             if(obj != NONE) {
                 id = LETTER(obj);
             }
             else {
-                obj = have(armor);
+                obj = have(armor_obj);
 
                 if(obj != NONE) {
                     id = LETTER(obj);
@@ -1082,37 +1097,37 @@ void readident(char *name)
             }
         }
         else if(streq(name, "identify weapon")) {
-            obj = unknown(hitter);
+            obj = unknown(hitter_obj);
 
             if(obj != NONE) {
                 id = LETTER(obj);
             }
             else {
-                obj = unknown(thrower);
+                obj = unknown(thrower_obj);
 
                 if(obj != NONE) {
                     id = LETTER(obj);
                 }
                 else {
-                    obj = unknown(missile);
+                    obj = unknown(missile_obj);
                     
                     if(obj != NONE) {
                         id = LETTER(obj);
                     }
                     else {
-                        obj = have(hitter);
+                        obj = have(hitter_obj);
 
                         if(obj != NONE) {
                             id = LETTER(obj);
                         }
                         else {
-                            obj = have(thrower);
+                            obj = have(thrower_obj);
 
                             if(obj != NONE) {
                                 id = LETTER(obj);
                             }
                             else {
-                                obj = have(missile);
+                                obj = have(missile_obj);
 
                                 if(obj != NONE) {
                                     id = LETTER(obj);
@@ -1124,25 +1139,25 @@ void readident(char *name)
             }
         }
         else if(streq(name, "identify ring, wand or staff")) {
-            obj = unknown(ring);
+            obj = unknown(ring_obj);
 
             if(obj != NONE) {
                 id = LETTER(obj);
             }
             else {
-                obj = unknown(wand);
+                obj = unknown(wand_obj);
 
                 if(obj != NONE) {
                     id = LETTER(obj);
                 }
                 else {
-                    obj = have(ring);
+                    obj = have(ring_obj);
                     
                     if(obj != NONE) {
                         id = LETTER(obj);
                     }
                     else {
-                        obj = have(wand);
+                        obj = have(wand_obj);
 
                         if(obj != NONE) {
                             id = LETTER(obj);
@@ -1185,12 +1200,12 @@ void rampage()
         /* Do not waste genocide on stalkers if we have the right ring */
         if((streq(monname(monc), "invisible stalker")
             || streq(monname(monc), "phantom"))
-           && (havenamed(ring, "see invisible") != NONE)) {
+           && (havenamed(ring_obj, "see invisible") != NONE)) {
             ++genocide;
         }
         else if((streq(monname(monc), "rust monster")
                  || streq(monname(monc), "aquator"))
-                && (havenamed(ring, "maintain armor") != NONE)) {
+                && (havenamed(ring_obj, "maintain armor") != NONE)) {
             /* Do not waste genocide on rusties if we have the right ring */
             ++genocide;
         }
@@ -1237,14 +1252,14 @@ void curseditem()
         remember(lastdrop, CURSED);
 
         /* Is our armor cursed? */
-        if(inven[lastdrop].type == armor) {
+        if(inven[lastdrop].type == armor_obj) {
             currentarmor = lastdrop;
             cursedarmor = 1;
 
             return;
         }
-        else if((inven[lastdrop].type == hitter)
-                || (inven[lastdrop].type == missile)) {
+        else if((inven[lastdrop].type == hitter_obj)
+                || (inven[lastdrop].type == missile_obj)) {
             /* 
              * Is it our wepaon (may be wielding a hitter 
              * or a bogus magic arrow)?
@@ -1461,7 +1476,7 @@ void didhit()
     ++hitstokill;
     addprob(&monhist[monindex[m]].wehit, SUCCESS);
 
-    if(wielding(wand)) {
+    if(wielding(wand_obj)) {
         --inven[currentweapon].charges;
         ++newweapon;
     }
@@ -1510,7 +1525,7 @@ void mshit(char *monster)
 
     addprob(&monhist[monindex[mh]].arrowhit, SUCCESS);
     
-    if(mh == target) {
+    if(mh == mtarget) {
         ++mhit;
     }
     else {
@@ -1576,14 +1591,14 @@ void summary(FILE *f, char sep)
 {
     int m;
     char s[1024];
-    char *monname();
 
-    sprintf(s, "Monsters kill:%c%c", sep, sep);
+    sprintf(s, "Monsters killed:%c%c", sep, sep);
 
     for(m = 0; m <= 26; ++m) {
         if(monkilled[m] > 0) {
             sprintf(s,
                     "%s\t%d %s%s%c",
+                    s,
                     monkilled[m],
                     monname(m + 'A' - 1),
                     plural(monkilled[m]),
@@ -1643,7 +1658,7 @@ void versiondep()
  * taking out status into account. This code is responsible for determining
  * when we are being stalked by an invisible monster.
  */
-int getmonhist(char *monster, int hitotmiss)
+int getmonhist(char *monster, int hitormiss)
 {
     if(cosmic || blinded) {
         return findmonster("it");

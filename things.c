@@ -405,7 +405,7 @@ int pickident()
 /*
  * unknown: Return the index of any unknown object of type otype
  */
-int unknown(stucc otype)
+int unknown(stuff otype)
 {
     int i;
     

@@ -16,6 +16,7 @@ void terpbot();
 void toggleecho();
 void clearscreen();
 void clearsendqueue();
+void waitfor(char *mess);
 void waitforspace();
 void dumpwalls();
 void quitrogue(char *reason, int gld, int terminationtype);

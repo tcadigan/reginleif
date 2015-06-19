@@ -8,5 +8,9 @@ void deleteinv(int pos);
 void removeinv(int pos);
 void resetinv();
 void doresetinv();
+int inventory(char *msgstart, char *msgsend);
+void killed(char *monster);
+void washit(char *monster);
+void wasmissed(char *monster);
 
 #endif

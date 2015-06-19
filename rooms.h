@@ -18,5 +18,7 @@ void updatepos(char ch, int row, int col);
 void updateat();
 void mapinfer();
 void inferhall();
+void nametrap(int traptype, int standingonit);
+void findstairs(int notr, int notc);
 
 #endif

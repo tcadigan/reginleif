@@ -357,7 +357,7 @@ void doresetinv()
     xend = mend - (e);  \
     xknow |= (k);
 
-void inventory(char *msgstart, char *msgsend)
+int inventory(char *msgstart, char *msgsend)
 {
     char *p;
     char *q;
