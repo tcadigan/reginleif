@@ -106,11 +106,9 @@ int dwait(int msgtype, char *f, ...)
 
             break;
         case 'i':
-            move(1, 0);
-            refresh();
+            at(1, 0);
             dumpinv((FILE *)NULL);
-            move(row, col);
-            refresh();
+            at(row, col);
             
             break;
         case 'd':
@@ -145,14 +143,12 @@ int dwait(int msgtype, char *f, ...)
             break;
         case '(':
             dumpdatabase();
-            move(row, col);
-            refresh();
+            at(row, col);
 
             break;
         case ')':
             markcycles(DOPRINT);
-            move(row, col);
-            refresh();
+            at(row, col);
 
             break;
         case '~':
@@ -164,8 +160,7 @@ int dwait(int msgtype, char *f, ...)
 
             break;
         default:
-            move(row, col);
-            refresh();
+            at(row, col);
 
             return 1;
         }
@@ -184,7 +179,7 @@ void promptforflags()
         mvprintw(0, 0, "Flags for %d,%d ", r, c);
         dumpflags(r, c);
         clrtoeol();
-        move(row, col);
+        at(row, col);
         refresh();
     }
 }
@@ -369,8 +364,7 @@ int getscrpos(char *msg, int *r, int *c)
         }
     }
 
-    move(row, col);
-    refresh();
+    at(row, col);
 
     return 0;
 }

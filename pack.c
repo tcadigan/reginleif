@@ -7,9 +7,18 @@
 #include "pack.h"
 
 #include <curses.h>
+#include <stdlib.h>
+#include <string.h>
 
+#include "command.h"
+#include "database.h"
+#include "debug.h"
 #include "globals.h"
+#include "io.h"
+#include "things.h"
 #include "types.h"
+#include "utility.h"
+#include "worth.h"
 
 static char *stuffmess[] = {
     "strange object",
@@ -115,7 +124,7 @@ char *itemstr(int i)
         if(!itemis(i, INUSE)) {
             sprintf(item, "%s", "");
         }
-        else if((inven[i].type == armor) || (inven[i].type == ring)) {
+        else if((inven[i].type == armor_obj) || (inven[i].type == ring_obj)) {
             sprintf(item, "%s", ", being worn");
         }
         else {
@@ -177,7 +186,7 @@ void deleteinv(int pos)
 {
     --inven[pos].count;
 
-    if((inven[pos].count == 0) || (inven[pos].type == missile)) {
+    if((inven[pos].count == 0) || (inven[pos].type == missile_obj)) {
         /* Assure nothing at that spot  DR UT */
         clearpack(pos);
 
@@ -235,20 +244,20 @@ void rollpackup(int pos)
     }
 
     if(pos < currentweapon) {
-        --currenweapon;
+        --currentweapon;
     }
-    else if(pos == currenteapon) {
+    else if(pos == currentweapon) {
         currentweapon = NONE;
     }
 
-    if(post < leftring) {
+    if(pos < leftring) {
         --leftring;
     }
     else if(pos == leftring) {
         leftring = NONE;
     }
 
-    if(post < rightring) {
+    if(pos < rightring) {
         --rightring;
     }
     else if(pos == rightring) {
@@ -280,7 +289,7 @@ void rollpackdown(int pos)
 
     savebuf = inven[invcount].str;
     
-    for(i = invencount; i > pos; --i) {
+    for(i = invcount; i > pos; --i) {
         inven[i] = inven[i - 1];
 
         if((i - 1) == currentarmor) {
@@ -357,7 +366,7 @@ void doresetinv()
     xend = mend - (e);  \
     xknow |= (k);
 
-int inventory(char *msgstart, char *msgsend)
+int inventory(char *msgstart, char *msgend)
 {
     char *p;
     char *q;
@@ -367,7 +376,7 @@ int inventory(char *msgstart, char *msgsend)
     char *realname();
     int n;
     int ipos;
-    int iknow = 0;
+    int xknow = 0;
     int newitem = 0;
     int inuse = 0;
     int printed = 0;
@@ -533,104 +542,104 @@ int inventory(char *msgstart, char *msgsend)
 
     /* Now find what we picked up: */
     if(stlmatch(mend - 4, "food")) {
-        what = food;
+        what = food_obj;
         xknow = KNOWN;
     }
     else if(stlmatch(mess, "amulet")) {
-        xtr(amulet, 0, 0, KNOWN);
+        xtr(amulet_obj, 0, 0, KNOWN);
     }
     else if(stlmatch(mess, "potion of ")) {
-        xtr(potion, 10, 0, KNOWN);
+        xtr(potion_obj, 10, 0, KNOWN);
     }
     else if(stlmatch(mess, "potions of ")) {
-        xtr(potion, 11, 0, KNOWN);
+        xtr(potion_obj, 11, 0, KNOWN);
     }
     else if(stlmatch(mess, "scroll of ")) {
-        xtr(scroll, 10, 0, KNOWN);
+        xtr(scroll_obj, 10, 0, KNOWN);
     }
     else if(stlmatch(mess, "scrolls of ")) {
-        xtr(scroll, 11, 0, KNOWN);
+        xtr(scroll_obj, 11, 0, KNOWN);
     }
     else if(stlmatch(mess, "staff of ")) {
-        xtr(wand, 9, 0, KNONW);
+        xtr(wand_obj, 9, 0, KNOWN);
     }
     else if(stlmatch(mess, "wand of ")) {
-        xtr(wand, 8, 0, KNOWN);
+        xtr(wand_obj, 8, 0, KNOWN);
     }
     else if(stlmatch(mess, "ring of ")) {
-        xtr(ring, 8, 0, KNOWN);
+        xtr(ring_obj, 8, 0, KNOWN);
     }
     else if(stlmatch(mend - 4, "mail")) {
-        xtr(armor, 0, 0, 0);
+        xtr(armor_obj, 0, 0, 0);
     }
     else if(stlmatch(mend - 6, "potion")) {
-        xtr(potion, 0, 7, 0);
+        xtr(potion_obj, 0, 7, 0);
     }
     else if(stlmatch(mess, "scroll titled '")) {
-        xtr(scroll, 15, 1, 0);
+        xtr(scroll_obj, 15, 1, 0);
     }
-    else if(stlmatch(mess, "scrolls titles '")) {
-        xtr(scroll, 16, 1, 0);
+    else if(stlmatch(mess, "scrolls titled '")) {
+        xtr(scroll_obj, 16, 1, 0);
     }
     else if(stlmatch(mend - 5, "staff")) {
-        xtr(wand, 0, 6, 0);
+        xtr(wand_obj, 0, 6, 0);
     }
     else if(stlmatch(mend - 4, "wand")) {
-        xtr(wand, 0, 5, 0);
+        xtr(wand_obj, 0, 5, 0);
     }
     else if(stlmatch(mend - 4, "ring")) {
-        xtr(ring, 0, 5, 0);
+        xtr(ring_obj, 0, 5, 0);
     }
     else if(stlmatch(mess, "apricot")) {
-        xtr(food, 0, 0, KNOWN);
+        xtr(food_obj, 0, 0, KNOWN);
     }
     else if(stlmatch(mend - 5, "sword")) {
-        xtr(hitter, 0, 0, 0);
+        xtr(hitter_obj, 0, 0, 0);
     }
     else if(stlmatch(mend - 4, "mace")) {
-        xtr(hitter, 0, 0, 0);
+        xtr(hitter_obj, 0, 0, 0);
     }
     else if(stlmatch(mend - 6, "dagger")) {
-        xtr(missile, 0, 0, 0);
+        xtr(missile_obj, 0, 0, 0);
     }
     else if(stlmatch(mend - 5, "spear")) {
-        xtr(missile, 0, 0, 0);
+        xtr(missile_obj, 0, 0, 0);
     }
     else if(stlmatch(mend - 5, "armor")) {
-        xtr(armor, 0, 0, 0);
+        xtr(armor_obj, 0, 0, 0);
     }
     else if(stlmatch(mend - 3, "arm")) {
-        xtr(armor, 0, 0, 0);
+        xtr(armor_obj, 0, 0, 0);
     }
     else if(stlmatch(mend - 3, "bow")) {
-        xtr(thrower, 0, 0, 0);
+        xtr(thrower_obj, 0, 0, 0);
     }
     else if(stlmatch(mend - 5, "sling")) {
-        xtr(thrower, 0, 0, 0);
+        xtr(thrower_obj, 0, 0, 0);
     }
     else if(stlmatch(mend - 5, "arrow")) {
-        xtr(missile, 0, 0, 0);
+        xtr(missile_obj, 0, 0, 0);
     }
     else if(stlmatch(mend - 4, "dart")) {
-        xtr(missile, 0, 0, 0);
+        xtr(missile_obj, 0, 0, 0);
     }
     else if(stlmatch(mend - 4, "rock")) {
-        xtr(missile, 0, 0, 0);
+        xtr(missile_obj, 0, 0, 0);
     }
     else if(stlmatch(mend - 4, "bolt")) {
-        xtr(missile, 0, 0, 0);
+        xtr(missile_obj, 0, 0, 0);
     }
     else if(stlmatch(mend - 8, "shuriken")) {
-        xtr(missile, 0, 0, 0);
+        xtr(missile_obj, 0, 0, 0);
     }
     else {
-        xtr(strange, 0, 0, 0);
+        xtr(strange_obj, 0, 0, 0);
     }
 
     /* Copy the name of the objet into a string */
     p = objname;
     
-    for(q = xbeg; x < xend; ++q) {
+    for(q = xbeg; q < xend; ++q) {
         *p = *q;
 
         ++p;
@@ -648,7 +657,7 @@ int inventory(char *msgstart, char *msgsend)
           xknow);
 
     /* Ring bonus is printed differently in Rogue 5.3 */
-    if((version >= RV53A) && (what == ring) && (charges != UNKNOWN)) {
+    if((version >= RV53A) && (what == ring_obj) && (charges != UNKNOWN)) {
         plushit = charges;
         charges = UNKNOWN;
     }
@@ -657,7 +666,10 @@ int inventory(char *msgstart, char *msgsend)
      * If the name of the object matches something in the database,
      * slap the real name into the slot and mark it as known
      */
-    if(((what == potion) || (what == scroll) || (what == wand)) && !xknow) {
+    if(((what == potion_obj)
+        || (what == scroll_obj)
+        || (what == wand_obj))
+       && !xknow) {
         char *dbname = realname(objname);
 
         if(*dbname) {
@@ -674,7 +686,7 @@ int inventory(char *msgstart, char *msgsend)
                     printw("%d ", n);
                 }
 
-                if(what == potion) {
+                if(what == potion_obj) {
                     if(n == 1) {
                         printw("%s%s of %s (%c)",
                                "potion",
@@ -690,7 +702,7 @@ int inventory(char *msgstart, char *msgsend)
                                LETTER(ipos));
                     }
                 }
-                else if(what == scroll) {
+                else if(what == scroll_obj) {
                     if(n == 1) {
                         printw("%s%s of %s (%c)",
                                "scroll",
@@ -706,7 +718,7 @@ int inventory(char *msgstart, char *msgsend)
                                LETTER(ipos));
                     }
                 }
-                else if(what == ring) {
+                else if(what == ring_obj) {
                     if(n == 1) {
                         printw("%s%s of %s (%c)",
                                "ring",
@@ -732,18 +744,20 @@ int inventory(char *msgstart, char *msgsend)
     }
 
     /* If new item, record the change */
-    if(newitem && (what == armor)) {
+    if(newitem && (what == armor_obj)) {
         newarmor = 1;
     }
-    else if(newitem && (what == ring)) {
+    else if(newitem && (what == ring_obj)) {
         newring = 1;
     }
-    else if(newitem && (what == food)) {
+    else if(newitem && (what == food_obj)) {
         newring = 1;
         lastfoodlevel = Level;
     }
     else if(newitem 
-            && ((what == hitter) || (what == missile) || (what == wand))) {
+            && ((what == hitter_obj)
+                || (what == missile_obj)
+                || (what == wand_obj))) {
         newweapon = 1;
     }
 
@@ -804,7 +818,7 @@ int inventory(char *msgstart, char *msgsend)
 
     /* Keep track of whether we are wielding a trap arrow */
     if(ipos == currentweapon) {
-        if(what == missile) {
+        if(what == missile_obj) {
             usingarrow = 1;
         }
         else {
@@ -844,11 +858,11 @@ void countpack()
 
         if(!cnt) { /* No object here */
         }
-        else if(inven[i].type == missile) {
+        else if(inven[i].type == missile_obj) {
             ++objcount;
             ammo += cnt;
         }
-        else if(inven[i].type == food) {
+        else if(inven[i].type == food_obj) {
             objcount += cnt;
             larder += cnt;
         }

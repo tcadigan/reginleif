@@ -410,8 +410,7 @@ int setpsd(int print)
         for(i = 0; i < 24; ++i) {
             for(j = 0; j < 80; ++j) {
                 if(onrc(PSD, i, j)) {
-                    move(i, j);
-                    refresh();
+                    at(i, j);
                     addch('P');
                 }
             }
@@ -1133,11 +1132,9 @@ int secretvalue(int r, int c, int depth, int *val, int *avd, int *cont)
 #define AVOID(r, c, h)            \
     avdmonsters[r][c] = INFINITE; \
     if(debug(D_SCREEN)) {         \
-        move((r), (c));           \
-        refresh();                \
+        at((r), (c));             \
         addch(h);                 \
-        move(row, col);           \
-        refresh();                \
+        at(row, col);             \
     }
 
 void avoidmonsters()
@@ -1664,11 +1661,9 @@ int archeryinit()
             archval[r][c] = dist - 1;
 
             if(debug(D_SCREEN)) {
-                move(r, c);
-                refresh();
+                at(r, c);
                 addch('=');
-                move(row, col);
-                refresh();
+                at(row, col);
             }
         }
     }

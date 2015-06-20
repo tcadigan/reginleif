@@ -12,5 +12,8 @@ int inventory(char *msgstart, char *msgsend);
 void killed(char *monster);
 void washit(char *monster);
 void wasmissed(char *monster);
+void clearpack(int pos);
+void countpack();
+void rollpackup(int pos);
 
 #endif

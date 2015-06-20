@@ -10,10 +10,12 @@
  * nifty piece of work. This function is used by 'tostuff' to decide
  * which is the "worst" object in the pack.
  */
+#include "worth.h"
 
 #include <curses.h>
-#include "types.h"
+
 #include "globals.h"
+#include "types.h"
 
 int objval[] = {
     0,    /* strange */

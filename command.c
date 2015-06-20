@@ -441,8 +441,7 @@ int replaycommand()
 void showcommand(char *cmd)
 {
     char *s;
-    move(23, 72);
-    refresh();
+    at(23, 72);
     standout();
     printw(" ");
     
@@ -453,7 +452,7 @@ void showcommand(char *cmd)
     printw(" ");
     standend();
     clrtoeol();
-    move(row, col);
+    at(row, col);
     refresh();
     cmdonscreen = 1;
 }
@@ -463,10 +462,9 @@ void showcommand(char *cmd)
  */
 void clearcommand()
 {
-    move(23, 72);
-    refresh();
+    at(23, 72);
     clrtoeol();
-    move(row, col);
+    at(row, col);
     refresh();
     cmdonscreen = 0;
 }

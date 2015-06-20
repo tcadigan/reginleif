@@ -15,6 +15,7 @@
  *
  * Author: Michael Mauldin, June 14, 1983
  */
+#include <time.h>
 
 /* Rand 1, period length 444674 */
 #define MUL1 1156
@@ -43,7 +44,7 @@ static int seed2 = 518652;
 static int seed3 = 226543;
 static int auxtab[AUXLEN];
 
-void srand(int see)
+void srand(int seed)
 {
     int i;
 
@@ -99,7 +100,7 @@ int randint(int max)
     seed2 = ((seed2 * MUL2) + OFF2) % MOD2;
     seed3 = ((seed3 * MUL3) + OFF3) % MOD3;
 
-    auxtab[j] = ((seed << 13) ^ (seed3 >> 3)) & 017777777777;
+    auxtab[j] = ((seed2 << 13) ^ (seed3 >> 3)) & 017777777777;
 
     return (result % max);
 }

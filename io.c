@@ -257,8 +257,7 @@ void getrogue(char *waitstr, int onat)
             }
 
             if(row) {
-                move(row, col);
-                refresh();
+                at(row, col);
                 clrtoeol();
             }
             else if(col == 0) {
@@ -336,8 +335,7 @@ void getrogue(char *waitstr, int onat)
                 waitforspace();
             }
             else if(row) {
-                move(row, col);
-                refresh();
+                at(row, col);
                 
                 if(!emacs && !terse) {
                     addch(ch);
@@ -436,8 +434,7 @@ void getrogue(char *waitstr, int onat)
         }
     }
 
-    move(row, col);
-    refresh();
+    at(row, col);
 
     if(!emacs && !terse) {
         refresh();
@@ -696,8 +693,7 @@ void dumpwalls()
         }
     }
 
-    move(row, col);
-    refresh();
+    at(row, col);
 }
 
 /*

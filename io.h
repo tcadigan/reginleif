@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+void at(int r, int c);
 void dosnapshot();
 void printsnap(FILE *f);
 void getoldcommand(char *s);

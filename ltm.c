@@ -305,12 +305,10 @@ void dumpmonstertable()
 
     for(m = 0; m < 26; ++m) {
         if(m < 13) {
-            move(m + 2, 0);
-            refresh();
+            at(m + 2, 0);
         }
         else {
-            move(m - 11, 40);
-            refresh();
+            at(m - 11, 40);
         }
 
         printw("%c: %s", monc, monname(monc));

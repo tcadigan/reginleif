@@ -18,7 +18,7 @@ HDRS= types.h globals.h install.h termtokens.h utility.h scorefile.h \
 	  setup.h findscore.h command.h monsters.h pack.h database.h \
 	  io.h things.h survival.h mess.h explore.h arms.h debug.h \
 	  ltm.h rooms.h seach.h stats.h termtokens.h learn.h rand.h \
-	  main.h replay.h strategy.h tactics.h
+	  main.h replay.h strategy.h tactics.h worth.h
 OTHERS= setup.c fidscore.c datesub.l histplot.c rgmplot.c gene.c \
 	    rplot Bugreport
 
@@ -35,7 +35,7 @@ arms.o: arms.h debug.h globals.h things.h types.h utility.h
 	$(CC) -c $(CCFLAGS) arms.c
 command.o: arms.h database.h debug.h globals.h io.h monsters.h pack.h things.h types.h utility.h command.h
 	$(CC) -c $(CCFLAGS) command.c
-database.o: database.h debug.h globals.h types.h
+database.o: database.h debug.h globals.h io.h types.h
 	$(CC) -c $(CCFLAGS) database.c
 datesub.c: datesub.l
 	lex datesub.l
@@ -69,14 +69,14 @@ ltm.o: ltm.h debug.h globals.h install.h io.h monsters.h stats.h types.h utility
 	$(CC) -c $(CCFLAGS) ltm.c
 main.o: main.h arms.h command.h database.h debug.h explore.h globals.h install.h io.h learn.h ltm.h mess.h monsters.h pack.h replay.h rooms.h search.h strategy.h survival.h termtokens.h things.h types.h utility.h
 	$(CC) -c $(CCFLAGS) main.c
-monsters.o: monsters.h debug.h globals.h ltm.h types.h utility.h
+monsters.o: monsters.h debug.h globals.h io.h ltm.h types.h utility.h
 	$(CC) -c $(CCFLAGS) monsters.c
-pack.o: types.h globals.h
+pack.o: pack.h command.h database.h debug.h globals.h io.h things.h types.h utility.h worth.h
 	$(CC) -c $(CCFLAGS) pack.c
 player: $(OBJS)
 	$(CC) $(CCFLAGS) -o player $(OBJS) $(LDFLAGS)
 	size player
-rand.o: rand.c
+rand.o:
 	$(CC) -c $(CCFLAGS) rand.c
 replay.o: types.h globals.h
 	$(CC) -c $(CCFLAGS) replay.c

@@ -19,6 +19,7 @@
 
 #include "debug.h"
 #include "globals.h"
+#include "io.h"
 #include "types.h"
 
 #define TABLESIZE 101
@@ -149,8 +150,7 @@ void dumpdatabase()
     int i;
 
     for(i = 0; i < datalen; ++i) {
-        move(i + 1, 0);
-        refresh();
+        at(i + 1, 0);
         printw("%-32s '%s'", dbase[i].roguenam, dbase[i].fakename);
     }
 }

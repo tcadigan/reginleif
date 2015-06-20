@@ -9,27 +9,16 @@
 
 #include <ctype.h>
 #include <curses.h>
+#include <string.h>
 
 #include "globals.h"
+#include "io.h"
 #include "types.h"
 
 #define MAXNUMLEV 50
 #define FIRSTLEVSTR "\nR: "
 #define NEWLEVSTR "\nR: {ff}"
 #define POSITAT "{ff}"
-
-struct levstruct {
-    long pos;
-    int level;
-    int gold;
-    int hp;
-    int hpmax;
-    int str;
-    int strmax;
-    int ac;
-    int explev;
-    int exp;
-};
 
 struct levstruct levpos[MAXNUMLEV];
 
@@ -141,7 +130,7 @@ void positionreplay()
  * findlevel: Make a table of offsets to the verious levels of a
  *            Rog-O-Matic log file.
  */
-int findlevel(FILE *f, struct levstruct *lvpos, int *nmlev, in maxnum)
+int findlevel(FILE *f, struct levstruct *lvpos, int *nmlev, int maxnum)
 {
     char ch;
     int l = 0;

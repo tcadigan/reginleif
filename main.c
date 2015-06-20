@@ -731,14 +731,12 @@ int main(int argc, char *argv[])
                 break;
             case ')':
                 markcycles(DOPRINT);
-                move(row, col);
-                refresh();
+                at(row, col);
 
                 break;
             case '+':
                 setpsd(DOPRINT);
-                move(row, col);
-                refresh();
+                at(row, col);
 
                 break;
             case 'A':
@@ -763,8 +761,7 @@ int main(int argc, char *argv[])
                          geneavg);
 
                 clrtoeol();
-                move(row, col);
-                refresh();
+                at(row, col);
 
                 break;
             case ':':
@@ -794,8 +791,7 @@ int main(int argc, char *argv[])
 
                 break;
             case '[':
-                move(0, 0);
-                refresh();
+                at(0, 0);
                 printw("%s = %d, %s = %d, %s = %d, %s = %d.",
                        "hitstokill",
                        hitstokill,
@@ -807,8 +803,7 @@ int main(int argc, char *argv[])
                        goodarrow);
 
                 clrtoeol();
-                move(row, col);
-                refresh();
+                at(row, col);
                 refresh();
 
                 break;
@@ -993,8 +988,7 @@ int main(int argc, char *argv[])
     }
 
     /* Print termination messages */
-    move(23, 0);
-    refresh();
+    at(23, 0);
     clrtoeol();
     refresh();
     endwin();

@@ -13,6 +13,7 @@
 
 #include "debug.h"
 #include "globals.h"
+#include "io.h"
 #include "ltm.h"
 #include "types.h"
 #include "utility.h"
@@ -88,8 +89,7 @@ void dumpmonster()
 {
     int i;
 
-    move(1, 0);
-    refresh();
+    at(1, 0);
     for(i = 0; i < mlistlen; ++i) {
         if(mlist[i].q == AWAKE) {
             printw("%s at %d,%d(%c) \n",
@@ -122,8 +122,7 @@ void dumpmonster()
     }
 
     printw("You are at %d,%d.", atrow, atcol);
-    move(row, col);
-    refresh();
+    at(row, col);
 }
 
 /*
