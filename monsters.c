@@ -9,9 +9,13 @@
 #include <ctype.h>
 #include <curses.h>
 #include <stdio.h>
+#include <string.h>
 
+#include "debug.h"
 #include "globals.h"
+#include "ltm.h"
 #include "types.h"
+#include "utility.h"
 
 #define ADJACENT(m) \
     (max(abs(mlist[m].mrow - atrow), abs(mlist[m].mcol - atcol)) == 1)
@@ -48,7 +52,7 @@ void addmonster(char ch, int r, int c, int quiescence)
         }
 
         setrc(MONSTER, r, c);
-        lyingwait = 0;
+        lyinginwait = 0;
         new_arch = 1;
 
         /* If we can see it, it is not really invisible */
@@ -83,8 +87,9 @@ void deletemonster(int r, int c)
 void dumpmonster()
 {
     int i;
-    
-    at(1, 0);
+
+    move(1, 0);
+    refresh();
     for(i = 0; i < mlistlen; ++i) {
         if(mlist[i].q == AWAKE) {
             printw("%s at %d,%d(%c) \n",
@@ -117,7 +122,8 @@ void dumpmonster()
     }
 
     printw("You are at %d,%d.", atrow, atcol);
-    at(row, col);
+    move(row, col);
+    refresh();
 }
 
 /*

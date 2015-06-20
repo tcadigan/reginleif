@@ -69,9 +69,9 @@ ltm.o: ltm.h debug.h globals.h install.h io.h monsters.h stats.h types.h utility
 	$(CC) -c $(CCFLAGS) ltm.c
 main.o: main.h arms.h command.h database.h debug.h explore.h globals.h install.h io.h learn.h ltm.h mess.h monsters.h pack.h replay.h rooms.h search.h strategy.h survival.h termtokens.h things.h types.h utility.h
 	$(CC) -c $(CCFLAGS) main.c
-monsters.o: types.h globals.h
+monsters.o: monsters.h debug.h globals.h ltm.h types.h utility.h
 	$(CC) -c $(CCFLAGS) monsters.c
-pack.o:type.h globals.h
+pack.o: types.h globals.h
 	$(CC) -c $(CCFLAGS) pack.c
 player: $(OBJS)
 	$(CC) $(CCFLAGS) -o player $(OBJS) $(LDFLAGS)
