@@ -91,7 +91,7 @@ int drop(int obj)
     /* Can't if not there, in use, or on something else */
     if((inven[obj].count < 1)
        || itemis(obj, INUSE)
-       || (STUFF | TRAP | STAIRS | DOOR)) {
+       || on(STUFF | TRAP | STAIRS | DOOR)) {
         return 0;
     }
 

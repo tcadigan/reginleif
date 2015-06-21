@@ -19,6 +19,7 @@ HDRS= types.h globals.h install.h termtokens.h utility.h scorefile.h \
 	  io.h things.h survival.h mess.h explore.h arms.h debug.h \
 	  ltm.h rooms.h seach.h stats.h termtokens.h learn.h rand.h \
 	  main.h replay.h strategy.h tactics.h worth.h rgmplot.h titlepage.h \
+	  histplot.h
 OTHERS= setup.c fidscore.c datesub.l histplot.c rgmplot.c gene.c \
 	    rplot Bugreport
 
@@ -57,8 +58,8 @@ gene: gene.c rand.o learn.o stats.o utility.o install.h learn.h types.h utility.
 histplot: histplot.o utility.o
 	$(CC) $(LDFLAGS) -o histplot histplot.o utility.o
 	size histplot
-histplot.o:
-	$(CC) -c histplot.c
+histplot.o: histplot.h utility.h
+	$(CC) -c $(CCFLAGS) histplot.c
 io.o: io.h arms.h command.h debug.h globals.h install.h ltm.h mess.h monsters.h pack.h rooms.h scorefile.h search.h stats.h termtokens.h things.h types.h utility.h
 	$(CC) -c $(CCFLAGS) io.c
 mess.o: mess.h arms.h database.h debug.h globals.h io.h ltm.h monsters.h pack.h rooms.h search.h stats.h tactics.h things.h types.h utility.h

@@ -9,10 +9,13 @@
  * 05-Feb-85  Michael Mauldin (mlm) at Carnegie-Mellon University
  *     Added bug fixes found by AEB (play@turing)
  */
+#include "histplot.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "utility.h"
 
 #define SKIPARG while(*++(*argv)); --(*argv)
 
@@ -264,6 +267,8 @@ int main(int argc, char *argv[])
     if(lowscore) {
         printf("      %8d scores below %d not printed.\n", lowscore, min);
     }
+
+    return 0;
 }
 
 #define LEVELPOS 47

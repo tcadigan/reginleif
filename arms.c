@@ -298,17 +298,11 @@ int weaponclass(int i)
         damplus = 50;
     }
 
-    if(hitplus < 100) {
-        hitplus = hitplus;
-    }
-    else {
+    if(hitplus >= 100) {
         hitplus = 100;
     }
 
-    if(damplus < 200) {
-        damplus = damplus;
-    }
-    else {
+    if(damplus >= 200) {
         damplus = 200;
     }
 
@@ -670,7 +664,7 @@ int havebow(int k, int print)
     int j;
     int w;
     int t;
-    int n;
+    int n = 0;
     int bowind[MAXINV];
     int bowval[MAXINV];
 
