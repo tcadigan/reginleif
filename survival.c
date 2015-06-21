@@ -13,6 +13,7 @@
 #include <stdio.h>
 
 #include "debug.h"
+#include "explore.h"
 #include "globals.h"
 #include "io.h"
 #include "search.h"
@@ -209,10 +210,6 @@ int canrun()
 {
     int result;
     int oldcomp = compression;
-    int runinit();
-    int runvalue();
-    int expruninit();
-    int exprunvalue();
 
     if(on(STAIRS)) { /* Can run down stairs */
         return 1;
@@ -246,12 +243,6 @@ int unpin()
 {
     int result;
     int oldcomp = compression;
-    int unpininit();
-    int runvalue();
-    int expunpininit();
-    int exprunvalue();
-    int expunpinvalue();
-
 
     if(on(SCAREM)) {
         dwait(D_BATTLE, "Not unpinning, on scare monster scroll!");
@@ -294,8 +285,6 @@ int unpin()
  */
 int backtodoor(int dist)
 {
-    int rundoorinit();
-    int rundoorvalue();
     static int lastcall = -10;
     static int stillcount = 0;
     static int notmoving = 0;

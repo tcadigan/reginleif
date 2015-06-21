@@ -394,8 +394,6 @@ int main(int argc, char *argv[])
 {
     char ch;
     char *s;
-    char *getenv();
-    char *statusline();
     char msg[128];
     int startingup = 1;
     int i;

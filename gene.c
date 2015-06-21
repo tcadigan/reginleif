@@ -14,8 +14,12 @@
  */
 
 #include <stdio.h>
-#include "types.h"
+#include <stdlib.h>
+
 #include "install.h"
+#include "learn.h"
+#include "types.h"
+#include "utility.h"
 
 int knob[MAXKNOB];
 char *knob_name[MAXKNOB] = {
@@ -42,7 +46,7 @@ int main(int argc, char *argv[])
     int full = 0;
 
     /* Get the options */
-    while((--argvc > 0) && (*++argv[0] == '-')) {
+    while((--argc > 0) && (*++argv[0] == '-')) {
         while(*++(*argv)) {
             switch(**argv) {
             case 'a':

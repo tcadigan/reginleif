@@ -11,7 +11,10 @@
  */
 
 #include <stdio.h>
-#include SKIPARG while(*++(*argv)); --(*argv)
+#include <stdlib.h>
+#include <string.h>
+
+#define SKIPARG while(*++(*argv)); --(*argv)
 
 #define BWIDTH 200
 #define NUMBUK 51
@@ -244,7 +247,7 @@ int main(int argc, char *argv[])
 
     printf("\n\n");
 
-    if(tota[28]) {
+    if(total[28]) {
         printf("             # Quit\n");
     }
 
@@ -295,7 +298,7 @@ int getscore(int *score, char *killer, int *level)
 
         if((yy > 0)
            && ((cheated != '*') || cheat)
-           && !stlmatch("saved", killed)
+           && !stlmatch("saved", killer)
            && ((*score > 2000) || !stlmatch("user", killer))) {
             return 1;
         }

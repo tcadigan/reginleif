@@ -66,7 +66,6 @@ void command(int tmode, char *f, ...)
 {
     int times;
     char cmd[128];
-    char functionchar();
     static char lastcom[32] = "";
 
     /* Build the command */
@@ -225,8 +224,6 @@ char commandarg(char *cmd, int n)
  */
 void adjustpack(char *cmd)
 {
-    char functionchar();
-    char commandarg();
     int neww;
     int obj;
 

@@ -51,7 +51,7 @@ explore.o: explore.h command.h debug.h globals.h io.h monsters.h rooms.h search.
 	$(CC) -c $(CCFLAGS) explore.c
 findscore.o: install.h findscore.h utility.h
 	$(CC) -c $(CCFLAGS) findscore.c
-gene: gene.c rand.o learn.o stats.o utility.o types.h install.h
+gene: gene.c rand.o learn.o stats.o utility.o install.h learn.h types.h utility.h
 	$(CC) $(CCFLAGS) -o gene gene.c rand.o learn.o stats.o utility.o $(LDFLAGS)
 	size gene
 histplot: histplot.o utility.o

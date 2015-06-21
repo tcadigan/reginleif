@@ -20,6 +20,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <termios.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "install.h"
@@ -175,7 +176,6 @@ int lock_file(char *lokfil, int maxtime)
 {
     int try;
     struct stat statbuf;
-    long time();
 
     while(1) {
         if(creat(lokfil, NOWRITE) > 0) {

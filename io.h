@@ -30,5 +30,9 @@ void getrogue(char *waitstr, int onat);
 int resend();
 void givehelp();
 int charsavail();
+char *statusline();
+char getroguetoken();
+char getlogtoken();
+int pending();
 
 #endif

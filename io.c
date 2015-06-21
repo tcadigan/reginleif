@@ -88,7 +88,6 @@ void getrogue(char *waitstr, int onat)
     int wasmapped = didreadmap;
     int r;
     int c;
-    int pending();
     int i;
     int j;
     char ch;
@@ -97,7 +96,6 @@ void getrogue(char *waitstr, int onat)
     char *q;
     char *d;
     char *call;
-    char getroguetoken();
     int *doors;
     static int moved = 0;
 
@@ -815,7 +813,6 @@ int pending()
 char getroguetoken()
 {
     char ch;
-    char getlogtoken();
 
     if(replaying) {
         return getlogtoken();
@@ -1470,9 +1467,7 @@ void printsnap(FILE *f)
     int i;
     int j;
     int length;
-    struct tm *localtime();
     struct tm *ts;
-    char *statusline();
     long clock;
 
     /* Now get the current time, so we can date the snapshot */

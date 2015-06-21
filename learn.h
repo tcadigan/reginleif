@@ -11,5 +11,6 @@ void closelog();
 void writegenes(char *genepool);
 int readgenes(char *genepool);
 void initpool(int k, int m);
+void analyzepool(int full);
 
 #endif

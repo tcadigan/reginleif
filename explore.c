@@ -101,9 +101,6 @@ int gotocol = NONE;
 
 int gotowards(int r, int c, int running)
 {
-    int gotoinit();
-    int gotovalue();
-
     gotorow = r;
     gotocol = c;
 
@@ -573,7 +570,7 @@ int runinit()
  * Traps are avoided for a variable number of moves, except for target traps
  * Gave GasTraps and BearTraps infinite avoidance.  MLM 10/11/83
  */
-void runvalue(int r, int c, int depth, int *val, int *avd, int *cont)
+int runvalue(int r, int c, int depth, int *val, int *avd, int *cont)
 {
     if(onrc(ARROW, r, c)) {
         *avd = 50;
@@ -645,6 +642,8 @@ void runvalue(int r, int c, int depth, int *val, int *avd, int *cont)
     }
 
     *avd += avdmonsters[r][c];
+
+    return 1;
 }
 
 /*
@@ -682,7 +681,7 @@ int rundoorinit()
  * Traps are avoided for a variable number of moves except for target traps
  * Gave GasTraps and BearTraps infinite avoidance.  MLM 10/11/83
  */
-void rundoorvalue(int r, int c, int depth, int *val, int *avd, int *cnt)
+int rundoorvalue(int r, int c, int depth, int *val, int *avd, int *cnt)
 {
     if(onrc(ARROW, c, r)) {
         *avd = 50;
@@ -725,6 +724,8 @@ void rundoorvalue(int r, int c, int depth, int *val, int *avd, int *cnt)
     }
 
     *avd += avdmonsters[r][c];
+
+    return 1;
 }
 
 /*
@@ -1740,10 +1741,6 @@ void unrest()
 /* Move to a good square to rest up on */
 int movetorest()
 {
-    /* LGCH */
-    int restinit();
-    int restvalue();
-
     if(markcycles(NOPRINT)) {
         unrest();
     }

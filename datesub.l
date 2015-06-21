@@ -4,8 +4,10 @@
  * Copyright (C) 1985 by A. Appel, G. Jacobson, L. Hamey, and M. Mauldin
 */
 
-# define yywrap() 1
+#define YY_NO_INPUT
 %}
+%option nounput
+%option noyywrap
 %%
 "Jan" printf("1");
 "Feb" printf("2");
@@ -21,7 +23,9 @@
 "Dec" printf("12");
 %%
 
-main()
-{ while (yylex())
-    ;
+int main(int argc, char *argv[])
+{ 
+    while(yylex());
+    
+    return 0;
 }
