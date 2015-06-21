@@ -20,11 +20,11 @@
 #include "things.h"
 #include "types.h"
 
-#define SEARCHES(r, c)                                                 \
-    (onrc(DEADEND, r, c) ? (((version < RV53A) || !isexplored(r, c))   \
-                            ? (timetosearch + (k_door / 5))            \
-                            : (timetosearch - (k_door / 5) + 5))       \
-     : timetosearch)
+#define SEARCHES(r, c)                                                  \
+    (onrc(DEADEND, r, c) ? (((version < RV53A) || !isexplored(r, c))    \
+                            ? (timestosearch + (k_door / 5))            \
+                            : (timestosearch - (k_door / 5) + 5))       \
+     : timestosearch)
 
 static int expDor;
 static int expavoidval;
@@ -682,7 +682,7 @@ int rundoorinit()
  * Traps are avoided for a variable number of moves except for target traps
  * Gave GasTraps and BearTraps infinite avoidance.  MLM 10/11/83
  */
-void rundorvalue(int r, int c, int depth, int *val, int *avd, int *cnt)
+void rundoorvalue(int r, int c, int depth, int *val, int *avd, int *cnt)
 {
     if(onrc(ARROW, c, r)) {
         *avd = 50;
@@ -1283,9 +1283,6 @@ void pinavoid()
  */
 int secret()
 {
-    int secretinit();
-    int secretvalue();
-
     /* Secret passage adjacent to door? */
     if((version >= RV53A)
        && on(DOOR)
@@ -1294,7 +1291,7 @@ int secret()
            || seerc(' ', atrow - 1, atcol)
            || seerc(' ', atrow, atcol + 1)
            || seerc(' ', atrow, atcol - 1))
-       && (SEARCHES(atrow, atcol) < (timetosearch + 20))) {
+       && (SEARCHES(atrow, atcol) < (timestosearch + 20))) {
         int count = timessearched[atrow][atcol] + 1;
         saynow("Searching dead end door (%d,%d) for the %ds time...",
                atrow,
@@ -1553,8 +1550,6 @@ static int archval[24][80];
  */
 int archmonster(int m, int trns)
 {
-    int archeryinit();
-    int archeryvalue();
     int mr;
     int mc;
 
@@ -1679,7 +1674,7 @@ int archeryinit()
  * Value is non-zero only if we can fire arrows at beast and value is
  * number of shots we can fire.
  */
-int archervalue(int r, int c, int depth, int *val, int *avd, int *cont)
+int archeryvalue(int r, int c, int depth, int *val, int *avd, int *cont)
 {
     if(onrc(SAFE, r, c)) {
         *avd = 0;

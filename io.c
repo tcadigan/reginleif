@@ -1713,7 +1713,7 @@ void clearscreen()
         }
     }
 
-    initstuff();
+    initstufflist();
     mlistlen = 0;
 
     /* temp hack MLM */

@@ -4,6 +4,7 @@
 void useobj(char *oldname);
 void infername(char *oldname, char *name);
 int used(char *oldname);
+int know(char *name);
 void dumpdatabase();
 
 #endif

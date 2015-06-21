@@ -10,9 +10,20 @@
 #include <curses.h>
 #include <stdio.h>
 
+#include "arms.h"
+#include "command.h"
+#include "database.h"
+#include "debug.h"
+#include "explore.h"
 #include "globals.h"
+#include "io.h"
 #include "install.h"
+#include "rooms.h"
+#include "search.h"
+#include "things.h"
+#include "titlepage.h"
 #include "types.h"
+#include "utility.h"
 
 /*
  * handlearmor: This routine is called to determine whether we should
@@ -129,7 +140,7 @@ int handleweapon()
 {
     int obj;
 
-    if((!newweapon || cursedweapon) && !wielding(thrower)) {
+    if((!newweapon || cursedweapon) && !wielding(thrower_obj)) {
         return 0;
     }
 
@@ -164,8 +175,6 @@ int handleweapon()
  *
  * If we are at or below the exp. level, then experiment with unknown potions.
  */
-#define MAXSTR(version < RV52A ? 1900 : 3100)
-
 int quaffpotion()
 {
     int obj = NONE;
@@ -174,14 +183,14 @@ int quaffpotion()
     /* Take advantage of double haste bug -- assures permanent haste */
     if(!doublehasted && (version < RV52A)) {
         if(hasted) {
-            obj = havenamed(potion, "haste self");
+            obj = havenamed(potion_obj, "haste self");
 
             if((obj != NONE) && quaff(obj)) {
                 return 1;
             }
         }
         else {
-            obj = havemult(potion, "haste self", 2);
+            obj = havemult(potion_obj, "haste self", 2);
 
             if((obj != NONE) && quaff(obj)) {
                 return 1;
@@ -196,7 +205,7 @@ int quaffpotion()
      */
 
     if(Str == Strmax) {
-        obj = havenamed(potion, "gain strength");
+        obj = havenamed(potion_obj, "gain strength");
 
         if((obj != NONE) && quaff(obj)) {
             return 1;
@@ -204,16 +213,16 @@ int quaffpotion()
     }
 
     if((Str < 700)
-       || ((Str != Strmax) && (havenamed(potion, "gain strength") != NONE))) {
-        obj = havenamed(potion, "restore strength");
+       || ((Str != Strmax) && (havenamed(potion_obj, "gain strength") != NONE))) {
+        obj = havenamed(potion_obj, "restore strength");
 
-        if((obj != NONE) && quaff) {
+        if((obj != NONE) && quaff(obj)) {
             return 1;
         }
     }
 
     if((Str < 1600) || (Level > 12)) {
-        obj = havemult(potion, "restore strength", 2);
+        obj = havemult(potion_obj, "restore strength", 2);
 
         if((obj != NONE) && quaff(obj)) {
             return 1;
@@ -222,19 +231,19 @@ int quaffpotion()
 
     /* Try to get unblinded by quaffing a potion */
     if(blinded) {
-        obj = havenamed(potion, "healing");
+        obj = havenamed(potion_obj, "healing");
 
         if((obj != NONE) && quaff(obj)) {
             return 1;
         }
         else {
-            obj = havenamed(potion, "extra healing");
+            obj = havenamed(potion_obj, "extra healing");
 
             if((obj != NONE) && quaff(obj)) {
                 return 1;
             }
             else {
-                obj = havenamed(potion, "see invisible");
+                obj = havenamed(potion_obj, "see invisible");
 
                 if((obj != NONE) && quaff(obj)) {
                     return 1;
@@ -245,7 +254,7 @@ int quaffpotion()
 
     /* Try to get uncosmic by quaffing a potion */
     if(cosmic) {
-        obj = havenamed(potion, "extra healing");
+        obj = havenamed(potion_obj, "extra healing");
 
         if((obj != NONE) && quaff(obj)) {
             return 1;
@@ -253,11 +262,11 @@ int quaffpotion()
     }
 
     if(cosmic && (Str != Strmax)) {
-        obj = havenamed(potion, "poison");
+        obj = havenamed(potion_obj, "poison");
 
         if(obj != NONE) {
-            if((wearing("sustain strength") != NONE)
-               && quaff(obj)
+            if(((wearing("sustain strength") != NONE)
+                && quaff(obj))
                || findring("sustain strength")) {
                 return 1;
             }
@@ -269,16 +278,15 @@ int quaffpotion()
      * Wait for cosmic known to quaff extra healing.  DR, TG UTexas
      */
     if(Hp == Hpmax) {
-        obj = havemult(potion, "healing", 2);
+        obj = havemult(potion_obj, "healing", 2);
 
         if(obj != NONE) {
-            obj = havenamed(potion, "healing");
+            obj = havenamed(potion_obj, "healing");
 
-            if((obj != NONE)
-               || know("blindness")
+            if(((obj != NONE) || know("blindness"))
                && (know("hallucination") || (version < RV53A))
                && (Level < 15)) {
-                obj = havenamed("extra healing");
+                obj = havenamed(potion_obj, "extra healing");
 
                 if((obj != NONE) && quaff(obj)) {
                     return 1;
@@ -286,16 +294,15 @@ int quaffpotion()
             }
         }
         else {
-            obj = havemult(potion, "extra healing", 2);
+            obj = havemult(potion_obj, "extra healing", 2);
 
             if(obj != NONE) {
-                obj = havenamed(potion, "healing");
+                obj = havenamed(potion_obj, "healing");
 
-                if((obj != NONE)
-                   || know("blindness")
+                if(((obj != NONE) || know("blindness"))
                    && (know("hallucination") || (version < RV53A))
                    && (Level < 15)) {
-                    obj = havenamed("extra healing");
+                    obj = havenamed(potion_obj, "extra healing");
 
                     if((obj != NONE) && quaff(obj)) {
                         return 1;
@@ -304,13 +311,12 @@ int quaffpotion()
             }
             else {
                 if(know("blindness")) {
-                    obj = havenamed(potion, "healing");
+                    obj = havenamed(potion_obj, "healing");
 
-                    if((obj != NONE)
-                       || know(blindness)
+                    if(((obj != NONE) || know("blindness"))
                        && (know("hallucination") || (version < RV53A))
                        && (Level < 15)) {
-                        obj = havenamed("extra healing");
+                        obj = havenamed(potion_obj, "extra healing");
 
                         if((obj != NONE) && quaff(obj)) {
                             return 1;
@@ -323,7 +329,7 @@ int quaffpotion()
 
     /* Quaff a raise level potion? */
     if((Explev > 8) || (Level > 13)) {
-        obj = havenamed(potion, "raise level");
+        obj = havenamed(potion_obj, "raise level");
 
         if((obj != NONE) && quaff(obj)) {
             return 1;
@@ -331,11 +337,11 @@ int quaffpotion()
     }
 
     /* Quaff an unknown potion? */
-    if((Level >= (k_expr / 10))
+    if((Level >= (k_exper / 10))
        || (objcount >= maxobj)
        || (Str < 1000)
        || blinded) {
-        obj = unknown(potion);
+        obj = unknown(potion_obj);
 
         if(obj != NONE) {
             obj2 = wearing("add strength");
@@ -344,7 +350,7 @@ int quaffpotion()
                 return 1;
             }
             else if(wearing("sustain strength") == NONE) {
-                obj2 = havenamed(ring, "sustain strength");
+                obj2 = havenamed(ring_obj, "sustain strength");
 
                 if((obj2 != NONE) && puton(obj2)) {
                     return 1;
@@ -378,10 +384,10 @@ int readscroll()
     int obj2;
 
     /* check the item specific identify scrolls first */
-    obj = havenamed(scroll, "identify armor");
+    obj = havenamed(scroll_obj, "identify armor");
 
     if(obj != NONE) {
-        obj2 = unknown(armor);
+        obj2 = unknown(armor_obj);
 
         if(obj2 != NONE) {
             prepareident(obj2, obj);
@@ -390,10 +396,10 @@ int readscroll()
         }
     }
 
-    obj = havenamed(scroll,"identify weapon");
+    obj = havenamed(scroll_obj,"identify weapon");
 
     if(obj != NONE) {
-        obj2 = unknown(hitter);
+        obj2 = unknown(hitter_obj);
 
         if(obj2 != NONE) {
             prepareident(obj2, obj);
@@ -402,10 +408,10 @@ int readscroll()
         }
     }
 
-    obj = havenamed(scroll, "identify potion");
+    obj = havenamed(scroll_obj, "identify potion");
     
     if(obj != NONE) {
-        obj2 = unknown(potion);
+        obj2 = unknown(potion_obj);
 
         if(obj2 != NONE) {
             prepareident(obj2, obj);
@@ -414,10 +420,10 @@ int readscroll()
         }
     }
 
-    obj = havenamed(scroll, "identify scroll");
+    obj = havenamed(scroll_obj, "identify scroll");
 
     if(obj != NONE) {
-        obj2 = unknown(scroll);
+        obj2 = unknown(scroll_obj);
 
         if(obj2 != NONE) {
             prepareident(obj2, obj);
@@ -426,10 +432,10 @@ int readscroll()
         }
     }
 
-    obj = havenamed(scroll, "identify ring, wand or staff");
+    obj = havenamed(scroll_obj, "identify ring, wand or staff");
 
     if(obj != NONE) {
-        obj2 = unknown(ring);
+        obj2 = unknown(ring_obj);
 
         if(obj2 != NONE) {
             prepareident(obj2, obj);
@@ -437,7 +443,7 @@ int readscroll()
             return reads(obj);
         }
 
-        obj2 = unknown(wand);
+        obj2 = unknown(wand_obj);
 
         if(obj2 != NONE) {
             prepareident(obj2, obj);
@@ -447,7 +453,7 @@ int readscroll()
     }
 
     /* In older version, have multiple uses for generic identify scrolls */
-    obj = havenamed(scroll, "identify");
+    obj = havenamed(scroll_obj, "identify");
 
     if((obj != NONE)
        && (currentweapon != NONE)
@@ -459,14 +465,14 @@ int readscroll()
     }
 
     if(cursedarmor || cursedweapon) {
-        obj = havenamed(scroll, "remove curse");
+        obj = havenamed(scroll_obj, "remove curse");
 
         if(obj != NONE) {
             return reads(obj);
         }
     }
 
-    obj = havenamed(scroll, "genocide");
+    obj = havenamed(scroll_obj, "genocide");
 
     if(obj != NONE) {
         return reads(obj);
@@ -474,7 +480,7 @@ int readscroll()
 
     if((currentweapon != NONE)
        && (goodweapon || usingarrow || (MaxLevel > 12))) {
-        obj = havenamed(scroll, "enchant weapon");
+        obj = havenamed(scroll_obj, "enchant weapon");
 
         if(obj != NONE) {
             return reads(obj);
@@ -482,7 +488,7 @@ int readscroll()
     }
 
     if((Level != didreadmap) && (Level > 12)) {
-        obj = havenamed(scroll, "magic mapping");
+        obj = havenamed(scroll_obj, "magic mapping");
 
         if(obj != NONE) {
             return reads(obj);
@@ -494,7 +500,7 @@ int readscroll()
      * a weapon in hand, and put on our best armor for the occasion
      * We must also prepare to identify something, just in case.
      */
-    obj = havenamed(scroll, "enchant armor");
+    obj = havenamed(scroll_obj, "enchant armor");
 
     if((obj != NONE)
        || ((currentweapon != NONE)
@@ -505,7 +511,7 @@ int readscroll()
            && (exploredlevel
                || (Level > 18)
                || know("aggravate monsters")))) {
-        obj = unknown(scroll);
+        obj = unknown(scroll_obj);
 
         if(obj != NONE) {
             prepareident(pickident(), obj);
@@ -520,9 +526,9 @@ int readscroll()
                && (!know("enchant armor")
                    || stlmatch(inven[obj].str, "enchant armor")
                    || !know("protect armor")
-                   || strlmatch(inven[obj].str, "protect armor"))) {
+                   || stlmatch(inven[obj].str, "protect armor"))) {
                 /* Pick our best armor */
-                int obj 2 = havearmor(1, NOPRINT, ANY);
+                int obj2 = havearmor(1, NOPRINT, ANY);
 
                 if(obj2 == currentarmor) {
                 }
@@ -541,7 +547,7 @@ int readscroll()
         }
     }
     else {
-        obj = havenamed(scroll, "protect armor");
+        obj = havenamed(scroll_obj, "protect armor");
 
         if((obj != NONE)
            || ((currentweapon != NONE)
@@ -552,7 +558,7 @@ int readscroll()
                && (exploredlevel
                    || (Level > 18)
                    || know("aggravate monsters")))) {
-            obj = unknown(scroll);
+            obj = unknown(scroll_obj);
 
             if(obj != NONE) {
                 prepareident(pickident(), obj);
@@ -664,7 +670,7 @@ int findring(char *name)
 {
     int obj;
 
-    obj = havenamed(ring, name);
+    obj = havenamed(ring_obj, name);
 
     if((obj == NONE) || (wearing(name) != NONE)) {
         return 0;
@@ -721,7 +727,7 @@ int grope(int turns)
         return 1;
     }
 
-    /* blinddir is direction of adjacent CANGO square which is not a trap */
+    /* blindir is direction of adjacent CANGO square which is not a trap */
     for(k = 0; k < 4; ++k) {
         if(onrc(CANGO | TRAP, atdrow(blindir), atdcol(blindir)) == CANGO) {
             break;
@@ -780,7 +786,12 @@ int findarrow()
 
 int checkcango(int dir, int turns)
 {
-    dr = detlr[dir];
+    int r;
+    int c;
+    int dr;
+    int dc;
+
+    dr = deltr[dir];
     dc = deltc[dir];
     r = atrow + dr;
     c = atcol + dc;
@@ -809,8 +820,6 @@ int checkcango(int dir, int turns)
 int godownstairs(int running)
 {
     int p;
-    int genericinit();
-    int downvalue();
 
     /*
      * We don't want to go down if we have just gotten an arrow, since
@@ -823,7 +832,7 @@ int godownstairs(int running)
        && !running
        && foundarrowtrap
        && usingarrow
-       && (have(food) != NONE)
+       && (have(food_obj) != NONE)
        && (goodarrow < 5)
        && waitaround()) {
         saynow("Checking out arrow...");
@@ -899,7 +908,7 @@ int godownstairs(int running)
         return 1;
     }
 
-    newstairs = 0;
+    new_stairs = 0;
 
     return 0;
 }
@@ -921,7 +930,7 @@ int plunge()
         return 0;
     }
 
-    if(have(amulet) != NONE) {
+    if(have(amulet_obj) != NONE) {
         return 0;
     }
 
@@ -998,7 +1007,7 @@ int waitaround()
     ++gc;
     gc = gc % 4;
 
-    for(i = cb[gc].verstart; i != cb[gc].vertend; i += cb[gc]vert.delt) {
+    for(i = cb[gc].vertstart; i != cb[gc].vertend; i += cb[gc].vertdelt) {
         for(j = cb[gc].horstart; j != cb[gc].horend; j += cb[gc].hordelt) {
             if(onrc(BEEN | CANGO | ROOM, i, j)
                && !onrc(TRAP, i, j)
@@ -1025,7 +1034,7 @@ int goupstairs(int running)
 
     /* Check for applicability of this rule */
     if((stairrow == NONE)
-       || (have(amulet) == NONE)
+       || (have(amulet_obj) == NONE)
        || (!running && (quitat < BOGUS) && (Gold <= quitat))) {
         return 0;
     }
@@ -1138,20 +1147,20 @@ int restup()
      * potion for blindness, extra healing for hallucination).
      */
     if((Hp < (Level + 10)) && (Hp < (Hpmax / 3))) {
-        obj = havemult(potion, "extra healing", 2);
+        obj = havemult(potion_obj, "extra healing", 2);
         
         if((obj != NONE) && quaff(obj)) {
             return 1;
         }
 
-        obj = havemult(potion, "healing", 2);
+        obj = havemult(potion_obj, "healing", 2);
 
         if((obj != NONE) && quaff(obj)) {
             return 1;
         }
 
         if(know("hallucination")) {
-            obj = havenamed(potion, "extra healing");
+            obj = havenamed(potion_obj, "extra healing");
             
             if((obj != NONE) && quaff(obj)) {
                 return 1;
@@ -1159,7 +1168,7 @@ int restup()
         }
 
         if(know("blindness")) {
-            obj = havenamed(option, "healing");
+            obj = havenamed(potion_obj, "healing");
             
             if((obj != NONE) && quaff(obj)) {
                 return 1;
@@ -1207,7 +1216,7 @@ int restup()
  */
 int gotowardsgoal()
 {
-    if((goalr > 0) && (golarc > 0)) { /* Keep on trucking */
+    if((goalr > 0) && (goalc > 0)) { /* Keep on trucking */
         if((goalr == atrow) && (goalc == atcol)) {
             goalr = NONE;
             goalc = NONE;
@@ -1244,7 +1253,7 @@ int gotocorner()
         at(row, col);
     }
 
-    if(gotwards(r, c, 0)) {
+    if(gotowards(r, c, 0)) {
         goalr = r;
         goalc = c;
 
@@ -1284,7 +1293,7 @@ int shootindark()
 
     /* If he is one turn away, switch back to our sword */
     if(!cursedweapon
-       && wielding(thrower)
+       && wielding(thrower_obj)
        && (darkturns == 0)
        && handleweapon()) {
         dwait(D_BATTLE, "Switching to sword [4]");
@@ -1293,7 +1302,7 @@ int shootindark()
     }
 
     /* If we have room, switch to our bow */
-    if(!cursedweapon && !wielding(thrower) && (darkturns > 3)) {
+    if(!cursedweapon && !wielding(thrower_obj) && (darkturns > 3)) {
         bow = havebow(1, NOPRINT);
 
         if((bow != NONE) && wield(bow)) {
@@ -1346,6 +1355,13 @@ int trywand()
     }
 
     /* Have a wand to identify? */
+    obj = unknown(wand_obj);
+
+    if(obj == NONE) {
+        return 0;
+    }
+
+    /* Look for a wall either 3 or 4 away */
     for(dir = 0; dir < 8; dir += 2) {
         count = 0;
         r = atrow;
@@ -1382,7 +1398,7 @@ int eat()
 {
     int obj;
 
-    obj = have(food);
+    obj = have(food_obj);
 
     if(obj != NONE) {
         command(T_HANDLING, "e%c", LETTER(obj));

@@ -9,7 +9,11 @@
 #include <curses.h>
 #include <stdio.h>
 
+#include "command.h"
+#include "debug.h"
 #include "globals.h"
+#include "io.h"
+#include "things.h"
 #include "types.h"
 
 #define QSIZE 4000
@@ -25,7 +29,7 @@ static int moveval[24][80];
 static int movecont[24][80];
 static int movedepth[20][80];
 static char mvdir[24][80];
-static int mytype = 0;
+static int mvtype = 0;
 static int didinit = 0;
 
 /*
@@ -34,7 +38,7 @@ static int didinit = 0;
  */
 int makemove(int movetype, int (*evalinit)(), int (*evaluate)(), int reevaluate)
 {
-    if(findmove(movetype, evalint, evaluate, reevaluate)) {
+    if(findmove(movetype, evalinit, evaluate, reevaluate)) {
         return followmap(movetype);
     }
 
@@ -53,7 +57,7 @@ int findmove(int movetype, int (*evalinit)(), int (*evaluate)(), int reevaluate)
     didinit = ontarget;
 
     if(!reevaluate) { /* First tye to reuse the movement map */
-        result = validate(movetype, evalint, evaluate);
+        result = validatemap(movetype, evalinit, evaluate);
 
         if(result == 1) { /* Success */
             return 1;
@@ -111,7 +115,7 @@ int followmap(int movetype)
 {
     int dir;
     int dr;
-    int rc;
+    int dc;
     int r;
     int c;
     int timemode;
@@ -119,8 +123,8 @@ int followmap(int movetype)
     int count = 1;
 
     dir = mvdir[atrow][atcol] - FROM;
-    dr = delta[dir];
-    dc = deltac[dir];
+    dr = deltr[dir];
+    dc = deltc[dir];
 
     if((dir > 7) || (dir < 0)) {
         dwait(D_ERROR, "Followmap: direction invalid!");
@@ -135,7 +139,7 @@ int followmap(int movetype)
 
     /* If exploring and are moving to a new hall square, use fmove */
     if((movetype == EXPLORE)
-       && (onrc(HALL | BEEN, targetrow, taretcol) != (HALL | BEEN))
+       && (onrc(HALL | BEEN, targetrow, targetcol) != (HALL | BEEN))
        && onrc(HALL, r, c)
        && !beingstalked) {
         /* Feb 10, 1985 - mlm */
@@ -257,7 +261,7 @@ int validatemap(int movetype, int (*evalinit)(), int (*evaluate)()) {
 
     thedir = mvdir[atrow][atcol] - FROM;
 
-    if((thedir > 7) || (thdir < 0)) {
+    if((thedir > 7) || (thedir < 0)) {
         dwait(D_SEARCH, "Validatemap: direction in map is invalid.");
 
         /* Something broke */
@@ -289,7 +293,7 @@ int validatemap(int movetype, int (*evalinit)(), int (*evaluate)()) {
         val = avd;
 
         if(!(*evaluate)(r, c, movedepth[r][c], &val, &avd, &cont)) {
-            d_wait(D_SEARCH, "Validatemap: evaluate failed.");
+            dwait(D_SEARCH, "Validatemap: evaluate failed.");
 
             return 0;
         }
@@ -352,14 +356,14 @@ void setnewgoal()
  * reversed path consists of direction offset by FROM.
  * Arguments and results otherwise the same as searchto. LGCH
  */
-int searchfrom(int row, ing col, int (*evaluate)(), char dir[24][80], int *trow, int *tcol)
+int searchfrom(int row, int col, int (*evaluate)(), char dir[24][80], int *trow, int *tcol)
 {
     int r;
     int c;
     int sdir;
     int tempdir;
 
-    if(!searchto(row, col, evaulate, dir, trow, tcol)) {
+    if(!searchto(row, col, evaluate, dir, trow, tcol)) {
         return 0;
     }
 
@@ -532,7 +536,7 @@ int searchto(int row, int col, int (*evaluate)(), char dir[24][80], int *trow, i
                     continue;
                 }
                 else {
-                    saved[r][c] = avd;
+                    saveavd[r][c] = avd;
                 }
             }
             else { /* If evaluate fails, forget it for now */
@@ -590,7 +594,7 @@ int searchto(int row, int col, int (*evaluate)(), char dir[24][80], int *trow, i
                 if((dir[nr][nc] == NOTTRIED)
                    && (CANGO & S)
                    && ((type & S) == type)
-                   && ((k < 4) || onrc(CANGO) && onrc(CANGO, nr, c))) {
+                   && ((k < 4) || (onrc(CANGO, r, nc) && onrc(CANGO, nr, c)))) {
                     /* flag unevaluated */
                     moveval[nr][nc] = NONE;
 
@@ -606,7 +610,7 @@ int searchto(int row, int col, int (*evaluate)(), char dir[24][80], int *trow, i
 
                     if(debug(D_SCREEN | D_SEARCH | D_INFORM)) {
                         at(nr, nc);
-                        printw("%c", ">/^\\</v\\  ~"[dir[nr][nc]]);
+                        printw("%c", ">/^\\</v\\  ~"[(int)dir[nr][nc]]);
                     }
                 }
             }

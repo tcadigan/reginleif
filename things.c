@@ -8,9 +8,16 @@
 
 #include <ctype.h>
 #include <curses.h>
+#include <string.h>
 
+#include "arms.h"
+#include "command.h"
+#include "database.h"
+#include "debug.h"
 #include "globals.h"
+#include "io.h"
 #include "types.h"
+#include "utility.h"
 
 /*
  * wear: This primitive function issues a command to put on armor.
@@ -89,10 +96,9 @@ int drop(int obj)
     }
 
     /* read unknown scrolls or good scrolls rather than dropping them */
-    if((inven[obj].type == scroll)
-       && (!itemis(obj, KNOWN)
-           || stlmatch(inven[obj].str, "identify")
-           && preparedident(pickident(), obj)
+    if((inven[obj].type == scroll_obj)
+       && (!itemis(obj, KNOWN) 
+           || (stlmatch(inven[obj].str, "identify") && prepareident(pickident(), obj))
            || stlmatch(inven[obj].str, "enchant")
            || stlmatch(inven[obj].str, "genocide")
            || stlmatch(inven[obj].str, "gold detection")
@@ -106,12 +112,11 @@ int drop(int obj)
     }
 
     /* quaff unknown potions or good ones rather than dropping them */
-    if((inven[obj].typ == potion)
+    if((inven[obj].type == potion_obj)
        && (!itemis(obj, KNOWN)
            || stlmatch(inven[obj].str, "extra healing")
            || stlmatch(inven[obj].str, "gain strength")
-           || strlmatch(inven[obj].str, "haste self")
-           && !hasted
+           || (stlmatch(inven[obj].str, "haste self") && !hasted)
            || stlmatch(inven[obj].str, "healing")
            || stlmatch(inven[obj].str, "magic detection")
            || stlmatch(inven[obj].str, "raise level")
@@ -130,7 +135,7 @@ int drop(int obj)
  */
 int quaff(int obj)
 {
-    if(invent[obj].type != potion) {
+    if(inven[obj].type != potion_obj) {
         dwait(D_ERROR, "Trying to quaff a %c", LETTER(obj));
         usesynch = 0;
 
@@ -147,7 +152,7 @@ int quaff(int obj)
  */
 int reads(int obj)
 {
-    if(inven[obj].type != scroll) {
+    if(inven[obj].type != scroll_obj) {
         dwait(D_ERROR, "Trying to read %c", LETTER(obj));
         usesynch = 0;
 
@@ -164,7 +169,7 @@ int reads(int obj)
  */
 int point(int obj, int dir)
 {
-    if(inven[obj].type != wand) {
+    if(inven[obj].type != wand_obj) {
         dwait(D_ERROR, "Trying to point %c", LETTER(obj));
 
         return 0;
@@ -208,7 +213,7 @@ int puton(int obj)
         return 1;
     }
    
-    if((leftring == NONE) || (rightring == NON)) {
+    if((leftring == NONE) || (rightring == NONE)) {
         command(T_HANDLING, "P%c", LETTER(obj));
 
         return 1;
@@ -265,7 +270,7 @@ void addstuff(char ch, int row, int col)
         deletestuff(row, col);
     }
 
-    slist[slistlen].what = translate[ch];
+    slist[slistlen].what = translate[(int)ch];
     slist[slistlen].srow = row;
     slist[slistlen].scol = col;
 
@@ -323,7 +328,7 @@ void dumpstuff()
 void display(char *s)
 {
     saynow(s);
-    msdonscreen = 1;
+    msgonscreen = 1;
 }
 
 /*
@@ -357,43 +362,43 @@ int pickident()
 {
     int obj;
 
-    obj = unknown(ring);
+    obj = unknown(ring_obj);
     
     if(obj != NONE) {
         return obj;
     }
 
-    obj = unidentified(wand);
+    obj = unidentified(wand_obj);
         
     if(obj != NONE) {
         return obj;
     }
 
-    obj = unidentified(scroll);
+    obj = unidentified(scroll_obj);
 
     if(obj != NONE) {
         return obj;
     }
 
-    obj = unidentified(potion);
+    obj = unidentified(potion_obj);
     
     if(obj != NONE) {
         return obj;
     }
 
-    obj = unknown(scroll);
+    obj = unknown(scroll_obj);
 
     if(obj != NONE) {
         return obj;
     }
 
-    obj = unknown(potion);
+    obj = unknown(potion_obj);
 
     if(obj != NONE) {
         return obj;
     }
 
-    obj = unknown(hitter);
+    obj = unknown(hitter_obj);
 
     if(obj != NONE) {
         return obj;
@@ -506,7 +511,7 @@ int havewand(char *name)
     /* find one with positive charges */
     for(i = 0; i < invcount; ++i) {
         if(inven[i].count
-           && (inven[i].type == wand)
+           && (inven[i].type == wand_obj)
            && ((*name == 0) || streq(inven[i].str, name))
            && (inven[i].charges > 0)) {
             return i;
@@ -516,7 +521,7 @@ int havewand(char *name)
     /* Find one with unknown charges */
     for(i = 0; i < invcount; ++i) {
         if(inven[i].count
-           && (inven[i].type == wand)
+           && (inven[i].type == wand_obj)
            && ((*name == 0) || streq(inven[i].str, name))
            && (inven[i].charges == UNKNOWN)) {
             return i;
@@ -538,7 +543,7 @@ int wearing(char *name)
        && streq(inven[leftring].str, name)) {
         result = leftring;
     }
-    else if((rightright != NONE)
+    else if((rightring != NONE)
             && itemis(rightring, INUSE)
             && streq(inven[rightring].str, name)) {
         result = rightring;
@@ -598,11 +603,10 @@ int haveuseless()
 {
     int i;
 
-    if(i = 0; i < invcount; ++i) {
+    for(i = 0; i < invcount; ++i) {
         if(inven[i].count
-           && (inven[i].type == wand)
-           && (inven[i].charges == 0)
-           || itemis(i, WORTHLESS)
+           && (inven[i].type == wand_obj)
+           && ((inven[i].charges == 0) || itemis(i, WORTHLESS))
            && streq(inven[i].str, "arrow")) {
             return i;
         }
@@ -620,8 +624,7 @@ int willrust(int obj)
          || (armorclass(obj) > 8)
          || (armorclass(obj) < -5)
          || itemis(obj, PROTECTED)
-         || stlmatch(inven[obj].str, "leather")
-         && (version > RV36B))) {
+         || (stlmatch(inven[obj].str, "leather") && (version > RV36B)))) {
         return 1;
     }
     else {

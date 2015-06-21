@@ -16,7 +16,6 @@ extern FILE *fecho; /* Rogomatic score file */
 extern FILE *logfile; /* Rogomatic score file */
 extern FILE *realstdout; /* Real stdout when in terse or emacs mode */
 extern FILE *snapshot; /* file for snapshot command */
-FILE *wopen(); /* Open a file for world access */
 
 /* global characters and strings */
 extern char afterid; /* Index of object after identify */
@@ -34,19 +33,6 @@ extern char sumline[]; /* Summation line */
 extern char *termination; /* Latin verb for how we died */
 extern char versionstr[]; /* Version of Rogue we are playing */
 
-/* character and string functions */
-extern char getlogtoken();
-extern char *getname();
-extern char *itemstr();
-extern char logchar();
-extern char *monnam();
-extern char *realname();
-
-/* double precision floating point functions for stats.c */
-double prob();
-double mean();
-double stdev();
-
 /* global integers */
 extern int aggravated; /* True if we aggravated this level */
 extern int agoalr; /* Where we killed a monster */
@@ -63,7 +49,7 @@ extern int badarrow; /* True if we missed with this arrow */
 extern int beingheld; /* True if being held by a fungus */
 extern int beingstalked; /* True if an Invisible Stalker is around */
 extern int blinded; /* True if blinded */
-extern int blinddir; /* Last direction we moved when blind */
+extern int blindir; /* Last direction we moved when blind */
 extern int cancelled; /* Turns till use cancellation again */
 extern int cecho; /* Last message type to logfile */
 extern int cheat; /* True ==> cheat to win */
@@ -203,7 +189,7 @@ extern int new_search;
 extern int new_stairs;
 extern int new_arch;
 extern int timessearched[24][80];
-extern int timetosearch;
+extern int timestosearch;
 extern int searchstartr;
 extern int searchstartc;
 extern int reusepsd;

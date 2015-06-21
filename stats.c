@@ -91,7 +91,7 @@ void clearstat(statistic *s)
     s->high = 0.0;
     s->low = s->high;
     s->sumsq = s->low;
-    s->sum = s->sumq;
+    s->sum = s->sumsq;
 }
 
 /*
@@ -105,7 +105,7 @@ void addstat(statistic *s, int datum)
     s->sum += d;
     s->sumsq += (d * d);
 
-    if(s->sount < 2) {
+    if(s->count < 2) {
         s->high = d;
         s->low = s->high;
     }
@@ -135,7 +135,7 @@ double mean(statistic *s)
  */
 double stdev(statistic *s)
 {
-    n = s->count;
+    int n = s->count;
 
     if(n < 2) {
         return 0.0;
@@ -157,7 +157,7 @@ void parsestat(char *buf, statistic *s)
     s->sum = s->sumsq;
 
     sscanf(buf, 
-           "%s %lf %lf %lf %lf", 
+           "%d %lf %lf %lf %lf", 
            &s->count, 
            &s->sum,
            &s->sumsq, 

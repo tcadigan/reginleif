@@ -6,11 +6,13 @@
  * notice on the screen. A general movie facility is used to animate
  * the screen.
  */
+#include "titlepage.h"
 
-#include <stdio.h>
 #include <curses.h>
-#include "types.h"
+#include <stdio.h>
+
 #include "globals.h"
+#include "types.h"
 
 static char *titlepage[] = {
     /* The static part of the display */
@@ -56,7 +58,7 @@ static char *titlepage[] = {
     NULL
 };
 
-#define NEXTCHAR (*cbf ? ++*cbf : (cbf = 1 + ++*move)[-1])
+#define NEXTCHAR (*cbf ? ++*cbf : (cbf = 1 + *movie++)[-1])
 
 /*
  * animate: Display a movie on the screen. A movie is a list of strings
@@ -83,7 +85,7 @@ void animate(char *movie[])
     /* Clear the screen */
     clear();
 
-    while(*move || *cbf) { /* While more animate commands */
+    while(*movie || *cbf) { /* While more animate commands */
         /* Get command character */
         r = NEXTCHAR;
 

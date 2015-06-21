@@ -18,7 +18,7 @@ HDRS= types.h globals.h install.h termtokens.h utility.h scorefile.h \
 	  setup.h findscore.h command.h monsters.h pack.h database.h \
 	  io.h things.h survival.h mess.h explore.h arms.h debug.h \
 	  ltm.h rooms.h seach.h stats.h termtokens.h learn.h rand.h \
-	  main.h replay.h strategy.h tactics.h worth.h
+	  main.h replay.h strategy.h tactics.h worth.h rgmplot.h titlepage.h \
 OTHERS= setup.c fidscore.c datesub.l histplot.c rgmplot.c gene.c \
 	    rplot Bugreport
 
@@ -80,7 +80,7 @@ rand.o:
 	$(CC) -c $(CCFLAGS) rand.c
 replay.o: types.h globals.h
 	$(CC) -c $(CCFLAGS) replay.c
-rgmplot.o: rgmplot.c
+rgmplot.o: rgmplot.h utility.h
 	$(CC) -c $(CCFLAGS) rgmplot.c
 rgmplot: rgmplot.o utility.o
 	$(CC) $(CCFLAGS) -o rgmplot rgmplot.o utility.o
@@ -88,27 +88,27 @@ rgmplot: rgmplot.o utility.o
 rogomatic: setup.o findscore.o scorefile.o utility.o
 	$(CC) $(CCFLAGS) -o rogomatic setup.o findscore.o scorefile.o utility.o
 	size rogomatic
-rooms.o: types.h globals.h
+rooms.o: rooms.h command.h debug.h explore.h globals.h io.h monsters.h search.h things.h types.h
 	$(CC) -c $(CCFLAGS) rooms.c
 scorefile.o: types.h globals.h install.h utility.h scorefile.h
 	$(CC) -c $(CCFLAGS) scorefile.c
-search.o: types.h globals.h
+search.o: search.h command.h debug.h globals.h io.h things.h types.h
 	$(CC) -c $(CCFLAGS) search.c
 setup.o: install.h utility.h scorefile.h setup.h findscore.h
 	$(CC) -c $(CCFLAGS) setup.c
-stats.o: types.h
+stats.o: stats.h types.h
 	$(CC) -c $(CCFLAGS) stats.c
-strategy.o: types.h globals.h install.h
+strategy.o: strategy.h arms.h command.h debug.h explore.h globals.h install.h io.h monsters.h rooms.h search.h survival.h tactics.h things.h types.h worth.h
 	$(CC) -c $(CCFLAGS) strategy.c
-survival.o: types.h globals.h
+survival.o: survival.h debug.h globals.h io.h search.h rooms.h tactics.h types.h
 	$(CC) -c $(CCFLAGS) survival.c
-tactics.o: types.h globals.h install.h
+tactics.o: tactics.h arms.h command.h database.h debug.h explore.h globals.h io.h install.h rooms.h search.h things.h titlepage.h types.h utility.h
 	$(CC) -c $(CCFLAGS) tactics.c
 testfind: testfind.o findscore.o utility.o
 	$(CC) $(LDFLAGS) -o testfind testfind.o findscore.o utility.o
-things.o: types.h globals.h
+things.o: things.h arms.h command.h database.h debug.h globals.h io.h types.h utility.h
 	$(CC) -c $(CCFLAGS) things.c
-titlepage.o: titlepage.c
+titlepage.o: titlepage.h globals.h types.h
 	$(CC) -c $(CCFLAGS) titlepage.c
 titler.o: titler.c
 	$(CC) -c titler.c

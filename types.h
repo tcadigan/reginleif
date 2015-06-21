@@ -9,12 +9,6 @@
 #ifndef TYPES_H_
 #define TYPES_H_
 
-#ifndef unctrl
-extern char *_unctrl[];
-
-#define unctrl(ch) _unctrl[ch & 0177]
-#endif
-
 /* Global Preprocessor constants */
 #define ill ";'"
 #define status "Str:"

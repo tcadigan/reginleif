@@ -24,6 +24,7 @@
 #include "survival.h"
 #include "things.h"
 #include "types.h"
+#include "utility.h"
 
 /*
  * Debugging wait loop: Handle the usual Rogomatic command chars, and also

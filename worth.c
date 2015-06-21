@@ -14,8 +14,11 @@
 
 #include <curses.h>
 
+#include "arms.h"
 #include "globals.h"
+#include "things.h"
 #include "types.h"
+#include "utility.h"
 
 int objval[] = {
     0,    /* strange */
@@ -60,7 +63,7 @@ int worth(int obj)
      * Armor values are based on armor class, bonus for best, second
      * best, third best, or leather armor (leather doesn't rust)
      */
-    if(inven[obj].type == armor) {
+    if(inven[obj].type == armor_obj) {
         value = (11 - armorclass(obj)) * 120;
 
         if(obj == havearmor(1, NOPRINT, ANY)) {
@@ -77,7 +80,7 @@ int worth(int obj)
             value += 300;
         }
     }
-    else if(invent[obj].type == thrower) {
+    else if(inven[obj].type == thrower_obj) {
         /*
          * Bow values are based on bow class, bonus for best
          * or second best.
@@ -120,12 +123,12 @@ int worth(int obj)
     }
 
     /* Prefer larger bundles of missiles */
-    if(inven[obj].type == missile) {
+    if(inven[obj].type == missile_obj) {
         value += (inven[obj].count * 50);
     }
 
     /* Prefer wands with more charges */
-    if((inven[obj].type == wand) && (inven[obj].charges != UNKNOWN)) {
+    if((inven[obj].type == wand_obj) && (inven[obj].charges != UNKNOWN)) {
         value += (inven[obj].charges * 35);
     }
 
@@ -182,7 +185,7 @@ int useless(int i)
     }
 
     /* Worn out or bad wands are useless */
-    if((invent[i].type == wand)
+    if((inven[i].type == wand_obj)
        && ((inven[i].charges == 0)
            || stlmatch(inven[i].str, "teleport to")
            || stlmatch(inven[i].str, "haste monster"))) {
@@ -190,7 +193,7 @@ int useless(int i)
     }
 
     /* Many potions are useless */
-    if((inven[i].type == potion) 
+    if((inven[i].type == potion_obj) 
        && itemis(i, KNOWN)
        && (stlmatch(inven[i].str, "paralysi")
            || stlmatch(inven[i].str, "confusion")
@@ -201,12 +204,12 @@ int useless(int i)
            || stlmatch(inven[i].str, "thirst")
            || (stlmatch(inven[i].str, "haste self") && doublehasted)
            || (stlmatch(inven[i].str, "see invisible")
-               && (havenamed(ring, "see invisible") != NONE)))) {
+               && (havenamed(ring_obj, "see invisible") != NONE)))) {
         return 1;
     }
 
     /* So are many scrolls */
-    if((inven[i].type == scroll)
+    if((inven[i].type == scroll_obj)
        && itemis(i, KNOWN)
        && (stlmatch(inven[i].str, "blank")
            || stlmatch(inven[i].str, "create monster")
@@ -216,10 +219,10 @@ int useless(int i)
         return 1;
     }
 
-    /* An bad rings are useless */
-    if((inven[i].type == ring)
+    /* All bad rings are useless */
+    if((inven[i].type == ring_obj)
        && itemis(i, KNOWN)
-       && (((invent[i].phit != UNKNOWN) && (inven[i].phit < 0))
+       && (((inven[i].phit != UNKNOWN) && (inven[i].phit < 0))
            || stlmatch(inven[i].str, "teleport")
            || stlmatch(inven[i].str, "telport") /* For R3.6 MLM */
            || stlmatch(inven[i].str, "adornment")
@@ -228,9 +231,9 @@ int useless(int i)
     }
 
     /* One of some rings is enough */
-    if((inven[i].type == ring)
+    if((inven[i].type == ring_obj)
        && itemis(i, KNOWN)
-       && (havemult(ring, inven[i].str, 2) != NONE)
+       && (havemult(ring_obj, inven[i].str, 2) != NONE)
        && (stlmatch(inven[i].str, "see invisible")
            || stlmatch(inven[i].str, "sustain strength")
            || stlmatch(inven[i].str, "searching")
@@ -239,7 +242,7 @@ int useless(int i)
         return 1;
     }
 
-    if((inven[i].type == ring) && (havemult(ring, inven[i].str, 3) != NONE)) {
+    if((inven[i].type == ring_obj) && (havemult(ring_obj, inven[i].str, 3) != NONE)) {
         return 1;
     }
 
@@ -247,12 +250,12 @@ int useless(int i)
      * If we are cheating and we have a good arrow
      * then many rings do us no good at all.
      */
-    if((inven[i].type == ring)
+    if((inven[i].type == ring_obj)
        && usingarrow
        && (goodarrow > 20)
        && (stlmatch(inven[i].str, "add strength")
            || stlmatch(inven[i].str, "dexterity")
-           || stlmathc(inven[i].str, "increase damage"))) {
+           || stlmatch(inven[i].str, "increase damage"))) {
         return 1;
     }
 

@@ -11,6 +11,7 @@
 
 #include "debug.h"
 #include "globals.h"
+#include "pack.h"
 #include "things.h"
 #include "types.h"
 #include "utility.h"

@@ -9,10 +9,23 @@
 #include <ctype.h>
 #include <curses.h>
 #include <stdio.h>
+#include <string.h>
 
+#include "arms.h"
+#include "command.h"
+#include "debug.h"
+#include "explore.h"
 #include "globals.h"
 #include "install.h"
+#include "io.h"
+#include "monsters.h"
+#include "rooms.h"
+#include "search.h"
+#include "survival.h"
+#include "tactics.h"
+#include "things.h"
 #include "types.h"
+#include "worth.h"
 
 /*
  * foughtmonster recrods whether we engaged in battle recently. This
@@ -21,10 +34,6 @@
  * DIDFIGHT is the number of turns to sit still after a battle.
  */
 #define DIDFIGHT 3
-
-/* From explore.c */
-extern int genericinit();
-extern int sleepvalue();
 
 /*
  * strategize: Run through each rule until something fires. Return 1 if an
@@ -61,7 +70,7 @@ int strategize()
         return 1;
     }
 
-    if(shootdark()) { /* Shoot arrows in dark rooms */
+    if(shootindark()) { /* Shoot arrows in dark rooms */
         return 1;
     }
 
@@ -148,7 +157,7 @@ int strategize()
         return 1;
     }
 
-    if(groupstairs(NORUNNING)) {
+    if(goupstairs(NOTRUNNING)) {
         /* Up we go! Make sure we get a better rank on the board */
         return 1;
     }
@@ -360,7 +369,7 @@ int fightmonster()
                 monster = monname(mon);
 
                 /* Add to the danger */
-                danger != maxhitchar(mon);
+                danger += maxhitchar(mon);
 
                 /* If he is adjacent, add to the adj count */
                 if(onrc(CANGO, rr, atcol) && onrc(CANGO, atrow, cc)) {
@@ -408,7 +417,7 @@ int fightmonster()
 
     if(adjacent) {
         if(battlestations(m,
-                          monst,
+                          monster,
                           mbad,
                           danger,
                           mdir,
@@ -422,7 +431,7 @@ int fightmonster()
     }
     else {
         if(battlestations(m,
-                          monst,
+                          monster,
                           mbad,
                           danger,
                           wanddir,
@@ -450,7 +459,7 @@ int fightmonster()
 
     /* If we are here but have no direction, there was a bug somewhere */
     if(mdir < 0) {
-        dwait(d_battle, "Adjacent, but no direction known!");
+        dwait(D_BATTLE, "Adjacent, but no direction known!");
         
         return 0;
     }
@@ -531,8 +540,8 @@ int tomonster()
            || (mlist[i].q == AWAKE) 
            || (!cosmic
                && wanttowake(monchar)
-               && ((avghit(i) <= 50) || ((maxhit(i) + 50 - k_wake) < Hp))
-               || ((mlist[i].q == HELD) && (Hp >= Hpmax)))) {
+               && (((avghit(i) <= 50) || ((maxhit(i) + 50 - k_wake) < Hp))
+                   || ((mlist[i].q == HELD) && (Hp >= Hpmax))))) {
             /* Track total danger */
             danger += maxhit(i);
 
@@ -602,7 +611,7 @@ int tomonster()
     }
 
     /* "We have him! Move toward him!" */
-    if(gotwards(mlist[which].mrow, mlist[which].mcol, 0)) {
+    if(gotowards(mlist[which].mrow, mlist[which].mcol, 0)) {
         goalr = mlist[which].mrow;
         goalc = mlist[which].mcol;
         lyinginwait = 0;
@@ -749,7 +758,7 @@ int battlestations(int m,
           adj);
 
     /* Switch back to our mace or sword? */
-    if(live_for(1) && (turns < 2) && wielding(thrower) && handleweapon()) {
+    if(live_for(1) && (turns < 2) && wielding(thrower_obj) && handleweapon()) {
         dwait(D_BATTLE, "Switching to sword [2]");
         
         return 1;
@@ -772,7 +781,7 @@ int battlestations(int m,
        && !floating
        && (die_in(5)
            || ((seeawakemonster("rattlesnake") || seeawakemonster("giant ant"))
-               && (havenamed(ring, "sustain strength") < 0))
+               && (havenamed(ring_obj, "sustain strength") < 0))
            || ((seeawakemonster("aquator") || seeawakemonster("rust monster"))
                && (turns < 2)
                && willrust(currentarmor)
@@ -786,13 +795,13 @@ int battlestations(int m,
 
     /* Are healing postions worthwhile? */
     if(die_in(1) && ((Hpmax - Hp) > 10) && (turns > 0)) {
-        obj = havenamed(potion, "extra healing");
+        obj = havenamed(potion_obj, "extra healing");
         
         if(obj != NONE) {
             return quaff(obj);
         }
         else {
-            obj = havenamed(potion, "healing");
+            obj = havenamed(potion_obj, "healing");
 
             if(obj != NONE) {
                 return quaff(obj);
@@ -862,7 +871,7 @@ int battlestations(int m,
        && (seemonster("aquator") || seemonster("rust monster"))
        && willrust(currentarmor)
        && (wearing("maintain armor") == NONE)) {
-        obj = havenamed(ring, "maintain armor");
+        obj = havenamed(ring_obj, "maintain armor");
 
         if((obj != NONE) && puton(obj)) {
             return 1;
@@ -884,7 +893,7 @@ int battlestations(int m,
        && ((leftring == NONE) || (rightring == NONE))
        && (seemonster("giant ant") || seemonster("rattlesnake"))
        && (wearing("sustain strength") < 0)) {
-        obj = havenamed(ring, "sustain strength");
+        obj = havenamed(ring_obj, "sustain strength");
 
         if((obj != NONE) && puton(obj)) {
             return 1;
@@ -913,7 +922,7 @@ int battlestations(int m,
        && !((turns == 0)
             && (streq(monster, "rattlesnake") || streq(monster, "giant ant")))
        && (wearing("regeneration") < 0)) {
-        obj = havenamed(ring, "regeneration");
+        obj = havenamed(ring_obj, "regeneration");
 
         if((obj != NONE) && puton(obj)) {
             return 1;
@@ -935,7 +944,7 @@ int battlestations(int m,
        && (version > RV36B)
        && ((turns > 0) || live_for(1))
        && die_in(2)) {
-        obj = havenamed(potion, "haste self");
+        obj = havenamed(potion_obj, "haste self");
 
         if((obj != NONE) && quaff(obj)) {
             return 1;
@@ -944,7 +953,7 @@ int battlestations(int m,
 
     /* Confuse the poor beast? */
     if(die_in(2) && (turns > 0) && !redhands) {
-        obj = havenamed(scroll, "monster confusion");
+        obj = havenamed(scroll_obj, "monster confusion");
 
         if(obj != NONE) {
             return reads(obj);
@@ -959,7 +968,7 @@ int battlestations(int m,
      * We have a lot more programming to do here!!!!    Fuzzy
      */
     if(die_in(1)) {
-        obj = havenamed(scroll, "hold monster");
+        obj = havenamed(scroll_obj, "hold monster");
 
         if((obj != NONE) && reads(obj)) {
             holdmonsters();
@@ -970,7 +979,7 @@ int battlestations(int m,
 
     /* Drop a scare monster? */
     if(die_in(1) && !streq(monster, "dragon"))
-        obj = havenamed(scroll, "scare monster");
+        obj = havenamed(scroll_obj, "scare monster");
 
     if((obj != NONE) && drop(obj)) {
         ++droppedscare;
@@ -997,7 +1006,7 @@ int battlestations(int m,
 
     /* Eat dust, turkey! */
     if(die_in(1) && (turns == 0)) {
-        obj = havenamed(scroll, "teleportation");
+        obj = havenamed(scroll_obj, "teleportation");
 
         if(obj != NONE) {
             beingheld = 0;
@@ -1007,7 +1016,7 @@ int battlestations(int m,
     }
 
     /* The better part of valor... */
-    if((die_in(1) && (turns == 0) || fainting()) && quitforhonors()) {
+    if((die_in(1) && ((turns == 0) || fainting())) && quitforhonors()) {
         return 1;
     }
 
@@ -1152,7 +1161,7 @@ int battlestations(int m,
        && !beingheld
        && (!on(DOOR) || (turns < 1))
        && !streq(monster, "dragon")
-       && (die_in(1) && ((Hp + (Explev / 2) + 3) < Hpmax) || chicken)
+       && (die_in(1) && (((Hp + (Explev / 2) + 3) < Hpmax) || chicken))
        && runaway()) {
         display("Run away! Run away!");
         
@@ -1168,7 +1177,7 @@ int battlestations(int m,
        && !beingheld
        && !streq(monster, "dragon")
        && ((mdir < 0) || (turns < 5))
-       && ((((adj > 1) || live_for(1) || die_in(4) && !canrun())) && unpin())) {
+       && (((((adj > 1) || live_for(1) || die_in(4)) && !canrun())) && unpin())) {
         display("Unpinning!!!");
 
         return 1;
@@ -1195,7 +1204,7 @@ int battlestations(int m,
        && (mdir != NONE)
        && on(ROOM)
        && (mdist < 6)) {
-        obj = unknown(wand);
+        obj = unknown(wand_obj);
 
         if((obj != NONE) && point(obj, mdir)) {
             usesynch = 0;
@@ -1244,7 +1253,7 @@ int battlestations(int m,
                 int bow;
 
                 /* Wield the bow if we have time */
-                if(!cursedweapon && !weilding(thrower) && (turns > 4)) {
+                if(!cursedweapon && !wielding(thrower_obj) && (turns > 4)) {
                     bow = havebow(1, NOPRINT);
 
                     if((bow != NONE) && wield(bow)) {
@@ -1261,7 +1270,7 @@ int battlestations(int m,
     }
 
     /* Switch back to your mace or sword? */
-    if(!cursedweapon && wielding(thrower) && handleweapon()) {
+    if(!cursedweapon && wielding(thrower_obj) && handleweapon()) {
         dwait(D_BATTLE, "Switching to sword [3]");
         
         return 1;
@@ -1289,7 +1298,7 @@ int tostuff()
     stuff what;
 
     /* If we don't see anything (or don't care),  return failure */
-    if((slistlen == 0) || (Level == 1) && (have(amulet) != NONE)) {
+    if((slistlen == 0) || ((Level == 1) && (have(amulet_obj) != NONE))) {
         return 0;
     }
 
@@ -1335,12 +1344,12 @@ int tostuff()
     wcol = slist[which].scol;
 
     /* We can always pick up more gold */
-    if(what == gold) {
+    if(what == gold_obj) {
         return gotowards(wrow, wcol, 0);
     }
 
     /* Have space in our pack, go get it */
-    if(objcount < maxobjcount) {
+    if(objcount < maxobj) {
         return gotowards(wrow, wcol, 0);
     }
 
@@ -1403,7 +1412,7 @@ int fightinvisible()
 
     /* Can we teleport out of here? */
     if((Hp < INVDAM) && (beingstalked > INVPRES)) {
-        obj = havenamed(scroll, "teleport");
+        obj = havenamed(scroll_obj, "teleport");
 
         if((obj != NONE) && reads(obj)) {
             beingstalked = INVPRES - 1;
@@ -1413,7 +1422,7 @@ int fightinvisible()
     }
 
     /* Can we quaff a potion of see invisible? */
-    obj = havenamed(potion, "see invisible");
+    obj = havenamed(potion_obj, "see invisible");
 
     if((obj != NONE) && quaff(obj)) {
         beingstalked = 0;
@@ -1515,6 +1524,7 @@ int archery()
 {
     int m;
     int mtk;
+    char *monster;
 
     for(m = 0; m < mlistlen; ++m) { /* Find a sleeping monster */
         monster = monname(mlist[m].chr);
@@ -1529,7 +1539,7 @@ int archery()
      *
      * Then try calling archmonster to move to the right place.
      */
-    if((mlist[i].q != AWAKE)
+    if((mlist[m].q != AWAKE)
        && (gplushit != NONE)
        && !((mlist[m].q == HELD) && (Hp < Hpmax)) /* DR UTexas 26 Jan 84 */
        && ((maxhit(m) > (Hp / 3))
@@ -1542,9 +1552,8 @@ int archery()
            || streq(monster, "ice monster"))) {
         mtk = monatt[mlist[m].chr - 'A'].mtokill - gplushit;
 
-        if((ammo >= mtk)
-           && (larder > 0)
-           || ((streq(monster, "leprechaun") && !hungry())
+        if(((ammo >= mtk) && (larder > 0))
+           || (((streq(monster, "leprechaun") && !hungry()))
                || streq(monster, "nymph"))) {
             dwait(D_BATTLE, 
                   "Arching at %c at (%d,%d)",
@@ -1570,7 +1579,7 @@ int archery()
  *
  * Bug: Sometimes goes the long way around and doesn't see things.
  */
-int pickupafteR()
+int pickupafter()
 {
     /* If no goal */
     if((agoalr < 0) || (agoalc < 0)) {

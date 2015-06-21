@@ -9,12 +9,20 @@
 
 #include <ctype.h>
 #include <curses.h>
+#include <string.h>
 
+#include "command.h"
+#include "debug.h"
+#include "explore.h"
 #include "globals.h"
+#include "io.h"
+#include "monsters.h"
+#include "search.h"
+#include "things.h"
 #include "types.h"
 
 #define sign(c) ((x) ? (x) > 0 ? 1 : -1 : 0)
-#define EXLOPRED 1
+#define EXPLORED 1
 #define HASROOM 2
 
 int levelmap[9];
@@ -124,7 +132,7 @@ void newlevel()
     atcol0 = atcol;
     set(ROOM);
     setnewgoal();
-    timetosearch = k_door / 5;
+    timestosearch = k_door / 5;
 }
 
 /*
@@ -173,7 +181,7 @@ void markmissingrooms()
                     break;
                 }
                 else if(onrc(BEEN, i, j)) {
-                    room[rm] == BEEN;
+                    room[rm] = BEEN;
 
                     flag = 1;
                     break;
@@ -269,7 +277,7 @@ void nametrap(int traptype, int standingonit)
 
     /* Record last arrow trap found (for cheating against 3.6) */
     if(traptype == ARROW) {
-        foundaddortrap = 1;
+        foundtrapdoor = 1;
         trapr = r;
         trapc = c;
     }
@@ -278,12 +286,12 @@ void nametrap(int traptype, int standingonit)
     }
 
     /* If a trapdor, reactivate rules */
-    if(typetrap == TRAPDOR) {
+    if(traptype == TRAPDOR) {
         foundnew();
     }
 
     /* Set the trap type */
-    unsetrc(TELTRAP | TRAPDOR | BEARTRAP | GASTRAP | ARROW | DARTRAP, r, c);
+    unsetrc(TELTRAP | TRAPDOR | BEARTRP | GASTRAP | ARROW | DARTRAP, r, c);
     setrc(TRAP | traptype, r, c);
 }
 
@@ -349,7 +357,7 @@ int lightroom()
         return 0;
     }
 
-    obj = havenamed(scroll, "light");
+    obj = havenamed(scroll_obj, "light");
 
     if((obj >= 0) && reads(obj)) {
         return 1;
@@ -402,7 +410,7 @@ int darkroom()
 #define fT 1
 #define fB 2
 #define fL 4
-#define fR 8;
+#define fR 8
 
 static int curt;
 static int curb;
@@ -520,7 +528,7 @@ void currentrectangle()
 #define ckdoor(FLAG, NODOOR, STATIC, INC, S1, S2, I1, I2)           \
         if((flags & FLAG) == 0) {                                   \
             any = 0;                                                \
-            if(NODOO) {                                             \
+            if(NODOOR) {                                            \
                 any = 1;                                            \
             }                                                       \
             else {                                                  \
@@ -651,7 +659,7 @@ void updateat()
      * Check for teleport, else if we moved 
      * multiple squares, mark then as BEEN
      */
-    if((direc(dr, dc) != movedir) || dr && dc && (abs(dr) != abs(dc))) {
+    if((direc(dr, dc) != movedir) || (dr && dc && (abs(dr) != abs(dc)))) {
         teleport();
     }
     else {
@@ -719,10 +727,10 @@ void updateat()
             }
         }
 
-        if(seerc('|', atrow - 1, atcol)
-           && seerc('|', atrow + 1, atcol)
-           || seerc('-', atrow, atcol - 1)
-           && seerc('-', atrow, atcol + 1)) {
+        if((seerc('|', atrow - 1, atcol)
+            && seerc('|', atrow + 1, atcol))
+           || (seerc('-', atrow, atcol - 1)
+               && seerc('-', atrow, atcol + 1))) {
             set(DOOR | SAFE);
             unset(HALL | ROOM);
             terrain = "door";
@@ -760,7 +768,6 @@ void updatepos(char ch, int row, int col)
 {
     char oldch = screen[row][col];
     char *monster;
-    char *functionchar();
     int seenbefore = onrc(EVERCLR, row, col);
     int couldgo = onrc(CANGO, row, col);
     int unseen = !onrc(SEEN, row, col);
@@ -785,7 +792,7 @@ void updatepos(char ch, int row, int col)
     case '#':
         if(!onrc(HALL, row, col)) {
             foundnew();
-            timetosearch = k_door / 5;
+            timestosearch = k_door / 5;
         }
 
         if(onrc(STUFF, row, col)) {
@@ -815,7 +822,7 @@ void updatepos(char ch, int row, int col)
     case '+':
         if(!onrc(DOOR, row, col)) {
             foundnew();
-            timetosearch = k_door / 5;
+            timestosearch = k_door / 5;
         
             /* Don't give up on this level yet */
             teleported = 0;
@@ -881,13 +888,14 @@ void updatepos(char ch, int row, int col)
 
         /*
          * If older Rogue, or our last position or a moving missile or
-         * in the same roo, then a floor '.' means no stuff there
+         * in the same room, then a floor '.' means no stuff there
          */
-        if(((version < RV52A)
-            || (oldch == '@')
-            || (oldch == ')')
-            && (functionchar(lastcmd) == 't')
-            || (on(ROOM) && (whichroom(row, col) == whichroom(atrow, atcol))))
+        if((((version < RV52A)
+             || (oldch == '@')
+             || (oldch == ')'))
+            && ((functionchar(lastcmd) == 't')
+                || (on(ROOM) 
+                    && (whichroom(row, col) == whichroom(atrow, atcol)))))
            && onrc(STUFF, row, col)) {
             deletestuff(row, col);
         }
@@ -931,19 +939,19 @@ void updatepos(char ch, int row, int col)
     case '*':
         setrc(SEEN | CANGO | SAFE | EVERCLR, row, col);
         
-        unset(DOOR
-              | TRAP
-              | ARROW
-              | TRAPDOR
-              | TELTRAP
-              | GASTRAP
-              | BEARTRP
-              | DARTRAP
-              | MONSTER
-              | WALL
-              | SLEEPER,
-              row,
-              col);
+        unsetrc(DOOR
+                | TRAP
+                | ARROW
+                | TRAPDOR
+                | TELTRAP
+                | GASTRAP
+                | BEARTRP
+                | DARTRAP
+                | MONSTER
+                | WALL
+                | SLEEPER,
+                row,
+                col);
 
         if(ch != '?') {
             unsetrc(SCAREM, row, col);
@@ -966,7 +974,7 @@ void updatepos(char ch, int row, int col)
             deletestuff(row, col);
         }
 
-        setrc(SEEN | CANGO | SAFE | ROOM | STAIRS | EVELCLR, row, col);
+        setrc(SEEN | CANGO | SAFE | ROOM | STAIRS | EVERCLR, row, col);
 
         unsetrc(DOOR
                 | HALL
@@ -1014,13 +1022,13 @@ void updatepos(char ch, int row, int col)
         if(isupper(ch)) {
             monster = monname(ch);
             setrc(SEEN | CANGO | MONSTER, row, col);
-            unsetc(SCAREM, row, col);
+            unsetrc(SCAREM, row, col);
         }
 
         if(onrc(WALL, row, col)) { /* Infer DOOR here */
             if(!onrc(DOOR, row, col)) {
                 foundnew();
-                timetosearch = k_door / 5;
+                timestosearch = k_door / 5;
                 
                 /* MLM */
                 setrc(DOOR, row, col);
@@ -1033,7 +1041,7 @@ void updatepos(char ch, int row, int col)
             blinded = 0;
 
             if(seenbefore) {
-                addmonster(ch, row, col, AWAK);
+                addmonster(ch, row, col, AWAKE);
             }
             else if(!onrc(HALL | DOOR, row, col)
                     && !aggravated
@@ -1145,7 +1153,7 @@ void mapinfer()
 /*
  * markexplored: If we are in a room, mark the location as explored.
  */
-int markexplored(int row, int col)
+void markexplored(int row, int col)
 {
     int rm = whichroom(row, col);
 
@@ -1161,7 +1169,7 @@ int markexplored(int row, int col)
 /*
  * unmarkexplored: If we are in a room, unmark the location as explored.
  */
-void unmarkedexplored(int row, int col)
+void unmarkexplored(int row, int col)
 {
     int rm = whichroom(row, col);
 
@@ -1329,7 +1337,7 @@ void inferhall(int r, int c)
                 if(onrc(DOOR | WALL | ROOM | HALL, i, j)) {
                     /* Modified only to find doors on horiztonal walls */
                     if(onrc(DOOR, i, j)
-                       && (WALL, i, j - 1) || onrc(WALL, i, j + 1)) {
+                       && (onrc(WALL, i, j - 1) || onrc(WALL, i, j + 1))) {
                         connectdoors(r + inc, c, i - inc, j);
                     }
 

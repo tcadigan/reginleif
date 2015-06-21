@@ -256,7 +256,7 @@ int staircol;             /* Position of stairs on this level */
 int startecho = 0;        /* True ==> turn on echoing on startup */
 int teleported = 0;       /* Number of times teleported this level */
 int terse = 0;            /* True ==> terse mode */
-int tranparent = 0;       /* True ==> user command mode */
+int transparent = 0;       /* True ==> user command mode */
 int trapc = NONE;         /* Location of arrow trap, this level (col) */
 int trapr = NONE;         /* Location of arrow trap, this level (row) */
 int urocnt = 0;           /* Un-identified Rogue Object count */
@@ -282,7 +282,7 @@ int mlistlen = 0;
 char targetmonster = '@'; /* Monster we are arching at */
 
 /* Monster attribute and Long term memory arrays */
-attrec monnatt[26];     /* Monster attributes */
+attrec monatt[26];      /* Monster attributes */
 lrnrec ltm;             /* Long term memory -- general */
 ltmrec monhist[MAXMON]; /* Long term memory -- creatures */
 int nextmon = 0;        /* Length of LTM */
@@ -314,7 +314,7 @@ char *knob_name[MAXKNOB] = {
 
 /* Door search map */
 int timessearched[24][80];
-char timestosearch;
+int timestosearch;
 int searchstartr = NONE;
 int searchstartc = NONE;
 int reusepsd = 0;
@@ -726,7 +726,7 @@ int main(int argc, char *argv[])
 
                 break;
             case 't':
-                tranparent = !transparent;
+                transparent = !transparent;
 
                 break;
             case ')':

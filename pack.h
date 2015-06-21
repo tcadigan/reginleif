@@ -15,5 +15,6 @@ void wasmissed(char *monster);
 void clearpack(int pos);
 void countpack();
 void rollpackup(int pos);
+char *itemstr(int i);
 
 #endif

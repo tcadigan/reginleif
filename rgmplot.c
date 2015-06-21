@@ -5,8 +5,14 @@
  * This program takes a Rog-O-Matic score file sorted by date and score,
  * and produces a scatter plot of the scores.
  */
+#include "rgmplot.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "utility.h"
+
 #define WIDTH 50
 #define AVLEN 7
 #define SCALE(n) (((n) + 100) / 200)
@@ -35,7 +41,7 @@ int main(int argc, char *argv[])
     int numscores = 0;
     int i;
     int sum[AVLEN];
-    int NUM[AVLEN];
+    int num[AVLEN];
     int rsum;
     int rnum;
     int davg;
@@ -185,7 +191,7 @@ int main(int argc, char *argv[])
     
     if(doavg) {
         printf(" *     Average of day's scores.\n");
-        prtinf("###    Rolling of %d day average.\n", AVLEN);
+        printf("###    Rolling of %d day average.\n", AVLEN);
     }
 
     return 0;

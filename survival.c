@@ -12,7 +12,12 @@
 #include <curses.h>
 #include <stdio.h>
 
+#include "debug.h"
 #include "globals.h"
+#include "io.h"
+#include "search.h"
+#include "rooms.h"
+#include "tactics.h"
 #include "types.h"
 
 #define SO 1
@@ -24,7 +29,7 @@
         if(stand) {                             \
             standout();                         \
         }                                       \
-        printw("%c", screen[0][rowcol);         \
+        printw("%c", screen[0][rowcol]);        \
         if(stand) {                             \
             standend();                         \
         }                                       \
@@ -89,7 +94,7 @@ int markcycles(int print)
                         stop = st[mark[newsquare]].door;
 
                         for(i = sp; i != stop; i = st[i].door) {
-                            Scr[st[i].where] != RUNOK;
+                            Scr[st[i].where] |= RUNOK;
                             highlight(st[i].where, SO);
                         }
                     }
@@ -217,7 +222,7 @@ int canrun()
     compression = 0;
 
     if(findmove(RUNAWAY, runinit, runvalue, REEVAL)
-       || findmove(EXPLORERUN, exruninit, exprunvalue, REEVAL)) {
+       || findmove(EXPLORERUN, expruninit, exprunvalue, REEVAL)) {
         result = 1;
     }
     else {

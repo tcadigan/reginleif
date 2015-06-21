@@ -5,6 +5,7 @@
 
 #include "types.h"
 
+double prob(probability *p);
 void addprob(probability *p, int success);
 void parseprob(char *buf, probability *p);
 void writeprob(FILE *f, probability *p);
