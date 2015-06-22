@@ -193,18 +193,8 @@ int getentry()
      * skip comment and #define lines
      * deliver 0 on failure
      */
-
-    int counter = 0;
-
     ch = nextchar();
     while(1) {
-
-        /* START DEBUG */
-        ++counter;
-        if(counter > 100) {
-            exit(1);
-        }
-        /* END DEBUG */
 
         if(letter(ch) != 0) {
             ip = identif;
