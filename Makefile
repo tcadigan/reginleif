@@ -67,7 +67,7 @@ makedefs: makedefs.o
 	$(CC) -o makedefs makedefs.o $(LDFLAGS)
 
 hack.onames.h: makedefs def.objects.h
-	makedefs > hack.onames.h
+	./makedefs > hack.onames.h
 
 mklev.mkobj.o: hack.mkobj.c mklev.h hack.onames.h
 	rm -f mklv.mkobj.c
@@ -97,7 +97,7 @@ mklev: $(MKLOBJ)
 	$(CC) -o mklev $(MKLOBJ)
 
 clean:
-	rm -rf $(MKLOBJ) $(HOBJ) $(GAME) mklev
+	rm -rf $(MKLOBJ) $(HOBJ) makedefs.o $(GAME) mklev makedefs
 
 lint: lint_h lint_m
 	@echo "Lint done."

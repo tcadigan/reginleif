@@ -49,12 +49,12 @@
 #define DEAD_ETTIN 48
 #define DEAD_FOG_CLOUD 49
 #define DEAD_GELATINOUS_CUBE 50
-#define DEAD_HOMONULUS 51
+#define DEAD_HOMUNCULUS 51
 #define DEAD_IMP 52
 #define DEAD_JAGUAR 53
 #define DEAD_KILLER_BEE 54
-#define DEAD_LEACROTTA 55
-#define DEAD_MINOATUR 56
+#define DEAD_LEOCROTTA 55
+#define DEAD_MINOTAUR 56
 #define DEAD_NURSE 57
 #define DEAD_OWLBEAR 58
 #define DEAD_PIERCER 59
@@ -63,7 +63,7 @@
 #define DEAD_GIANT_SCORPION 62
 #define DEAD_TENGU 63
 #define DEAD_UNICORN 64
-#define DEAD_VIOLET_FUNGUS 65
+#define DEAD_VIOLET_FUNGI 65
 #define DEAD_LONG_WORM 66
 #define DEAD_XAN 67
 #define DEAD_YELLOW_LIGHT 68
@@ -150,7 +150,7 @@
 #define WAN_SPEED_MONSTER 157
 #define WAN_UNDEAD_TURNING 158
 #define WAN_POLYMORPH 159
-#define WAN_CANELLATION 160
+#define WAN_CANCELLATION 160
 #define WAN_TELEPORT_MONSTER 161
 #define WAN_MAKE_INVISIBLE 162
 #define WAN_DIGGING 163
@@ -159,7 +159,7 @@
 #define WAN_SLEEP 166
 #define WAN_COLD 167
 #define WAN_DEATH 168
-#define Adorment u.uprops[0].p_flgs
+#define Adornment u.uprops[0].p_flgs
 #define RIN_ADORNMENT 172
 #define Teleportation u.uprops[1].p_flgs
 #define RIN_TELEPORTATION 173
@@ -178,7 +178,7 @@
 #define Aggravate_monster u.uprops[8].p_flgs
 #define RIN_AGGRAVATE_MONSTER 180
 #define Hunger u.uprops[9].p_flgs
-#define RIN_HONGER 181
+#define RIN_HUNGER 181
 #define Fire_resistance u.uprops[10].p_flgs
 #define RIN_FIRE_RESISTANCE 182
 #define Cold_resistance u.uprops[11].p_flgs
@@ -190,7 +190,7 @@
 #define Gain_strength u.uprops[14].p_flgs
 #define RIN_GAIN_STRENGTH 186
 #define Increase_damage u.uprops[15].p_flgs
-#define RIN_INCREASE_STRENGTH 187
+#define RIN_INCREASE_DAMAGE 187
 #define Protection u.uprops[16].p_flgs
 #define RIN_PROTECTION 188
 #define Warning u.uprops[17].p_flgs
@@ -216,6 +216,7 @@
 /* #define WORTHLESS_PIECE_OF_RED_GLASS 209 */
 /* #define WORTHLESS_PIECE_OF_YELLOW_GLASS 210 */
 /* #define WORTHLESS_PIECE_OF_GREEN_GLASS 211 */
+
 #define CORPSE DEAD_HUMAN
 #define LAST_GEM (JADE + 1)
 #define LAST_RING 19

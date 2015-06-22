@@ -5,7 +5,7 @@
 
 #define NULL (char *)0
 
-struct objeclass objects[] = {
+struct objclass objects[] = {
     {"strange object", NULL, NULL, 1, 0, ILLOBJ_SYM, 0, 0, 0, 0, 0, 0},
     {"amulet of Yendor", NULL, NULL, 1, 0, AMULET_SYM, 100, 0, 2, 0, 0, 0 },
 #define FOOD(name, prob, delay, weight, nutrition) \
@@ -62,7 +62,7 @@ struct objeclass objects[] = {
     FOOD("dead acid blob", 0, 1, 3, 30),
     FOOD("dead giant beetle", 0, 1, 1, 10),
     FOOD("dead cockatrice", 0, 1, 1, 10),
-    FOOD("dead dog", 0, 2, 20, 200)
+    FOOD("dead dog", 0, 2, 20, 200),
     FOOD("dead ettin", 0, 1, 3, 30),
     FOOD("dead fog cloud", 0, 1, 1, 10),
     FOOD("dead gelatinous cube", 0, 1, 10, 100),
@@ -230,7 +230,7 @@ struct objeclass objects[] = {
     RING("hunger", "shining", 0),
     RING("fire resistance", "gold", 0),
     RING("cold resistance", "copper", 0),
-    RING("protection form shape changers", "diamond", 0),
+    RING("protection from shape changers", "diamond", 0),
     RING("conflict", "jade", 0),
     RING("gain strength", "ruby", SPEC),
     RING("increase damage", "silver", SPEC),

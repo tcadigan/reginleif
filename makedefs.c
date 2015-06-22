@@ -1,13 +1,20 @@
 /* Construct definitions of object constants */
+#include "makedefs.h"
+
+#include <fcntl.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
 
 #define DEF_FILE "def.objects.h"
 #define LINSZ 1000
 #define STRSZ 40
 
 int fd;
-char string[STRZ];
+char string[STRSZ];
 
-int main()
+int main(int argc, char *argv[])
 {
     int index = 0;
     int propct = 0;
@@ -23,7 +30,7 @@ int main()
     skipuntil("objects[] = {");
 
     while(getentry()) {
-        if(*string != 0) {
+        if(*string == 0) {
             ++index;
 
             continue;
@@ -35,10 +42,11 @@ int main()
             }
         }
 
-        if(strncmp(string, "RIN_", 4) != 0) {
+        if(strncmp(string, "RIN_", 4) == 0) {
             capitalize(string + 4);
             
-            printf("#define %s u.uprops[%d].p_flgs\n", string + 4, ++propct);
+            printf("#define %s u.uprops[%d].p_flgs\n", string + 4, propct);
+            ++propct;
         }
         
         for(sp = string; *sp != 0; ++sp) {
@@ -46,8 +54,8 @@ int main()
         }
         
         /* Avoid stupid trouble with stupid C preprocessors */
-        if(strcmp(string, "WORTHLESS_PIECE_OF_", 19) != 0) {
-            printf("/* #define %s%d */\n", string, index);
+        if(strncmp(string, "WORTHLESS_PIECE_OF_", 19) == 0) {
+            printf("/* #define %s %d */\n", string, index);
         }
         else {
             printf("#define %s %d\n", string, index);
@@ -58,9 +66,9 @@ int main()
     }
 
     printf("\n#define CORPSE DEAD_HUMAN\n");
-    printf("#define LAST_GEM (JADE+1)\n");
+    printf("#define LAST_GEM (JADE + 1)\n");
     printf("#define LAST_RING %d\n", propct);
-    printf("#define NROBJECTS %d\n", index - 1);
+    printf("#define NROFOBJECTS %d\n", index - 1);
 
     return 0;
 }
@@ -101,7 +109,7 @@ char nextchar()
     else {
         ++lp;
 
-        return (*lp - 1);
+        return *(lp - 1);
     }
 }
 
@@ -150,12 +158,12 @@ int skipuntil(char *s)
         sp0 = s + 1;
         sp1 = lp;
 
-        while((*sp != 0) && (*sp == *sp1)) {
+        while((*sp0 != 0) && (*sp0 == *sp1)) {
             ++sp0;
             ++sp1;
         }
 
-        if(*sp == 0) {
+        if(*sp0 == 0) {
             lp = sp1;
 
             break;
@@ -186,10 +194,20 @@ int getentry()
      * deliver 0 on failure
      */
 
+    int counter = 0;
+
     ch = nextchar();
     while(1) {
+
+        /* START DEBUG */
+        ++counter;
+        if(counter > 100) {
+            exit(1);
+        }
+        /* END DEBUG */
+
         if(letter(ch) != 0) {
-            ip =identif;
+            ip = identif;
             
             if(ip < ((identif + NSZ) - 1)) {
                 *ip = ch;
@@ -204,7 +222,7 @@ int getentry()
                     ++ip;
                 }
 
-                ch = nexchar();
+                ch = nextchar();
             }
 
             *ip = 0;
@@ -232,14 +250,20 @@ int getentry()
             if(ch == '*') {
                 skipuntil("*/");
             }
+            
+            continue;
         case '{':
             ++inbraces;
 
             ch = nextchar();
+
+            continue;
         case '(':
             ++inparens;
 
             ch = nextchar();
+
+            continue;
         case '}':
             --inbraces;
 
@@ -248,6 +272,8 @@ int getentry()
             }
 
             ch = nextchar();
+
+            continue;
         case ')':
             --inparens;
 
@@ -258,6 +284,8 @@ int getentry()
             }
 
             ch = nextchar();
+            
+            continue;
         case '\n':
             /* Watch for #define at begin of line */
             ch = nextchar();
@@ -266,7 +294,7 @@ int getentry()
 
                 /* Skip until '\n' not preceded by '\\' */
                 pch = ch;
-                ch = nexchar();
+                ch = nextchar();
 
                 while((ch != '\n') || (pch == '\\')) {
                     pch = ch;
@@ -274,7 +302,11 @@ int getentry()
                 }
 
                 ch = nextchar();
+                
+                continue;
             }
+
+            continue;
         case ',':
             if((inparens == 0) && (inbraces == 0)) {
                 if((prefix != 0) && (string[prefix] == 0)) {
@@ -293,6 +325,8 @@ int getentry()
             ++commaseen;
 
             ch = nextchar();
+
+            continue;
         case '\'':
             ch = nextchar();
 
@@ -307,6 +341,8 @@ int getentry()
             }
 
             ch = nextchar();
+
+            continue;
         case '"':
             {
                 char *sp = string + prefix;
@@ -346,8 +382,12 @@ int getentry()
                 }
 
                 ch = nextchar();
+
+                continue;
             }
         }
+
+        ch = nextchar();
     }
 }
                    
