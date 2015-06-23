@@ -26,7 +26,7 @@ struct trobj Extra_objs[] = {
     {0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0}
 };
-#endif WIZARD
+#endif
 
 struct trobj Cave_man[] = {
     {MACE, 1, WEAPON_SYM, 1, 1},
@@ -87,7 +87,7 @@ void u_in_intrup()
 
     signal(SIGINT, u_in_intrup);
 }
-#endif NEWS
+#endif
 
 void u_init()
 {
@@ -103,7 +103,7 @@ void u_init()
      */
 
     int (* prevsig)() = signal(SIGING, u_in_intrup);
-#endif NEWS
+#endif
 
     char *cp;
     char buf[256];
@@ -128,7 +128,7 @@ void u_init()
                     
                     break;
                 }
-#endif NEWS
+#endif
                 putchar(*cp);
             }
             
@@ -150,7 +150,7 @@ void u_init()
                             
                             break;
                         }
-#endif NEWS
+#endif
                         
                         settty("\nEnd of input?\n");
                         
@@ -181,7 +181,7 @@ void u_init()
 
 #ifdef NEWS
     signal(SIGINT, prevsig);
-#endif NEWS
+#endif
 
     u.usym = '@';
     u.ulevel = 1;
@@ -202,7 +202,7 @@ void u_init()
 
 #ifdef QUEST
     u.uhorizon = 6;
-#endif QUEST
+#endif
 
     switch(pc) {
     case 'C':
@@ -284,7 +284,7 @@ void u_init()
     if(wizard) {
         wiz_inv();
     }
-#endif WIZARD
+#endif
 }
 
 void ini_inv(struct trobj *trop)

@@ -83,7 +83,7 @@ void init_objects()
                     objects[j].oc_prob = ((20 + j) - first) / (LAST_GEM - first);
                 }
             }
-#endif MKLEV
+#endif
 
             sum = 0;
             for(j = first; j < last; ++j) {
@@ -194,4 +194,4 @@ void restnames(int fd)
         }
     }
 }
-#endif MKLEV
+#endif

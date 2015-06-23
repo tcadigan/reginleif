@@ -9,7 +9,7 @@
 #include <sys/time.h>
 #else
 #include <time.h>
-#endif BSD
+#endif
 
 extern char plname[];
 extern char *rip[] = {

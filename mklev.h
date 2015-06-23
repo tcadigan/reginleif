@@ -9,7 +9,7 @@
 
 #define index strchr
 #define rindex strrchr
-#endif BSD
+#endif
 
 #include "def.objclass.h"
 
@@ -41,7 +41,7 @@ extern char *sprintf();
 #define CORR_SYM ':'
 #else
 #define CORR_SYM '#'
-#endif QUEST
+#endif
 
 #define ERRCHAR '{'
 
@@ -76,7 +76,7 @@ extern struct mkroom rooms[MAXNROFROOMS + 1];
 #define DOORMAX 100
 
 extern coord doors[DOORMAX];
-#endif QUEST
+#endif
 
 #include "def.permonst.h"
 
@@ -103,6 +103,6 @@ extern xchar dlevel;
 
 #ifdef WIZARD
 extern boolean wizard;
-#endif WIZARD
+#endif
 
 #define newstring(x) (char *)alloc((unsigned int)(x))

@@ -1093,7 +1093,7 @@ int shk_move()
                 niy = ny;
                 chi = i;
             }
-#endif STUPID
+#endif
         }
     }
 

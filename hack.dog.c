@@ -332,7 +332,7 @@ int dog_move(struct monst *mtmp, int after)
 #ifdef LINT
     gy = 0;
     gx = 0;
-#endif LINT
+#endif
 
     for(obj = fobj; obj != NULL; obj = obj->nobj) {
         otyp = dogfood(obj);
@@ -404,7 +404,7 @@ int dog_move(struct monst *mtmp, int after)
                 gy = u.uy;
             }
         }
-#endif QUEST
+#endif
 
         if(udist >= 9) {
             appr = 1;
@@ -465,7 +465,7 @@ int dog_move(struct monst *mtmp, int after)
             gy = cp->y;
         }
     }
-#endif TRACK
+#endif
 
     nix = omx;
     niy = omy;
@@ -692,7 +692,7 @@ int inroom(xchar x, xchar y)
 
         ++croom;
     }
-#endif QUEST
+#endif
 
     /* Not in room or on door */
     return -1;
@@ -714,7 +714,7 @@ int tamedog(struct monst *mtmp, struct obj *obj)
     if((mtmp->mtame != 0) || (mtmp->isshk != 0) || (mtmp->isgd != 0)) {
         return 0;
     }
-#endif NOWORM
+#endif
 
     if(obj != NULL) {
         if(dogfood(obj) >= MANFOOD) {

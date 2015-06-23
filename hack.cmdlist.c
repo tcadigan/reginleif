@@ -35,11 +35,11 @@ int doprring();
 
 #ifdef SHELL
 int dosh();
-#endif SHELL
+#endif
 
 #ifdef OPTIONS
 int doset();
-#endif OPTIONS
+#endif
 
 int doup();
 int dodown();
@@ -78,7 +78,7 @@ struct func_tab list[] = {
     /* 'N': move command */
 #ifdef OPTIONS
     'o', doset,
-#endif OPTIONS
+#endif
     /* 'O': UNUSED */
     'p', dopay,
     'P', dowearring,
@@ -108,7 +108,7 @@ struct func_tab list[] = {
     '?', dohelp,
 #ifdef SHELL
     '!', dosh,
-#endif SHELL
+#endif
     '.', donull,
     ' ', donull,
     '^', doidtrap,

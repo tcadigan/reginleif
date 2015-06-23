@@ -360,7 +360,7 @@ int doread()
             if(uroom != inroom(u.ux, u.uy)) {
                 known = TRUE;
             }
-#endif QUEST
+#endif
         }
 
         break;
@@ -794,5 +794,5 @@ void litroom(boolean on)
     if(on == 0) {
         seehx = 0;
     }
-#endif QUEST
+#endif
 }

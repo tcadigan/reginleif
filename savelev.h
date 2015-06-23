@@ -29,7 +29,7 @@ void savelev()
 #ifndef QUEST
     bwrite(fd, (char *)rooms, sizeof(rooms));
     bwrite(fd, (char *)doors, sizeof(doors));
-#endif QUEST
+#endif
 
     ftrap = 0;
     fgold = 0;
@@ -44,7 +44,7 @@ void savelev(int fd)
     struct wseg *wtmp;
     struct wseg *wtmp2;
     int tmp;
-#endif NOWORM
+#endif
 
     if(fd < 0) {
         panic("Save on bad file!");
@@ -70,7 +70,7 @@ void savelev(int fd)
 #ifndef QUEST
     bwrite(fd, (char *)rooms, sizeof(rooms));
     bwrite(fd, (char *)doors, sizeof(doors));
-#endif QUEST
+#endif
 
     ftrap = 0;
     fgold = 0;
@@ -90,7 +90,7 @@ void savelev(int fd)
     }
 
     bwrite(fd, (char *)wgrowtime, sizeof(wgrowtime));
-#endif NOWORM
+#endif
 /*--------------------------------------------------------*/
 }
  

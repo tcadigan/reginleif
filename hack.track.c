@@ -58,4 +58,4 @@ coord *gettrack(int x, int y)
     return 0;
 }
 
-#endif TRACK
+#endif

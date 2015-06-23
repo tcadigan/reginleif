@@ -17,7 +17,7 @@ char nul[40];
 
 #ifdef WIZARD
 bool wizard
-#endif WIZARD
+#endif
 
 #define somex() ((rand() % ((croom->hx - croom->lx) + 1)) + croom->lx)
 #define somey() ((rand() % ((croom->hy - croom->ly) + 1)) + croom->ly)
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
     else {
         wizard = 0;
     }
-#endif WIZARD
+#endif
 
     srand(getpid());
 
@@ -260,7 +260,7 @@ int main(int argc, char *argv[])
             && ((rn2(7) == 0) || (strcmp("david", getlogin()) == 0))) {
         mkzoo();
     }
-#endif WIZARD
+#endif
 
     savelev();
     

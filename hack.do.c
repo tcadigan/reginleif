@@ -468,7 +468,7 @@ void rhack(char *cmd)
             u.ux0 = u.ux + u.dx;
             u.uy0 = u.uy + u.dy;
         }
-#endif QUEST
+#endif
 
         domove();
 
@@ -497,7 +497,7 @@ void rhack(char *cmd)
             u.ux0 = u.ux + u.dx;
             u.uy0 = u.uy + u.dy;
         }
-#endif QUEST
+#endif
 
         doremove();
 
@@ -526,7 +526,7 @@ void rhack(char *cmd)
             u.ux0 = u.ux + u.dx;
             u.uy0 = u.uy + u.dy;
         }
-#endif QUEST
+#endif
 
         domove();
         
@@ -569,7 +569,7 @@ void rhack(char *cmd)
             u.ux = u.ux + u.dx;
             u.uy = u.uy + u.dy;
         }
-#endif QUEST
+#endif
 
         domove();
 
@@ -607,13 +607,13 @@ void rhack(char *cmd)
             u.ux0 = u.ux + u.dx;
             u.uy0 = u.uy + u.dy;
         }
-#endif QUEST
+#endif
 
         domove();
         
         return;
     }
-#endif QUEST
+#endif
 
     while(tlist->f_char != 0) {
         if(*cmd == tlist->f_char) {
@@ -678,13 +678,13 @@ int dosh()
 
     return 0;
 }
-#endif SHELL
+#endif
 
 #ifdef BSD
 #include <sys/wait.h>
 #else
 #include <wait.h>
-#endif BSD
+#endif
 
 int child(int wt)
 {
@@ -716,7 +716,7 @@ int child(int wt)
     if(wizard != 0) {
         signal(SIGQUIT, SIG_DFL);
     }
-#endif WIZARD
+#endif
 
     if(wt != 0) {
         getret();
@@ -912,7 +912,7 @@ void goto_level(int newlevel, boolean at_stairs)
 
 #ifdef TRACK
     inittrack();
-#endif TRACK
+#endif
 
     losedogs();
     flags.nscrinh = 0;
@@ -1034,7 +1034,7 @@ int dothrow()
                 if(hmon(mon, obj, 1) != TRUE) {
                     mon = 0;
                 }
-#endif NOWORM
+#endif
                 
                 /* Weapons thrown disappear sometimes */
                 if((obj->otyp < BOOMERANG) && (rn2(3) != 0)) {

@@ -57,7 +57,7 @@ void unsee()
             }
         }
     }
-#endif QUEST
+#endif
 
 }
 
@@ -113,7 +113,7 @@ int seeoff(int mode)
             }
         }
     }
-#endif QUEST
+#endif
 }
 
 /* 'rogue'-like direction commands */
@@ -200,7 +200,7 @@ int isroom(int x, int y)
             && ((levl[x][y].typ == ROOM)
                 || ((levl[x][y].typ >= LDOOR) && (flags.run >= 6))));
 }
-#endif QUEST
+#endif
 
 int isok(int x, int y)
 {
@@ -438,7 +438,7 @@ void domove()
                             cutworm(mtmp, u.ux + u.dy, u.uy + u.dy, 0);
                         }
                     }
-#endif NOWORM
+#endif
                 }
 
                 if(mdat->mlet == 'a') {
@@ -688,7 +688,7 @@ void domove()
 
             nose1(oldx - u.dx, oldy - u.dy);
         }
-#endif QUEST
+#endif 
     }
     else {
         pru();
@@ -1019,7 +1019,7 @@ void lookaround()
         
         return;
     }
-#endif QUEST
+#endif
 
     for(x = u.ux - 1; x <= (u.ux + 1); ++x) {
         for(y = u.uy - 1; y <= (u.uy + 1); ++y) {
@@ -1190,7 +1190,7 @@ void lookaround()
 
         return;
     }
-#endif QUEST
+#endif
 
     if((corrct > 1) && (flags.run == 2)) {
         nomul(0);
@@ -1358,7 +1358,7 @@ int cansee(xchar x, xchar y)
 
     return 0;
 }
-#endif QUEST
+#endif
 
 int sgn(int a)
 {
@@ -1481,7 +1481,7 @@ void setsee()
         }
     }
 }
-#endif QUEST
+#endif
 
 void nomul(int nval)
 {

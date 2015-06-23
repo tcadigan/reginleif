@@ -333,7 +333,7 @@ int mhitu(struct monst *mtmp)
         }
         
         break;
-#endif NOWORM
+#endif
     case 'X':
         hitu(mtmp, rnd(3));
         hitu(mtmp, rnd(3));

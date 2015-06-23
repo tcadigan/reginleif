@@ -109,7 +109,7 @@ int dozap()
                     mstatusline(mtmp);
 
                     break;
-#endif WAN_PROBING
+#endif
                 default:
                     pline("What an interesting wand (%d)", obj->otype);
                         
@@ -182,7 +182,7 @@ int dozap()
                         mstatusline(mtmp);
                             
                         break;
-#endif WAN_PROBING
+#endif
                     default:
                         pline("What an interesting wand (%d)", obj->otyp);
                             
@@ -257,7 +257,7 @@ int dozap()
                     mstatusline(mtmp);
                         
                     break;
-#endif WAN_PROBING
+#endif
                 default:
                     pline("What an interesting wand (%d)", obj->otyp);
                         

@@ -317,4 +317,4 @@ void remseg(struct wseg *wtmp)
     }
 }
 
-#endif NOWORM
+#endif

@@ -8,7 +8,7 @@ int doversion()
     pline("%s 1.0 preliminary version - last edit %s.", "Quest", datestring);
 #else
     pline("5s 1.0 preliminary version - last edit %s.", "Hack", datestring);
-#endif QUEST
+#endif
 
     return 0;
 }

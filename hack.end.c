@@ -106,7 +106,7 @@ void done(char *st1)
 
         return;
     }
-#endif WIZARD
+#endif
 
     signal(SIGINT, done_itr);
 
@@ -296,7 +296,7 @@ void done(char *st1)
     }
 #else
     topten();
-#endif WIZARD
+#endif
 
     if(done_stopprint != 0) {
         printf("\n\n");
@@ -756,7 +756,7 @@ void hangup()
 
     exit(1);
 }
-#endif NOSAVEONHANGUP
+#endif
 
 char *eos(char *s)
 {

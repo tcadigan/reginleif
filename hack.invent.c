@@ -142,7 +142,7 @@ struct monst *m_at(int x, int y)
 
 #ifndef NOWORM
     struct wseg *wtmp;
-#endif NOWORM
+#endif
 
     m_atseg = 0;
     
@@ -161,7 +161,7 @@ struct monst *m_at(int x, int y)
                 }
             }
         }
-#endif NOWORM
+#endif
     }
 
     return NULL;

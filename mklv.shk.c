@@ -58,7 +58,7 @@ void mkshop()
         if(sroom->doorct == 1) {
             break;
         }
-#endif WIZARD
+#endif
     }
 
 #ifdef WIZARD
@@ -110,7 +110,7 @@ void mkshop()
         ++let;
         i -= shprobs[let];
     }
-#endif WIZARD
+#endif
 
     sroom->rtype = 8 + let;
     let = shtypes[let];
@@ -197,10 +197,9 @@ void mkshop()
         }
     }
 #endif
-
+    
     ++sroom;
     ++roomno;
-}
 }
 
 void mkzoo()
@@ -273,5 +272,5 @@ void mkzoo()
     if(wizard) {
         printf("I made a zoo.");
     }
-#endif WIZARD
+#endif
 }

@@ -14,7 +14,7 @@ char lock[32] = "1lock";
 #ifdef WIZARD
 /* TRUE when called as hack -w */
 boolean wizard;
-#endif WIZARD
+#endif
 
 /* Level map */
 struct rm levl[COLNO][ROWNO];
@@ -22,7 +22,7 @@ struct rm levl[COLNO][ROWNO];
 #ifndef QUEST
 struct mkroom rooms[MAXNROFROOMS + 1];
 coord doors[DOORMAX];
-#endif QUEST
+#endif
 
 struct monst *fmon = 0;
 struct gen *fgold = 0;

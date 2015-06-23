@@ -4,7 +4,7 @@
 #include "mklev.h"
 #else
 #include "hack.h"
-#endif MKLEV
+#endif
 
 #include "hack.onames.h"
 
@@ -30,7 +30,7 @@ void mksobj_at(int let, int otyp, int x, int y)
     otmp->nobj = fobj;
     fobj = otmp;
 }
-#endif MKLEV
+#endif
 
 struct obj *mkobj(int let)
 {
@@ -62,7 +62,7 @@ struct obj *mksobj(int let, int otyp)
     otmp->age = moves;
     otmp->o_id = flags.ident;
     ++flags.ident;
-#endif MKLEV
+#endif
 
     otmp->quan = 1;
 
@@ -225,6 +225,6 @@ int mkgold(int num, int x, int y)
 
 #ifdef MKLEV
         levl[x][y].scrsym = '$';
-#endif MKLEV
+#endif
     }
 }

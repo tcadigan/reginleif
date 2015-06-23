@@ -218,7 +218,7 @@ void at(xchar x, xchar y, char ch)
     if((x < 0) || (x > (COLNO - 1)) || (y < 0) || (y > (ROWNO - 1))) {
         panic("At gets 0%o at %d %d(%d %d)", ch, x, y, u.ux, u.uy);
     }
-#endif lint
+#endif
 
     if(ch == 0) {
         home();
@@ -359,7 +359,7 @@ void pru()
 #include "def.wseg.h"
 
 extern struct wseg *m_atseg;
-#endif NOWORM
+#endif
 
 /* Print a position that is visible for @ */
 prl(int x, int y)
@@ -393,7 +393,7 @@ prl(int x, int y)
         }
 #else NOWORM
         pmon(mtmp);
-#endif NOWORM
+#endif
     }
     else {
         otmp = o_at(x, y);
@@ -587,7 +587,7 @@ void nose1(int x, int y)
         nosee(x + 1, y);
     }
 }
-#endif QUEST
+#endif
 
 int vism_at(int x, int y)
 {
@@ -649,7 +649,7 @@ void pobj(struct obj *obj)
         obj->ody = obj->oy;
     }
 }
-#endif NEWSCR
+#endif
 
 void unpobj(struct obj *obj)
 {
@@ -705,7 +705,7 @@ void seemons()
         if(mtmp->wormno) {
             wormsee(mtmp->wormno);
         }
-#endif NOWORM
+#endif
     }
 }
 
@@ -854,7 +854,7 @@ void mstatusline(struct monst *mtmp)
           mtmp->data->ac,
           (mtmp->data->damn + 1) * (mtmp->data->damd + 1));
 }
-#endif WAN_PROBING
+#endif
 
 void cls()
 {

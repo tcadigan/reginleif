@@ -234,7 +234,7 @@ int doeat()
                 setsee();
                 pline("You vision improves.");
             }
-#endif QUEST
+#endif
 
             if(otmp->otyp == FORTUNE_COOKIE) {
                 if(Blind != 0) {
@@ -409,7 +409,7 @@ int eatcorpse(struct obj *otmp)
     case 'y':
 #ifdef QUEST
         ++u.uhorizon;
-#endif QUEST
+#endif
 
         /* Fall into next case */
     case 'B':

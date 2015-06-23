@@ -17,7 +17,7 @@ extern char nul[];
 extern struct wseg *wsegs[32];
 extern struct wseg *wheads[32];
 extern wgrowtime[32];
-#endif NOWORM
+#endif
 
 #include "savelev.h"
 
@@ -27,7 +27,7 @@ int getlev(int fd)
 
 #ifndef NOWORM
     struct wseg *wtmp;
-#endif NOWORM
+#endif
 
     int tmp;
     long omoves;
@@ -109,7 +109,7 @@ int getlev(int fd)
 #ifndef QUEST
     mread(fd, (char *)rooms, sizeof(rooms));
     mread(fd, (char *)doors, sizeof(doors));
-#endif QUEST
+#endif
     
     if(omoves == 0) {
         /* From MKLEV */
@@ -139,7 +139,7 @@ int getlev(int fd)
     }
 
     mread(fd, (char *)wgrowtime, sizeof(wgrowtime));
-#endif NOWORM
+#endif
 
     return 0;
 }
@@ -160,7 +160,7 @@ void mread(int fd, char *buf, unsigned int len)
 #include <sys/wait.h>
 #else
 #include <wait.h>
-#endif BSD
+#endif
 
 void mklev()
 {

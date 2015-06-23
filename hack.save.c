@@ -35,7 +35,7 @@ void hangup()
 
     exit(1);
 }
-#endif NOSAVEONHANGUP
+#endif
 
 /* Returns 1 if save successful */
 int dosave0(int hu)
@@ -194,7 +194,7 @@ void dorecover(int fd)
 #ifndef QUEST
     /* Only to recompute seelx etc. - These weren't saved */
     setsee();
-#endif QUEST
+#endif
     
     docrt();
 }
@@ -282,7 +282,7 @@ struct monst *restmonchn(int fd)
                 initworm(mtmp);
                 mtmp->msleep = 0;
             }
-#endif NOWORM
+#endif
         }
         
         if(mtmp->minvent != NULL) {

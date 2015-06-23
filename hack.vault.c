@@ -472,4 +472,4 @@ void gddead()
     guard = 0;
 }
 
-#endif QUEST
+#endif

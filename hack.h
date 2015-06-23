@@ -111,7 +111,7 @@ struct you {
     /* Initial position FF */
     xchar ux0;
     xchar uy0;
-#endif QUEST
+#endif
 
     /* Last display pos */
     xchar udisx;
@@ -136,7 +136,7 @@ struct you {
 
 #ifdef QUEST
     unsigned int uhorizon:7;
-#endif QUEST
+#endif
 
     /* Trap timeout */
     unsigned int utrap:3;

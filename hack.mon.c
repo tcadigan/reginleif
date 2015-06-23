@@ -526,7 +526,7 @@ int m_move(struct monst *mtmp)
             }
         }
     }
-#endif TRACK
+#endif
 
     /* Look for gold or jewels nearby */
     if(index("LOD", mtmp->data->mtmp) != NULL) {
@@ -689,7 +689,7 @@ int m_move(struct monst *mtmp)
         if(mtmp->wormno != 0) {
             worm_move(mtmp);
         }
-#endif NOWORM
+#endif
     }
     else {
         if((mtmp->data->mlet == 'u') && (rn2(2) != 0)) {
@@ -702,7 +702,7 @@ int m_move(struct monst *mtmp)
         if(mtmp->wormno != 0) {
             worm_nomove(mtmp);
         }
-#endif NOWORM
+#endif
     }
 
     if(mmoved == 1) {
@@ -961,7 +961,7 @@ void mondead(struct monst *mtmp)
     if(mtmp->wormno) {
         wormdead(mtmp);
     }
-#endif NOWORM
+#endif
 
     monfree(mtmp);
 }
@@ -1019,7 +1019,7 @@ void killed(struct monst *mtmp)
 {
 #ifdef lint
 #define NEW_SCORING
-#endif lint
+#endif
     
     int tmp;
     int tmp2;
@@ -1149,7 +1149,7 @@ void killed(struct monst *mtmp)
      * Note: ul is not necessarily the future value of u.ulevel
      * ------- End of recent valuation change -------
      */
-#endif NEW_SCORING
+#endif
 
     u.uexp += tmp;
     u.urexp += (4 * tmp);
@@ -1266,7 +1266,7 @@ int newcham(struct monst *mtmp, struct permonst *mdat)
     if(mtmp->wormno) {
         wormdead(mtmp);
     }
-#endif NOWORM
+#endif
 
     hpn = mtmp->mhp;
     hpd = mtmp->data->mlevel * 8;
@@ -1294,7 +1294,7 @@ int newcham(struct monst *mtmp, struct permonst *mdat)
     if((mdat->mlet == 'w') && (getwn(mtmp) != 0)) {
         initworm(mtmp);
     }
-#endif NOWORM
+#endif
     
     /* Necessary for 'I' and to force pmon */
     upmon(mtmp);
@@ -1325,7 +1325,7 @@ void rloc(struct monst *mtmp)
         /* Do not relocate worms */
         return;
     }
-#endif NOWORM
+#endif
 
     tx = rn1(COLNO - 3, 2);
     ty = rn2(ROWNO);

@@ -140,7 +140,7 @@ void cbreak(int n)
 
     setctty();
 }
-#endif LONG_CMD
+#endif
 
 void getlin(char *bufp)
 {
@@ -294,7 +294,7 @@ char *parse()
         }
 #else
         inline[2] == 0;
-#endif QUEST
+#endif
     }
 
     if((foo == 'm') || (foo == 'M')) {

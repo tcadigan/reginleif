@@ -41,7 +41,7 @@ int main (int argc, char *argv[])
 
 #ifdef NEWS
     int nonews = 0;
-#endif NEWS
+#endif
 
     char *dir;
 
@@ -127,13 +127,13 @@ int main (int argc, char *argv[])
             }
 
             break;
-#endif WIZARD
+#endif
 #ifdef NEWS
         case 'n':
             ++nonews;
 
             break;
-#endif NEWS
+#endif
         case 'u':
             if(argv[0][2] != 0) {
                 strncpy(plname, argv[0] + 2, sizeof(plname) - 1);
@@ -172,7 +172,7 @@ int main (int argc, char *argv[])
     if((*plname == 0) || (strncmp(plname, "player", 4) == 0)) {
         askname();
     }
-#endif WIZARD
+#endif
 
     /* Strip suffix from name */
     plnamesuffix();
@@ -251,7 +251,7 @@ int main (int argc, char *argv[])
     else {
         strcpy(lock, plname);
     }
-#endif WIZARD
+#endif
 
     /* Prevent RIP on early quits */
     u.uhp = 1;
@@ -277,7 +277,7 @@ int main (int argc, char *argv[])
                 outnews(fd);
             }
         }
-#endif NEWS
+#endif 
 
         flags.ident = 1;
         init_objects();
@@ -307,13 +307,13 @@ int main (int argc, char *argv[])
     
 #ifdef TRACK
     initrack();
-#endif TRACK
+#endif
 
     while(1) {
         if(flags.move != 0) {
 #ifdef TRACK
             settrack();
-#endif TRACK
+#endif
             if(((moves % 2) == 0)
                || (((Fast & ~INTRINSIC) == 0)
                    && ((Fast == 0) || (rn2(3) != 0)))) {
@@ -414,7 +414,7 @@ int main (int argc, char *argv[])
         seeobjs();
         seemons();
         nscr();
-#endif QUEST
+#endif
 
         if((flags.botl != 0) || (flags.botlx != 0)) {
             bot();
@@ -425,7 +425,7 @@ int main (int argc, char *argv[])
             if(flags.run >= 4) {
                 finddir();
             }
-#endif QUEST
+#endif
 
             lookaround();
 
@@ -597,7 +597,7 @@ void askname()
     else {
         printf("Hello %s, welcome to hack!\n", plname);
     }
-#endif QUEST
+#endif
 }
 
 void impossible()
@@ -634,7 +634,7 @@ void outnews(int fd)
         }
     }
 }
-#endif NEWS
+#endif
 
 void chdirx(char *dir)
 {

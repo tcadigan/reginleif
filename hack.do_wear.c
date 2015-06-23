@@ -89,7 +89,7 @@ int doremring()
     /* NOT REACHED */
 #ifdef lint
     return 0;
-#endif lint
+#endif
 }
 
 int dorr(struct obj *otmp)

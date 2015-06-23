@@ -52,4 +52,4 @@ long *enlarge(char *ptr, unsigned int lth)
     return (long *)nptr;
 }
 
-#endif LINT
+#endif

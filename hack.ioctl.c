@@ -17,7 +17,7 @@ struct ltchars ltcahrs0;
 #include <termio.h>
 
 struct termio termio;
-#endif BSD
+#endif
 
 void getioctls()
 {
@@ -26,7 +26,7 @@ void getioctls()
     ioctl(fileno(stdin), (int)TIOCSLTC, (char *)&ltchars0);
 #else
     ioctl(fileno(stdin), (int)TCGETA, &termio);
-#endif BSD
+#endif
 }
 
 void setioctls()
@@ -35,5 +35,5 @@ void setioctls()
     ioctl(fileno(stdin), (int)TIOCSLTC, (char *)&ltchars);
 #else
     ioctl(fileno(stdin), (int)TCSETA, &termio);
-#endif BSD
+#endif
 }
