@@ -10,7 +10,7 @@ struct objclass {
     Bitfield(oc_merge, 1); /* Merge otherwise equal objects */
     char oc_olet;
     schar oc_prob; /* Probability for mkobj() */
-    scahr oc_delay; /* Delay when using such an object */
+    schar oc_delay; /* Delay when using such an object */
     uchar oc_weight;
     schar oc_oc1;
     schar oc_oc2;

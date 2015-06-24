@@ -2,6 +2,8 @@
 
 #include "config.h"
 
+#include <stdio.h>
+
 #ifdef BSD
 #include <strings.h> /* Declarations for strcat etc. */
 #else
@@ -21,8 +23,6 @@ typedef struct {
 #include "def.monst.h" /* Uses coord */
 #include "def.gen.h"
 #include "def.obj.h"
-
-extern char *sprintf();
 
 #define BUFSZ 256 /* For getline buffers */
 #define PL_NSIZ 32 /* Name of player, ghost, shopkeeper */
@@ -55,7 +55,7 @@ struct rm {
     unsigned int lit:1;
 };
 
-extern struct levl[COLNO][ROWNO];
+extern struct rm levl[COLNO][ROWNO];
 
 #ifndef QUEST
 struct mkroom {

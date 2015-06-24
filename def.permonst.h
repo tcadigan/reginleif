@@ -7,6 +7,6 @@ struct permonst {
     schar mmove;
     schar ac;
     schar damn;
-    scahr damd;
+    schar damd;
     unsigned int pxlth;
 };

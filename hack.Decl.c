@@ -40,7 +40,7 @@ struct obj *uright = 0;
 struct obj *uleft = 0;
 struct obj *uchain = 0;
 struct obj *uball = 0;
-struct flag = flags;
+struct flag flags;
 struct you u;
 
 xchar dlevel = 1;
