@@ -8,6 +8,7 @@ struct obj {
     xchar oy;
     xchar odx;
     xchar ody;
+    uchar otyp;
     uchar owt;
     unsigned int quan; /* Small in general but large in case of gold */
     schar spe;

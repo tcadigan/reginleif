@@ -4,7 +4,7 @@
 GAME = hack
 CAPGAME = HACK
 GAMEDIR = ../tmp
-CCFLAGS = -O -g -Wall 
+CFLAGS = -O -g -Wall 
 LDFLAGS = -lcurses -ltermcap -lc
 HACKCSRC = hack.Decl.c \
            hack.apply.c hack.bones.c hack.c hack.cmdlist.c hack.do.c \

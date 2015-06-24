@@ -16,7 +16,7 @@ int doapply()
         return 0;
     }
 
-    switch(obj->otype) {
+    switch(obj->otyp) {
     case EXPENSIVE_CAMERA:
         use_camera(obj);
         break;
