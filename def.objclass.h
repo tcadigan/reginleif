@@ -1,5 +1,8 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#ifndef DEF_OBJCLASS_H_
+#define DEF_OBJCLASS_H_
+
 /* Definition of a class of objects */
 
 struct objclass {
@@ -59,3 +62,5 @@ extern struct objclass objects[];
  * hack.invent.c: if(index("!%?[)=*(0/\"", sym)) {
  * hack.invent.c: || index("%?!*", otmp->olet))) {
  */
+
+#endif

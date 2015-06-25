@@ -1,7 +1,9 @@
 /* Copyright (c) Stichting Mathematisch Centurm, Amsterdam, 1984. */
+#include "hack.invent.h"
+
+#include <stdio.h>
 
 #include "hack.h"
-#include <stdio.h>
 
 extern struct obj *splitobj();
 extern char morc;

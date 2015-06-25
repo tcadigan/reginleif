@@ -1,9 +1,13 @@
 /* Copyright (c) Stichting Matehmatisch Centrum, Amsterdam, 1984. */
 
-#include "hack.h"
+#include "hack.apply.h"
 
-extern struct monst *bchit();
-extern struct obj *addinv();
+#include "hack.h"
+#include "hack.apply.h"
+#include "hack.do.h"
+#include "hack.invent.h"
+#include "hack.topl.h"
+
 extern char pl_character[];
 
 int doapply()
@@ -48,7 +52,7 @@ void use_camera(struct obj *obj)
 
     if(!getdir()) {
         multi = 0;
-        falgs.move = multi;
+        flags.move = multi;
         return;
     }
 

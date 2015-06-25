@@ -1,5 +1,8 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#ifndef MKLEV_H_
+#define MKLEV_H_
+
 #include "config.h"
 
 #include <stdio.h>
@@ -106,3 +109,5 @@ extern boolean wizard;
 #endif
 
 #define newstring(x) (char *)alloc((unsigned int)(x))
+
+#endif

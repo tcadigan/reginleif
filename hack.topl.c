@@ -1,6 +1,8 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
 #include "hack.h"
+
+#include <stdarg.h>
 #include <stdio.h>
 
 extern char *eos();
@@ -160,7 +162,7 @@ void clrlin()
     flags.topl = 0;
 }
 
-void pline(char *line, char *arg1, char *arg2, char *arg3, char *arg4, char *arg5, char *arg6)
+void pline(char *line, ...)
 {
     char pbuf[BUFSZ];
     char *bp = pbuf;
@@ -176,7 +178,10 @@ void pline(char *line, char *arg1, char *arg2, char *arg3, char *arg4, char *arg
         strcpy(pbuf, line);
     }
     else {
-        sprintf(pbuf, line, arg1, arg2, arg3, arg4, arg5, arg6);
+        va_list args;
+        va_start(args, line);
+        vsprintf(pbuf, line, args);
+        va_end(args);
     }
 
     if((flags.topl == 1) && (strcmp(pbuf, toplines) = 0)) {

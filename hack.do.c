@@ -1,9 +1,11 @@
 /* Copyright (c) Stichting Mathematisch Centurm, Amsterdam, 1984. */
+#include "hack.do.h"
 
 #include <stdio.h>
 #include <signal.h>
-#include "hack.h"
+
 #include "def.func_tab.h"
+#include "hack.h"
 
 extern char *getenv();
 extern char *parse();

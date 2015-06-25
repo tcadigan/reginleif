@@ -1,5 +1,11 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#ifndef DEF_MONST_H_
+#define DEF_MONST_H_
+
+#include "config.h"
+#include "mklev.h" /* coord */
+
 struct monst {
     struct monst *nmon;
     struct permonst *data;
@@ -64,3 +70,5 @@ struct monst *m_at();
 #define MFAST 2 /* Speeded monster */
 
 #define NAME(mtmp) (((char *)mtmp->mextra) + mtmp->mxlth)
+
+#endif

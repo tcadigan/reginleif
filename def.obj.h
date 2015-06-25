@@ -1,5 +1,10 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#ifndef DEF_OBJ_H_
+#define DEF_OBJ_H_
+
+#include "config.h"
+
 struct obj {
     struct obj *nobj;
     unsigned int o_id;
@@ -43,3 +48,5 @@ extern struct obj *fobj;
 #define newobj(xl) (struct obj *)alloc((unsigned int)(xl) + sizeof(struct obj))
 
 #define ONAME(otmp) ((char *)otmp->oextra)
+
+#endif
