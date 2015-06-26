@@ -6,7 +6,9 @@
 #include "hack.apply.h"
 #include "hack.do.h"
 #include "hack.invent.h"
+#include "hack.mon.h"
 #include "hack.topl.h"
+#include "rnd.h"
 
 extern char pl_character[];
 

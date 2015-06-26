@@ -1,3 +1,5 @@
+#include "rnd.h"
+
 #define RND(x) ((rand() >> 3) % x)
 
 int rn1(int x, int y)

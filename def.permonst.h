@@ -2,7 +2,7 @@
 
 struct permonst {
     char *mname;
-    char *mleft;
+    char mlet;
     schar mlevel;
     schar mmove;
     schar ac;
