@@ -1,5 +1,7 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include "hack.wield.h"
+
 #include "hack.h"
 
 void setuwep(struct obj *obj)

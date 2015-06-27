@@ -1,7 +1,11 @@
 /* Copyright (c) Stichting Mathematisch Centurm, Amsterdam, 1984. */
 
-#include "hack.h"
+#include "hack.pri.h"
+
+#include <stdarg.h>
 #include <stdio.h>
+
+#include "hack.h"
 
 /* Corners of the enw area on screen */
 xchar scrlx;
@@ -35,7 +39,7 @@ void swallowed()
 boolean panicking;
 
 /* VARARGS */
-void panic(char *str, int a1, int a2, int a3, int a4, int a5, int a6)
+void panic(char *str, ...)
 {
     if(panicking) {
         ++panicking;
@@ -48,7 +52,11 @@ void panic(char *str, int a1, int a2, int a3, int a4, int a5, int a6)
     home();
     puts(" Suddenly, the dungeon collapses.");
     fputs(" ERROR:  ", stdout);
-    printf(str, a1, a2, a3, a4, a5, a6);
+
+    va_list args;
+    va_start(args, str);
+    vprintf(str, args);
+    va_end();
 
     if(fork() != NULL) {
         done("panic");

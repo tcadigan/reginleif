@@ -1,5 +1,6 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include <stdarg.h>
 #include <stdio.h>
 
 #include "mklev.h"
@@ -781,12 +782,15 @@ void mktrap(int num, int mazeflag)
 }
 
 /* VARARGS1 */
-void panic(char *str, char *arg1, char *arg2, char *arg3)
+void panic(char *str, ...)
 {
     char bufr[BUFSZ];
     extern char *sprintf();
 
-    sprintf(bufr, str, arg1, arg2, arg3);
+    va_list args;
+    va_start(args, str);
+    vsprintf(buffer, str, args);
+    va_end(args);
     write(1, "\nMKLEV ERROR:  ", 15);
     puts(bufr);
     fflush(stdout);

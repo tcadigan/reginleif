@@ -1306,7 +1306,7 @@ int newcham(struct monst *mtmp, struct permonst *mdat)
 }
 
 /* Make monster mtmp next to you (if possible) */
-void mnextto(struct monst *mtmp)
+void mnexto(struct monst *mtmp)
 {
     extern coord enexto();
     coord mm;

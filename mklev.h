@@ -23,7 +23,6 @@ typedef struct {
     xchar y;
 } coord;
 
-#include "def.monst.h" /* Uses coord */
 #include "def.gen.h"
 #include "def.obj.h"
 

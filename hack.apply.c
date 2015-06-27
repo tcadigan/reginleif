@@ -7,7 +7,9 @@
 #include "hack.do.h"
 #include "hack.invent.h"
 #include "hack.mon.h"
+#include "hack.pri.h"
 #include "hack.topl.h"
+#include "hack.wield.h"
 #include "rnd.h"
 
 extern char pl_character[];
@@ -83,7 +85,7 @@ void use_camera(struct obj *obj)
 
                     if(tmp < 3) {
                         mtmp->mblinded = 0;
-                        mtmp->cansee = mtmp->mblinded;
+                        mtmp->mcansee = mtmp->mblinded;
                     }
                     else {
                         tmp2 = mtmp->mblinded;
@@ -94,7 +96,7 @@ void use_camera(struct obj *obj)
                         }
 
                         mtmp->mblinded = tmp2;
-                        mtmp-mcansee = 0;
+                        mtmp->mcansee = 0;
                     }
                 }
             }
@@ -111,7 +113,7 @@ struct obj *current_ice_box;
 int in_ice_box(struct obj *obj)
 {
     if((obj == current_ice_box)
-       || (punished && ((obj == uball) || (obj == uchain)))) {
+       || (Punished && ((obj == uball) || (obj == uchain)))) {
         pline("You must be kidding.");
 
         return 0;
@@ -151,11 +153,13 @@ int in_ice_box(struct obj *obj)
 
 int ck_ice_box(struct obj *obj)
 {
-    return (obj->o_cnt_id == current_ice_box->o+id);
+    return (obj->o_cnt_id == current_ice_box->o_id);
 }
 
-void out_ice_box(struct obj *obj)
+int out_ice_box(struct obj *obj)
 {
+    struct obj *otmp;
+
     if(obj == fcobj) {
         fcobj = fcobj->nobj;
     }
@@ -173,12 +177,14 @@ void out_ice_box(struct obj *obj)
     obj->age = moves - obj->age; /* Simulated point of time */
     
     addinv(obj);
+
+    return 0; /* Needed to be function pointer for askchain() */
 }
 
 void use_ice_box(struct obj *obj)
 {
     int cnt = 0;
-    struct obj *tmp;
+    struct obj *otmp;
 
     current_ice_box = obj; /* For use by in/out_ice_box */
 

@@ -530,7 +530,7 @@ int ckunpaid(struct obj *otmp)
 }
 
 /* Interactive version of getobj, used for Drop() and Identify() */
-int ggetobj(char *word, int (*fn)(), int max)
+int ggetobj(char *word, int (*fn)(struct obj *obj), int max)
 {
     char buf[BUFSZ];
     char *ip;
@@ -627,8 +627,8 @@ int ggetobj(char *word, int (*fn)(), int max)
 int askchain(struct obj *objchn, 
              char *olets, 
              int allflag, 
-             int (*fn)(),
-             int (*ckfn)(),
+             int (*fn)(struct obj *obj),
+             int (*ckfn)(struct obj *otmp),
              int max)
 {
     struct obj *otmp;

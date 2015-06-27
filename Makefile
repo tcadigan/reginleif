@@ -181,7 +181,7 @@ depend:
 # DO NOT DELETE THIS LINE
 
 hack.Decl.o: hack.h
-hack.apply.o: hack.h def.edog.h
+hack.apply.o: hack.apply.h hack.h hack.apply.h hack.do.h hack.invent.h hack.mon.h hack.pri.h hack.topl.h hack.wield.h rnd.h def.edog.h
 hack.bones.o: hack.h
 hack.o: hack.h def.trap.h
 hack.cmdlist.o: config.h def.objclass.h def.func_tab.h
@@ -189,17 +189,17 @@ hack.dog.o: hack.h hack.mfndpos.h def.edog.h
 hack.eat.o: hack.h
 hack.engrave.o: hack.h
 hack.fight.o: hack.h
-hack.invent.o: hack.h def.wseg.h
+hack.invent.o: hack.invent.h hack.h def.wseg.h
 hack.main.o: hack.h
 hack.makemon.o: mklev.h hack.h
 hack.mkobj.o: mklev.h hack.h hack.onames.h
 hack.mhitu.o: hack.h
-hack.mon.o: hack.h hack.mfndpos.h
+hack.mon.o: hack.mon.h hack.h hack.mfndpos.h
 hack.monst.o: mklev.h def.eshk.h
 hack.o_init.o: config.h def.objects.h hack.onames.h
 hack.objnam.o: hack.h
 hack.options.o: config.h hack.h
-hack.pri.o: hack.h def.wseg.h
+hack.pri.o: hack.pri.h hack.h def.wseg.h
 hack.read.o: hack.h
 hack.rumors.o: config.h
 hack.search.o: hack.h def.trap.h
@@ -212,19 +212,24 @@ hack.trap.o: hack.h def.trap.h
 hack.u_init.o: hack.h
 hack.vault.o: hack.h
 hack.whatis.o: hack.h
-hack.wield.o: hack.h
+hack.wield.o: hack.wield.h hack.h
 hack.worm.o: hack.h def.wseg.h
 hack.worn.o: hack.h
 hack.zap.o: hack.h
 hack.version.o: date.h
+rnd.o: rnd.h
 mklev.o: mklev.h def.trap.h savelev.h
 mklv.shk.o: mklev.h def.eshk.h
 mklv.shknam.o: mklev.h
 mklv.makemaz.o: mklev.h
-mklev.h: config.h def.objclass.h def.monst.h def.gen.h def.obj.h def.permonst.h
+mklev.h: config.h def.objclass.h def.gen.h def.obj.h def.permonst.h
 	touch mklev.h
 hack.h: mklev.h hack.onames.h
 	touch hack.h
+def.monst.h: config.h mklev.h
+	touch def.monst.h
+def.obj.h: config.h
+	touch def.obj.h
 def.objects.h: def.objclass.h
 	touch def.objects.h
 
