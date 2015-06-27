@@ -1,5 +1,7 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include "hack.steal.h"
+
 #include "hack.h"
 
 void stealgold(struct monst *mtmp)

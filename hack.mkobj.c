@@ -1,5 +1,7 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include "hack.mkobj.h"
+
 #ifdef MKLEV
 #include "mklev.h"
 #else

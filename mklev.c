@@ -17,7 +17,7 @@ char **args;
 char nul[40];
 
 #ifdef WIZARD
-bool wizard
+bool wizard;
 #endif
 
 #define somex() ((rand() % ((croom->hx - croom->lx) + 1)) + croom->lx)
@@ -55,7 +55,7 @@ int nroom;
 xchar xdnstair;
 xchar xupstair;
 xchar ydnstair;
-xchar yupstari;
+xchar yupstair;
 
 int main(int argc, char *argv[])
 {

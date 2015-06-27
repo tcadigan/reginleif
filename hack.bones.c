@@ -2,8 +2,22 @@
 
 #include "hack.h"
 
-extern plname[PL_NSIZ];
-extern struct monst *makemon();
+#include <fcntl.h>
+#include <string.h>
+#include <unistd.h>
+
+#include "hack.dog.h"
+#include "hack.lev.h"
+#include "hack.makemon.h"
+#include "hack.mkobj.h"
+#include "hack.pri.h"
+#include "hack.stat.h"
+#include "hack.steal.h"
+#include "hack.topl.h"
+#include "rnd.h"
+#include "savelev.h"
+
+extern char plname[PL_NSIZ];
 
 struct permonst pm_ghost = {"ghost", ' ', 10, 3, -5, 1, 1, sizeof(plname)};
 

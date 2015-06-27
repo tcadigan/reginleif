@@ -1,5 +1,7 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include "hack.dog.h"
+
 #include "hack.h"
 #include "hack.mfndpos.h"
 

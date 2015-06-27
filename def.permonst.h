@@ -1,5 +1,8 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#ifndef DEF_PERMONST_H_
+#define DEF_PERMONST_H_
+
 struct permonst {
     char *mname;
     char mlet;
@@ -10,3 +13,5 @@ struct permonst {
     schar damd;
     unsigned int pxlth;
 };
+
+#endif

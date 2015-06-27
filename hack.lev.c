@@ -1,8 +1,11 @@
 /* Copyright (c) Stichting MAthematisch Centrum, Amsterdam, 1984. */
 
-#include "hack.h"
+#include "hack.lev.h"
+
 #include <signal.h>
 #include <stdio.h>
+
+#include "hack.h"
 
 extern struct monst *restmonchn();
 extern struct obj *restobjchn();

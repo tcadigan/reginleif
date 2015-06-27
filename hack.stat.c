@@ -1,5 +1,7 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include "hack.stat.h"
+
 #include <sys/types.h>
 #include <sys/stat.h>
 

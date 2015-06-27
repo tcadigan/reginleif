@@ -23,7 +23,7 @@ HACKCSRC = hack.Decl.c \
            hack.version.c rnd.c alloc.c \
 
 CSOURCES = $(HACKCSRC) mklev.c mklv.shk.c mklv.shknam.c mklv.makemaz.c \
-           makedefs.c \
+           makedefs.c savelev.c \
 
 HSOURCES = savelev.h \
            mklev.h hack.h hack.mfndpos.h config.h \
@@ -61,7 +61,7 @@ $(GAME): $(HOBJ) $(GOBJ) Makefile
 	@$(CC) -o $(GAME) $(GOBJ) $(HOBJ) $(LDFLAGS)
 
 makedefs.o: makedefs.c
-	$(CC) -c $(CCFLAGS) makedefs.c
+	$(CC) -c $(CFLAGS) makedefs.c
 
 makedefs: makedefs.o
 	$(CC) -o makedefs makedefs.o $(LDFLAGS)
@@ -72,23 +72,23 @@ hack.onames.h: makedefs def.objects.h
 mklev.mkobj.o: hack.mkobj.c mklev.h hack.onames.h
 	rm -f mklv.mkobj.c
 	ln hack.mkobj.c mklv.mkobj.c
-	$(CC) -c $(CCFLAGS) -DMKLEV mklev.mkobj.c
+	$(CC) -c $(CFLAGS) -DMKLEV mklev.mkobj.c
 	rm -f mklv.mkobj.c
 
 mklv.makemon.o: hack.makemon.c mklev.h
 	rm -f mklev.makemon.c
 	ln hack.makemon.c mklv.makemon.c
-	$(CC) -c $(CCFLAGS) -DMKLEV mklv.makemon.c
+	$(CC) -c $(CFLAGS) -DMKLEV mklv.makemon.c
 	rm -f mklv.makemon.c
 
 mklv.o_init.o: hack.o_init.c def.objects.h hack.onames.h
 	rm -f mklv.o_init.c
 	ln hack.o_init.c mklv.o_init.c
-	$(CC) -c $(CCFLAGS) -DMKLEV mklv.o_init.c
+	$(CC) -c $(CFLAGS) -DMKLEV mklv.o_init.c
 	rm -f mklv.o_init.c
 
 mklev.o: mklev.c
-	$(CC) -c $(CCFLAGS) -DMKLEV mklev.c
+	$(CC) -c $(CFLAGS) -DMKLEV mklev.c
 
 MKLOBJ = mklev.o hack.most.o mklv.o_init.o mklv.mkobj.o mklv.shk.o \
          mklv.shknam.o mklv.makemon.o mklv.makemaz.o $(GOBJ)
@@ -182,17 +182,17 @@ depend:
 
 hack.Decl.o: hack.h
 hack.apply.o: hack.apply.h hack.h hack.apply.h hack.do.h hack.invent.h hack.mon.h hack.pri.h hack.topl.h hack.wield.h rnd.h def.edog.h
-hack.bones.o: hack.h
+hack.bones.o: hack.h hack.dog.h hack.lev.h hack.makemon.h hack.mkobj.h hack.pri.h hack.stat.h hack.steal.h hack.topl.h rnd.h savelev.h
 hack.o: hack.h def.trap.h
 hack.cmdlist.o: config.h def.objclass.h def.func_tab.h
-hack.dog.o: hack.h hack.mfndpos.h def.edog.h
+hack.dog.o: hack.dog.h hack.h hack.mfndpos.h def.edog.h
 hack.eat.o: hack.h
 hack.engrave.o: hack.h
 hack.fight.o: hack.h
 hack.invent.o: hack.invent.h hack.h def.wseg.h
 hack.main.o: hack.h
 hack.makemon.o: mklev.h hack.h
-hack.mkobj.o: mklev.h hack.h hack.onames.h
+hack.mkobj.o: hack.mkobj.h mklev.h hack.h hack.onames.h
 hack.mhitu.o: hack.h
 hack.mon.o: hack.mon.h hack.h hack.mfndpos.h
 hack.monst.o: mklev.h def.eshk.h
@@ -204,7 +204,7 @@ hack.read.o: hack.h
 hack.rumors.o: config.h
 hack.search.o: hack.h def.trap.h
 hack.shk.o: hack.h hack.mfndpos.h def.eshk.h
-hack.steal.o: hack.h
+hack.steal.o: hack.steal.h hack.h
 hack.termcap.o: config.h
 hack.timeout.o: hack.h
 hack.track.o: hack.h
@@ -222,6 +222,7 @@ mklev.o: mklev.h def.trap.h savelev.h
 mklv.shk.o: mklev.h def.eshk.h
 mklv.shknam.o: mklev.h
 mklv.makemaz.o: mklev.h
+savelev.o: savelev.h
 mklev.h: config.h def.objclass.h def.gen.h def.obj.h def.permonst.h
 	touch mklev.h
 hack.h: mklev.h hack.onames.h
