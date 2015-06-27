@@ -4,7 +4,7 @@
 BINARIES= rogomatic player rgmplot datesub histplot gene
 BINDIR= ./.rogomatic/bin
 PUBDIR= ./.rogomatic/src
-CCFLAGS= -g -Wall
+CFLAGS= -g -Wall
 LDFLAGS= -lm -lcurses -ltermcap
 OBJS= arms.o command.o database.o debug.o explore.o io.o learn.o \
 	  ltm.o main.o mess.o monsters.o pack.o rand.o replay.o rooms.o \
@@ -33,88 +33,88 @@ all: $(BINARIES)
 # General makefile stuff:
 #
 arms.o: arms.c arms.h debug.h globals.h things.h types.h utility.h
-	$(CC) -c $(CCFLAGS) arms.c
+	$(CC) -c $(CFLAGS) arms.c
 command.o: command.c arms.h database.h debug.h globals.h io.h monsters.h pack.h things.h types.h utility.h command.h
-	$(CC) -c $(CCFLAGS) command.c
+	$(CC) -c $(CFLAGS) command.c
 database.o: database.c database.h debug.h globals.h io.h types.h
-	$(CC) -c $(CCFLAGS) database.c
+	$(CC) -c $(CFLAGS) database.c
 datesub.c: datesub.l
 	lex datesub.l
 	mv lex.yy.c datesub.c
 datesub.o: datesub.c
-	$(CC) -c $(CCFLAGS) datesub.c
+	$(CC) -c $(CFLAGS) datesub.c
 datesub: datesub.o
-	$(CC) $(CCFLAGS) -o datesub datesub.o $(LDFLAGS)
+	$(CC) $(CFLAGS) -o datesub datesub.o $(LDFLAGS)
 	size datesub
 debug.o: debug.c debug.h database.h globals.h install.h io.h mess.h monsters.h pack.h survival.h things.h types.h utility.h
-	$(CC) -c $(CCFLAGS) debug.c
+	$(CC) -c $(CFLAGS) debug.c
 explore.o: explore.c explore.h command.h debug.h globals.h io.h monsters.h rooms.h search.h survival.h things.h types.h
-	$(CC) -c $(CCFLAGS) explore.c
+	$(CC) -c $(CFLAGS) explore.c
 findscore.o: findscore.c findscore.h install.h utility.h
-	$(CC) -c $(CCFLAGS) findscore.c
+	$(CC) -c $(CFLAGS) findscore.c
 gene.o: gene.c install.h learn.h types.h utility.h 
-	$(CC) -c $(CCFLAGS) gene.c
+	$(CC) -c $(CFLAGS) gene.c
 gene: gene.o learn.o utility.o stats.o rand.o
-	$(CC) $(CCFLAGS) -o gene gene.o learn.o utility.o stats.o rand.o $(LDFLAGS)
+	$(CC) $(CFLAGS) -o gene gene.o learn.o utility.o stats.o rand.o $(LDFLAGS)
 	size gene
 histplot.o: histplot.c histplot.h utility.h
-	$(CC) -c $(CCFLAGS) histplot.c
+	$(CC) -c $(CFLAGS) histplot.c
 histplot: histplot.o utility.o
-	$(CC) $(CCFLAGS) -o histplot histplot.o utility.o $(LDFLAGS)
+	$(CC) $(CFLAGS) -o histplot histplot.o utility.o $(LDFLAGS)
 	size histplot
 io.o: io.c io.h arms.h command.h debug.h globals.h install.h ltm.h mess.h monsters.h pack.h rooms.h scorefile.h search.h stats.h termtokens.h things.h types.h utility.h
-	$(CC) -c $(CCFLAGS) io.c
+	$(CC) -c $(CFLAGS) io.c
 mess.o: mess.c mess.h arms.h database.h debug.h globals.h io.h ltm.h monsters.h pack.h rooms.h search.h stats.h tactics.h things.h types.h utility.h
-	$(CC) -c $(CCFLAGS) mess.c
+	$(CC) -c $(CFLAGS) mess.c
 learn.o: learn.c learn.h rand.h stats.h types.h utility.h
-	$(CC) -c $(CCFLAGS) learn.c
+	$(CC) -c $(CFLAGS) learn.c
 ltm.o: ltm.c ltm.h debug.h globals.h install.h io.h monsters.h stats.h types.h utility.h
-	$(CC) -c $(CCFLAGS) ltm.c
+	$(CC) -c $(CFLAGS) ltm.c
 main.o: main.c main.h arms.h command.h database.h debug.h explore.h globals.h install.h io.h learn.h ltm.h mess.h monsters.h pack.h replay.h rooms.h search.h strategy.h survival.h termtokens.h things.h types.h utility.h
-	$(CC) -c $(CCFLAGS) main.c
+	$(CC) -c $(CFLAGS) main.c
 monsters.o: monsters.c monsters.h debug.h globals.h io.h ltm.h types.h utility.h
-	$(CC) -c $(CCFLAGS) monsters.c
+	$(CC) -c $(CFLAGS) monsters.c
 pack.o: pack.c pack.h command.h database.h debug.h globals.h io.h things.h types.h utility.h worth.h
-	$(CC) -c $(CCFLAGS) pack.c
+	$(CC) -c $(CFLAGS) pack.c
 player: $(OBJS)
-	$(CC) $(CCFLAGS) -o player $(OBJS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -o player $(OBJS) $(LDFLAGS)
 	size player
 rand.o: rand.c
-	$(CC) -c $(CCFLAGS) rand.c
+	$(CC) -c $(CFLAGS) rand.c
 replay.o: replay.c types.h globals.h io.h types.h
-	$(CC) -c $(CCFLAGS) replay.c
+	$(CC) -c $(CFLAGS) replay.c
 rgmplot.o: rgmplot.c rgmplot.h utility.h
-	$(CC) -c $(CCFLAGS) rgmplot.c
+	$(CC) -c $(CFLAGS) rgmplot.c
 rgmplot: rgmplot.o utility.o
-	$(CC) $(CCFLAGS) -o rgmplot rgmplot.o utility.o
+	$(CC) $(CFLAGS) -o rgmplot rgmplot.o utility.o
 	size rgmplot
 rogomatic: setup.o findscore.o scorefile.o utility.o
-	$(CC) $(CCFLAGS) -o rogomatic setup.o findscore.o scorefile.o utility.o
+	$(CC) $(CFLAGS) -o rogomatic setup.o findscore.o scorefile.o utility.o
 	size rogomatic
 rooms.o: rooms.c rooms.h command.h debug.h explore.h globals.h io.h monsters.h search.h things.h types.h
-	$(CC) -c $(CCFLAGS) rooms.c
+	$(CC) -c $(CFLAGS) rooms.c
 scorefile.o: scorefile.c types.h globals.h install.h utility.h scorefile.h
-	$(CC) -c $(CCFLAGS) scorefile.c
+	$(CC) -c $(CFLAGS) scorefile.c
 search.o: search.c search.h command.h debug.h globals.h io.h things.h types.h
-	$(CC) -c $(CCFLAGS) search.c
+	$(CC) -c $(CFLAGS) search.c
 setup.o: setup.c setup.h findscore.h install.h scorefile.h utility.h
-	$(CC) -c $(CCFLAGS) setup.c
+	$(CC) -c $(CFLAGS) setup.c
 stats.o: stats.c stats.h types.h
-	$(CC) -c $(CCFLAGS) stats.c
+	$(CC) -c $(CFLAGS) stats.c
 strategy.o: strategy.c strategy.h arms.h command.h debug.h explore.h globals.h install.h io.h monsters.h rooms.h search.h survival.h tactics.h things.h types.h worth.h
-	$(CC) -c $(CCFLAGS) strategy.c
+	$(CC) -c $() strategy.c
 survival.o: survival.c survival.h debug.h globals.h io.h search.h rooms.h tactics.h types.h
-	$(CC) -c $(CCFLAGS) survival.c
+	$(CC) -c $(CFLAGS) survival.c
 tactics.o: tactics.c tactics.h arms.h command.h database.h debug.h explore.h globals.h io.h install.h rooms.h search.h things.h titlepage.h types.h utility.h
-	$(CC) -c $(CCFLAGS) tactics.c
+	$(CC) -c $(CFLAGS) tactics.c
 things.o: things.c things.h arms.h command.h database.h debug.h globals.h io.h types.h utility.h
-	$(CC) -c $(CCFLAGS) things.c
+	$(CC) -c $(CFLAGS) things.c
 titlepage.o: titlepage.c titlepage.h globals.h types.h
-	$(CC) -c $(CCFLAGS) titlepage.c
+	$(CC) -c $(CFLAGS) titlepage.c
 utility.o: utility.c utility.h install.h
-	$(CC) -c $(CCFLAGS) utility.c
+	$(CC) -c $(CFLAGS) utility.c
 worth.o: worth.c worth.h arms.h globals.h things.h types.h utility.h
-	$(CC) -c $(CCFLAGS) worth.c
+	$(CC) -c $(CFLAGS) worth.c
 
 #
 # Miscellaneous useful pseudo-makes
