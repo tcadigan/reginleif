@@ -5,5 +5,7 @@
 
 char *monnam(struct monst *mtmp);
 char *Monnam(struct monst *mtmp);
+int ddocall();
+int do_mname();
 
 #endif

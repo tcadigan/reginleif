@@ -9,5 +9,6 @@ void use_ice_box(struct obj *obj);
 void use_magic_whistle(struct obj *obj);
 void use_whistle(struct obj *obj);
 struct monst *bchit(int ddx, int ddy, int trange, char sym);
+int doapply();
 
 #endif

@@ -6,5 +6,6 @@
 void addtobill();
 char *plur(unsigned int n);
 int inshop();
+int dopay();
 
 #endif

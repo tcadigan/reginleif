@@ -21,5 +21,9 @@ int carried(struct obj *obj);
 void deltrap(struct gen *trap);
 struct obj *sobj_at(int n, int x, int y);
 struct obj *o_at(int x, int y);
+int dorwep();
+int doprwep();
+int doprarm();
+int doprring();
 
 #endif 

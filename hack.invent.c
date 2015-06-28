@@ -1006,7 +1006,7 @@ int doprarm()
     return 0;
 }
 
-int dopring()
+int doprring()
 {
     if((uleft == NULL) && (uright == NULL)) {
         pline("You are not wearing any rings.");

@@ -1,5 +1,7 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include "hack.save.h"
+
 #include "hack.h"
 
 /* Defined in Decl.c */

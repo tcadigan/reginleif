@@ -1,11 +1,13 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include "hack.options.h"
+
 #include "config.h"
 
 #ifdef OPTIONS
 #include "hack.h"
 
-void doset()
+int doset()
 {
     int flg = 1;
     char buf[BUFSZ];

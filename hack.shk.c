@@ -27,10 +27,6 @@ void splitbill()
 {
 }
 
-void dopay()
-{
-}
-
 void paybill()
 {
 }

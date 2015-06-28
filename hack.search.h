@@ -4,5 +4,7 @@
 #include "def.monst.h" /* monst */
 
 void wakeup(struct monst *mtmp);
+int dosearch();
+int doidtrap();
 
 #endif

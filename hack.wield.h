@@ -5,5 +5,6 @@
 
 void setuwep(struct obj *obj);
 void corrode_weapon();
+int dowield();
 
 #endif

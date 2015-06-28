@@ -5,5 +5,6 @@
 
 void read_engr_at(int x, int y);
 void wipe_engr_at(xchar x, xchar y, xchar cnt);
+int doengrave();
 
 #endif

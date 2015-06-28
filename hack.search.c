@@ -169,7 +169,7 @@ int dosearch()
 }
 
 /* ARGSUSED */
-int doidtrap(char *str)
+int doidtrap()
 {
     struct gen *tgen;
     int x;
