@@ -3,5 +3,6 @@
 
 void pline(char *line, ...);
 int doredotopl();
+void more();
 
 #endif

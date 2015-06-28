@@ -5,6 +5,7 @@
 #include "def.obj.h" /* obj */
 
 void keepdogs();
+void losedogs();
 int tamedog(struct monst *mtmp, struct obj *obj);
 
 #endif

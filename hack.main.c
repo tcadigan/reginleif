@@ -1,8 +1,11 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include "hack.main.h"
+
 #include <stdio.h>
 #include <signal.h>
 #include <error.h>
+
 #include "hack.h"
 
 extern char plname[PL_NSIZ];

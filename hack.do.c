@@ -1,25 +1,41 @@
 /* Copyright (c) Stichting Mathematisch Centurm, Amsterdam, 1984. */
 #include "hack.do.h"
 
-#include <stdio.h>
+#include <fcntl.h>
+#include <math.h>
 #include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #include "alloc.h"
 #include "def.func_tab.h"
+#include "hack.h"
 #include "hack.dog.h"
 #include "hack.do_name.h"
+#include "hack.eat.h"
+#include "hack.end.h"
+#include "hack.engrave.h"
 #include "hack.fight.h"
 #include "hack.invent.h"
+#include "hack.lev.h"
+#include "hack.main.h"
 #include "hack.mkobj.h"
 #include "hack.mon.h"
+#include "hack.objnam.h"
 #include "hack.pri.h"
+#include "hack.search.h"
 #include "hack.shk.h"
 #include "hack.steal.h"
+#include "hack.topl.h"
+#include "hack.trap.h"
 #include "hack.tty.h"
+#include "hack.wield.h"
 #include "hack.worm.h"
 #include "hack.zap.h"
-
-#include "hack.h"
+#include "rnd.h"
+#include "savelev.h"
 
 #ifdef BSD
 #include <sys/wait.h>
@@ -99,7 +115,7 @@ int dodrink()
         break;
     case POT_HEALING:
         pline("You begin to feel better.");
-        flogs.botl = 1;
+        flags.botl = 1;
         u.uhp += rnd(10);
 
         if(u.uhp > u.uhpmax) {
@@ -154,7 +170,7 @@ int dodrink()
                 return 1;
             }
             else {
-                for(objs = fobj; obj != NULL; objs = objs->nobj) {
+                for(objs = fobj; objs != NULL; objs = objs->nobj) {
                     if((objs->ox != u.ux) || (objs->oy != u.uy)) {
                         flag = 1;
 
@@ -292,10 +308,10 @@ int dodrink()
         }
 
         Levitation += rnd(100);
-        u.uprops[PROP(RING_LEVITATION)].p_tofn = float_down;
+        u.uprops[PROP(RIN_LEVITATION)].p_tofn = float_down;
         
         break;
-    case default:
+    default:
         pline("What a funny potion! (%d)", otmp->otyp);
         impossible();
 
@@ -330,7 +346,7 @@ void pluslvl()
     num = rnd(10);
     u.uhpmax += num;
     u.uhp += num;
-    u.uexp = (10 * pow(u.ulevel - 1)) + 1;
+    u.uexp = (10 * pow(2, u.ulevel - 1)) + 1;
     ++u.ulevel;
     pline("Welcome to level %d", u.ulevel);
     flags.botl = 1;
@@ -340,12 +356,12 @@ void strange_feeling(struct obj *obj)
 {
     pline("You have a strange feeling for a moment, then it passes.");
 
-    if((objects[obj->otyp].oc_name_known == NULL)
-       && (objects[obj->otyp.oc_name] == NULL)) {
+    if((objects[obj->otyp].oc_name_known == 0)
+       && (objects[obj->otyp].oc_name == NULL)) {
         docall(obj);
     }
 
-    useup();
+    useup(obj);
 }
 
 int dodrop()
@@ -461,13 +477,13 @@ void rhack(char *cmd)
 
         if(firsttime != 0) {
             if(multi == 0) {
-                multi = COLON;
+                multi = COLNO;
             }
 
             u.last_str_turn = 0;
         }
 
-        flag.mv = 1;
+        flags.mv = 1;
         
 #ifdef QUEST
         if(flags.run >= 4) {
@@ -485,7 +501,7 @@ void rhack(char *cmd)
         return;
     }
 
-    if(((*cmd == 'f') && (movcm(cm + 1) != 0)) || (movecm(unctrl(cmd)) != 0)) {
+    if(((*cmd == 'f') && (movecm(cmd + 1) != 0)) || (movecm(unctrl(cmd)) != 0)) {
         flags.run = 2;
 
         if(firsttime != 0) {
@@ -509,9 +525,9 @@ void rhack(char *cmd)
         }
 #endif
 
-        doremove();
+        domove();
 
-        return();
+        return ;
     }
 
     if((*cmd == 'F') && (movecm(lowc(cmd + 1)) != 0)) {
@@ -556,7 +572,7 @@ void rhack(char *cmd)
         return;
     }
 
-    if((*cmd == 'M') && (movcm(lowc(cmd + 1)) != 0)) {
+    if((*cmd == 'M') && (movecm(lowc(cmd + 1)) != 0)) {
         flags.run = 1;
         flags.nopick = 1;
 
@@ -630,7 +646,7 @@ void rhack(char *cmd)
             res = (*(tlist->f_funct))(0);
 
             if(res == 0) {
-                flags.move;
+                flags.move = 0;
                 multi = 0;
             }
 
@@ -758,7 +774,7 @@ int dodown()
 
 int doup()
 {
-    if((u.ux != xupstair) || (u.uy != yupstai)) {
+    if((u.ux != xupstair) || (u.uy != yupstair)) {
         pline("You can't do up here.");
 
         return 0;
@@ -770,7 +786,7 @@ int doup()
         return 1;
     }
 
-    if((inv_wight + 5) > 0) {
+    if((inv_weight + 5) > 0) {
         pline("Your load is too heavy to climb the stairs.");
 
         return 1;
@@ -895,7 +911,7 @@ void goto_level(int newlevel, boolean at_stairs)
         u.ux = rnd(COLNO - 1);
         u.uy = rn2(ROWNO);
 
-        while((levl[u.ux][u.uy].typ != ROOM) || (m_at(u.ux, u.uy) != 0)) {
+        while((levl[(int)u.ux][(int)u.uy].typ != ROOM) || (m_at(u.ux, u.uy) != 0)) {
             u.ux = rnd(COLNO - 1);
             u.uy = rn2(ROWNO);
         }
@@ -915,7 +931,7 @@ void goto_level(int newlevel, boolean at_stairs)
     inshop();
 
 #ifdef TRACK
-    inittrack();
+    initrack();
 #endif
 
     losedogs();
@@ -973,7 +989,7 @@ int dothrow()
     freeinv(obj);
     
     if(u.uswallow != 0) {
-        mon = u.ustruck;
+        mon = u.ustuck;
         bhitpos.x = mon->mx;
         bhitpos.y = mon->my;
     }
@@ -981,7 +997,7 @@ int dothrow()
         mon = boomhit(u.dx, u.dy);
         
         /* boomhit() delivers -1 if the thing was caught */
-        if((int)mon == -1) {
+        if(mon == (struct monst *)-1) {
             addinv(obj);
             
             return 1;

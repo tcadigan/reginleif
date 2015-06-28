@@ -13,7 +13,30 @@ extern char pl_character[];
 
 xchar maxdlevel = 1;
 
-int done1()
+void done1(int sig)
+{
+    signal(SIGINT, SIG_IGN);
+    pline("Really quit?");
+    
+    if(readchar() != 'y') {
+        signal(SIGINT, done1);
+        clrlin();
+        fflush(stdout);
+
+        if(multi > 0) {
+            nomul(0);
+        }
+
+        return 0;
+    }
+
+    done("quit");
+
+    /* NOTREACHED */
+    return 0;
+}
+
+int done2()
 {
     signal(SIGINT, SIG_IGN);
     pline("Really quit?");

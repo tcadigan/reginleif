@@ -180,18 +180,18 @@ depend:
 
 # DO NOT DELETE THIS LINE
 
-hack.Decl.o: hack.h
-hack.apply.o: hack.apply.h hack.h hack.apply.h hack.do.h hack.do_name.h hack.invent.h hack.mon.h hack.pri.h hack.topl.h hack.tty.h hack.wield.h rnd.h def.edog.h
+hack.Decl.o: def.gen.h def.monst.h def.obj.h hack.h
+hack.apply.o: hack.apply.h def.edog.h hack.h hack.apply.h hack.do.h hack.do_name.h hack.invent.h hack.mon.h hack.pri.h hack.topl.h hack.tty.h hack.wield.h rnd.h
 hack.bones.o: hack.h hack.dog.h hack.lev.h hack.makemon.h hack.mkobj.h hack.pri.h hack.stat.h hack.steal.h hack.topl.h rnd.h savelev.h
 hack.o: hack.h def.trap.h hack.do_name.h hack.do_wear.h hack.eat.h hack.end.h hack.engrave.h hack.fight.h hack.invent.h hack.mkobj.h hack.mon.h hack.objnam.h hack.pri.h hack.search.h hack.shk.h hack.topl.h hack.trap.h hack.wield.h hack.worm.h rnd.h
 hack.cmdlist.o: config.h def.func_tab.h hack.apply.h hack.do.h hack.do_name.h hack.do_wear.h hack.eat.h hack.end.h hack.engrave.h hack.options.h hack.invent.h hack.read.h hack.save.h hack.search.h hack.shk.h hack.topl.h hack.version.h hack.whatis.h hack.wield.h hack.zap.h
 hack.do_wear.o: hack.do_wear.h hack.h
-hack.dog.o: hack.dog.h hack.h hack.mfndpos.h def.edog.h
+hack.dog.o: hack.dog.h def.edog.h hack.h hack.mfndpos.h
 hack.eat.o: hack.eat.h hack.h
 hack.engrave.o: hack.engrage.h hack.h
 hack.fight.o: hack.fight.h hack.h
 hack.invent.o: hack.invent.h hack.h def.wseg.h
-hack.main.o: hack.h
+hack.main.o: hack.main.h hack.h
 hack.makemon.o: mklev.h hack.h
 hack.mkobj.o: hack.mkobj.h mklev.h hack.h hack.onames.h
 hack.mhitu.o: hack.h
@@ -204,7 +204,7 @@ hack.pri.o: hack.pri.h hack.h def.wseg.h
 hack.read.o: hack.read.h hack.h
 hack.rumors.o: config.h
 hack.search.o: hack.search.h hack.h def.trap.h
-hack.shk.o: hack.shk.h hack.h hack.mfndpos.h def.eshk.h
+hack.shk.o: hack.shk.h def.eshk.h hack.h hack.mfndpos.h
 hack.steal.o: hack.steal.h hack.h
 hack.termcap.o: config.h
 hack.timeout.o: hack.h
@@ -224,10 +224,12 @@ mklv.shk.o: mklev.h def.eshk.h
 mklv.shknam.o: mklev.h
 mklv.makemaz.o: mklev.h
 savelev.o: savelev.h
-mklev.h: config.h def.objclass.h def.gen.h def.obj.h def.permonst.h
+mklev.h: config.h def.gen.h def.obj.h def.objclass.h def.permonst.h
 	touch mklev.h
 hack.h: config.h def.monst.h def.obj.h mklev.h hack.onames.h
 	touch hack.h
+def.gen.h: config.h
+	touch def.gen.h
 def.monst.h: config.h mklev.h
 	touch def.monst.h
 def.obj.h: config.h

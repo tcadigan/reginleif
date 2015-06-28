@@ -57,7 +57,7 @@ struct func_tab list[] = {
     { 'p', dopay },
     { 'P', dowearring },
     { 'q', dodrink },
-    { 'Q', done1 },
+    { 'Q', done2 },
     { 'r', doread },
     { 'R', doremring },
     { 's', dosearch },

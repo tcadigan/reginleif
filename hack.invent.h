@@ -7,6 +7,8 @@
 
 void freeobj(struct obj *obj);
 struct obj *getobj(char *let, char *word);
+int ggetobj(char *word, int (*fn)(struct obj *obj), int max);
+void stackobj(struct obj *obj);
 void delobj(struct obj *obj);
 struct obj *addinv();
 void freeinv(struct obj *obj);
@@ -17,6 +19,7 @@ int askchain(struct obj *objchain,
              int (*fn)(struct obj *obj), 
              int (*ckfn)(struct obj *otmp), 
              int max);
+void useup(struct obj *obj);
 void freegold(struct gen *gold);
 int carried(struct obj *obj);
 void deltrap(struct gen *trap);

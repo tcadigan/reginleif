@@ -96,7 +96,7 @@ struct prop {
     long p_flgs;
     
     /* Called after timeout */
-    int (*p_tofn)();
+    void (*p_tofn)();
 };
 
 struct you {
@@ -158,7 +158,7 @@ struct you {
 #define Telepat u.uprops[TELEPAT].p_flgs
     /* Not a ring */
 #define FAST (LAST_RING + 1)
-#define fast u.uprops[FAST].p_flgs
+#define Fast u.uprops[FAST].p_flgs
     /* Not a ring */
 #define CONFUSION (LAST_RING + 2)
 #define Confusion u.uprops[CONFUSION].p_flgs
@@ -266,5 +266,10 @@ void pickup();
 void movobj(struct obj *obj, int ox, int oy);
 int abon();
 int inv_weight();
+void domove();
+int movecm(char *cmd);
+void seeoff(int mode);
+void losestr(int num);
+void losehp(int n, char *knam);
 
 #endif

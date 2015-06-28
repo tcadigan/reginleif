@@ -17,5 +17,9 @@ void prl(int x, int y);
 char news0(xchar x, xchar y);
 void nose1(int x, int y);
 void prl1(int x, int y);
+void docrt();
+void prme();
+void at(xchar x, xchar y, char ch);
+void cls();
 
 #endif
