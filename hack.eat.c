@@ -1,5 +1,7 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include "hack.eat.h"
+
 #include "hack.h"
 char POISONOUS[] = "ADKSVabhks";
 

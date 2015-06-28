@@ -370,7 +370,7 @@ extern struct wseg *m_atseg;
 #endif
 
 /* Print a position that is visible for @ */
-prl(int x, int y)
+void prl(int x, int y)
 {
     struct rm *room;
     struct monst *mtmp;

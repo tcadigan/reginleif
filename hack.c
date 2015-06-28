@@ -1,13 +1,31 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
 #include "hack.h"
+
+#include <math.h>
 #include <stdio.h>
 
-extern char news0();
+#include "def.trap.h"
+#include "hack.do_name.h"
+#include "hack.do_wear.h"
+#include "hack.eat.h"
+#include "hack.end.h"
+#include "hack.engrave.h"
+#include "hack.fight.h"
+#include "hack.invent.h"
+#include "hack.mkobj.h"
+#include "hack.mon.h"
+#include "hack.objnam.h"
+#include "hack.pri.h"
+#include "hack.search.h"
+#include "hack.shk.h"
+#include "hack.topl.h"
+#include "hack.trap.h"
+#include "hack.wield.h"
+#include "hack.worm.h"
+#include "rnd.h"
+
 extern char *nomovemsg;
-extern char *exclam();
-extern struct obj *addinv();
-extern boolean hmon();
 
 /*
  * Called on movement:
@@ -37,9 +55,9 @@ void unsee()
             for(y = u.uy - 1; y < (u.uy + 2); ++y) {
                 lev = &levl[x][y];
                 
-                if((lev->lit == 0) && (lev->scrcym == '.')) {
-                    lev.scrsym = ' ';
-                    lev.new = 1;
+                if((lev->lit == 0) && (lev->scrsym == '.')) {
+                    lev->scrsym = ' ';
+                    lev->new = 1;
                     on_scr(x, y);
                 }
             }
@@ -73,7 +91,7 @@ void unsee()
  * 1 to redo @, 0 to leave them
  * 1 means misc movement, 0 means blindness
  */
-int seeoff(int mode)
+void seeoff(int mode)
 {
     int x;
     int y;
@@ -81,7 +99,7 @@ int seeoff(int mode)
 
     if((u.udispl != 0) && (mode != 0)) {
         u.udispl = 0;
-        levl[u.udisx][u.udisy].scrsym = news0(u.udisx, u.udisy);
+        levl[(int)u.udisx][(int)u.udisy].scrsym = news0(u.udisx, u.udisy);
     }
 
 #ifdef QUEST
@@ -217,7 +235,7 @@ void domove()
     struct monst *mtmp;
     struct rm *tmpr;
     struct rm *ust;
-    struct gen *trap;
+    struct gen *trap = NULL;
     struct obj *otmp;
 
     wipe_engr_at(u.ux, u.uy, rnd(5));
@@ -236,7 +254,7 @@ void domove()
 
         while(((u.dx == 0) && (u.dy == 0))
               || (isok(u.ux + u.dx, u.uy + u.dy) == 0)
-              || (tmpr->type < DOOR)) {
+              || (tmpr->typ < DOOR)) {
             u.dx = rn1(3, -1);
             u.dy = rn1(3, -1);
             tmpr = &levl[u.ux + u.dx][u.uy + u.dy];
@@ -252,7 +270,7 @@ void domove()
         return;
     }
 
-    ust = &levl[u.ux][u.uy];
+    ust = &levl[(int)u.ux][(int)u.uy];
     oldx = u.ux;
     oldy = u.uy;
 
@@ -268,8 +286,8 @@ void domove()
 
     if((u.ustuck != 0)
        && (u.uswallow == 0)
-       && ((u.ux + u.dx) != u.ustuck->mx) || ((u.uy + u.dy) != u.ustuck->my)) {
-        if(dist(u.ustuck->mx, u.ustuck-my) > 2) {
+       && (((u.ux + u.dx) != u.ustuck->mx) || ((u.uy + u.dy) != u.ustuck->my))) {
+        if(dist(u.ustuck->mx, u.ustuck->my) > 2) {
             /* Perhaps it fled (or was teleported or ... ) */
             u.ustuck = 0;
         }
@@ -327,7 +345,7 @@ void domove()
                     u.ustuck = mtmp;
                 }
 
-                switch(levl[u.ux + u.dx][u.uy + u.dy]) {
+                switch(levl[u.ux + u.dx][u.uy + u.dy].scrsym) {
                 case '+':
                     pline("The door was actually a Mimic.");
 
@@ -347,7 +365,7 @@ void domove()
             }
 
             /* Clears mtmp->mimic */
-            wakup(mtmp);
+            wakeup(mtmp);
 
             if((mtmp->mhide != 0) && (mtmp->mundetected != 0)) {
                 struct obj *obj;
@@ -395,7 +413,7 @@ void domove()
                 tmp += 4;
                 
                 if(rn2(10) == 0) {
-                    mtmp->mfrox = 0;
+                    mtmp->mfroz = 0;
                 }
             }
 
@@ -520,8 +538,8 @@ void domove()
         nomul(0);
 
         if((isok(rx, ry) != 0)
-           && ((levl[rx][ry].typ > DOOR)
-               || ((levl[rx][ry].typ == DOOR)
+           && ((levl[(int)rx][(int)ry].typ > DOOR)
+               || ((levl[(int)rx][(int)ry].typ == DOOR)
                    && ((u.dx == 0) && (u.dy == 0))))) {
             if(m_at(rx, ry) != 0) {
                 pline("You hear a monster behind the rock.");
@@ -533,7 +551,6 @@ void domove()
             gtmp = g_at(rx, ry, ftrap);
         
             if(gtmp != NULL) {
-#include "def.trap.h"
                 switch(gtmp->gflag & ~SEEN) {
                 case PIT:
                     pline("You push the rock into a pit!");
@@ -581,10 +598,10 @@ void domove()
         }
     }
 
-    if((u.udx != 0)
+    if((u.dx != 0)
        && (u.dy != 0)
-       && (levl[u.ux][u.uy + u.dy].typ < DOOR)
-       && (levl[u.ux + u.dx][u.dy].typ < DOOR)
+       && (levl[(int)u.ux][(int)(u.uy + u.dy)].typ < DOOR)
+       && (levl[(int)(u.ux + u.dx)][(int)u.dy].typ < DOOR)
        && (invent != NULL)
        && ((inv_weight() + 40) > 0)) {
         pline("You are carrying too much to get through.");
@@ -623,7 +640,7 @@ void domove()
             }
             else {
                 /* Leave ball, move chain under/over ball */
-                objpbj(uchain, uball->ox, uball->oy);
+                movobj(uchain, uball->ox, uball->oy);
             }
         }
         else {
@@ -653,7 +670,7 @@ void domove()
 #ifdef QUEST
         setsee();
 #else
-        if(usr->lit != 0) {
+        if(ust->lit != 0) {
             if(tmpr->lit != 0) {
                 if(tmpr->typ == DOOR) {
                     prl1(u.ux + u.dx, u.uy + u.dy);
@@ -700,7 +717,7 @@ void domove()
     
     if(trap != 0) {
         /* Fall into pit, arrow trap, etc. */
-        dotrap();
+        dotrap(trap);
     }
 
     inshop();
@@ -991,25 +1008,19 @@ void lookaround()
     int x;
     int y;
     int i;
-    int x0;
-    int y0;
-    int m0;
+    int x0 = 0;
+    int y0 = 0;
+    int m0 = 0;
     int i0 = 9;
     int corrct = 0;
-    int norun = 0;
+    int noturn = 0;
     struct monst *mtmp;
-
-#ifdef lint
-    /* Suppress "used before set" message */
-    y0 = 0;
-    x0 = 0;
-#endif
 
     if((Blind != 0) || (flags.run == 0)) {
         return;
     }
 
-    if((flags.run == 1) && (levl[u.ux][u.uy].typ > ROOM)) {
+    if((flags.run == 1) && (levl[(int)u.ux][(int)u.uy].typ > ROOM)) {
         return;
     }
 
@@ -1072,7 +1083,7 @@ void lookaround()
                 /* Fall into next case */
             case CORR_SYM:
                 if((flags.run == 1) || (flags.run == 3)) {
-                    i = DIST(x, y, u.ux + udx, u.uy + u.dy);
+                    i = DIST(x, y, u.ux + u.dx, u.uy + u.dy);
 
                     if(i > 2) {
                         break;
@@ -1139,7 +1150,7 @@ void lookaround()
                 }
 
                 break;
-            case default:
+            default:
                 /* e.g. objects or trap or stairs */
                 if(flags.run == 1) {
                     if((flags.run == 1) || (flags.run == 3)) {
@@ -1348,7 +1359,7 @@ int cansee(xchar x, xchar y)
         return 1;
     }
 
-    if((levl[x][y].lit != 0)
+    if((levl[(int)x][(int)y].lit != 0)
        && (seelx <= x)
        && (x <= seehx)
        && (seely <= y)
@@ -1371,12 +1382,6 @@ int sgn(int a)
     else {
         return -1;
     }
-}
-
-/* Returns 2 to the num */
-int pow(unsigned int num)
-{
-    return (1 << num);
 }
 
 #ifdef QUEST
@@ -1413,7 +1418,7 @@ void setsee()
         return;
     }
 
-    if(levl[u.ux][u.uy].lit == 0) {
+    if(levl[(int)u.ux][(int)u.uy].lit == 0) {
         seelx = u.ux - 1;
         seehx = u.ux + 1;
         seely = u.uy - 1;
@@ -1422,25 +1427,25 @@ void setsee()
     else {
         seelx = u.ux;
         
-        while(levl[seelx - 1][u.uy].lit != 0) {
+        while(levl[(int)(seelx - 1)][(int)u.uy].lit != 0) {
             --seelx;
         }
 
         seehx = u.ux;
         
-        while(levl[seehx + 1][u.uy].lit != 0) {
+        while(levl[(int)(seehx + 1)][(int)u.uy].lit != 0) {
             ++seehx;
         }
 
         seely = u.uy;
 
-        while(levl[u.ux][seely - 1].lit != 0) {
+        while(levl[(int)u.ux][(int)(seely - 1)].lit != 0) {
             --seely;
         }
 
         seehy = u.uy;
 
-        while(levl[u.ux][seely - 1].lit != 0) {
+        while(levl[(int)u.ux][(int)(seely - 1)].lit != 0) {
             ++seehy;
         }
     }
@@ -1451,7 +1456,7 @@ void setsee()
         }
     }
 
-    if(levl[u.ux][u.uy].lit != 0) {
+    if(levl[(int)u.ux][(int)u.uy].lit != 0) {
         /* Seems necessary elsewhere */
         seehx = 0;
     }
@@ -1562,7 +1567,7 @@ void losestr(int num)
         u.uhpmax -= 6;
     }
 
-    falgs.botl = 1;
+    flags.botl = 1;
 }
 
 void losehp(int n, char *knam)
@@ -1605,8 +1610,8 @@ void losexp()
         u.uhp = -1;
         num = rnd(10);
         u.uhp -= num;
-        u.uhpmax = -= num;
-        u.uexp = 10 * pow(u.ulevel - 1);
+        u.uhpmax -= num;
+        u.uexp = 10 * pow(2, u.ulevel - 1);
         flags.botl = 1;
     }
 }
@@ -1623,7 +1628,7 @@ int inv_weight()
     }
 
     if(carrcap > MAX_CARR_CAP) {
-        carrcap = MAX_CAR_CAP;
+        carrcap = MAX_CARR_CAP;
     }
 
     if((Wounded_legs & LEFT_SIDE) != 0) {

@@ -4,5 +4,6 @@
 #include "def.obj.h" /* obj */
 
 void setuwep(struct obj *obj);
+void corrode_weapon();
 
 #endif

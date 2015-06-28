@@ -54,7 +54,7 @@ typedef unsigned char uchar;
 /* 
  * Small integers in the range 0 - 127, usually coordinates
  * although they are nonnegative they must not be declared unsigned
- * since otherwise comparisons with signed quantities are doen incorrectly
+ * since otherwise comparisons with signed quantities are done incorrectly
  * (thus, in fact, you could make xchar equal to schar)
  */
 typedef char xchar;

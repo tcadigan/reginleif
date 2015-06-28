@@ -5,10 +5,12 @@
 #include "hack.h"
 #include "hack.apply.h"
 #include "hack.do.h"
+#include "hack.do_name.h"
 #include "hack.invent.h"
 #include "hack.mon.h"
 #include "hack.pri.h"
 #include "hack.topl.h"
+#include "hack.tty.h"
 #include "hack.wield.h"
 #include "rnd.h"
 

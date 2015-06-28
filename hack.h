@@ -1,5 +1,12 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#ifndef HACK_H_
+#define HACK_H_
+
+#include "config.h" /* xchar */
+#include "def.monst.h" /* monst */
+#include "def.obj.h" /* obj */
+
 #include "mklev.h"
 #include "hack.onames.h"
 
@@ -22,10 +29,6 @@ extern struct obj *uchain;
 
 /* Defined if PUNISHED */
 extern struct obj *uball;
-
-struct obj *o_at();
-struct obj *getobj();
-struct obj *sobj_at();
 
 struct flag {
     /* Social security number for each monster */
@@ -161,7 +164,7 @@ struct you {
 #define Confusion u.uprops[CONFUSION].p_flgs
     /* Not a ring */
 #define INVIS (LAST_RING + 3)
-#define Invis u.uprops[INVIS].p_plags
+#define Invis u.uprops[INVIS].p_flgs
     /* Not a ring */
 #define GLIB (LAST_RING + 4)
 #define Glib u.uprops[GLIB].p_flgs
@@ -173,7 +176,7 @@ struct you {
 #define Sick u.uprops[SICK].p_flgs
     /* Not a ring */
 #define BLIND (LAST_RING + 7)
-#define Blind u.uprops[Blind].p_flgs
+#define Blind u.uprops[BLIND].p_flgs
     /* Not a ring */
 #define WOUNDED_LEGS (LAST_RING + 8)
 #define Wounded_legs u.uprops[WOUNDED_LEGS].p_flgs
@@ -209,7 +212,7 @@ struct you {
     int uhunger;
     int uinvault;
 
-    struct monst *ustruck;
+    struct monst *ustuck;
 
     /* Used for experience bookkeeping */
     int rn_killed[CMNUM + 2];
@@ -217,15 +220,6 @@ struct you {
 
 extern struct you u;
 extern char *traps[];
-
-extern char *plur();
-extern char *monnam();
-extern char *Monnam();
-extern char *amonnam();
-extern char *Amonnam();
-extern char *doname();
-extern char *aobjnam();
-extern char readchar();
 
 extern char vowels[];
 
@@ -261,3 +255,15 @@ extern char lock[];
 
 /* Position outside screen */
 #define FAR (COLNO + 2)
+
+void losehp_m(int n, struct monst *mtmp);
+void nomul(int nval);
+void setsee();
+int cansee(xchar x, xchar y);
+int inv_cnt();
+void pickup();
+void movobj(struct obj *obj, int ox, int oy);
+int abon();
+int inv_weight();
+
+#endif

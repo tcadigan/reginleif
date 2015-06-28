@@ -1,7 +1,8 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include "hack.trap.h"
+
 #include "hack.h"
-#include "def.trap.h"
 
 extern struct monst *makemon();
 

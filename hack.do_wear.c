@@ -1,7 +1,10 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
-#include "hack.h"
+#include "hack.do_wear.h"
+
 #include <stdio.h>
+
+#include "hack.h"
 
 extern char *nomovemsg;
 

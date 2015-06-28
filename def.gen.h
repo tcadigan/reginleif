@@ -1,5 +1,8 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#ifndef DEF_GEN_H_
+#define DEF_GEN_H_
+
 struct gen {
     struct gen *ngen;
     xchar gx;
@@ -13,3 +16,5 @@ extern struct gen *ftrap;
 struct gen *g_at();
 
 #define newgen() (struct gen *)alloc(sizeof(struct gen))
+
+#endif

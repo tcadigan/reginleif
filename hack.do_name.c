@@ -1,5 +1,7 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include "hack.do_name.h"
+
 #include "hack.h"
 #include <stdio.h>
 

@@ -1,6 +1,9 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include "hack.tty.h"
+
 #include "hack.h"
+
 #include <stdio.h>
 #include <sgtty.h>
 

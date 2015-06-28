@@ -1,5 +1,7 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include "hack.objnam.h"
+
 #include "hack.h"
 
 #define Sprintf sprintf

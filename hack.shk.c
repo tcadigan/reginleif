@@ -1,5 +1,7 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include "hack.shk.h"
+
 #include "hack.h"
 
 #ifdef QUEST
@@ -11,11 +13,6 @@ struct obj *billobjs = 0;
 void obfree(struct obj *obj, struct obj *merge)
 {
     free(obj);
-}
-
-int inshop()
-{
-    return 0;
 }
 
 void addtobill()

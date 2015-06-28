@@ -1,5 +1,7 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include "hack.fight.h"
+
 #include "hack.h"
 
 extern struct permonst li_dog;

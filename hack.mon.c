@@ -325,7 +325,7 @@ void inrange(struct monst *mtmp)
     }
 }
 
-int m_move(struct monst *mtmp)
+int m_move(struct monst *mtmp, int after)
 {
     struct monst mtmp2;
     int nx;

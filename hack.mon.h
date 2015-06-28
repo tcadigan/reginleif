@@ -6,5 +6,6 @@
 void setmangry(struct monst *mtmp);
 int dist(int x, int y);
 void mnexto(struct monst *mtmp);
+int m_move(struct monst *mtmp, int after);
 
 #endif
