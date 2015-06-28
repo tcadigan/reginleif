@@ -5,8 +5,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-extern char *index();
-
 struct stat buf;
 struct stat hbuf;
 

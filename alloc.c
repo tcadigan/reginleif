@@ -8,6 +8,8 @@
  * from lint
  */
 
+#include "alloc.h"
+
 #include <stdio.h>
 
 long *alloc(unsigned int n)
@@ -22,9 +24,6 @@ long *alloc(unsigned int n)
 }
 
 #else
-
-extern char *malloc();
-extern char *realloc();
 
 long *alloc(unsigned int lth)
 {

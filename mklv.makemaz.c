@@ -2,9 +2,6 @@
 
 #include "mklev.h"
 
-extern struct monst *makemon();
-extern coord mazxy();
-
 void makemaz()
 {
     int x;

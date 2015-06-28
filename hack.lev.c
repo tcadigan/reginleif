@@ -6,12 +6,9 @@
 #include <stdio.h>
 
 #include "hack.h"
-
-extern struct monst *restmonchn();
-extern struct obj *restobjchn();
+#include "savelev.h"
 
 extern struct obj *billobjs;
-extern char *itoa();
 extern char nul[];
 
 #ifndef NOWORM
@@ -22,7 +19,11 @@ extern struct wseg *wheads[32];
 extern wgrowtime[32];
 #endif
 
-#include "savelev.h"
+#ifdef BSD
+#include <sys/wait.h>
+#else
+#include <wait.h>
+#endif
 
 int getlev(int fd)
 {
@@ -158,12 +159,6 @@ void mread(int fd, char *buf, unsigned int len)
         panic("Cannot read %d bytes from file #%d\n", len, fd);
     }
 }
-
-#ifdef BSD
-#include <sys/wait.h>
-#else
-#include <wait.h>
-#endif
 
 void mklev()
 {

@@ -2,7 +2,9 @@
 
 #include "hack.shk.h"
 
+#include "def.eshk.h"
 #include "hack.h"
+#include "hack.mfndpos.h"
 
 #ifdef QUEST
 int shlevel = 0;
@@ -15,6 +17,11 @@ void obfree(struct obj *obj, struct obj *merge)
     free(obj);
 }
 
+int inshop()
+{
+    return 0;
+}
+
 void addtobill()
 {
 }
@@ -24,6 +31,10 @@ void subfrombill()
 }
 
 void splitbill()
+{
+}
+
+void dopay()
 {
 }
 
@@ -52,18 +63,13 @@ char *shkname()
 {
     return "";
 }
-
 #else
-
-#include "hack.mfndpos.h"
-#include "def.eshk.h"
 
 #define ESHK ((struct eshk *)(&(shopkeeper->mextra[0])))
 #define NOTANGRY shopkeeper->mpeaceful
 #define ANGRY !NOTANGRY
 
 extern char plname[];
-extern struct obj *o_on();
 struct monst *shopkeeper = 0;
 struct bill_x *bill;
 

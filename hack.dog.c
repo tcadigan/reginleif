@@ -2,13 +2,11 @@
 
 #include "hack.dog.h"
 
+#include "def.edog.h"
 #include "hack.h"
 #include "hack.mfndpos.h"
 
 extern char POISONOUS[];
-extern struct monst *makemon();
-
-#include "def.edog.h"
 
 struct permonst li_dog =
     { "little dog", 'd', 2, 18, 6, 1, 6, sizeof(struct edog) };
@@ -457,7 +455,6 @@ int dog_move(struct monst *mtmp, int after)
 
 #ifdef TRACK
     if((gx == u.ux) && (gy == u.uy) && ((dogroom != uroom) || (dogroom < 0))) {
-        extern coord *gettrack();
         coord *cp;
         
         cp = gettrack(omx, omy);

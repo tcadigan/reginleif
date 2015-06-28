@@ -37,7 +37,6 @@ void outrip()
     struct tm *lt;
     time_t date;
     char buf[BUFSZ];
-    struct tm *localtime();
     int x;
     int y;
 

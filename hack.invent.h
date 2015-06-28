@@ -2,6 +2,7 @@
 #define HACK_INVENT_H_
 
 #include "def.gen.h" /* gen */
+#include "def.monst.h" /* monst */
 #include "def.obj.h" /* obj */
 
 void freeobj(struct obj *obj);
@@ -21,6 +22,8 @@ int carried(struct obj *obj);
 void deltrap(struct gen *trap);
 struct obj *sobj_at(int n, int x, int y);
 struct obj *o_at(int x, int y);
+struct monst *m_at(int x, int y);
+struct gen *g_at(int x, int y, struct gen *ptr);
 int dorwep();
 int doprwep();
 int doprarm();

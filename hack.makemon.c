@@ -10,8 +10,6 @@ extern char *fut_geno;
 extern char fut_geno[];
 #endif
 
-extern char *index();
-
 struct monst zeromonst;
 
 /*
@@ -191,7 +189,6 @@ struct monst *makemon(struct permonst *ptr, int x, int y)
 
     if(anything != 0) {
         if((ptr->mlet == 'O') || (ptr->mlet == 'k')) {
-            coord enexto();
             coord mm;
             int cnt = rnd(10);
 

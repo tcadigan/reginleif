@@ -154,8 +154,6 @@ int probtype(char let)
 #ifndef MKLEV
 #define SIZE(x) (sizeof(x) / sizeof(x[0]))
 
-extern long *alloc();
-
 void savenames(int fd)
 {
     int i;

@@ -11,11 +11,6 @@
 extern char plname[];
 extern char pl_character[];
 
-extern char *itoa();
-extern char *ordin();
-extern char *eos();
-extern char *getlogin();
-
 xchar maxdlevel = 1;
 
 int done1()

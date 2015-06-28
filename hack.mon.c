@@ -8,8 +8,6 @@
 #define SIZE(x) (int)(sizeof(x) / sizeof(x[0]))
 #define NULL (char *)0
 
-extern struct monst *makemon();
-
 /* Used by movemon and dochugw */
 int warnlevel;
 long lastwarntime;
@@ -514,7 +512,6 @@ int m_move(struct monst *mtmp, int after)
      * should use mtmp->msmell
      */
     if(('a' <= mtmp->data->mlet) && (mtmp->data->mlet <= 'z')) {
-        extern coord *gettrack();
         coord *cp;
         schar mroom;
 
@@ -1308,7 +1305,6 @@ int newcham(struct monst *mtmp, struct permonst *mdat)
 /* Make monster mtmp next to you (if possible) */
 void mnexto(struct monst *mtmp)
 {
-    extern coord enexto();
     coord mm;
     mm = enexto(u.ux, u.uy);
     mtmp->mx = mm.x;

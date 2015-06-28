@@ -16,15 +16,16 @@
 #define rindex strrchr
 #endif
 
+#include "def.gen.h"
+#include "def.obj.h"
 #include "def.objclass.h"
+#include "def.permonst.h"
 
 typedef struct {
     xchar x;
     xchar y;
 } coord;
 
-#include "def.gen.h"
-#include "def.obj.h"
 
 #define BUFSZ 256 /* For getline buffers */
 #define PL_NSIZ 32 /* Name of player, ghost, shopkeeper */
@@ -80,8 +81,6 @@ extern struct mkroom rooms[MAXNROFROOMS + 1];
 extern coord doors[DOORMAX];
 #endif
 
-#include "def.permonst.h"
-
 extern struct permonst mons[];
 
 #define PM_ACIDBLOB &mons[7]
@@ -92,8 +91,6 @@ extern struct permonst mons[];
 #define PM_MINOTAUR &mons[55] /* Last in the mons array */
 #define PM_SHK &mons[56] /* Very last */
 #define CMNUM 55 /* Number of common monsters */
-
-extern long *alloc();
 
 /* Stairs up and down. */
 extern xchar xdnstair;

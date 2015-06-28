@@ -1,7 +1,5 @@
 #include "hack.h"
 
-extern struct monst *makemon();
-
 /*
  * mhitu: Monster hits you
  * returns: 1 if monster dies (e.g. 'y', 'F')

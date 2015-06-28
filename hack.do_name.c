@@ -12,9 +12,6 @@ coord getpos(int force, char *goal)
     extern schar xdir[];
     extern schar ydir[];
 
-    /* See below */
-    extern char *visctrl();
-
     coord cc;
     pline("(For instructions type a ?)");
     cx = u.ux;
@@ -97,8 +94,6 @@ int do_mname()
 
     struct monst *mtmp;
     struct monst *mtmp2;
-
-    extern char *lmonnam();
 
     cc = getpos(0, "the monster you want to name");
     cx = cc.x;
@@ -271,7 +266,6 @@ void docall(struct obj *obj)
 {
     char buf[BUFSZ];
     char **str1;
-    extern char *xname();
     char *str = xname(obj);
 
     if(index(vowels, *str) != 0) {
@@ -303,7 +297,6 @@ char *xmonnam(struct monst *mtmp, int vb)
 {
     /* %% */
     static char buf[BUFSZ];
-    extern char *shkname();
 
     if((mtmp->mnamlth != 0) && (vb == 0)) {
         return NAME(mtmp);

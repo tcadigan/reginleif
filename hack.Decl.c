@@ -1,5 +1,8 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include "def.gen.h" /* gen */
+#include "def.monst.h" /* monst */
+#include "def.obj.h" /* obj */
 #include "hack.h"
 
 /* Contains zeros */

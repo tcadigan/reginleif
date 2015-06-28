@@ -4,8 +4,6 @@
 
 #include "hack.h"
 
-extern struct monst *makemon();
-
 char vowels[] = "aeiou";
 
 char *traps[] = {
@@ -327,7 +325,6 @@ void float_down()
 
 void tele()
 {
-    extern coord getpos();
     coord cc;
     int nux;
     int nuy;

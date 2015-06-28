@@ -4,9 +4,6 @@
 
 #include "hack.h"
 
-extern struct monst *makemon();
-int identity();
-
 int doread()
 {
     struct obj *scroll;
@@ -43,7 +40,6 @@ int doread()
     switch(scroll->otyp) {
     case SCR_ENCHANT_ARMOR:
         {
-            extern struct obj *some_armor();
             struct obj *otmp = some_armor();
 
             if(otmp == NULL) {

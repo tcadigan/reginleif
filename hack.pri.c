@@ -7,6 +7,12 @@
 
 #include "hack.h"
 
+#ifndef NOWORM
+#include "def.wseg.h"
+
+extern struct wseg *m_atseg;
+#endif
+
 /* Corners of the enw area on screen */
 xchar scrlx;
 xchar scrhx;
@@ -362,12 +368,6 @@ void pru()
 
     levl[u.ux][u.uy].seen = 1;
 }
-
-#ifndef NOWORM
-#include "def.wseg.h"
-
-extern struct wseg *m_atseg;
-#endif
 
 /* Print a position that is visible for @ */
 void prl(int x, int y)

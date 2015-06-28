@@ -5,8 +5,6 @@
 #include "hack.h"
 #include "def.trap.h"
 
-extern struct monst *makemon();
-
 /* Returns number of things found */
 int findit()
 {

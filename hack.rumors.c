@@ -7,8 +7,6 @@
 #define CHARSZ 8
 #define RUMORFILE "rumors"
 
-extern long *alloc();
-extern char *index();
 int n_rumors = 0;
 int n_used_rumors = -1;
 char *usedbits;

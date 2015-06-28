@@ -22,8 +22,6 @@ void invault()
 
 #else
 
-extern struct monst *makmon();
-
 #define VAULT 6
 #define FCSIZ (ROWNO + COLNO)
 

@@ -3,6 +3,8 @@
 #ifndef DEF_GEN_H_
 #define DEF_GEN_H_
 
+#include "config.h" /* xchar */
+
 struct gen {
     struct gen *ngen;
     xchar gx;
@@ -13,7 +15,6 @@ struct gen {
 
 extern struct gen *fgold;
 extern struct gen *ftrap;
-struct gen *g_at();
 
 #define newgen() (struct gen *)alloc(sizeof(struct gen))
 

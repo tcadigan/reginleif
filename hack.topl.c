@@ -5,8 +5,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-extern char *eos();
-
 /* Leave room for "--More--" */
 #define TOPLSZ (COLNO - 8)
 

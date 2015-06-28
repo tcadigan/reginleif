@@ -8,7 +8,6 @@
 #define UNDEF_TYP 0
 #define UNDEF_SPE (-1)
 
-extern struct obj *addinv();
 extern char plname[];
 
 char pl_character[PL_CSIZ];
@@ -290,7 +289,6 @@ void u_init()
 void ini_inv(struct trobj *trop)
 {
     struct obj *obj;
-    extern struct obj *mkobj();
 
     while(trop->trolet != 0) {
         obj = mkobj(trop->trolet);
@@ -367,7 +365,6 @@ void ini_inv(struct trobj *trop)
 void wiz_inv()
 {
     struct trobj *trop = &Extra_objs[0];
-    extern char *getenv();
     char *ep = getenv("INVENT");
     int type;
 

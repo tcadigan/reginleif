@@ -5,15 +5,10 @@
 #include <error.h>
 #include "hack.h"
 
-extern char *getlogin();
 extern char plname[PL_NSIZ];
 extern char pl_character[PL_CSIZ];
-extern char *getenv();
 
 int (*afternmv)();
-
-int done1();
-int hangup();
 
 char safelock[] = "safelock";
 
@@ -317,7 +312,6 @@ int main (int argc, char *argv[])
             if(((moves % 2) == 0)
                || (((Fast & ~INTRINSIC) == 0)
                    && ((Fast == 0) || (rn2(3) != 0)))) {
-                extern struct monst *makemon();
 
                 movemon();
 

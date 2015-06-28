@@ -8,9 +8,6 @@ extern struct permonst li_dog;
 extern struct permonst dog;
 extern struct permonst la_dog;
 
-extern char *exclam();
-extern char *xname();
-
 static boolean far_noise;
 static long noisetime;
 
@@ -205,7 +202,6 @@ int hitu(struct monst *mtmp, int dam)
 
         if(Blind == 0) {
             struct obj *obj;
-            extern char *Xmonnam();
 
             obj = o_at(mtmp->mx, mtmp->my);
 

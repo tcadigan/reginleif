@@ -4,25 +4,33 @@
 #include <stdio.h>
 #include <signal.h>
 
+#include "alloc.h"
 #include "def.func_tab.h"
+#include "hack.dog.h"
+#include "hack.do_name.h"
+#include "hack.fight.h"
+#include "hack.invent.h"
+#include "hack.mkobj.h"
+#include "hack.mon.h"
+#include "hack.pri.h"
+#include "hack.shk.h"
+#include "hack.steal.h"
+#include "hack.tty.h"
+#include "hack.worm.h"
+#include "hack.zap.h"
+
 #include "hack.h"
 
-extern char *getenv();
-extern char *parse();
-extern char *getlogin();
-extern char *lowc();
-extern char *unctrl();
-extern int float_down();
+#ifdef BSD
+#include <sys/wait.h>
+#else
+#include <wait.h>
+#endif
 
 extern char *nomovemsg;
 extern char *catmore;
-extern struct obj *splitobj();
-extern struct obj *addinv();
-extern boolean hmon();
 
 /* Routings to do various user commands */
-int done1();
-
 int dodrink()
 {
     struct obj *otmp;
@@ -682,12 +690,6 @@ int dosh()
 }
 #endif
 
-#ifdef BSD
-#include <sys/wait.h>
-#else
-#include <wait.h>
-#endif
-
 int child(int wt)
 {
     int f = fork();
@@ -931,9 +933,6 @@ int donull()
     return 1;
 }
 
-struct monst *bhit();
-struct monst *boomhit();
-
 int dothrow()
 {
     struct obj *obj;
@@ -1016,7 +1015,7 @@ int dothrow()
                 }
             }
             else {
-                if(obj->otype = BOOMERANG) {
+                if(obj->otyp == BOOMERANG) {
                     tmp += 4;
                 }
             }
@@ -1041,7 +1040,7 @@ int dothrow()
                 /* Weapons thrown disappear sometimes */
                 if((obj->otyp < BOOMERANG) && (rn2(3) != 0)) {
                     /* Check bill; free */
-                    objfree(obj, (struct obj *)0);
+                    obfree(obj, (struct obj *)0);
                     
                     return 1;
                 }
@@ -1096,7 +1095,7 @@ int dothrow()
                         return 1;
                     }
                     else {
-                        pline("%s is not interested in your junk.", Monname(mon));
+                        pline("%s is not interested in your junk.", Monnam(mon));
                     }
                 }
                 else {
@@ -1156,7 +1155,7 @@ int dothrow()
         }
    
         unsee();
-        uchain.nobj = fobj;
+        uchain->nobj = fobj;
         fobj = uchain;
         uchain->ox = bhitpos.x - u.dx;
         u.ux = uchain->ox;
@@ -1192,12 +1191,12 @@ struct obj *splitobj(struct obj *obj, int num)
 {
     struct obj *otmp;
 
-    omtp = newobj(0);
+    otmp = newobj(0);
     
     /* Copies whole structure */
     *otmp = *obj;
-    ++flags.ident;
     otmp->o_id = flags.ident;
+    ++flags.ident;
     otmp->onamelth = 0;
     obj->quan = num;
     obj->owt = weight(obj);

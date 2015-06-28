@@ -2,6 +2,7 @@
 
 #include "hack.apply.h"
 
+#include "def.edog.h"
 #include "hack.h"
 #include "hack.apply.h"
 #include "hack.do.h"
@@ -262,8 +263,6 @@ struct monst *bchit(int ddx, int ddy, int range, char sym)
 
     return mtmp;
 }
-
-#include "def.edog.h"
 
 /* ARGSUSED */
 void use_whistle(struct obj *obj)

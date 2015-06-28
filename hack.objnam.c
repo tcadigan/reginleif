@@ -9,7 +9,6 @@
 #define Strcpy strcpy
 #define PREFIX 15
 
-extern char *eos();
 extern int bases[];
 
 char *strprepend(char *s, char *pref)
@@ -762,7 +761,6 @@ struct obj *readobjnam(char *bp)
     }
 
     struct obj *otmp;
-    extern struct obj *mksobj();
     
     let = objects[typ].oc_clet;
     

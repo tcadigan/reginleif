@@ -7,8 +7,6 @@
 
 #define ESHK ((struct eshk *)(&(shk->mextra[0])))
 
-extern struct monst *makemon();
-
 char shtypes[] = "=/)%?!["; /* 8 shoptypes: 7 specialized, 1 mixed */
 schar shprobs[] = {3, 3, 5, 5, 10, 10, 14, 14, 50}; /* Their probabilities */
 
@@ -65,7 +63,6 @@ void mkshop()
     int flag = 0;
 
     if(wizard) {
-        char *getenv();
         char *ep = getenv("SHOPTYPE");
 
         if(ep != NULL) {

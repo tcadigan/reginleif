@@ -260,6 +260,7 @@ void losehp_m(int n, struct monst *mtmp);
 void nomul(int nval);
 void setsee();
 int cansee(xchar x, xchar y);
+void unsee();
 int inv_cnt();
 void pickup();
 void movobj(struct obj *obj, int ox, int oy);

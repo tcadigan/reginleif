@@ -15,9 +15,6 @@ extern char fut_geno[60];
 extern char SAVEF[];
 extern char nul[];
 extern char pl_character[PL_CSIZ];
-extern long lseek();
-extern struct obj *restobjchn();
-extern struct monst *restmonchn();
 
 int dosave()
 {

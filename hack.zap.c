@@ -4,10 +4,6 @@
 
 #include "hack.h"
 
-extern struct monst *makemon();
-struct monst *bhit();
-char *exclam();
-
 char *fl[] = {
     "magic missile",
     "bolt of fire",
@@ -300,8 +296,6 @@ int dozap()
             {
                 char buf[BUFSZ];
                 struct obj *otmp;
-                extern struct obj *readobjnam();
-                extern struct obj *addinv();
 
                 if((u.uluck + rn2(5)) < 0) {
                     pline("Unfortunately, nothing happens.");

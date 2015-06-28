@@ -7,9 +7,6 @@
 #include "def.trap.h"
 #include "savelev.h"
 
-extern char *getlogin();
-extern struct monst *makemon();
-
 char *tfile;
 char *tspe;
 char **args;
@@ -36,7 +33,6 @@ struct mkroom *croom;
 struct mkroom *troom;
 coord doors[DOORMAX];
 int doorindex = 0;
-int comp();
 
 xchar dlevel;
 
@@ -689,7 +685,6 @@ void mktrap(int num, int mazeflag)
                 }
             }
             else if(mazeflag != 0) {
-                extern coord mazexy();
                 coord mm;
 
                 mm = mazexy();
@@ -736,7 +731,6 @@ void mktrap(int num, int mazeflag)
     }
     
     if(mazeflag != 0) {
-        extern coord mazexy();
         coord mm;
         
         mm = mazexy();
@@ -760,7 +754,6 @@ void mktrap(int num, int mazeflag)
         }
         
         if(mazeflag != 0) {
-            extern coord mazexy();
             coord mm;
             
             mm = mazexy();
@@ -785,7 +778,6 @@ void mktrap(int num, int mazeflag)
 void panic(char *str, ...)
 {
     char bufr[BUFSZ];
-    extern char *sprintf();
 
     va_list args;
     va_start(args, str);

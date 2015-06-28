@@ -5,11 +5,6 @@
 /* For ROWNO and COLNO */
 #include "config.h"
 
-extern char *tgetstr();
-extern char *tgoto();
-extern char *getenv();
-extern long *alloc();
-
 /* Terminal baudrate; used by tputs */
 short ospeed;
 char tbuf[512];

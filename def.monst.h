@@ -62,8 +62,6 @@ extern struct monst *fmon;
 extern struct monst *fallen_down;
 #endif
 
-struct monst *m_at();
-
 /* These are in mspeed */
 #define MSLOW 1 /* Slow monster */
 

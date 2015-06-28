@@ -11,8 +11,6 @@
 #include "hack.onames.h"
 
 char mkobjstr[] = "))[[!!!!????%%%%/=**))[[!!!!????%%%%/=**(";
-struct obj *mkobj();
-struct obj *mksobj();
 
 void mkobj_at(int let, int x, int y)
 {

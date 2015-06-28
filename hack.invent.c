@@ -5,7 +5,6 @@
 
 #include "hack.h"
 
-extern struct obj *splitobj();
 extern char morc;
 
 #ifndef NOWORM
