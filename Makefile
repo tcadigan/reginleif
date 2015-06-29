@@ -185,6 +185,7 @@ hack.apply.o: hack.apply.h def.edog.h hack.h hack.apply.h hack.do.h hack.do_name
 hack.bones.o: hack.h hack.dog.h hack.lev.h hack.makemon.h hack.mkobj.h hack.pri.h hack.stat.h hack.steal.h hack.topl.h rnd.h savelev.h
 hack.o: hack.h def.trap.h hack.do_name.h hack.do_wear.h hack.eat.h hack.end.h hack.engrave.h hack.fight.h hack.invent.h hack.mkobj.h hack.mon.h hack.objnam.h hack.pri.h hack.search.h hack.shk.h hack.topl.h hack.trap.h hack.wield.h hack.worm.h rnd.h
 hack.cmdlist.o: config.h def.func_tab.h hack.apply.h hack.do.h hack.do_name.h hack.do_wear.h hack.eat.h hack.end.h hack.engrave.h hack.options.h hack.invent.h hack.read.h hack.save.h hack.search.h hack.shk.h hack.topl.h hack.version.h hack.whatis.h hack.wield.h hack.zap.h
+hack.do_name.o: hack.do_name.h alloc.h hack.h hack.invent.h hack.mon.h hack.objnam.h hack.pri.h hack.shk.h hack.termcap.h hack.topl.h hack.tty.h hack.vault.h hack.worn.h
 hack.do_wear.o: hack.do_wear.h hack.h
 hack.dog.o: hack.dog.h def.edog.h hack.h hack.mfndpos.h
 hack.eat.o: hack.eat.h hack.h
@@ -206,16 +207,16 @@ hack.rumors.o: config.h
 hack.search.o: hack.search.h hack.h def.trap.h
 hack.shk.o: hack.shk.h def.eshk.h hack.h hack.mfndpos.h
 hack.steal.o: hack.steal.h hack.h
-hack.termcap.o: config.h
+hack.termcap.o: hack.termcap.h config.h
 hack.timeout.o: hack.h
 hack.track.o: hack.h
 hack.trap.o: hack.trap.h hack.h
 hack.u_init.o: hack.h
-hack.vault.o: hack.h
+hack.vault.o: hack.vault.h hack.h
 hack.whatis.o: hack.whatis.h hack.h
 hack.wield.o: hack.wield.h hack.h
 hack.worm.o: hack.worm.h hack.h def.wseg.h
-hack.worn.o: hack.h
+hack.worn.o: hack.worn.h hack.h
 hack.zap.o: hack.zap.h hack.h
 hack.version.o: hack.version.h date.h
 rnd.o: rnd.h

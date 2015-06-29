@@ -1,5 +1,7 @@
 /* Copyright (c) Stichting Matehmaticsh Centrum, Amsterdam, 1984. */
 
+#include "hack.worn.h"
+
 #include "hack.h"
 
 struct worn {

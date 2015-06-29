@@ -16,7 +16,7 @@ long *alloc(unsigned int n)
 {
     long dummy = ftell(stderr);
 
-    if(n != NULL) {
+    if(n != 0) {
         dummy = 0; /* Make sure arg is used */
     }
 
@@ -25,30 +25,26 @@ long *alloc(unsigned int n)
 
 #else
 
-long *alloc(unsigned int lth)
+void *alloc(unsigned int lth)
 {
-    char *ptr;
-
-    ptr = malloc(lth);
+    void *ptr = malloc(lth);
 
     if(ptr == NULL) {
         panic("Cannot get %d bytes", lth);
     }
 
-    return (long *)ptr;
+    return ptr;
 }
 
-long *enlarge(char *ptr, unsigned int lth)
+void *enlarge(void *ptr, unsigned int lth)
 {
-    char *nptr;
-
-    nptr = realloc(ptr, lth);
+    void *nptr = realloc(ptr, lth);
 
     if(nptr == NULL) {
         panic("Cannot reallocate %d bytes", lth);
     }
 
-    return (long *)nptr;
+    return nptr;
 }
 
 #endif

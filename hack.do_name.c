@@ -2,11 +2,30 @@
 
 #include "hack.do_name.h"
 
-#include "hack.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "alloc.h"
+#include "hack.h"
+#include "hack.invent.h"
+#include "hack.mon.h"
+#include "hack.objnam.h"
+#include "hack.pri.h"
+#include "hack.shk.h"
+#include "hack.termcap.h"
+#include "hack.topl.h"
+#include "hack.tty.h"
+#include "hack.vault.h"
+#include "hack.worn.h"
 
 coord getpos(int force, char *goal)
 {
+    int cx;
+    int cy;
+    int i;
+    int c;
+
     /* Defined in hack.c */
     extern char sdir[];
     extern schar xdir[];
@@ -107,7 +126,7 @@ int do_mname()
 
     if(mtmp == NULL) {
         if((cx == u.ux) && (cy == u.uy)) {
-            extern char pname[];
+            extern char plname[];
 
             pline("This ugly monster is called %s and cannot be renamed.",
                   plname);
@@ -131,7 +150,7 @@ int do_mname()
         return 1;
     }
 
-    pline("What do yo uwant to call %s? ", lmonnam(mtmp));
+    pline("What do you want to call %s? ", lmonnam(mtmp));
     getlin(buf);
     clrlin();
 
@@ -146,7 +165,7 @@ int do_mname()
         lth = 63;
     }
 
-    mtmp2 = newmonst(mtmp->mxlth, lth);
+    mtmp2 = newmonst(mtmp->mxlth + lth);
     *mtmp2 = *mtmp;
 
     for(i = 0; i < mtmp->mxlth; ++i) {
@@ -282,15 +301,15 @@ void docall(struct obj *obj)
         return;
     }
 
-    str = newstring(strlen(buf) + 1);
+    str = (char *)alloc((unsigned int)(strlen(buf) + 1));
     strcpy(str, buf);
     str1 = &(objects[obj->otyp].oc_uname);
     
-    if(*str1 != 0) {
+    if(*str1 != NULL) {
         free(*str1);
     }
 
-    str1 = str;
+    str1 = &str;
 }
 
 char *xmonnam(struct monst *mtmp, int vb)
@@ -298,7 +317,7 @@ char *xmonnam(struct monst *mtmp, int vb)
     /* %% */
     static char buf[BUFSZ];
 
-    if((mtmp->mnamlth != 0) && (vb == 0)) {
+    if((mtmp->mnamelth != 0) && (vb == 0)) {
         return NAME(mtmp);
     }
 

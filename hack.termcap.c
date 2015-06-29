@@ -1,5 +1,7 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include "hack.termcap.h"
+
 #include <stdio.h>
 
 /* For ROWNO and COLNO */

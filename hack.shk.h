@@ -3,12 +3,21 @@
 
 #include "def.obj.h" /* obj */
 
-void addtobill();
+#ifdef QUEST
+void subfrombill();
+void splitbill();
+void dopay();
+#else
 void subfrombill(struct obj *obj);
 void splitbill(struct obj *obj, struct obj *otmp);
-char *plur(unsigned int n);
-int inshop();
 int dopay();
+#endif
+
 void obfree(struct obj *obj, struct obj *merge);
+int inshop();
+void addtobill();
+char *shkname();
+void setshk();
+char *plur(unsigned int n);
 
 #endif

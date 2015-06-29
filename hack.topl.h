@@ -4,5 +4,6 @@
 void pline(char *line, ...);
 int doredotopl();
 void more();
+void clrlin();
 
 #endif

@@ -6,5 +6,6 @@ void getret();
 void setctty();
 void setty(char *s);
 char *parse();
+void getlin(char *bufp);
 
 #endif

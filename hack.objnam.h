@@ -4,5 +4,6 @@
 #include "def.obj.h" /* obj */
 
 char *doname(struct obj *obj);
+char *xname(struct obj *obj);
 
 #endif

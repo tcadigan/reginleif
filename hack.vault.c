@@ -1,5 +1,7 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include "hack.vault.h"
+
 #include "hack.h"
 
 #ifdef QUEST
