@@ -32,6 +32,7 @@ struct monst {
     Bitfield(mflee, 1);
     Bitfield(mcan, 1); /* Has been cancelled */
     Bitfield(mtame, 1); /* Implies peaceful */
+    Bitfield(mpeaceful, 1); /* does not attack unprovoked */
     Bitfield(isshk, 1); /* Is shopkeeper */
     Bitfield(isgd, 1); /* Is guard */
     Bitfield(mcansee, 1); /* cansee 1, temp.blinded 0, blind 0 */

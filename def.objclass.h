@@ -18,7 +18,7 @@ struct objclass {
     schar oc_oc1;
     schar oc_oc2;
     int oc_oi;
-#define nutrition oc_oi; /* For foods */
+#define nutrition oc_oi /* For foods */
 #define a_ac oc_oc1 /* For armors */
 #define a_can oc_oc2 /* For armors */
 #define bits oc_oc1 /* For wands and rings */

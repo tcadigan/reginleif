@@ -1,5 +1,7 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include "hack.track.h"
+
 #include "hack.h"
 
 #ifdef TRACK

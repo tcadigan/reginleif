@@ -6,5 +6,6 @@
 
 int somegold();
 void mpickobj(struct monst *mtmp, struct obj *otmp);
+void relobj(struct monst *mtmp, int show);
 
 #endif

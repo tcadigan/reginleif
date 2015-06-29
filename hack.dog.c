@@ -2,9 +2,26 @@
 
 #include "hack.dog.h"
 
+#include <string.h>
+
+#include "alloc.h"
 #include "def.edog.h"
 #include "hack.h"
+#include "hack.do_name.h"
+#include "hack.fight.h"
+#include "hack.invent.h"
+#include "hack.makemon.h"
 #include "hack.mfndpos.h"
+#include "hack.mon.h"
+#include "hack.objnam.h"
+#include "hack.onames.h"
+#include "hack.pri.h"
+#include "hack.shk.h"
+#include "hack.steal.h"
+#include "hack.topl.h"
+#include "hack.track.h"
+#include "hack.trap.h"
+#include "rnd.h"
 
 extern char POISONOUS[];
 
@@ -180,7 +197,7 @@ int dog_move(struct monst *mtmp, int after)
     /* Current goal */
     xchar gx;
     xchar gy;
-    xchar gtyp;
+    xchar gtyp = 0;
     xchar otyp;
 
     coord poss[9];
@@ -279,7 +296,7 @@ int dog_move(struct monst *mtmp, int after)
 
                     delobj(obj);
                     
-                    if((nix != omx) || (niy 1= omy)) {
+                    if((nix != omx) || (niy != omy)) {
                         if((info[chi] & ALLOW_U) != 0) {
                             hitu(mtmp, d(mdat->damn, mdat->damd) + 1);
                             
@@ -321,7 +338,7 @@ int dog_move(struct monst *mtmp, int after)
                      * }
                      */
 
-                    mpickup(mtmp, obj);
+                    mpickobj(mtmp, obj);
                 }
             }
         }
@@ -329,15 +346,13 @@ int dog_move(struct monst *mtmp, int after)
 
     /* First we look for food */
     /* No goal as yet */
-#ifdef LINT
     gy = 0;
     gx = 0;
-#endif
 
     for(obj = fobj; obj != NULL; obj = obj->nobj) {
         otyp = dogfood(obj);
 
-        if((otyp > gtyp) || (otyp == NUDEF)) {
+        if((otyp > gtyp) || (otyp == UNDEF)) {
             continue;
         }
 
@@ -378,8 +393,8 @@ int dog_move(struct monst *mtmp, int after)
         }
 #ifndef QUEST
         else {
-            int tmp = rooms[dogroom].fdoor;
-            cnt = rooms[dogroom].doorct;
+            int tmp = rooms[(int)dogroom].fdoor;
+            cnt = rooms[(int)dogroom].doorct;
 
             /* Random, far away */
             gy = FAR;
@@ -421,7 +436,7 @@ int dog_move(struct monst *mtmp, int after)
         }
 
         if(udist > 1) {
-            if((levl[u.ux][u.uy].typ < ROOM)
+            if((levl[(int)u.ux][(int)u.uy].typ < ROOM)
                || (rn2(4) == 0)
                || (whappr != 0)
                || ((mtmp->minvent != NULL) && (rn2((int)edog->apport) != 0))) {
@@ -521,7 +536,7 @@ int dog_move(struct monst *mtmp, int after)
         obj = fobj;
 
         while(obj != NULL) {
-            if((obj->ox != n) || (obj->oy 1= ny)) {
+            if((obj->ox != nx) || (obj->oy != ny)) {
                 obj = obj->nobj;
                 continue;
             }
@@ -545,10 +560,10 @@ int dog_move(struct monst *mtmp, int after)
                     nix = nx;
                     niy = ny;
                     chi = i;
-                eatobj:
+
                     edog->eattime = moves + objects[obj->otyp].oc_delay;
-                    edog->hungrytime = 
-                        moves + (5 * objects[obj->otyp].nutrition);
+                    edog->hungrytime = moves + (5 * objects[obj->otyp].nutrition);
+                        /* moves + (5 * objects[obj->otyp].nutrition); */
 
                     mtmp->mconf = 0;
 
@@ -617,9 +632,9 @@ int dog_move(struct monst *mtmp, int after)
                 chi = i;
             }
             else if((nearer < 0)
-                    || ((nearer > 0)
-                        && (whappr == 0)
-                        && ((omx == nix) && (omy == niy) && (rn2(3) == 0))
+                    || (((nearer > 0)
+                         && (whappr == 0)
+                         && ((omx == nix) && (omy == niy) && (rn2(3) == 0)))
                         || (rn2(12) == 0))) {
                 nix = nx;
                 niy = ny;
@@ -632,22 +647,22 @@ int dog_move(struct monst *mtmp, int after)
             }
         }
         else if((nearer < 0)
-                || ((nearer > 0)
-                    && (whappr == 0)
-                    && ((omx == nix) && (omy == niy) && (rn2(3) == 0))
+                || (((nearer > 0)
+                     && (whappr == 0)
+                     && ((omx == nix) && (omy == niy) && (rn2(3) == 0)))
                     || (rn2(12) == 0))) {
             nix = nx;
             niy = ny;
 
             if(nearer < 0) {
-                chcnt;
+                chcnt = 0;
             }
 
             chi = i;
         }
     }
 
-    if((nix != omx) || (niy 1= omy)) {
+    if((nix != omx) || (niy != omy)) {
         if((info[chi] & ALLOW_U) != 0) {
             hitu(mtmp, d(mdat->damn, mdat->damd) + 1);
 
@@ -701,7 +716,7 @@ int tamedog(struct monst *mtmp, struct obj *obj)
 {
     struct monst *mtmp2;
 
-#ifdnef NOWORM
+#ifndef NOWORM
     if((mtmp->mtame != 0)
        || (mtmp->wormno != 0)
        || (mtmp->isshk != 0) 

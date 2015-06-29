@@ -21,5 +21,6 @@ void docrt();
 void prme();
 void at(xchar x, xchar y, char ch);
 void cls();
+void pmon(struct monst *mon);
 
 #endif

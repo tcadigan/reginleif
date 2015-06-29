@@ -5,6 +5,7 @@ struct edog {
     long eattime; /* Dog is eating */
     long droptime; /* Moment dog dropped object */
     unsigned int dropdist; /* Distance of dropped object from @ */
+    unsigned int apport; /* Amount of training */
     unsigned int whistletime; /* Last time he whistled */
 };
 
