@@ -1,29 +1,24 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
-#include "hack.engrage.h"
+#include "hack.engrave.h"
 
+#include <stdlib.h>
+#include <string.h>
+
+#include "alloc.h"
 #include "hack.h"
+#include "hack.invent.h"
+#include "hack.lev.h"
+#include "hack.main.h"
+#include "hack.objnam.h"
+#include "hack.topl.h"
+#include "hack.tty.h"
+#include "makedefs.h"
+#include "rnd.h"
+#include "savelev.h"
 
 extern char *nomovemsg;
 extern char nul[];
-
-struct engr {
-    struct engr *next_engr;
-    char *engr_txt;
-    xchar engr_x;
-    xchar engr_y;
-
-    /* For save and restore, not length of text */
-    unsigned int engr_lth;
-    
-    /* Moment engraving was (will be) finished */
-    long engr_time;
-    xchar engr_type;
-
-#define DUST 1
-#define ENGRAVE 2
-#define BURN 3
-};
 
 struct engr *head_engr;
 

@@ -3,5 +3,6 @@
 
 int getlev(int fd);
 void mklev();
+void mread(int fd, char *buf, unsigned int len);
 
 #endif

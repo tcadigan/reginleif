@@ -1,5 +1,7 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include "hack.rip.h"
+
 /* For time_t */
 #include <sys/types.h>
 #include <stdio.h>

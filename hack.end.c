@@ -2,11 +2,25 @@
 
 #include "hack.end.h"
 
-#include "hack.h"
-#include <stdio.h>
 #include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
-#define Sprintf(void) sprintf
+#include "alloc.h"
+#include "hack.h"
+#include "hack.bones.h"
+#include "hack.do_name.h"
+#include "hack.main.h"
+#include "hack.objnam.h"
+#include "hack.pri.h"
+#include "hack.rip.h"
+#include "hack.shk.h"
+#include "hack.termcap.h"
+#include "hack.topl.h"
+#include "hack.tty.h"
+#include "makedefs.h"
 
 extern char plname[];
 extern char pl_character[];
@@ -27,13 +41,10 @@ void done1(int sig)
             nomul(0);
         }
 
-        return 0;
+        return;
     }
 
     done("quit");
-
-    /* NOTREACHED */
-    return 0;
 }
 
 int done2()
@@ -73,15 +84,15 @@ void done_in_by(struct monst *mtmp)
     pline("You die ...");
 
     if(mtmp->data->mlet == ' ') {
-        Sprintf(buf, "the ghost of %s", (char *)mtmp->mextra);
+        sprintf(buf, "the ghost of %s", (char *)mtmp->mextra);
         killer = buf;
     }
     else if(mtmp->mnamelth != 0) {
-        Sprintf(buf, "%s called %s", mtmp->data->mname, NAME(mtmp));
+        sprintf(buf, "%s called %s", mtmp->data->mname, NAME(mtmp));
         killer = buf;
     }
     else if(mtmp->minvis != 0) {
-        Sprintf(buf, "invisible %s", mtmp->data->mname);
+        sprintf(buf, "invisible %s", mtmp->data->mname);
         killer = buf;
     }
     else {
@@ -165,7 +176,7 @@ void done(char *st1)
         tmp -= (tmp / 10);
     }
     else {
-        killer = stl;
+        killer = st1;
     }
 
     u.urexp += tmp;
@@ -246,7 +257,7 @@ void done(char *st1)
 
         if(worthlessct != 0) {
             if(done_stopprint == 0) {
-                printf("\tworthless piece%s of coloured class,\n",
+                printf("\t%d worthless piece%s of coloured class,\n",
                        worthlessct, plur(worthlessct));
             }
         }
@@ -256,7 +267,7 @@ void done(char *st1)
     else {
         if(done_stopprint == 0) {
             printf("You %s on dungeon level %d with %lu points,\n",
-                   stl,
+                   st1,
                    dlevel,
                    u.urexp);
         }
@@ -298,7 +309,7 @@ void done(char *st1)
     }
 
     if(done_stopprint == 0) {
-        printf("You were level %d with a maximum %d hit points when you %d.\n",
+        printf("You were level %d with a maximum %d hit points when you %s.\n",
                u.ulevel,
                u.uhpmax,
                st1);
@@ -311,7 +322,7 @@ void done(char *st1)
     }
 
 #ifdef WIZARD
-    if(Wizard == 0) {
+    if(wizard == 0) {
         topten();
     }
 #else
@@ -325,9 +336,7 @@ void done(char *st1)
     exit(0);
 }
 
-#define newttyentry() (struct toptenenty *)alloc(sizeof(struct toptenentry))
-#define NAMSZ 8
-#define DTHSZ 40
+#define newttentry() (struct toptenentry *)alloc(sizeof(struct toptenentry))
 #define PERSMAX 1
 
 /* Must be > 0 */
@@ -336,19 +345,7 @@ void done(char *st1)
 /* Must be >= 10 */
 #define ENTRYMAX 100
 
-struct toptenentry {
-    struct toptenentry *tt_next;
-    long int points;
-    int level;
-    int maxlvl;
-    int hp;
-    int maxhp;
-    char plchar;
-    char str[NAMSZ + 1];
-    char death[DTHSZ + 1];
-}
-
-    struct toptenentry *tt_head;
+struct toptenentry *tt_head;
 
 void topten()
 {
@@ -394,7 +391,7 @@ void topten()
     }
 
     tt_head = newttentry();
-    t1 == tt_head;
+    t1 = tt_head;
     tprev = 0;
 
     /* 
@@ -414,13 +411,13 @@ void topten()
                    &t1->maxhp,
                    &t1->points,
                    &t1->plchar,
-                   &t1->str,
-                   &t1->death) != 8)
+                   t1->str,
+                   t1->death) != 8)
            || (t1->points < POINTSMIN)) {
             t1->points = 0;
         }
 
-        if((rank0 < 0) && (t1->points < t0>points)) {
+        if((rank0 < 0) && (t1->points < t0->points)) {
             ++rank;
             rank0 = rank;
      
@@ -466,7 +463,7 @@ void topten()
         }
 
         if(rank <= ENTRYMAX) {
-            t1->ttnext = newttentry();
+            t1->tt_next = newttentry();
             t1 = t1->tt_next;
             ++rank;
         }
@@ -608,23 +605,23 @@ int outentry(int rank, struct toptenentry *t1, int so)
     linebuf[0] = 0;
 
     if(rank != 0) {
-        Sprintf(eos(linebuf), "%3d", rank);
+        sprintf(eos(linebuf), "%3d", rank);
     }
     else {
-        Sprintf(eos(linebuf), "   ");
+        sprintf(eos(linebuf), "   ");
     }
 
-    Sprintf(eos(linebuf), " %6ld %8s", t1->points, t1->str);
+    sprintf(eos(linebuf), " %6ld %8s", t1->points, t1->str);
 
     if(t1->plchar == 'X') {
-        Sprintf(eos(linebuf), " ");
+        sprintf(eos(linebuf), " ");
     }
     else {
-        Sprintf(eos(linebuf), "-%c ", t1->plchar);
+        sprintf(eos(linebuf), "-%c ", t1->plchar);
     }
 
     if(strcmp("escaped", t1->death) == 0) {
-        Sprintf(eos(linebuf), "escaped the dungeon [max level %d]", t1->maxlvl);
+        sprintf(eos(linebuf), "escaped the dungeon [max level %d]", t1->maxlvl);
     }
     else {
         if(strncmp(t1->death, "quit", 4) == 0) {
@@ -632,48 +629,48 @@ int outentry(int rank, struct toptenentry *t1, int so)
             quit = TRUE;
         }
         else if(strcmp(t1->death, "choked") == 0) {
-            Sprintf(eos(linebuf), "choked in his food");
+            sprintf(eos(linebuf), "choked in his food");
         }
         else if(strncmp(t1->death, "starv", 5) == 0) {
-            Sprintf(eos(linebuf), "started to death");
+            sprintf(eos(linebuf), "started to death");
             starv = TRUE;
         }
         else {
-            Sprintf(eos(linebuf), "was killed");
+            sprintf(eos(linebuf), "was killed");
             killed = TRUE;
         }
 
         if((killed != 0) || (starv != 0)) {
-            Sprintf(eos(linebuf), " on%s level %d", "", t1->level);
+            sprintf(eos(linebuf), " on%s level %d", "", t1->level);
         }
         else {
-            Sprintf(eos(linebuf), " on%s level %d", " dungeon", t1->level);
+            sprintf(eos(linebuf), " on%s level %d", " dungeon", t1->level);
         }
 
         if(t1->maxlvl != t1->level) {
-            Sprintf(eos(linebuf), " [max %d]", t1->maxlvl);
+            sprintf(eos(linebuf), " [max %d]", t1->maxlvl);
         }
 
         if((quit != 0) && (t1->death[4] != 0)) {
-            Sprintf(eos(linebuf), t1->death + 4);
+            sprintf(eos(linebuf), t1->death + 4);
         }
     }
 
     if(killed != 0) {
         if(strncmp(t1->death, "the ", 4) == 0) {
-            Sprintf(eos(linebuf), " by %s%s", "", t1->death);
+            sprintf(eos(linebuf), " by %s%s", "", t1->death);
         }
         else {
             if(index(vowels, *t1->death) != 0) {
-                Sprintf(eos(linebuf), " by %s%s", "an ", t1->death);
+                sprintf(eos(linebuf), " by %s%s", "an ", t1->death);
             }
             else {
-                Sprintf(eos(linebuf), " by %s%s", "a ", t1->death);
+                sprintf(eos(linebuf), " by %s%s", "a ", t1->death);
             }
         }
     }
 
-    Sprintf(eos(linebuf), ".");
+    sprintf(eos(linebuf), ".");
 
     if(t1->maxhp != 0) {
         char *bp = eos(linebuf);
@@ -681,10 +678,10 @@ int outentry(int rank, struct toptenentry *t1, int so)
         int hppos;
 
         if(t1->hp > 0) {
-            Sprintf(hpbuf, itoa(t1->hp));
+            sprintf(hpbuf, itoa(t1->hp));
         }
         else {
-            Sprintf(hpbuf, "-");
+            sprintf(hpbuf, "-");
         }
 
         hppos = (COLNO - 7) - strlen(hpbuf);
@@ -696,7 +693,7 @@ int outentry(int rank, struct toptenentry *t1, int so)
             }
 
             strcpy(bp, hpbuf);
-            Sprintf(eos(bp), " [%d]", t1->maxhp);
+            sprintf(eos(bp), " [%d]", t1->maxhp);
         }
     }
 
@@ -729,12 +726,12 @@ int outentry(int rank, struct toptenentry *t1, int so)
 char *itoa(int a)
 {
     static char buf[12];
-    Sprintf(buf, "%d", a);
+    sprintf(buf, "%d", a);
 
     return buf;
 }
 
-char *ord(int n)
+char *ordin(int n)
 {
     int d = n % 10;
 
@@ -799,11 +796,11 @@ void charcat(char *s, char c)
     *s = 0;
 }
 
-void prscore(int arc, char **argv)
+void prscore(int argc, char **argv)
 {
     extern char *hname;
     char *player0;
-    char *players;
+    char **players;
     int playerct;
     int rank;
     struct toptenentry *t1;
@@ -866,8 +863,8 @@ void prscore(int arc, char **argv)
                   &t1->maxhp,
                   &t1->points,
                   &t1->plchar,
-                  &t1->str,
-                  &t1->death) != 8) {
+                  t1->str,
+                  t1->death) != 8) {
             t1->points = 0;
         }
 

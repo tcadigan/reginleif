@@ -16,6 +16,7 @@ int dopay();
 void obfree(struct obj *obj, struct obj *merge);
 int inshop();
 void addtobill();
+void paybill();
 char *shkname();
 void setshk();
 char *plur(unsigned int n);
