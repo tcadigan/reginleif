@@ -25,10 +25,11 @@ HSOURCES = alloc.h config.h date.h def.edog.h def.eshk.h def.func_tab.h \
            hack.engrave.h hack.fight.h hack.h hack.invent.h hack.lev.h \
            hack.main.h hack.makemon.h hack.mfndpos.h hack.mkobj.h hack.mon.h \
            hack.objnam.h hack.onames.h hack.options.h hack.pri.h hack.read.h \
-           hack.save.h hack.search.h hack.shk.h hack.stat.h hack.steal.h \
-           hack.termcap.h hack.topl.h hack.track.h hack.trap.h hack.tty.h \
-           hack.vault.h hack.version.h hack.whatis.h hack.wield.h hack.worm.h \
-           hack.worn.h hack.zap.h makedefs.h mklev.h rnd.h savelev.h \
+           hack.rumors.h hack.save.h hack.search.h hack.shk.h hack.stat.h \
+           hack.steal.h hack.termcap.h hack.topl.h hack.track.h hack.trap.h \
+           hack.tty.h hack.vault.h hack.version.h hack.whatis.h hack.wield.h \
+           hack.worm.h hack.worn.h hack.zap.h makedefs.h mklev.h rnd.h \
+           savelev.h \
 
 SOURCES = $(CSOURCES) $(HSOURCES)
 
@@ -181,8 +182,8 @@ hack.cmdlist.o: config.h def.func_tab.h hack.apply.h hack.do.h hack.do_name.h ha
 hack.Decl.o: def.gen.h def.monst.h def.obj.h hack.h
 hack.dog.o: hack.dog.h alloc.h def.edog.h hack.h hack.do_name.h hack.fight.h hack.invent.h hack.makemon.h hack.mfndpos.h hack.mon.h hack.objnam.h hack.onames.h hack.pri.h hack.shk.h hack.steal.h hack.topl.h hack.track.h hack.trap.h rnd.h
 hack.do_name.o: hack.do_name.h alloc.h hack.h hack.invent.h hack.mon.h hack.objnam.h hack.pri.h hack.shk.h hack.termcap.h hack.topl.h hack.tty.h hack.vault.h hack.worn.h
-hack.do_wear.o: hack.do_wear.h hack.h
-hack.eat.o: hack.eat.h hack.h
+hack.do_wear.o: hack.do_wear.h hack.h hack.do.h hack.invent.h hack.main.h hack.mon.h hack.objnam.h hack.topl.h hack.trap.h hack.tty.h hack.wield.h hack.worn.h rnd.h
+hack.eat.o: hack.eat.h hack.h hack.do.h hack.end.h hack.invent.h hack.objnam.h hack.pri.h hack.rumors.h hack.topl.h rnd.h
 hack.engrave.o: hack.engrage.h hack.h
 hack.fight.o: hack.fight.h hack.h
 hack.invent.o: hack.invent.h hack.h def.wseg.h
@@ -197,7 +198,7 @@ hack.o_init.o: config.h def.objects.h hack.onames.h
 hack.options.o: hack.options.h config.h hack.h
 hack.pri.o: hack.pri.h hack.h def.wseg.h
 hack.read.o: hack.read.h hack.h
-hack.rumors.o: config.h
+hack.rumors.o: hack.rumors.h config.h
 hack.search.o: hack.search.h hack.h def.trap.h
 hack.shk.o: hack.shk.h def.eshk.h hack.h hack.mfndpos.h
 hack.steal.o: hack.steal.h hack.h
@@ -235,6 +236,10 @@ hack.do.h: config.h def.obj.h
 	touch hack.do.h
 hack.do_name.h: def.monst.h
 	touch hack.do_name.h
+hack.do_wear.h: def.obj.h
+	touch hack.do_wear.h
+hack.eat.h: def.obj.h
+	touch hack.eat.h
 hack.end.h: def.monst.h
 	touch hack.end.h
 hack.engrave.h: config.h

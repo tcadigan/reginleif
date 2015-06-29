@@ -5,6 +5,17 @@
 #include <stdio.h>
 
 #include "hack.h"
+#include "hack.do.h"
+#include "hack.invent.h"
+#include "hack.main.h"
+#include "hack.mon.h"
+#include "hack.objnam.h"
+#include "hack.topl.h"
+#include "hack.trap.h"
+#include "hack.tty.h"
+#include "hack.wield.h"
+#include "hack.worn.h"
+#include "rnd.h"
 
 extern char *nomovemsg;
 
@@ -19,7 +30,7 @@ int doremarm()
     if((uarm == 0) && (uarmh == 0) && (uarms == 0) && (uarmg == 0)) {
         pline("Not wearing any armor.");
         
-        return;
+        return 0;
     }
 
     if((uarmh == 0) && (uarms == 0) && (uarmg == 0)) {
@@ -34,8 +45,9 @@ int doremarm()
     else if((uarmh == 0) && (uarm == 0) && (uarmg == 0)) {
         otmp = uarmg;
     }
-
-    getobj("[", "take off");
+    else {
+        otmp = getobj("[", "take off");
+    }
 
     if(otmp == NULL) {
         return 0;
@@ -68,7 +80,7 @@ int doremring()
         return dorr(uleft);
     }
 
-    if((uleft != 0) && (right != 0)) {
+    if((uleft != 0) && (uright != 0)) {
         while(1) {
             pline("What ring, Right or Left? ");
 
@@ -90,9 +102,7 @@ int doremring()
     }
 
     /* NOT REACHED */
-#ifdef lint
     return 0;
-#endif
 }
 
 int dorr(struct obj *otmp)
@@ -266,7 +276,7 @@ int dowearring()
         return 0;
     }
 
-    if(ulet != 0) {
+    if(uleft != 0) {
         mask = RIGHT_RING;
     }
     else if(uright != 0) {
@@ -320,8 +330,8 @@ int dowearring()
     
     if(otmp == uwep) {
         setuwep((struct obj *)0);
-        oldprop = u.uprops[PRO(otmp->otyp)].p_flgs;
-        u.uprops[PROP(otmp->otyp)].p_flgs = |= mask;
+        oldprop = u.uprops[PROP(otmp->otyp)].p_flgs;
+        u.uprops[PROP(otmp->otyp)].p_flgs |= mask;
         
         switch(otmp->otyp) {
         case RIN_LEVITATION:
@@ -329,7 +339,7 @@ int dowearring()
                 float_up();
             }
             
-            return;
+            break;
         case RIN_PROTECTION_FROM_SHAPE_CHANGERS:
             rescham();
             
@@ -340,7 +350,7 @@ int dowearring()
             flags.botl = 1;
             
             break;
-        case RIN_INCREASE_DAM:
+        case RIN_INCREASE_DAMAGE:
             u.udaminc += otmp->spe;
             
             break;
@@ -429,7 +439,7 @@ void find_ac()
 void glibr()
 {
     struct obj *otmp;
-    int xfl;
+    int xfl = 0;
 
     if(uarmg == 0) {
         if((uleft != 0) || (uright != 0)) {
@@ -502,12 +512,12 @@ void corrode_armor()
            || (otmph->otyp == ELVEN_CLOAK)
            || (otmph->otyp == LEATHER_ARMOR)
            || (otmph->otyp == STUDDED_LEATHER_ARMOR)) {
-            pline("Your %s not affected!", abojnam(otmph, "are"));
+            pline("Your %s not affected!", aobjnam(otmph, "are"));
 
             return;
         }
 
-        pline("Your %s!", aobjname(otmph, "corrode"));
+        pline("Your %s!", aobjnam(otmph, "corrode"));
         --otmph->spe;
     }
 }

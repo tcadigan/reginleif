@@ -3,10 +3,19 @@
 #include "hack.eat.h"
 
 #include "hack.h"
+#include "hack.do.h"
+#include "hack.end.h"
+#include "hack.invent.h"
+#include "hack.objnam.h"
+#include "hack.pri.h"
+#include "hack.rumors.h"
+#include "hack.topl.h"
+#include "rnd.h"
+
 char POISONOUS[] = "ADKSVabhks";
 
 extern char *nomovemsg;
-extern int (*aftrnmv)();
+extern void (*afternmv)();
 
 /* Hunger texts used on bottom line (each 8 chars long) */
 #define SATIATED 0
@@ -35,12 +44,12 @@ struct tintxt {
 };
 
 struct tintxt tintxts[] = {
-    "It contains first quality peaches - what a surprise!", 40,
-    "It contains salmon - not bad!", 60,
-    "It contains apple juice - perhaps not what you hoped for.", 20,
-    "It contains some nondescript substance, tasting awfully.", 500,
-    "It contains rotten meat. You vomit.", -50,
-    "It turns out to be empty.", 0
+    { "It contains first quality peaches - what a surprise!", 40 },
+    { "It contains salmon - not bad!", 60 },
+    { "It contains apple juice - perhaps not what you hoped for.", 20 },
+    { "It contains some nondescript substance, tasting awfully.", 500 },
+    { "It contains rotten meat. You vomit.", -50 },
+    { "It turns out to be empty.", 0 }
 };
 
 void tinopen()
@@ -50,7 +59,7 @@ void tinopen()
     int r = rn2(2 * TTSZ);
 
     if(r < TTSZ) {
-        pline(tintxt[r].txt);
+        pline(tintxts[r].txt);
         lesshungry(tintxts[r].nut);
 
         /* SALMON */
@@ -198,7 +207,7 @@ int doeat()
                 multi -= 2;
             }
 
-            lesshungy(ftmp->nutrition);
+            lesshungry(ftmp->nutrition);
 
             if(multi < 0) {
                 nomovemsg = "You finished your meal.";
@@ -293,7 +302,7 @@ void lesshungry(int num)
     }
     else if((u.uhunger <= 0) && (newhunger < 50)) {
         pline("You feel weak now.");
-        falgs.botl;
+        flags.botl = 1;
         u.uhs = WEAK;
     }
 
@@ -333,7 +342,7 @@ void gethungry()
         }
         if(u.uhs != FAINTING) {
             u.uhs = FAINTING;
-            falgs.botl = 1;
+            flags.botl = 1;
         }
     }
     else if(u.uhunger < -(int)(200 + (25 * u.ulevel))) {
@@ -430,7 +439,7 @@ int eatcorpse(struct obj *otmp)
     case 'Y':
         Cold_resistance |= INTRINSIC;
 
-        break
+        break;
     case 'k':
     case 's':
         Poison_resistance |= INTRINSIC;

@@ -1233,7 +1233,7 @@ void kludge(char *str, char *arg)
 }
 
 /* Force all chameleons to become normal */
-void reschem()
+void rescham()
 {
     struct monst *mtmp;
 

@@ -11,7 +11,7 @@
 extern char plname[PL_NSIZ];
 extern char pl_character[PL_CSIZ];
 
-int (*afternmv)();
+void (*afternmv)();
 
 char safelock[] = "safelock";
 

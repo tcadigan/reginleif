@@ -246,7 +246,7 @@ int steal(struct monst *otmp)
 
                 if(multi < 0) {
                     extern char *nomovemsg;
-                    extern int (*afternmv)();
+                    extern void (*afternmv)();
 
                     /*
                      * multi = 0;

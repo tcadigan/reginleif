@@ -5,5 +5,6 @@
 
 char *doname(struct obj *obj);
 char *xname(struct obj *obj);
+char *aobjnam(struct obj *otmp, char *verb);
 
 #endif
