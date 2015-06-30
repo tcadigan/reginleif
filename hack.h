@@ -45,7 +45,7 @@ struct flag {
     unsigned int cbreak:1;
     
     /* Give inventories 1 line at a time */
-    unsigned int online:1;
+    unsigned int oneline:1;
     unsigned int move:1;
     unsigned int mv:1;
 
@@ -265,6 +265,7 @@ int inv_cnt();
 void pickup();
 void movobj(struct obj *obj, int ox, int oy);
 int abon();
+int dbon();
 int inv_weight();
 void domove();
 int movecm(char *cmd);

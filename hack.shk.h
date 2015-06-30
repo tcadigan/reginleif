@@ -7,10 +7,12 @@
 void subfrombill();
 void splitbill();
 void dopay();
+void doinvbill();
 #else
 void subfrombill(struct obj *obj);
 void splitbill(struct obj *obj, struct obj *otmp);
 int dopay();
+void doinvbill(int cl);
 #endif
 
 void obfree(struct obj *obj, struct obj *merge);

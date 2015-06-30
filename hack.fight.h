@@ -9,5 +9,6 @@ boolean hmon(struct monst *mon, struct obj *obj, int thrown);
 int hitmm(struct monst *magr, struct monst *mdef);
 int hitu(struct monst *mtmp, int dam);
 void mondied(struct monst *mdef);
+void monstone(struct monst *mdef);
 
 #endif

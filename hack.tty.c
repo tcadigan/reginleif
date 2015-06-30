@@ -24,7 +24,7 @@ void getty()
      * }
      */
 
-    getioctls();
+    /* getioctls(); */
     xtabs();
 }
 
@@ -57,7 +57,7 @@ void setty(char *s)
         flags.cbreak = OFF;
     }
 
-    setioctls();
+    /* setioctls(); */
 }
 
 void setctty()
@@ -329,4 +329,3 @@ char readchar()
 
     return (char)sym;
 }
-            

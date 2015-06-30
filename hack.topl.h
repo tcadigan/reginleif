@@ -5,5 +5,7 @@ void pline(char *line, ...);
 int doredotopl();
 void more();
 void clrlin();
+void cmore();
+void addtopl(char *s);
 
 #endif

@@ -2,8 +2,22 @@
 #include "hack.invent.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
+#include "alloc.h"
 #include "hack.h"
+#include "hack.do.h"
+#include "hack.mkobj.h"
+#include "hack.objnam.h"
+#include "hack.pri.h"
+#include "hack.shk.h"
+#include "hack.termcap.h"
+#include "hack.topl.h"
+#include "hack.tty.h"
+#include "hack.wield.h"
+#include "hack.worn.h"
+#include "makedefs.h"
 
 extern char morc;
 
@@ -16,8 +30,8 @@ extern struct wseg *wsegs[32];
 struct obj *addinv(struct obj *obj)
 {
     struct obj *otmp;
-    for(otmp = invent; otmp != NULL; otmp->otmp->nobj) {
-        if(merged(otmp, obj, 0) != NULL) {
+    for(otmp = invent; otmp != NULL; otmp = otmp->nobj) {
+        if(merged(otmp, obj, 0) != 0) {
             return otmp;
         }
 
@@ -56,7 +70,7 @@ void freeinv(struct obj *obj)
         invent = invent->nobj;
     }
     else {
-        for(otmp = invent; otmp->nobj != obj; otmp->otmp->nobj) {
+        for(otmp = invent; otmp->nobj != obj; otmp = otmp->nobj) {
             if(otmp->nobj == 0) {
                 panic("freeinv");
             }
@@ -111,7 +125,7 @@ void freegold(struct gen *gold)
         }
     }
 
-    return gold;
+    free(gold);
 }
 
 void deltrap(struct gen *trap)
@@ -154,7 +168,7 @@ struct monst *m_at(int x, int y)
 
 #ifndef NOWORM
         if(mtmp->wormno != 0) {
-            for(wtmp = wsegs[mtmp->wormno]; mtmp != NULL; wtmp = wtmp->nsegs) {
+            for(wtmp = wsegs[mtmp->wormno]; mtmp != NULL; wtmp = wtmp->nseg) {
                 if((wtmp->wx == x) && (wtmp->wy == y)) {
                     m_atseg = wtmp;
 
@@ -415,8 +429,8 @@ struct obj *getobj(char *let, char *word)
         }
 
         if(ilet == '-') {
-            if(allownow != 0) {
-                return -1;
+            if(allownone != 0) {
+                return (struct obj *)-1;
             }
             else {
                 return NULL;
@@ -513,10 +527,10 @@ struct obj *getobj(char *let, char *word)
             struct obj *obj;
 
             obj = splitobj(otmp, cnt);
-        }
 
-        if(otmp == uwep) {
-            setuwep(obj);
+            if(otmp == uwep) {
+                setuwep(obj);
+            }
         }
     }
 
@@ -537,7 +551,7 @@ int ggetobj(char *word, int (*fn)(struct obj *obj), int max)
     int oletct = 0;
     int iletct = 0;
     boolean allflag = FALSE;
-    char olet[20];
+    char olets[20];
     char ilets[20];
     int (*ckfn)() = (int (*)())0;
 
@@ -553,7 +567,7 @@ int ggetobj(char *word, int (*fn)(struct obj *obj), int max)
         ilets[0] = 0;
         
         while(otmp != 0) {
-            if(index(ilets, otemp->olet) == 0) {
+            if(index(ilets, otmp->olet) == 0) {
                 ilets[iletct] = otmp->olet;
                 ++iletct;
                 ilets[iletct] = 0;
@@ -734,9 +748,9 @@ void prname(struct obj *obj, char let, int onelin)
 
     sprintf(li, " %c - %s.", let, doname(obj));
 
-    switch(onlin) {
+    switch(onelin) {
     case 1:
-        prline(li + 1);
+        pline(li + 1);
         
         break;
     case 0:
@@ -820,7 +834,7 @@ void doinv(char *lets)
             if(flag == 0) {
                 home();
                 cl_end();
-                falgs.topl = 0;
+                flags.topl = 0;
                 ct = 0;
                 
                 for(otmp = invent; otmp != NULL; otmp = otmp->nobj) {
@@ -847,8 +861,8 @@ void doinv(char *lets)
                 /* Test whether morec is a reasonable answer */
                 if((lets != NULL) 
                    && (*lets != 0)
-                   && (index(lets, morec) == 0)) {
-                    morec = 0;
+                   && (index(lets, morc) == 0)) {
+                    morc = 0;
                 }
                 
                 home();
@@ -901,7 +915,7 @@ void doinv(char *lets)
         }
         else {
             /* %% */
-            morec = 0;
+            morc = 0;
         }
     }
 }
@@ -1012,10 +1026,10 @@ int doprring()
     }
     else {
         char lets[3];
-        int ct;
+        int ct = 0;
         
         if(uleft != NULL) {
-            lets[ct] = obj_to_left(uleft);
+            lets[ct] = obj_to_let(uleft);
             ++ct;
         }
         

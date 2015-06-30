@@ -4,5 +4,6 @@
 #include "def.obj.h" /* obj */
 
 void setworn(struct obj *obj, long mask);
+void setnotworn(struct obj *obj);
 
 #endif

@@ -13,13 +13,17 @@ void delobj(struct obj *obj);
 struct obj *addinv();
 void freeinv(struct obj *obj);
 void prinv(struct obj *obj);
+void prname(struct obj *obj, char let, int onelin);
 int askchain(struct obj *objchain, 
              char *olets,
              int allflag, 
              int (*fn)(struct obj *obj), 
              int (*ckfn)(struct obj *otmp), 
              int max);
+void doinv(char *lets);
 void useup(struct obj *obj);
+char obj_to_let(struct obj *obj);
+int merged(struct obj *otmp, struct obj *obj, int lose);
 void freegold(struct gen *gold);
 int carried(struct obj *obj);
 void deltrap(struct gen *trap);

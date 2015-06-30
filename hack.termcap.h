@@ -4,5 +4,7 @@
 void curs(int x, int y);
 void standoutbeg();
 void standoutend();
+void home();
+void cl_end();
 
 #endif

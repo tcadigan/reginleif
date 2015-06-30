@@ -2,7 +2,23 @@
 
 #include "hack.fight.h"
 
+#include <string.h>
+
 #include "hack.h"
+#include "hack.do_name.h"
+#include "hack.end.h"
+#include "hack.invent.h"
+#include "hack.mkobj.h"
+#include "hack.mon.h"
+#include "hack.objnam.h"
+#include "hack.pri.h"
+#include "hack.search.h"
+#include "hack.shk.h"
+#include "hack.topl.h"
+#include "hack.worn.h"
+#include "hack.zap.h"
+#include "makedefs.h"
+#include "rnd.h"
 
 extern struct permonst li_dog;
 extern struct permonst dog;
@@ -15,7 +31,7 @@ static long noisetime;
 int hitmm(struct monst *magr, struct monst *mdef)
 {
     struct permonst *pa = magr->data;
-    struct permost *pd = mdef->data;
+    struct permonst *pd = mdef->data;
     int hit;
     schar tmp;
     boolean vis;
@@ -51,7 +67,7 @@ int hitmm(struct monst *magr, struct monst *mdef)
     }
 
     if(vis != 0) {
-        char bux[BUFSZ];
+        char buf[BUFSZ];
         
         if(mdef->mimic != 0) {
             seemimic(mdef);
@@ -68,7 +84,7 @@ int hitmm(struct monst *magr, struct monst *mdef)
             sprintf(buf, "%s %s", Monnam(magr), "misses");
         }
 
-        pline("%s %s.", buf, monname(mdef));
+        pline("%s %s.", buf, monnam(mdef));
     }
     else {
         boolean far = 0;
@@ -77,7 +93,7 @@ int hitmm(struct monst *magr, struct monst *mdef)
             far = 1;
         }
 
-        if((far != far_noise) || (moves->noisetime > 10)) {
+        if((far != far_noise) || ((moves - noisetime) > 10)) {
             far_noise = far;
             noisetime = moves;
 
@@ -95,7 +111,7 @@ int hitmm(struct monst *magr, struct monst *mdef)
             magr->orig_hp += 3;
 
             if(vis != 0) {
-                pline("%s is turned to stone!", Monname(mdef));
+                pline("%s is turned to stone!", Monnam(mdef));
             }
             else if(mdef->mtame != 0) {
                 pline("You have a peculiarly sad feeling for a moment, then it passes.");
@@ -242,7 +258,7 @@ int hitu(struct monst *mtmp, int dam)
             pline("It misses.");
         }
         else {
-            pline("%s misses.", Monname(mtmp));
+            pline("%s misses.", Monnam(mtmp));
         }
 
         return 0;
@@ -292,7 +308,7 @@ int thitu(int tlev, int dam, char *name)
 }
 
 
-char mlarge = "bCDdegIlmnoPSsTUwY~,&";
+char mlarge[] = "bCDdegIlmnoPSsTUwY~,&";
 
 /* Return TRUE if mon is still alive */
 boolean hmon(struct monst *mon, struct obj *obj, int thrown)
@@ -330,7 +346,7 @@ boolean hmon(struct monst *mon, struct obj *obj, int thrown)
 
             tmp += obj->spe;
             
-            if((thrown == NULL)
+            if((thrown == 0)
                && (obj == uwep)
                && (obj->otyp == BOOMERANG) 
                && (rn2(3) == 0)) {

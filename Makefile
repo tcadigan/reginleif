@@ -8,7 +8,7 @@ CFLAGS = -O -g -Wall
 LDFLAGS = -lcurses -ltermcap -lc
 CSOURCES = alloc.c hack.apply.c hack.bones.c hack.c hack.cmdlist.c hack.Decl.c \
            hack.do.c hack.dog.c hack.do_name.c hack.do_wear.c hack.eat.c \
-           hack.end.c hack.engrave.c hack.fight.c hack.invent.c hack.ioctl.c \
+           hack.end.c hack.engrave.c hack.fight.c hack.invent.c \
            hack.lev.c hack.main.c hack.makemon.c hack.mhitu.c hack.mkobj.c \
            hack.mon.c hack.monst.c hack.objnam.c hack.o_init.c hack.options.c \
            hack.pri.c hack.read.c hack.rip.c hack.rumors.c hack.save.c \
@@ -37,7 +37,7 @@ AUX = data help hh rumors hack.6 hack.sh
 
 HOBJ = hack.apply.o hack.bones.o hack.o hack.cmdlist.o hack.Decl.o \
        hack.do.o hack.dog.o hack.do_name.o hack.do_wear.o hack.eat.o \
-       hack.end.o hack.engrave.o hack.fight.o hack.invent.o hack.ioctl.o \
+       hack.end.o hack.engrave.o hack.fight.o hack.invent.o \
        hack.lev.o hack.main.o hack.makemon.o hack.mhitu.o hack.mkobj.o \
        hack.mon.o hack.monst.o hack.objnam.o hack.o_init.o hack.options.o \
        hack.pri.o hack.read.o hack.rip.o hack.rumors.o hack.save.o \
@@ -186,7 +186,7 @@ hack.do_wear.o: hack.do_wear.h hack.h hack.do.h hack.invent.h hack.main.h hack.m
 hack.eat.o: hack.eat.h hack.h hack.do.h hack.end.h hack.invent.h hack.objnam.h hack.pri.h hack.rumors.h hack.topl.h rnd.h
 hack.end.o: hack.end.h alloc.h hack.h hack.bones.h hack.do_name.h hack.main.h hack.objnam.h hack.pri.h hack.rip.h hack.shk.h hack.termcap.h hack.topl.h hack.tty.h makedefs.h
 hack.engrave.o: hack.engrave.h alloc.h hack.h hack.invent.h hack.lev.h hack.main.h hack.objnam.h hack.topl.h hack.tty.h makedefs.h rnd.h savelev.h
-hack.fight.o: hack.fight.h hack.h
+hack.fight.o: hack.fight.h hack.h hack.do_name.h hack.end.h hack.invent.h hack.mkobj.h hack.mon.h hack.objnam.h hack.pri.h hack.search.h hack.shk.h hack.topl.h hack.worn.h hack.zap.h makedefs.h rnd.h
 hack.invent.o: hack.invent.h hack.h def.wseg.h
 hack.main.o: hack.main.h hack.h
 hack.makemon.o: mklev.h hack.h

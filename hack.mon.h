@@ -13,5 +13,7 @@ void replmon(struct monst *mtmp, struct monst *mtmp2);
 void relmon(struct monst *mtmp);
 int mfndpos(struct monst *mon, coord poss[9], int info[9], int flag);
 void rescham();
+void killed(struct monst *mtmp);
+void mondead(struct monst *mtmp);
 
 #endif
