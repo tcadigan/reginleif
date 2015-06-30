@@ -2,5 +2,6 @@
 #define HACK_BONES_H_
 
 void savebones();
+int getbones();
 
 #endif

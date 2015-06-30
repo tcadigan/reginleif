@@ -187,7 +187,7 @@ hack.eat.o: hack.eat.h hack.h hack.do.h hack.end.h hack.invent.h hack.objnam.h h
 hack.end.o: hack.end.h alloc.h hack.h hack.bones.h hack.do_name.h hack.main.h hack.objnam.h hack.pri.h hack.rip.h hack.shk.h hack.termcap.h hack.topl.h hack.tty.h makedefs.h
 hack.engrave.o: hack.engrave.h alloc.h hack.h hack.invent.h hack.lev.h hack.main.h hack.objnam.h hack.topl.h hack.tty.h makedefs.h rnd.h savelev.h
 hack.fight.o: hack.fight.h hack.h hack.do_name.h hack.end.h hack.invent.h hack.mkobj.h hack.mon.h hack.objnam.h hack.pri.h hack.search.h hack.shk.h hack.topl.h hack.worn.h hack.zap.h makedefs.h rnd.h
-hack.invent.o: hack.invent.h hack.h def.wseg.h
+hack.invent.o: hack.invent.h alloc.h hack.h hack.do.h hack.mkobj.h hack.objnam.h hack.pri.h hack.shk.h hack.termcap.h hack.topl.h hack.tty.h hack.wield.h hack.worn.h makedefs.h def.wseg.h
 hack.main.o: hack.main.h hack.h
 hack.makemon.o: mklev.h hack.h
 hack.mhitu.o: hack.h
@@ -261,6 +261,8 @@ hack.objnam.h: def.obj.h
 	touch hack.objnam.h
 hack.pri.h: config.h def.monst.h def.obj.h
 	touch hack.pri.h
+hack.save.h: def.monst.h def.obj.h
+	touch hack.save.h
 hack.search.h: def.monst.h
 	touch hack.search.h
 hack.shk.h: def.obj.h

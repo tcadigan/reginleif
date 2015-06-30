@@ -345,7 +345,7 @@ void save_engravings(int fd)
     bwrite(fd, (char *)nul, sizeof(unsigned int));
 }
 
-void rest_engravins(int fd)
+void rest_engravings(int fd)
 {
     struct engr *ep;
     unsigned int lth;

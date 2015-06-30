@@ -2,10 +2,25 @@
 
 #include "hack.lev.h"
 
+#include <fcntl.h>
 #include <signal.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
+#include "alloc.h"
 #include "hack.h"
+#include "hack.bones.h"
+#include "hack.end.h"
+#include "hack.engrave.h"
+#include "hack.mon.h"
+#include "hack.pri.h"
+#include "hack.save.h"
+#include "hack.shk.h"
+#include "hack.topl.h"
+#include "hack.tty.h"
+#include "hack.vault.h"
+#include "rnd.h"
 #include "savelev.h"
 
 extern struct obj *billobjs;
@@ -16,7 +31,7 @@ extern char nul[];
 
 extern struct wseg *wsegs[32];
 extern struct wseg *wheads[32];
-extern wgrowtime[32];
+extern long wgrowtime[32];
 #endif
 
 #ifdef BSD
@@ -27,7 +42,7 @@ extern wgrowtime[32];
 
 int getlev(int fd)
 {
-    struct gen *gtemp;
+    struct gen *gtmp;
 
 #ifndef NOWORM
     struct wseg *wtmp;
@@ -167,7 +182,7 @@ void mklev()
     union wait status;
     extern char fut_geno[];
 
-    if(getbones() != NULL) {
+    if(getbones() != 0) {
         return;
     }
 
