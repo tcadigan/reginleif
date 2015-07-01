@@ -31,6 +31,8 @@ int dosave()
 void hangup()
 {
     dosave0(1);
+    signal(SIGINT, SIG_IGN);
+    clearlocks();
 
     exit(1);
 }

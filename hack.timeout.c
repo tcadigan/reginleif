@@ -1,5 +1,7 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include "hack.timeout.h"
+
 #include "hack.h"
 
 #define SIZE(x) (sizeof(x) / sizeof(x[0]))

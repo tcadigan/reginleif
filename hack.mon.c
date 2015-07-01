@@ -22,7 +22,7 @@ char *warning[] = {
     "black"
 };
 
-void monvemon()
+void movemon()
 {
     struct monst *mtmp;
     int fr;

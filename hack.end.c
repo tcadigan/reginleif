@@ -765,16 +765,6 @@ void clearlocks()
     unlink(lock);
 }
 
-#ifdef NOSAVEONHANGUP
-void hangup()
-{
-    signal(SIGINT, SIG_IGN);
-    clearlocks();
-
-    exit(1);
-}
-#endif
-
 char *eos(char *s)
 {
     while(*s != 0) {

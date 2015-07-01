@@ -12,5 +12,7 @@ void ringoff(struct obj *otmp);
 int armoroff(struct obj *otmp);
 int cursed(struct obj *otmp);
 int dorr(struct obj *otmp);
+void find_ac();
+void glibr();
 
 #endif

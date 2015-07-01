@@ -1,5 +1,7 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include "hack.u_init.h"
+
 #include <stdio.h>
 #include <signal.h>
 #include "hack.h"

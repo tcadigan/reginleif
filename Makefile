@@ -24,12 +24,13 @@ HSOURCES = alloc.h config.h date.h def.edog.h def.eshk.h def.func_tab.h \
            hack.dog.h hack.do.h hack.do_name.h hack.do_wear.h hack.eat.h \
            hack.end.h hack.engrave.h hack.fight.h hack.h hack.invent.h \
 	       hack.lev.h hack.main.h hack.makemon.h hack.mfndpos.h hack.mkobj.h \
-           hack.mon.h hack.objnam.h hack.onames.h hack.options.h hack.pri.h \
-           hack.read.h hack.rip.h hack.rumors.h hack.save.h hack.search.h \
-           hack.shk.h hack.stat.h hack.steal.h hack.termcap.h hack.topl.h \
-           hack.track.h hack.trap.h hack.tty.h hack.vault.h hack.version.h \
-           hack.whatis.h hack.wield.h hack.worm.h hack.worn.h hack.zap.h \
-           makedefs.h mklev.h rnd.h savelev.h \
+           hack.mon.h hack.objnam.h hack.o_init.h hack.onames.h hack.options.h \
+           hack.pri.h hack.read.h hack.rip.h hack.rumors.h hack.save.h \
+           hack.search.h hack.shk.h hack.stat.h hack.steal.h hack.termcap.h \
+           hack.timeout.h hack.topl.h hack.track.h hack.trap.h hack.tty.h \
+           hack.u_init.h hack.vault.h hack.version.h hack.whatis.h \
+           hack.wield.h hack.worm.h hack.worn.h hack.zap.h makedefs.h mklev.h \
+           rnd.h savelev.h \
 
 SOURCES = $(CSOURCES) $(HSOURCES)
 
@@ -188,14 +189,14 @@ hack.end.o: hack.end.h alloc.h hack.h hack.bones.h hack.do_name.h hack.main.h ha
 hack.engrave.o: hack.engrave.h alloc.h hack.h hack.invent.h hack.lev.h hack.main.h hack.objnam.h hack.topl.h hack.tty.h makedefs.h rnd.h savelev.h
 hack.fight.o: hack.fight.h hack.h hack.do_name.h hack.end.h hack.invent.h hack.mkobj.h hack.mon.h hack.objnam.h hack.pri.h hack.search.h hack.shk.h hack.topl.h hack.worn.h hack.zap.h makedefs.h rnd.h
 hack.invent.o: hack.invent.h alloc.h hack.h hack.do.h hack.mkobj.h hack.objnam.h hack.pri.h hack.shk.h hack.termcap.h hack.topl.h hack.tty.h hack.wield.h hack.worn.h makedefs.h def.wseg.h
-hack.main.o: hack.main.h hack.h
+hack.main.o: hack.main.h hack.h hack.dog.h hack.do.h hack.do_wear.h hack.eat.h hack.end.h hack.engrave.h hack.lev.h hack.makemon.h hack.mon.h hack.o_init.h hack.pri.h hack.save.h hack.search.h hack.shk.h hack.stat.h hack.termcap.h hack.timeout.h hack.topl.h hack.track.h hack.trap.h hack.tty.h hack.u_init.h hack.vault.h rnd.h
 hack.makemon.o: mklev.h hack.h
 hack.mhitu.o: hack.h
 hack.mkobj.o: hack.mkobj.h mklev.h hack.h hack.onames.h
 hack.mon.o: hack.mon.h hack.h hack.mfndpos.h
 hack.monst.o: mklev.h def.eshk.h
 hack.objnam.o: hack.objnam.h hack.h
-hack.o_init.o: config.h def.objects.h hack.onames.h
+hack.o_init.o: hack.o_init.h config.h def.objects.h hack.onames.h
 hack.options.o: hack.options.h config.h hack.h
 hack.pri.o: hack.pri.h hack.h def.wseg.h
 hack.read.o: hack.read.h hack.h
@@ -204,10 +205,10 @@ hack.search.o: hack.search.h hack.h def.trap.h
 hack.shk.o: hack.shk.h def.eshk.h hack.h hack.mfndpos.h
 hack.steal.o: hack.steal.h hack.h
 hack.termcap.o: hack.termcap.h config.h
-hack.timeout.o: hack.h
+hack.timeout.o: hack.timeout.h hack.h
 hack.track.o: hack.track.h hack.h
 hack.trap.o: hack.trap.h hack.h
-hack.u_init.o: hack.h
+hack.u_init.o: hack.u_init.h hack.h
 hack.vault.o: hack.vault.h hack.h
 hack.version.o: hack.version.h date.h
 hack.whatis.o: hack.whatis.h hack.h

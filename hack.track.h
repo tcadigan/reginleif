@@ -4,5 +4,6 @@
 #include "mklev.h" /* coord */
 
 coord *gettrack(int x, int y);
+void settrack();
 
 #endif

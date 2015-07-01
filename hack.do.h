@@ -24,5 +24,6 @@ void dropx(struct obj *obj);
 int drop(struct obj *obj);
 void pluslvl();
 void strange_feeling(struct obj *obj);
+void rhack(char *cmd);
 
 #endif

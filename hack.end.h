@@ -29,5 +29,6 @@ int outentry(int rank, struct toptenentry *t1, int so);
 void topten();
 void outheader();
 char *ordin(int n);
+void prscore(int argc, char **argv);
 
 #endif

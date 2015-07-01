@@ -10,5 +10,6 @@ void losedogs();
 int tamedog(struct monst *mtmp, struct obj *obj);
 int inroom(xchar x, xchar y);
 void initedog(struct monst *mtmp);
+void makedog();
 
 #endif

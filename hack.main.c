@@ -2,11 +2,40 @@
 
 #include "hack.main.h"
 
-#include <stdio.h>
+#include <errno.h>
+#include <fcntl.h>
 #include <signal.h>
-#include <error.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #include "hack.h"
+#include "hack.dog.h"
+#include "hack.do.h"
+#include "hack.do_wear.h"
+#include "hack.eat.h"
+#include "hack.end.h"
+#include "hack.engrave.h"
+#include "hack.lev.h"
+#include "hack.makemon.h"
+#include "hack.mon.h"
+#include "hack.o_init.h"
+#include "hack.pri.h"
+#include "hack.save.h"
+#include "hack.search.h"
+#include "hack.shk.h"
+#include "hack.stat.h"
+#include "hack.termcap.h"
+#include "hack.timeout.h"
+#include "hack.topl.h"
+#include "hack.track.h"
+#include "hack.trap.h"
+#include "hack.tty.h"
+#include "hack.u_init.h"
+#include "hack.vault.h"
+#include "rnd.h"
 
 extern char plname[PL_NSIZ];
 extern char pl_character[PL_CSIZ];
@@ -55,7 +84,7 @@ int main (int argc, char *argv[])
      */
     dir = getenv("HACKDIR");
 
-    if((argc > 1) && (strncmp(argv[1], '-d', 2) == 0)) {
+    if((argc > 1) && (strncmp(argv[1], "-d", 2) == 0)) {
         --argc;
         ++argv;
         dir = argv[0] + 2;
@@ -71,7 +100,7 @@ int main (int argc, char *argv[])
         }
         
         if(*dir == 0) {
-            error("Flag -d must be followed by a directory name.");
+            hack_error("Flag -d must be followed by a directory name.");
         }
     }
 
@@ -118,7 +147,7 @@ int main (int argc, char *argv[])
 #ifdef WIZARD
         case 'w':
             if(strcmp(getlogin(), WIZARD) == 0) {
-                wizard = true;
+                wizard = TRUE;
             }
             else {
                 printf("Sorry.\n");
@@ -214,10 +243,11 @@ int main (int argc, char *argv[])
 
         sfoo = getenv("GENOCIDED");
         if(sfoo != NULL) {
+            extern char genocided[];
+            extern char fut_geno[];
+
             if(*sfoo == '!') {
                 extern struct permonst mons[CMNUM + 2];
-                extern char genocided[];
-                extern char fut_geno[];
                 struct permonst *pm = mons;
                 char *gp = genocided;
 
@@ -265,7 +295,7 @@ int main (int argc, char *argv[])
         puts("Restoring old save file...");
         fflush(stdout);
         dorecover(fd);
-        falgs.move = 0;
+        flags.move = 0;
     }
     else {
 #ifdef NEWS
@@ -464,8 +494,8 @@ void lockcheck()
     int fd;
 
     /* We ignore QUIT and INT at this point */
-    if(line(perm, safelock) == -1) {
-        error("Cannot link safelock. (Try again or rm safelock.)");
+    if(link(perm, safelock) == -1) {
+        hack_error("Cannot link safelock. (Try again or rm safelock.)");
     }
 
     int flag = 0;
@@ -482,7 +512,7 @@ void lockcheck()
 
             unlink(safelock);
 
-            error("Cannot open %s", lock);
+            hack_error("Cannot open %s", lock);
         }
 
         close(fd);
@@ -491,7 +521,7 @@ void lockcheck()
     if(flag == 0) {
         unlink(safelock);
         
-        error("Too many hacks running now.");
+        hack_error("Too many hacks running now.");
     }
 
     flag = 1;
@@ -500,7 +530,7 @@ void lockcheck()
         fd = creat(lock, FMASK);
 
         if(fd == -1) {
-            error("cannot creat lock file.");
+            hack_error("cannot creat lock file.");
         }
         else {
             int pid;
@@ -508,25 +538,27 @@ void lockcheck()
             pid = getpid();
 
             if(write(fd, (char *)&pid, 2) != 2) {
-                error("cannot write lock!");
+                hack_error("cannot write lock!");
             }
             
-            if(close(fd) = -1) {
-                error("cannot close lock");
+            if(close(fd) == -1) {
+                hack_error("cannot close lock");
             }
         }
 
         if(unlink(safelock) == -1) {
-            error("Cannot unlink safelock");
+            hack_error("Cannot unlink safelock");
         }
     }
 }
 
-/* VARARGS1 */
-void error(char *s, char *a1, char *a2, char *a3, char *a4)
+void hack_error(char *s, ...)
 {
     printf("Error: ");
-    printf(s, a1, a2, a3, a4);
+    va_list args;
+    va_start(args, s);
+    vprintf(s, args);
+    va_end(args);
     putchar('\n');
 
     exit(1);
@@ -561,7 +593,7 @@ void askname()
     c = getchar();
     while(c != '\n') {
         if(c == EOF) {
-            error("End of input\n");
+            hack_error("End of input\n");
         }
         
         if(c != '-') {
@@ -608,12 +640,12 @@ int stopnews;
 void stopnws()
 {
     signal(SIGINT, SIG_IGN);
-    ++stopnws;
+    ++stopnews;
 }
 
 void outnews(int fd)
 {
-    int (*prevsig)();
+    void (*prevsig)(int);
     char ch;
     
     prevsig = signal(SIGINT, stopnws);
@@ -623,7 +655,7 @@ void outnews(int fd)
         putchar('\n');
         fflush(stdout);
         close(fd);
-        signal(SIGINT, pregsig);
+        signal(SIGINT, prevsig);
 
         /* See whether we will ask TSKCFW: hew might have told us alread */
         if((stopnews == 0) && (pl_character[0] != 0)) {
@@ -638,6 +670,6 @@ void chdirx(char *dir)
     if(chdir(dir) < 0) {
         perror(dir);
 
-        error("Cannot chdir to %s.", dir);
+        hack_error("Cannot chdir to %s.", dir);
     }
 }

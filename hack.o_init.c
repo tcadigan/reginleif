@@ -1,5 +1,7 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include "hack.o_init.h"
+
 /* For typedefs */
 #include "config.h"
 #include "def.objects.h"

@@ -4,6 +4,7 @@
 char readchar();
 void getret();
 void setctty();
+void setftty();
 void setty(char *s);
 char *parse();
 void getlin(char *bufp);

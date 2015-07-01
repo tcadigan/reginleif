@@ -10,6 +10,7 @@ void placebc(int attach);
 void unplacebc();
 void float_up();
 void float_down();
+void tele();
 int mintrap(struct monst *mtmp);
 
 #endif

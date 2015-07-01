@@ -6,5 +6,6 @@ void standoutbeg();
 void standoutend();
 void home();
 void cl_end();
+void startup();
 
 #endif
