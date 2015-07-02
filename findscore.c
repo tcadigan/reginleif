@@ -34,11 +34,16 @@ int findscore(char *rogue, char *roguename)
     char *tmpfname = TEMPFL;
     FILE *tmpfil;
 
-    /* Run 'rogue -s', and put the scores into a temp file */
-    sprintf(cmd, "%s -s > %s", rogue, mktemp(tmpfname));
-    system(cmd);
-
     /* If no temp file created, return default score */
+    int fd = mkstemp(tmpfname);
+    if(fd == -1) {
+        return best;
+    }
+
+    /* Run 'rogue -s', and put the scores into a temp file */
+    sprintf(cmd, "%s -s > %s", rogue, tmpfname);
+    system(cmd);
+    
     tmpfil = fopen(tmpfname, "r");
     if(tmpfil == NULL) {
         return best;
