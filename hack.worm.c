@@ -30,7 +30,7 @@ int getwn(struct most *mtmp)
 }
 
 /* Called to initialize a worm unless cut in half */
-void initworm(struct most *mtmp)
+void initworm(struct monst *mtmp)
 {
     int tmp = mtmp->wormno;
 
@@ -48,7 +48,7 @@ void initworm(struct most *mtmp)
     wtmp->nseg = 0;
 }
 
-void worm_moe(struct most *mtmp)
+void worm_moe(struct monst *mtmp)
 {
     struct wseg *wtmp;
     struct wseg *whd;
@@ -115,7 +115,7 @@ void worm_nomove(strcut monst *mtmp)
     --mtmp->mhp;
 }
 
-void wormdead(struct most *mtmp)
+void wormdead(struct monst *mtmp)
 {
     int tmp = mtmp->wormno;
     struct wseg *wtmp;

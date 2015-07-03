@@ -23,7 +23,7 @@ HSOURCES = alloc.h config.h date.h def.edog.h def.eshk.h def.func_tab.h \
            def.permonst.h def.trap.h def.wseg.h hack.apply.h hack.bones.h \
            hack.dog.h hack.do.h hack.do_name.h hack.do_wear.h hack.eat.h \
            hack.end.h hack.engrave.h hack.fight.h hack.h hack.invent.h \
-	       hack.lev.h hack.main.h hack.makemon.h hack.mfndpos.h hack.mkobj.h \
+           hack.lev.h hack.main.h hack.makemon.h hack.mfndpos.h hack.mkobj.h \
            hack.mon.h hack.objnam.h hack.o_init.h hack.onames.h hack.options.h \
            hack.pri.h hack.read.h hack.rip.h hack.rumors.h hack.save.h \
            hack.search.h hack.shk.h hack.stat.h hack.steal.h hack.termcap.h \
@@ -187,12 +187,12 @@ hack.do_wear.o: hack.do_wear.h hack.h hack.do.h hack.invent.h hack.main.h hack.m
 hack.eat.o: hack.eat.h hack.h hack.do.h hack.end.h hack.invent.h hack.objnam.h hack.pri.h hack.rumors.h hack.topl.h rnd.h
 hack.end.o: hack.end.h alloc.h hack.h hack.bones.h hack.do_name.h hack.main.h hack.objnam.h hack.pri.h hack.rip.h hack.shk.h hack.termcap.h hack.topl.h hack.tty.h makedefs.h
 hack.engrave.o: hack.engrave.h alloc.h hack.h hack.invent.h hack.lev.h hack.main.h hack.objnam.h hack.topl.h hack.tty.h makedefs.h rnd.h savelev.h
-hack.fight.o: hack.fight.h hack.h hack.do_name.h hack.end.h hack.invent.h hack.mkobj.h hack.mon.h hack.objnam.h hack.pri.h hack.search.h hack.shk.h hack.topl.h hack.worn.h hack.zap.h makedefs.h rnd.h
-hack.invent.o: hack.invent.h alloc.h hack.h hack.do.h hack.mkobj.h hack.objnam.h hack.pri.h hack.shk.h hack.termcap.h hack.topl.h hack.tty.h hack.wield.h hack.worn.h makedefs.h def.wseg.h
+hack.fight.o: hack.fight.h hack.h hack.do_name.h hack.end.h hack.invent.h hack.mkobj.h hack.mon.h hack.objnam.h hack.pri.h hack.search.h hack.shk.h hack.topl.h hack.worn.h hack.zap.h rnd.h
+hack.invent.o: hack.invent.h alloc.h hack.h hack.do.h hack.mkobj.h hack.objnam.h hack.pri.h hack.shk.h hack.termcap.h hack.topl.h hack.tty.h hack.wield.h hack.worn.h def.wseg.h
 hack.main.o: hack.main.h hack.h hack.dog.h hack.do.h hack.do_wear.h hack.eat.h hack.end.h hack.engrave.h hack.lev.h hack.makemon.h hack.mon.h hack.o_init.h hack.pri.h hack.save.h hack.search.h hack.shk.h hack.stat.h hack.termcap.h hack.timeout.h hack.topl.h hack.track.h hack.trap.h hack.tty.h hack.u_init.h hack.vault.h rnd.h
-hack.makemon.o: mklev.h hack.h
-hack.mhitu.o: hack.h
-hack.mkobj.o: hack.mkobj.h mklev.h hack.h hack.onames.h
+hack.makemon.o: hack.makemon.h alloc.h hack.invent.h hack.mon.h hack.worm.h rnd.h mklev.h hack.h hack.pri.h
+hack.mhitu.o: hack.h hack.do_name.h hack.end.h hack.fight.h hack.makemon.h hack.mon.h hack.steal.h hack.topl.h hack.worm.h hack.zap.h rnd.h
+hack.mkobj.o: hack.mkobj.h alloc.h hack.invent.h hack.onames.h hack.o_init.h rnd.h mklev.h hack.h
 hack.mon.o: hack.mon.h hack.h hack.mfndpos.h
 hack.monst.o: mklev.h def.eshk.h
 hack.objnam.o: hack.objnam.h hack.h
@@ -252,11 +252,11 @@ hack.h: config.h def.monst.h def.obj.h mklev.h hack.onames.h
 	touch hack.h
 hack.invent.h: def.gen.h def.monst.h def.obj.h
 	touch hack.invent.h
-hack.makemon.h: def.monst.h def.permonst.h
+hack.makemon.h: config.h def.monst.h def.permonst.h mklev.h
 	touch hack.makemon.h
 hack.mkobj.h: def.obj.h
 	touch hack.mkobj.h
-hack.mon.h: def.monst.h mklev.h
+hack.mon.h: def.monst.h def.permonst.h mklev.h
 	touch hack.mon.h
 hack.objnam.h: def.obj.h
 	touch hack.objnam.h
@@ -280,7 +280,7 @@ hack.worm.h: config.h def.monst.h
 	touch hack.worm.h
 hack.worn.h: def.obj.h
 	touch hack.worn.h
-hack.zap.h: def.monst.h
+hack.zap.h: config.h def.monst.h
 	touch hack.zap.h
 mklev.h: config.h def.gen.h def.obj.h def.objclass.h def.permonst.h
 	touch mklev.h

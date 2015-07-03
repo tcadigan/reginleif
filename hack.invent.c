@@ -17,7 +17,6 @@
 #include "hack.tty.h"
 #include "hack.wield.h"
 #include "hack.worn.h"
-#include "makedefs.h"
 
 extern char morc;
 

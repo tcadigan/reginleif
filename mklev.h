@@ -106,4 +106,6 @@ extern boolean wizard;
 
 #define newstring(x) (char *)alloc((unsigned int)(x))
 
+void panic(char *str, ...);
+
 #endif

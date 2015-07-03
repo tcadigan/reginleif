@@ -5,5 +5,8 @@
 #include "def.monst.h" /* monst */
 
 void cutworm(struct monst *mtmp, xchar x, xchar y, uchar wetyp);
+void initworm(struct monst *mtmp);
+int getwn(struct monst *mtmp);
+void wormhit(struct monst *mtmp);
 
 #endif

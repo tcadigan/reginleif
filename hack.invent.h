@@ -35,5 +35,6 @@ int dorwep();
 int doprwep();
 int doprarm();
 int doprring();
+int digit(char c);
 
 #endif 

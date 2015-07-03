@@ -6,7 +6,6 @@
 #include "hack.mfndpos.h"
 
 #define SIZE(x) (int)(sizeof(x) / sizeof(x[0]))
-#define NULL (char *)0
 
 /* Used by movemon and dochugw */
 int warnlevel;
@@ -55,7 +54,7 @@ void movemon()
             --mtmp->mblinded;
             
             if(mtmp->mblinded != 0) {
-                mtmp->cansee = 1;
+                mtmp->mcansee = 1;
             }
         }
         
@@ -122,7 +121,7 @@ void movemon()
     dmonsfree();
 }
 
-void justwld(struct monst *mtmp, char *name)
+void justswld(struct monst *mtmp, char *name)
 {
     mtmp->mx = u.ux;
     mtmp->my = u.uy;
@@ -628,6 +627,14 @@ int m_move(struct monst *mtmp, int after)
                         nearer = 0;
                     }
 #else
+		    if(DIST(nx, ny, gx, gy) < DIST(mix, miy, gx, gy)) {
+			nearer = 1;
+		    }
+		    else {
+			nearer = 0;
+		    }
+#endif
+		    
                     if(((appr == 1) && (nearer != 0))
                        || ((appr == -1) && (nearer == 0))
                        || (mmoved == 0)) {

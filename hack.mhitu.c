@@ -1,4 +1,15 @@
+
 #include "hack.h"
+#include "hack.do_name.h"
+#include "hack.end.h"
+#include "hack.fight.h"
+#include "hack.makemon.h"
+#include "hack.mon.h"
+#include "hack.steal.h"
+#include "hack.topl.h"
+#include "hack.worm.h"
+#include "hack.zap.h"
+#include "rnd.h"
 
 /*
  * mhitu: Monster hits you
@@ -347,10 +358,10 @@ int mhitu(struct monst *mtmp)
             }
 
             if(side == RIGHT_SIDE) {
-                pline("%s pricks in your %s leg!", Monname(mtmp), "right");
+                pline("%s pricks in your %s leg!", Monnam(mtmp), "right");
             }
             else {
-                pline("%s pricks in your %s leg!", Monname(mtmp), "left");
+                pline("%s pricks in your %s leg!", Monnam(mtmp), "left");
             }
 
             Wounded_legs |= (side + rnd(5));

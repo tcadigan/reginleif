@@ -272,6 +272,7 @@ int movecm(char *cmd);
 void seeoff(int mode);
 void losestr(int num);
 void losehp(int n, char *knam);
+void losexp();
 void lookaround();
 
 #endif

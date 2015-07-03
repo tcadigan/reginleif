@@ -2,13 +2,17 @@
 
 #include "hack.mkobj.h"
 
+#include "alloc.h"
+#include "hack.invent.h"
+#include "hack.onames.h"
+#include "hack.o_init.h"
+#include "rnd.h"
+
 #ifdef MKLEV
 #include "mklev.h"
 #else
 #include "hack.h"
 #endif
-
-#include "hack.onames.h"
 
 char mkobjstr[] = "))[[!!!!????%%%%/=**))[[!!!!????%%%%/=**(";
 
@@ -21,7 +25,7 @@ void mkobj_at(int let, int x, int y)
     fobj = otmp;
 }
 
-#ifdnef MKLEV
+#ifndef MKLEV
 void mksobj_at(int let, int otyp, int x, int y)
 {
     struct obj *otmp = mksobj(let, otyp);
@@ -84,7 +88,7 @@ struct obj *mksobj(int let, int otyp)
     }
 
     otmp->olet = let;
-    otemp->otyp = otyp;
+    otmp->otyp = otyp;
     
     if(index("/=!?*", let) != 0) {
         otmp->dknown = 0;
@@ -119,7 +123,7 @@ struct obj *mksobj(int let, int otyp)
         else {
             otmp->quan = 2;
         }
-    case TOO_SYM:
+    case TOOL_SYM:
     case CHAIN_SYM:
     case ROCK_SYM:
     case POTION_SYM:
@@ -201,7 +205,7 @@ int weight(struct obj *obj)
     }
 }
 
-int mkgold(int num, int x, int y)
+void mkgold(int num, int x, int y)
 {
     struct gen *gtmp;
     int amount = num;

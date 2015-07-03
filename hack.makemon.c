@@ -1,11 +1,22 @@
 /* Copyright (C) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include "hack.makemon.h"
+
+#include <string.h>
+
+#include "alloc.h"
+#include "hack.invent.h"
+#include "hack.mon.h"
+#include "hack.worm.h"
+#include "rnd.h"
+
 #ifdef MKLEV
 #include "mklev.h"
 
 extern char *fut_geno;
 #else
 #include "hack.h"
+#include "hack.pri.h"
 
 extern char fut_geno[];
 #endif
@@ -46,7 +57,7 @@ struct monst *makemon(struct permonst *ptr, int x, int y)
         }
     }
     else {
-        ct = CNUM - strlen(fut_geno);
+        ct = COLNO - strlen(fut_geno);
         
         if(index(fut_geno, 'm') != 0) {
             /* Make only 1 minotaur */
@@ -181,7 +192,7 @@ struct monst *makemon(struct permonst *ptr, int x, int y)
 
 #ifndef NOWORM
 #ifndef MKLEV
-    if((ptr->mlet == 'w') && (getwn(mtmp) != NULL)) {
+    if((ptr->mlet == 'w') && (getwn(mtmp) != 0)) {
         initworm(mtmp);
     }
 #endif
@@ -193,7 +204,7 @@ struct monst *makemon(struct permonst *ptr, int x, int y)
             int cnt = rnd(10);
 
             mm.x = x;
-            mmy.y = y;
+            mm.y = y;
             
             while(cnt != 0) {
                 --cnt;
@@ -312,7 +323,7 @@ coord enexto(xchar xx, xchar yy)
                 tfoo->y = y;
                 ++tfoo;
 
-                if(tfoo = &foo[15]) {
+                if(tfoo == &foo[15]) {
                     return foo[rn2(tfoo - foo)];
                 }
             }

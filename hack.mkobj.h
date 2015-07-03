@@ -3,8 +3,11 @@
 
 #include "def.obj.h" /* obj */
 
-int mkgold(int num, int x, int y);
-int mksobj_at(int let, int otyp, int x, int y);
+void mkgold(int num, int x, int y);
+struct obj *mkobj(int let);
+struct obj *mksobj(int let, int otyp);
+void mksobj_at(int let, int otyp, int x, int y);
 int weight(struct obj *obj);
+int letter(int c);
 
 #endif

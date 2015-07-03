@@ -17,7 +17,6 @@
 #include "hack.topl.h"
 #include "hack.worn.h"
 #include "hack.zap.h"
-#include "makedefs.h"
 #include "rnd.h"
 
 extern struct permonst li_dog;
