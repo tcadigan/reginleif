@@ -6,8 +6,6 @@
 
 #ifndef NOWORM
 
-#include "def.wseg.h"
-
 /* Linked list, tail first */
 struct wseg *wsegs[32];
 struct wseg *wheads[32];
@@ -149,7 +147,7 @@ void wormhit(struct monst *mtmp)
     }
 }
 
-void wormsee(unsigned tmp)
+void wormsee(unsigned int tmp)
 {
     struct wseg *wtmp = wsegs[tmp];
 

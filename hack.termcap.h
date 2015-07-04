@@ -7,5 +7,7 @@ void standoutend();
 void home();
 void cl_end();
 void startup();
+void clear_screen();
+void delay_output();
 
 #endif

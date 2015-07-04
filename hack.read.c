@@ -2,8 +2,27 @@
 
 #include "hack.read.h"
 
+#include <stdlib.h>
+#include <string.h>
+
 #include "hack.h"
+#include "hack.do.h"
+#include "hack.dog.h"
+#include "hack.do_name.h"
+#include "hack.do_wear.h"
+#include "hack.end.h"
+#include "hack.invent.h"
+#include "hack.main.h"
+#include "hack.makemon.h"
+#include "hack.mkobj.h"
+#include "hack.mon.h"
+#include "hack.pri.h"
+#include "hack.trap.h"
+#include "hack.topl.h"
 #include "hack.tty.h"
+#include "hack.wield.h"
+#include "hack.worn.h"
+#include "rnd.h"
 
 int doread()
 {
@@ -18,11 +37,11 @@ int doread()
 
     scroll = getobj("?", "read");
 
-    if(scroll = NULL) {
+    if(scroll == NULL) {
         return 0;
     }
 
-    if((scroll->dknown == NULL) && (Blind != 0)) {
+    if((scroll->dknown == 0) && (Blind != 0)) {
         pline("Being blind, you cannot read the formula on the scroll.");
         return 0;
     }
@@ -100,7 +119,7 @@ int doread()
         }
         else if(uarmh != NULL) {
             pline("Your helmet turns to dust and is blown away!");
-            useup(armh);
+            useup(uarmh);
         }
         else if(uarmg != NULL) {
             pline("Your gloves vanish!");
@@ -131,7 +150,7 @@ int doread()
             struct monst *mtmp;
 
             for(mtmp = fmon; mtmp != NULL; mtmp = mtmp->nmon) {
-                if(cansee(mtmp->mx, mtmp->my) != NULL) {
+                if(cansee(mtmp->mx, mtmp->my) != 0) {
                     if(confused != 0) {
                         mtmp->msleep = 0;
                         mtmp->mfroz = mtmp->msleep;
@@ -233,7 +252,7 @@ int doread()
             uwep->rustfree = 1;
         }
         else {
-            if(chwepon(scroll, 1) == NULL) {
+            if(chwepon(scroll, 1) == 0) {
                 return 1;
             }
         }
@@ -247,7 +266,7 @@ int doread()
             uwep->rustfree = 0;
         }
         else {
-            if(chwepon(scroll, -1) == NULL) {
+            if(chwepon(scroll, -1) == 0) {
                 return 1;
             }
         }
@@ -266,7 +285,7 @@ int doread()
             struct monst *mtmp;
 
             for(i = -bd; i <= bd; ++i) {
-                for(j = -bd; j <= db; ++j) {
+                for(j = -bd; j <= bd; ++j) {
                     mtmp = m_at(u.ux + i, u.uy + j);
 
                     if(mtmp != NULL) {
@@ -295,7 +314,7 @@ int doread()
                 pline("What monster do you want to genocide (Type the letter)? ");
                 getlin(buf);
 
-                while((strlen(buf) 1= 1) || (letter(&buf) == NULL)) {
+                while((strlen(buf) != 1) || (letter(buf[0]) == 0)) {
                     pline("What monster do you want to genocide (Type the letter)? ");
                     getlin(buf);
                 }
@@ -332,7 +351,7 @@ int doread()
 
         break;
     case SCR_LIGHT:
-        if(Blid == 0) {
+        if(Blind == 0) {
             known = TRUE;
         }
 
@@ -352,7 +371,7 @@ int doread()
             if(dist(oux, ouy) > 100) {
                 known = TRUE;
             }
-#else QUEST
+#else
             int uroom = inroom(u.ux, u.uy);
             tele();
 
@@ -383,7 +402,7 @@ int doread()
 
                 int flag = 0;
                 for(gtmp = head; gtmp != NULL; gtmp = gtmp->ngen) {
-                    if((gtmp->gx 1= u.ux) || (gtmp->gy != u.uy)) {
+                    if((gtmp->gx != u.ux) || (gtmp->gy != u.uy)) {
                         flag = 1;
                         break;
                     }
@@ -484,7 +503,7 @@ int doread()
         }
 
         break;
-    case SRC_IDENTITY:
+    case SCR_IDENTIFY:
         /* known = TRUE; */
         if(confused != 0) {
             pline("You identity this as an identify scroll.");
@@ -497,7 +516,7 @@ int doread()
         objects[SCR_IDENTIFY].oc_name_known = 1;
 
         if(confused == 0) {
-            while((ggetobj("identify", identify, rn2(5) ? 1 : rn2(5)) == NULL)
+            while((ggetobj("identify", identify, rn2(5) ? 1 : rn2(5)) == 0)
                   && (invent != NULL)) {
             }
         }
@@ -554,11 +573,11 @@ int doread()
                         lev->seen = lev->new;
                         on_scr(zx, zy);
                     }
-#else QUEST
+#else
                     lev->new = 1;
                     lev->seen = lev->new;
                     on_scr(zx, zy);
-#ifndef QUEST
+#endif
                 }
             }
         }
@@ -574,7 +593,7 @@ int doread()
             for(zx = 0; zx < COLNO; ++zx) {
                 for(zy = 0; zy < ROWNO; ++zy) {
                     if((confused == 0) || (rn2(7) != 0)) {
-                        if(cansee(zx, zy) == NULL) {
+                        if(cansee(zx, zy) == 0) {
                             levl[zx][zy].seen = 0;
                         }
                     }
@@ -604,7 +623,7 @@ int doread()
                 }
                 else {
                     num = rnd(6);
-                    u.uhpmuax -= num;
+                    u.uhpmax -= num;
                     losehp(num, "scroll of fire");
                 }
             }
@@ -644,7 +663,7 @@ int doread()
         impossible();
     }
 
-    if(objects[scroll->otyp].oc_name_known == NULL) {
+    if(objects[scroll->otyp].oc_name_known == 0) {
         if((known != 0) && (confused == 0)) {
             objects[scroll->otyp].oc_name_known = 1;
             u.urexp += 10;
@@ -655,6 +674,16 @@ int doread()
     }
 
     useup(scroll);
+
+    return 1;
+}
+
+int identify(struct obj *otmp)
+{
+    objects[otmp->otyp].oc_name_known = 1;
+    otmp->dknown = 1;
+    otmp->known = otmp->dknown;
+    prinv(otmp);
 
     return 1;
 }
@@ -670,8 +699,8 @@ void litroom(boolean on)
         if(on == 0) {
             if((u.uswallow != 0)
                || (xdnstair == 0)
-               || (levl[u.ux][u.uy].typ == CORR)
-               || (levl[u.ux][u.uy].lit == 0)) {
+               || (levl[(int)u.ux][(int)u.uy].typ == CORR)
+               || (levl[(int)u.ux][(int)u.uy].lit == 0)) {
                 pline("It seems even darker in here than before.");
 
                 return;
@@ -698,13 +727,13 @@ void litroom(boolean on)
         pline("The cave lights up around you, then fades.");
 
         return;
-#else QUEST
-        if(levl[u.ux][u.uy].typ == CORR) {
+#endif
+        if(levl[(int)u.ux][(int)u.uy].typ == CORR) {
             pline("The corridor lights up around you, then fades.");
 
             return;
         }
-        else if(levl[u.ux][u.uy].lit) {
+        else if(levl[(int)u.ux][(int)u.uy].lit) {
             pline("The light here seems better now.");
 
             return;
@@ -716,26 +745,26 @@ void litroom(boolean on)
 
 #ifdef QUEST
     return;
-#else QUEST
-    if(levl[u.ux][u.uy].lit == on) {
+#else
+    if(levl[(int)u.ux][(int)u.uy].lit == on) {
         return;
     }
 
-    if(levl[u.ux][u.uy].typ == DOOR) {
-        if(levl[u.ux][u.uy + 1].typ >= ROOM) {
+    if(levl[(int)u.ux][(int)u.uy].typ == DOOR) {
+        if(levl[(int)u.ux][(int)(u.uy + 1)].typ >= ROOM) {
             zy = u.uy + 1;
         }
-        else if(levl[u.ux][u.uy - 1].typ >= ROOM) {
+        else if(levl[(int)u.ux][(int)(u.uy - 1)].typ >= ROOM) {
             zy = u.uy - 1;
         }
         else {
             zy = u.uy;
         }
 
-        if(levl[u.ux + 1][u.uy].typ >= ROOM) {
+        if(levl[(int)(u.ux + 1)][(int)u.uy].typ >= ROOM) {
             zx = u.ux + 1;
         }
-        else if(levl[u.ux - 1][u.uy].typ >= ROOM) {
+        else if(levl[(int)(u.ux - 1)][(int)u.uy].typ >= ROOM) {
             zx = u.ux - 1;
         }
         else {
@@ -750,7 +779,7 @@ void litroom(boolean on)
     seelx = u.ux;
     num = levl[seelx - 1][zy].typ;
     while((num != CORR) && (num != 0)) {
-        --selx;
+        --seelx;
         num = levl[seelx - 1][zy].typ;
     }
 
@@ -775,7 +804,7 @@ void litroom(boolean on)
         num = levl[zx][seehx + 1].typ;
     }
 
-    for(zy = seely; zy <= seehyl; ++zy) {
+    for(zy = seely; zy <= seehy; ++zy) {
         for(zx = seelx; zx <= seehx; ++zx) {
             levl[zx][zy].lit = on;
 

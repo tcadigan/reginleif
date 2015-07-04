@@ -28,5 +28,7 @@ void cls();
 void docorner(int xmin, int ymax);
 void bot();
 void swallowed();
+int vism_at(int x, int y);
+void nosee(int x, int y);
 
 #endif

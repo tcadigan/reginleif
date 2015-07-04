@@ -3,7 +3,12 @@
 #include "hack.rumors.h"
 
 #include <stdio.h>
+
+#include "alloc.h"
 #include "config.h"
+#include "hack.topl.h"
+#include "mklev.h"
+#include "rnd.h"
 
 /* Number of bits in a char */
 #define CHARSZ 8
@@ -18,7 +23,7 @@ void init_rumors(FILE *rumf)
     int i;
     n_used_rumors = 0;
     
-    while(skipline(rumf) != NULL) {
+    while(skipline(rumf) != 0) {
         ++n_rumors;
     }
 

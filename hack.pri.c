@@ -4,8 +4,16 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #include "hack.h"
+#include "hack.end.h"
+#include "hack.invent.h"
+#include "hack.termcap.h"
+#include "hack.topl.h"
+#include "hack.worm.h"
 
 #ifndef NOWORM
 #include "def.wseg.h"
@@ -20,7 +28,7 @@ xchar scrly;
 xchar scrhy;
 
 /* In eat.c */
-extern char hu_stat[];
+extern char *hu_stat[];
 
 void swallowed()
 {
@@ -38,8 +46,8 @@ void swallowed()
     fputs("\\-/", stdout);
     curx = u.ux + 2;
     u.udispl = 1;
-    u.disx = u.ux;
-    u.disy = u.uy;
+    u.udisx = u.ux;
+    u.udisy = u.uy;
 }
 
 boolean panicking;
@@ -62,9 +70,9 @@ void panic(char *str, ...)
     va_list args;
     va_start(args, str);
     vprintf(str, args);
-    va_end();
+    va_end(args);
 
-    if(fork() != NULL) {
+    if(fork() != 0) {
         done("panic");
     }
     else {
@@ -82,7 +90,7 @@ void atl(int x, int y, int ch)
     }
 
     if((crm->seen != 0) && (crm->scrsym == ch)) {
-        reutrn;
+        return;
     }
 
     crm->scrsym = ch;
@@ -100,7 +108,7 @@ void on_scr(int x, int y)
         scrhx = x;
     }
 
-    if(y < srcly) {
+    if(y < scrly) {
         scrly = y;
     }
 
@@ -143,12 +151,12 @@ void tmp_at(schar x, schar y)
 
         /* In case there was a monster */
         prl(prevx, prevy);
-        at(prevx, prevy, levl[prevx][prevy].scrsym);
+        at(prevx, prevy, levl[(int)prevx][(int)prevy].scrsym);
     }
 
     /* Normal call */
     if(x >= 0) {
-        if(cansee(x, y) != NULL) {
+        if(cansee(x, y) != 0) {
             at(x, y, let);
         }
 
@@ -185,8 +193,8 @@ void Tmp_at(schar x, schar y)
         /* Close call (do not distinguish y == 0 and y == -1) */
         while(cnt) {
             --cnt;
-            xx = tc[cnt].x;
-            yy = tc[cnt].y;
+            xx = tc[(int)cnt].x;
+            yy = tc[(int)cnt].y;
             prl(xx, yy);
             at(xx, yy, levl[xx][yy].scrsym);
         }
@@ -206,14 +214,14 @@ void Tmp_at(schar x, schar y)
     }
 
     /* Normal call */
-    if(cansee(x, y) != NULL) {
+    if(cansee(x, y) != 0) {
         if(cnt != 0) {
             delay_output();
         }
 
         at(x, y, let);
-        tc[cnt].x = x;
-        tc[cnt].y = y;
+        tc[(int)cnt].x = x;
+        tc[(int)cnt].y = y;
         
         ++cnt;
         if(cnt >= COLNO) {
@@ -221,7 +229,7 @@ void Tmp_at(schar x, schar y)
         }
 
         /* Prevent pline-nscr erasing --- */
-        levl[x][y].new = 0;
+        levl[(int)x][(int)y].new = 0;
     }
 }
 
@@ -270,10 +278,10 @@ void docrt()
 
     cls();
     if(Invis == 0) {
-        u.disx = u.ux;
-        u.disy = u.uy;
-        levl[u.udisx][u.udisy].scrsym = u.usym;
-        levl[u.udisx][u.udisy].seen = 1;
+        u.udisx = u.ux;
+        u.udisy = u.uy;
+        levl[(int)u.udisx][(int)u.udisy].scrsym = u.usym;
+        levl[(int)u.udisx][(int)u.udisy].seen = 1;
         u.udispl = 1;
     }
     else {
@@ -283,7 +291,7 @@ void docrt()
     /* %% - Is this really necessary? */
     for(mtmp = fmon; mtmp != NULL; mtmp = mtmp->nmon) {
         if(mtmp->mdispl != 0) {
-            room = &levl[mtmp->mx][mtmp->my];
+            room = &levl[(int)mtmp->mx][(int)mtmp->my];
             if((room == NULL) && (room->seen == 0)) {
                 mtmp->mdispl = 0;
             }
@@ -294,7 +302,7 @@ void docrt()
         for(x = 0; x < COLNO; ++x) {
             room = &levl[x][y];
             
-            if(room->new != NULL) {
+            if(room->new != 0) {
                 room->new = 0;
                 at(x, y, room->scrsym);
             }
@@ -332,7 +340,7 @@ void docorner(int xmin, int ymax)
         for(x = xmin; x < COLNO; ++x) {
             room = &levl[x][y];
 
-            if(room->new != NULL) {
+            if(room->new != 0) {
                 room->new = 0;
                 at(x, y, room->scrsym);
             }
@@ -345,10 +353,10 @@ void docorner(int xmin, int ymax)
 
 void pru()
 {
-    if((u.udispl != NULL)
+    if((u.udispl != 0)
        && ((Invis != 0) || (u.udisx != u.ux) || (u.udisy != u.uy))) {
         /* if(levl[u.udisx][u.udisy].new == NULL) */
-        if(vism_at(u.udisx, u.udisy) == NULL) {
+        if(vism_at(u.udisx, u.udisy) == 0) {
             newsym(u.udisx, u.udisy);
         }
     }
@@ -358,15 +366,15 @@ void pru()
         prl(u.ux, u.uy);
     }
     else {
-        if((u.udispl == NULL) || (u.udisx != u.ux) || (u.disy != u.uy)) {
+        if((u.udispl == 0) || (u.udisx != u.ux) || (u.udisy != u.uy)) {
             atl(u.ux, u.uy, u.usym);
             u.udispl = 1;
-            u.disx = u.ux;
-            u.disy = u.uy;
+            u.udisx = u.ux;
+            u.udisy = u.uy;
         }
     }
 
-    levl[u.ux][u.uy].seen = 1;
+    levl[(int)u.ux][(int)u.uy].seen = 1;
 }
 
 /* Print a position that is visible for @ */
@@ -383,15 +391,15 @@ void prl(int x, int y)
     }
 
     room = &levl[x][y];
-    if((room->typ == NULL)
-       || ((room->typ < DOOR) && (levl[u.ux][u.uy].typ == CORR))) {
+    if((room->typ == 0)
+       || ((room->typ < DOOR) && (levl[(int)u.ux][(int)u.uy].typ == CORR))) {
         return;
     }
 
     mtmp = m_at(x, y);
     if((mtmp != NULL) 
-       && (mtmp->mhide == NULL)
-       && ((mtmp->minvis == NULL) || (See_invisible != NULL))) {
+       && (mtmp->mhide == 0)
+       && ((mtmp->minvis == 0) || (See_invisible != 0))) {
 #ifndef NOWORM
         if(m_atseg != NULL) {
             pwseg(m_atseg);
@@ -399,7 +407,7 @@ void prl(int x, int y)
         else {
             pmon(mtmp);
         }
-#else NOWORM
+#else
         pmon(mtmp);
 #endif
     }
@@ -410,7 +418,7 @@ void prl(int x, int y)
         }
         else {
             if((mtmp != NULL)
-               && ((mtmp->minvis == NULL) || (See_invisible != NULL))) {
+               && ((mtmp->minvis == 0) || (See_invisible != 0))) {
                 /* Must be a hiding monster, but not hiding right now,
                  * assume for the moment that long worms do not hide */
                 pmon(mtmp);
@@ -437,7 +445,7 @@ char news0(xchar x, xchar y)
     struct rm *room;
     char tmp;
     
-    room = &levl[x][y];
+    room = &levl[(int)x][(int)y];
 
     int flag = 0;
     if(room->seen == 0) {
@@ -500,7 +508,7 @@ char news0(xchar x, xchar y)
                     break;
                 case ROOM:
                     if((room->lit != 0)
-                       || (cansee(x, y) != NULL)
+                       || (cansee(x, y) != 0)
                        || (Blind != 0)) {
                         tmp = '.';
                     }
@@ -599,7 +607,7 @@ void nose1(int x, int y)
 
 int vism_at(int x, int y)
 {
-    struct monst *mtmp;
+    struct monst *mtmp = NULL;
     int csi = See_invisible;
 
     if(x != u.ux) {
@@ -670,7 +678,7 @@ void unpobj(struct obj *obj)
      *  }
      */
 
-    if(vism_at(obj->ox, obj->oy) == NULL) {
+    if(vism_at(obj->ox, obj->oy) == 0) {
         newsym(obj->ox, obj->oy);
     }
 }
@@ -721,9 +729,9 @@ void pmon(struct monst *mon)
 {
     int show = 0;
 
-    if((((mon->minvis == NULL) && (See_invisible != 0))
-        && ((mon->mhide == NULL) || (o_at(mon->mx, mon->my) == NULL))
-        && (cansee(mon->mx, mon->my) != NULL))
+    if((((mon->minvis == 0) && (See_invisible != 0))
+        && ((mon->mhide == 0) || (o_at(mon->mx, mon->my) == NULL))
+        && (cansee(mon->mx, mon->my) != 0))
        || ((Blind != 0) && (Telepat != 0))) {
         show = 1;
     }
@@ -768,9 +776,9 @@ void nscr()
 
     pru();
     
-    for(y = scrly; y < srchy; ++y) {
+    for(y = scrly; y < scrhy; ++y) {
         for(x = scrlx; x <= scrhx; ++x) {
-            room = &lev[x][y];
+            room = &levl[x][y];
             
             if(room->new != 0) {
                 room->new = 0;
@@ -799,7 +807,7 @@ void bot()
         *ob = 0;
     }
 
-    flags.botx = 0;
+    flags.botlx = 0;
     flags.botl = flags.botlx;
 
     sprintf(newbot, 
@@ -829,7 +837,7 @@ void bot()
         if(*ob != *nb) {
             curs(i, ROWNO + 2);
 
-            if(*nb != NULL) {
+            if(*nb != 0) {
                 putchar(*nb);
             }
             else {
@@ -837,11 +845,11 @@ void bot()
             }
         }
         
-        if(*ob != NULL) {
+        if(*ob != 0) {
             ++ob;
         }
 
-        if(*nb != NULL) {
+        if(*nb != 0) {
             ++nb;
         }
     }

@@ -4,6 +4,7 @@
 #include "def.obj.h" /* obj */
 
 void corrode_armor();
+struct obj *some_armor();
 int dowearring();
 int doremring();
 int doremarm();

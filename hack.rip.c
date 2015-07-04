@@ -2,10 +2,15 @@
 
 #include "hack.rip.h"
 
-/* For time_t */
-#include <sys/types.h>
 #include <stdio.h>
+#include <string.h>
+#include <sys/types.h>
+#include <time.h>
+
 #include "hack.h"
+#include "hack.pri.h"
+#include "hack.termcap.h"
+#include "hack.tty.h"
 
 #ifdef BSD
 #include <sys/time.h>
@@ -14,7 +19,7 @@
 #endif
 
 extern char plname[];
-extern char *rip[] = {
+static char *rip[] = {
     "                       ----------                      ",
     "                      /          \\                    ",
     "                     /    REST    \\                   ",
@@ -107,14 +112,14 @@ void outrip()
     for(y = 8; *dp != NULL; ++y) {
         x = 0;
         dpx = *dp;
-        while(dpx[x] != NULL) {
+        while(dpx[x] != 0) {
             while(dpx[x] == ' ') {
                 ++x;
             }
             
             curs(x, y);
             
-            while((dpx[x] != NULL) && (dpx[x] != ' ')) {
+            while((dpx[x] != 0) && (dpx[x] != ' ')) {
                 extern int done_stopprint;
                 
                 if(done_stopprint) {

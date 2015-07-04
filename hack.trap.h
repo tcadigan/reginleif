@@ -11,6 +11,7 @@ void unplacebc();
 void float_up();
 void float_down();
 void tele();
+void level_tele();
 int mintrap(struct monst *mtmp);
 
 #endif
