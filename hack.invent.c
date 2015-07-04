@@ -1,6 +1,7 @@
 /* Copyright (c) Stichting Mathematisch Centurm, Amsterdam, 1984. */
 #include "hack.invent.h"
 
+#include <curses.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -689,7 +690,7 @@ int askchain(struct obj *objchn,
 
             if(max == 0) {
                 if(flags.echo == 0) {
-                    echo(OFF);
+		    noecho();
                 }
 
                 return cnt;
@@ -708,7 +709,7 @@ int askchain(struct obj *objchn,
     }
     
     if(flags.echo == 0) {
-        echo(OFF);
+	noecho();
     }
     
     return cnt;

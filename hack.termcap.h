@@ -7,7 +7,10 @@ void standoutend();
 void home();
 void cl_end();
 void startup();
-void clear_screen();
-void delay_output();
+void hack_clear_screen();
+void xputs(char *s);
+void cmov(int x, int y);
+void nocmov(int x, int y);
+void backsp();
 
 #endif

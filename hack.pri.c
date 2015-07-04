@@ -2,6 +2,7 @@
 
 #include "hack.pri.h"
 
+#include <curses.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -147,7 +148,7 @@ void tmp_at(schar x, schar y)
     }
 
     if((prevx >= 0) && (cansee(prevx, prevy) != 0)) {
-        delay_output();
+        delay_output(40);
 
         /* In case there was a monster */
         prl(prevx, prevy);
@@ -216,7 +217,7 @@ void Tmp_at(schar x, schar y)
     /* Normal call */
     if(cansee(x, y) != 0) {
         if(cnt != 0) {
-            delay_output();
+            delay_output(40);
         }
 
         at(x, y, let);
@@ -879,6 +880,6 @@ void cls()
     }
 
     flags.topl = 0;
-    clear_screen();
+    hack_clear_screen();
     flags.botlx = 1;
 }

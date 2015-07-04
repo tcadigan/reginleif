@@ -2,10 +2,16 @@
 
 #include "hack.termcap.h"
 
+#include <curses.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <term.h>
 
-/* For ROWNO and COLNO */
+#include "alloc.h"
 #include "config.h"
+#include "hack.main.h"
+#include "hack.topl.h"
+#include "hack.tty.h"
 
 /* Terminal baudrate; used by tputs */
 short ospeed;
@@ -16,6 +22,7 @@ char *CE;
 char *UP;
 char *CM;
 char *ND;
+char *XD;
 char *BC;
 char *SO;
 char *SE;
@@ -29,7 +36,7 @@ void startup()
     char *pc;
 
     /* Sets ospeed */
-    gettty();
+    getty();
 
     tptr = (char *)alloc(1024);
 
@@ -37,11 +44,11 @@ void startup()
     tmp = getenv("TERM");
 
     if(tmp == NULL) {
-        error("Can't get TERM.");
+        hack_error("Can't get TERM.");
     }
 
     if(tgetent(tptr, tmp) < 1) {
-        error("Unknown terminal type: %s.", tmp);
+        hack_error("Unknown terminal type: %s.", tmp);
     }
 
     pc = tgetstr("pc", &tbufptr);
@@ -51,8 +58,8 @@ void startup()
 
     BC = tgetstr("bc", &tbufptr);
     if(BC == NULL) {
-        if(tgetflag("bs") == NULL) {
-            error("Terminal must backspace.");
+        if(tgetflag("bs") == 0) {
+            hack_error("Terminal must backspace.");
         }
 
         BC = tbufptr;
@@ -60,34 +67,34 @@ void startup()
         *BC = '\b';
     }
 
-    H0 = tgetstr("ho", &tbufptr);
+    HO = tgetstr("ho", &tbufptr);
 
     if((tgetnum("co") < COLNO) || (tgetnum("li") < (ROWNO + 2))) {
-        error("Screen must be at least %d by %d!", ROWNO + 2, COLNO);
+        hack_error("Screen must be at least %d by %d!", ROWNO + 2, COLNO);
     }
 
     CL = tgetstr("cl", &tbufptr);
     if(CL == NULL) {
-        error("Hack needs CL, CE, UP, ND, and no OS.");
+        hack_error("Hack needs CL, CE, UP, ND, and no OS.");
     }
 
     CE = tgetstr("ce", &tbufptr);
     if(CE == NULL) {
-        error("Hack needs CL, CE, UP, ND, and no OS.");
+        hack_error("Hack needs CL, CE, UP, ND, and no OS.");
     }
 
     ND = tgetstr("nd", &tbufptr);
     if(ND == NULL) {
-        error("Hack needs CL, CE, UP, ND, and no OS.");
+        hack_error("Hack needs CL, CE, UP, ND, and no OS.");
     }
 
     UP = tgetstr("up", &tbufptr);
     if(UP == NULL) {
-        error("Hack needs CL, CE, UP, ND, and no OS.");
+        hack_error("Hack needs CL, CE, UP, ND, and no OS.");
     }
 
-    if(tgetflag("os") != NULL) {
-        error("Hack needs CL, CE, UP, ND, and not OS.");
+    if(tgetflag("os") != 0) {
+        hack_error("Hack needs CL, CE, UP, ND, and not OS.");
     }
 
     CM = tgetstr("cm", &tbufptr);
@@ -105,7 +112,7 @@ void startup()
     }
 
     if((tbufptr - tbuf) > sizeof(tbuf)) {
-        error("TERMCAP entry too big...\n");
+        hack_error("TERMCAP entry too big...\n");
     }
 
     free(tptr);
@@ -147,7 +154,7 @@ void nocmov(int x, int y)
     if(curx < x) {
         /* Go to the right. */
         while(curx < x) {
-            xpots(ND);
+            xputs(ND);
             ++curx;
         }
     }
@@ -184,7 +191,7 @@ void nocmov(int x, int y)
 void cmov(int x, int y)
 {
     if(CM == NULL) {
-        error("Tries to cmov from %d %d to %d %d\n", curx, cury, x, y);
+        hack_error("Tries to cmov from %d %d to %d %d\n", curx, cury, x, y);
     }
 
     xputs(tgoto(CM, x - 1, y - 1));
@@ -192,9 +199,11 @@ void cmov(int x, int y)
     curx = x;
 }
 
-void xputc(char c)
+int xputc(int c)
 {
     fputc(c, stdout);
+
+    return 0;
 }
 
 void xputs(char *s)
@@ -207,7 +216,7 @@ void cl_end()
     xputs(CE);
 }
 
-void clear_screen()
+void hack_clear_screen()
 {
     xputs(CL);
     cury = 1;
@@ -247,13 +256,7 @@ void backsp()
     --curx;
 }
 
-void bell()
+void hack_bell()
 {
     putsym('\007');
-}
-
-void delay_output()
-{
-    /* Delay 40 ms - could also use a 'nap'-system call */
-    tputs("40", 1, xputc);
 }

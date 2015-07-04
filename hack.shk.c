@@ -2,9 +2,24 @@
 
 #include "hack.shk.h"
 
+#include <stdlib.h>
+#include <string.h>
+
+#include "alloc.h"
 #include "def.eshk.h"
 #include "hack.h"
+#include "hack.dog.h"
+#include "hack.do_name.h"
+#include "hack.fight.h"
+#include "hack.invent.h"
+#include "hack.main.h"
 #include "hack.mfndpos.h"
+#include "hack.mon.h"
+#include "hack.objnam.h"
+#include "hack.pri.h"
+#include "hack.topl.h"
+#include "hack.tty.h"
+#include "rnd.h"
 
 #ifdef QUEST
 int shlevel = 0;
@@ -113,7 +128,7 @@ char *shkname()
 
 void shkdead()
 {
-    rooms[ESHK->shoproom].rtype = 0;
+    rooms[(int)ESHK->shoproom].rtype = 0;
     setpaid();
     shopkeeper = 0;
     
@@ -135,7 +150,7 @@ void setpaid()
 
     obj = billobjs;
     while(obj != NULL) {
-        billobjs = objs->nobjs;
+        billobjs = obj->nobj;
         free(obj);
 
         obj = billobjs;
@@ -157,7 +172,7 @@ void addupbill()
 
     while(ct) {
         ct--;
-        total += (bp->price * bp->quan);
+        total += (bp->price * bp->bquan);
         ++bp;
     }
 }
@@ -169,7 +184,7 @@ int inshop()
     if((tmp < 0) || (rooms[tmp].rtype < 8)) {
         u.uinshop = 0;
 
-        if((shopkeeper != NULL) && (ESHK->billct != NULL)) {
+        if((shopkeeper != NULL) && (ESHK->billct != 0)) {
             pline("Somehow you escaped the shop without paying!");
 
             addupbill();
@@ -205,7 +220,7 @@ int inshop()
                || (strncmp(ESHK->customer, plname, PL_NSIZ))) {
                 /* He seems to be new here */
                 ESHK->visitct = 0;
-                strncpy(ESHK->customer, planme, PL_NSIZ);
+                strncpy(ESHK->customer, plname, PL_NSIZ);
                 NOTANGRY = 1;
             }
 
@@ -216,7 +231,7 @@ int inshop()
                       plname,
                       " again",
                       shkname(),
-                      shopnam[rooms[ESHK->shoproom].rtype - 8]);
+                      shopnam[rooms[(int)ESHK->shoproom].rtype - 8]);
             }
             else {
                 ++ESHK->visitct;
@@ -224,8 +239,8 @@ int inshop()
                 pline("Hello %s! Welcome%s to %s's %s shop!",
                       plname,
                       "",
-                      shknam(),
-                      shopnam[rooms[ESHK->shoproom].rtype - 8]);
+                      shkname(),
+                      shopnam[rooms[(int)ESHK->shoproom].rtype - 8]);
             }
 
             u.uinshop = 1;
@@ -239,12 +254,12 @@ void setshk()
 {
     struct monst *mtmp;
     for(mtmp = fmon; mtmp != NULL; mtmp = mtmp->nmon) {
-        if(mtmp->isshk != NULL) {
+        if(mtmp->isshk != 0) {
             shopkeeper = mtmp;
             bill = &(ESHK->bill[0]);
             shlevel = dlevel;;
 
-            if((ANGRY != NULL)
+            if((ANGRY != 0)
                && (strncmp(ESHK->customer, plname, PL_NSIZ) != 0)) {
                 NOTANGRY = 1;
             }
@@ -269,9 +284,9 @@ struct bill_x *onbill(struct obj *obj)
         return 0;
     }
 
-    for(bp = bill; bp < &bill[ESHK-billct]; ++bp) {
+    for(bp = bill; bp < &bill[ESHK->billct]; ++bp) {
         if(bp->bo_id == obj->o_id) {
-            if(obj->unpaid == NULL) {
+            if(obj->unpaid == 0) {
                 pline("onbill: paid obj on bill?");
             
                 return bp;
@@ -279,7 +294,7 @@ struct bill_x *onbill(struct obj *obj)
         }
     }
 
-    if(obj->unpaid != NULL) {
+    if(obj->unpaid != 0) {
         pline("onbill: unpaid obj not on bill?");
     }
 
@@ -301,7 +316,7 @@ void obfree(struct obj *obj, struct obj *merge)
             obj->nobj = billobjs;
             billobjs = obj;
 
-            reutrn;
+            return;
         }
 
         bpm = onbill(merge);
@@ -399,7 +414,7 @@ int dopay()
         return 1;
     }
 
-    if(ANGRY != NULL) {
+    if(ANGRY != 0) {
         pline("But in order to appease %s,", amonnam(shopkeeper, "angry"));
 
         if(u.ugold >= 1000) {
@@ -427,7 +442,7 @@ int dopay()
     for(pass = 0; pass <= 1; ++pass) {
         tmp = 0;
 
-        while(tmp < EHSK->billct) {
+        while(tmp < ESHK->billct) {
             bp = &bill[tmp];
 
             if((pass == 0) && (bp->useup == 0)) {
@@ -436,7 +451,7 @@ int dopay()
                 continue;
             }
 
-            if(dopayobj(bp) == NULL) {
+            if(dopayobj(bp) == 0) {
                 return 1;
             }
 
@@ -447,7 +462,7 @@ int dopay()
 
     pline("Thank you for shopping in %s's %s store!",
           shkname(),
-          shopnam[rooms[ESHK->shoproom].rtype - 8]);
+          shopnam[rooms[(int)ESHK->shoproom].rtype - 8]);
 
     NOTANGRY = 1;
 
@@ -466,7 +481,7 @@ int dopayobj(struct bill_x *bp)
     long ltmp;
 
     /* Find the object on one of the lists */
-    if(bp->useup != NULL) {
+    if(bp->useup != 0) {
         obj = o_on(bp->bo_id, billobjs);
     }
     else {
@@ -478,7 +493,7 @@ int dopayobj(struct bill_x *bp)
                 if(obj == NULL) {
                     struct monst *mtmp;
                     
-                    for(mtmp = fmon; mtmp != NULL; mtmp->nmon) {
+                    for(mtmp = fmon; mtmp != NULL; mtmp = mtmp->nmon) {
                         obj = o_on(bp->bo_id, mtmp->minvent);
                         if(obj != NULL) {
                             break;
@@ -516,9 +531,9 @@ int dopayobj(struct bill_x *bp)
     }
     
     obj->unpaid = 0;
-    ltmp = bp->price * bp->quan;
+    ltmp = bp->price * bp->bquan;
     
-    if(ANGRY != NULL) {
+    if(ANGRY != 0) {
         ltmp += (ltmp / 3);
     }
     
@@ -603,7 +618,7 @@ void addtobill(struct obj *obj)
     struct bill_x *bp;
 
     /* Perhaps we threw it away earlier */
-    if((inshop() == NULL)
+    if((inshop() == 0)
        || ((u.ux == ESHK->shk.x) && (u.uy == ESHK->shk.y))
        || ((u.ux == ESHK->shd.x) && (u.uy == ESHK->shd.y))
        || (onbill(obj) != NULL)) {
@@ -669,14 +684,14 @@ void splitbill(struct obj *obj, struct obj *otmp)
 
 void subfrombill(struct obj *obj)
 {
-    lont ltmp;
+    long ltmp;
     int tmp;
     struct obj *otmp;
     struct bill_x *bp;
 
-    if((inshop() == NULL)
-       || ((u.ux == ESHK->shk.x) && (u.uy == ESHK.shk.y))
-       || ((u.ux == ESHK->shd.x) && (u.uy == ESHK.shd.y))) {
+    if((inshop() == 0)
+       || ((u.ux == ESHK->shk.x) && (u.uy == ESHK->shk.y))
+       || ((u.ux == ESHK->shd.x) && (u.uy == ESHK->shd.y))) {
         return;
     }
 
@@ -684,7 +699,7 @@ void subfrombill(struct obj *obj)
     if(bp != 0) {
         obj->unpaid = 0;
 
-        if(bp->quan > obj->quan) {
+        if(bp->bquan > obj->quan) {
             otmp = newobj(0);
             *otmp = *obj;
 
@@ -732,8 +747,8 @@ void subfrombill(struct obj *obj)
         return;
     }
     else {
-        temp = shtype[rooms[ESHK->shoproom].rtype - 8];
-        if(((tmp != NULL) && (tmp != obj->olet)) || index("_0", obj->olet)) {
+        tmp = shtypes[rooms[(int)ESHK->shoproom].rtype - 8];
+        if(((tmp != 0) && (tmp != obj->olet)) || index("_0", obj->olet)) {
             pline("%s seems not interested.", Monnam(shopkeeper));
 
             return;
@@ -742,7 +757,7 @@ void subfrombill(struct obj *obj)
 
     ltmp = getprice(obj) * obj->quan;
 
-    if(ANGRY != NULL) {
+    if(ANGRY != 0) {
         ltmp /= 3;
 
         NOTANGRY = 1;
@@ -751,7 +766,7 @@ void subfrombill(struct obj *obj)
         ltmp /= 2;
     }
 
-    if(ESHK->robbed != NULL) {
+    if(ESHK->robbed != 0) {
         ESHK->robbed -= ltmp;
 
         if(ESHK->robbed < 0) {
@@ -769,7 +784,7 @@ void subfrombill(struct obj *obj)
 
     pay(-ltmp);
 
-    if(ltmp == NULL) {
+    if(ltmp == 0) {
         pline("%s gladly accepts %s but cannot pay you at present.",
               Monnam(shopkeeper), doname(obj));
     }
@@ -783,7 +798,7 @@ void subfrombill(struct obj *obj)
         else {
             pline("You sold %s and got %ld gold pieces.",
                   doname(obj),
-                  ltmp;
+                  ltmp,
                   "s");
         }
     }
@@ -814,7 +829,7 @@ void doinvbill(int cl)
         cls();
     }
 
-    if(flags.online == 0) {
+    if(flags.oneline == 0) {
         puts("\n\nUnpaid articles already used up:\n");
     }
 
@@ -834,7 +849,7 @@ void doinvbill(int cl)
                 return;
             }
             
-            sprintf(buf, "* -  %s", donam(obj));
+            sprintf(buf, "* -  %s", doname(obj));
 
             cnt = 0;
             while(buf[cnt] != 0) {
@@ -859,7 +874,7 @@ void doinvbill(int cl)
         }
     }
 
-    if((cl == 0) && (flags.online == 0)) {
+    if((cl == 0) && (flags.oneline == 0)) {
         getret();
         docrt();
     }
@@ -974,8 +989,8 @@ int shk_move()
     schar chi;
     schar chcnt;
     schar cnt;
-    bool uondoor;
-    bool avoid;
+    boolean uondoor;
+    boolean avoid;
     coord poss[9];
     int info[9];
 
@@ -999,10 +1014,10 @@ int shk_move()
         Blind = 0;
 
         if((shopkeeper->mcansee != 0)
-           && (Invis == NULL)
-           && (cansee(omx, omy) != NULL)) {
+           && (Invis == 0)
+           && (cansee(omx, omy) != 0)) {
             gx = u.ux;
-            gy.u.uy;
+            gy = u.uy;
         }
 
         Blind = saveBlind;
@@ -1010,7 +1025,7 @@ int shk_move()
     }
     else {
 #define GDIST(x, y) (((x -gx) * (x - gx)) + ((y - gy) * (y - gy)))
-        if(Invis != NULL) {
+        if(Invis != 0) {
             avoid = FALSE;
         }
         else {
@@ -1028,9 +1043,9 @@ int shk_move()
                 avoid = 0;
             }
                 
-            if((((ESHK->robbed == NULL) && (ESHK->billct == NULL)) || (avoid != 0))
+            if((((ESHK->robbed == 0) && (ESHK->billct == 0)) || (avoid != 0))
                && (GDIST(omx, omy) < 3)) {
-                if(online(omx, omy) == NULL) {
+                if(online(omx, omy) == 0) {
                     return 0;
                 }
 
@@ -1047,7 +1062,7 @@ int shk_move()
         return 0;
     }
 
-    if(shopkeeper->mconf != NULL) {
+    if(shopkeeper->mconf != 0) {
         appr = 0;
     }
 
@@ -1068,13 +1083,13 @@ int shk_move()
     chi = -1;
     chcnt = 0;
     for(i = 0; i < cnt; ++i) {
-        nx = poss[i].x;
-        ny = poss[i].y;
+        nx = poss[(int)i].x;
+        ny = poss[(int)i].y;
 
-        tmp = levl[nx][ny].typ;
+        tmp = levl[(int)nx][(int)ny].typ;
 
         if((tmp == ROOM)
-           || ((shkr != ESHK->shoproom) && ((tmp == COOR) || tmp == DOOR))) {
+           || ((shkr != ESHK->shoproom) && ((tmp == CORR) || tmp == DOOR))) {
 #ifdef STUPID
             /* Cater for stupid compilers */
             int zz;
@@ -1097,7 +1112,7 @@ int shk_move()
     }
 
     if((nix != omx) || (niy != omy)) {
-        if(info[chi] & ALLOW_M) {
+        if(info[(int)chi] & ALLOW_M) {
             mtmp = m_at(nix, niy);
             
             if((hitmm(shopkeeper, mtmp) == 1)
@@ -1108,7 +1123,7 @@ int shk_move()
             
             return 0;
         }
-        else if(info[chi] & ALLOW_U) {
+        else if(info[(int)chi] & ALLOW_U) {
             hitu(shopkeeper, d(mdat->damn, mdat->damd) + 1);
             
             return 0;
@@ -1123,6 +1138,8 @@ int shk_move()
     
     return 0;
 }
+
+#endif
 
 char *plur(unsigned int n)
 {

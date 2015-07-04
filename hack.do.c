@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unctrl.h>
 #include <unistd.h>
 
 #include "alloc.h"
@@ -501,7 +502,7 @@ void rhack(char *cmd)
         return;
     }
 
-    if(((*cmd == 'f') && (movecm(cmd + 1) != 0)) || (movecm(unctrl(cmd)) != 0)) {
+    if(((*cmd == 'f') && (movecm(cmd + 1) != 0)) || (movecm(unctrl((chtype)cmd)) != 0)) {
         flags.run = 2;
 
         if(firsttime != 0) {
@@ -1236,22 +1237,6 @@ char *lowc(char *str)
 
     if((*str >= 'A') && (*str <= 'Z')) {
         *buf = (*str + 'a') - 'A';
-    }
-    else {
-        *buf = *str;
-    }
-
-    buf[1] = 0;
-
-    return buf;
-}
-
-char *unctrl(char *str)
-{
-    static char buf[2];
-
-    if((*str >= ('A' & 037)) && (*str <= ('Z' & 037))) {
-        *buf = *str + 0140;
     }
     else {
         *buf = *str;

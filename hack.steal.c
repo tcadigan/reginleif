@@ -2,7 +2,21 @@
 
 #include "hack.steal.h"
 
+#include <stdlib.h>
+
 #include "hack.h"
+#include "hack.do_name.h"
+#include "hack.do_wear.h"
+#include "hack.invent.h"
+#include "hack.main.h"
+#include "hack.mkobj.h"
+#include "hack.mon.h"
+#include "hack.objnam.h"
+#include "hack.pri.h"
+#include "hack.topl.h"
+#include "hack.wield.h"
+#include "hack.worn.h"
+#include "rnd.h"
 
 void stealgold(struct monst *mtmp)
 {
@@ -10,22 +24,22 @@ void stealgold(struct monst *mtmp)
     int tmp;
 
     if((gold != NULL)
-       && ((u.ugold == NULL) || (gold.gflag > u.ugold) || (rn2(5) == 0))) {
+       && ((u.ugold == 0) || (gold->gflag > u.ugold) || (rn2(5) == 0))) {
         mtmp->mgold += gold->gflag;
         freegold(gold);
 
-        if(Invis != NULL) {
+        if(Invis != 0) {
             newsym(u.ux, u.uy);
         }
 
         pline("%s quickly snatches some gold from between your feet!", Monnam(mtmp));
 
-        if((u.ugold == NULL) || (rn2(5) == 0)) {
+        if((u.ugold == 0) || (rn2(5) == 0)) {
             rloc(mtmp);
             mtmp->mflee = 1;
         }
     }
-    else if(u.ugold != NULL) {
+    else if(u.ugold != 0) {
         tmp = somegold();
         u.ugold -= tmp;
         pline("Your purse feels lighter.");
@@ -88,18 +102,18 @@ void stealarm()
  * (or at least, when N should flee now)
  * avoid steal the object stealoid
  */
-int steal(struct monst *otmp)
+int steal(struct monst *mtmp)
 {
     struct obj *otmp;
     int tmp;
     int named = 0;
 
     if(invent == NULL) {
-        if(Blind != NULL) {
+        if(Blind != 0) {
             pline("Somebody tries to rob you, but finds nothing to steal.");
         }
         else {
-            pline("%s tries to rob you, but she finds nothing to steal!", Monname(mtmp));
+            pline("%s tries to rob you, but she finds nothing to steal!", Monnam(mtmp));
         }
 
         /* Let her flee */
@@ -155,8 +169,8 @@ int steal(struct monst *otmp)
                 int curssv = otmp->cursed;
                 otmp->cursed = 0;
 
-                if(Blind != NULL) {
-                    if(otmp->cursed != NULL) {
+                if(Blind != 0) {
+                    if(otmp->cursed != 0) {
                         if(otmp == uarmg) {
                             pline("%s seduces you and %s off your %s.",
                                   Amonnam(mtmp, "gentle"),
@@ -183,7 +197,7 @@ int steal(struct monst *otmp)
                                   "you start taking",
                                   "golves");
                         }
-                        else if(otmp = uarmh) {
+                        else if(otmp == uarmh) {
                             pline("%s seduces you and %s off your %s.",
                                   Amonnam(mtmp, "gentle"),
                                   "you start taking",
@@ -191,14 +205,14 @@ int steal(struct monst *otmp)
                         }
                         else {
                             pline("%s seduces you and %s off your %s.",
-                                  Amonnam(mtmp, "gentle");
+                                  Amonnam(mtmp, "gentle"),
                                   "you start taking",
                                   "armor");
                         }
                     }
                 }
                 else {
-                    if(otmp->cursed != NULL) {
+                    if(otmp->cursed != 0) {
                         if(otmp == uarmg) {
                             pline("%s seduces you and %s off your %s.",
                                   Amonnam(mtmp, "beautiful"),
@@ -225,7 +239,7 @@ int steal(struct monst *otmp)
                                   "you start taking",
                                   "golves");
                         }
-                        else if(otmp = uarmh) {
+                        else if(otmp == uarmh) {
                             pline("%s seduces you and %s off your %s.",
                                   Amonnam(mtmp, "beautiful"),
                                   "you start taking",
@@ -233,7 +247,7 @@ int steal(struct monst *otmp)
                         }
                         else {
                             pline("%s seduces you and %s off your %s.",
-                                  Amonnam(mtmp, "beautiful");
+                                  Amonnam(mtmp, "beautiful"),
                                   "you start taking",
                                   "armor");
                         }
@@ -245,10 +259,10 @@ int steal(struct monst *otmp)
                 otmp->cursed = curssv;
 
                 if(multi < 0) {
-                    extern char *nomovemsg;
-                    extern void (*afternmv)();
-
-                    /*
+		    extern void (*afternmv)();
+		    
+		    /*
+		     * extern char *nomovemsg;
                      * multi = 0;
                      * nomovemsg = 0;
                      * afternmv = 0;
@@ -271,7 +285,7 @@ int steal(struct monst *otmp)
         setuwep((struct obj *)0);
     }
 
-    if(otmp->olet = CHAIN_SYM) {
+    if(otmp->olet == CHAIN_SYM) {
         pline("How come you are carrying that chain?");
         impossible();
     }
@@ -288,7 +302,7 @@ int steal(struct monst *otmp)
     
     freeinv(otmp);
     
-    if(named != NULL) {
+    if(named != 0) {
         pline("%s stole %s.", "She", doname(otmp));
     }
     else {

@@ -2,8 +2,15 @@
 
 #include "hack.search.h"
 
-#include "hack.h"
 #include "def.trap.h"
+#include "hack.h"
+#include "hack.do.h"
+#include "hack.invent.h"
+#include "hack.makemon.h"
+#include "hack.mon.h"
+#include "hack.pri.h"
+#include "hack.topl.h"
+#include "rnd.h"
 
 /* Returns number of things found */
 int findit()
@@ -23,58 +30,58 @@ int findit()
     }
 
     lx = u.ux;
-    num = levl[lx - 1][u.uy].typ;
+    num = levl[(int)(lx - 1)][(int)u.uy].typ;
     while((num != 0) && (num != CORR)) {
         --lx;
-        num = levl[lx - 1][u.uy].typ;
+        num = levl[(int)(lx - 1)][(int)u.uy].typ;
     }
 
     hx = u.ux;
-    num = levl[hx + 1][u.uy].typ;
+    num = levl[(int)(hx + 1)][(int)u.uy].typ;
     while((num != 0) && (num != CORR)) {
         ++hx;
-        num = levl[hx + 1][u.uy].typ;
+        num = levl[(int)(hx + 1)][(int)u.uy].typ;
     }
 
     ly = u.uy;
-    num = levl[u.ux][ly - 1].typ;
+    num = levl[(int)u.ux][(int)(ly - 1)].typ;
     while((num != 0) && (num != CORR)) {
         --ly;
-        num = levl[u.ux][ly - 1].typ;
+        num = levl[(int)u.ux][(int)(ly - 1)].typ;
     }
 
     hy = u.uy;
-    num = levl[u.ux][hy + 1].typ;
+    num = levl[(int)u.ux][(int)(hy + 1)].typ;
     while((num != 0) && (num != CORR)) {
         ++hy;
-        num = levl[u.ux][hy + 1].typ;
+        num = levl[(int)u.ux][(int)(hy + 1)].typ;
     }
 
     num = 0;
 
     for(zy = ly; zy <= hy; ++zy) {
         for(zx = lx; zx <= hx; ++zx) {
-            if(levl[zx][zy].typ == SDOOR) {
-                levl[zx][zy].typ = DOOR;
+            if(levl[(int)zx][(int)zy].typ == SDOOR) {
+                levl[(int)zx][(int)zy].typ = DOOR;
                 atl(zx, zy, '+');
                 ++num;
             }
-            else if(levl[zx][zy].typ == SCORR) {
-                levl[zx][zy].typ = CORR;
+            else if(levl[(int)zx][(int)zy].typ == SCORR) {
+                levl[(int)zx][(int)zy].typ = CORR;
                 atl(zx, zy, CORR_SYM);
             }
             else {
                 gtmp = g_at(zx, zy, ftrap);
                 if(gtmp != NULL) {
                     if(gtmp->gflag == PIERC) {
-                        makemon(PM_PIERC, xz, zy);
+                        makemon(PM_PIERC, zx, zy);
                         ++num;
                         deltrap(gtmp);
                     }
-                    else if(!gtmp->gflag & SEEN) {
+                    else if(!(gtmp->gflag & SEEN)) {
                         gtmp->gflag |= SEEN;
 
-                        if(vism_at(xz, zy) == NULL) {
+                        if(vism_at(zx, zy) == 0) {
                             atl(zx, zy, '^');
                         }
 
@@ -108,17 +115,17 @@ int dosearch()
     for(x = u.ux - 1; x < (u.ux + 2); ++x) {
         for(y = u.uy - 1; y < (u.uy + 2); ++y) {
             if((x != u.ux) || (y != u.uy)) {
-                if((levl[x][y].typ == SDOOR) && (rn2(7) == 0)) {
-                    levl[x][y].typ = DOOR;
-                    levl[x][y].seen = 0;
+                if((levl[(int)x][(int)y].typ == SDOOR) && (rn2(7) == 0)) {
+                    levl[(int)x][(int)y].typ = DOOR;
+                    levl[(int)x][(int)y].seen = 0;
 
                     /* Force prl */
                     prl(x, y);
                     nomul(0);
                 }
-                else if((levl[x][y].typ == SCORR) && (rn2(7) == 0)) {
-                    levl[x][y].typ = CORR;
-                    levl[x][y].seen = 0;
+                else if((levl[(int)x][(int)y].typ == SCORR) && (rn2(7) == 0)) {
+                    levl[(int)x][(int)y].typ = CORR;
+                    levl[(int)x][(int)y].seen = 0;
 
                     /* Force prl */
                     prl(x, y);
@@ -135,7 +142,7 @@ int dosearch()
                         }
                     }
 
-                    for(tgen = ftrap; tgen != NULL; tgen->ngen) {
+                    for(tgen = ftrap; tgen != NULL; tgen = tgen->ngen) {
                         if((tgen->gx == x)
                            && (tgen->gy == y)
                            && ((tgen->gflag & SEEN) == 0)
@@ -153,7 +160,7 @@ int dosearch()
 
                             tgen->gflag |= SEEN;
 
-                            if(vism_at(x, y) == NULL) {
+                            if(vism_at(x, y) == 0) {
                                 atl(x, y, '^');
                             }
                         }
@@ -173,7 +180,7 @@ int doidtrap()
     int x;
     int y;
 
-    if(getdir() == NULL) {
+    if(getdir() == 0) {
         return 0;
     }
 

@@ -268,7 +268,7 @@ int abon();
 int dbon();
 int inv_weight();
 void domove();
-int movecm(char *cmd);
+int movecm(char const *cmd);
 void seeoff(int mode);
 void losestr(int num);
 void losehp(int n, char *knam);

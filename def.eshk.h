@@ -1,5 +1,10 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#ifndef DEF_ESHK_H_
+#define DEF_ESHK_H_
+
+#include "mklev.h" /* coord */
+
 #define BILLSZ 200
 
 struct bill_x {
@@ -20,3 +25,5 @@ struct eshk {
     char customer[PL_NSIZ]; /* Most recent customer */
     char shknam[PL_NSIZ];
 };
+
+#endif

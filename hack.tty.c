@@ -105,19 +105,6 @@ void setftty()
     }
 }
 
-void echo(int n)
-{
-    /* gtty(0, &curttyb); */
-    if(n == ON) {
-        curttyb.sg_flags |= ECHO;
-    }
-    else {
-        curttyb.sg_flags &= ~ECHO;
-    }
-
-    setctty();
-}
-
 /*
  * Always want to expand tabs, or to send a clear line character
  * before printing something on topline
@@ -170,7 +157,7 @@ void getlin(char *bufp)
                 putstr("\b \b");
             }
             else {
-                bell();
+                hack_bell();
             }
         }
         else if(c == '\n') {

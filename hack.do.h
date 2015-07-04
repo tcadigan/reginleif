@@ -15,7 +15,6 @@ int dodown();
 int dohelp();
 int dosh();
 int donull();
-char *unctrl(char *str);
 char *lowc(char *str);
 struct obj *splitobj(struct obj *obj, int num);
 void goto_level(int newlevel, boolean at_stairs);

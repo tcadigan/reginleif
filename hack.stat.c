@@ -5,6 +5,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include "hack.main.h"
+#include "hack.topl.h"
+#include "mklev.h"
+
 struct stat buf;
 struct stat hbuf;
 
@@ -15,10 +19,10 @@ void gethdate(char *name)
         np = index(name, '/');
 
         if(np != 0) {
-            error("Cannot get status of %s.", np + 1);
+            hack_error("Cannot get status of %s.", np + 1);
         }
         else {
-            error("Cannot get status of %s.", name);
+            hack_error("Cannot get status of %s.", name);
         }
     }
 }

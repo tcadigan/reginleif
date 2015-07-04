@@ -3,6 +3,9 @@
 #include "hack.timeout.h"
 
 #include "hack.h"
+#include "hack.end.h"
+#include "hack.pri.h"
+#include "hack.topl.h"
 
 #define SIZE(x) (sizeof(x) / sizeof(x[0]))
 
@@ -10,7 +13,7 @@ void timeout()
 {
     struct prop *upp;
     for(upp = u.uprops; upp < (u.uprops + SIZE(u.uprops)); ++upp) {
-        if((upp->p_flgs & TIMEOUT) && !--upp_pflgs) {
+        if((upp->p_flgs & TIMEOUT) && !--upp->p_flgs) {
             if(upp->p_tofn != NULL) {
                 (*upp->p_tofn)();
             }

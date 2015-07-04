@@ -15,7 +15,7 @@ int utpnt = 0;
 void initrack()
 {
     utpnt = 0;
-    utcnt = otpnt;
+    utcnt = utpnt;
 }
 
 /* Add to track */

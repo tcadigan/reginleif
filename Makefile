@@ -201,11 +201,14 @@ hack.options.o: hack.options.h config.h hack.topl.h hack.tty.h hack.h
 hack.pri.o: hack.pri.h hack.h hack.end.h hack.invent.h hack.termcap.h hack.topl.h hack.worm.h def.wseg.h
 hack.read.o: hack.read.h hack.h hack.do.h hack.dog.h hack.do_name.h hack.do_wear.h hack.end.h hack.invent.h hack.main.h hack.makemon.h hack.mkobj.h hack.mon.h hack.pri.h hack.trap.h hack.topl.h hack.tty.h hack.wield.h hack.worn.h rnd.h
 hack.rumors.o: hack.rumors.h alloc.h config.h hack.topl.h mklev.h rnd.h
-hack.search.o: hack.search.h hack.h def.trap.h
-hack.shk.o: hack.shk.h def.eshk.h hack.h hack.mfndpos.h
-hack.steal.o: hack.steal.h hack.h
-hack.termcap.o: hack.termcap.h config.h
-hack.timeout.o: hack.timeout.h hack.h
+hack.save.o: hack.save.h alloc.h hack.h hack.end.h hack.lev.h hack.main.h hack.o_init.h hack.pri.h hack.topl.h hack.tty.h hack.worm.h hack.worn.h savelev.h
+hack.search.o: hack.search.h def.trap.h hack.h hack.do.h hack.invent.h hack.makemon.h hack.mon.h hack.pri.h hack.topl.h rnd.h
+hack.shk.o: hack.shk.h alloc.h def.eshk.h hack.h hack.dog.h hack.do_name.h hack.fight.h hack.invent.h hack.main.h hack.mfndpos.h hack.mon.h hack.objnam.h hack.pri.h hack.topl.h hack.tty.h rnd.h
+hack.stat.o: hack.stat.h hack.main.h hack.topl.h mklev.h
+hack.steal.o: hack.steal.h hack.h hack.do_name.h hack.do_wear.h hack.invent.h hack.main.h hack.mkobj.h hack.mon.h hack.objnam.h hack.pri.h hack.topl.h hack.wield.h hack.worn.h rnd.h
+hack.termcap.o: hack.termcap.h alloc.h config.h hack.main.h hack.topl.h hack.tty.h
+hack.timeout.o: hack.timeout.h hack.h hack.end.h hack.pri.h hack.topl.h
+hack.topl.o: hack.topl.h alloc.h hack.h hack.end.h hack.mkobj.h hack.pri.h hack.termcap.h hack.tty.h
 hack.track.o: hack.track.h hack.h
 hack.trap.o: hack.trap.h hack.h
 hack.u_init.o: hack.u_init.h hack.h
@@ -222,6 +225,8 @@ mklv.shk.o: mklev.h def.eshk.h
 mklv.shknam.o: mklev.h
 rnd.o: rnd.h
 savelev.o: savelev.h
+def.eshk.h: mklev.h
+	touch def.eshk.h
 def.gen.h: config.h
 	touch def.gen.h
 def.monst.h: config.h mklev.h
@@ -270,7 +275,7 @@ hack.save.h: def.monst.h def.obj.h
 	touch hack.save.h
 hack.search.h: def.monst.h
 	touch hack.search.h
-hack.shk.h: def.obj.h
+hack.shk.h: def.eshk.h def.obj.h
 	touch hack.shk.h
 hack.steal.h: def.monst.h def.obj.h
 	touch hack.steal.h
@@ -278,6 +283,8 @@ hack.track.h: mklev.h
 	touch hack.track.h
 hack.trap.h: def.gen.h def.monst.h
 	touch hack.trap.h
+hack.tty.h: config.h
+	touch hack.tty.h
 hack.wield.h: def.obj.h
 	touch hack.wield.h
 hack.worm.h: config.h def.monst.h def.wseg.h
@@ -288,6 +295,8 @@ hack.zap.h: config.h def.monst.h
 	touch hack.zap.h
 mklev.h: config.h def.gen.h def.obj.h def.objclass.h def.permonst.h
 	touch mklev.h
+savelev.h: def.monst.h def.obj.h
+	touch savelev.h
 
 # DEPENDENCIES MUST END AT END OF FILE
 # IF YOU PUT STUFF HERE IT WILL GO AWAY

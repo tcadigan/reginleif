@@ -1,6 +1,7 @@
 #ifndef HACK_SHK_H_
 #define HACK_SHK_H_
 
+#include "def.eshk.h" /* bill_x */
 #include "def.obj.h" /* obj */
 
 #ifdef QUEST
@@ -15,7 +16,11 @@ int dopay();
 void doinvbill(int cl);
 #endif
 
+void setpaid();
 void obfree(struct obj *obj, struct obj *merge);
+int getprice(struct obj *obj);
+int dopayobj(struct bill_x *bp);
+int realhunger();
 int inshop();
 void addtobill();
 void paybill();

@@ -3,7 +3,12 @@
 #ifndef SAVELEV_H_
 #define SAVELEV_H_
 
+#include "def.monst.h" /* monst */
+#include "def.obj.h" /* obj */
+
 void bwrite(int fd, char *loc, unsigned int num);
+void savemonchn(int fd, struct monst *mtmp);
+void saveobjchn(int fd, struct obj *otmp);
 
 #ifdef MKLEV
 void savelev();

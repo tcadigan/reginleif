@@ -8,6 +8,7 @@ int dosave();
 void dorecover(int fd);
 struct obj *restobjchn(int fd);
 struct monst *restmonchn(int fd);
+int dosave0(int hu);
 
 #ifndef NOSAVEONHANGUP
 void hangup();

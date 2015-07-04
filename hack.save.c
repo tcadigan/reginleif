@@ -2,7 +2,23 @@
 
 #include "hack.save.h"
 
+#include <fcntl.h>
+#include <signal.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+#include "alloc.h"
 #include "hack.h"
+#include "hack.end.h"
+#include "hack.lev.h"
+#include "hack.main.h"
+#include "hack.o_init.h"
+#include "hack.pri.h"
+#include "hack.topl.h"
+#include "hack.tty.h"
+#include "hack.worm.h"
+#include "hack.worn.h"
+#include "savelev.h"
 
 /* Defined in Decl.c */
 extern char genocided[60];
@@ -10,15 +26,13 @@ extern char genocided[60];
 /* Defined in Decl.c */
 extern char fut_geno[60];
 
-#include <signal.h>
-
 extern char SAVEF[];
 extern char nul[];
 extern char pl_character[PL_CSIZ];
 
 int dosave()
 {
-    if(dosave0(0) != NULL) {
+    if(dosave0(0) != 0) {
         setty("Be setting you ...\n");
         
         exit(0);
@@ -67,7 +81,7 @@ int dosave0(int hu)
     bwrite(fd, (char *)&flags, sizeof(struct flag));
     bwrite(fd, (char *)&dlevel, sizeof(dlevel));
     bwrite(fd, (char *)&maxdlevel, sizeof(maxdlevel));
-    bwrite(fd, (char *)&moves, sizeof(move));
+    bwrite(fd, (char *)&moves, sizeof(moves));
     bwrite(fd, (char *)&u, sizeof(struct you));
     bwrite(fd, (char *)pl_character, sizeof(pl_character));
     bwrite(fd, (char *)genocided, sizeof(genocided));
@@ -112,7 +126,7 @@ void dorecover(int fd)
     struct obj *otmp;
 
     getlev(fd);
-    invent = restobjchain(fd);
+    invent = restobjchn(fd);
     
     for(otmp = invent; otmp != NULL; otmp = otmp->nobj) {
         if(otmp->owornmask) {
@@ -139,7 +153,7 @@ void dorecover(int fd)
             break;
         }
         
-        if(getlev(fd) != NULL) {
+        if(getlev(fd) != 0) {
             /* This is actually an error */
             break;
         }
@@ -274,12 +288,12 @@ struct monst *restmonchn(int fd)
         mtmp->data = (struct permonst *)((char *)mtmp->data + differ);
 
         /* From MKLEV */
-        if(mtmp->m_id == NULL) {
+        if(mtmp->m_id == 0) {
             mtmp->m_id = flags.ident;
             ++flags.ident;
 
 #ifndef NOWORM
-            if((mtmp->data->mlet == 'w') && (getwn(mtmp) != NULL)) {
+            if((mtmp->data->mlet == 'w') && (getwn(mtmp) != 0)) {
                 initworm(mtmp);
                 mtmp->msleep = 0;
             }

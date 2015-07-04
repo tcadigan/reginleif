@@ -31,6 +31,7 @@ struct obj *sobj_at(int n, int x, int y);
 struct obj *o_at(int x, int y);
 struct monst *m_at(int x, int y);
 struct gen *g_at(int x, int y, struct gen *ptr);
+struct obj *o_on(unsigned int id, struct obj *objchn);
 int dorwep();
 int doprwep();
 int doprarm();

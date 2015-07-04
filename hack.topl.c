@@ -1,9 +1,19 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
-#include "hack.h"
+#include "hack.topl.h"
 
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "alloc.h"
+#include "hack.h"
+#include "hack.end.h"
+#include "hack.mkobj.h"
+#include "hack.pri.h"
+#include "hack.termcap.h"
+#include "hack.tty.h"
 
 /* Leave room for "--More--" */
 #define TOPLSZ (COLNO - 8)
@@ -74,7 +84,7 @@ void remember_topl()
     }
 
     if((old_toplines != NULL)
-       && (strcmp(toplines, oldtoplines->topl_text))) {
+       && (strcmp(toplines, old_toplines->topl_text))) {
         return;
     }
 
@@ -182,7 +192,7 @@ void pline(char *line, ...)
         va_end(args);
     }
 
-    if((flags.topl == 1) && (strcmp(pbuf, toplines) = 0)) {
+    if((flags.topl == 1) && (strcmp(pbuf, toplines) == 0)) {
         return;
     }
 
@@ -225,7 +235,7 @@ void pline(char *line, ...)
 
             if(n0 == 0) {
                 for(n = 0; n < COLNO - 1; ++n) {
-                    if(letter(bp[n]) == NULL) {
+                    if(letter(bp[n]) == 0) {
                         n0 = n;
                     }
                 }
@@ -250,7 +260,7 @@ void pline(char *line, ...)
         n0 = strlen(bp);
 
         if((n0 != 0) && (tl[0] != 0)) {
-            strcat(tl, '\n');
+            strcat(tl, "\n");
         }
     }
 

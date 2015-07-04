@@ -2,6 +2,8 @@
 
 #include "hack.options.h"
 
+#include <curses.h>
+
 #include "config.h"
 #include "hack.topl.h"
 #include "hack.tty.h"
@@ -33,10 +35,10 @@ int doset()
         flags.echo = flg;
         
         if(flg) {
-            echo(ON);
+	    echo();
         }
         else {
-            echo(OFF);
+	    noecho();
         }
 
         break;
