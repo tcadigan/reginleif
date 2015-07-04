@@ -33,7 +33,7 @@ extern char pl_character[PL_CSIZ];
 int dosave()
 {
     if(dosave0(0) != 0) {
-        setty("Be setting you ...\n");
+        settty("Be setting you ...\n");
         
         exit(0);
     }

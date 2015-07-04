@@ -12,5 +12,6 @@ int inroom(xchar x, xchar y);
 void initedog(struct monst *mtmp);
 void makedog();
 int dog_move(struct monst *mtmp, int after);
+void fall_down(struct monst *mtmp);
 
 #endif

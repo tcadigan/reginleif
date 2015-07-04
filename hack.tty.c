@@ -2,36 +2,39 @@
 
 #include "hack.tty.h"
 
-#include "hack.h"
-
 #include <stdio.h>
+#include <stdlib.h>
 #include <sgtty.h>
+#include <termios.h>
 
-struct sgttyb inittyb;
-struct sgttyb curttyb;
-extern short ospeed;
+#include "hack.h"
+#include "hack.mkobj.h"
+#include "hack.termcap.h"
+#include "hack.topl.h"
+
+struct termios inittyb;
+struct termios curttyb;
+extern speed_t ospeed;
 
 void getty()
 {
-    gtty(0, &inittyb);
-    gtty(0, &curttyb);
+    tcgetattr(0, &inittyb);
+    tcgetattr(0, &curttyb);
 
-    ospeed = inittyb.sg_ospeed;
-
-    /*
-     * if(ospeed <= B300) {
-     *     flags.online = 1;
-     * }
-     */
+    ospeed = cfgetospeed(&inittyb);
+    
+    if(ospeed <= B300) {
+        flags.oneline = 1;
+    }
 
     /* getioctls(); */
     xtabs();
 }
 
 /* Reset terminal to original state */
-void setty(char *s)
+void settty(char *s)
 {
-    clear_sreen();
+    hack_clear_screen();
 
     if(s != NULL) {
         printf(s);
@@ -39,18 +42,18 @@ void setty(char *s)
 
     fflush(stdout);
 
-    if(stty(0, &inittyb) == -1) {
+    if(tcsetattr(0, TCSANOW, &inittyb) == -1) {
         puts("Cannot change tty");
     }
 
-    if(inittyb.sg_flags & ECHO) {
+    if(inittyb.c_lflag & ECHO) {
         flags.echo = ON;
     }
     else {
         flags.echo = OFF;
     }
 
-    if(inittyb.sg_flags & CBREAK) {
+    if(inittyb.c_lflag & ICANON) {
         flags.cbreak = ON;
     }
     else {
@@ -62,7 +65,7 @@ void setty(char *s)
 
 void setctty()
 {
-    if(stty(0, &curttyb) == -1) {
+    if(tcsetattr(0, TCSANOW, &curttyb) == -1) {
         puts("Cannot change tty");
     }
 }
@@ -80,7 +83,7 @@ void setftty()
 
     int cf;
     if(flags.cbreak == ON) {
-        cf = CBREAK;
+        cf = ICANON;
     }
     else {
         cf = 0;
@@ -88,15 +91,15 @@ void setftty()
 
     int change = 0;
 
-    if((curttyb.sg_flags & EHCO) != ef) {
-        curttyb.sg_flags &= ~ECHO;
-        curttyb.sg_flags |= ef;
+    if((curttyb.c_lflag & ECHO) != ef) {
+        curttyb.c_lflag &= ~ECHO;
+        curttyb.c_lflag |= ef;
         ++change;
     }
 
-    if((curtty.sg_flags & CBREAK) != cf) {
-        curttyb.sg_flags &= ~CBREAK;
-        curttyb.sg_flags |= cf;
+    if((curttyb.c_lflag & ICANON) != cf) {
+        curttyb.c_lflag &= ~ICANON;
+        curttyb.c_lflag |= cf;
         ++change;
     }
 
@@ -111,8 +114,9 @@ void setftty()
  */
 void xtabs()
 {
+    
     /* gtty(0, &curttyb); */
-    curttyb.sg_flags |= XTABS;
+    curttyb.c_oflag |= XTABS;
 
     setctty();
 }
@@ -213,7 +217,7 @@ void xwaitforspace(boolean spaceflag)
     c = getchar();
     while(c != '\n') {
         if(c == EOF) {
-            setty("End of input?\n");
+            settty("End of input?\n");
 
             exit(0);
         }
@@ -223,7 +227,7 @@ void xwaitforspace(boolean spaceflag)
                 break;
             }
             
-            if((space == NULL) && (letter(c) != NULL)) {
+            if((spaceflag == 0) && (letter(c) != 0)) {
                 morc = c;
                 
                 break;
@@ -236,12 +240,12 @@ void xwaitforspace(boolean spaceflag)
 
 char *parse()
 {
-    static char inline[COLNO];
+    static char in_line[COLNO];
     int foo;
 
     flags.move = 1;
 
-    if(Invis == NULL) {
+    if(Invis == 0) {
         curs(u.ux, u.uy + 2);
     }
     else {
@@ -257,44 +261,44 @@ char *parse()
         foo = getchar();
     }
 
-    if(multi != NULL) {
+    if(multi != 0) {
         --multi;
 
-        save_cm = inline;
+        save_cm = in_line;
     }
 
-    inline[0] = foo;
-    inline[1] = 0;
+    in_line[0] = foo;
+    in_line[1] = 0;
 
     if(foo == EOF) {
-        setty("End of input?\n");
+        settty("End of input?\n");
 
         exit(0);
     }
 
     if((foo == 'f') || (foo == 'F')) {
-        inline[1] = getchar();
+        in_line[1] = getchar();
 
 #ifdef QUEST
-        if(inline[1] == foo) {
-            inline[2] = getchar();
+        if(in_line[1] == foo) {
+            in_line[2] = getchar();
         }
         else {
-            inline[2] = 0;
+            in_line[2] = 0;
         }
 #else
-        inline[2] == 0;
+        in_line[2] = 0;
 #endif
     }
 
     if((foo == 'm') || (foo == 'M')) {
-        inline[1] = getchar();
-        inline[2] = 0;
+        in_line[1] = getchar();
+        in_line[2] = 0;
     }
 
     clrlin();
 
-    return inline;
+    return in_line;
 }
 
 char readchar()
@@ -305,7 +309,7 @@ char readchar()
 
     sym = getchar();
     if(sym == EOF) {
-        setty("End of input?\n");
+        settty("End of input?\n");
 
         exit(0);
     }

@@ -159,7 +159,7 @@ void done(char *st1)
     }
 
     /* Does a cls() */
-    setty((char *)0);
+    settty((char *)0);
 
     if(done_stopprint == 0) {
         printf("Goodbye %s %s...\n\n", pl_character, plname);

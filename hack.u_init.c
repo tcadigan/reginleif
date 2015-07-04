@@ -2,11 +2,22 @@
 
 #include "hack.u_init.h"
 
-#include <stdio.h>
 #include <signal.h>
-#include "hack.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#define Strcat(void) strcat
+#include "hack.h"
+#include "hack.do_wear.h"
+#include "hack.eat.h"
+#include "hack.invent.h"
+#include "hack.main.h"
+#include "hack.mkobj.h"
+#include "hack.tty.h"
+#include "hack.wield.h"
+#include "hack.worn.h"
+#include "rnd.h"
+
 #define UNDEF_TYP 0
 #define UNDEF_SPE (-1)
 
@@ -14,15 +25,7 @@ extern char plname[];
 
 char pl_character[PL_CSIZ];
 
-struct trobj {
-    uchar trotyp;
-    schar trspe;
-    char trolet;
-    Bitfield(trquan, 6);
-    BItfield(trknown, 1);
-};
-
-#idef WIZARD
+#ifdef WIZARD
 struct trobj Extra_objs[] = {
     {0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0}
@@ -62,7 +65,7 @@ struct trobj Speleologist[] = {
 };
 
 struct trobj Tourist[] = {
-    {UNDEF_TYPE, 0, FOOD_SYM, 10, 1},
+    {UNDEF_TYP, 0, FOOD_SYM, 10, 1},
     {POT_EXTRA_HEALING, 0, POTION_SYM, 2, 0},
     {EXPENSIVE_CAMERA, 0, TOOL_SYM, 1, 1},
     /* quan is variable */
@@ -82,7 +85,7 @@ struct trobj Wizard[] = {
 #ifdef NEWS
 int u_in_infl;
 
-void u_in_intrup()
+void u_in_intrup(int sig)
 {
     ++u_in_infl;
 
@@ -103,7 +106,7 @@ void u_init()
      * also kill (part of) the following question
      */
 
-    int (* prevsig)() = signal(SIGING, u_in_intrup);
+    void (* prevsig)(int) = signal(SIGINT, u_in_intrup);
 #endif
 
     char *cp;
@@ -113,9 +116,9 @@ void u_init()
 
     if(pc == 0) {
         buf[0] = 0;
-        Strcat(buf, "\nTell me what kind of character you are:\n");
-        Strcat(buf, "Are you a Tourist, a Speleologist, a Fighter,\n");
-        Strcat(buf, "\ta Knight, a Cave-man or a Wizard? [TSFKCW] ");
+        strcat(buf, "\nTell me what kind of character you are:\n");
+        strcat(buf, "Are you a Tourist, a Speleologist, a Fighter,\n");
+        strcat(buf, "\ta Knight, a Cave-man or a Wizard? [TSFKCW] ");
         
         while(1) {
             int interup = 0;
@@ -140,7 +143,7 @@ void u_init()
             while(1) {
                 fflush(stdout);
                 
-                pw = 0;
+                pc = 0;
                 
                 c = getchar();
                 while(c != '\n') {
@@ -199,7 +202,7 @@ void u_init()
         u.ustr = 16;
     }
 
-    ustrmax = u.ustr;
+    u.ustrmax = u.ustr;
 
 #ifdef QUEST
     u.uhorizon = 6;
@@ -213,7 +216,7 @@ void u_init()
         u.uhp = u.uhpmax;
         u.ustrmax = 18;
         u.ustr = u.ustrmax;
-        init_inv(Cave_man);
+        ini_inv(Cave_man);
 
         break;
     case 'T':
@@ -302,7 +305,7 @@ void ini_inv(struct trobj *trop)
             trop->trquan = 1;
         }
 
-        if(top->trspe != UNDEF_SPE) {
+        if(trop->trspe != UNDEF_SPE) {
             obj->spe = trop->trspe;
         }
 
@@ -380,7 +383,7 @@ void wiz_inv()
             }
         }
 
-        if((type <= 0) || (type > NROBJECTS)) {
+        if((type <= 0) || (type > NROFOBJECTS)) {
             continue;
         }
 
@@ -394,17 +397,17 @@ void wiz_inv()
 
     /* Give him a wand of wishing by default */
     trop->trotyp = WAN_WISHING;
-    trop->troplet = WAND_SYM;
+    trop->trolet = WAND_SYM;
     trop->trspe = 20;
     trop->trknown = 1;
     trop->trquan = 1;
     ini_inv(trop);
 }
-#enif WIZARD
+#endif
 
 void setpl_char(char *plc)
 {
-    strncpy(pl_char, plc, PL_CSIZ - 1);
+    strncpy(pl_character, plc, PL_CSIZ - 1);
     pl_character[PL_CSIZ - 1] = 0;
 }
 
@@ -421,7 +424,7 @@ void plnamesuffix()
             plnamesuffix();
         }
 
-        if(index("TSFKCWtsfkcw", pl[1]) != NULL) {
+        if(index("TSFKCWtsfkcw", p[1]) != NULL) {
             pl_character[0] = p[1];
             pl_character[1] = 0;
         }

@@ -713,7 +713,7 @@ int child(int wt)
 
     if(f == 0) {
         /* Child */
-        setty((char *)0);
+        settty((char *)0);
         setuid(getuid());
         
         return 1;

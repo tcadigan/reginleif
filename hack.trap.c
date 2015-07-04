@@ -2,7 +2,23 @@
 
 #include "hack.trap.h"
 
+#include "def.trap.h" 
 #include "hack.h"
+#include "hack.do.h"
+#include "hack.dog.h"
+#include "hack.do_name.h"
+#include "hack.end.h"
+#include "hack.engrave.h"
+#include "hack.fight.h"
+#include "hack.invent.h"
+#include "hack.main.h"
+#include "hack.makemon.h"
+#include "hack.mkobj.h"
+#include "hack.mon.h"
+#include "hack.pri.h"
+#include "hack.shk.h"
+#include "hack.topl.h"
+#include "rnd.h"
 
 char vowels[] = "aeiou";
 
@@ -35,7 +51,7 @@ void dotrap(struct gen *trap)
 
             break;
         case BEAR_TRAP:
-            if(Levitation != NULL) {
+            if(Levitation != 0) {
                 pline("You float over a bear trap.");
                 
                 break;
@@ -64,7 +80,7 @@ void dotrap(struct gen *trap)
         case ARROW_TRAP:
             pline("An arrow shoots out at you!");
 
-            if(thitu(8, rnd(6), "arrow") == NULL) {
+            if(thitu(8, rnd(6), "arrow") == 0) {
                 mksobj_at(WEAPON_SYM, ARROW, u.ux, u.uy);
 
                 fobj->quan = 1;
@@ -72,7 +88,7 @@ void dotrap(struct gen *trap)
 
             break;
         case TRAPDOOR:
-            if(xdnstair == NULL) {
+            if(xdnstair == 0) {
                 pline("A trap door in the ceiling opens and a rock falls on your head!");
 
                 if(uarmh != 0) {
@@ -155,7 +171,7 @@ int mintrap(struct monst *mtmp)
         mtmp->mtrapped = 0;
     }
     else if(wasintrap != 0) {
-        if(rn2(40) == NULL) {
+        if(rn2(40) == 0) {
             mtmp->mtrapped = 0;
         }
     }
@@ -200,7 +216,7 @@ int mintrap(struct monst *mtmp)
             
             break;
         case SLP_GAS_TRAP:
-            if((mtmp->msleep == 0) && (mtmp->mfroz == NULL)) {
+            if((mtmp->msleep == 0) && (mtmp->mfroz == 0)) {
                 mtmp->msleep = 1;
                 
                 if(in_sight != 0) {
@@ -212,14 +228,14 @@ int mintrap(struct monst *mtmp)
         case TELEP_TRAP:
             rloc(mtmp);
             
-            if((in_sight != 0) && (cansee(mtmp->mx, mtmp->my) == NULL)) {
-                pline("%s suddenly disappears!", Monname(mtmp));
+            if((in_sight != 0) && (cansee(mtmp->mx, mtmp->my) == 0)) {
+                pline("%s suddenly disappears!", Monnam(mtmp));
             }
             
             break;
         case ARROW_TRAP:
             if(in_sight != 0) {
-                pline("%s is hit by an arrow!", Monname(mtmp));
+                pline("%s is hit by an arrow!", Monnam(mtmp));
             }
             
             mtmp->mhp -= 3;
@@ -227,7 +243,7 @@ int mintrap(struct monst *mtmp)
             break;
         case DART_TRAP:
             if(in_sight != 0) {
-                pline("%s is hith by a dart!", Monname(mtmp));
+                pline("%s is hith by a dart!", Monnam(mtmp));
             }
             
             mtmp->mhp -= 2;
@@ -235,7 +251,7 @@ int mintrap(struct monst *mtmp)
             /* not mon died here!! */
             break;
         case TRAPDOOR:
-            if(xdnstair == NULL) {
+            if(xdnstair == 0) {
                 mtmp->mhp -= 10;
                 
                 if(in_sight != 0) {
@@ -310,7 +326,7 @@ void float_down()
 
             break;
         case TRAPDOOR:
-            if((xdnstair == NULL) || (u.ustuck != 0)) {
+            if((xdnstair == 0) || (u.ustuck != 0)) {
                 break;
             }
 
@@ -355,7 +371,7 @@ void tele()
         nux = rnd(COLNO - 1);
         nuy = rn2(ROWNO);
         
-        while(teleok(nux, nuy) == NULL) {
+        while(teleok(nux, nuy) == 0) {
             nux = rnd(COLNO - 1);
             nuy = rn2(ROWNO);
         }
@@ -398,7 +414,7 @@ int teleok(int x, int y)
     return ((isok(x, y) != 0)
             && (levl[x][y].typ > DOOR)
             && (m_at(x, y) == NULL)
-            && (sobj(ENORMOUS_ROCK, x, y) == NULL)
+            && (sobj_at(ENORMOUS_ROCK, x, y) == NULL)
             && (g_at(x, y, ftrap) == NULL));
 }
 
@@ -421,7 +437,7 @@ void placebc(int attach)
         uchain->nobj = fobj;
         fobj = uchain;
 
-        if(carried(uball) == NULL) {
+        if(carried(uball) == 0) {
             uball->nobj = fobj;
             fobj = uball;
         }
@@ -430,7 +446,7 @@ void placebc(int attach)
 
 void unplacebc()
 {
-    if(carried(uball) == NULL) {
+    if(carried(uball) == 0) {
         freeobj(uball);
         unpobj(uball);
     }
@@ -445,7 +461,7 @@ void level_tele()
     int newlevel = 5 + rn2(20);
 
     if(dlevel == newlevel) {
-        if(xdnstair == NULL) {
+        if(xdnstair == 0) {
             --newlevel;
         }
         else {

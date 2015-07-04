@@ -8,6 +8,7 @@
 boolean hmon(struct monst *mon, struct obj *obj, int thrown);
 int hitmm(struct monst *magr, struct monst *mdef);
 int hitu(struct monst *mtmp, int dam);
+int thitu(int tlev, int dam, char *nam);
 int fightm(struct monst *mtmp);
 void mondied(struct monst *mdef);
 void monstone(struct monst *mdef);

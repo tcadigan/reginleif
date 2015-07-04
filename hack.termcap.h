@@ -12,5 +12,7 @@ void xputs(char *s);
 void cmov(int x, int y);
 void nocmov(int x, int y);
 void backsp();
+void hack_bell();
+void hack_clear_screen();
 
 #endif

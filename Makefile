@@ -210,8 +210,9 @@ hack.termcap.o: hack.termcap.h alloc.h config.h hack.main.h hack.topl.h hack.tty
 hack.timeout.o: hack.timeout.h hack.h hack.end.h hack.pri.h hack.topl.h
 hack.topl.o: hack.topl.h alloc.h hack.h hack.end.h hack.mkobj.h hack.pri.h hack.termcap.h hack.tty.h
 hack.track.o: hack.track.h hack.h
-hack.trap.o: hack.trap.h hack.h
-hack.u_init.o: hack.u_init.h hack.h
+hack.trap.o: hack.trap.h def.trap.h hack.h hack.do.h hack.dog.h hack.do_name.h hack.end.h hack.engrave.h hack.fight.h hack.invent.h hack.main.h hack.makemon.h hack.mkobj.h hack.mon.h hack.pri.h hack.shk.h hack.topl.h rnd.h
+hack.tty.o: hack.tty.h hack.h hack.mkobj.h hack.termcap.h hack.topl.h
+hack.u_init.o: hack.u_init.h hack.h hack.do_wear.h hack.eat.h hack.invent.h hack.main.h hack.mkobj.h hack.tty.h hack.wield.h hack.worn.h rnd.h
 hack.vault.o: hack.vault.h hack.h
 hack.version.o: hack.version.h date.h
 hack.whatis.o: hack.whatis.h hack.h
@@ -241,7 +242,7 @@ hack.dog.h: config.h def.monst.h def.obj.h
 	touch hack.dog.h
 hack.do.h: config.h def.obj.h
 	touch hack.do.h
-hack.do_name.h: def.monst.h
+hack.do_name.h: def.monst.h mklev.h
 	touch hack.do_name.h
 hack.do_wear.h: def.obj.h
 	touch hack.do_wear.h
@@ -285,6 +286,8 @@ hack.trap.h: def.gen.h def.monst.h
 	touch hack.trap.h
 hack.tty.h: config.h
 	touch hack.tty.h
+hack.u_init.h: config.h
+	touch hack.u_init.h
 hack.wield.h: def.obj.h
 	touch hack.wield.h
 hack.worm.h: config.h def.monst.h def.wseg.h

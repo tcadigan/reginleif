@@ -225,7 +225,7 @@ void mklev()
 
         exit(2);
     case -1:
-        setty("Cannot fork!\n");
+        settty("Cannot fork!\n");
         
         exit(1);
     default:
@@ -236,20 +236,20 @@ void mklev()
 
     if(status.w_status != 0) {
         if(status.w_coredump != 0) {
-            setty("Mklev dumped core. Exiting...\n");
+            settty("Mklev dumped core. Exiting...\n");
 
             exit(1);
         }
 
         if(status.w_termsig != 0) {
-            setty("Mklev killed by a signal. Exiting...\n");
+            settty("Mklev killed by a signal. Exiting...\n");
             
             exit(1);
         }
 
         if(status.w_retcode != 0) {
             if(status.w_retcode == 2) {
-                setty("Cannot execl mklev.\n");
+                settty("Cannot execl mklev.\n");
 
                 exit(1);
             }

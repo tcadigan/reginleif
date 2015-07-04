@@ -8,5 +8,6 @@ void lesshungry(int num);
 int doeat();
 void Meatdone();
 int eatcorpse(struct obj *otmp);
+void init_uhunger();
 
 #endif

@@ -12,6 +12,7 @@ void float_up();
 void float_down();
 void tele();
 void level_tele();
+int teleok(int x, int y);
 int mintrap(struct monst *mtmp);
 
 #endif

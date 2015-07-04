@@ -32,7 +32,7 @@ char *hu_stat[5] = {
     "Fainting"
 };
 
-void init_hunger()
+void init_uhunger()
 {
     u.uhunger = 900;
     u.uhs = NOT_HUNGRY;
