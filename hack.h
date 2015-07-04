@@ -215,7 +215,7 @@ struct you {
     struct monst *ustuck;
 
     /* Used for experience bookkeeping */
-    int rn_killed[CMNUM + 2];
+    int nr_killed[CMNUM + 2];
 };
 
 extern struct you u;
@@ -274,5 +274,7 @@ void losestr(int num);
 void losehp(int n, char *knam);
 void losexp();
 void lookaround();
+int isok(int x, int y);
+int sgn(int a);
 
 #endif

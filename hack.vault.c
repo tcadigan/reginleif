@@ -9,12 +9,12 @@ void setgd(/* struct monst *mtmp */)
 {
 }
 
-int gd_move
+int gd_move()
 {
     return 2;
 }
 
-void gddead(struct monst *mtmp)
+void gddead(/* struct monst *mtmp */)
 {
 }
 

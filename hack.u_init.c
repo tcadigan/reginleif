@@ -385,7 +385,7 @@ void wiz_inv()
         }
 
         trop->trotyp = type;
-        trop->trolet = objects[type].oc_oclet;
+        trop->trolet = objects[type].oc_olet;
         trop->trspe = 4;
         trop->trknown = 1;
         trop->trquan = 1;

@@ -6,7 +6,7 @@
 struct permonst monst[CMNUM + 2] = {
     {"bat", 'B', 1, 22, 8, 1, 4, 0},
     {"gnome", 'G', 1, 6, 5, 1, 6, 0},
-    {"hobgoblin", 'H', 1, 9, 5, 1, 8 0},
+    {"hobgoblin", 'H', 1, 9, 5, 1, 8, 0},
     {"jackel", 'J', 0, 12, 7, 1, 2, 0},
     {"kobold", 'K', 1, 6, 7, 1, 4, 0},
     {"leprechaun", 'L', 5, 15, 8, 1, 2, 0},

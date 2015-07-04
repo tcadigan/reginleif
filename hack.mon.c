@@ -2,8 +2,30 @@
 
 #include "hack.mon.h"
 
+#include <stdlib.h>
+#include <math.h>
+
 #include "hack.h"
+#include "hack.dog.h"
+#include "hack.do_name.h"
+#include "hack.end.h"
+#include "hack.engrave.h"
+#include "hack.fight.h"
+#include "hack.invent.h"
+#include "hack.makemon.h"
 #include "hack.mfndpos.h"
+#include "hack.mhitu.h"
+#include "hack.mkobj.h"
+#include "hack.pri.h"
+#include "hack.shk.h"
+#include "hack.steal.h"
+#include "hack.topl.h"
+#include "hack.track.h"
+#include "hack.trap.h"
+#include "hack.vault.h"
+#include "hack.worm.h"
+#include "hack.zap.h"
+#include "rnd.h"
 
 #define SIZE(x) (int)(sizeof(x) / sizeof(x[0]))
 
@@ -12,7 +34,7 @@ int warnlevel;
 long lastwarntime;
 int lastwarnlev;
 
-char *warning[] = {
+char *warnings[] = {
     "white",
     "pink",
     "red",
@@ -79,7 +101,7 @@ void movemon()
             }
         }
 
-        if((mtmp->mspeed == MFAST) && (dochugw(mtmp) != NULL)) {
+        if((mtmp->mspeed == MFAST) && (dochugw(mtmp) != 0)) {
             continue;
         }
     }
@@ -129,7 +151,7 @@ void justswld(struct monst *mtmp, char *name)
     pmon(mtmp);
     kludge("%s swallows you!", name);
     more();
-    seeof(1);
+    seeoff(1);
     u.uswallow = 1;
     swallowed();
 }
@@ -143,12 +165,12 @@ void youswld(struct monst *mtmp, int dam, int die, char *name)
     kludge("%s digests you!", name);
     u.uhp -= dam;
 
-    if(u.uswldtime == die) {
-        ++u.uswldtime;
+    if(u.uswldtim == die) {
+        ++u.uswldtim;
         pline("It totally digests you!");
         u.uhp = -1;
     }
-    ++u.uswldtime;
+    ++u.uswldtim;
 
     if(u.uhp < 1) {
         done_in_by(mtmp);
@@ -169,7 +191,7 @@ int dochugw(struct monst *mtmp)
                 dd = dist(mtmp->mx, mtmp->my);
                 if(dd < dist(x,y)) {
                     if(dd < 100) {
-                        if((cansee(mtmp->mx, mtmp->my) == NULL)
+                        if((cansee(mtmp->mx, mtmp->my) == 0)
                            || ((mtmp->minvis != 0) && (See_invisible == 0))) {
                             if(mtmp->data->mlevel > warnlevel) {
                                 warnlevel = mtmp->data->mlevel;
@@ -188,7 +210,7 @@ int dochugw(struct monst *mtmp)
 int dochug(struct monst *mtmp)
 {
     struct permonst *mdat;
-    int tmp;
+    int tmp = 0;
 
     if((mtmp->cham != 0) && (rn2(6) == 0)) {
         newcham(mtmp, &mons[(dlevel + 14) + rn2((CMNUM - 14) - dlevel)]);
@@ -213,12 +235,12 @@ int dochug(struct monst *mtmp)
 
     if(mtmp->msleep != 0) {
         /* Wake up a monster, or get out of here. */
-        if((cansee(mtmp->mx, mtmp->my) != NULL) 
-           && (Stealth == 0)
-           && (index("NL", mdat->mlet) == 0)
-           || (rn2(50) == 0)
-           && ((Aggravate_monster != 0) 
-               && ((rn2(7) == 0) && (mtmp->mimic == 0)))) {
+        if((cansee(mtmp->mx, mtmp->my) != 0)
+	   && (Stealth == 0)
+	   && ((index("NL", mdat->mlet) == 0)
+	       || (rn2(50) == 0))
+	   && ((Aggravate_monster != 0) 
+	       || ((rn2(7) == 0) && (mtmp->mimic == 0)))) {
             mtmp->msleep = 0;
         }
         else {
@@ -256,8 +278,8 @@ int dochug(struct monst *mtmp)
        || (dist(mtmp->mx, mtmp->my) > 2)
        || ((mtmp->mcansee == 0) && (rn2(4) == 0))
        || (mtmp->mpeaceful != 0)) {
-        tmp = m_move(mtmp);
-        if((tmp != NULL) && (mdat->mmove < 12)) {
+        tmp = m_move(mtmp, 0);
+        if((tmp != 0) && (mdat->mmove < 12)) {
             if(tmp == 2) {
                 return 1;
             }
@@ -278,7 +300,7 @@ int dochug(struct monst *mtmp)
        && (u.uhp > 0)
        && (sengr_at("Elbereth", u.ux, u.uy) == 0)
        && (sobj_at(SCR_SCARE_MONSTER, u.ux, u.uy) == 0)) {
-        if(mhitu(mtmp) != NULL) {
+        if(mhitu(mtmp) != 0) {
             /* Monster died (e.g. 'y' or 'F') */
             return 1;
         }   
@@ -324,9 +346,9 @@ void inrange(struct monst *mtmp)
 
 int m_move(struct monst *mtmp, int after)
 {
-    struct monst mtmp2;
-    int nx;
-    int ny;
+    struct monst *mtmp2;
+    int nx = 0;
+    int ny = 0;
     int omx;
     int omy;
     int appr;
@@ -340,9 +362,9 @@ int m_move(struct monst *mtmp, int after)
     xchar niy;
     xchar chcnt;
     schar chi;
-    boolean likegold;
-    boolean likegems;
-    boolean likeobjs;
+    boolean likegold = 0;
+    boolean likegems = 0;
+    boolean likeobjs = 0;
 
     /* Not strictly necessary: chi >= 0 will do */
     schar mmoved = 0;
@@ -394,7 +416,7 @@ int m_move(struct monst *mtmp, int after)
             }
 
             if(mtmp->mhide != 0) {
-                mtmp->undetected = 1;
+                mtmp->mundetected = 1;
             }
         }
 
@@ -420,7 +442,7 @@ int m_move(struct monst *mtmp, int after)
             }
 
             if(mtmp->mhide != 0) {
-                mtmp->undetected = 1;
+                mtmp->mundetected = 1;
             }
         }
 
@@ -452,14 +474,14 @@ int m_move(struct monst *mtmp, int after)
             }
 
             if(mtmp->mhide != 0) {
-                mtmp->undetected = 1;
+                mtmp->mundetected = 1;
             }
         }
 
         return mmoved;
     }
 
-    if((mtmp->data->mlet == 'D') && (mtmp->mcan == NULL)) {
+    if((mtmp->data->mlet == 'D') && (mtmp->mcan == 0)) {
         inrange(mtmp);
     }
 
@@ -469,7 +491,7 @@ int m_move(struct monst *mtmp, int after)
        && (mtmp->mcan == 0)
        && (cansee(mtmp->mx, mtmp->my) != 0)
        && (rn2(5) != 0)) {
-        pline("%s's gaze has confused you!", Monname(mtmp));
+        pline("%s's gaze has confused you!", Monnam(mtmp));
 
         if(rn2(5) != 0) {
             mtmp->mcan = 1;
@@ -527,7 +549,7 @@ int m_move(struct monst *mtmp, int after)
 #endif
 
     /* Look for gold or jewels nearby */
-    if(index("LOD", mtmp->data->mtmp) != NULL) {
+    if(index("LOD", mtmp->data->mlet) != NULL) {
         likegold = 1;
     }
     else {
@@ -627,7 +649,7 @@ int m_move(struct monst *mtmp, int after)
                         nearer = 0;
                     }
 #else
-		    if(DIST(nx, ny, gx, gy) < DIST(mix, miy, gx, gy)) {
+		    if(DIST(nx, ny, gx, gy) < DIST(nix, niy, gx, gy)) {
 			nearer = 1;
 		    }
 		    else {
@@ -663,7 +685,7 @@ int m_move(struct monst *mtmp, int after)
     }
 
     if(mmoved != 0) {
-        if((info[chi] & ALLOW_M) != 0) {
+        if((info[(int)chi] & ALLOW_M) != 0) {
             mtmp2 = m_at(nix, niy);
 
             if((hitmm(mtmp, mtmp2) == 1)
@@ -675,8 +697,8 @@ int m_move(struct monst *mtmp, int after)
             return 0;
         }
 
-        if((info[chi] & ALLOW_U) != 0) {
-            hitu(mtmp, d(mtmp->data->damm, mtmp->data->damd) + 1);
+        if((info[(int)chi] & ALLOW_U) != 0) {
+            hitu(mtmp, d(mtmp->data->damn, mtmp->data->damd) + 1);
         
             return 0;
         }
@@ -689,7 +711,7 @@ int m_move(struct monst *mtmp, int after)
         }
 
         mtmp->mtrack[0].x = omx;
-        mtmp->mtrack[0].u = omy;
+        mtmp->mtrack[0].y = omy;
 
 #ifndef NOWORM
         if(mtmp->wormno != 0) {
@@ -744,7 +766,7 @@ void mpickgold(struct monst *mtmp)
         mtmp->mgold += gold->gflag;
         freegold(gold);
 
-        if(level[mtmp->mx][mtmp->my].scrsym == '$') {
+        if(levl[(int)mtmp->mx][(int)mtmp->my].scrsym == '$') {
             newsym(mtmp->mx, mtmp->my);
         }
 
@@ -757,14 +779,14 @@ void mpickgems(struct monst *mtmp)
     struct obj *otmp;
 
     for(otmp = fobj; otmp != NULL; otmp = otmp->nobj) {
-        if(otmp->ote == GEM_SYM) {
+        if(otmp->olet == GEM_SYM) {
             if((otmp->ox == mtmp->mx) && (otmp->oy == mtmp->my)) {
                 if((mtmp->data->mlet != 'u')
                    || (objects[otmp->otyp].g_val != 0)) {
                     freeobj(otmp);
                     mpickobj(mtmp, otmp);
                     
-                    if(levl[mtmp->mx][mtmp->my].scrsym == GEM_SYM) {
+                    if(levl[(int)mtmp->mx][(int)mtmp->my].scrsym == GEM_SYM) {
                         /* %% */
                         newsym(mtmp->mx, mtmp->my);
                     }
@@ -825,7 +847,7 @@ int mfndpos(struct monst *mon, coord poss[9], int info[9], int flag)
                                 }
                                 
                                 if(mtmp->mtame != 0) {
-                                    if((flag & ALLOW_TM) == ) {
+                                    if((flag & ALLOW_TM) == 0) {
                                         continue;
                                     }
                                     
@@ -916,7 +938,7 @@ void poisoned(char *string, char *pname)
         return;
     }
 
-    switch(rnd6) {
+    switch(rnd(6)) {
     case 1:
         u.uhp = -1;
         
@@ -977,11 +999,11 @@ void replmon(struct monst *mtmp, struct monst *mtmp2)
 {
     relmon(mtmp);
     monfree(mtmp);
-    mtmp-2->nmon = fmon;
+    mtmp2->nmon = fmon;
     fmon = mtmp2;
 }
 
-void relmon(struct monst *mtmp)
+void relmon(struct monst *mon)
 {
     struct monst *mtmp;
 
@@ -1023,10 +1045,8 @@ void dmonsfree()
 
 void killed(struct monst *mtmp)
 {
-#ifdef lint
 #define NEW_SCORING
-#endif
-    
+
     int tmp;
     int tmp2;
     int nk;
@@ -1070,7 +1090,7 @@ void killed(struct monst *mtmp)
 
         ++u.nr_killed[tmp];
         nk = u.nr_killed[tmp];
-        if((nk > MAXMONNO) && (index(fut_gno, mdat->mlet) == 0)) {
+        if((nk > MAXMONNO) && (index(fut_geno, mdat->mlet) == 0)) {
             charcat(fut_geno, mdat->mlet);
         }
     }
@@ -1096,7 +1116,7 @@ void killed(struct monst *mtmp)
         tmp += (2 * (7 - mdat->ac));
     }
 
-    if(index("AcsSDXaeRTVWU&In:P", mdat->melt) != 0) {
+    if(index("AcsSDXaeRTVWU&In:P", mdat->mlet) != 0) {
         tmp += (2 * mdat->mlevel);
     }
 
@@ -1118,9 +1138,9 @@ void killed(struct monst *mtmp)
     
     /* Points are given based on present and future level */
     if(ul < 14) {
-        for(tmp2 = 0; (tmp2 == NULL) || ((ul + tmp2) <= ml); ++tmp2) {
+        for(tmp2 = 0; (tmp2 == 0) || ((ul + tmp2) <= ml); ++tmp2) {
             if(tmp <= 0) {
-                if(((u.uexp + 1) + ((tmp + (0)) / nk)) >= (10 * pow((unsigned)(ul - 1)))) {
+                if(((u.uexp + 1) + ((tmp + (0)) / nk)) >= (10 * pow(2, (unsigned)(ul - 1)))) {
                     ++ul;
                     if(ul == 14) {
                         break;
@@ -1128,7 +1148,7 @@ void killed(struct monst *mtmp)
                 }
             }
             else {
-                if(((u.uexp + 1) + ((temp + (4 << (tmp2 - 1))) / nk)) >= (10 * pow((unsigned)(ul - 1)))) {
+                if(((u.uexp + 1) + ((tmp + (4 << (tmp2 - 1))) / nk)) >= (10 * pow(2, (unsigned)(ul - 1)))) {
                     ++ul;
                     if(ul == 14) {
                         break;
@@ -1159,9 +1179,9 @@ void killed(struct monst *mtmp)
 
     u.uexp += tmp;
     u.urexp += (4 * tmp);
-    flag.botl = 1;
+    flags.botl = 1;
 
-    while((u.ulevl < 14) && (u.uexp >= (10 * pow(u.ulevel - 1)))) {
+    while((u.ulevel < 14) && (u.uexp >= (10 * pow(2, u.ulevel - 1)))) {
         ++u.ulevel;
         pline("Welcome to level %d.", u.ulevel);
 
@@ -1173,7 +1193,7 @@ void killed(struct monst *mtmp)
 
         u.uhpmax += tmp;
         u.uhp += tmp;
-        flag.botl = 1;
+        flags.botl = 1;
     }
 
     /* Dispose of monster and make cadaver */
@@ -1202,18 +1222,18 @@ void killed(struct monst *mtmp)
     }
 #endif
     else {
-        if((letter(tmp) == NULL) || (rn2(3) == 0)) {
+        if((letter(tmp) == 0) || (rn2(3) == 0)) {
             tmp = 0;
         }
 
-        if(levl[x][y].tmp >= DOOR) {
+        if(levl[x][y].typ >= DOOR) {
             /* Might be a mimic in wall */
             if((x != u.ux) || (y != u.uy)) {
                 /* Might be here after swallowed */
                 if((index("NTVm&", mdat->mlet) != NULL) || (rn2(5) != 0)) {
                     mkobj_at(tmp, x, y);
                     
-                    if(cansee(x, y) != NULL) {
+                    if(cansee(x, y) != 0) {
                         atl(x, y, fobj->olet);
                     }
 
@@ -1303,7 +1323,7 @@ int newcham(struct monst *mtmp, struct permonst *mdat)
 #endif
     
     /* Necessary for 'I' and to force pmon */
-    upmon(mtmp);
+    unpmon(mtmp);
     pmon(mtmp);
 
     return 1;
@@ -1335,12 +1355,12 @@ void rloc(struct monst *mtmp)
     tx = rn1(COLNO - 3, 2);
     ty = rn2(ROWNO);
 
-    while(goodpos(tx, ty) == NULL) {
+    while(goodpos(tx, ty) == 0) {
         tx = rn1(COLNO - 3, 2);
         ty = rn2(ROWNO);
     }
 
-    mtmp->mx = x;
+    mtmp->mx = tx;
     mtmp->my = ty;
 
     if(u.ustuck == mtmp) {

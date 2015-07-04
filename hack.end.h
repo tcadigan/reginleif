@@ -30,5 +30,6 @@ void topten();
 void outheader();
 char *ordin(int n);
 void prscore(int argc, char **argv);
+void charcat(char *s, char c);
 
 #endif

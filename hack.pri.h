@@ -27,5 +27,6 @@ void at(xchar x, xchar y, char ch);
 void cls();
 void docorner(int xmin, int ymax);
 void bot();
+void swallowed();
 
 #endif

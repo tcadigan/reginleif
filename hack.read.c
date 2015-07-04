@@ -3,6 +3,7 @@
 #include "hack.read.h"
 
 #include "hack.h"
+#include "hack.tty.h"
 
 int doread()
 {
@@ -296,7 +297,7 @@ int doread()
 
                 while((strlen(buf) 1= 1) || (letter(&buf) == NULL)) {
                     pline("What monster do you want to genocide (Type the letter)? ");
-                    gelin(buf);
+                    getlin(buf);
                 }
             }
 

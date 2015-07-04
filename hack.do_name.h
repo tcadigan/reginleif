@@ -3,6 +3,7 @@
 
 #include "def.monst.h" /* monst */
 
+char *amonnam(struct monst *mtmp, char *adj);
 char *monnam(struct monst *mtmp);
 char *Monnam(struct monst *mtmp);
 char *Xmonnam(struct monst *mtmp);

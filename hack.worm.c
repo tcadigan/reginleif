@@ -48,7 +48,7 @@ void initworm(struct monst *mtmp)
     wtmp->nseg = 0;
 }
 
-void worm_moe(struct monst *mtmp)
+void worm_move(struct monst *mtmp)
 {
     struct wseg *wtmp;
     struct wseg *whd;
@@ -92,7 +92,7 @@ void worm_moe(struct monst *mtmp)
     remseg(whd);
 }
 
-void worm_nomove(strcut monst *mtmp)
+void worm_nomove(struct monst *mtmp)
 {
     int tmp;
     struct wseg *wtmp;

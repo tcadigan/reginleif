@@ -1,3 +1,4 @@
+#include "hack.mhitu.h"
 
 #include "hack.h"
 #include "hack.do_name.h"

@@ -20,7 +20,10 @@ int inshop();
 void addtobill();
 void paybill();
 char *shkname();
+void shkdead();
 void setshk();
 char *plur(unsigned int n);
+int online(int x, int y);
+int shk_move();
 
 #endif

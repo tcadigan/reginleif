@@ -22,5 +22,11 @@ void justswld(struct monst *mtmp, char *name);
 void youswld(struct monst *mtmp, int dam, int die, char *name);
 void kludge(char *str, char *arg);
 void poisoned(char *string, char *pname);
+void dmonsfree();
+void monfree(struct monst *mtmp);
+void mpickgems(struct monst *mtmp);
+void mpickgold(struct monst *mtmp);
+int dochugw(struct monst *mtmp);
+int dochug(struct monst *mtmp);
 
 #endif

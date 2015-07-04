@@ -3,10 +3,8 @@
 /* Objects have letter " % ) ( 0 _ [ ! ? / = * */
 #include "def.objclass.h"
 
-#define NULL (char *)0
-
 struct objclass objects[] = {
-    {"strange object", NULL, NULL, 1, 0, ILLOBJ_SYM, 0, 0, 0, 0, 0, 0},
+    {"strange object", NULL, NULL, 1, 0, ILLOBJ_SYM, 0, 0, 0, 0, 0, 0 },
     {"amulet of Yendor", NULL, NULL, 1, 0, AMULET_SYM, 100, 0, 2, 0, 0, 0 },
 #define FOOD(name, prob, delay, weight, nutrition) \
     {name, NULL, NULL, 1, 1, FOOD_SYM, prob, delay, weight, 0, 0, nutrition}
@@ -139,7 +137,7 @@ struct objclass objects[] = {
     ARMOR("pair of gloves", 1, 1, 9, 0),
 
 #define POTION(name, color) \
-    {name, color, NULL, 1, POTION_SYM, 0, 0, 2, 0, 0, 0}
+    {name, color, NULL, 0, 1, POTION_SYM, 0, 0, 2, 0, 0, 0}
 
     POTION("restore strength", "orange"),
     POTION("booze", "bubbly"),
@@ -193,7 +191,7 @@ struct objclass objects[] = {
 #define WAND(name, metal, prob, flags) \
     {name, metal, NULL, 0, 0, WAND_SYM, prob, 0, 3, flags, 0, 0}
 
-    WAND("light" "iridium", 10, NODIR),
+    WAND("light", "iridium", 10, NODIR),
     WAND("secret door detection", "tin", 5, NODIR),
     WAND("create monster", "platinum", 5, NODIR),
     WAND("wishing", "glass", 1, NODIR),

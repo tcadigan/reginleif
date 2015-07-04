@@ -2,9 +2,17 @@
 
 #include "hack.o_init.h"
 
-/* For typedefs */
+#include <string.h>
+
+#include "alloc.h"
 #include "config.h"
 #include "def.objects.h"
+#include "hack.lev.h"
+#include "hack.main.h"
+#include "hack.onames.h"
+#include "hack.pri.h"
+#include "savelev.h"
+#include "rnd.h"
 
 int letindex(char let)
 {
@@ -18,7 +26,7 @@ int letindex(char let)
             return i;
         }
 
-        ch = obj->symbols[i];
+        ch = obj_symbols[i];
         ++i;
     }
 
@@ -44,11 +52,11 @@ void init_objects()
     first = 0;
 
     while(first < end) {
-        let = objects[first].oc_let;
+        let = objects[first].oc_olet;
         last = first + 1;
         
         while((last < end)
-              && (objects[last].oc_oclet == let)
+              && (objects[last].oc_olet == let)
               && (objects[last].oc_name != NULL)) {
             ++last;
         }
@@ -63,7 +71,6 @@ void init_objects()
         
         while(1) {
 #ifdef MKLEV
-#include "hack.onames.h"
             if(let == GEM_SYM) {
                 extern xchar dlevel;
 
@@ -106,8 +113,9 @@ void init_objects()
         if(sum != 100) {
 #ifdef MKLEV
             panic("init-prob error for %c", let);
-#else MKLEV
-            error("init-prob error for %c", let);
+#else
+            hack_error("init-prob error for %c", let);
+#endif
         }
 
         /*
@@ -116,7 +124,7 @@ void init_objects()
          */
         if((objects[first].oc_descr != NULL) && (let != TOOL_SYM)) {
             /* Shuffle, also some additional descriptions */
-            while((last < end) && (objects[last].oc_oclet == let)) {
+            while((last < end) && (objects[last].oc_olet == let)) {
                 ++last;
             }
 
@@ -125,7 +133,7 @@ void init_objects()
             while(j > first) {
                 i = first + rn2((j + 1) - first);
                 tmp = objects[j].oc_descr;
-                objects[j].oc_descr = obejcts[i].oc_descr;
+                objects[j].oc_descr = objects[i].oc_descr;
                 objects[i].oc_descr = tmp;
                 --j;
             }
@@ -146,7 +154,7 @@ int probtype(char let)
         prob -= objects[i].oc_prob;
     }
 
-    if((objects[i].oc_let != let) || (objects[i].oc_name == NULL)) {
+    if((objects[i].oc_olet != let) || (objects[i].oc_name == NULL)) {
         panic("probtype(%c) error, i=%d", let, i);
     }
 

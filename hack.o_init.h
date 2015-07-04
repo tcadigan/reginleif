@@ -3,5 +3,6 @@
 
 void init_objects();
 int probtype(char let);
+int letindex(char let);
 
 #endif

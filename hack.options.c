@@ -3,6 +3,8 @@
 #include "hack.options.h"
 
 #include "config.h"
+#include "hack.topl.h"
+#include "hack.tty.h"
 
 #ifdef OPTIONS
 #include "hack.h"
@@ -13,8 +15,8 @@ int doset()
     char buf[BUFSZ];
     char *str;
 
-    plint("What option do you want to set? [(!)eo] ");
-    gelin(buf);
+    pline("What option do you want to set? [(!)eo] ");
+    getlin(buf);
     str = buf;
 
     while(*str == ' ') {
@@ -39,7 +41,7 @@ int doset()
 
         break;
     case 'o':
-        flags.online = flg;
+        flags.oneline = flg;
 
         break;
     default:
