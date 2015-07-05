@@ -4,13 +4,15 @@ Date of origin: 1985
 
 Original source: http://nethackwiki.com/wiki/Hack_1.0#Availability
 
+[![Build Status](https://travis-ci.org/tcadigan/hack_1.0.svg?branch=master)](https://travis-ci.org/tcadigan/hack_1.0)
+
 Goals:
 
 1) Re-type all source code [Done]
 
-2) Get it to compile [WIP]
+2) Get it to compile [DONE]
 
-3) Likely above won't work right, reimplement so it does [TBD]
+3) Likely above won't work right, reimplement so it does [WIP]
 
 Notes:
 

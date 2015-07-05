@@ -798,9 +798,11 @@ void panic(char *str, ...)
     va_start(args, str);
     vsprintf(bufr, str, args);
     va_end(args);
-    write(1, "\nMKLEV ERROR:  ", 15);
     puts(bufr);
-    fflush(stdout);
+
+    if(write(1, "\nMKLEV ERROR:  ", 15) != -1) {
+	fflush(stdout);
+    }
 
     exit(1);
 }

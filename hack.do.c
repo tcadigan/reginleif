@@ -687,7 +687,9 @@ int dosh()
     char *str;
     
     if(child(0) != 0) {
-        chdir(getenv("HOME"));
+        if(chdir(getenv("HOME")) == -1) {
+	    pline("Unable to change to HOME directory");
+	}
 
         str = getenv("SHELL");
         
