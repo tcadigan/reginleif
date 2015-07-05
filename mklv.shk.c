@@ -1,9 +1,17 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include "mklv.shk.h"
+
 #ifndef QUEST
 
-#include "mklev.h"
+#include <stdlib.h>
+
 #include "def.eshk.h"
+#include "hack.makemon.h"
+#include "hack.mkobj.h"
+#include "mklev.h"
+#include "mklv.shknam.h"
+#include "rnd.h"
 
 #define ESHK ((struct eshk *)(&(shk->mextra[0])))
 
@@ -38,7 +46,7 @@ void mkshop()
             continue;
         }
 
-        if((sroom->ls <= xupstair)
+        if((sroom->lx <= xupstair)
            && (xupstair <= sroom->hx)
            && (sroom->ly <= yupstair)
            && (yupstair <= sroom->hy)) {
@@ -86,31 +94,31 @@ void mkshop()
 
     if(flag == 0) {
         let = 0;
-        i = rn2(100) - shprobs[let];
+        i = rn2(100) - shprobs[(int)let];
         while(i > 0) {
-            if(shprobs[let] == NULL) {
+            if(shprobs[(int)let] == 0) {
                 break; /* Superfluous */
             }
             
             ++let;
-            i -= shprobs[let];
+            i -= shprobs[(int)let];
         }
     }
 #else
     let = 0;
-    i = rn2(100) - shprobs[let];
+    i = rn2(100) - shprobs[(int)let];
     while(i > 0) {
-        if(shprobs[let] == NULL) {
+        if(shprobs[(int)let] == 0) {
             break; /* Superfluous */
         }
             
         ++let;
-        i -= shprobs[let];
+        i -= shprobs[(int)let];
     }
 #endif
 
     sroom->rtype = 8 + let;
-    let = shtypes[let];
+    let = shtypes[(int)let];
     sh = sroom->fdoor;
     sx = doors[sh].x;
     sy = doors[sh].y;
@@ -243,7 +251,7 @@ void mkzoo()
     sh = sroom->fdoor;
     
     for(sx = sroom->lx; sx <= sroom->hx; ++sx) {
-        for(sy = sroom->ly; sy <= sroom->hy; ++hy) {
+        for(sy = sroom->ly; sy <= sroom->hy; ++sy) {
             if(((sx == sroom->lx) && (doors[sh].x == (sx + 1)))
                || ((sx == sroom->hx) && (doors[sh].x == (sx + 1)))
                || ((sy == sroom->ly) && (doors[sh].y == (sy - 1)))
@@ -271,3 +279,14 @@ void mkzoo()
     }
 #endif
 }
+
+int dist2(int x0, int y0, int x1, int y1)
+{
+    return (((x0 - x1) * (x0 - x1)) + ((y0 - y1) * (y0 - y1)));
+}
+
+int sq(int a) {
+    return (a * a);
+}
+
+#endif

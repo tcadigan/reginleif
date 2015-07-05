@@ -3,15 +3,18 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "def.wseg.h"
-#include "hack.h"
-#include "hack.engrave.h"
-
 extern char nul[];
 
 #ifdef MKLEV
+
+#include <fcntl.h>
+
+#include "mklev.h"
+
 void savelev()
 {
+    extern char *tfile;
+    
     int fd;
 
     fd = creat(tfile, FMASK);
@@ -23,7 +26,7 @@ void savelev()
     bwrite(fd, (char *)levl, sizeof(levl));
     bwrite(fd, (char *)nul, sizeof(long));
     bwrite(fd, (char *)&xupstair, sizeof(xupstair));
-    bwrite(fd, (char *)&yupstair, sizeof(yupstiar));
+    bwrite(fd, (char *)&yupstair, sizeof(yupstair));
     bwrite(fd, (char *)&xdnstair, sizeof(xdnstair));
     bwrite(fd, (char *)&ydnstair, sizeof(ydnstair));
 
@@ -45,6 +48,10 @@ void savelev()
     fobj = 0;
 }
 #else
+#include "def.wseg.h"
+#include "hack.h"
+#include "hack.engrave.h"
+
 extern struct obj *billobjs;
 
 void savelev(int fd)

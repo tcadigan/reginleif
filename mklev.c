@@ -1,10 +1,23 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include "mklev.h"
+
+#include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
-#include "mklev.h"
+#include "alloc.h"
 #include "def.trap.h"
+#include "hack.makemon.h"
+#include "hack.mkobj.h"
+#include "hack.o_init.h"
+#include "mklev.h"
+#include "mklv.makemaz.h"
+#include "mklv.shk.h"
+#include "rnd.h"
 #include "savelev.h"
 
 char *tfile;
@@ -14,7 +27,7 @@ char **args;
 char nul[40];
 
 #ifdef WIZARD
-bool wizard;
+boolean wizard;
 #endif
 
 #define somex() ((rand() % ((croom->hx - croom->lx) + 1)) + croom->lx)
@@ -89,7 +102,7 @@ int main(int argc, char *argv[])
 
     /* a: normal; b: maze */
     if(*tspe == 'b') {
-        makmaz();
+        makemaz();
         
         savelev();
      
@@ -159,14 +172,14 @@ int main(int argc, char *argv[])
             panic("Cannot make dnstair");
         }
 
-        croom = rooms[rn2(nroom)];
+        croom = &rooms[rn2(nroom)];
 
         xdnstair = somex();
         ydnstair = somey();
     }
 
-    levl[xdnstair][ydnstair].scrsym = '>';
-    levl[xdnstair][ydnstair].typ = STAIRS;
+    levl[(int)xdnstair][(int)ydnstair].scrsym = '>';
+    levl[(int)xdnstair][(int)ydnstair].typ = STAIRS;
     
     troom = croom;
 
@@ -194,8 +207,8 @@ int main(int argc, char *argv[])
         yupstair = somey();
     }
 
-    levl[xupstair][yupstair].srcsym = '<';
-    levl[xupstair][yupstair].typ = STAIRS;
+    levl[(int)xupstair][(int)yupstair].scrsym = '<';
+    levl[(int)xupstair][(int)yupstair].typ = STAIRS;
 
     qsort((char *)rooms, nroom, sizeof(struct mkroom), comp);
 
@@ -295,7 +308,7 @@ int makerooms(int secret)
 
                 if(((secret != 0) && maker(lowx, 1, lowy, 1)) 
                    || ((secret == 0)
-                       && maker(lox, rn1(9, 2), lowy, rn1(4,2))
+                       && maker(lowx, rn1(9, 2), lowy, rn1(4,2))
                        && ((nroom + 2) > MAXNROFROOMS))) {
                     return 1;
                 }
@@ -306,13 +319,16 @@ int makerooms(int secret)
     return 1;
 }
 
-int comp(mkroom *x, mkroom *y)
+int comp(const void *x, const void *y)
 {
-    if(x->lx < y->lx) {
+    struct mkroom *left = (struct mkroom *)x;
+    struct mkroom *right = (struct mkroom *)y;
+    
+    if(left->lx < right->lx) {
         return -1;
     }
 
-    return (x->lx > y->lx);
+    return (left->lx > right->lx);
 }
 
 coord finddpos(int xl, int yl, int xh, int yh)
@@ -351,7 +367,7 @@ coord finddpos(int xl, int yl, int xh, int yh)
 
     if(yl < yh) {
         for(y = yl; y <= yh; ++y) {
-            if(okdoof(ff.x, y) != 0) {
+            if(okdoor(ff.x, y) != 0) {
                 ff.y = y;
 
                 return ff;
@@ -467,7 +483,7 @@ void dodoor(int x, int y, struct mkroom *aroom)
         levl[x][y].typ = SDOOR;
     }
     else {
-        levl[x][y].srcsym = '+';
+        levl[x][y].scrsym = '+';
         levl[x][y].typ = DOOR;
     }
 
@@ -642,7 +658,6 @@ void mktrap(int num, int mazeflag)
             }
         }
         else if(mazeflag != 0) {
-            extern coord mazexy();
             coord mm;
 
             mm = mazexy();
@@ -710,7 +725,7 @@ void mktrap(int num, int mazeflag)
                 mtmp->mimic = AMULET_SYM;
             }
             else {
-                "=/%?![<>"[rn2(9)];
+                mtmp->mimic = "=/%?![<>"[rn2(9)];
             }
         }
 
@@ -742,7 +757,7 @@ void mktrap(int num, int mazeflag)
         gtmp->gy = somey();
     }
     
-    while(g_at(gtmp->gx, tmp->gy, ftrap) != 0) {
+    while(g_at(gtmp->gx, gtmp->gy, ftrap) != 0) {
         ++tryct;
         
         if(tryct > 200) {
@@ -781,7 +796,7 @@ void panic(char *str, ...)
 
     va_list args;
     va_start(args, str);
-    vsprintf(buffer, str, args);
+    vsprintf(bufr, str, args);
     va_end(args);
     write(1, "\nMKLEV ERROR:  ", 15);
     puts(bufr);
@@ -806,7 +821,7 @@ int maker(schar lowx, schar ddx, schar lowy, schar ddy)
     }
     
     if(hiy > (ROWNO - 4)) {
-        hiy = ROWNO = 4;
+        hiy = ROWNO - 4;
     }
 
     while(1) {
@@ -916,13 +931,13 @@ void makecor()
                       args[3],
                       args[4],
                       args[5],
-                      0);
+                      NULL);
                 panic("Cannont execute ./mklev\n");
             }
         }
 
-        dix = abs(nx - tx);
-        diy = abs(ny - ty);
+        dix = fabs(nx - tx);
+        diy = fabs(ny - ty);
 
         if((dy != 0) && (dix > diy)) {
             dy = 0;
@@ -967,7 +982,7 @@ void makecor()
             return;
         }
 
-        if((crm->typ == COOR) || (crm->typ == SCORR)) {
+        if((crm->typ == CORR) || (crm->typ == SCORR)) {
             xx = nx;
             yy = ny;
 
@@ -1030,7 +1045,7 @@ struct monst *m_at(int x, int y)
 {
     struct monst *mtmp;
 
-    for(mtmp = fmon; mtmp != NULL; mtmp->nmon) {
+    for(mtmp = fmon; mtmp != NULL; mtmp = mtmp->nmon) {
         if((mtmp->mx == x) && (mtmp->my == y)) {
             return mtmp;
         }

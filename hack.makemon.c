@@ -11,7 +11,9 @@
 #include "rnd.h"
 
 #ifdef MKLEV
+#include "hack.h"
 #include "mklev.h"
+#include "hack.mkobj.h"
 
 extern char *fut_geno;
 #else

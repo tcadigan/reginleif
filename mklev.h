@@ -3,9 +3,13 @@
 #ifndef MKLEV_H_
 #define MKLEV_H_
 
-#include "config.h"
-
 #include <stdio.h>
+
+#include "config.h"
+#include "def.gen.h"
+#include "def.obj.h"
+#include "def.objclass.h"
+#include "def.permonst.h"
 
 #ifdef BSD
 #include <strings.h> /* Declarations for strcat etc. */
@@ -15,11 +19,6 @@
 #define index strchr
 #define rindex strrchr
 #endif
-
-#include "def.gen.h"
-#include "def.obj.h"
-#include "def.objclass.h"
-#include "def.permonst.h"
 
 typedef struct {
     xchar x;
@@ -107,5 +106,16 @@ extern boolean wizard;
 #define newstring(x) (char *)alloc((unsigned int)(x))
 
 void panic(char *str, ...);
-
+void makecor();
+int makerooms(int secret);
+int maker(schar lowx, schar ddx, schar lowy, schar ddy);
+void mktrap(int num, int mazeflag);
+void mkpos();
+void newloc();
+void dodoor(int x, int y, struct mkroom *aroom);
+int okdoor(int x, int y);
+int comp(const void *x, const void *y);
+struct monst *m_at(int x, int y);
+struct gen *g_at(int x, int y, struct gen *ptr);
+		 
 #endif

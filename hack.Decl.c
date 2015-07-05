@@ -4,6 +4,7 @@
 #include "def.monst.h" /* monst */
 #include "def.obj.h" /* obj */
 #include "hack.h"
+#include "mklev.h" /* coord */
 
 /* Contains zeros */
 char nul[40];

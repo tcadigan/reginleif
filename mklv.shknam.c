@@ -1,5 +1,9 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
+#include "mklv.shknam.h"
+
+#include <string.h>
+
 #include "mklev.h"
 
 char *shkliquors[] = {
@@ -222,7 +226,7 @@ char *shkfoods[] = {
     0
 };
 
-char *skweapons[] = {
+char *shkweapons[] = {
     /* Perigord */
     "Voulgezac",
     "Rouffiac",
@@ -331,14 +335,14 @@ void findname(char *nampt, char let)
                 findname(nampt, 0);
             }
             else {
-                strcpy(namept, "Dirk");
+                strcpy(nampt, "Dirk");
             }
 
             return;
         }
     }
 
-    strncpy(namept, q[i], PL_NSIZ);
+    strncpy(nampt, q[i], PL_NSIZ);
 
     nampt[PL_NSIZ - 1] = 0;
 }

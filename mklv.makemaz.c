@@ -1,12 +1,16 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
-#include "mklev.h"
+#include "mklv.makemaz.h"
+
+#include "hack.makemon.h"
+#include "hack.mkobj.h"
+#include "rnd.h"
 
 void makemaz()
 {
     int x;
     int y;
-    int zy;
+    int zx;
     int zy;
     coord mm;
 
@@ -43,7 +47,7 @@ void makemaz()
 
                 break;
             case ROOM:
-                levl[x][y].srcsym = '.';
+                levl[x][y].scrsym = '.';
 
                 break;
             }
@@ -65,7 +69,7 @@ void makemaz()
     mm = mazexy();
     makemon(PM_MINOTAUR, mm.x, mm.y);
 
-    for(x = rn1(5, 7), x != 0; --x) {
+    for(x = rn1(5, 7); x != 0; --x) {
         mm = mazexy();
         
         makemon((struct permonst *)0, mm.x, mm.y);
@@ -85,8 +89,8 @@ void makemaz()
 
     xupstair = mm.x;
     yupstair = mm.y;
-    levl[xupstair][yupstair].scrsym = '<';
-    levl[xupstair][yupstair].typ = STAIRS;
+    levl[(int)xupstair][(int)yupstair].scrsym = '<';
+    levl[(int)xupstair][(int)yupstair].typ = STAIRS;
 
     ydnstair = 0;
     xdnstair = 0;
@@ -148,8 +152,8 @@ void move(int *x, int *y, int dir)
 
 int okay(int x, int y, int dir)
 {
-    move(&x, &y, &dir);
-    move(&x, &y, &dir);
+    move(&x, &y, dir);
+    move(&x, &y, dir);
 
     if((x < 3)
        || (y < 3)
