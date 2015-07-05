@@ -95,7 +95,7 @@ MKLOBJ = $(GOBJ) mklv.makemon.o mklv.mkobj.o mklv.o_init.o \
          mklev.o mklv.makemaz.o mklv.savelev.o mklv.shk.o mklv.shknam.o \
 
 mklev: $(MKLOBJ)
-	$(CC) -o mklev $(MKLOBJ)
+	$(CC) -o mklev $(MKLOBJ) $(LDFLAGS)
 
 clean:
 	rm -rf $(MKLOBJ) $(HOBJ) makedefs.o $(GAME) mklev makedefs
