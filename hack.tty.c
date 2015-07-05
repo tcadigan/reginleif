@@ -37,7 +37,7 @@ void settty(char *s)
     hack_clear_screen();
 
     if(s != NULL) {
-        printf(s);
+        printf("%s", s);
     }
 
     fflush(stdout);
@@ -238,9 +238,9 @@ void xwaitforspace(boolean spaceflag)
     }
 }
 
-char *parse()
+unsigned char *parse()
 {
-    static char in_line[COLNO];
+    static unsigned char in_line[COLNO];
     int foo;
 
     flags.move = 1;

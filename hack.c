@@ -139,7 +139,7 @@ char sdir[] = "hykulnjb";
 schar xdir[8] = { -1, -1, 0, 1, 1, 1, 0, -1 };
 schar ydir[8] = { 0, -1, -1, -1, 0, 1, 1, 1 };
 
-int movecm(char const *cmd)
+int movecm(unsigned char const *cmd)
 {
     char *dp;
 

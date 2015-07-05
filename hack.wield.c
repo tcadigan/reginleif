@@ -46,7 +46,7 @@ int dowield()
     else if(uarms && (wep->otyp == TWO_HANDED_SWORD)) {
         pline("You cannot wield a two-handed sword and wear a shield.");
     }
-    else if(wep->owornmask && (W_ARMOR | W_RING)) {
+    else if(wep->owornmask & (W_ARMOR | W_RING)) {
         pline("You cannot wield that!");
     }
     else {

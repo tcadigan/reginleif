@@ -179,7 +179,7 @@ int dog_move(struct monst *mtmp, int after)
     int nearer;
     int j;
     int udist;
-    int chi;
+    int chi = -1;
     int i;
     int whappr;
     struct monst *mtmp2;

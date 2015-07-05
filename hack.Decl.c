@@ -53,7 +53,7 @@ xchar yupstair;
 xchar xdnstair;
 xchar ydnstair;
 
-char *save_cm = 0;
+unsigned char *save_cm = 0;
 char *killer;
 char *nomovemsg;
 

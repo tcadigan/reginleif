@@ -482,7 +482,7 @@ int main (int argc, char *argv[])
             }
         }
         else if(multi == 0) {
-            rhack((char *)0);
+            rhack((unsigned char *)0);
         }
     }
 }

@@ -235,7 +235,7 @@ extern xchar seehx;
 extern xchar seelx;
 extern xchar seehy;
 extern xchar seely;
-extern char *save_cm;
+extern unsigned char *save_cm;
 extern char *killer;
 
 /* Dungeon level */
@@ -268,7 +268,7 @@ int abon();
 int dbon();
 int inv_weight();
 void domove();
-int movecm(char const *cmd);
+int movecm(unsigned char const *cmd);
 void seeoff(int mode);
 void losestr(int num);
 void losehp(int n, char *knam);

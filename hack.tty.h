@@ -8,7 +8,7 @@ void getret();
 void setctty();
 void setftty();
 void settty(char *s);
-char *parse();
+unsigned char *parse();
 void getlin(char *bufp);
 void getty();
 void cgetret();

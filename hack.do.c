@@ -254,7 +254,7 @@ int dodrink()
             break;
         }
 
-        if((Fast && ~INTRINSIC) == 0) {
+        if((Fast & ~INTRINSIC) == 0) {
             pline("You are suddenly moving much faster.");
         }
         else {
@@ -446,7 +446,7 @@ int doddrop()
     return ggetobj("drop", drop, 0);
 }
 
-void rhack(char *cmd)
+void rhack(unsigned char *cmd)
 {
     struct func_tab *tlist = list;
     boolean firsttime = FALSE;
@@ -502,7 +502,8 @@ void rhack(char *cmd)
         return;
     }
 
-    if(((*cmd == 'f') && (movecm(cmd + 1) != 0)) || (movecm(unctrl((chtype)cmd)) != 0)) {
+    if(((*cmd == 'f') && (movecm(cmd + 1) != 0))
+       || (movecm((unsigned const char *)unctrl((chtype)cmd)) != 0)) {
         flags.run = 2;
 
         if(firsttime != 0) {
@@ -1191,7 +1192,7 @@ int dothrow()
 
 int getdir()
 {
-    char buf[2];
+    unsigned char buf[2];
     
     pline("What direction?");
     buf[0] = readchar();
@@ -1231,9 +1232,9 @@ struct obj *splitobj(struct obj *obj, int num)
     return otmp;
 }
 
-char *lowc(char *str)
+unsigned char *lowc(unsigned char *str)
 {
-    static char buf[2];
+    static unsigned char buf[2];
 
     if((*str >= 'A') && (*str <= 'Z')) {
         *buf = (*str + 'a') - 'A';

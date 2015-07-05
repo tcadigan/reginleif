@@ -652,7 +652,7 @@ int outentry(int rank, struct toptenentry *t1, int so)
         }
 
         if((quit != 0) && (t1->death[4] != 0)) {
-            sprintf(eos(linebuf), t1->death + 4);
+            sprintf(eos(linebuf), "%s", t1->death + 4);
         }
     }
 
@@ -678,7 +678,7 @@ int outentry(int rank, struct toptenentry *t1, int so)
         int hppos;
 
         if(t1->hp > 0) {
-            sprintf(hpbuf, itoa(t1->hp));
+            sprintf(hpbuf, "%s", itoa(t1->hp));
         }
         else {
             sprintf(hpbuf, "-");
