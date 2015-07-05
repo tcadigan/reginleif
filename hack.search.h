@@ -6,6 +6,7 @@
 void wakeup(struct monst *mtmp);
 int dosearch();
 int doidtrap();
+int findit();
 void seemimic(struct monst *mtmp);
 
 #endif

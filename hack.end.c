@@ -12,6 +12,7 @@
 #include "hack.h"
 #include "hack.bones.h"
 #include "hack.do_name.h"
+#include "hack.invent.h"
 #include "hack.main.h"
 #include "hack.objnam.h"
 #include "hack.pri.h"
@@ -20,7 +21,6 @@
 #include "hack.termcap.h"
 #include "hack.topl.h"
 #include "hack.tty.h"
-#include "makedefs.h"
 
 extern char plname[];
 extern char pl_character[];

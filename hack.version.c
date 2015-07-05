@@ -3,6 +3,7 @@
 #include "hack.version.h"
 
 #include "date.h"
+#include "hack.topl.h"
 
 int doversion()
 {

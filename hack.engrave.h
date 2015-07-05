@@ -24,6 +24,7 @@ struct engr {
 void read_engr_at(int x, int y);
 void wipe_engr_at(xchar x, xchar y, xchar cnt);
 void rest_engravings(int fd);
+void save_engravings(int fd);
 int doengrave();
 void del_engr(struct engr *ep);
 int sengr_at(char *s, xchar x, xchar y);

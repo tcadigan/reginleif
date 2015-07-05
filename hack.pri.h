@@ -6,11 +6,13 @@
 #include "def.obj.h" /* obj */
 
 void panic(char *str, ...);
+void tmp_at(schar x, schar y);
 void Tmp_at(schar x, schar y);
 void unpmon(struct monst *mon);
 void on_scr(int x, int y);
 void unpobj(struct obj *obj);
 void seeobjs();
+void mnewsym(int x, int y);
 void newsym(int x, int y);
 void atl(int x, int y, int ch);
 void pru();

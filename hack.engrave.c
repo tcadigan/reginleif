@@ -13,7 +13,6 @@
 #include "hack.objnam.h"
 #include "hack.topl.h"
 #include "hack.tty.h"
-#include "makedefs.h"
 #include "rnd.h"
 #include "savelev.h"
 

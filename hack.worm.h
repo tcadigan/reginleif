@@ -8,6 +8,7 @@
 void cutworm(struct monst *mtmp, xchar x, xchar y, uchar wetyp);
 void initworm(struct monst *mtmp);
 int getwn(struct monst *mtmp);
+void remseg(struct wseg *wtmp);
 void wormhit(struct monst *mtmp);
 void wormdead(struct monst *mtmp);
 void worm_move(struct monst *mtmp);

@@ -3,6 +3,12 @@
 #include "hack.wield.h"
 
 #include "hack.h"
+#include "hack.do.h"
+#include "hack.invent.h"
+#include "hack.objnam.h"
+#include "hack.topl.h"
+#include "hack.worn.h"
+#include "rnd.h"
 
 void setuwep(struct obj *obj)
 {
@@ -26,7 +32,7 @@ int dowield()
     else if(uwep && uwep->cursed) {
         pline("The %s wedled to your hand!", aobjnam(uwep, "are"));
     }
-    else if((int)wep == -1) {
+    else if(wep == (struct obj *)-1) {
         if(uwep == 0) {
             pline("You are alread empty handed.");
         }
@@ -65,11 +71,11 @@ void corrode_weapon()
         return;
     }
 
-    if(uwep->restfree) {
+    if(uwep->rustfree) {
         pline("Your %s not affects.", aobjnam(uwep, "are"));
     }
     else {
-        pline("Your %s!", aobjnum(uwep, "corrode"));
+        pline("Your %s!", aobjnam(uwep, "corrode"));
         --uwep->spe;
     }
 }
@@ -101,7 +107,7 @@ int chwepon(struct obj *otmp, int amount)
     }
 
     if((uwep->otyp == CRYSKNIFE) && (amount < 0)) {
-        uwep->otyp = WORM_WOOTH;
+        uwep->otyp = WORM_TOOTH;
 
         pline("You weapon looks duller now.");
 

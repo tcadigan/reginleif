@@ -1,5 +1,14 @@
 #include "savelev.h"
 
+#include <stdlib.h>
+#include <unistd.h>
+
+#include "def.wseg.h"
+#include "hack.h"
+#include "hack.engrave.h"
+
+extern char nul[];
+
 #ifdef MKLEV
 void savelev()
 {
@@ -78,6 +87,9 @@ void savelev(int fd)
 
 /*--------------------------------------------------------*/
 #ifndef NOWORM
+    extern struct wseg *wsegs[32];
+    extern long wgrowtime[32];
+    
     bwrite(fd, (char *)wsegs, sizeof(wsegs));
 
     for(tmp = 1; tmp < 32; ++tmp) {

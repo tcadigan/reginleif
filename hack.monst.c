@@ -3,7 +3,7 @@
 #include "mklev.h"
 #include "def.eshk.h"
 
-struct permonst monst[CMNUM + 2] = {
+struct permonst mons[CMNUM + 2] = {
     {"bat", 'B', 1, 22, 8, 1, 4, 0},
     {"gnome", 'G', 1, 6, 5, 1, 6, 0},
     {"hobgoblin", 'H', 1, 9, 5, 1, 8, 0},

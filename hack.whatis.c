@@ -3,14 +3,19 @@
 #include "hack.whatis.h"
 
 #include <stdio.h>
-#include "hack.h"
 
-void dowhatis(char *str)
+#include "hack.h"
+#include "hack.main.h"
+#include "hack.pri.h"
+#include "hack.topl.h"
+#include "hack.tty.h"
+
+int dowhatis(char *str)
 {
     FILE *fp;
     char bufr[BUFSZ];
-    char *eq;
-    char *q;
+    char *ep;
+    char q;
 
     pline("Specify what? ");
     getlin(bufr);
@@ -50,7 +55,7 @@ void dowhatis(char *str)
 
                     fclose(fp);
 
-                    return;
+                    return 0;
                 }
             }
             
@@ -59,6 +64,8 @@ void dowhatis(char *str)
 
         fclose(fp);
     }
+
+    return 0;
 }
  
 void morewhat(FILE *fp)

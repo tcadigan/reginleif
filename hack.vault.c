@@ -2,7 +2,18 @@
 
 #include "hack.vault.h"
 
+#include <math.h>
+
 #include "hack.h"
+#include "hack.dog.h"
+#include "hack.invent.h"
+#include "hack.main.h"
+#include "hack.makemon.h"
+#include "hack.mon.h"
+#include "hack.pri.h"
+#include "hack.topl.h"
+#include "hack.trap.h"
+#include "hack.tty.h"
 
 #ifdef QUEST
 void setgd(/* struct monst *mtmp */)
@@ -37,8 +48,11 @@ struct egd {
     int fcbeg;
     /* First unused posisition */
     int fcend;
+    /* Goal of guard's walk */
+    xchar gdx;
+    xchar gdy;
     unsigned gddone:1;
-    struct fakecoor fakecorr[FCSIZ];
+    struct fakecorr fakecorr[FCSIZ];
 };
 
 struct permonst pm_guard =
@@ -56,14 +70,14 @@ void restfakecorr()
     int fcbeg;
     struct rm *crm;
 
-    fcbeg = EGC->fcbeg;
+    fcbeg = EGD->fcbeg;
 
     while(fcbeg < EGD->fcend) {
         fcx = EGD->fakecorr[fcbeg].fx;
         fcy = EGD->fakecorr[fcbeg].fy;
 
         if(((u.ux == fcx) && (u.uy == fcy))
-           || (cansee(fcx, fcy) != NULL)
+           || (cansee(fcx, fcy) != 0)
            || (m_at(fcx, fcy) != NULL)) {
             return;
         }
@@ -76,7 +90,7 @@ void restfakecorr()
         }
 
         newsym(fcx, fcy);
-        ++EGD->fcberg;
+        ++EGD->fcbeg;
 
         fcbeg = EGD->fcbeg;
     }
@@ -117,13 +131,13 @@ void invault()
     if((u.uinvault % 50 == 0) && ((guard == NULL) || (gdlevel != dlevel))) {
         char buf[BUFSZ];
 
-        int x;
-        int y;
-        int dx;
-        int dy;
-        int gx;
-        int gy;
-
+        int x = 0;
+        int y = 0;
+        int dx = 0;
+        int dy = 0;
+        int gx = 0;
+        int gy = 0;
+	
         /* First find the goal for the guard */
         int fnd = 0;
         for(dy = 0; dy < ROWNO; ++dy) {
@@ -170,7 +184,7 @@ void invault()
 
             return;
         }
-
+	
         gx = x;
         gy = y;
 
@@ -198,7 +212,7 @@ void invault()
                 dy = 0;
             }
 
-            if(abs(gx - x) >= abs(gy - y)) {
+            if(fabs(gx - x) >= fabs(gy - y)) {
                 x += dx;
             }
             else {
@@ -216,9 +230,9 @@ void invault()
         guard->mpeaceful = 1;
         guard->isgd = guard->mpeaceful;
         EGD->gddone = 0;
-        gdlevel = delevel;
+        gdlevel = dlevel;
 
-        if(cansee(guard->mx, guard->my) == NULL) {
+        if(cansee(guard->mx, guard->my) == 0) {
             mondead(guard);
             guard = 0;
 
@@ -241,7 +255,7 @@ void invault()
         clrlin();
         pline("\"I don't know you.\"");
 
-        if(u.ugold == NULL) {
+        if(u.ugold == 0) {
             pline("\"Please follow me.\"");
         }
         else {
@@ -273,7 +287,7 @@ int gd_move()
         return 2;
     }
 
-    if((u.ugold != NULL) 
+    if((u.ugold != 0) 
        || (dist(guard->mx, guard->my) > 2)
        || (EGD->gddone != 0)) {
         restfakecorr();
@@ -282,17 +296,17 @@ int gd_move()
         return 0;
     }
 
-    x.guard->mx;
-    y.guard.my;
+    x = guard->mx;
+    y = guard->my;
 
     /* Look around (horizontally & vertically only) for accesible places */
     for(nx = x - 1; nx <= (x + 1); ++nx) {
         for(ny = y - 1; ny <= (y + 1); ++ny) {
             if((nx == x) || (ny == y)) {
                 if((nx != x) || (ny != y)) {
-                    if(isok(nx, ny) != NULL) {
-                        crm = &levl[nx][ny]->typ;
-                        tmp = crm;
+                    if(isok(nx, ny) != 0) {
+			crm = &levl[nx][ny];
+                        tmp = crm->typ;
                         if(tmp >= SDOOR) {
                             int i;
 
@@ -337,7 +351,7 @@ int gd_move()
                                 crm->typ = CORR;
                             }
                             else {
-                                crm->typ == DOOR;
+                                crm->typ = DOOR;
                             }
 
                             fcp = &(EGD->fakecorr[EGD->fcend]);
@@ -391,24 +405,24 @@ int gd_move()
         dy = -1;
     }
     else {
-        dx = 0;
+        dy = 0;
     }
     
-    if(abs(gx - x) >= abs(gy - y)) {
+    if(fabs(gx - x) >= fabs(gy - y)) {
         nx += dx;
     }
     else {
         ny += dy;
     }
 
-    crm = &levl[nx][ny]->typ;
-    tmp = crm;
+    crm = &levl[nx][ny];
+    tmp = crm->typ;
 
     int skip = 0;
     while(tmp != 0) {
         /* In view of the above we must have tmp < SDOOR */
         /* Must be a wall here */
-        if((isok((nx + nx) - x, (ny + ny) - y) != NULL)
+        if((isok((nx + nx) - x, (ny + ny) - y) != 0)
            && (levl[(nx + nx) - x][(ny + ny) -y].typ > DOOR)) {
             crm->typ = DOOR;
             // goto proceed;

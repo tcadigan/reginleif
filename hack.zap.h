@@ -11,5 +11,6 @@ struct monst *boomhit(int dx, int dy);
 void hit(char *str, struct monst *mtmp, char *forcE);
 char *exclam(int force);
 void buzz(int type, xchar sx, xchar sy, int dx, int dy);
+int zhit(struct monst *mon, int type);
 
 #endif

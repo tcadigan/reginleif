@@ -3,6 +3,20 @@
 #include "hack.zap.h"
 
 #include "hack.h"
+#include "hack.do.h"
+#include "hack.do_name.h"
+#include "hack.fight.h"
+#include "hack.invent.h"
+#include "hack.main.h"
+#include "hack.makemon.h"
+#include "hack.mon.h"
+#include "hack.objnam.h"
+#include "hack.pri.h"
+#include "hack.read.h"
+#include "hack.search.h"
+#include "hack.topl.h"
+#include "hack.tty.h"
+#include "rnd.h"
 
 char *fl[] = {
     "magic missile",
@@ -16,7 +30,7 @@ int dozap()
 {
     struct obj *obj;
     struct monst *mtmp;
-    xchar zy;
+    xchar zx;
     xchar zy;
     int num;
 
@@ -35,13 +49,13 @@ int dozap()
         pline("You wrest one more spell from the worn-out want.");
     }
 
-    if(((objects[obj]->otyp.bits & NODIR) == 0) && (getdir() == 0)) {
+    if(((objects[obj->otyp].bits & NODIR) == 0) && (getdir() == 0)) {
         return 1; /* Make him pay for knowing !NODIR */
     }
     
     --obj->spe;
 
-    if((objects[obj->otype].bits & IMMEDIATE) != 0) {
+    if((objects[obj->otyp].bits & IMMEDIATE) != 0) {
         if(u.uswallow != 0) {
             mtmp = u.ustuck;
             if(mtmp != NULL) {
@@ -52,7 +66,7 @@ int dozap()
                     if(rnd(20) < (10 + mtmp->data->ac)) {
                         int tmp = d(2, 12);
                         hit("wand", mtmp, exclam(tmp));
-                        mtmp->mtp -= tmp;
+                        mtmp->mhp -= tmp;
                             
                         if(mtmp->mhp < 1) {
                             killed(mtmp);
@@ -109,7 +123,7 @@ int dozap()
                     break;
 #endif
                 default:
-                    pline("What an interesting wand (%d)", obj->otype);
+                    pline("What an interesting wand (%d)", obj->otyp);
                         
                     impossible();
                 }
@@ -287,7 +301,7 @@ int dozap()
                 while(cnt) {
                     --cnt;
 
-                    makemon((struct permonst *), 0, u.ux, u.uy);
+                    makemon((struct permonst *)0, u.ux, u.uy);
                 }
             }
 
@@ -321,7 +335,7 @@ int dozap()
                           monnam(u.ustuck));
 
                     u.uswallow = 0;
-                    mnextto(u.ustuck);
+                    mnexto(u.ustuck);
                     u.ustuck->mhp = 1; /* Amost dead */
                     u.ustuck = 0;
                         
@@ -340,7 +354,7 @@ int dozap()
 
                 digdepth = 4 + rn2(10);
 
-                if(levl[zx][zy] == CORR) {
+                if(levl[(int)zx][(int)zy].typ == CORR) {
                     num = CORR;
                 }
                 else {
@@ -359,7 +373,7 @@ int dozap()
                         break;
                     }
 
-                    room = &levl[zx][zy];
+                    room = &levl[(int)zx][(int)zy];
 
                     Tmp_at(zx, zy);
 
@@ -371,7 +385,7 @@ int dozap()
                             break;
                         }
 
-                        if((room->type == HWALL) || (room->typ == VWALL)) {
+                        if((room->typ == HWALL) || (room->typ == VWALL)) {
                             room->typ = ROOM;
 
                             break;
@@ -395,7 +409,7 @@ int dozap()
                     }
                     else {
                         if((room->typ != CORR) && (room->typ != 0)) {
-                            room->typ = DORR;
+                            room->typ = CORR;
                                 
                             break;
                         }
@@ -424,7 +438,7 @@ int dozap()
             break;
         }
 
-        if(object[obj->otyp].oc_name_known == 0) {
+        if(objects[obj->otyp].oc_name_known == 0) {
             u.urexp += 10;
             objects[obj->otyp].oc_name_known = 1;
         }
@@ -444,7 +458,7 @@ char *exclam(int force)
         return "?";
     }
     else if(force <= 4) {
-        return '.';
+        return ".";
     }
     else {
         return "!";
@@ -497,26 +511,26 @@ struct monst *bhit(int ddx, int ddy, int range, char sym)
         mtmp = m_at(bhitpos.x, bhitpos.y);
 
         if(mtmp != NULL) {
-            if(sym != NULL) {
+            if(sym != 0) {
                 tmp_at(-1, -1); /* Clos call */
             }
 
             return mtmp;
         }
 
-        if(levl[bhitpos.x][bhitpos.y].typ < CORR) {
+        if(levl[(int)bhitpos.x][(int)bhitpos.y].typ < CORR) {
             bhitpos.x -= ddx;
             bhitpos.y -= ddy;
 
             break;
         }
 
-        if(sym != NULL) {
-            tmp_at(bhitpos, bhitpos.y);
+        if(sym != 0) {
+            tmp_at(bhitpos.x, bhitpos.y);
         }
     }
 
-    if(sym != NULL) {
+    if(sym != 0) {
         tmp_at(-1, 0); /* Leave last symbol */
     }
 
@@ -563,7 +577,7 @@ struct monst *boomhit(int dx, int dy)
             return mtmp;
         }
 
-        if(levl[bhitpos.x][bhitpos.y].typ < CORR) {
+        if(levl[(int)bhitpos.x][(int)bhitpos.y].typ < CORR) {
             bhitpos.x -= dx;
             bhitpos.y -= dy;
 
@@ -625,7 +639,7 @@ void buzz(int type, xchar sx, xchar sy, int dx, int dy)
 
     struct rm *lev;
     xchar range;
-    struct most *mon;
+    struct monst *mon;
 
     if(u.uswallow != 0) {
         int tmp;
@@ -645,7 +659,7 @@ void buzz(int type, xchar sx, xchar sy, int dx, int dy)
         pru();
     }
 
-    trange = rn1(7, 7);
+    range = rn1(7, 7);
     Tmp_at(-1, dirlet(dx, dy)); /* Open call */
 
     while(range > 0) {
@@ -654,8 +668,8 @@ void buzz(int type, xchar sx, xchar sy, int dx, int dy)
         sx += dx;
         sy += dy;
 
-        lev = &levl[sx][sy]->typ;
-        if(lev != NULL) {
+        lev = &levl[(int)sx][(int)sy];
+        if(lev->typ != 0) {
             Tmp_at(sx, sy);
         }
         else {
@@ -665,11 +679,11 @@ void buzz(int type, xchar sx, xchar sy, int dx, int dy)
                 pline("The %s bounces!", fltxt);
             }
 
-            if(levl[sx][sy-dy].typ > DOOR) {
+            if(levl[(int)sx][(int)(sy - dy)].typ > DOOR) {
                 bounce = 1;
             }
 
-            if(levl[sx - dx][sy].typ > DOOR) {
+            if(levl[(int)(sx - dx)][(int)sy].typ > DOOR) {
                 if((bounce != 0) || (rn2(2) != 0)) {
                     bounce = 2;
                 }
@@ -709,7 +723,7 @@ void buzz(int type, xchar sx, xchar sy, int dx, int dy)
                     if(type < 0) {
                         if(cansee(mon->mx, mon->my) != 0) {
                             pline("%s is killed by the %s!", 
-                                  Monname(mon), 
+                                  Monnam(mon), 
                                   fltxt);
                         }
                          
@@ -720,7 +734,7 @@ void buzz(int type, xchar sx, xchar sy, int dx, int dy)
                     }
                 }
                 else {
-                    hit(fltxt, mon, exclom(tmp));
+                    hit(fltxt, mon, exclam(tmp));
                 }
 
                 range -= 2;
@@ -789,13 +803,13 @@ void buzz(int type, xchar sx, xchar sy, int dx, int dy)
                 dy = -dy;
             }
             else {
-                rmn = levl[sx][sy - dy].typ;
+                rmn = levl[(int)sx][(int)(sy - dy)].typ;
                 if((rmn > DOOR)
                    && ((rmn >= ROOM) || (levl[sx + dx][sy - dy].typ > DOOR))) {
                     bounce = 1;
                 }
 
-                rmn = levl[sx - dx][sy].type;
+                rmn = levl[(int)(sx - dx)][(int)sy].typ;
                 if((rmn > DOOR)
                    && ((rmn >= ROOM) || (levl[sx - dx][sy + dy].typ > DOOR))) {
                     if((bounce == 0) || (rn2(2) != 0)) {

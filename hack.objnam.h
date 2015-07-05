@@ -6,6 +6,7 @@
 char *doname(struct obj *obj);
 char *xname(struct obj *obj);
 char *aobjnam(struct obj *otmp, char *verb);
+struct obj *readobjnam(char *bp);
 void setan(char *str, char *buf);
 
 #endif

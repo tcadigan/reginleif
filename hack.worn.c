@@ -3,6 +3,8 @@
 #include "hack.worn.h"
 
 #include "hack.h"
+#include "hack.main.h"
+#include "hack.topl.h"
 
 struct worn {
     long w_mask;
@@ -64,7 +66,7 @@ void setworn(struct obj *obj, long mask)
     if((uarm2 != NULL) && (uarm == NULL)) {
         uarm = uarm2;
         uarm2 = 0;
-        uarm->owarnmask ^= (W_ARM | W_ARM2);
+        uarm->owornmask ^= (W_ARM | W_ARM2);
     }
 }
 

@@ -2,7 +2,15 @@
 
 #include "hack.worm.h"
 
+#include <stdlib.h>
+
+#include "alloc.h"
 #include "hack.h"
+#include "hack.fight.h"
+#include "hack.mon.h"
+#include "hack.pri.h"
+#include "hack.topl.h"
+#include "rnd.h"
 
 #ifndef NOWORM
 
@@ -11,7 +19,7 @@ struct wseg *wsegs[32];
 struct wseg *wheads[32];
 long wgrowtime[32];
 
-int getwn(struct most *mtmp)
+int getwn(struct monst *mtmp)
 {
     int tmp;
     for(tmp = 1; tmp < 32; ++tmp) {
@@ -30,6 +38,7 @@ int getwn(struct most *mtmp)
 /* Called to initialize a worm unless cut in half */
 void initworm(struct monst *mtmp)
 {
+    struct wseg *wtmp;
     int tmp = mtmp->wormno;
 
     if(tmp == 0) {
@@ -58,11 +67,11 @@ void worm_move(struct monst *mtmp)
     wtmp->nseg = 0;
     /* wtmp->wdispl = 0; */
     
-    whd = wheas[tmp];
+    whd = wheads[tmp];
     whd->nseg = wtmp;
     wheads[tmp] = wtmp;
 
-    if(cansee(whd->wx, whd->wy) != NULL) {
+    if(cansee(whd->wx, whd->wy) != 0) {
         unpmon(mtmp);
         atl(whd->wx, whd->wy, '~');
         whd->wdispl = 1;
@@ -72,7 +81,7 @@ void worm_move(struct monst *mtmp)
     }
 
     if(wgrowtime[tmp] <= moves) {
-        if(wgrowtime[tmp] == NULL) {
+        if(wgrowtime[tmp] == 0) {
             wgrowtime[tmp] = moves + rnd(5);
         }
         else {
@@ -124,7 +133,7 @@ void wormdead(struct monst *mtmp)
     }
 
     mtmp->wormno = 0;
-    for(mtmp = wsegs[tmp]; wtmp !+ NULL; wtmp = wtmp2) {
+    for(wtmp = wsegs[tmp]; wtmp != NULL; wtmp = wtmp2) {
         wtmp2 = wtmp->nseg;
         remseg(wtmp);
     }
@@ -156,7 +165,7 @@ void wormsee(unsigned int tmp)
     }
 
     while(wtmp->nseg) {
-        if((cansee(wtmp->wx, wtmp->wy) == NULL) && wtmp->wdisply) {
+        if((cansee(wtmp->wx, wtmp->wy) == 0) && wtmp->wdispl) {
             newsym(wtmp->wx, wtmp->wy);
             wtmp->wdispl = 0;
         }
@@ -174,7 +183,7 @@ void pwseg(struct wseg *wtmp)
 }
 
 /* weptyp: uwep->otyp or 0 */
-void cutworm(struct monst *mtmp, xchar x, xchar y, uchar wetyp)
+void cutworm(struct monst *mtmp, xchar x, xchar y, uchar weptyp)
 {
     struct wseg *wtmp;
     struct wseg *wtmp2;

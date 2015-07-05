@@ -1,5 +1,11 @@
-#ifdef LINT
+#include "alloc.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "hack.pri.h"
+
+#ifdef LINT
 /*
  * A ridiculous definition, supressing
  * "Possible pointer alignment problem" for (long *)malloc()
@@ -7,10 +13,6 @@
  * "ftell defined (in <stdio.h>) but never used"
  * from lint
  */
-
-#include "alloc.h"
-
-#include <stdio.h>
 
 long *alloc(unsigned int n)
 {
