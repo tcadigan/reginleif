@@ -1,8 +1,8 @@
-# Larn 12.2
+# Larn 12.0
 
 Date of origin: 1986
 
-Orignal source: http://lactose.homelinux.net/larn/larn-12.2p4.tgz
+Original source: http://minnie.tuhs.org/cgi-bin/utree.pl?file=4.3BSD-Reno/src/games/larn
 
 Goals:
 
