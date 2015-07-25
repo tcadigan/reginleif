@@ -7,11 +7,11 @@ env:
 addons:
   coverity_scan:
   project:
-  name: "tcadigan/terrain"
-  description: "My take on Terrain"
+    name: "tcadigan/terrain"
+    description: "My take on Terrain"
   notification_email: tylercadigan@gmail.com
   build_command: "make"
-  branch_patter: master
+  branch_pattern: master
 
 sudo: false
 
