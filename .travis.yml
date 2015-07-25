@@ -17,5 +17,13 @@ addons:
       - libsdl1.2-dev
       - libglu1-mesa-dev
       - mesa-common-dev
+  coverity_scan:
+    project:
+      name: "tcadigan/terrain"
+      description: "My take on Terrain"
+    notification_email: tylercadigan@gmail.com
+    build_command_prepend: "make clean"
+    build_command: "make"
+    branch_pattern: master
 
 script: make
