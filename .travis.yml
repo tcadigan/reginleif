@@ -1,8 +1,28 @@
+sudo: false
+
 language: c
 compiler:
   - gcc
   - clang
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -y libbsd-dev libncurses5-dev
+
+env:
+  global:
+    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+    #   via the "travis encrypt" command using the project repo's public key
+    - secure: "CqYHRuYsEvjHHNGTgBjBP81JUaFheD1YrtG/xmlNP16LibgEpM+fIm91s2L+tu1sx/I/auz3Xoix9V44C9pHLboRmhsbXN1qix0h91LAzbQ+qNkgkjMcns04RGASTQ+6xQDVdVikrstvC5yPlk3PwvSaxhQzcn+Ku9nUMnvzF/A="
+
+addons:
+  apt:
+    packages:
+      - libbsd-dev
+      - libncurses5-dev
+  coverity_scan:
+    project:
+      name: "tcadigan/rogue_3.6"
+      description: "My take on Rogue 3.6"
+    notification_email: tylercadigan@gmail.com
+    build_command_prepend: "make clean"
+    build_command:   "make"
+    branch_pattern: master
+
 script: make
