@@ -1,8 +1,29 @@
+sudo: false
+
 language: cpp
 compiler:
   - gcc
   - clang
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -y libsdl1.2-dev libglu1-mesa-dev mesa-common-dev
+
+env:
+  global:
+    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+    #   via the "travis encrypt" command using the project repo's public key
+    - secure: "LTJcvRzEZFefAtXJNZvoIcPH9md4c9AHxkjLcDt0UuolZKnse8y4cy6wSLjyN6fN44+6AkV8OCoCuRwKe/FEgTiimFnvxdY7hSI/0wWN3Unpb8EAz5RXLJ/QKEzs+6XPHchyluK1Fk0KyzVIqq1u22NSvNqKAVfguiK98QnumaIhvemxM0JpkGe/CNQ2sOYUe7j9HRFMcyfld/QoVuaf/0cb7KzSz8Lom52GR8R2l0truLyntp0U1qiltvK8brFcjpJ6vllkJZyPeFWVpFyeKNu6IeHZnozOvVK92k42JBIniFANaMQwMOD15uwl3ymFquSf682U7f6sOf737cxSjxTEcrzGPJuCzuuID3ZIrGWi84Za+1g6DD9r7X+WyMAohn0TlbQzQBbq28Gxa0gGkOlWCzyvgeteSOuEinTUSjMhVtGBYdbTdvAuS8m40zhHEcGCpyuCsuDps3plHvg/QQTAqcUpL19ulstiRMr/HoEeXneqSF2wdmYx3XcWyGpdEwTB32NdS4inj8RFrEVHFeGFKYWVbG+9ttUQ/xqGDIQdyc0t2oDbfXi8jEBMqrw9Uc2k/UCewswcntt3phLgEuKQTN5O8Z/ANW0CQ4E4K+ruRaReDVu8imKYEsbY2Ejra52v46qOzA/FMAV/2NJTt2obHa4xsaK3UTFeuPLQ8gQ="
+
+addons:
+  apt:
+    packages:
+      - libsdl1.2-dev
+      - libglu1-mesa-dev
+      - mesa-common-dev
+  coverity_scan:
+    project:
+      name: "tcadigan/pixel_city"
+      description: "My take on Pixel City"
+    notification_email: tylercadigan@gmail.com
+    build_command_prepend: "make clean"
+    build_command: "make"
+    branch_pattern: master
+
 script: make
