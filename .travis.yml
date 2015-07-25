@@ -17,6 +17,7 @@ addons:
       - name: "tcadigan/terrain"
       - description: "My take on Terrain"
     notification_email: tylercadigan@gmail.com
+    build_command_prepend: ""
     build_command: "make"
     branch_pattern: master
   apt:
