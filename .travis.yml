@@ -1,3 +1,10 @@
+sudo: false
+
+language: cpp
+compiler:
+  - gcc
+  - clang
+
 env:
   global:
    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
@@ -7,23 +14,15 @@ env:
 addons:
   coverity_scan:
     project:
-      name: "tcadigan/terrain"
-      description: "My take on Terrain"
+      - name: "tcadigan/terrain"
+      - description: "My take on Terrain"
     notification_email: tylercadigan@gmail.com
     build_command: "make"
     branch_pattern: master
-
-sudo: false
-
-addons:
   apt:
     packages:
-    - libsdl1.2-dev
-    - libglu1-mesa-dev
-    - mesa-common-dev
+      - libsdl1.2-dev
+      - libglu1-mesa-dev
+      - mesa-common-dev
 
-language: cpp
-compiler:
-  - gcc
-  - clang
 script: make
