@@ -1,8 +1,27 @@
+sudo: false
+
 language: c
 compiler:
   - gcc
   - clang
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -y libncurses5-dev
+
+env:
+  global:
+    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+    #   via the "travis encrypt" command using the project repo's public key
+    - secure: "hGzZy27nKsLFYZkXnAL9qHQJovlzJzZhWJYKTO76EjazrHhRiQD7L1AMu+VyuTgKL8wXjf4zYHici9eyUm4w735BwW/Jik/U81C4o5rSxmpJfbTsP/589GxOFQVy/Rp5oexOpWFEhJxQuzKvZS2hdiVzwEBwdNeH3qWChZYG6+VvzZVzjiVE/S3QzgWR7Hfya9zB0zDwZwcVo87VL7lP+SNVzPKRWQ9cZCCnRP8XmVhEDYhENH/LUKCZffRbtg9dR6n68EC6IDyhKRxPhzgCFB8O/riCde42JvX7uRS23/ieHYHJ+zAeIC9kopf8F3riy1Z8xBHUW7/Uw5zcbb8Ali/orqetzvEBhMrOG0Moh2v+Cois7mhz0n3NL6Fr+dwavdRwpadgWGAn541aLOB8fmyWh8M09wvuqsGDQ6HpZf3aLfMQZRKtyfB0ZKkYeWTYT8i8nraLYbBBt4HkJsBYxdmMUZB3H6Blbsnbr1WK2JkAuMe55q+mtu8YzfgvEeF+vIwHZ6DIaFQvJty99Buij0Nm9BgiAyt/Bd2+HZDgCFZQjMYYceONktGGQn7inOecPqUTTHnBBO96EdwZeroTMc/+nAWcUSa9bi5wxx1R8SLde9w493egTD8VLeV8ENK4nuwzD7p0p6ah9esYhgJOxm5PPWXAsepzYW8zcLao4UY="
+
+addons:
+  apt:
+    packages:
+      - libncurses5-dev
+  coverity_scan:
+    project:
+      name: "tcadigan/hack_1.0"
+      description: "My take on (Andries Brouwer) Hack 1.0"
+    notification_email: tylercadigan@gmail.com
+    build_command_prepend: "make clean"
+    build_command: "make"
+    branch_pattern: master
+
 script: make
