@@ -1,3 +1,17 @@
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   # via the "travis encrypt" command using the project repo's public key
+   - secure: "PG/U+fxxfp+jltqnrSxI0P/VtWs6FzTnzYdkherJXyetAjLWEG9bJj9WtgYPA02RI0uOnzvPxTwMkuyRNqFnsccBz6VODAcTnmxxsNY5WFGUmMNAGlPZ0SAB2pr226WjRgEK6PNhOBIAhz8iwNr+ZKgew7EhaAKfdcKcz4kLses8ARkXhmc7MUGFVGfeHsGAsfSr3Pwj5pXvwMzpoHIf6U2XoT1HWLTKsvl2qCiGXJNy00vHOtB1/k6KmLzwEClP+fmXrxoeNvUYEF9rKNrhxIar/VZ+AAwedmCeAhJHM0l6zGGIJ+oJrjluh05lwZsmgSRc1pdc6i5YFHTE2NTkG/z5sMUwP/70Lrku9KIZLpvl1WvKms0e73DxA4TGb8AXP5SxDFzLSAWGsbpcw6q7vXECzsFf0LOQjRGJCSImcs+5QW3KZGWGhqTj5TFQGMOqExrTiVye2viizdVirlxR2BnI9BhaZ1nPYpwzdz+oq319K72wF7aC8b7os0H5H02CxNXVBaydBpvgYPrvuKXEeHPtZAyHJ+Lp5JbSY84EM3hAbqIlK0Z93GnkdOHFZml7r9qVB8BZlJjo76tMH83cbQCKo6ZkpAk0pHzDUq8Fm1TPMV1mk7gFlR6i4HVr0zKskYR9wAPKReAj/7DAviSLk73cjhzGP1RpwqWQsLcU3Ew="
+
+addons:
+  coverity_scan:
+  project:
+  name: "tcadigan/terrain"
+  description: "My take on Terrain"
+  notification_email: tylercadigan@gmail.com
+  build_command: "make"
+
 language: cpp
 compiler:
   - gcc
