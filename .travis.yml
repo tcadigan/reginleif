@@ -11,6 +11,7 @@ addons:
   description: "My take on Terrain"
   notification_email: tylercadigan@gmail.com
   build_command: "make"
+  branch_patter: master
 
 sudo: false
 
