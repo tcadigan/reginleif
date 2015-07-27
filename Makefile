@@ -51,18 +51,27 @@
 #       Turn off logging.
 
 PROG = larn
-MAN6 = larn.0
-CFLAGS += -DBSD -DVER=12 -DSUBVER=0 -DNONAP
-DPADD = ${LIBTERM} ${LIBCOMPAT}
-LDADD = -ltermcap -lcompat
+CFLAGS = -O -g -Wall -DBSD -DVER=12 -DSUBVER=0 -DNONAP
+LDFLAGS = -ltermcap -lcompat -lcurses
 HIDEGAME = hidegame
+
 SRCS = bill.c config.c create.c data.c diag.c display.c fortune.c global.c \
        help.c io.c main.c monster.c moreobj.c movem.c nap.c objects.c regen.c \
        savelev.c scores.c signal.c store.c tok.c \
+
+OBJS = bill.o config.o create.o data.o diag.o dispay.o display.o fortune.o \
+       global.o help.o io.o main.o monster.o moreobj.o movem.o nap.o \
+       objects.o regen.o savelev.o scores.o signal.o store.o tok.o \
+
+all: $(PROG)
+
+$(PROG): $(OBJS)
+	@$(CC) -o $(PROG) $(OBJS) $(LDFLAGS)
+
+clean:
+	rm -rf $(OBJS) $(PROG)
 
 beforeinstall:
 	(cd ${.CURDIR}/datfiles; install -c o ${BINOWN} -g ${BINGRP} -m 444 \
              larnmaze larnopts lforturne larn.help \
              ${DESTDIR}/usr/share/games/larn)
-
-.include <bsd.prog.mk>

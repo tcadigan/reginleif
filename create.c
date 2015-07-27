@@ -3,7 +3,18 @@
  * Larn is copyrighted 1986 by Noah Morgan.
  */
 
+#include "create.h"
+
+#include "global.h"
 #include "header.h"
+#include "io.h"
+#include "monster.h"
+#include "savelev.h"
+#include "scores.h"
+
+#include <curses.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 extern char spelknow[];
 extern char larnlevels[];
@@ -11,7 +22,7 @@ extern char beenhere[];
 extern char wizard;
 extern char level;
 extern short oldx;
-extern oldy;
+extern short oldy;
 
 /*
  * makeplayer()
@@ -43,7 +54,7 @@ void makeplayer()
 
     c[WIELD] = -1;
     c[WEAR] = c[WIELD];
-    c[SHIELD] = C[WEAR];
+    c[SHIELD] = c[WEAR];
 
     for(i = 0; i < 26; ++i) {
 	iven[i] = 0;
@@ -61,8 +72,8 @@ void makeplayer()
 	ivenarg[1] = ivenarg[0];
     }
 
-    playerx = rnd(MAXX - 2);
-    playery = rnd(MAXY - 2);
+    playerx = rand() % (MAXX - 2) + 1;
+    playery = rand() % (MAXY - 2) + 1;
     oldx = 0;
     oldy = 25;
 
@@ -89,13 +100,13 @@ void makeplayer()
  *
  * Note: That it is here we remove genocided monsters from the present level.
  */
-void newcavelevel(int c)
+void newcavelevel(int x)
 {
     int i;
     int j;
 
     /* Put the level back into storage */
-    if(beenhere[level]) {
+    if(beenhere[(int)level]) {
 	savelevel();
     }
 
@@ -168,7 +179,7 @@ void makemaze(int k)
     int z;
 
     if((k > 1)
-       && ((rnd(17) <= 4)
+       && (((rand() % 17 + 1) <= 4)
 	   || (k == (MAXLEVEL - 1))
 	   || (k == (MAXLEVEL + MAXLEVEL - 1)))) {
 	/* Read maze from data file */
@@ -203,23 +214,23 @@ void makemaze(int k)
 
     /* Now for open spaces -- not on level 10 */
     if(k != (MAXLEVEL - 1)) {
-	tmp2 = rnd(3) + 3;
+	tmp2 = rand() % 3 + 1 + 3;
 
 	for(tmp = 0; tmp < tmp2; ++tmp) {
-	    my = rnd(11) + 2;
-	    myl = my - rnd(2);
-	    mhy = my + rnd(2);
+	    my = rand() % 11 + 1 + 2;
+	    myl = my - rand() % 2 + 1;
+	    myh = my + rand() % 2 + 1;
 
 	    if(k < MAXLEVEL) {
-		mx = rnd(44) + 5;
-		mxl = mx - rnd(4);
-		mxh = mx + rnd(12) + 3;
+		mx = rand() % 44 + 1 + 5;
+		mxl = mx - rand() % 4 + 1;
+		mxh = mx + rand() % 12 + 1 + 3;
 		z = 0;
 	    }
 	    else {
-		mx = rnd(60) + 3;
-		mxl = mx - rnd(2);
-		mxk = mx + rnd(2);
+		mx = rand() % 60 + 1 + 3;
+		mxl = mx - rand() % 2 + 1;
+		mxh = mx + rand() % 2 + 1;
 		z = makemonst(k);
 	    }
 
@@ -237,7 +248,7 @@ void makemaze(int k)
     }
 
     if(k != (MAXLEVEL - 1)) {
-	my = rnd(MAXY - 2);
+	my = rand() % (MAXY - 2) + 1;
 
 	for(i = 1; i < (MAXX - 1); ++i) {
 	    item[i][my] = 0;
@@ -257,7 +268,7 @@ void eat(int xx, int yy)
     int dir;
     int try;
 
-    dir = rnd(4);
+    dir = rand() % 4 + 1;
     try = 2;
 
     while(try) {
@@ -356,7 +367,7 @@ int cannedlevel(int k)
     int marg;
 
     if(lopen(larnlevels) < 0) {
-	write(1, "Can't open the maze data file\n", 30);
+	write(STDOUT_FILENO, "Can't open the maze data file\n", 30);
 	died(-282);
 
 	return 0;
@@ -371,7 +382,7 @@ int cannedlevel(int k)
     }
 
     /* Advance to desired maze */
-    for(i = (18 * rund(i - '0')); i > 0; --i) {
+    for(i = (18 * (rand() % (i - '0'))); i > 0; --i) {
 	lgetl();
     }
 
@@ -391,7 +402,7 @@ int cannedlevel(int k)
 		break;
 	    case 'D':
 		it = OCLOSEDOOR;
-		arg = rnd(30);
+		arg = rand() % 30 + 1;
 
 		break;
 	    case '~':
@@ -400,7 +411,7 @@ int cannedlevel(int k)
 		}
 		
 		it = OLARNEYE;
-		mit = rund(8) + DEMONLORD;
+		mit = rand() % 8 + DEMONLORD;
 		marg = monster[mit].hitpoints;
 
 		break;
@@ -435,7 +446,7 @@ int cannedlevel(int k)
 	    mitem[j][i] = mit;
 	    hitp[j][i] = marg;
 
-# WIZID
+#if WIZID
 	    if(wizard) {
 		know[j][i] = 1;
 	    }
@@ -465,20 +476,22 @@ void treasureroom(int lv)
     int xsize;
     int ysize;
 
-    for(tx = (1 + rnd(10)); tx < (MAXX - 10); tx += 10) {
+    for(tx = (rand() % 10 + 2); tx < (MAXX - 10); tx += 10) {
 	if((lv == (MAXLEVEL - 1))
 	   || (lv == (MAXLEVEL + MAXVLEVEL - 1))
-	   || (rnd(13) == 2)) {
-	    xsize = rnd(6) + 3;
-	    ysize = rnd(3) + 3;
+	   || ((rand() % 13 + 1) == 2)) {
+	    xsize = rand() % 6 + 1 + 3;
+	    ysize = rand() % 3 + 1 + 3;
 
 	    /* Upper left corner of room */
-	    if((level = (MAXLEVEL - 1)) || (lv == (MAXLEVEL + MAXVLEVEL - 1))) {
-		tx = tx + rnd(MAXX - 24);
-		troom(lv, xsize, ysize, tx, ty, rnd(3) + 6);
+	    ty = rand() % (MAXY - 9) + 1 + 1;
+	    
+	    if((lv == (MAXLEVEL - 1)) || (lv == (MAXLEVEL + MAXVLEVEL - 1))) {
+		tx = tx + rand() % (MAXX - 24) + 1;
+		troom(lv, xsize, ysize, tx, ty, rand() % 3 + 1 + 6);
 	    }
 	    else {
-		troom(lv, xsize, ysize, tx, ty, rnd(9));
+		troom(lv, xsize, ysize, tx, ty, rand() % 9 + 1);
 	    }
 	}
     }
@@ -511,10 +524,10 @@ void troom(int lv, int xsize, int ysize, int tx, int ty, int glyph)
     }
 
     /* Locate the door on the treasure room */
-    switch(rnd(2)) {
+    switch(rand() % 2 + 1) {
     case 1:
-	i = tx + rund(xsize);
-	j = ty + ((ysize - 1) * rund(2));
+	i = tx + (rand() % xsize);
+	j = ty + ((ysize - 1) * (rand() % 2));
 	item[i][j] = OCLOSEDOOR;
 
 	/* On horizontal walls */
@@ -522,8 +535,8 @@ void troom(int lv, int xsize, int ysize, int tx, int ty, int glyph)
 
 	break;
     case 2:
-	i = tx + ((xsize - 1) * rund(2));
-	j = ty + rund(ysize);
+	i = tx + ((xsize - 1) * (rand() % 2));
+	j = ty + (rand() % ysize);
 	item[i][j] = OCLOSEDOOR;
 
 	/* On vertical walls */
@@ -538,7 +551,7 @@ void troom(int lv, int xsize, int ysize, int tx, int ty, int glyph)
 
     if(c[HARDGAME] < 2) {
 	for(playerx = (tx + 1); playerx <= (tx + xsize - 2); playerx += 2) {
-	    j = rnd(6);
+	    j = rand() % 6 + 1;
 	    
 	    for(i = 0; i <= j; ++i) {
 		something(lv + 2);
@@ -548,7 +561,7 @@ void troom(int lv, int xsize, int ysize, int tx, int ty, int glyph)
     }
     else {
 	for(playerx = (tx + 1); playerx <= (tx + xsize - 2); playerx += 2) {
-	    j = rnd(4);
+	    j = rand() % 4 + 1;
 
 	    for(i = 0; i <= j; ++i) {
 		something(lv + 2);
@@ -580,7 +593,7 @@ void makeobject(int j)
 	fillroom(ODNDSTORE, 0);
 
 	/* College of Larn */
-	filroom(OSCHOOL, 0);
+	fillroom(OSCHOOL, 0);
 
 	/* 1st National bank of Larn */
 	fillroom(OBANK, 0);
@@ -615,49 +628,49 @@ void makeobject(int j)
     }
 
     /* Make the random objects in the maze */
-    fillmroom(rund(3), OBOOK, j);
-    fillmroom(rund(3), OALTAR, 0);
-    fillmroom(rund(3), OSTATUE, 0);
-    fillmroom(rund(3), OPIT, 0);
-    fillmroom(rund(3), OFOUNTAIN, 0);
-    fillmroom(rnd(3) - 2, OIVTELETRAP, 0);
-    fillmroom(rund(2), OTHRONE, 0);
-    fillmroom(rund(2), OMIRROR, 0);
-    fillmroom(rund(2), OTRAPARROWIV, 0);
-    fillmroom(rnd(3) - 2, OIVDARTRAP, 0);
-    fillmroom(rund(3), OCOOKIE, 0);
+    fillmroom(rand() % 3, OBOOK, j);
+    fillmroom(rand() % 3, OALTAR, 0);
+    fillmroom(rand() % 3, OSTATUE, 0);
+    fillmroom(rand() % 3, OPIT, 0);
+    fillmroom(rand() % 3, OFOUNTAIN, 0);
+    fillmroom((rand() % 3 + 1) - 2, OIVTELETRAP, 0);
+    fillmroom(rand() % 2, OTHRONE, 0);
+    fillmroom(rand() % 2, OMIRROR, 0);
+    fillmroom(rand() % 2, OTRAPARROWIV, 0);
+    fillmroom((rand() % 3 + 1) - 2, OIVDARTRAP, 0);
+    fillmroom(rand() % 3, OCOOKIE, 0);
 
     if(j == 1) {
 	fillmroom(1, OCHEST, j);
     }
     else {
-	fillmroom(rund(2), OCHEST, j);
+	fillmroom(rand() % 2, OCHEST, j);
     }
 
     if((j != (MAXLEVEL - 1)) && (j != (MAXLEVEL + MAXVLEVEL - 1))) {
-	fillmroom(rund(2), OIVTRAPDOOR, 0);
+	fillmroom(rand() % 2, OIVTRAPDOOR, 0);
     }
 
     if(j <= 10) {
-	fillmroom(rund(2), ODIAMOND, rnd((10 * j) + 1) + 10);
-	fillmroom(rund(2), ORUBY, rnd((6 * j) + 1) + 6);
-	fillmroom(rund(2), OEMERALD, rnd((4 * j) + 1) + 4);
-	fillmroom(rund(2), OSAPPHIRE, rnd((3 * j) + 1) + 2);
+	fillmroom(rand() % 2, ODIAMOND, rand() % ((10 * j) + 1) + 1 + 10);
+	fillmroom(rand() % 2, ORUBY, rand() % ((6 * j) + 1) + 1 + 6);
+	fillmroom(rand() % 2, OEMERALD, rand() % ((4 * j) + 1) + 1 + 4);
+	fillmroom(rand() % 2, OSAPPHIRE, rand() % ((3 * j) + 1) + 1 + 2);
     }
 
-    for(i = 0; i < (rnd(4) + 3); ++i) {
+    for(i = 0; i < (rand() % 4 + 1 + 3); ++i) {
 	/* Make a POTION */
 	fillroom(OPOTION, newpotion());
     }
 
-    for(i = 0; i < (rnd(5) + 3); ++i) {
+    for(i = 0; i < (rand() % 5 + 1 + 3); ++i) {
 	/* Make a SCROLL */
 	fillroom(OSCROLL, newscroll());
     }
 
-    for(i = 0; i < (rnd(12) + 11); ++i) {
+    for(i = 0; i < (rand() % 12 + 12); ++i) {
 	/* Make GOLD */
-	fillroom(OGOLDPILE, (12 * rnd(j + 1)) + (j << 3) + 10);
+	fillroom(OGOLDPILE, (12 * (rand() % (j + 1) + 1)) + (j << 3) + 10);
     }
 
     if(j == 5) {
@@ -675,28 +688,28 @@ void makeobject(int j)
     froom(3, OSPLINT, 0);
 
     /* A shield */
-    froom(5, OSHIELD, rund(3));
+    froom(5, OSHIELD, rand() % 3);
 
     /* A battle axe */
-    froom(2, OBATTLEAXE, rund(3));
+    froom(2, OBATTLEAXE, rand() % 3);
 
     /* A long sword */
-    froom(5, OLONGSWORD, rund(3));
+    froom(5, OLONGSWORD, rand() % 3);
 
     /* A flail */
-    froom(5, OFLAIL, rund(3));
+    froom(5, OFLAIL, rand() % 3);
 
     /* Ring of regeneration */
-    froom(4, OREGENRING, rund(3));
+    froom(4, OREGENRING, rand() % 3);
 
     /* Ring of protection */
-    froom(1, OPROTRING, rund(3));
+    froom(1, OPROTRING, rand() % 3);
 
     /* Ring of strength + 4 */
     froom(2, OSTRRING, 4);
 
     /* A spear */
-    froom(7, OSPEAR, rnd(5));
+    froom(7, OSPEAR, rand() % 5 + 1);
 
     /* Orb of dragon slaying */
     froom(3, OORBOFDRAGON, 0);
@@ -722,13 +735,13 @@ void makeobject(int j)
 	c[BESSMANN] = 1;
     }
 
-    if((c[HARDGAME] < 3) || (rnd(4) == 3)) {
+    if((c[HARDGAME] < 3) || ((rand() % 4 + 1) == 3)) {
 	if(j > 3) {
 	    /* Sunsword + 3 */
 	    froom(3, OSWORD, 3);
 
 	    /* A two handed sword */
-	    froom(5, O2SWORD, rnd(4));
+	    froom(5, O2SWORD, rand() % 4 + 1);
 
 	    /* Belt of striking */
 	    froom(3, OBELT, 4);
@@ -756,7 +769,7 @@ void fillmroom(int n, int arg, char what)
 
 void froom(int n, int arg, char itm)
 {
-    if(rnd(151) < n) {
+    if((rand() % 151 + 1) < n) {
 	fillroom(itm, arg);
     }
 }
@@ -773,8 +786,8 @@ static void fillroom(int arg, char what)
     ++c[FILLROOM];
 #endif
 
-    x = rnd(MAXX - 2);
-    y = rnd(MAXY - 2);
+    x = rand() % (MAXX - 2) + 1;
+    y = rand() % (MAXY - 2) + 1;
 
     while(item[x][y]) {
 #ifdef EXTRA
@@ -782,8 +795,8 @@ static void fillroom(int arg, char what)
 	++c[RANDOMWALK];
 #endif
 
-	x += (rnd(3) - 2);
-	y += (rnd(3) - 2);
+	x += (rand() % 3 + 1 - 2);
+	y += (rand() % 3 + 1 - 2);
 
 	if(x > (MAXX - 2)) {
 	    x = 1;
@@ -798,7 +811,7 @@ static void fillroom(int arg, char what)
 	}
 
 	if(y < 1) {
-	    y = MAXY = 2;
+	    y = MAXY - 2;
 	}
     }
 
@@ -817,15 +830,15 @@ int fillmonst(char what)
 
     /* Max # of creation attempts */
     for(trys = 5; trys > 0; --trys) {
-	x = rnd(MAXX - 2);
-	y = rnd(MAXY - 2);
+	x = rand() % (MAXX - 2) + 1;
+	y = rand() % (MAXY - 2) + 1;
 
 	if((item[x][y] == 0)
 	   && (mitem[x][y] == 0)
-	   && ((players != x) || (playery != y))) {
+	   && ((playerx != x) || (playery != y))) {
 	    mitem[x][y] = what;
 	    know[x][y] = 0;
-	    hitp[x][y] = monster[what].hitpoints;
+	    hitp[x][y] = monster[(int)what].hitpoints;
 
 	    return 0;
 	}
@@ -860,7 +873,7 @@ void sethp(int flg)
     }
 
     if(flg) {
-	j = rnd(12) + 2 + (level >> 1);
+	j = rand() % 12 + 1 + 2 + (level >> 1);
     }
     else {
 	j = (level >> 1) + 1;
@@ -881,9 +894,9 @@ void checkgen()
     int x;
     int y;
 
-    for(y = 0; i < MAXY; ++y) {
+    for(y = 0; y < MAXY; ++y) {
 	for(x = 0; x < MAXX; ++x) {
-	    if(monster[mitem[x][y]].genocided) {
+	    if(monster[(int)mitem[x][y]].genocided) {
 		/* No more monster */
 		mitem[x][y] = 0;
 	    }

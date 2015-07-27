@@ -7,7 +7,7 @@
 #define MAXLEVEL 11
 
 /* Max # of levels in the temple of luran */
-#define MAXVLEVEL
+#define MAXVLEVEL 3
 
 #define MAXX 67
 #define MAXY 17
@@ -485,27 +485,11 @@ extern struct monst monster[];
 extern struct sphere *spheres;
 extern struct _itm itm[];
 
-char *fortune();
-char *malloc();
-char *getenv();
-char *getlogin();
-char *lgetw();
-char *lgetl();
-char *ctime();
-char *tmcapcnv();
-char *tgetstr();
-char *tgoto();
-long paytaxes();
-long lgetc();
-long lrint();
-long time();
-unsigned long readnum();
-
 /* Macro to create scroll #'s with probability of occurrence */
-#define newscroll() (scpro[rund(81)])
+#define newscroll() (scprob[rand() % 81])
 
 /* Macro to return a potion # created with probability of occurrence */
-#define newpotion() (potprob[rund(41)])
+#define newpotion() (potprob[rand() % 41])
 
 /* Macro to return the + points on created leather armor */
 #define newleather()					\
@@ -569,11 +553,6 @@ unsigned long readnum();
 /* Macro to clear the scrolling region for the terminal */
 #define resetscroll() (lprcat("\33[;24r"))
 
-/* Macro to clear the screen and home the cursor */
-#define clear()					\
-    lprcat("\33[2J\33[f");			\
-    cbak[SPELLS] = -50
-
 #define cltoeoln() lprcat("\33[K")
 
 #else
@@ -599,11 +578,6 @@ unsigned long readnum();
 /* Macro to clear the scrolling region for the terminal */
 #define resetscroll() enable_scroll = 0;
 
-/* Macro to clear the screen and home the cursor */
-#define clear()					\
-    *lpnt++ = CLEAR;				\
-    cbak[SPELLS] = -50
-
 /* Macro to clear to end of line */
 #define cltoeoln() (*lpnt++ = CL_LINE)
 
@@ -618,9 +592,6 @@ unsigned long readnum();
     else {					\
 	*lpnt++ = (ch);				\
     }
-
-/* Macro to seed the random number generator */
-#define srand(x) (randx = x)
 
 /* Macros to generate random numbers */
 #ifdef MACRORND

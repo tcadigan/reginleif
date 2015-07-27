@@ -6,9 +6,20 @@
  */
 
 #include "header.h"
+#include "io.h"
 
+#include <curses.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+static char mail600[32];
 static int pid;
 
+/*
+ * Function to create the tax bill for the user
+ */
 static int letter1() {
     /* Prepare path */
     sprintf(mail600, "/tmp/#%dmail600", pid);
@@ -20,9 +31,13 @@ static int letter1() {
     }
 
     lprcat("\n\n\n\n\n\n\n\n\n\n\n\n");
-    standout("From:");
+    standout();
+    lprcat("From:");
+    standend();
     lprcat("  The LRS (Larn Revenue Service)\n");
-    standout("\nSubject");
+    standout();
+    lprcat("\nSubject");
+    standend();
     lprcat("  Undeclared Income\n");
     lprcat("\n  We heard you survived the caverns of Larn. Let be the");
     lprcat("\nfirst to congratulate you on your success.  It is quite a feat.");
@@ -54,9 +69,13 @@ static int letter2()
     }
 
     lprcat("\n\n\n\n\n\n\n\n\n\n\n\n");
-    standout("From:");
+    standout();
+    lprcat("From:");
+    standend();
     lprcat("  His Majesty King Wilfred of Larndom\n");
-    standout("\nSubject:");
+    standout();
+    lprcat("\nSubject:");
+    standend();
     lprcat("  A Noble Deed\n");
     lprcat("\n  I have heard of your magnificent feat, and I, King Wilfred,");
     lprcat("\nforthwith declare today to be a national holiday.  Furthermore,");
@@ -80,9 +99,13 @@ static int letter3()
     }
 
     lprcat("\n\n\n\n\n\n\n\n\n\n\n\n");
-    standout("From:");
+    standout();
+    lprcat("From:");
+    standend();
     lprcat("  Count Endelford\n");
-    standout("\nSubject:");
+    standout();
+    lprcat("\nSubject:");
+    standend();
     lprcat("  You Bastard!\n");
     lprcat("\n  I heard (from sources) of your journey.  Congratulations!");
     lprcat("\nYou bastard!  With several attempts I have yet to endure the");
@@ -104,9 +127,13 @@ static int letter4()
     }
 
     lprcat("\n\n\n\n\n\n\n\n\n\n\n\n");
-    standout("From:");
+    standout();
+    lprcat("From:");
+    standend();
     lprcat("  Mainair, Duke of Larnty\n");
-    standout("\nSubject:");
+    standout();
+    lprcat("\nSubject:");
+    standend();
     lprcat("  High Praise\n");
     lprcat("\n  With a certainty a hero I declare to be amongst us!  A nod of");
     lprcat("\nfavour I send to thee.  Me thinks Count Endelford this day of");
@@ -130,9 +157,13 @@ static int letter5()
     }
 
     lprcat("\n\n\n\n\n\n\n\n\n\n\n\n");
-    standout("From:");
+    standout();
+    lprcat("From:");
+    standend();
     lprcat("  St. Mary's Children's Home\n");
-    standout("\nSubject:");
+    standout();
+    lprcat("\nSubject:");
+    standend();
     lprcat("  These Poor Children\n");
     lprcat("\n  News of your great conquests has spread to all of Larndom.");
     lprcat("\nMight I have a moment of a great man's time.  We here at St.");
@@ -157,9 +188,13 @@ static int letter6()
     }
 
     lprcat("\n\n\n\n\n\n\n\n\n\n\n\n");
-    standout("From:");
+    standout();
+    lprcat("From:");
+    standend();
     lprcat("  The National Cancer Society of Larn\n");
-    standout("\nSubject:");
+    standout();
+    lprcat("\nSubject:");
+    standend();
     lprcat("  Hope\n");
     lprcat("\n  Congratulations on your successful expedition.  We are sure much");
     lprcat("\ncourage and dtermination were needed on your quest.  There are");
@@ -201,7 +236,7 @@ int mailbill()
 	    }
 	}
 	
-	exit();
+	exit(0);
     }
 
     return 0;

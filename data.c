@@ -1,4 +1,7 @@
 /*
+ * data.c
+ * Larn is copyright 1986 by Noah Morgan.
+ * 
  * Copyright (c) 1988 Regents of the University of California. All rights
  * reserved.
  *
@@ -12,6 +15,8 @@
  * ``AS IS'' AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, WITHOUT
  * LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A
  * PARTICULAR PURPOSE.
+ *
+ * @data(#)data    5.2 (Berkeley) 7/22/88
  */
 
 /*
@@ -22,10 +27,6 @@
 #include "header.h"
 
 #define NODEFS
-
-#ifndef lint
-static char sccsid[] = "@data(#)data.c     5.2 (Berkeley) 7/22/88";
-#endif
 
 /*
  * class[c[LEVEL] - 1] gives the correct name of the player's experience level
@@ -177,7 +178,7 @@ char *lpend;
 struct cel *cell;
 
 /* Monster hp on level */
-shrot hitp[MAXX][MAXY];
+short hitp[MAXX][MAXY];
 
 /* Arg for the item array */
 short iarg[MAXX][MAXY];
@@ -256,7 +257,7 @@ char level = 0;
 char wizard = 0;
 
 /* The number of the monster last hitting player */
-char lastnum = 0;
+short lastnum = 0;
 
 /* Flag for if player has been hit when running */
 short hitflag = 0;
@@ -269,7 +270,7 @@ short hit3 = 0;
 
 /* The room on the present level of the player */
 short playerx;
-shrot playery;
+short playery;
 
 /* 0 --- MAXX - 1 or 0 --- MAXY - 1 */
 short lastpx;
@@ -806,54 +807,6 @@ char *spelmes[] = {
     /* 14 */ "the %s sees through your illusions",
     /* 15 */ "the %s loves the cold!",
     /* 16 */ "the %s loves the water!"
-};
-
-/* tolower[character[ = lower case converted character */
-char to_lower[] = {
-    0000, 0001, 0003, 0003, 0004, 0005, 0006, 0007, 0010, 0011, 0012, 0013, 0014, 0015, 0016, 0017, /* NUL - SI */
-    0020, 0021, 0022, 0023, 0024, 0025, 0026, 0027, 0030, 0031, 0032, 0033, 0034, 0035, 0036, 0037, /* DEL - US */
-    0040, 0041, 0042, 0043, 0044, 0045, 0046, 0047, 0050, 0051, 0052, 0053, 0054, 0055, 0056, 0057, /*  SP - / */
-    0060, 0061, 0062, 0063, 0064, 0065, 0066, 0067, 0070, 0071, 0072, 0073, 0074, 0075, 0076, 0077, /*   0 - ? */
-    0100, 0141, 0142, 0143, 0144, 0145, 0146, 0147, 0150, 0151, 0152, 0153, 0154, 0155, 0156, 0157, /*   @ - O */
-    0160, 0161, 0162, 0163, 0164, 0165, 0166, 0167, 0170, 0171, 0172, 0133, 0134, 0135, 0136, 0137, /*   P - _ */
-    0140, 0141, 0142, 0143, 0144, 0145, 0146, 0147, 0150, 0151, 0152, 0153, 0154, 0155, 0156, 1057, /*   ` - o */
-    0160, 0161, 0162, 0163, 0164, 0165, 0166, 0167, 0170, 0171, 0172, 0173, 0174, 0175, 0176, 0177  /*   p - DEL */
-};
-
-/* toupper[character] = upper case converted character */
-char to_upper[] = {
-    0000, 0001, 0002, 0003, 0004, 0005, 0006, 0007, 0010, 0011, 0012, 0013, 0014, 0015, 0016, 0017, /* NUL - SI */
-    0020, 0021, 0022, 0023, 0024, 0025, 0026, 0027, 0030, 0031, 0032, 0033, 0034, 0035, 0036, 0037, /* DLE - US */
-    0040, 0041, 0042, 0043, 0044, 0045, 0046, 0047, 0050, 0051, 0052, 0053, 0054, 0055, 0056, 0057, /*  SP - / */
-    0060, 0061, 0062, 0063, 0064, 0065, 0066, 0067, 0070, 0071, 0072, 0073, 0074, 0075, 0076, 0077, /*   0 - ? */
-    0100, 0101, 0102, 0103, 0104, 0105, 0106, 0107, 0110, 0111, 0112, 0113, 0114, 0115, 0116, 0117, /*   @ - O */
-    0120, 0121, 0122, 0123, 0124, 0125, 0126, 0127, 0130, 0131, 0132, 0133, 0134, 0135, 0136, 0137, /*   P - _ */
-    0140, 0101, 0102, 0103, 0104, 0105, 0106, 0107, 0110, 0111, 0112, 0113, 0114, 0115, 0116, 0117, /*   ` - o */
-    0120, 0121, 0122, 0123, 0124, 0125, 0126, 0127, 0130, 0131, 0132, 0173, 0174, 0175, 0176, 0177  /*   p - DEL */
-};
-
-/* isdigit[character] = TRUE || FALSE */
-char is_digit[] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* NUL - SI */
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* DLE - US */
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*  SP - / */
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, /*   0 - ? */
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*   @ - O */
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*   P - _ */
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*   ` - o */
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  /*   p - DEL */
-};
-
-/* isalpha[character] = TRUE || FALSE */
-char is_alpha[] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* NUL - SI */
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* DLE - US */
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*  SP - / */
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*   0 - ? */
-    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /*   @ - O */
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, /*   P - _ */
-    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /*   ` - o */
-    1, 1, 1, 1, 1,1 , 1, 1, 1, 1, 1, 0, 0, 0, 0, 0  /*   p - DEL */
 };
 
 /*

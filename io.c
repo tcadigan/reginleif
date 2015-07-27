@@ -59,6 +59,9 @@
 
 #include "header.h"
 
+#include <curses.h>
+#include <stdarg.h>
+
 /* System III or System V */
 #ifdef SYSV
 #include <termio.h>
@@ -188,7 +191,7 @@ char getchar()
     lflush();
 
     /* Get byte from terminal */
-    read(0, &byt, 1);
+    read(STDIN_FILENO, &byt, 1);
 
     return byt;
 }
@@ -202,9 +205,7 @@ char getchar()
  */
 void scbr()
 {
-    gtty(0, &ttx);
-    doraw(ttx);
-    stty(0, &ttx);
+    raw();
 }
 
 /*
@@ -216,9 +217,7 @@ void scbr()
  */
 void sncbr()
 {
-    gtty(0, &ttx);
-    unraw(ttx);
-    stty(0, &ttx);
+    noraw();
 }
 
 /*
@@ -285,177 +284,13 @@ void sprintf(char *str)
 
 #else
 
-void lprintf(va_dcl va_alist)
+void lprintf(char *format, ...)
 {
-    /* Pointer for variable argument list */
-    va_list ap;
-    char *fmt;
-    char *outb;
-    char *tmpb;
-
-    /* Data for lprintf */
-    long wide;
-    long left;
-    long cont;
-    long in;
-
-    /* %d duffer in lprintf */
-    char db[12];
-
-    /* Initialize the var args pointer */
-    va_start(ap);
-
-    /* Pointer to format string */
-    fmt = va_arg(ap, char *);
-
-    if(lpnt >= lpend) {
-	lflush();
-    }
-
-    outb = lpnt;
-
-    while(1) {
-	while(*fmt != '%') {
-	    if(*fmt) {
-		*outb++ = *fmt++;
-	    }
-	    else {
-		lpnt = outb;
-
-		return;
-	    }
-	}
-
-	wide = 0;
-	left = 1;
-	cont = 1;
-
-	while(cont) {
-	    ++fmt;
-	    
-	    switch(*fmt) {
-	    case 'd':
-		n = va_arg(ap, long);
-
-		if(n < 0) {
-		    n = -n;
-		    *outb++ = '-';
-
-		    if(wide) {
-			--wide;
-		    }
-		}
-		
-		tmpb = db + 11;
-		*tmpb = (char)(n % 10 + '0');
-		
-		while(n > 9) {
-		    --tmpb;
-		    n /= 10;
-		    *tmpb = (char)(n % 10 + '0');
-		}
-		
-		if(wide == 0) {
-		    while(tmpb < (db + 12)) {
-			*outb++ = *tmpb++;
-		    }
-		}
-		else {
-		    wide -= (db - tmpb + 12);
-		    
-		    if(left) {
-			while(wide-- > 0) {
-			    *outb++ = ' ';
-			}
-		    }
-		    
-		    while(tmpb < (db + 12)) {
-			*outb++ = *tmpb++;
-		    }
-		    
-		    if(left == 0) {
-			while(wide-- > 0) {
-			    *outb++ = ' ';
-			}
-		    }
-		}
-		
-		cont = 0;
-		
-		break;
-	    case 's':
-		tmpb = va_arg(ap, char *);
-
-		if(wide == 0) {
-		    *outb++ = *tmpb++;
-		    
-		    while(*outb) {
-			*outb++ = *tmpb++;
-		    }
-		    
-		    --outb;
-		}
-		else {
-		    n = wide - strlen(tpmb);
-
-		    if(left) {
-			while(n-- > 0) {
-			    *outb++ = ' ';
-			}
-		    }
-		    
-		    *outb++ = *tmpb++;
-		    
-		    while(*outb) {
-			*outb++ = *tmpb++;
-		    }
-
-		    --outb;
-		    
-		    if(left) {
-			while(n-- > 0) {
-			    *outb++ = ' ';
-			}
-		    }
-		}
-
-		cont = 0;
-
-		break;
-	    case 'c':
-		*outb++ = va_arg(ap, int);
-		cont = 0;
-
-		break;
-	    case '0':
-	    case '1':
-	    case '2':
-	    case '3':
-	    case '4':
-	    case '5':
-	    case '6':
-	    case '7':
-	    case '8':
-	    case '9':
-		wide = (10 * wide) + (*fmt - '0');
-
-		break;
-	    case '-':
-		left = 0;
-
-		break;
-	    default:
-		*outb++ = *fmt;
-		cont = 0;
-
-		break;
-	    }
-	}
-
-	++fmt;
-    }
-
-    va_end(ap);
+    va_list args;
+    
+    va_start(args, format);
+    vsprintf(outb, format, args);
+    va_end();
 }
 
 #endif
@@ -481,14 +316,7 @@ void lprintf(va_dcl va_alist)
  */
 void lprintf(long x)
 {
-    if(lpnt >= lpend) {
-	lflush();
-    }
-
-    *lpnt++ = (255 & x);
-    *lpnt++ = (255 & (x >> 8));
-    *lpnt++ = (255 & (x >> 16));
-    *lpnt++ = (255 & (x >> 24));
+    lprintf("%ld", x);
 }
 
 /*
@@ -743,7 +571,7 @@ int lopen(char *str)
     ipoint = iepoint;
 
     if(str == NULL) {
-	fd = 0;
+	fd = STDIN_FILNO;
 	
 	return fd;
     }
