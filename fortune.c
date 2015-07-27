@@ -7,11 +7,15 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
-#ifndef BSD4.1
+#ifndef BSD41
 #include <fcntl.h>
-#else BSD4.1
+
+#else
+
 #define O_RDONLY 0
 #endif
 
@@ -24,7 +28,7 @@ static char *base = 0;
 static char **flines = 0;
 
 /* True if we have loaded the fortune info */
-static int fd = 0;
+int fd = 0;
 
 /* # lines in fortune database */
 static int nlines = 0;
@@ -70,7 +74,7 @@ char *fortune(char *file)
 	}
 
 	/* Read the entire fortune file */
-	if(read(fd, base, stat.st_size) != st.st_size) {
+	if(read(fd, base, stat.st_size) != stat.st_size) {
 	    /* Can't read file */
 	    close(fd);
 	    fd = -1;
@@ -122,10 +126,10 @@ char *fortune(char *file)
     /* If we have a database to look at */
     if(fd > 2) {
 	if(nlines <= 0) {
-	    return flines[rund(1)];
+	    return flines[rand() % 1];
 	}
 	else {
-	    return flines[rund(nlines)];
+	    return flines[rand() % nlines];
 	}
     }
     else {

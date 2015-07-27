@@ -23,6 +23,8 @@
  * getplid(name)      Function to get player's id # from id file
  */
 
+#include "scores.h"
+
 #include <sys/types.h>
 #include <sys/times.h>
 #include <sys/stat.h>

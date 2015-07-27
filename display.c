@@ -3,7 +3,16 @@
  * Larn is copyrighted 1986 by Noah Morgan.
  */
 
+#include "display.h"
+
+#include "create.h"
+#include "global.h"
 #include "header.h"
+#include "io.h"
+#include "monster.h"
+
+#include <curses.h>
+#include <stdlib.h>
 
 #define makecode(x, y, z) (((x) << 16) + ((y) << 8) + (z))
 
@@ -17,6 +26,8 @@ static char bot1f = 0;
 static char bot2f = 0;
 static char bot3f = 0;
 char always = 0;
+
+static void botsub(int idx, char *str);
 
 /*
  * bottomline()
@@ -55,7 +66,7 @@ void bottomdo()
 	bot_hpx();
     }
 
-    if(bot3) {
+    if(bot3f) {
 	bot3f = 0;
 	bot_spellx();
     }
@@ -105,7 +116,7 @@ void bot_linex()
 	    lprcat(" ?");
 	}
 	else {
-	    lprcat(levelname[level]);
+	    lprcat(levelname[(int)level]);
 	}
 
 	lprintf("  Gold: %-6d", (long)c[GOLD]);
@@ -169,7 +180,7 @@ void bot_linex()
 	    lprcat(" ?");
 	}
 	else {
-	    lprcat(levelname[level]);
+	    lprcat(levelname[(int)level]);
 	}
     }
 
@@ -277,7 +288,7 @@ static void botsub(int idx, char *str)
     x = (idx >> 8) & 0xff;
     idx >>= 16;
 
-    if(x[idx] != cbak[idx]) {
+    if(c[idx] != cbak[idx]) {
 	cbak[idx] = c[idx];
 	cursor(x, y);
 	lprintf(str, (long)c[idx]);
@@ -405,7 +416,7 @@ void drawscreen()
 	}
 
 	/* Was m = 0 */
-	if(j >= d_xamx) {
+	if(j >= d_xmax) {
 	    /* Don't search backwards if blank line */
 	    m = d_xmin;
 	}
@@ -443,7 +454,7 @@ void drawscreen()
 
 	    }
 
-	    lprc(screen[j][i]);
+	    addch(screen[j][i]);
 	    ++j;
 	}
     }
@@ -470,7 +481,7 @@ void drawscreen()
 				++lastx;
 			    }
 
-			    lprc(objnamelist[k]);
+			    addch(objnamelist[k]);
 			}
 		    }
 		}
@@ -556,7 +567,7 @@ void showcell(int x, int y)
 		    k = mitem[i][j];
 
 		    if(k != 0) {
-			lprc(monstamelist[k]);
+			addch(monstnamelist[k]);
 		    }
 		    else {
 			k = item[i][j];
@@ -568,12 +579,12 @@ void showcell(int x, int y)
 			case OTRAPARROWIV:
 			case OIVDARTRAP:
 			case OIVTRAPDOOR:
-			    lprc(objnamelist[k]);
+			    addch(objnamelist[k]);
 
 			    break;
 			default:
 			    setbold();
-			    lprc(objnamelist[k]);
+			    addch(objnamelist[k]);
 			    resetbold();
 			}
 		    }
@@ -604,7 +615,7 @@ void show1cell(int x, int y)
     k = mitem[x][y];
 
     if(k != 0) {
-	lprc(monstnamelist[k]);
+	addch(monstnamelist[k]);
     }
     else {
 	k = item[x][y];
@@ -616,12 +627,12 @@ void show1cell(int x, int y)
 	case OTRAPARROWIV:
 	case OIVDARTRAP:
 	case OIVTRAPDOOR:
-	    lprc(objnamelist[k]);
+	    addch(objnamelist[k]);
 
 	    break;
 	default:
 	    setbold();
-	    lprc(objnamelist[k]);
+	    addch(objnamelist[k]);
 	    resetbold();
 	}
     }
@@ -676,8 +687,8 @@ int movedir(int dir)
 
     /* If confused any dir */
     if(c[CONFUSE]) {
-	if(c[LEVEL] < rnd(30)) {
-	    dir = rund(9);
+	if(c[LEVEL] < (rand() % 30 + 1)) {
+	    dir = rand() % 9;
 	}
     }
 
@@ -758,14 +769,13 @@ void seemagic(int arg)
     int i;
     int number;
 
+    number = 0;
     lincount = 0;
     count = lincount;
     nosignal = 1;
 
     /* If display spells while casting one */
     if(arg == -1) {
-	number = 0;
-	
 	for(i = 0; i < SPNUM; ++i) {
 	    if(spelknow[i]) {
 		++number;
@@ -783,7 +793,7 @@ void seemagic(int arg)
 	clear();
     }
 
-    lprcat("The magic spells yo uhave discovered thus far:\n\n");
+    lprcat("The magic spells you have discovered thus far:\n\n");
 
     for(i = 0; i < SPNUM; ++i) {
 	if(spelknow[i]) {
@@ -851,7 +861,7 @@ void seepage()
     if(count == 3) {
 	++lincount;
 	count = 0;
-	lprc('\n');
+	addch('\n');
 
 	if(lincount > 17) {
 	    lincount = 0;

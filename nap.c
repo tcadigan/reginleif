@@ -3,6 +3,8 @@
  * Larn is copyrighted 1986 by Noah Morgan.
  */
 
+#include "nap.h"
+
 #include <signal.h>
 #include <sys/types.h>
 

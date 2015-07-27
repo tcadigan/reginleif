@@ -57,6 +57,8 @@
  * Note: ** entries are available only in termcap mode.
  */
 
+#include "io.h"
+
 #include "header.h"
 
 #include <curses.h>
@@ -205,7 +207,7 @@ char getchar()
  */
 void scbr()
 {
-    raw();
+    cbreak();
 }
 
 /*
@@ -217,7 +219,7 @@ void scbr()
  */
 void sncbr()
 {
-    noraw();
+    nocbreak();
 }
 
 /*
@@ -296,7 +298,7 @@ void lprintf(char *format, ...)
 #endif
 
 /*
- * lprintf(long integer)
+ * lprint(long integer)
  *
  * Send binary integer to output buffer
  *
@@ -314,7 +316,7 @@ void lprintf(char *format, ...)
  *
  * Returns nothing of value.
  */
-void lprintf(long x)
+void lprint(long x)
 {
     lprintf("%ld", x);
 }
@@ -428,11 +430,11 @@ long lgetc()
  *
  * Returns the int read
  */
-long lrint()
+int larnint()
 {
-    unsigned long i;
+    int i;
 
-    i = (255 & lgetc);
+    i = (255 & lgetc());
     i |= ((255 & lgetc()) << 8);
     i |= ((255 & lgetc()) << 16);
     i |= ((255 & lgetc()) << 24);
@@ -446,6 +448,51 @@ long lrint()
  * Put input bytes into a buffer
  *
  * Returns pointer to a buffer that contains word. If EOF, returns a NULL
+ */
+void lrfill(char *adr, int num)
+{
+    char *pnt;
+    int num2;
+
+    while(num) {
+	if(iepoint == ipoint) {
+	    /* Fast way */
+	    if(num > 5) {
+		if(read(fd, adr, num) != num) {
+		    write(STDERR_FILENO, "Error reading from input fine\n", 30);
+		}
+
+		num = 0;
+	    }
+	    else {
+		*adr++ = lgetc();
+		--num;
+	    }
+	}
+	else {
+	    num2 = iepoint - ipoint;
+
+	    if(num2 > num) {
+		num2 = num;
+	    }
+
+	    pnt = inbuffer + ipoint;
+	    num -= num2;
+	    ipoint += num2;
+
+	    while(num2--) {
+		*adr++ = *pnt++;
+	    }
+	}
+    }
+}
+
+/*
+ * char *lgetw()
+ *
+ * Get a whitespace ended word from input
+ *
+ * Returns pointer to a buffer that contains word. if EOF, returns a NULL.
  */
 char *lgetw()
 {
@@ -737,12 +784,22 @@ void cursor(int x, int y)
  *
  * Put the cursor at specified coordinates starting at [1, 1] (termcap)
  */
+void cursor(int x, int y)
+{
+    move(x, y);
+}
+
+#endif
+
+/*
+ * Routine to position cursor at beginning of 24th line
+ */
 void cursors()
 {
     cursor(1, 24);
 }
 
-#ifndef
+#ifndef VT100
 
 /*
  * WARNING: Ringing the bell is control code 7. Don't use in defines.

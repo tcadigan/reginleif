@@ -24,6 +24,8 @@ extern char level;
 extern short oldx;
 extern short oldy;
 
+static void fillroom(int arg, char what);
+
 /*
  * makeplayer()
  *

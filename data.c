@@ -16,7 +16,7 @@
  * LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A
  * PARTICULAR PURPOSE.
  *
- * @data(#)data    5.2 (Berkeley) 7/22/88
+ * @(#)data.c    5.2 (Berkeley) 7/22/88
  */
 
 /*

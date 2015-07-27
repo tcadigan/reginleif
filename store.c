@@ -15,13 +15,13 @@
  * ``AS IS'' AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, WITHOUT
  * LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
  * PARTICULAR PURPOSE.
+ *
+ * @(#)store.c    5.2 (Berkeley) 7/22/88
  */
 
-#include "header.h"
+#include "store.h"
 
-#ifndef lint
-static char sccsid[] = "@(#)store.c  5.2 (Berkeley) 7/22/88";
-#endif
+#include "header.h"
 
 static int dndcount = 0;
 static int dnditm = 0;

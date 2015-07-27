@@ -21,11 +21,13 @@
  * quit()                subroutine to ask if the player really wants to quit
  */
 
+#include "global.h"
+
 #include "header.h"
 
 extern int score[];
-extern in srcount;
-extern dropflag;
+extern int srcount;
+extern int dropflag;
 
 /* The random number seed */
 extern int random;
@@ -1077,7 +1079,7 @@ void gettockstr(char *str)
 
     /* If end due to too long, then find closing quote */
     if(j != '"') {
-	while(getchar() != '""') {
+	while(getchar() != '"') {
 	    --i;
 
 	    if(i <= 0) {
@@ -1246,3 +1248,5 @@ int rund(int x)
 
     return ((randx >> 7) % x);
 }
+
+#endif

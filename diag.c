@@ -3,13 +3,25 @@
  * Larn is copyrighted 1986 by Noah Morgan.
  */
 
+#include "diag.h"
+
+#include "global.h"
+#include "header.h"
+#include "io.h"
+#include "nap.h"
+#include "savelev.h"
+#include "scores.h"
+#include "store.h"
+
+#include <string.h>
 #include <sys/stat.h>
 #include <sys/times.h>
 #include <sys/types.h>
-
-#include "header.h"
+#include <time.h>
+#include <unistd.h>
 
 extern long int initialtime;
+extern int fd;
 extern int rmst;
 extern int maxitm;
 extern int lasttime;
@@ -275,7 +287,7 @@ int savegame(char *fname)
     lwrite((char *)iven, 26);
     lwrite((char *)ivenarg, 26 * sizeof(short));
 
-    for(k = 0; k < MAXSCOLL; ++k) {
+    for(k = 0; k < MAXSCROLL; ++k) {
 	lprc(scrollname[k][0]);
     }
 
@@ -308,11 +320,11 @@ int savegame(char *fname)
     }
 
     time(&zzz);
-    lprintf((long)(zzz - initialtime));
+    lprint((long)(zzz - initialtime));
     lwrite((char *)&zzz, sizeof(long));
 
     if(fstat(lfd, &statbuf) < 0) {
-	lprint(0L);
+	lprintf(0L);
     }
     else {
 	/* inode # */
@@ -365,7 +377,7 @@ void restoregame(char *fname)
     }
 
     lrfill((char *)&c[0], 100 * sizeof(long));
-    gtime = lrint();
+    gtime = larnint();
     c[CAVELEVEL] = lgetc();
     level = c[CAVELEVEL];
     playerx = lgetc();
@@ -439,7 +451,7 @@ void restoregame(char *fname)
     }
 
     time(&zzz);
-    initialtime = zzz - lrint();
+    initialtime = zzz - larnint();
 
     /* Get the creation and modification time of file */
     fstat(fd, &filetimes);
@@ -465,7 +477,7 @@ void restoregame(char *fname)
     oldx = oldy;
 
     /* inode # */
-    i = lrint();
+    i = larnint();
 
     if(i && (filetimes.st_ino != i)) {
 	fsorry();
@@ -485,7 +497,7 @@ void restoregame(char *fname)
 	lcreat((char *)0);
     }
     else if(unlink(fname) < 0) { /* Can't unlink since file */
-	fchat();
+	fcheat();
     }
 
     /* For the greedy cheater checker */

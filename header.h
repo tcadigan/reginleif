@@ -104,7 +104,7 @@ struct sphere {
 
 /* Defines for the character array c[] */
 /* Character's physical strength not due to objects */
-#define STRENGTH 0;
+#define STRENGTH 0
 #define INTELLIGENCE 1
 #define WISDOM 2
 #define CONSTITUTION 3
@@ -239,7 +239,7 @@ struct sphere {
 #define OBATTLEAXE 57
 #define OLONGSWORD 58
 #define OFLAIL 59
-#define OLANCE 59
+#define OLANCE 65
 #define OVORPAL 90
 #define OSLAYER 91
 #define ORINGOFEXTRA 32
@@ -363,8 +363,6 @@ struct sphere {
 #define REDDRAGON 56
 #define DEMONLORD 57
 #define DEMONPRINCE 64
-
-#define NULL 0
 
 /* Size of the output buffer */
 #define BUFBIG 4096

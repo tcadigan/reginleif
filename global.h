@@ -4,5 +4,7 @@
 void positionplayer();
 int makemonst(int lev);
 void recalc();
+void raiseexperience(long x);
+void more();
 
 #endif

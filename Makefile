@@ -6,7 +6,7 @@
 #       Use system III/V (instead of V7) type ioctl calls
 # BSD
 #       Use BSD specific features (mostly timer and signal stuff)
-# BSD4.1
+# BSD41
 #       Use BSD4.1 to avoid some 4.2 dependencies (must be used with BSD above;
 #       do not mix with SYSV)
 # HIDEBYLINK
@@ -59,7 +59,7 @@ SRCS = bill.c config.c create.c data.c diag.c display.c fortune.c global.c \
        help.c io.c main.c monster.c moreobj.c movem.c nap.c objects.c regen.c \
        savelev.c scores.c signal.c store.c tok.c \
 
-OBJS = bill.o config.o create.o data.o diag.o dispay.o display.o fortune.o \
+OBJS = bill.o config.o create.o data.o diag.o display.o display.o fortune.o \
        global.o help.o io.o main.o monster.o moreobj.o movem.o nap.o \
        objects.o regen.o savelev.o scores.o signal.o store.o tok.o \
 
