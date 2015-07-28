@@ -28,7 +28,7 @@ static char *base = 0;
 static char **flines = 0;
 
 /* True if we have loaded the fortune info */
-int fd = 0;
+FILE *fd = 0;
 
 /* # lines in fortune database */
 static int nlines = 0;
@@ -42,7 +42,7 @@ char *fortune(char *file)
 
     if(fd == 0) {
 	/* Open the file */
-	fd = open(file, O_RDONLY);
+	fd = fopen(file, "r");
 
 	if(fd < 0) {
 	    /* Can't fine file */
@@ -52,10 +52,10 @@ char *fortune(char *file)
 	/* Find out how big fortune file is and get memory for it */
 	stat.st_size = 16384;
 
-	if(fstat(fd, &stat) < 0) {
+	if(fstat(fileno(fd), &stat) < 0) {
 	    /* Can't stat file */
-	    close(fd);
-	    fd = -1;
+	    fclose(fd);
+	    fd = NULL;
 	    free(base);
 
 	    return 0;
@@ -65,8 +65,8 @@ char *fortune(char *file)
 
 	    if(base == 0) {
 		/* Can't stat file */
-		close(fd);
-		fd = -1;
+		fclose(fd);
+		fd = NULL;
 		free(base);
 
 		return 0;
@@ -74,16 +74,16 @@ char *fortune(char *file)
 	}
 
 	/* Read the entire fortune file */
-	if(read(fd, base, stat.st_size) != stat.st_size) {
+	if(fread(base, sizeof(char), stat.st_size, fd) != stat.st_size) {
 	    /* Can't read file */
-	    close(fd);
-	    fd = -1;
+	    fclose(fd);
+	    fd = NULL;
 	    free(base);
 
 	    return 0;
 	}
 
-	close(fd);
+	fclose(fd);
 
 	/* Final NULL termination */
 	base[stat.st_size] = 0;
@@ -106,7 +106,7 @@ char *fortune(char *file)
 	if(flines == 0) {
 	    /* malloc() failure */
 	    free(base);
-	    fd = -1;
+	    fd = NULL;
 
 	    return 0;
 	}
@@ -124,7 +124,7 @@ char *fortune(char *file)
     }
 
     /* If we have a database to look at */
-    if(fd > 2) {
+    if((fd != stderr) && (fd != stdout) && (fd != stdin)) {
 	if(nlines <= 0) {
 	    return flines[rand() % 1];
 	}

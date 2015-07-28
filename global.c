@@ -23,14 +23,24 @@
 
 #include "global.h"
 
+#include "display.h"
 #include "header.h"
+#include "io.h"
+#include "main.h"
+#include "monster.h"
+#include "nap.h"
+#include "scores.h"
+
+#include <curses.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 extern int score[];
 extern int srcount;
 extern int dropflag;
 
 /* The random number seed */
-extern int random;
 extern short playerx;
 extern short playery;
 extern short lastnum;
@@ -102,13 +112,13 @@ void raiseexperience(long x)
 	++c[LEVEL];
 	
 	if(tmp > 0) {
-	    raisemhp((int)(rnd(3) + rnd(tmp)));
+	    raisemhp((int)((rand() % 3 + 1) + (rand() % tmp + 1)));
 	}
 	else {
-	    raisemhp((int)(rnd(3) + rnd(1)));
+	    raisemhp((int)((rand() % 3 + 1) + (rand() % 1 + 1)));
 	}
 
-	raisemspells((int)rund(3));
+	raisemspells((int)rand() % 3);
 
 	if(c[LEVEL] < (7 - c[HARDGAME])) {
 	    raisemhp((int)(c[CONSTITUTION] >> 2));
@@ -160,10 +170,10 @@ void loseexperience(long x)
 
 	/* Lose hpoints */
 	if(tmp > 0) {
-	    losemhp((int)rnd(tmp));
+	    losemhp((int)(rand() % tmp + 1));
 	}
 	else {
-	    losemhp((int)rnd(1));
+	    losemhp((int)(rand() % 1 + 1));
 	}
 
 	if(c[LEVEL] < (7 - c[HARDGAME])) {
@@ -171,7 +181,7 @@ void loseexperience(long x)
 	}
 
 	/* Lose spells */
-	losemspells((int)rund(3));
+	losemspells((int)rand() % 3);
     }
 
     if(i != c[LEVEL]) {
@@ -268,7 +278,7 @@ void raisespells(int x)
 void raisemspells(int x)
 {
     c[SPELLMAX] += x;
-    x[SPELLS] += x;
+    c[SPELLS] += x;
 }
 
 /*
@@ -331,7 +341,7 @@ int makemonst(int lev)
 	    x = monstlevel[lev - 1];
 
 	    if(x) {
-		tmp = rnd(x);
+		tmp = rand() % x + 1;
 	    }
 	    else {
 		tmp = 1;
@@ -343,10 +353,10 @@ int makemonst(int lev)
 	    x = monstlevel[lev - 1] - monstlevel[lev - 4];
 
 	    if(x) {
-		tmp = rnd(x) + monstlevel[lev - 4];
+		tmp = rand() % x + 1 + monstlevel[lev - 4];
 	    }
 	    else {
-		tmp = rnd(1) + monstlevel[lev - 4];
+		tmp = rand() % 1 + 1 + monstlevel[lev - 4];
 	    }
 	}
     }
@@ -400,7 +410,7 @@ void recalc()
     int j;
     int k;
 
-    c[AC] = c[MOREDEFENSES];
+    c[AC] = c[MOREDEFENCES];
 
     if(c[WEAR] >= 0) {
 	switch(iven[c[WEAR]]) {
@@ -596,7 +606,9 @@ void quit()
 void more()
 {
     lprcat("\n --- press ");
-    standout("space");
+    standout();
+    lprcat("space");
+    standend();
     lprcat(" to continue --- ");
 
     while(1) {
@@ -890,7 +902,7 @@ int stealsomething()
     j = 100;
 
     while(1) {
-	i = rund(26);
+	i = rand() % 26;
 
 	if(iven[i]) {
 	    if(c[WEAR] != i) {
@@ -945,7 +957,7 @@ void creategem()
     int i;
     int j;
 
-    switch(rnd4) {
+    switch(rand() % 4 + 1) {
     case 1:
 	i = ODIAMOND;
 	j = 50;
@@ -963,12 +975,12 @@ void creategem()
 	break;
     default:
 	i = OSAPPHIRE;
-	i = 20;
+	j = 20;
 
 	break;
     }
 
-    createitem(i, rnd(j) + (j / 10));
+    createitem(i, rand() % j + 1 + (j / 10));
 }
 
 /*
@@ -1104,13 +1116,13 @@ int getpassword()
 
     scbr();
     /* system("stty -echo cbreak"); */
-    gwp = gwpbuf;
+    gpwp = gpwbuf;
     lprcat("\nEnter Password: ");
     lflush();
     i = strlen(password);
 
     for(j = 0; j < i; ++j) {
-	read(0, gpwp, 1);
+	read(STDIN_FILENO, gpwp, 1);
 	++gpwp;
 	gpwbuf[i] = 0;
     }
@@ -1229,24 +1241,3 @@ int packweight()
 
     return k;
 }
-
-/* Macros to generate random numbers. */
-#ifndef MACRORND
-
-/* 1 <= rnd(N) <= N */
-int rnd(int x)
-{
-    randx = (randx * 1103515245) + 12345;
-
-    return (((randx >> 7) % x) + 1);
-}
-
-/* 0 <= rund(N) <= (N - 1) */
-int rund(int x)
-{
-    randx = (randx * 1103515245) + 12345;
-
-    return ((randx >> 7) % x);
-}
-
-#endif

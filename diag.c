@@ -21,7 +21,7 @@
 #include <unistd.h>
 
 extern long int initialtime;
-extern int fd;
+extern FILE *fd;
 extern int rmst;
 extern int maxitm;
 extern int lasttime;
@@ -323,7 +323,7 @@ int savegame(char *fname)
     lprint((long)(zzz - initialtime));
     lwrite((char *)&zzz, sizeof(long));
 
-    if(fstat(lfd, &statbuf) < 0) {
+    if(fstat(fileno(lfd), &statbuf) < 0) {
 	lprintf(0L);
     }
     else {
@@ -454,7 +454,7 @@ void restoregame(char *fname)
     initialtime = zzz - larnint();
 
     /* Get the creation and modification time of file */
-    fstat(fd, &filetimes);
+    fstat(fileno(fd), &filetimes);
     lrfill((char *)&zzz, sizeof(long));
     zzz += 6;
 

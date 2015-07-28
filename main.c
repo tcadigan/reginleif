@@ -2,6 +2,8 @@
  * main.c
  */
 
+#include "main.h"
+
 #include <pwd.h>
 #include <sys/types.h>
 

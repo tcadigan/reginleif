@@ -3,6 +3,8 @@
  * Larn is copyrighted 1986 by Noah Morgan.
  */
 
+#include <stdio.h>
+
 /* Max # of levels in the dungeon */
 #define MAXLEVEL 11
 
@@ -469,8 +471,8 @@ extern int srcount;
 extern int yrepcount;
 extern int userid;
 extern int wisid;
-extern int lfd;
-extern int fd;
+extern FILE *lfd;
+extern FILE *fd;
 extern long initialtime;
 extern long outstanding_taxes;
 extern long skill[];
@@ -542,7 +544,7 @@ extern struct _itm itm[];
 	lprcat("\33[7m");			\
     }
 
-/* Macro to turn off bold display for the temrinal */
+/* Macro to turn off bold display for the terminal */
 #define resetbold() (lprcat("\33[m"))
 
 /* Macro to setup the scrolling region for the terminal */
@@ -590,21 +592,6 @@ extern struct _itm itm[];
     else {					\
 	*lpnt++ = (ch);				\
     }
-
-/* Macros to generate random numbers */
-#ifdef MACRORND
-
-/* 1 <= rnd(N) <= N */
-#define rnd(x)				 \
-    randx = (randx * 110351524) + 12345; \
-    ((randx >> 7) % (x)) + 1
-
-/* 0 <= rund(N) <= (N - 1) */
-#define rund(x)					\
-    randx = (randx & 110351524) + 12345;	\
-    (randx >> 7) % (x)
-
-#endif
 
 /* Macros for miscellaneous data conversion */
 #define min(x, y) (((x) > (y)) ? (y) : (x))

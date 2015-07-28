@@ -3,6 +3,7 @@
 
 void seepage();
 void drawscreen();
+void bottomline();
 void botside();
 void bot_spellx();
 void bot_hpx();

@@ -11,17 +11,20 @@
  * pages of help text (23 lines per page)
  */
 
+#include "help.h"
+
+#include "display.h"
+#include "io.h"
+
+#include <curses.h>
+#include <unistd.h>
+
 extern char helpfile[];
 
 void help()
 {
     int i;
     int j;
-
-#ifndef VT100
-    /* Intermediate translation buffer when not a VT100 */
-    char tmbuf[128];
-#endif
 
     /* Open the help file and get # pages */
     j = openhelp();
@@ -39,21 +42,19 @@ void help()
 	clear();
 	
 	for(i = 0; i < 23; ++i) {
-#ifdef VT100
 	    /* Print out each line that we read in */
 	    lprcat(lgetl());
-#else
-	    /* Intercept \33's */
-	    tmcapcnv(tmbuf, lgetl());
-	    lprcat(tmbuf);
-#endif
 	}
 	
 	if(j > 1) {
 	    lprcat("    ---- Press ");
-	    standout("return");
+	    standout();
+	    lprcat("return");
+	    standend();
 	    lprcat(" to exit, ");
-	    standout("space");
+	    standout();
+	    lprcat("space");
+	    standend();
 	    lprcat(" for more help ---- ");
 	    i = 0;
 
@@ -63,7 +64,7 @@ void help()
 
 	    if((i == '\n') || (i == '\33')) {
 		lrclose();
-		setscroll();
+		scrollok(stdscr, TRUE);
 		drawscreen();
 
 		return;
@@ -85,11 +86,6 @@ void welcome()
 {
     int i;
 
-#ifndef VT100
-    /* Intermediate translation buffer when not a VT100 */
-    char tmbuf[128];
-#endif
-
     /* Open the help file */
     if(openhelp() < 0) {
 	return;
@@ -98,14 +94,8 @@ void welcome()
     clear();
 
     for(i = 0; i < 23; ++i) {
-#ifdef VT100
 	/* Print out each line that we read in */
 	lprcat(lgetl());
-#else
-	/* Intercept \33's */
-	tmcapcnv(tmbuf, lgetl());
-	lprcat(tmbuf);
-#endif
     }
     
     /* Press return to continue */
@@ -120,7 +110,9 @@ void retcont()
 {
     cursor(1, 24);
     lprcat("Press ");
-    standout("return");
+    standout();
+    lprcat("return");
+    standend();
     lprcat(" to continue: ");
 
     char c = getchar();
@@ -128,7 +120,7 @@ void retcont()
 	c = getchar();
     }
 
-    setscroll();
+    scrollok(stdscr, TRUE);
 }
 
 /*
@@ -141,12 +133,12 @@ int openhelp()
 	lflush();
 	sleep(4);
 	drawscreen();
-	setscroll();
+	scrollok(stdscr, TRUE);
 
 	return -1;
     }
 
-    resetscroll();
+    scrollok(stdscr, FALSE);
 
     return (lgetc() - '0');
 }
