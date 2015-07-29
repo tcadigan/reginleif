@@ -12,5 +12,9 @@ void losemspells(int x);
 void losemhp(int x);
 void more();
 void adjustcvalues(int itm, int arg);
+int drop_object(int k);
+int packweight();
+void quit();
+int getpassword();
 
 #endif

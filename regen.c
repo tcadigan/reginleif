@@ -3,6 +3,8 @@
  * Larn is copyrighted 1986 by Noah Morgan.
  */
 
+#include "regen.h"
+
 #include "header.h"
 
 /*

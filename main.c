@@ -4,10 +4,29 @@
 
 #include "main.h"
 
-#include <pwd.h>
-#include <sys/types.h>
-
+#include "create.h"
+#include "diag.h"
+#include "display.h"
+#include "fortune.h"
+#include "global.h"
 #include "header.h"
+#include "help.h"
+#include "io.h"
+#include "monster.h"
+#include "movem.h"
+#include "object.h"
+#include "regen.h"
+#include "scores.h"
+#include "signal.h"
+#include "tok.h"
+
+#include <curses.h>
+#include <pwd.h>
+#include <stdlib.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 static char copyright[] = "\nLarn is copyrighted 1986 by Noah Morgan.\n";
 
@@ -73,10 +92,8 @@ static char *termtypes[] = {
 int main(int argc, char *argv[])
 {
     int i;
-    int j;
     int hard;
     char *ptr = 0;
-    char *ttype;
     struct passwd *pwe;
 
     /* First task is to identify the player */
@@ -102,24 +119,30 @@ int main(int argc, char *argv[])
 		ptr = getenv("LOGNAME");
 
 		if(ptr == 0) {
-		    write(2, "Can't find your logname. Who are you?\n", 38);
+		    write(STDERR_FILENO,
+			  "Can't find your logname. Who are you?\n",
+			  38);
 
-		    exit();
+		    exit(1);
 		}
 	    }
 	}
     }
     
     if(ptr == 0) {
-	write(2, "Can't find your logname. Who are you?\n", 38);
+	write(STDERR_FILENO,
+	      "Can't find your logname. Who are you?\n",
+	      38);
 	
-	exit();
+	exit(1);
     }
     
     if(strlen(ptr) == 0) {
-	write(2, "Can't find your logname. Who are you?\n", 38);
+	write(STDERR_FILENO,
+	      "Can't find your logname. Who are you?\n",
+	      38);
 
-	exit();
+	exit(1);
     }
 
     /* Second task is to prepare the pathnames the player will need */
@@ -170,8 +193,8 @@ int main(int argc, char *argv[])
 
 #ifdef VT100
     /* Check terminal type to avoid users who have not vt100 type terminals */
-    ttype = getenv("TERM");
-    j = 0;
+    char *ttype = getenv("TERM");
+    int j = 0;
     
     for(i = 0; i < (sizeof(termtypes) / sizeof(char *)); ++i) {
 	if(strcmp(ttype, termtypes[i]) == 0) {
@@ -203,17 +226,17 @@ int main(int argc, char *argv[])
 		/* Show scoreboard */
 		showscores();
 
-		exit();
+		exit(0);
 	    case 'l':
 		/* Show log file */
 		diedlog();
 
-		exit();
+		exit(0);
 	    case 'i':
 		/* Show all scoreboard */
 		showallscores();
 
-		exit();
+		exit(0);
 	    case 'c':
 		/* Anyone with password can create scoreboard */
 		lprcat("Preparing to initialize the scoreboard.\n");
@@ -225,7 +248,7 @@ int main(int argc, char *argv[])
 		    showscores();
 		}
 
-		exit();
+		exit(0);
 	    case 'n':
 		/* No welcome message */
 		nowelcome = 1;
@@ -247,10 +270,10 @@ int main(int argc, char *argv[])
 
 		break;
 	    case 'h':
-		/* Print out ocmmand line arguments */
+		/* Print out command line arguments */
 		write(1, cmdhelp, sizeof(cmdhelp));
 
-		exit();
+		exit(0);
 	    case 'o':
 		/* Specify a .larnopts filename */
 		strncpy(optsfile, argv[i] + 2, 127);
@@ -259,7 +282,7 @@ int main(int argc, char *argv[])
 	    default:
 		printf("Unknown option <%s>\n", argv[i]);
 
-		exit();
+		exit(1);
 	    }
 	}
 
@@ -291,7 +314,7 @@ int main(int argc, char *argv[])
     if(userid < 0) {
 	write(2, "Can't obtain playerid\n", 22);
 
-	exit();
+	exit(1);
     }
 
 #ifdef HIDEBYLINK
@@ -422,7 +445,7 @@ int main(int argc, char *argv[])
 
 	    if(rmst <= 0) {
 		rmst = 120 - (level << 2);
-		filemonst(makemonst(level));
+		fillmonst(makemonst(level));
 	    }
 	}
     }
@@ -506,7 +529,7 @@ void t_setup(int count)
 }
 
 /* Subroutine to restore normal display screen depending on t_setup() */
-ovid t_endup(int count)
+void t_endup(int count)
 {
     /* How did we clear the screen? */
     if(count < 18) {
@@ -539,7 +562,7 @@ void showwear()
     /* Count number of items we will display */
     count = 2;
     
-    for(k = 0; j <= 26; ++j) {
+    for(j = 0; j <= 26; ++j) {
 	i = iven[j];
 
 	if(i) {
@@ -573,7 +596,7 @@ void showwield()
 
     /* Don't allow ^c etc. */
     sigsav = nosignal;
-    nosginal = 1;
+    nosignal = 1;
     srcount = 0;
 
     /* Count how many items */
@@ -731,7 +754,7 @@ void showquaff()
     count = 2;
 
     for(j = 0; j <= 26; ++j) {
-	switch(iven[i]) {
+	switch(iven[j]) {
 	case OPOTION:
 	    ++count;
 	}
@@ -758,15 +781,15 @@ void showquaff()
 void show1(int idx, char *str2[])
 {
     if(str2 == 0) {
-	lprintf("\n%c)   %s", idx + 'a', objectname[iven[idx]]);
+	lprintf("\n%c)   %s", idx + 'a', objectname[(int)iven[idx]]);
     }
     else if(*str2[ivenarg[idx]] == 0) {
-	lprintf("\n%c)   %s", idx + 'a', objectname[iven[idx]]);
+	lprintf("\n%c)   %s", idx + 'a', objectname[(int)iven[idx]]);
     }
     else {
 	lprintf("\n%c)   %s of %s",
 		idx + 'a',
-		objectname[iven[idx]],
+		objectname[(int)iven[idx]],
 		str2[ivenarg[idx]]);
     }
 }
@@ -797,7 +820,7 @@ void show3(int index)
 
 	break;
     default:
-	lprintf("\n%c)   %s", index + 'a', objectname[iven[index]]);
+	lprintf("\n%c)   %s", index + 'a', objectname[(int)iven[index]]);
 
 	if(ivenarg[index] > 0) {
 	    lprintf(" + %d", ivenarg[index]);
@@ -838,7 +861,7 @@ void randmonst()
 
     if(rmst <= 0) {
 	rmst = 120 - (level << 2);
-	filemonst(makemonst(level));
+	fillmonst(makemonst(level));
     }
 }
 
@@ -855,7 +878,7 @@ void parse()
     int flag;
 
     while(1) {
-	k == yylex();
+	k = yylex();
 
 	/* Get the token from the input and switch on it */
 	switch(k) {
@@ -1006,7 +1029,7 @@ void parse()
 	    /* To eat a fortune cookie */
 	    yrepcount = 0;
 
-	    if(c[TIMESTOP) == 0) {
+	    if(c[TIMESTOP] == 0) {
 		eatcookie();
 	    }
 
@@ -1014,7 +1037,7 @@ void parse()
 	case 'D':
 	    /* List of spells and scrolls */
 	    yrepcount = 0;
-	    seemagic();
+	    seemagic(0);
 	    nomove = 1;
 
 	    return;
@@ -1078,7 +1101,7 @@ void parse()
 		    case OTRAPARROW:
 		    case OTELEPORTER:
 			lprcat("\nIts ");
-			lprcat(objectname[item[i][j]]);
+			lprcat(objectname[(int)item[i][j]]);
 			++flag;
 		    }
 		}
@@ -1194,7 +1217,7 @@ void parse()
 
 	    if(c[SHIELD] != -1) {
 		c[SHIELD] = -1;
-		lprcount("\nYour shield is off");
+		lprcat("\nYour shield is off");
 		bottomline();
 	    }
 	    else if(c[WEAR] != -1) {
@@ -1391,7 +1414,7 @@ void ycwi(int x)
 }
 
 /* Function to wear armor */
-void wear();
+void wear()
 {
     int i;
 
@@ -1409,7 +1432,7 @@ void wear();
 	    else {
 		switch(iven[i - 'a']) {
 		case 0:
-		    yhdi(i);
+		    ydhi(i);
 
 		    return;
 		case OLEATHER:
@@ -1485,7 +1508,7 @@ void dropobj()
 
 		lprcat("\n\n");
 		cl_dn(1, 23);
-		lprcat("\How much gold do you drop? ");
+		lprcat("\nHow much gold do you drop? ");
 		amt = readnum(c[GOLD]);
 
 		if(amt == 0) {
@@ -1525,7 +1548,7 @@ void dropobj()
 
 		c[GOLD] -= amt;
 		lprintf("You drop %d gold pieces", amt);
-		iarg[players][playery] = i;
+		iarg[playerx][playery] = i;
 		bottomgold();
 		know[playerx][playery] = 0;
 		dropflag = 1;

@@ -3,6 +3,8 @@
  * Larn is copyrighted 1986 by Noah Morgan.
  */
 
+#include "tok.h"
+
 #include <sys/types.h>
 
 #ifdef SYSV

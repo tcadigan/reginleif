@@ -678,7 +678,7 @@ void showplayer()
 short diroffx[] = {  0,  0,  1,  0, -1,  1, -1,  1, -1 };
 short diroffy[] = {  0,  1,  0, -1,  0, -1, -1,  1,  1 };
 
-int movedir(int dir)
+int moveplayer(int dir)
 {
     int k;
     int m;

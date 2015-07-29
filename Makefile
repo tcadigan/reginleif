@@ -75,3 +75,15 @@ beforeinstall:
 	(cd ${.CURDIR}/datfiles; install -c o ${BINOWN} -g ${BINGRP} -m 444 \
              larnmaze larnopts lforturne larn.help \
              ${DESTDIR}/usr/share/games/larn)
+
+bill.o: header.h io.h
+config.o: header.h pathnames.h
+create.o: create.h global.h header.h io.h monster.h savelev.h scores.h
+data.o: header.h
+diag.o: diag.h global.h header.h io.h nap.h savelev.h scores.h store.h
+display.o: display.h create.h global.h header.h io.h monster.h
+fortune.o: fortune.h
+global.o: global.h display.h header.h io.h main.h monster.h nap.h scores.h
+help.o: help.h display.h io.h
+io.o: io.h header.h scores.h
+main.o: main.h create.h diag.h display.h fortune.h global.h header.h help.h io.h monster.h movem.h object.h regen.h scores.h signal.h tok.h

@@ -5,6 +5,8 @@
  * Function to return a random fortune from the fortune file
  */
 
+#include "fortune.h"
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdlib.h>

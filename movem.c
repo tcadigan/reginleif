@@ -10,6 +10,8 @@
  * movesphere()    Function to look for and move spheres of annihilation
  */
 
+#include "movem.h"
+
 #include "header.h"
 
 /*

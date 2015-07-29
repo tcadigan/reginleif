@@ -4,5 +4,7 @@
 void fcheat();
 void fsorry();
 void greedy();
+int savegame(char *fname);
+void restoregame(char *fname);
 
 #endif

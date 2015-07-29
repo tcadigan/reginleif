@@ -205,7 +205,7 @@ struct sphere {
 #define OELEVATORUP 6
 #define OFOUNTAIN 7
 #define OSTATUE 8
-#define OTELEPORER 9
+#define OTELEPORTER 9
 #define OSCHOOL 10
 #define OMIRROR 11
 #define ODNDSTORE 12

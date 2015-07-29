@@ -18,11 +18,14 @@ void lprintf(char *format, ...);
 void lprint(long x);
 void lrclose();
 char *lgetl();
+void setupvt100();
+void newgame();
 void cursor(int x, int y);
 void scbr();
 void sncbr();
 void set_score_output();
 void cl_line(int x, int y);
 void cl_up(int x, int y);
+void cl_dn(int x, int y);
 
 #endif

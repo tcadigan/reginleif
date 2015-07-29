@@ -3,5 +3,7 @@
 
 int openhelp();
 void retcont();
+void help();
+void welcome();
 
 #endif
