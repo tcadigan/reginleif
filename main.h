@@ -14,6 +14,7 @@ int whatitem(char *str);
 void run(int dir);
 void wield();
 void parse();
+void parse2();
 void t_setup(int count);
 void t_endup(int count);
 void qshowstr();

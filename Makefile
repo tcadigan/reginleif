@@ -87,3 +87,4 @@ global.o: global.h display.h header.h io.h main.h monster.h nap.h scores.h
 help.o: help.h display.h io.h
 io.o: io.h header.h scores.h
 main.o: main.h create.h diag.h display.h fortune.h global.h header.h help.h io.h monster.h movem.h object.h regen.h scores.h signal.h tok.h
+monster.o: monster.h create.h display.h global.h header.h io.h main.h nap.h object.h scores.h tok.h

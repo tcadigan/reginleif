@@ -38,7 +38,20 @@
 
 #include "monster.h"
 
+#include "create.h"
+#include "display.h"
+#include "global.h"
 #include "header.h"
+#include "io.h"
+#include "main.h"
+#include "nap.h"
+#include "object.h"
+#include "scores.h"
+#include "tok.h"
+
+#include <curses.h>
+#include <stdlib.h>
+#include <string.h>
 
 /* Used for alter reality */
 struct isave {
@@ -51,6 +64,8 @@ struct isave {
     /* The type of item or hitpoints of monster */
     short arg;
 };
+
+static int dirsub(int *x, int *y);
 
 /*
  * createmonster(int monstno)
@@ -83,7 +98,7 @@ void createmonster(int mon)
     }
 
     /* Choose direction, then try all */
-    k = rnd(8);
+    k = rand() % 8 + 1;
     
     for(i = -8; i < 0; ++i) {
 	/* Wraparound the diroff arrays */
@@ -175,7 +190,7 @@ void createitem(int it, int arg)
     }
 
     /* Choose direction, then try all */
-    k = rnd(8);
+    k = rand() % 8 + 1;
 
     for(i = -1; i < 0; ++i) {
 
@@ -207,7 +222,7 @@ void createitem(int it, int arg)
  *
  * No arguments and no return value
  */
-static char eys[] = "\nEnter your spell: ");
+static char eys[] = "\nEnter your spell: ";
 
 void cast()
 {
@@ -232,7 +247,7 @@ void cast()
     while(a == 'D') {
 	seemagic(-1);
 	cursors();
-	lprcat();
+	lprcat(eys);
 	a = getchar();
     }
 
@@ -257,7 +272,7 @@ void cast()
     d = getchar();
 
     /* To escape casting a spell */
-    if(c == '\33') {
+    if(d == '\33') {
 	lprcat(aborted);
 	++c[SPELLS];
 
@@ -327,7 +342,7 @@ void speldamage(int x)
 
     clev = c[LEVEL];
 
-    if((rnd(23) == 7) || (rnd(18) > c[INTELLIGENCE])) {
+    if(((rand() % 23 + 1) == 7) || ((rand() % 18 + 1) > c[INTELLIGENCE])) {
 	lprcat(" It didn't work!");
 
 	return;
@@ -344,7 +359,7 @@ void speldamage(int x)
     case 0:
 	/* Protection field + 2 */
 	if(c[PROTECTIONTIME] == 0) {
-	    c[MOREDEFENSES] += 2;
+	    c[MOREDEFENCES] += 2;
 	}
 
 	c[PROTECTIONTIME] += 250;
@@ -352,7 +367,7 @@ void speldamage(int x)
 	return;
     case 1:
 	/* Magic missile */
-	i = rnd(((clev + 1) << 1)) + clev + 3;
+	i = rand() % (((clev + 1) << 1)) + 1 + clev + 3;
 
 	if(clev >= 2) {
 	    godirect(x, i, " Your missiles hit the %s", 100, '+');
@@ -373,7 +388,7 @@ void speldamage(int x)
 	return;
     case 3:
 	/* Sleep */
-	i = rnd(3) + 1;
+	i = rand() % 3 + 1 + 1;
 	p = " While the %s slept, you smashed it %d times";
 	direct(x, fullhit(i), p, i);
 
@@ -385,13 +400,13 @@ void speldamage(int x)
 	return;
     case 5:
 	/* Sonic spear */
-	godirect(x, rnd(10) + 15 + clev, " The sound damages the %s", 70, '@');
+	godirect(x, rand() % 10 + 1 + 15 + clev, " The sound damages the %s", 70, '@');
 
 	return;
 	/* --- LEVEL 2 SPELLS --- */
     case 6:
 	/* web */
-	i = rnd(3) + 2;
+	i = rand() % 3 + 1 + 2;
 	p = " While the %s is entangled, you hit %d times";
 	direct(x, fullhit(i), p, i);
 
@@ -402,7 +417,7 @@ void speldamage(int x)
 	    c[STREXTRA] += 3;
 	}
 
-	c[STRCOUNT] += (150 + rnd(100));
+	c[STRCOUNT] += (150 + rand() % 100 + 1);
 
 	return;
     case 8:
@@ -441,8 +456,8 @@ void speldamage(int x)
 
 	return;
     case 12:
-	if((rnd(11) + 7) <= C[WISDOM]) {
-	    direct(x, rnd(20) + 20 + clev, " The %s believed!", 0);
+	if((rand() % 11 + 1 + 7) <= c[WISDOM]) {
+	    direct(x, rand() % 20 + 1 + 20 + clev, " The %s believed!", 0);
 	}
 	else {
 	    lprcat(" It didn't believe the illusions!");
@@ -465,12 +480,12 @@ void speldamage(int x)
 	/* --- LEVEL 3 SPELLS --- */
     case 14:
 	/* Fireball */
-	godirect(x, rnd(25 + clev) + 25 + clev, " The fireball hits the %s", 40, '*');
+	godirect(x, rand() % (25 + clev) + 1 + 25 + clev, " The fireball hits the %s", 40, '*');
 
 	return;
     case 15:
 	/* Cold */
-	godirect(x, rnd(25) + 20 + clev, " Your cone of cold strikes the %s", 60, 'O');
+	godirect(x, rand() % 25 + 1 + 20 + clev, " Your cone of cold strikes the %s", 60, 'O');
 
 	return;
     case 16:
@@ -490,7 +505,7 @@ void speldamage(int x)
 	return;
     case 19:
 	/* Cloud kill */
-	omnidirect(x, 30 + rnd(10), " The %s gasps for air");
+	omnidirect(x, 30 + rand() % 10 + 1, " The %s gasps for air");
 
 	return;
     case 20:
@@ -555,7 +570,7 @@ void speldamage(int x)
 	return;
     case 22:
 	/* Lightning */
-	godirect(x, rnd(25) + 20 + (clev << 1), " A lightning bolt hits the %s", 1, '~');
+	godirect(x, rand() % 25 + 1 + 20 + (clev << 1), " A lightning bolt hits the %s", 1, '~');
 
 	return;
     case 23:
@@ -568,11 +583,11 @@ void speldamage(int x)
     case 24:
 	/* Globe of invulnerability */
 	if(c[GLOBE] == 0) {
-	    c[MOREDEFENSES] += 10;
+	    c[MOREDEFENCES] += 10;
 	}
 
 	c[GLOBE] += 200;
-	lostint();
+	loseint();
 
 	return;
     case 25:
@@ -582,7 +597,7 @@ void speldamage(int x)
 	return;
     case 26:
 	/* Finger of death */
-	if(rnd(151) == 63) {
+	if((rand() % 151 + 1) == 63) {
 	    beep();
 	    lprcat("\nYour heart stopped!\n");
 	    nap(4000);
@@ -591,7 +606,7 @@ void speldamage(int x)
 	    return;
 	}
 
-	if(c[WISDOM] > (rnd(10) + 10)) {
+	if(c[WISDOM] > (rand() % 10 + 1 + 10)) {
 	    direct(x, 2000, " The %s's heart stopped", 0);
 	}
 	else {
@@ -602,17 +617,17 @@ void speldamage(int x)
 	/* --- LEVEL 5 SPELLS --- */
     case 27:
 	/* Scare monster */
-	c[SCAREMONST] += (rnd(10) + clev);
+	c[SCAREMONST] += (rand() % 10 + 1 + clev);
 
 	return;
     case 28:
 	/* Hold monster */
-	c[HOLDMONST] += (rnd(10) + clev);
+	c[HOLDMONST] += (rand() % 10 + 1 + clev);
 
 	return;
     case 29:
 	/* Time stop */
-	c[TIMESTOP] += (rnd(20) + (clev << 1));
+	c[TIMESTOP] += (rand() % 20 + 1 + (clev << 1));
 
 	return;
     case 30:
@@ -622,13 +637,13 @@ void speldamage(int x)
 	return;
     case 31:
 	/* Magic fire */
-	omnidirect(x, 35 + rnd(10) + clev, " The %s cringes from the flame");
+	omnidirect(x, 35 + rand() % 10 + 1 + clev, " The %s cringes from the flame");
 
 	return;
 	/* --- LEVEL 6 SPELLS */
     case 32:
 	/* Sphere of annihilation */
-	if((rnd(23) == 5) && (wizard == 0)) {
+	if(((rand() % 23 + 1) == 5) && (wizard == 0)) {
 	    beep();
 	    lprcat("\nYou have been enveloped by the zone of nothingness!\n");
 	    nap(4000);
@@ -645,7 +660,7 @@ void speldamage(int x)
 	i = dirsub(&xl, &yl);
 
 	/* Make a sphere */
-	newsphere(xl, yl, i, rnd(20) + 11);
+	newsphere(xl, yl, i, rand() % 20 + 1 + 11);
 
 	return;
     case 33:
@@ -657,13 +672,13 @@ void speldamage(int x)
 	return;
     case 34:
 	/* Summon demon */
-	if(rnd(100) > 30) {
+	if((rand() % 100 + 1) > 30) {
 	    direct(x, 150, " Th demon strikes at the %s", 0);
 
 	    return;
 	}
 
-	if(rnd(100) > 15) {
+	if((rand() % 100 + 1) > 15) {
 	    lprcat(" Nothing seems to have happened");
 
 	    return;
@@ -672,7 +687,7 @@ void speldamage(int x)
 	return;
     case 35:
 	/* Walk through walls */
-	c[WTW] += (rnd(10) + 5);
+	c[WTW] += (rand() % 10 + 1 + 5);
 
 	return;
     case 36:
@@ -724,7 +739,7 @@ void speldamage(int x)
 		item[33][MAXY - 1] = 0;
 	    }
 
-	    j = rnd(MAXY - 2);
+	    j = rand() % (MAXY - 2) + 1;
 	    
 	    for(i = 1; i < (MAXX - 1); ++i) {
 		item[i][j] = 0;
@@ -742,8 +757,8 @@ void speldamage(int x)
 		    i = j;
 
 		    while((--trys > 0) && item[i][i]) {
-			i = rnd(MAXX - 1);
-			j = rnd(MAXY - 1);
+			i = rand() % (MAXX - 1) + 1;
+			j = rand() % (MAXY - 1) + 1;
 		    }
 
 		    if(trys) {
@@ -760,8 +775,8 @@ void speldamage(int x)
 
 		    while((--trys > 0)
 			  && ((item[i][j] == OWALL) || mitem[i][j])) {
-			i = rnd(MAXX - 1);
-			j = rnd(MAXY - 1);
+			i = rand() % (MAXX - 1)+ 1;
+			j = rand() % (MAXY - 1) + 1;
 		    }
 
 		    if(trys) {
@@ -1106,7 +1121,7 @@ void godirect(int spnum, int dam, char *str, int delay, char cshow)
 	    case OCLOSEDOOR:
 		cursors();
 		lprc('\n');
-		lprintf(std, "door");
+		lprintf(str, "door");
 
 		if(dam >= 40) {
 		    lprcat(" The door is blasted apart");
@@ -1169,6 +1184,36 @@ void godirect(int spnum, int dam, char *str, int delay, char cshow)
 }
 
 /*
+ * ifblind(int x, int y)
+ *
+ * Routine to put "monster" or the monster name into lastmonst
+ *
+ * Subroutine to copy the word "monster" int lastmonst if the player is blind.
+ *
+ * Enter with the coordinates (x, y) of the monster
+ *
+ * Returns no value.
+ */
+void ifblind(int x, int y)
+{
+    char *p;
+
+    /* Verify correct x, y coordinates */
+    vxy(&x, &y);
+
+    if(c[BLINDCOUNT]) {
+	lastnum = 279;
+	p = "monster";
+    }
+    else {
+	lastnum = mitem[x][y];
+	p = monster[lastnum].name;
+    }
+
+    strcpy(lastmonst, p);
+}
+
+/*
  * tdirect(int spnum)
  *
  * Routine to teleport away a monster
@@ -1183,6 +1228,7 @@ void tdirect(int spnum)
 {
     int x;
     int y;
+    int m;
 
     /* Bad args */
     if((spnum < 0) || (spnum >= SPNUM)) {
@@ -1354,7 +1400,7 @@ int vxy(int *x, int *y)
 }
 
 /*
- * dirploy(int spnum)
+ * dirpoly(int spnum)
  *
  * Routine to ask for a direction and polymorph a monster
  *
@@ -1364,7 +1410,7 @@ int vxy(int *x, int *y)
  *
  * Returns no value
  */
-void dirploy(int spnum)
+void dirpoly(int spnum)
 {
     int x;
     int y;
@@ -1401,7 +1447,7 @@ void dirploy(int spnum)
     m = mitem[x][y];
 
     while(monster[m].genocided) {
-	mitem[x][y] = rnd(MAXMONST + 7);
+	mitem[x][y] = rand() % (MAXMONST + 7) + 1;
 	m = mitem[x][y];
     }
 
@@ -1422,7 +1468,7 @@ void dirploy(int spnum)
  *
  * Returns no value
  */
-void hitmonster(int x, int y);
+void hitmonster(int x, int y)
 {
     int tmp;
     int monst;
@@ -1448,13 +1494,13 @@ void hitmonster(int x, int y);
     cursors();
 
     /* Need at least random chance to hit */
-    if((rnd(20) < (tmp - c[HARDGAME])) || (rnd(71) < 5)) {
+    if(((rand() % 20 + 1) < (tmp - c[HARDGAME])) || ((rand() % 71 + 1) < 5)) {
 	lprcat("\nYou hit");
 	flag = 1;
 	damag = fullhit(1);
 
 	if(damag < 9999) {
-	    damag = rnd(damag) + 1;
+	    damag = rand() % damag + 1 + 1;
 	}
     }
     else {
@@ -1486,7 +1532,7 @@ void hitmonster(int x, int y);
 
     if(monst == VAMPIRE) {
 	if(hitp[x][y] < 25) {
-	    mitem[x][y] = bat;
+	    mitem[x][y] = BAT;
 	    know[x][y] = 0;
 	}
     }
@@ -1563,7 +1609,7 @@ int hitm(int x, int y, int amt)
 	amt = monster[monst].gold;
 
 	if(amt > 0) {
-	    dropgold(rnd(amt) + amt);
+	    dropgold(rand() % amt + 1 + amt);
 	}
 
 	dropsomething(monst);
@@ -1627,7 +1673,7 @@ void hitplayer(int x, int y)
     ifblind(x, y);
 
     if(c[INVISIBILITY]) {
-	if(rnd(33) < 20) {
+	if((rand() % 33 + 1) < 20) {
 	    lprintf("\nThe %s misses wildly", lastmonst);
 
 	    return;
@@ -1635,24 +1681,24 @@ void hitplayer(int x, int y)
     }
 
     if(c[CHARMCOUNT]) {
-	if((rnd(30) + (5 * monst[mster].level) - c[CHARISMA]) < 30) {
+	if(((rand() % 30 + 1) + (5 * monster[mster].level) - c[CHARISMA]) < 30) {
 	    lprintf("\nThe %s is awestruck at your magnificence!", lastmonst);
 
 	    return;
 	}
     }
 
-    if(mster == bat) {
+    if(mster == BAT) {
 	dam = 1;
     }
     else {
 	dam = monster[mster].damage;
 
 	if(dam < 1) {
-	    dam += (rnd(1) + monster[mster].level);
+	    dam += ((rand() % 1 + 1) + monster[mster].level);
 	}
 	else {
-	    dat += (rmd(dam) + mosnter[mster].level);
+	    dam += ((rand() % dam + 1) + monster[mster].level);
 	}
     }
 
@@ -1669,7 +1715,7 @@ void hitplayer(int x, int y)
     }
     else {
 	if(c[AC] > 0) {
-	    if(rnd(c[AC]) == 1) {
+	    if((rand() % c[AC] + 1) == 1) {
 		if(spattack(monster[mster].attack, x, y)) {
 		    flushall();
 
@@ -1678,7 +1724,7 @@ void hitplayer(int x, int y)
 	    }
 	}
 	else {
-	    if(rnd(1) == 1) {
+	    if((rand() % 1 + 1) == 1) {
 		if(spattack(monster[mster].attack, x, y)) {
 		    flushall();
 
@@ -1709,10 +1755,10 @@ void hitplayer(int x, int y)
     }
     else {
 	if(c[AC] > 0) {
-	    if(rnd(c[AC]) == 1) {
+	    if((rand() % c[AC] + 1) == 1) {
 		lprintf("\n The %s hit you ", lastmonst);
 		tmp = 1;
-		dat -= c[AC];
+		dam -= c[AC];
 
 		if(dam < 0) {
 		    dam = 0;
@@ -1726,7 +1772,7 @@ void hitplayer(int x, int y)
 	    }
 	}
 	else {
-	    if(rnd(1) == 1) {
+	    if((rand() % 1 + 1) == 1) {
 		lprintf("\n The %s hit you ", lastmonst);
 		tmp = 1;
 		dam -= c[AC];
@@ -1777,11 +1823,11 @@ void dropsomething(int monst)
 
 	return;
     case LEPRECHAUN:
-	if(rnd(101) >= 75) {
-	    creatgem();
+	if((rand() % 101 + 1) >= 75) {
+	    creategem();
 	}
 
-	if(rnd(5) == 1) {
+	if((rand() % 5 + 1) == 1) {
 	    dropsomething(LEPRECHAUN);
 	}
 
@@ -1830,7 +1876,7 @@ void something(int level)
     }
 
     /* Possibly more than one item */
-    if(rnd(101) < 8) {
+    if((rand() % 101 + 1) < 8) {
 	something(level);
     }
 
@@ -1880,7 +1926,7 @@ static char nobjtab[] = {
     OSTRRING,
     OSPEAR,
     OBELT,
-    OPRING,
+    ORING,
     OSTUDLEATHER,
     OSHIELD,
     OFLAIL,
@@ -1908,7 +1954,7 @@ int newobject(int lev, int *i)
     }
 
     /* The object type */
-    tmp = rnd(tmp);
+    tmp = rand() % tmp + 1;
 
     j = nobjtab[tmp];
 
@@ -1931,7 +1977,7 @@ int newobject(int lev, int *i)
     case 10:
     case 11:
     case 12:
-	*i = rnd((lev + 1) * 10) + (lev * 10) + 10;
+	*i = rand() % ((lev + 1) * 10) + 1 + (lev * 10) + 10;
 
 	break;
     case 13:
@@ -1944,7 +1990,7 @@ int newobject(int lev, int *i)
     case 17:
     case 18:
     case 19:
-	*i = newdagger();
+	*i = ndgg[rand() % 13];
 
 	if(!*i) {
 	    return 0;
@@ -1954,7 +2000,12 @@ int newobject(int lev, int *i)
     case 20:
     case 21:
     case 22:
-	*i = newleather();
+	if(c[HARDGAME]) {
+	    *i = nlpts[rand() % 13];
+	}
+	else {
+	    *i = nlpts[rand() % 12];
+	}
 
 	if(!*i) {
 	    return 0;
@@ -1964,29 +2015,29 @@ int newobject(int lev, int *i)
     case 23:
     case 32:
     case 35:
-	*i = rund((lev / 3) + 1);
+	*i = rand() % ((lev / 3) + 1);
 
 	break;
     case 24:
     case 26:
-	*i = rnd((lev / 4) + 1);
+	*i = rand() % ((lev / 4) + 1) + 1;
 
 	break;
     case 25:
-	*i = rund((lev / 4) + 1);
+	*i = rand() % ((lev / 4) + 1);
 
 	break;
     case 27:
-	*i = rnd((lev / 2) + 1);
+	*i = rand() % ((lev / 2) + 1) + 1;
 
 	break;
     case 30:
     case 33:
-	*i = rund((lev / 2) + 1);
+	*i = rand() % ((lev / 2) + 1);
 
 	break;
     case 28:
-	*i = rund((lev / 3) + 1);
+	*i = rand() % ((lev / 3) + 1);
 
 	if(*i == 0) {
 	    return 0;
@@ -1995,7 +2046,7 @@ int newobject(int lev, int *i)
 	break;
     case 29:
     case 31:
-	*i = rund((lev / 2) + 1);
+	*i = rand() % ((lev / 2) + 1);
 
 	if(*i == 0) {
 	    return 0;
@@ -2003,15 +2054,25 @@ int newobject(int lev, int *i)
 
 	break;
     case 34:
-	*i = newchain();
+	*i = nch[rand() % 10];
 
 	break;
     case 36:
-	*i = newplate();
+	if(c[HARDGAME]) {
+	    *i = nplt[rand() % 4];
+	}
+	else {
+	    *i = nplt[rand() % 12];
+	}
 
 	break;
     case 37:
-	*i = newsword();
+	if(c[HARDGAME]) {
+	    *i = nsw[rand() % 6];
+	}
+	else {
+	    *i = nsw[rand() % 13];
+	}
 
 	break;
     }
@@ -2138,7 +2199,7 @@ int spattack(int x, int xx, int yy)
 
 	break;
     case 2:
-	i = rnd(15) + 8 - c[AC];
+	i = rand() % 15 + 1 + 8 - c[AC];
 	p = "\nThe %s breathes fire at you!";
 
 	if(c[FIRERESISTANCE]) {
@@ -2153,7 +2214,7 @@ int spattack(int x, int xx, int yy)
 
 	return 0;
     case 3:
-	i = rnd(20) + 25 - c[AC];
+	i = rand() % 20 + 1 + 25 - c[AC];
 	p = "\nthe %s breathes fire at you!";
 	
 	if(c[FIRERESISTANCE]) {
@@ -2180,7 +2241,7 @@ int spattack(int x, int xx, int yy)
 	break;
     case 5:
 	p = "\nThe %s blasts you with his cold breath";
-	i = rnd(15) + 18 - c[AC];
+	i = rand() % 15 + 1 + 18 - c[AC];
 
 	if(p) {
 	    lprintf(p, lastmonst);
@@ -2198,7 +2259,7 @@ int spattack(int x, int xx, int yy)
 	return 0;
     case 7:
 	p = "\nThe %s got you with a gusher!";
-	i = rnd(15) + 25 - c[AC];
+	i = rand() % 15 + 1 + 25 - c[AC];
 
 	if(p) {
 	    lprintf(p, lastmonst);
@@ -2221,7 +2282,7 @@ int spattack(int x, int xx, int yy)
 		c[GOLD] >>= 1;
 	    }
 	    else {
-		c[GOLD] -= rnd(1 + (c[GOLD] >> 1));
+		c[GOLD] -= (rand() % (1 + (c[GOLD] >> 1)) + 1);
 	    }
 
 	    if(c[GOLD] < 0) {
@@ -2243,7 +2304,7 @@ int spattack(int x, int xx, int yy)
 	j = 50;
 
 	while(1) {
-	    i = rund(26);
+	    i = rand() % 26;
 	    m = iven[i];
 
 	    /* Randomly select item */
@@ -2278,7 +2339,7 @@ int spattack(int x, int xx, int yy)
 	break;
     case 10:
 	p = "\nThe %s hit you with his barbed tail";
-	i = rnd(25) - c[AC];
+	i = rand() % 25 + 1 - c[AC];
 
 	if(p) {
 	    lprintf(p, lastmonst);
@@ -2291,16 +2352,16 @@ int spattack(int x, int xx, int yy)
     case 11:
 	p = "\nThe %s has confused you";
 	beep();
-	c[CONFUSE] += (10 + rnd(10));
+	c[CONFUSE] += (10 + rand() % 10 + 1);
 
 	break;
     case 12:
 	/* Performs any number of other special attacks */
 	
-	return spattack(spsel[rund(10)], xx, yy);
+	return spattack(spsel[rand() % 10], xx, yy);
     case 13:
 	p = "\nThe %s flattens you with his psionics!";
-	i = rnd(15) + 30 - c[AC];
+	i = rand() % 15 + 1 + 30 - c[AC];
 
 	if(p) {
 	    lprintf(p, lastmonst);
@@ -2334,7 +2395,7 @@ int spattack(int x, int xx, int yy)
 
 	return 1;
     case 15:
-	i = rnd(10) + 5 - c[AC];
+	i = rand() % 10 + 1 + 5 - c[AC];
 	p = "\nThe %s bit you!";
 
 	if(p) {
@@ -2346,7 +2407,7 @@ int spattack(int x, int xx, int yy)
 
 	return 0;
     case 16:
-	i = rnd(15) + 10 - c[AC];
+	i = rand() % 15 + 1 + 10 - c[AC];
 	p = "\nThe %s bit you!";
 
 	if(p) {
@@ -2413,12 +2474,12 @@ int annihilate()
 		/* If not out of bounds */
 		if(*p) {
 		    if(*p < (DEMONLORD + 2)) {
-			k += monster[*p].experience;
+			k += monster[(int)*p].experience;
 			know[i][j] = 0;
 			*p = know[i][j];
 		    }
 		    else {
-			lprintf("\nThe %s barely escapes being annihilated!", monster[*p].name);
+			lprintf("\nThe %s barely escapes being annihilated!", monster[(int)*p].name);
 
 			/* Lose half hit points */
 			hitp[i][j] = (hitp[i][j] >> 1) + 1;
@@ -2619,7 +2680,7 @@ int rmsphere(int x, int y)
 
 		if(sp == spheres) {
 		    sp2 = sp;
-		    spheres = sp->s;
+		    spheres = sp->p;
 		    free((char *)sp2);
 		}
 		else {

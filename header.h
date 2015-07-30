@@ -283,7 +283,7 @@ struct sphere {
 /* Sphere of annihilation */
 #define OANNIHILATION 80
 
-#define OTRHONE2 81
+#define OTHRONE2 81
 
 /* Larn Revenue Service */
 #define OLRS 82
@@ -490,39 +490,6 @@ extern struct _itm itm[];
 
 /* Macro to return a potion # created with probability of occurrence */
 #define newpotion() (potprob[rand() % 41])
-
-/* Macro to return the + points on created leather armor */
-#define newleather()					\
-    if(c[HARDGAME]) {					\
-	mlpts[rund(13)];				\
-    }							\
-    else {						\
-	mlpts[rund(12)];				\
-    }							
-
-/* Macro to return the + points on chain armor */
-#define newchain() (nch[rund(10)])
-
-/* Macro to return the + points on plate armor */
-#define newplate()				\
-    if(c[HARDGAME]) {				\
-	nplt[rund(4)];				\
-    }						\
-    else {					\
-	nplt[rund(12)];				\
-    }
-
-/* Macro to return + points on new daggers */
-#define newdagger() (ndgg[rund(13)])
-
-/* Macro to return + points on new swords */
-#define newsword()				\
-    if(c[HARDGAME]) {				\
-	nsw[rund(6)];				\
-    }						\
-    else {					\
-	nsw[rund(13)];				\
-    }
 
 /* Macro to destroy object at present location */
 #define forget()					\

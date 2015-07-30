@@ -6,5 +6,6 @@ void readbook(int lev);
 void read_scroll(int typ);
 void oteleport(int err);
 void lookforobject();
+void adjtime(long tim);
 
 #endif
