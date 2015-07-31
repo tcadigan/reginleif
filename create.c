@@ -16,7 +16,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-extern char spelknow[];
 extern char larnlevels[];
 extern char beenhere[];
 extern char wizard;

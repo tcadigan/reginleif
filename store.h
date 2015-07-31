@@ -6,7 +6,9 @@ void olrs();
 void otradepost();
 void obank();
 void obank2();
+void obanksub();
 void dndstore();
 void oschool();
+void cnsitm();
 
 #endif

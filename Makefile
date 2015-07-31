@@ -52,21 +52,25 @@
 
 PROG = larn
 CFLAGS = -O -g -Wall -DBSD -DVER=12 -DSUBVER=0 -DNONAP
-LDFLAGS = -ltermcap -lcompat -lcurses
+LDFLAGS = -ltermcap -lcurses
 HIDEGAME = hidegame
 
 SRCS = bill.c config.c create.c data.c diag.c display.c fortune.c global.c \
        help.c io.c main.c monster.c moreobj.c movem.c nap.c object.c regen.c \
        savelev.c scores.c signal.c store.c tok.c \
 
-OBJS = bill.o config.o create.o data.o diag.o display.o display.o fortune.o \
+OBJS = bill.o config.o create.o data.o diag.o display.o fortune.o \
        global.o help.o io.o main.o monster.o moreobj.o movem.o nap.o \
        object.o regen.o savelev.o scores.o signal.o store.o tok.o \
 
+HDRS = bill.h create.h diag.h display.h fortune.h global.h header.h help.h \
+       io.h main.h monster.h moreobj.h movem.h nap.h object.h pathnames.h \
+       regen.h savelev.h scores.h signal.h store.h tok.h
+
 all: $(PROG)
 
-$(PROG): $(OBJS)
-	@$(CC) -o $(PROG) $(OBJS) $(LDFLAGS)
+$(PROG): $(OBJS) $(HDRS)
+	$(CC) -o $(PROG) $(OBJS) $(LDFLAGS)
 
 clean:
 	rm -rf $(OBJS) $(PROG)
@@ -76,7 +80,7 @@ beforeinstall:
              larnmaze larnopts lforturne larn.help \
              ${DESTDIR}/usr/share/games/larn)
 
-bill.o: header.h io.h
+bill.o: bill.h header.h io.h
 config.o: header.h pathnames.h
 create.o: create.h global.h header.h io.h monster.h savelev.h scores.h
 data.o: header.h
@@ -92,3 +96,9 @@ moreobj.o: moreobj.h display.h global.h header.h io.h main.h monster.h object.h 
 movem.o: movem.h create.h display.h header.h io.h movem.h monster.h
 nap.o: nap.h io.h
 object.o: object.h create.h display.h fortune.h global.h io.h main.h monster.h moreobj.h nap.h regen.h scores.h store.h
+regen.o: regen.h display.h global.h header.h io.h
+savelev.o: savelev.h header.h
+scores.o: scores.h bill.h header.h io.h main.h
+signal.o: signal.h diag.h display.h global.h header.h io.h scores.h
+store.o: store.h display.h global.h header.h io.h main.h nap.h object.h scores.h
+tok.o: tok.h diag.h display.h header.h io.h scores.h

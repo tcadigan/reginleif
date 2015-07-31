@@ -21,7 +21,22 @@
 
 #include "store.h"
 
+#include "display.h"
+#include "global.h"
 #include "header.h"
+#include "io.h"
+#include "main.h"
+#include "nap.h"
+#include "object.h"
+#include "scores.h"
+
+#include <curses.h>
+
+static void banktitle(char *str);
+static void dnditem(int i);
+static void nogold();
+static void outofstock();
+static void handsfull();
 
 static int dndcount = 0;
 static int dnditm = 0;
@@ -130,7 +145,7 @@ void dnd_hed()
 {
     int i;
 
-    for(i = dnditem; i < (26 + dnditem); ++i) {
+    for(i = dnditm; i < (26 + dnditm); ++i) {
 	dnditem(i);
     }
 
@@ -158,7 +173,9 @@ void dndstore()
 	lprcat("comply with the law, we cannot serve you at this time. Sooo sorry.\n");
 	cursors();
 	lprcat("\nPress ");
-	standout("escape");
+	standout();
+	lprcat("escape");
+	standend();
 	lprcat(" to leave: ");
 	lflush();
 	i = 0;
@@ -184,9 +201,13 @@ void dndstore()
 	/* Erase to eod */
 	cl_dn(1, 20);
 	lprcat("\nEnter your transaction [");
-	standout("space");
+	standout();
+	lprcat("space");
+	standend();
 	lprcat(" for more, ");
-	standout("escape");
+	standout();
+	lprcat("escape");
+	standend();
 	lprcat(" to leave]? ");
 	i = 0;
 
@@ -210,7 +231,7 @@ void dndstore()
 
 	    return;
 	}
-	else if(i = ' ') {
+	else if(i == ' ') {
 	    cl_dn(1, 4);
 	    dnditm += 26;
 
@@ -239,7 +260,7 @@ void dndstore()
 	    }
 	    else {
 		if(itm[i].mem != 0) {
-		    *itm[i].mem[itm[i].arg] = ' ';
+		    *itm[i].mem[(int)itm[i].arg] = ' ';
 		}
 		
 		c[GOLD] -= (itm[i].price * 10);
@@ -247,7 +268,7 @@ void dndstore()
 		take(itm[i].obj, itm[i].arg);
 		
 		if(itm[i].qty == 0) {
-		    dnditm(i);
+		    dnditem(i);
 		}
 
 		nap(1001);
@@ -271,7 +292,7 @@ static void outofstock()
     nap(2200);
 }
 
-static int nogold()
+static void nogold()
 {
     lprcat("\nYou don't have enough gold to pa for that!");
     lflush();
@@ -283,7 +304,7 @@ static int nogold()
  *
  * To print the item list; used in dndstore() enter with the index into itm
  */
-static void dnditm(int i)
+static void dnditem(int i)
 {
     int j;
     int k;
@@ -306,14 +327,14 @@ static void dnditm(int i)
 
     if(itm[i].obj == OPOTION) {
 	lprcat("potion of ");
-	lprintf("%s", &potionname[itm[i].arg][1]);
+	lprintf("%s", &potionname[(int)itm[i].arg][1]);
     }
     else if(itm[i].obj == OSCROLL) {
 	lprcat("scroll of ");
-	lprintf("%s", &scrollname[itm[i].arg][1]);
+	lprintf("%s", &scrollname[(int)itm[i].arg][1]);
     }
     else {
-	lprintf("%s", objectname[itm[i].obj]);
+	lprintf("%s", objectname[(int)itm[i].obj]);
     }
 
     cursor(j + 31, k);
@@ -386,7 +407,9 @@ void oschool()
 	lprintf("%d gold pieces. ", c[GOLD]);
 	cursors();
 	lprcat("\nWhat is your choice [");
-	standout("escape");
+	standout();
+	lprcat("escape");
+	standend();
 	lprcat(" to leave]? ");
 	yrepcount = 0;
 	i = 0;
@@ -432,7 +455,7 @@ void oschool()
 	    case 'b':
 		if(course[0] == 0) {
 		    lprcat("\nSorry, but this class has a prerequisite of Fighters Training I");
-		    c[GOLD] == 250;
+		    c[GOLD] += 250;
 		    time_used = -10000;
 
 		    break;
@@ -491,7 +514,7 @@ void oschool()
 		break;
 	    }
 
-	    time_used += (coursetime[i- 'a'] * 100);
+	    time_used += (sourcetime[i- 'a'] * 100);
 
 	    if(time_used > 0) {
 		gtime += time_used;
@@ -555,7 +578,9 @@ static void banktitle(char *str)
 	lprcat("We suggest you go to the LRS office and pay your taxes.\n");
 	cursors();
 	lprcat("\nPress ");
-	standout("escape");
+	standout();
+	lprcat("escape");
+	standend();
 	lprcat(" to leave: ");
 	lflush();
 	i = 0;
@@ -639,7 +664,7 @@ void obanksub()
 		gemvalue[i] = (255 & ivenarg[i]) * 100;
 		gemorder[i] = k;
 		cursor(((k % 2) * 40) + 1, (k >> 1) + 4);
-		lprintf("%c) %s", i + 'a', objectname[iven[i]]);
+		lprintf("%c) %s", i + 'a', objectname[(int)iven[i]]);
 		cursor(((k % 2) * 40) + 33, (k >> 1) + 4);
 		lprintf("%5d", gemvalue[i]);
 		++k;
@@ -659,13 +684,21 @@ void obanksub()
     while(1) {
 	cl_dn(1, 20);
 	lprcat("\nYour wish? [(");
-	standout("d");
+	standout();
+	lprcat("d");
+	standend();
 	lprcat(") deposit, (");
-	standout("w");
+	standout();
+	lprcat("w");
+	standend();
 	lprcat(") withdraw, (");
-	standout("s");
+	standout();
+	lprcat("s");
+	standend();
 	lprcat(") sell a stone, or ");
-	standout("escape");
+	standout();
+	lprcat("escape");
+	standend();
 	lprcat("] ");
 	yrepcount = 0;
 	i = 0;
@@ -804,7 +837,7 @@ void appraise(int gemstone)
 
 		if(getyn() == 'y') {
 		    lprcat("yes\n");
-		    c[GOLD} += amt;
+		    c[GOLD] += amt;
 		    iven[j] = 0;
 		}
 		else {
@@ -837,7 +870,7 @@ void otradepost()
 {
     int i;
     int j;
-    int value;
+    int value = 0;
     int isub;
     int izarg;
 
@@ -851,9 +884,13 @@ void otradepost()
 
     while(1) {
 	lprcat("\nWhat item do yo uwant to see to us [");
-	standout("*");
+	standout();
+	lprcat("*");
+	standend();
 	lprcat(" for what list, or ");
-	standout("escape");
+	standout();
+	lprcat("escape");
+	standend();
 	lprcat("]? ");
 	i = 0;
 
@@ -895,7 +932,7 @@ void otradepost()
 	if(!j) {
 	    if(i == '*') {
 		clear();
-		qwshowstr();
+		qshowstr();
 		otradhead();
 	    }
 	}
@@ -917,7 +954,7 @@ void otradepost()
 		    if((iven[isub] == ODIAMOND)
 		       || (iven[isub] == ORUBY)
 		       || (iven[isub] == OEMERALD)
-		       || (iven[isub] == OSPAPPHIRE)) {
+		       || (iven[isub] == OSAPPHIRE)) {
 			value = 20 * ivenarg[isub];
 		    }
 		}
@@ -969,7 +1006,7 @@ void otradepost()
 		    iven[isub] = 0;
 		}
 		else {
-		    lpract("no thanks.\n");
+		    lprcat("no thanks.\n");
 		}
 		
 		/* Get out of the inner loop */
@@ -993,7 +1030,8 @@ void olrs()
 {
     int i;
     int first;
-
+    unsigned long amt;
+    
     /* Disable signals */
     nosignal = 1;
     first = nosignal;
@@ -1009,9 +1047,13 @@ void olrs()
 	else {
 	    cursors();
 	    lprcat("\n\nYour wish? [(");
-	    standout("p");
+	    standout();
+	    lprcat("p");
+	    standend();
 	    lprcat(") pay taxes, or ");
-	    standout("escape");
+	    standout();
+	    lprcat("escape");
+	    standend();
 	    lprcat("] ");
 	    yrepcount = 0;
 	    i = 0;

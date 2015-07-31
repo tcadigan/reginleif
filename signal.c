@@ -5,9 +5,17 @@
 
 #include "signal.h"
 
-#include <signal.h>
-
+#include "diag.h"
+#include "display.h"
+#include "global.h"
 #include "header.h"
+#include "io.h"
+#include "scores.h"
+
+#include <signal.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #define BIT(a) (1 << ((a) - 1))
 
@@ -15,6 +23,8 @@ extern char savefilename[];
 extern char wizard;
 extern char predostuff;
 extern char nosignal;
+
+static void sigpanic(int sig);
 
 /* Text to be displayed if ^C during intro screen */
 static void s2choose()
@@ -78,7 +88,10 @@ static void tstop()
 
 #ifdef SIGVTALRM
     /* Looks like BSD4.2 or higher - must clr mask for signal to take effect */
-    sigsetmask(sigblock(0) & ~BIT(SIGTSTP));
+
+    sigset_t set;
+    sigprocmask(0, NULL, &set);
+    sigprocmask(~BIT(SIGTSTP) & SIG_BLOCK, &set, NULL);
 #endif
 
     kill(getpid(), SIGTSTP);
@@ -111,11 +124,6 @@ static void sigtrap()
 static void sigiot()
 {
     sigpanic(SIGIOT);
-}
-
-static void sigemt()
-{
-    sigpanic(SIGEMT);
 }
 
 static void sigfpe()
@@ -157,7 +165,6 @@ void sigsetup()
     signal(SIGILL, sigill);
     signal(SIGTRAP, sigtrap);
     signal(SIGIOT, sigiot);
-    signal(SIGEMT, sigemt);
     signal(SIGFPE, sigfpe);
     signal(SIGBUS, sigbus);
     signal(SIGSEGV, sigsegv);

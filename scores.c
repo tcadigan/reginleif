@@ -25,11 +25,20 @@
 
 #include "scores.h"
 
+#include "bill.h"
+#include "header.h"
+#include "io.h"
+#include "main.h"
+
+#include <curses.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/times.h>
 #include <sys/stat.h>
-
-#include "header.h"
+#include <time.h>
+#include <unistd.h>
 
 /* This is the structure for the scoreboard */
 struct scofmt {
@@ -140,7 +149,7 @@ struct log_fmt {
 static struct scofmt sco[SCORESIZE];
 
 /* Struct for the winning scoreboard */
-static struct scofmt winr[SCORESIZE];
+static struct wscofmt winr[SCORESIZE];
 
 /* Structure for the log file */
 static struct log_fmt logg;
@@ -276,7 +285,7 @@ int hashewon()
     }
 
     /* Search through winners scoreboard */
-    for(i = 0; i < SCOREBOARD; ++i) {
+    for(i = 0; i < SCORESIZE; ++i) {
 	if(winr[i].suid == userid) {
 	    if(winr[i].score > 0) {
 		c[HARDGAME] = winr[i].hardlev + 1;
@@ -402,7 +411,7 @@ int winshou()
  * Enter with 0 to list the scores, enter with 1 to list inventories too
  * Returns the number of players on scoreboard that were shown
  */
-int count(int x)
+int shou(int x)
 {
     int i;
     int j;
@@ -502,7 +511,7 @@ void showscores()
     }
 
     i = winshou();
-    j = shou();
+    j = shou(0);
 
     if((i + j) == 0) {
 	lprcat(esb);
@@ -569,7 +578,7 @@ void showallscores()
 int sortboard()
 {
     int i;
-    int j;
+    int j = 0;
     int pos;
     long jdat;
 
@@ -623,7 +632,7 @@ int sortboard()
  *
  * ex. newscore(1000, "player 1", 32, 0);
  */
-void newscore(long score, int winner, int whyded, char *whoo)
+void newscore(long score, char *whoo, int whyded, int winner)
 {
     int i;
     long taxes;
@@ -736,7 +745,7 @@ void new2sub(long score, int i, char *whoo, int whyded)
 
     p = &sco[i];
 
-    if((score >= p->score) || (c[HARDGAME] -> p->hardlev)) {
+    if((score >= p->score) || (c[HARDGAME] > p->hardlev)) {
 	strcpy(p->who, whoo);
 	p->score = score;
 	p->what = whyded;
@@ -801,8 +810,6 @@ void died(int x)
     char ch;
     char *mod;
     long zzz;
-    int i;
-    struct tms cputime;
     int flag;
 
     flag = 1;
@@ -881,7 +888,7 @@ void died(int x)
 
     /* For quick exit of saved game */
     if((x == 300) || (x == 257)) {
-	exit();
+	exit(1);
     }
 
     if(x == 263) {
@@ -915,7 +922,7 @@ void died(int x)
 		resetscroll();
 		lflush();
 
-		exit();
+		exit(1);
 	    }
 
 	    chmod(logfile, 0660);
@@ -952,6 +959,9 @@ void died(int x)
 	logg.diedtime = zzz;
 
 #ifdef EXTRA
+	struct tms cputime;
+	int i;
+
 	/* Get cpu time -- write out score info */
 	times(&cputime);
 	i = ((cputime.tms_utime + cputime.tms_stime) / 60) + c[CPUTIME];
@@ -981,7 +991,7 @@ void died(int x)
     }
 
     if((x == 256) || (x == 257) || (f != 0)) {
-	exit();
+	exit(1);
     }
 
     /* If we updated the scoreboard */
@@ -993,7 +1003,7 @@ void died(int x)
 	mailbill();
     }
 
-    exit();
+    exit(0);
 }
 
 /*
@@ -1032,7 +1042,7 @@ void diedsub(int x)
     }
 
     if(x != 263) {
-	lprintf(" on %s\n", levelname[level]);
+	lprintf(" on %s\n", levelname[(int)level]);
     }
     else {
 	lprc('\n');
@@ -1058,7 +1068,7 @@ void diedlog()
 	return;
     }
 
-    if(fstat(fd, &stbuf) < 0) {
+    if(fstat(fileno(fd), &stbuf) < 0) {
 	lprintf("Can't stat log file <%s>\n", logfile);
 
 	return;

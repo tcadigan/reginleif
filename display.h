@@ -10,6 +10,7 @@ void draws(int xmin, int xmax, int ymin, int ymax);
 void bottomhp();
 void bottomline();
 void bottomgold();
+void bottomdo();
 void botside();
 void bot_spellx();
 void bot_hpx();

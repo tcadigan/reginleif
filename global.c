@@ -850,7 +850,7 @@ void enchweapon()
  * Routine to tell if player can carry one more thing.
  * Returns 1 if pockets are full, else 0
  */
-int pocketfull()
+int pocketful()
 {
     int i;
     int limit;

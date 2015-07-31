@@ -394,8 +394,6 @@ extern char diagfile[];
 extern char fortfile[];
 extern char helpfile[];
 extern char *inbuffer;
-extern char is_alpha[];
-extern char is_digit[];
 extern char item[MAXX][MAXY];
 extern char iven[];
 extern char know[MAXX][MAXY];
@@ -438,7 +436,7 @@ extern char *scrollname[];
 extern char sex;
 extern char *spelcode[];
 extern char *speldescript[];
-extern char spelknow[];
+char *spelknow;
 extern char *spelname[];
 extern char *spelmes[];
 extern char spelweird[MAXMONST + 8][SPNUM];
@@ -450,8 +448,8 @@ extern char wizard;
 extern short diroffx[];
 extern short diroffy[];
 extern short hitflag;
-extern short hit2flag;
-extern short hit3flag;
+short hit2flag;
+short hit3flag;
 extern short hitp[MAXX][MAXY];
 extern short iarg[MAXX][MAXY];
 extern short ivenarg[];
@@ -467,7 +465,7 @@ extern short playerx;
 extern short playery;
 extern int dayplay;
 extern int enable_scroll;
-extern int srcount;
+int srcount;
 extern int yrepcount;
 extern int userid;
 extern int wisid;
@@ -563,10 +561,6 @@ extern struct _itm itm[];
 /* Macros for miscellaneous data conversion */
 #define min(x, y) (((x) > (y)) ? (y) : (x))
 #define max(x, y) (((x) > (y)) ? (x) : (y))
-#define isalpha(x) (is_alpha[x])
-#define isdigit(x) (is_digit[x])
-#define tolower(x) (to_lower[x])
-#define toupper(x) (to_upper[x])
 #define lcc(x) (to_lower[x])
 #define ucc(x) (to_upper[x])
 

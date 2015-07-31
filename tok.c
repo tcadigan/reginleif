@@ -5,7 +5,19 @@
 
 #include "tok.h"
 
+#include "diag.h"
+#include "display.h"
+#include "header.h"
+#include "io.h"
+#include "scores.h"
+
+#include <ctype.h>
+#include <curses.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #ifdef SYSV
 
@@ -17,8 +29,6 @@
 #include <sys/ioctl.h>
 
 #endif
-
-#include "header.h"
 
 static char lastok = 0;
 int yrepcount = 0;
@@ -43,6 +53,7 @@ static int flushno = FLUSHNO;
 static char usermonster[MAXUM][MAXMNAME];
 
 /* The user monster point */
+static char usermpoint = 0;
 
 /*
  * Lexical analyzer for Larn
@@ -154,9 +165,9 @@ char yylex()
 
 	    /* Child */
 	    if(ic == 0) {
-		execl("/bin/csh", 0);
+		execl("/bin/csh", "csh", (char *)NULL);
 
-		exit();
+		exit(0);
 	    }
 
 	    wait(0);
@@ -250,7 +261,7 @@ void sethard(int hard)
 		monster[j].hitpoints = 32767;
 	    }
 	    else {
-		monster[j].hitpoints = 1;
+		monster[j].hitpoints = i;
 	    }
 
 	    i = (((6 + k) * monster[j].damage) + 1) / 5;
@@ -259,7 +270,7 @@ void sethard(int hard)
 		monster[j].damage = 127;
 	    }
 	    else {
-		i;
+		monster[j].damage = i;
 	    }
 
 	    i = (10 * monster[j].gold) / (10 + k);
@@ -315,7 +326,7 @@ void readopts()
     i = " ";
 
     while(*i) {
-	i = (char *)lgetw();
+	i = lgetw();
 
 	/* Check for EOF */
 	if(i == 0) {
@@ -366,20 +377,20 @@ void readopts()
 		    i[MAXMNAME - 1] = 0;
 		}
 
-		strcpy(usermonst[usermpoint], i);
+		strcpy(usermonster[(int)usermpoint], i);
 
 		/* Defined all of them */
 		if(usermpoint >= MAXUM) {
 		    break;
 		}
 
-		j = usermonst[usermpoint][0];
+		j = usermonster[(int)usermpoint][0];
 
 		if(isalpha(j)) {
 		    /* Find monster */
 		    for(k = 1; k < (MAXMONST + 8); ++k) {
 			if(monstnamelist[k] == j) {
-			    monster[k].name = &usermonster[usermpoint][0];
+			    monster[k].name = &usermonster[(int)usermpoint][0];
 			    ++usermpoint;
 
 			    break;

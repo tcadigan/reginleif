@@ -49,6 +49,7 @@
 #include "scores.h"
 #include "tok.h"
 
+#include <ctype.h>
 #include <curses.h>
 #include <stdlib.h>
 #include <string.h>

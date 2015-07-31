@@ -5,7 +5,13 @@
 
 #include "regen.h"
 
+#include "display.h"
+#include "global.h"
 #include "header.h"
+#include "io.h"
+
+#include <curses.h>
+#include <stdlib.h>
 
 /*
  * *****
@@ -69,12 +75,12 @@ void regen()
 
     /* Regenerate spells */
     if(d[SPELLS] < d[SPELLMAX]) {
-	if(d[ENCOUNTER] <= 0) {
-	    --d[ENCOUNTER];
-	    d[ENCOUNTER] = 100 + (4 * (d[HARDGAME] - d[LEVEL] - d[ENERGY]));
+	if(d[REGENCOUNTER] <= 0) {
+	    --d[REGENCOUNTER];
+	    d[REGENCOUNTER] = 100 + (4 * (d[HARDGAME] - d[LEVEL] - d[ENERGY]));
 	}
 	else {
-	    --d[ENCOUNTER];
+	    --d[REGENCOUNTER];
 	}
     }
 
@@ -94,7 +100,7 @@ void regen()
 	--d[ALTPRO];
 	
 	if(d[ALTPRO] <= 0) {
-	    d[MOREDEFENSES] -= 3;
+	    d[MOREDEFENCES] -= 3;
 	    flag = 1;
 	}
     }
@@ -103,7 +109,7 @@ void regen()
 	--d[PROTECTIONTIME];
 	
 	if(d[PROTECTIONTIME] <= 0) {
-	    d[MOREDEFENSES] -= 2;
+	    d[MOREDEFENCES] -= 2;
 	    flag = 1;
 	}
     }
@@ -196,7 +202,7 @@ void regen()
     }
 
     if(d[AGGRAVATE]) {
-	--d[AGGRAVATE};
+	--d[AGGRAVATE];
     }
 
     if(d[SCAREMONST]) {
@@ -243,7 +249,7 @@ void regen()
 	--d[GLOBE];
 
 	if(d[GLOBE] <= 0) {
-	    d[MOREDEFENSES] -= 10;
+	    d[MOREDEFENCES] -= 10;
 	    flag = 1;
 	}
     }
@@ -265,7 +271,7 @@ void regen()
     }
 
     if(d[HALFDAM]) {
-	--d[HALFDAM] <= 0;
+	--d[HALFDAM];
 
 	if(d[HALFDAM] <= 0) {
 	    cursors();
@@ -288,7 +294,7 @@ void regen()
     if(d[ITCHING]) {
 	if(d[ITCHING] > 1) {
 	    if((d[WEAR] != -1) || (d[SHIELD] != 1)) {
-		if(rnd(100) < 50) {
+		if((rand() % 100 + 1) < 50) {
 		    d[SHIELD] = -1;
 		    d[WEAR] = d[SHIELD];
 		    cursors();
@@ -315,7 +321,7 @@ void regen()
 		/* Only if nothing there */
 		if(item[playerx][playery] == 0) {
 		    /* Drop your weapon due to clumsiness */
-		    if(rnd(100) < 33) {
+		    if((rand() % 100 + 1) < 33) {
 			drop_object((int)d[WIELD]);
 		    }
 		}

@@ -280,7 +280,7 @@ int savegame(char *fname)
     times(&cputime);
     c[CPUTIME] += ((cputime.tms_utime + cputime.tms_stime) / 60);
     lwrite((char *)&c[0], 100 * sizeof(long));
-    lprint((long)gtime);
+    lprintf("%ld", (long)gtime);
     lprc(level);
     lprc(playerx);
     lprc(playery);
@@ -320,7 +320,7 @@ int savegame(char *fname)
     }
 
     time(&zzz);
-    lprint((long)(zzz - initialtime));
+    lprintf("%ld", (long)(zzz - initialtime));
     lwrite((char *)&zzz, sizeof(long));
 
     if(fstat(fileno(lfd), &statbuf) < 0) {
@@ -328,7 +328,7 @@ int savegame(char *fname)
     }
     else {
 	/* inode # */
-	lprint((long)statbuf.st_ino);
+	lprintf("%ld", (long)statbuf.st_ino);
     }
 
     lwclose();

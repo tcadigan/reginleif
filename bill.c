@@ -5,6 +5,8 @@
  * Function to create the tax bill for the user
  */
 
+#include "bill.h"
+
 #include "header.h"
 #include "io.h"
 

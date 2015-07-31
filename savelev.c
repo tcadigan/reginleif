@@ -26,6 +26,7 @@ void savelevel()
     pcel = &cell[level * MAXX * MAXY];
 
     /* Pointer to past end of this level's cells */
+    pecel = pcel + (MAXX * MAXY);
     pitem = item[0];
     piarg = iarg[0];
     pknow = know[0];
@@ -34,7 +35,7 @@ void savelevel()
 
     while(pcel < pecel) {
 	pcel->mitem = *pmitem++;
-	pcel->hitp = *phtip++;
+	pcel->hitp = *phitp++;
 	pcel->item = *pitem++;
 	pcel->know = *pknow++;
 	pcel->iarg = *piarg++;
@@ -59,6 +60,7 @@ void getlevel()
     pcel = &cell[level * MAXX * MAXY];
 
     /* Pointer to past end of this level's cells */
+    pecel = pcel + (MAXX * MAXY);
     pitem = item[0];
     piarg = iarg[0];
     pknow = know[0];
