@@ -8,11 +8,13 @@ void raiseexperience(long x);
 void raisehp(int x);
 void raisemhp(int x);
 void raisemspells(int x);
+void raiselevel();
 void loseexperience(long x);
 void losemspells(int x);
 void losehp(int x);
 void losemhp(int x);
 void more();
+int take(int itm, int arg);
 void adjustcvalues(int itm, int arg);
 int drop_object(int k);
 int packweight();
@@ -22,5 +24,8 @@ int stealsomething();
 int emptyhanded();
 void loselevel();
 void creategem();
+void enchantarmor();
+void enchweapon();
+int nearbymonst();
 
 #endif

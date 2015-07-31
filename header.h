@@ -173,7 +173,7 @@ struct sphere {
 #define STEALTH 64
 #define ITCHING 65
 #define LAUGHING 66
-#define DRAINGSTRENGTH 67
+#define DRAINSTRENGTH 67
 #define CLUMSINESS 68
 #define INFEEBLEMENT 69
 #define HALFDAM 70
@@ -194,7 +194,7 @@ struct sphere {
 #define TMP 77
 
 /* Life protection counter */
-#define PIFEPORT 78
+#define LIFEPROT 78
 
 /* Defines for the objects in the game */
 #define OALTAR 1

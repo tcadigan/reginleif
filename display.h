@@ -15,5 +15,6 @@ void bot_spellx();
 void bot_hpx();
 void bot_linex();
 void show1cell(int x, int y);
+void showplayer();
 
 #endif

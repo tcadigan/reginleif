@@ -10,7 +10,23 @@
  * ofountain()
  */
 
+#include "moreobj.h"
+
+#include "display.h"
+#include "global.h"
 #include "header.h"
+#include "io.h"
+#include "main.h"
+#include "monster.h"
+#include "object.h"
+#include "scores.h"
+
+#include <curses.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+static void fch(int how, long *x);
+static void ohear();
 
 /*
  * ******
@@ -35,10 +51,10 @@ void oaltar()
 		while(1) {
 		    switch(getchar()) {
 		    case 'j':
-			if(rnd(100) < 75) {
+			if((rand() % 100 + 1) < 75) {
 			    lprcat("\nnothing happens");
 			}
-			else if(rnd(13) < 4) {
+			else if((rand () % 13 + 1) < 4) {
 			    if(c[WEAR]) {
 				lprcat("\nYou feel your armor vibrate for a moment");
 			    }
@@ -47,7 +63,7 @@ void oaltar()
 			    
 			    return;
 			}
-			else if(rnd(43) == 10) {
+			else if((rand() % 43 + 1) == 10) {
 			    if(c[WIELD]) {
 				lprcat("\nYou feel your weapon vibrate for a moment");
 			    }
@@ -79,25 +95,25 @@ void oaltar()
 
 			c[GOLD] -= k;
 
-			if((k < (c[GOLD] / 10)) || (k < rnd(50))) {
+			if((k < (c[GOLD] / 10)) || (k < (rand() % 50 + 1))) {
 			    createmonster(makemonst(level + 1));
 			    c[AGGRAVATE] += 200;
 			}
-			else if(rnd(101) > 50) {
+			else if((rand() % 101 + 1) > 50) {
 			    ohear();
 
 			    return;
 			}
-			else if(rnd(43) == 5) {
+			else if((rand() % 43 + 1) == 5) {
 			    if(c[WEAR]) {
 				lprcat("\nYou feel your armor vibrate for a moment");
 			    }
-
+			    
 			    enchantarmor();
-
+			    
 			    return;
 			}
-			else if(rnd(43) == 8) {
+			else if((rand() % 43 + 1) == 8) {
 			    if(c[WIELD]) {
 				lprcat("\nYou feel your weapon vibrate for a moment");
 			    }
@@ -122,11 +138,11 @@ void oaltar()
 	    case 'd':
 		lprcat(" desecrate");
 
-		if(rnd(100) < 60) {
+		if((rand() % 100 + 1) < 60) {
 		    createmonster(makemonst(level + 2) + 8);
 		    c[AGGRAVATE] += 2500;
 		}
-		else if(rnd(101) < 30) {
+		else if((rand() % 101 + 1) < 30) {
 		    lprcat("\nThe altar crumbles into a pile of dust before your eyes");
 
 		    /* Remeber to destroy the altar */
@@ -141,9 +157,9 @@ void oaltar()
 	    case '\33':
 		ignore();
 
-		if(rnd(100) < 30) {
+		if((rand() % 100 + 1) < 30) {
 		    createmonster(makemonst(level + 1));
-		    c[AGGRAVATE] += rnd(450);
+		    c[AGGRAVATE] += (rand() % 450 + 1);
 		}
 		else {
 		    lprcat("\nnothing happens");
@@ -163,7 +179,7 @@ static void ohear()
     lprcat("\nYou have been heard!");
 
     if(c[ALTPRO] == 0) {
-	c[MOREDEFENSES] += 3;
+	c[MOREDEFENCES] += 3;
 
 	/* Protection field */
 	c[ALTPRO] += 500;
@@ -191,10 +207,10 @@ void othrone(int arg)
 	    switch(getchar()) {
 	    case 'p':
 		lprcat(" pry off");
-		k = rnd(101);
+		k = rand() % 101 + 1;
 
 		if(k < 25) {
-		    for(i = 0; i < rnd(4); ++i) {
+		    for(i = 0; i < (rand() % 4 + 1); ++i) {
 			/* Gems pop off the throne */
 			creategem();
 		    }
@@ -205,7 +221,7 @@ void othrone(int arg)
 		else if((k < 40) && (arg == 0)) {
 		    createmonster(GNOMEKING);
 		    item[playerx][playery] = OTHRONE2;
-		    know[players][playery] = 0;
+		    know[playerx][playery] = 0;
 		}
 		else {
 		    lprcat("\nnothing happens");
@@ -214,7 +230,7 @@ void othrone(int arg)
 		return;
 	    case 's':
 		lprcat(" sit down");
-		k = rnd(101);
+		k = rand() % 101 + 1;
 
 		if((k < 30) && (arg == 0)) {
 		    createmonster(GNOMEKING);
@@ -246,14 +262,14 @@ void odeadthrone()
     int k;
 
     lprcat("\nDo you (s) sit down");
-    iopts;
+    iopts();
 
     while(1) {
 	while(1) {
 	    switch(getchar()) {
 	    case 's':
 		lprcat(" sit down");
-		k = rnd(101);
+		k = rand() % 101 + 1;
 
 		if(k < 35) {
 		    lprcat("\nZaaaappp! You've been teleported!\n");
@@ -288,19 +304,19 @@ void ochest()
     int k;
 
     lprcat("\nDo you (t) take it, (o) try to open it");
-    iopts;
+    iopts();
 
     while(1) {
 	while(1) {
 	    switch(getchar()) {
 	    case 'o':
 		lprcat(" open it");
-		k = rnd(101);
+		k = rand() % 101 + 1;
 
 		if(k < 40) {
 		    lprcat("\nThe chest explodes as you open it");
 		    beep();
-		    i = rnd(10);
+		    i = rand() % 10 + 1;
 
 		    /* In case he dies */
 		    lastnum = 281;
@@ -309,21 +325,21 @@ void ochest()
 		    checkloss(i);
 
 		    /* See if he gets a curse */
-		    switch(rnd(10)) {
+		    switch(rand() % 10 + 1) {
 		    case 1:
-			c[ITCHING] += (rnd(1000) + 100);
+			c[ITCHING] += (rand() % 1000 + 1 + 100);
 			lprcat("\nYou feel an irritation spread over your skin!");
 			beep();
 
 			break;
 		    case 2:
-			c[CLUMSINESS] += (rnd(1600) + 200);
+			c[CLUMSINESS] += (rand() % 1600 + 1 + 200);
 			lprcat("\nYou begin to lose hand eye coordination!");
 			beep();
 			
 			break;
 		    case 3:
-			c[HALFDAM] += (rnd(1600) + 200);
+			c[HALFDAM] += (rand() % 1600 + 1 + 200);
 			beep();
 			lprcat("\nA sickness engulfs you!");
 
@@ -334,9 +350,9 @@ void ochest()
 		    item[playerx][playery] = know[playerx][playery];
 
 		    /* Gems from the chest */
-		    dropgold(rnd((110 * iarg[playerx][playery]) + 200));
+		    dropgold(rand() % ((110 * iarg[playerx][playery]) + 200) + 1);
 
-		    for(i = 0; i < rnd(4); ++i) {
+		    for(i = 0; i < (rand() % 4 + 1); ++i) {
 			something(iarg[playerx][playery] + 2);
 		    }
 		}
@@ -383,7 +399,7 @@ void ofountain()
 	    case 'd':
 		lprcat("drink");
 		
-		if(rnd(1501) < 2) {
+		if((rand() % 1501 + 1) < 2) {
 		    lprcat("\nOops! You seem to have caught the dreadful sleep!");
 		    beep();
 		    lflush();
@@ -393,10 +409,10 @@ void ofountain()
 		    return;
 		}
 		
-		x = rnd(100);
+		x = rand() % 100 + 1;
 		
 		if(x < 7) {
-		    c[HALFDAM] += (200 + rnd(200));
+		    c[HALFDAM] += (200 + (rand() % 200 + 1));
 		    lprcat("\nYou feel a sickness coming on");
 		}
 		else if(x < 13) {
@@ -406,7 +422,7 @@ void ofountain()
 		else if(x < 45) {
 		    lprcat("\nnothing seems to have happened");
 		}
-		else if(rnd(3) != 2) {
+		else if((rand() % 3 + 1) != 2) {
 		    /* Change char levels upward */
 		    fntchange(1);
 		}
@@ -415,7 +431,7 @@ void ofountain()
 		    fntchange(-1);
 		}
 		
-		if(rnd(12) < 3) {
+		if((rand() % 12 + 1) < 3) {
 		    lprcat("\nThe fountains bubbling slowly quiets");
 		    
 		    /* Dead fountain */
@@ -433,21 +449,21 @@ void ofountain()
 	    case 'w':
 		lprcat("wash yourself");
 		
-		if(rnd(100) < 11) {
-		    x = rnd((level << 2) + 2);
+		if((rand() % 100 + 1) < 11) {
+		    x = rand() % ((level << 2) + 2) + 1;
 		    lprintf("\nOh no! The water was foul! You suffer %d hit points!", x);
 		    lastnum = 273;
 		    losehp(x);
 		    bottomline();
 		    cursors();
 		}
-		else if(rnd(100) < 29) {
+		else if((rand() % 100 + 1) < 29) {
 		    lprcat("\nYou got the dirt off!");
 		}
-		else if(rnd(100) < 31) {
+		else if((rand() % 100 + 1) < 31) {
 		    lprcat("\nThis water seems to be hard water! The dirt didn't come off!");
 		}
-		else if(rnd(100) < 34) {
+		else if((rand() % 100 + 1) < 34) {
 		    /* Make water lord */
 		    createmonster(WATERLORD);
 		}
@@ -472,7 +488,7 @@ void fntchange(int how)
 
     lprc('\n');
 
-    switch(rnd(9)) {
+    switch(rand() % 9 + 1) {
     case 1:
 	lprcat("Your strength");
 	fch(how, &c[0]);
@@ -504,7 +520,7 @@ void fntchange(int how)
 
 	break;
     case 7:
-	j = rnd(level + 1);
+	j = rand() % (level + 1) + 1;
 
 	if(how < 0) {
 	    lprintf("You lost %d hit point", j);
@@ -535,7 +551,7 @@ void fntchange(int how)
 
 	break;
     case 8:
-	j = rnd(level + 1);
+	j = rand() % (level + 1) + 1;
 
 	if(how > 0) {
 	    lprintf("You just gained %d spell", j);
@@ -564,7 +580,7 @@ void fntchange(int how)
 
 	break;
     case 9:
-	j = 5 * rnd((level + 1) * (level + 1));
+	j = 5 * (rand() % ((level + 1) * (level + 1)) + 1);
 
 	if(how < 0) {
 	    lprintf("You just lost %d experience point", j);

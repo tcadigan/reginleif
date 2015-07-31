@@ -5,7 +5,22 @@
 
 #include "object.h"
 
+#include "create.h"
+#include "display.h"
+#include "fortune.h"
+#include "global.h"
 #include "header.h"
+#include "io.h"
+#include "main.h"
+#include "monster.h"
+#include "moreobj.h"
+#include "nap.h"
+#include "regen.h"
+#include "scores.h"
+#include "store.h"
+
+#include <curses.h>
+#include <stdlib.h>
 
 /*
  * ***************
@@ -156,7 +171,7 @@ void lookforobject()
 
 	break;
     case OIVTELETRAP:
-	if(rnd(11) < 6) {
+	if((rand() % 11 + 1) < 6) {
 	    return;
 	}
 
@@ -322,16 +337,16 @@ void lookforobject()
 	else {
 	    lprcat("open");
 
-	    if(rnd(11) < 7) {
+	    if((rand() % 11 + 1) < 7) {
 		switch(iarg[playerx][playery]) {
 		case 6:
-		    c[AGGRAVATE] += rnd(400);
+		    c[AGGRAVATE] += (rand() % 400 + 1);
 
 		    break;
 		case 7:
 		    lprcat("\nYou are jolted by an electric schock ");
 		    lastnum = 274;
-		    losehp(rnd(20));
+		    losehp(rand() % 20 + 1);
 		    bottomline();
 
 		    break;
@@ -419,7 +434,7 @@ void lookforobject()
 	    lprcat("\nYou slip and fall down the shaft");
 	    beep();
 	    lastnum = 275;
-	    losehp(30 + rnd(20));
+	    losehp(30 + rand() % 20 + 1);
 	    bottomhp();
 	}
 	else {
@@ -442,7 +457,7 @@ void lookforobject()
 	}
 
 	draws(0, MAXX, 0, MAXY);
-	bot_line();
+	bot_linex();
 
 	return;
     case OVOLUP:
@@ -451,7 +466,7 @@ void lookforobject()
 	iopts();
 	i = 0;
 
-	while((i != 'c') && (i != 'i') && (i 1= '\33')) {
+	while((i != 'c') && (i != 'i') && (i != '\33')) {
 	    i = getchar();
 	}
 
@@ -471,7 +486,7 @@ void lookforobject()
 	    lprcat("\nYou slip and fall down the shaft");
 	    beep();
 	    lastnum = 275;
-	    losehp(15 + rnd(20));
+	    losehp(15 + rand() % 20 + 1);
 	    bottomhp();
 
 	    return;
@@ -489,7 +504,7 @@ void lookforobject()
 		    playerx = j;
 		    playery = i;
 		    j = MAXX;
-		    y = MAXY;
+		    i = MAXY;
 		    positionplayer();
 		}
 	    }
@@ -501,7 +516,7 @@ void lookforobject()
 	return;
     case OTRAPARROWIV:
 	/* For an arrow trap */
-	if(rnd(17) < 13) {
+	if((rand() % 17 + 1) < 13) {
 	    return;
 	}
 
@@ -512,13 +527,13 @@ void lookforobject()
 	lprcat("\nYou are hit by an arrow");
 	beep();
 	lastnum = 259;
-	losehp(rnd(10) + level);
+	losehp((rand() % 10 + 1) + level);
 	bottomhp();
 
 	return;
-    case OIVDRATRAP:
+    case OIVDARTRAP:
 	/* For a dart trap */
-	if(rnd(17) < 13) {
+	if((rand() % 17 + 1) < 13) {
 	    return;
 	}
 
@@ -529,7 +544,7 @@ void lookforobject()
 	lprcat("\nYou are hit by a dart");
 	beep();
 	lastnum = 260;
-	losehp(rnd(5));
+	losehp(rand() % 5 + 1);
 
 	--c[STRENGTH];
 	if(c[STRENGTH] < 3) {
@@ -541,7 +556,7 @@ void lookforobject()
 	return;
     case OIVTRAPDOOR:
 	/* For a trap door */
-	if(rnd(17) < 13) {
+	if((rand() % 17 + 1) < 13) {
 	    return;
 	}
 
@@ -562,7 +577,7 @@ void lookforobject()
 	beep();
 
 	/* For a trap door */
-	losehp(rnd(5 + level));
+	losehp(rand() % (5 + level) + 1);
 	nap(2000);
 	newcavelevel(level + 1);
 	draws(0, MAXX, 0, MAXY);
@@ -641,7 +656,7 @@ void lookforobject()
 	}
 
 	break;
-    case :
+    default:
 	finditem(i);
 
 	break;
@@ -732,11 +747,11 @@ void ostairs(int dir)
 	case 'f':
 	    lprcat("kick stairs");
 
-	    if(rnd(2) == 1) {
+	    if((rand() % 2 + 1) == 1) {
 		lprcat("\nI hope you feel better. Showing anger rids you of your frustration.");
 	    }
 	    else {
-		k = rnd((level + 1) << 1);
+		k = rand() % ((level + 1) << 1) + 1;
 		lprintf("\nYou hurt your foot dumb dumb! You suffer %d hit points", k);
 		lastnum = 276;
 		losehp(k);
@@ -799,7 +814,7 @@ void oteleport(int err)
 
     /* Stuck in a rock */
     if(err) {
-	if(rnd(151) < 3) {
+	if((rand() % 151 + 1) < 3) {
 	    died(264);
 	}
     }
@@ -811,7 +826,7 @@ void oteleport(int err)
 	tmp = 0;
     }
     else if(level < MAXLEVEL) {
-	tmp = rnd(5) + level - 3;
+	tmp = rand() % 5 + 1 + level - 3;
 	
 	if(tmp >= MAXLEVEL) {
 	    tmp = MAXLEVEL - 1;
@@ -822,7 +837,7 @@ void oteleport(int err)
 	}
     }
     else {
-	tmp = rnd(3) + level - 2;
+	tmp = rand() % 3 + 1 + level - 2;
 	
 	if(tmp >= (MAXLEVEL + MAXVLEVEL)) {
 	    tmp = MAXLEVEL + MAXVLEVEL - 1;
@@ -833,8 +848,8 @@ void oteleport(int err)
 	}
     }
     
-    playerx = rnd(MAXX - 2);
-    playery = rnd(MAXY - 2);
+    playerx = rand() % (MAXX - 2) + 1;
+    playery = rand() % (MAXY - 2) + 1;
     
     if(level != tmp) {
 	newcavelevel(tmp);
@@ -918,7 +933,7 @@ void quaffpotion(int pot)
 	nap(2000);
 
 	for(i = 0; i < MAXY; ++i) {
-	    for(j = 0, j < MAXX; ++j) {
+	    for(j = 0; j < MAXX; ++j) {
 		k = item[j][i];
 
 		if((k == ODIAMOND)
@@ -949,7 +964,7 @@ void quaffpotion(int pot)
 	    raisemhp(1);
 	}
 	else {
-	    c[HP] += (rnd(20) + 20 + c[LEVEL]);
+	    c[HP] += (rand() % 20 + 1 + 20 + c[LEVEL]);
 
 	    if(c[HP] > c[HPMAX]) {
 		c[HP] = c[HPMAX];
@@ -965,12 +980,12 @@ void quaffpotion(int pot)
 	return;
     case 3:
 	lprcat("\nYou feel strange for a moment");
-	++c[rund(6)];
+	++c[rand() % 6];
 
 	break;
     case 4:
 	lprcat("\nYou feel more self confident!");
-	c[WISDOM] += rnd(2);
+	c[WISDOM] += (rand() % 2 + 1);
 
 	break;
     case 5:
@@ -991,7 +1006,7 @@ void quaffpotion(int pot)
 	break;
     case 8:
 	lprcat("\nYour intelligence went up by one!");
-	++c[iNTELLIGENCE];
+	++c[INTELLIGENCE];
 
 	break;
     case 10:
@@ -1044,7 +1059,7 @@ void quaffpotion(int pot)
 	break;
     case 0:
 	lprcat("\nYou fall asleep...");
-	i = (rnd(11) - (c[CONSTITUTION] >> 2)) + 2;
+	i = (rand() % 11 + 1 - (c[CONSTITUTION] >> 2)) + 2;
 
 	while(--i > 0) {
 	    parse2();
@@ -1068,7 +1083,7 @@ void quaffpotion(int pot)
 	lprcat("\nYou stagger a moment...");
 
 	for(i = 0; i < MAXY; ++i) {
-	    for(j = 0, j < MAXY; ++j) {
+	    for(j = 0; j < MAXY; ++j) {
 		know[j][i] = 0;
 	    }
 	}
@@ -1087,7 +1102,7 @@ void quaffpotion(int pot)
 	return;
     case 14:
 	lprcat("\nYou feel confused");
-	c[CONFUSE] += (20 + rnd(9));
+	c[CONFUSE] += (20 + rand() % 9 + 1);
 
 	return;
     case 21:
@@ -1098,13 +1113,13 @@ void quaffpotion(int pot)
     case 22:
 	/* Poison */
 	lprcat("\nYou feel a sickness engulf you");
-	c[HALFDAM] += (200 + rnd(200));
+	c[HALFDAM] += (200 + rand() % 200 + 1);
 
 	return;
     case 23:
 	/* See invisible */
 	lprcat("You feel your vision sharpen");
-	c[SEEINVISIBLE] += (rnd(1000) + 400);
+	c[SEEINVISIBLE] += (rand() % 1000 + 1 + 400);
 	monstnamelist[INVISIBLESTALKER] = 'I';
 
 	return;
@@ -1149,7 +1164,7 @@ void oscroll(int typ)
 	    lprcat("read");
 	    forget();
 
-	    if((type == 2) || (typ == 15)) {
+	    if((typ == 2) || (typ == 15)) {
 		show1cell(playerx, playery);
 		cursors();
 	    }
@@ -1240,11 +1255,11 @@ void adjtime(long tim)
 
     /* Adjust time related parameters */
     for(j = 0; j < 26; ++j) {
-	if(c[time_change[j]]) {
-	    c[time_change[j]] -= tim;
+	if(c[(int)time_change[j]]) {
+	    c[(int)time_change[j]] -= tim;
 
-	    if(c[time_change[j]] < 1) {
-		c[time_change[j]] = 1;
+	    if(c[(int)time_change[j]] < 1) {
+		c[(int)time_change[j]] = 1;
 	    }
 	}
     }
@@ -1315,7 +1330,7 @@ void read_scroll(int typ)
 	return;
     case 7:
 	/* Time warp */
-	i = rnd(1000) - 850;
+	i = rand() % 1000 + 1 - 850;
 	
 	gtime += i;
 
@@ -1341,7 +1356,7 @@ void read_scroll(int typ)
 	/* Expanded awareness */
 	return;
     case 10:
-	c[HASTEMONST] += (rnd(55) + 12);
+	c[HASTEMONST] += (rand() % 55 + 1 + 12);
 
 	/* Haste monster */
 	return;
@@ -1349,7 +1364,7 @@ void read_scroll(int typ)
 	for(i = 0; i < MAXY; ++i) {
 	    for(j = 0; j < MAXX; ++j) {
 		if(mitem[j][i]) {
-		    hitp[j][i] = monster[mitem[j][i]].hitpoints;
+		    hitp[j][i] = monster[(int)mitem[j][i]].hitpoints;
 		}
 	    }
 	}
@@ -1357,19 +1372,19 @@ void read_scroll(int typ)
 	/* Monster healing */
 	return;
     case 12:
-	c[SPIRITPRO] += (300 + rnd(200));
+	c[SPIRITPRO] += (300 + rand() % 200 + 1);
 	bottomline();
 
 	/* Spirit protection */
 	return;
     case 13:
-	c[UNDEADPRO] += (300 + rnd(200));
+	c[UNDEADPRO] += (300 + rand() % 200 + 1);
 	bottomline();
 
 	/* Undead protection */
 	return;
     case 14:
-	c[STEALTH] += (250 + rnd(250));
+	c[STEALTH] += (250 + rand() % 250 + 1);
 	bottomline();
 
 	/* Stealth */
@@ -1415,7 +1430,7 @@ void read_scroll(int typ)
     case 18:
 	/* Spell extension */
 	for(i = 0; i < 11; ++i) {
-	    c[exten[i]] <<= 1;
+	    c[(int)exten[i]] <<= 1;
 	}
 
 	break;
@@ -1434,9 +1449,9 @@ void read_scroll(int typ)
 	break;
     case 20:
 	/* Remove curse */
-	for(i = 0; i < 26; ++i) {
-	    if(c[curse[i]]) {
-		c[cursep[i]] = 1;
+	for(i = 0; i < 10; ++i) {
+	    if(c[(int)curse[i]]) {
+		c[(int)curse[i]] = 1;
 	    }
 	}
 
@@ -1467,8 +1482,9 @@ void opit()
 {
     int i;
 
-    if(rnd(101) < 81) {
-	if((rnd(70) > ((9 * c[DEXTERITY]) - packweight())) || (rnd(101) < 5)) {
+    if((rand() % 101 + 1) < 81) {
+	if(((rand() % 70 + 1) > ((9 * c[DEXTERITY]) - packweight()))
+	   || ((rand() % 101 + 1) < 5)) {
 	    if(level == (MAXLEVEL - 1)) {
 		obottomless();
 	    }
@@ -1476,12 +1492,12 @@ void opit()
 		obottomless();
 	    }
 	    else {
-		if(rnd(101) < 20) {
+		if((rand() % 101 + 1) < 20) {
 		    i = 0;
 		    lprcat("\nYou fell into a pit! Your fall is cushioned by an unknown force\n");
 		}
 		else {
-		    i = rnd((level * 3) + 3);
+		    i = rand() % ((level * 3) + 3) + 1;
 		    lprintf("\nYou fell into a pit! You suffer %d hit points damage", i);
 
 		    /* If he dies scoreboard will say so */
@@ -1580,7 +1596,7 @@ void readbook(int lev)
 	    tmp = 1;
 	}
 
-	i = rund(tmp);
+	i = rand() % tmp;
     }
     else {
 	if(splev[lev] - 9) {
@@ -1590,7 +1606,7 @@ void readbook(int lev)
 	    tmp = 1;
 	}
 
-	i = rnd(tmp) + 9;
+	i = rand() % tmp + 1+ 9;
     }
 
     spelknow[i] = 1;
@@ -1599,7 +1615,7 @@ void readbook(int lev)
 	    spelname[i],
 	    speldescript[i]);
 
-    if(rnd(10) == 4) {
+    if((rand() % 10 + 1) == 4) {
 	lprcat("\nYou int went up by one!");
 	++c[INTELLIGENCE];
 	bottomline();
@@ -1724,22 +1740,26 @@ void ohome()
 
 	if(gtime > TIMELIMIT) {
 	    lprcat("\nThe doctor has the sad duty to inform you that your daughter died!\n");
-	    lpract("You didn't make it in time. In your agony, you kill the doctor,\nyour wife, and yourself! Too bad!\n");
+	    lprcat("You didn't make it in time. In your agony, you kill the doctor,\nyour wife, and yourself! Too bad!\n");
 	    nap(5000);
 	    died(269);
 	}
 
 	lprcat("\nThe diagnosis is confirmed as dianthroritis. He guesses that\n");
-	lprcat("your daughter has only %d mobuls left in this world. It's up to you,\n",
+	lprintf("your daughter has only %d mobuls left in this world. It's up to you,\n",
 	       (TIMELIMIT - gtime + 99) / 100);
 
 	lprintf("%s, to find the only hope for your daughter, the very rare\n", logname);
 	lprcat("potion of cure dianthroritis. It is rumored that only deep in the\n");
 	lprcat("depths of the caves can this potion be found.\n\n\n");
 	lprcat("\n     ----- press ");
-	standout("return");
+	standout();
+	lprcat("return");
+	standend();
 	lprcat(" to continue, ");
-	standout("escape");
+	standout();
+	lprcat("escape");
+	standend();
 	lprcat(" to leave ----- ");
 	i = getchar();
 

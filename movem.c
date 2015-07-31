@@ -7,12 +7,20 @@
  * movemonst()     Routine to move the monsters toward the player
  * movemt()        Function to move a monster at (x, y) -- must determine where
  * mmove()         Function to actually perform the monster movement
- * movesphere()    Function to look for and move spheres of annihilation
+ * movsphere()    Function to look for and move spheres of annihilation
  */
 
 #include "movem.h"
 
+#include "create.h"
+#include "display.h"
 #include "header.h"
+#include "io.h"
+#include "movem.h"
+#include "monster.h"
+
+#include <curses.h>
+#include <stdlib.h>
 
 /*
  * movemonst()
@@ -52,7 +60,7 @@ void movemonst()
 
     /* Move the speheres of annihilation if any */
     if(spheres) {
-	movesphere();
+	movsphere();
     }
 
     /* No action if monsters are held */
@@ -215,7 +223,7 @@ void movemt(int i, int j)
 
     /* Choose destination randomly if scared */
     if(c[SCAREMONST]) {
-	xl = i + rnd(3) - 2;
+	xl = i + rand() % 3 + 1 - 2;
 
 	if(xl < 0) {
 	    xl = 0;
@@ -225,7 +233,7 @@ void movemt(int i, int j)
 	    xl = MAXX - 1;
 	}
 
-	yl = j + rnd(3) - 2;
+	yl = j + rand() % 3 + 1 - 2;
 
 	if(yl < 0) {
 	    yl = 0;
@@ -235,7 +243,7 @@ void movemt(int i, int j)
 	    yl = MAXY - 1;
 	}
 
-	tmp = item[x][y];
+	tmp = item[xl][yl];
 
 	if(tmp != OWALL) {
 	    if(mitem[xl][yl] == 0) {
@@ -348,8 +356,8 @@ void movemt(int i, int j)
 		if(screen[xl][yl] == tmp) {
 		    if(!mitem[xl][yl]) {
 			w1x[0] = xl;
-			x1y[0] = yl;
-			mmove(i, j, w1x, w1y);
+			w1y[0] = yl;
+			mmove(i, j, w1x[0], w1y[0]);
 
 			return;
 		    }
@@ -390,7 +398,7 @@ void movemt(int i, int j)
 
 	    if((tmpitem != OWALL) || ((k == playerx) && (m == playery))) {
 		if(mitem[k][m] == 0) {
-		    if((mitem[i][j] != VAPIRE) || (tmpitem != OMIRROR)) {
+		    if((mitem[i][j] != VAMPIRE) || (tmpitem != OMIRROR)) {
 			if(tmpitem != OCLOSEDOOR) {
 			    w1[tmp] = (playerx - k) * (playerx - k) + (playery - m) * (playery - m);
 			    w1x[tmp] = k;
@@ -451,7 +459,7 @@ void mmove(int aa, int bb, int cc, int dd)
 	case SPIRITNAGA:
 	case PLATINUMDRAGON:
 	case WRAITH:
-	case VAPIRE:
+	case VAMPIRE:
 	case SILVERDRAGON:
 	case POLTERGEIST:
 	case DEMONLORD:
@@ -514,7 +522,7 @@ void mmove(int aa, int bb, int cc, int dd)
     }
 
     /* If a troll regenerate him */
-    if(tmp == troll) {
+    if(tmp == TROLL) {
 	if((gtime & 1) == 0) {
 	    if(monster[tmp].hitpoints > hitp[cc][dd]) {
 		++hitp[cc][dd];
@@ -525,7 +533,7 @@ void mmove(int aa, int bb, int cc, int dd)
     /* Arrow hits monster */
     if(i == OTRAPARROW) {
 	who = "An arrow";
-	hitp[cc][dd] -= (rnd(10) + level);
+	hitp[cc][dd] -= (rand() % 10 + 1 + level);
 	
 	if(hitp[cc][dd] <= 0) {
 	    mitem[cc][dd] = 0;
@@ -539,7 +547,7 @@ void mmove(int aa, int bb, int cc, int dd)
     /* Dart hits monster */
     if(i == ODARTRAP) {
 	who = "A dart";
-	hitp[cc][dd] -= rnd(6);
+	hitp[cc][dd] -= (rand() % 6 + 1);
 	
 	if(hitp[cc][dd]) {
 	    mitem[cc][dd] = 0;
@@ -632,7 +640,7 @@ void movsphere()
     int len;
     struct sphere *sp;
     struct sphere *sp2;
-    sphere sph[SPHMAX];
+    struct sphere sph[SPHMAX];
 
     /* First duplicate sphere list */
     sp = 0;
@@ -683,11 +691,11 @@ void movsphere()
 	}
 
 	/* Time to move the sphere */
-	switch(rnd((int)max(7, c[INTELLIGENCE]) >> 1)) {
+	switch(rand() % ((int)max(7, c[INTELLIGENCE]) >> 1) + 1) {
 	case 1:
 	case 2:
 	    /* Change direction to a random one */
-	    sp->dir = rnd(8);
+	    sp->dir = rand() % 8 + 1;
 
 	default:
 	    /* Move in normal direction */

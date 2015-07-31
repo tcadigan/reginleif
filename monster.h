@@ -27,5 +27,8 @@ int vxy(int *x, int *y);
 void speldamage(int x);
 int fullhit(int xx);
 int cgood(int x, int y, int itm, int monst);
+int newsphere(int x, int y, int dir, int life);
+void hitplayer(int x, int y);
+int annihilate();
 
 #endif
