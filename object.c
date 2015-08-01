@@ -1591,7 +1591,7 @@ void readbook(int lev)
     if(lev <= 3) {
 	tmp = splev[lev];
 
-	if(temp == 0) {
+	if(tmp == 0) {
 	    tmp = 1;
 	}
 
@@ -1600,7 +1600,7 @@ void readbook(int lev)
     else {
 	tmp = splev[lev] - 9;
 
-	if(temp == 0) {
+	if(tmp == 0) {
 	    tmp = 1;
 	}
 
