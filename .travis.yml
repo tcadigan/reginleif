@@ -1,0 +1,13 @@
+sudo: false
+
+language: c
+compiler:
+  - gcc
+  - clang
+
+addons:
+  apt:
+    packages:
+      -libncurses5-dev
+
+script: make

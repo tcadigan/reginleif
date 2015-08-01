@@ -6,11 +6,11 @@ Original source: http://minnie.tuhs.org/cgi-bin/utree.pl?file=4.3BSD-Reno/src/ga
 
 Goals:
 
-1) Re-type all source code [WIP]
+1) Re-type all source code [Done]
 
-2) Get it to compile [TBD]
+2) Get it to compile [Done]
 
-3) Likely above won't work right, reimplement so it does [TBD]
+3) Likely above won't work right, reimplement so it does [WIP]
 
 Notes:
 
