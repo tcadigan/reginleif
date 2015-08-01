@@ -712,12 +712,7 @@ void obanksub()
 	    lprcat("deposit\nHow much? ");
 	    amt = readnum(c[GOLD]);
 
-	    if(amt < 0) {
-		lprcat("\nSorry, but we can't take negative gold!");
-		nap(2000);
-		amt = 0;
-	    }
-	    else if(amt > c[GOLD]) {
+	    if(amt > c[GOLD]) {
 		lprcat(" You don't have that much.");
 		nap(2000);
 	    }
@@ -731,12 +726,7 @@ void obanksub()
 	    lprcat("withdraw\nHow much? ");
 	    amt = readnum(c[BANKACCOUNT]);
 
-	    if(amt < 0) {
-		lprcat("\nSorry, but we don't have any negative gold!");
-		nap(2000);
-		amt = 0;
-	    }
-	    else if(amt > c[BANKACCOUNT]) {
+	    if(amt > c[BANKACCOUNT]) {
 		lprcat("\nYou don't have that much in the bank!");
 		nap(2000);
 	    }
@@ -1067,11 +1057,7 @@ void olrs()
 		lprcat("pay taxes\nHow much? ");
 		amt = readnum(c[GOLD]);
 
-		if(amt < 0) {
-		    lprcat("\nSorry, but we can't take negative gold\n");
-		    amt = 0;
-		}
-		else if(amt > c[GOLD]) {
+		if(amt > c[GOLD]) {
 		    lprcat(" You don't have that much.\n");
 		}
 		else {

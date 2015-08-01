@@ -1589,20 +1589,18 @@ void readbook(int lev)
     int tmp;
 
     if(lev <= 3) {
-	if(splev[lev]) {
-	    tmp = tmp;
-	}
-	else {
+	tmp = splev[lev];
+
+	if(temp == 0) {
 	    tmp = 1;
 	}
 
 	i = rand() % tmp;
     }
     else {
-	if(splev[lev] - 9) {
-	    tmp = tmp;
-	}
-	else {
+	tmp = splev[lev] - 9;
+
+	if(temp == 0) {
 	    tmp = 1;
 	}
 
