@@ -1122,7 +1122,10 @@ int getpassword()
     i = strlen(password);
 
     for(j = 0; j < i; ++j) {
-	read(STDIN_FILENO, gpwp, 1);
+	if(read(STDIN_FILENO, gpwp, 1) == -1) {
+	    exit(1);
+	}
+	
 	++gpwp;
 	gpwbuf[i] = 0;
     }

@@ -119,9 +119,9 @@ int main(int argc, char *argv[])
 		ptr = getenv("LOGNAME");
 
 		if(ptr == 0) {
-		    write(STDERR_FILENO,
-			  "Can't find your logname. Who are you?\n",
-			  38);
+		    if(write(STDERR_FILENO, "Can't find your logname. Who are you?\n", 38) == -1) {
+			exit(1);
+		    }
 
 		    exit(1);
 		}
@@ -130,17 +130,17 @@ int main(int argc, char *argv[])
     }
     
     if(ptr == 0) {
-	write(STDERR_FILENO,
-	      "Can't find your logname. Who are you?\n",
-	      38);
+	if(write(STDERR_FILENO, "Can't find your logname. Who are you?\n", 38) == -1) {
+	    exit(1);
+	}
 	
 	exit(1);
     }
     
     if(strlen(ptr) == 0) {
-	write(STDERR_FILENO,
-	      "Can't find your logname. Who are you?\n",
-	      38);
+	if(write(STDERR_FILENO, "Can't find your logname. Who are you?\n", 38) == -1) {
+	    exit(1);
+	}
 
 	exit(1);
     }
@@ -271,7 +271,9 @@ int main(int argc, char *argv[])
 		break;
 	    case 'h':
 		/* Print out command line arguments */
-		write(1, cmdhelp, sizeof(cmdhelp));
+		if(write(1, cmdhelp, sizeof(cmdhelp)) == -1) {
+		    exit(1);
+		}
 
 		exit(0);
 	    case 'o':
@@ -312,7 +314,9 @@ int main(int argc, char *argv[])
 #endif
 
     if(userid < 0) {
-	write(2, "Can't obtain playerid\n", 22);
+	if(write(2, "Can't obtain playerid\n", 22) == -1) {
+	    exit(1);
+	}
 
 	exit(1);
     }
@@ -1418,7 +1422,7 @@ void wear()
 {
     int i;
 
-    while(i) {
+    while(1) {
 	i = whatitem("wear");
 
 	if(i == '\33') {

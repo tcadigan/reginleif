@@ -368,7 +368,10 @@ int cannedlevel(int k)
     int marg;
 
     if(lopen(larnlevels) < 0) {
-	write(STDOUT_FILENO, "Can't open the maze data file\n", 30);
+	if(write(STDOUT_FILENO, "Can't open the maze data file\n", 30) == -1) {
+	    exit(1);
+	}
+	
 	died(-282);
 
 	return 0;

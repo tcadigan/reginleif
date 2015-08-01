@@ -212,7 +212,10 @@ long lgetc()
 
     if(i <= 0) {
 	if(i != 0) {
-	    write(1, "error reading from input file\n", 30);
+	    if(write(1, "error reading from input file\n", 30) == -1) {
+		exit(1);
+	    }
+	    
 	    ipoint = 0;
 	    iepoint = ipoint;
 
@@ -260,7 +263,9 @@ int larnint()
  */
 void lrfill(char *adr, int num)
 {
-    fread(adr, sizeof(char), num, fd);
+    if(fread(adr, sizeof(char), num, fd) == -1) {
+	exit(1);
+    }
 }
 
 /*

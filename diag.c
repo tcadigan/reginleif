@@ -57,7 +57,10 @@ int diag()
 	return -1;
     }
 
-    write(1, "\nDiagnosing...\n", 15);
+    if(write(1, "\nDiagnosing...\n", 15) == -1) {
+	exit(1);
+    }
+    
     lprcat("\n\nBeginning of DIAG diagnostics ----------\n");
 
     /* For the character attributes */
@@ -430,7 +433,9 @@ void restoregame(char *fname)
 	sp = (struct sphere *)malloc(sizeof(struct sphere));
 
 	if(sp == 0) {
-	    write(2, "Can't malloc() for sphere space\n", 32);
+	    if(write(2, "Can't malloc() for sphere space\n", 32) == -1) {
+		exit(1);
+	    }
 
 	    break;
 	}

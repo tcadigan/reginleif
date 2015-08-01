@@ -136,14 +136,18 @@ char yylex()
 	ioctl(0, FIONREAD, &ic);
 
 	if(ic > flushno) {
-	    read(0, &cc, 1);
+	    if(read(0, &cc, 1) == -1) {
+		exit(1);
+	    }
 	}
 
 	while(ic > flushno) {
 	    ioctl(0, FIONREAD, &ic);
 
 	    if(ic > flushno) {
-		read(0, &cc, 1);
+		if(read(0, &cc, 1) == -1) {
+		    exit(1);
+		}
 	    }
 	}
 
@@ -174,7 +178,10 @@ char yylex()
 
 	    /* Error */
 	    if(ic < 0) {
-		write(2, "Can't fork off a shell!\n", 25);
+		if(write(2, "Can't fork off a shell!\n", 25) == -1) {
+		    exit(1);
+		}
+		
 		sleep(2);
 	    }
 
@@ -221,7 +228,10 @@ void flushall()
 
 	/* Gobble up the byte */
 	while(ic > 0) {
-	    read(0, &cc, 1);
+	    if(read(0, &cc, 1) == -1) {
+		exit(1);
+	    }
+	    
 	    --ic;
 	}
     }

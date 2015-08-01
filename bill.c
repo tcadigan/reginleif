@@ -27,7 +27,9 @@ static int letter1() {
     sprintf(mail600, "/tmp/#%dmail600", pid);
 
     if(lcreat(mail600) < 0) {
-	write(1, "Can't write 600 letter\n", 23);
+	if(write(1, "Can't write 600 letter\n", 23) == -1) {
+	    exit(1);
+	}
 
 	return 0;
     }
@@ -65,7 +67,9 @@ static int letter2()
     /* Prepare path */
     sprintf(mail600, "/tmp/#%dmail600", pid);
     if(lcreat(mail600) < 0) {
-	write(1, "Can't write 601 letter\n", 23);
+	if(write(1, "Can't write 601 letter\n", 23) == -1) {
+	    exit(1);
+	}
 	
 	return 0;
     }
@@ -95,7 +99,9 @@ static int letter3()
     /* Prepare path */
     sprintf(mail600, "/tmp#%dmail600", pid);
     if(lcreat(mail600) < 0) {
-	write(1, "Can't write 602 letter\n", 23);
+	if(write(1, "Can't write 602 letter\n", 23) == -1) {
+	    exit(1);
+	}
 
 	return 0;
     }
@@ -123,7 +129,9 @@ static int letter4()
     /* Prepare path */
     sprintf(mail600, "/tmp/$%dmail600", pid);
     if(lcreat(mail600) < 0) {
-	write(1, "Can't write 603 letter\n", 23);
+	if(write(1, "Can't write 603 letter\n", 23) == -1) {
+	    exit(1);
+	}
 
 	return 0;
     }
@@ -153,7 +161,9 @@ static int letter5()
     /* Prepare path */
     sprintf(mail600, "/tmp/#%dmaill600", pid);
     if(lcreat(mail600) < 0) {
-	write(1, "Can't write 604 letter\n", 23);
+	if(write(1, "Can't write 604 letter\n", 23) == -1) {
+	    exit(1);
+	}
 
 	return 0;
     }
@@ -184,7 +194,9 @@ static int letter6()
     /* Prepare path */
     sprintf(mail600, "/tmp#%dmail600", pid);
     if(lcreat(mail600) < 0) {
-	write(1, "Can't write 605 letter\n", 23);
+	if(write(1, "Can't write 605 letter\n", 23) == -1) {
+	    exit(1);
+	}
 
 	return 0;
     }
@@ -233,7 +245,11 @@ int mailbill()
 	    if((*pfn[i])()) {
 		sleep(20);
 		sprintf(buf, "mail %s < %s", loginname, mail600);
-		system(buf);
+		
+		if(system(buf) == -1) {
+		    exit(1);
+		}
+		
 		unlink(mail600);
 	    }
 	}

@@ -4,6 +4,8 @@ Date of origin: 1986
 
 Original source: http://minnie.tuhs.org/cgi-bin/utree.pl?file=4.3BSD-Reno/src/games/larn
 
+[![Build Status](https://travis-ci.org/tcadigan/larn_12.0.svg?branch=master)](https://travis-ci.org/tcadigan/larn_12.0)
+
 Goals:
 
 1) Re-type all source code [Done]

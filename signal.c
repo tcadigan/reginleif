@@ -263,7 +263,11 @@ static void sigpanic(int sig)
 
     signal(sig, SIG_DFL);
     sprintf(buf, "\nLarn - Panic! Signal %d received [%s]", sig, signame[sig]);
-    write(2, buf, strlen(buf));
+    
+    if(write(2, buf, strlen(buf)) == -1) {
+	exit(1);
+    }
+    
     sleep(2);
     sncbr();
     savegame(savefilename);
