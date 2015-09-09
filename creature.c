@@ -2006,8 +2006,3 @@ void creatures(int attack)
 
     /* End processing monsters */
 }
-                       
-        
-        
-    
-               
