@@ -1714,5 +1714,3 @@ void enter_store(int store_num)
 	msg_print("The doors are locked.");
     }
 }
-
-		    
