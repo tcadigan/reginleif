@@ -11,5 +11,8 @@ int summon_monster(int *y, int *x, int slp);
 int bit_pos(unsigned int *test);
 int damroll(char *dice);
 int los(int y1, int x1, int y2, int x2);
+int randint(int maxval);
+void set_seed(char *state, int seed);
+void reset_seed();
 
 #endif

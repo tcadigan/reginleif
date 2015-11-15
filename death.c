@@ -1,21 +1,20 @@
-#include <stdio.h>
-#include <pwd.h>
-#include <time.h>
 #include <ctype.h>
+#include <fcntl.h>
+#include <pwd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/file.h>
+#include <time.h>
+#include <unistd.h>
 
-#include "constants.h"
 #include "config.h"
-#include "types.h"
+#include "constants.h"
 #include "externs.h"
-
-#ifdef USG
-#include <string.h>
-#include <fcntl.h>
-#else
-#include <strings.h>
-#endif
+#include "io.h"
+#include "signals.h"
+#include "types.h"
 
 #define MIN(a, b) ((a < b) ? a : b)
 
@@ -64,20 +63,16 @@ void date(char *day)
 }
 
 /* Centers a string within a 31 character string    -JWT- */
-char *fill_str(char *p1)
+void fill_str(char *p1, vtype *output)
 {
-    vtype s1;
     vtype s2;
     int i;
 
-    s1[0] = '\0';
     s2[0] = '\0';
     i = strlen(p1) / 2;
-    strcpy(s1, pad(s2, " ", 15 - i));
-    strcat(s1, pad(p1, " ", 21));
-    s1[31] = '\0';
-
-    return s1;
+    strcpy(*output, pad(s2, " ", 15 - i));
+    strcat(*output, pad(p1, " ", 31));
+    *output[31] = '\0';
 }
 
 /* Prints a line to the screen efficiently    -RAK- */
@@ -122,7 +117,7 @@ void dprint(char *str, int row)
                 nblanks = 0;
             }
 
-            tmp_Str[0] = str[i];
+            tmp_str[0] = str[i];
             strcat(prt_str, tmp_str);
         }
     }
@@ -150,11 +145,11 @@ void display_scores()
 
     while(read(fd, (char *)&score, sizeof(high_scores)) > 1) {
         sprintf(list[i], "%-7d%-15.15s%-10.10s%-10.10s%-5d%-25.25s%5d",
-                score_points,
-                score_name,
+                (int)score.points,
+                score.name,
                 race[score.prace].trace,
                 class[score.pclass].title,
-                score.lev,
+                (int)score.lev,
                 score.died_from,
                 score.dun_level);
         
@@ -164,7 +159,7 @@ void display_scores()
     controlz();
     put_buffer("Points Name          Race     Class     Lv   Killed By               Dun Lv", 0, 0);
 
-    for(j = 0 j < i; ++j) {
+    for(j = 0; j < i; ++j) {
         put_buffer(list[j], j + 1, 0);
     }
 
@@ -192,18 +187,23 @@ void print_tomb()
     char tmp_str[80];
 
     date(day);
-    strcpy(str1, fill_str(py.misc.name));
-    strcpy(str2, fill_str(py.misc.title));
-    strcpy(str3, fill_str(py.misc.tclass));
+    fill_str(py.misc.name, &str1);
+    fill_str(py.misc.title, &str2);
+    fill_str(py.misc.tclass, &str3);
     sprintf(str4, "Level : %d", (int)py.misc.lev);
-    strcpy(str4, fill_str(str4));
+    vtype tmp;
+    fill_str(str4, &tmp);
+    strcpy(str4, tmp);
     sprintf(str5, "%d Exp", py.misc.exp);
-    strcpy(str5, fill_str(str5));
+    fill_str(str5, &tmp);
+    strcpy(str5, tmp);
     sprintf(str6, "%d Au", py.misc.au);
-    strcpy(str6, fill_str(str6));
+    fill_str(str6, &tmp);
+    strcpy(str6, tmp);
     sprintf(str7, "Died on Level : %d", dun_level);
-    strcpy(str7, fill_str(str7));
-    strcpy(str8, fill_str(died_from));
+    fill_str(str7, &tmp);
+    strcpy(str7, tmp);
+    fill_str(died_from, &str8);
     dstr[0][0] = '\0';
     strcpy(dstr[1], "               _______________________");
     strcpy(dstr[2], "              /                       \\         ___");
@@ -221,7 +221,7 @@ void print_tomb()
     sprintf(dstr[14], "         | %s |         _;,,,,;_", str7);
     strcpy(dstr[15], "         |            killed by            |");
     sprintf(dstr[16], "         | %s |", str8);
-    sprintf(dstr[17], "         |           %8           |", day);
+    sprintf(dstr[17], "         |           %s           |", day);
     strcpy(dstr[18], "        *|   *     *     *    *   *     *  | *");
     strcpy(dstr[19], "________)/\\\\_)_/___(\\/___(//_\\)/_\\//__\\\\(/_|_)_______");
     clear_screen(0, 0);
@@ -322,7 +322,7 @@ void top_twenty()
     }
 
     if(panic_save == 1) {
-        msg_print("Scorry, scores for games restored from panic save files are not saved.");
+        msg_print("Sorry, scores for games restored from panic save files are not saved.");
 
         /* Make sure player sees message before display_scores erases is */
         msg_print(" ");
@@ -341,7 +341,7 @@ void top_twenty()
     /* First character of sex, lower case */
     myscore.sex = tolower(py.misc.sex[0]);
     myscore.prace = py.misc.prace;
-    myscore.pclass = pymisc.pclass;
+    myscore.pclass = py.misc.pclass;
     strcpy(myscore.name, py.misc.name);
     tmp = died_from;
 
@@ -398,12 +398,12 @@ void top_twenty()
     /* If it's the first score, or it gets appended to the file */
     if((i == 0) || ((i == j) && (j < 20))) {
 #if defined(sun) || defined(ultrix) || defined(USG)
-        lseek(highscore_fd, (long)(k * sizeof(high_scores)), L_SET);
+        lseek(highscore_fd, (long)(j * sizeof(high_scores)), L_SET);
 #else
-        lseek(highscore_fd, (off_t)(k * sizeof(high_scores)), L_SET);
+        lseek(highscore_fd, (off_t)(j * sizeof(high_scores)), L_SET);
 #endif
 
-        write(highscore_fd, (char *)&scores[k - 1], sizeof(high_scores));
+        write(highscore_fd, (char *)&myscore, sizeof(high_scores));
     }
     else if (j < i) {
         /* If it gets inserted in the middle */

@@ -1,19 +1,14 @@
 #include "desc.h"
 
 #include <stdio.h>
-
-#include "constants.h"
-#include "config.h"
-#include "types.h"
-#include "externs.h"
-
-#ifdef USG
 #include <string.h>
 
-#else
-
-#include <strings.h>
-#endif
+#include "config.h"
+#include "constants.h"
+#include "externs.h"
+#include "misc1.h"
+#include "misc2.h"
+#include "types.h"
 
 /* Correct SUN stupidity in the stdio.h file */
 #ifdef sun
@@ -120,7 +115,7 @@ void magic_init()
 {
     int i;
     int tmpv;
-    vytpe tmps;
+    vtype tmps;
 
     set_seed(randes_state, randes_seed);
     randes();
@@ -276,7 +271,7 @@ void unquote(char *object_str)
         }
 
         strncpy(str1, object_str, pos1);
-        str1[pos] = '\0';
+        str1[pos1] = '\0';
         strcpy(str2, &object_str[pos2 + 1]);
         strcpy(object_str, strcat(str1, str2));
     }
@@ -364,7 +359,7 @@ void objdes(char *out_val, int ptr, int pref)
     treasure_type *i_ptr;
     char *string;
 
-    i_ptr = &invetory[ptr];
+    i_ptr = &inventory[ptr];
     strcpy(tmp_val, i_ptr->name);
     string = index(tmp_val, '|');
 

@@ -23,5 +23,7 @@ void prt_gold();
 void prt_strength();
 void prt_chp();
 int player_saves(int adjust);
+void insert_num(char *object_str, char *mtc_str, int number, int show_sign);
+void insert_str(char *object_str, char *mtc_str, char *insert);
 
 #endif

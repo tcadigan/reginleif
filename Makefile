@@ -19,7 +19,7 @@ OBJS = create.o creature.o death.o desc.o dungeon.o eat.o files.o generate.o \
        store1.o store2.o treasure1.o treasure2.o variables.o wands.o wizard.o \
 
 HDRS = config.h constants.h desc.h externs.h io.h misc1.h misc2.h moria1.h \
-       moria2.h types.h
+       moria2.h signals.h types.h
 
 moria: $(OBJS) $(HDRS)
 	$(CC) -o moria $(CFLAGS) $(OBJS) $(LDFLAGS)
@@ -50,8 +50,8 @@ install:
 
 create.o: config.h constants.h externs.h io.h misc1.h misc2.h types.h
 creature.o: config.h constants.h desc.h externs.h io.h misc1.h misc2.h moria1.h moria2.h spells.h types.h
-death.o: config.h constants.h externs.h types.h
-desc.o: config.h constants.h externs.h types.h
+death.o: config.h constants.h externs.h io.h signals.h types.h
+desc.o: config.h constants.h externs.h misc1.h misc2.h types.h
 dungeon.o: config.h constants.h externs.h types.h
 eat.o: config.h constants.h externs.h types.h
 files.o: config.h constants.h externs.h types.h
