@@ -1,3 +1,6 @@
+#ifndef TYPES_H_
+#define TYPES_H_
+
 typedef unsigned char byteint;
 
 #ifdef NO_SIGNED_CHARS
@@ -302,3 +305,4 @@ typedef struct high_scores {
     byteint prace;
 } high_scores;
     
+#endif

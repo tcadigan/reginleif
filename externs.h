@@ -1,3 +1,8 @@
+#ifndef EXTERNS_H_
+#define EXTERNS_H_
+
+#include "types.h"
+
 extern int character_generated; /* Don't save score until char gen finished */
 extern int character_saved; /* Prevents save on kill after save_char() */
 extern int highscore_fd; /* High score file descriptor */
@@ -20,7 +25,7 @@ extern int reset_flag; /* Used in MORIA */
 extern int stat_column; /* Column for stats */
 extern unsigned int print_stat; /* Flag for stats */
 extern int turn; /* Current turn of game */
-extern in wizard1; /* Wizard flag */
+extern int wizard1; /* Wizard flag */
 extern int wizard2; /* Wizard flag */
 extern int panic_save; /* This is true if playing from a panic save */
 extern int used_line[23];
@@ -142,3 +147,5 @@ char *pad();
 byteint de_statp();
 byteint in_statp();
 char *likert();
+
+#endif

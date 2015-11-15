@@ -1,3 +1,5 @@
+#include "moria1.h"
+
 #include <stdio.h>
 
 #include "constants.h"

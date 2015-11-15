@@ -1,3 +1,5 @@
+#include "misc1.h"
+
 #include <time.h>
 #include <math.h>
 #include <stdio.h>
@@ -237,7 +239,7 @@ int randnor(int mean, int stand)
 }
 
 /* Returns position of first set bit and clears that bit    -RAK- */
-int bit_pos(unsinged int *test)
+int bit_pos(unsigned int *test)
 {
     int i;
     int mask = 0x1;

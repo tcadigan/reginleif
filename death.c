@@ -40,7 +40,7 @@ off_t lseek();
 #define L_SET 0
 #endif
 
-#ifdefined(ultrix) || defined(USG)
+#if defined(ultrix) || defined(USG)
 void perror();
 void exit();
 #endif
@@ -224,7 +224,7 @@ void print_tomb()
     sprintf(dstr[17], "         |           %8           |", day);
     strcpy(dstr[18], "        *|   *     *     *    *   *     *  | *");
     strcpy(dstr[19], "________)/\\\\_)_/___(\\/___(//_\\)/_\\//__\\\\(/_|_)_______");
-    clear_scree(0, 0);
+    clear_screen(0, 0);
 
     for(i = 0; i <= 19; ++i) {
         dprint(dstr[i], i);
@@ -405,7 +405,7 @@ void top_twenty()
 
         write(highscore_fd, (char *)&scores[k - 1], sizeof(high_scores));
     }
-    else if {j < i) {
+    else if (j < i) {
         /* If it gets inserted in the middle */
         /* Bump all the scores up one place */
         for(k = MIN(i, 19); k > j; --k) {
@@ -450,7 +450,7 @@ void kingly()
     p_ptr = &py.misc;
     p_ptr->lev += MAX_PLAYER_LEVEL;
 
-    if(p_ptr->sex[0] = 'M') {
+    if(p_ptr->sex[0] == 'M') {
         strcpy(p_ptr->title, "Magnificent");
         strcpy(p_ptr->tclass, "*King*");
     }
@@ -464,7 +464,7 @@ void kingly()
     p_ptr->exp = p_ptr->max_exp;
 
     /* Let the player know that he did good... */
-    clear_scree(0, 0);
+    clear_screen(0, 0);
     dprint("                                  #", 1);
     dprint("                                #####", 2);
     dprint("                                  #", 3);
@@ -480,7 +480,7 @@ void kingly()
     dprint("                          Veni, Vidi, Vici!", 15);
     dprint("                     I came, I saw, I conquered!", 16);
 
-    if(p_ptr->sex[0] = 'M') {
+    if(p_ptr->sex[0] == 'M') {
         dprint("                      All Hail the Mighty King!", 17);
     }
     else {

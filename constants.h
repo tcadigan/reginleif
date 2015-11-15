@@ -1,3 +1,6 @@
+#ifndef CONSTANTS_H_
+#define CONSTANTS_H_
+
 /*
  * Note to the Wizard: 
  *     Tweaking these constants can *GREATLY* change the game. Two years of
@@ -122,7 +125,7 @@
 #define STORE_TURN_AROUND 3
 
 /* Size of store init array */
-#define STORE_INIT_MAX 105
+#define INVEN_INIT_MAX 105
 
 /* Adjust prices for buying and selling */
 #define COST_ADJ 1.00
@@ -350,3 +353,5 @@
 #define INVEN_OUTER 31
 #define INVEN_LIGHT 32
 #define INVEN_AUX 33
+
+#endif

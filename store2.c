@@ -1494,7 +1494,7 @@ int store_sell(int store_num, int cur_top)
 		case 0:
 		    prt_comment1();
 		    py.misc.au += price;
-		    inven_destory(item_val);
+		    inven_destroy(item_val);
 		    store_carry(store_num, &item_pos);
 
 		    if(item_pos >= 0) {

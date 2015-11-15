@@ -2272,7 +2272,7 @@ int clone_monster(int dir, int y, int c)
     c_ptr = &cave[y][x];
 
     if(c_ptr->cptr > 1) {
-	multiple_monster(y, x, (int)m_list[c_ptr->cptr].mptr, FALSE);
+	multiply_monster(y, x, (int)m_list[c_ptr->cptr].mptr, FALSE);
 
 	if(panel_contains(y, x)) {
 	    if(m_list[c_ptr->cptr].ml) {
@@ -2288,7 +2288,7 @@ int clone_monster(int dir, int y, int c)
 	c_ptr = &cave[y][x];
 
 	if(c_ptr->cptr > 1) {
-	    multiple_monster(y, x, (int)m_list[c_ptr->cptr].mptr, FALSE);
+	    multiply_monster(y, x, (int)m_list[c_ptr->cptr].mptr, FALSE);
 
 	    if(panel_contains(y, x)) {
 		if(m_list[c_ptr->cptr].ml) {
@@ -2358,7 +2358,7 @@ void teleport_away(int monptr, int dis)
 }
 
 /* Teleport player to spell casting creature    -RAK- */
-void teleport_to(int ny, nx)
+void teleport_to(int ny, int nx)
 {
     int dis;
     int ctr;

@@ -1,28 +1,13 @@
 #include <stdio.h>
-
-#include "constants.h"
-#include "config.h"
-#include "types.h"
-#include "externs.h"
-
-#ifdef USG
 #include <string.h>
-#else
-#include <strings.h>
-#endif
 
-/* Correct SUN stupidity in the stdio.h file */
-#ifdef sun
-char *sprintf();
-#endif
-
-#ifdef USG
-unsigned sleep();
-#endif
-
-#ifdef ultrix
-void sleep();
-#endif
+#include "config.h"
+#include "constants.h"
+#include "externs.h"
+#include "io.h"
+#include "misc1.h"
+#include "misc2.h"
+#include "types.h"
 
 /* Generates character's stats    -JWT- */
 int get_stat()
@@ -88,7 +73,7 @@ void get_stats()
     p_ptr->misc.fos = r_ptr->fos;
     p_ptr->misc.stl = r_ptr->stl;
     p_ptr->misc.save = r_ptr->bsav;
-    p_ptr->misv.hitdie = r_ptr->bhitdie;
+    p_ptr->misc.hitdie = r_ptr->bhitdie;
     p_ptr->misc.lev = 1;
     p_ptr->misc.ptodam = todam_adj();
     p_ptr->misc.ptohit = tohit_adj();
@@ -217,7 +202,7 @@ void get_history()
 {
     int hist_ptr;
     int cur_ptr;
-    int test_rool;
+    int test_roll;
     int start_pos;
     int end_pos;
     int cur_len;
@@ -231,7 +216,7 @@ void get_history()
 
     /* Get a block of history text */
     hist_ptr = py.misc.prace * 3 + 1;
-    history block[0] = '\0';
+    history_block[0] = '\0';
     social_class = randint(4);
     cur_ptr = 0;
 
@@ -352,13 +337,13 @@ void get_history()
     if(cur_len > 70) {
 	cur_len = 70;
 
-	while(history_block[start_post + cur_len - 1] != ' ') {
+	while(history_block[start_pos + cur_len - 1] != ' ') {
 	    --cur_len;
 	}
 
 	new_start = start_pos + cur_len;
 
-	while(history_lock[start_pos + cur_len - 1] == ' ') {
+	while(history_block[start_pos + cur_len - 1] == ' ') {
 	    --cur_len;
 	}
     }
@@ -542,7 +527,7 @@ int get_class()
     /* prt("Choose a class (? for Help):", 20, 2); */
     prt("Choose a class:", 20, 2);
 
-    if(race[i].t_class & bit_array[j]) {
+    if(race[i].tclass & bit_array[j]) {
 	sprintf(tmp_str, "%c) %s", k + 97, class[j].title);
 	put_buffer(tmp_str, m, l);
 	cl[k] = j;
@@ -652,7 +637,7 @@ int get_class()
     }
 
     while(!exit_flag) {
-	intkey(&s);
+	inkey(&s);
 	j = s - 97;
 
 	if((j < k) && (j >= 0)) {
@@ -691,10 +676,10 @@ int get_class()
 	    p_ptr->stats.cchr = p_ptr->stats.chr;
 
 	    /* Real values */
-	    p_ptr->stats.ptodam = todam_adj();
-	    p_ptr->stats.ptohit = tohit_adj();
-	    p_ptr->stats.ptoac = toac_adj();
-	    p_ptr->stats.pac = 0;
+	    p_ptr->misc.ptodam = todam_adj();
+	    p_ptr->misc.ptohit = tohit_adj();
+	    p_ptr->misc.ptoac = toac_adj();
+	    p_ptr->misc.pac = 0;
 
 	    /* Displayed values */
 	    p_ptr->misc.dis_td = p_ptr->misc.ptodam;
@@ -765,7 +750,7 @@ void create_character()
     /* Here we start a loop giving a player a choice of characters    -RGM- */
     get_stats();
     get_history();
-    get_awh();
+    get_ahw();
     put_character();
     print_history();
     put_misc1();
@@ -783,7 +768,7 @@ void create_character()
     case ' ':
 	get_stats();
 	get_history();
-	get_awh();
+	get_ahw();
 	put_character();
 	print_history();
 	put_misc1();
@@ -813,7 +798,7 @@ void create_character()
 	case ' ':
 	    get_stats();
 	    get_history();
-	    get_awh();
+	    get_ahw();
 	    put_character();
 	    print_history();
 	    put_misc1();

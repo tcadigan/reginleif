@@ -1,3 +1,6 @@
+#ifndef CONFIG_H_
+#define CONFIG_H_
+
 /*
  * Person to bother if something does wrong.
  * Recompile files.c and misc2.c if these change
@@ -88,4 +91,6 @@ char *index();
 #ifndef USG
 #define USG
 #endif
+#endif
+
 #endif

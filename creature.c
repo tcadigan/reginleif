@@ -1,17 +1,18 @@
 #include <stdio.h>
-
-#include "constants.h"
-#include "config.h"
-#include "types.h"
-#include "externs.h"
-
-#ifdef USG
+#include <stdlib.h>
 #include <string.h>
 
-#else
-
-#include <strings.h>
-#endif
+#include "config.h"
+#include "constants.h"
+#include "desc.h"
+#include "externs.h"
+#include "io.h"
+#include "misc1.h"
+#include "misc2.h"
+#include "moria1.h"
+#include "moria2.h"
+#include "spells.h"
+#include "types.h"
 
 /* Correct SUN stupidity in the stdio.h file */
 #ifdef sun
@@ -71,7 +72,7 @@ void update_mon(int monptr)
         if(!m_ptr->ml) {
             tmp_str[0] = c_list[m_ptr->mptr].cchar;
             tmp_str[1] = '\0';
-            print(temp_str, (int)m_ptr->fy, (int)m_ptr->fx);
+            print(tmp_str, (int)m_ptr->fy, (int)m_ptr->fx);
             m_ptr->ml = TRUE;
 
             if(search_flag) {
@@ -228,24 +229,6 @@ void get_moves(int monptr, int *mm)
         }
 
         break;
-    case 5:
-    case 13:
-        mm[0] = 4;
-
-        if(y < 0) {
-            mm[1] = 1;
-            mm[2] = 7;
-            mm[3] = 8;
-            mm[4] = 2;
-        }
-        else {
-            mm[1] = 7;
-            mm[2] = 1;
-            mm[3] = 2;
-            mm[4] = 8;
-        }
-
-        break;
     case 8:
         mm[0] = 3;
 
@@ -347,12 +330,12 @@ void make_attack(int monptr)
         sprintf(ddesc, "The %s", c_ptr->name);
     }
     else {
-        sprintf(ddesx, "& %s", c_ptr->name);
+        sprintf(ddesc, "& %s", c_ptr->name);
     }
 
     strcpy(inventory[INVEN_MAX].name, ddesc);
     inventory[INVEN_MAX].number = 1;
-    objdes(ddesx, INVEN_MAX, TRUE);
+    objdes(ddesc, INVEN_MAX, TRUE);
     /* End DIED_FROM */
 
     while(strlen(attstr) > 0) {
@@ -375,7 +358,7 @@ void make_attack(int monptr)
             attstr[0] = '\0';
         }
 
-        sscanf(attx, "%d %d %s", &attpye, &adesc, &damstr);
+        sscanf(attx, "%d %d %s", &attype, &adesc, damstr);
         flag = FALSE;
 
         if(py.flags.protevil > 0) {
@@ -628,7 +611,7 @@ void make_attack(int monptr)
             case 19:
                 switch(randint(9)) {
                 case 1:
-                    msg_print(strcat("insults you!"));
+                    msg_print(strcat(tmp_str, "insults you!"));
 
                     break;
                 case 2:
@@ -979,8 +962,8 @@ void make_attack(int monptr)
 
                 break;
             case 22: /* Eat food */
-                if(find_range(80, -1, &i, &k)) {
-                    inven_desctroy(i);
+                if(find_range(80, -1, &i, &j)) {
+                    inven_destroy(i);
                 }
 
                 break;
@@ -1061,7 +1044,7 @@ int make_move(int monptr, int *mm)
     i = 0;
     flag = FALSE;
     res = FALSE;
-    movebites = c_list[m_list[monptr].mptr].cmove;
+    movebits = c_list[m_list[monptr].mptr].cmove;
 
     /* Get new position */
     newy = m_list[monptr].fy;
@@ -1089,7 +1072,7 @@ int make_move(int monptr, int *mm)
                 /* Creature can open doors... */
                 switch(t_ptr->tval) {
                 case 105: /* Closed doors... */
-                    /* Closed doors */
+		    /* Closed doors */
                     if(t_ptr->p1 == 0) {
                         tflag = TRUE;
 
@@ -1208,7 +1191,7 @@ int make_move(int monptr, int *mm)
                 /* Monster gets a saving throw... */
                 if(py.flags.confuse_monster) {
                     m_ptr = &m_list[monptr];
-                    r_prt = &c_list[m_ptr->mptr];
+                    r_ptr = &c_list[m_ptr->mptr];
                     msg_print("Your hands stop glowing.");
                     py.flags.confuse_monster = FALSE;
 
@@ -1329,7 +1312,7 @@ int make_move(int monptr, int *mm)
                         else if(t_ptr->p1 < 0) {
                             /* Stuck doors */
                             if(randint(m_ptr->hp + 1) > (10 + abs(t_ptr->p1))) {
-                                t_ptr-p1 = 0;
+                                t_ptr->p1 = 0;
                             }
                         }
 
@@ -1428,7 +1411,7 @@ int make_move(int monptr, int *mm)
                     /* Monster gets a saving throw... */
                     if(py.flags.confuse_monster) {
                         m_ptr = &m_list[monptr];
-                        r_prt = &c_list[m_ptr->mptr];
+                        r_ptr = &c_list[m_ptr->mptr];
                         msg_print("Your hands stop glowing.");
                         py.flags.confuse_monster = FALSE;
                     
@@ -1436,7 +1419,7 @@ int make_move(int monptr, int *mm)
                         if((0x10000 & r_ptr->cmove) && !py.flags.see_inv) {
                             strcpy(m_name, "It");
                         }
-                        else if(py.flags.blinc > 0) {
+                        else if(py.flags.blind > 0) {
                             strcpy(m_name, "It");
                         }
                         else if(!m_ptr->ml) {
@@ -1840,7 +1823,7 @@ int mon_move(int monptr)
                 }
                 if(k < 4) {
                     if(randint(k * MON_MULT_ADJ) == 1) {
-                        multiple_monster((int)m_ptr->fy,
+                        multiply_monster((int)m_ptr->fy,
                                          (int)m_ptr->fx,
                                          (int)m_ptr->mptr,
                                          FALSE);

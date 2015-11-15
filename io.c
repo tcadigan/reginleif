@@ -1,3 +1,5 @@
+#include "io.h"
+
 #include <curses.h>
 #include <sys/file.h>
 #include <sys/ioctl.h>

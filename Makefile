@@ -18,7 +18,10 @@ OBJS = create.o creature.o death.o desc.o dungeon.o eat.o files.o generate.o \
        potions.o prayer.o save.o scrolls.o sets.o signals.o spells.o staffs.o \
        store1.o store2.o treasure1.o treasure2.o variables.o wands.o wizard.o \
 
-moria: $(OBJS)
+HDRS = config.h constants.h desc.h externs.h io.h misc1.h misc2.h moria1.h \
+       moria2.h types.h
+
+moria: $(OBJS) $(HDRS)
 	$(CC) -o moria $(CFLAGS) $(OBJS) $(LDFLAGS)
 
 lintout: $(SRCS)
@@ -29,6 +32,9 @@ lintout2: $(SRCS)
 
 tags: $(SRCS)
 	ctags -x $(SRCS) > TAGS
+
+clean:
+	rm -rf $(OBJS) moria
 
 # You must define BINDIR and LIBDIR before installing
 install:
@@ -42,8 +48,8 @@ install:
 	chmod 444 $(LIBDIR)/Moria_hours
 	chmod 555 $(LIBDIR)
 
-create.o: config.h constants.h externs.h types.h
-creature.o: config.h constants.h externs.h types.h
+create.o: config.h constants.h externs.h io.h misc1.h misc2.h types.h
+creature.o: config.h constants.h desc.h externs.h io.h misc1.h misc2.h moria1.h moria2.h spells.h types.h
 death.o: config.h constants.h externs.h types.h
 desc.o: config.h constants.h externs.h types.h
 dungeon.o: config.h constants.h externs.h types.h
@@ -73,3 +79,5 @@ treasure1.o: config.h constants.h types.h
 treasure2.o: config.h constants.h types.h
 wands.o: config.h constants.h externs.h types.h
 wizard.o: config.h constants.h externs.h types.h
+moria1.h: types.h
+	touch moria1.h
