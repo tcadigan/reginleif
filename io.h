@@ -18,5 +18,6 @@ void shell_out();
 void really_clear_screen();
 void repeat_msg();
 void erase_line(int row, int col);
+void put_qio();
 
 #endif

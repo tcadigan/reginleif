@@ -1,7 +1,12 @@
-#include "constants.h"
+#include "generate.h"
+
 #include "config.h"
-#include "types.h"
+#include "constants.h"
 #include "externs.h"
+#include "misc1.h"
+#include "misc2.h"
+#include "store1.h"
+#include "types.h"
 
 typedef struct coords {
     int x;
@@ -12,7 +17,7 @@ coords doorstk[100];
 int doorptr;
 
 /* Always picks a correct direction */
-void corred_dir(int *rdir, int *cdir, int y1, int x1, int y2, int x2)
+void correct_dir(int *rdir, int *cdir, int y1, int x1, int y2, int x2)
 {
     if(y1 < y2) {
 	*rdir = 1;
@@ -49,7 +54,7 @@ void corred_dir(int *rdir, int *cdir, int y1, int x1, int y2, int x2)
 }
 
 /* Chance of wandering direction */
-void rand_dir(int *rdir, int *cdir, int y1, int x1, int y2, in x2, int chance)
+void rand_dir(int *rdir, int *cdir, int y1, int x1, int y2, int x2, int chance)
 {
     switch(randint(chance)) {
     case 1:
@@ -130,7 +135,7 @@ void place_boundary()
 	cave[i][cur_width - 1].fopen = boundary_wall.ftopen;
     }
 
-    for(i = 0; i < cur_width; ++j) {
+    for(i = 0; i < cur_width; ++i) {
 	cave[0][i].fval = boundary_wall.ftval;
 	cave[0][i].fopen = boundary_wall.ftopen;
 	cave[cur_height - 1][i].fval = boundary_wall.ftval;
@@ -139,7 +144,7 @@ void place_boundary()
 }
 
 /* Places "streamers" of rock through dungeon    -RAK- */
-void place_stream(floor_type rock, int treas_chance)
+void place_streamer(floor_type rock, int treas_chance)
 {
     int i;
     int tx;
@@ -297,7 +302,7 @@ void build_room(int yval, int xval)
     }
 
     y_height = yval - randint(4);
-    x_depth = yval + randint(3);
+    y_depth = yval + randint(3);
     x_left = xval - randint(11);
     x_right = xval + randint(11);
 
@@ -309,7 +314,7 @@ void build_room(int yval, int xval)
     }
 
     for(i = (y_height - 1); i <= (y_depth + 1); ++i) {
-	cave[i][x_left - 1].fval = rockwall1.ftval;
+	cave[i][x_left - 1].fval = rock_wall1.ftval;
 	cave[i][x_left - 1].fopen = rock_wall1.ftopen;
 	cave[i][x_right + 1].fval = rock_wall1.ftval;
 	cave[i][x_right + 1].fopen = rock_wall1.ftopen;
@@ -389,7 +394,7 @@ void build_type1(int yval, int xval)
 
 	    if(c_ptr->fval != cur_floor.ftval) {
 		c_ptr->fval = rock_wall1.ftval;
-		c_ptr->fopen = rock_wall1.fopen;
+		c_ptr->fopen = rock_wall1.ftopen;
 	    }
 	}
     }
@@ -438,15 +443,15 @@ void build_type2(int yval, int xval)
     for(i = (y_height - 1); i <= (y_depth + 1); ++i) {
 	cave[i][x_left - 1].fval = rock_wall1.ftval;
 	cave[i][x_left - 1].fopen = rock_wall1.ftopen;
-	cave[i][x_right + 1].ftval = rock_wall1.ftval;
+	cave[i][x_right + 1].fval = rock_wall1.ftval;
 	cave[i][x_right + 1].fopen = rock_wall1.ftopen;
     }
 
     for(i = x_left; i <= x_right; ++i) {
 	cave[y_height - 1][i].fval = rock_wall1.ftval;
-	cave[y_hieght - 1][i].fopen = rock_wall1.fopen;
+	cave[y_height - 1][i].fopen = rock_wall1.ftopen;
 	cave[y_depth + 1][i].fval = rock_wall1.ftval;
-	cave[y_depth + 1][i].fopen= rock_wall.ftopen;
+	cave[y_depth + 1][i].fopen= rock_wall1.ftopen;
     }
 
     /* The inner room */
@@ -779,7 +784,7 @@ void build_type3(int yval, int xval)
 
     i0 = 2 + randint(2);
     y_height = yval - i0;
-    y_dpeth = yval + i0;
+    y_depth = yval + i0;
     x_left = xval - 1;
     x_right = xval + 1;
 
@@ -804,8 +809,8 @@ void build_type3(int yval, int xval)
 	c_ptr->fval = rock_wall1.ftval;
 	c_ptr->fopen = rock_wall1.ftopen;
 	c_ptr = &cave[y_depth + 1][i];
-	c_ptr->fval = rock_wall.ftval;
-	c_ptr->fopen = rock_wall.ftopen;
+	c_ptr->fval = rock_wall1.ftval;
+	c_ptr->fopen = rock_wall1.ftopen;
     }
 
     i0 = 2 + randint(9);
@@ -833,7 +838,7 @@ void build_type3(int yval, int xval)
 
 	if(c_ptr->fval != cur_floor.ftval) {
 	    c_ptr->fval = rock_wall1.ftval;
-	    c_ptr->fopen = rock_vall1.ftopen;
+	    c_ptr->fopen = rock_wall1.ftopen;
 	}
     }
 
@@ -847,9 +852,9 @@ void build_type3(int yval, int xval)
 
 	c_ptr = &cave[y_depth + 1][i];
 
-	if(c_ptr->fval != cur_cloor.ftval) {
+	if(c_ptr->fval != cur_floor.ftval) {
 	    c_ptr->fval = rock_wall1.ftval;
-	    c_ptr->fopen = rock_wall.ftopen;
+	    c_ptr->fopen = rock_wall1.ftopen;
 	}
     }
 
@@ -1003,7 +1008,7 @@ void build_tunnel(int row1, int col1, int row2, int col2)
 	    }
 	}
     }
-    else if(c_ptr->fval = corr_floor1.ftval) {
+    else if(c_ptr->fval == corr_floor1.ftval) {
 	row1 = tmp_row;
 	col2 = tmp_col;
 
@@ -1142,7 +1147,7 @@ int next_to(int y, int x)
 	    next = TRUE;
 	}
 	else if(((cave[y][x - 1].fval >= 10) && (cave[y][x - 1].fval <= 12))
-		&& ((cave[y][x + 1] >= 10) && (cave[y][x + 1].fval <= 12))) {
+		&& ((cave[y][x + 1].fval >= 10) && (cave[y][x + 1].fval <= 12))) {
 	    next = TRUE;
 	}
 	else {
@@ -1186,7 +1191,7 @@ void cave_gen()
     int x2;
     int pick1;
     int pick2;
-    int row_rows;
+    int row_rooms;
     int col_rooms;
     int alloc_level;
     worlint yloc[400];
@@ -1197,7 +1202,7 @@ void cave_gen()
     int set_4();
 
     row_rooms = 2 * (cur_height / SCREEN_HEIGHT);
-    col_rooms = 2 * (cur_width / SCREEN_WDITH);
+    col_rooms = 2 * (cur_width / SCREEN_WIDTH);
 
     for(i = 0; i < row_rooms; ++i) {
 	for(j = 0; j < col_rooms; ++j) {
@@ -1205,7 +1210,7 @@ void cave_gen()
 	}
     }
 
-    for(i = 0; i < randnor(DUN_ROOM_MEA, 2); ++i) {
+    for(i = 0; i < randnor(DUN_ROO_MEA, 2); ++i) {
 	room_map[randint(row_rooms) - 1][randint(col_rooms) - 1] = TRUE;
     }
 
@@ -1313,14 +1318,14 @@ void build_store(int store_num, int y, int x)
     int xval;
     int x_left;
     int x_right;
-    int i;
-    int j;
+    int i = 0;
+    int j = 0;
     int cur_pos;
-    save_type *c_ptr;
+    cave_type *c_ptr;
 
     yval = (y * 10) + 5;
     xval = (x * 16) + 16;
-    y_hieght = yval - randint(3);
+    y_height = yval - randint(3);
     y_depth = yval + randint(4);
     x_left = xval - randint(6);
     x_right = xval + randint(6);
@@ -1400,20 +1405,20 @@ void town_gen()
 
     /* Make stairs before reset_seed, so that they don't move around */
     place_stairs(2, 1, 0);
-    placE_boundary();
+    place_boundary();
     reset_seed();
 
     if((turn / 5000) & 0x1) {
 	/* Night */
 	for(i = 0; i < cur_height; ++i) {
 	    for(j = 0; j < cur_width; ++j) {
-		if(cave[i][j].fval != dopen.ftval) {
+		if(cave[i][j].fval != dopen_floor.ftval) {
 		    cave[i][j].pl = TRUE;
 		}
 	    }
 	}
 
-	alloc_monster(set_1_2, MIN_MALLOC_TN, TRUE);
+	alloc_monster(set_1_2, MIN_MALLOC_TN, 3, TRUE);
     }
     else {
 	/* Day */

@@ -25,6 +25,7 @@ void move_light(int y1, int x1, int y2, int x2);
 void search(int y, int x, int chance);
 int inven_command(char command, int r1, int r2);
 int get_dir(char *prompt, int *dir, int *com_val, int *y, int *x);
+int get_item(int *com_val, char *pmt, int *redraw, int i, int j);
 void change_speed(int num);
 void new_spot(int *y, int *x);
 

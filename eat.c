@@ -1,9 +1,16 @@
 #include "eat.h"
 
-#include "constants.h"
 #include "config.h"
-#include "types.h"
+#include "constants.h"
+#include "desc.h"
 #include "externs.h"
+#include "io.h"
+#include "misc1.h"
+#include "misc2.h"
+#include "moria1.h"
+#include "moria2.h"
+#include "spells.h"
+#include "types.h"
 
 /* Eat some food...    -RAK- */
 void eat()
@@ -28,7 +35,7 @@ void eat()
             if(get_item(&item_val, "Eat What?", &redraw, j, k)) {
                 i_ptr = &inventory[item_val];
 
-                if(redaw) {
+                if(redraw) {
                     draw_cave();
                 }
 
@@ -97,7 +104,7 @@ void eat()
 
                         break;
                     case 10:
-                        ident = lost_str();
+                        ident = lose_str();
 
                         break;
                     case 11:
@@ -139,7 +146,7 @@ void eat()
 
                         if(s_ptr->con > s_ptr->ccon) {
                             s_ptr->ccon = s_ptr->con;
-                            msg_printf("You feel your health returning.");
+                            msg_print("You feel your health returning.");
                             prt_constitution();
                             ident = TRUE;
                         }
@@ -148,7 +155,7 @@ void eat()
                     case 18:
                         s_ptr = &py.stats;
 
-                        if(py.stats.intel > p_ptr->cint) {
+                        if(py.stats.intel > s_ptr->cint) {
                             s_ptr->cint = py.stats.intel;
                             msg_print("Your head spins a moment.");
                             prt_intelligence();
@@ -159,8 +166,8 @@ void eat()
                     case 19:
                         s_ptr = &py.stats;
 
-                        if(s_ptr->cwis > s_ptr->wis) {
-                            s_ptr-cwis = s_ptr->wis;
+                        if(s_ptr->wis > s_ptr->cwis) {
+                            s_ptr->cwis = s_ptr->wis;
                             msg_print("You feel your wisdom returning.");
                             prt_wisdom();
                             ident = TRUE;
@@ -170,7 +177,7 @@ void eat()
                     case 20:
                         s_ptr = &py.stats;
 
-                        if(c_ptr->dex > s_ptr->cdex) {
+                        if(s_ptr->dex > s_ptr->cdex) {
                             s_ptr->cdex = s_ptr->dex;
                             msg_print("You feel more dextrous.");
                             prt_dexterity();
@@ -187,7 +194,7 @@ void eat()
                         if(s_ptr->chr > s_ptr->cchr) {
                             s_ptr->cchr = s_ptr->chr;
                             msg_print("You skin starts itching.");
-                            prt_chrisma();
+                            prt_charisma();
                             ident = TRUE;
                         }
 

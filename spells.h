@@ -13,5 +13,12 @@ int cure_confusion();
 int cure_blindness();
 int cure_poison();
 int remove_curse();
+int hp_player(int num, char *kind);
+int lose_chr();
+int lose_dex();
+int lose_wis();
+int lose_int();
+int lose_con();
+int lose_str();
 
 #endif

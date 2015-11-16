@@ -1,21 +1,18 @@
 #include "files.h"
 
 #include <stdio.h>
-
-#include "constants.h"
-#include "config.h"
-#include "types.h"
-#include "externs.h"
-
-#ifdef USG
+#include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
 
-#else
-
-#include <strings.h>
-#include <sys/file.h>
-#endif
+#include "config.h"
+#include "constants.h"
+#include "desc.h"
+#include "externs.h"
+#include "io.h"
+#include "misc1.h"
+#include "misc2.h"
+#include "types.h"
 
 /* Correct SUN stupidity in the stdio.h file */
 #ifdef sun
@@ -64,8 +61,8 @@ void intro(char *finam)
 
     if(file1 != NULL) {
 	while(fgets(in_line, 80, file1) != NULL) {
-	    if(strlen(in_in_line) > 3) {
-		if(!strncp(in_line, "SUN:", 4)) {
+	    if(strlen(in_line) > 3) {
+		if(!strncpy(in_line, "SUN:", 4)) {
 		    strcpy(days[0], in_line);
 		}
 		else if(!strncmp(in_line, "MON:", 4)) {
@@ -107,7 +104,7 @@ void intro(char *finam)
     }
 
     if(xpos >= 0) {
-	if(check_pswd()) {
+	if(check_paswd()) {
 	    insert_str(finam, "^", "");
 	}
     }
@@ -119,7 +116,7 @@ void intro(char *finam)
 	    if(file1 != NULL) {
 		clear_screen(0, 0);
 
-		for(i = 0; fgets(in_line, 80, file1) != NULL, ++i) {
+		for(i = 0; fgets(in_line, 80, file1) != NULL; ++i) {
 		    prt(in_line, i, 0);
 		}
 
@@ -162,7 +159,7 @@ void print_map()
     char tmp_str[80];
     FILE *file1;
     int page_width = OUTPAGE_WIDTH;
-    int page_height = OUTPGAE_HIEGHT;
+    int page_height = OUTPAGE_HEIGHT;
 
     /*
      * This allows us to strcat each character in the inner loop, instead of
@@ -525,7 +522,7 @@ void print_objects()
 		}
 
 		pusht(j);
-		flcose(file1);
+		fclose(file1);
 		prt("Completed.", 0, 0);
 	    }
 	    else {
@@ -591,11 +588,11 @@ void print_monsters()
 		    fprintf(file1, "     Creature is a monster.\n");
 		}
 
-		if(0x0004 & f_ptr->cdefense) {
+		if(0x0004 & c_ptr->cdefense) {
 		    fprintf(file1, "     Creature is evil.\n");
 		}
 
-		if(0x0008 & f_ptr->cdefense) {
+		if(0x0008 & c_ptr->cdefense) {
 		    fprintf(file1, "     Creature is undead.\n");
 		}
 
@@ -656,11 +653,11 @@ void print_monsters()
 		}
 
 		if(0x04000000 & c_ptr->cmove) {
-		    fprintf(file1, "       Has object/gold 60% of time.\n");
+		    fprintf(file1, "       Has object/gold 60%% of time.\n");
 		}
 
 		if(0x08000000 & c_ptr->cmove) {
-		    fprintf(file1, "       Has object/gold 90% of time.\n");
+		    fprintf(file1, "       Has object/gold 90%% of time.\n");
 		}
 
 		if(0x10000000 & c_ptr->cmove) {
@@ -1142,7 +1139,7 @@ void file_character()
 	    fprintf(file1, "  Searching   : %s\n", pad(likert(xsrh, 6), " ", 10));
 	    fprintf(file1, "  Saving Throw: %s", pad(likert(xsave, 6), " ", 10));
 	    fprintf(file1, "  Magic Device: %s", pad(likert(xdev, 6), " ", 10));
-	    fprintf(file1, "  Infra-Vision: %s\n", pad(infra, " ", 10));
+	    fprintf(file1, "  Infra-Vision: %s\n", pad(xinfra, " ", 10));
 
 	    /* Write out the character's history */
 	    fprintf(file1, "\n");
@@ -1150,7 +1147,7 @@ void file_character()
 	    fprintf(file1, "Character Background\n");
 
 	    for(i = 0; i < 5; ++i) {
-		fprintf("%s\n", pad(py.misc.history[i], " ", 71));
+		fprintf(file1, "%s\n", pad(py.misc.history[i], " ", 71));
 	    }
 
 	    /* Write out the equipment list... */
@@ -1251,7 +1248,7 @@ void file_character()
 	    }
 
 	    fprintf(file1, "%c", 12);
-	    flcose(file1);
+	    fclose(file1);
 	    prt("Completed.", 0, 0);
 	}
     }

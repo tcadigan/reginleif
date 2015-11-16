@@ -1,12 +1,15 @@
 #ifndef MISC2_H_
 #define MISC2_H_
 
+#include "types.h"
+
 int todis_adj();
 int todam_adj();
 int tohit_adj();
 int toac_adj();
 int con_adj();
 int wis_adj();
+int int_adj();
 void prt_cmana();
 void prt_wisdom();
 void prt_intelligence();
@@ -43,5 +46,17 @@ void alloc_object(int (*alloc_set)(), int typ, int num);
 void change_name();
 int check_paswd();
 void draw_cave();
+void cnv_stat(byteint stat, char *out_val);
+int get_obj_num(int level);
+void place_stairs(int typ, int num, int walls);
+void place_door(int y, int x);
+void place_object(int y, int x);
+void place_down_stairs(int y, int x);
+void place_up_stairs(int y, int x);
+void place_locked_door(int y, int x);
+void place_secret_door(int y, int x);
+void place_trap(int y, int x, int typ, int subval);
+void place_gold(int y, int x);
+void random_object(int y, int x, int num);
 
 #endif

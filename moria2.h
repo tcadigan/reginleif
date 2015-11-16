@@ -21,5 +21,7 @@ void go_down();
 void go_up();
 void teleport(int dis);
 void move_char(int dir);
+void desc_remain(int item_val);
+void add_food(int num);
 
 #endif

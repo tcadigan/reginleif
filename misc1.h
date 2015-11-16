@@ -19,5 +19,13 @@ void prt_map();
 void regenmana(double percent);
 void regenhp(double percent);
 void alloc_monster(int (*alloc_set)(), int num, int dis, int slp);
+void pusht(int x);
+void popt(int *x);
+void magic_treasure(int x, int level);
+void loc_symbol(int y, int x, char *sym);
+void mlink();
+void tlink();
+void place_win_monster();
+int next_to8(int y, int x, int elem_a, int elem_b, int elem_c);
 
 #endif
