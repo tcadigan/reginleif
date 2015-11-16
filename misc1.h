@@ -26,6 +26,7 @@ void loc_symbol(int y, int x, char *sym);
 void mlink();
 void tlink();
 void place_win_monster();
+int next_to4(int y, int x, int elem_a, int elem_b, int elem_c);
 int next_to8(int y, int x, int elem_a, int elem_b, int elem_c);
 void price_adjust();
 void init_t_level();

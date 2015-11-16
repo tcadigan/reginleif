@@ -108,7 +108,7 @@ extern int t_level[MAX_OBJ_LEVEL];
 extern treasure_type gold_list[MAX_GOLD];
 extern treasure_type t_list[MAX_TALLOC];
 extern treasure_type inventory[INVEN_ARRAY_SIZE];
-extern treasure_type invenotry_init[INVEN_INIT_MAX];
+extern treasure_type inventory_init[INVEN_INIT_MAX];
 extern treasure_type blank_treasure;
 extern int inven_ctr; /* Total different objects */
 extern int inven_weight; /* Current carried weight */
@@ -141,11 +141,5 @@ extern atype metals[MAX_METALS];
 extern atype rocks[MAX_ROCKS];
 extern atype amulets[MAX_AMULETS];
 extern dtype syllables[MAX_SYLLABLES];
-
-/* Function return values */
-char *pad();
-byteint de_statp();
-byteint in_statp();
-char *likert();
 
 #endif

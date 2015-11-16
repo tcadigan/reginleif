@@ -31,6 +31,7 @@ void prt_depth();
 void prt_gold();
 void prt_strength();
 void prt_chp();
+void prt_num(vtype header, int num, int row, int col);
 void get_name();
 void put_misc1();
 void put_misc2();
@@ -58,11 +59,17 @@ void place_secret_door(int y, int x);
 void place_trap(int y, int x, int typ, int subval);
 void place_gold(int y, int x);
 void random_object(int y, int x, int num);
-byteint de_statt();
+byteint de_statt(byteint stat);
+byteint de_statp(byteint stat);
+byteint in_statp(byteint stat);
 int learn_prayer();
 int learn_spell(int *redraw);
 void gain_mana(int amount);
 void char_inven_init();
 void bpswd();
+char *likert(int x, int y);
+int get_spell(spl_typ spell, int num, int *sn, int *sc, vtype prompt, int *redraw);
+void print_new_spells(spl_typ spell, int num, int *redraw);
+void spell_chance(spl_rec *spell);
 
 #endif

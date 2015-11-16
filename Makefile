@@ -62,8 +62,8 @@ help.o: help.h config.h constants.h externs.h io.h misc2.h types.h
 io.o: io.h config.h constants.h externs.h misc2.h moria1.h signals.h types.h
 magic.o: magic.h config.h constants.h externs.h io.h misc1.h misc2.h moria1.h moria2.h spells.h types.h
 main.o: config.h constants.h create.h death.h desc.h dungeon.h externs.h files.h generate.h io.h misc1.h misc2.h save.h signals.h store1.h types.h
-misc1.o: misc1.h config.h constants.h externs.h types.h
-misc2.o: misc2.h config.h constants.h externs.h types.h
+misc1.o: misc1.h config.h constants.h externs.h io.h types.h
+misc2.o: misc2.h config.h constants.h externs.h io.h misc1.h types.h
 monsters.o: config.h constants.h types.h
 moria1.o: moria1.h config.h constants.h externs.h types.h
 moria2.o: moria2.h config.h constants.h externs.h types.h

@@ -3,62 +3,16 @@
 #include <time.h>
 #include <math.h>
 #include <stdio.h>
-#include <sys/types.h>
-
-#include "constants.h"
-#include "config.h"
-#include "types.h"
-
-/*
- * SUN4 has a variable called class in the include file <math.h>, avoid a
- * conflict by not defining my class in the file externs.h
- */
-#define DONT_DEFINE_CLASS
-#include "externs.h"
-
-#ifdef USG
+#include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <unistd.h>
 
-#else
-#include <strings.h>
-
-#endif
-
-long time();
-struct tm *localtime();
-double sqrt();
-double cos();
-double fabs();
-
-#if defined(ultrix) || defined(sun) || defined(USG)
-int gutuid();
-int geteuid();
-int getgid();
-int getegid();
-
-#else
-uid_t getuid();
-uid_t geteuid();
-uid_t getgid();
-uid_t getegid();
-
-#endif
-
-#ifdef USG
-long lrand48();
-void srand48();
-unsigned short *seed48();
-
-#else
-long random();
-char *initstate();
-char *setstate();
-
-#endif
-
-#ifdef ultrix
-void srandom();
-#endif
+#include "config.h"
+#include "constants.h"
+#include "externs.h"
+#include "io.h"
+#include "types.h"
 
 /* Gets a new random seed for the random number generator */
 void init_seeds()
@@ -192,15 +146,17 @@ int check_time()
 {
     switch((int)days[day_num()][hour_num() + 4]) {
     case '.': /* Closed */
-
+	
 	return FALSE;
     case 'x': /* Normal hours */
 
 	return TRUE;
     default: /* Other, assumed closed */
 
-	return FALSE;
+	break;
     }
+    
+    return FALSE;
 }
 
 /* Generates a random integer x where 1 <== X <== MAXVAL    -RAK- */
@@ -267,9 +223,8 @@ int in_bounds(int y, int x)
        && (x < (cur_width - 1))) {
 	return TRUE;
     }
-    else {
-	return FALSE;
-    }
+
+    return FALSE;
 }
 
 /*
@@ -404,9 +359,9 @@ void init_m_level()
 
     i = 0;
     j = 0;
-    k = MAX_CREATURES - WIN_MOT_TOT;
+    k = MAX_CREATURES - WIN_MON_TOT;
 
-    while(j <= MAX_MONS_LEVEL) {
+    while(j < MAX_MONS_LEVEL) {
 	m_level[j] = 0;
 
 	while((i < k) && (c_list[i].level == j)) {
@@ -417,7 +372,7 @@ void init_m_level()
 	++j;
     }
 
-    for(i = 2; i <= MAX_MONS_LEVEL; ++i) {
+    for(i = 2; i < MAX_MONS_LEVEL; ++i) {
 	m_level[i] += m_level[i - 1];
     }
 }
@@ -530,7 +485,7 @@ int los(int y1, int x1, int y2, int x2)
 	    flag = cave[y2][x2].fopen;
 
 	    while((y1 != y2) && flag) {
-		y 2 += stepy;
+		y2 += stepy;
 		flag = cave[y2][x2].fopen;
 	    }
 	}
@@ -577,7 +532,7 @@ int los(int y1, int x1, int y2, int x2)
 		flag = FALSE;
 	    }
 
-	    while((x1 != x2) && falg) {
+	    while((x1 != x2) && flag) {
 		x2 = stepx;
 		tmp += slp;
 
@@ -604,7 +559,7 @@ void loc_symbol(int y, int x, char *sym)
     cave_ptr = &cave[y][x];
 
     if((cave_ptr->cptr == 1) && !find_flag) {
-	&sym = '@';
+	*sym = '@';
     }
     else if(py.flags.blind > 0) {
 	*sym = ' ';
@@ -614,12 +569,12 @@ void loc_symbol(int y, int x, char *sym)
 	    mon_ptr = &m_list[cave_ptr->cptr];
 
 	    if(mon_ptr->ml
-	       && (((m_list[mon_ptr->mptr].cmove & 0x00010000) == 0)
+	       && (((c_list[mon_ptr->mptr].cmove & 0x00010000) == 0)
 		   || py.flags.see_inv)) {
 		*sym = c_list[mon_ptr->mptr].cchar;
 	    }
 	    else if(cave_ptr->tptr != 0) {
-		&sym = t_list[cave_ptr->tptr].tchar;
+		*sym = t_list[cave_ptr->tptr].tchar;
 	    }
 	    else if(cave_ptr->fval < 10) {
 		*sym = '.';
@@ -808,7 +763,8 @@ void compact_monsters()
     while(i > 0) {
 	delete_1 = FALSE;
 	k = m_list[i].nptr;
-
+	mon_ptr = &m_list[i];
+	
 	if(cur_dis > mon_ptr->cdis) {
 	    if(randint(3) == 1) {
 		if(j == 0) {
@@ -966,7 +922,7 @@ void place_win_monster()
 	y = randint(cur_height - 2);
 	x = randint(cur_width - 2);
 
-	while(((cave[y][x] != 1)
+	while(((cave[y][x].fval != 1)
 	       && (cave[y][x].fval != 2)
 	       && (cave[y][x].fval != 4))
 	      || (cave[y][x].cptr != 0)
@@ -978,7 +934,7 @@ void place_win_monster()
 
 	mon_ptr->fy = y;
 	mon_ptr->fx = x;
-	mon_ptr->mptr = randint(WIN_MON_TOT) - 1 + m_level[MAX_MONS_LEVEL] + m_leve[0];
+	mon_ptr->mptr = randint(WIN_MON_TOT) - 1 + m_level[MAX_MONS_LEVEL] + m_level[0];
 	mon_ptr->nptr = muptr;
 	muptr = cur_pos;
 
@@ -1026,14 +982,14 @@ void alloc_monster(int (*alloc_set)(), int num, int dis, int slp)
 	}
 	else if(randint(MON_NASTY) == 1) {
 	    /* abs may be a macro, don't call it with randnor as a parameter */
-	    k = randnor = (0, 4);
+	    k = randnor(0, 4);
 	    j = dun_level + abs(k) + 1;
 
 	    if(j >= MAX_MONS_LEVEL) {
 		j = MAX_MONS_LEVEL;
 	    }
 
-	    k = m_level[j] - m_leve[j - 1];
+	    k = m_level[j] - m_level[j - 1];
 	    j = randint(k) - 1 + m_level[j - 1];
 	}
 	else {
@@ -1215,7 +1171,7 @@ int summon_undead(int *y, int *x)
     j = *y - 2 + randint(3);
     k = *x - 2 + randint(3);
 
-    if(inbounds(j, k)) {
+    if(in_bounds(j, k)) {
 	cave_ptr = &cave[j][k];
 
 	if((cave_ptr->fval == 1)
@@ -1390,9 +1346,9 @@ void compact_objects()
 			}
 
 			if(flag) {
-			    cave-ptr->fopen = TRUE;
+			    cave_ptr->fopen = TRUE;
 			    t_list[cave_ptr->tptr] = blank_treasure;
-			    t_list[cave_ptr->tptr] = tcptr;
+			    t_list[cave_ptr->tptr].p1 = tcptr;
 			    tcptr = cave_ptr->tptr;
 			    cave_ptr->tptr = 0;
 			    ++ctr;
@@ -1449,7 +1405,7 @@ void sort_objects()
 	    while(j >= 0) {
 		k = j + gap;
 
-		if(objects_list[j].level > object_list[k].level) {
+		if(object_list[j].level > object_list[k].level) {
 		    tmp = object_list[j];
 		    object_list[j] = object_list[k];
 		    object_list[k] = tmp;
@@ -1491,7 +1447,7 @@ int m_bonus(int base, int max_std, int level)
     }
 
     /* abs may be a macro, don't call it with randnor as a parameter */
-    tmp = randnor(0, std_dev);
+    tmp = randnor(0, stand_dev);
     x = (abs(tmp) / 10.0) + base;
 
     if(x < base) {
@@ -1611,7 +1567,7 @@ void magic_treasure(int x, int level)
 		    t_ptr->p1 = randint(4);
 		    strcat(t_ptr->name, " [%P4] (HA) (%P1 to STR)");
 		    t_ptr->cost += (t_ptr->p1 * 500);
-		    t_ptr->cose += 10000;
+		    t_ptr->cost += 10000;
 
 		    break;
 		case 2: /* Defender */
@@ -1791,7 +1747,7 @@ void magic_treasure(int x, int level)
 		    t_ptr->flags |= 0x00001000;
 		    strcat(t_ptr->name, " of Speed");
 		    t_ptr->p1 = 1;
-		    t-ptr->cost += 5000;
+		    t_ptr->cost += 5000;
 
 		    break;
 		case 2:
@@ -1822,7 +1778,7 @@ void magic_treasure(int x, int level)
 
 		break;
 	    case 2:
-		t_ptr->flags |- 0x80000200;
+		t_ptr->flags |= 0x80000200;
 		strcat(t_ptr->name, " of Noise");
 
 		break;
@@ -1883,7 +1839,7 @@ void magic_treasure(int x, int level)
 			t_ptr->p1 = randint(3);
 			t_ptr->flags |= 0x00800007;
 			strcat(t_ptr->name, " of Might (%P1)");
-			t_ptr-> += (1000 + (t_ptr->p1 * 500));
+			t_ptr->cost += (1000 + (t_ptr->p1 * 500));
 
 			break;
 		    case 2:
@@ -1911,7 +1867,7 @@ void magic_treasure(int x, int level)
 			t_ptr->p1 = 1 + randint(4);
 			t_ptr->flags |= 0x01000040;
 			strcat(t_ptr->name, " of Seeing (%P1)");
-			t_ptr-> += (1000 + (t_ptr->p1 * 100));
+			t_ptr->cost += (1000 + (t_ptr->p1 * 100));
 
 			break;
 		    case 6:
@@ -2474,7 +2430,7 @@ void magic_treasure(int x, int level)
 			    t_ptr->tohit += 2;
 			    t_ptr->todam += 4;
 			    strcat(t_ptr->name, " of Fire");
-			    t_tr->cost += 25;
+			    t_ptr->cost += 25;
 
 			    break;
 			case 6:

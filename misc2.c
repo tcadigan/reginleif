@@ -1,20 +1,16 @@
 #include "misc2.h"
 
 #include <stdio.h>
+#include <string.h>
 #include <sys/types.h>
 
-#include "constants.h"
 #include "config.h"
-#include "types.h"
+#include "constants.h"
 #include "externs.h"
+#include "io.h"
+#include "misc1.h"
+#include "types.h"
 
-#ifdef USG
-#include <string.h>
-
-#else
-#include <strings.h>
-
-#endif
 
 /* Correct SUN stupidity in the stdio.h file */
 #ifdef sun
@@ -53,7 +49,7 @@ void place_rubble(int y, int x)
     int cur_pos;
     cave_type *cave_ptr;
 
-    popt(*cur_pos);
+    popt(&cur_pos);
     cave_ptr = &cave[y][x];
     cave_ptr->tptr = cur_pos;
     cave_ptr->fopen = FALSE;
@@ -78,8 +74,8 @@ void place_broken_door(int y, int x)
     int cur_pos;
     cave_type *cave_ptr;
 
-    popt(*cur_pos);
-    case_ptr = &cave[y][x];
+    popt(&cur_pos);
+    cave_ptr = &cave[y][x];
     cave_ptr->tptr = cur_pos;
     t_list[cur_pos] = door_list[0];
     cave_ptr->fval = corr_floor3.ftval;
@@ -92,7 +88,7 @@ void place_closed_door(int y, int x)
     int cur_pos;
     cave_type *cave_ptr;
 
-    popt(*cur_pos);
+    popt(&cur_pos);
     cave_ptr = &cave[y][x];
     cave_ptr->tptr = cur_pos;
     t_list[cur_pos] = door_list[1];
@@ -230,6 +226,7 @@ void place_stairs(int typ, int num, int walls)
     int x1;
     int y2;
     int x2;
+    int flag;
 
     for(i = 0; i < num; ++i) {
 	flag = FALSE;
@@ -969,7 +966,7 @@ void prt_stat(vtype stat_name, byteint stat, int row, int column)
     stat_type out_val1;
     vtype out_val2;
 
-    cnv_stat(state, out_val1);
+    cnv_stat(stat, out_val1);
     strcpy(out_val2, stat_name);
     strcat(out_val2, out_val1);
     put_buffer(out_val2, row, column);
@@ -1252,7 +1249,7 @@ void prt_pac()
 /* Prints current gold    -RAK- */
 void prt_gold()
 {
-    prt_num("\0", py.misc.au, stat_column + 6);
+    prt_num("\0", py.misc.au, 20, stat_column + 6);
 }
 
 /* Prints depth in stat area    -RAK- */
@@ -1343,7 +1340,7 @@ void prt_search()
 }
 
 /* Prints resting status    -RAK- */
-voifd prt_rest()
+void prt_rest()
 {
     if(py.flags.status & 0x000200) {
 	put_buffer("Resting    ", 23, 43);
@@ -1449,7 +1446,7 @@ int tohit_adj()
     int total;
     struct stats *s_ptr;
 
-    s_ptr = &py.stat;
+    s_ptr = &py.stats;
 
     if(s_ptr->cdex < 4) {
 	total = -1;
@@ -1660,6 +1657,8 @@ void prt_stat_block()
 	prt_winner();
     }
 
+    status = py.flags.status;
+    
     if(status & 0x000003) {
 	prt_hunger();
     }
@@ -2023,7 +2022,7 @@ int inven_check_weight()
 int inven_check_num()
 {
     int i;
-    int chekc_num;
+    int check_num;
 
     check_num = FALSE;
 
@@ -2074,7 +2073,7 @@ void inven_carry(int *item_val)
     *item_val = 0;
     flag = FALSE;
     i_ptr = &inventory[INVEN_MAX];
-    itrm_num = i_ptr->number;
+    item_num = i_ptr->number;
     typ = i_ptr->tval;
     subt = i_ptr->subval;
     wgt = i_ptr->number * i_ptr->weight;
@@ -2159,7 +2158,7 @@ void spell_chance(spl_rec *spell)
 }
 
 /* Print list of spells    -RAK- */
-void print_new_spells(sply_type spell, int num, int *redraw)
+void print_new_spells(spl_typ spell, int num, int *redraw)
 {
     int i;
     vtype out_val;
@@ -2186,7 +2185,7 @@ void print_new_spells(sply_type spell, int num, int *redraw)
 }
 
 /* Returns spell pointer    -RAK- */
-int get_spell(sply_type spell, int num, int *sn, int *sc, vtype prompt, int *redraw)
+int get_spell(spl_typ spell, int num, int *sn, int *sc, vtype prompt, int *redraw)
 {
     int flag;
     char choice;
@@ -2213,7 +2212,7 @@ int get_spell(sply_type spell, int num, int *sn, int *sc, vtype prompt, int *red
 
 	    break;
 	default:
-	    *sn - 97;
+	    *sn -= 97;
 
 	    break;
 	}
@@ -2241,7 +2240,7 @@ int learn_spell(int *redraw)
     int sn;
     int sc;
     unsigned int spell_flag;
-    spl_type spell;
+    spl_typ spell;
     int learn;
     spell_type *s_ptr;
 
@@ -2310,7 +2309,7 @@ int learn_spell(int *redraw)
 	k = bit_pos(&j);
 	s_ptr = &magic_spell[py.misc.pclass][k];
 
-	if(s_ptr->slevel <= py.misc_lev) {
+	if(s_ptr->slevel <= py.misc.lev) {
 	    if(!s_ptr->learned) {
 		spell[i].splnum = k;
 		++i;
@@ -2333,7 +2332,7 @@ int learn_spell(int *redraw)
 	    print_new_spells(spell, i, redraw);
 
 	    if(get_spell(spell, i, &sn, &sc, "Learn which spell?", redraw)) {
-		magic_spell(py.misc.pclass][sn].learned = TRUE;
+		magic_spell[py.misc.pclass][sn].learned = TRUE;
 		learn = TRUE;
 		--new_spells;
 
@@ -2357,7 +2356,7 @@ int learn_spell(int *redraw)
 int learn_prayer()
 {
     int i;
-    int j;
+    int j = 0;
     int k;
     int l;
     int new_spell;
@@ -2675,11 +2674,11 @@ void insert_str(char *object_str, char *mtc_str, char *insert)
     bound = object_str + obj_len - mtc_len;
 
     for(pc = object_str; pc <= bound; ++pc) {
-	tmp_obj = pc;
-	tmp_mtc = mtc_str;
+	temp_obj = pc;
+	temp_mtc = mtc_str;
 
 	for(i = 0; i < mtc_len; ++i) {
-	    if(*tempt_obj++ != *temp_mtc++) {
+	    if(*temp_obj++ != *temp_mtc++) {
 		break;
 	    }
 	}
@@ -2732,7 +2731,7 @@ void insert_num(char *object_str, char *mtc_str, int number, int show_sign)
 	    flag = 0;
 	}
 	else {
-	    flag = strncmp(string, mtc, strlen(mtc_str));
+	    flag = strncmp(string, mtc_str, strlen(mtc_str));
 
 	    if(flag) {
 		tmp_str = string + 1;
@@ -2928,8 +2927,8 @@ int critical_blow(int weight, int plus, int dam)
 /* Given a direction "dir", returns new row, column location    -RAK- */
 int moria_move(int dir, int *y, int *x)
 {
-    int new_row;
-    int new_col;
+    int new_row = 0;
+    int new_col = 0;
     int bool;
 
     switch(dir) {

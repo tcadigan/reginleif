@@ -339,7 +339,7 @@ int cast_spell(char *prompt, int item_val, int *sn, int *sc, int *redraw)
     unsigned int j;
     int i;
     int k;
-    spl_tpye spell;
+    spell_type spell;
     int cast;
     spell_type *s_ptr;
 
