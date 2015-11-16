@@ -194,7 +194,7 @@ void place_streamer(floor_type rock, int treas_chance)
 	}
     }
 
-    if(!move(dir, &y, &x)) {
+    if(!moria_move(dir, &y, &x)) {
 	flag = TRUE;
     }
 
@@ -217,7 +217,7 @@ void place_streamer(floor_type rock, int treas_chance)
 	    }
 	}
 
-	if(!move(dir, &y, &x)) {
+	if(!moria_move(dir, &y, &x)) {
 	    flag = TRUE;
 	}
     }

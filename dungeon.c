@@ -2741,7 +2741,7 @@ void rogue_like_commands(int *com_val)
 	/* ^Y */
 	x = char_row;
 	y = char_col;
-	move(7, &x, &y);
+	moria_move(7, &x, &y);
 	tunnel(x, y);
 
 	break;
@@ -2749,7 +2749,7 @@ void rogue_like_commands(int *com_val)
 	/* ^K */
 	x = char_row;
 	y = char_col;
-	move(8, &x, &y);
+	moria_move(8, &x, &y);
 	tunnel(x, y);
 
 	break;
@@ -2757,7 +2757,7 @@ void rogue_like_commands(int *com_val)
 	/* ^U */
 	x = char_row;
 	y = char_col;
-	move(9, &x, &y);
+	moria_move(9, &x, &y);
 	tunnel(x, y);
 
 	break;
@@ -2765,7 +2765,7 @@ void rogue_like_commands(int *com_val)
 	/* ^L */
 	x = char_row;
 	y = char_col;
-	move(6, &x, &y);
+	moria_move(6, &x, &y);
 	tunnel(x, y);
 
 	break;
@@ -2773,7 +2773,7 @@ void rogue_like_commands(int *com_val)
 	/* ^N */
 	x = char_row;
 	y = char_col;
-	move(3, &x, &y);
+	moria_move(3, &x, &y);
 	tunnel(x, y);
 
 	break;
@@ -2781,7 +2781,7 @@ void rogue_like_commands(int *com_val)
 	/* ^J */
 	x = char_row;
 	y = char_col;
-	move(2, &x, &y);
+	moria_move(2, &x, &y);
 	tunnel(x, y);
 
 	break;
@@ -2789,7 +2789,7 @@ void rogue_like_commands(int *com_val)
 	/* ^B */
 	x = char_row;
 	y = char_col;
-	move(1, &x, &y);
+	moria_move(1, &x, &y);
 	tunnel(x, y);
 
 	break;
@@ -2797,7 +2797,7 @@ void rogue_like_commands(int *com_val)
 	/* ^H */
 	x = char_row;
 	y = char_col;
-	move(4, &x, &y);
+	moria_move(4, &x, &y);
 	tunnel(x, y);
 
 	break;

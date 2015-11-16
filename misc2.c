@@ -2926,7 +2926,7 @@ int critical_blow(int weight, int plus, int dam)
 }
 
 /* Given a direction "dir", returns new row, column location    -RAK- */
-int move(int dir, int *y, int *x)
+int moria_move(int dir, int *y, int *x)
 {
     int new_row;
     int new_col;

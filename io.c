@@ -1,34 +1,24 @@
 #include "io.h"
 
 #include <curses.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/file.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
-
-#include "constants.h"
-#include "config.h"
-#include "types.h"
-#include "externs.h"
-
-#ifdef USG
-#include <string.h>
-
-#else
-
-#include <string.h>
-#include <sgtty.h>
 #include <sys/wait.h>
-#endif
+#include <unistd.h>
 
-/* Correct SUN stupidity in the stdio.h file */
-#ifdef sun
-char *sprintf();
-#endif
+#include "config.h"
+#include "constants.h"
+#include "externs.h"
+#include "misc2.h"
+#include "moria1.h"
+#include "signals.h"
+#include "types.h"
 
 /* Static output string for the pad function */
 vtype pad_output;
-
-char *getenv();
 
 /* Last messages */
 vtype old_msg[SAVED_MSGS];
@@ -45,57 +35,20 @@ int repeating_old_msg = 0;
 /* Value of msg flag at start of turn */
 extern int save_msg_flag;
 
-#ifdef USG
-void exit();
-unsigned int sleep();
-#endif
-
-#ifdef ultrix
-void exit();
-void sleep();
-#endif
-
-#ifdef USG
-/* No local special characters */
-#else
-struct ltchars save_special_chars;
-#endif
-
 /* Initialize curses routines */
 void init_curses()
 {
-#ifdef USG
     /* No local special characters */
-#else
-    struct ltchars buf;
-#endif
 
-#ifdef USG
     if(initscr() == NULL) {
         printf("Error allocating screen in curses package\n");
         
         exit_game();
     }
-#else
-    if(initscr() == ERR) {
-        printf("Error allocating screen in curses package\n");
-        
-        exit_game();
-    }
-#endif
     
     clear();
-
-#ifdef USG
     saveterm();
-#endif
-
-#if defined(ultrix)
-    crmode();
-#else
     cbreak();
-#endif
-
     noecho();
 
 #ifndef BUGGY_CURSES
@@ -103,25 +56,7 @@ void init_curses()
 #endif
 
     /* Save old settings of the local special characters */
-#ifdef USG
     /* No local special characters */
-#else
-    ioctl(0, TIOCGLTC, (char *)&save_special_chars);
-
-    /* 
-     * Disable all of the local special characters except the suspend char,
-     * have to disable ^Y for tunneling
-     */
-
-    /* control-Z */
-    buf.t_suspc = (char)26;
-    buf.t_dsuspc = (char)-1;
-    buf.t_rprntc = (char)-1;
-    buf.t_flushc = (char)-1;
-    buf.t_werasc = (char)-1;
-    buf.t_lnextc = (char)-1;
-    ioctl(0, TIOCSLTC, (char *)&buf);
-#endif
 }
 
 /* Dump IO to buffer    -RAK- */
@@ -149,12 +84,7 @@ void shell_out()
     int val;
     char *str;
 
-#ifdef USG
     /* No local special characters */
-#else
-    struct ltchars buf;
-#endif
-
     /* Clear screen and print 'exit' message */
     clear_screen(0, 0);
     prt("[Entering shell, type 'exit' to resume your game]\n", 0, 0);
@@ -164,25 +94,15 @@ void shell_out()
     nl();
 #endif
 
-#if defined(ultrix)
-    nocrmode();
-#else
     nocbreak();
-#endif
-
     echo();
     ignore_signals();
     val = fork();
 
     if(val == 0) {
         default_signals();
-
-#ifdef USG
         /* No local special characters */
         resetterm();
-#else
-        ioctl(0, TIOCSLTC, (char *)&save_special_chars);
-#endif
 
         /* Close scoreboard descriptor */
         close(highscore_fd);
@@ -206,24 +126,13 @@ void shell_out()
         return;
     }
 
-#ifdef USG
     wait((int *)0);
-#else
-    wait((union wait *)0);
-#endif
-
     restore_signals();
 
     /* Restore the cave to the screen */
     really_clear_screen();
     draw_cave();
-
-#if defined(ultrix)
-    crmode();
-#else
     cbreak();
-#endif
-
     noecho();
 
 #ifndef BUGGY_CURSES
@@ -235,25 +144,14 @@ void shell_out()
      * have to disable ^Y for tunneling
      */
 
-#ifdef USG
     /* No local special characters */
-#else
-    /* control-Z */
-    buf.t_suspc = (char)26;
-    buf.t_dsuspc = (char)-1;
-    buf.t_rprntc = (char)-1;
-    buf.t_flushc = (char)-1;
-    buf.t_werasc = (char)-1;
-    buf.t_lnextc = (char)-1;
-    ioctl(0, TIOCSLTC, (char *)&buf);
-#endif
 }
 
 void exit_game()
 {
     /* Restore the saved values of the local special chars */
     /* Dump any remaining buffer */
-    put_qui();
+    put_qio();
 
     /* Exit curses */
     endwin();
@@ -263,18 +161,10 @@ void exit_game()
     nl();
 #endif
 
-#if defined(ultrix)
-    nocrmode();
-#else
     nocbreak();
-#endif
 
-#ifdef USG
     /* No local special characters */
     resetterm();
-#else
-    ioctl(0, TIOCSLTC, (char *)&save_special_chars);
-#endif
 
     /* Exit from game */
     exit(0);
@@ -292,17 +182,8 @@ void inkey(char *ch)
 /* Flush the buffer    -RAK- */
 void flush()
 {
-#ifdef USG
     /* Flush the input queue */
     ioctl(0, TCFLSH, 0);
-#else
-    int arg;
-
-    arg = FREAD;
-
-    /* Flush all input */
-    ioctl(0, TIOCFLUSH, (char *)&arg);
-#endif
 }
 
 #if 0
@@ -367,7 +248,7 @@ void print(char *str_buf, int row, int col)
     row -= panel_row_prt;
     col -= panel_col_prt;
     used_line[row] = TRUE;
-    put_buffer(str_buff, row, col);
+    put_buffer(str_buf, row, col);
 }
 
 /* Outputs a line to a given y, x position    -RAK- */
@@ -375,7 +256,7 @@ void prt(char *str_buf, int row, int col)
 {
     move(row, col);
     clrtoeol();
-    put_buffer(str_buff, row, col);
+    put_buffer(str_buf, row, col);
 }
 
 /* Move cursor to a given y, x position */
@@ -426,12 +307,12 @@ void msg_print(char *str_buf)
         /* Increment last message pointer */
         ++last_message;
 
-        if(last_message == SAVE_MSGS) {
+        if(last_message == SAVED_MSGS) {
             last_message = 0;
         }
 
         last_displayed_msg = last_message;
-        strcpy(old_msg[last_message], str_buff);
+        strcpy(old_msg[last_message], str_buf);
     }
 
     msg_flag = TRUE;
@@ -513,7 +394,7 @@ int get_string(char *in_str, int row, int column, int slen)
     tmp[1] = '\0';
     put_buffer(pad(in_str, " ", slen), row, column);
     put_buffer("\0", row, column);
-    stat_col = column;
+    start_col = column;
     end_col = column + slen - 1;
 
     inkey(&x);
@@ -565,7 +446,7 @@ int get_string(char *in_str, int row, int column, int slen)
             break;
         case 127:
         case 8:
-            if(column > stat_col) {
+            if(column > start_col) {
                 --column;
                 put_buffer(" \b", row, column);
                 in_str[strlen(in_str) - 1] = '\0';

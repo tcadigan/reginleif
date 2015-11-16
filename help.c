@@ -1,9 +1,11 @@
 #include "help.h"
 
-#include "constants.h"
 #include "config.h"
-#include "types.h"
+#include "constants.h"
 #include "externs.h"
+#include "io.h"
+#include "misc2.h"
+#include "types.h"
 
 void ident_char()
 {
@@ -120,7 +122,7 @@ void ident_char()
 
 	    break;
 	case ';':
-	    prt("; - A loose rock.");
+	    prt("; - A loose rock.", 0, 0);
 
 	    break;
 	case '<':
@@ -400,7 +402,7 @@ void ident_char()
 }
 
 /* Help for available original commands */
-void original_help();
+void original_help()
 {
     clear_screen(0, 0);
     prt("B <Dir> Bash (object/creature). | q         Quaff a potion.", 0, 0);

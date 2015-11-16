@@ -1051,7 +1051,7 @@ int make_move(int monptr, int *mm)
     /* Get new position */
     newy = m_list[monptr].fy;
     newx = m_list[monptr].fx;
-    move(mm[i], &newy, &newx);
+    moria_move(mm[i], &newy, &newx);
     c_ptr = &cave[newy][newx];
 
     if(c_ptr->fval != 15) {
@@ -1271,7 +1271,7 @@ int make_move(int monptr, int *mm)
         /* Get new position */
         newy = m_list[monptr].fy;
         newx = m_list[monptr].fx;
-        move(mm[i], &newy, &newx);
+        moria_move(mm[i], &newy, &newx);
         c_ptr = &cave[newy][newx];
 
         if(c_ptr->fval != 15) {

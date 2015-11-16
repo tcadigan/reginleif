@@ -321,7 +321,7 @@ void save_char(int exit, int no_ask)
     }
 }
 
-void get_char(char *fnam)
+int get_char(char *fnam)
 {
     int i;
     int j;

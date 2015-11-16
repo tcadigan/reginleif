@@ -1,9 +1,15 @@
 #include "magic.h"
 
-#include "constants.h"
 #include "config.h"
-#include "types.h"
+#include "constants.h"
 #include "externs.h"
+#include "io.h"
+#include "misc1.h"
+#include "misc2.h"
+#include "moria1.h"
+#include "moria2.h"
+#include "spells.h"
+#include "types.h"
 
 /* Throw a magic spell    -RAK- */
 void cast()
@@ -43,13 +49,13 @@ void cast()
 		if(get_item(&item_val, "Use which spell-book?", &redraw, i, j)) {
 		    result = cast_spell("Case which spell?",
 					item_val,
-					&chioce,
+					&choice,
 					&chance,
 					&redraw);
 
 		    if(result == TRUE) {
 			m_ptr = &magic_spell[py.misc.pclass][choice];
-			reset_flags = FALSE;
+			reset_flag = FALSE;
 
 			if(randint(100) < chance) {
 			    msg_print("You failed to get the spell off!");
@@ -173,7 +179,7 @@ void cast()
 
 				break;
 			    case 19:
-				sleep_mosnters1(char_row, char_col);
+				sleep_monsters1(char_row, char_col);
 
 				break;
 			    case 20:
@@ -224,7 +230,7 @@ void cast()
 				break;
 			    case 27:
 				if(get_dir("Which direction?", &dir, &dumy, &y_dumy, &x_dumy)) {
-				    teleport_monster(dir, char_row, &char_col);
+				    teleport_monster(dir, char_row, char_col);
 				}
 
 				break;
@@ -266,7 +272,7 @@ void cast()
 			    }
 			}
 
-			p_ptr = py.misc;
+			p_ptr = &py.misc;
 
 			if(!reset_flag) {
 			    if(m_ptr->smana > p_ptr->cmana) {
@@ -278,7 +284,7 @@ void cast()
 
 				if(randint(3) == 1) {
 				    msg_print("You have damaged your health!");
-				    py.stats.ccon = de_stat(py.stats.ccon);
+				    py.stats.ccon = de_statt(py.stats.ccon);
 				    prt_constitution();
 				}
 			    }

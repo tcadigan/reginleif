@@ -37,7 +37,7 @@ void put_misc2();
 void put_misc3();
 void put_stats();
 void put_character();
-int move(int dir, int *y, int *x);
+int moria_move(int dir, int *y, int *x);
 void inven_destroy(int item_val);
 int player_saves(int adjust);
 void insert_num(char *object_str, char *mtc_str, int number, int show_sign);
@@ -58,5 +58,11 @@ void place_secret_door(int y, int x);
 void place_trap(int y, int x, int typ, int subval);
 void place_gold(int y, int x);
 void random_object(int y, int x, int num);
+byteint de_statt();
+int learn_prayer();
+int learn_spell(int *redraw);
+void gain_mana(int amount);
+void char_inven_init();
+void bpswd();
 
 #endif

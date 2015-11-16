@@ -25,26 +25,28 @@
  */
 
 #include <curses.h>
-#include <sys/types.h>
-
-#include "constants.h"
-#include "config.h"
-#include "types.h"
-#include "externs.h"
-
-#ifdef USG
 #include <string.h>
-#else
-#include <strings.h>
-#endif
+#include <stdlib.h>
+#include <sys/types.h>
+#include <unistd.h>
 
-#if defined(ultix) || defined(sun) || defined(USG)
-int getuid();
-int getgid();
-#else
-uid_t getuid();
-uid_t getgid();
-#endif
+#include "config.h"
+#include "constants.h"
+#include "create.h"
+#include "death.h"
+#include "desc.h"
+#include "dungeon.h"
+#include "externs.h"
+#include "files.h"
+#include "generate.h"
+#include "io.h"
+#include "misc1.h"
+#include "misc2.h"
+#include "save.h"
+#include "signals.h"
+#include "store1.h"
+#include "types.h"
+
 
 extern int key_bindings;
 
@@ -157,7 +159,7 @@ int main(int argc, char *argv[])
 	    gain_mana(wis_adj());
 	}
 
-	py.misg.cmana = (double)py.misc.mana;
+	py.misc.cmana = (double)py.misc.mana;
 	magic_init();
 	generate = TRUE;
     }

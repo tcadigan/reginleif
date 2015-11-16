@@ -23,5 +23,6 @@ void teleport(int dis);
 void move_char(int dir);
 void desc_remain(int item_val);
 void add_food(int num);
+int cast_spell(char *prompt, int item_val, int *sn, int *sc, int *redraw);
 
 #endif

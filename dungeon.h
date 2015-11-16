@@ -3,5 +3,6 @@
 
 void rogue_like_commands(int *com_val);
 void original_commands(int *com_val);
+void dungeon();
 
 #endif

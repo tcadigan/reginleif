@@ -8,5 +8,6 @@ void identify(treasure_type item);
 void known2(char *object_str);
 void known1(char *object_str);
 void unquote(char *object_str);
+void magic_init();
 
 #endif

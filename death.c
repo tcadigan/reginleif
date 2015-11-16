@@ -1,3 +1,5 @@
+#include "death.h"
+
 #include <ctype.h>
 #include <fcntl.h>
 #include <pwd.h>
