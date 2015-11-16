@@ -1,3 +1,5 @@
+#include "wands.h"
+
 #include "constants.h"
 #include "config.h"
 #include "types.h"

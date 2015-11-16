@@ -14,5 +14,10 @@ int los(int y1, int x1, int y2, int x2);
 int randint(int maxval);
 void set_seed(char *state, int seed);
 void reset_seed();
+int check_time();
+void prt_map();
+void regenmana(double percent);
+void regenhp(double percent);
+void alloc_monster(int (*alloc_set)(), int num, int dis, int slp);
 
 #endif

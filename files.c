@@ -1,3 +1,5 @@
+#include "files.h"
+
 #include <stdio.h>
 
 #include "constants.h"

@@ -18,8 +18,10 @@ OBJS = create.o creature.o death.o desc.o dungeon.o eat.o files.o generate.o \
        potions.o prayer.o save.o scrolls.o sets.o signals.o spells.o staffs.o \
        store1.o store2.o treasure1.o treasure2.o variables.o wands.o wizard.o \
 
-HDRS = config.h constants.h desc.h externs.h io.h misc1.h misc2.h moria1.h \
-       moria2.h signals.h types.h
+HDRS = config.h constants.h creature.h desc.h dungeon.h eat.h externs.h \
+       files.h help.h io.h magic.h misc1.h misc2.h moria1.h moria2.h potions.h \
+       prayer.h save.h scrolls.h signals.h staffs.h store1.h types.h wands.h \
+       wizard.h
 
 moria: $(OBJS) $(HDRS)
 	$(CC) -o moria $(CFLAGS) $(OBJS) $(LDFLAGS)
@@ -49,10 +51,10 @@ install:
 	chmod 555 $(LIBDIR)
 
 create.o: config.h constants.h externs.h io.h misc1.h misc2.h types.h
-creature.o: config.h constants.h desc.h externs.h io.h misc1.h misc2.h moria1.h moria2.h spells.h types.h
+creature.o: creature.h config.h constants.h desc.h externs.h io.h misc1.h misc2.h moria1.h moria2.h spells.h types.h
 death.o: config.h constants.h externs.h io.h signals.h types.h
 desc.o: config.h constants.h externs.h misc1.h misc2.h types.h
-dungeon.o: config.h constants.h externs.h types.h
+dungeon.o: dungeon.h config.h constants.h creature.h eat.h externs.h files.h help.h io.h magic.h misc1.h misc2.h moria1.h moria2.h potions.h prayer.h save.h scrolls.h spells.h staffs.h store1.h types.h wands.h wizard.h
 eat.o: config.h constants.h externs.h types.h
 files.o: config.h constants.h externs.h types.h
 generate.o: config.h constants.h externs.h types.h

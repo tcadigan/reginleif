@@ -1,17 +1,31 @@
+#include "dungeon.h"
+
 #include <stdio.h>
-
-#include "constants.h"
-#include "config.h"
-#include "types.h"
-#include "externs.h"
-
-#ifdef USG
 #include <string.h>
 
-#else
-
-#include <strings.h>
-#endif
+#include "config.h"
+#include "constants.h"
+#include "creature.h"
+#include "eat.h"
+#include "externs.h"
+#include "files.h"
+#include "help.h"
+#include "io.h"
+#include "magic.h"
+#include "misc1.h"
+#include "misc2.h"
+#include "moria1.h"
+#include "moria2.h"
+#include "potions.h"
+#include "prayer.h"
+#include "save.h"
+#include "scrolls.h"
+#include "spells.h"
+#include "staffs.h"
+#include "store1.h"
+#include "types.h"
+#include "wands.h"
+#include "wizard.h"
 
 /* Correct SUN stupidity in the stdio.h file */
 #ifdef sun
@@ -49,7 +63,7 @@ void dungeon()
     int old_cmana;
 
     /* Regenerate hp and mana */
-    double regen_amoonut;
+    double regen_amount;
 
     /* Last command */
     char command;
@@ -71,7 +85,7 @@ void dungeon()
 	player_light = TRUE;
     }
     else {
-	palyer_light = FALSE;
+	player_light = FALSE;
     }
 
     /* Check for maximum level */
@@ -113,7 +127,7 @@ void dungeon()
     if(!wizard1) {
 	if((turn % 250) == 1) {
 	    if(!check_time()) {
-		if(close_flag > 4) {
+		if(closing_flag > 4) {
 		    if(search_flag) {
 			search_off();
 		    }
@@ -268,7 +282,7 @@ void dungeon()
 		
 		if(find_flag) {
 		    find_flag = FALSE;
-		    move_light(char_row, char_rol, char_row, char_col);
+		    move_light(char_row, char_col, char_row, char_col);
 		}
 		
 		prt_hunger();
@@ -323,7 +337,7 @@ void dungeon()
 	regen_amount = regen_amount * 2;
     }
 
-    if(py.flags.poinsoned < 1) {
+    if(py.flags.poisoned < 1) {
 	if(p_ptr->chp < p_ptr->mhp) {
 	    regenhp(regen_amount);
 	}
@@ -349,7 +363,7 @@ void dungeon()
 
 	if(f_ptr->blind == 0) {
 	    f_ptr->status &= 0xFFFFFFFB;
-	    prt_blind;
+	    prt_blind();
 	    prt_map();
 	    msg_print("The veil of darkness lifts.");
 
@@ -942,8 +956,8 @@ void dungeon()
 	/* Check for game hours */
 	if(!wizard1) {
 	    if((turn % 250) == 1) {
-		if(!checktime()) {
-		    if(close_flag > 4) {
+		if(!check_time()) {
+		    if(closing_flag > 4) {
 			if(search_flag) {
 			    search_off();
 			}
@@ -1033,7 +1047,7 @@ void dungeon()
 		prt_title();
 	    }
 
-	    if(prt_stat & 0x0400) {
+	    if(print_stat & 0x0400) {
 		prt_level();
 	    }
 	}
@@ -1098,7 +1112,7 @@ void dungeon()
 
 		    if(find_flag) {
 			find_flag = FALSE;
-			move_light(char_row, char_rol, char_row, char_col);
+			move_light(char_row, char_col, char_row, char_col);
 		    }
 
 		    prt_hunger();
@@ -1153,7 +1167,7 @@ void dungeon()
 	    regen_amount = regen_amount * 2;
 	}
 
-	if(py.flags.poinsoned < 1) {
+	if(py.flags.poisoned < 1) {
 	    if(p_ptr->chp < p_ptr->mhp) {
 		regenhp(regen_amount);
 	    }
@@ -1246,7 +1260,7 @@ void dungeon()
 	}
 
 	/* Poisoned */
-	if(f_ptr->poinsoned > 0) {
+	if(f_ptr->poisoned > 0) {
 	    if((f_ptr->status & 0x00000020) == 0) {
 		f_ptr->status |= 0x00000020;
 		prt_poisoned();
@@ -1254,7 +1268,7 @@ void dungeon()
 
 	    --f_ptr->poisoned;
 
-	    if(f_ptr->poinsoned == 0) {
+	    if(f_ptr->poisoned == 0) {
 		f_ptr->status &= 0xFFFFFFDF;
 		prt_poisoned();
 		msg_print("You feel better.");
@@ -1461,7 +1475,7 @@ void dungeon()
 
 		p_ptr = &py.misc;
 		p_ptr->mhp += 10;
-		m_ptr->chp += 20.0;
+		p_ptr->chp += 20.0;
 		p_ptr->bth += 12;
 		p_ptr->bthb += 12;
 		msg_print("You feel like a HERO!");
@@ -1494,7 +1508,7 @@ void dungeon()
 
 	/* Super heroism */
 	if(f_ptr->shero > 0) {
-	    if((f_ptr->status 0x00004000) == 0) {
+	    if((f_ptr->status & 0x00004000) == 0) {
 		f_ptr->status |= 0x00004000;
 
 		if(find_flag) {
@@ -1557,7 +1571,7 @@ void dungeon()
 	    --f_ptr->blessed;
 
 	    if(f_ptr->blessed == 0) {
-		f_ptr->status 7= 0xFFFF7FFF;
+		f_ptr->status &= 0xFFFF7FFF;
 
 		if(find_flag) {
 		    find_flag = FALSE;
@@ -1655,7 +1669,7 @@ void dungeon()
 
 		if(old_cmana != (int)(p_ptr->cmana)) {
 		    if(p_ptr->cmana > p_ptr->mana) {
-			p_ptr->camana = (double)p_ptr->mana;
+			p_ptr->cmana = (double)p_ptr->mana;
 		    }
 
 		    prt_cmana();
@@ -1671,7 +1685,7 @@ void dungeon()
 	    /* Attempt a command and execute it */
 
 	    print_stat = 0;
-	    rest_falg = FALSE;
+	    reset_flag = FALSE;
 
 	    /* Random teleportation */
 	    if(py.flags.teleport) {
@@ -1710,7 +1724,7 @@ void dungeon()
 
 	    /* End of commands */
 
-	    while(rest_flag && !moria_flag) {
+	    while(reset_flag && !moria_flag) {
 		print_stat = 0;
 		reset_flag = FALSE;
 
@@ -1825,7 +1839,7 @@ void original_commands(int *com_val)
 	    msg_print("Wizard mode off.");
 	}
 	else {
-	    if(check_pswd()) {
+	    if(check_paswd()) {
 		msg_print("Wizard mode on.");
 	    }
 	}
@@ -1961,7 +1975,7 @@ void original_commands(int *com_val)
 	break;
     case 67:
 	/* C == character */
-	if(get_com("Print to file? (Y/N)", &ocmmand)) {
+	if(get_com("Print to file? (Y/N)", &command)) {
 	    switch(command) {
 	    case 'y':
 	    case 'Y':
@@ -1976,6 +1990,8 @@ void original_commands(int *com_val)
 
 		break;
 	    default:
+
+		break;
 	    }
 	}
 
@@ -2028,7 +2044,7 @@ void original_commands(int *com_val)
 	}
 
 	/* Free move */
-	rest_flag = TRUE;
+	reset_flag = TRUE;
 
 	break;
     case 82:
@@ -2310,7 +2326,7 @@ void original_commands(int *com_val)
 		    switch(*com_val) {
 		    case 5:
 			/* ^E == wizard character */
-			char_character();
+			change_character();
 
 			break;
 		    case 6:
@@ -2420,7 +2436,7 @@ void rogue_like_commands(int *com_val)
 	    msg_print("Wizard mode off.");
 	}
 	else {
-	    if(check_pswd()) {
+	    if(check_paswd()) {
 		msg_print("Wizard mode on.");
 	    }
 	}
@@ -3047,7 +3063,7 @@ void rogue_like_commands(int *com_val)
 		    case '+':
 			/* + == gain experience */
 			if(py.misc.exp == 0) {
-			    py.misc.exp == 1;
+			    py.misc.exp = 1;
 			}
 			else {
 			    py.misc.exp = py.misc.exp * 2;

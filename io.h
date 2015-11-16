@@ -14,5 +14,9 @@ void exit_game();
 int get_string(char *in_str, int row, int column, int slen);
 int get_com(char *prompt, char *command);
 void pause_line(int prt_line);
+void shell_out();
+void really_clear_screen();
+void repeat_msg();
+void erase_line(int row, int col);
 
 #endif

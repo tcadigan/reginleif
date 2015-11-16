@@ -1,3 +1,5 @@
+#include "scrolls.h"
+
 #include <stdio.h>
 
 #include "constants.h"

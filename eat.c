@@ -1,9 +1,11 @@
+#include "eat.h"
+
 #include "constants.h"
 #include "config.h"
 #include "types.h"
 #include "externs.h"
 
-/* Eat some food....    -RAK- */
+/* Eat some food...    -RAK- */
 void eat()
 {
     unsigned int i;

@@ -1,3 +1,5 @@
+#include "wizard.h"
+
 #include <stdio.h>
 
 #include "constants.h"
@@ -276,7 +278,7 @@ void change_character()
 }
 
 /* Wizard routine for creating objects    -RAK- */
-wizard_create()
+void wizard_create()
 {
     int tmp_val;
     vtype tmp_str;
