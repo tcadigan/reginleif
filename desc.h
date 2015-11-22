@@ -9,5 +9,6 @@ void known2(char *object_str);
 void known1(char *object_str);
 void unquote(char *object_str);
 void magic_init();
+int is_a_vowel(char ch);
 
 #endif

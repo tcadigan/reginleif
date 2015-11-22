@@ -1,27 +1,22 @@
 #include "moria1.h"
 
 #include <stdio.h>
-
-#include "constants.h"
-#include "config.h"
-#include "types.h"
-#include "externs.h"
-
-#ifdef USG
 #include <string.h>
 
-#else
-#include <strings.h>
-
-#endif
+#include "config.h"
+#include "constants.h"
+#include "desc.h"
+#include "externs.h"
+#include "io.h"
+#include "misc1.h"
+#include "misc2.h"
+#include "moria2.h"
+#include "types.h"
 
 /* Correct SUN stupidity in the stdio.h file */
 #ifdef sun
 char *sprintf();
 #endif
-
-byteint de_statt();
-byteint in_statt();
 
 /* Global flags */
 /* Next level when true */
@@ -40,10 +35,10 @@ extern int player_light;
 extern int cave_flag;
 
 /* Used in move_light */
-extern int light_cave;
+extern int light_flag;
 
 /* Changes stats up or down for magic items    -RAK- */
-void change_stat_factor(byteint *stat, int amoonut, int factor)
+void change_stat_factor(byteint *stat, int amount, int factor)
 {
     int i;
     int j;
@@ -82,7 +77,7 @@ void change_speed(int num)
 
     while(i > 0) {
 	m_list[i].cspeed += num;
-	i = m_list[u].nptr;
+	i = m_list[i].nptr;
     }
 }
 
@@ -123,15 +118,15 @@ void py_bonuses(treasure_type tobj, int factor)
     p_ptr->sustain_dex = FALSE;
     p_ptr->sustain_chr = FALSE;
     p_ptr->fire_resist = FALSE;
-    p_ptr->acid_resist = FALSE:
+    p_ptr->acid_resist = FALSE;
     p_ptr->cold_resist = FALSE;
-    p_ptr->regnenerate = FALSE;
+    p_ptr->regenerate = FALSE;
     p_ptr->lght_resist = FALSE;
     p_ptr->ffall = FALSE;
 
     if(tobj.flags & 0x00000001) {
 	change_stat_factor(&py.stats.cstr, tobj.p1, factor);
-	change_stat_factor(*py.stats.str, tobj.p1, factor);
+	change_stat_factor(&py.stats.str, tobj.p1, factor);
 	print_stat = (print_stat | 0x0001);
     }
 
@@ -143,7 +138,7 @@ void py_bonuses(treasure_type tobj, int factor)
 
     if(tobj.flags & 0x00000004) {
 	change_stat_factor(&py.stats.ccon, tobj.p1, factor);
-	change_stat_factor(&py.stats.con, tocj.p1, factor);
+	change_stat_factor(&py.stats.con, tobj.p1, factor);
 	print_stat = (print_stat | 0x0004);
     }
 
@@ -420,8 +415,8 @@ void show_inven(int r1, int r2)
     if(r1 >= 0) {
 	/* Print the items */
 	for(i = r1; i <= r2; ++i) {
-	    objdest(tmp_val, i, TRUE);
-	    sprintf(out_val, "%c%c %S", i + 97, cur_char1(i), tmp_val);
+	    objdes(tmp_val, i, TRUE);
+	    sprintf(out_val, "%c%c %s", i + 97, cur_char1(i), tmp_val);
 	    prt(out_val, i + 1, 0);
 	}
 
@@ -536,7 +531,7 @@ void show_equip(int r1)
 }
 
 /* Remove item from equipment list    -RAK- */
-int remove(int item_val)
+int moria_remove(int item_val)
 {
     int i;
     int j;
@@ -722,11 +717,11 @@ void unwear()
 	    com_val = 0;
 	}
 	else {
-	    remove(j);
+	    moria_remove(j);
 	}
     }
 
-    if(scr_state = 0) {
+    if(scr_state == 0) {
 	exit_flag = TRUE;
     }
     else if(equip_ctr == 0) {
@@ -745,7 +740,7 @@ void unwear()
 		"(a-%c, * for equipment list, ESC to exit) Take off which one?",
 		equip_ctr + 96);
 
-	test_falg = FALSE;
+	test_flag = FALSE;
 	msg_print(out_val);
 
 	inkey(&command);
@@ -825,7 +820,7 @@ void unwear()
 		com_val = 0;
 	    }
 	    else {
-		remove(j);
+		moria_remove(j);
 	    }
 	}
 
@@ -1094,7 +1089,7 @@ void wear()
 		inventory[INVEN_MAX] = unwear_obj;
 
 		/* Decrements equip ctr and calls py_bonuses with -1 */
-		tmp = remove(INVEN_MAX);
+		tmp = moria_remove(INVEN_MAX);
 
 		if(tmp < com_val) {
 		    com_val = tmp;
@@ -1137,7 +1132,7 @@ void wear()
 		}
 	    }
 
-	    sprintf(out_val, "%s%s (%c%c", prt1, prt2, j + 97, cur_char2());
+	    sprintf(out_val, "%s%s (%c%c", prt1, prt2, j + 97, cur_char2(i));
 	    msg_print(out_val);
 
 	    if((i == 2) && ((py.stats.cstr * 15) < i_ptr->weight)) {
@@ -1374,7 +1369,7 @@ void wear()
 		    inventory[INVEN_MAX] = unwear_obj;
 
 		    /* Decrements equip ctr, and calls py_bonuses with -1 */
-		    tmp = remove(INVEN_MAX);
+		    tmp = moria_remove(INVEN_MAX);
 
 		    if(tmp < com_val) {
 			com_val = tmp;
@@ -1389,7 +1384,7 @@ void wear()
 
 		    break;
 		case 32:
-		    strcpy(ptr1, "Your light source is ");
+		    strcpy(prt1, "Your light source is ");
 
 		    break;
 		default:
@@ -1458,8 +1453,8 @@ void switch_weapon()
 	/* Switch weapons */
 	reset_flag = FALSE;
 	tmp_obj = inventory[INVEN_AUX];
-	inventory[INVE_AUX] = inventory[INVEN_WIELD];
-	inventory[INVEN_WEILD] = tmp_obj;
+	inventory[INVEN_AUX] = inventory[INVEN_WIELD];
+	inventory[INVEN_WIELD] = tmp_obj;
 
 	/* Subtract bonuses */
 	py_bonuses(inventory[INVEN_AUX], -1);
@@ -1470,7 +1465,7 @@ void switch_weapon()
 	if(inventory[INVEN_WIELD].tval != 0) {
 	    strcpy(prt1, "Primary weapon   : ");
 	    objdes(prt2, INVEN_WIELD, TRUE);
-	    msg_printf(strcat(prt1, prt2));
+	    msg_print(strcat(prt1, prt2));
 
 	    if((py.stats.cstr * 15) < inventory[INVEN_WIELD].weight) {
 		msg_print("You have trouble wielding such a heavy weapon.");
@@ -1507,7 +1502,7 @@ int inven_command(char command, int r1, int r2)
     int test_flag;
 
     /* Main loginf for the INVEN_COMMAND    -RAK- */
-    inven = FALSE:
+    inven = FALSE;
     exit_flag = FALSE;
     scr_state = 0;
 
@@ -1532,7 +1527,7 @@ int inven_command(char command, int r1, int r2)
 	    /* Sets the scr_state to 2 */
 	    clear_screen(0, 0);
 	    prt("You are currently using -", 0, 0);
-	    show_equip(0, inven_ctr - 1);
+	    show_equip(0);
 	}
 
 	break;
@@ -1962,13 +1957,13 @@ int get_item(int *com_val, char *pmt, int *redraw, int i, int j)
  */
 
 /* Calculates current boundaries    -RAK- */
-void panel_boundaries()
+void panel_bounds()
 {
     panel_row_min = panel_row * (SCREEN_HEIGHT / 2);
     panel_row_max = panel_row_min + SCREEN_HEIGHT - 1;
     panel_row_prt = panel_row_min - 1;
     panel_col_min = panel_col * (SCREEN_WIDTH / 2);
-    panel_col_max = pandel_col_min + SCREEN_WIDTH - 1;
+    panel_col_max = panel_col_min + SCREEN_WIDTH - 1;
 
     /* 
      * The value 13 puts one blank space between the stats and the map, leaving
@@ -2047,7 +2042,7 @@ int panel_contains(int y, int x)
 	}
     }
     else {
-	panel = FALSE:
+        panel = FALSE;
     }
     
     return panel;
@@ -2125,7 +2120,7 @@ int get_dir(char *prompt, int *dir, int *com_val, int *y, int *x)
 	*com_val = command;
 
 	if(key_bindings == ORIGINAL) {
-	    *dir = *comval - 48;
+	    *dir = *com_val - 48;
 	}
 	else {
 	    /* rogue_like bindings */
@@ -2134,7 +2129,7 @@ int get_dir(char *prompt, int *dir, int *com_val, int *y, int *x)
 
 	/* Note that "5" is not a valid direction */
 	if((*dir >= 1) && (*dir <= 9) && (*dir != 5)) {
-	    move(*dir, y, x);
+	    moria_move(*dir, y, x);
 	    flag = TRUE;
 	    res = TRUE;
 	}
@@ -2159,7 +2154,7 @@ int get_dir(char *prompt, int *dir, int *com_val, int *y, int *x)
 
 	    /* Note that "5" is not a valid direction */
 	    if((*dir >= 1) && (*dir <= 9) && (*dir != 5)) {
-		move(*dir, y, x);
+		moria_move(*dir, y, x);
 		flag = TRUE;
 		res = TRUE;
 	    }
@@ -2218,7 +2213,7 @@ void light_room(int y, int x)
     int start_col;
     int end_col;
     int ypos;
-    int xpos;
+    int xpos = 0;
     vtype floor_str;
     vtype tmp_str;
 
@@ -2437,7 +2432,7 @@ void draw_block(int y1, int x1, int y2, int x2)
 }
 
 /* Normal movement */
-void sum1_move_light(int y1, int x1, int y2, int x2)
+void sub1_move_light(int y1, int x1, int y2, int x2)
 {
     int i;
     int j;
@@ -2447,7 +2442,7 @@ void sum1_move_light(int y1, int x1, int y2, int x2)
     /* Turn off lamp light */
     for(i = (y1 - 1); i <= (y1 + 1); ++i) {
 	for(j = (x1 - 1); j <= (x1 + 1); ++j) {
-	    cave[i][x].tl = FALSE;
+	    cave[i][j].tl = FALSE;
 	}
     }
 
@@ -2536,7 +2531,7 @@ void sub2_move_light(int y1, int x1, int y2, int x2)
 
 		strcat(floor_str, tmp_char);
 	    }
-	    else if(x_pos > 0) {
+	    else if(xpos > 0) {
 		strcat(save_str, tmp_char);
 	    }
 	}
@@ -2594,7 +2589,7 @@ void sub4_move_light(int y1, int x1, int y2, int x2)
 	lite_spot(y1, x1);
     }
     else {
-	unlit_spot(y1, x1);
+	unlite_spot(y1, x1);
     }
 
     print("@", y2, x2);
@@ -2624,7 +2619,7 @@ void move_light(int y1, int x1, int y2, int x2)
 void new_spot(int *y, int *x)
 {
     *y = randint(cur_height) - 1;
-    *x = randing(cur_width) - 1;
+    *x = randint(cur_width) - 1;
 
     while(!cave[*y][*x].fopen
 	  || (cave[*y][*x].cptr != 0)
@@ -2668,7 +2663,7 @@ void rest()
 	sscanf(rest_str, "%d", &rest_num);
     }
 
-    if(test_num > 0) {
+    if(rest_num > 0) {
 	if(search_flag) {
 	    search_off();
 	}
@@ -2832,7 +2827,7 @@ void change_trap(int y, int x)
 	k = c_ptr->tptr;
 
 	/* Subtract one, since zeroth item has subval of one */
-	place_trap(y, x, 2, t_list[c].subval - 1);
+	place_trap(y, x, 2, t_list[k].subval - 1);
 	pusht(k);
 	lite_spot(y, x);
     }
@@ -2992,7 +2987,7 @@ void area_affect(int dir, int y, int x)
 	    row = y;
 	    col = x;
 
-	    if(move(z[i], &row, &col)) {
+	    if(moria_move(z[i], &row, &col)) {
 		c_ptr = &cave[row][col];
 
 		/* Empty doorways */
@@ -3108,7 +3103,7 @@ int pick_dir(int dir)
 	    y = char_row;
 	    x = char_col;
 
-	    if(move(z[i], &y, &x)) {
+	    if(moria_move(z[i], &y, &x)) {
 		if(cave[y][x].fopen) {
 		    pick = TRUE;
 		    global_com_val = z[i] + 48;
@@ -3183,7 +3178,7 @@ int minus_ac(int typ_dam)
 	    msg_print(out_val);
 	    minus = TRUE;
 	}
-	else if((i_ptr->ac + t_ptr->toac) > 0) {
+	else if((i_ptr->ac + i_ptr->toac) > 0) {
 	    objdes(tmp_str, j, FALSE);
 	    sprintf(out_val, "Your %s is damaged!", tmp_str);
 	    msg_print(out_val);

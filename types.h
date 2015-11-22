@@ -192,7 +192,7 @@ typedef struct spl_rec {
     int splchn;
 } spl_rec;
 
-typedef spl_rec spl_typ[22];
+typedef spl_rec spl_type[22];
 
 typedef struct race_type {
     vtype trace;         /* Type of race               */

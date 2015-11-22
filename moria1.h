@@ -28,5 +28,9 @@ int get_dir(char *prompt, int *dir, int *com_val, int *y, int *x);
 int get_item(int *com_val, char *pmt, int *redraw, int i, int j);
 void change_speed(int num);
 void new_spot(int *y, int *x);
+void show_equip(int r1);
+char cur_char2(int item_val);
+void change_trap(int y, int x);
+void poison_gas(int dam, char *kb_str);
 
 #endif

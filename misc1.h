@@ -20,6 +20,7 @@ void regenmana(double percent);
 void regenhp(double percent);
 void alloc_monster(int (*alloc_set)(), int num, int dis, int slp);
 void pusht(int x);
+void pushm(int x);
 void popt(int *x);
 void magic_treasure(int x, int level);
 void loc_symbol(int y, int x, char *sym);
@@ -33,5 +34,6 @@ void init_t_level();
 void init_m_level();
 void init_seeds();
 void sort_objects();
+void place_monster(int y, int x, int z, int slp);
 
 #endif

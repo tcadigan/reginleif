@@ -1,19 +1,20 @@
 #include "moria2.h"
 
 #include <stdio.h>
-
-#include "constants.h"
-#include "config.h"
-#include "types.h"
-#include "externs.h"
-
-#ifdef USG
+#include <stdlib.h>
 #include <string.h>
 
-#else
-#include <strings.h>
-
-#endif
+#include "config.h"
+#include "constants.h"
+#include "creature.h"
+#include "desc.h"
+#include "externs.h"
+#include "io.h"
+#include "misc1.h"
+#include "misc2.h"
+#include "moria1.h"
+#include "store2.h"
+#include "types.h"
 
 /* Correct SUN stupidity in the stdio.h file */
 #ifdef sun
@@ -180,7 +181,7 @@ void hit_trap(int *y, int *x)
 
 	break;
     case 6: /* Hidden object */
-	c_ptr->fm = FALSE:
+	c_ptr->fm = FALSE;
 	pusht((int)c_ptr->tptr);
 	place_object(*y, *x);
 	msg_print("Hmmm, there was something under this rock.");
@@ -339,7 +340,7 @@ int cast_spell(char *prompt, int item_val, int *sn, int *sc, int *redraw)
     unsigned int j;
     int i;
     int k;
-    spell_type spell;
+    spl_type spell;
     int cast;
     spell_type *s_ptr;
 
@@ -361,7 +362,7 @@ int cast_spell(char *prompt, int item_val, int *sn, int *sc, int *redraw)
     }
 
     while(j != 0) {
-	k = bit_pos(*j);
+	k = bit_pos(&j);
 
 	if(k >= 0) {
 	    s_ptr = &magic_spell[py.misc.pclass][k];
@@ -435,7 +436,7 @@ void examine_book()
     char dummy;
     vtype out_val;
     treasure_type *i_ptr;
-    spell_type *s_ptr;
+    spell_type *s_ptr = NULL;
 
     redraw = FALSE;
 
@@ -634,7 +635,7 @@ void drop()
 
 	    inven_drop(com_val, char_row, char_col);
 	    objdes(tmp_str, INVEN_MAX, TRUE);
-	    sprintf(out_val, "Dropped %s", tmp_stR);
+	    sprintf(out_val, "Dropped %s", tmp_str);
 	    msg_print(out_val);
 	}
 	else if(redraw) {
@@ -1090,7 +1091,7 @@ int mon_take_hit(int monptr, int dam)
 
     if(m_ptr->hp < 0) {
 	monster_death((int)m_ptr->fy, (int)m_ptr->fx, c_list[m_ptr->mptr].cmove);
-	c_ptr - &c_list[m_ptr->mptr];
+	c_ptr = &c_list[m_ptr->mptr];
 	p_ptr = &py.misc;
 	acc_tmp = c_ptr->mexp * ((c_ptr->level + 0.1) / p_ptr->lev);
 	i = (int)acc_tmp;
@@ -1362,7 +1363,7 @@ void move_char(int dir)
     }
 
     /* Legal move? */
-    if(move(dir, &test_row, &test_col)) {
+    if(moria_move(dir, &test_row, &test_col)) {
 	c_ptr = &cave[test_row][test_col];
 
 	/* No creature? */
@@ -1437,7 +1438,7 @@ void move_char(int dir)
 			find_flag = FALSE;
 			move_light(char_row, char_col, char_row, char_col);
 		    }
-		    else if(c_ptr-tptr != 0) {
+		    else if(c_ptr->tptr != 0) {
 			reset_flag = TRUE;
 
 			if(t_list[c_ptr->tptr].tval == 103) {
@@ -1559,7 +1560,7 @@ void openobject()
 		t_ptr = &t_list[c_ptr->tptr];
 
 		/* It's locked... */
-		if(t_ptr->pl > 0) {
+		if(t_ptr->p1 > 0) {
 		    p_ptr = &py.misc;
 		    tmp = p_ptr->disarm + p_ptr->lev + (2 * todis_adj()) + int_adj();
 
@@ -1668,10 +1669,10 @@ void closeobject()
 	c_ptr = &cave[y][x];
 
 	if(c_ptr->tptr != 0) {
-	    if(list[c_ptr->tptr].tval == 104) {
+	    if(t_list[c_ptr->tptr].tval == 104) {
 		if(c_ptr->cptr == 0) {
 		    if(t_list[c_ptr->tptr].p1 == 0) {
-			t_list[cptr->tptr] = door_list[1];
+			t_list[c_ptr->tptr] = door_list[1];
 			c_ptr->fopen = FALSE;
 			lite_spot(y, x);
 		    }
@@ -1758,7 +1759,7 @@ int twall(int y, int x, int t1, int t2)
     if(t1 > t2) {
 	if(next_to4(y, x, 1, 2, -1) > 0) {
 	    c_ptr->fval = corr_floor2.ftval;
-	    c_ptr->fopen = corr_dloor2.ftopen;
+	    c_ptr->fopen = corr_floor2.ftopen;
 	}
 	else {
 	    c_ptr->fval = corr_floor1.ftval;
@@ -1968,13 +1969,13 @@ void disarm_trap()
 		/* Chest trap */
 		i_ptr = &t_list[c_ptr->tptr];
 
-		if(index(i_ptr->name, "^") != 0) {
+		if(index(i_ptr->name, '^') != 0) {
 		    msg_print("I don't see a trap...");
 		}
 		else if(i_ptr->flags & 0x000001F0) {
 		    if((tot - t5) > randint(100)) {
 			i_ptr->flags &= 0xFFFFFE0F;
-			tmp_str = index(i_ptr->name, "(");
+			tmp_str = index(i_ptr->name, '(');
 
 			if(tmp_str != 0) {
 			    tmp_str[0] = '\0';
@@ -2043,7 +2044,7 @@ void look()
 	    x = char_col;
 	    i = 0;
 
-	    move(dir, &y, &x);
+	    moria_move(dir, &y, &x);
 	    c_ptr = &cave[y][x];
 
 	    if(c_ptr->cptr > 1) {
@@ -2051,7 +2052,7 @@ void look()
 		    j = m_list[c_ptr->cptr].mptr;
 		    fchar = c_list[j].name[0];
 
-		    if(is_a_vowel(fcha)) {
+		    if(is_a_vowel(fchar)) {
 			sprintf(out_val, "You see an %s.", c_list[j].name);
 		    }
 		    else {
@@ -2108,7 +2109,7 @@ void look()
 	    ++i;
 
 	    while(cave[y][x].fopen && (i <= MAX_SIGHT)) {
-		move(dir, &y, &x);
+		moria_move(dir, &y, &x);
 		c_ptr = &cave[y][x];
 
 		if(c_ptr->cptr > 1) {
@@ -2302,7 +2303,7 @@ void facts(int *tbth, int *tpth, int *tdam, int *tdis)
 	    /* Long bow and arrow */
 	    if(i_ptr->tval == 12) {
 		*tbth = py.misc.bthb;
-		*tpath += inventory[INVEN_WIELD].tohit;
+		*tpth += inventory[INVEN_WIELD].tohit;
 		*tdam += 3;
 		*tdis = 30;
 	    }
@@ -2353,7 +2354,7 @@ void drop_throw(int y, int x)
     vtype tmp_str;
     cave_type *c_ptr;
 
-    flag = FALSe;
+    flag = FALSE;
     i = y;
     j = x;
     k = 0;
@@ -2437,8 +2438,8 @@ void throw_object()
     int flag;
     char tchar[2];
     vtype out_val;
-    int tmp_str;
-    int m_name;
+    vtype tmp_str;
+    vtype m_name;
     treasure_type *i_ptr;
     cave_type *c_ptr;
     monster_type *m_ptr;
@@ -2482,7 +2483,7 @@ void throw_object()
 	    oldx = char_col;
 	    cur_dis = 0;
 
-	    move(dir, &y, &x);
+	    moria_move(dir, &y, &x);
 	    ++cur_dis;
 
 	    if(test_light(oldy, oldx)) {
@@ -2553,7 +2554,7 @@ void throw_object()
 	    oldx = x;
 
 	    while(!flag) {
-		move(dir, &y, &x);
+		moria_move(dir, &y, &x);
 		++cur_dis;
 
 		if(test_light(oldy, oldx)) {
@@ -2576,8 +2577,8 @@ void throw_object()
 			    i = m_ptr->mptr;
 			    objdes(tmp_str, INVEN_MAX, FALSE);
 
-			    /* Does the player know what he's fightint? */
-			    if((c_list[c].cmove & 0x10000) && !py.flags.see_inv) {
+			    /* Does the player know what he's fighting? */
+			    if((c_list[i].cmove & 0x10000) && !py.flags.see_inv) {
 				strcpy(m_name, "it");
 			    }
 			    else if(py.flags.blind > 0) {
@@ -2678,7 +2679,7 @@ void bash()
 		p_ptr->misc.ptohit = 0;
 		p_ptr->misc.ptodam = (p_ptr->misc.wt / 75.0) + 1;
 
-		if(py.attack(y, x)) {
+		if(py_attack(y, x)) {
 		    m_ptr = &m_list[c_ptr->cptr];
 		    m_ptr->stunned += (randint(2) + 1);
 
@@ -2739,18 +2740,18 @@ void bash()
 		if(randint(10) == 1) {
 		    msg_print("You have destroyed the chest...");
 		    msg_print("and it's contents!");
-		    strcpy(t_ptr->name, "& ruiuned chest");
+		    strcpy(t_ptr->name, "& ruined chest");
 		    t_ptr->flags = 0;
 		}
 		else if(t_ptr->flags & 0x00000001) {
 		    if(randint(10) == 1) {
 			msg_print("The lock breaks open!");
-			t_ptr->flag &= 0xFFFFFFFE;
+			t_ptr->flags &= 0xFFFFFFFE;
 		    }
 		}
 	    }
 	    else {
-		msg_print("I do not see anything you can bash there."};
+		msg_print("I do not see anything you can bash there.");
 	    }
 	}
 	else {
@@ -2781,7 +2782,7 @@ void jamdoor()
 	if(c_ptr->tptr != 0) {
 	    t_ptr = &t_list[c_ptr->tptr];
 
-	    if(c_ptr->tval == 105) {
+	    if(t_ptr->tval == 105) {
 		if(c_ptr->cptr == 0) {
 		    if(find_range(13, -1, &i, &j)) {
 			msg_print("You jam the door with a spike.");
@@ -2807,12 +2808,12 @@ void jamdoor()
 
 		    msg_print(tmp_str);
 		}
-		else if(t_ptr->tval == 104) {
-		    msg_print("The door must be closed first.");
-		}
-		else {
-		    msg_print("That isn't a door!");
-		}
+	    }
+	    else if(t_ptr->tval == 104) {
+		msg_print("The door must be closed first.");
+	    }
+	    else {
+		msg_print("That isn't a door!");
 	    }
 	}
 	else {

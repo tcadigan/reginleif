@@ -2158,7 +2158,7 @@ void spell_chance(spl_rec *spell)
 }
 
 /* Print list of spells    -RAK- */
-void print_new_spells(spl_typ spell, int num, int *redraw)
+void print_new_spells(spl_type spell, int num, int *redraw)
 {
     int i;
     vtype out_val;
@@ -2185,7 +2185,7 @@ void print_new_spells(spl_typ spell, int num, int *redraw)
 }
 
 /* Returns spell pointer    -RAK- */
-int get_spell(spl_typ spell, int num, int *sn, int *sc, vtype prompt, int *redraw)
+int get_spell(spl_type spell, int num, int *sn, int *sc, vtype prompt, int *redraw)
 {
     int flag;
     char choice;
@@ -2240,7 +2240,7 @@ int learn_spell(int *redraw)
     int sn;
     int sc;
     unsigned int spell_flag;
-    spl_typ spell;
+    spl_type spell;
     int learn;
     spell_type *s_ptr;
 

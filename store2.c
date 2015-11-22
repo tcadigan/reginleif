@@ -1,17 +1,12 @@
+#include "store2.h"
+
 #include <stdio.h>
-
-#include "constants.h"
-#include "config.h"
-#include "types.h"
-#include "externs.h"
-
-#ifdef USG
 #include <string.h>
 
-#else
-
-#include <strings.h>
-#endif
+#include "config.h"
+#include "constants.h"
+#include "externs.h"
+#include "types.h"
 
 /* Correct SUN stupidity in the std.h file */
 #ifdef sun

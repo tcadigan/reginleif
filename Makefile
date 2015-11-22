@@ -21,7 +21,7 @@ OBJS = create.o creature.o death.o desc.o dungeon.o eat.o files.o generate.o \
 HDRS = config.h constants.h create.h creature.h death.h desc.h dungeon.h eat.h \
        externs.h files.h generate.h help.h io.h magic.h misc1.h misc2.h \
        moria1.h moria2.h potions.h prayer.h save.h scrolls.h signals.h \
-       staffs.h store1.h types.h wands.h wizard.h
+       staffs.h store1.h store2.h types.h wands.h wizard.h
 
 moria: $(OBJS) $(HDRS)
 	$(CC) -o moria $(CFLAGS) $(OBJS) $(LDFLAGS)
@@ -65,8 +65,8 @@ main.o: config.h constants.h create.h death.h desc.h dungeon.h externs.h files.h
 misc1.o: misc1.h config.h constants.h externs.h io.h types.h
 misc2.o: misc2.h config.h constants.h externs.h io.h misc1.h types.h
 monsters.o: config.h constants.h types.h
-moria1.o: moria1.h config.h constants.h externs.h types.h
-moria2.o: moria2.h config.h constants.h externs.h types.h
+moria1.o: moria1.h config.h constants.h desc.h externs.h io.h misc1.h misc2.h types.h
+moria2.o: moria2.h config.h constants.h creature.h desc.h externs.h io.h misc1.h misc2.h moria1.h store2.h types.h
 potions.o: potions.h config.h constants.h externs.h types.h
 prayer.o: prayer.h config.h constants.h externs.h types.h
 save.o: save.h config.h constants.h externs.h types.h

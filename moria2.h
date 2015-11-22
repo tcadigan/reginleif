@@ -24,5 +24,10 @@ void move_char(int dir);
 void desc_remain(int item_val);
 void add_food(int num);
 int cast_spell(char *prompt, int item_val, int *sn, int *sc, int *redraw);
+int inven_damage(int (*typ)(), int prec);
+int pick_dir(int dir);
+void light_room(int y, int x);
+void area_affect(int dir, int y, int x);
+int get_panel(int y, int x);
 
 #endif
