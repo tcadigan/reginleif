@@ -316,7 +316,8 @@ void top_twenty()
     high_scores scores[20];
     high_scores myscore;
     char *tmp;
-
+    int bytes;
+    
     clear_screen(0, 0);
 
     if(wizard1) {
@@ -405,7 +406,11 @@ void top_twenty()
         lseek(highscore_fd, (off_t)(j * sizeof(high_scores)), L_SET);
 #endif
 
-        write(highscore_fd, (char *)&myscore, sizeof(high_scores));
+        bytes = write(highscore_fd, (char *)&myscore, sizeof(high_scores));
+	
+	if(bytes == -1) {
+	    /* There was a problem */
+	}
     }
     else if (j < i) {
         /* If it gets inserted in the middle */
@@ -416,7 +421,11 @@ void top_twenty()
 #else
             lseek(highscore_fd, (off_t)(k * sizeof(high_scores)), L_SET);
 #endif
-            write(highscore_fd, (char *)&scores[k - 1], sizeof(high_scores));
+            bytes = write(highscore_fd, (char *)&scores[k - 1], sizeof(high_scores));
+
+	    if(bytes == -1) {
+		/* There was a problem */
+	    }
         }
         
         /* Write out your score */
@@ -426,7 +435,11 @@ void top_twenty()
         lseek(highscore_fd, (off_t)(j * sizeof(high_scores)), L_SET);
 #endif
 
-        write(highscore_fd, (char *)&myscore, sizeof(high_scores));
+        bytes = write(highscore_fd, (char *)&myscore, sizeof(high_scores));
+
+	if(bytes == -1) {
+	    /* There was a problem */
+	}
     }
 
 #ifdef USG
