@@ -4,6 +4,8 @@ Date of origin: 1987
 
 Original source: http://beej.us/moria/files/source/moria487.tar.Z
 
+[![Build Status](https://travis-ci.org/tcadigan/moria_4.87.svg?branch=master)](https://travis-ci.org/tcadigan/moria_4.87)
+
 Goals:
 
 1) Re-type all source code [DONE]
