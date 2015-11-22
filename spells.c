@@ -1092,7 +1092,7 @@ void fire_ball(int typ, int dir, int y, int x, int dam_hp, ctype descrip)
 	if((!c_ptr->fopen) || (c_ptr->cptr > 1)) {
 	    flag = TRUE;
 
-	    if(!c_ptr->fopen); {
+	    if(!c_ptr->fopen) {
 		y = oldy;
 		x = oldx;
 	    }
@@ -2145,7 +2145,7 @@ int poly_monster(int dir, int y, int x)
 		    delete_monster((int)c_ptr->cptr);
 		    place_monster(y,
 				  x,
-				  randint(m_level[MAX_MONS_LEVEL]) - 1 + m_level[0],
+				  randint(m_level[MAX_MONS_LEVEL - 1]) - 1 + m_level[0],
 				  FALSE);
 
 		    if(panel_contains(y, x)) {
@@ -2186,7 +2186,7 @@ int poly_monster(int dir, int y, int x)
 			delete_monster((int)c_ptr->cptr);
 			place_monster(y,
 				      x,
-				      randint(m_level[MAX_MONS_LEVEL]) - 1 + m_level[0],
+				      randint(m_level[MAX_MONS_LEVEL - 1]) - 1 + m_level[0],
 				      FALSE);
 
 			if(panel_contains(y, x)) {
@@ -2640,7 +2640,7 @@ int mass_poly()
 		delete_monster(i);
 		place_monster(y,
 			      x,
-			      randint(m_level[MAX_MONS_LEVEL]) - 1 + m_level[0],
+			      randint(m_level[MAX_MONS_LEVEL - 1]) - 1 + m_level[0],
 			      FALSE);
 
 		mass = TRUE;

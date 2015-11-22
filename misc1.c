@@ -934,7 +934,7 @@ void place_win_monster()
 
 	mon_ptr->fy = y;
 	mon_ptr->fx = x;
-	mon_ptr->mptr = randint(WIN_MON_TOT) - 1 + m_level[MAX_MONS_LEVEL] + m_level[0];
+	mon_ptr->mptr = randint(WIN_MON_TOT) - 1 + m_level[MAX_MONS_LEVEL - 1] + m_level[0];
 	mon_ptr->nptr = muptr;
 	muptr = cur_pos;
 
@@ -978,7 +978,7 @@ void alloc_monster(int (*alloc_set)(), int num, int dis, int slp)
 	    j = randint(m_level[0]) - 1;
 	}
 	else if(dun_level >= MAX_MONS_LEVEL) {
-	    j = randint(m_level[MAX_MONS_LEVEL]) - 1 + m_level[0];
+	    j = randint(m_level[MAX_MONS_LEVEL - 1]) - 1 + m_level[0];
 	}
 	else if(randint(MON_NASTY) == 1) {
 	    /* abs may be a macro, don't call it with randnor as a parameter */
@@ -1094,7 +1094,7 @@ int summon_undead(int *y, int *x)
 
     i = 0;
     summon = FALSE;
-    l = m_level[MAX_MONS_LEVEL] + m_level[0];
+    l = m_level[MAX_MONS_LEVEL - 1] + m_level[0];
 
     m = randint(l) - 1;
     ctr = 0;

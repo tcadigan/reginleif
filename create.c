@@ -209,7 +209,7 @@ void get_history()
     int end_pos;
     int cur_len;
     int line_ctr;
-    int new_start;
+    int new_start = 0;
     int social_class;
     char history_block[400];
     vtype tmp_str;
