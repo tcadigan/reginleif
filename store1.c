@@ -1,17 +1,14 @@
 #include "store1.h"
 
-#include "constants.h"
-#include "config.h"
-#include "types.h"
-#include "externs.h"
-
-#ifdef USG
+#include <stdlib.h>
 #include <string.h>
 
-#else
-
-#include <strings.h>
-#endif
+#include "config.h"
+#include "constants.h"
+#include "desc.h"
+#include "externs.h"
+#include "misc1.h"
+#include "types.h"
 
 int search_list(byteint x1, int x2)
 {
@@ -249,7 +246,7 @@ int store_check_num(int store_num)
 }
 
 /* Insert INVEN_MAX at given location */
-void insert_store(int store_num, int pos, in icost)
+void insert_store(int store_num, int pos, int icost)
 {
     int i;
     store_type *s_ptr;
@@ -358,7 +355,7 @@ void store_destroy(int store_num, int item_val, int one_of)
     treasure_type *i_ptr;
 
     s_ptr = &store[store_num];
-    invenotry[INVEN_MAX] = s_ptr->store_inven[item_val].sitem;
+    inventory[INVEN_MAX] = s_ptr->store_inven[item_val].sitem;
     i_ptr = &s_ptr->store_inven[item_val].sitem;
 
     if((i_ptr->number > 1) && (i_ptr->subval < 512) && (one_of)) {
@@ -427,7 +424,7 @@ void store_create(int store_num)
 
 	/* Item must be good */
 	if(t_ptr->cost > 0) {
-	    if(t_ptr->cost < owners[s_ptr->owner].max_const) {
+	    if(t_ptr->cost < owners[s_ptr->owner].max_cost) {
 		store_carry(store_num, &dummy);
 		tries = 10;
 	    }

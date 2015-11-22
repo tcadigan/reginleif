@@ -1,21 +1,19 @@
 #include "save.h"
 
 #include <stdio.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
-#include "constants.h"
 #include "config.h"
-#include "types.h"
+#include "constants.h"
+#include "desc.h"
 #include "externs.h"
-
-#ifdef USG
-#include <string.h>
-
-#else
-
-#include <strings.h>
-#endif
+#include "io.h"
+#include "signals.h"
+#include "store1.h"
+#include "types.h"
 
 /* Correct SUN stupidity in the stdio.h file */
 #ifdef sun
@@ -92,12 +90,12 @@ int restore_char()
     error |= !fread((char *)&turn, sizeof(turn), 1, f1);
     error |= !fread((char *)inventory, sizeof(inventory), 1, f1);
     error |= !fread((char *)magic_spell[py.misc.pclass], sizeof(spell_type), 31, f1);
-    error |= !fread((char *)cur_height, sizeof(cur_height), 1, f1);
-    error |= !fread((char *)cur_width, sizeof(cur_width), 1, f1);
-    error |= !fread((char *)max_panel_rows, sizeof(max_panel_rows), 1, f1);
-    error |= !fread((char *)max_panel_cols, sizeof(max_panel_cols), 1, f1);
+    error |= !fread((char *)&cur_height, sizeof(cur_height), 1, f1);
+    error |= !fread((char *)&cur_width, sizeof(cur_width), 1, f1);
+    error |= !fread((char *)&max_panel_rows, sizeof(max_panel_rows), 1, f1);
+    error |= !fread((char *)&max_panel_cols, sizeof(max_panel_cols), 1, f1);
 
-    for(i = 0; i < MAX_HEIGHT, ++i) {
+    for(i = 0; i < MAX_HEIGHT; ++i) {
 	for(j = 0; j < MAX_WIDTH; ++j) {
 	    c_ptr = &cave[i][j];
 	    error |= !fread((char *)&c_ptr->cptr, sizeof(c_ptr->cptr), 1, f1);
@@ -149,7 +147,7 @@ int restore_char()
     error |= !fread((char *)&town_seed, sizeof(town_seed), 1, f1);
 
     if(version >= 4.87) {
-	error |= fread((char *)&panic, sizeof(panic_size), 1, f1);
+	error |= fread((char *)&panic_save, sizeof(panic_save), 1, f1);
 
 	/* Clear the panic_save condition, which is used to indicate cheating */
 	panic_save = 0;
@@ -174,7 +172,7 @@ int restore_char()
      * Reidentify objects.
      * very inefficient, should write new routine perhaps? 
      */
-    for(i = 0; i < MAX_OBJECTS, ++i) {
+    for(i = 0; i < MAX_OBJECTS; ++i) {
 	if(object_ident[i] == TRUE) {
 	    identify(object_list[i]);
 	}
@@ -191,7 +189,7 @@ void save_char(int exit, int no_ask)
     int error;
     vtype fnam;
     vtype temp;
-    doule version;
+    double version;
     struct stat buf;
     FILE *f1;
     char char_tmp;
@@ -223,7 +221,7 @@ void save_char(int exit, int no_ask)
     no_controlz();
 
     /* Open the user's save file    -JEW- */
-    f = fopen(fnam, "w");
+    f1 = fopen(fnam, "w");
 
     if(f1 == NULL) {
 	sprintf(temp, "Error creating %s", fnam);
@@ -268,7 +266,7 @@ void save_char(int exit, int no_ask)
 
     error |= !fwrite((char *)t_list, sizeof(t_list), 1, f1);
     error |= !fwrite((char *)&tcptr, sizeof(tcptr), 1, f1);
-    error |= !fwrite((char *)object_ident, sizeof(object_iden), 1, f1);
+    error |= !fwrite((char *)object_ident, sizeof(object_ident), 1, f1);
     error |= !fwrite((char *)m_list, sizeof(m_list), 1, f1);
     error |= !fwrite((char *)&mfptr, sizeof(mfptr), 1, f1);
     error |= !fwrite((char *)&muptr, sizeof(muptr), 1, f1);
@@ -308,7 +306,7 @@ void save_char(int exit, int no_ask)
 
     if(error) {
 	sprintf(temp, "Error writing to file %s", fnam);
-	prt(tmp, 0, 0);
+	prt(temp, 0, 0);
 	prt("Game not saved.", 0, 0);
     }
     else if(flag) {
@@ -358,9 +356,9 @@ int get_char(char *fnam)
 	exit_game();
     }
     
-#endif
+#else
 
-    if((lstat(fnam, &lbuf) == -1) || (state(fnam, &buf) == -1)) {
+    if((lstat(fnam, &lbuf) == -1) || (stat(fnam, &buf) == -1)) {
 	sprintf(temp, "Cannot stat file %s", fnam);
 	prt(temp, 0, 0);
 
@@ -452,7 +450,7 @@ int get_char(char *fnam)
 	    /* This is different */
 	    error |= !fread((char *)&char_tmp, sizeof(char), 1, f1);
 	    store[i].insult_cur = (short)char_tmp;
-	    error |= !fread((char *)&store[i].store_owner, sizeof(char), 1, f1);
+	    error |= !fread((char *)&store[i].owner, sizeof(char), 1, f1);
 	    error |= !fread((char *)&store[i].store_ctr, sizeof(char), 1, f1);
 
 	    /*

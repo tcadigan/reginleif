@@ -22,5 +22,6 @@ void put_qio();
 void init_curses();
 char *pad(char *string, char *fill, int filllength);
 int confirm();
+int get_hex_value(int row, int col, int slen);
 
 #endif

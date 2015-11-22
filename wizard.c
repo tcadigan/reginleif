@@ -1,19 +1,18 @@
 #include "wizard.h"
 
 #include <stdio.h>
-
-#include "constants.h"
-#include "config.h"
-#include "types.h"
-#include "externs.h"
-
-#ifdef USG
 #include <string.h>
 
-#else
-#include <strings.h>
-
-#endif
+#include "config.h"
+#include "constants.h"
+#include "externs.h"
+#include "io.h"
+#include "misc1.h"
+#include "misc2.h"
+#include "moria1.h"
+#include "moria2.h"
+#include "sets.h"
+#include "types.h"
 
 /* Correct SUN stupidity in the stdio.h file */
 #ifdef sun
@@ -113,7 +112,7 @@ void change_character()
     if((tmp_val > 2) && (tmp_val < 119)) {
         s_ptr->str = tmp_val;
         s_ptr->cstr = tmp_val;
-        prt_stength();
+        prt_strength();
     }
 
     prt("(3 - 118) Intelligence == ", 0, 0);
@@ -437,7 +436,7 @@ void wizard_create()
 
         switch(tmp_val) {
         case 1:
-        case 12:
+        case 13:
         case 15:
             i_ptr->tchar = '~';
 
@@ -571,7 +570,7 @@ void wizard_create()
     get_string(tmp_str, 0, 9, 10);
     tmp_val = 1;
     sscanf(tmp_str, "%d", &tmp_val);
-    i->ptr = number = tmp_val;
+    i_ptr->number = tmp_val;
     prt("Damage : ", 0, 0);
     get_string(tmp_str, 0, 9, 5);
     strcpy(i_ptr->damage, tmp_str);

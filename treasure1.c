@@ -1,5 +1,5 @@
-#include "constants.h"
 #include "config.h"
+#include "constants.h"
 #include "types.h"
 
 /* Following are treasure arrays and variables */
@@ -315,7 +315,7 @@ treasure_type object_list[MAX_OBJECTS] = {
     { "& Scroll~ %T| of Teleport"                         , 70,  '?', 0x00000100,    0,   40, 265,    5, 1,    0,  0,  0,  0,   "0d0", 10 },
     { "& Scroll~ %T| of Teleport Level"                   , 70,  '?', 0x00000200,    0,   50, 266,    5, 1,    0,  0,  0,  0,   "0d0", 20 },
     { "& Scroll~ %T| of Monster Confusion"                , 70,  '?', 0x00000400,    0,   30, 267,    5, 1,    0,  0,  0,  0,   "0d0",  5 },
-    { "& Scroll~ %T| of Magic Mapping"                    , 70,  '?', 0x00000800,    0,   40, 268,    5, 1,    0,  0,  0,  0,   "0d0"   5 },
+    { "& Scroll~ %T| of Magic Mapping"                    , 70,  '?', 0x00000800,    0,   40, 268,    5, 1,    0,  0,  0,  0,   "0d0",  5 },
     { "& Scroll~ %T| of Sleep Monster"                    , 70,  '?', 0x00001000,    0,   35, 269,    5, 1,    0,  0,  0,  0,   "0d0",  5 },
     { "& Scroll~ %T| of Rune of Protection"               , 70,  '?', 0x00002000,    0,  500, 270,    5, 1,    0,  0,  0,  0,   "0d0", 50 },
     { "& Scroll~ %T| of Treasure Detection"               , 70,  '?', 0x00004000,    0,   15, 271,    5, 1,    0,  0,  0,  0,   "0d0",  0 },

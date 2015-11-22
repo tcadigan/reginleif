@@ -1,5 +1,5 @@
-#include "constants.h"
 #include "config.h"
+#include "constants.h"
 #include "types.h"
 
 /* Identified objects flags */

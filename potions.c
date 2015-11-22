@@ -1,9 +1,16 @@
 #include "potions.h"
 
-#include "constants.h"
 #include "config.h"
-#include "types.h"
+#include "constants.h"
+#include "desc.h"
 #include "externs.h"
+#include "io.h"
+#include "misc1.h"
+#include "misc2.h"
+#include "moria1.h"
+#include "moria2.h"
+#include "spells.h"
+#include "types.h"
 
 /* Potions for the quaffing    -RAK- */
 void quaff()
@@ -69,7 +76,7 @@ void quaff()
                         break;
                     case 3:
                         s_ptr = &py.stats;
-                        p_ptr->cstr = s_ptr->str;
+                        s_ptr->cstr = s_ptr->str;
                         msg_print("You feel warm all over.");
                         prt_strength();
                         ident = TRUE;
@@ -93,7 +100,7 @@ void quaff()
                         break;
                     case 5:
                         msg_print("This potion tastes very dull.");
-                        ident = lost_int();
+                        ident = lose_int();
 
                         break;
                     case 6:
@@ -317,7 +324,7 @@ void quaff()
                             }
                         }
                         else if(c_ptr->pspell) {
-                            ident = learn_player();
+                            ident = learn_prayer();
                         }
 
                         break;

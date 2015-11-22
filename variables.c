@@ -1,10 +1,10 @@
-#include "constants.h"
 #include "config.h"
+#include "constants.h"
 #include "types.h"
 
 int character_generated = 0;   /* Don't save score until char gen finished */
 int character_saved = 0;       /* Prevents save on kill after save_char() */
-int hisghscore_fd;             /* File descriptor to do high score file */
+int highscore_fd;              /* File descriptor to do high score file */
 int player_max_exp;            /* Max experience possible */
 char norm_state[STATE_SIZE];   /* Normal seed */
 char randes_state[STATE_SIZE]; /* For encoding colors */
@@ -34,12 +34,12 @@ int panic_save = 0;            /* This is true if playing from a panic save */
  */
 int used_line[23] = {
     FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
-    FALSE, FALSE, FALSE, FLASE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+    FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
     FALSE, FALSE, FALSE
 };
 
-char password[1];
-char password[2];
+char password1[12];
+char password2[12];
 int wait_for_more = 0;
 int key_bindings;
 
@@ -114,15 +114,15 @@ player_type py = {
       0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0,
-      "", "", "", "", ""
+      { "", "", "", "", "" }
     },
     { 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0
     },
     { 0, 0, 0, 0, 0, 7500, 2, 0,
-      0, 0, 0, 0, 0, 0, 0, 0
       0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0,
+      0,
       FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
       FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
       FALSE, FALSE, FALSE, FALSE, FALSE, FALSE
@@ -214,7 +214,7 @@ btype player_title[MAX_CLASS][MAX_PLAYER_LEVEL] = {
       "Wizard (8th)",
       "Wizard (9th)",
       "Wizard Lord"
-    }
+    },
     /* Priests */
     { "Believer",
       "Acolyte(1st)",
@@ -394,7 +394,7 @@ int player_exp[MAX_PLAYER_LEVEL] = {
 };
 
 /* Accumulator for fractional experience */
-double acC_exp = 0.0;
+double acc_exp = 0.0;
 dtype bare_hands = "1d1";
 int char_row = 0;
 int char_col = 0;
@@ -655,7 +655,7 @@ spell_type magic_spell[MAX_CLASS][31] = {
 	{ "Find Traps"             ,  3,  3,   8, 27, FALSE },
 	{ "Detect Doors/Stairs"    ,  3,  3,   8, 27, FALSE },
 	{ "Slow Poison"            ,  3,  3,  10, 28, FALSE },
-	{ "Blind Creature"         ,  5,  4,  16, 29, FALSE }.
+	{ "Blind Creature"         ,  5,  4,  16, 29, FALSE },
 	{ "Portal"                 ,  5,  4,  20, 30, FALSE },
 	{ "Cure Medium Wounds"     ,  5,  4,  20, 32, FALSE },
 	{ "Chant"                  ,  5,  5,  20, 34, FALSE },
@@ -819,7 +819,7 @@ owner_type owners[MAX_OWNERS] = {
     { "Mauser the Chemist       (Half-Elf)      Alchemist"    , 10000, 0.90, 0.11, 0.05, 1,  8 },
     { "Gopher the Great!        (Gnome)         Magic Shop"   , 20000, 1.15, 0.13, 0.06, 4, 10 },
     { "Lyar-el the Comely       (Elf)           General Store",   300, 0.65, 0.07, 0.06, 2, 18 },
-    { "Mauglim the Horrible     (Half-Orc)      Armory"       ,  3000, 1.00, 0.13, 0.05, 6   9 },
+    { "Mauglim the Horrible     (Half-Orc)      Armory"       ,  3000, 1.00, 0.13, 0.05, 6,  9 },
     { "Ithyl-Mak the Beastly    (Half-Troll)    Weaponsmith"  ,  3000, 1.00, 0.15, 0.06, 7,  8 },
     { "Delilah the Pure         (Half-Elf)      Temple"       , 25000, 0.80, 0.07, 0.06, 1, 20 },
     { "Wizzle the Chaotic       (Halfling)      Alchemist"    , 10000, 0.90, 0.10, 0.06, 3,  8 },
@@ -842,7 +842,7 @@ treasure_type store_door[MAX_STORES] = {
  * CAUTION!! These indices are all one greater than they should be, see
  * store_create in store1.c
  */
-int store_chioce[MAX_STORES][STORE_CHOICES] = {
+int store_choice[MAX_STORES][STORE_CHOICES] = {
     /* General store    */ { 105, 104, 103, 102, 102, 104, 42, 105, 104, 27, 26,  5,  4,  3,  3,  2,  2,  2,   1,  1,  1,  1,   1,  1,  1,  1 },
     /* Armory           */ {  30,  31,  32,  33,  34,  35, 36,  37,  38, 39, 40, 41, 43, 44, 45, 46, 47, 30,  33, 34, 43, 44,  28, 29, 30, 31 },
     /* Weaponsmith      */ {   6,   7,   8,   9,  10,  11, 12,  13,  14, 15, 16, 17, 18, 19, 20, 21, 22, 23,  24, 25,  6,  7,  23, 25, 23, 25 },

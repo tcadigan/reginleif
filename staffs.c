@@ -1,9 +1,16 @@
 #include "staffs.h"
 
-#include "constants.h"
 #include "config.h"
-#include "types.h"
+#include "constants.h"
+#include "desc.h"
 #include "externs.h"
+#include "io.h"
+#include "misc1.h"
+#include "misc2.h"
+#include "moria1.h"
+#include "moria2.h"
+#include "spells.h"
+#include "types.h"
 
 /* Use a staff...    -RAK- */
 void use()

@@ -1,9 +1,15 @@
-#include "pray.h"
+#include "prayer.h"
 
-#include "constants.h"
 #include "config.h"
-#include "types.h"
+#include "constants.h"
 #include "externs.h"
+#include "io.h"
+#include "misc1.h"
+#include "misc2.h"
+#include "moria1.h"
+#include "moria2.h"
+#include "spells.h"
+#include "types.h"
 
 /* Pray like HELL...    -RAK- */
 void pray()
@@ -41,7 +47,7 @@ void pray()
                 redraw = FALSE;
 
                 if(get_item(&item_val, "Use which Holy Book?", &redraw, i, j)) {
-                    result = case_spell("Recite with prayer?", item_val, &choice, &chance, &redraw);
+                    result = cast_spell("Recite with prayer?", item_val, &choice, &chance, &redraw);
 
                     if(result == TRUE) {
                         s_ptr = &magic_spell[py.misc.pclass][choice];
@@ -101,7 +107,7 @@ void pray()
 
                                 break;
                             case 11:
-                                hp_player(damroll("4d4", "a prayer."));
+                                hp_player(damroll("4d4"), "a prayer.");
 
                                 break;
                             case 12:
@@ -172,7 +178,7 @@ void pray()
 
                                 break;
                             case 27:
-                                dispell_creature(0x0008, (int)(3 * py.misc.level));
+                                dispell_creature(0x0008, (int)(3 * py.misc.lev));
 
                                 break;
                             case 28:

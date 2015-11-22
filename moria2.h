@@ -29,5 +29,9 @@ int pick_dir(int dir);
 void light_room(int y, int x);
 void area_affect(int dir, int y, int x);
 int get_panel(int y, int x);
+int twall(int y, int x, int t1, int t2);
+void monster_death(int y, int x, unsigned int flags);
+int mon_take_hit(int monptr, int dam);
+void desc_charges(int item_val);
 
 #endif

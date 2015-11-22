@@ -1,24 +1,25 @@
+#include "spells.h"
+
 #include <stdio.h>
-
-#include "constants.h"
-#include "config.h"
-#include "types.h"
-#include "externs.h"
-
-#ifdef USG
 #include <string.h>
 
-#else
-#include <strings.h>
-
-#endif
+#include "config.h"
+#include "constants.h"
+#include "creature.h"
+#include "desc.h"
+#include "externs.h"
+#include "io.h"
+#include "misc1.h"
+#include "misc2.h"
+#include "moria1.h"
+#include "moria2.h"
+#include "sets.h"
+#include "types.h"
 
 /* Correct SUN stupidity in the stdio.h */
 #ifdef sun
 char *sprintf();
 #endif
-
-extern char cur_char2();
 
 /*
  * The following are spell procedure/functions    -RAK-
@@ -31,7 +32,7 @@ extern char cur_char2();
 void monster_name(char *m_name, monster_type *m_ptr, creature_type *r_ptr)
 {
     if(!m_ptr->ml
-       || (py.flags.bind > 0)
+       || (py.flags.blind > 0)
        || ((r_ptr->cmove & 0x10000) && !py.flags.see_inv)) {
 	strcpy(m_name, "It");
     }
@@ -237,7 +238,7 @@ int detect_invisible()
 	if(panel_contains((int)m_ptr->fy, (int)m_ptr->fx)) {
 	    if(c_list[m_ptr->mptr].cmove & 0x10000) {
 		m_ptr->ml = TRUE;
-		tmp_str[0] = c_list[m_ptr].cchar;
+		tmp_str[0] = c_list[m_ptr->mptr].cchar;
 		tmp_str[1] = '\0';
 		print(tmp_str, (int)m_ptr->fy, (int)m_ptr->fx);
 		flag = TRUE;
@@ -272,7 +273,7 @@ int light_area(int y, int x)
     msg_print("You are surrounded by a white light.");
     light = TRUE;
 
-    if(((cave[y][x] == 1) || (cave[y][x].fval == 2))
+    if(((cave[y][x].fval == 1) || (cave[y][x].fval == 2))
        && (dun_level > 0)) {
 	light_room(y, x);
     }
@@ -306,7 +307,7 @@ int unlight_area(int y, int x)
     int end_row;
     int end_col;
     int flag;
-    int unlight;
+    int unlight = FALSE;
     cave_type *c_ptr;
     vtype out_val;
 
@@ -417,14 +418,14 @@ int map_area()
 		    for(i7 = (m - 1); i7 <= (m + 1); ++i7) {
 			for(i8 = (n - 1); i8 <= (n + 1); ++i8) {
 			    c_ptr = &cave[i7][i8];
-			    if(((c_ptr >= 10) && (c_ptr->fval <= 12))
+			    if(((c_ptr->fval >= 10) && (c_ptr->fval <= 12))
 			       || (c_ptr->fval == 15)) {
 				c_ptr->pl = TRUE;
 			    }
 			    else if(c_ptr->tptr != 0) {
 				if((t_list[c_ptr->tptr].tval >= 102)
 				   && (t_list[c_ptr->tptr].tval <= 110)
-				   && (t_list[c_ptr->tptr].fval != 106)) {
+				   && (t_list[c_ptr->tptr].tval != 106)) {
 				    c_ptr->fm = TRUE;
 				}
 			    }
@@ -649,7 +650,7 @@ void light_line(int dir, int y, int x)
     cave_type *c_ptr;
     monster_type *m_ptr;
     creature_type *r_ptr;
-    v_type out_val;
+    vtype out_val;
     vtype m_name;
     char tmp_str[2];
 
@@ -690,19 +691,19 @@ void light_line(int dir, int y, int x)
 	    c_ptr->pl = TRUE;
 	}
 
-	move(dir, &y, &x);
+	moria_move(dir, &y, &x);
     }
 }
 
 /* Light a line in all directions    -RAK- */
-int starlite(int y, in x)
+int starlite(int y, int x)
 {
     int i;
     msg_print("The end of the staff bursts into a blue shimmering light.");
 
     for(i = 1; i <= 9; ++i) {
 	if(i != 5) {
-	    light_light(i, y, x);
+	    light_line(i, y, x);
 	}
     }
 
@@ -746,7 +747,7 @@ int disarm_all(int dir, int y, int x)
 		msg_print("Click!");
 		t_ptr->flags = 0;
 		disarm = TRUE;
-		string = index(t_ptr->name, "(");
+		string = index(t_ptr->name, '(');
 
 		if(string) {
 		    i = strlen(t_ptr->name) - strlen(string);
@@ -767,10 +768,10 @@ int disarm_all(int dir, int y, int x)
 
     oldy = y;
     oldx = x;
-    move(dir, &y, &x);
+    moria_move(dir, &y, &x);
 
     while(cave[oldy][oldx].fopen) {
-	c_ptr->&cave[y][x];
+	c_ptr = &cave[y][x];
 
 	if(c_ptr->tptr != 0) {
 	    t_ptr = &t_list[c_ptr->tptr];
@@ -790,11 +791,11 @@ int disarm_all(int dir, int y, int x)
 		disarm = TRUE;
 	    }
 	    else if(t_ptr->tval == 2) {
-		if(t_ptr->flag != 0) {
+		if(t_ptr->flags != 0) {
 		    msg_print("Click!");
 		    t_ptr->flags = 0;
 		    disarm = TRUE;
-		    string = index(t_ptr->name, "(");
+		    string = index(t_ptr->name, '(');
 
 		    if(string) {
 			i = strlen(t_ptr->name) - strlen(string);
@@ -815,7 +816,7 @@ int disarm_all(int dir, int y, int x)
 
 	oldy = y;
 	oldx = x;
-	move(dir, &y, &x);
+	moria_move(dir, &y, &x);
     }
 
     return disarm;
@@ -824,17 +825,11 @@ int disarm_all(int dir, int y, int x)
 /* Return flags for given type area affect    -RAK- */
 void get_flags(int typ, int *weapon_type, int *harm_type, int (**destroy)())
 {
-    int set_null();
-    int set_fire_destroy();
-    int set_frost_destroy();
-    int set_acid_destroy();
-    int set_lightning_destroy();
-
     switch(typ) {
     case 1: /* Lightning */
 	*weapon_type = 0x00080000;
 	*harm_type = 0x0100;
-	*destroy = set_lightning_destroy();
+	*destroy = set_lightning_destroy;
 
 	break;
     case 2: /* Poison gas */
@@ -875,7 +870,7 @@ void get_flags(int typ, int *weapon_type, int *harm_type, int (**destroy)())
 }
 
 /* Shoot a bolt in a given direction    -RAK- */
-int fire_bolt(int typ, int dir, int y, int x, int dam, ctype bolt_typ)
+void fire_bolt(int typ, int dir, int y, int x, int dam, ctype bolt_typ)
 {
     int i;
     int oldy;
@@ -898,10 +893,10 @@ int fire_bolt(int typ, int dir, int y, int x, int dam, ctype bolt_typ)
     oldx = x;
     dist = 0;
 
-    move(dir, &y, &x);
+    moria_move(dir, &y, &x);
 
     if(test_light(oldy, oldx)) {
-	lite_sport(oldy, oldx);
+	lite_spot(oldy, oldx);
     }
     else {
 	unlite_spot(oldy, oldx);
@@ -970,7 +965,7 @@ int fire_bolt(int typ, int dir, int y, int x, int dam, ctype bolt_typ)
     oldx = x;
 
     while(!flag) {
-	move(dir, &y, &x);
+	moria_move(dir, &y, &x);
 
 	if(test_light(oldy, oldx)) {
 	    lite_spot(oldy, oldx);
@@ -1047,7 +1042,7 @@ int fire_bolt(int typ, int dir, int y, int x, int dam, ctype bolt_typ)
  * Shoot a ball in a given direction. 
  * Note that balls have an area affect...    -RAK-
  */
-int fire_ball(int typ, int dir, int y, int x, int dam_hp, ctype descrip)
+void fire_ball(int typ, int dir, int y, int x, int dam_hp, ctype descrip)
 {
     int i;
     int j;
@@ -1078,7 +1073,7 @@ int fire_ball(int typ, int dir, int y, int x, int dam_hp, ctype descrip)
     oldx = x;
     dist = 0;
 
-    move(dir, &y, &x);
+    moria_move(dir, &y, &x);
     ++dist;
 
     if(test_light(oldy, oldx)) {
@@ -1113,7 +1108,7 @@ int fire_ball(int typ, int dir, int y, int x, int dam_hp, ctype descrip)
 				c_ptr = &cave[i][j];
 
 				if(c_ptr->tptr != 0) {
-				    if((*destroy)(tlist[c_ptr->tptr].tval)) {
+				    if((*destroy)(t_list[c_ptr->tptr].tval)) {
 					delete_object(i, j);
 				    }
 				}
@@ -1201,7 +1196,7 @@ int fire_ball(int typ, int dir, int y, int x, int dam_hp, ctype descrip)
 		msg_print(out_val);
 	    }
 
-	    if(tkill = 1) {
+	    if(tkill == 1) {
 		msg_print("There is a screm of agony!");
 	    }
 	    else if(tkill > 1) {
@@ -1222,7 +1217,7 @@ int fire_ball(int typ, int dir, int y, int x, int dam_hp, ctype descrip)
     }
 
     while(!flag) {
-	move(dir, &y, &x);
+	moria_move(dir, &y, &x);
 	++dist;
 
 	if(test_light(oldy, oldx)) {
@@ -1318,7 +1313,7 @@ int fire_ball(int typ, int dir, int y, int x, int dam_hp, ctype descrip)
 				    else if(c_ptr->cptr == 1) {
 					lite_spot(i, j);
 				    }
-				    else if(c_ptr->sptr > 1) {
+				    else if(c_ptr->cptr > 1) {
 					if(m_list[c_ptr->cptr].ml) {
 					    lite_spot(i, j);
 					}
@@ -1327,7 +1322,7 @@ int fire_ball(int typ, int dir, int y, int x, int dam_hp, ctype descrip)
 					}
 				    }
 				    else {
-					unline_spot(i, j);
+					unlite_spot(i, j);
 				    }
 				}
 			    }
@@ -1371,7 +1366,7 @@ int fire_ball(int typ, int dir, int y, int x, int dam_hp, ctype descrip)
  * Breath weapon works like a fire ball, but affect the player. Note the area
  * effect...    -RAK-
  */
-void breath(int type, int y, int x, int dam_hp, char *ddesc)
+void breath(int typ, int y, int x, int dam_hp, char *ddesc)
 {
     int i;
     int j;
@@ -1505,7 +1500,7 @@ int recharge(int num)
     int item_val;
     int redraw;
     int res;
-    int treasure_type *i_ptr;
+    treasure_type *i_ptr;
 
     res = FALSE;
     redraw = FALSE;
@@ -1557,7 +1552,7 @@ int hp_monster(int dir, int y, int x, int dam)
     monster = FALSE;
     flag = FALSE;
 
-    move(dir, &y, &x);
+    moria_move(dir, &y, &x);
     c_ptr = &cave[y][x];
 
     if(c_ptr->fopen) {
@@ -1586,7 +1581,7 @@ int hp_monster(int dir, int y, int x, int dam)
     }
 
     while(!flag) {
-	move(dir, &y, &x);
+	moria_move(dir, &y, &x);
 	c_ptr = &cave[y][x];
 
 	if(c_ptr->fopen) {
@@ -1626,14 +1621,14 @@ int drain_life(int dir, int y, int x)
     int drain;
     cave_type *c_ptr;
     monster_type *m_ptr;
-    creature_type r_ptr;
+    creature_type *r_ptr;
     vtype out_val;
     vtype m_name;
 
     drain = FALSE;
     flag = FALSE;
 
-    move(dir, &y, &x);
+    moria_move(dir, &y, &x);
     c_ptr = &cave[y][x];
 
     if(c_ptr->fopen) {
@@ -1663,7 +1658,7 @@ int drain_life(int dir, int y, int x)
     }
 
     while(!flag) {
-	move(dir, &y, &x);
+	moria_move(dir, &y, &x);
 	c_ptr = &cave[y][x];
 
 	if(c_ptr->fopen) {
@@ -1713,7 +1708,7 @@ int speed_monster(int dir, int y, int x, int spd)
     speed = FALSE;
     flag = FALSE;
 
-    move(dir, &y, &x);
+    moria_move(dir, &y, &x);
     c_ptr = &cave[y][x];
 
     if(c_ptr->fopen) {
@@ -1748,7 +1743,7 @@ int speed_monster(int dir, int y, int x, int spd)
 
 
     while(!flag) {
-	move(dir, &y, &x);
+	moria_move(dir, &y, &x);
 	c_ptr = &cave[y][x];
 
 	if(c_ptr->fopen) {
@@ -1800,7 +1795,7 @@ int confuse_monster(int dir, int y, int x)
     confuse = FALSE;
     flag = FALSE;
 
-    move(dir, &y, &x);
+    moria_move(dir, &y, &x);
     c_ptr = &cave[y][x];
 
     if(c_ptr->fopen) {
@@ -1829,7 +1824,7 @@ int confuse_monster(int dir, int y, int x)
     }
 
     while(!flag) {
-	move(dir, &y, &x);
+	moria_move(dir, &y, &x);
 	c_ptr = &cave[y][x];
 
 	if(c_ptr->fopen) {
@@ -1875,7 +1870,7 @@ int sleep_monster(int dir, int y, int x)
     sleep = FALSE;
     flag = FALSE;
 
-    move(dir, &y, &x);
+    moria_move(dir, &y, &x);
     c_ptr = &cave[y][x];
 
     if(c_ptr->fopen) {
@@ -1903,7 +1898,7 @@ int sleep_monster(int dir, int y, int x)
     }
 
     while(!flag) {
-	move(dir, &y, &x);
+	moria_move(dir, &y, &x);
 	c_ptr = &cave[y][x];
 
 	if(c_ptr->fopen) {
@@ -1950,7 +1945,7 @@ int wall_to_mud(int dir, int y, int x)
     wall = FALSE;
     flag = FALSE;
 
-    move(dir, &y, &x);
+    moria_move(dir, &y, &x);
     c_ptr = &cave[y][x];
 
     if(in_bounds(y, x)) {
@@ -2004,7 +1999,7 @@ int wall_to_mud(int dir, int y, int x)
     }
 
     while(!flag) {
-	move(dir, &y, &x);
+	moria_move(dir, &y, &x);
 	c_ptr = &cave[y][x];
 
 	if(in_bounds(y, x)) {
@@ -2024,7 +2019,7 @@ int wall_to_mud(int dir, int y, int x)
 		    if(test_light(y, x)) {
 			inventory[INVEN_MAX] = t_list[c_ptr->tptr];
 			objdes(tmp_str, INVEN_MAX, FALSE);
-			sprintf(out_vl, "The %s turns into mud.", tmp_str);
+			sprintf(out_val, "The %s turns into mud.", tmp_str);
 			msg_print(out_val);
 			wall = TRUE;
 		    }
@@ -2037,7 +2032,7 @@ int wall_to_mud(int dir, int y, int x)
 		m_ptr = &m_list[c_ptr->cptr];
 		r_ptr = &c_list[m_ptr->mptr];
 
-		if(0x0200 & r_ptr->cdenfese) {
+		if(0x0200 & r_ptr->cdefense) {
 		    monster_name(m_name, m_ptr, r_ptr);
 		    i = mon_take_hit((int)c_ptr->cptr, 100);
 		    flag = TRUE;
@@ -2070,7 +2065,7 @@ int td_destroy2(int dir, int y, int x)
 
     destroy2 = FALSE;
 
-    move(dir, &y, &x);
+    moria_move(dir, &y, &x);
     c_ptr = &cave[y][x];
 
     if(c_ptr->tptr != 0) {
@@ -2091,7 +2086,7 @@ int td_destroy2(int dir, int y, int x)
     }
 
     while(cave[y][x].fopen) {
-	move(dir, &y, &x);
+	moria_move(dir, &y, &x);
 	c_ptr = &cave[y][x];
 
 	if(c_ptr->tptr != 0) {
@@ -2134,7 +2129,7 @@ int poly_monster(int dir, int y, int x)
     flag = FALSE;
     dist = 0;
 
-    move(dir, &y, &x);
+    moria_move(dir, &y, &x);
     ++dist;
 
     if(dist <= OBJ_BOLT_RANGE) {
@@ -2175,7 +2170,7 @@ int poly_monster(int dir, int y, int x)
     }
 
     while(!flag) {
-	move(dir, &y, &x);
+	moria_move(dir, &y, &x);
 	++dist;
 
 	if(dist <= OBJ_BOLT_RANGE) {
@@ -2228,7 +2223,7 @@ int build_wall(int dir, int y, int x)
 
     build = FALSE;
     i = 0;
-    move(dir, &y, &x);
+    moria_move(dir, &y, &x);
 
     while((cave[y][x].fopen) && (i < 0)) {
 	c_ptr = &cave[y][x];
@@ -2242,8 +2237,8 @@ int build_wall(int dir, int y, int x)
 	    mon_take_hit((int)c_ptr->cptr, damroll("2d8"));
 	}
 
-	c_ptr->fval = rockwall2.ftval;
-	c_ptr->fopen = rock_wall2.fopen;
+	c_ptr->fval = rock_wall2.ftval;
+	c_ptr->fopen = rock_wall2.ftopen;
 	c_ptr->fm = FALSE;
 
 	if(test_light(y, x)) {
@@ -2252,14 +2247,14 @@ int build_wall(int dir, int y, int x)
 
 	++i;
 	build = TRUE;
-	move(dir, &y, &x);
+	moria_move(dir, &y, &x);
     }
 
     return build;
 }
 
 /* Replicate a creature    -RAK- */
-int clone_monster(int dir, int y, int c)
+int clone_monster(int dir, int y, int x)
 {
     int flag;
     int clone;
@@ -2268,7 +2263,7 @@ int clone_monster(int dir, int y, int c)
     flag = FALSE;
     clone = FALSE;
 
-    move(dir, &y, &x);
+    moria_move(dir, &y, &x);
     c_ptr = &cave[y][x];
 
     if(c_ptr->cptr > 1) {
@@ -2284,7 +2279,7 @@ int clone_monster(int dir, int y, int c)
     }
 
     while(cave[y][x].fopen && !flag) {
-	move(dir, &y, &x);
+	moria_move(dir, &y, &x);
 	c_ptr = &cave[y][x];
 
 	if(c_ptr->cptr > 1) {
@@ -2368,7 +2363,7 @@ void teleport_to(int ny, int nx)
     int j;
     cave_type *c_ptr;
 
-    dist = 1;
+    dis = 1;
     ctr = 0;
 
     y = ny + (randint(2 * dis + 1) - (dis + 1));
@@ -2426,7 +2421,7 @@ int teleport_monster(int dir, int y, int x)
     flag = FALSE;
     teleport = FALSE;
 
-    move(dir, &y, &x);
+    moria_move(dir, &y, &x);
     c_ptr = &cave[y][x];
 
     if(c_ptr->cptr > 1) {
@@ -2435,7 +2430,7 @@ int teleport_monster(int dir, int y, int x)
     }
 
     while(cave[y][x].fopen && !flag) {
-	move(dir, &y, &x);
+	moria_move(dir, &y, &x);
 	c_ptr = &cave[y][x];
 
 	if(c_ptr->cptr > 1) {
@@ -2455,6 +2450,7 @@ int mass_genocide()
 {
     int i;
     int j;
+    int genocide;
     monster_type *m_ptr;
     creature_type *r_ptr;
 
@@ -2585,7 +2581,7 @@ int sleep_monsters2()
     vtype out_val;
     vtype m_name;
 
-    i = mptr;
+    i = muptr;
     sleep = FALSE;
 
     while(i > 0) {
@@ -2602,7 +2598,7 @@ int sleep_monsters2()
 	    }
 	    else {
 		m_ptr->csleep = 500;
-		sprintf(out_val, "%s falls asleep.", m_nam);
+		sprintf(out_val, "%s falls asleep.", m_name);
 		msg_print(out_val);
 		sleep = TRUE;
 	    }
@@ -2669,7 +2665,7 @@ int detect_evil()
     i = muptr;
 
     while(i > 0) {
-	m_ptr = &m_list;
+	m_ptr = &m_list[i];
 
 	if(panel_contains((int)m_ptr->fy, (int)m_ptr->fx)) {
 	    if(c_list[m_ptr->mptr].cdefense & 0x0004) {
@@ -2913,7 +2909,7 @@ int protect_evil()
 {
     struct flags *f_ptr;
 
-    f_ptr = *py.flags;
+    f_ptr = &py.flags;
     f_ptr->protevil += (randint(25) + (3 * py.misc.lev));
 
     return TRUE;
@@ -2931,7 +2927,7 @@ int create_food()
 	msg_print("There is already an object under you.");
 
 	/* Set reset_flag so that scroll/spell points won't be used */
-	reset_flafg = TRUE;
+	reset_flag = TRUE;
     }
     else {
 	place_object(char_row, char_col);
@@ -3036,7 +3032,7 @@ int turn_undead()
 	i = m_list[i].nptr;
     }
 
-    return tun_und;
+    return turn_und;
 }
 
 /* Leave a glpyh of warding...Creature will not pass over!    -RAK- */
@@ -3050,7 +3046,7 @@ int warding_glyph()
     if(c_ptr->tptr == 0) {
 	popt(&i);
 	c_ptr->tptr = i;
-	t_list[i] = scare_moster;
+	t_list[i] = scare_monster;
     }
 
     return TRUE;
@@ -3093,7 +3089,7 @@ int lose_int()
 int lose_wis()
 {
     if(!py.flags.sustain_wis) {
-	py.stats.cwis = de_statpy(py.stats.cwis);
+	py.stats.cwis = de_statp(py.stats.cwis);
 	msg_print("You feel very naive.");
 	prt_wisdom();
     }
@@ -3107,7 +3103,7 @@ int lose_wis()
 /* Lose a dexterity point.    -RAK- */
 int lose_dex()
 {
-    if(!py.flags.sustain.dex) {
+    if(!py.flags.sustain_dex) {
 	py.stats.cdex = de_statp(py.stats.cdex);
 	msg_print("You feel very sore.");
 	prt_dexterity();
@@ -3123,7 +3119,7 @@ int lose_dex()
 }
 
 /* Lose a constitution point.    -RAK- */
-int los_con()
+int lose_con()
 {
     if(!py.flags.sustain_con) {
 	py.stats.ccon = de_statp(py.stats.ccon);
@@ -3189,7 +3185,7 @@ void lose_exp(int amount)
     while(j > 0) {
 	av_hp = (int)(((double)m_ptr->mhp / (double)m_ptr->lev) + 0.5);
 	av_mn = (int)(((double)m_ptr->mana / (double)m_ptr->lev) + 0.5);
-	--mptr->lev;
+	--m_ptr->lev;
 	--j;
 	lose_hp = randint((av_hp * 2) - 1);
 	lose_mn = randint((av_mn * 2) - 1);
@@ -3366,7 +3362,7 @@ void replace_spot(int y, int x, int typ)
     case 7:
     case 10:
 	c_ptr->fval = rock_wall1.ftval;
-	c_ptr->fopen = rock_wall1.fopen;
+	c_ptr->fopen = rock_wall1.ftopen;
 
 	break;
     case 5:
@@ -3389,7 +3385,7 @@ void replace_spot(int y, int x, int typ)
     c_ptr->fm = FALSE;
 
     if(c_ptr->tptr != 0) {
-	delete_obj(y, x);
+	delete_object(y, x);
     }
 
     if(c_ptr->cptr > 1) {

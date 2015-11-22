@@ -2,10 +2,17 @@
 
 #include <stdio.h>
 
-#include "constants.h"
 #include "config.h"
-#include "types.h"
+#include "constants.h"
+#include "desc.h"
 #include "externs.h"
+#include "io.h"
+#include "misc1.h"
+#include "misc2.h"
+#include "moria1.h"
+#include "moria2.h"
+#include "spells.h"
+#include "types.h"
 
 /* Correct SUN stupidity in the stdio.h file */
 #ifdef sun
@@ -35,7 +42,7 @@ void read_scroll()
     struct misc *m_ptr;
 
     first = TRUE;
-    reset_falg = TRUE;
+    reset_flag = TRUE;
 
     if(inven_ctr > 0) {
         if(find_range(70, 71, &j, &k)) {
@@ -82,7 +89,7 @@ void read_scroll()
                             i_ptr = &inventory[INVEN_WIELD];
 
                             if(i_ptr->tval != 0) {
-                                objdes(tmp_Str, INVEN_WIELD, FALSE);
+                                objdes(tmp_str, INVEN_WIELD, FALSE);
                                 sprintf(out_val, "You %s glows faintly!", tmp_str);
                                 msg_print(out_val);
 
@@ -164,7 +171,7 @@ void read_scroll()
                                 l = INVEN_HEAD;
                             }
                             else if(0x80000000 & inventory[INVEN_HANDS].flags) {
-                                l = INVEN_HEANDS;
+                                l = INVEN_HANDS;
                             }
                             else if(0x80000000 & inventory[INVEN_FEET].flags) {
                                 l = INVEN_FEET;
@@ -253,7 +260,7 @@ void read_scroll()
 
                             break;
                         case 13:
-                            ident = sleep_mosnters1(char_row, char_col);
+                            ident = sleep_monsters1(char_row, char_col);
 
                             break;
                         case 14:
@@ -291,7 +298,7 @@ void read_scroll()
 
                             break;
                         case 22:
-                            ident = trap_creature();
+                            ident = trap_creation();
 
                             break;
                         case 23:
@@ -301,7 +308,7 @@ void read_scroll()
                         case 24:
                             ident = door_creation();
 
-                            berak;
+                            break;
                         case 25:
                             identify(inventory[item_val]);
                             msg_print("This is a Recharge-Item scroll.");

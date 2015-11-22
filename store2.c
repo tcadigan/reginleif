@@ -1,11 +1,18 @@
 #include "store2.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "config.h"
 #include "constants.h"
+#include "desc.h"
 #include "externs.h"
+#include "io.h"
+#include "misc1.h"
+#include "misc2.h"
+#include "moria1.h"
+#include "store1.h"
 #include "types.h"
 
 /* Correct SUN stupidity in the std.h file */
@@ -187,7 +194,7 @@ void prt_comment3(int offer, int asking, int final)
 	case 1:
 	    strcpy(comment, "I'll pay no more than %A1; take it or leave it.");
 
-	    breakl
+	    break;
 	case 2:
 	    strcpy(comment, "You'll get no more than %A1 from me...");
 
@@ -436,7 +443,7 @@ void display_inventory(int store_num, int start)
 
 	if(s_ptr->store_inven[start].scost <= 0) {
 	    j = abs(s_ptr->store_inven[start].scost);
-	    j += (j * char_adj());
+	    j += (j * chr_adj());
 
 	    if(j <= 0) {
 		j = 1;
@@ -486,7 +493,7 @@ void display_cost(int store_num, int pos)
 	sprintf(out_val, "%d", j);
     }
     else {
-	sprintf(out_val, "%9 [Fixed]", s_ptr->store_inven[pos].scost);
+	sprintf(out_val, "%9d [Fixed]", s_ptr->store_inven[pos].scost);
     }
 
     prt(out_val, i + 5, 59);
@@ -527,7 +534,7 @@ int get_store_item(int *com_val, char *pmt, int i, int j)
     flag = TRUE;
     sprintf(out_val, "(Items %c-%c, ESC to exit) %s", i + 97, j + 97, pmt);
 
-    while(((*com_val , i) || (*com_val > j)) && flag) {
+    while(((*com_val < i) || (*com_val > j)) && flag) {
 	prt(out_val, 0, 0);
 	inkey(&command);
 	*com_val = command;
@@ -559,7 +566,7 @@ int increase_insults(int store_num)
 
     increase = FALSE;
     s_ptr = &store[store_num];
-    ++s_ptr->inlut_cur;
+    ++s_ptr->insult_cur;
 
     if(s_ptr->insult_cur > owners[s_ptr->owner].insult_max) {
 	prt_comment4();
@@ -580,7 +587,7 @@ void decrease_insults(int store_num)
     s_ptr->insult_cur -= 2;
 
     if(s_ptr->insult_cur < 0) {
-	s_ptr->insul_cur = 0;
+	s_ptr->insult_cur = 0;
     }
 }
 
@@ -651,7 +658,7 @@ int receive_offer(int store_num, char *comment, int *new_offer, int last_offer, 
 
     if(get_haggle(comment, new_offer)) {
 	if((*new_offer * factor) >= (last_offer * factor)) {
-	    falg = TRUE;
+	    flag = TRUE;
 	}
 	else if(haggle_insults(store_num)) {
 	    receive = 2;
@@ -694,10 +701,12 @@ int purchase_haggle(int store_num, int *price, treasure_type item)
     int min_offer;
     int last_offer;
     int new_offer;
-    int final_flag;
+    int final_flag = 0;
     int x3;
     double x1;
     double x2;
+    double min_per;
+    double max_per;
     int flag;
     int loop_flag;
     vtype out_val;
@@ -733,7 +742,7 @@ int purchase_haggle(int store_num, int *price, treasure_type item)
     final_ask = min_sell;
     min_offer = max_buy;
     last_offer = min_offer;
-    strcpy(comment: "Asking :");
+    strcpy(comment, "Asking :");
 
     loop_flag = TRUE;
     sprintf(out_val, "%s %d", comment, cur_ask);
@@ -1177,7 +1186,7 @@ int sell_haggle(int store_num, int *price, treasure_type item)
 			sell = 2;
 		    }
 		    else {
-			seel = 1;
+			sell = 1;
 		    }
 
 		    flag = TRUE;
@@ -1204,7 +1213,7 @@ int sell_haggle(int store_num, int *price, treasure_type item)
 	    sprintf(out_val, "%s %d", comment, cur_ask);
 	    put_buffer(out_val, 1, 0);
 
-	    swtich(receive_offer(store_num, "What price do you ask? ", &new_offer, last_offer, -1)) {
+	    switch(receive_offer(store_num, "What price do you ask? ", &new_offer, last_offer, -1)) {
 	    case 1:
 		sell = 1;
 		flag = TRUE;
@@ -1248,7 +1257,7 @@ int sell_haggle(int store_num, int *price, treasure_type item)
 			prt_comment6();
 		    }
 		    else if(new_offer == cur_ask) {
-			flag - TRUE;
+			flag = TRUE;
 			*price = new_offer;
 		    }
 		    else {
@@ -1331,6 +1340,8 @@ int store_purchase(int store_num, int *cur_top)
     int i;
     int item_val;
     int price;
+    int item_new;
+    int choice;
     int save_number;
     vtype out_val;
     vtype tmp_str;
@@ -1395,7 +1406,7 @@ int store_purchase(int store_num, int *cur_top)
 			msg_print(out_val);
 
 			if(*cur_top >= s_ptr->store_ctr) {
-			    *cur_type = 0;
+			    *cur_top = 0;
 			    display_inventory(store_num, *cur_top);
 			}
 			else {
@@ -1587,7 +1598,7 @@ void enter_store(int store_num)
 
 		break;
 	    case 105: /* Inventory */
-		if(invent_command('i', 0, 0)) {
+		if(inven_command('i', 0, 0)) {
 		    display_store(store_num, cur_top);
 		}
 
@@ -1606,7 +1617,7 @@ void enter_store(int store_num)
 		break;
 	    case 120: /* Switch weapon */
 		if(inven_command('x', 0, 0)) {
-		    display_store(sture_num, cur_top);
+		    display_store(store_num, cur_top);
 		}
 
 		break;

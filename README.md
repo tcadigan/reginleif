@@ -6,11 +6,11 @@ Original source: http://beej.us/moria/files/source/moria487.tar.Z
 
 Goals:
 
-1) Re-type all source code [WIP]
+1) Re-type all source code [DONE]
 
-2) Get it to compile [TBD]
+2) Get it to compile [DONE]
 
-3) Likely above won't work right, reimplement so it does [TBD]
+3) Likely above won't work right, reimplement so it does [WIP]
 
 Notes:
 

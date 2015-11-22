@@ -20,8 +20,8 @@ OBJS = create.o creature.o death.o desc.o dungeon.o eat.o files.o generate.o \
 
 HDRS = config.h constants.h create.h creature.h death.h desc.h dungeon.h eat.h \
        externs.h files.h generate.h help.h io.h magic.h misc1.h misc2.h \
-       moria1.h moria2.h potions.h prayer.h save.h scrolls.h signals.h \
-       staffs.h store1.h store2.h types.h wands.h wizard.h
+       moria1.h moria2.h potions.h prayer.h save.h scrolls.h sets.h signals.h \
+       spells.h staffs.h store1.h store2.h types.h wands.h wizard.h
 
 moria: $(OBJS) $(HDRS)
 	$(CC) -o moria $(CFLAGS) $(OBJS) $(LDFLAGS)
@@ -67,20 +67,20 @@ misc2.o: misc2.h config.h constants.h externs.h io.h misc1.h types.h
 monsters.o: config.h constants.h types.h
 moria1.o: moria1.h config.h constants.h desc.h externs.h io.h misc1.h misc2.h types.h
 moria2.o: moria2.h config.h constants.h creature.h desc.h externs.h io.h misc1.h misc2.h moria1.h store2.h types.h
-potions.o: potions.h config.h constants.h externs.h types.h
-prayer.o: prayer.h config.h constants.h externs.h types.h
-save.o: save.h config.h constants.h externs.h types.h
-scrolls.o: scrolls.h config.h constants.h externs.h types.h
-sets.o: config.h constants.h
-signals.o: signals.h config.h constants.h externs.h types.h
-spells.o: config.h constants.h externs.h types.h
-staffs.o: staffs.h config.h constants.h externs.h types.h
-store1.o: store1.h config.h constants.h externs.h types.h
-store2.o: config.h constants.h externs.h types.h
+potions.o: potions.h config.h constants.h desc.h externs.h io.h misc1.h misc2.h moria1.h moria2.h spells.h types.h
+prayer.o: prayer.h config.h constants.h externs.h io.h misc1.h misc2.h moria1.h moria2.h spells.h types.h
+save.o: save.h config.h constants.h desc.h externs.h io.h signals.h store1.h types.h
+scrolls.o: scrolls.h config.h constants.h desc.h externs.h io.h misc1.h misc2.h moria1.h moria2.h spells.h types.h
+sets.o: sets.h config.h constants.h
+signals.o: signals.h config.h constants.h death.h externs.h io.h moria1.h save.h types.h
+spells.o: spells.h config.h constants.h creature.h desc.h externs.h io.h misc1.h misc2.h moria1.h moria2.h sets.h types.h
+staffs.o: staffs.h config.h constants.h desc.h externs.h io.h misc1.h misc2.h moria1.h moria2.h spells.h types.h
+store1.o: store1.h config.h constants.h desc.h externs.h misc1.h types.h
+store2.o: store2.h config.h constants.h desc.h externs.h io.h misc1.h misc2.h moria1.h store1.h types.h
 treasure1.o: config.h constants.h types.h
 treasure2.o: config.h constants.h types.h
-wands.o: wands.h config.h constants.h externs.h types.h
-wizard.o: wizard.h config.h constants.h externs.h types.h
+wands.o: wands.h config.h constants.h desc.h externs.h io.h misc1.h misc2.h moria1.h moria2.h spells.h types.h
+wizard.o: wizard.h config.h constants.h externs.h io.h misc1.h misc2.h moria1.h moria2.h sets.h types.h
 moria1.h: types.h
 	touch moria1.h
 desc.h: types.h
@@ -91,3 +91,5 @@ misc2.h: types.h
 	touch misc2.h
 spells.h: types.h
 	touch spells.h
+store1.h: types.h
+	touch store1.h

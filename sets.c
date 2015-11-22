@@ -1,5 +1,7 @@
-#include "constants.h"
+#include "sets.h"
+
 #include "config.h"
+#include "constants.h"
 
 int set_1_2(int element)
 {
@@ -66,8 +68,6 @@ int set_flammable(int element)
 
 int set_frost_destroy(int element)
 {
-    int element;
-
     if((element == 75) || (element == 76)) {
         return TRUE;
     }

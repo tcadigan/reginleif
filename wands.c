@@ -1,9 +1,16 @@
 #include "wands.h"
 
-#include "constants.h"
 #include "config.h"
-#include "types.h"
+#include "constants.h"
+#include "desc.h"
 #include "externs.h"
+#include "io.h"
+#include "misc1.h"
+#include "misc2.h"
+#include "moria1.h"
+#include "moria2.h"
+#include "spells.h"
+#include "types.h"
 
 /* Wands for the aiming... */
 void aim()
@@ -21,7 +28,7 @@ void aim()
     int redraw;
     int ident;
     treasure_type *i_ptr;
-    struct misg *m_ptr;
+    struct misc *m_ptr;
 
     redraw = FALSE;
     reset_flag = TRUE;
@@ -66,8 +73,8 @@ void aim()
                     if(randint(chance) < USE_DEVICE) {
                         msg_print("You failed to use the wand properly.");
                     }
-                    else if(i->ptr->p1 > 0) {
-                        --(i_ptr-p1);
+                    else if(i_ptr->p1 > 0) {
+                        --(i_ptr->p1);
 
                         while(i != 0) {
                             j = bit_pos(&i) + 1;
@@ -175,12 +182,12 @@ void aim()
 
                                 break;
                             case 23:
-                                fire_ball(3, dir, k, l, "Acid Ball");
+                                fire_ball(3, dir, k, l, 40, "Acid Ball");
                                 ident = TRUE;
 
                                 break;
                             case 24:
-                                i = 2 << (randing(23) - 1);
+                                i = 2 << (randint(23) - 1);
 
                                 break;
                             default:
