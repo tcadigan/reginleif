@@ -1,8 +1,8 @@
 # Omega 0.75
 
-Date of origin: 1991 (I think...)
+Date of origin: 1991
 
-Original source: http://www.alcyone.com/binaries/omega/omega-0.75-src.tar.gz
+Original source: http://www.alcyone.com/binaries/omega/omega-0.75-src.tar.gz 
 
 Goals:
 
@@ -14,4 +14,4 @@ Goals:
 
 Notes:
 
-This is the one of the first generation rogue-like games.
+This is one of the last "first generation" Rogue like games. The download is mislabeled as 0.75, however all of the source indicates this is 0.80. Unfortunate indeed. From what I gather this is the second public (non-alpha) release.
