@@ -1,4 +1,4 @@
-# Omega 0.75
+# Omega 0.80 (0.75 ???)
 
 Date of origin: 1991
 
@@ -14,4 +14,4 @@ Goals:
 
 Notes:
 
-This is one of the last "first generation" Rogue like games. The download is mislabeled as 0.75, however all of the source indicates this is 0.80. Unfortunate indeed. From what I gather this is the second public (non-alpha) release.
+This is one of the last "first generation" Rogue like games. There is conflicting information about what version this actually is, some sources indicate that it is 0.80, others indicate that it is 0.75. I am opting to go with 0.80.
