@@ -30,21 +30,21 @@ int main(int argc, char *argv[])
     FILE *destfp;
 
     if(argc != 2) {
-	printf("Usage: %s <cfile>\n", argv[0]);
+        printf("Usage: %s <cfile>\n", argv[0]);
 
-	exit(1);
+        exit(1);
     }
 
     sourcefp = fopen(argv[1], "r");
 
     if(sourcefp != NULL) {
-	destfp = fopen(TMPFILE, "w");
+        destfp = fopen(TMPFILE, "w");
     }
 
     if((sourcefp == NULL) || (destfp == NULL)) {
-	perror("Can't open a file (pass1)");
+        perror("Can't open a file (pass1)");
 
-	exit(1);
+        exit(1);
     }
 
     printf("Scanning %s...", argv[1]);
@@ -58,13 +58,13 @@ int main(int argc, char *argv[])
     sourcefp = fopen(TMPFILE, "r");
 
     if(sourcefp != NULL) {
-	destfp = fopen(argv[1], "w");
+        destfp = fopen(argv[1], "w");
     }
 
     if((sourcefp == NULL) || (destfp == NULL)) {
-	perror("Can't open a file (pass2)");
+        perror("Can't open a file (pass2)");
 
-	exit(1);
+        exit(1);
     }
 
     printf("Writing new %s...", argv[1]);
@@ -99,53 +99,53 @@ void do_scan(FILE *sourcefp, FILE *destfp)
     ch = getc(sourcefp);
 
     while(ch != EOF) {
-	switch(ch) {
-	case '\n':
-	    putc(ch, destfp);
-	    include_flag = 0;
-	    pos = include_flag;
-	    include_tmp = 1;
+        switch(ch) {
+        case '\n':
+            putc(ch, destfp);
+            include_flag = 0;
+            pos = include_flag;
+            include_tmp = 1;
 
-	    break;
-	case '"':
-	    if(!include_flag && (last_ch != '\'')) {
-		/* Start of a string */
-		for(temp = temp_string; *temp != '"'; ++temp) {
-		    *temp = getc(sourcefp);
-		}
+            break;
+        case '"':
+            if(!include_flag && (last_ch != '\'')) {
+                /* Start of a string */
+                for(temp = temp_string; *temp != '"'; ++temp) {
+                    *temp = getc(sourcefp);
+                }
 
-		*temp = '\0';
-		string_list[num_strings] = (char *)malloc(temp - temp_string + 1);
-		strcpy(string_list[num_strings], temp_string);
-		fprintf(destfp, "_str_%d", num_strings);
-		++num_strings;
-		
-		if(num_strings == max_strings) {
-		    max_strings += REALLOC_INCR;
-		    string_list = (char **)realloc(string_list, max_strings * sizeof(char *));
-		}
+                *temp = '\0';
+                string_list[num_strings] = (char *)malloc(temp - temp_string + 1);
+                strcpy(string_list[num_strings], temp_string);
+                fprintf(destfp, "_str_%d", num_strings);
+                ++num_strings;
+                
+                if(num_strings == max_strings) {
+                    max_strings += REALLOC_INCR;
+                    string_list = (char **)realloc(string_list, max_strings * sizeof(char *));
+                }
 
-		include_tmp = 0;
-	    }
-	    
-	    break;
-	default:
-	    if(include_tmp) {
-		include_tmp = (ch == include[pos++]);
+                include_tmp = 0;
+            }
+            
+            break;
+        default:
+            if(include_tmp) {
+                include_tmp = (ch == include[pos++]);
 
-		if(include_tmp && (pos == include_size)) {
-		    include_flag = 1;
-		    include_tmp = 0;
-		}
-	    }
+                if(include_tmp && (pos == include_size)) {
+                    include_flag = 1;
+                    include_tmp = 0;
+                }
+            }
 
-	    putc(ch, destfp);
+            putc(ch, destfp);
 
-	    break;
-	}
+            break;
+        }
 
-	last_ch = ch;
-	ch = getc(sourcefp);
+        last_ch = ch;
+        ch = getc(sourcefp);
     }
 }
 
@@ -159,7 +159,7 @@ void do_output(FILE *sourcefp, FILE *destfp)
     fprintf(destfp, "/* initialized memory in the CONST segment. */\n\n");
 
     for(i = 0; i < num_strings; ++i) {
-	fprintf(destfp, "static char far _str_%d[] = \"%s\";\n", i, string_list[i]);
+        fprintf(destfp, "static char far _str_%d[] = \"%s\";\n", i, string_list[i]);
     }
 
     putc('\n', destfp);
@@ -167,7 +167,7 @@ void do_output(FILE *sourcefp, FILE *destfp)
     i = fread(buf, 1, sizeof(buf), sourcefp);
 
     while(i) {
-	fwrite(buf, i, 1, destfp);
-	i = fread(buf, 1, sizeof(buf), sourcefp);
+        fwrite(buf, i, 1, destfp);
+        i = fread(buf, 1, sizeof(buf), sourcefp);
     }
 }

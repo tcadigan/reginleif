@@ -496,20 +496,20 @@ int game_restore(int argc, char *argv[])
     int ok;
 
     if(argc == 2) {
-	strcpy(savestr, argv[1]);
-	ok = restore_game(savestr);
-	unlink(savestr);
+        strcpy(savestr, argv[1]);
+        ok = restore_game(savestr);
+        unlink(savestr);
 
-	if(!ok) {
-	    endgraf();
-	    printf("Try again with the right save file, luser!\n");
-	    exit(0);
-	}
+        if(!ok) {
+            endgraf();
+            printf("Try again with the right save file, luser!\n");
+            exit(0);
+        }
 
-	return TRUE;
+        return TRUE;
     }
     else {
-	return FALSE;
+        return FALSE;
     }
 }
 
@@ -527,21 +527,21 @@ int main(int argc, char *argv[])
     signal(SIGHUP, signalsave);
 
     if(CATCH_SIGNALS) {
-	signal(SIGQUIT, signalexit);
-	signal(SIGILL, signalexit);
-	signal(SIGTRAP, signalexit);
-	signal(SIGIOT, signalexit);
-	signal(SIGEMT, signalexit);
-	signal(SIGFPE, signalexit);
-	signal(SIGBUS, signalexit);
-	signal(SIGSEGV, signalexit);
-	signal(SIGSYS, signalexit);
+        signal(SIGQUIT, signalexit);
+        signal(SIGILL, signalexit);
+        signal(SIGTRAP, signalexit);
+        signal(SIGIOT, signalexit);
+        signal(SIGEMT, signalexit);
+        signal(SIGFPE, signalexit);
+        signal(SIGBUS, signalexit);
+        signal(SIGSEGV, signalexit);
+        signal(SIGSYS, signalexit);
     }
 #endif
 
     /* If filecheck is 0, some necessary data files are missing */
     if(filecheck() == 0) {
-	exit(0);
+        exit(0);
     }
 
     /* All kinds of initialization */
@@ -580,20 +580,20 @@ int main(int argc, char *argv[])
      * restored
      */
     if(!continuing) {
-	inititem(1);
-	initplayer();
+        inititem(1);
+        initplayer();
 
-	Date = random_range(360);
-	Phase = random_range(24);
-	moon_check();
-	strcpy(Password, "");
+        Date = random_range(360);
+        Phase = random_range(24);
+        moon_check();
+        strcpy(Password, "");
 
-	init_world();
+        init_world();
 
-	mprint("'?' for help or commandlist, 'Q' to quit.");
+        mprint("'?' for help or commandlist, 'Q' to quit.");
     }
     else {
-	mprint("Your adventure continues...");
+        mprint("Your adventure continues...");
     }
 
     dataprint();
@@ -606,12 +606,12 @@ int main(int argc, char *argv[])
     time_clock(TRUE);
 
     while(TRUE) {
-	if(Current_Environment == E_COUNTRYSIDE) {
-	    p_country_process();
-	}
-	else {
-	    time_clock(FALSE);
-	}
+        if(Current_Environment == E_COUNTRYSIDE) {
+            p_country_process();
+        }
+        else {
+            time_clock(FALSE);
+        }
     }
 
     return 0;
@@ -626,8 +626,8 @@ int signalexit()
     mprint("Want to try and save the game?");
 
     if(ynq() == 'y') {
-	/* Don't compress */
-	save(FALSE);
+        /* Don't compress */
+        save(FALSE);
     }
 
     mprint("Bye!");
@@ -640,19 +640,19 @@ int signalexit()
 void init_world()
 {
     if(Level != NULL) {
-	free((char *)Level);
+        free((char *)Level);
     }
 
     if(City != NULL) {
-	free((char *)City);
+        free((char *)City);
     }
 
     if(TempLevel != NULL) {
-	free((char *)TempLevel);
+        free((char *)TempLevel);
     }
 
     if(Dungeon != NULL) {
-	free_dungeon();
+        free_dungeon();
     }
 
     Dungeon = NULL;
@@ -671,50 +671,50 @@ void inititem(int reset)
     int i;
 
     if(reset) {
-	scrollname(TRUE, 0);
+        scrollname(TRUE, 0);
     }
 
     for(i = 0; i < NUMSCROLLS; ++i) {
-	Objects[SCROLLID + i].objstr = salloc(scrollname(FALSE, i));
+        Objects[SCROLLID + i].objstr = salloc(scrollname(FALSE, i));
     }
 
     if(reset) {
-	potionname(TRUE, 0);
+        potionname(TRUE, 0);
     }
 
     for(i = 0; i < NUMPOTIONS; ++i) {
-	Objects[POTIONID + i].objstr = salloc(potionname(FALSE, i));
+        Objects[POTIONID + i].objstr = salloc(potionname(FALSE, i));
     }
 
     if(reset) {
-	stickname(TRUE, 0);
+        stickname(TRUE, 0);
     }
 
     for(i = 0; i < NUMSTICKS; ++i) {
-	Objects[STICKID + i].objstr = salloc(stickname(FALSE, i));
+        Objects[STICKID + i].objstr = salloc(stickname(FALSE, i));
     }
 
     if(reset) {
-	bootname(TRUE, 0);
+        bootname(TRUE, 0);
     }
 
     for(i = 0; i < NUMBOOTS; ++i) {
-	Objects[BOOTID + i].objstr = salloc(bootname(FALSE, i));
+        Objects[BOOTID + i].objstr = salloc(bootname(FALSE, i));
     }
 
     if(reset) {
-	cloakname(TRUE, 0);
+        cloakname(TRUE, 0);
     }
 
     for(i = 0; i < NUMCLOAKS; ++i) {
-	Objects[CLOAKID + i].objstr = salloc(cloakname(FALSE, i));
+        Objects[CLOAKID + i].objstr = salloc(cloakname(FALSE, i));
     }
 
     if(reset) {
-	ringname(TRUE, 0);
+        ringname(TRUE, 0);
     }
 
     for(i = 0; i < NUMRINGS; ++i) {
-	Objects[RINGID + i].objstr = salloc(ringname(FALSE, i));
+        Objects[RINGID + i].objstr = salloc(ringname(FALSE, i));
     }
 }

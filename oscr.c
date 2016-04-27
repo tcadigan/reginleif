@@ -48,38 +48,38 @@ void phaseprint()
 
     switch(Phase / 2) {
     case 0:
-	wprintw(Phasew, "NEW");
+        wprintw(Phasew, "NEW");
 
-	break;
+        break;
     case 1:
     case 11:
-	wprintw(Phasew, "CRESCENT");
+        wprintw(Phasew, "CRESCENT");
 
-	break;
+        break;
     case 2:
     case 10:
-	wprintw(Phasew, "1/4");
+        wprintw(Phasew, "1/4");
 
-	break;
+        break;
     case 3:
     case 9:
-	wprintw(Phasew, "HALF");
+        wprintw(Phasew, "HALF");
 
-	break;
+        break;
     case 4:
     case 8:
-	wprintw(Phasew, "3/4");
+        wprintw(Phasew, "3/4");
 
-	break;
+        break;
     case 5:
     case 7:
-	wprintw(Phasew, "GIBBOUS");
+        wprintw(Phasew, "GIBBOUS");
 
-	break;
+        break;
     case 6:
-	wprintw(Phasew, "FULL");
+        wprintw(Phasew, "FULL");
 
-	break;
+        break;
     }
 }
 
@@ -97,32 +97,32 @@ void show_screen()
     bottom = min(bottom, LENGTH - 1);
 
     if(Current_Environment != E_COUNTRYSIDE) {
-	for(j = top; j <= bottom; ++j) {
-	    for(i = 0; i < WIDTH; ++i) {
-		wmove(Levelw, screenmod(j), i);
+        for(j = top; j <= bottom; ++j) {
+            for(i = 0; i < WIDTH; ++i) {
+                wmove(Levelw, screenmod(j), i);
 
-		if(loc_statusp(i, j, SEEN)) {
-		    waddch(Levelw, getspot(i, j, FALSE));
-		}
-		else {
-		    waddch(Levelw, ' ');
-		}
-	    }
-	}
+                if(loc_statusp(i, j, SEEN)) {
+                    waddch(Levelw, getspot(i, j, FALSE));
+                }
+                else {
+                    waddch(Levelw, ' ');
+                }
+            }
+        }
     }
     else {
-	for(j = top; j <= bottom; ++j) {
-	    for(i = 0; i < WIDTH; ++i) {
-		wmove(Levelw, screenmod(j), i);
+        for(j = top; j <= bottom; ++j) {
+            for(i = 0; i < WIDTH; ++i) {
+                wmove(Levelw, screenmod(j), i);
 
-		if(Country[i][j].explored) {
-		    waddch(Levelw, Country[i][j].current_terrain_type);
-		}
-		else {
-		    waddch(Levelw, ' ');
-		}
-	    }
-	}
+                if(Country[i][j].explored) {
+                    waddch(Levelw, Country[i][j].current_terrain_type);
+                }
+                else {
+                    waddch(Levelw, ' ');
+                }
+            }
+        }
     }
 
     wrefresh(Levelw);
@@ -140,10 +140,10 @@ char mcigetc()
     char c = wgetch(Msgw);
 
     if((c >= 'A') && (c <= 'Z')) {
-	return (c + ('a' - 'A'));
+        return (c + ('a' - 'A'));
     }
     else {
-	return c;
+        return c;
     }
 }
 
@@ -157,10 +157,10 @@ int mcigetc()
     c = wgetch(Msgw);
 
     if((c >= 'A') && (c <= 'Z')) {
-	return (c + ('a' - 'A'));
+        return (c + ('a' - 'A'));
     }
     else {
-	return c;
+        return c;
     }
 }
 #endif
@@ -180,23 +180,23 @@ char ynq()
     char p = ' ';
 
     while((p != 'n') && (p != 'y') && (p != 'q') && (p != ESCAPE)) {
-	p = wgetch(Msgw);
+        p = wgetch(Msgw);
     }
 
     switch(p) {
     case 'y':
-	wprintw(Msgw, "yes. ");
+        wprintw(Msgw, "yes. ");
 
-	break;
+        break;
     case 'n':
-	wprintw(Msgw, "no. ");
+        wprintw(Msgw, "no. ");
 
-	break;
+        break;
     case ESCAPE:
     case 'q':
-	wprintw(Msgw, "quit. ");
+        wprintw(Msgw, "quit. ");
 
-	break;
+        break;
     }
 
     wrefresh(Msgw);
@@ -209,23 +209,23 @@ char ynq1()
     char p = ' ';
 
     while((p != 'n') && (p != 'y') && (p != 'q') && (p != ESCAPE)) {
-	p = wgetch(Msg1w);
+        p = wgetch(Msg1w);
     }
 
     switch(p) {
     case 'y':
-	wprintw(Msg1w, "yes. ");
+        wprintw(Msg1w, "yes. ");
 
-	break;
+        break;
     case 'n':
-	wprintw(Msg1w, "no. ");
+        wprintw(Msg1w, "no. ");
 
-	break;
+        break;
     case ESCAPE:
     case 'q':
-	wprintw(Msg1w, "quit. ");
+        wprintw(Msg1w, "quit. ");
 
-	break;
+        break;
     }
 
     wrefresh(Msg1w);
@@ -238,23 +238,23 @@ char ynq2()
     char p = ' ';
 
     while((p != 'n') && (p != 'y') && (p != 'q') && (p != ESCAPE)) {
-	p = wgetch(Msg2w);
+        p = wgetch(Msg2w);
     }
 
     switch(p) {
     case 'y':
-	wprintw(Msg2w, "yes. ");
+        wprintw(Msg2w, "yes. ");
 
-	break;
+        break;
     case 'n':
-	wprintw(Msg2w, "no. ");
+        wprintw(Msg2w, "no. ");
 
-	break;
+        break;
     case ESCAPE:
     case 'q':
-	wprintw(Msg2w, "quit. ");
+        wprintw(Msg2w, "quit. ");
 
-	break;
+        break;
     }
 
     wrefresh(Msg2w);
@@ -273,11 +273,11 @@ void checkclear()
     getyx(Msg2w, x2, y);
 
     if((x1 != 0) || (x2 != 0)) {
-	morewait();
-	wclear(Msg1w);
-	wclear(Msg2w);
-	wrefresh(Msg1w);
-	wrefresh(Msg2w);
+        morewait();
+        wclear(Msg1w);
+        wclear(Msg2w);
+        wrefresh(Msg1w);
+        wrefresh(Msg2w);
     }
 }
 
@@ -317,10 +317,10 @@ void erase_level()
 void print1(char *s)
 {
     if(!gamestatusp(SUPPRESS_PRINTING)) {
-	buffercycle(s);
-	wclear(Msg1w);
-	wprintw(Msg1w, s);
-	wrefresh(Msg1w);
+        buffercycle(s);
+        wclear(Msg1w);
+        wprintw(Msg1w, s);
+        wrefresh(Msg1w);
     }
 }
 
@@ -328,9 +328,9 @@ void print1(char *s)
 void nprint1(char *s)
 {
     if(!gamestatusp(SUPPRESS_PRINTING)) {
-	buffercycle(s);
-	wprintw(Msg1w, s);
-	wrefresh(Msg1w);
+        buffercycle(s);
+        wprintw(Msg1w, s);
+        wrefresh(Msg1w);
     }
 }
 
@@ -338,10 +338,10 @@ void nprint1(char *s)
 void print2(char *s)
 {
     if(!gamestatusp(SUPPRESS_PRINTING)) {
-	buffercycle(s);
-	wclear(Msg2w);
-	wprintw(Msg2w, s);
-	wrefresh(Msg2w);
+        buffercycle(s);
+        wclear(Msg2w);
+        wprintw(Msg2w, s);
+        wrefresh(Msg2w);
     }
 }
 
@@ -349,9 +349,9 @@ void print2(char *s)
 void nprint2(char *s)
 {
     if(!gamestatusp(SUPPRESS_PRINTING)) {
-	buffercycle(s);
-	wprintw(Msg2w, s);
-	wrefresh(Msg2w);
+        buffercycle(s);
+        wprintw(Msg2w, s);
+        wrefresh(Msg2w);
     }
 }
 
@@ -363,10 +363,10 @@ void nprint2(char *s)
 void print3(char *s)
 {
     if(!gamestatusp(SUPPRESS_PRINTING)) {
-	buffercycl(s);
-	wclear(Msg3w);
-	wprintw(Msg3w, s);
-	wrefresh(Msg3w);
+        buffercycl(s);
+        wclear(Msg3w);
+        wprintw(Msg3w, s);
+        wrefresh(Msg3w);
     }
 }
 
@@ -374,9 +374,9 @@ void print3(char *s)
 void nprint3(char *s)
 {
     if(!gamestatusp(SUPPRESS_PRINTING)) {
-	buffercycle(s);
-	wprintw(Msg3w, s);
-	wrefresh(Msg3w);
+        buffercycle(s);
+        wprintw(Msg3w, s);
+        wrefresh(Msg3w);
     }
 }
 
@@ -390,26 +390,26 @@ void mprint(char *s)
     int y;
 
     if(!gamestatusp(SUPPRESS_PRINTING)) {
-	buffercycle(s);
-	getyx(Msgw, y, x);
+        buffercycle(s);
+        getyx(Msgw, y, x);
 
-	if((x + strlen(s)) >= WIDTH) {
-	    if(Msgw == Msg1w) {
-		wclear(Msg2w);
-		Msgw = Msg2w;
-	    }
-	    else {
-		morewait();
-		wclear(Msg1w);
-		wclear(Msg2w);
-		wrefresh(Msg2w);
-		Msgw = Msg1w;
-	    }
-	}
+        if((x + strlen(s)) >= WIDTH) {
+            if(Msgw == Msg1w) {
+                wclear(Msg2w);
+                Msgw = Msg2w;
+            }
+            else {
+                morewait();
+                wclear(Msg1w);
+                wclear(Msg2w);
+                wrefresh(Msg2w);
+                Msgw = Msg1w;
+            }
+        }
 
-	wprint(Msgw, s);
-	waddch(Msgw, ' ');
-	wrefresh(Msgw);
+        wprint(Msgw, s);
+        waddch(Msgw, ' ');
+        wrefresh(Msgw);
     }
 }
 
@@ -442,12 +442,12 @@ void initgraf()
     initscr();
 
     if(LINES < 24) {
-	printf("Minimum screen size: 24 lines.");
+        printf("Minimum screen size: 24 lines.");
 
-	exit(0);
+        exit(0);
     }
     else {
-	ScreenLength = LINES - 6;
+        ScreenLength = LINES - 6;
     }
 
     Rightside = newwin(Screenlength, 15, 2, 65);
@@ -460,10 +460,10 @@ void initgraf()
     Levelw = newwin(ScreenLength, 64, 3, 0);
 
     for(i = 0; i < MAXITEMS; ++i) {
-	Hideline[i] = newwin(1, 64, i + 3, 0);
-	Showline[i] = newwin(1, 64, i + 3, 0);
-	wclear(Hideline[i]);
-	wclear(Showline[i]);
+        Hideline[i] = newwin(1, 64, i + 3, 0);
+        Showline[i] = newwin(1, 64, i + 3, 0);
+        wclear(Hideline[i]);
+        wclear(Showline[i]);
     }
 
     Menuw = newwin(ScreenLength, 64, 3, 0);
@@ -487,26 +487,26 @@ void drawplayer()
     static int lasty = -1;
 
     if(Current_Environment == E_COUNTRYSIDE) {
-	wmove(Levelw, screenmod(lasty), lastx);
-	waddch(Levelw, Country[lastx][lasty].current_terrain_type);
-	wmove(Levelw, screenmon(Player.y), Player.x);
-	waddch(Levelw, PLAYER);
+        wmove(Levelw, screenmod(lasty), lastx);
+        waddch(Levelw, Country[lastx][lasty].current_terrain_type);
+        wmove(Levelw, screenmon(Player.y), Player.x);
+        waddch(Levelw, PLAYER);
     }
     else {
-	if(inbounds(lastx, lasty)) {
-	    if(Player.status[BLINDED] > 0) {
-		plotspot(lastx, lasty, FALSE);
-	    }
-	    else {
-		plotspot(lastx, lasty, TRUE);
-	    }
-	}
+        if(inbounds(lastx, lasty)) {
+            if(Player.status[BLINDED] > 0) {
+                plotspot(lastx, lasty, FALSE);
+            }
+            else {
+                plotspot(lastx, lasty, TRUE);
+            }
+        }
 
-	wmove(Levelw, screenmod(Player.y), Player.x);
+        wmove(Levelw, screenmod(Player.y), Player.x);
 
-	if(!Player.status[INVISIBLE] || Player.status(TRUESIGHT)) {
-	    waddch(Levelw, PLAYER);
-	}
+        if(!Player.status[INVISIBLE] || Player.status(TRUESIGHT)) {
+            waddch(Levelw, PLAYER);
+        }
     }
 
     lastx = Player.x;
@@ -516,15 +516,15 @@ void drawplayer()
 int litroom(int x, int y)
 {
     if(Level->site[x][y].roomnumber < ROOMBASE) {
-	return FALSE;
+        return FALSE;
     }
     else {
-	if(loc_statusp(x, y, LIT) || Player.status[ILLUMINATION]) {
-	    return 1;
-	}
-	else {
-	    return 0;
-	}
+        if(loc_statusp(x, y, LIT) || Player.status[ILLUMINATION]) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
     }
 }
 
@@ -536,62 +536,62 @@ void drawvision(int x, int y)
     int j;
 
     if(Current_Environment != E_COUNTRYSIDE) {
-	if(Player.status[BLINDED]) {
-	    drawspot(oldx, oldy);
-	    drawspot(x, y);
-	    drawplayer();
-	}
-	else {
-	    if(Player.status[ILLUMINATION] > 0) {
-		for(i = -2; i < 3; ++i) {
-		    for(j = -2; j < 3; ++j) {
-			if(inbounds(x + i, y + j)) {
-			    if(view_los_p(x + i, y + j, Player.x, Player.y)) {
-				dodrawspot(x + i, y + j);
-			    }
-			}
-		    }
-		}
-	    }
-	    else {
-		for(i = -1; i < 2; ++i) {
-		    for(j = -1; j < 2; ++j) {
-			if(inbounds(x + i, y + j)) {
-			    dodrawspot(x + i, y + j);
-			}
-		    }
-		}
-	    }
+        if(Player.status[BLINDED]) {
+            drawspot(oldx, oldy);
+            drawspot(x, y);
+            drawplayer();
+        }
+        else {
+            if(Player.status[ILLUMINATION] > 0) {
+                for(i = -2; i < 3; ++i) {
+                    for(j = -2; j < 3; ++j) {
+                        if(inbounds(x + i, y + j)) {
+                            if(view_los_p(x + i, y + j, Player.x, Player.y)) {
+                                dodrawspot(x + i, y + j);
+                            }
+                        }
+                    }
+                }
+            }
+            else {
+                for(i = -1; i < 2; ++i) {
+                    for(j = -1; j < 2; ++j) {
+                        if(inbounds(x + i, y + j)) {
+                            dodrawspot(x + i, y + j);
+                        }
+                    }
+                }
+            }
 
-	    drawplayer();
+            drawplayer();
 
-	    /* Erase all monsters */
-	    drawmonsters(FALSE);
+            /* Erase all monsters */
+            drawmonsters(FALSE);
 
-	    /* Draw those now visible */
-	    drawmonsters(x + i, y + j);
-	}
+            /* Draw those now visible */
+            drawmonsters(x + i, y + j);
+        }
 
-	if(!gamestatusp(FAST_MOVE) || !option(JUMPMOVE)) {
-	    showcursor(Player.x, Player.y);
-	}
+        if(!gamestatusp(FAST_MOVE) || !option(JUMPMOVE)) {
+            showcursor(Player.x, Player.y);
+        }
 
-	oldx = x;
-	oldy = y;
+        oldx = x;
+        oldy = y;
     }
     else {
-	for(i = -1; i < 2; ++i) {
-	    for(j = -1; j < 2; ++j) {
-		if(inbounds(x + i, y + j)) {
-		    wmove(Levelw, screenmod(y + j), x + i);
-		    Country[x + i][y + j].explored = TRUE;
-		    waddch(Levelw, Country[x + i][y + j].current_terrain_type);
-		}
-	    }
-	}
+        for(i = -1; i < 2; ++i) {
+            for(j = -1; j < 2; ++j) {
+                if(inbounds(x + i, y + j)) {
+                    wmove(Levelw, screenmod(y + j), x + i);
+                    Country[x + i][y + j].explored = TRUE;
+                    waddch(Levelw, Country[x + i][y + j].current_terrain_type);
+                }
+            }
+        }
  
-	drawplayer();
-	showcursor(Player.x, Player.y);
+        drawplayer();
+        showcursor(Player.x, Player.y);
     }
 }
 
@@ -612,15 +612,15 @@ void drawspot(int x, int y)
     char c;
 
     if(inbounds(x, y)) {
-	c = getspot(x, y, FALSE);
+        c = getspot(x, y, FALSE);
 
-	if(c != Level->site[x][y].showchar) {
-	    if(view_los_p(Player.x, Player.y, x, y)) {
-		lset(x, y, SEEN);
-		Level->site[x][y].showchar = c;
-		putspot(x, y, c);
-	    }
-	}
+        if(c != Level->site[x][y].showchar) {
+            if(view_los_p(Player.x, Player.y, x, y)) {
+                lset(x, y, SEEN);
+                Level->site[x][y].showchar = c;
+                putspot(x, y, c);
+            }
+        }
     }
 }
 
@@ -630,13 +630,13 @@ void dodrawspot(int x, int y)
     char c;
 
     if(inbounds(x, y)) {
-	c = getspot(x, y, FALSE);
+        c = getspot(x, y, FALSE);
 
-	if(c != Level->site[x][y].showchar) {
-	    lset(x, y, SEEN);
-	    Level->site[x][y].showchar = c;
-	    putspot(x, y, c);
-	}
+        if(c != Level->site[x][y].showchar) {
+            lset(x, y, SEEN);
+            Level->site[x][y].showchar = c;
+            putspot(x, y, c);
+        }
     }
 }
 
@@ -644,12 +644,12 @@ void dodrawspot(int x, int y)
 void blankoutspot(int i, int j)
 {
     if(inbounds(i, j)) {
-	lreset(i, j, LIT);
+        lreset(i, j, LIT);
 
-	if(Level->site[i][j].locchar == FLOOR) {
-	    Level->site[i][j].showchar = ' ';
-	    putspot(i, j, ' ');
-	}
+        if(Level->site[i][j].locchar == FLOOR) {
+            Level->site[i][j].showchar = ' ';
+            putspot(i, j, ' ');
+        }
     }
 }
 
@@ -657,14 +657,14 @@ void blankoutspot(int i, int j)
 void blotspot(int i, int j)
 {
     if(inbounds(i, j)) {
-	lreset(i, j, SEEN);
-	Level->site[i][j].showchar = SPACE;
+        lreset(i, j, SEEN);
+        Level->site[i][j].showchar = SPACE;
 
-	if(!offscreen(j)) {
-	    wmove(Levelw, screenmon(j), i);
-	    wdelch(Levelw);
-	    winsch(Levelw, SPACE);
-	}
+        if(!offscreen(j)) {
+            wmove(Levelw, screenmon(j), i);
+            wdelch(Levelw);
+            winsch(Levelw, SPACE);
+        }
     }
 }
 
@@ -672,10 +672,10 @@ void blotspot(int i, int j)
 void plotspot(int x, int y, int showmonster)
 {
     if(loc_statusp(x, y, SEEN)) {
-	putspot(x, y, getspot(x, y, showmonster));
+        putspot(x, y, getspot(x, y, showmonster));
     }
     else {
-	putspot(x, y, ' ');
+        putspot(x, y, ' ');
     }
 }
 
@@ -683,8 +683,8 @@ void plotspot(int x, int y, int showmonster)
 void putspot(int x, int y, char c)
 {
     if(!offscreen(y)) {
-	wmove(Levelw, screenmon(y), x);
-	waddch(Levelw, c);
+        wmove(Levelw, screenmon(y), x);
+        waddch(Levelw, c);
     }
 }
 
@@ -692,8 +692,8 @@ void putspot(int x, int y, char c)
 void plotmon(struct monster *m)
 {
     if(!offscreen(m->y)) {
-	wmove(Levelw, screenmon(m->y), m->x);
-	waddch(Levelw, m->monchar);
+        wmove(Levelw, screenmon(m->y), m->x);
+        waddch(Levelw, m->monchar);
     }
 }
 
@@ -703,25 +703,25 @@ void drawmonsters(int display)
     pml ml;
 
     for(ml = Level->mlist; ml != NULL; ml = ml->next) {
-	if(ml->m->hp > 0) {
-	    if(display) {
-		if(view_los_p(Player.x, Player.y, ml->m->x, ml->m->y)) {
-		    if(Player.status[TRUESIGHT] || !m_statusp(ml->m, M_INVISIBLE)) {
-			if((ml->m->level > 5)
-			   && (ml->m->monchar != '@')
-			   && (ml->m->monchar != '|')) {
-			    wstandout(Levelw);
-			}
+        if(ml->m->hp > 0) {
+            if(display) {
+                if(view_los_p(Player.x, Player.y, ml->m->x, ml->m->y)) {
+                    if(Player.status[TRUESIGHT] || !m_statusp(ml->m, M_INVISIBLE)) {
+                        if((ml->m->level > 5)
+                           && (ml->m->monchar != '@')
+                           && (ml->m->monchar != '|')) {
+                            wstandout(Levelw);
+                        }
 
-			putspot(ml->m->x, ml->m->y, ml->m->monchar);
-			wtandend(Levelw);
-		    }
-		}
-	    }
-	    else {
-		erase_monster(ml->m);
-	    }
-	}
+                        putspot(ml->m->x, ml->m->y, ml->m->monchar);
+                        wtandend(Levelw);
+                    }
+                }
+            }
+            else {
+                erase_monster(ml->m);
+            }
+        }
     }
 }
 
@@ -729,10 +729,10 @@ void drawmonsters(int display)
 void erase_monster(struct monster *m)
 {
     if(loc_statusp(m->x, m->y, SEEN)) {
-	putspot(m->x, m->y, getspot(m->x, m->y, FALSE));
+        putspot(m->x, m->y, getspot(m->x, m->y, FALSE));
     }
     else {
-	blotspot(m->x, m->y);
+        blotspot(m->x, m->y);
     }
 }
 
@@ -740,76 +740,76 @@ void erase_monster(struct monster *m)
 char getspot(int x, int y, int showmonster)
 {
     if(loc_statusp(x, y, SECRET)) {
-	return WALL;
+        return WALL;
     }
     else {
-	switch(Level->site[x][y].locchar) {
-	case WATER:
-	    if(Level->site[x][y].creature == NULL) {
-		return WATER;
-	    }
-	    else if(m_statusp(Level->site[x][y].creature, SWIMMING)) {
-		return WATER;
-	    }
-	    else if(showmonster) {
-		return Level->site[x][y].creature->monchar;
-	    }
-	    else {
-		return WATER;
-	    }
+        switch(Level->site[x][y].locchar) {
+        case WATER:
+            if(Level->site[x][y].creature == NULL) {
+                return WATER;
+            }
+            else if(m_statusp(Level->site[x][y].creature, SWIMMING)) {
+                return WATER;
+            }
+            else if(showmonster) {
+                return Level->site[x][y].creature->monchar;
+            }
+            else {
+                return WATER;
+            }
 
-	    break;
-	case CLOSED_DOOR:
-	case LAVA:
-	case FIRE:
-	case ABYSS: /* These sites never show anything but their location chars */
-	    return Level->site[x][y].locchar;
+            break;
+        case CLOSED_DOOR:
+        case LAVA:
+        case FIRE:
+        case ABYSS: /* These sites never show anything but their location chars */
+            return Level->site[x][y].locchar;
 
-	    break;
-	case RUBBLE:
-	case HEDGE: /* Rubble and hedge don't show items on their location */
-	    if(showmonster && (Level->site[x][y].creature != NULL)) {
-		if(m_statusp(Level->site[x][y].creature, M_INVISIBLE)
-		   && !Player.status[TRUESIGHT]) {
-		    return getspot(x, y, FALSE);
-		}
-		else {
-		    return Level->site[x][y].creature->monchar;
-		}
-	    }
-	    else {
-		return Level->site[x][y].locchar;
-	    }
+            break;
+        case RUBBLE:
+        case HEDGE: /* Rubble and hedge don't show items on their location */
+            if(showmonster && (Level->site[x][y].creature != NULL)) {
+                if(m_statusp(Level->site[x][y].creature, M_INVISIBLE)
+                   && !Player.status[TRUESIGHT]) {
+                    return getspot(x, y, FALSE);
+                }
+                else {
+                    return Level->site[x][y].creature->monchar;
+                }
+            }
+            else {
+                return Level->site[x][y].locchar;
+            }
 
-	    break;
-	default:
-	    /*
-	     * Everywhere else, first try to show monster, next show
-	     * items, next show location char
-	     */
-	    if(showmonster && (Level->site[x][y].creature != NULL)) {
-		if(m_statusp(Level->site[x][y].creature, M_INVISIBLE)
-		   && !Player.status[TRUESIGHT]) {
-		    return getspot(x, y, FALSE);
-		}
-		else {
-		    return Level->site[x][y].creature->monchar;
-		}
-	    }
-	    else if(Level->site[x][y].things != NULL) {
-		if(Level->site[x][y].things->next != NULL) {
-		    return PILE;
-		}
-		else {
-		    return Level->site[x][y].things->thing->objchar;
-		}
-	    }
-	    else {
-		return Level->site[x][y].locchar;
-	    }
+            break;
+        default:
+            /*
+             * Everywhere else, first try to show monster, next show
+             * items, next show location char
+             */
+            if(showmonster && (Level->site[x][y].creature != NULL)) {
+                if(m_statusp(Level->site[x][y].creature, M_INVISIBLE)
+                   && !Player.status[TRUESIGHT]) {
+                    return getspot(x, y, FALSE);
+                }
+                else {
+                    return Level->site[x][y].creature->monchar;
+                }
+            }
+            else if(Level->site[x][y].things != NULL) {
+                if(Level->site[x][y].things->next != NULL) {
+                    return PILE;
+                }
+                else {
+                    return Level->site[x][y].things->thing->objchar;
+                }
+            }
+            else {
+                return Level->site[x][y].locchar;
+            }
 
-	    break;
-	}
+            break;
+        }
     }
 }
 
@@ -826,14 +826,14 @@ void timeprint()
     wprintw(Timew, "%d:%d", showhour(), showminute());
 
     if(showminute() == 0) {
-	waddch(Timew, '0');
+        waddch(Timew, '0');
     }
 
     if(hour() > 11) {
-	wprintw(Timew, " PM\n");
+        wprintw(Timew, " PM\n");
     }
     else {
-	wprintw(Timew, " AM\n");
+        wprintw(Timew, " AM\n");
     }
     
     wprintw(Timew, month());
@@ -859,46 +859,46 @@ void dataprint()
 
 #ifndef MSDOS
     wprintw(Dataw,
-	    "HP:%d/%d MANA:%d/%d AU:%d LEVEL:%d/%d CARRY:%d/%d \n",
-	    Player.hp,
-	    Player.maxhp,
-	    Player.mana,
-	    Player.maxmana,
-	    Player.cash,
-	    Player.level,
-	    Player.xp,
-	    Player.itemweight,
-	    Player.maxweight);
+            "HP:%d/%d MANA:%d/%d AU:%d LEVEL:%d/%d CARRY:%d/%d \n",
+            Player.hp,
+            Player.maxhp,
+            Player.mana,
+            Player.maxmana,
+            Player.cash,
+            Player.level,
+            Player.xp,
+            Player.itemweight,
+            Player.maxweight);
 
 #else
 
     wprintw(Dataw,
-	    "HP:%d/%d MANA:%ld/%ld AU:%ld LEVEL:%d/%d CARRY:%d/%d \n",
-	    Player.hp,
-	    Player.maxhp,
-	    Player.mana,
-	    Player.maxmana,
-	    Player.cash,
-	    Player.level,
-	    Player.xp,
-	    Player.itemweight,
-	    Player.maxweight);
+            "HP:%d/%d MANA:%ld/%ld AU:%ld LEVEL:%d/%d CARRY:%d/%d \n",
+            Player.hp,
+            Player.maxhp,
+            Player.mana,
+            Player.maxmana,
+            Player.cash,
+            Player.level,
+            Player.xp,
+            Player.itemweight,
+            Player.maxweight);
 #endif
 
     wprintw(Dataw,
-	    "STR:%d/%d CON:%d/%d DEX:%d/%d AGI:%d/%d INT:%d/%d POW:%d/%d   ",
-	    Player.str,
-	    Player.maxstr,
-	    Player.con,
-	    Player.maxcon,
-	    Player.dex,
-	    Player.maxdex,
-	    Player.agi,
-	    Player.maxagi,
-	    Player.iq,
-	    Player.maxiq,
-	    Player.pow,
-	    Player.maxpow);
+            "STR:%d/%d CON:%d/%d DEX:%d/%d AGI:%d/%d INT:%d/%d POW:%d/%d   ",
+            Player.str,
+            Player.maxstr,
+            Player.con,
+            Player.maxcon,
+            Player.dex,
+            Player.maxdex,
+            Player.agi,
+            Player.maxagi,
+            Player.iq,
+            Player.maxiq,
+            Player.pow,
+            Player.maxpow);
 
     wrefresh(Dataw);
     wrefresh(Dataw);
@@ -952,10 +952,10 @@ void morewait()
     wclear(Morew);
 
     if(display) {
-	wprintw(Morew, "***  MORE  ***");
+        wprintw(Morew, "***  MORE  ***");
     }
     else {
-	wprintw(Morew, "+++  MORE  +++");
+        wprintw(Morew, "+++  MORE  +++");
     }
 
     display = !display;
@@ -963,18 +963,18 @@ void morewait()
     c = wgetch(Msgw);
 
     while((c != SPACE) && (c != RETURN)) {
-	wclear(Morew);
+        wclear(Morew);
 
-	if(display) {
-	    wprintw(Morew, "***  MORE  ***");
-	}
-	else {
-	    wprintw(Morew, "+++  MORE +++");
-	}
+        if(display) {
+            wprintw(Morew, "***  MORE  ***");
+        }
+        else {
+            wprintw(Morew, "+++  MORE +++");
+        }
 
-	display = !display;
-	wrefresh(Morew);
-	c = wgetch(Msgw);
+        display = !display;
+        wrefresh(Morew);
+        c = wgetch(Msgw);
     }
 
     wclear(Morew);
@@ -989,10 +989,10 @@ int stillonblock()
     wclear(Morew);
 
     if(display) {
-	wprintw(Morew, "<<<STAY?>>>");
+        wprintw(Morew, "<<<STAY?>>>");
     }
     else {
-	wprint(Morew, ">>>STAY?<<<");
+        wprint(Morew, ">>>STAY?<<<");
     }
 
     display = !display;
@@ -1000,28 +1000,28 @@ int stillonblock()
     c = wgetch(Msgw);
 
     while((c != SPACE) && (c != ESCAPE)) {
-	wclear(Morew);
+        wclear(Morew);
 
-	if(display) {
-	    wprintw(Morew, "<<<STAY?>>>");
-	}
-	else {
-	    wprinte(Morew, ">>>STAY?<<<");
-	}
+        if(display) {
+            wprintw(Morew, "<<<STAY?>>>");
+        }
+        else {
+            wprinte(Morew, ">>>STAY?<<<");
+        }
 
-	display = !display;
-	wrefresh(Morew);
-	c = wgetch(Msgw);
+        display = !display;
+        wrefresh(Morew);
+        c = wgetch(Msgw);
     }
 
     wclear(Morew);
     wrefresh(Morew);
 
     if(c == SPACE) {
-	return 1;
+        return 1;
     }
     else {
-	return 0;
+        return 0;
     }
 }
 
@@ -1039,8 +1039,8 @@ void menuspellprint(int i)
     getyx(Menuw, y, x);
 
     if(y >= (Screenlength - 2)) {
-	morewait();
-	wclear(Menuw);
+        morewait();
+        wclear(Menuw);
     }
 
     wprintw(Menuw, spellid(i));
@@ -1056,8 +1056,8 @@ void menuprint(char *s)
     getyx(Menuw, y, c);
 
     if(y >= (ScreenLength - 2)) {
-	morewait();
-	wclear(Menuw);
+        morewait();
+        wclear(Menuw);
     }
 
     wprint(Menuw, s);
@@ -1074,9 +1074,9 @@ void endgraf()
 void plotchar(char pyx, int x, int y)
 {
     if(!offscreen(y)) {
-	wmove(Levelw, screenmod(y), x);
-	waddch(Levelw, pyx);
-	wrefresh(Levelw);
+        wmove(Levelw, screenmod(y), x);
+        waddch(Levelw, pyx);
+        wrefresh(Levelw);
     }
 }
 
@@ -1086,17 +1086,17 @@ void draw_explosion(char pyx, int x, int y)
     int j;
 
     for(j = 0; j < 3; ++j) {
-	for(i = 0; i < 9; ++i) {
-	    plotchar(pyx, x + Dirs[0][i], y + Dirs[1][i]);
-	}
+        for(i = 0; i < 9; ++i) {
+            plotchar(pyx, x + Dirs[0][i], y + Dirs[1][i]);
+        }
 
-	for(i = 0; i < 9; ++i) {
-	    plotchar(' ', x + Dirs[0][i], y + Dirs[1][i]);
-	}
+        for(i = 0; i < 9; ++i) {
+            plotchar(' ', x + Dirs[0][i], y + Dirs[1][i]);
+        }
     }
 
     for(i = 0; i < 9; ++i) {
-	plotspot(x + Dirs[0][i], y + Dirs[1][i], TRUE);
+        plotspot(x + Dirs[0][i], y + Dirs[1][i], TRUE);
     }
 
     wrefresh(Levelw);
@@ -1112,24 +1112,24 @@ char *msgscanstring()
     byte = mgetc();
 
     while(byte != '\n') {
-	/* ^h or delete */
-	if((byte == 8) || (byte == 127)) {
-	    instring[i] = 0;
+        /* ^h or delete */
+        if((byte == 8) || (byte == 127)) {
+            instring[i] = 0;
 
-	    if(i > 0) {
-		--i;
-		dobackspace();
-	    }
-	}
-	else {
-	    instring[i] = byte;
-	    waddch(Msgw, byte);
-	    wrefresh(Msgw);
-	    ++i;
-	    instring[i] = 0;
-	}
+            if(i > 0) {
+                --i;
+                dobackspace();
+            }
+        }
+        else {
+            instring[i] = byte;
+            waddch(Msgw, byte);
+            wrefresh(Msgw);
+            ++i;
+            instring[i] = 0;
+        }
 
-	byte = mgetc();
+        byte = mgetc();
     }
 
     return instring;
@@ -1149,18 +1149,18 @@ void drawscreen()
     int j;
 
     if(Current_Environment == E_COUNTRYSIDE) {
-	for(i = 0; i < WIDTH; ++i) {
-	    for(j = 0; j < LENGTH; ++j) {
-		putspot(i, j, Country[i][j].current_terrain_type);
-	    }
-	}
+        for(i = 0; i < WIDTH; ++i) {
+            for(j = 0; j < LENGTH; ++j) {
+                putspot(i, j, Country[i][j].current_terrain_type);
+            }
+        }
     }
     else {
-	for(i = 0; i < WIDTH; ++i) {
-	    for(j = 0; j < LENGTH; ++j) {
-		putspot(i, j, Level->site[i][j].locchar);
-	    }
-	}
+        for(i = 0; i < WIDTH; ++i) {
+            for(j = 0; j < LENGTH; ++j) {
+                putspot(i, j, Level->site[i][j].locchar);
+            }
+        }
     }
 
     wrefresh(Levelw);
@@ -1183,73 +1183,73 @@ int getnumber(int range)
 #endif
 
     if(range == 1) {
-	return 1;
+        return 1;
     }
     else {
 #ifndef MSDOS
-	while(!done) {
-	    clearmsg1();
-	    wprintw(Msg1w, "How many? Change with < or >, ESCAPE to select:");
-	    mnumprint(value);
-	    atom = mgetc();
+        while(!done) {
+            clearmsg1();
+            wprintw(Msg1w, "How many? Change with < or >, ESCAPE to select:");
+            mnumprint(value);
+            atom = mgetc();
 
-	    while((atom != '<') && (atom != '>') && (atom != ESCAPE)) {
-		atom = mgetc();
-	    }
+            while((atom != '<') && (atom != '>') && (atom != ESCAPE)) {
+                atom = mgetc();
+            }
 
-	    if((atom == '>') && (value < range)) {
-		++value;
-	    }
-	    else if((atom == '<') && (value > 1)) {
-		--value;
-	    }
-	    else if(atom == ESCAPE) {
-		done = TRUE;
-	    }
-	}
-	
+            if((atom == '>') && (value < range)) {
+                ++value;
+            }
+            else if((atom == '<') && (value > 1)) {
+                --value;
+            }
+            else if(atom == ESCAPE) {
+                done = TRUE;
+            }
+        }
+        
 #else
-	
-	while(!done) {
-	    clearmsg1();
-	    wprintw(Msg1w, "How many? Change with < or >, ESCAPE to select:");
-	    mnumprint(value);
-	    
-	    stome = mcigetc();
-	    
-	    switch(atom) {
-	    case '>':
-	    case 'k':
-	    case KEY_UP:
-		if(value < range) {
-		    ++value;
-		}
+        
+        while(!done) {
+            clearmsg1();
+            wprintw(Msg1w, "How many? Change with < or >, ESCAPE to select:");
+            mnumprint(value);
+            
+            stome = mcigetc();
+            
+            switch(atom) {
+            case '>':
+            case 'k':
+            case KEY_UP:
+                if(value < range) {
+                    ++value;
+                }
 
-		break;
-	    case '<':
-	    case 'j':
-	    case KEY_DOWN:
-		if(value > 1) {
-		    --value;
-		}
+                break;
+            case '<':
+            case 'j':
+            case KEY_DOWN:
+                if(value > 1) {
+                    --value;
+                }
 
-		break;
-	    case KEY_HOME:
-		value = 1;
+                break;
+            case KEY_HOME:
+                value = 1;
 
-		break;
-	    case KEY_LL:
-		value = range;
+                break;
+            case KEY_LL:
+                value = range;
 
-		break;
-	    case ESCAPE:
-		done = TRUE;
+                break;
+            case ESCAPE:
+                done = TRUE;
 
-		break;
-	    }
-	}
+                break;
+            }
+        }
 #endif
-	
+        
     }
     
     return value;
@@ -1269,39 +1269,39 @@ int parsenum()
     char byte = ' ';
 
     while((byte != ESCAPE) && (byte != '\n')) {
-	byte = mgetC();
+        byte = mgetC();
 
-	if((byte == BACKSPACE) || (byte == DELETE)) {
-	    if(place  > -1) {
-		number[place] = 0;
-		--place;
-		getyx(Msgw, y, x);
-		wmove(Msgw, y, x - 1);
-		waddch(Msgw, ' ');
-		wmove(Msgw, y, x - 1);
-		wrefresh(Msgw);
-	    }
-	}
-	else if((byte <= '9') && (byte >= '0') && (place < 7)) {
-	    ++place;
-	    number[place] = byte;
-	    waddch(Msgw, byte);
-	    wrefresh(Msgw);
-	}
+        if((byte == BACKSPACE) || (byte == DELETE)) {
+            if(place  > -1) {
+                number[place] = 0;
+                --place;
+                getyx(Msgw, y, x);
+                wmove(Msgw, y, x - 1);
+                waddch(Msgw, ' ');
+                wmove(Msgw, y, x - 1);
+                wrefresh(Msgw);
+            }
+        }
+        else if((byte <= '9') && (byte >= '0') && (place < 7)) {
+            ++place;
+            number[place] = byte;
+            waddch(Msgw, byte);
+            wrefresh(Msgw);
+        }
     }
 
     waddch(Msgw, ' ');
 
     if(byte == ESCAPE) {
-	return ABORT;
+        return ABORT;
     }
     else {
-	for(i = place; i >= 0; --i) {
-	    num += (mult * (number[i] - '0'));
-	    mult *= 10;
-	}
+        for(i = place; i >= 0; --i) {
+            num += (mult * (number[i] - '0'));
+            mult *= 10;
+        }
 
-	return num;
+        return num;
     }
 }
 
@@ -1319,39 +1319,39 @@ long parsenum()
     char byte = ' ';
 
     while((byte != ESCAPE) && (byte != '\n')) {
-	byte = mgetc();
+        byte = mgetc();
 
-	if((byte == BACKSPACE) || (byte == DELETE)) {
-	    if(place > -1) {
-		number[place] = 0;
-		--place;
-		getyx(Msgw, y, x);
-		wmove(Msgw, y, x - 1);
-		waddch(Msgw, ' ');
-		wmove(Msgw, y, x - 1);
-		wrefresh(Msgw);
-	    }
-	}
-	else if((byte <= '9') && (byte >= '0') && (place < 7)) {
-	    ++place;
-	    number[place] = byte;
-	    waddch(Msgw, byte);
-	    wrefresh(Msgw);
-	}
+        if((byte == BACKSPACE) || (byte == DELETE)) {
+            if(place > -1) {
+                number[place] = 0;
+                --place;
+                getyx(Msgw, y, x);
+                wmove(Msgw, y, x - 1);
+                waddch(Msgw, ' ');
+                wmove(Msgw, y, x - 1);
+                wrefresh(Msgw);
+            }
+        }
+        else if((byte <= '9') && (byte >= '0') && (place < 7)) {
+            ++place;
+            number[place] = byte;
+            waddch(Msgw, byte);
+            wrefresh(Msgw);
+        }
     }
 
     waddch(Msgw, ' ');
 
     if(byte == ESCAPE) {
-	return ABORT;
+        return ABORT;
     }
     else {
-	for(i = place; i >= 0; --i) {
-	    num += (mult * (number[i] - '0'));
-	    mult *= 10;
-	}
+        for(i = place; i >= 0; --i) {
+            num += (mult * (number[i] - '0'));
+            mult *= 10;
+        }
 
-	return num;
+        return num;
     }
 }
 #endif
@@ -1398,23 +1398,23 @@ void display_win()
 
 #ifndef MSDOS
     if(Player.status[ADEPT]) {
-	printw(" is a total master of omega with %d points!", FixedPoints);
-	strcpy(Str4, "A total master of omega");
+        printw(" is a total master of omega with %d points!", FixedPoints);
+        strcpy(Str4, "A total master of omega");
     }
     else {
-	strcpy(Str4, "retired winner");
-	printw(" triumphed in omega with %d points!", calc_points());
+        strcpy(Str4, "retired winner");
+        printw(" triumphed in omega with %d points!", calc_points());
     }
     
 #else
 
     if(Player.status[ADEPT]) {
-	printw(" is a total master of omega with %ld points!", FixedPoints);
-	strcpy(Str4, "A total master of omega");
+        printw(" is a total master of omega with %ld points!", FixedPoints);
+        strcpy(Str4, "A total master of omega");
     }
     else {
-	strcpy(Str4, "retired winner");
-	printw(" triumphed in omega with %ld points!", calc_points());
+        strcpy(Str4, "retired winner");
+        printw(" triumphed in omega with %ld points!", calc_points());
     }
 #endif
 
@@ -1425,10 +1425,10 @@ void display_win()
     refresh();
 
     if(Player.status[ADEPT]) {
-	extendlog(Str4, BIGWIN);
+        extendlog(Str4, BIGWIN);
     }
     else {
-	extendlog(Str4, WIN);
+        extendlog(Str4, WIN);
     }
 }
 
@@ -1509,8 +1509,8 @@ void menunumprint(int n)
     getyx(Menuw, y, x);
 
     if(y >= (ScreenLength - 2)) {
-	morewait();
-	wclear(Menuw);
+        morewait();
+        wclear(Menuw);
     }
 
     wprintw(Menuw, "%d", n);
@@ -1527,8 +1527,8 @@ void menulongprint(long n)
     getyx(Menuw, y, x);
 
     if(y >= (ScreenLength - 2)) {
-	morewait();
-	wclear(Menuw);
+        morewait();
+        wclear(Menuw);
     }
 
     wprintw(Menuw, "%ld", n);
@@ -1544,10 +1544,10 @@ void dobackspace()
     getyx(Msgw, y, x);
 
     if(x > 0) {
-	waddch(Msgw, ' ');
-	wmove(Msgw, y, x - 1);
-	waddch(Msgw, ' ');
-	wmove(Msgw, y, x - 1);
+        waddch(Msgw, ' ');
+        wmove(Msgw, y, x - 1);
+        waddch(Msgw, ' ');
+        wmove(Msgw, y, x - 1);
     }
 
     wrefresh(Msgw);
@@ -1559,52 +1559,52 @@ void showflags()
     wclear(Flagw);
 
     if(Player.food < 0) {
-	wprintw(Flagw, "Starving\n");
+        wprintw(Flagw, "Starving\n");
     }
     else if(Player.food <= 3) {
-	wprintw(Flagw, "Weak\n");
+        wprintw(Flagw, "Weak\n");
     }
     else if(Player.food <= 10) {
-	wprintw(Flagw, "Ravenous\n");
+        wprintw(Flagw, "Ravenous\n");
     }
     else if(Player.food <= 20) {
-	wprintw(Flagw, "Hungry\n");
+        wprintw(Flagw, "Hungry\n");
     }
     else if(Player.food <= 30) {
-	wprintw(Flagw, "A mite peckish\n");
+        wprintw(Flagw, "A mite peckish\n");
     }
     else if(Player.food <= 36) {
-	wprintw(Flagw, "Content\n");
+        wprintw(Flagw, "Content\n");
     }
     else if(Player.food <= 44) {
-	wprintw(Flagw, "Satiated\n");
+        wprintw(Flagw, "Satiated\n");
     }
     else {
-	wprintw(Flagw, "Bloated\n");
+        wprintw(Flagw, "Bloated\n");
     }
 
     if(Player.status[POISONED] > 0) {
-	wprintw(Flagw, "Poisoned\n");
+        wprintw(Flagw, "Poisoned\n");
     }
     else {
-	wprintw(Flagw, "Vigorous\n");
+        wprintw(Flagw, "Vigorous\n");
     }
 
     if(Player.status[DISEASED] > 0) {
-	wprintw(Flagw, "Diseased\n");
+        wprintw(Flagw, "Diseased\n");
     }
     else {
-	wprintw(Flagw, "Healthy\n");
+        wprintw(Flagw, "Healthy\n");
     }
 
     if(gamestatusp(MOUNTED)) {
-	wprintw(Flagw, "Mounted\n");
+        wprintw(Flagw, "Mounted\n");
     }
     else if(Player.status[LEVITATING]) {
-	wprintw(Flagw, "Levitating\n");
+        wprintw(Flagw, "Levitating\n");
     }
     else {
-	wprintw(Flagw, "afoot\n");
+        wprintw(Flagw, "afoot\n");
     }
 
     wrefresh(Flagw);
@@ -1617,5 +1617,5 @@ void drawomega()
     for(i = 0; i < 7; ++i) {
         clear();
         printw("\n\n\n");
-	printw("\n                                    *****");
+        printw("\n                                    *****");
         

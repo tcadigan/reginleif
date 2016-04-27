@@ -23,42 +23,42 @@ void load_country()
     fd = fopen(Str3, "r");
 
     for(j = 0; j < LENGTH; ++j) {
-	for(i = 0; i < WIDTH; ++i) {
-	    site = getc(fd);
-	    Country[i][j].base_terrain_type = site;
-	    Country[i][j].aux = 0;
+        for(i = 0; i < WIDTH; ++i) {
+            site = getc(fd);
+            Country[i][j].base_terrain_type = site;
+            Country[i][j].aux = 0;
 
-	    if((site == PASS)
-	       || (site == CASTLE)
-	       || (site == STARPEAK)
-	       || (site == CAVES)
-	       || (site == VOLCANO)) {
-		Country[i][j].current_terrain_type = MOUNTAINS;
-	    }
-	    else if(site == DRAGONLAIR) {
-		Country[i][j].current_terrain_type = DESERT;
-	    }
-	    else if(site == MAGIC_ISLE) {
-		Country[i][j].current_terrain_type = CHAOS_SEA;
-	    }
-	    else if((site >= 'a') && (site <= 'f')) {
-		Country[i][j].base_terrain_type = 'o';
-		Country[i][j].current_terrain_type = Country[i][j].base_terrain_type;
-		Country[i][j].aux = 1 + site - 'a';
-	    }
-	    else if((size >= '1') && (site <= '6')) {
-		Country[i][j].base_terrain_type = TEMPLE;
-		Country[i][j].current_terrain_type = Country[i][j].base_terrain_type;
-		Country[i][j].aux = size - '0';
-	    }
-	    else {
-		Country[i][j].current_terrain_type = site;
-	    }
+            if((site == PASS)
+               || (site == CASTLE)
+               || (site == STARPEAK)
+               || (site == CAVES)
+               || (site == VOLCANO)) {
+                Country[i][j].current_terrain_type = MOUNTAINS;
+            }
+            else if(site == DRAGONLAIR) {
+                Country[i][j].current_terrain_type = DESERT;
+            }
+            else if(site == MAGIC_ISLE) {
+                Country[i][j].current_terrain_type = CHAOS_SEA;
+            }
+            else if((site >= 'a') && (site <= 'f')) {
+                Country[i][j].base_terrain_type = 'o';
+                Country[i][j].current_terrain_type = Country[i][j].base_terrain_type;
+                Country[i][j].aux = 1 + site - 'a';
+            }
+            else if((size >= '1') && (site <= '6')) {
+                Country[i][j].base_terrain_type = TEMPLE;
+                Country[i][j].current_terrain_type = Country[i][j].base_terrain_type;
+                Country[i][j].aux = size - '0';
+            }
+            else {
+                Country[i][j].current_terrain_type = site;
+            }
 
-	    Country[i][j].explored = FALSE;
-	}
+            Country[i][j].explored = FALSE;
+        }
 
-	fscanf(fd, "\n");
+        fscanf(fd, "\n");
     }
 
     fclose(fd);
@@ -73,16 +73,16 @@ void load_dlair(int empty)
     FILE *fd;
 
     if(empty) {
-	mprint("The Lair is now devoid of inhabitants and treasure.");
+        mprint("The Lair is now devoid of inhabitants and treasure.");
     }
 
     TempLevel = Level;
 
     if(ok_to_free(TempLevel)) {
 #ifndef MSDOS
-	free((char *)TempLevel);
+        free((char *)TempLevel);
 #endif
-	TempLevel = NULL;
+        TempLevel = NULL;
     }
 
 #ifndef MSDOS
@@ -99,125 +99,125 @@ void load_dlair(int empty)
     fd = fopen(Str3, "r");
 
     for(j = 0; j < LENGTH; ++j) {
-	for(i = 0; i < WIDTH; ++i) {
-	    Level->site[i][j].lstatus = 0;
-	    Level->site[i][j].roomnumber = RS_CAVERN;
-	    Level->site[i][j].p_locf = L_NO_OP;
-	    site = getc(fd);
+        for(i = 0; i < WIDTH; ++i) {
+            Level->site[i][j].lstatus = 0;
+            Level->site[i][j].roomnumber = RS_CAVERN;
+            Level->site[i][j].p_locf = L_NO_OP;
+            site = getc(fd);
 
-	    switch(site) {
-	    case 'D':
-		Level->site[i][j].locchar = FLOOR;
+            switch(site) {
+            case 'D':
+                Level->site[i][j].locchar = FLOOR;
 
-		if(!empty) {
-		    /* Dragon lord */
-		    make_site_monster(i, j, ML10 + 3);
-		}
+                if(!empty) {
+                    /* Dragon lord */
+                    make_site_monster(i, j, ML10 + 3);
+                }
 
-		Level->site[i][j].creature->specialf = M_SP_LAIR;
+                Level->site[i][j].creature->specialf = M_SP_LAIR;
 
-		break;
-	    case 'd':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case 'd':
+                Level->site[i][j].locchar = FLOOR;
 
-		if(!empty) {
-		    /* Elite dragon */
-		    make_site_monster(i, j, ML8 + 3);
-		}
+                if(!empty) {
+                    /* Elite dragon */
+                    make_site_monster(i, j, ML8 + 3);
+                }
 
-		Level->site[i][j].creature->specialf = M_SP_LAIR;
-		Level->site[i][j].creature->hit *= 2;
-		Level->site[i][j].creature->dmg *= 2;
+                Level->site[i][j].creature->specialf = M_SP_LAIR;
+                Level->site[i][j].creature->hit *= 2;
+                Level->site[i][j].creature->dmg *= 2;
 
-		break;
-	    case 'W':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case 'W':
+                Level->site[i][j].locchar = FLOOR;
 
-		if(!empty) {
-		    make_site_monster(i, j, ML9 + 2);
-		}
+                if(!empty) {
+                    make_site_monster(i, j, ML9 + 2);
+                }
 
-		break;
-	    case 'M':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case 'M':
+                Level->site[i][j].locchar = FLOOR;
 
-		if(!empty) {
-		    make_site_monster(i, j, -1);
-		}
+                if(!empty) {
+                    make_site_monster(i, j, -1);
+                }
 
-		break;
-	    case 'S':
-		Level->site[i][j].locchar = FLOOR;
-		Level->site[i][j].shwochar = WALL;
+                break;
+            case 'S':
+                Level->site[i][j].locchar = FLOOR;
+                Level->site[i][j].shwochar = WALL;
 
-		if(!empty) {
-		    lset(i, j, SECRET);
-		}
+                if(!empty) {
+                    lset(i, j, SECRET);
+                }
 
-		Level->site[i][j].roomnumber = RS_SECRETPASSAGE;
+                Level->site[i][j].roomnumber = RS_SECRETPASSAGE;
 
-		break;
-	    case '$':
-		Level->site[i][j].locchar = FLOOR;
-		Level->site[i][j].roomnumber = RS_DRAGONLORD;
+                break;
+            case '$':
+                Level->site[i][j].locchar = FLOOR;
+                Level->site[i][j].roomnumber = RS_DRAGONLORD;
 
-		if(!empty) {
-		    make_site_treasure(i, j, 10);
-		}
+                if(!empty) {
+                    make_site_treasure(i, j, 10);
+                }
 
-		break;
-	    case 's':
-		Level->site[i][j].locchar = FLOOR;
-		Level->site[i][j].p_locf = L_TRAP_SIREN;
+                break;
+            case 's':
+                Level->site[i][j].locchar = FLOOR;
+                Level->site[i][j].p_locf = L_TRAP_SIREN;
 
-		break;
-	    case '7':
-		if(!empty) {
-		    Level->site[i][j].locchar = PORTCULLIS;
-		}
-		else {
-		    Level->site[i][j].locchar = FLOOR;
-		}
+                break;
+            case '7':
+                if(!empty) {
+                    Level->site[i][j].locchar = PORTCULLIS;
+                }
+                else {
+                    Level->site[i][j].locchar = FLOOR;
+                }
 
-		Level->site[i][j].p_locf = L_PORTCULLIS;
+                Level->site[i][j].p_locf = L_PORTCULLIS;
 
-		break;
-	    case 'R':
-		Level->site[i][j].locchar = FLOOR;
-		Level->site[i][j].p_locf = L_RAISE_PORTCULLIS;
+                break;
+            case 'R':
+                Level->site[i][j].locchar = FLOOR;
+                Level->site[i][j].p_locf = L_RAISE_PORTCULLIS;
 
-		break;
-	    case 'p':
-		Level->site[i][j].locchar = FLOOR;
-		Level->site[i][j].p_locf = L_PORTCULLIS;
+                break;
+            case 'p':
+                Level->site[i][j].locchar = FLOOR;
+                Level->site[i][j].p_locf = L_PORTCULLIS;
 
-		break;
-	    case 'T':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case 'T':
+                Level->site[i][j].locchar = FLOOR;
 
-		if(!empty) {
-		    Level->site[i][j].p_locf = L_PORTCULLIS_TRAP;
-		}
+                if(!empty) {
+                    Level->site[i][j].p_locf = L_PORTCULLIS_TRAP;
+                }
 
-		break;
-	    case 'X':
-		Level->site[i][j].locchar = FLOOR;
-		Level->site[i][j].p_locf = L_TACTICAL_EXIT;
+                break;
+            case 'X':
+                Level->site[i][j].locchar = FLOOR;
+                Level->site[i][j].p_locf = L_TACTICAL_EXIT;
 
-		break;
-	    case '#':
-		Level->site[i][j].locchar = WALL;
-		Level->site[i][j].aux = 150;
+                break;
+            case '#':
+                Level->site[i][j].locchar = WALL;
+                Level->site[i][j].aux = 150;
 
-		break;
-	    case '.':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case '.':
+                Level->site[i][j].locchar = FLOOR;
 
-		break;
-	    }
-	}
+                break;
+            }
+        }
 
-	fscanf(fd, "\n");
+        fscanf(fd, "\n");
     }
 
     fclose(fd);
@@ -233,16 +233,16 @@ void load_speak(int empty)
     FILE *fd;
 
     if(empty) {
-	mprint("The peak is now devoid of inhabitants and treasure.");
+        mprint("The peak is now devoid of inhabitants and treasure.");
     }
 
     TempLevel = Level;
 
     if(ok_to_free(TempLevel)) {
 #ifndef MSDOS
-	free((char *)TempLevel);
+        free((char *)TempLevel);
 #endif
-	TempLevel = NULL;
+        TempLevel = NULL;
     }
 
 #ifndef MSDOS
@@ -259,126 +259,126 @@ void load_speak(int empty)
     fd = fopen(Str3, "r");
 
     for(j = 0; j < LENGTH; ++j) {
-	for(i = 0; i < WIDTH; ++i) {
-	    Level->site[i][j].lstatus = 0;
-	    Level->site[i][j].roomnumber = RS_STARPEAK;
-	    Level->site[i][j].p_locf = L_NO_OP;
-	    site = getc(fd);
+        for(i = 0; i < WIDTH; ++i) {
+            Level->site[i][j].lstatus = 0;
+            Level->site[i][j].roomnumber = RS_STARPEAK;
+            Level->site[i][j].p_locf = L_NO_OP;
+            site = getc(fd);
 
-	    switch(site) {
-	    case 'S':
-		Level->site[i][j].locchar = FLOOR;
-		Level->site[i][j].showchar = WALL;
-		lset(i, j, SECRET);
-		Level->site[i][j].roomnumber = RS_SECRETPASSAGE;
+            switch(site) {
+            case 'S':
+                Level->site[i][j].locchar = FLOOR;
+                Level->site[i][j].showchar = WALL;
+                lset(i, j, SECRET);
+                Level->site[i][j].roomnumber = RS_SECRETPASSAGE;
 
-		break;
-	    case 'L':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case 'L':
+                Level->site[i][j].locchar = FLOOR;
 
-		if(!empty) {
-		    /* Lawbringer */
-		    make_site_monster(i, j, ML10 + 2);
-		}
+                if(!empty) {
+                    /* Lawbringer */
+                    make_site_monster(i, j, ML10 + 2);
+                }
 
-		if(safe) {
-		    m_status_reset(Level->site[i][j].creature, HOSTILE);
-		}
+                if(safe) {
+                    m_status_reset(Level->site[i][j].creature, HOSTILE);
+                }
 
-		break;
-	    case 's':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case 's':
+                Level->site[i][j].locchar = FLOOR;
 
-		if(!empty) {
-		    /* Servent of law */
-		    make_site_monster(i, j, ML4 + 12);
-		}
+                if(!empty) {
+                    /* Servent of law */
+                    make_site_monster(i, j, ML4 + 12);
+                }
 
-		if(safe) {
-		    m_status_reset(Level->site[i][j].creature, HOSTILE);
-		}
+                if(safe) {
+                    m_status_reset(Level->site[i][j].creature, HOSTILE);
+                }
 
-		break;
-	    case 'M':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case 'M':
+                Level->site[i][j].locchar = FLOOR;
 
-		if(!empty) {
-		    make_site_monster(i, j, -1);
-		}
+                if(!empty) {
+                    make_site_monster(i, j, -1);
+                }
 
-		if(safe) {
-		    m_status_reset(Level->site[i][j].creature, HOSTILE);
-		}
+                if(safe) {
+                    m_status_reset(Level->site[i][j].creature, HOSTILE);
+                }
 
-		break;
-	    case '$':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case '$':
+                Level->site[i][j].locchar = FLOOR;
 
-		if(!empty) {
-		    make_site_treasure(i, j, 10);
-		}
+                if(!empty) {
+                    make_site_treasure(i, j, 10);
+                }
 
-		break;
-	    case '7':
-		if(!empty) {
-		    Level->site[i][j].locchar = PORTCULLIS;
-		}
-		else {
-		    Level->site[i][j].locchar = FLOOR;
-		}
+                break;
+            case '7':
+                if(!empty) {
+                    Level->site[i][j].locchar = PORTCULLIS;
+                }
+                else {
+                    Level->site[i][j].locchar = FLOOR;
+                }
 
-		Level->site[i][j].p_locf = L_PORTCULLIS;
+                Level->site[i][j].p_locf = L_PORTCULLIS;
 
-		break;
-	    case 'R':
-		Level->site[i][j].locchar = FLOOR;
-		Level->site[i][j].p_locf = L_RAISE_PORTCULLIS;
+                break;
+            case 'R':
+                Level->site[i][j].locchar = FLOOR;
+                Level->site[i][j].p_locf = L_RAISE_PORTCULLIS;
 
-		break;
-	    case '-':
-		Level->site[i][j].locchar = CLOSED_DOOR;
+                break;
+            case '-':
+                Level->site[i][j].locchar = CLOSED_DOOR;
 
-		break;
-	    case '|':
-		Level->site[i][j].locchar = OPEN_DOOR;
+                break;
+            case '|':
+                Level->site[i][j].locchar = OPEN_DOOR;
 
-		break;
-	    case 'p':
-		Level->site[i][j].locchar = FLOOR;
-		Level->site[i][j].p_locf = L_PORTCULLIS;
+                break;
+            case 'p':
+                Level->site[i][j].locchar = FLOOR;
+                Level->site[i][j].p_locf = L_PORTCULLIS;
 
-		break;
-	    case 'T':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case 'T':
+                Level->site[i][j].locchar = FLOOR;
 
-		if(!empty) {
-		    Level->site[i][j].p_locf = L_PORTCULLIS_TRAP;
-		}
+                if(!empty) {
+                    Level->site[i][j].p_locf = L_PORTCULLIS_TRAP;
+                }
 
-		break;
-	    case 'X':
-		Level->site[i][j].locchar = FLOOR;
-		Level->site[i][j].p_locf = L_TACTICAL_EXIT;
+                break;
+            case 'X':
+                Level->site[i][j].locchar = FLOOR;
+                Level->site[i][j].p_locf = L_TACTICAL_EXIT;
 
-		break;
-	    case '#':
-		Level->site[i][j].locchar = WALL;
-		Level->site[i][j].aux = 150;
+                break;
+            case '#':
+                Level->site[i][j].locchar = WALL;
+                Level->site[i][j].aux = 150;
 
-		break;
-	    case '4':
-		Level->site[i][j].locchar = RUBBLE;
-		Level->site[i][j].p_locf = L_RUBBLE;
+                break;
+            case '4':
+                Level->site[i][j].locchar = RUBBLE;
+                Level->site[i][j].p_locf = L_RUBBLE;
 
-		break;
-	    case '.':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case '.':
+                Level->site[i][j].locchar = FLOOR;
 
-		break;
-	    }
-	}
+                break;
+            }
+        }
 
-	fscanf(fd, "\n");
+        fscanf(fd, "\n");
     }
 
     fclose(fd);
@@ -393,16 +393,16 @@ void load_isle(int empty)
     FILE *fd;
 
     if(empty) {
-	mprint("The isle is now devoid of inhabitants and treasure.");
+        mprint("The isle is now devoid of inhabitants and treasure.");
     }
 
     TempLevel = Level;
 
     if(ok_to_free(TempLevel)) {
 #ifndef MSDOS
-	free((char *)TempLevel);
+        free((char *)TempLevel);
 #endif
-	TempLevel = NULL;
+        TempLevel = NULL;
     }
 
 #ifndef MSDOS
@@ -419,81 +419,81 @@ void load_isle(int empty)
     fd = fopen(Str3, "r");
 
     for(j = 0; j < LENGTH; ++j) {
-	for(i = 0; i < WIDTH; ++i) {
-	    Level->site[i][j].lstatus = 0;
-	    Level->site[i][j].roomnumber = RS_MAGIC_ISLE;
-	    Level->site[i][j].p_locf = L_NO_OP;
-	    site = getc(fd);
+        for(i = 0; i < WIDTH; ++i) {
+            Level->site[i][j].lstatus = 0;
+            Level->site[i][j].roomnumber = RS_MAGIC_ISLE;
+            Level->site[i][j].p_locf = L_NO_OP;
+            site = getc(fd);
 
-	    switch(site) {
-	    case 'E':
-		Level->site[i][j].locchar = FLOOR;
+            switch(site) {
+            case 'E':
+                Level->site[i][j].locchar = FLOOR;
 
-		if(!empty) {
-		    /* Eater of magic */
-		    make_site_monster(i, j, ML10 + 1);
-		}
+                if(!empty) {
+                    /* Eater of magic */
+                    make_site_monster(i, j, ML10 + 1);
+                }
 
-		break;
-	    case 'm':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case 'm':
+                Level->site[i][j].locchar = FLOOR;
 
-		if(!empty) {
-		    /* Militan priest */
-		    make_site_monster(i, j, ML8 + 9);
-		}
+                if(!empty) {
+                    /* Militan priest */
+                    make_site_monster(i, j, ML8 + 9);
+                }
 
-		break;
-	    case 'n':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case 'n':
+                Level->site[i][j].locchar = FLOOR;
 
-		if(!empty) {
-		    /* Nazgul */
-		    make_site_monster(i, j, ML7 + 1);
-		}
+                if(!empty) {
+                    /* Nazgul */
+                    make_site_monster(i, j, ML7 + 1);
+                }
 
-		break;
-	    case 'X':
-		Level->site[i][j].locchar = FLOOR;
-		Level->site[i][j].p_locf = L_TACTICAL_EXIT;
+                break;
+            case 'X':
+                Level->site[i][j].locchar = FLOOR;
+                Level->site[i][j].p_locf = L_TACTICAL_EXIT;
 
-		break;
-	    case '#':
-		Level->site[i][j].locchar = WALL;
-		Level->site[i][j].aux = 150;
+                break;
+            case '#':
+                Level->site[i][j].locchar = WALL;
+                Level->site[i][j].aux = 150;
 
-		break;
-	    case '4':
-		Level->site[i][j].locchar = RUBBLE;
-		Level->site[i][j].p_locf = L_RUBBLE;
+                break;
+            case '4':
+                Level->site[i][j].locchar = RUBBLE;
+                Level->site[i][j].p_locf = L_RUBBLE;
 
-		break;
-	    case '~':
-		Level->site[i][j].locchar = WATER;
-		Level->site[i][j].p_locf = L_CHAOS;
+                break;
+            case '~':
+                Level->site[i][j].locchar = WATER;
+                Level->site[i][j].p_locf = L_CHAOS;
 
-		break;
-	    case '=':
-		Level->site[i][j].locchar = WATER;
-		Level->site[i][j].p_locf = L_MAGIC_POOL;
+                break;
+            case '=':
+                Level->site[i][j].locchar = WATER;
+                Level->site[i][j].p_locf = L_MAGIC_POOL;
 
-		break;
-	    case '-':
-		Level->site[i][j].locchar = CLOSED_DOOR;
+                break;
+            case '-':
+                Level->site[i][j].locchar = CLOSED_DOOR;
 
-		break;
-	    case '|':
-		Level->site[i][j].locchar = OPEN_DOOR;
+                break;
+            case '|':
+                Level->site[i][j].locchar = OPEN_DOOR;
 
-		break;
-	    case '.':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case '.':
+                Level->site[i][j].locchar = FLOOR;
 
-		break;
-	    }
-	}
+                break;
+            }
+        }
 
-	fscanf(fd, "\n");
+        fscanf(fd, "\n");
     }
 
     fclose(fd);
@@ -512,9 +512,9 @@ void load_temple(int deity)
 
     if(ok_to_free(TempLevel)) {
 #ifndef MSDOS
-	free((char *)TempLevel);
+        free((char *)TempLevel);
 #endif
-	TempLevel = NULL;
+        TempLevel = NULL;
     }
 
 #ifndef MSDOS
@@ -531,140 +531,140 @@ void load_temple(int deity)
     fd = fopen(Str3, "r");
 
     for(j = 0; j < LENGTH; ++j) {
-	for(i = 0; i < WIDTH; ++i) {
-	    switch(deity) {
-	    case ODIN:
-		Level->site[i][j].roomnumber = RS_ODIN;
+        for(i = 0; i < WIDTH; ++i) {
+            switch(deity) {
+            case ODIN:
+                Level->site[i][j].roomnumber = RS_ODIN;
 
-		break;
-	    case SET:
-		Level->site[i][j].roomnumber = RS_SET;
+                break;
+            case SET:
+                Level->site[i][j].roomnumber = RS_SET;
 
-		break;
-	    case HECATE:
-		Level->site[i][j].roomnumber = RS_HECATE;
+                break;
+            case HECATE:
+                Level->site[i][j].roomnumber = RS_HECATE;
 
-		break;
-	    case ATHENA:
-		Level->site[i][j].roomnumber = RS_ATHENA;
+                break;
+            case ATHENA:
+                Level->site[i][j].roomnumber = RS_ATHENA;
 
-		break;
-	    case DRUID:
-		Level->site[i][j].roomnumber = RS_DRUID;
+                break;
+            case DRUID:
+                Level->site[i][j].roomnumber = RS_DRUID;
 
-		break;
-	    case DESTINY:
-		Level->site[i][j].roomnumber = RS_DESTINY;
+                break;
+            case DESTINY:
+                Level->site[i][j].roomnumber = RS_DESTINY;
 
-		break;
-	    }
+                break;
+            }
 
-	    site = getc(fd);
+            site = getc(fd);
 
-	    switch(site) {
-	    case '8':
-		Level->site[i][j].locchar = ALTAR;
-		Level->site[i][j].p_locf = L_ALTAR;
-		Level->site[i][j].aux = deity;
+            switch(site) {
+            case '8':
+                Level->site[i][j].locchar = ALTAR;
+                Level->site[i][j].p_locf = L_ALTAR;
+                Level->site[i][j].aux = deity;
 
-		break;
-	    case 'H':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case 'H':
+                Level->site[i][j].locchar = FLOOR;
 
-		if(strcmp(Player.name, Priest[Player.patron]) != 0) {
-		    make_high_priest(i, j, deity);
-		}
+                if(strcmp(Player.name, Priest[Player.patron]) != 0) {
+                    make_high_priest(i, j, deity);
+                }
 
-		break;
-	    case 'S':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case 'S':
+                Level->site[i][j].locchar = FLOOR;
 
-		if(strcmp(Player.name, Priest[Player.patron]) != 0) {
-		    lset(i, j, SECRET);
-		}
+                if(strcmp(Player.name, Priest[Player.patron]) != 0) {
+                    lset(i, j, SECRET);
+                }
 
-		break;
-	    case 'W':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case 'W':
+                Level->site[i][j].locchar = FLOOR;
 
-		if((deity != Player.patron)
-		   && ((deity == ODIN)
-		       || (deity == SET)
-		       || (deity == HECATE)
-		       || (deity == ATHENA)
-		       || (deity == DESTINY))) {
-		    Level->site[i][j].p_locf = L_TEMPLE_WARNING;
-		}
+                if((deity != Player.patron)
+                   && ((deity == ODIN)
+                       || (deity == SET)
+                       || (deity == HECATE)
+                       || (deity == ATHENA)
+                       || (deity == DESTINY))) {
+                    Level->site[i][j].p_locf = L_TEMPLE_WARNING;
+                }
 
-		break;
-	    case 'm':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case 'm':
+                Level->site[i][j].locchar = FLOOR;
 
-		/* Militant priest */
-		make_site_monster(i, j, ML8 + 9);
+                /* Militant priest */
+                make_site_monster(i, j, ML8 + 9);
 
-		break;
-	    case 'd':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case 'd':
+                Level->site[i][j].locchar = FLOOR;
 
-		/* Doberman death hound */
-		make_site_monster(i, j, ML4 + 10);
+                /* Doberman death hound */
+                make_site_monster(i, j, ML4 + 10);
 
-		break;
-	    case 'X':
-		Level->site[i][j].locchar = FLOOR;
-		Level->site[i][j].p_lcof = L_TACTICAL_EXIT;
+                break;
+            case 'X':
+                Level->site[i][j].locchar = FLOOR;
+                Level->site[i][j].p_lcof = L_TACTICAL_EXIT;
 
-		break;
-	    case '#':
-		if(deity != DRUID) {
-		    Level->site[i][j].locchar = WALL;
-		    Level->site[i][j].aux = 150;
-		}
-		else {
-		    Level->site[i][j].locchar = HEDGE;
-		    Level->site[i][j].p_locf = L_HEDGE;
-		}
+                break;
+            case '#':
+                if(deity != DRUID) {
+                    Level->site[i][j].locchar = WALL;
+                    Level->site[i][j].aux = 150;
+                }
+                else {
+                    Level->site[i][j].locchar = HEDGE;
+                    Level->site[i][j].p_locf = L_HEDGE;
+                }
 
-		break;
-	    case '.':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case '.':
+                Level->site[i][j].locchar = FLOOR;
 
-		break;
-	    case 'x':
-		Level->site[i][j].locchar = FLOOR;
-		random_temple_site(i, j, deity);
+                break;
+            case 'x':
+                Level->site[i][j].locchar = FLOOR;
+                random_temple_site(i, j, deity);
 
-		break;
-	    case '?':
-		if(deity != DESTINY) {
-		    Level->site[i][j].locchar = FLOOR;
-		}
-		else {
-		    Level->site[i][j].locchar = ABYSS;
-		    Level->site[i][j].p_locf = L_ADEPT;
-		}
+                break;
+            case '?':
+                if(deity != DESTINY) {
+                    Level->site[i][j].locchar = FLOOR;
+                }
+                else {
+                    Level->site[i][j].locchar = ABYSS;
+                    Level->site[i][j].p_locf = L_ADEPT;
+                }
 
-		break;
-	    case '-':
-		Level->site[i][j].locchar = CLOSED_DOOR;
+                break;
+            case '-':
+                Level->site[i][j].locchar = CLOSED_DOOR;
 
-		break;
-	    case '|':
-		Level->site[i][j].locchar = OPEN_DOOR;
+                break;
+            case '|':
+                Level->site[i][j].locchar = OPEN_DOOR;
 
-		break;
-	    }
-	}
+                break;
+            }
+        }
 
-	fscanf(fd, "\n");
+        fscanf(fd, "\n");
     }
 
     /* Main temple is peaceful for player of same sect, druids always peaceful */
     if((Player.patron == deity) || (deity == DRUID)) {
-	for(ml = Level->mlist; ml != NULL; ml = ml->next) {
-	    m_status_reset(ml->m, HOSTILE);
-	}
+        for(ml = Level->mlist; ml != NULL; ml = ml->next) {
+            m_status_reset(ml->m, HOSTILE);
+        }
     }
 
     fclose(fd);
@@ -674,36 +674,36 @@ void random_temple_site(int i, int j, int deity)
 {
     switch(random_range(12)) {
     case 0:
-	/* Mendicant priest */
-	make_site_monster(i, j, ML0 + 1);
+        /* Mendicant priest */
+        make_site_monster(i, j, ML0 + 1);
 
-	break;
+        break;
     case 1:
-	Level->site[i][j].locchar = WATER;
-	Level->site[i][j].p_locf = L_MAGIC_POOL;
+        Level->site[i][j].locchar = WATER;
+        Level->site[i][j].p_locf = L_MAGIC_POOL;
     case 2:
-	/* Inner circle demon */
-	make_site_monster(i, j, ML7 + 14);
+        /* Inner circle demon */
+        make_site_monster(i, j, ML7 + 14);
 
-	break;
+        break;
     case 3:
-	/* Angel of appropriate sect */
-	make_site_monster(i, j, ML6 + 11);
-	Level->site[i][j].creature->aux1 = deity;
+        /* Angel of appropriate sect */
+        make_site_monster(i, j, ML6 + 11);
+        Level->site[i][j].creature->aux1 = deity;
 
-	break;
+        break;
     case 4:
-	/* Archangel of appropriate sect */
-	make_site_monster(i, j, ML8 + 11);
-	Level->site[i][j].creature->aux1 = deity;
+        /* Archangel of appropriate sect */
+        make_site_monster(i, j, ML8 + 11);
+        Level->site[i][j].creature->aux1 = deity;
 
-	break;
+        break;
     case 5:
-	/* Archangel of appropriate sect */
-	make_site_monster(i, j, ML9 + 6);
-	Level->site[i][j].creature->aux1 = deity;
+        /* Archangel of appropriate sect */
+        make_site_monster(i, j, ML9 + 6);
+        Level->site[i][j].creature->aux1 = deity;
 
-	break;
+        break;
     }
 }
 

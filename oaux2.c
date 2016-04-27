@@ -29,77 +29,77 @@ void p_hit(struct monster *m, int dmg, int dtype)
     /* Chance for critical hit..., 3/10 */
     switch(random_range(10)) {
     case 0:
-	if(random_range(100) < Player.level) {
-	    strcpy(Str3, "You annihilate ");
-	    dmult = 1000;
-	}
-	else {
-	    strcpy(Str3, "You blast ");
-	    dmult = 5;
-	}
+        if(random_range(100) < Player.level) {
+            strcpy(Str3, "You annihilate ");
+            dmult = 1000;
+        }
+        else {
+            strcpy(Str3, "You blast ");
+            dmult = 5;
+        }
 
-	break;
+        break;
     case 1:
     case 2:
-	strcpy(Str3, "You smash ");
-	dmult = 2;
+        strcpy(Str3, "You smash ");
+        dmult = 2;
 
-	break;
+        break;
     default:
-	dmult = 1;
+        dmult = 1;
 
-	if(random_range(10)) {
-	    strcpy(Str3, "You hit ");
-	}
-	else {
-	    switch(random_range(4)) {
-	    case 0:
-		strcpy(Str3, "You damage ");
+        if(random_range(10)) {
+            strcpy(Str3, "You hit ");
+        }
+        else {
+            switch(random_range(4)) {
+            case 0:
+                strcpy(Str3, "You damage ");
 
-		break;
-	    case 1:
-		strcpy(Str3, "You inflict bodily harm on ");
+                break;
+            case 1:
+                strcpy(Str3, "You inflict bodily harm on ");
 
-		break;
-	    case 2:
-		strcpy(Str3, "You injure ");
+                break;
+            case 2:
+                strcpy(Str3, "You injure ");
 
-		break;
-	    case 3:
-		strcpy(Str3, "You molest ");
+                break;
+            case 3:
+                strcpy(Str3, "You molest ");
 
-		break;
-	    }
-	}
+                break;
+            }
+        }
 
-	break;
+        break;
     }
 
     if(Lunarity == 1) {
-	dmult = dmult * 2;
+        dmult = dmult * 2;
     }
     else if(Lunarity == -1) {
-	dmult = dmult / 2;
+        dmult = dmult / 2;
     }
 
     if(m->uniqueness == COMMON) {
-	strcat(Str3, "the ");
+        strcat(Str3, "the ");
     }
 
     strcat(Str3, m->monstring);
     strcat(Str3, ". ");
 
     if(Verbosity != TERSE) {
-	mprint(Str3);
+        mprint(Str3);
     }
     else {
-	mprint("You hit it.");
+        mprint("You hit it.");
     }
 
     m_damage(m, dmult * random_range(dmg), dtype);
 
     if((Verbosity != TERSE) && (random_range(10) == 3) && (m->hp > 0)) {
-	mprint("It laughs at the injury and fights on!");
+        mprint("It laughs at the injury and fights on!");
     }
 }
 
@@ -108,45 +108,45 @@ void player_miss(struct monster *m, int dtype)
 {
     /* Fumble 1 in 30 */
     if(random_range(30) == 1) {
-	p_fumble(dtype);
+        p_fumble(dtype);
     }
     else {
-	if(Verbosity != TERSE) {
-	    if(random_range(10)) {
-		strpcy(Str3, "You miss ");
-	    }
-	    else {
-		switch(random_range(4)) {
-		case 0:
-		    strcpy(Str3, "You flail lamely at ");
+        if(Verbosity != TERSE) {
+            if(random_range(10)) {
+                strpcy(Str3, "You miss ");
+            }
+            else {
+                switch(random_range(4)) {
+                case 0:
+                    strcpy(Str3, "You flail lamely at ");
 
-		    break;
-		case 1:
-		    strcpy(Str3, "You only amuse ");
+                    break;
+                case 1:
+                    strcpy(Str3, "You only amuse ");
 
-		    break;
-		case 2:
-		    strcpy(Str3, "You fail to even come close to ");
+                    break;
+                case 2:
+                    strcpy(Str3, "You fail to even come close to ");
 
-		    break;
-		case 3:
-		    strcpy(Str3, "You totally avoid contact with ");
+                    break;
+                case 3:
+                    strcpy(Str3, "You totally avoid contact with ");
 
-		    break;
-		}
-	    }
+                    break;
+                }
+            }
 
-	    if(m->uniqueness == COMMON) {
-		strcat(Str3, "the ");
-	    }
+            if(m->uniqueness == COMMON) {
+                strcat(Str3, "the ");
+            }
 
-	    strcat(Str3, m->monstring);
-	    strcat(Str3, ". ");
-	    mprint(Str3);
-	}
-	else {
-	    mprint("You missed it.");
-	}
+            strcat(Str3, m->monstring);
+            strcat(Str3, ". ");
+            mprint(Str3);
+        }
+        else {
+            mprint("You missed it.");
+        }
     }
 }
 
@@ -162,20 +162,20 @@ void p_fumble(int dtype)
     case 3:
     case 4:
     case 5:
-	drop_weapon();
+        drop_weapon();
 
-	break;
+        break;
     case 6:
     case 7:
     case 8:
-	break_weapon();
+        break_weapon();
 
-	break;
+        break;
     case 9:
-	mprint("Oh no! You hit yourself!");
-	p_damage(Player.dmg, dtype, "stupidity");
+        mprint("Oh no! You hit yourself!");
+        p_damage(Player.dmg, dtype, "stupidity");
 
-	break;
+        break;
     }
 }
 
@@ -183,15 +183,15 @@ void p_fumble(int dtype)
 void drop_weapon()
 {
     if(Player.possessions[O_WEAPON_HAND] != NULL) {
-	strcpy(Str1, "You dropped your ");
-	strcat(Str1, Player.possessions[O_WEAPON_HAND]->objstr);
-	mprint(Str1);
-	morewait();
-	p_drop_at(Player.x, Player.y, 1, Player.possessions[O_WEAPON_HAND]);
-	confrom_lost_objects(1, Player.possessions[O_WEAPON_HAND]);
+        strcpy(Str1, "You dropped your ");
+        strcat(Str1, Player.possessions[O_WEAPON_HAND]->objstr);
+        mprint(Str1);
+        morewait();
+        p_drop_at(Player.x, Player.y, 1, Player.possessions[O_WEAPON_HAND]);
+        confrom_lost_objects(1, Player.possessions[O_WEAPON_HAND]);
     }
     else {
-	mprint("You feel fortunate.");
+        mprint("You feel fortunate.");
     }
 }
 
@@ -199,12 +199,12 @@ void drop_weapon()
 void break_weapon()
 {
     if(Player.possessions[O_WEAPON_HAND] != NULL) {
-	strcpy(Str1, "Your ");
-	strcat(Str1, itemid(Player.possessions[O_WEAPON_HAND]));
-	strcat(Str1, " vibrates in your hand...");
-	mprint(Str1);
-	damage_item(Player.possessions[O_WEAPON_HAND]);
-	morewait();
+        strcpy(Str1, "Your ");
+        strcat(Str1, itemid(Player.possessions[O_WEAPON_HAND]));
+        strcat(Str1, " vibrates in your hand...");
+        mprint(Str1);
+        damage_item(Player.possessions[O_WEAPON_HAND]);
+        morewait();
     }
 }
 
@@ -227,9 +227,9 @@ void p_win()
 void movecursor(int *x, int *y, int dx, int dy)
 {
     if(inbounds(*x + dx, *y + dy)) {
-	*x += dx;
-	*y += dy;
-	screencheck(*y);
+        *x += dx;
+        *y += dy;
+        screencheck(*y);
     }
 
     showcursor(*x, *y);
@@ -250,101 +250,101 @@ void minute_status_check()
     int i;
 
     if(Player.status[HASTED] > 0) {
-	if(Player.status[HASTED] < 1000) {
-	    --Player.status[HASTED];
+        if(Player.status[HASTED] < 1000) {
+            --Player.status[HASTED];
 
-	    if(Player.status[HASTED] == 0) {
-		mprint("The world speeds up.");
-		calc_melee();
-	    }
-	}
+            if(Player.status[HASTED] == 0) {
+                mprint("The world speeds up.");
+                calc_melee();
+            }
+        }
     }
 
     if(Player.status[POISONED] > 0) {
-	--Player.status[POISONED];
-	p_damage(3, POISON, "poison");
+        --Player.status[POISONED];
+        p_damage(3, POISON, "poison");
 
-	if(Player.status[POISONED] == 0) {
-	    showflags();
-	    mprint("You feel better now.");
-	}
+        if(Player.status[POISONED] == 0) {
+            showflags();
+            mprint("You feel better now.");
+        }
     }
 
     if(Player.immunity[UNSTOPPABLE] > 0) {
-	for(i = 0; i < NUMIMMUNITIES; ++i) {
-	    --Player.immunity[i];
-	}
+        for(i = 0; i < NUMIMMUNITIES; ++i) {
+            --Player.immunity[i];
+        }
 
-	if(Player.immunity[UNSTOPPABLE] == 1) {
-	    mprint("You can move again.");
-	}
+        if(Player.immunity[UNSTOPPABLE] == 1) {
+            mprint("You can move again.");
+        }
     }
 
     if(Player.status[SLEPT] > 0) {
-	--Player.status[SLEPT];
+        --Player.status[SLEPT];
 
-	if(Player.status[SLEPT] == 0) {
-	    mprint("You woke up.");
-	}
+        if(Player.status[SLEPT] == 0) {
+            mprint("You woke up.");
+        }
     }
 
     if(Player.status[REGENERATING] > 0) {
-	if((Player.hp < Player.maxhp) && (Player.mana > 0)) {
-	    ++Player.hp;
-	    --Player.mana;
-	    dataprint();
-	}
+        if((Player.hp < Player.maxhp) && (Player.mana > 0)) {
+            ++Player.hp;
+            --Player.mana;
+            dataprint();
+        }
 
-	if(Player.status[REGENERATING] < 1000) {
-	    --Player.status[REGENERATING];
+        if(Player.status[REGENERATING] < 1000) {
+            --Player.status[REGENERATING];
 
-	    if(Player.status[REGENERATING] == 0) {
-		mprint("You feel less homeostatic.");
-	    }
-	}
+            if(Player.status[REGENERATING] == 0) {
+                mprint("You feel less homeostatic.");
+            }
+        }
     }
 
     if(Player.status[SLOWED] > 0) {
-	if(Player.status[SLOWED] < 1000) {
-	    --Player.status[SLOWED];
+        if(Player.status[SLOWED] < 1000) {
+            --Player.status[SLOWED];
 
-	    if(Player.status[SLOWED] == 0) {
-		mprint("You feel quicker now.");
-		calc_melee();
-	    }
-	}
+            if(Player.status[SLOWED] == 0) {
+                mprint("You feel quicker now.");
+                calc_melee();
+            }
+        }
     }
 
     if(Player.status[RETURNING] > 0) {
-	--Player.status[RETURNING];
+        --Player.status[RETURNING];
 
-	if(Player.status[RETURNING] == 150) {
-	    mprint("You spell slowly hums towards activation...");
-	}
-	else if(Player.status[RETURNING] == 100) {
-	    mprint("There is an electric tension in the air!");
-	}
-	else if(Player.status[RETURNING] == 50) {
-	    mprint("A vortex of mana begins to form around you!");
-	}
-	else if(Player.status[RETURNING] == 10) {
-	    mprint("You durroundings start to warp and fade!");
-	}
+        if(Player.status[RETURNING] == 150) {
+            mprint("You spell slowly hums towards activation...");
+        }
+        else if(Player.status[RETURNING] == 100) {
+            mprint("There is an electric tension in the air!");
+        }
+        else if(Player.status[RETURNING] == 50) {
+            mprint("A vortex of mana begins to form around you!");
+        }
+        else if(Player.status[RETURNING] == 10) {
+            mprint("You durroundings start to warp and fade!");
+        }
 
-	if(Player.status[RETURNING] == 0) {
-	    mprint("The vortex of mana carries you off!");
-	    level_return();
-	}
+        if(Player.status[RETURNING] == 0) {
+            mprint("The vortex of mana carries you off!");
+            level_return();
+        }
     }
 
     if(Player.status[AFRAID] > 0) {
-	if(Player.status[AFRAID] < 1000) {
-	    --Player.status[AFRAID];
+        if(Player.status[AFRAID] < 1000) {
+            --Player.status[AFRAID];
 
-	    if(Player.status[AFRAID] == 0) {
-		mprint("You feel bolder now.");
-	    }
-	}
+            if(Player.status[AFRAID] == 0) {
+                mprint("You feel bolder now.");
+            }
+        }
     }
 }
 
@@ -359,14 +359,14 @@ void moon_check()
     if(((Player.patron == DRUID) && (((Phase / 2) == 3) || ((Phase / 2) == 9)))
        || ((Player.alignment > 10) && ((Phase / 2) == 6))
        || ((Player.alignment < -10) && ((Phase / 2) == 0))) {
-	mprint("As the moon rises you feel unusually vital!");
-	Lunarity = 1;
+        mprint("As the moon rises you feel unusually vital!");
+        Lunarity = 1;
     }
     else if(((Player.patron == DRUID) && (((Phase / 2) == 0) || ((Phase / 2) == 6)))
-	    || ((Player.alignment > 10) && ((Phase / 2) == 0))
-	    || ((Player.alignment < -10) && ((Phase / 2) == 6))) {
-	mprint("The rise of the moon tokens a strange enervation!");
-	Lunarity = -1;
+            || ((Player.alignment > 10) && ((Phase / 2) == 0))
+            || ((Player.alignment < -10) && ((Phase / 2) == 6))) {
+        mprint("The rise of the moon tokens a strange enervation!");
+        Lunarity = -1;
     }
 }
 
@@ -376,33 +376,33 @@ void torch_check()
     int i;
 
     for(i = O_READY_HAND; i <= O_WEAPON_HAND; ++i) {
-	if(Player.possessions[i] != NULL) {
-	    if((Player.possessions[i]->id == (THINGID + 8))
-	       && (Player.possessions[i]->aux > 0)) {
-		--Player.possessions[i]->aux;
-		
-		if(Player.possessions[i]->aux == 0) {
-		    mprint("Your torch goes out!!!");
-		    confrom_unused_object(Player.possessions[i]);
-		    
-		    if(Player.possessions[i]->number > 1) {
-			--Player.possessions[i]->number;
-			Player.possessions[i]->aux = 6;
-		    }
-		    else {
-			Player.possessions[i]->usef = I_NO_OP;
-			Player.possessions[i]->objstr =
-			    salloc("burnt-out torch");
-			
-			Player.possessions[i]->truename =
-			    Player.possessions[i]->objstr;
-			
-			Player.possessions[i]->cursestr =
-			    Player.possessions[i]->truename;
-		    }
-		}
-	    }
-	}
+        if(Player.possessions[i] != NULL) {
+            if((Player.possessions[i]->id == (THINGID + 8))
+               && (Player.possessions[i]->aux > 0)) {
+                --Player.possessions[i]->aux;
+                
+                if(Player.possessions[i]->aux == 0) {
+                    mprint("Your torch goes out!!!");
+                    confrom_unused_object(Player.possessions[i]);
+                    
+                    if(Player.possessions[i]->number > 1) {
+                        --Player.possessions[i]->number;
+                        Player.possessions[i]->aux = 6;
+                    }
+                    else {
+                        Player.possessions[i]->usef = I_NO_OP;
+                        Player.possessions[i]->objstr =
+                            salloc("burnt-out torch");
+                        
+                        Player.possessions[i]->truename =
+                            Player.possessions[i]->objstr;
+                        
+                        Player.possessions[i]->cursestr =
+                            Player.possessions[i]->truename;
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -413,131 +413,131 @@ void torch_check()
 void tenminute_status_check()
 {
     if((Player.status[SHADOWFORM] > 0) && (Player.status[SHADOWFORM] < 1000)) {
-	--Player.status[SHADOWFORM];
+        --Player.status[SHADOWFORM];
 
-	if(Player.status[SHADOWFORM] == 0) {
-	    --Player.immunity[NORMAL_DAMAGE];
-	    --Player.immunity[ACID];
-	    --Player.immunity[THEFT];
-	    --Player.immunity[INFECTION];
-	    mprint("You feel less shadowy now.");
-	}
+        if(Player.status[SHADOWFORM] == 0) {
+            --Player.immunity[NORMAL_DAMAGE];
+            --Player.immunity[ACID];
+            --Player.immunity[THEFT];
+            --Player.immunity[INFECTION];
+            mprint("You feel less shadowy now.");
+        }
     }
 
     if((Player.status[ILLUMINATION] > 0)
        && (Player.status[ILLUMINATION] < 1000)) {
-	--Player.status[ILLUMINATION];
+        --Player.status[ILLUMINATION];
 
-	if(Player.status[ILLUMINATION] == 0) {
-	    mprint("Your light goes out!");
-	}
+        if(Player.status[ILLUMINATION] == 0) {
+            mprint("Your light goes out!");
+        }
     }
 
     if((Player.status[VULNERABLE] > 0) && (Player.status[VULNERABLE] < 1000)) {
-	--Player.status[VULNERABLE];
+        --Player.status[VULNERABLE];
 
-	if(Player.status[VULNERABLE] == 0) {
-	    mprint("You feel less endangered.");
-	}
+        if(Player.status[VULNERABLE] == 0) {
+            mprint("You feel less endangered.");
+        }
     }
 
     if((Player.status[DEFLECTION] > 0) && (Player.status[DEFLECTION] < 1000)) {
-	--Player.status[DEFLECTION];
+        --Player.status[DEFLECTION];
 
-	if(Player.status[DEFLECTION] == 0) {
-	    mprint("You feel less well defended.");
-	}
+        if(Player.status[DEFLECTION] == 0) {
+            mprint("You feel less well defended.");
+        }
     }
 
     if((Player.status[ACCURATE] > 0) && (Player.status[ACCURACY] < 1000)) {
-	--Player.status[ACCURATE];
+        --Player.status[ACCURATE];
 
-	if(Player.status[ACCURATE] == 0) {
-	    calc_melee();
-	    mprint("The bulls' eyes go away.");
-	}
+        if(Player.status[ACCURATE] == 0) {
+            calc_melee();
+            mprint("The bulls' eyes go away.");
+        }
     }
 
     if((Player.status[HERO] > 0) && (Player.status[HERO] < 1000)) {
-	--Player.status[HERO];
+        --Player.status[HERO];
 
-	if(Player.status[HERO] == 0) {
-	    calc_melee();
-	    mprint("You feel less than super.");
-	}
+        if(Player.status[HERO] == 0) {
+            calc_melee();
+            mprint("You feel less than super.");
+        }
     }
 
     if((Player.status[LEVITATING] > 0) && (Player.status[LEVITATING] < 1000)) {
-	--Player.status[LEVITATING];
+        --Player.status[LEVITATING];
 
-	if(Player.status[LEVITATING] == 0) {
-	    mprint("You're not longer walking on air.");
-	}
+        if(Player.status[LEVITATING] == 0) {
+            mprint("You're not longer walking on air.");
+        }
     }
 
     if(Player.status[DISEASED] > 0) {
-	--Player.status[DISEASED];
+        --Player.status[DISEASED];
 
-	if(Player.status[DISEASED] == 0) {
-	    showflags();
-	    mprint("You feel better now.");
-	}
+        if(Player.status[DISEASED] == 0) {
+            showflags();
+            mprint("You feel better now.");
+        }
     }
 
     if((Player.status[INVISIBLE] > 0) && (Player.status[INVISIBLE] < 1000)) {
-	--Player.status[INVISIBLE];
+        --Player.status[INVISIBLE];
 
-	if(Player.status[INVISIBLE] == 0) {
-	    mrpint("You feel more opaque now.");
-	}
+        if(Player.status[INVISIBLE] == 0) {
+            mrpint("You feel more opaque now.");
+        }
     }
 
     if((Player.status[BLINDED] > 0) && (Player.status[BLINDED] < 1000)) {
-	--Player.status[BLINDED];
+        --Player.status[BLINDED];
 
-	if(Player.status[BLINDED] == 0) {
-	    mprint("You can see again.");
-	}
+        if(Player.status[BLINDED] == 0) {
+            mprint("You can see again.");
+        }
     }
 
     if((Player.status[TRUESIGHT] > 0) && (Player.status[TRUESIGHT] < 1000)) {
-	--Player.status[TRUESIGHT];
+        --Player.status[TRUESIGHT];
 
-	if(Player.status[TRUESIGHT] == 0) {
-	    mprint("You feel less keen now.");
-	}
+        if(Player.status[TRUESIGHT] == 0) {
+            mprint("You feel less keen now.");
+        }
     }
 
     if((Player.status[BERSERK] > 0) && (Player.status[BERSERK] < 1000)) {
-	--Player.status[BERSERK];
+        --Player.status[BERSERK];
 
-	if(Player.status[BERSERK] == 0) {
-	    mprint("You stop foaming at the mouth.");
-	}
+        if(Player.status[BERSERK] == 0) {
+            mprint("You stop foaming at the mouth.");
+        }
     }
 
     if((Player.status[ALERT] > 0) && (Player.status[ALERT] < 1000)) {
-	--Player.status[ALERT];
+        --Player.status[ALERT];
 
-	if(Player.status[ALERT] == 0) {
-	    mprint("You feel less alert now.");
-	}
+        if(Player.status[ALERT] == 0) {
+            mprint("You feel less alert now.");
+        }
     }
 
     if((Player.status[BREATHING] > 0) && (Player.status[BREATHING] < 1000)) {
-	--Player.status[BREATHING];
+        --Player.status[BREATHING];
 
-	if(Player.status[BREATHING] == 0) {
-	    mprint("You feel somewhat congested.");
-	}
+        if(Player.status[BREATHING] == 0) {
+            mprint("You feel somewhat congested.");
+        }
     }
 
     if((Player.status[DISPLACED] > 0) && (Player.status[DISPLACED] < 1000)) {
-	--Player.status[DISPLACED];
+        --Player.status[DISPLACED];
 
-	if(Player.status[DISPLACED] == 0) {
-	    mprint("You feel a sense of position.");
-	}
+        if(Player.status[DISPLACED] == 0) {
+            mprint("You feel a sense of position.");
+        }
     }
 
     timeprint();
@@ -552,20 +552,20 @@ void gain_levels()
     morewait();
 
     while(expval(Player.level + 1) <= Player.xp) {
-	gained = TRUE;
-	++Player.level;
-	print1("You have attained a new experience level!");
-	print2("You are now ");
-	nprint2(getarticle(levelname(Player.level)));
-	nprint2(levelname(Player.level));
-	Player.maxhp += (random_range(Player.con) + 1);
-	Player.maxmana = clacmana();
-	Player.mana = Player.maxmana;
-	morewait();
+        gained = TRUE;
+        ++Player.level;
+        print1("You have attained a new experience level!");
+        print2("You are now ");
+        nprint2(getarticle(levelname(Player.level)));
+        nprint2(levelname(Player.level));
+        Player.maxhp += (random_range(Player.con) + 1);
+        Player.maxmana = clacmana();
+        Player.mana = Player.maxmana;
+        morewait();
     }
 
     if(gained) {
-	clearmsg();
+        clearmsg();
     }
 
     calc_melee();
@@ -577,53 +577,53 @@ int expval(int plevel)
 {
     switch(plevel) {
     case 0:
-	return 0;
+        return 0;
 
-	break;
+        break;
     case 1:
-	return 20;
+        return 20;
 
-	break;
+        break;
     case 2:
-	return 50;
+        return 50;
 
-	break;
+        break;
     case 3:
-	return 200;
+        return 200;
 
-	break;
+        break;
     case 4:
-	return 500;
+        return 500;
 
-	break;
+        break;
     case 5:
-	return 1000;
+        return 1000;
 
-	break;
+        break;
     case 6:
-	return 2000;
+        return 2000;
 
-	break;
+        break;
     case 7:
-	return 3000;
+        return 3000;
 
-	break;
+        break;
     case 8:
-	return 5000;
+        return 5000;
 
-	break;
+        break;
     case 9:
-	return 7000;
+        return 7000;
 
-	break;
+        break;
     case 10:
-	return 10000;
+        return 10000;
 
-	break;
+        break;
     default:
-	return ((plevel - 9) * 10000);
+        return ((plevel - 9) * 10000);
 
-	break;
+        break;
     }
 }
 
@@ -633,53 +633,53 @@ long expval(int plevel)
 {
     switch(plevel) {
     case 0:
-	return 0L;
+        return 0L;
 
-	break;
+        break;
     case 1:
-	return 20L;
+        return 20L;
 
-	break;
+        break;
     case 2:
-	return 50L;
+        return 50L;
 
-	break;
+        break;
     case 3:
-	return 200L;
+        return 200L;
 
-	break;
+        break;
     case 4:
-	return 500L;
+        return 500L;
 
-	break;
+        break;
     case 5:
-	return 1000L;
+        return 1000L;
 
-	break;
+        break;
     case 6:
-	return 2000L;
+        return 2000L;
 
-	break;
+        break;
     case 7:
-	return 3000L;
+        return 3000L;
 
-	break;
+        break;
     case 8:
-	return 5000L;
+        return 5000L;
 
-	break;
+        break;
     case 9:
-	return 7000L;
+        return 7000L;
 
-	break;
+        break;
     case 10:
-	return 10000L;
+        return 10000L;
 
-	break;
+        break;
     default:
-	return ((plevel - 9) * 10000L);
+        return ((plevel - 9) * 10000L);
 
-	break;
+        break;
     }
 }
 #endif
@@ -689,23 +689,23 @@ long expval(int plevel)
 int item_value(pob item)
 {
     if(item->known == 0) {
-	if(item->objchar == THING) {
-	    return 1;
-	}
-	else {
-	    return (true_item_value(item) / 10);
-	}
+        if(item->objchar == THING) {
+            return 1;
+        }
+        else {
+            return (true_item_value(item) / 10);
+        }
     }
     else if(item->known == 1) {
-	if(item->objchar == THING) {
-	    return item->basevalue;
-	}
-	else {
-	    return (item->basevalue / 2);
-	}
+        if(item->objchar == THING) {
+            return item->basevalue;
+        }
+        else {
+            return (item->basevalue / 2);
+        }
     }
     else {
-	return true_item_value(item);
+        return true_item_value(item);
     }
 }
 
@@ -714,23 +714,23 @@ int item_value(pob item)
 long item_value(pob item)
 {
     if(item->known == 0) {
-	if(item->objchar == THING) {
-	    return 1;
-	}
-	else {
-	    return (true_item_value(item) / 10);
-	}
+        if(item->objchar == THING) {
+            return 1;
+        }
+        else {
+            return (true_item_value(item) / 10);
+        }
     }
     else if(item->known == 1) {
-	if(item->objchar == THING) {
-	    return item->basevalue;
-	}
-	else {
-	    return (item->basevalue / 2);
-	}
+        if(item->objchar == THING) {
+            return item->basevalue;
+        }
+        else {
+            return (item->basevalue / 2);
+        }
     }
     else {
-	return true_item_value(item);
+        return true_item_value(item);
     }
 }
 #endif
@@ -742,25 +742,25 @@ int true_item_value(pob item)
     float value = item->basevalue;
 
     if(item->objchar == THING) {
-	return item->basevalue;
+        return item->basevalue;
     }
     else {
-	if(item->objchar == STICK) {
-	    value *= (1.0 + (item->charge / 20.0));
-	}
+        if(item->objchar == STICK) {
+            value *= (1.0 + (item->charge / 20.0));
+        }
 
-	if(item->plus > -1.0) {
-	    value *= (1.0 + (item->plus / 4.0));
-	}
-	else {
-	    value *= (1.0 / abs(item->plus));
-	}
+        if(item->plus > -1.0) {
+            value *= (1.0 + (item->plus / 4.0));
+        }
+        else {
+            value *= (1.0 / abs(item->plus));
+        }
 
-	if(item->blessing > 0) {
-	    value *= 2.0;
-	}
+        if(item->blessing > 0) {
+            value *= 2.0;
+        }
 
-	return (int)value;
+        return (int)value;
     }
 }
 
@@ -771,25 +771,25 @@ long true_item_value(pob item)
     double value = item->basevalue;
 
     if(item->objchar == THING) {
-	return item->basevalue;
+        return item->basevalue;
     }
     else {
-	if(item->objchar == STICK) {
-	    value *= (1.0 + (item->charge / 20.0));
-	}
+        if(item->objchar == STICK) {
+            value *= (1.0 + (item->charge / 20.0));
+        }
 
-	if(item->plus > -1.0) {
-	    value *= (1.0 + (item->plus / 4.0));
-	}
-	else {
-	    value *= (1.0 / abs(item->plus));
-	}
+        if(item->plus > -1.0) {
+            value *= (1.0 + (item->plus / 4.0));
+        }
+        else {
+            value *= (1.0 / abs(item->plus));
+        }
 
-	if(item->blessing > 0) {
-	    value *= 2.0;
-	}
+        if(item->blessing > 0) {
+            value *= 2.0;
+        }
 
-	return (long)value;
+        return (long)value;
     }
 }
 
@@ -797,16 +797,16 @@ long true_item_value(pob item)
 void p_drown()
 {
     if(Player.status[BREATHING] > 0) {
-	mprint("Your breathing is unaffected!");
+        mprint("Your breathing is unaffected!");
     }
     else {
-	print1("You try to hold your breath...");
-	morewait();
-	print2("You choke...");
-	morewait();
-	print3("Your lungs fill...");
-	morewait();
-	p_death("drowning");
+        print1("You try to hold your breath...");
+        morewait();
+        print2("You choke...");
+        morewait();
+        print3("Your lungs fill...");
+        morewait();
+        p_death("drowning");
     }
 }
 
@@ -817,74 +817,74 @@ void weapon_use(int dmgmod, pob weapon, struct monster *m)
     
     /* Bare hands */
     if(weapon == NULL) {
-	aux = -2;
+        aux = -2;
     }
     else {
-	aux = weapon->aux;
+        aux = weapon->aux;
     }
 
     switch(aux) {
     case -2:
-	weapon_bare_hands(dmgmod, m);
+        weapon_bare_hands(dmgmod, m);
 
-	break;
+        break;
     case I_ACIDWHIP:
-	weapon_acidwhip(dmgmod, weapon, m);
+        weapon_acidwhip(dmgmod, weapon, m);
 
-	break;
+        break;
     case I_TANGLE:
-	weapon_tangle(dmgmod, weapon, m);
+        weapon_tangle(dmgmod, weapon, m);
 
-	break;
+        break;
     case I_ARROW:
-	weapon_arrow(dmgmod, weapon, m);
+        weapon_arrow(dmgmod, weapon, m);
 
-	break;
+        break;
     case I_BOLT:
-	weapon_bolt(dmgmod, weapon, m);
+        weapon_bolt(dmgmod, weapon, m);
 
-	break;
+        break;
     case I_DEMONBLADE:
-	weapon_demonblade(dmgmod, weapon, m);
+        weapon_demonblade(dmgmod, weapon, m);
 
-	break;
+        break;
     case I_LIGHTSABRE:
-	weapon_lightsabre(dmgmod, weapon, m);
+        weapon_lightsabre(dmgmod, weapon, m);
 
-	break;
+        break;
     case I_MACE_DISRUPT:
-	weapon_mace_disrupt(dmgmod, weapon, m);
+        weapon_mace_disrupt(dmgmod, weapon, m);
 
-	break;
+        break;
     case I_VORPAL:
-	weapon_vorpal(dmgmod, weapon, m);
+        weapon_vorpal(dmgmod, weapon, m);
 
-	break;
+        break;
     case I_DESCRATE:
-	weapon_desecrate(dmgmod, weapon, m);
+        weapon_desecrate(dmgmod, weapon, m);
 
-	break;
+        break;
     case I_FIRESTAR:
-	weapon_firestar(dmgmod, weapon, m);
+        weapon_firestar(dmgmod, weapon, m);
 
-	break;
+        break;
     case I_DEFEND:
-	weapon_defend(dmgmod, weapon, m);
+        weapon_defend(dmgmod, weapon, m);
 
-	break;
+        break;
     case I_VICTRIX:
-	weapon_victrix(dmgmod, weapon, m);
+        weapon_victrix(dmgmod, weapon, m);
 
-	break;
+        break;
     case I_SCYTHE:
-	weapon_scythe(dmgmod, weapon, m);
+        weapon_scythe(dmgmod, weapon, m);
 
-	break;	
+        break;  
     case I_NO_OP:
     default:
-	weapon_normal_hit(dmgmod, weapon, m);
+        weapon_normal_hit(dmgmod, weapon, m);
 
-	break;
+        break;
     }
 }
 
@@ -893,21 +893,21 @@ char *actionlocstr(char dir)
 {
     switch(dir) {
     case 'L':
-	strcpy(Str3, "low.");
+        strcpy(Str3, "low.");
 
-	break;
+        break;
     case 'C':
-	strcpy(Str3, "center.");
+        strcpy(Str3, "center.");
 
-	break;
+        break;
     case 'H':
-	strcpy(Str3, "high.");
+        strcpy(Str3, "high.");
 
-	break;
+        break;
     default:
-	strcpy(Str3, "wildly.");
+        strcpy(Str3, "wildly.");
 
-	break;
+        break;
     }
 
     return Str3;
@@ -919,81 +919,81 @@ void tacplayer(struct monster *m)
     int i = 0;
 
     while(i < strlen(Player.meleestr)) {
-	if(m->hp > 0) {
-	    switch(Player.meleestr[i]) {
-	    case 't':
-	    case 'T':
-		if(Player.possessions[O_WEAPON_HAND] == NULL) {
-		    strcpy(Str1, "You punch ");
-		}
-		else {
-		    strcpy(Str1, "You thrust ");
-		}
+        if(m->hp > 0) {
+            switch(Player.meleestr[i]) {
+            case 't':
+            case 'T':
+                if(Player.possessions[O_WEAPON_HAND] == NULL) {
+                    strcpy(Str1, "You punch ");
+                }
+                else {
+                    strcpy(Str1, "You thrust ");
+                }
 
-		strcat(Str1, actionlocstr(Player.meleestr[i + 1]));
+                strcat(Str1, actionlocstr(Player.meleestr[i + 1]));
 
-		if(Verbosity == VERBOSE) {
-		    mprint(Str1);
-		}
+                if(Verbosity == VERBOSE) {
+                    mprint(Str1);
+                }
 
-		if(player_hit(2 * statmod(Player.dex), Player.meleestr[i + 1], m)) {
-		    weapon_use(0, Player.possessions[O_WEAPON_HAND], m);
-		}
-		else {
-		    player_miss(m, NORMAL_DAMAGE);
-		}
+                if(player_hit(2 * statmod(Player.dex), Player.meleestr[i + 1], m)) {
+                    weapon_use(0, Player.possessions[O_WEAPON_HAND], m);
+                }
+                else {
+                    player_miss(m, NORMAL_DAMAGE);
+                }
 
-		break;
-	    case 'c':
-	    case 'C':
-		if(Player.possessions[O_WEAPON_HAND] == NULL) {
-		    strcpy(Str1, "You punch ");
-		}
-		else if(Player.possessions[O_WEAPON_HAND]->type == CUTTING) {
-		    strcpy(Str1, "You cut ");
-		}
-		else if(Player.possessions[O_WEAPON_HAND]->type == STRIKING) {
-		    strcpy(Str1, "You strike ");
-		}
-		else {
-		    strcpy("You attack ");
-		}
+                break;
+            case 'c':
+            case 'C':
+                if(Player.possessions[O_WEAPON_HAND] == NULL) {
+                    strcpy(Str1, "You punch ");
+                }
+                else if(Player.possessions[O_WEAPON_HAND]->type == CUTTING) {
+                    strcpy(Str1, "You cut ");
+                }
+                else if(Player.possessions[O_WEAPON_HAND]->type == STRIKING) {
+                    strcpy(Str1, "You strike ");
+                }
+                else {
+                    strcpy("You attack ");
+                }
 
-		strcat(Str1, actionlocstr(Player.meleestr[i + 1]));
+                strcat(Str1, actionlocstr(Player.meleestr[i + 1]));
 
-		if(Verbosity == VERBOSE) {
-		    mprint(Str1);
-		}
+                if(Verbosity == VERBOSE) {
+                    mprint(Str1);
+                }
 
-		if(player_hit(0, Player.meleestr[i + 1], m)) {
-		    weapon_use(2 * statmod(Player.str), Player.possessions[O_WEAPON_HAND], m);
-		}
-		else {
-		    player_miss(m, NORMAL_DAMAGE);
-		}
+                if(player_hit(0, Player.meleestr[i + 1], m)) {
+                    weapon_use(2 * statmod(Player.str), Player.possessions[O_WEAPON_HAND], m);
+                }
+                else {
+                    player_miss(m, NORMAL_DAMAGE);
+                }
 
-		break;
-	    case 'l':
-	    case 'L':
-		strcpy(Str1, "You lunge ");
-		strcat(Str1, actionlocstr(Player.meleestr[i + 1]));
+                break;
+            case 'l':
+            case 'L':
+                strcpy(Str1, "You lunge ");
+                strcat(Str1, actionlocstr(Player.meleestr[i + 1]));
 
-		if(Verbosity == VERBOSE) {
-		    mprint(Str1);
-		}
+                if(Verbosity == VERBOSE) {
+                    mprint(Str1);
+                }
 
-		if(player_hit(Plyer.level + Player.dex, Player.meleestr[i + 1], m)) {
-		    weapon_use(Player.level, Player.possessions[O_WEAPON_HAND], m);
-		}
-		else {
-		    player_miss(m, NORMAL_DAMAGE);
-		}
+                if(player_hit(Plyer.level + Player.dex, Player.meleestr[i + 1], m)) {
+                    weapon_use(Player.level, Player.possessions[O_WEAPON_HAND], m);
+                }
+                else {
+                    player_miss(m, NORMAL_DAMAGE);
+                }
 
-		break;
-	    }
-	}
+                break;
+            }
+        }
 
-	i += 2;
+        i += 2;
     }
 }
 
@@ -1006,52 +1006,52 @@ int player_hit(int hitmod, char hitloc, struct monster *m)
     int hit;
 
     if(m->hp < 1) {
-	mprint("Unfortunately, your opponent is already dead!");
+        mprint("Unfortunately, your opponent is already dead!");
 
-	return FALSE;
+        return FALSE;
     }
     else {
-	if(hitloc == 'X') {
-	    hitloc = random_loc();
-	}
+        if(hitloc == 'X') {
+            hitloc = random_loc();
+        }
 
-	transcribe_monster_actions(m);
+        transcribe_monster_actions(m);
 
-	while(i < strlen(m->meleestr)) {
-	    if((m->meleestr[i] == 'B') || (m->meleestr[i] == 'R')) {
-		blocks = TRUE;
+        while(i < strlen(m->meleestr)) {
+            if((m->meleestr[i] == 'B') || (m->meleestr[i] == 'R')) {
+                blocks = TRUE;
 
-		if(hitloc == m->meleestr[i + 1]) {
-		    ++goodblocks;
-		}
-	    }
+                if(hitloc == m->meleestr[i + 1]) {
+                    ++goodblocks;
+                }
+            }
 
-	    i += 2;
-	}
+            i += 2;
+        }
 
-	if(!blocks) {
-	    goodblocks = -1;
-	}
-	
-	hit = hitp(Player.hit + hitmod, m->ac + (goodblocks * 10));
-	
-	if(!hit && (goodblocks > 0)) {
-	    if(m->uniqueness == COMMON) {
-		strcpy(Str1, "The ");
-		strcat(Str1, m->monstring);
-	    }
-	    else {
-		strcpy(Str1, m->monstring);
-	    }
-	    
-	    strcat(Str1, " blocks it!");
-	    
-	    if(Verbosity == VERBOSE) {
-		mprint(Str1);
-	    }
-	}
+        if(!blocks) {
+            goodblocks = -1;
+        }
+        
+        hit = hitp(Player.hit + hitmod, m->ac + (goodblocks * 10));
+        
+        if(!hit && (goodblocks > 0)) {
+            if(m->uniqueness == COMMON) {
+                strcpy(Str1, "The ");
+                strcat(Str1, m->monstring);
+            }
+            else {
+                strcpy(Str1, m->monstring);
+            }
+            
+            strcat(Str1, " blocks it!");
+            
+            if(Verbosity == VERBOSE) {
+                mprint(Str1);
+            }
+        }
 
-	return hit;
+        return hit;
     }
 }
 
@@ -1068,29 +1068,29 @@ void toggle_item_use(int on)
     setgamestatus(SUPPRESS_PRINTING);
 
     if(on) {
-	for(i = 0; i < MAXITEMS; ++i) {
-	    used[i] = FALSE;
+        for(i = 0; i < MAXITEMS; ++i) {
+            used[i] = FALSE;
 
-	    if(Player.possessions[i] != NULL) {
-		if(used[i] = Player.possessions[i]->used) {
-		    Player.possessions[i]->used = FALSE;
-		    item_use(Player.possessions[i]);
-		}
-	    }
-	}
+            if(Player.possessions[i] != NULL) {
+                if(used[i] = Player.possessions[i]->used) {
+                    Player.possessions[i]->used = FALSE;
+                    item_use(Player.possessions[i]);
+                }
+            }
+        }
     }
     else {
-	for(i = 1; i < MAXITEMS; ++i) {
-	    if(used[i]) {
-		Player.possessions[i]->used = TRUE;
-		item_use(Player.possessions[i]);
-	    }
-	}
+        for(i = 1; i < MAXITEMS; ++i) {
+            if(used[i]) {
+                Player.possessions[i]->used = TRUE;
+                item_use(Player.possessions[i]);
+            }
+        }
 
-	calc_melee();
-	showflags();
-	dataprint();
-	timeprint();
+        calc_melee();
+        showflags();
+        dataprint();
+        timeprint();
     }
 
     resetgamestatus(SUPPRESS_PRINTING);
@@ -1100,45 +1100,45 @@ void enter_site(char site)
 {
     switch(site) {
     case CITY:
-	change_environment(E_CITY);
+        change_environment(E_CITY);
 
-	break;
+        break;
     case VILLAGE:
-	change_environment(E_VILLAGE);
+        change_environment(E_VILLAGE);
 
-	break;
+        break;
     case CAVES:
-	change_environment(E_CAVES);
+        change_environment(E_CAVES);
 
-	break;
+        break;
     case CASTLE:
-	change_environment(E_CASTLE);
+        change_environment(E_CASTLE);
 
-	break;
+        break;
     case VOLCANO:
-	change_environment(E_VOLCANO);
+        change_environment(E_VOLCANO);
 
-	break;
+        break;
     case TEMPLE:
-	change_environment(E_TEMPLE);
+        change_environment(E_TEMPLE);
 
-	break;
+        break;
     case DRAGONLAIR:
-	change_environment(E_DLAIR);
+        change_environment(E_DLAIR);
 
-	break;
+        break;
     case STARPEAK:
-	change_environment(E_STARPEAK);
+        change_environment(E_STARPEAK);
 
-	break;
+        break;
     case MAGIC_ISLE:
-	change_environment(E_MAGIC_ISLE);
+        change_environment(E_MAGIC_ISLE);
 
-	break;
+        break;
     default:
-	print3("there's nothing to enter here!");
+        print3("there's nothing to enter here!");
 
-	break;
+        break;
     }
 }
 
@@ -1158,38 +1158,38 @@ void change_environment(char new_environment)
     Last_Environment = Current_Environment;
 
     if(Last_Environment == E_COUNTRYSIDE) {
-	LastCountryLocX = Player.x;
-	LastCountryLocY = Player.y;
+        LastCountryLocX = Player.x;
+        LastCountryLocY = Player.y;
     }
 
     if(((Last_Environment == E_CITY) || (Last_Environment == E_VILLAGE))
        && ((new_environment == E_MASION)
-	   || (new_environment == E_HOUSE)
-	   || (new_environment == E_HOVEL)
-	   || (new_environment == E_SEWERS)
-	   || (new_environment == E_ARENA))) {
-	LastTownLocX = Player.x;
-	LastTownLocY = Player.y;
+           || (new_environment == E_HOUSE)
+           || (new_environment == E_HOVEL)
+           || (new_environment == E_SEWERS)
+           || (new_environment == E_ARENA))) {
+        LastTownLocX = Player.x;
+        LastTownLocY = Player.y;
     }
     else if(((Last_Environment == E_MANSION)
-	     || (Last_Environment == E_HOUSE)
-	     || (Last_Environment == E_HOVEL)
-	     || (Last_Envrionment == E_SEWERS)
-	     || (Last_Environment == E_ARENA))
-	    && ((new_environment == E_CITY)
-		|| (new_environment == E_VILLAGE))) {
-	Player.x = LastTownLocX;
-	Player.y = LastTownLocY;
-	emerging = TRUE;
+             || (Last_Environment == E_HOUSE)
+             || (Last_Environment == E_HOVEL)
+             || (Last_Envrionment == E_SEWERS)
+             || (Last_Environment == E_ARENA))
+            && ((new_environment == E_CITY)
+                || (new_environment == E_VILLAGE))) {
+        Player.x = LastTownLocX;
+        Player.y = LastTownLocY;
+        emerging = TRUE;
     }
 
     if(Last_Environment == E_ARENA) {
-	if(Arena_Monster->hp < 1) {
-	    Arena_Victory = 1;
-	}
-	else {
-	    Arena_Victory = 0;
-	}
+        if(Arena_Monster->hp < 1) {
+            Arena_Victory = 1;
+        }
+        else {
+            Arena_Victory = 0;
+        }
     }
 
     Current_Environment = new_environment;
@@ -1198,516 +1198,516 @@ void change_environment(char new_environment)
 
     switch(new_environment) {
     case E_ARENA:
-	LENGTH = 16;
-	WIDTH = 64;
-	Player.x = 5;
-	Player.y = 7;
-	setgamestatus(ARENA_MODE);
-	locprint("The Rampart Arena");
-	load_arena();
-	erase_level();
-	ScreenOffset = 0;
-	show_screen();
+        LENGTH = 16;
+        WIDTH = 64;
+        Player.x = 5;
+        Player.y = 7;
+        setgamestatus(ARENA_MODE);
+        locprint("The Rampart Arena");
+        load_arena();
+        erase_level();
+        ScreenOffset = 0;
+        show_screen();
 
-	break;
+        break;
     case E_ABYSS:
-	LENGTH = 16;
-	WIDTH = 64;
-	Player.x = 32;
-	Player.y = 15;
-	locprint("The Adept's Challenge");
-	load_abyss();
-	abyss_file();
-	lose_all_items();
-	erase_level();
-	ScreenOffset = 0;
-	show_screen();
+        LENGTH = 16;
+        WIDTH = 64;
+        Player.x = 32;
+        Player.y = 15;
+        locprint("The Adept's Challenge");
+        load_abyss();
+        abyss_file();
+        lose_all_items();
+        erase_level();
+        ScreenOffset = 0;
+        show_screen();
 
-	break;
+        break;
     case E_CIRCLE:
-	LENGTH = 16;
-	WIDTH = 64;
-	Player.x = 32;
-	Player.y = 14;
-	locprint("The Astral Demesne of the Circle of Sorcerors");
-	load_circle();
+        LENGTH = 16;
+        WIDTH = 64;
+        Player.x = 32;
+        Player.y = 14;
+        locprint("The Astral Demesne of the Circle of Sorcerors");
+        load_circle();
 
-	if(find_item(&o, ARTIFACTID + 21, -1)) {
-	    print1("A bemused voice says:");
-	    print2("'Why are you here? You already have the Star Gem!'");
-	    morewait();
-	}
-	else if(Player.rank[CIRCLE] > 0) {
-	    print1("You hear the voice of the Prime Sorceror:");
-	    print2("'Congratulations on your attainment of the Circle's Demesne.'");
-	    morewait();
-	    print1("For the honor of the Circle, you may take the Star Gem");
-	    print2("and destroy it on the acme of Star Peak.");
-	    morewait();
-	    print1("Beware the foul LawBringer who resides there...");
-	    print2("By the way, some of the members of the Circle seem to");
-	    morewait();
-	    print1("have become a bit jealous of your success --");
-	    print2("I'd watch out for them if I were you.");
-	    morewait();
-	}
-	else if(Player.alignment > 0) {
-	    print1("A mysterious ghostly image materializes in front of you.");
-	    print2("It speaks: 'Greetings, fellow abider in Law. I am called");
-	    morewait();
-	    print1("The LawBringer. If you wish to advance our cause, obtain");
-	    print2("The mystic Star Gem and return it to me on Star Peak.");
-	    morewait();
-	    print1("Beware the power of the evil circle of Sorcerors and the");
-	    print2("forces of Chaos which gaurd the gem.'");
-	    morewait();
-	    print1("The strange form fades slowly.");
-	    morewait();
-	}
+        if(find_item(&o, ARTIFACTID + 21, -1)) {
+            print1("A bemused voice says:");
+            print2("'Why are you here? You already have the Star Gem!'");
+            morewait();
+        }
+        else if(Player.rank[CIRCLE] > 0) {
+            print1("You hear the voice of the Prime Sorceror:");
+            print2("'Congratulations on your attainment of the Circle's Demesne.'");
+            morewait();
+            print1("For the honor of the Circle, you may take the Star Gem");
+            print2("and destroy it on the acme of Star Peak.");
+            morewait();
+            print1("Beware the foul LawBringer who resides there...");
+            print2("By the way, some of the members of the Circle seem to");
+            morewait();
+            print1("have become a bit jealous of your success --");
+            print2("I'd watch out for them if I were you.");
+            morewait();
+        }
+        else if(Player.alignment > 0) {
+            print1("A mysterious ghostly image materializes in front of you.");
+            print2("It speaks: 'Greetings, fellow abider in Law. I am called");
+            morewait();
+            print1("The LawBringer. If you wish to advance our cause, obtain");
+            print2("The mystic Star Gem and return it to me on Star Peak.");
+            morewait();
+            print1("Beware the power of the evil circle of Sorcerors and the");
+            print2("forces of Chaos which gaurd the gem.'");
+            morewait();
+            print1("The strange form fades slowly.");
+            morewait();
+        }
 
-	erase_level();
-	ScreenOffset = 0;
-	show_screen();
+        erase_level();
+        ScreenOffset = 0;
+        show_screen();
 
-	break;
+        break;
     case E_COURT:
-	WIDTH = 64;
-	LENGTH = 24;
-	Player.x = 32;
-	Player.y = 2;
-	load_court();
-	erase_level();
-	ScreeOffset = 0;
-	show_screen();
+        WIDTH = 64;
+        LENGTH = 24;
+        Player.x = 32;
+        Player.y = 2;
+        load_court();
+        erase_level();
+        ScreeOffset = 0;
+        show_screen();
 
-	break;
+        break;
     case E_MANSION:
-	WIDTH = 64;
-	LENGTH = 16;
-	Player.y = 8;
-	Player.x = 2;
-	load_house(E_MANSION);
-	erase_level();
-	ScreenOffset = 0;
-	show_screen();
+        WIDTH = 64;
+        LENGTH = 16;
+        Player.y = 8;
+        Player.x = 2;
+        load_house(E_MANSION);
+        erase_level();
+        ScreenOffset = 0;
+        show_screen();
 
-	break;
+        break;
     case E_HOUSE:
-	WIDTH = 64;
-	LENGTH = 16;
-	Player.y = 13;
-	Player.x = 2;
-	load_house(E_HOUSE);
-	erase_level();
-	ScreenOffset = 0;
-	show_screen();
+        WIDTH = 64;
+        LENGTH = 16;
+        Player.y = 13;
+        Player.x = 2;
+        load_house(E_HOUSE);
+        erase_level();
+        ScreenOffset = 0;
+        show_screen();
 
-	break;
+        break;
     case E_HOVEL:
-	WIDTH = 64;
-	LENGTH = 16;
-	Player.y = 9;
-	Player.x = 2;
-	load_house(E_HOVEL);
-	erase_level();
-	ScreenOffset = 0;
-	show_screen();
+        WIDTH = 64;
+        LENGTH = 16;
+        Player.y = 9;
+        Player.x = 2;
+        load_house(E_HOVEL);
+        erase_level();
+        ScreenOffset = 0;
+        show_screen();
 
-	break;
+        break;
     case E_DLAIR:
-	WIDTH = 64;
-	LENGTH = 16;
-	Player.y = 9;
-	Player.x = 2;
+        WIDTH = 64;
+        LENGTH = 16;
+        Player.y = 9;
+        Player.x = 2;
 
 #ifndef MSDOS
-	load_dlair(gamestatusp(KILLED_DRAGONLORD));
+        load_dlair(gamestatusp(KILLED_DRAGONLORD));
 #else
-	load_dlair(gamestatusp(KILLED_DRAGONLORD) != 0);
+        load_dlair(gamestatusp(KILLED_DRAGONLORD) != 0);
 #endif
 
-	erase_level();
-	ScreenOffset = 0;
-	show_screen();
+        erase_level();
+        ScreenOffset = 0;
+        show_screen();
 
-	break;
+        break;
     case E_STARPEAK:
-	WIDTH = 64;
-	LENGTH = 16;
-	Player.y = 9;
-	Player.x = 2;
+        WIDTH = 64;
+        LENGTH = 16;
+        Player.y = 9;
+        Player.x = 2;
 
 #ifndef MSDOS
-	load_speak(gamestatusp(KILLED_LAWBRINGER));
+        load_speak(gamestatusp(KILLED_LAWBRINGER));
 #else
-	load_speak(gamestatusp(KILLED_LAWBRINGER) != 0);
+        load_speak(gamestatusp(KILLED_LAWBRINGER) != 0);
 #endif
 
-	erase_level();
-	ScreenOffset = 0;
-	show_screen();
+        erase_level();
+        ScreenOffset = 0;
+        show_screen();
 
-	break;
+        break;
     case E_MAGIC_ISLE:
-	WIDTH = 64;
-	LENGTH = 16;
-	Player.y = 15;
-	Player.x = 63;
+        WIDTH = 64;
+        LENGTH = 16;
+        Player.y = 15;
+        Player.x = 63;
 
 #ifndef MSDOS
-	load_misle(gamestatusp(KILLED_EATER));
+        load_misle(gamestatusp(KILLED_EATER));
 #else
-	load_misle(gamestatusp(KILLED_EATER) != 0);
+        load_misle(gamestatusp(KILLED_EATER) != 0);
 #endif
 
-	erase_level();
-	ScreenOffset = 0;
-	show_screen();
+        erase_level();
+        ScreenOffset = 0;
+        show_screen();
 
-	break;
+        break;
     case E_TEMPLE:
-	WIDTH = 64;
-	LENGTH = 16;
-	load_temple(Country[Player.x][Player.y].aux);
-	Player.y = 15;
-	Player.x = 32;
-	erase_level();
-	ScreenOffset = 0;
-	show_screen();
+        WIDTH = 64;
+        LENGTH = 16;
+        load_temple(Country[Player.x][Player.y].aux);
+        Player.y = 15;
+        Player.x = 32;
+        erase_level();
+        ScreenOffset = 0;
+        show_screen();
 
-	break;
+        break;
     case E_CITY:
-	WIDTH = 64;
-	LENGTH = 64;
+        WIDTH = 64;
+        LENGTH = 64;
 
-	if(emerging) {
-	    print1("You emerg onto the street.");
-	    emerging = FALSE;
-	}
-	else {
-	    print1("You pass through the massive gates of Rampart, the city.");
-	    Player.x = 62;
-	    Player.y = 21;
-	}
+        if(emerging) {
+            print1("You emerg onto the street.");
+            emerging = FALSE;
+        }
+        else {
+            print1("You pass through the massive gates of Rampart, the city.");
+            Player.x = 62;
+            Player.y = 21;
+        }
 
 #ifdef MSDOS
-	if(City == NULL) {
-	    load_city();
-	}
-	else {
-	    msdos_changelevel(Level, new_environment, 0);
-	}
+        if(City == NULL) {
+            load_city();
+        }
+        else {
+            msdos_changelevel(Level, new_environment, 0);
+        }
 #else
-	if(city == NULL) {
-	    load_city();
-	}
+        if(city == NULL) {
+            load_city();
+        }
 #endif
 
-	Level = City;
-	locprint("The City of Rampart.");
-	erase_level();
-	ScreenOffset = Player.y - (ScreenLength / 2);
-	show_screen();
+        Level = City;
+        locprint("The City of Rampart.");
+        erase_level();
+        ScreenOffset = Player.y - (ScreenLength / 2);
+        show_screen();
 
-	break;
+        break;
     case E_VILLAGE:
-	WIDTH = 64;
-	LENGTH = 16;
+        WIDTH = 64;
+        LENGTH = 16;
 
-	if(emerging) {
-	    print1("You emerge onto the street.");
-	    emerging = FALSE;
-	}
-	else {
-	    printf("You enter a small rural village.");
+        if(emerging) {
+            print1("You emerge onto the street.");
+            emerging = FALSE;
+        }
+        else {
+            printf("You enter a small rural village.");
 
-	    /* Different villages per different locations */
-	    switch(Country[Player.x][Player.y].aux) {
-	    case 1:
-		Player.x = 0;
-		Player.y = 6;
-		Villagenum = 1;
+            /* Different villages per different locations */
+            switch(Country[Player.x][Player.y].aux) {
+            case 1:
+                Player.x = 0;
+                Player.y = 6;
+                Villagenum = 1;
 
-		break;
-	    default:
-		print3("Very strange, a nonexistent village.");
-	    case 2:
-		Player.x = 39;
-		Player.y = 15;
-		Villagenum = 2;
+                break;
+            default:
+                print3("Very strange, a nonexistent village.");
+            case 2:
+                Player.x = 39;
+                Player.y = 15;
+                Villagenum = 2;
 
-		break;
-	    case 3:
-		Player.x = 63;
-		Player.y = 8;
-		Villagenum = 3;
+                break;
+            case 3:
+                Player.x = 63;
+                Player.y = 8;
+                Villagenum = 3;
 
-		break;
-	    case 4:
-		Player.x = 32;
-		Player.y = 15;
-		Villagenum = 4;
+                break;
+            case 4:
+                Player.x = 32;
+                Player.y = 15;
+                Villagenum = 4;
 
-		break;
-	    case 5:
-		Player.y = 2;
-		Player.x = 8;
-		Villagenum = 5;
+                break;
+            case 5:
+                Player.y = 2;
+                Player.x = 8;
+                Villagenum = 5;
 
-		break;
-	    case 6:
-		Player.x = 2;
-		Player.y = 2;
-		Villagenum = 6;
+                break;
+            case 6:
+                Player.x = 2;
+                Player.y = 2;
+                Villagenum = 6;
 
-		break;
-	    }
-	}
+                break;
+            }
+        }
 
 #ifndef MSDOS
-	if(!emerging || (TempLevel == NULL)) {
-	    load_village(Villagenum);
-	}
-	else if(TempLevel->environment != E_VILLAGE) {
-	    load_village(Villagenum);
-	}
-	else {
-	    Level = TempLevel;
-	}
+        if(!emerging || (TempLevel == NULL)) {
+            load_village(Villagenum);
+        }
+        else if(TempLevel->environment != E_VILLAGE) {
+            load_village(Villagenum);
+        }
+        else {
+            Level = TempLevel;
+        }
 #else
-	if(!emerging || (TempLevel == NULL)) {
-	    load_village(Villagenum);
-	}
-	else if(TempLevel->environment != E_VILLAGE) {
-	    load_village(Villagenum);
-	}
-	else {
-	    msdos_changelevel(Level, new_environment, 0);
-	    LEvel = TempLevel;
-	}
+        if(!emerging || (TempLevel == NULL)) {
+            load_village(Villagenum);
+        }
+        else if(TempLevel->environment != E_VILLAGE) {
+            load_village(Villagenum);
+        }
+        else {
+            msdos_changelevel(Level, new_environment, 0);
+            LEvel = TempLevel;
+        }
 #endif
 
-	switch(Villagenum) {
-	case 1:
-	    locprint("The Village of Star View.");
+        switch(Villagenum) {
+        case 1:
+            locprint("The Village of Star View.");
 
-	    break;
-	case 2:
-	    locprint("The Village of Woodmere.");
+            break;
+        case 2:
+            locprint("The Village of Woodmere.");
 
-	    break;
-	case 3:
-	    locprint("The Village of Stormwatch.");
+            break;
+        case 3:
+            locprint("The Village of Stormwatch.");
 
-	    break;
-	case 4:
-	    locprint("The Village of Thaumaris.");
+            break;
+        case 4:
+            locprint("The Village of Thaumaris.");
 
-	    break;
-	case 5:
-	    locprint("The Village of Skorch.");
+            break;
+        case 5:
+            locprint("The Village of Skorch.");
 
-	    break;
-	case 6:
-	    locprint("The Village of Whorfen.");
+            break;
+        case 6:
+            locprint("The Village of Whorfen.");
 
-	    break;
-	default:
-	    locprint("A Deviant Village.");
+            break;
+        default:
+            locprint("A Deviant Village.");
 
-	    break;
-	}
+            break;
+        }
 
-	erase_level();
-	ScreenOffset = 0;
-	show_screen();
+        erase_level();
+        ScreenOffset = 0;
+        show_screen();
 
-	break;
+        break;
     case E_CAVES:
-	WIDTH = 64;
-	LENGTH = 64;
-	print1("You enter a dark cleft in a hillside;");
-	print2("You note signs of recent passage in the dirt nearby.");
+        WIDTH = 64;
+        LENGTH = 64;
+        print1("You enter a dark cleft in a hillside;");
+        print2("You note signs of recent passage in the dirt nearby.");
 
-	if(gamestatusp(MOUNTED)) {
-	    morewait();
-	    print1("Seeing as you might not be coming back, you feel compelled");
-	    print2("to let your horse go, rather than keep him hobbled outside.");
-	    resetgamestatus(MOUNTED);
-	    calc_melee();
-	}
+        if(gamestatusp(MOUNTED)) {
+            morewait();
+            print1("Seeing as you might not be coming back, you feel compelled");
+            print2("to let your horse go, rather than keep him hobbled outside.");
+            resetgamestatus(MOUNTED);
+            calc_melee();
+        }
 
-	MaxDungeonLevels = CAVELEVELS;
+        MaxDungeonLevels = CAVELEVELS;
 
-	if(Current_Dungeon != E_CAVES) {
+        if(Current_Dungeon != E_CAVES) {
 #ifdef MSDOS
-	    msdos_changelevel(Level, 0, -1);
+            msdos_changelevel(Level, 0, -1);
 #endif
 
-	    free_dungeon();
-	    Dungeon = NULL;
-	    Level = NULL;
-	    Current_Dungeon = E_CAVES;
-	}
+            free_dungeon();
+            Dungeon = NULL;
+            Level = NULL;
+            Current_Dungeon = E_CAVES;
+        }
 
-	change_level(0, 1, FALSE);
+        change_level(0, 1, FALSE);
 
-	break;
+        break;
     case E_VOLCANO:
-	WIDTH = 64;
-	LENGTH = 64;
-	print1("You pass down through the glowing center.");
+        WIDTH = 64;
+        LENGTH = 64;
+        print1("You pass down through the glowing center.");
 
-	if(gamestatusp(MOUNTED)) {
-	    morewait();
-	    print1("Seeing as you might not be coming back, you feel compelled");
-	    print2("to let your horse go, rather than keep him hobbled outside.");
-	    resetgamestatus(MOUNTED);
-	    calc_melee();
-	}
+        if(gamestatusp(MOUNTED)) {
+            morewait();
+            print1("Seeing as you might not be coming back, you feel compelled");
+            print2("to let your horse go, rather than keep him hobbled outside.");
+            resetgamestatus(MOUNTED);
+            calc_melee();
+        }
 
-	MaxDungeonLevels = VOLCANOLEVELS;
+        MaxDungeonLevels = VOLCANOLEVELS;
 
-	if(Current_Dungeon != E_VOLCANO) {
+        if(Current_Dungeon != E_VOLCANO) {
 #ifdef MSDOS
-	    msdos_changelevel(Level, 0, -1);
+            msdos_changelevel(Level, 0, -1);
 #endif
 
-	    free_dungeon();
-	    Dungeon = NULL;
-	    Level = NULL;
-	    Current_Dungeon = E_VOLCANO;
-	}
+            free_dungeon();
+            Dungeon = NULL;
+            Level = NULL;
+            Current_Dungeon = E_VOLCANO;
+        }
 
-	change_level(0, 1, FALSE);
+        change_level(0, 1, FALSE);
 
-	break;
+        break;
     case E_ASTRAL:
-	WIDTH = 64;
-	LENGTH = 64;
-	print1("You are in a weird flickery maze.");
+        WIDTH = 64;
+        LENGTH = 64;
+        print1("You are in a weird flickery maze.");
 
-	if(gamestatusp(MOUNTED)) {
-	    print2("Your horse doesn't seem to have made it...");
-	    resetgamestatus(MOUNTED);
-	    calc_melee();
-	}
+        if(gamestatusp(MOUNTED)) {
+            print2("Your horse doesn't seem to have made it...");
+            resetgamestatus(MOUNTED);
+            calc_melee();
+        }
 
-	MaxDungeonLevels = ASTRALLEVELS;
+        MaxDungeonLevels = ASTRALLEVELS;
 
-	if(Current_Dungeon != E_ASTRAL) {
+        if(Current_Dungeon != E_ASTRAL) {
 #ifdef MSDOS
-	    msdos_changelevel(Level, 0, -1);
+            msdos_changelevel(Level, 0, -1);
 #endif
 
-	    free_dungeon();
-	    Dungeon = NULL;
-	    Level = NULL;
-	    Current_Dungeon = E_ASTRAL;
-	}
+            free_dungeon();
+            Dungeon = NULL;
+            Level = NULL;
+            Current_Dungeon = E_ASTRAL;
+        }
 
-	change_level(0, 1, FALSE);
+        change_level(0, 1, FALSE);
 
-	break;
+        break;
     case E_CASTLE:
-	WIDTH = 64;
-	LENGTH = 64;
-	print1("You cross the drawbridge. Strange forms move beneath the water.");
+        WIDTH = 64;
+        LENGTH = 64;
+        print1("You cross the drawbridge. Strange forms move beneath the water.");
 
-	if(gamestatusp(MOUNTED)) {
-	    morewait();
-	    print1("Seeing as you might not be coming back, you feel compelled");
-	    print2("To let your horse go, rather than keep him hobbled outside.");
-	    resetgamestatus(MOUNTED);
-	}
+        if(gamestatusp(MOUNTED)) {
+            morewait();
+            print1("Seeing as you might not be coming back, you feel compelled");
+            print2("To let your horse go, rather than keep him hobbled outside.");
+            resetgamestatus(MOUNTED);
+        }
 
-	MaxDungeonLevels = CASTLELEVELS;
+        MaxDungeonLevels = CASTLELEVELS;
 
-	if(Current_dungeon != E_CASTLE) {
+        if(Current_dungeon != E_CASTLE) {
 #ifdef MSDOS
-	    msdos_changelevel(Level, 0, -1);
+            msdos_changelevel(Level, 0, -1);
 #endif
 
-	    free_dungeon();
-	    Dungeon = NULL;
-	    Level = NULL;
-	    Current_Dungeon = E_CASTLE;
-	}
+            free_dungeon();
+            Dungeon = NULL;
+            Level = NULL;
+            Current_Dungeon = E_CASTLE;
+        }
 
-	change_level(0, 1, FALSE);
+        change_level(0, 1, FALSE);
 
-	break;
+        break;
     case E_SEWERS:
-	WIDTH = 64;
-	LENGTH = 64;
-	print1("You pry open a manhole and descend into the sewers below.");
+        WIDTH = 64;
+        LENGTH = 64;
+        print1("You pry open a manhole and descend into the sewers below.");
 
-	if(gamestatusp(MOUNTED)) {
-	    print2("Your horse waits patiently outside the sewer entrance...");
-	    dismount_steed();
-	}
+        if(gamestatusp(MOUNTED)) {
+            print2("Your horse waits patiently outside the sewer entrance...");
+            dismount_steed();
+        }
 
-	MaxDungeonLevels = SEWERLEVELS;
+        MaxDungeonLevels = SEWERLEVELS;
 
-	if(Current_Dungeon != E_SEWERS) {
+        if(Current_Dungeon != E_SEWERS) {
 #ifdef MSDOS
-	    msdos_changelevel(Level, 0, -1);
+            msdos_changelevel(Level, 0, -1);
 #endif
 
-	    free_dungon();
-	    Dungeon = NULL;
-	    Level = NULL;
-	    Current_Dungeon = E_SEWERS;
-	}
+            free_dungon();
+            Dungeon = NULL;
+            Level = NULL;
+            Current_Dungeon = E_SEWERS;
+        }
 
-	change_level(0, 1, FALSE);
+        change_level(0, 1, FALSE);
 
-	break;
+        break;
     case E_COUNTRYSIDE:
-	WIDTH = 64;
-	LENGTH = 64;
+        WIDTH = 64;
+        LENGTH = 64;
 
-	print1("You return to the fresh air of the open countryside.");
+        print1("You return to the fresh air of the open countryside.");
 
-	if(Last_Environment == E_CITY) {
-	    Player.x = 27;
-	    Player.y = 19;
-	}
-	else {
-	    Player.x = LastCountryLocX;
-	    Player.y = LastCountryLocY;
-	}
+        if(Last_Environment == E_CITY) {
+            Player.x = 27;
+            Player.y = 19;
+        }
+        else {
+            Player.x = LastCountryLocX;
+            Player.y = LastCountryLocY;
+        }
 
-	for(i = 0; i < 9; ++i) {
-	    Country[Player.x + Dirs[0][i]][Player.y + Dirs[1][i]].explored = TRUE;
-	}
+        for(i = 0; i < 9; ++i) {
+            Country[Player.x + Dirs[0][i]][Player.y + Dirs[1][i]].explored = TRUE;
+        }
 
-	erase_level();
-	ScreenOffset = Player.y - (ScreenLength / 2);
-	show_screen();
+        erase_level();
+        ScreenOffset = Player.y - (ScreenLength / 2);
+        show_screen();
 
-	break;
+        break;
     case E_TACTICAL_MAP:
-	WIDTH = 64;
-	LENGTH = 16;
-	print1("You are now on the tactical screen; exit off any side to leave");
-	make_country_screen(Country[Player.x][Player.y].current_terrain_type);
-	make_country_monsters(Country[Player.x][Player.y].current_terrain_type);
-	Player.x = WIDTH / 2;
-	Player.y = LENGTH / 2;
-	erase_level();
-	ScreenOffset = 0;
-	show_screen();
+        WIDTH = 64;
+        LENGTH = 16;
+        print1("You are now on the tactical screen; exit off any side to leave");
+        make_country_screen(Country[Player.x][Player.y].current_terrain_type);
+        make_country_monsters(Country[Player.x][Player.y].current_terrain_type);
+        Player.x = WIDTH / 2;
+        Player.y = LENGTH / 2;
+        erase_level();
+        ScreenOffset = 0;
+        show_screen();
 
-	break;
+        break;
     case E_NEVER_NEVER_LAND:
     default:
-	print1("There must be some mistake. You don't look like Peter Pan.");
-	print2("(But here you are in Never-Never Land)");
-	erase_level();
-	ScreenOffset = Player.y - (ScreenLength / 2);
-	show_screen();
+        print1("There must be some mistake. You don't look like Peter Pan.");
+        print2("(But here you are in Never-Never Land)");
+        erase_level();
+        ScreenOffset = Player.y - (ScreenLength / 2);
+        show_screen();
 
-	break;
+        break;
     }
 }

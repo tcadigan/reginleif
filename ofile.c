@@ -29,25 +29,25 @@ FILE *checkfopen(char *filestring, char *optionstring)
     clearmsg();
 
     while(fd == NULL) {
-	print3("Warning! Error opening file: ");
-	nprint3(filestring);
-	print1("Abort or Retry? [ar] ");
+        print3("Warning! Error opening file: ");
+        nprint3(filestring);
+        print1("Abort or Retry? [ar] ");
 
-	response = mcigetc();
+        response = mcigetc();
 
-	while((response != 'a') && (response != 'r')) {
-	    response = mcigetc();
-	}
+        while((response != 'a') && (response != 'r')) {
+            response = mcigetc();
+        }
 
-	if(response == 'r') {
-	    fd = fopen(filestring, optionstring);
-	}
-	else {
-	    print2("Sorry 'bout that... Bye!");
-	    morewait();
-	    endgraf();
-	    exit(0);
-	}
+        if(response == 'r') {
+            fd = fopen(filestring, optionstring);
+        }
+        else {
+            print2("Sorry 'bout that... Bye!");
+            morewait();
+            endgraf();
+            exit(0);
+        }
     }
 
     return fd;
@@ -60,10 +60,10 @@ void commandlist()
     strcpy(Str1, OMEGALIB);
 
     if(Current_Environment == E_COUNTRYSIDE) {
-	strcat(Str1, "ohelp13.txt");
+        strcat(Str1, "ohelp13.txt");
     }
     else {
-	strcat(Str1, "ohelp2.txt");
+        strcat(Str1, "ohelp2.txt");
     }
 
     fd = checkfopen(Str1, "r");
@@ -217,23 +217,23 @@ void showfile(FILE *fd)
     c = fgetc(fd);
 
     while((c != EOF) && ((char)d != 'q') && ((char)d != ESCAPE)) {
-	getyx(strscr, y, x);
+        getyx(strscr, y, x);
 
-	if(y > ScreenLength) {
-	    printw("\n-More-");
-	    refresh();
-	    d = wgetch(stdscr);
-	    clear();
-	}
+        if(y > ScreenLength) {
+            printw("\n-More-");
+            refresh();
+            d = wgetch(stdscr);
+            clear();
+        }
 
-	printw("%c", (char)c);
-	c = fgetc(fd);
+        printw("%c", (char)c);
+        c = fgetc(fd);
     }
 
     if(((char)d != 'q') && ((char)d != ESCAPE)) {
-	printw("\n-Done-");
-	refresh();
-	getch();
+        printw("\n-Done-");
+        refresh();
+        getch();
     }
 }
 
@@ -274,8 +274,8 @@ void showscores()
     fscanf(fd, "%d\n%d\n", &Shadowlordlevel, &Shadowlordbehavior);
 
     for(i = 1; i < 7; ++i) {
-	filescanstring(fd, Priest[i]);
-	fscanf(fd, "%d\n%d\n", &Priestlevel[i], &Priestbehavior[i]);
+        filescanstring(fd, Priest[i]);
+        fscanf(fd, "%d\n%d\n", &Priestlevel[i], &Priestbehavior[i]);
     }
 
     fclose(fd);
@@ -337,163 +337,163 @@ void checkhigh(char *descrip, int behavior)
     FILE *fd;
 
     if(FixedPoints > 0) {
-	points = FixedPoints;
+        points = FixedPoints;
     }
     else {
-	points = calc_points();
+        points = calc_points();
     }
 
     if(!gamestatusp(CHEATED)) {
-	strcpy(Str1, OMEGALIB);
-	strcat(Str1, "omega.hi");
-	fd = checkfopen(Str1, "w");
+        strcpy(Str1, OMEGALIB);
+        strcat(Str1, "omega.hi");
+        fd = checkfopen(Str1, "w");
 
-	if(Hiscore < points) {
-	    morewait();
-	    mprint("Yow! A new high score!");
-	    morewait();
-	    fprintf(fd, "%s\n", Player.name);
-	    fprints(fd, "%s\n", descrip);
-
-#ifndef MSDOS
-	    fprintf(fd, "%d\n", points);
-#else
-	    fprintf(fd, "%ld\n", points);
-#endif
-
-	    fprintf(fd, "%d\n", Player.level);
-	    fprintf(fd, "%d\n", behavior);
-	}
-	else {
-	    fprintf(fd, "%s\n", Hiscorer);
-	    fprintf(fd, "%s\n", Hidescrip);
+        if(Hiscore < points) {
+            morewait();
+            mprint("Yow! A new high score!");
+            morewait();
+            fprintf(fd, "%s\n", Player.name);
+            fprints(fd, "%s\n", descrip);
 
 #ifndef MSDOS
-	    fprintf(fd, "%d\n", Hiscore);
+            fprintf(fd, "%d\n", points);
 #else
-	    fprintf(fd, "%ld\n", Hiscore);
+            fprintf(fd, "%ld\n", points);
 #endif
 
-	    fprintf(fd, "%d\n", Hilevel);
-	    fprintf(fd, "%d\n", Hibehavior);
-	}
+            fprintf(fd, "%d\n", Player.level);
+            fprintf(fd, "%d\n", behavior);
+        }
+        else {
+            fprintf(fd, "%s\n", Hiscorer);
+            fprintf(fd, "%s\n", Hidescrip);
 
-	if(Player.alignment < Chaos) {
-	    morewait();
-	    mprint("Criminy! A new Lord of Chaos!");
-	    morewait();
-	    fprintf(fd, "%s\n", Player.name);
-	    fprintf(fd, "%d\n", Player.level);
-	    fprintf(fd, "%d\n", Player.alignment);
-	    fprintf(fd, "%d\n", behavior);
-	}
-	else {
-	    fprintf(fd, "%s\n", Chaoslord);
-	    fprintf(fd, "%d\n", Chaoslordlevel);
-	    fprintf(fd, "%d\n", Chaos);
-	    fprintf(fd, "%d\n", Chaoslordbehavior);
-	}
+#ifndef MSDOS
+            fprintf(fd, "%d\n", Hiscore);
+#else
+            fprintf(fd, "%ld\n", Hiscore);
+#endif
 
-	if(Player.alignment > Law) {
-	    morewait();
-	    mprint("Gosh! A new Lord of Law!");
-	    morewait();
-	    fprintf(fd, "%s\n", Player.name);
-	    fprintf(fd, "%d\n", Player.level);
-	    fprintf(fd, "%d\n", Player.alignment);
-	    fprintf(fd, "%d\n", behavior);
-	}
-	else {
-	    fprintf(fd, "%s\n", Lawlord);
-	    fprintf(fd, "%d\n", Lawlordlevel);
-	    fprintf(fd, "%d\n", Law);
-	    fprintf(fd, "%d\n", Lawlordbehavior);
-	}
+            fprintf(fd, "%d\n", Hilevel);
+            fprintf(fd, "%d\n", Hibehavior);
+        }
 
-	fprintf(fd, "%s", Duke);
-	fprintf(fd, "\n%d", Dukelevel);
+        if(Player.alignment < Chaos) {
+            morewait();
+            mprint("Criminy! A new Lord of Chaos!");
+            morewait();
+            fprintf(fd, "%s\n", Player.name);
+            fprintf(fd, "%d\n", Player.level);
+            fprintf(fd, "%d\n", Player.alignment);
+            fprintf(fd, "%d\n", behavior);
+        }
+        else {
+            fprintf(fd, "%s\n", Chaoslord);
+            fprintf(fd, "%d\n", Chaoslordlevel);
+            fprintf(fd, "%d\n", Chaos);
+            fprintf(fd, "%d\n", Chaoslordbehavior);
+        }
 
-	if(Player.rank[NOBILITY] == DUKE) {
-	    fprintf(fd, "\n%d", behavior);
-	}
-	else {
-	    fprintf(fd, "\n%d", Dukebehavior);
-	}
+        if(Player.alignment > Law) {
+            morewait();
+            mprint("Gosh! A new Lord of Law!");
+            morewait();
+            fprintf(fd, "%s\n", Player.name);
+            fprintf(fd, "%d\n", Player.level);
+            fprintf(fd, "%d\n", Player.alignment);
+            fprintf(fd, "%d\n", behavior);
+        }
+        else {
+            fprintf(fd, "%s\n", Lawlord);
+            fprintf(fd, "%d\n", Lawlordlevel);
+            fprintf(fd, "%d\n", Law);
+            fprintf(fd, "%d\n", Lawlordbehavior);
+        }
 
-	fprintf(fd, "\n%s", Justiciar);
-	fprintf(fd, "\n%d", Justiciarlevel);
+        fprintf(fd, "%s", Duke);
+        fprintf(fd, "\n%d", Dukelevel);
 
-	if(Player.rank[ORDER] == JUSTICIAR) {
-	    fprintf(fd, "\n%d", behavior);
-	}
-	else {
-	    fprintf(fd, "\n%d", Justiciarbehavior);
-	}
+        if(Player.rank[NOBILITY] == DUKE) {
+            fprintf(fd, "\n%d", behavior);
+        }
+        else {
+            fprintf(fd, "\n%d", Dukebehavior);
+        }
 
-	fprintf(fd, "\n%s", Commandant);
-	fprintf(fd, "\n%d", Commandantlevel);
+        fprintf(fd, "\n%s", Justiciar);
+        fprintf(fd, "\n%d", Justiciarlevel);
 
-	if(Player.rank[LEGION] == COMMANDANT) {
-	    fprintf(fd, "\n%d", behavior);
-	}
-	else {
-	    fprintf(fd, "\n%d", Commandantbehavior);
-	}
+        if(Player.rank[ORDER] == JUSTICIAR) {
+            fprintf(fd, "\n%d", behavior);
+        }
+        else {
+            fprintf(fd, "\n%d", Justiciarbehavior);
+        }
 
-	fprintf(fd, "\n%s", Champion);
-	fprintf(fd, "\n%d", Championlevel);
+        fprintf(fd, "\n%s", Commandant);
+        fprintf(fd, "\n%d", Commandantlevel);
 
-	if(Player.rank[ARENA] == CHAMPION) {
-	    fprintf(fd, "\n%d", behavior);
-	}
-	else {
-	    fprintf(fd, "\n%d", Championbehavior);
-	}
+        if(Player.rank[LEGION] == COMMANDANT) {
+            fprintf(fd, "\n%d", behavior);
+        }
+        else {
+            fprintf(fd, "\n%d", Commandantbehavior);
+        }
 
-	fprintf(fd, "\n%s", Archmage);
-	fprintf(fd, "\n%d", Archmagelevel);
+        fprintf(fd, "\n%s", Champion);
+        fprintf(fd, "\n%d", Championlevel);
 
-	if(Player.rank[COLLEGE] == ARCHMAGE) {
-	    fprintf(fd, "\n%d", behavior);
-	}
-	else {
-	    fprintf(fd, "\n%d", Archmagebehavior);
-	}
+        if(Player.rank[ARENA] == CHAMPION) {
+            fprintf(fd, "\n%d", behavior);
+        }
+        else {
+            fprintf(fd, "\n%d", Championbehavior);
+        }
 
-	fprintf(fd, "\n%s", Prime);
-	fprintf(fd, "\n%d", Primelevel);
+        fprintf(fd, "\n%s", Archmage);
+        fprintf(fd, "\n%d", Archmagelevel);
 
-	if(Player.rank[CIRCLE] == PRIME) {
-	    fprintf(fd, "\n%d", behavior);
-	}
-	else {
-	    fprintf(fd, "\n%d", Primebehavior);
-	}
+        if(Player.rank[COLLEGE] == ARCHMAGE) {
+            fprintf(fd, "\n%d", behavior);
+        }
+        else {
+            fprintf(fd, "\n%d", Archmagebehavior);
+        }
 
-	fprintf(fd, "\n%s", Shadowlord);
-	fprintf(fd, "\n%d", Shadowlordlevel);
+        fprintf(fd, "\n%s", Prime);
+        fprintf(fd, "\n%d", Primelevel);
 
-	if(Player.rank[THIEVES] == SHADOWLORD) {
-	    fprintf(fd, "\n%d", behavior);
-	}
-	else {
-	    fprintf(fd, "\n%d", Shadowlordbehavior);
-	}
+        if(Player.rank[CIRCLE] == PRIME) {
+            fprintf(fd, "\n%d", behavior);
+        }
+        else {
+            fprintf(fd, "\n%d", Primebehavior);
+        }
 
-	for(i = 1; i < 7; ++i) {
-	    fprintf(fd, "\n%s", Priest[i]);
-	    fprintf(fd, "\n%d", Priestlevel[i]);
+        fprintf(fd, "\n%s", Shadowlord);
+        fprintf(fd, "\n%d", Shadowlordlevel);
 
-	    if((Player.rank[PRIESTHOOD] == HIGHPRIEST) && (Player.patron == i)) {
-		fprintf(fd, "\n%d", behavior);
-	    }
-	    else {
-		fprintf(fd, "\n%d", Priestbehavior[i]);
-	    }
-	}
+        if(Player.rank[THIEVES] == SHADOWLORD) {
+            fprintf(fd, "\n%d", behavior);
+        }
+        else {
+            fprintf(fd, "\n%d", Shadowlordbehavior);
+        }
 
-	fprintf(fd, "\n");
-	fclose(fd);
+        for(i = 1; i < 7; ++i) {
+            fprintf(fd, "\n%s", Priest[i]);
+            fprintf(fd, "\n%d", Priestlevel[i]);
+
+            if((Player.rank[PRIESTHOOD] == HIGHPRIEST) && (Player.patron == i)) {
+                fprintf(fd, "\n%d", behavior);
+            }
+            else {
+                fprintf(fd, "\n%d", Priestbehavior[i]);
+            }
+        }
+
+        fprintf(fd, "\n");
+        fclose(fd);
     }
 }
 
@@ -506,13 +506,13 @@ void extendlog(char *descrip, int lifestatus)
     strcpy(username, getlogin());
 
     if((Player.level > 0) && !gamestatusp(CHEATED)) {
-	npcbehavior = fixnpc(lifestatus);
-	checkhigh(descrip, npcbehavior);
-	strcpy(Str1, OMEGALIB);
-	strcat(Str1, "omega.log");
-	fd = checkfopen(Str1, "a");
-	fprintf(fd, " %d %d %d %s\n", lifestatus, Player.level, npcbehavior, Player.name);
-	fclose(fd);
+        npcbehavior = fixnpc(lifestatus);
+        checkhigh(descrip, npcbehavior);
+        strcpy(Str1, OMEGALIB);
+        strcat(Str1, "omega.log");
+        fd = checkfopen(Str1, "a");
+        fprintf(fd, " %d %d %d %s\n", lifestatus, Player.level, npcbehavior, Player.name);
+        fclose(fd);
     }
 }
 
@@ -527,15 +527,15 @@ void filescanstring(FILE *fd, char *fstr)
     int byte = 'x';
 
     while((i < 80) && (byte != '\n') && (byte != EOF)) {
-	++i;
-	byte = fgetc(fd);
-	fstr[i] = byte;
+        ++i;
+        byte = fgetc(fd);
+        fstr[i] = byte;
     }
 
     if(byte != '\n') {
-	while((byte != '\n') && (byte != EOF)) {
-	    byte = fgetc(fd);
-	}
+        while((byte != '\n') && (byte != EOF)) {
+            byte = fgetc(fd);
+        }
     }
 
     fstr[i] = 0;
@@ -560,9 +560,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	impossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        impossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -570,9 +570,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	impossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        impossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -580,9 +580,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	impossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        impossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -590,9 +590,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	impossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	print(Str1);
+        impossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        print(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -600,9 +600,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	impossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	print(Str1);
+        impossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        print(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -610,9 +610,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	impossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        impossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -620,9 +620,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	impossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        impossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -630,9 +630,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	impossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        impossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -646,9 +646,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	impossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        impossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -662,9 +662,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	impossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        impossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -678,9 +678,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	impossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        impossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -694,9 +694,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	impossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        impossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -704,9 +704,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	impossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        impossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -714,9 +714,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	impossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        impossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -724,9 +724,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	impossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        impossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -734,9 +734,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	impossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        impossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -744,9 +744,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	impossible = TRUE;
-	printf("\nWarning! File not appendable or accessible: ");
-	printf(Str1);
+        impossible = TRUE;
+        printf("\nWarning! File not appendable or accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -754,9 +754,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	impossible = TRUE;
-	printf("\nWarning! File not appendable or accessible: ");
-	printf(Str1);
+        impossible = TRUE;
+        printf("\nWarning! File not appendable or accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -764,9 +764,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	impossible = TRUE;
-	printf("\nWarning! File not appendable or accessible: ");
-	printf(Str1);
+        impossible = TRUE;
+        printf("\nWarning! File not appendable or accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -774,9 +774,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	impossible = TRUE;
-	printf("\nWarning! File not appendable or accessible: ");
-	printf(Str1);
+        impossible = TRUE;
+        printf("\nWarning! File not appendable or accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -784,9 +784,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK | W_OK);
 
     if(result == -1) {
-	impossible = TRUE;
-	printf("\nWarning! File not appendable or accessible: ");
-	printf(Str1);
+        impossible = TRUE;
+        printf("\nWarning! File not appendable or accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -794,9 +794,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK | W_OK);
 
     if(result == -1) {
-	impossible = TRUE;
-	printf("\nWarning! File not appendable or accessible: ");
-	printf(Str1);
+        impossible = TRUE;
+        printf("\nWarning! File not appendable or accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -804,9 +804,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	impossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        impossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -814,9 +814,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	impossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        impossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -824,9 +824,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	impossible = TRUE;
-	printf("\nWarning! file not accessible: ");
-	printf(Str1);
+        impossible = TRUE;
+        printf("\nWarning! file not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -834,9 +834,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	badbutpossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        badbutpossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -844,9 +844,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	badbutpossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        badbutpossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -854,9 +854,9 @@ int filecheck()
     result = accesS(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	badbutpossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        badbutpossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -864,9 +864,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	badbutpossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        badbutpossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -874,9 +874,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	badbutpossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        badbutpossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -884,9 +884,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	badbutpossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        badbutpossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -894,9 +894,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	badbutpossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        badbutpossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -904,9 +904,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	badbutpossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        badbutpossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -914,9 +914,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	badbutpossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        badbutpossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -924,9 +924,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	badbutpossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        badbutpossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -934,9 +934,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	badbutpossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        badbutpossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -944,9 +944,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	badbutpossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        badbutpossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -954,9 +954,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	badbutpossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        badbutpossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -964,9 +964,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	badbutpossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        badbutpossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -974,9 +974,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	badbutpossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        badbutpossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -984,9 +984,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	badbutpossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        badbutpossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGLIB);
@@ -994,9 +994,9 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	badbutpossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        badbutpossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -1004,30 +1004,30 @@ int filecheck()
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
-	badbutpossible = TRUE;
-	printf("\nWarning! File not accessible: ");
-	printf(Str1);
+        badbutpossible = TRUE;
+        printf("\nWarning! File not accessible: ");
+        printf(Str1);
     }
 
     if(impossible) {
-	printf("\n\nFurther execution is impossible. Sorry.");
-	printf("\nOMEGALIB may be badly #defined in odefs.h\n");
-	
-	return 0;
+        printf("\n\nFurther execution is impossible. Sorry.");
+        printf("\nOMEGALIB may be badly #defined in odefs.h\n");
+        
+        return 0;
     }
     else if(badbutpossible) {
-	printf("\n\nFurther execution may cause anomalous behavior.");
-	printf("\nContinue anyhow? [yn] ");
+        printf("\n\nFurther execution may cause anomalous behavior.");
+        printf("\nContinue anyhow? [yn] ");
 
-	if(getchar() == 'y') {
-	    return -1;
-	}
-	else {
-	    return 0;
-	}
+        if(getchar() == 'y') {
+            return -1;
+        }
+        else {
+            return 0;
+        }
     }
     else {
-	return 1;
+        return 1;
     }
 }
 
@@ -1045,23 +1045,23 @@ void displayfile(char *filestr)
     c = fgetc(fd);
 
     while((c != EOF) && ((char)d != 'q') && ((char)d != ESCAPE)) {
-	getyx(stdscr, y, x);
+        getyx(stdscr, y, x);
 
-	if(y > ScreenLength) {
-	    printw("\n-More-");
-	    refresh();
-	    d = wgetch(stdscr);
-	    clear();
-	}
+        if(y > ScreenLength) {
+            printw("\n-More-");
+            refresh();
+            d = wgetch(stdscr);
+            clear();
+        }
 
-	printw("%c", (char)c);
-	c = fgetc(fd);
+        printw("%c", (char)c);
+        c = fgetc(fd);
     }
 
     if(((char)d != 'q') && ((char)d != ESCAPE)) {
-	printw("\n-Done-");
-	refresh();
-	getch();
+        printw("\n-Done-");
+        refresh();
+        getch();
     }
 
     clear();

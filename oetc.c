@@ -13,385 +13,385 @@ void hint()
 {
     switch(random_range(95)) {
     case 0:
-	mprint("There is an entrance to the sewers in the Garden.");
+        mprint("There is an entrance to the sewers in the Garden.");
 
-	break;
+        break;
     case 1:
-	mprint("Statues can be dangerous.");
+        mprint("Statues can be dangerous.");
 
-	break;
+        break;
     case 2:
-	mprint("Unidentified Artifcats can be dangerous.");
+        mprint("Unidentified Artifcats can be dangerous.");
 
-	break;
+        break;
     case 3:
-	mprint("The higher form of mercury is desirable.");
+        mprint("The higher form of mercury is desirable.");
 
-	break;
+        break;
     case 4:
-	mprint("A sense of unease is a good thing to have.");
+        mprint("A sense of unease is a good thing to have.");
 
-	break;
+        break;
     case 5:
-	mprint("If you dig too much, you might cause a cave in!");
+        mprint("If you dig too much, you might cause a cave in!");
 
-	break;
+        break;
     case 6:
-	mprint("Be Lawful: Live and Let Live.");
+        mprint("Be Lawful: Live and Let Live.");
 
-	break;
+        break;
     case 7:
-	mprint("Be Chaotic: Live and Let Die.");
+        mprint("Be Chaotic: Live and Let Die.");
 
-	break;
+        break;
     case 8:
-	mprint("The world doesn't slow down; you speed up.");
+        mprint("The world doesn't slow down; you speed up.");
 
-	break;
+        break;
     case 9:
-	mprint("Security is a sense of dislocation.");
+        mprint("Security is a sense of dislocation.");
 
-	break;
+        break;
     case 10:
-	mprint("Tullimore Dew is a panacea.");
+        mprint("Tullimore Dew is a panacea.");
 
-	break;
+        break;
     case 11:
-	mprint("Thieves hide behind closed doors.");
+        mprint("Thieves hide behind closed doors.");
 
-	break;
+        break;
     case 12:
-	mprint("'No jail is escapeproof' -- John Dillinger.");
+        mprint("'No jail is escapeproof' -- John Dillinger.");
 
-	break;
+        break;
     case 13:
-	mprint("Oh, to have an apartment of your own!");
+        mprint("Oh, to have an apartment of your own!");
 
-	break;
+        break;
     case 14:
-	mprint("Some homes have money and treasure.");
+        mprint("Some homes have money and treasure.");
 
-	break;
+        break;
     case 15:
-	mprint("Some homes are defended.");
+        mprint("Some homes are defended.");
 
-	break;
+        break;
     case 16:
-	mprint("Sometimes you could just wish for Death.");
+        mprint("Sometimes you could just wish for Death.");
 
-	break;
+        break;
     case 17:
-	mprint("A cursed wish can be fatal.");
+        mprint("A cursed wish can be fatal.");
 
-	break;
+        break;
     case 18:
-	mprint("The way you play, you should wish for Skill.");
+        mprint("The way you play, you should wish for Skill.");
 
-	break;
+        break;
     case 19:
-	mprint("A druid might wish for Balance.");
+        mprint("A druid might wish for Balance.");
 
-	break;
+        break;
     case 20:
-	mprint("Mages always wish for Knowledge.");
+        mprint("Mages always wish for Knowledge.");
 
-	break;
+        break;
     case 21:
-	mprint("Some fairies are good.");
+        mprint("Some fairies are good.");
 
-	break;
+        break;
     case 22:
-	mprint("An affair with a demon can be heartbreaking.");
+        mprint("An affair with a demon can be heartbreaking.");
 
-	break;
+        break;
     case 23:
-	mprint("The Explorer's Clube knows a useful spell.");
+        mprint("The Explorer's Clube knows a useful spell.");
 
-	break;
+        break;
     case 24:
-	mprint("They say some famous people live in mansions.");
+        mprint("They say some famous people live in mansions.");
 
-	break;
+        break;
     case 25:
-	mprint("Magic pools are totally random.");
+        mprint("Magic pools are totally random.");
 
-	break;
+        break;
     case 26:
-	mprint("There are five elements, including Void.");
+        mprint("There are five elements, including Void.");
 
-	break;
+        break;
     case 27:
-	mprint("Humans can be good or evil, lawful or chaotic.");
+        mprint("Humans can be good or evil, lawful or chaotic.");
 
-	break;
+        break;
     case 28:
-	mprint("There are many kinds of wishes. Case counts, you know.");
+        mprint("There are many kinds of wishes. Case counts, you know.");
 
-	break;
+        break;
     case 29:
-	mprint("There are caves due south of Rampart.");
+        mprint("There are caves due south of Rampart.");
 
-	break;
+        break;
     case 30:
-	mprint("Donaldson's Giants can withstand lava.");
+        mprint("Donaldson's Giants can withstand lava.");
 
-	break;
+        break;
     case 31:
-	mprint("Ritual magic can have many different effects.");
+        mprint("Ritual magic can have many different effects.");
 
-	break;
+        break;
     case 32:
-	mprint("The Mercenaries are the best equipped fighters.");
+        mprint("The Mercenaries are the best equipped fighters.");
 
-	break;
+        break;
     case 33:
-	mprint("The Gladiators are the most skilled fighters.");
+        mprint("The Gladiators are the most skilled fighters.");
 
-	break;
+        break;
     case 34:
-	mprint("Rent a flat and lose any bad stati you may have.");
+        mprint("Rent a flat and lose any bad stati you may have.");
 
-	break;
+        break;
     case 35:
-	mprint("Some junk may be worth a fortune if identified.");
+        mprint("Some junk may be worth a fortune if identified.");
 
-	break;
+        break;
     case 36:
-	mprint("Identify humans by talking to them.");
+        mprint("Identify humans by talking to them.");
 
-	break;
+        break;
     case 37:
-	mprint("They say the Duke has a treasure trove.");
+        mprint("They say the Duke has a treasure trove.");
 
-	break;
+        break;
     case 38:
-	mprint("If you yield, your opponent will gain experience.");
+        mprint("If you yield, your opponent will gain experience.");
 
-	break;
+        break;
     case 39:
-	mprint("The Dragon Lord lives in the Waste of Time.");
+        mprint("The Dragon Lord lives in the Waste of Time.");
 
-	break;
+        break;
     case 40:
-	mprint("A full moon bodes well for the followers of Law.");
+        mprint("A full moon bodes well for the followers of Law.");
 
-	break;
+        break;
     case 41:
-	mprint("A new moon omens evil for the Law-abiding.");
+        mprint("A new moon omens evil for the Law-abiding.");
 
-	break;
+        break;
     case 42:
-	mprint("Druids revere the half-moon.");
+        mprint("Druids revere the half-moon.");
 
-	break;
+        break;
     case 43:
-	mprint("Most grot is useless.");
+        mprint("Most grot is useless.");
 
-	break;
+        break;
     case 44:
-	mprint("Cash can sometimes be found in the walls.");
+        mprint("Cash can sometimes be found in the walls.");
 
-	break;
+        break;
     case 45:
-	mprint("Pointy weapons break often but dig better.");
+        mprint("Pointy weapons break often but dig better.");
 
-	break;
+        break;
     case 46:
-	mprint("The DREADED AQUAE MORTIS is invulnerable.");
+        mprint("The DREADED AQUAE MORTIS is invulnerable.");
 
-	break;
+        break;
     case 47:
-	mprint("There must be *some* reason to worship Destiny!");
+        mprint("There must be *some* reason to worship Destiny!");
 
-	break;
+        break;
     case 48:
-	mprint("Kill a trifid? A puzzle! Try a saline solution!");
+        mprint("Kill a trifid? A puzzle! Try a saline solution!");
 
-	break;
+        break;
     case 49:
-	mprint("Beware! The Eater of Souls inhabits the abyss!");
+        mprint("Beware! The Eater of Souls inhabits the abyss!");
 
-	break;
+        break;
     case 50:
-	mprint("They say there's a red-light district in town.");
+        mprint("They say there's a red-light district in town.");
 
-	break;
+        break;
     case 51:
-	mprint("The House of the Eclipse is behind a closed door.");
+        mprint("The House of the Eclipse is behind a closed door.");
 
-	break;
+        break;
     case 52:
-	mprint("The Orbs may be encountered on the Astral Plane.");
+        mprint("The Orbs may be encountered on the Astral Plane.");
 
-	break;
+        break;
     case 53:
-	mprint("The Champion should never refuse a challenge.");
+        mprint("The Champion should never refuse a challenge.");
 
-	break;
+        break;
     case 54:
-	mprint("They say that the autoteller program is buggy.");
+        mprint("They say that the autoteller program is buggy.");
 
-	break;
+        break;
     case 55:
-	mprint("It's better not to sleep on the ground.");
+        mprint("It's better not to sleep on the ground.");
 
-	break;
+        break;
     case 56:
-	mprint("Try ritual magic in different kinds of rooms.");
+        mprint("Try ritual magic in different kinds of rooms.");
 
-	break;
+        break;
     case 57:
-	mprint("Breaking down a wall by bishing it is a bad idea!");
+        mprint("Breaking down a wall by bishing it is a bad idea!");
 
-	break;
+        break;
     case 58:
-	mprint("Follow the Oracle's advice; she is all-wise.");
+        mprint("Follow the Oracle's advice; she is all-wise.");
 
-	break;
+        break;
     case 59:
-	mprint("The ArchDruid lives in the northern forest.");
+        mprint("The ArchDruid lives in the northern forest.");
 
-	break;
+        break;
     case 60:
-	mprint("A search of the mountains may reveal a secret pass.");
+        mprint("A search of the mountains may reveal a secret pass.");
 
-	break;
+        break;
     case 61:
-	mprint("Star Peak is to the far North-East.");
+        mprint("Star Peak is to the far North-East.");
 
-	break;
+        break;
     case 62:
-	mprint("The Archmage lives in the far Noth-West beyond a pass.");
+        mprint("The Archmage lives in the far Noth-West beyond a pass.");
 
-	break;
+        break;
     case 63:
-	mprint("There is a volcano in the southern marshes.");
+        mprint("There is a volcano in the southern marshes.");
 
-	break;
+        break;
     case 64:
-	mprint("The Demon Emperor resides in the Volcano.");
+        mprint("The Demon Emperor resides in the Volcano.");
 
-	break;
+        break;
     case 65:
-	mprint("The Lawgiver can be found at Star Peak.");
+        mprint("The Lawgiver can be found at Star Peak.");
 
-	break;
+        break;
     case 66:
-	mprint("The Temple of Athena is to the North-East.");
+        mprint("The Temple of Athena is to the North-East.");
 
-	break;
+        break;
     case 67:
-	mprint("The Temple of Set can be found in a desert.");
+        mprint("The Temple of Set can be found in a desert.");
 
-	break;
+        break;
     case 68:
-	mprint("The Temple of Hecate is in the swamp.");
+        mprint("The Temple of Hecate is in the swamp.");
 
-	break;
+        break;
     case 69:
-	mprint("The Temple of Odin is to the South in some mountains.");
+        mprint("The Temple of Odin is to the South in some mountains.");
 
-	break;
+        break;
     case 70:
-	mprint("There is a curious island off a promontory of the swamp.");
+        mprint("There is a curious island off a promontory of the swamp.");
 
-	break;
+        break;
     case 71:
-	mprint("The Eater of Magic can be found on an island.");
+        mprint("The Eater of Magic can be found on an island.");
 
-	break;
+        break;
     case 72:
-	mprint("The Temple of Destiny is practically inaccessible.");
+        mprint("The Temple of Destiny is practically inaccessible.");
 
-	break;
+        break;
     case 73:
-	mprint("Each sect has its own main temple outside the city.");
+        mprint("Each sect has its own main temple outside the city.");
 
-	break;
+        break;
     case 74:
-	mprint("The aligned temples are dangerous to unbelievers.");
+        mprint("The aligned temples are dangerous to unbelievers.");
 
-	break;
+        break;
     case 75:
-	mprint("If you are poor, maybe you should wish for Wealth.");
+        mprint("If you are poor, maybe you should wish for Wealth.");
 
-	break;
+        break;
     case 76:
-	mprint("Need mana? Wish for Power.");
+        mprint("Need mana? Wish for Power.");
 
-	break;
+        break;
     case 77:
-	mprint("Wishing for Law, Balance, or Chaos alters alignment.");
+        mprint("Wishing for Law, Balance, or Chaos alters alignment.");
 
-	break;
+        break;
     case 78:
-	mprint("Feeling out of sorts? Wish for Health.");
+        mprint("Feeling out of sorts? Wish for Health.");
 
-	break;
+        break;
     case 79:
-	mprint("Challenge the abyss at the Temple of Destiny.");
+        mprint("Challenge the abyss at the Temple of Destiny.");
 
-	break;
+        break;
     case 80:
-	mprint("The Circle of Sorcerors has an Astral HQ.");
+        mprint("The Circle of Sorcerors has an Astral HQ.");
 
-	break;
+        break;
     case 81:
-	mprint("The Star Gem is the only way back from the Astral Plane.");
+        mprint("The Star Gem is the only way back from the Astral Plane.");
 
-	break;
+        break;
     case 82:
-	mprint("The Star Gem is guarded by the Circle of Sorcerors.");
+        mprint("The Star Gem is guarded by the Circle of Sorcerors.");
 
-	break;
+        break;
     case 83:
-	mprint("The Star Gem is rightfully the property of the LawBringer.");
+        mprint("The Star Gem is rightfully the property of the LawBringer.");
 
-	break;
+        break;
     case 84:
-	mprint("They say the Demon Emperor owns the Amulet of the Planes.");
+        mprint("They say the Demon Emperor owns the Amulet of the Planes.");
 
-	break;
+        break;
     case 85:
-	mprint("An Amulet might get you to the Temple of Destiny.");
+        mprint("An Amulet might get you to the Temple of Destiny.");
 
-	break;
+        break;
     case 86:
-	mprint("A wish for Location might help you become Adept.");
+        mprint("A wish for Location might help you become Adept.");
 
-	break;
+        break;
     case 87:
-	mprint("Some Artifacts may be used only once per day.");
+        mprint("Some Artifacts may be used only once per day.");
 
-	break;
+        break;
     case 88:
-	mprint("Overusing Artifacts can be a bad move.");
+        mprint("Overusing Artifacts can be a bad move.");
 
-	break;
+        break;
     case 89:
-	mprint("You might start in the Swamp or the Mountains!");
+        mprint("You might start in the Swamp or the Mountains!");
 
-	break;
+        break;
     case 90:
-	mprint("You would have to be very choatic to attack a guard!");
+        mprint("You would have to be very choatic to attack a guard!");
 
-	break;
+        break;
     case 91:
-	mprint("You would have to be very foolhardy to attack a guard!");
+        mprint("You would have to be very foolhardy to attack a guard!");
 
-	break;
+        break;
     case 92:
-	mprint("Only a master of chaos would kill all the city guards!");
+        mprint("Only a master of chaos would kill all the city guards!");
 
-	break;
+        break;
     case 93:
-	mprint("The Order depends on the force of the LawBringer.");
+        mprint("The Order depends on the force of the LawBringer.");
 
-	break;
+        break;
     case 94:
-	mprint("City Guards are employees of the Order.");
+        mprint("City Guards are employees of the Order.");
 
-	break;
+        break;
     }
 }
 
@@ -404,124 +404,124 @@ void learnclericalspells(int deity, int level)
 
     switch(level) {
     case LAY:
-	if(deity == ODIN) {
-	    Spells[S_MISSILE].known = TRUE;
-	}
-	else if(deity == SET) {
-	    Spells[S_INVISIBLE].known = TRUE;
-	}
-	else if(deity == ATHENA) {
-	    Spells[S_IDENTIFY].known = TRUE;
-	}
-	else if(deity == HECATE) {
-	    Spells[S_DRAIN].known = TRUE;
-	}
-	else if(deity == DRUID) {
-	    Spells[S_KNOWLEDGE].known = TRUE;
-	    Spells[S_MON_DET].known = TRUE;
-	}
+        if(deity == ODIN) {
+            Spells[S_MISSILE].known = TRUE;
+        }
+        else if(deity == SET) {
+            Spells[S_INVISIBLE].known = TRUE;
+        }
+        else if(deity == ATHENA) {
+            Spells[S_IDENTIFY].known = TRUE;
+        }
+        else if(deity == HECATE) {
+            Spells[S_DRAIN].known = TRUE;
+        }
+        else if(deity == DRUID) {
+            Spells[S_KNOWLEDGE].known = TRUE;
+            Spells[S_MON_DET].known = TRUE;
+        }
 
-	break;
+        break;
     case ACOLYTE:
-	if(deity == ODIN) {
-	    Spells[S_LBALL].known = TRUE;
-	    Spells[S_TRUESIGHT].known = TRUE;
-	}
-	else if(deity == SET) {
-	    Spells[S_SUMMON].known = TRUE;
-	    Spells[S_FIREBOLT].known = TRUE;
-	}
-	else if(deity == ATHENA) {
-	    Spells[S_HEAL].known = TRUE;
-	    Spells[S_SANCTUARY].known = TRUE;
-	}
-	else if(deity == HECATE) {
-	    Spells[S_SLEEP].known = TRUE;
-	    Spells[S_DISPEL].known = TRUE;
-	}
-	else if(deity == DRUID) {
-	    Spells[S_HEAL].known = TRUE;
-	    Spells[S_CURE].known = TRUE;
-	}
-	else if(deity == DESTINY) {
-	    mprint("An acolyte of the Lords of Destiny. Gee whiz.");
-	}
+        if(deity == ODIN) {
+            Spells[S_LBALL].known = TRUE;
+            Spells[S_TRUESIGHT].known = TRUE;
+        }
+        else if(deity == SET) {
+            Spells[S_SUMMON].known = TRUE;
+            Spells[S_FIREBOLT].known = TRUE;
+        }
+        else if(deity == ATHENA) {
+            Spells[S_HEAL].known = TRUE;
+            Spells[S_SANCTUARY].known = TRUE;
+        }
+        else if(deity == HECATE) {
+            Spells[S_SLEEP].known = TRUE;
+            Spells[S_DISPEL].known = TRUE;
+        }
+        else if(deity == DRUID) {
+            Spells[S_HEAL].known = TRUE;
+            Spells[S_CURE].known = TRUE;
+        }
+        else if(deity == DESTINY) {
+            mprint("An acolyte of the Lords of Destiny. Gee whiz.");
+        }
 
-	break;
+        break;
     case PRIEST:
-	Spells[S_SANCTIFY].known = TRUE;
+        Spells[S_SANCTIFY].known = TRUE;
 
-	if(deity == ODIN) {
-	    Spells[S_HERO].known = TRUE;
-	    Spells[S_HEAL].known = TRUE;
-	}
-	else if(deity == SET) {
-	    Spells[S_INVISIBLE].known = TRUE;
-	    Spells[S_DISPEL].known = TRUE;
-	}
-	else if(deity == ATHENA) {
-	    Spells[S_REGENERATE].known = TRUE;
-	    Spells[S_ACCURACY].known = TRUE;
-	}
-	else if(deity == HECATE) {
-	    Spells[S_SHADOWFORM].known = TRUE;
-	    Spells[S_CURE].known = TRUE;
-	}
-	else if(deity == DRUID) {
-	    Spells[S_DISRUPT].known = TRUE;
-	    Spells[S_ALERT].known = TRUE;
-	    Spells[S_CLAIRVOYANCE].known = TRUE;
-	}
-	else if(deity == DESTINY) {
-	    mprint("How useless, a new priest of the Lords of Destiny.");
-	}
+        if(deity == ODIN) {
+            Spells[S_HERO].known = TRUE;
+            Spells[S_HEAL].known = TRUE;
+        }
+        else if(deity == SET) {
+            Spells[S_INVISIBLE].known = TRUE;
+            Spells[S_DISPEL].known = TRUE;
+        }
+        else if(deity == ATHENA) {
+            Spells[S_REGENERATE].known = TRUE;
+            Spells[S_ACCURACY].known = TRUE;
+        }
+        else if(deity == HECATE) {
+            Spells[S_SHADOWFORM].known = TRUE;
+            Spells[S_CURE].known = TRUE;
+        }
+        else if(deity == DRUID) {
+            Spells[S_DISRUPT].known = TRUE;
+            Spells[S_ALERT].known = TRUE;
+            Spells[S_CLAIRVOYANCE].known = TRUE;
+        }
+        else if(deity == DESTINY) {
+            mprint("How useless, a new priest of the Lords of Destiny.");
+        }
 
-	break;
+        break;
     case SPRIEST:
-	Spells[S_BLESS].known = TRUE;
+        Spells[S_BLESS].known = TRUE;
 
-	if(deity == ODIN) {
-	    Spells[S_ACCURACY].known = TRUE;
-	}
-	else if(deity == SET) {
-	    Spells[S_SHADOWFORM].known = TRUE;
-	}
-	else if(deity == ATHENA) {
-	    Spells[S_HERO].known = TRUE;
-	}
-	else if(deity == HECATE) {
-	    Spells[S_POLYMORPH].known = TRUE;
-	}
-	else if(deity == DRUID) {
-	    Spells[S_POLYMORPH].known = TRUE;
-	    Spells[S_LEVITATE].known = TRUE;
-	}
-	else if(deity == DESTINY) {
-	    mprint("Wow, now a senior priest of the Lords of Destiny.");
-	}
+        if(deity == ODIN) {
+            Spells[S_ACCURACY].known = TRUE;
+        }
+        else if(deity == SET) {
+            Spells[S_SHADOWFORM].known = TRUE;
+        }
+        else if(deity == ATHENA) {
+            Spells[S_HERO].known = TRUE;
+        }
+        else if(deity == HECATE) {
+            Spells[S_POLYMORPH].known = TRUE;
+        }
+        else if(deity == DRUID) {
+            Spells[S_POLYMORPH].known = TRUE;
+            Spells[S_LEVITATE].known = TRUE;
+        }
+        else if(deity == DESTINY) {
+            mprint("Wow, now a senior priest of the Lords of Destiny.");
+        }
 
-	break;
+        break;
     case HIGHPRIEST:
-	if(deity == ODIN) {
-	    Spells[S_RESTORE].known = TRUE;
-	}
-	else if(deity == SET) {
-	    Spells[S_HELLFIRE].known = TRUE;
-	}
-	else if(deity == ATEHNA) {
-	    Spells[S_HELLFIRE].known = TRUE;
-	}
-	else if(deity == HECATE) {
-	    Spells[S_DESECRATE].known = TRUE;
-	}
-	else if(deity == DRUID) {
-	    Spells[S_DISINTEGRATE].known = TRUE;
-	    Spells[S_HERO].known = TRUE;
-	}
-	else if(deity == DESTINY) {
-	    mprint("So you're now the high priest of the Lords of Destiny.");
-	    mprint("You didn't thingk you were going to get anything, did you?");
-	}
+        if(deity == ODIN) {
+            Spells[S_RESTORE].known = TRUE;
+        }
+        else if(deity == SET) {
+            Spells[S_HELLFIRE].known = TRUE;
+        }
+        else if(deity == ATEHNA) {
+            Spells[S_HELLFIRE].known = TRUE;
+        }
+        else if(deity == HECATE) {
+            Spells[S_DESECRATE].known = TRUE;
+        }
+        else if(deity == DRUID) {
+            Spells[S_DISINTEGRATE].known = TRUE;
+            Spells[S_HERO].known = TRUE;
+        }
+        else if(deity == DESTINY) {
+            mprint("So you're now the high priest of the Lords of Destiny.");
+            mprint("You didn't thingk you were going to get anything, did you?");
+        }
     }
 }
 
@@ -530,35 +530,35 @@ char *slotstr(int num)
 {
     switch(num) {
     case 0:
-	
-	return "<Slime Mold>";
+        
+        return "<Slime Mold>";
     case 1:
 
-	return "<Lemon>";
+        return "<Lemon>";
     case 2:
 
-	return "<Copper>";
+        return "<Copper>";
     case 3:
 
-	return "<Nymph>";
+        return "<Nymph>";
     case 4:
 
-	return "<Sword>";
+        return "<Sword>";
     case 5:
 
-	return "<Shield>";
+        return "<Shield>";
     case 6:
 
-	return "<Chest>";
+        return "<Chest>";
     case 7:
 
-	return "<Bar>";
+        return "<Bar>";
     case 8:
 
-	return "<Orb>";
+        return "<Orb>";
     case 9:
 
-	return "<Mithril Nugget>";
+        return "<Mithril Nugget>";
     }
 }
 
@@ -567,165 +567,165 @@ char *nameprint()
 {
     switch(random_range(40)) {
     case 0:
-	strcpy(Str3, "Orion Splash");
+        strcpy(Str3, "Orion Splash");
 
-	break;
+        break;
     case 1:
-	strcpy(Str3, "Gorgar");
+        strcpy(Str3, "Gorgar");
 
-	break;
+        break;
     case 2:
-	strcpy(Str3, "Hieronymous");
+        strcpy(Str3, "Hieronymous");
 
-	break;
+        break;
     case 3:
-	strcpy(Str3, "Quantifor Quotron");
+        strcpy(Str3, "Quantifor Quotron");
 
-	break;
+        break;
     case 4:
-	strcpy(Str3, "Leon");
+        strcpy(Str3, "Leon");
 
-	break;
+        break;
     case 5:
-	strcpy(Str3, "Joyce");
+        strcpy(Str3, "Joyce");
 
-	break;
+        break;
     case 6:
-	strcpy(Str3, "Leticia Smiley");
+        strcpy(Str3, "Leticia Smiley");
 
-	break;
+        break;
     case 7:
-	strcpy(Str3, "Ogilvy the Grim");
+        strcpy(Str3, "Ogilvy the Grim");
 
-	break;
+        break;
     case 8:
-	strcpy(Str3, "Salara Storn");
+        strcpy(Str3, "Salara Storn");
 
-	break;
+        break;
     case 9:
-	strcpy(Str3, "Murgo");
+        strcpy(Str3, "Murgo");
 
-	break;
+        break;
     case 10:
-	strcpy(Str3, "Jonathan Atwilder");
+        strcpy(Str3, "Jonathan Atwilder");
 
-	break;
+        break;
     case 11:
-	strcpy(Str3, "Xylos the Tan");
+        strcpy(Str3, "Xylos the Tan");
 
-	break;
+        break;
     case 12:
-	strcpy(Str3, "Terence");
+        strcpy(Str3, "Terence");
 
-	break;
+        break;
     case 13:
-	strcpy(Str3, "Toronado");
+        strcpy(Str3, "Toronado");
 
-	break;
+        break;
     case 14:
-	strcpy(Str3, "Kelly");
+        strcpy(Str3, "Kelly");
 
-	break;
+        break;
     case 15:
-	strcpy(Str3, "Cantinflas");
+        strcpy(Str3, "Cantinflas");
 
-	break;
+        break;
     case 16:
-	strcpy(Str3, "Ixel");
+        strcpy(Str3, "Ixel");
 
-	break;
+        break;
     case 17:
-	strcpy(Str3, "Toto");
+        strcpy(Str3, "Toto");
 
-	break;
+        break;
     case 18:
-	strcpy(Str3, "Frost");
+        strcpy(Str3, "Frost");
 
-	break;
+        break;
     case 19:
-	strcpy(Str3, "Aliera Erinyes");
+        strcpy(Str3, "Aliera Erinyes");
 
-	break;
+        break;
     case 20:
-	strcpy(Str3, "Godel");
+        strcpy(Str3, "Godel");
 
-	break;
+        break;
     case 21:
-	strcpy(Str3, "Kerst Blackblade");
+        strcpy(Str3, "Kerst Blackblade");
 
-	break;
+        break;
     case 22:
-	strcpy(Str3, "Ebenezer");
+        strcpy(Str3, "Ebenezer");
 
-	break;
+        break;
     case 23:
-	strcpy(Str3, "Jeremiah");
+        strcpy(Str3, "Jeremiah");
 
-	break;
+        break;
     case 24:
-	strcpy(Str3, "Triskelion Shadow");
+        strcpy(Str3, "Triskelion Shadow");
 
-	break;
+        break;
     case 25:
-	strcpy(Str3, "Eleskir Eremar");
+        strcpy(Str3, "Eleskir Eremar");
 
-	break;
+        break;
     case 26:
-	strcpy(Str3, "Tyron");
+        strcpy(Str3, "Tyron");
 
-	break;
+        break;
     case 27:
-	strcpy(Str3, "Morgon");
+        strcpy(Str3, "Morgon");
 
-	break;
+        break;
     case 28:
-	strcpy(Str3, "Achmed");
+        strcpy(Str3, "Achmed");
 
-	break;
+        break;
     case 29:
-	strcpy(Str3, "Chin");
+        strcpy(Str3, "Chin");
 
-	break;
+        break;
     case 30:
-	strcpy(Str3, "Fujimoto");
+        strcpy(Str3, "Fujimoto");
 
-	break;
+        break;
     case 31:
-	strcpy(Str3, "Dos Santos");
+        strcpy(Str3, "Dos Santos");
 
-	break;
+        break;
     case 32:
-	strcpy(Str3, "Federico");
+        strcpy(Str3, "Federico");
 
-	break;
+        break;
     case 33:
-	strcpy(Str3, "Jaime");
+        strcpy(Str3, "Jaime");
 
-	break;
+        break;
     case 34:
-	strcpy(Str3, "Siobhan");
+        strcpy(Str3, "Siobhan");
 
-	break;
+        break;
     case 35:
-	strcpy(Str3, "Hans");
+        strcpy(Str3, "Hans");
 
-	break;
+        break;
     case 36:
-	strcpy(Str3, "Gurkov");
+        strcpy(Str3, "Gurkov");
 
-	break;
+        break;
     case 37:
-	strcpy(Str3, "Krilos the Slayer");
+        strcpy(Str3, "Krilos the Slayer");
 
-	break;
+        break;
     case 38:
-	strcpy(Str3, "Oxxblud");
+        strcpy(Str3, "Oxxblud");
 
-	break;
+        break;
     case 39:
-	strcpy(Str3, "Dorian");
+        strcpy(Str3, "Dorian");
 
-	break;
+        break;
     }
 
     return Str3;
@@ -737,40 +737,40 @@ char *wordnum(int num)
     switch(num) {
     case 0:
 
-	return "zero ";
+        return "zero ";
     case 1:
 
-	return "one ";
+        return "one ";
     case 2:
 
-	return "two ";
+        return "two ";
     case 3:
 
-	return "three ";
+        return "three ";
     case 4:
 
-	return "four ";
+        return "four ";
     case 5:
 
-	return "five ";
+        return "five ";
     case 6:
 
-	return "six ";
+        return "six ";
     case 7:
 
-	return "seven ";
+        return "seven ";
     case 8:
 
-	return "eight ";
+        return "eight ";
     case 9:
 
-	return "nine ";
+        return "nine ";
     case 10:
 
-	return "ten ";
+        return "ten ";
     default:
 
-	return "";
+        return "";
     }
 }
      

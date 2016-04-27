@@ -27,9 +27,9 @@ void load_abyss()
 
     if(ok_to_free(TempLevel)) {
 #ifndef MSDOS
-	free((char *)TempLevel);
+        free((char *)TempLevel);
 #endif
-	TempLevel = NULL;
+        TempLevel = NULL;
     }
 
 #ifndef MSDOS
@@ -46,67 +46,67 @@ void load_abyss()
     fd = fopen(Str3, "r");
 
     for(j = 0; j < LENGTH; ++j) {
-	for(i = 0, i < WIDTH; ++i) {
-	    site = getc(fd);
+        for(i = 0, i < WIDTH; ++i) {
+            site = getc(fd);
 
-	    switch(site) {
-	    case '0':
-		Level->site[i][j].locchar = ' ';
-		Level->site[i][j].p_locf = L_VOID;
+            switch(site) {
+            case '0':
+                Level->site[i][j].locchar = ' ';
+                Level->site[i][j].p_locf = L_VOID;
 
-		break;
-	    case 'V':
-		Level->site[i][j].locchar = ' ';
-		Level->site[i][j].p_locf = L_VOID_STATION;
+                break;
+            case 'V':
+                Level->site[i][j].locchar = ' ';
+                Level->site[i][j].p_locf = L_VOID_STATION;
 
-		break;
-	    case '1':
-		Level->site[i][j].locchar = FLOOR;
-		Level->site[i][j].p_locf = L_VOICE1;
+                break;
+            case '1':
+                Level->site[i][j].locchar = FLOOR;
+                Level->site[i][j].p_locf = L_VOICE1;
 
-		break;
-	    case '2':
-		Level->site[i][j].locchar = FLOOR;
-		Level->site[i][j].p_locf = L_VOICE2;
+                break;
+            case '2':
+                Level->site[i][j].locchar = FLOOR;
+                Level->site[i][j].p_locf = L_VOICE2;
 
-		break;
-	    case '3':
-		Level->site[i][j].locchar = FLOOR;
-		Level->site[i][j].p_locf = L_VOICE3;
+                break;
+            case '3':
+                Level->site[i][j].locchar = FLOOR;
+                Level->site[i][j].p_locf = L_VOICE3;
 
-		break;
-	    case '~':
-		Level->site[i][j].locchar = WATER;
-		Level->site[i][j].p_locf = L_WATER_STATION;
+                break;
+            case '~':
+                Level->site[i][j].locchar = WATER;
+                Level->site[i][j].p_locf = L_WATER_STATION;
 
-		break;
-	    case ';':
-		Level->site[i][j].locchar = FIRE;
-		Level->site[i][j].p_locf = L_FIRE_STATION;
+                break;
+            case ';':
+                Level->site[i][j].locchar = FIRE;
+                Level->site[i][j].p_locf = L_FIRE_STATION;
 
-		break;
-	    case '"':
-		Level->site[i][j].locchar = HEDGE;
-		Level->site[i][j].p_locf = L_EARTH_STATION;
+                break;
+            case '"':
+                Level->site[i][j].locchar = HEDGE;
+                Level->site[i][j].p_locf = L_EARTH_STATION;
 
-		break;
-	    case '6':
-		Level->site[i][j].locchar = WHIRLWIND;
-		Level->site[i][j].p_locf = L_AIR_STATION;
+                break;
+            case '6':
+                Level->site[i][j].locchar = WHIRLWIND;
+                Level->site[i][j].p_locf = L_AIR_STATION;
 
-		break;
-	    case '#':
-		Level->site[i][j].locchar = WALL;
+                break;
+            case '#':
+                Level->site[i][j].locchar = WALL;
 
-		break;
-	    case '.':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case '.':
+                Level->site[i][j].locchar = FLOOR;
 
-		break;
-	    }
-	}
+                break;
+            }
+        }
 
-	fscanf(fd, "\n");
+        fscanf(fd, "\n");
     }
 }
 
@@ -119,7 +119,7 @@ void msdos_init()
 
     /* Allocate the inner level of pointers for TheLevel */
     for(i = 0; i < MAXWIDTH; ++i) {
-	TheLevel.site[i] = (plc)malloc(MAXLENGTH * sizeof(loctype));
+        TheLevel.site[i] = (plc)malloc(MAXLENGTH * sizeof(loctype));
     }
 
     /* Remove old level files */
@@ -140,8 +140,8 @@ void kill_levels(char *str)
      * sprintf(Str1, "%s%s", OMEGALIB, str);
      
      * for(i = _dos_findfirst(Str1, _A_NORMAL, &buf); i != 0; i = _dos_findnext(&buf)) {
-     * 	sprintf(Str2, "%s%s", OMEGALIB, buf.name);
-     * 	remove(Str2);
+     *  sprintf(Str2, "%s%s", OMEGALIB, buf.name);
+     *  remove(Str2);
      * }
      */
 }
@@ -161,28 +161,28 @@ void check_memory()
     try = MEM_CHECK_AMOUNT;
 
     while(try > 1000) {
-	while(try > 0) {
-	    mems[num_mems] = malloc(try);
+        while(try > 0) {
+            mems[num_mems] = malloc(try);
 
-	    if(mems[num_mems] != NULL) {
-		break;
-	    }
+            if(mems[num_mems] != NULL) {
+                break;
+            }
 
-	    try -= 0x400;
-	}
+            try -= 0x400;
+        }
 
-	amount += try;
-	++num_mems;
+        amount += try;
+        ++num_mems;
     }
 
     --num_mems;
 
     while(num_mems >= 0) {
-	if(mems[num_mems] != NULL) {
-	    free(mems[num_mems]);
-	}
-	
-	--num_mems;
+        if(mems[num_mems] != NULL) {
+            free(mems[num_mems]);
+        }
+        
+        --num_mems;
     }
 
     sprintf(Str1, "Free mem approx %dK", (int)(amount / 0x400));
@@ -199,7 +199,7 @@ void sleep(int n)
     ftime(&ntime);
 
     while((((short)(ntime.tim - otime.time)) * 1000 + (short)ntime.millitm - (short)otime.millitm) < (n * 1000)) {
-	ftime(&ntime);
+        ftime(&ntime);
     }
 }
 #endif
@@ -209,10 +209,10 @@ static FILE *open_levfile(int env, int depth, int rw)
     sprintf(Str1, "%s0m%03d%03d.lev", OMEGALIB, env, depth);
 
     if(rw) {
-	return fopen(Str1, "wb");
+        return fopen(Str1, "wb");
     }
     else {
-	return fopen(Str1, "rb");
+        return fopen(Str1, "rb");
     }
 }
 
@@ -221,10 +221,10 @@ static void free_objlist(pol pobjlist)
     pol tmp;
 
     while(pobjlist) {
-	tmp = pobjlist;
-	free(tmp->thing);
-	poblist = pobjlist->next;
-	free(tmp);
+        tmp = pobjlist;
+        free(tmp->thing);
+        poblist = pobjlist->next;
+        free(tmp);
     }
 }
 
@@ -233,11 +233,11 @@ static void free_mons_and_objs(pml mlist)
     pml tmp;
 
     while(mlist) {
-	tmp = mlist;
-	free_objlist(tmp->m->possessions);
-	free(tmp->m);
-	mlist = mlist->next;
-	free(tmp);
+        tmp = mlist;
+        free_objlist(tmp->m->possessions);
+        free(tmp->m);
+        mlist = mlist->next;
+        free(tmp);
     }
 }
 
@@ -250,9 +250,9 @@ void free_levelstuff(plv oldlevel)
     free_monst_and_objs(oldlevel->mlist);
 
     for(i = 0; i < MAXWIDTH; ++i) {
-	for(j = 0; j < MAXLENGTH; ++j) {
-	    free_objlist(oldlevel->site[i][j].things);
-	}
+        for(j = 0; j < MAXLENGTH; ++j) {
+            free_objlist(oldlevel->site[i][j].things);
+        }
     }
 }
 
@@ -265,35 +265,35 @@ plv msdos_changelevel(plv oldlevel, int newenv, int newdepth)
     FILE *fp;
 
     if(oldlevel != NULL) {
-	if((oldlevel->environment == newenv) && (oldlevel->depth == newdepth)) {
-	    return oldlevel;
-	}
+        if((oldlevel->environment == newenv) && (oldlevel->depth == newdepth)) {
+            return oldlevel;
+        }
 
-	fp = open_levfile(oldlevel->environment, oldlevel->depth, 1);
+        fp = open_levfile(oldlevel->environment, oldlevel->depth, 1);
 
-	if(fp != NULL) {
-	    save_level(fp, oldlevel);
-	    fclose(fp);
-	}
-	else {
-	    mprint("Cannot save level!!!");
-	}
+        if(fp != NULL) {
+            save_level(fp, oldlevel);
+            fclose(fp);
+        }
+        else {
+            mprint("Cannot save level!!!");
+        }
 
-	/* Free up monsters and items */
-	free_levelstuff(oldlevel);
+        /* Free up monsters and items */
+        free_levelstuff(oldlevel);
     }
 
     if(newdepth >= 0) {
-	fp = open_levfile(newenv, newdepth, 0);
+        fp = open_levfile(newenv, newdepth, 0);
 
-	if(fp == NULL) {
-	    return NULL;
-	}
+        if(fp == NULL) {
+            return NULL;
+        }
 
-	restore_level(fp);
-	fclose(fp);
+        restore_level(fp);
+        fclose(fp);
 
-	return level;
+        return level;
     }
 
     return NULL;

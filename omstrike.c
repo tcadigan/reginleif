@@ -40,39 +40,39 @@ void m_blind_strike(struct monster *m)
     if((Player.status[BLINDED] == 0)
        && los_p(m->x, m->y, Player.x, Player.y)
        && (distance(m->x, m->y, Player.x, Player.y) < 5)) {
-	if(m->uniqueness == COMMON) {
-	    strcpy(Str2, "The ");
-	    strcat(Str2, m->monstring);
-	}
-	else {
-	    strcpy(Str2, m->monstring);
-	}
+        if(m->uniqueness == COMMON) {
+            strcpy(Str2, "The ");
+            strcat(Str2, m->monstring);
+        }
+        else {
+            strcpy(Str2, m->monstring);
+        }
 
-	strcat(Str2, " gazes at you menacingly");
-	mprint(Str2);
+        strcat(Str2, " gazes at you menacingly");
+        mprint(Str2);
 
-	if(!p_immune(GAZE)) {
-	    mprint("You've been blinded!");
-	    Player.status[BLINDED] = random_range(4) + 1;
+        if(!p_immune(GAZE)) {
+            mprint("You've been blinded!");
+            Player.status[BLINDED] = random_range(4) + 1;
 
-	    for(ml = Level->mlist; ml != NULL; ml = ml->next) {
-		plotspot(ml->m->x, ml->m->y, FALSE);
-	    }
-	}
-	else {
-	    mprint("You gaze steadily back...");
-	}
+            for(ml = Level->mlist; ml != NULL; ml = ml->next) {
+                plotspot(ml->m->x, ml->m->y, FALSE);
+            }
+        }
+        else {
+            mprint("You gaze steadily back...");
+        }
     }
 }
 
 void m_strike_sonic(struct monster *m)
 {
     if(m->uniqueness == COMMON) {
-	strcpy(Str2, "The ");
-	strcat(Str2, m->monstring);
+        strcpy(Str2, "The ");
+        strcat(Str2, m->monstring);
     }
     else {
-	strcpy(Str2, m->monstring);
+        strcpy(Str2, m->monstring);
     }
 
     strcat(Str2, "screams at you!");

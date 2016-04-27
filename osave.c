@@ -24,75 +24,75 @@ int save_game(int compress, char *savestr)
     FILE *fd = fopen(savestr, "r");
 
     if(fd != NULL) {
-	mprint("Overwrite old file?");
+        mprint("Overwrite old file?");
 
-	if(ynq() == 'y') {
-	    writeok = 1;
-	}
-	else {
-	    writeok = 0;
-	}
+        if(ynq() == 'y') {
+            writeok = 1;
+        }
+        else {
+            writeok = 0;
+        }
 
-	fclose(fd);
+        fclose(fd);
     }
 
     if(writeok) {
-	fd = fopen(savestr, "w");
+        fd = fopen(savestr, "w");
 
-	if(fd == NULL) {
-	    writeok = FALSE;
-	    mprint("Error opening file.");
-	}
+        if(fd == NULL) {
+            writeok = FALSE;
+            mprint("Error opening file.");
+        }
     }
 
     if(!writeok) {
-	print2("Save aborted.");
+        print2("Save aborted.");
     }
     else {
-	print1("Saving game...");
+        print1("Saving game...");
 
-	/* Write the version number */
-	i = VERSION;
-	fwrite((char *)&i, sizeof(int), 1, fd);
+        /* Write the version number */
+        i = VERSION;
+        fwrite((char *)&i, sizeof(int), 1, fd);
 
-	/* Write game id to save file */
-	save_player(fd);
-	save_country(fd);
-	save_level(fd, City);
+        /* Write game id to save file */
+        save_player(fd);
+        save_country(fd);
+        save_level(fd, City);
 
-	if((Current_Environment != E_CITY)
-	   && (Current_Environment != E_COUNTRYSIDE)) {
-	    i = TRUE;
-	    fwrite((char *)&i, sizeof(int), 1, fd);
-	    save_level(fd, Level);
-	}
-	else {
-	    i = FALSE;
-	    fwrite((char *)&i, sizeof(int), 1, fd);
-	}
+        if((Current_Environment != E_CITY)
+           && (Current_Environment != E_COUNTRYSIDE)) {
+            i = TRUE;
+            fwrite((char *)&i, sizeof(int), 1, fd);
+            save_level(fd, Level);
+        }
+        else {
+            i = FALSE;
+            fwrite((char *)&i, sizeof(int), 1, fd);
+        }
 
-	fclose(fd);
-	print1("Game saved.");
+        fclose(fd);
+        print1("Game saved.");
 
 #ifdef COMPRESS_SAVE_FILES
-	if(compress) {
-	    print2("Compressing save file...");
-	    strcpy(smd, "compress ");
-	    strcat(cmd, savestr);
-	    system(cmd);
+        if(compress) {
+            print2("Compressing save file...");
+            strcpy(smd, "compress ");
+            strcat(cmd, savestr);
+            system(cmd);
 
-	    if(strlen(savestr) < 13) {
-		strcpy(cmd, "mv ");
-		strcat(cmd, savestr);
-		strcat(cmd, ".Z ");
-		strcat(cmd, savestr);
-		system(cmd);
-	    }
-	}
+            if(strlen(savestr) < 13) {
+                strcpy(cmd, "mv ");
+                strcat(cmd, savestr);
+                strcat(cmd, ".Z ");
+                strcat(cmd, savestr);
+                system(cmd);
+            }
+        }
 #endif
 
-	morewait();
-	clearmsg();
+        morewait();
+        clearmsg();
     }
 
     return writeok;
@@ -109,78 +109,78 @@ int save_game(int compress, char *savestr)
     FILE *fd = fopen(savestr, "rb");
 
     if(fd != NULL) {
-	mprint("Overwrite old file?");
+        mprint("Overwrite old file?");
 
-	if(ynq() == 'y') {
-	    writeok = 1;
-	}
-	else {
-	    writeok = 0;
-	}
+        if(ynq() == 'y') {
+            writeok = 1;
+        }
+        else {
+            writeok = 0;
+        }
 
-	fclose(fd);
+        fclose(fd);
     }
 
     if(writeok) {
-	fd = fopen(savestr, "wb");
+        fd = fopen(savestr, "wb");
 
-	if(fd == NULL) {
-	    writeok = FALSE;
-	    mprint("Error opening file.");
-	}
+        if(fd == NULL) {
+            writeok = FALSE;
+            mprint("Error opening file.");
+        }
     }
 
     if(!writeok) {
-	print2("Save aborted.");
+        print2("Save aborted.");
     }
     else {
-	print1("Saving game...");
+        print1("Saving game...");
 
-	/* Write the version number */
-	i = VERSION;
-	fwrite((char *)&i, sizeof(int), 1, fd);
+        /* Write the version number */
+        i = VERSION;
+        fwrite((char *)&i, sizeof(int), 1, fd);
 
-	/* Write game id to save file */
-	save_player(fd);
-	save_country(fd);
-	tmpdepth = Level->depth;
-	City = msdos_changelevel(Level, E_CITY, 0);
-	save_level(fd, City);
+        /* Write game id to save file */
+        save_player(fd);
+        save_country(fd);
+        tmpdepth = Level->depth;
+        City = msdos_changelevel(Level, E_CITY, 0);
+        save_level(fd, City);
 
-	if((Current_Environment != E_CITY)
-	   && (Current_Environment != E_COUNTRYSIDE)) {
-	    i = TRUE;
-	    fwrite((char *)&i, sizeof(int), 1, fd);
-	    Level = msdos_changelevel(NULL, Current_Environment, tmpdepth);
-	    save_level(fd, Level);
-	}
-	else {
-	    i = FALSE;
-	    fwrite((char *)&i, sizeof(int), 1, fd);
-	}
+        if((Current_Environment != E_CITY)
+           && (Current_Environment != E_COUNTRYSIDE)) {
+            i = TRUE;
+            fwrite((char *)&i, sizeof(int), 1, fd);
+            Level = msdos_changelevel(NULL, Current_Environment, tmpdepth);
+            save_level(fd, Level);
+        }
+        else {
+            i = FALSE;
+            fwrite((char *)&i, sizeof(int), 1, fd);
+        }
 
-	fclose(fd);
-	print1("Game saved.");
+        fclose(fd);
+        print1("Game saved.");
 
 #ifdef COMPRESS_SAVE_FILES
-	if(compress) {
-	    print2("Compressing save file...");
-	    strcpy(cmd, "compress ");
-	    strcat(cmd, savestr);
-	    system(cmd);
+        if(compress) {
+            print2("Compressing save file...");
+            strcpy(cmd, "compress ");
+            strcat(cmd, savestr);
+            system(cmd);
 
-	    if(strlen(savestr) < 13) {
-		strcpy(cmd, "mv ");
-		strcat(cmd, savestr);
-		strcat(cmd, ".Z");
-		strcat(cmd, savestr);
-		system(cmd);
-	    }
-	}
+            if(strlen(savestr) < 13) {
+                strcpy(cmd, "mv ");
+                strcat(cmd, savestr);
+                strcat(cmd, ".Z");
+                strcat(cmd, savestr);
+                system(cmd);
+            }
+        }
 #endif
 
-	morewait();
-	clearmsg();
+        morewait();
+        clearmsg();
     }
 
     return writeok;
@@ -204,27 +204,27 @@ int signalsave()
 #endif
 
     if(fd != NULL) {
-	/* Write the version number */
-	i = VERSION;
-	fwrite((char *)&i, sizeof(int), 1, fd);
+        /* Write the version number */
+        i = VERSION;
+        fwrite((char *)&i, sizeof(int), 1, fd);
 
-	/* Write game id to save file */
-	save_player(fd);
-	save_country(fd);
-	save_level(fd, City);
+        /* Write game id to save file */
+        save_player(fd);
+        save_country(fd);
+        save_level(fd, City);
 
-	if((Current_Environment != E_CITY)
-	   && (Current_Environment != E_COUNTRYSIDE)) {
-	    i = TRUE;
-	    fwrite((char *)&i, sizeof(int), 1, fd);
-	    save_level(fd, level);
-	}
-	else {
-	    i = FALSE;
-	    fwrite((char *)&i, sizeof(int), 1, fd);
-	}
+        if((Current_Environment != E_CITY)
+           && (Current_Environment != E_COUNTRYSIDE)) {
+            i = TRUE;
+            fwrite((char *)&i, sizeof(int), 1, fd);
+            save_level(fd, level);
+        }
+        else {
+            i = FALSE;
+            fwrite((char *)&i, sizeof(int), 1, fd);
+        }
 
-	fclose(fd);
+        fclose(fd);
     }
 
     exit(0);
@@ -238,10 +238,10 @@ void save_player(FILE *fd)
 
     if((Player.possessions[O_READY_HAND] == Player.possessions[O_WEAPON_HAND])
        && (Player.possessions[O_READY_HAND] != NULL)) {
-	twohand = 1;
+        twohand = 1;
     }
     else {
-	twohand = 0;
+        twohand = 0;
     }
 
     /* Save random global state information */
@@ -373,15 +373,15 @@ void save_player(FILE *fd)
 
     /* Save player possessions */
     for(i = 0; i < MAXITEMS; ++i) {
-	save_item(fd, Player.possessions[i]);
+        save_item(fd, Player.possessions[i]);
     }
 
     for(i = 0; i < MAXPACK; ++i) {
-	save_item(fd, Player.pack[i]);
+        save_item(fd, Player.pack[i]);
     }
 
     for(i = 0; i < PAWNITEMS; ++i) {
-	save_item(fd, Pawnitems[i]);
+        save_item(fd, Pawnitems[i]);
     }
 
     /* Save items in condo vault */
@@ -389,7 +389,7 @@ void save_player(FILE *fd)
 
     /* Save player item knowledge */
     for(i = 0; i < TOTALITEMS; ++i) {
-	fwrite((char *)&Objects[i].known, sizeof(Objects[i].known), 1, fd);
+        fwrite((char *)&Objects[i].known, sizeof(Objects[i].known), 1, fd);
     }
 }
 
@@ -403,16 +403,16 @@ void save_level(FILE *fd, plv level)
 
 #ifdef MSDOS
     for(i = 0; i < MAXWIDTH; ++i) {
-	fwrite((char *)level->site[i], MAXLENGTH * sizeof(loctype), 1, fd);
+        fwrite((char *)level->site[i], MAXLENGTH * sizeof(loctype), 1, fd);
     }
 #endif
 
     save_monsters(fd, level->mlist);
 
     for(i = 0; i < MAXWIDTH; ++i) {
-	for(j = 0; j < MAXLENGTH; ++j) {
-	    save_itemlist(fd, level->site[i][j].things);
-	}
+        for(j = 0; j < MAXLENGTH; ++j) {
+            save_itemlist(fd, level->site[i][j].things);
+        }
     }
 }
 
@@ -423,20 +423,20 @@ void save_monsters(FILE *fd, pml ml)
 
     /* First count monsters */
     for(tml = ml; tml != NULL; tml = tml->next) {
-	if(tml->m->hp > 0) {
-	    ++nummonsters;
-	}
+        if(tml->m->hp > 0) {
+            ++nummonsters;
+        }
     }
 
     fwrite((char *)&nummonsters, sizeof(int), 1, fd);
 
     /* Now save monsters */
     for(tml = ml; tml != NULL; tml = tml->next) {
-	if(tml->m->hp > 0) {
-	    fwrite((char *)tml->m, sizeof(montype), 1, fd);
-	    fprintf(fd, "%s\n", tml->m->monstring);
-	    save_itemlist(fd, tml->m->possessions);
-	}
+        if(tml->m->hp > 0) {
+            fwrite((char *)tml->m, sizeof(montype), 1, fd);
+            fprintf(fd, "%s\n", tml->m->monstring);
+            save_itemlist(fd, tml->m->possessions);
+        }
     }
 }
 
@@ -447,12 +447,12 @@ void save_item(FILE *fd, pob o)
     nullobject.id = -1;
 
     if(o == NULL) {
-	fwrite((char *)&nullobjects, sizeof(objtype), 1, fd);
-	fprintf(fd, "Null object. Report if you see this!\n");
+        fwrite((char *)&nullobjects, sizeof(objtype), 1, fd);
+        fprintf(fd, "Null object. Report if you see this!\n");
     }
     else {
-	fwrite((char *)o, sizeof(objtype), 1, fd);
-	fprintf(fd, "%s\n", o->truename);
+        fwrite((char *)o, sizeof(objtype), 1, fd);
+        fprintf(fd, "%s\n", o->truename);
     }
 }
 
@@ -462,13 +462,13 @@ void save_itemlist(FILE *fd, pol ol)
     pol tol;
 
     for(tol = ol; tol != NULL; tol = tol->next) {
-	++numitems;
+        ++numitems;
     }
 
     fwrite((char *)&numitems, sizeof(int), 1, fd);
 
     for(tol = ol; tol != NULL; tol = tol->next) {
-	save_item(fd, tol->thing);
+        save_item(fd, tol->thing);
     }
 }
 
@@ -492,12 +492,12 @@ int restore_game(char *savestr)
     print1("Uncompressing save file...");
 
     if(strlen(savestr) < 13) {
-	strcpy(cmd, "mv ");
-	strcat(cmd, savestr);
-	strcat(cmd, " ");
-	strcat(savestr, ".Z");
-	strcat(cmd, savestr);
-	system(cmd);
+        strcpy(cmd, "mv ");
+        strcat(cmd, savestr);
+        strcat(cmd, " ");
+        strcat(savestr, ".Z");
+        strcat(cmd, savestr);
+        system(cmd);
     }
 
     strcpy(cmd, "uncompress ");
@@ -508,7 +508,7 @@ int restore_game(char *savestr)
 
     if((savestr[strlen(savestr) - 1] == 'Z')
        && (savestr[strlen(savestr) - 2] == '.')) {
-	savestr[strlen(savestr)-2] = 0;
+        savestr[strlen(savestr)-2] = 0;
     }
 #endif
 
@@ -521,55 +521,55 @@ int restore_game(char *savestr)
 #endif
 
     if(fd == NULL) {
-	print1("Error restoring game -- aborted.");
-	print2("File name was: ");
-	nprint2(savestr);
-	morewait();
+        print1("Error restoring game -- aborted.");
+        print2("File name was: ");
+        nprint2(savestr);
+        morewait();
 
-	return FALSE;
+        return FALSE;
     }
     else {
-	print1("Restoring...");
-	fread((char *)&version, sizeof(int), 1, fd);
+        print1("Restoring...");
+        fread((char *)&version, sizeof(int), 1, fd);
 
-	if(VERSION != version) {
-	    print2("Sorry, I can't restore an outdated save file!");
-	    morewait();
+        if(VERSION != version) {
+            print2("Sorry, I can't restore an outdated save file!");
+            morewait();
 
-	    return FALSE;
-	}
+            return FALSE;
+        }
 
-	restore_player(fd);
-	restore_country(fd);
+        restore_player(fd);
+        restore_country(fd);
 
-	/* The city level */
-	restore_level(fd);
+        /* The city level */
+        restore_level(fd);
 
-	fread((char *)&i, sizeof(int), 1, fd);
+        fread((char *)&i, sizeof(int), 1, fd);
 
 #ifndef MSDOS
-	if(i == TRUE) {
-	    restore_level(fd);
-	}
+        if(i == TRUE) {
+            restore_level(fd);
+        }
 
 #else
-	
-	if(i == TRUE) {
-	    msdos_changelevel(Level, 0, -1);
-	    restore_level(fd);
-	}
+        
+        if(i == TRUE) {
+            msdos_changelevel(Level, 0, -1);
+            restore_level(fd);
+        }
 #endif
 
-	print3("Restoration complete.");
-	ScreenOffset = -1000;
-	screencheck(Player.y);
-	drawvision(Player.x, Player.y);
-	setgamestatus(SKIP_MONSTERS);
-	dataprint();
-	showflags();
-	fclose(fd);
+        print3("Restoration complete.");
+        ScreenOffset = -1000;
+        screencheck(Player.y);
+        drawvision(Player.x, Player.y);
+        setgamestatus(SKIP_MONSTERS);
+        dataprint();
+        showflags();
+        fclose(fd);
 
-	return TRUE;
+        return TRUE;
     }
 }
 
@@ -592,25 +592,25 @@ void restore_player(FILE *fd)
 
     switch(Current_Dungeon) {
     case E_ASTRAL:
-	MaxDungeonLevels = ASTRALLEVELS;
+        MaxDungeonLevels = ASTRALLEVELS;
 
-	break;
+        break;
     case E_SEWERS:
-	MaxDungeonLevels = SEWERLEVELS;
+        MaxDungeonLevels = SEWERLEVELS;
 
-	break;
+        break;
     case E_CASTLE:
-	MaxDungeonLevels = CASTLELEVELS;
+        MaxDungeonLevels = CASTLELEVELS;
 
-	break;
+        break;
     case E_CAVES:
-	MaxDungeonLevels = CAVELEVELS;
+        MaxDungeonLevels = CAVELEVELS;
 
-	break;
+        break;
     case E_VOLCANO:
-	MaxDungeonLevels = VOLCANOLEVELS;
+        MaxDungeonLevels = VOLCANOLEVELS;
 
-	break;
+        break;
     }
 
     fread((char *)&Verbosity, sizeof(char), 1, fd);
@@ -734,26 +734,26 @@ void restore_player(FILE *fd)
     inititem(0);
 
     for(i = 0; i < MAXITEMS; ++i) {
-	Player.possessions[i] = restore_item(fd);
+        Player.possessions[i] = restore_item(fd);
     }
 
     if(twohand) {
-	free((char *)Player.possessions[O_READY_HAND]);
-	Player.possessions[O_READY_HAND] = Player.possessions[O_WEAPON_HAND];
+        free((char *)Player.possessions[O_READY_HAND]);
+        Player.possessions[O_READY_HAND] = Player.possessions[O_WEAPON_HAND];
     }
 
     for(i = 0; i < MAXPACK; ++i) {
-	Player.pack[i] = restore_item(fd);
+        Player.pack[i] = restore_item(fd);
     }
 
     for(i = 0; i < PAWNITEMS; ++i) {
-	Pawnitems[i] = restore_item(fd);
+        Pawnitems[i] = restore_item(fd);
     }
 
     Condoitems = restore_itemlist(fd);
 
     for(i = 0; i < TOTALITEMS; ++i) {
-	fread((char *)&Objects[i].known, sizeof(Objects[i].known), 1, fd);
+        fread((char *)&Objects[i].known, sizeof(Objects[i].known), 1, fd);
     }
 
     calc_melee();
@@ -769,15 +769,15 @@ pob restore_item(FILE *fd)
     obj->truename = salloc(tempstr);
 
     if(obj->id < 0) {
-	free((char *)obj);
+        free((char *)obj);
 
-	return NULL;
+        return NULL;
     }
     else {
-	obj->objstr = Objects[obj->id].objstr;
-	obj->cursestr = Objects[obj->id].cursestr;
+        obj->objstr = Objects[obj->id].objstr;
+        obj->cursestr = Objects[obj->id].cursestr;
 
-	return obj;
+        return obj;
     }
 }
 
@@ -793,19 +793,19 @@ pol restore_itemlist(FILE *fd)
     fread((char *)&numitems, sizeof(int), 1, fd);
 
     for(i = 0; i < numitems; ++i) {
-	new = (pol)malloc(sizeof(oltype));
-	new->thing = restore_item(fd);
-	new->next = NULL;
+        new = (pol)malloc(sizeof(oltype));
+        new->thing = restore_item(fd);
+        new->next = NULL;
 
-	if(firsttime == TRUE) {
-	    cur = new;
-	    ol = cur;
-	    firsttime = FALSE;
-	}
-	else {
-	    cur->next = new;
-	    cur = new;
-	}
+        if(firsttime == TRUE) {
+            cur = new;
+            ol = cur;
+            firsttime = FALSE;
+        }
+        else {
+            cur->next = new;
+            cur = new;
+        }
     }
 
     return ol;
@@ -826,14 +826,14 @@ void restore_level(FILE *fd)
     Level = &TheLevel;
 
     for(i = 0; i < MAXWIDTH; ++i) {
-	tmp[i] = Level->site[i];
+        tmp[i] = Level->site[i];
     }
 
     fread((char *)Level, sizeof(levtype), 1, fd);
 
     for(i = 0; i < MAXWIDTH; ++i) {
-	Level->site[i] = tmp[i];
-	fread((char *)Level->site[i], MAXLENGTH * sizeof(loctype), 1, fd);
+        Level->site[i] = tmp[i];
+        fread((char *)Level->site[i], MAXLENGTH * sizeof(loctype), 1, fd);
     }
 
     free(tmp);
@@ -844,16 +844,16 @@ void restore_level(FILE *fd)
     restore_monsters(fd, Level);
 
     for(i = 0; i < MAXWIDTH; ++i) {
-	for(j = 0; j < MAXLENGTH; ++j) {
-	    Level->site[i][j].things = restore_itemlist(fd);
-	}
+        for(j = 0; j < MAXLENGTH; ++j) {
+            Level->site[i][j].things = restore_itemlist(fd);
+        }
     }
 
     if(Level->environment == E_CITY) {
-	City = Level;
+        City = Level;
     }
     else if(Level->environment == Current_Dungeon) {
-	Dungeon = Level;
+        Dungeon = Level;
     }
 }
 
@@ -868,18 +868,18 @@ void restore_monsters(FILE *fd, plv level)
     fread((char *)&nummonsters, sizeof(int), 1, fd);
 
     for(i = 0; i < nummonsters, ++i) {
-	ml = (pml)malloc(sizeof(mltype));
-	ml->m = (pmt)malloc(sizeof(montype));
-	ml->next = NULL;
-	fread((char *)ml->m, sizeof(montype), 1, fd);
-	filescanstring(fd, tempstr);
-	ml->m->monstring = salloc(tempstr);
-	ml->m->corpsestr = salloc(Monsters[ml->m->id].corpsestr);
-	ml->m->meleestr = salloc(Monsters[ml->m->id].meleestr);
-	level->site[ml->m->x][ml->m->y].creature = ml->m;
-	ml->m->possessions = restore_itemlist(fd);
-	ml->next = level->mlist;
-	level->mlist = ml;
+        ml = (pml)malloc(sizeof(mltype));
+        ml->m = (pmt)malloc(sizeof(montype));
+        ml->next = NULL;
+        fread((char *)ml->m, sizeof(montype), 1, fd);
+        filescanstring(fd, tempstr);
+        ml->m->monstring = salloc(tempstr);
+        ml->m->corpsestr = salloc(Monsters[ml->m->id].corpsestr);
+        ml->m->meleestr = salloc(Monsters[ml->m->id].meleestr);
+        level->site[ml->m->x][ml->m->y].creature = ml->m;
+        ml->m->possessions = restore_itemlist(fd);
+        ml->next = level->mlist;
+        level->mlist = ml;
     }
 }
 

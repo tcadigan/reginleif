@@ -22,10 +22,10 @@ void load_arena()
 
     if(ok_to_free(TempLevel)) {
 #ifndef MSDOS
-	free((char *)TempLevel);
+        free((char *)TempLevel);
 #enfi
-	
-	TempLevel = NULL;
+        
+        TempLevel = NULL;
     }
 
 #ifndef MSDOS
@@ -42,53 +42,53 @@ void load_arena()
     fd = fopen(Str3, "r");
 
     for(j = 0; j < LENGTH; ++j) {
-	for(i = 0; i < WIDTH; ++i) {
-	    Level->site[i][j].lstatus = SEEN + LIT;
-	    Level->site[i][j].roomnumber = RS_ARENA;
-	    site = getc(fd);
+        for(i = 0; i < WIDTH; ++i) {
+            Level->site[i][j].lstatus = SEEN + LIT;
+            Level->site[i][j].roomnumber = RS_ARENA;
+            site = getc(fd);
 
-	    switch(site) {
-	    case 'P':
-		Level->site[i][j].locchar = PORTCULLIS;
-		Level->site[i][j].p_locf = L_PORTCULLIS;
+            switch(site) {
+            case 'P':
+                Level->site[i][j].locchar = PORTCULLIS;
+                Level->site[i][j].p_locf = L_PORTCULLIS;
 
-		break;
-	    case 'R':
-		Level->site[i][j].locchar = FLOOR;
-		Level->site[i][j].p_locf = L_RAISE_PORTCULLIS;
+                break;
+            case 'R':
+                Level->site[i][j].locchar = FLOOR;
+                Level->site[i][j].p_locf = L_RAISE_PORTCULLIS;
 
-		break;
-	    case 'p':
-		Level->site[i][j].locchar = FLOOR;
-		Level->site[i][j].p_locf = L_PORTCULLIS;
+                break;
+            case 'p':
+                Level->site[i][j].locchar = FLOOR;
+                Level->site[i][j].p_locf = L_PORTCULLIS;
 
-		break;
-	    case '7':
-		Level->site[i][j].locchar = PORTCULLIS;
-		Level->site[i][j].p_locf = L_PORTCULLIS;
+                break;
+            case '7':
+                Level->site[i][j].locchar = PORTCULLIS;
+                Level->site[i][j].p_locf = L_PORTCULLIS;
 
-		break;
-	    case 'T':
-		Level->site[i][j].locchar = FLOOR;
-		Level->site[i][j].p_locf = L_DROP_EVERY_PORTCULLIS;
+                break;
+            case 'T':
+                Level->site[i][j].locchar = FLOOR;
+                Level->site[i][j].p_locf = L_DROP_EVERY_PORTCULLIS;
 
-		break;
-	    case 'X':
-		Level->site[i][j].locchar = FLOOR;
-		Level->site[i][j].p_locf = L_ARENA_EXIT;
+                break;
+            case 'X':
+                Level->site[i][j].locchar = FLOOR;
+                Level->site[i][j].p_locf = L_ARENA_EXIT;
 
-		break;
-	    default:
-		Level->site[i][j].locchar = site;
-		Level->site[i][j].p_locf = L_NO_OP;
+                break;
+            default:
+                Level->site[i][j].locchar = site;
+                Level->site[i][j].p_locf = L_NO_OP;
 
-		break;
-	    }
+                break;
+            }
 
-	    Level->site[i][j].showchar = Level->site[i][j].locchar;
-	}
+            Level->site[i][j].showchar = Level->site[i][j].locchar;
+        }
 
-	fscanf(fd, "\n");
+        fscanf(fd, "\n");
     }
 
     Level->site[60][7].creature = Arena_Monster;
@@ -118,20 +118,20 @@ void load_circle()
     FILE *fd;
 
     if(Player.rank[CIRCLE] > 0) {
-	safe = 1;
+        safe = 1;
     }
     else {
-	safe = 0;
+        safe = 0;
     }
 
     TempLevel = Level;
 
     if(ok_to_free(TempLevel)) {
 #ifndef MSDOS
-	free((char *)TempLevel);
+        free((char *)TempLevel);
 #endif
 
-	TempLevel = NULL;
+        TempLevel = NULL;
     }
 
 #ifndef MSDOS
@@ -148,128 +148,128 @@ void load_circle()
     fd = fopen(Str3, "r");
 
     for(j = 0; j < LENGTH; ++j) {
-	for(i = 0; i < WIDTH; ++i) {
-	    Level->site[i][j].lstatus = 0;
-	    Level->site[i][j].roomnumber = RS_CIRCLE;
-	    Level->site[i][j].p_locf = L_NO_OP;
-	    site = getc(fd);
+        for(i = 0; i < WIDTH; ++i) {
+            Level->site[i][j].lstatus = 0;
+            Level->site[i][j].roomnumber = RS_CIRCLE;
+            Level->site[i][j].p_locf = L_NO_OP;
+            site = getc(fd);
 
-	    switch(site) {
-	    case 'P':
-		Level->site[i][j].locchar = FLOOR;
+            switch(site) {
+            case 'P':
+                Level->site[i][j].locchar = FLOOR;
 
-		/* Prime sorceror */
-		make_prime(i, j);
+                /* Prime sorceror */
+                make_prime(i, j);
 
-		Level->site[i][j].creature->specialf = M_SP_PRIME;
+                Level->site[i][j].creature->specialf = M_SP_PRIME;
 
-		if(!safe) {
-		    m_status_set(Level->site[i][j].creature, HOSTILE);
-		}
+                if(!safe) {
+                    m_status_set(Level->site[i][j].creature, HOSTILE);
+                }
 
-		break;
-	    case 'D':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case 'D':
+                Level->site[i][j].locchar = FLOOR;
 
-		/* Prime circle demon */
-		make_site_monster(i, j, ML9 + 7);
+                /* Prime circle demon */
+                make_site_monster(i, j, ML9 + 7);
 
-		if(safe) {
-		    m_status_reset(Level->site[i][j].creature, HOSTILE);
-		}
+                if(safe) {
+                    m_status_reset(Level->site[i][j].creature, HOSTILE);
+                }
 
-		Level->site[i][j].creature->specialf = M_SP_PRIME;
+                Level->site[i][j].creature->specialf = M_SP_PRIME;
 
-		break;
-	    case 's':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case 's':
+                Level->site[i][j].locchar = FLOOR;
 
-		/* Servant of chaos */
-		make_site_monster(i, j, ML4 + 13);
+                /* Servant of chaos */
+                make_site_monster(i, j, ML4 + 13);
 
-		Level->site[i][j].creature->specialf = M_SP_COURT;
+                Level->site[i][j].creature->specialf = M_SP_COURT;
 
-		if(safe) {
-		    m_status_reset(Level->site[i][j].creature, HOSTILE);
-		}
+                if(safe) {
+                    m_status_reset(Level->site[i][j].creature, HOSTILE);
+                }
 
-		break;
-	    case 'e':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case 'e':
+                Level->site[i][j].locchar = FLOOR;
 
-		/* Enchanter */
-		make_site_monster(i, j, ML2 + 7);
+                /* Enchanter */
+                make_site_monster(i, j, ML2 + 7);
 
-		Level->site[i][j].creature->specialf = M_SP_COURT;
+                Level->site[i][j].creature->specialf = M_SP_COURT;
 
-		if(safe) {
-		    m_status_reset(Level->site[i][j].creature, HOSTILE);
-		}
+                if(safe) {
+                    m_status_reset(Level->site[i][j].creature, HOSTILE);
+                }
 
-		break;
-	    case 'n':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case 'n':
+                Level->site[i][j].locchar = FLOOR;
 
-		/* Necromancer */
-		make_site_monster(i, j, ML5 + 6);
+                /* Necromancer */
+                make_site_monster(i, j, ML5 + 6);
 
-		Level->site[i][j].creature->specialf = M_SP_COURT;
+                Level->site[i][j].creature->specialf = M_SP_COURT;
 
-		if(safe) {
-		    m_status_reset(Level->site[i][j].creature, HOSTILE);
-		}
+                if(safe) {
+                    m_status_reset(Level->site[i][j].creature, HOSTILE);
+                }
 
-		break;
-	    case 'T':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case 'T':
+                Level->site[i][j].locchar = FLOOR;
 
-		/* High Thamaturgist */
-		make_site_monster(i, j, ML9 + 4);
+                /* High Thamaturgist */
+                make_site_monster(i, j, ML9 + 4);
 
-		Level->site[i][j].creature->specialf = M_SP_COURT;
+                Level->site[i][j].creature->specialf = M_SP_COURT;
 
-		if(safe) {
-		    m_status_reset(Level->site[i][j].creature, HOSTILE);
-		}
+                if(safe) {
+                    m_status_reset(Level->site[i][j].creature, HOSTILE);
+                }
 
-		break;
-	    case '#':
-		Level->site[i][j].locchar = WALL;
-		Level->site[i][j].aux = 1000;
+                break;
+            case '#':
+                Level->site[i][j].locchar = WALL;
+                Level->site[i][j].aux = 1000;
 
-		break;
-	    case 'L':
-		Level->site[i][j].locchar = FLOOR;
-		Level->site[i][j].p_locf = L_CIRCLE_LIBRARY;
+                break;
+            case 'L':
+                Level->site[i][j].locchar = FLOOR;
+                Level->site[i][j].p_locf = L_CIRCLE_LIBRARY;
 
-		break;
-	    case '?':
-		Level->site[i][j].locchar = FLOOR;
-		Level->site[i][j].p_locf = L_TOME1;
+                break;
+            case '?':
+                Level->site[i][j].locchar = FLOOR;
+                Level->site[i][j].p_locf = L_TOME1;
 
-		break;
-	    case '!':
-		Level->site[i][j].locchar = FLOOR;
-		Level->site[i][j].p_locf = L_TOME2;
+                break;
+            case '!':
+                Level->site[i][j].locchar = FLOOR;
+                Level->site[i][j].p_locf = L_TOME2;
 
-		break;
-	    case 'S':
-		Level->site[i][j].locchar = FLOOR;
-		lset(i, j, SECRET);
+                break;
+            case 'S':
+                Level->site[i][j].locchar = FLOOR;
+                lset(i, j, SECRET);
 
-		break;
-	    case '.':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case '.':
+                Level->site[i][j].locchar = FLOOR;
 
-		break;
-	    case '-':
-		Level->site[i][j].locchar = CLOSED_DOOR;
+                break;
+            case '-':
+                Level->site[i][j].locchar = CLOSED_DOOR;
 
-		break;
-	    }
-	}
+                break;
+            }
+        }
 
-	fscanf(fd, "\n");
+        fscanf(fd, "\n");
     }
 
     fclose(fd);
@@ -293,12 +293,12 @@ void make_print(int i, int j)
     Level->mlist = ml;
 
     if(!gamestatusp(COMPLETED_ASTRAL)) {
-	ol = (pol)malloc(sizeof(oltype));
-	o = (pob)malloc(sizeof(objtype));
-	*o = Objects[ARTIFACTID + 21];
-	ol->thing = o;
-	ol->next = NULL;
-	m->possessions = ol;
+        ol = (pol)malloc(sizeof(oltype));
+        o = (pob)malloc(sizeof(objtype));
+        *o = Objects[ARTIFACTID + 21];
+        ol->thing = o;
+        ol->next = NULL;
+        m->possessions = ol;
     }
 }
 
@@ -314,10 +314,10 @@ void load_court()
 
     if(ok_to_free(TempLevel)) {
 #ifndef MSDOS
-	free((char *)TempLevel);
+        free((char *)TempLevel);
 #endif
 
-	TempLevel = NULL;
+        TempLevel = NULL;
     }
 
 #ifndef MSDOS
@@ -334,79 +334,79 @@ void load_court()
     fd = fopen(Str3, "r");
 
     for(j = 0; j < LENGTH; ++j) {
-	for(i = 0; i < WIDTH; ++i) {
-	    Level->site[i][j].lstatus = 0;
-	    Level->site[i][j].roomnumber = RS_COURT;
-	    Level->site[i][j].p_locf = L_NO_OP;
-	    site = getc(fd);
+        for(i = 0; i < WIDTH; ++i) {
+            Level->site[i][j].lstatus = 0;
+            Level->site[i][j].roomnumber = RS_COURT;
+            Level->site[i][j].p_locf = L_NO_OP;
+            site = getc(fd);
 
-	    switch(site) {
-	    case '5':
-		Level->site[i][j].locchar = CHAIR;
-		Level->site[i][j].p_locf = L_THRONE;
-		make_specific_treasure(i, j, ARTIFACTID + 22);
-		make_archmage(i, j);
-		m_status_reset(Level->site[i][j].creature, HOSTILE);
-		m_status_reset(Level->site[i][j].creature, MOBILE);
+            switch(site) {
+            case '5':
+                Level->site[i][j].locchar = CHAIR;
+                Level->site[i][j].p_locf = L_THRONE;
+                make_specific_treasure(i, j, ARTIFACTID + 22);
+                make_archmage(i, j);
+                m_status_reset(Level->site[i][j].creature, HOSTILE);
+                m_status_reset(Level->site[i][j].creature, MOBILE);
 
-		break;
-	    case 'e':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case 'e':
+                Level->site[i][j].locchar = FLOOR;
 
-		/* Enchanter */
-		make_site_monster(i, j, ML2 + 7);
+                /* Enchanter */
+                make_site_monster(i, j, ML2 + 7);
 
-		m_status_reset(Level->site[i][j].creature, HOSTILE);
-		Level->site[i][j].creature->specialf = M_SP_SOURT;
+                m_status_reset(Level->site[i][j].creature, HOSTILE);
+                Level->site[i][j].creature->specialf = M_SP_SOURT;
 
-		break;
-	    case 'n':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case 'n':
+                Level->site[i][j].locchar = FLOOR;
 
-		/* Necromancer */
-		make_site_monster(i, j, ML5 + 6);
+                /* Necromancer */
+                make_site_monster(i, j, ML5 + 6);
 
-		m_status_reset(Level->site[i][j].creature, HOSTILE);
-		Level->site[i][j].creature->specialf = M_SP_COURT;
+                m_status_reset(Level->site[i][j].creature, HOSTILE);
+                Level->site[i][j].creature->specialf = M_SP_COURT;
 
-		break;
-	    case 'T':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case 'T':
+                Level->site[i][j].locchar = FLOOR;
 
-		/* High Thaumatrugist */
-		make_site_monster(i, j, ML9 + 4);
+                /* High Thaumatrugist */
+                make_site_monster(i, j, ML9 + 4);
 
-		m_status_reset(Level->site[i][j].creature, HOSTILE);
-		Level->site[i][j].creature->specialf = M_SP_COURT;
+                m_status_reset(Level->site[i][j].creature, HOSTILE);
+                Level->site[i][j].creature->specialf = M_SP_COURT;
 
-		break;
-	    case '#':
-		Level->site[i][j].locchar = WALL;
-		Level->site[i][j].aux = 1000;
+                break;
+            case '#':
+                Level->site[i][j].locchar = WALL;
+                Level->site[i][j].aux = 1000;
 
-		break;
-	    case 'G':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case 'G':
+                Level->site[i][j].locchar = FLOOR;
 
-		/* Guard */
-		make_site_monster(i, j, ML0 + 3);
+                /* Guard */
+                make_site_monster(i, j, ML0 + 3);
 
-		m_status_reset(Level->site[i][j].creature, HOSTILE);
+                m_status_reset(Level->site[i][j].creature, HOSTILE);
 
-		break;
-	    case '<':
-		Level->site[i][j].locchar = UP;
-		Level->site[i][j].p_locf = L_ESCALATOR;
+                break;
+            case '<':
+                Level->site[i][j].locchar = UP;
+                Level->site[i][j].p_locf = L_ESCALATOR;
 
-		break;
-	    case '.':
-		Level->site[i][j].locchar = FLOOR;
+                break;
+            case '.':
+                Level->site[i][j].locchar = FLOOR;
 
-		break;
-	    }
-	}
+                break;
+            }
+        }
 
-	fscanf(fd, "\n");
+        fscanf(fd, "\n");
     }
 
     fclose(fd);

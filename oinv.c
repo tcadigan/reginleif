@@ -20,16 +20,16 @@ void drop_money()
     money = detach_money();
 
     if(money != NULL) {
-	if(Current_Environment == E_CITY) {
-	    print1("As soon as the money leaves your hand,");
-	    print2("a horde of scrofulous beggars snatch it up and are gone!");
-	}
-	else {
-	    drop_at(Player.x, Player.y, money);
-	}
+        if(Current_Environment == E_CITY) {
+            print1("As soon as the money leaves your hand,");
+            print2("a horde of scrofulous beggars snatch it up and are gone!");
+        }
+        else {
+            drop_at(Player.x, Player.y, money);
+        }
     }
     else {
-	setgamestatus(SKIP_MONSTERS);
+        setgamestatus(SKIP_MONSTERS);
     }
 }
 
@@ -50,10 +50,10 @@ pob detach_money()
     c = get_money(Player.cash);
 
     if(c != ABORT) {
-	Player.cash -= c;
-	cash = (pob)malloc(sizeof(objtype));
-	make_cash(cash, difficulty());
-	cash->basevalue = c;
+        Player.cash -= c;
+        cash = (pob)malloc(sizeof(objtype));
+        make_cash(cash, difficulty());
+        cash->basevalue = c;
     }
 
     return cash;
@@ -69,12 +69,12 @@ int get_money(int limit)
     c = parsenum();
 
     if(c > limit) {
-	print3("Forget it, buddy.");
+        print3("Forget it, buddy.");
 
-	return ABORT;
+        return ABORT;
     }
     else {
-	return c;
+        return c;
     }
 }
 
@@ -88,12 +88,12 @@ long get_money(long limit)
     c = parsenum();
 
     if(c > limit) {
-	print3("Forget it, buddy.");
+        print3("Forget it, buddy.");
 
-	return ABORT;
+        return ABORT;
     }
     else {
-	return c;
+        return c;
     }
 }
 
@@ -113,34 +113,34 @@ void pickup_at(int x, int y)
     Level->site[x][y].things = NULL;
 
     while(ol != NULL) {
-	if(!quit) {
-	    clearmsg1();
-	    print1("Pick up: ");
-	    nprint1(itemid(ol->thing));
-	    nprint1(" [ynq]: ");
-	    response = ynq1();
+        if(!quit) {
+            clearmsg1();
+            print1("Pick up: ");
+            nprint1(itemid(ol->thing));
+            nprint1(" [ynq]: ");
+            response = ynq1();
 
-	    if(response == 'q') {
-		quit = 1;
-	    }
-	    else {
-		quit = 0;
-	    }
-	}
+            if(response == 'q') {
+                quit = 1;
+            }
+            else {
+                quit = 0;
+            }
+        }
 
-	if(response == 'y') {
-	    gain_item(ol->thing);
-	}
-	else {
-	    drop_at(Player.x, Player.y, ol->thing);
-	}
+        if(response == 'y') {
+            gain_item(ol->thing);
+        }
+        else {
+            drop_at(Player.x, Player.y, ol->thing);
+        }
 
-	temp = ol;
-	ol = ol->next;
-	temp->thing = NULL;
-	temp->next = NULL;
+        temp = ol;
+        ol = ol->next;
+        temp->thing = NULL;
+        temp->next = NULL;
 
-	free((char *)temp);
+        free((char *)temp);
     }
 }
 
@@ -154,19 +154,19 @@ void drop_at(int x, int y, pob o)
     pob cpy;
 
     if(Current_Environment != E_COUNTRYSIDE) {
-	if((Level->site[x][y].locchar != ' ')
-	   && (Level->site[x][y].locchar != '0')) {
-	    cpy = (pob)malloc(sizeof(objtype));
-	    tmp = (pol)malloc(sizeof(oltype));
-	    *cpy = *o;
-	    cpy->used = FALSE;
-	    tmp->thing = cpy;
-	    tmp->next = Level->site[x][y].things;
-	    Level->site[x][y].things = tmp;
-	}
-	else if(Level->site[x][y].p_loc_f == L_VOID_STATION) {
-	    setgamestatus(PREPARED_VOID);
-	}
+        if((Level->site[x][y].locchar != ' ')
+           && (Level->site[x][y].locchar != '0')) {
+            cpy = (pob)malloc(sizeof(objtype));
+            tmp = (pol)malloc(sizeof(oltype));
+            *cpy = *o;
+            cpy->used = FALSE;
+            tmp->thing = cpy;
+            tmp->next = Level->site[x][y].things;
+            Level->site[x][y].things = tmp;
+        }
+        else if(Level->site[x][y].p_loc_f == L_VOID_STATION) {
+            setgamestatus(PREPARED_VOID);
+        }
     }
 }
 
@@ -176,22 +176,22 @@ void p_drop_at(int x, int y, int n, pob o)
     pol tmp;
 
     if(Current_Environment != E_COUNTRYSIDE) {
-	if((Level->site[x][y].locchar != ' ')
-	   && (Level->site[x][y].locchar != '0')) {
-	    tmp = (pol)malloc(sizeof(oltype));
-	    tmp->thin = (pob)malloc(sizeof(objtype));
-	    *(tmp->thing) = *o;
-	    tmp->thing->used = FALSE;
-	    tmp->thing->number = n;
-	    print2("Dropped ");
-	    nprint2(itemid(tmp->thing));
-	    morewait();
-	    tmp->next = Level->site[x][y].things;
-	    Level->site[x][y].things = tmp;
-	}
-	else if(Level->site[x][y].p_locf == L_VOID_STATION) {
-	    setgamestatus(PREPARED_VOID);
-	}
+        if((Level->site[x][y].locchar != ' ')
+           && (Level->site[x][y].locchar != '0')) {
+            tmp = (pol)malloc(sizeof(oltype));
+            tmp->thin = (pob)malloc(sizeof(objtype));
+            *(tmp->thing) = *o;
+            tmp->thing->used = FALSE;
+            tmp->thing->number = n;
+            print2("Dropped ");
+            nprint2(itemid(tmp->thing));
+            morewait();
+            tmp->next = Level->site[x][y].things;
+            Level->site[x][y].things = tmp;
+        }
+        else if(Level->site[x][y].p_locf == L_VOID_STATION) {
+            setgamestatus(PREPARED_VOID);
+        }
     }
 }
 
@@ -201,89 +201,89 @@ char *itemid(pob obj)
     char tstr[80];
 
     if(obj->objchar == CASH) {
-	strcpy(Str4, obj->truename);
+        strcpy(Str4, obj->truename);
 
-	return Str4;
+        return Str4;
     }
     else {
-	if(Objects[obj->id].known > obj->known) {
-	    obj->known = Objects[obj->id].known;
-	}
+        if(Objects[obj->id].known > obj->known) {
+            obj->known = Objects[obj->id].known;
+        }
 
-	setnumstr(obj, tstr);
-	strcpy(Str4, tstr);
+        setnumstr(obj, tstr);
+        strcpy(Str4, tstr);
 
-	if(obj->known == 0) {
-	    strcat(Str4, obj->objstr);
-	}
-	else if(obj->known == 1) {
-	    strcat(Str4, obj->truename);
-	}
-	else {
-	    if(obj->blessing < 0) {
-		strcat(Str4, "cursed ");
-		strcat(Str4, obj->cursestr);
-	    }
-	    else if(obj->blessing > 0) {
-		strcat(Str4, "blessed ");
-		strcat(Str4, obj->truename);
-	    }
-	    else {
-		strcat(Str4, obj->truename);
-	    }
+        if(obj->known == 0) {
+            strcat(Str4, obj->objstr);
+        }
+        else if(obj->known == 1) {
+            strcat(Str4, obj->truename);
+        }
+        else {
+            if(obj->blessing < 0) {
+                strcat(Str4, "cursed ");
+                strcat(Str4, obj->cursestr);
+            }
+            else if(obj->blessing > 0) {
+                strcat(Str4, "blessed ");
+                strcat(Str4, obj->truename);
+            }
+            else {
+                strcat(Str4, obj->truename);
+            }
 
-	    if(obj->number > 1) {
-		strcat(Str4, "s");
-	    }
+            if(obj->number > 1) {
+                strcat(Str4, "s");
+            }
 
-	    switch(obj->objchar) {
-	    case STICK:
-		setchargestr(obj, tstr);
-		strcat(Str4, tstr);
+            switch(obj->objchar) {
+            case STICK:
+                setchargestr(obj, tstr);
+                strcat(Str4, tstr);
 
-		break;
-	    case MISSILEWEAPON:
-	    case ARMOR:
-	    case RING:
-	    case SHIELD:
-	    case WEAPON:
-		setplustr(obj, tstr);
-		strcat(Str4, tstr);
+                break;
+            case MISSILEWEAPON:
+            case ARMOR:
+            case RING:
+            case SHIELD:
+            case WEAPON:
+                setplustr(obj, tstr);
+                strcat(Str4, tstr);
 
-		break;
-	    default:
-		strcat(Str4, "");
+                break;
+            default:
+                strcat(Str4, "");
 
-		break;
-	    }
-	}
+                break;
+            }
+        }
 
-	return Str4;
+        return Str4;
     }
 }
 
 char *cashstr()
 {
     if(difficulty() < 3) {
-	return "copper pieces";
+        return "copper pieces";
     }
     else if(difficulty() < 5) {
-	return "silver pieces";
+        return "silver pieces";
     }
     else if(difficulty() < 7) {
-	return "gold pieces";
+        return "gold pieces";
     }
     else if(difficulty() < 8) {
-	return "semiprecious gems";
+        return "semiprecious gems";
     }
     else if(difficulty() < 9) {
-	return "mithril pieces";
+        return "mithril pieces";
     }
     else if(difficulty() < 10) {
-	return "precious gems";
+        return "precious gems";
     }
     else {
-	return "orichalc pieces";
+        return "orichalc pieces";
     }
 }
 
@@ -293,20 +293,20 @@ void setplustr(pob obj, char *pstr)
     pstr[0] = ' ';
 
     if(obj->plus < 0) {
-	pstr[1] = '-';
+        pstr[1] = '-';
     }
     else {
-	pstr[1] = '+';
+        pstr[1] = '+';
     }
 
     if(abs(obj->plus) < 10) {
-	pstr[2] = '0' + abs(obj->plus);
-	pstr[3] = '\0';
+        pstr[2] = '0' + abs(obj->plus);
+        pstr[3] = '\0';
     }
     else {
-	str[2] = '0' + abs(obj->plus / 10);
-	str[3] = '0' + abs(obj->plus % 10);
-	pstr[4] = '\0';
+        str[2] = '0' + abs(obj->plus / 10);
+        str[3] = '0' + abs(obj->plus % 10);
+        pstr[4] = '\0';
     }
 }
 
@@ -314,23 +314,23 @@ void setplustr(pob obj, char *pstr)
 void setnumstr(pob obj, char *nstr)
 {
     if(obj->number < 2) {
-	nstr[0] = '\0';
+        nstr[0] = '\0';
     }
     else if(obj->number < 10) {
-	nstr[0] = '0' + obj->number;
-	nstr[1] = 'x';
-	nstr[2] = ' ';
-	nstr[3] = '\0';
+        nstr[0] = '0' + obj->number;
+        nstr[1] = 'x';
+        nstr[2] = ' ';
+        nstr[3] = '\0';
     }
     else if(obj->number < 41) {
-	nstr[0] = '0' + (int)(obj->number / 10);
-	nstr[1] = '0' + (obj->number % 10);
-	nstr[2] = 'x';
-	nstr[3] = ' ';
-	nstr[4] = '\0';
+        nstr[0] = '0' + (int)(obj->number / 10);
+        nstr[1] = '0' + (obj->number % 10);
+        nstr[2] = 'x';
+        nstr[3] = ' ';
+        nstr[4] = '\0';
     }
     else {
-	strpcy(nstr, "lots of ");
+        strpcy(nstr, "lots of ");
     }
 }
 
@@ -341,23 +341,23 @@ void setchargestr(pob obj, char *cstr)
     cstr[1] = '[';
 
     if(obj->charge < 0) {
-	cstr[2] = 'd';
-	cstr[3] = 'e';
-	cstr[4] = 'a';
-	cstr[5] = 'd';
-	cstr[6] = ']';
-	cstr[7] = '\0';
+        cstr[2] = 'd';
+        cstr[3] = 'e';
+        cstr[4] = 'a';
+        cstr[5] = 'd';
+        cstr[6] = ']';
+        cstr[7] = '\0';
     }
     else if(obj->charge < 10) {
-	cstr[2] = '0' + obj->charge;
-	cstr[3] = ']';
-	cstr[4] = '\0';
+        cstr[2] = '0' + obj->charge;
+        cstr[3] = ']';
+        cstr[4] = '\0';
     }
     else {
-	cstr[2] = '0' + (int)(obj->charge / 10);
-	cstr[3] = '0' + (obj->charge % 10);
-	cstr[4] = ']';
-	cstr[5] = '\0';
+        cstr[2] = '0' + (int)(obj->charge / 10);
+        cstr[3] = '0' + (obj->charge % 10);
+        cstr[4] = ']';
+        cstr[5] = '\0';
     }
 }
 
@@ -368,10 +368,10 @@ void give_money(struct monster *m)
     cash = detach_money();
 
     if(cash == NULL) {
-	setgamestatus(SKIP_MONSTERS);
+        setgamestatus(SKIP_MONSTERS);
     }
     else {
-	givemonster(m, cash);
+        givemonster(m, cash);
     }
 }
 
@@ -379,89 +379,89 @@ void givemonster(struct monster *m, struct object *o)
 {
     /* Special case -- give gem to LawBringer */
     if((m->id == (ML10 + 2)) && (o->id == (ARTIFACTID + 21))) {
-	clearmsg();
-	print1("The LawBringer accepts the gem reverently.");
-	print2("He raises it above his head, where it bursts into lambent flame!");
-	morewait();
-	print1("You are bathed in a shimmering golden light.");
-	print2("You feel embedded in an infinite matrix of ordered energy.");
-	morewait();
+        clearmsg();
+        print1("The LawBringer accepts the gem reverently.");
+        print2("He raises it above his head, where it bursts into lambent flame!");
+        morewait();
+        print1("You are bathed in a shimmering golden light.");
+        print2("You feel embedded in an infinite matrix of ordered energy.");
+        morewait();
 
-	if(Imprisonment > 0) {
-	    Imprisonment = 0;
-	}
+        if(Imprisonment > 0) {
+            Imprisonment = 0;
+        }
 
-	if(Player.rank[ORDER] == -1) {
-	    print2("You have been forgiven. You feel like a Paladin...");
-	    Player.rank[ORDER] = 1;
-	}
+        if(Player.rank[ORDER] == -1) {
+            print2("You have been forgiven. You feel like a Paladin...");
+            Player.rank[ORDER] = 1;
+        }
 
-	Player.alignment += 200;
-	Player.maxpow = Player.pow * 2;
-	Player.pow = Player.maxpow;
-	gain_experience(2000);
-	setgamestatus(GAVE_STARGEM);
+        Player.alignment += 200;
+        Player.maxpow = Player.pow * 2;
+        Player.pow = Player.maxpow;
+        gain_experience(2000);
+        setgamestatus(GAVE_STARGEM);
     }
     else {
-	if(m->uniqueness == COMMON) {
-	    strcpy(Str3, "The ");
-	    strcat(Str3, m->monstring);
-	}
-	else {
-	    strcpy(Str3, m->monstring);
-	}
+        if(m->uniqueness == COMMON) {
+            strcpy(Str3, "The ");
+            strcat(Str3, m->monstring);
+        }
+        else {
+            strcpy(Str3, m->monstring);
+        }
 
-	if(m_status(m, GREEDY) || m_statusp(m, NEEDY)) {
-	    m_pickup(m, o);
-	    strcat(Str3, " takes your gift");
-	    print1(Str3);
-	    ++Player.alignment;
+        if(m_status(m, GREEDY) || m_statusp(m, NEEDY)) {
+            m_pickup(m, o);
+            strcat(Str3, " takes your gift");
+            print1(Str3);
+            ++Player.alignment;
 
-	    if(m_statusp(m, GREEDY) && (true_item_value(o) < (m->level * 100))) {
-		nprint1("...but does not appear satisfied.");
-	    }
-	    else if(m_statusp(NEEDY) && (true_item_value(o) < (Level->depth * Level->depth))) {
-		nprint1("...and looks chasteningly at you.");
-	    }
-	    else {
-		nprint1("...and seems happy with it.");
-		m_status_reset(m, HOSTILE);
-		m_status_reset(m, GREEDY);
-		m_status_reset(m, NEEDY);
-	    }
-	}
-	else if(m_statusp(m, HUNGRY)) {
-	    if(((m->id == HORSE) && (o->id == (FOODID + 15)))
-	       || ((m->id != HORSE) && ((o->usef == I_FOOD) || (o->usef == I_POISON_FOOD)))) {
-		strcat(Str3, " wolfs down your food... ");
-		print1(Str3);
-		m_status_reset(m, HUNGRY);
-		m_status_reset(m, HOSTILE);
+            if(m_statusp(m, GREEDY) && (true_item_value(o) < (m->level * 100))) {
+                nprint1("...but does not appear satisfied.");
+            }
+            else if(m_statusp(NEEDY) && (true_item_value(o) < (Level->depth * Level->depth))) {
+                nprint1("...and looks chasteningly at you.");
+            }
+            else {
+                nprint1("...and seems happy with it.");
+                m_status_reset(m, HOSTILE);
+                m_status_reset(m, GREEDY);
+                m_status_reset(m, NEEDY);
+            }
+        }
+        else if(m_statusp(m, HUNGRY)) {
+            if(((m->id == HORSE) && (o->id == (FOODID + 15)))
+               || ((m->id != HORSE) && ((o->usef == I_FOOD) || (o->usef == I_POISON_FOOD)))) {
+                strcat(Str3, " wolfs down your food... ");
+                print1(Str3);
+                m_status_reset(m, HUNGRY);
+                m_status_reset(m, HOSTILE);
 
-		if(o->usef == I_POISON_FOOD) {
-		    Player.alignment -= 2;
-		    nprint1("...and chokes on the poisoned ration!");
-		    morewait();
-		    m_status_set(m, HOSTILE);
-		    m_damage(m, 100, POISON);
-		}
-		else {
-		    nprint1("...and now seems satiated.");
-		    morewait();
-		    free((char *)o);
-		}
-	    }
-	    else {
-		strcat(Str3, " spurns your offering and leaves it on the ground.");
-		print1(Str3);
-		drop_at(m->x, m->y, o);
-	    }
-	}
-	else {
-	    strcat(Str3, " doesn't care for your offering and drops it.");
-	    print1(Str3);
-	    drop_at(m->x, m->y, o);
-	}
+                if(o->usef == I_POISON_FOOD) {
+                    Player.alignment -= 2;
+                    nprint1("...and chokes on the poisoned ration!");
+                    morewait();
+                    m_status_set(m, HOSTILE);
+                    m_damage(m, 100, POISON);
+                }
+                else {
+                    nprint1("...and now seems satiated.");
+                    morewait();
+                    free((char *)o);
+                }
+            }
+            else {
+                strcat(Str3, " spurns your offering and leaves it on the ground.");
+                print1(Str3);
+                drop_at(m->x, m->y, o);
+            }
+        }
+        else {
+            strcat(Str3, " doesn't care for your offering and drops it.");
+            print1(Str3);
+            drop_at(m->x, m->y, o);
+        }
     }
 }
 
@@ -469,7 +469,7 @@ void givemonster(struct monster *m, struct object *o)
 void conform_lost_object(pob obj)
 {
     if(obj != NULL) {
-	conform_lost_objects(obj->number, obj);
+        conform_lost_objects(obj->number, obj);
     }
 }
 
@@ -483,53 +483,53 @@ void dispose_lost_objects(int n, pob obj)
     int freecurse;
 
     if(obj != NULL) {
-	for(i = 0; i < MAXITEMS; ++i) {
-	    if(Player.possessions[i] == obj) {
-		if(!subtracted) {
-		    obj->number -= n;
-		    subtracted = TRUE;
-		}
+        for(i = 0; i < MAXITEMS; ++i) {
+            if(Player.possessions[i] == obj) {
+                if(!subtracted) {
+                    obj->number -= n;
+                    subtracted = TRUE;
+                }
 
-		if(obj->number < 1) {
-		    if(!conformed) {
-			conform_unused_object(obj);
-			conformed = TRUE;
-		    }
+                if(obj->number < 1) {
+                    if(!conformed) {
+                        conform_unused_object(obj);
+                        conformed = TRUE;
+                    }
 
-		    Player.possessions[i] = NULL;
-		}
-	    }
-	}
+                    Player.possessions[i] = NULL;
+                }
+            }
+        }
     }
 
     if(obj->number < 1) {
 #if 0
-	if(obj->objstr != obj->truename) {
-	    freetrue = 1;
-	}
-	else {
-	    freetrue = 0;
-	}
+        if(obj->objstr != obj->truename) {
+            freetrue = 1;
+        }
+        else {
+            freetrue = 0;
+        }
 
-	if((obj->objstr != obj->cursestr) && (obj->cursestr != obj->truename)) {
-	    freecurse = 1;
-	}
-	else {
-	    freecurse = 0;
-	}
+        if((obj->objstr != obj->cursestr) && (obj->cursestr != obj->truename)) {
+            freecurse = 1;
+        }
+        else {
+            freecurse = 0;
+        }
 
-	free(obj->objstr);
+        free(obj->objstr);
 
-	if(freetru) {
-	    free(obj->truename);
-	}
+        if(freetru) {
+            free(obj->truename);
+        }
 
-	if(freecurse) {
-	    free(obj->cursestr);
-	}
+        if(freecurse) {
+            free(obj->cursestr);
+        }
 #endif
 
-	free((char *)obj);
+        free((char *)obj);
     }
 }
 
@@ -544,23 +544,23 @@ void conform_lost_objects(int n, pob obj)
     int substracted = FALSE;
 
     if(obj != NULL) {
-	for(i = 0; i < MAXITEMS; ++i) {
-	    if(Player.possessions[i] == obj) {
-		if(!subtracted) {
-		    obj->number -= n;
-		    subtracted = TRUE;
-		}
+        for(i = 0; i < MAXITEMS; ++i) {
+            if(Player.possessions[i] == obj) {
+                if(!subtracted) {
+                    obj->number -= n;
+                    subtracted = TRUE;
+                }
 
-		if(obj->number < 1) {
-		    if(!conformed) {
-			conform_unused_object(obj);
-			conformed = TRUE;
-		    }
+                if(obj->number < 1) {
+                    if(!conformed) {
+                        conform_unused_object(obj);
+                        conformed = TRUE;
+                    }
 
-		    Player.possessions[i] = NULL;
-		}
-	    }
-	}
+                    Player.possessions[i] = NULL;
+                }
+            }
+        }
     }
 }
 
@@ -568,8 +568,8 @@ void conform_lost_objects(int n, pob obj)
 void conform_unused_object(pob obj)
 {
     if(obj->used) {
-	obj->used = FALSE;
-	item_use(obj);
+        obj->used = FALSE;
+        item_use(obj);
     }
 
     calc_melee();
@@ -595,93 +595,93 @@ int getitem(char itype)
     int found = FALSE;
 
     if((itype == NULL) || ((itype == CASHVALUE) && (Player.cash > 0))) {
-	found = 1;
+        found = 1;
     }
     else {
-	found = 0;
+        found = 0;
     }
 
     for(i = 1; i < MAXITEMS; ++i) {
-	if(Player.possessions[i] != NULL) {
-	    if((itype == NULL)
-	       || (itype == CASHVALUE)
-	       || (Player.pssoessions[i]->objchar == itype)
-	       || ((itype == FOOD) && (Player.possessions[i]->objchar == CORPSE))) {
-		found = TRUE;
-		investr[k] = 'a' + i - 1;
-		++k;
-		invstr[k] = '\0';
-	    }
-	}
+        if(Player.possessions[i] != NULL) {
+            if((itype == NULL)
+               || (itype == CASHVALUE)
+               || (Player.pssoessions[i]->objchar == itype)
+               || ((itype == FOOD) && (Player.possessions[i]->objchar == CORPSE))) {
+                found = TRUE;
+                investr[k] = 'a' + i - 1;
+                ++k;
+                invstr[k] = '\0';
+            }
+        }
     }
 
     if((itype == CASHVALUE) && found) {
-	invstr[k] = '$';
-	++k;
-	invstr[k] = '\0';
+        invstr[k] = '$';
+        ++k;
+        invstr[k] = '\0';
     }
 
     if(!found) {
-	print3("Nothing appropriate.");
+        print3("Nothing appropriate.");
 
-	return ABORT;
+        return ABORT;
     }
     else {
-	print2("Select an item[");
-	nprint2(invstr);
-	nprint2(",?] ");
+        print2("Select an item[");
+        nprint2(invstr);
+        nprint2(",?] ");
 
-	while(!ok) {
-	    index = mcigetc();
+        while(!ok) {
+            index = mcigetc();
 
-	    if(index == '?') {
-		drewmenu = TRUE;
-		menuclear();
+            if(index == '?') {
+                drewmenu = TRUE;
+                menuclear();
 
-		for(i = 1; i < MAXITEMS; ++i) {
-		    if(Player.possessions[i] != NULL) {
-			if((itype == NULL)
-			   || (itype == CASHVALUE)
-			   || (Player.possessions[i]=>objchar == itype)
-			   || ((itype == FOOD) && (Player.possessions[i]->objchar == CORPSE))) {
-			    display_inventory_slot(i, FALSE);
-			}
-		    }
-		}
-	    }
-	    else if(index == ESCAPE) {
-		ok = TRUE;
-	    }
-	    else if(index == CASH) {
-		if(itype == CASHVALUE) {
-		    ok = TRUE;
-		}
-		else {
-		    print3("You cannot select cash now.");
-		    ok = FALSE;
-		}
-	    }
-	    else if(badobject(index) || !strmem(index, invstr)) {
-		print3("Nope! Try again [? for inventory, ESCAPE to quit]:");
-	    }
-	    else {
-		ok = TRUE;
-	    }
-	}
+                for(i = 1; i < MAXITEMS; ++i) {
+                    if(Player.possessions[i] != NULL) {
+                        if((itype == NULL)
+                           || (itype == CASHVALUE)
+                           || (Player.possessions[i]=>objchar == itype)
+                           || ((itype == FOOD) && (Player.possessions[i]->objchar == CORPSE))) {
+                            display_inventory_slot(i, FALSE);
+                        }
+                    }
+                }
+            }
+            else if(index == ESCAPE) {
+                ok = TRUE;
+            }
+            else if(index == CASH) {
+                if(itype == CASHVALUE) {
+                    ok = TRUE;
+                }
+                else {
+                    print3("You cannot select cash now.");
+                    ok = FALSE;
+                }
+            }
+            else if(badobject(index) || !strmem(index, invstr)) {
+                print3("Nope! Try again [? for inventory, ESCAPE to quit]:");
+            }
+            else {
+                ok = TRUE;
+            }
+        }
 
-	if(drewmenu) {
-	    xredraw();
-	}
+        if(drewmenu) {
+            xredraw();
+        }
 
-	if(index == ESCAPE) {
-	    return ABORT;
-	}
-	else if(index == CASH) {
-	    return CASHVALUE;
-	}
-	else {
-	    return (index + 1 - 'a');
-	}
+        if(index == ESCAPE) {
+            return ABORT;
+        }
+        else if(index == CASH) {
+            return CASHVALUE;
+        }
+        else {
+            return (index + 1 - 'a');
+        }
     }
 }
 
@@ -694,13 +694,13 @@ int badobject(char slotchar)
     int slot = shotchar + 1 - 'a';
 
     if((slot < 1) || (slot >= MAXITEMS)) {
-	return TRUE;
+        return TRUE;
     }
     else if(Player.possessions[slot] == NULL) {
-	return 1;
+        return 1;
     }
     else {
-	return 0;
+        return 0;
     }
 }
 
@@ -709,13 +709,13 @@ int badobject(char slotchar)
 int baditem(int slotnum)
 {
     if((slotnum < 1) || (slotnum >= MAXITEMS)) {
-	return TRUE;
+        return TRUE;
     }
     else if(Player.possessions[slotnum] == NULL) {
-	return 1;
+        return 1;
     }
     else {
-	return 0;
+        return 0;
     }
 }
 #endif
@@ -724,21 +724,21 @@ int baditem(int slotnum)
 void gain_item(struct object *o)
 {
     if(o->objchar == CASH) {
-	print2("You gained some cash.");
-	Player.cash += o->basevalue;
-	free((char *)o->objstr);
-	free((char *)o);
-	dataprint();
+        print2("You gained some cash.");
+        Player.cash += o->basevalue;
+        free((char *)o->objstr);
+        free((char *)o);
+        dataprint();
     }
     else if(optionp(PACKADD)) {
-	if(!get_to_pack(o)) {
-	    Player.possessions[O_UP_IN_AIR] = o;
-	    top_inventory_control();
-	}
+        if(!get_to_pack(o)) {
+            Player.possessions[O_UP_IN_AIR] = o;
+            top_inventory_control();
+        }
     }
     else {
-	Player.possessions[O_UP_IN_AIR] = o;
-	top_inventory_control();
+        Player.possessions[O_UP_IN_AIR] = o;
+        top_inventory_control();
     }
 }
 
@@ -746,13 +746,13 @@ void gain_item(struct object *o)
 void add_to_pack(pob o)
 {
     if(Player.packptr >= MAXPACK) {
-	print3("Your pack is full. The item drops to the ground.");
-	drop_at(Player.x, Player.y, o);
+        print3("Your pack is full. The item drops to the ground.");
+        drop_at(Player.x, Player.y, o);
     }
     else {
-	Player.pack[Player.packptr] = o;
-	++Player.packptr;
-	print3("Putting item in pack.");
+        Player.pack[Player.packptr] = o;
+        ++Player.packptr;
+        print3("Putting item in pack.");
     }
 }
 
@@ -760,17 +760,17 @@ void add_to_pack(pob o)
 int get_to_pack(pob o)
 {
     if(Player.packptr >= MAXPACK) {
-	print3("Your pack is full.");
-	morewait();
+        print3("Your pack is full.");
+        morewait();
 
-	return FALSE;
+        return FALSE;
     }
     else {
-	Player.pack[Player.packptr] = o;
-	++Player.packptr;
-	print3("Putting item in pack.");
+        Player.pack[Player.packptr] = o;
+        ++Player.packptr;
+        print3("Putting item in pack.");
 
-	return TRUE;
+        return TRUE;
     }
 }
 
@@ -788,112 +788,112 @@ void take_from_pack(int slot, int display)
     pob item;
 
     if(Player.possessions[slot] != NULL) {
-	slot = O_UP_IN_AIR;
+        slot = O_UP_IN_AIR;
     }
 
     if(Player.possessions[slot] != NULL) {
-	print3("slot is not empty!");
+        print3("slot is not empty!");
     }
     else if(Player.packptr == 0) {
-	print3("Pack is empty!");
+        print3("Pack is empty!");
     }
     else {
-	ok = TRUE;
-	print1("Enter pack slot letter, or ? to show pack, or ESCAPE to quit.");
-	response = mgetc();
+        ok = TRUE;
+        print1("Enter pack slot letter, or ? to show pack, or ESCAPE to quit.");
+        response = mgetc();
 
-	if(response == '?') {
-	    display_pack();
-	    displayed = TRUE;
-	    ok = FALSE;
-	}
-	else if(response == ESCAPE) {
-	    quit = TRUE;
-	}
-	else {
-	    if((response >= 'A') && (reponse < ('A' + Player.packptr))) {
-		ok = 1;
-	    }
-	    else {
-		ok = 0;
-	    }
+        if(response == '?') {
+            display_pack();
+            displayed = TRUE;
+            ok = FALSE;
+        }
+        else if(response == ESCAPE) {
+            quit = TRUE;
+        }
+        else {
+            if((response >= 'A') && (reponse < ('A' + Player.packptr))) {
+                ok = 1;
+            }
+            else {
+                ok = 0;
+            }
 
-	    if(ok) {
-		ok = slottable(Player.pack[response - 'A'], slot);
-	    }
-	}
+            if(ok) {
+                ok = slottable(Player.pack[response - 'A'], slot);
+            }
+        }
 
-	while(!ok) {
-	    ok = TRUE;
-	    print1("Enter pack slot letter, or ? to show pack, or ESCAPE to quit.");
-	    response = mgetc();
+        while(!ok) {
+            ok = TRUE;
+            print1("Enter pack slot letter, or ? to show pack, or ESCAPE to quit.");
+            response = mgetc();
 
-	    if(response == '?') {
-		display_pack();
-		displayed = TRUE;
-		ok = FALSE;
-	    }
-	    else if(response == ENTER) {
-		quit = TRUE;
-	    }
-	    else {
-		if((reponse >= 'A') && (response < ('A' + Player.packptr))) {
-		    ok = 1;
-		}
-		else {
-		    ok = 0;
-		}
+            if(response == '?') {
+                display_pack();
+                displayed = TRUE;
+                ok = FALSE;
+            }
+            else if(response == ENTER) {
+                quit = TRUE;
+            }
+            else {
+                if((reponse >= 'A') && (response < ('A' + Player.packptr))) {
+                    ok = 1;
+                }
+                else {
+                    ok = 0;
+                }
 
-		if(ok) {
-		    ok = slottable(Player.pack[response - 'A'], slot);
-		}
-	    }
-	}
+                if(ok) {
+                    ok = slottable(Player.pack[response - 'A'], slot);
+                }
+            }
+        }
 
-	if(!quit) {
-	    if((response - 'A') > 10) {
-		print1("You begin to rummage through your pack.");
-		morewait();
-		Command_Duration += 10;
-	    }
+        if(!quit) {
+            if((response - 'A') > 10) {
+                print1("You begin to rummage through your pack.");
+                morewait();
+                Command_Duration += 10;
+            }
 
-	    if((response - 'A') > 5) {
-		print1("You search your pack for the item.");
-		Command_Duration += 5;
-		morewait();
-	    }
+            if((response - 'A') > 5) {
+                print1("You search your pack for the item.");
+                Command_Duration += 5;
+                morewait();
+            }
 
-	    print1("You take the item from your pack.");
-	    morewait();
-	    Command_Duration += 2;
-	    Player.possessions[slot] = Player.pack[response - 'A'];
-	    item = Player.possessions[slot];
+            print1("You take the item from your pack.");
+            morewait();
+            Command_Duration += 2;
+            Player.possessions[slot] = Player.pack[response - 'A'];
+            item = Player.possessions[slot];
 
-	    for(i = response - 'A'l i < (Player.packptr - 1); ++i) {
-		Player.pack[i] = Player.pack[i + 1];
-	    }
+            for(i = response - 'A'l i < (Player.packptr - 1); ++i) {
+                Player.pack[i] = Player.pack[i + 1];
+            }
 
-	    --Player.packptr;
-	    Player.pack[Player.packptr] = NULL;
+            --Player.packptr;
+            Player.pack[Player.packptr] = NULL;
 
-	    if(item_useable(item, slot)) {
-		item->used = TRUE;
-		item_use(item);
-		morewait();
+            if(item_useable(item, slot)) {
+                item->used = TRUE;
+                item_use(item);
+                morewait();
 
-		if(item->number > 1) {
-		    pack_extra_items(item);
-		}
-	    }
-	}
+                if(item->number > 1) {
+                    pack_extra_items(item);
+                }
+            }
+        }
     }
 
     if(displayed) {
-	xredraw();
+        xredraw();
 
-	if(display) {
-	    display_possessions();
-	}
+        if(display) {
+            display_possessions();
+        }
     }
 }
 
@@ -902,12 +902,12 @@ void take_from_pack(int slot, int display)
 void item_inventory(int topline)
 {
     if(topline) {
-	menuclear();
-	display_possessions();
-	inventory_control();
+        menuclear();
+        display_possessions();
+        inventory_control();
     }
     else {
-	top_inventory_control();
+        top_inventory_control();
     }
 }
 #endif
@@ -938,10 +938,10 @@ void inventory_control()
     display_inventory_slot(slot, FALSE);
 
     if(slot == O_WEAPON_HAND) {
-	display_inventory_slot(O_READY_HAND, FALSE);
+        display_inventory_slot(O_READY_HAND, FALSE);
     }
     else if(slot == O_READY_HAND) {
-	display_inventory_slot(O_WEAPON_HAND, FALSE);
+        display_inventory_slot(O_WEAPON_HAND, FALSE);
     }
 
     display_inventory_slot(O_UP_IN_AIR, FALSE);
@@ -951,110 +951,110 @@ void inventory_control()
     switch(response) {
     case 12:
     case 18:
-	/* ^l, ^r */
-	menuclear();
-	display_possessions();
+        /* ^l, ^r */
+        menuclear();
+        display_possessions();
 
-	break;
+        break;
     case 'd':
-	if(Player.possessions[O_UP_IN_AIR] != NULL) {
-	    drop_from_slot(O_UP_IN_AIR);
-	}
-	else if(Player.possessions[slot] != NULL) {
-	    drop_from_slot(slot);
-	}
-	else {
-	    print3("Nothing in selected slot!");
-	}
+        if(Player.possessions[O_UP_IN_AIR] != NULL) {
+            drop_from_slot(O_UP_IN_AIR);
+        }
+        else if(Player.possessions[slot] != NULL) {
+            drop_from_slot(slot);
+        }
+        else {
+            print3("Nothing in selected slot!");
+        }
 
-	++Command_Duration;
+        ++Command_Duration;
 
-	break;
+        break;
     case 'p':
-	if(Player.possessions[slot] != NULL) {
-	    put_to_pack(slot);
-	}
+        if(Player.possessions[slot] != NULL) {
+            put_to_pack(slot);
+        }
 
-	Command_Duration += 5;
+        Command_Duration += 5;
 
-	break;
+        break;
     case 's':
-	display_pack();
-	morewait();
-	xredraw();
-	display_possessions();
-	Command_Duration += 5;
+        display_pack();
+        morewait();
+        xredraw();
+        display_possessions();
+        Command_Duration += 5;
 
-	break;
+        break;
     case 't':
-	take_from_pack(slot, TRUE);
-	Command_Duration += 5;
+        take_from_pack(slot, TRUE);
+        Command_Duration += 5;
 
-	break;
+        break;
     case 'e':
-	switch_to_slot(slot);
-	Command_Duration += 2;
+        switch_to_slot(slot);
+        Command_Duration += 2;
 
-	break;
+        break;
     case 'x':
-	switch_to_slot(slot);
-	Command_Duration += 2;
+        switch_to_slot(slot);
+        Command_Duration += 2;
 
-	if(Player.possessions[O_UP_IN_AIR] == NULL) {
-	    done = 1;
-	}
-	else {
-	    done = 0;
-	}
+        if(Player.possessions[O_UP_IN_AIR] == NULL) {
+            done = 1;
+        }
+        else {
+            done = 0;
+        }
 
-	break;
+        break;
     case 'j':
     case '>':
-	slot = move_slot(slot, slot + 1, MAXITEMS);
+        slot = move_slot(slot, slot + 1, MAXITEMS);
 
-	break;
+        break;
 #ifdef MSDOS
     case KEY_DOWN:
-	simple = 1;
-	slot = move_slot(slot, slot + 1, MAXITEMS);
+        simple = 1;
+        slot = move_slot(slot, slot + 1, MAXITEMS);
 
-	break;
+        break;
 #endif
     case 'k':
     case '<':
-	slot = move_slot(slot, slot - 1, MAXITEMS);
+        slot = move_slot(slot, slot - 1, MAXITEMS);
 
-	break;
+        break;
 #ifdef MSDOS
     case KEY_UP:
-	simple = 1;
-	slot = move_slot(slot, slot - 1, MAXITEMS);
+        simple = 1;
+        slot = move_slot(slot, slot - 1, MAXITEMS);
 
-	break;
+        break;
     case KEY_HOME:
-	slot = move_slot(slot, 0, MAXITEMS);
+        slot = move_slot(slot, 0, MAXITEMS);
 
-	break;
+        break;
     case KEY_LL:
-	slot = move_slot(slot, MAXITEMS - 1, MAXITEMS);
+        slot = move_slot(slot, MAXITEMS - 1, MAXITEMS);
 
-	break;
+        break;
 #endif
     case '?':
-	inv_help();
-	display_possessions();
+        inv_help();
+        display_possessions();
 
-	break;
+        break;
     case ESCAPE:
-	if(Player.possessions[O_UP_IN_AIR] != NULL) {
-	    drop_at(Player.x, Player.y, Player.possessions[O_UP_IN_AIR]);
-	    Player.possessions[O_UP_IN_AIR] = NULL;
-	    print3("Object 'up in air' dropped.");
-	}
+        if(Player.possessions[O_UP_IN_AIR] != NULL) {
+            drop_at(Player.x, Player.y, Player.possessions[O_UP_IN_AIR]);
+            Player.possessions[O_UP_IN_AIR] = NULL;
+            print3("Object 'up in air' dropped.");
+        }
 
-	done = TRUE;
+        done = TRUE;
 
-	break;
+        break;
     }
 
 #ifndef MSDOS
@@ -1062,148 +1062,148 @@ void inventory_control()
 
 #else
     if(!simple) {
-	calc_melee();
+        calc_melee();
     }
     else {
-	simple = 0;
+        simple = 0;
     }
 #endif
 
     while(!done) {
-	checkclear();
-	print1("Action [^l,d,e,p,s,t,x,>,<,?,ESCAPE]:");
-	display_inventory_slot(slot, FALSE);
+        checkclear();
+        print1("Action [^l,d,e,p,s,t,x,>,<,?,ESCAPE]:");
+        display_inventory_slot(slot, FALSE);
 
-	if(slot == O_WEAPON_HAND) {
-	    display_inventory_slot(O_READY_HAND, FALSE);
-	}
-	else if(slot == O_READY_HAND) {
-	    display_inventory_slot(O_WEAPON_HAND, FALSE);
-	}
+        if(slot == O_WEAPON_HAND) {
+            display_inventory_slot(O_READY_HAND, FALSE);
+        }
+        else if(slot == O_READY_HAND) {
+            display_inventory_slot(O_WEAPON_HAND, FALSE);
+        }
 
-	display_inventory_slot(O_UP_IN_AIR, FALSE);
-	move_slot(slot, slot, MAXITEMS);
-	response = mcigetc();
+        display_inventory_slot(O_UP_IN_AIR, FALSE);
+        move_slot(slot, slot, MAXITEMS);
+        response = mcigetc();
 
-	switch(response) {
-	case 12:
-	case 18:
-	    /* ^l, ^r */
-	    menuclear();
-	    display_possessions();
+        switch(response) {
+        case 12:
+        case 18:
+            /* ^l, ^r */
+            menuclear();
+            display_possessions();
 
-	    break;
-	case 'd':
-	    if(Player.possessions[O_UP_IN_AIR] != NULL) {
-		drop_from_slot(O_UP_IN_AIR);
-	    }
-	    else if(Player.possessions[slot] != NULL) {
-		drop_from_slot(slot);
-	    }
-	    else {
-		print3("Nothing in selected slot!");
-	    }
+            break;
+        case 'd':
+            if(Player.possessions[O_UP_IN_AIR] != NULL) {
+                drop_from_slot(O_UP_IN_AIR);
+            }
+            else if(Player.possessions[slot] != NULL) {
+                drop_from_slot(slot);
+            }
+            else {
+                print3("Nothing in selected slot!");
+            }
 
-	    ++Command_Duration;
+            ++Command_Duration;
 
-	    break;
-	case 'p':
-	    if(Player.possessions[slot] != NULL) {
-		put_to_pack(slot);
-	    }
+            break;
+        case 'p':
+            if(Player.possessions[slot] != NULL) {
+                put_to_pack(slot);
+            }
 
-	    Command_Duration += 5;
+            Command_Duration += 5;
 
-	    break;
-	case 's':
-	    display_pack();
-	    morewait();
-	    xredraw();
-	    display_possessions();
-	    Command_Duration += 5;
+            break;
+        case 's':
+            display_pack();
+            morewait();
+            xredraw();
+            display_possessions();
+            Command_Duration += 5;
 
-	    break;
-	case 't':
-	    take_from_pack(slot, TRUE);
-	    Command_Duration += 5;
+            break;
+        case 't':
+            take_from_pack(slot, TRUE);
+            Command_Duration += 5;
 
-	    break;
-	case 'e':
-	    switch_to_slot(slot);
-	    Command_Duration += 2;
+            break;
+        case 'e':
+            switch_to_slot(slot);
+            Command_Duration += 2;
 
-	    break;
-	case 'x':
-	    switch_to_slot(slot);
-	    Command_Duration += 2;
+            break;
+        case 'x':
+            switch_to_slot(slot);
+            Command_Duration += 2;
 
-	    if(Player.possessions[O_UP_IN_AIR] == NULL) {
-		done = 1;
-	    }
-	    else {
-		done = 0;
-	    }
+            if(Player.possessions[O_UP_IN_AIR] == NULL) {
+                done = 1;
+            }
+            else {
+                done = 0;
+            }
 
-	    break;
-	case 'j':
-	case '>':
-	    slot = move_slot(slot, slot + 1, MAXITEMS);
+            break;
+        case 'j':
+        case '>':
+            slot = move_slot(slot, slot + 1, MAXITEMS);
 
-	    break;
+            break;
 #ifdef MSDOS
-	case KEY_DOWN:
-	    simple = 1;
-	    slot = move_slot(slot, slot + 1, MAXITEMS);
+        case KEY_DOWN:
+            simple = 1;
+            slot = move_slot(slot, slot + 1, MAXITEMS);
 
-	    break;
+            break;
 #endif
-	case 'k':
-	case '<':
-	    slot = move_slot(slot, slot - 1, MAXITEMS);
+        case 'k':
+        case '<':
+            slot = move_slot(slot, slot - 1, MAXITEMS);
 
-	    break;
+            break;
 #ifdef MSDOS
-	case KEY_UP:
-	    simple = 1;
-	    slot = move_slot(slot, slot - 1, MAXITEMS);
+        case KEY_UP:
+            simple = 1;
+            slot = move_slot(slot, slot - 1, MAXITEMS);
 
-	    break;
-	case KEY_HOME:
-	    slot = move_slot(slot, 0, MAXITEMS);
+            break;
+        case KEY_HOME:
+            slot = move_slot(slot, 0, MAXITEMS);
 
-	    break;
-	case KEY_LL:
-	    slot = move_slot(slot, MAXITEMS - 1, MAXITEMS);
+            break;
+        case KEY_LL:
+            slot = move_slot(slot, MAXITEMS - 1, MAXITEMS);
 
-	    break;
+            break;
 #endif
-	case '?':
-	    inv_help();
-	    display_professions();
+        case '?':
+            inv_help();
+            display_professions();
 
-	    break;
-	case ESCAPE:
-	    if(Player.possessions[O_UP_IN_AIR] != NULL) {
-		drop_at(Player.x, Player.y, Player.possessions[O_UP_IN_AIR]);
-		Player.possessions[O_UP_IN_AIR] = NULL;
-		print3("Object 'up in air' dropped.");
-	    }
+            break;
+        case ESCAPE:
+            if(Player.possessions[O_UP_IN_AIR] != NULL) {
+                drop_at(Player.x, Player.y, Player.possessions[O_UP_IN_AIR]);
+                Player.possessions[O_UP_IN_AIR] = NULL;
+                print3("Object 'up in air' dropped.");
+            }
 
-	    done = TRUE;
+            done = TRUE;
 
-	    break;
-	}
+            break;
+        }
 
 #ifndef MSDOS
-	calc_melee();
+        calc_melee();
 
 #else
-	if(!simple) {
-	    calc_melee();
-	}
-	else {
-	    simple = 0;
-	}
+        if(!simple) {
+            calc_melee();
+        }
+        else {
+            simple = 0;
+        }
     }
 
     xredraw();
@@ -1225,209 +1225,209 @@ void top_inventory_control()
     print2("'Up in air': ");
 
     if(Player.possessions[O_UP_IN_AIR] == NULL) {
-	nprint2("NOTHING");
+        nprint2("NOTHING");
     }
     else {
-	nprint2(itemid(Player.possessions[O_UP_IN_AIR]));
+        nprint2(itemid(Player.possessions[O_UP_IN_AIR]));
     }
 
     response = mcigetc();
 
     switch(response) {
     case 'd':
-	if(Player.possessions[O_UP_IN_AIR] != NULL) {
-	    drop_from_slot(O_UP_IN_AIR);
-	}
-	else {
-	    slot = get_inventory_slot();
+        if(Player.possessions[O_UP_IN_AIR] != NULL) {
+            drop_from_slot(O_UP_IN_AIR);
+        }
+        else {
+            slot = get_inventory_slot();
 
-	    if(Player.possessions[slot] != NULL) {
-		drop_from_slot(slot);
-	    }
-	    else {
-		print3("Nothing in selected slot!");
-	    }
-	}
+            if(Player.possessions[slot] != NULL) {
+                drop_from_slot(slot);
+            }
+            else {
+                print3("Nothing in selected slot!");
+            }
+        }
 
-	++Command_Duration;
+        ++Command_Duration;
 
-	break;
+        break;
     case 'p':
-	if(Player.possessions[O_UP_IN_AIR] == NULL) {
-	    slot = get_inventory_slot();
-	}
-	else {
-	    slot = O_UP_IN_AIR;
-	}
+        if(Player.possessions[O_UP_IN_AIR] == NULL) {
+            slot = get_inventory_slot();
+        }
+        else {
+            slot = O_UP_IN_AIR;
+        }
 
-	put_to_pack(slot);
-	Command_Duration += 5;
+        put_to_pack(slot);
+        Command_Duration += 5;
 
-	break;
+        break;
     case 's':
-	display_pack();
-	usedmenu = TRUE;
-	Command_Duration += 5;
+        display_pack();
+        usedmenu = TRUE;
+        Command_Duration += 5;
 
-	break;
+        break;
     case 't':
-	slot = get_inventory_slot();
-	take_from_pack(slot, FALSE);
-	Command_Duration += 5;
+        slot = get_inventory_slot();
+        take_from_pack(slot, FALSE);
+        Command_Duration += 5;
 
-	break;
+        break;
     case 'e':
-	slot = get_inventory_slot();
-	switch_to_slot(slot);
-	Command_Duration += 2;
+        slot = get_inventory_slot();
+        switch_to_slot(slot);
+        Command_Duration += 2;
 
-	break;
+        break;
     case 'x':
-	slot = get_inventory_slot();
-	switch_to_slot(slot);
-	Command_Duration += 2;
+        slot = get_inventory_slot();
+        switch_to_slot(slot);
+        Command_Duration += 2;
 
-	if(Player.possessions[O_UP_IN_AIR] == NULL) {
-	    done = 1;
-	}
-	else {
-	    done = 0;
-	}
+        if(Player.possessions[O_UP_IN_AIR] == NULL) {
+            done = 1;
+        }
+        else {
+            done = 0;
+        }
 
-	break;
+        break;
     case '~':
-	menuclear();
-	display_possessions();
-	inventory_control();
-	usedmenu = TRUE;
-	done = TRUE;
+        menuclear();
+        display_possessions();
+        inventory_control();
+        usedmenu = TRUE;
+        done = TRUE;
 
-	break;
+        break;
     case '?':
-	inv_help();
-	usedmenu = TRUE;
+        inv_help();
+        usedmenu = TRUE;
 
-	break;
+        break;
     case ESCAPE:
-	if(Player.possessions[O_UP_IN_AIR] != NULL) {
-	    drop_at(Player.x, Player.y, Player.possessions[O_UP_IN_AIR]);
-	    Player.possessions[O_UP_IN_AIR] = NULL;
-	    print3("Object 'up in air' dropped.");
-	}
+        if(Player.possessions[O_UP_IN_AIR] != NULL) {
+            drop_at(Player.x, Player.y, Player.possessions[O_UP_IN_AIR]);
+            Player.possessions[O_UP_IN_AIR] = NULL;
+            print3("Object 'up in air' dropped.");
+        }
 
-	done = TRUE;
+        done = TRUE;
 
-	break;
+        break;
     }
     
     calc_melee();
 
     while(!done) {
-	clearmsg1();
-	print1("Action [d,e,p,s,t,x,~,?,ESCAPE]:");
-	print2("'Up in air':");
+        clearmsg1();
+        print1("Action [d,e,p,s,t,x,~,?,ESCAPE]:");
+        print2("'Up in air':");
 
-	if(Player.possesssions[O_UP_IN_AIR] == NULL) {
-	    nprint2("NOTHING");
-	}
-	else {
-	    nprint2(itemid(Player.possessions[O_UP_IN_AIR]));
-	}
+        if(Player.possesssions[O_UP_IN_AIR] == NULL) {
+            nprint2("NOTHING");
+        }
+        else {
+            nprint2(itemid(Player.possessions[O_UP_IN_AIR]));
+        }
 
-	response = mcigetc();
+        response = mcigetc();
 
-	switch(response) {
-	case 'd':
-	    if(Player.possessions[O_UP_IN_AIR] != NULL) {
-		drop_from_slot(O_UP_IN_AIR);
-	    }
-	    else {
-		slot = get_inventory_slot();
+        switch(response) {
+        case 'd':
+            if(Player.possessions[O_UP_IN_AIR] != NULL) {
+                drop_from_slot(O_UP_IN_AIR);
+            }
+            else {
+                slot = get_inventory_slot();
 
-		if(Player.possessions[slot] != NULL) {
-		    drop_from_slot(slot);
-		}
-		else {
-		    print3("Nothing in selected slot!");
-		}
-	    }
+                if(Player.possessions[slot] != NULL) {
+                    drop_from_slot(slot);
+                }
+                else {
+                    print3("Nothing in selected slot!");
+                }
+            }
 
-	    ++Command_Duration;
+            ++Command_Duration;
 
-	    break;
-	case 'p':
-	    if(Player.possessions[O_UP_IN_AIR] == NULL) {
-		slot = get_inventory_slot();
-	    }
-	    else {
-		slot = O_UP_IN_AIR;
-	    }
+            break;
+        case 'p':
+            if(Player.possessions[O_UP_IN_AIR] == NULL) {
+                slot = get_inventory_slot();
+            }
+            else {
+                slot = O_UP_IN_AIR;
+            }
 
-	    put_to_pack(slot);
-	    Command_Duration += 5;
+            put_to_pack(slot);
+            Command_Duration += 5;
 
-	    break;
-	case 's':
-	    display_pack();
-	    usedmenu = TRUE;
-	    Command_Duration += 5;
+            break;
+        case 's':
+            display_pack();
+            usedmenu = TRUE;
+            Command_Duration += 5;
 
-	    break;
-	case 't':
-	    slot = get_inventory_slot();
-	    take_from_pack(slot, FALSE);
-	    Command_Duration += 5;
+            break;
+        case 't':
+            slot = get_inventory_slot();
+            take_from_pack(slot, FALSE);
+            Command_Duration += 5;
 
-	    break;
-	case 'e':
-	    slot = get_inventory_slot();
-	    switch_to_slot(slot);
-	    Command_Duration += 2;
+            break;
+        case 'e':
+            slot = get_inventory_slot();
+            switch_to_slot(slot);
+            Command_Duration += 2;
 
-	    break;
-	case 'x':
-	    slot = get_inventory_slot();
-	    switch_to_slot(slot);
-	    Command_Duration += 2;
+            break;
+        case 'x':
+            slot = get_inventory_slot();
+            switch_to_slot(slot);
+            Command_Duration += 2;
 
-	    if(Player.possessions[O_UP_IN_AIR] == NULL) {
-		done = 1;
-	    }
-	    else {
-		done = 0;
-	    }
+            if(Player.possessions[O_UP_IN_AIR] == NULL) {
+                done = 1;
+            }
+            else {
+                done = 0;
+            }
 
-	    break;
-	case '~':
-	    menuclear();
-	    display_possessions();
-	    inventory_control();
-	    usedmenu = TRUE;
-	    done = TRUE;
+            break;
+        case '~':
+            menuclear();
+            display_possessions();
+            inventory_control();
+            usedmenu = TRUE;
+            done = TRUE;
 
-	    break;
-	case '?':
-	    inv_help();
-	    usedmenu = TRUE;
+            break;
+        case '?':
+            inv_help();
+            usedmenu = TRUE;
 
-	    break;
-	case ESCAPE:
-	    if(Player.possessions[O_UP_IN_AIR] != NULL) {
-		drop_at(Player.x, Player.y, Player.possessions[O_UP_IN_AIR]);
-		Player.possessions[O_UP_IN_AIR] = NULL;
-		print3("Object 'up in air' dropped.");
-	    }
+            break;
+        case ESCAPE:
+            if(Player.possessions[O_UP_IN_AIR] != NULL) {
+                drop_at(Player.x, Player.y, Player.possessions[O_UP_IN_AIR]);
+                Player.possessions[O_UP_IN_AIR] = NULL;
+                print3("Object 'up in air' dropped.");
+            }
 
-	    done = TRUE;
+            done = TRUE;
 
-	    break;
-	}
+            break;
+        }
 
-	calc_melee();
+        calc_melee();
     }
 
     if(usedmenu) {
-	xredraw();
+        xredraw();
     }
 }
 
@@ -1442,31 +1442,31 @@ int get_inventory_slot()
 
     if((response == '*')
        || ((response >= 'a') && (response < ('a' + MAXITEMS - 1)))) {
-	ok = 1;
+        ok = 1;
     }
     else {
-	ok = 0;
+        ok = 0;
     }
 
     while(!ok) {
-	clearmsg1();
-	print1("Which inventory slot [a..o,*='up-in-air' slot]?");
-	response = mcigetc();
+        clearmsg1();
+        print1("Which inventory slot [a..o,*='up-in-air' slot]?");
+        response = mcigetc();
 
-	if((response == '*')
-	   || ((response >= 'a') && (response < ('a' + MAXITEMS - 1)))) {
-	    ok = 1;
-	}
-	else {
-	    ok = 0;
-	}
+        if((response == '*')
+           || ((response >= 'a') && (response < ('a' + MAXITEMS - 1)))) {
+            ok = 1;
+        }
+        else {
+            ok = 0;
+        }
     }
 
     if(response == '*') {
-	return 0;
+        return 0;
     }
     else {
-	return (int)(response + 1 - 'a');
+        return (int)(response + 1 - 'a');
     }
 }
 
@@ -1481,28 +1481,28 @@ int get_item_number(pob o)
     n = parsenum();
 
     if(n > o->number) {
-	print3("Too many!");
+        print3("Too many!");
     }
     else if(n < 1) {
-	n = 0;
+        n = 0;
     }
 
     while(n > o->number) {
-	print1("How many? -- max");
-	mnumprint(o->number);
-	nprint1(" :");
-	n = parsenum();
+        print1("How many? -- max");
+        mnumprint(o->number);
+        nprint1(" :");
+        n = parsenum();
 
-	if(n > o->number) {
-	    print3("Too many!");
-	}
-	else if(n < 1) {
-	    n = 0;
-	}
+        if(n > o->number) {
+            print3("Too many!");
+        }
+        else if(n < 1) {
+            n = 0;
+        }
     }
 
     if(n < 1) {
-	n = 0;
+        n = 0;
     }
 
     return n;
@@ -1514,40 +1514,40 @@ void drop_from_slow(int slot)
     int waitflag;
 
     if(Player.possessions[slot] != NULL) {
-	if(cursed(Player.possessions[slot]) == (TRUE + TRUE)) {
-	    print3("It sticks to your fingers!");
-	}
-	else {
-	    n = Player.possessions[slot]->number;
+        if(cursed(Player.possessions[slot]) == (TRUE + TRUE)) {
+            print3("It sticks to your fingers!");
+        }
+        else {
+            n = Player.possessions[slot]->number;
 
-	    if(n > 1) {
-		n = get_item_number(Player.possessions[slot]);
-	    }
+            if(n > 1) {
+                n = get_item_number(Player.possessions[slot]);
+            }
 
-	    if(n > 0) {
-		p_drop_at(Player.x, Player.y, n, Player.possessions[slot]);
+            if(n > 0) {
+                p_drop_at(Player.x, Player.y, n, Player.possessions[slot]);
 
-		if(Player.possessions[slot]->used
-		   && (Player.possessions[slot]->number == n)) {
-		    waitflag = 1;
-		}
-		else {
-		    waitflag = 0;
-		}
+                if(Player.possessions[slot]->used
+                   && (Player.possessions[slot]->number == n)) {
+                    waitflag = 1;
+                }
+                else {
+                    waitflag = 0;
+                }
 
-		confrom_lost_objects(n, Player.possessions[slot]);
+                confrom_lost_objects(n, Player.possessions[slot]);
 
-		if(waitflag) {
-		    morewait();
-		}
-	    }
-	    else {
-		print3("Didn't drop anything.");
-	    }
-	}
+                if(waitflag) {
+                    morewait();
+                }
+            }
+            else {
+                print3("Didn't drop anything.");
+            }
+        }
     }
     else {
-	print3("Didn't drop anything.");
+        print3("Didn't drop anything.");
     }
 }
 
@@ -1559,34 +1559,34 @@ void put_to_pack(int slot)
     pob oslot = Player.possessions[slot];
 
     if(oslot == NULL) {
-	print3("Slot is empty!");
+        print3("Slot is empty!");
     }
     else if(cursed(oslot) == (TRUE + TRUE)) {
-	print3("Item is cursed!");
+        print3("Item is cursed!");
     }
     else {
-	if(oslot->number > 1) {
-	    num = get_item_number(oslot);
-	}
+        if(oslot->number > 1) {
+            num = get_item_number(oslot);
+        }
 
-	if(num > 0) {
-	    temp = split_item(num, oslot);
+        if(num > 0) {
+            temp = split_item(num, oslot);
 
-	    if(oslot->used && (oslot->number == num)) {
-		waitflag = 1;
-	    }
-	    else {
-		waitflag = 0;
-	    }
+            if(oslot->used && (oslot->number == num)) {
+                waitflag = 1;
+            }
+            else {
+                waitflag = 0;
+            }
 
-	    confrom_lost_objects(num, oslot);
+            confrom_lost_objects(num, oslot);
 
-	    if(waitflag) {
-		morewait();
-	    }
+            if(waitflag) {
+                morewait();
+            }
 
-	    add_to_pack(temp);
-	}
+            add_to_pack(temp);
+        }
     }
 }
 
@@ -1600,14 +1600,14 @@ pob split_item(int num, pob item)
     pob newitem = NULL;
 
     if(item != NULL) {
-	newitem = (pob)malloc(sizeof(objtype));
-	*newitem = *item;
+        newitem = (pob)malloc(sizeof(objtype));
+        *newitem = *item;
 
-	if(num <= item->number) {
-	    newitem->number = num;
-	}
+        if(num <= item->number) {
+            newitem->number = num;
+        }
 
-	/* Else num > item->number, so return NULL on this error condition */
+        /* Else num > item->number, so return NULL on this error condition */
     }
 
     return newitem;
@@ -1636,142 +1636,142 @@ void switch_to_slot(int slot)
 
     /* i.e., is cursed and in use */
     if(slot == O_UP_IN_AIR) {
-	print3("This action makes no sense!");
+        print3("This action makes no sense!");
     }
     else if(cursed(oslot) == (TRUE + TRUE)) {
-	print3("The object in that slot is cursed -- you can't get rid of it!");
+        print3("The object in that slot is cursed -- you can't get rid of it!");
     }
     else {
-	if(oslot == NULL) {
-	    slotnull = 1;
-	}
-	else {
-	    slotnull = 0;
-	}
+        if(oslot == NULL) {
+            slotnull = 1;
+        }
+        else {
+            slotnull = 0;
+        }
 
-	if(oair == NULL) {
-	    airnull = 1;
-	}
-	else {
-	    airnull = 0;
-	}
+        if(oair == NULL) {
+            airnull = 1;
+        }
+        else {
+            airnull = 0;
+        }
 
-	if(!slotnull) {
-	    if(Player.possessions[O_READY_HAND] == Player.possessions[O_WEAPON_HAND]) {
-		s2h = 1;
-	    }
-	    else {
-		s2h = 0;
-	    }
-	}
+        if(!slotnull) {
+            if(Player.possessions[O_READY_HAND] == Player.possessions[O_WEAPON_HAND]) {
+                s2h = 1;
+            }
+            else {
+                s2h = 0;
+            }
+        }
 
-	if(!airnull) {
-	    if(twohandedp(oair->id)
-	       && ((slot == O_READY_HAND) || (slot == O_WEAPON_HAND))) {
-		a2h = 1;
-	    }
-	    else {
-		a2h = 0;
-	    }
-	}
+        if(!airnull) {
+            if(twohandedp(oair->id)
+               && ((slot == O_READY_HAND) || (slot == O_WEAPON_HAND))) {
+                a2h = 1;
+            }
+            else {
+                a2h = 0;
+            }
+        }
 
-	/* Figure out which action to take */
-	/* Merge if both are same kind of object */
-	merge = objequal(oslot, oair);
+        /* Figure out which action to take */
+        /* Merge if both are same kind of object */
+        merge = objequal(oslot, oair);
 
-	if(!merge && !slotnull && !airnull) {
-	    take = 1;
-	}
-	else {
-	    take = 0;
-	}
+        if(!merge && !slotnull && !airnull) {
+            take = 1;
+        }
+        else {
+            take = 0;
+        }
 
-	if(!merge && slotnull && !airnull && slottable(oair, slot)) {
-	    put = 1;
-	}
-	else {
-	    put = 0;
-	}
+        if(!merge && slotnull && !airnull && slottable(oair, slot)) {
+            put = 1;
+        }
+        else {
+            put = 0;
+        }
 
-	if(!merge && !slotnull && !airnull && slottable(oair, slot)) {
-	    trade = 1;
-	}
-	else {
-	    trade = 0;
-	}
+        if(!merge && !slotnull && !airnull && slottable(oair, slot)) {
+            trade = 1;
+        }
+        else {
+            trade = 0;
+        }
 
-	if(merge) {
-	    merge_item(slot);
-	}
-	else if(put) {
-	    /* Deal with a 2-handed weapon */
-	    if(a2h) {
-		if(Player.possessions[O_READY_HAND] == NULL) {
-		    Player.possessions[O_READY_HAND] = oair;
-		}
+        if(merge) {
+            merge_item(slot);
+        }
+        else if(put) {
+            /* Deal with a 2-handed weapon */
+            if(a2h) {
+                if(Player.possessions[O_READY_HAND] == NULL) {
+                    Player.possessions[O_READY_HAND] = oair;
+                }
 
-		if(Player.possessions[O_WEAPON_HAND] == NULL) {
-		    Player.possessions[O_WEAPON_HAND] = oair;
-		}
-	    }
-	    else {
-		Player.possessions[slot] = oair;
-	    }
+                if(Player.possessions[O_WEAPON_HAND] == NULL) {
+                    Player.possessions[O_WEAPON_HAND] = oair;
+                }
+            }
+            else {
+                Player.possessions[slot] = oair;
+            }
 
-	    Player.possessions[O_UP_IN_AIR] = NULL;
+            Player.possessions[O_UP_IN_AIR] = NULL;
 
-	    if(item_useable(oair, slot)) {
-		oair->used = TRUE;
-		item_use(oair);
-		morewait();
+            if(item_useable(oair, slot)) {
+                oair->used = TRUE;
+                item_use(oair);
+                morewait();
 
-		if(oair->number > 1) {
-		    pack_extra_items(oair);
-		}
-	    }
+                if(oair->number > 1) {
+                    pack_extra_items(oair);
+                }
+            }
 
-	    Player.possessions[O_UP_IN_AIR] = NULL;
-	}
-	else if(take) {
-	    if(oslot->number > 1) {
-		num = get_item_number(oslot);
-	    }
+            Player.possessions[O_UP_IN_AIR] = NULL;
+        }
+        else if(take) {
+            if(oslot->number > 1) {
+                num = get_item_number(oslot);
+            }
 
-	    if(num > 0) {
-		otemp = split_item(num, oslot);
-		dispose_lost_objects(num, oslot);
-		Player.possessions[O_UP_IN_AIR] = otemp;
-		otemp->used = FALSE;
-	    }
-	}
-	else if(trade) {
-	    /* First remove item from slot */
-	    num = oslot->number;
-	    conform_lost_objects(oslot->number, oslot);
-	    oslot->number = num;
-	    Player.possessions[O_UP_IN_AIR] = oslot;
-	    Player.possessions[slot] = oair;
+            if(num > 0) {
+                otemp = split_item(num, oslot);
+                dispose_lost_objects(num, oslot);
+                Player.possessions[O_UP_IN_AIR] = otemp;
+                otemp->used = FALSE;
+            }
+        }
+        else if(trade) {
+            /* First remove item from slot */
+            num = oslot->number;
+            conform_lost_objects(oslot->number, oslot);
+            oslot->number = num;
+            Player.possessions[O_UP_IN_AIR] = oslot;
+            Player.possessions[slot] = oair;
 
-	    if(a2h) {
-		if(Player.possessions[O_READY_HAND] == NULL) {
-		    Player.possessions[O_READY_HAND] = oair;
-		}
+            if(a2h) {
+                if(Player.possessions[O_READY_HAND] == NULL) {
+                    Player.possessions[O_READY_HAND] = oair;
+                }
 
-		if(Player.possessions[O_WEAPON_HAND] == NULL) {
-		    Player.possessions[O_WEAPON_HAND] = oair;
-		}
-	    }
+                if(Player.possessions[O_WEAPON_HAND] == NULL) {
+                    Player.possessions[O_WEAPON_HAND] = oair;
+                }
+            }
 
-	    if(item_useable(oair, slot)) {
-		oair->used = TRUE;
-		item_use(oair);
-		morewait();
+            if(item_useable(oair, slot)) {
+                oair->used = TRUE;
+                item_use(oair);
+                morewait();
 
-		if(oair->number > 1) {
-		    pack_extra_items(oair);
-		}
-	    }
-	}
+                if(oair->number > 1) {
+                    pack_extra_items(oair);
+                }
+            }
+        }
     }
 }
 
@@ -1789,22 +1789,22 @@ void merge_item(int slot)
 int objequal(struct object *o, struct object *p)
 {
     if((o == NULL) || (p == NULL)) {
-	return FALSE;
+        return FALSE;
     }
     else if((o->id == p->id)
-	    && (o->plus == p->plus)
-	    && (o->charge == 0)
-	    && (p->charge == 0)
-	    && (o->dmg == p->dmg)
-	    && (o->hit == p->hit)
-	    && (o->aux == p->aux)
-	    && (o->known == p->known)
-	    && (o->blessing == p->blessing)
-	    && (o->usef == p->usef)) {
-	return 1;
+            && (o->plus == p->plus)
+            && (o->charge == 0)
+            && (p->charge == 0)
+            && (o->dmg == p->dmg)
+            && (o->hit == p->hit)
+            && (o->aux == p->aux)
+            && (o->known == p->known)
+            && (o->blessing == p->blessing)
+            && (o->usef == p->usef)) {
+        return 1;
     }
     else {
-	return 0;
+        return 0;
     }
 }
 
@@ -1814,37 +1814,37 @@ int slottable(pob slot, int slot)
     int ok = TRUE;
 
     if(o == NULL) {
-	ok = FALSE;
+        ok = FALSE;
     }
     else if(slot == O_ARMOR) {
-	if(o->objchar != ARMOR) {
-	    print3("Only armor can go in the armor slot!");
-	    ok = FALSE;
-	}
+        if(o->objchar != ARMOR) {
+            print3("Only armor can go in the armor slot!");
+            ok = FALSE;
+        }
     }
     else if(slot == O_SHIELD) {
-	if(o->objchar != SHIELD) {
-	    print3("Only a shield can go in the shield slot!");
-	    ok = FALSE;
-	}
+        if(o->objchar != SHIELD) {
+            print3("Only a shield can go in the shield slot!");
+            ok = FALSE;
+        }
     }
     else if(slot == O_BOOTS) {
-	if(o->objchar != BOOTS) {
-	    print3("Only boots can go in the boots slot!");
-	    ok = FALSE;
-	}
+        if(o->objchar != BOOTS) {
+            print3("Only boots can go in the boots slot!");
+            ok = FALSE;
+        }
     }
     else if(slot == O_CLOAK) {
-	if(o->objchar != CLOAK) {
-	    print3("Only a cloak can go in the cloak slot!");
-	    ok = FALSE;
-	}
+        if(o->objchar != CLOAK) {
+            print3("Only a cloak can go in the cloak slot!");
+            ok = FALSE;
+        }
     }
     else if(slot >= O_RING1) {
-	if(o->objchar != RING) {
-	    print3("Only a ring can go in a ring slot!");
-	    ok = FALSE;
-	}
+        if(o->objchar != RING) {
+            print3("Only a ring can go in a ring slot!");
+            ok = FALSE;
+        }
     }
 
     return ok;
@@ -1865,41 +1865,41 @@ int item_useable(pob o, int slot)
        || (slot == O_SHIELD)
        || (slot == O_BOOTS)
        || (slot >= O_RING1)) {
-	return TRUE;
+        return TRUE;
     }
     else if((o->objchar == WEAPON) || (o->objchar == MISSILEWEAPON)) {
-	/* 
-	 * Weapon is useable if it is put in weapon and or if it is
-	 * two-handed and put in either hand when the other also holds the
-	 * weapon
-	 */
-	if(twohandedp(o->id)
-	   && ((slot == O_READY_HAND) || (slot == O_WEAPON_HAND))) {
-	    if(Player.possessions[O_READY_HAND] == Player.possessions[O_WEAPON_HAND]) {
-		print1("You heft the weapon and find you must use both hands.");
-		morewait();
+        /* 
+         * Weapon is useable if it is put in weapon and or if it is
+         * two-handed and put in either hand when the other also holds the
+         * weapon
+         */
+        if(twohandedp(o->id)
+           && ((slot == O_READY_HAND) || (slot == O_WEAPON_HAND))) {
+            if(Player.possessions[O_READY_HAND] == Player.possessions[O_WEAPON_HAND]) {
+                print1("You heft the weapon and find you must use both hands.");
+                morewait();
 
-		return TRUE;
-	    }
-	    else {
-		print1("This weapon is two-handed, so at the moment, ");
-		print2("you are just lugging it around...");
-		morewait();
+                return TRUE;
+            }
+            else {
+                print1("This weapon is two-handed, so at the moment, ");
+                print2("you are just lugging it around...");
+                morewait();
 
-		return FALSE;
-	    }
-	}
-	else {
-	    if(slot == O_WEAPON_HAND) {
-		return 1;
-	    }
-	    else {
-		return 0;
-	    }
-	}
+                return FALSE;
+            }
+        }
+        else {
+            if(slot == O_WEAPON_HAND) {
+                return 1;
+            }
+            else {
+                return 0;
+            }
+        }
     }
     else {
-	return FALSE;
+        return FALSE;
     }
 }
 
@@ -1910,18 +1910,18 @@ int item_useable(pob o, int slot)
 int cursed(pob obj)
 {
     if(obj == NULL) {
-	return FALSE;
+        return FALSE;
     }
     else if(obj->blessing < 0) {
-	if(obj->used == TRUE) {
-	    return (1 + TRUE);
-	}
-	else {
-	    return TRUE;
-	}
+        if(obj->used == TRUE) {
+            return (1 + TRUE);
+        }
+        else {
+            return TRUE;
+        }
     }
     else {
-	return FALSE;
+        return FALSE;
     }
 }
 
@@ -1937,27 +1937,27 @@ int find_item(pob *o, int id, in chargeval)
     *o = NULL;
 
     for(i = 1; (i < MAXITEMS) && !found; ++i) {
-	if(Player.possessions[i] != NULL) {
-	    if((Player.possessions[i]->id == id)
-	       && ((chargeval == -1)
-		   || (Player.possessions[i]->charge == chargeval))) {
-		*o = Player.possessions[i];
-		found = TRUE;
-	    }
-	}
+        if(Player.possessions[i] != NULL) {
+            if((Player.possessions[i]->id == id)
+               && ((chargeval == -1)
+                   || (Player.possessions[i]->charge == chargeval))) {
+                *o = Player.possessions[i];
+                found = TRUE;
+            }
+        }
     }
 
     if(!found) {
-	for(i = 0; (i < Player.packptr) && !found; ++i) {
-	    if(Player.pack[i] != NULL) {
-		if((Player.pack[i]->id == id)
-		   && ((chargeval == -1)
-		       || (Player.pack[i]->charge == chargeval))) {
-		    *o = Player.pack[i];
-		    found = TRUE;
-		}
-	    }
-	}
+        for(i = 0; (i < Player.packptr) && !found; ++i) {
+            if(Player.pack[i] != NULL) {
+                if((Player.pack[i]->id == id)
+                   && ((chargeval == -1)
+                       || (Player.pack[i]->charge == chargeval))) {
+                    *o = Player.pack[i];
+                    found = TRUE;
+                }
+            }
+        }
     }
 
     return found;
@@ -1975,29 +1975,29 @@ int find_and_remote_item(int id, int chargeval)
     pob o = NULL;
 
     for(i = 1; (i < MAXITEMS) && !found; ++i) {
-	if(Player.possessions[i] != NULL) {
-	    if((Player.possessions[i]->id == id)
-	       && ((chargeval == -1)
-		   || (Player.possessions[i]->charge == chargeval))) {
-		o = Player.possessions[i];
-		conform_lost_object(o);
-		found = TRUE;
-	    }
-	}
+        if(Player.possessions[i] != NULL) {
+            if((Player.possessions[i]->id == id)
+               && ((chargeval == -1)
+                   || (Player.possessions[i]->charge == chargeval))) {
+                o = Player.possessions[i];
+                conform_lost_object(o);
+                found = TRUE;
+            }
+        }
     }
 
     if(!found) {
-	for(i = 0; (i < Player.packptr) && !found; ++i) {
-	    if(Player.pack[i] != NULL) {
-		if((Player.pack[i]->id == id)
-		   && ((chargeval == -1)
-		       || (Player.pack[i]->charge == chargeval))) {
-		    free((char *)Player.pack[i]);
-		    Player.pack[i] = NULL;
-		    found = TRUE;
-		}
-	    }
-	}
+        for(i = 0; (i < Player.packptr) && !found; ++i) {
+            if(Player.pack[i] != NULL) {
+                if((Player.pack[i]->id == id)
+                   && ((chargeval == -1)
+                       || (Player.pack[i]->charge == chargeval))) {
+                    free((char *)Player.pack[i]);
+                    Player.pack[i] = NULL;
+                    found = TRUE;
+                }
+            }
+        }
     }
 
     fixpack();
@@ -2013,18 +2013,18 @@ void lose_all_items()
     morewait();
 
     for(i = 0; i < MAXITEMS; ++i) {
-	if(Player.possessions[i] != NULL) {
-	    dispose_lost_objects(Player.possessions[i]->number, Player.possessions[i]);
-	    Player.possessions[i] = NULL;
-	}
+        if(Player.possessions[i] != NULL) {
+            dispose_lost_objects(Player.possessions[i]->number, Player.possessions[i]);
+            Player.possessions[i] = NULL;
+        }
     }
 
     for(i = 0; i < MAXPACK; ++i) {
-	if(Player.pack[i] != NULL) {
-	    free((char *)Player.pack[i]);
-	}
+        if(Player.pack[i] != NULL) {
+            free((char *)Player.pack[i]);
+        }
 
-	Player.pack[i] = NULL;
+        Player.pack[i] = NULL;
     }
 
     Player.packptr = 0;
@@ -2038,21 +2038,21 @@ void pack_extra_items(pob item)
     pob extra = (pob)malloc(sizeof(objtype));
 
     if(Player.packptr < MAXPACK) {
-	print3("Putting extra items back in pack.");
-	morewait();
-	*extra = *item;
-	extra->number = item->number - 1;
-	item->number = 1;
-	Player.pack[Player.packptr] = extra;
-	++Player.packptr;
+        print3("Putting extra items back in pack.");
+        morewait();
+        *extra = *item;
+        extra->number = item->number - 1;
+        item->number = 1;
+        Player.pack[Player.packptr] = extra;
+        ++Player.packptr;
     }
     else if(Player.possessions[O_UP_IN_AIR] == NULL) {
-	print3("Extra copies of item are 'up in air'");
-	Player.possessions[O_UP_IN_AIR] = extra;
+        print3("Extra copies of item are 'up in air'");
+        Player.possessions[O_UP_IN_AIR] = extra;
     }
     else {
-	print3("No room for extra copies of item -- dropping them.");
-	drop_at(Player.x, Player.y, extra);
+        print3("No room for extra copies of item -- dropping them.");
+        drop_at(Player.x, Player.y, extra);
     }
 
     calc_melee();
@@ -2066,18 +2066,18 @@ void fixpack()
     int tctr = 0;
 
     for(i = 0; i < MAXPACK; ++i) {
-	tpack[i] = NULL;
+        tpack[i] = NULL;
     }
 
     for(i = 0; i < MAXPACK; ++i) {
-	if(Player.pack[i] != NULL) {
-	    tpack[tctr] = Player.pack[i];
-	    ++tctr;
-	}
+        if(Player.pack[i] != NULL) {
+            tpack[tctr] = Player.pack[i];
+            ++tctr;
+        }
     }
 
     for(i = 0; i < MAXPACK; ++i) {
-	Player.pack[i] = tpack[i];
+        Player.pack[i] = tpack[i];
     }
 
     Player.packptr = tctr;

@@ -23,201 +23,201 @@ void examine()
     setspot(&x, &y);
 
     if(inbounds(x, y)) {
-	clearmsg();
+        clearmsg();
 
-	if(Current_Environment == E_COUNTRYSIDE) {
-	    if(!Country[x][y].explored) {
-		print3("How should I know what that is?");
-	    }
-	    else {
-		mprint("That terrain is:");
-		mprint(countryid(Country[x][y].current_terrain_type));
-	    }
-	}
-	else if(!los_p(Player.x, Player.y, x, y)) {
-	    print3("I refuse to examine something I can't see.");
-	}
-	else {
-	    clearmsg();
+        if(Current_Environment == E_COUNTRYSIDE) {
+            if(!Country[x][y].explored) {
+                print3("How should I know what that is?");
+            }
+            else {
+                mprint("That terrain is:");
+                mprint(countryid(Country[x][y].current_terrain_type));
+            }
+        }
+        else if(!los_p(Player.x, Player.y, x, y)) {
+            print3("I refuse to examine something I can't see.");
+        }
+        else {
+            clearmsg();
 
-	    if(Level->site[x][y].creature != NULL) {
-		mprint(mstatus_string(Level->site[x][y].creature));
-	    }
-	    else if((Player.x == x) && (Player.y == y)) {
-		describe_player();
-	    }
+            if(Level->site[x][y].creature != NULL) {
+                mprint(mstatus_string(Level->site[x][y].creature));
+            }
+            else if((Player.x == x) && (Player.y == y)) {
+                describe_player();
+            }
 
-	    if(loc_status(x, y, SECRET)) {
-		print2("An age-worn stone wall.");
-	    }
-	    else {
-		switch(Level->site[x][y].locchar) {
-		case SPACE:
-		    print2("An infinite void.");
+            if(loc_status(x, y, SECRET)) {
+                print2("An age-worn stone wall.");
+            }
+            else {
+                switch(Level->site[x][y].locchar) {
+                case SPACE:
+                    print2("An infinite void.");
 
-		    break;
-		case PORTCULLIS:
-		    print2("A heavy steel portcullis");
+                    break;
+                case PORTCULLIS:
+                    print2("A heavy steel portcullis");
 
-		    break;
-		case ABYSS:
-		    print2("An entrance to the infitine abyss");
+                    break;
+                case ABYSS:
+                    print2("An entrance to the infitine abyss");
 
-		    break;
-		case FLOOR:
-		    if(Current_Dungeon == Current_Environment) {
-			print2("A dirty stone floor.");
-		    }
-		    else {
-			print2("The ground.");
-		    }
+                    break;
+                case FLOOR:
+                    if(Current_Dungeon == Current_Environment) {
+                        print2("A dirty stone floor.");
+                    }
+                    else {
+                        print2("The ground.");
+                    }
 
-		    break;
-		case WALL:
-		    if(Level->site[x][y].aux == 0) {
-			print2("A totally impervious wall.");
-		    }
-		    else if(Level->site[x][y].aux < 10) {
-			print2("A pitted concrete wall.");
-		    }
-		    else if(Level->site[x][y].aux < 30) {
-			print2("An age-worn sandstone wall.");
-		    }
-		    else if(Level->site[x][y].aux < 50) {
-			print2("A smooth basalt wall.");
-		    }
-		    else if(Level->site[x][y].aux < 70) {
-			print2("A solid granite wall.");
-		    }
-		    else if(Level->site[x][y].aux < 90) {
-			print2("A wall of steel.");
-		    }
-		    else if(Level->site[x][y].aux < 210) {
-			if(Current_Environment == E_CITY) {
-			    print2("A thick wall of Rampart bluestone");
-			}
-			else {
-			    print2("A magically reinforced wall.");
-			}
-		    }
-		    else {
-			print2("An almost totally impervious wall.");
-		    }
+                    break;
+                case WALL:
+                    if(Level->site[x][y].aux == 0) {
+                        print2("A totally impervious wall.");
+                    }
+                    else if(Level->site[x][y].aux < 10) {
+                        print2("A pitted concrete wall.");
+                    }
+                    else if(Level->site[x][y].aux < 30) {
+                        print2("An age-worn sandstone wall.");
+                    }
+                    else if(Level->site[x][y].aux < 50) {
+                        print2("A smooth basalt wall.");
+                    }
+                    else if(Level->site[x][y].aux < 70) {
+                        print2("A solid granite wall.");
+                    }
+                    else if(Level->site[x][y].aux < 90) {
+                        print2("A wall of steel.");
+                    }
+                    else if(Level->site[x][y].aux < 210) {
+                        if(Current_Environment == E_CITY) {
+                            print2("A thick wall of Rampart bluestone");
+                        }
+                        else {
+                            print2("A magically reinforced wall.");
+                        }
+                    }
+                    else {
+                        print2("An almost totally impervious wall.");
+                    }
 
-		    break;
-		case RUBBLE:
-		    print2("A dangerous-looking pile of rubble.");
+                    break;
+                case RUBBLE:
+                    print2("A dangerous-looking pile of rubble.");
 
-		    break;
-		case SAFE:
-		    print2("A steel safe inset into the floor.");
+                    break;
+                case SAFE:
+                    print2("A steel safe inset into the floor.");
 
-		    break;
-		case CLOSED_DOOR:
-		    print2("A solid oaken door, now closed.");
+                    break;
+                case CLOSED_DOOR:
+                    print2("A solid oaken door, now closed.");
 
-		    break;
-		case OPEN_DOOR:
-		    print2("A solid oaken door, now open.");
+                    break;
+                case OPEN_DOOR:
+                    print2("A solid oaken door, now open.");
 
-		    break;
-		case STATUE:
-		    print2("A strange-looking statue.");
+                    break;
+                case STATUE:
+                    print2("A strange-looking statue.");
 
-		    break;
-		case UP:
-		    print2("A stairway leading up.");
+                    break;
+                case UP:
+                    print2("A stairway leading up.");
 
-		    break;
-		case DOWN:
-		    print2("A stairway leading down...");
+                    break;
+                case DOWN:
+                    print2("A stairway leading down...");
 
-		    break;
-		case TRAP:
-		    print2(trapid(Level->site[x][y].p_locf));
+                    break;
+                case TRAP:
+                    print2(trapid(Level->site[x][y].p_locf));
 
-		    break;
-		case HEDGE:
-		    if(Level->site[x][y].p_locf == L_EARTH_STATION) {
-			print2("A weird fibrillation of oozing tendrils.");
-		    }
-		    else {
-			print2("A branbly, thorny hedge.");
-		    }
+                    break;
+                case HEDGE:
+                    if(Level->site[x][y].p_locf == L_EARTH_STATION) {
+                        print2("A weird fibrillation of oozing tendrils.");
+                    }
+                    else {
+                        print2("A branbly, thorny hedge.");
+                    }
 
-		    break;
-		case LAVA:
-		    print2("A bubbling pool of lava.");
+                    break;
+                case LAVA:
+                    print2("A bubbling pool of lava.");
 
-		    break;
-		case LIFT:
-		    print2("A strange glowing disk.");
+                    break;
+                case LIFT:
+                    print2("A strange glowing disk.");
 
-		    break;
-		case ALTAR:
-		    print2("An (un?)holy altar.");
+                    break;
+                case ALTAR:
+                    print2("An (un?)holy altar.");
 
-		    break;
-		case CHAIR:
-		    print2("A chair.");
+                    break;
+                case CHAIR:
+                    print2("A chair.");
 
-		    break;
-		case WHIRLWIND:
-		    print2("A strange cyclonic electrical storms.");
+                    break;
+                case WHIRLWIND:
+                    print2("A strange cyclonic electrical storms.");
 
-		    break;
-		case WATER:
-		    if(Level->site[x][y].p_locf == L_WATER) {
-			print2("A deep pool of water.");
-		    }
-		    else if(Level->site[x][y].p_locf == L_CHAOS) {
-			print2("A pool of primal chaos.");
-		    }
-		    else if(Level->site[x][y].p_locf == L_WATER_STATION) {
-			print2("A bubbling pool of acid.");
-		    }
-		    else {
-			print2("An eerie pool of water.");
-		    }
+                    break;
+                case WATER:
+                    if(Level->site[x][y].p_locf == L_WATER) {
+                        print2("A deep pool of water.");
+                    }
+                    else if(Level->site[x][y].p_locf == L_CHAOS) {
+                        print2("A pool of primal chaos.");
+                    }
+                    else if(Level->site[x][y].p_locf == L_WATER_STATION) {
+                        print2("A bubbling pool of acid.");
+                    }
+                    else {
+                        print2("An eerie pool of water.");
+                    }
 
-		    break;
-		case FIRE:
-		    print2("A curtain of fire.");
+                    break;
+                case FIRE:
+                    print2("A curtain of fire.");
 
-		    break;
-		default:
-		    print2("Wow, I haven't the faintest idea!");
+                    break;
+                default:
+                    print2("Wow, I haven't the faintest idea!");
 
-		    break;
-		}
+                    break;
+                }
 
-		ol = Level->site[x][y].things;
+                ol = Level->site[x][y].things;
 
-		if(ol != NULL) {
-		    if(ol->next == NULL) {
-			print3(itemid(ol->thing));
-		    }
-		    else {
-			drewmenu = TRUE;
-			menuclear();
-			menuprint("Things on floor:\n");
+                if(ol != NULL) {
+                    if(ol->next == NULL) {
+                        print3(itemid(ol->thing));
+                    }
+                    else {
+                        drewmenu = TRUE;
+                        menuclear();
+                        menuprint("Things on floor:\n");
 
-			while(ol != NULL) {
-			    menuprint("\n");
-			    menuprint(itemid(ol->thing));
-			    ol = ol->next;
-			}
-		    }
-		}
-	    }
+                        while(ol != NULL) {
+                            menuprint("\n");
+                            menuprint(itemid(ol->thing));
+                            ol = ol->next;
+                        }
+                    }
+                }
+            }
 
-	    morewait();
-	    sign_print(x, y, TRUE);
-	}
+            morewait();
+            sign_print(x, y, TRUE);
+        }
     }
 
     if(drewmenu) {
-	xredraw();
+        xredraw();
     }
 }
 
@@ -248,141 +248,141 @@ void help()
     c = mcigetc();
 
     while((c < 'a') && (c > 'n') && (c != ESCAPE)) {
-	c = mcigetc();
+        c = mcigetc();
     }
 
     if(c == 'n') {
-	print1("Trying to copy all help files to ./omega.doc ");
-	nprint1("Confirm [yn]");
+        print1("Trying to copy all help files to ./omega.doc ");
+        nprint1("Confirm [yn]");
 
-	if(ynq1() == 'y') {
-	    print2("Copying");
+        if(ynq1() == 'y') {
+            print2("Copying");
 
-	    nprint2(".");
-	    strcpy(Str1, "cat ");
-	    strcat(Str1, OMEGALIB);
-	    strcat(Str1, "ohelp1.txt");
-	    strcat(Str1, " >> omega.doc");
-	    system(Str1);
-	    
-	    nprint2(".");
-	    strcpy(Str1, "cat ");
-	    strcat(Str1, OMEGALIB);
-	    strcat(Str1, "ohelp2.txt");
-	    strcat(Str1, " >> omega.doc");
-	    system(Str1);
+            nprint2(".");
+            strcpy(Str1, "cat ");
+            strcat(Str1, OMEGALIB);
+            strcat(Str1, "ohelp1.txt");
+            strcat(Str1, " >> omega.doc");
+            system(Str1);
+            
+            nprint2(".");
+            strcpy(Str1, "cat ");
+            strcat(Str1, OMEGALIB);
+            strcat(Str1, "ohelp2.txt");
+            strcat(Str1, " >> omega.doc");
+            system(Str1);
 
-	    nprint2(".");
-	    strcpy(Str1, "cat ");
-	    strcat(Str1, OMEGALIB);
-	    strcat(Str1, "ohelp3.txt");
-	    strcat(Str1, " >> omega.doc");
-	    system(Str1);
+            nprint2(".");
+            strcpy(Str1, "cat ");
+            strcat(Str1, OMEGALIB);
+            strcat(Str1, "ohelp3.txt");
+            strcat(Str1, " >> omega.doc");
+            system(Str1);
 
-	    nprint2(".");
-	    strcpy(Str1, "cat ");
-	    strcat(Str1, OMEGALIB);
-	    strcat(Str1, "ohelp4.txt");
-	    strcat(Str1, " >> omega.doc");
-	    system(Str1);
+            nprint2(".");
+            strcpy(Str1, "cat ");
+            strcat(Str1, OMEGALIB);
+            strcat(Str1, "ohelp4.txt");
+            strcat(Str1, " >> omega.doc");
+            system(Str1);
 
-	    nprint2(".");
-	    strcpy(Str1, "cat ");
-	    strcat(Str1, OMEGALIB);
-	    strcat(Str1, "ohelp5.txt");
-	    strcat(Str1, " >> omega.doc");
-	    system(Str1);
+            nprint2(".");
+            strcpy(Str1, "cat ");
+            strcat(Str1, OMEGALIB);
+            strcat(Str1, "ohelp5.txt");
+            strcat(Str1, " >> omega.doc");
+            system(Str1);
 
-	    nprint2(".");
-	    strcpy(Str1, "cat ");
-	    strcat(Str1, OMEGALIB);
-	    strcat(Str1, "ohelp6.txt");
-	    strcat(Str1, " >> omega.doc");
-	    system(Str1);
+            nprint2(".");
+            strcpy(Str1, "cat ");
+            strcat(Str1, OMEGALIB);
+            strcat(Str1, "ohelp6.txt");
+            strcat(Str1, " >> omega.doc");
+            system(Str1);
 
-	    nprint2(".");
-	    strcpy(Str1, "cat ");
-	    strcat(Str1, OMEGALIB);
-	    strcat(Str1, "ohelp7.txt");
-	    strcat(Str1, " >> omega.doc");
-	    system(Str1);
+            nprint2(".");
+            strcpy(Str1, "cat ");
+            strcat(Str1, OMEGALIB);
+            strcat(Str1, "ohelp7.txt");
+            strcat(Str1, " >> omega.doc");
+            system(Str1);
 
-	    nprint2(".");
-	    strcpy(Str1, "cat ");
-	    strcat(Str1, OMEGALIB);
-	    strcat(Str1, "ohelp8.txt");
-	    strcat(Str1, " >> omega.doc");
-	    system(Str1);
+            nprint2(".");
+            strcpy(Str1, "cat ");
+            strcat(Str1, OMEGALIB);
+            strcat(Str1, "ohelp8.txt");
+            strcat(Str1, " >> omega.doc");
+            system(Str1);
 
-	    nprint2(".");
-	    strcpy(Str1, "cat ");
-	    strcat(Str1, OMEGALIB);
-	    strcat(Str1, "ohelp9.txt");
-	    strcat(Str1, " >> omega.doc");
-	    system(Str1);
+            nprint2(".");
+            strcpy(Str1, "cat ");
+            strcat(Str1, OMEGALIB);
+            strcat(Str1, "ohelp9.txt");
+            strcat(Str1, " >> omega.doc");
+            system(Str1);
 
-	    nprint2(".");
-	    strcpy(Str1, "cat ");
-	    strcat(Str1, OMEGALIB);
-	    strcat(Str1, "ohelp10.txt");
-	    strcat(Str1, " >> omega.doc");
-	    system(Str1);
+            nprint2(".");
+            strcpy(Str1, "cat ");
+            strcat(Str1, OMEGALIB);
+            strcat(Str1, "ohelp10.txt");
+            strcat(Str1, " >> omega.doc");
+            system(Str1);
 
-	    nprint2(".");
-	    strcpy(Str1, "cat ");
-	    strcat(Str1, OMEGALIB);
-	    strcat(Str1, "ohelp11.txt");
-	    strcat(Str1, " >> omega.doc");
-	    system(Str1);
+            nprint2(".");
+            strcpy(Str1, "cat ");
+            strcat(Str1, OMEGALIB);
+            strcat(Str1, "ohelp11.txt");
+            strcat(Str1, " >> omega.doc");
+            system(Str1);
 
-	    nprint2(".");
-	    strcpy(Str1, "cat ");
-	    strcat(Str1, OMEGALIB);
-	    strcat(Str1, "ohelp12.txt");
-	    strcat(Str1, " >> omega.doc");
-	    system(Str1);
+            nprint2(".");
+            strcpy(Str1, "cat ");
+            strcat(Str1, OMEGALIB);
+            strcat(Str1, "ohelp12.txt");
+            strcat(Str1, " >> omega.doc");
+            system(Str1);
 
-	    nprint2(".");
-	    strcpy(Str1, "cat ");
-	    strcat(Str1, OMEGALIB);
-	    strcat(Str1, "ohelp13.txt");
-	    strcat(Str1, " >> omega.doc");
-	    system(Str1);
+            nprint2(".");
+            strcpy(Str1, "cat ");
+            strcat(Str1, OMEGALIB);
+            strcat(Str1, "ohelp13.txt");
+            strcat(Str1, " >> omega.doc");
+            system(Str1);
 
-	    nprint2(" Done.");
-	}
+            nprint2(" Done.");
+        }
     }
     else if(c != ESCAPE) {
-	strcpy(filestr, OMEGALIB);
-	strcat(filestr, "ohelp");
-	filenum = c + 1 - 'a';
-	n = strlen(filestr);
+        strcpy(filestr, OMEGALIB);
+        strcat(filestr, "ohelp");
+        filenum = c + 1 - 'a';
+        n = strlen(filestr);
 
-	if(filename < 10) {
-	    filestr[n] = filenum + '0';
-	    filestr[n + 1] = 0;
-	}
-	else {
-	    filestr[n] = '1';
-	    filenum = c - 'j';
-	    filestr[n + 1] = filenum + '0';
-	    filestr[n + 2] = 0;
-	}
+        if(filename < 10) {
+            filestr[n] = filenum + '0';
+            filestr[n + 1] = 0;
+        }
+        else {
+            filestr[n] = '1';
+            filenum = c - 'j';
+            filestr[n + 1] = filenum + '0';
+            filestr[n + 2] = 0;
+        }
 
-	strcat(filestr, ".txt");
-	print1("Display help file, or Copy help file to file in working directory. [dc] ");
-	c = mcigetc();
+        strcat(filestr, ".txt");
+        print1("Display help file, or Copy help file to file in working directory. [dc] ");
+        c = mcigetc();
 
-	while((c != 'd') && (c != 'c') && (c != ESCAPE)) {
-	    c = mcigetc();
-	}
+        while((c != 'd') && (c != 'c') && (c != ESCAPE)) {
+            c = mcigetc();
+        }
 
-	if(c == 'd') {
-	    displayfile(filestr);
-	}
-	else if(c == 'c') {
-	    copyfile(filestr);
-	}
+        if(c == 'd') {
+            displayfile(filestr);
+        }
+        else if(c == 'c') {
+            copyfile(filestr);
+        }
     }
 
     xredraw();
@@ -412,73 +412,73 @@ void fire()
     index = getitem(NULL);
 
     if(index == ABORT) {
-	setgamestatus(SKIP_MONSTERS);
+        setgamestatus(SKIP_MONSTERS);
     }
     else if(index == CASHVALUE) {
-	print3("Can't fire money at something!");
+        print3("Can't fire money at something!");
     }
     else if(cursed(Player.possessions[index])
-	    && Player.possessions[index].used) {
-	print3("You can't seem to get rid of it!");
+            && Player.possessions[index].used) {
+        print3("You can't seem to get rid of it!");
     }
     else if((Player.possessions[O_WEAPON_HAND] != NULL)
-	    && (Player.possessions[O_WEAPON_HAND]->id == (WEAPONID + 27))
-	    && (Player.possessions[O_WEAPON_HAND]->aux != LOADED)
-	    && (Player.possessions[index]->id == (WEAPONID + 29))) {
-	/* Load a crossbow */
-	mprint("You crank back the crossbow and load a bolt.");
-	Player.possesions[O_WEAPON_HAND]->aux = LOADED;
+            && (Player.possessions[O_WEAPON_HAND]->id == (WEAPONID + 27))
+            && (Player.possessions[O_WEAPON_HAND]->aux != LOADED)
+            && (Player.possessions[index]->id == (WEAPONID + 29))) {
+        /* Load a crossbow */
+        mprint("You crank back the crossbow and load a bolt.");
+        Player.possesions[O_WEAPON_HAND]->aux = LOADED;
     }
     else {
-	if(Player.possessions[index]->used) {
-	    Player.possessions[index]->used = FALSE;
-	    item_use(Player.possessions[index]);
-	}
+        if(Player.possessions[index]->used) {
+            Player.possessions[index]->used = FALSE;
+            item_use(Player.possessions[index]);
+        }
 
-	obj = Player.possessions[index];
-	x2 = Player.x;
-	x1 = x2;
-	y2 = Player.y;
-	y1 = y2;
-	setspot(&x2, &y2);
+        obj = Player.possessions[index];
+        x2 = Player.x;
+        x1 = x2;
+        y2 = Player.y;
+        y1 = y2;
+        setspot(&x2, &y2);
 
-	if((x2 == Player.x) && (y2 == Player.y)) {
-	    mprint("You practice juggling for a moment or two.");
-	}
-	else {
-	    do_object_los(obj->objchar, &x1, &y1, &x2, &y2);
-	    m = Level->site[x1][y1].creature;
+        if((x2 == Player.x) && (y2 == Player.y)) {
+            mprint("You practice juggling for a moment or two.");
+        }
+        else {
+            do_object_los(obj->objchar, &x1, &y1, &x2, &y2);
+            m = Level->site[x1][y1].creature;
 
-	    if(m != NULL) {
-		if(obj->dmg == 0) {
-		    /* The monster can have treasure/objects */
-		    if(m->treasure > 0) {
-			mprint("Your gift is caught!");
-			givemonster(m, obj);
-			conform_lost_objects(1, obj);
-		    }
-		    else {
-			mprint("Your thrown offering is ignored.");
-			p_drop_at(x1, y1, 1, obj);
-			conform_lost_objects(1, obj);
-		    }
-		}
-		else if(hitp(Player.hit, m->ac)) {
-		    /* Ok already, hit the damn thing */
-		    weapon_use(2 * statmod(Player.str), obj, m);
-		    dispose_lost_objects(1, obj);
-		}
-		else {
-		    mprint("You miss it.");
-		    p_drop_at(x1, y1, 1, obj);
-		    conform_lost_objects(1, obj);
-		}
-	    }
-	    else {
-		p_drop_at(x1, y1, 1, obj);
-		conform_lost_objects(1, obj);
-	    }
-	}
+            if(m != NULL) {
+                if(obj->dmg == 0) {
+                    /* The monster can have treasure/objects */
+                    if(m->treasure > 0) {
+                        mprint("Your gift is caught!");
+                        givemonster(m, obj);
+                        conform_lost_objects(1, obj);
+                    }
+                    else {
+                        mprint("Your thrown offering is ignored.");
+                        p_drop_at(x1, y1, 1, obj);
+                        conform_lost_objects(1, obj);
+                    }
+                }
+                else if(hitp(Player.hit, m->ac)) {
+                    /* Ok already, hit the damn thing */
+                    weapon_use(2 * statmod(Player.str), obj, m);
+                    dispose_lost_objects(1, obj);
+                }
+                else {
+                    mprint("You miss it.");
+                    p_drop_at(x1, y1, 1, obj);
+                    conform_lost_objects(1, obj);
+                }
+            }
+            else {
+                p_drop_at(x1, y1, 1, obj);
+                conform_lost_objects(1, obj);
+            }
+        }
     }
 }
 
@@ -488,22 +488,22 @@ int quit()
     mprint("Quit: Are you sure? [yn] ");
 
     if(ynq() == 'y') {
-	if(Player.rank[ADEPT] == 0) {
-	    display_quit();
-	}
-	else {
-	    display_bigwin();
-	}
+        if(Player.rank[ADEPT] == 0) {
+            display_quit();
+        }
+        else {
+            display_bigwin();
+        }
 
 #ifdef MSDOS
-	kill_all_levels();
+        kill_all_levels();
 #endif
 
-	endgraf();
-	exit(0);
+        endgraf();
+        exit(0);
     }
     else {
-	resetgamestatus(SKIP_MONSTERS);
+        resetgamestatus(SKIP_MONSTERS);
     }
 }
 
@@ -516,33 +516,33 @@ void nap()
     static int naptime;
 
     if(gamestatusp(FAST_MOVE)) {
-	--naptime;
-	
-	if((naptime + 1) < 1) {
-	    clearmsg();
-	    mprint("Yawn. You wake up.");
-	    resetgamestatus(FAST_MOVE);
-	    drawvision(Player.x, Player.y);
-	}
+        --naptime;
+        
+        if((naptime + 1) < 1) {
+            clearmsg();
+            mprint("Yawn. You wake up.");
+            resetgamestatus(FAST_MOVE);
+            drawvision(Player.x, Player.y);
+        }
     }
     else {
-	clearmsg();
-	mprint("Rest for how long? (in minutes) ");
-	naptime = parsenum();
+        clearmsg();
+        mprint("Rest for how long? (in minutes) ");
+        naptime = parsenum();
 
-	if(naptime > 600) {
-	    print3("You can only sleep up to 10 hours (600 minutes)");
-	    naptime = 3600;
-	}
-	else {
-	    naptime *= 6;
-	}
+        if(naptime > 600) {
+            print3("You can only sleep up to 10 hours (600 minutes)");
+            naptime = 3600;
+        }
+        else {
+            naptime *= 6;
+        }
 
-	if(naptime > 1) {
-	    clearmsg();
-	    setgamestatus(FAST_MOVE);
-	    mprint("Resting... ");
-	}
+        if(naptime > 1) {
+            clearmsg();
+            setgamestatus(FAST_MOVE);
+            mprint("Resting... ");
+        }
     }
 }
 
@@ -557,174 +557,174 @@ void charid()
     id = mgetc();
 
     if(Current_Environment == E_COUNTRYSIDE) {
-	countryside = TRUE;
-	strcpy(cstr, countryid(id));
+        countryside = TRUE;
+        strcpy(cstr, countryid(id));
 
-	if(strcmp(cstr, "I have no idea.") == 0) {
-	    countryside = FALSE;
-	}
-	else {
-	    mprint(cstr);
-	}
+        if(strcmp(cstr, "I have no idea.") == 0) {
+            countryside = FALSE;
+        }
+        else {
+            mprint(cstr);
+        }
     }
 
     if(!countryside) {
-	if(((id >= 'a') && (id <= 'z')) || ((id >= 'A') && (id <= 'Z'))) {
-	    mprint("A monster or NPC -- examine (x) to find out exactly.");
-	}
-	else {
-	    switch(id) {
-	    case SPACE:
-		mprint(" : An airless void (if seen) or unknown region (if unseen)");
+        if(((id >= 'a') && (id <= 'z')) || ((id >= 'A') && (id <= 'Z'))) {
+            mprint("A monster or NPC -- examine (x) to find out exactly.");
+        }
+        else {
+            switch(id) {
+            case SPACE:
+                mprint(" : An airless void (if seen) or unknown region (if unseen)");
 
-		break;
-	    case WALL:
-		mprint(" : An (impenetrable?) wall");
+                break;
+            case WALL:
+                mprint(" : An (impenetrable?) wall");
 
-		break;
-	    case OPEN_DOOR:
-		mprint(" : A closed (possibly locked) door");
+                break;
+            case OPEN_DOOR:
+                mprint(" : A closed (possibly locked) door");
 
-		break;
-	    case LAVA:
-		mprint(" : A pool of lava");
+                break;
+            case LAVA:
+                mprint(" : A pool of lava");
 
-		break;
-	    case HEDGE:
-		mprint(" : A dense hedge");
+                break;
+            case HEDGE:
+                mprint(" : A dense hedge");
 
-		break;
-	    case WATER:
-		mprint(" : A deep body of water");
+                break;
+            case WATER:
+                mprint(" : A deep body of water");
 
-		break;
-	    case FIRE:
-		mprint(" : A curtain of fire");
+                break;
+            case FIRE:
+                mprint(" : A curtain of fire");
 
-		break;
-	    case TRAP:
-		mprint(" : An uncovered trap");
+                break;
+            case TRAP:
+                mprint(" : An uncovered trap");
 
-		break;
-	    case UP:
-		mprint(" : A stairway leading up");
+                break;
+            case UP:
+                mprint(" : A stairway leading up");
 
-		break;
-	    case DOWN:
-		mprint(" : A stairway leading down");
+                break;
+            case DOWN:
+                mprint(" : A stairway leading down");
 
-		break;
-	    case FLOOR:
-		mprint(" : The dungeon floor");
+                break;
+            case FLOOR:
+                mprint(" : The dungeon floor");
 
-		break;
-	    case PORTCULLIS:
-		mprint(" : A heavy steel portcullis");
+                break;
+            case PORTCULLIS:
+                mprint(" : A heavy steel portcullis");
 
-		break;
-	    case ABYSS:
-		mprint(" : An entrance to the infinite abyss");
+                break;
+            case ABYSS:
+                mprint(" : An entrance to the infinite abyss");
 
-		break;
-	    case PLAYER:
-		mprint(" : You, the player");
+                break;
+            case PLAYER:
+                mprint(" : You, the player");
 
-		break;
-	    case CORPSE:
-		mprint(" : The remains of some creature");
+                break;
+            case CORPSE:
+                mprint(" : The remains of some creature");
 
-		break;
-	    case THING:
-		mprint(" : Some random miscellaneous object");
+                break;
+            case THING:
+                mprint(" : Some random miscellaneous object");
 
-		break;
-	    case SAFE:
-		mprint(" : A steel safe inset into the floor");
+                break;
+            case SAFE:
+                mprint(" : A steel safe inset into the floor");
 
-		break;
-	    case RUBBLE:
-		mprint(" : A dangerous-looking pile of rubble");
+                break;
+            case RUBBLE:
+                mprint(" : A dangerous-looking pile of rubble");
 
-		break;
-	    case STATUE:
-		mprint(" : a statue");
+                break;
+            case STATUE:
+                mprint(" : a statue");
 
-		break;
-	    case ALTAR:
-		mprint(" : A (un?)holy altar");
+                break;
+            case ALTAR:
+                mprint(" : A (un?)holy altar");
 
-		break;
-	    case CASH:
-		mprint(" : Bills, specie, gems: cash");
+                break;
+            case CASH:
+                mprint(" : Bills, specie, gems: cash");
 
-		break;
-	    case PILE:
-		mprint(" : A pile of objects");
+                break;
+            case PILE:
+                mprint(" : A pile of objects");
 
-		break;
-	    case FOOD:
-		mprint(" : Something edible");
+                break;
+            case FOOD:
+                mprint(" : Something edible");
 
-		break;
-	    case WEAPON:
-		mprint(" : Some kind of weapon");
+                break;
+            case WEAPON:
+                mprint(" : Some kind of weapon");
 
-		break;
-	    case MISSILEWEAPON:
-		mprint(" : Some kind of missile weapon");
+                break;
+            case MISSILEWEAPON:
+                mprint(" : Some kind of missile weapon");
 
-		break;
-	    case SCROLL:
-		mprint(" : Something readable");
+                break;
+            case SCROLL:
+                mprint(" : Something readable");
 
-		break;
-	    case POTION:
-		mprint(" : Something drinkable");
+                break;
+            case POTION:
+                mprint(" : Something drinkable");
 
-		break;
-	    case ARMOR:
-		mprint(" : A suit of armor");
+                break;
+            case ARMOR:
+                mprint(" : A suit of armor");
 
-		break;
-	    case SHIELD:
-		mprint(" : A shield");
+                break;
+            case SHIELD:
+                mprint(" : A shield");
 
-		break;
-	    case CLOAK:
-		mprint(" : A cloak");
+                break;
+            case CLOAK:
+                mprint(" : A cloak");
 
-		break;
-	    case BOOTS:
-		mprint(" : A pair of boots");
+                break;
+            case BOOTS:
+                mprint(" : A pair of boots");
 
-		break;
-	    case STICK:
-		mprint(" : A stick");
+                break;
+            case STICK:
+                mprint(" : A stick");
 
-		break;
-	    case RING:
-		mprint(" : A ring");
+                break;
+            case RING:
+                mprint(" : A ring");
 
-		break;
-	    case ARTIFACT:
-		mprint(" : An artifact");
+                break;
+            case ARTIFACT:
+                mprint(" : An artifact");
 
-		break;
-	    case CHAIR:
-		mprint(" : A chair");
+                break;
+            case CHAIR:
+                mprint(" : A chair");
 
-		break;
-	    case WHIRLWIND:
-		mprint(" : A whirlwind");
+                break;
+            case WHIRLWIND:
+                mprint(" : A whirlwind");
 
-		break;
-	    default:
-		mprint("That character is unused.");
+                break;
+            default:
+                mprint("That character is unused.");
 
-		break;
+                break;
 
-	    }
-	}
+            }
+        }
     }
 }
 
@@ -733,32 +733,32 @@ void wizard()
     setgamestatus(SKIP_MONSTERS);
 
     if(gamestatusp(CHEATED)) {
-	mprint("You're already in wizard mode!");
+        mprint("You're already in wizard mode!");
     }
     else {
-	clearmsg();
-	mprint("Really try to enter wizard mode? [yn] ");
+        clearmsg();
+        mprint("Really try to enter wizard mode? [yn] ");
 
-	if(ynq() == 'y') {
-	    if(strcmp(getlogin(), WIZARD) == 0) {
-		setgamestatus(CHEATED);
-		mprint("Waizrd mode set.");
-	    }
-	    else {
-		mprint("There is a shrieking sound, as of reality being distorted.");
-		strcpy(Str1, WIZARD);
-		strcat(Str1, ", the Wizard of omega appears before you...");
-		mprint(Str1);
-		mprint("\'Do not meddle in the affairs of Wizards --");
+        if(ynq() == 'y') {
+            if(strcmp(getlogin(), WIZARD) == 0) {
+                setgamestatus(CHEATED);
+                mprint("Waizrd mode set.");
+            }
+            else {
+                mprint("There is a shrieking sound, as of reality being distorted.");
+                strcpy(Str1, WIZARD);
+                strcat(Str1, ", the Wizard of omega appears before you...");
+                mprint(Str1);
+                mprint("\'Do not meddle in the affairs of Wizards --");
 
-		if(random_range(2)) {
-		    mprint("it makes them soggy and hard to light.\'");
-		}
-		else {
-		    mprint("for they are subtle, and swift to anger!\'");
-		}
-	    }
-	}
+                if(random_range(2)) {
+                    mprint("it makes them soggy and hard to light.\'");
+                }
+                else {
+                    mprint("for they are subtle, and swift to anger!\'");
+                }
+            }
+        }
     }
 }
 
@@ -771,54 +771,54 @@ void vault()
 
     clearmsg();
     if(Player.possessions[O_BOOTS] != NULL)  {
-	if(Player.possessions[O_BOOTS]->usef == I_BOOTS_JUMPING) {
-	    jumper = 2;
-	}
+        if(Player.possessions[O_BOOTS]->usef == I_BOOTS_JUMPING) {
+            jumper = 2;
+        }
     }
 
     if(Player.status[IMMOBILE] > 0) {
-	resetgamestatus(FAST_MOVE);
-	print3("You are unable to move");
+        resetgamestatus(FAST_MOVE);
+        print3("You are unable to move");
     }
     else {
-	setgamestatus(SKIP_MONSTERS);
-	mprint("Jump where?");
-	setspot(&x, &y);
+        setgamestatus(SKIP_MONSTERS);
+        mprint("Jump where?");
+        setspot(&x, &y);
 
-	if(!los_p(x, y, Player.x, Player.y)) {
-	    print3("The way is obstructed.");
-	}
-	else if(Player.itemweight > Player.maxweight) {
-	    print3("You are too burdened to jump anywhere.");
-	}
-	else if(distance(x, y, Player.x, Player.y) > (max(2, statmod(Player.agi) + 2) + jumper)) {
-	    print3("The jump is too far for you.");
-	}
-	else if(Level->site[x][y].creature != NULL) {
-	    print3("You can't jump on another creature.");
-	}
-	else if(!p_moveable(x, y)) {
-	    print3("You can't jump there.");
-	}
-	else {
-	    resetgamestatus(SKIP_MONSTRS);
-	    Player.x = x;
-	    Player.y = y;
+        if(!los_p(x, y, Player.x, Player.y)) {
+            print3("The way is obstructed.");
+        }
+        else if(Player.itemweight > Player.maxweight) {
+            print3("You are too burdened to jump anywhere.");
+        }
+        else if(distance(x, y, Player.x, Player.y) > (max(2, statmod(Player.agi) + 2) + jumper)) {
+            print3("The jump is too far for you.");
+        }
+        else if(Level->site[x][y].creature != NULL) {
+            print3("You can't jump on another creature.");
+        }
+        else if(!p_moveable(x, y)) {
+            print3("You can't jump there.");
+        }
+        else {
+            resetgamestatus(SKIP_MONSTRS);
+            Player.x = x;
+            Player.y = y;
 
-	    if(!jumper && (random_range(30) > Player.agi)) {
-		mprint("Oops -- took a tumble.");
-		setgamestatus(SKIP_PLAYER);
-		p_damage(Player.itemweight / 250, UNSTOPPABLE, "clumsiness");
-	    }
+            if(!jumper && (random_range(30) > Player.agi)) {
+                mprint("Oops -- took a tumble.");
+                setgamestatus(SKIP_PLAYER);
+                p_damage(Player.itemweight / 250, UNSTOPPABLE, "clumsiness");
+            }
 
-	    p_movefunction(Level->site[Player.x][Player.y].p_locf);
+            p_movefunction(Level->site[Player.x][Player.y].p_locf);
 
-	    if(Current_Environment != E_COUNTRYSIDE) {
-		if((Level->site[Player.x][Player.y].things != NULL) && optionp(PICKUP)) {
-		    pickup();
-		}
-	    }
-	}
+            if(Current_Environment != E_COUNTRYSIDE) {
+                if((Level->site[Player.x][Player.y].things != NULL) && optionp(PICKUP)) {
+                    pickup();
+                }
+            }
+        }
     }
 }
 
@@ -844,260 +844,260 @@ void tacoptions()
 
     switch(mgetc()) {
     case '?':
-	combat_help();
+        combat_help();
 
-	break;
+        break;
     case 'a':
     case 'A':
-	if(actionsleft < 1) {
-	    print3("No more maneuvers!");
-	}
-	else {
-	    if(Player.possessions[O_WEAPON_HAND] == NULL) {
-		Player.meleestr[place] = 'C';
-		menuprint("\nPunch:");
-	    }
-	    else if(Player.possessions[O_WEAPON_HAND]->type == THRUSTING) {
-		Player.meleestr[place] = 'T';
-		menuprint("\nThrust:");
-	    }
-	    else if(Player.possessions[O_WEAPON_HAND]->type == STRIKING) {
-		Player.meleestr[place] = 'C';
-		menuprint("\nStrike:");
-	    }
-	    else {
-		menuprint("\nCut:");
-		Player.meleestr[place] = 'C';
-	    }
+        if(actionsleft < 1) {
+            print3("No more maneuvers!");
+        }
+        else {
+            if(Player.possessions[O_WEAPON_HAND] == NULL) {
+                Player.meleestr[place] = 'C';
+                menuprint("\nPunch:");
+            }
+            else if(Player.possessions[O_WEAPON_HAND]->type == THRUSTING) {
+                Player.meleestr[place] = 'T';
+                menuprint("\nThrust:");
+            }
+            else if(Player.possessions[O_WEAPON_HAND]->type == STRIKING) {
+                Player.meleestr[place] = 'C';
+                menuprint("\nStrike:");
+            }
+            else {
+                menuprint("\nCut:");
+                Player.meleestr[place] = 'C';
+            }
 
-	    ++place;
-	    Player.meleestr[place] = getlocation();
-	    ++place;
-	    --actionsleft;
-	}
+            ++place;
+            Player.meleestr[place] = getlocation();
+            ++place;
+            --actionsleft;
+        }
 
-	break;
+        break;
     case 'b':
     case 'B':
-	if(actionsleft < 1) {
-	    print3("No more maneuvers!");
-	}
-	else {
-	    Player.meleestr[place] = 'B';
+        if(actionsleft < 1) {
+            print3("No more maneuvers!");
+        }
+        else {
+            Player.meleestr[place] = 'B';
 
-	    if(Player.possessions[O_WEAPON_HAND] == NULL) {
-		menuprint("\nDodge (from):");
-	    }
-	    else if(Player.possessions[O_WEAPON_HAND]->type == THRUSTING) {
-		menuprint("\nParry:");
-	    }
-	    else {
-		menuprint("\nBlock:");
-	    }
+            if(Player.possessions[O_WEAPON_HAND] == NULL) {
+                menuprint("\nDodge (from):");
+            }
+            else if(Player.possessions[O_WEAPON_HAND]->type == THRUSTING) {
+                menuprint("\nParry:");
+            }
+            else {
+                menuprint("\nBlock:");
+            }
 
-	    ++place;
-	    Player.meleestr[place] = getlocation();
-	    ++place;
-	    --actionsleft;
-	}
+            ++place;
+            Player.meleestr[place] = getlocation();
+            ++place;
+            --actionsleft;
+        }
 
-	break;
+        break;
     case 'l':
     case 'L':
-	if(actionsleft < 2) {
-	    print3("Not enough maneuvers to lunge!");
-	}
-	else {
-	    if(Player.possessions[O_WEAPON_HAND] != NULL) {
-		if(Player.possessions[O_WEAPON_HAND]->type != MISSILE) {
-		    Player.meleestr[place] = 'L';
-		    ++place;
-		    Player.meleestr[place] = getlocation();
-		    ++place;
-		    actionsleft -= 2;
-		    menuprint("\nLunge:");
-		}
-		else {
-		    print3("Can't lunge with a missile weapon!");
-		    morewait();
-		}
-	    }
-	    else {
-		print3("Can't lunge without a weapon!");
-		morewait();
-	    }
-	}
+        if(actionsleft < 2) {
+            print3("Not enough maneuvers to lunge!");
+        }
+        else {
+            if(Player.possessions[O_WEAPON_HAND] != NULL) {
+                if(Player.possessions[O_WEAPON_HAND]->type != MISSILE) {
+                    Player.meleestr[place] = 'L';
+                    ++place;
+                    Player.meleestr[place] = getlocation();
+                    ++place;
+                    actionsleft -= 2;
+                    menuprint("\nLunge:");
+                }
+                else {
+                    print3("Can't lunge with a missile weapon!");
+                    morewait();
+                }
+            }
+            else {
+                print3("Can't lunge without a weapon!");
+                morewait();
+            }
+        }
 
-	break;
+        break;
     case 'r':
     case 'R':
-	if(actionsleft < 2) {
-	    print3("Not enough maneuvers to riposte!");
-	}
-	else {
-	    if(Player.possessions[O_WEAPON_HAND] != NULL) {
-		if(Player.possessions[O_WEAPON_HAND]->type == THRUSTING) {
-		    Player.meleestr[place] = 'R';
-		    menuprint("\nRiposte ");
-		    Player.meleestr[place] = getlocation();
-		    actionsleft -= 2;
-		}
-		else {
-		    print3("Can't reposte without a thrusting weapon!");
-		    morewait();
-		}
-	    }
-	    else {
-		print3("Can't riposte without a thrusting weapon!");
-		morewait();
-	    }
-	}
+        if(actionsleft < 2) {
+            print3("Not enough maneuvers to riposte!");
+        }
+        else {
+            if(Player.possessions[O_WEAPON_HAND] != NULL) {
+                if(Player.possessions[O_WEAPON_HAND]->type == THRUSTING) {
+                    Player.meleestr[place] = 'R';
+                    menuprint("\nRiposte ");
+                    Player.meleestr[place] = getlocation();
+                    actionsleft -= 2;
+                }
+                else {
+                    print3("Can't reposte without a thrusting weapon!");
+                    morewait();
+                }
+            }
+            else {
+                print3("Can't riposte without a thrusting weapon!");
+                morewait();
+            }
+        }
 
-	break;
+        break;
     case BACKSPACE:
     case DELETE:
-	place = 0;
-	actionsleft = manevuers();
+        place = 0;
+        actionsleft = manevuers();
 
-	break;
+        break;
     case RETURN:
     case LINEFEED:
     case ESCAPE:
-	done = TRUE;
+        done = TRUE;
 
-	break;
+        break;
     }
 
     while(!done) {
-	clearmsg1();
-	mprint("Maneuvers Left:");
-	mnumprint(actionsleft);
+        clearmsg1();
+        mprint("Maneuvers Left:");
+        mnumprint(actionsleft);
 
-	switch(mgetc()) {
-	case '?':
-	    combat_help();
+        switch(mgetc()) {
+        case '?':
+            combat_help();
 
-	    break;
-	case 'a':
-	case 'A':
-	    if(actionsleft < 1) {
-		print3("No more manevuers!");
-	    }
-	    else {
-		if(Player.possessions[O_WEAPON_HAND] == NULL) {
-		    Player.meleestr[place] = 'C';
-		    menuprint("\nPunch:");
-		}
-		else if(Player.possessions[O_WEAPON_HAND]->type == THRUSTING) {
-		    Player.meleestr[place] = 'T';
-		    menuprint("\nThrust:");
-		}
-		else if(Player.possessions[O_WEAPON_HAND]->type == STRIKING) {
-		    Player.meleestr[place] = 'C';
-		    menuprint("\nStrke:");
-		}
-		else {
-		    menuprint("\nCut:");
-		    Player.meleestr[place] = 'C';
-		}
+            break;
+        case 'a':
+        case 'A':
+            if(actionsleft < 1) {
+                print3("No more manevuers!");
+            }
+            else {
+                if(Player.possessions[O_WEAPON_HAND] == NULL) {
+                    Player.meleestr[place] = 'C';
+                    menuprint("\nPunch:");
+                }
+                else if(Player.possessions[O_WEAPON_HAND]->type == THRUSTING) {
+                    Player.meleestr[place] = 'T';
+                    menuprint("\nThrust:");
+                }
+                else if(Player.possessions[O_WEAPON_HAND]->type == STRIKING) {
+                    Player.meleestr[place] = 'C';
+                    menuprint("\nStrke:");
+                }
+                else {
+                    menuprint("\nCut:");
+                    Player.meleestr[place] = 'C';
+                }
 
-		++place;
-		Place.meleestr[place] = getlocation();
-		++place;
-		--actionsleft;
-	    }
+                ++place;
+                Place.meleestr[place] = getlocation();
+                ++place;
+                --actionsleft;
+            }
 
-	    break;
-	case 'b':
-	case 'B':
-	    if(actionsleft < 1) {
-		print3("No more maneuvers!");
-	    }
-	    else {
-		Player.meleestr[place] = 'B';
+            break;
+        case 'b':
+        case 'B':
+            if(actionsleft < 1) {
+                print3("No more maneuvers!");
+            }
+            else {
+                Player.meleestr[place] = 'B';
 
-		if(Player.possessions[O_WEAPON_HAND] == NULL) {
-		    menuprint("\nDodge (from):");
-		}
-		else if(Player.possessions[O_WEAPON_HAND]->type == THRUSTING) {
-		    menuprint("\nParry:");
-		}
-		else {
-		    menuprint("\nBlock:");
-		}
+                if(Player.possessions[O_WEAPON_HAND] == NULL) {
+                    menuprint("\nDodge (from):");
+                }
+                else if(Player.possessions[O_WEAPON_HAND]->type == THRUSTING) {
+                    menuprint("\nParry:");
+                }
+                else {
+                    menuprint("\nBlock:");
+                }
 
-		++place;
-		Player.meleestr[place] = getlocation();
-		++place;
-		--actionsleft;
-	    }
+                ++place;
+                Player.meleestr[place] = getlocation();
+                ++place;
+                --actionsleft;
+            }
 
-	    break;
-	case 'l':
-	case 'L':
-	    if(actionsleft < 2) {
-		print3("Not enough manevuers to lunge!");
-	    }
-	    else {
-		if(Player.possessions[O_WEAPON_HAND] != NULL) {
-		    if(Player.possessions[O_WEAPON_HAND]->type != MISSILE) {
-			Player.meleestr[place] = 'L';
-			++place;
-			Player.meleestr[place] = getlocation();
-			++place;
-			actionsleft -= 2;
-			menuprint("\nLunge:");
-		    }
-		    else {
-			print3("Can't lunge with a missile weapon!");
-			morewait();
-		    }
-		}
-		else {
-		    print3("Can't lunge without a weapon!");
-		    morewait();
-		}
-	    }
+            break;
+        case 'l':
+        case 'L':
+            if(actionsleft < 2) {
+                print3("Not enough manevuers to lunge!");
+            }
+            else {
+                if(Player.possessions[O_WEAPON_HAND] != NULL) {
+                    if(Player.possessions[O_WEAPON_HAND]->type != MISSILE) {
+                        Player.meleestr[place] = 'L';
+                        ++place;
+                        Player.meleestr[place] = getlocation();
+                        ++place;
+                        actionsleft -= 2;
+                        menuprint("\nLunge:");
+                    }
+                    else {
+                        print3("Can't lunge with a missile weapon!");
+                        morewait();
+                    }
+                }
+                else {
+                    print3("Can't lunge without a weapon!");
+                    morewait();
+                }
+            }
 
-	    break;
-	case 'r':
-	case 'R':
-	    if(actionsleft < 2) {
-		print3("Not enough manevuers to riposte!");
-	    }
-	    else {
-		if(Player.possessions[O_WEAPON_HAND] != NULL) {
-		    if(Player.possessions[O_WEAPON_HAND]->type == THRUSTING) {
-			Player.meleestr[place] = 'R';
-			menuprint("\nRiposte ");
-			Player.meleestr[place] = getlocation();
-			actionsleft -= 2;
-		    }
-		    else {
-			print3("Can't riposte without a thrusting weapon!");
-			morewait();
-		    }
-		}
-		else {
-		    print3("Can't ripost without a thrusting weapon!");
-		    morewait();
-		}
-	    }
+            break;
+        case 'r':
+        case 'R':
+            if(actionsleft < 2) {
+                print3("Not enough manevuers to riposte!");
+            }
+            else {
+                if(Player.possessions[O_WEAPON_HAND] != NULL) {
+                    if(Player.possessions[O_WEAPON_HAND]->type == THRUSTING) {
+                        Player.meleestr[place] = 'R';
+                        menuprint("\nRiposte ");
+                        Player.meleestr[place] = getlocation();
+                        actionsleft -= 2;
+                    }
+                    else {
+                        print3("Can't riposte without a thrusting weapon!");
+                        morewait();
+                    }
+                }
+                else {
+                    print3("Can't ripost without a thrusting weapon!");
+                    morewait();
+                }
+            }
 
-	    break;
-	case BACKSPACE:
-	case DELETE:
-	    place = 0;
-	    actionsleft = maneuvers();
+            break;
+        case BACKSPACE:
+        case DELETE:
+            place = 0;
+            actionsleft = maneuvers();
 
-	    break;
-	case RETURN:
-	case LINEFEED:
-	case ESCAPE:
-	    done = TRUE;
+            break;
+        case RETURN:
+        case LINEFEED:
+        case ESCAPE:
+            done = TRUE;
 
-	    break;
-	}
+            break;
+        }
     }
 
     xredraw();
@@ -1117,50 +1117,50 @@ void pickpocket()
     index = getdir();
 
     if(index == ABORT) {
-	setgamestatus(SKIP_MONSTERS);
+        setgamestatus(SKIP_MONSTERS);
     }
     else {
-	dx = Dirs[0][index];
-	dy = Dirs[1][index];
+        dx = Dirs[0][index];
+        dy = Dirs[1][index];
 
-	if(!inbounds(Player.x + dx, Player.y + dy)
-	   || (Level->site[Player.x + dx][Player.y + dy].creature == NULL)) {
-	    print3("There's nothing there to steal from!!!");
-	    setgamestatus(SKIP_MONSTERS);
-	}
-	else {
-	    m = Level->site[Player.x + dx][Player.y + dy].creature;
+        if(!inbounds(Player.x + dx, Player.y + dy)
+           || (Level->site[Player.x + dx][Player.y + dy].creature == NULL)) {
+            print3("There's nothing there to steal from!!!");
+            setgamestatus(SKIP_MONSTERS);
+        }
+        else {
+            m = Level->site[Player.x + dx][Player.y + dy].creature;
 
-	    if(m->id == (ML0 + 3)) {
-		mprint("Trying to steal from a guardsmen, eh?");
-		mprint("Not a clever idea.");
+            if(m->id == (ML0 + 3)) {
+                mprint("Trying to steal from a guardsmen, eh?");
+                mprint("Not a clever idea.");
 
-		if(Player.cash > 0) {
-		    mprint("As a punitive fine, the guard takes all your money.");
-		    Player.cash = 0;
-		    dataprint();
-		}
-		else {
-		    mprint("The guardsman places you under arrest.");
-		    morewait();
-		    send_to_jail();
-		}
-	    }
-	    else if(m->possessions == NULL) {
-		mprint("You couldn't find anything worth taking!");
-		mprint("But you managed to annoy it...");
-		m_status_set(m, HOSTILE);
-	    }
-	    else if(((Player.dex * 5) + (Player.rank[THIEVES] * 20) + random_range(100)) > (random_range(100) + (m->level * 20))) {
-		mprint("You successfully complete your crime!");
-		mprint("You stole:");
-		mprint(itemid(m->possessions->thing));
-		--Player.alignment;
-		gain_experience(m->level * m->level);
-		gain_item(m->possessions->thing);
-		m->possessions = m->possessions->next;
-	    }
-	}
+                if(Player.cash > 0) {
+                    mprint("As a punitive fine, the guard takes all your money.");
+                    Player.cash = 0;
+                    dataprint();
+                }
+                else {
+                    mprint("The guardsman places you under arrest.");
+                    morewait();
+                    send_to_jail();
+                }
+            }
+            else if(m->possessions == NULL) {
+                mprint("You couldn't find anything worth taking!");
+                mprint("But you managed to annoy it...");
+                m_status_set(m, HOSTILE);
+            }
+            else if(((Player.dex * 5) + (Player.rank[THIEVES] * 20) + random_range(100)) > (random_range(100) + (m->level * 20))) {
+                mprint("You successfully complete your crime!");
+                mprint("You stole:");
+                mprint(itemid(m->possessions->thing));
+                --Player.alignment;
+                gain_experience(m->level * m->level);
+                gain_item(m->possessions->thing);
+                m->possessions = m->possessions->next;
+            }
+        }
     }
 }
 
@@ -1177,13 +1177,13 @@ void abortshadowform()
     setgamestatus(SKIP_MONSTERS);
 
     if(Player.status[SHADOWFORM] && (Player.status[SHADOWFORM] < 1000)) {
-	mprint("You abort your spell of Shadow Form.");
-	--Player.immunity[NORMAL_DAMAGE];
-	--Player.immunity[ACID];
-	--Player.immunity[THEFT];
-	--Player.immunity[INFECTION];
-	mprint("You feel less shadowy now.");
-	Player.status[SHADOWFORM] = 0;
+        mprint("You abort your spell of Shadow Form.");
+        --Player.immunity[NORMAL_DAMAGE];
+        --Player.immunity[ACID];
+        --Player.immunity[THEFT];
+        --Player.immunity[INFECTION];
+        mprint("You feel less shadowy now.");
+        Player.status[SHADOWFORM] = 0;
     }
 }
 
@@ -1199,70 +1199,70 @@ void tunnel()
     dir = getdir();
 
     if(dir == ABORT) {
-	setgamestatus(SKIP_MONSTERS);
+        setgamestatus(SKIP_MONSTERS);
     }
     else {
-	ox = Player.x + Dirs[0][dir];
-	oy = Player.y + Dirs[0][dir];
+        ox = Player.x + Dirs[0][dir];
+        oy = Player.y + Dirs[0][dir];
 
-	if(loc_statusp(ox, oy, SECRET)) {
-	    mprint("You have no success as of yet.");
-	}
-	else if(Level->site[ox][oy].locchar != WALL) {
-	    print3("You can't tunnel through that!");
-	    setgamestatus(SKIP_MONSTERS);
-	}
-	else {
-	    aux = Level->site[ox][oy].aux;
+        if(loc_statusp(ox, oy, SECRET)) {
+            mprint("You have no success as of yet.");
+        }
+        else if(Level->site[ox][oy].locchar != WALL) {
+            print3("You can't tunnel through that!");
+            setgamestatus(SKIP_MONSTERS);
+        }
+        else {
+            aux = Level->site[ox][oy].aux;
 
-	    if(random_range(20) == 1) {
-		if(Player.possessions[O_WEAPON_HAND] == NULL) {
-		    mprint("Ouch! Broke a fingernail...");
-		    p_damage(Player.str / 6, UNSTOPPABLE, "A broken fingernail");
-		}
-		else if((Player.possessions[O_WEAPON_HAND]->type == THRUSTING)
-			|| ((Player.possessions[O_WEAPON_HAND]->type != STRIKING)
-			    && (Player.possessions[O_WEAPON_HAND]->fragility < random_range(20)))) {
-		    mprint("Clang! Uh oh...");
-		    damage_items(Player.possessions[O_WEAPON_HAND]);
-		}
-		else {
-		    mprint("Your digging implement shows no sign of breaking.");
-		}
-	    }
+            if(random_range(20) == 1) {
+                if(Player.possessions[O_WEAPON_HAND] == NULL) {
+                    mprint("Ouch! Broke a fingernail...");
+                    p_damage(Player.str / 6, UNSTOPPABLE, "A broken fingernail");
+                }
+                else if((Player.possessions[O_WEAPON_HAND]->type == THRUSTING)
+                        || ((Player.possessions[O_WEAPON_HAND]->type != STRIKING)
+                            && (Player.possessions[O_WEAPON_HAND]->fragility < random_range(20)))) {
+                    mprint("Clang! Uh oh...");
+                    damage_items(Player.possessions[O_WEAPON_HAND]);
+                }
+                else {
+                    mprint("Your digging implement shows no sign of breaking.");
+                }
+            }
 
-	    if(Player.possessions[O_WEAPON_HAND] == NULL) {
-		if((aux > 0) && (((Player.str / 3) + random_range(100)) > 100)) {
-		    mprint("You carve a tunnel through the stone!");
-		    tunnelcheck();
-		    Level->site[ox][oy].locchar = RUBBLE;
-		    Level->site[ox][oy].p_locf = L_RUBBLE;
-		}
-		else {
-		    mprint("No joy.");
-		}
-	    }
-	    else if(Player.possessions[O_WEAPON_HAND]->type == THRUSTING) {
-		if((aux > 0) && (((Player.possessions[O_WEAPON_HAND]->dmg * 2) + random_range(100)) > aux)) {
-		    mprint("You carve a tunnel through the stone!");
-		    tunnelcheck();
-		    Level->site[ox][oy].locchar = RUBBLE;
-		    Level->site[ox][oy].p_locf = L_RUBBLE;
-		}
-		else {
-		    mprint("No luck.");
-		}
-	    }
-	    else if((aux > 0) && ((Player.possessions[O_WEAPON_HAND]->dmg + random_range(100)) > aux)) {
-		mprint("You carve a tunnel through the stone!");
-		tunnelcheck();
-		Level->site[ox][oy].locchar = RUBBLE;
-		Level->site[ox][oy].p_locf = L_RUBBLE;
-	    }
-	    else {
-		mprint("You have no success as yet.");
-	    }
-	}
+            if(Player.possessions[O_WEAPON_HAND] == NULL) {
+                if((aux > 0) && (((Player.str / 3) + random_range(100)) > 100)) {
+                    mprint("You carve a tunnel through the stone!");
+                    tunnelcheck();
+                    Level->site[ox][oy].locchar = RUBBLE;
+                    Level->site[ox][oy].p_locf = L_RUBBLE;
+                }
+                else {
+                    mprint("No joy.");
+                }
+            }
+            else if(Player.possessions[O_WEAPON_HAND]->type == THRUSTING) {
+                if((aux > 0) && (((Player.possessions[O_WEAPON_HAND]->dmg * 2) + random_range(100)) > aux)) {
+                    mprint("You carve a tunnel through the stone!");
+                    tunnelcheck();
+                    Level->site[ox][oy].locchar = RUBBLE;
+                    Level->site[ox][oy].p_locf = L_RUBBLE;
+                }
+                else {
+                    mprint("No luck.");
+                }
+            }
+            else if((aux > 0) && ((Player.possessions[O_WEAPON_HAND]->dmg + random_range(100)) > aux)) {
+                mprint("You carve a tunnel through the stone!");
+                tunnelcheck();
+                Level->site[ox][oy].locchar = RUBBLE;
+                Level->site[ox][oy].p_locf = L_RUBBLE;
+            }
+            else {
+                mprint("You have no success as yet.");
+            }
+        }
     }
 }
 
@@ -1272,9 +1272,9 @@ void hunt(int terrain)
 
     switch(terrain) {
     case SWAMP:
-	mprint("You hesistate to hunt for food in the marshy wasteland.");
+        mprint("You hesistate to hunt for food in the marshy wasteland.");
 
-	break;
+        break;
     case VOLCANO:
     case CASTLE:
     case TEMPLE:
@@ -1282,87 +1282,87 @@ void hunt(int terrain)
     case STARPEAK:
     case MAGIC_ISLE:
     case DRAGONLAIR:
-	mprint("There is nothing alive here (or so it seems)");
+        mprint("There is nothing alive here (or so it seems)");
 
-	break;
+        break;
     case VILLAGE:
     case CITY:
-	mprint("You can find no food here; perhaps if you went inside...");
+        mprint("You can find no food here; perhaps if you went inside...");
 
-	break;
+        break;
     case ROAD:
-	mprint("You feel it would be a better ide to hunt off the road.");
+        mprint("You feel it would be a better ide to hunt off the road.");
 
-	break;
+        break;
     case CAHOS_SEA:
-	mprint("Food in the Sea of Chaos? Go on!");
+        mprint("Food in the Sea of Chaos? Go on!");
 
-	break;
+        break;
     case DESERT:
-	mprint("You wander off into the trackless deser in search of food...");
-	Time += 100;
-	hourly_check();
-	fertility = 10;
+        mprint("You wander off into the trackless deser in search of food...");
+        Time += 100;
+        hourly_check();
+        fertility = 10;
 
-	break;
+        break;
     case JUNGLE:
-	mprint("You search the lush and verdant jungle for game...");
-	Time += 100;
-	hourly_check();
-	fertility = 80;
+        mprint("You search the lush and verdant jungle for game...");
+        Time += 100;
+        hourly_check();
+        fertility = 80;
 
-	break;
+        break;
     case PLAINS:
-	mprint("You set off through the tall grass; the game is afoot.");
-	Time += 100;
-	hourly_check();
-	fertility = 50;
+        mprint("You set off through the tall grass; the game is afoot.");
+        Time += 100;
+        hourly_check();
+        fertility = 50;
 
-	break;
+        break;
     case TUNDRA:
-	mprint("You blaze a trail through the frozen wasteland...");
-	Time += 100;
-	hourly_check();
-	fertility = 30;
+        mprint("You blaze a trail through the frozen wasteland...");
+        Time += 100;
+        hourly_check();
+        fertility = 30;
 
-	break;
+        break;
     case FOREST:
-	mprint("You try to follow the many track through the forest loam...");
-	Time += 100;
-	hourly_check();
-	fertility = 70;
+        mprint("You try to follow the many track through the forest loam...");
+        Time += 100;
+        hourly_check();
+        fertility = 70;
 
-	break;
+        break;
     case MOUNTAINS:
     case PASS:
-	mprint("You search the cliff walls looking for something to eat...");
-	Time += 100;
-	hourly_check();
-	fertility = 30;
+        mprint("You search the cliff walls looking for something to eat...");
+        Time += 100;
+        hourly_check();
+        fertility = 30;
 
-	break;
+        break;
     case RIVER:
-	mprint("The halcyon river is your hopeful food source...");
-	Time += 100;
-	hourly_check();
-	fertility = 80;
+        mprint("The halcyon river is your hopeful food source...");
+        Time += 100;
+        hourly_check();
+        fertility = 80;
 
-	break;
+        break;
     }
 
     if((((Date % 360) < 60) || ((Date % 360) > 300))
        && (terrain != DESERT)
        && (terrain != JUNGLE)) {
-	mprint("The cold weather impedes your hunt...");
-	fertility = fertility / 2;
+        mprint("The cold weather impedes your hunt...");
+        fertility = fertility / 2;
     }
 
     if(fertility > random_range(100)) {
-	mprint("You have an encounter...");
-	change_environment(E_TACTICAL_MAP);
+        mprint("You have an encounter...");
+        change_environment(E_TACTICAL_MAP);
     }
     else {
-	mprint("Your hunt is fruitless.");
+        mprint("Your hunt is fruitless.");
     }
 }
 
@@ -1371,27 +1371,27 @@ void dismount_steed()
     pml ml;
 
     if(!gamestatusp(MOUNTED)) {
-	print3("You're on foot already!");
+        print3("You're on foot already!");
     }
     else if(Current_Environment == E_COUNTRYSIDE) {
-	mprint("If you leave your steed here he will wander away!");
-	mprint("Do it anyway? [yn] ");
+        mprint("If you leave your steed here he will wander away!");
+        mprint("Do it anyway? [yn] ");
 
-	if(ynq() == 'y') {
-	    resetgamestatus(MOUNTED);
-	}
+        if(ynq() == 'y') {
+            resetgamestatus(MOUNTED);
+        }
     }
     else {
-	resetgamestatus(MOUNTED);
-	ml = (pml)malloc(sizeof(mltype));
-	ml->m = (pmt)malloc(sizeof(montype));
-	*ml->m = Monsters[HORSE];
-	ml->m->x = Player.x;
-	ml->m->y = Player.y;
-	ml->m->status = MOBILE + SWIMMING;
-	ml->next = Level->mlist;
-	Level->site[Player.x][Player.y].creature = ml->m;
-	Level->mlist = ml;
+        resetgamestatus(MOUNTED);
+        ml = (pml)malloc(sizeof(mltype));
+        ml->m = (pmt)malloc(sizeof(montype));
+        *ml->m = Monsters[HORSE];
+        ml->m->x = Player.x;
+        ml->m->y = Player.y;
+        ml->m->status = MOBILE + SWIMMING;
+        ml->next = Level->mlist;
+        Level->site[Player.x][Player.y].creature = ml->m;
+        Level->mlist = ml;
     }
 
     calc_melee();
@@ -1407,54 +1407,54 @@ void city_move()
     clearmsg();
 
     if(Current_Environment != E_CITY) {
-	print3("This command only works in the city!");
-	setgamestatus(SKIP_MONSTERS);
+        print3("This command only works in the city!");
+        setgamestatus(SKIP_MONSTERS);
     }
     else if(Player.status[IMMOBILE] > 0) {
-	print3("You can't even move!");
+        print3("You can't even move!");
     }
     else if(hostilemonstersnear()) {
-	setgamestatus(SKIP_MONSTERS);
-	print3("You can't move this way with hostile monsters around!");
+        setgamestatus(SKIP_MONSTERS);
+        print3("You can't move this way with hostile monsters around!");
     }
     else if(Level->site[Player.x][Player.y].aux == NOCITYMOVE) {
-	print3("You can't use the 'M' command from this location.");
+        print3("You can't use the 'M' command from this location.");
     }
     else {
-	mprint("Move to which establishment [? for help, ESCAPE to quit] ");
-	site = parsecitysite();
+        mprint("Move to which establishment [? for help, ESCAPE to quit] ");
+        site = parsecitysite();
 
-	if(site != ABORT) {
-	    mprint("You're on your way...");
-	    morewait();
+        if(site != ABORT) {
+            mprint("You're on your way...");
+            morewait();
 
-	    while((x != CitySiteList[site][1]) || (y != CitySiteList[site][2])) {
-		toggle = !toggle;
+            while((x != CitySiteList[site][1]) || (y != CitySiteList[site][2])) {
+                toggle = !toggle;
 
-		if(toggle) {
-		    ++Time;
+                if(toggle) {
+                    ++Time;
 
-		    if((Time % 10) == 0) {
-			tenminute_check();
-		    }
-		    else {
-			minute_status_check();
-		    }
-		}
+                    if((Time % 10) == 0) {
+                        tenminute_check();
+                    }
+                    else {
+                        minute_status_check();
+                    }
+                }
 
-		x += sign(CitySiteList[site][1] - x);
-		y += sign(CitySiteList[site][2] - y);
-		screencheck(y);
-		showcursor(x, y);
-	    }
+                x += sign(CitySiteList[site][1] - x);
+                y += sign(CitySiteList[site][2] - y);
+                screencheck(y);
+                showcursor(x, y);
+            }
 
-	    Player.x = x;
-	    Player.y = y;
-	    screencheck(Player.y);
-	    mprint("Made it!");
-	    morewait();
-	    p_movefunction(Level->site[x][y].p_locf);
-	}
+            Player.x = x;
+            Player.y = y;
+            screencheck(Player.y);
+            mprint("Made it!");
+            morewait();
+            p_movefunction(Level->site[x][y].p_locf);
+        }
     }
 }
 
@@ -1467,24 +1467,24 @@ void frobgamestatus()
     response = mcigetc();
 
     while((response != 'r') && (response != 's') && (response != ESCAPE)) {
-	repsonse = mcigetc();
+        repsonse = mcigetc();
     }
 
     if(response != ESCAPE) {
-	mprint("Enter log2 of flag:");
-	num = parsenum();
+        mprint("Enter log2 of flag:");
+        num = parsenum();
 
-	if(num > -1) {
-	    num = pow2(num);
+        if(num > -1) {
+            num = pow2(num);
 
-	    if(response == 's') {
-		setgamestatus(num);
-	    }
-	    else {
-		resetgamestatus(num);
-	    }
+            if(response == 's') {
+                setgamestatus(num);
+            }
+            else {
+                resetgamestatus(num);
+            }
 
-	    mprint("Done...");
-	}
+            mprint("Done...");
+        }
     }
 }
