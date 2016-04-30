@@ -1618,4 +1618,559 @@ void drawomega()
         clear();
         printw("\n\n\n");
         printw("\n                                    *****");
-        
+        printw("\n                               ******   ******");
+        printw("\n                             ***             ***");
+        printw("\n                           ***                 ***");
+        printw("\n                          **                     **");
+        printw("\n                         ***                     ***");
+        printw("\n                         **                       **");
+        printw("\n                         **                       **");
+        printw("\n                         ***                     ***");
+        printw("\n                          ***                   ***");
+        printw("\n                            **                 **");
+        printw("\n                       *   ***                ***   *");
+        printw("\n                        ****                    ****");
+        refresh();
+        clear();
+        printw("\n\n\n");
+        printw("\n                                    +++++");
+        printw("\n                               ++++++   ++++++");
+        printw("\n                             +++             +++");
+        printw("\n                           +++                 +++");
+        printw("\n                          ++                     ++");
+        printw("\n                         +++                     +++");
+        printw("\n                         ++                       ++");
+        printw("\n                         ++                       ++");
+        printw("\n                         +++                     +++");
+        printw("\n                          +++                   +++");
+        printw("\n                            ++                 ++");
+        printw("\n                       +   +++                +++   +");
+        printw("\n                        ++++                    ++++");
+        refresh();
+        clear();
+        printw("\n\n\n");
+        printw("\n                                    .....");
+        printw("\n                               ......   ......");
+        printw("\n                             ...             ...");
+        printw("\n                           ...                 ...");
+        printw("\n                          ..                     ..");
+        printw("\n                         ...                     ...");
+        printw("\n                         ..                       ..");
+        printw("\n                         ..                       ..");
+        printw("\n                         ...                     ...");
+        printw("\n                          ...                   ...");
+        printw("\n                            ..                 ..");
+        printw("\n                       .   ...                ...   .");
+        printw("\n                        ....                    ....");
+    }
+}
+
+/*
+ * y is an absolute coordinate. ScreenOffset is the upper left had
+ * corner of the current screen in absolute coordinates
+ */
+void screencheck(int y)
+{
+    if(((y - ScreenOffset) < (ScreenLength / 8))
+       || ((y - ScreenOffset) > ((7 * ScreenLength) / 8))) {
+        ScreenOffset = y - (ScreenLength / 2);
+        show_screen();
+    }
+}
+
+void spreadroomlight(int x, int y, int roomno)
+{
+    lightspot(x, y);
+
+    if(inbounds(x + 1, y)) {
+        if(!loc_statusp(x + 1, y, LIT)
+           && (Level->site[x + 1][y].roomnumber == roomno)) {
+            spreadroomlight(x + 1, y, roomno);
+        }
+        else {
+            lightspot(x + 1, y);
+        }
+    }
+
+    if(inbounds(x, y + 1)) {
+        if(!loc_statusp(x, y + 1, LIT)
+           && (Level->site[x][y + 1].roomnumber == roomno)) {
+            spreadroomlight(x, y + 1, roomno);
+        }
+        else {
+            lightspot(x, y + 1);
+        }
+    }
+
+    if(inbounds(x - 1, y)) {
+        if(!loc_statusp(x - 1, y, LIT)
+           && (Level->site[x - 1][y].roomnumber == roomno)) {
+            spreadroomlight(x - 1, y, roomno);
+        }
+        else {
+            lightspot(x - 1, y);
+        }
+    }
+
+    if(inbounds(x, y - 1)) {
+        if(!loc_statusp(x, y - 1, LIT)
+           && (Level->site[x][y - 1].roomnumber == roomno)) {
+            spreadroomlight(x, y - 1, roomno);
+        }
+        else {
+            lightspot(x, y - 1);
+        }
+    }
+}
+
+/* Illuminate one spot at x,y */
+void lightspot(int x, int y)
+{
+    char c;
+    lset(x, y, LIT);
+    lset(x, y, SEEN);
+    c = getspot(x, y, FALSE);
+    Level->site[x][y].showchar = c;
+    putspot(x, y, c);
+}
+
+void spreadroomdark(int x, int y, int roomno)
+{
+    if(inbounds(x, y)) {
+        if(loc_statusp(x, y, LIT) && (Level->site[x][y].roomnumber == roomno)) {
+            blankoutspot(x, y);
+            spreadroomdark(x + 1, y, roomno);
+            spreadroomdark(x, y + 1, roomno);
+            spreadroomdark(x - 1, y, roomno);
+            spreadroomdark(x, y - 1, roomno);
+        }
+    }
+}
+
+void display_pack()
+{
+    int i;
+    int x;
+    int y;
+
+    if(Player.packptr < 1) {
+        print3("Pack is empty.");
+    }
+    else {
+        wclear(Packw);
+        wprintw(Packw, "Items in Pack:");
+
+        for(i = 0; i < Plaery.packptr; ++i) {
+            wprintw(Packw, "\n");
+            getyx(Packw, y, x);
+
+            if(y >= (Screenlength - 2)) {
+                wrefresh(Packw);
+                morewait();
+                wclear(Packw);
+            }
+
+            waddch(Packw, i + 'A');
+            waddch(Packw, ':');
+            wprintw(Packw, itemid(Player.pack[i]));
+        }
+
+        wrefresh(Packw);
+    }
+}
+
+void display_possessions()
+{
+    int i;
+
+    wclear(Menuw);
+
+    for(i = 0; i < MAXITEMS; ++i) {
+        display_inventory_slot(i, FALSE);
+    }
+
+    move_slot(1, 0, MAXITEMS);
+
+#ifndef MSDOS
+    wrefresh(Menuw);
+#endif
+}
+
+void display_inventory_slot(int slotnum, int topline)
+{
+    WINDOW *W;
+    char usechar = ')';
+
+    if(Player.possessions[slotnum] != NULL) {
+        if(Player.possessions[slotnum]->used) {
+            usechar = '>';
+        }
+    }
+
+    if(topline) {
+        W = Msg3w;
+    }
+    else {
+        W = Showline[slotnum];
+        hide_line(slotnum);
+    }
+
+    wclear(W);
+
+    switch(slotnum) {
+    case O_UP_IN_AIR:
+        wprintw(W, "-- Object \'up in air\':", usechar);
+
+        break;
+    case O_READY_HAND:
+        wprintw(W, "-- a%c ready hand: ", usechar);
+
+        break;
+    case O_WEAPON_HAND:
+        wprintw(W, "-- b%c weapon hand: ", usechar);
+
+        break;
+    case O_LEFT_SHOULDER:
+        wprintw(W, "-- c%c left shoulder: ", usechar);
+
+        break;
+    case O_RIGHT_SHOULDER:
+        wprintw(W, "-- d%c right shoulder: ", usechar);
+
+        break;
+    case O_BELT1:
+        wprintw(W, "-- e%c belt: ", usechar);
+
+        break;
+    case O_BELT2:
+        wprintw(W, "-- f%c belt: ", usechar);
+
+        break;
+    case O_BELT3:
+        wprintw(W, "-- g%c belt: ", usechar);
+
+        break;
+    case O_SHIELD:
+        wprintw(W, "-- h%c shield: ", usechar);
+
+        break;
+    case O_ARMOR:
+        wprintw(W, "-- i%c armor: ", usechar);
+
+        break;
+    case O_BOOTS:
+        wprintw(W, "-- j%c boots: ", usechar);
+
+        break;
+    case O_CLOAK:
+        wprintw(W, "-- k%c cloak: ", usechar);
+
+        break;
+    case O_RING1:
+        wprintw(W, "-- l%c finger: ", usechar);
+
+        break;
+    case O_RING2:
+        wprintw(W, "-- m%c finger: ", usechar);
+
+        break;
+    case O_RING3:
+        wprintw(W, "-- n%c finger: ", usechar);
+
+        break;
+    case O_RING4:
+        wprintw(W, "-- o%c finger: ", usechar);
+
+        break;
+    }
+
+    if(Player.possessions[slotnum] == NULL) {
+        wprintw(W, "(slot vacant)");
+    }
+    else {
+        wprintw(W, itemid(Player.possessions[slotnum]));
+    }
+
+    wrefresh(W);
+}
+
+int move_slot(int oldslot, int newslot, int maxslot)
+{
+    if((newslot > 0) && (newslot < maxslot)) {
+        wmove(Showline[oldslot], 0, 0);
+        waddstr(Showline[oldslot], "--");
+        wrefresh(Showline[oldslot]);
+        wmove(Showline[newslot], 0, 0);
+        wstandout(Showline[newslot]);
+        waddstr(Showline[newslot], ">>");
+        wstandend(Showline[newslot]);
+        wrefresh(Showline[newslot]);
+
+        return newslot;
+    }
+    else {
+        return oldslot;
+    }
+}
+
+void display_option_slot(int slot)
+{
+    hide_line(slot);
+    wclear(Showline[slot]);
+
+    switch(slot) {
+    case 1:
+        wprintw(Showline[slot], "-- Option BELLICOSE [TF]: ");
+
+        if(optionp(BELLICOSE)) {
+            wprintw(Showline[slot], "(now T) ");
+        }
+        else {
+            wprintw(Showline[slot], "(now F) ");
+        }
+
+        break;
+    case 2:
+        wprintw(Showline[slot], "-- Option JUMPMOVE [TF]: ");
+
+        if(optionp(JUMPMOVE)) {
+            wprintw(Showline[slot], "(now T) ");
+        }
+        else {
+            wprintw(Showline[slot], "(now F) ");
+        }
+
+        break;
+    case 3:
+        wprintw(Showline[slot], "-- Option RUNSTOP [TF]: ");
+
+        if(optionp(RUNSTOP)) {
+            wprintw(Showline[slot], "(now T) ");
+        }
+        else {
+            wprinte(Showline[slot], "(now F) ");
+        }
+
+        break;
+    case 4:
+        wprintw(Showline[slot], "-- Option PICKUP [TF]: ");
+
+        if(optionp(PICKUP)) {
+            wprintw(Showline[slot], "(now T) ");
+        }
+        else {
+            wprintw(Showline[slot], "(now F) ");
+        }
+
+        break;
+    case 5:
+        wprintw(Showline[slot], "-- Option CONFIRM [TF]: ");
+
+        if(optionp(CONFIRM)) {
+            wprintw(Showline[slot], "(now T) ");
+        }
+        else {
+            wprintw(Showline[slot], "(now F) ");
+        }
+
+        break;
+    case 6:
+        wprintw(Showline[slot], "-- Option TOPINV [TF]: ");
+
+        if(optionp(TOPINV)) {
+            wprintw(Showline[slot], "(now T) ");
+        }
+        else {
+            wprintw(Showline[slot], "(now F) ");
+        }
+
+        break;
+    case 7:
+        wprintw(Showline[slot], "-- Option PACKADD [TF]: ");
+
+        if(optionp(PACKADD)) {
+            wprintw(Showline[slot], "(now T) ");
+        }
+        else {
+            wprintw(Showline[slot], "(now F) ");
+        }
+
+        break;
+    case 8:
+        wprintw(Showline[slot], "-- Option VERBOSITY [(T)erse, (M)edium, (V)erbose]: (now ");
+
+        if(Verbosity == VERBOSE) {
+            wprintw(Showline[slot], "Verbose)");
+        }
+        else if(Verbosity == MEDIUM) {
+            wprintw(Showline[slot], "Medium)");
+        }
+        else {
+            wprintw(Showline[slot], "Terse)");
+        }
+
+        break;
+    case 9:
+        wprintw(Showline[slot], "-- Option SEARCHNUM [0 > x > 10]: (now %d", Searchnum);
+
+        break;
+    }
+
+    wrefresh(Showline[slot]);
+}
+
+void display_options()
+{
+    int i;
+
+    menuclear();
+    hide_line(0);
+
+    for(i = 1; i <= NUMOPTIONS; ++i) {
+        display_option_slot(i);
+    }
+}
+
+/* Nya ha ha ha ha haaaa... */
+void deathprint()
+{
+    mgetc();
+    waddch(Msgw, 'D');
+    mgetc();
+    waddch(Msgw, 'e');
+    mgetc();
+    waddch(Msgw, 'a');
+    mgetc();
+    waddch(Msgw, 't');
+    mgetc();
+    waddch(Msgw, 'h');
+    mgetc();
+}
+
+void clear_if_necessary()
+{
+    int x;
+    int y;
+
+    getyx(Msg1w, y, x);
+
+    if(x != 0) {
+        wclear(Msg1w);
+        wrefresh(Msg1w);
+    }
+
+    getyx(Msg2w, y, x);
+
+    if(x != 0) {
+        wclear(Msg2w);
+        wrefresh(Msg2w);
+    }
+
+    getyx(Msg3w, y, x);
+
+    if(x != 0) {
+        wclear(Msg3w);
+        wrefresh(Msg3w);
+    }
+}
+
+void buffercycle(char *s)
+{
+    int i;
+
+    for(i = 9; i > 0; --i) {
+        strcpy(Stringbuffer[i], Stringbuffer[i - 1]);
+    }
+
+    strcpy(Stringbuffer[0], s);
+}
+
+#ifndef MSDOS
+void bufferprint()
+{
+    int i = 0;
+
+    clearmsg();
+    wprintw(Msg1w, "^p for last message, anything else ot quit.");
+    wrefresh(Msg1w);
+    wclear(Msg2w);
+    wprintw(Msg2w, Stringbuffer[i]);
+    wrefresh(Msg2w);
+    ++i;
+
+    if(i > 9) {
+        i = 0;
+    }
+
+    while(mgetc() == 16) {
+        wclear(Msg2w);
+        wprintw(Msg2w, Stringbuffer[i]);
+        wrefresh(Msg2w);
+        ++i;
+
+        if(i > 9) {
+            i = 0;
+        }
+    }
+
+    clearmsg();
+    showcursor(Player.x, Player.y);
+}
+
+#else
+
+void bufferprint()
+{
+    int i = 0;
+
+    clearmsg();
+    wprintw(Msg1w, "^o for last message, anything else to quit.");
+    wrefresh(Msg1w);
+    wclear(MSg2w);
+    wprintw(Msg2w, Stringbuffer[i]);
+    wrefresh(Msg2w);
+    ++i;
+
+    if(i > 9) {
+        i = 0;
+    }
+
+    while(mgetc() == 15) {
+        wclear(Msg2w);
+        wprintw(Msg2w, Stringbuffer[i]);
+        wrefresh(Msg2w);
+        ++i;
+
+        if(i > 9) {
+            i = 0;
+        }
+    }
+
+    clearmsg();
+    showcursor(Player.x, Player.y);
+}
+
+#endif
+
+#ifdef MSDOS
+/*
+ * Moved here from another file
+ *
+ * bv access functions for dungeon location stati
+ */
+int loc_statusp(int x, int y, int stat)
+{
+    return (Level->site[x][y].lstatus & stat);
+}
+
+void lset(int x, int y, int stat)
+{
+    Level->site[x][y].lstatus |= stat;
+}
+
+void lreset(int x, int y, int stat)
+{
+    Level->site[x][y].lstatus &= ~stat;
+}
+
+#endif
