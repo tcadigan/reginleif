@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 char cryptkey(char *fname)
 {
@@ -27,8 +28,8 @@ int main(int argc, char *argv[])
     char key;
     int c;
 
-    if(num_args == 2) {
-        key = cryptkey(args[1]);
+    if(argc == 2) {
+        key = cryptkey(argv[1]);
 
         c = getchar();
 
@@ -39,7 +40,7 @@ int main(int argc, char *argv[])
         }
     }
     else {
-        fprintf(stderr, "Usage: %s (key) < (intfile) > (outfile)\n where (key) happens to be the name of the file, without any preceding path.\n", args[0]);
+        fprintf(stderr, "Usage: %s (key) < (intfile) > (outfile)\n where (key) happens to be the name of the file, without any preceding path.\n", argv[0]);
     }
 
     return 0;

@@ -495,10 +495,6 @@ int quit()
             display_bigwin();
         }
 
-#ifdef MSDOS
-        kill_all_levels();
-#endif
-
         endgraf();
         exit(0);
     }

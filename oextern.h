@@ -23,19 +23,10 @@ void setspot();
 void foodcheck();
 void p_death();
 void hourly_check();
-
-#ifndef MSDOS
 void calc_melee();
 void gain_experience();
 void p_damage();
 void minute_check();
-#else
-void calc_melee();
-void p_damage();
-void minute_check();
-void gain_lexperience();
-#endif
-
 void p_process();
 void p_teleport();
 void tacplayer();
@@ -97,21 +88,11 @@ void terrain_check();
 void countrysearch();
 void default_maneuvers();
 void alert_guards();
-
-#ifndef MSDOS
 int expval();
 int player_hit();
 int statmod();
 int item_value();
 int true_item_value();
-#else
-long expval();
-long item_value();
-long true_item_value();
-int player_hit();
-int statmod();
-#endif
-
 int parsecitysite();
 int expandsite();
 int hostilemonstersnear();
@@ -125,17 +106,9 @@ void initstats();
 void save_omegarc();
 void omegan_character_stats();
 void user_character_stats();
-
-#ifndef MSDOS
 int calcmana();
 int fixnpc();
 int competence_check();
-#else
-long calcmana();
-int fixnpc();
-int competence_check();
-#endif
-
 FILE *omegarc_check();
 
 /* ocity function */
@@ -337,7 +310,7 @@ void make_archmage();
 void maze_level();
 void maze_corridor();
 void install_specials();
-voind make_stairs();
+void make_stairs();
 void make_plains();
 void make_road();
 void make_forest();
@@ -352,7 +325,6 @@ char *roomname();
 plv findlevel();
 
 /* outil functions */
-#ifndef MSDOS
 int inbounds();
 int random_range();
 int hitp();
@@ -360,27 +332,11 @@ int sign();
 int max();
 int min();
 int distance();
-#else
-int inbounds();
-int random_range();
-int hitp();
-int distance();
-#endif
-
-#ifndef MSDOS
 int unblocked();
 int los_p();
 int screenmod();
 int offscreen();
 int calc_points();
-#else
-int unblocked();
-int los_p();
-int screenmod();
-int offscreen();
-long calc_points();
-#endif
-
 int bitp();
 int nighttime();
 int hour();
@@ -390,17 +346,9 @@ int showminute();
 int view_unblocked();
 int m_unblocked();
 int strmem();
-
-#ifndef MSDOS
 int view_lost_p();
 int confirmation();
 int gamestatusp();
-#else
-int view_los_p();
-int confirmation();
-long gamestatusp();
-#endif
-
 char inversedir();
 char *getarticle();
 char *ordinal();
@@ -530,21 +478,11 @@ void show_screen();
 void blankoutspot();
 void show_license();
 void phaseprint();
-
-#ifndef MSDOS
 void menuclear();
 void showcursor();
 void mnumprint();
 void menunumprint();
 void display_pack();
-#else
-void menuclear();
-void showcursor();
-void display_pack();
-void mlongprint();
-void menulongprint();
-#endif
-
 void clearmsg();
 void menuprint();
 void print3();
@@ -598,38 +536,20 @@ void display_possessions();
 void clear_if_necessary();
 void buffercycle();
 void lightspot();
-
-#ifndef MSDOS
 int parsenum();
 int getnumber();
 int litroom();
 int move_slot();
 int stillonblock();
-#else
-long parsenum();
-int getnumber();
-int litroom();
-int move_slot();
-int stillonblock();
-#endif
-
 char getspot();
 char mgetc();
 char lgetc();
 char menugetc();
 char *msgscanstring();
-
-#ifndef MSDOS
 char mcigetc();
 char ynq();
 char ynq1();
 char ynq2();
-#else
-int mcigetc();
-char ynq();
-char ynq1();
-char ynq2();
-#endif
 
 /* omove functions */
 void p_movefunction();
@@ -1074,25 +994,15 @@ int objequal();
 int slottable();
 int item_useable();
 int find_and_remove_item();
-
-#ifndef MSDOS
 int getitem();
 int badobjecT();
 int cursed();
 int get_money();
 int get_item_number();
 int find_item();
-#else
-int getitem();
-int badobject();
-int cursed();
-int get_item_number();
-int find_item();
-long get_money();
-#endif
 
-pob detach_money;
-pob split_item;
+pob detach_money();
+pob split_item();
 char *itemid();
 char *cashstr();
 

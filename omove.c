@@ -371,14 +371,7 @@ void l_no_op()
 
 void l_tactical_exit()
 {
-#ifndef MSDOS
     free((char *)Level);
-
-#else
-    /* Free up monsters and items */
-    free_levelstuff(Level);
-#endif
-
     Level = NULL;
 
     if((Current_Environment == E_TEMPLE)
@@ -501,21 +494,14 @@ void l_raise_portcullis()
 void l_arena_exit()
 {
     resetgamestatus(ARENA_MODE);
-
-#ifndef MSDOS
     free((char *)Level);
-#endif
-
     Level = NULL;
     change_environment(E_CITY);
 }
 
 void l_house_exit()
 {
-#ifndef MSDOS
     free((char *)Level);
-#endif
-
     Level = NULL;
     change_environment(Last_Environment);
 }

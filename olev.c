@@ -943,7 +943,6 @@ void make_specific_treasure(int i, int j, int itemid)
     Level->site[i][j].things = tmp;
 }
 
-#ifndef MSDOS
 /*
  * Returns a "level of difficulty" based on current environment and depth in
  * dungeon. Is somewhat arbitrary. Value between 1 and 10. May not actually

@@ -1,4 +1,4 @@
-Select form the following maneuvers:
+Select from the following maneuvers:
 
 A  --  ATTACK. This takes one maneuver and executes an ordinary attack on
        whatever monster you attempt to move onto.

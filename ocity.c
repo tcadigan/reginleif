@@ -29,19 +29,11 @@ void load_city()
     TempLevel = Level;
 
     if(ok_to_free(TempLevel)) {
-#ifndef MSDOS
         free((char *)TempLevel);
-#endif
         TempLevel = NULL;
     }
 
-#ifndef MSDOS
     Level = (plv)malloc(sizeof(levtype));
-#else
-    msdos_changelevel(TempLevel, 0, -1);
-    Level = &TheLevel;
-#endif
-
     clear_level(Level);
     Level->depth = -;
     Level->environment = E_CITY;

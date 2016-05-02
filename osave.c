@@ -15,7 +15,6 @@
  * file can be opened for write. The player, the city level, and the
  * current dungeon level are saved.
  */
-#ifndef MSDOS
 int save_game(int compress, char *savestr)
 {
     int i;
@@ -98,95 +97,6 @@ int save_game(int compress, char *savestr)
     return writeok;
 }
 
-#else
-
-int save_game(int compress, char *savestr)
-{
-    int tempdepth;
-    int i;
-    int writeok = TRUE;
-    char cmd[80];
-    FILE *fd = fopen(savestr, "rb");
-
-    if(fd != NULL) {
-        mprint("Overwrite old file?");
-
-        if(ynq() == 'y') {
-            writeok = 1;
-        }
-        else {
-            writeok = 0;
-        }
-
-        fclose(fd);
-    }
-
-    if(writeok) {
-        fd = fopen(savestr, "wb");
-
-        if(fd == NULL) {
-            writeok = FALSE;
-            mprint("Error opening file.");
-        }
-    }
-
-    if(!writeok) {
-        print2("Save aborted.");
-    }
-    else {
-        print1("Saving game...");
-
-        /* Write the version number */
-        i = VERSION;
-        fwrite((char *)&i, sizeof(int), 1, fd);
-
-        /* Write game id to save file */
-        save_player(fd);
-        save_country(fd);
-        tmpdepth = Level->depth;
-        City = msdos_changelevel(Level, E_CITY, 0);
-        save_level(fd, City);
-
-        if((Current_Environment != E_CITY)
-           && (Current_Environment != E_COUNTRYSIDE)) {
-            i = TRUE;
-            fwrite((char *)&i, sizeof(int), 1, fd);
-            Level = msdos_changelevel(NULL, Current_Environment, tmpdepth);
-            save_level(fd, Level);
-        }
-        else {
-            i = FALSE;
-            fwrite((char *)&i, sizeof(int), 1, fd);
-        }
-
-        fclose(fd);
-        print1("Game saved.");
-
-#ifdef COMPRESS_SAVE_FILES
-        if(compress) {
-            print2("Compressing save file...");
-            strcpy(cmd, "compress ");
-            strcat(cmd, savestr);
-            system(cmd);
-
-            if(strlen(savestr) < 13) {
-                strcpy(cmd, "mv ");
-                strcat(cmd, savestr);
-                strcat(cmd, ".Z");
-                strcat(cmd, savestr);
-                system(cmd);
-            }
-        }
-#endif
-
-        morewait();
-        clearmsg();
-    }
-
-    return writeok;
-}
-#endif
-
 /*
  * Saves on SIGHUP.
  * no longer tries to compress, which hangs
@@ -194,14 +104,7 @@ int save_game(int compress, char *savestr)
 int signalsave()
 {
     int i;
-
-#ifndef MSDOS
     FILE *fd = fopen("Omega.sav", "w");
-
-#else
-    
-    FILE *fd = fopen("Omega.sav", "wb");
-#endif
 
     if(fd != NULL) {
         /* Write the version number */
@@ -255,15 +158,7 @@ void save_player(FILE *fd)
     fwrite((char *)&Current_Dungeon, sizeof(int), 1, fd);
     fwrite((char *)&Villagenum, sizeof(int), 1, fd);
     fwrite((char *)&Verbosity, sizeof(char), 1, fd);
-
-#ifndef MSDOS
     fwrite((char *)&Time, sizeof(int), 1, fd);
-
-#else
-
-    fwrite((char *)&Time, sizeof(long), 1, fd);
-#endif
-
     fwrite((char *)&Tick, sizeof(int), 1, fd);
     fwrite((char *)&Searchnum, sizeof(int), 1, fd);
     fwrite((char *)&Phase, sizeof(int), 1, fd);
@@ -281,29 +176,12 @@ void save_player(FILE *fd)
     fwrite((char *)&Mindstone, sizeof(int), 1, fd);
     fwrite((char *)&Arena_Opponent, sizeof(int), 1, fd);
     fwrite((char *)&Imprisonment, sizeof(int), 1, fd);
-
-#ifndef MSDOS
     fwrite((char *)&Gymcredit, sizeof(int), 1, fd);
     fwrite((char *)&Balance, sizeof(int), 1, fd);
-    
-#else
-
-    fwrite((char *)&Gymcredit, sizeof(long), 1, fd);
-    fwrite((char *)&Balance, sizeof(long), 1, fd);
-#endif
-
     fwrite((char *)&StarGemUse, sizeof(int), 1, fd);
     fwrite((char *)&HiMagicUse, sizeof(int), 1, fd);
     fwrite((char *)&HiMagic, sizeof(int), 1, fd);
-
-#ifndef MSDOS
     fwrite((char *)&FixedPoints, sizeof(int), 1, fd);
-
-#else
-
-    fwrite((char *)&FixedPoints, sizeof(long), 1, fd);
-#endif
-
     fwrite((char *)&LastCountryLocX, sizeof(int), 1, fd);
     fwrite((char *)&LastCountryLocY, sizeof(int), 1, fd);
     fwrite((char *)&LastTownLocX, sizeof(int), 1, fd);
@@ -400,12 +278,6 @@ void save_level(FILE *fd, plv level)
     int j;
 
     fwrite((char *)level, sizeof(levtype), 1, fd);
-
-#ifdef MSDOS
-    for(i = 0; i < MAXWIDTH; ++i) {
-        fwrite((char *)level->site[i], MAXLENGTH * sizeof(loctype), 1, fd);
-    }
-#endif
 
     save_monsters(fd, level->mlist);
 
@@ -512,13 +384,7 @@ int restore_game(char *savestr)
     }
 #endif
 
-#ifndef MSDOS
     fd = fopen(savestr, "r");
-
-#else
-
-    fd = fopen(savestr, "rb");
-#endif
 
     if(fd == NULL) {
         print1("Error restoring game -- aborted.");
@@ -547,18 +413,9 @@ int restore_game(char *savestr)
 
         fread((char *)&i, sizeof(int), 1, fd);
 
-#ifndef MSDOS
         if(i == TRUE) {
             restore_level(fd);
         }
-
-#else
-        
-        if(i == TRUE) {
-            msdos_changelevel(Level, 0, -1);
-            restore_level(fd);
-        }
-#endif
 
         print3("Restoration complete.");
         ScreenOffset = -1000;
@@ -614,15 +471,7 @@ void restore_player(FILE *fd)
     }
 
     fread((char *)&Verbosity, sizeof(char), 1, fd);
-
-#ifndef MSDOS
     fread((char *)&Time, sizeof(int), 1, fd);
-
-#else
-
-    fread((char *)&Time, sizeof(long), 1, fd);
-#endif
-
     fread((char *)&Tick, sizeof(int), 1, fd);
     fread((char *)&Searchnum, sizeof(int), 1, fd);
     fread((char *)&Phase, sizeof(int), 1, fd);
@@ -640,29 +489,12 @@ void restore_player(FILE *fd)
     fread((char *)&Mindstone, sizeof(int), 1, fd);
     fread((char *)&Area_Opponent, sizeof(int), 1, fd);
     fread((char *)&Imprisonment, sizeof(int), 1, fd);
-
-#ifndef MSDOS
     fread((char *)&Gymcredit, sizeof(int), 1, fd);
     fread((char *)&Balance, sizeof(int), 1, fd);
-
-#else
-
-    fread((char *)&Gymcredit, sizeof(long), 1, fd);
-    fread((char *)&Balance, sizeof(long), 1, fd);
-#endif
-
     fread((char *)&StarGemUse, sizeof(int), 1, fd);
     fread((char *)&HiMagicUse, sizeof(int), 1, fd);
     fread((char *)&HiMagic, sizeof(int), 1, fd);
-
-#ifndef MSDOS
     fread((char *)&FixedPoints, sizeof(int), 1, fd);
-
-#else
-
-    fread((char *)&FixedPoints, sizeof(long), 1, fd);
-#endif
-
     fread((char *)&LastCountryLocX, sizeof(int), 1, fd);
     fread((char *)&LastCountryLocY, sizeof(int), 1, fd);
     fread((char *)&LastTownLocX, sizeof(int), 1, fd);
@@ -816,28 +648,8 @@ void restore_level(FILE *fd)
     int i;
     int j;
 
-#ifndef MSDOS
     Level = (plv)malloc(sizeof(levtype));
     fread((char *)Level, sizeof(levtype), 1, fd);
-
-#else
-
-    plc *tmp = (plc *)malloc(MAXWIDTH * sizeof(plc));
-    Level = &TheLevel;
-
-    for(i = 0; i < MAXWIDTH; ++i) {
-        tmp[i] = Level->site[i];
-    }
-
-    fread((char *)Level, sizeof(levtype), 1, fd);
-
-    for(i = 0; i < MAXWIDTH; ++i) {
-        Level->site[i] = tmp[i];
-        fread((char *)Level->site[i], MAXLENGTH * sizeof(loctype), 1, fd);
-    }
-
-    free(tmp);
-#endif
 
     Level->next = NULL;
 

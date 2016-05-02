@@ -660,7 +660,6 @@ void l_brothel()
     }
 }
 
-#ifndef MSDOS
 /* If sign is true, always print message, otherwise do so only sometimes */
 void sign_print(int x, int y, int sign)
 {
@@ -848,8 +847,6 @@ void sign_print(int x, int y, int sign)
         break;
     }
 }
-
-#break
 
 void l_countryside()
 {

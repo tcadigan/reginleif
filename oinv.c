@@ -8,10 +8,6 @@
 
 #include "oglob.h"
 
-#ifdef MSDOS
-#include "curses.h"
-#endif
-
 /* Drops money, heh heh */
 void drop_money()
 {
@@ -39,14 +35,9 @@ void drop_money()
  */
 pob detach_money()
 {
-#ifndef MSDOS
     int c;
-
-#else
-    long c;
-#endif
-
     pob cash = NULL;
+
     c = get_money(Player.cash);
 
     if(c != ABORT) {
@@ -60,29 +51,9 @@ pob detach_money()
 }
 
 /* Gets a legal amount of money or ABORT */
-#ifndef MSDOS
 int get_money(int limit)
 {
     int c;
-
-    print1("How much? ");
-    c = parsenum();
-
-    if(c > limit) {
-        print3("Forget it, buddy.");
-
-        return ABORT;
-    }
-    else {
-        return c;
-    }
-}
-
-#else
-
-long get_money(long limit)
-{
-    long c;
 
     print1("How much? ");
     c = parsenum();
@@ -503,32 +474,6 @@ void dispose_lost_objects(int n, pob obj)
     }
 
     if(obj->number < 1) {
-#if 0
-        if(obj->objstr != obj->truename) {
-            freetrue = 1;
-        }
-        else {
-            freetrue = 0;
-        }
-
-        if((obj->objstr != obj->cursestr) && (obj->cursestr != obj->truename)) {
-            freecurse = 1;
-        }
-        else {
-            freecurse = 0;
-        }
-
-        free(obj->objstr);
-
-        if(freetru) {
-            free(obj->truename);
-        }
-
-        if(freecurse) {
-            free(obj->cursestr);
-        }
-#endif
-
         free((char *)obj);
     }
 }
@@ -704,7 +649,6 @@ int badobject(char slotchar)
     }
 }
 
-#ifndef MSDOS
 /* This takes the numerical index directly for the same effects as badobject */
 int baditem(int slotnum)
 {
@@ -718,7 +662,6 @@ int baditem(int slotnum)
         return 0;
     }
 }
-#endif
 
 /* Formerly add_item_to_pack */
 void gain_item(struct object *o)
@@ -897,7 +840,6 @@ void take_from_pack(int slot, int display)
     }
 }
 
-#ifndef MSDOS
 /* General interface to inventory */
 void item_inventory(int topline)
 {
@@ -910,7 +852,6 @@ void item_inventory(int topline)
         top_inventory_control();
     }
 }
-#endif
 
 /*
  * inventory_control assumes a few setup things have been done like
@@ -922,14 +863,7 @@ void inventory_control()
 {
     int slot = 0;
     int done = FALSE;
-
-#ifndef MSDOS
     char response;
-
-#else
-    int response;
-    int simple = 0;
-#endif
 
     clearmsg3();
 
@@ -1013,33 +947,11 @@ void inventory_control()
         slot = move_slot(slot, slot + 1, MAXITEMS);
 
         break;
-#ifdef MSDOS
-    case KEY_DOWN:
-        simple = 1;
-        slot = move_slot(slot, slot + 1, MAXITEMS);
-
-        break;
-#endif
     case 'k':
     case '<':
         slot = move_slot(slot, slot - 1, MAXITEMS);
 
         break;
-#ifdef MSDOS
-    case KEY_UP:
-        simple = 1;
-        slot = move_slot(slot, slot - 1, MAXITEMS);
-
-        break;
-    case KEY_HOME:
-        slot = move_slot(slot, 0, MAXITEMS);
-
-        break;
-    case KEY_LL:
-        slot = move_slot(slot, MAXITEMS - 1, MAXITEMS);
-
-        break;
-#endif
     case '?':
         inv_help();
         display_possessions();
@@ -1057,17 +969,7 @@ void inventory_control()
         break;
     }
 
-#ifndef MSDOS
     calc_melee();
-
-#else
-    if(!simple) {
-        calc_melee();
-    }
-    else {
-        simple = 0;
-    }
-#endif
 
     while(!done) {
         checkclear();
@@ -1150,33 +1052,11 @@ void inventory_control()
             slot = move_slot(slot, slot + 1, MAXITEMS);
 
             break;
-#ifdef MSDOS
-        case KEY_DOWN:
-            simple = 1;
-            slot = move_slot(slot, slot + 1, MAXITEMS);
-
-            break;
-#endif
         case 'k':
         case '<':
             slot = move_slot(slot, slot - 1, MAXITEMS);
 
             break;
-#ifdef MSDOS
-        case KEY_UP:
-            simple = 1;
-            slot = move_slot(slot, slot - 1, MAXITEMS);
-
-            break;
-        case KEY_HOME:
-            slot = move_slot(slot, 0, MAXITEMS);
-
-            break;
-        case KEY_LL:
-            slot = move_slot(slot, MAXITEMS - 1, MAXITEMS);
-
-            break;
-#endif
         case '?':
             inv_help();
             display_professions();
@@ -1194,16 +1074,7 @@ void inventory_control()
             break;
         }
 
-#ifndef MSDOS
         calc_melee();
-
-#else
-        if(!simple) {
-            calc_melee();
-        }
-        else {
-            simple = 0;
-        }
     }
 
     xredraw();

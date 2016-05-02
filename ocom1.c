@@ -72,19 +72,11 @@ void p_process()
             setgamestatus(SKIP_MONSTERS);
 
             break;
-#ifndef MSDOS
         case 16: /* ^p */
             bufferprint();
             setgamestatus(SKIP_MONSTERS);
 
             break;
-#else
-        case 15: /* ^o */
-            bufferprint();
-            setgamestatus(SKIP_MONSTERS);
-
-            break;
-#endif
         case 18: /* ^r */
             redraw();
             setgamestatus(SKIP_MONSTERS);
@@ -453,19 +445,11 @@ void p_country_process()
         no_op = TRUE;
 
         break;
-#ifndef MSDOS
     case 16: /* ^p */
         bufferprint();
         no_op = TRUE;
 
         break;
-#else
-    case 15: /* ^o */
-        bufferprint();
-        no_op = TRUE;
-
-        break;
-#endif
     case 18: /* ^r */
         redraw();
         no_op = TRUE;
@@ -554,12 +538,6 @@ void p_country_process()
         version();
 
         break;
-#ifdef MSDOS
-    case 'X':
-        check_memory();
-
-        break;
-#endif
     case '>':
         entersite(Country[Player.x][Player.y].base_terrain_type);
 
@@ -641,19 +619,11 @@ void p_country_process()
             no_op = TRUE;
 
             break;
-#ifndef MSDOS
         case 16: /* ^p */
             bufferprint();
             no_op = TRUE;
 
             break;
-#else
-        case 15: /* ^o */
-            bufferprint();
-            no_op = TRUE;
-
-            break;
-#endif
         case 18: /* ^r */
             redraw();
             no_op = TRUE;
@@ -742,12 +712,6 @@ void p_country_process()
             version();
 
             break;
-#ifdef MSDOS
-        case 'X':
-            check_memory();
-
-            break;
-#endif
         case '>':
             enter_site(Country[Player.x][Player.y].base_terrain_type);
 

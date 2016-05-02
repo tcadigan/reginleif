@@ -605,12 +605,8 @@ void p_death(char *fromstring)
     print3("You died!");
     morewait();
     display_death(fromstring);
-
-#ifdef MSDOS
-    kill_all_levels();
-#endif
-
     endgraf();
+
     exit(0);
 }
 
@@ -894,7 +890,6 @@ void describe_player()
 }
 
 /* Access to player experience...Share out experience among guild memberships */
-#ifndef MSDOS
 void gain_experience(int amount)
 {
     int i;
@@ -918,36 +913,6 @@ void gain_experience(int amount)
         }
     }
 }
-
-#else
-
-void gain_lexperience(long amount)
-{
-    int i;
-    int count = 0;
-    long share;
-
-    Player.xp += amount;
-
-    /* Actually, check to see if should gain level */
-    gain_level();
-
-    for(i = 0; i < NUMRANKS; ++i) {
-        if(Player.guildxp[i] > 0) {
-            ++count;
-        }
-    }
-
-    share = amount / max(count, 1);
-
-    for(i = 0; i < NUMRANKS; ++i) {
-        if(Player.guildxp[i] > 0) {
-            Player.guildxp[i] += share;
-        }
-    }
-}
-
-#endif
 
 /*
  * Try to hit a monster in an adjacent space. If there are none return

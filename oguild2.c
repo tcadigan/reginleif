@@ -519,17 +519,9 @@ void l_college()
 void l_sorcerors()
 {
     char action;
-
-#ifndef MSDOS
     int done = FALSE;
     int fee = 3000;
     int total;
-
-#else
-    int done = FALSE;
-    int fee = 3000;
-    long total;
-#endif
 
     print1("The Circle of Sorcerors.");
 

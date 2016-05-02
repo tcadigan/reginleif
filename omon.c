@@ -6,7 +6,7 @@
  * Various functions to do with monsters
  */
 
-#include "oglobh.h"
+#include "oglob.h"
 
 /* Consider one monster's action */
 void m_pulse(struct monster *m)
@@ -1673,17 +1673,12 @@ void strengthen_death(struct monster *m)
     pol ol = (pol)malloc(sizeof(oltype));
     pob scythe = (pob)malloc(sizeof(objtype));
 
-#ifdef MSDOS
-    unsigned tmp;
-#endif
-
     m->xpv += min(10000, m->xpv + 1000);
     m->hit += min(1000, m->hit + 10);
     m->dmg = min(10000, m->dmg * 2);
     m->ac += min(1000, m->ac + 10);
     m->speed = max(m->speed - 1, 1);
 
-#ifdef MSDOS
     /*
      * In order not to have to make the hp's into longs or unsigned, which would
      * involve lots of changes, I'll make it max out at 30000.
@@ -1696,10 +1691,6 @@ void strengthen_death(struct monster *m)
     else {
         m->hp = tmp;
     }
-    
-#else
-    m->hp = min(100000, 100 + (m->dmg * 10));
-#endif
 
     *scythe = Objects[WEAPONID + 39];
     ol->thing = scythe;

@@ -50,11 +50,7 @@ void initplayer()
         fread((char *)&i, sizeof(int), 1, fd);
 
         if(i != version) {
-#ifndef MSDOS
             print1("Out of date .omegarc! Make another!");
-#else
-            print1("Out of date omega.rc! Make another!");
-#endif
             morewait();
         }
         else {
@@ -89,7 +85,6 @@ FILE *omegarc_check()
 {
     FILE *fd;
 
-#ifndef MSDOS
     strcpy(Str3, ".omegarc");
     fd = fopen(Str3, "r");
 
@@ -104,24 +99,6 @@ FILE *omegarc_check()
     clearmsg();
 
     return fd;
-    
-#else
-
-    strcpy(Str3, "omega.rc");
-    fd = fopen(Str3, "r");
-
-    if(fd != NULL) {
-        print2("Use omega.rc in wd? [yn] ");
-
-        if(ynq2() != 'y') {
-            fd = NULL;
-        }
-    }
-
-    clearmsg();
-
-    return fd;
-#endif
 }
 
 void initstatus()
@@ -142,12 +119,7 @@ void initstatus()
     else {
         user_character_stats();
         user_intro();
-
-#ifndef MSDOS
         print1("Do you want to save this set-up to .omegarc in this wd? [yn] ");
-#else
-        print1("Do you want to save this set-up to omega.rc in this wd? [yn] ");
-#endif
 
         if(ynq() == 'y') {
             save_omearc();
@@ -159,7 +131,6 @@ void initstatus()
 
 void save_omegarc()
 {
-#ifndef MSDOS
     FILE *fd = fopen(".omegarc", "w");
     int i = VERSION;
 
@@ -175,39 +146,12 @@ void save_omegarc()
         fwrite((char *)&Verbosity, sizeof(char), 1, fd);
         fclose(fd);
     }
-
-#else
-    FILE *fd = fopen("omega.rc", "w");
-    int i = VERSION;
-
-    if(fd == NULL) {
-        print1("Sorry, couldn't save omega.rc for some reason.");
-    }
-    else {
-        fwrite((char *)&i, sizeof(int), 1, fd);
-        print1("First, set options.");
-        setoptions();
-        fwrite((char *)&Player, sizeof(Player), 1, fd);
-        fwrite((char *)&Searchnum, sizeof(int), 1, fd);
-        fwrite((char *)&Verbosity, sizeof(char), 1, fd);
-        fclose(fd);
-    }
-#endif
 }
 
-#ifndef MSDOS
 int calcmana()
 {
     return (Player.pow * (Player.level + 1));
 }
-
-#else
-
-long calcmana()
-{
-    return (Player.pow * (long)(Player.level + 1));
-}
-#endif
 
 /*
  * npcbehavior digits 1234

@@ -8,7 +8,6 @@
 
 #include "oglob.h"
 
-#ifndef MSDOS
 /* bv access functions for dungeon location stati */
 int loc_statusp(int x, int y, int stat)
 {
@@ -25,12 +24,9 @@ void lreset(int x, int y, int stat)
     Level->site[x][y].lstatus &= ~stat;
 }
 
-#endif
-
 /* Deallocate current dungeon */
 void free_dungeon()
 {
-#ifndef MSDOS
     plv tlv;
 
     while(Dungeon != NULL) {
@@ -38,14 +34,6 @@ void free_dungeon()
         Dungeon = Dungeon->next;
         free((char *)tlv);
     }
-
-#else
-    if(Dungeon != NULL) {
-        sprintf(Str2, "om%d*.lev", Dungeon->environment);
-        kill_levels(Str2);
-    }
-
-#endif
 }
 
 /* Erase the level without deallocating it */
@@ -87,7 +75,6 @@ void change_level(char fromlevel, char tolevel, char rewrite_level)
 {
     struct level *thislevel = NULL;
 
-#ifndef MSDOS
     /* Sanctuary effect dispelled */
     Player.sx = -1;
     Player.sy = -1;
@@ -101,23 +88,6 @@ void change_level(char fromlevel, char tolevel, char rewrite_level)
         Level->next = Dungeon;
         Dungeon = Level;
     }
-
-#else
-    /* Sanctuary effect dispelled */
-    Player.sx = -1;
-    Player.sy = -1;
-    thislevel = msdos_changelevel(Level, Current_Environment, tolevel);
-    deepest[Current_Environment] = max(deepest[Current_Environment], tolevel);
-
-    if(thislevel == NULL) {
-        thislevel = &TheLevel;
-        clear_level(thislevel);
-        Level = thislevel;
-        Level->next = Dungeon;
-        Dungeon = Level;
-    }
-
-#endif
 
     Level = thislevel;
 
@@ -195,7 +165,6 @@ void change_level(char fromlevel, char tolevel, char rewrite_level)
     roomcheck();
 }
 
-#ifndef MSDOS
 /*
  * Tries to find the leve of depth levelnum in dungeon; if can't find it returns
  * NULL
@@ -218,7 +187,6 @@ plv findlevel(struct level * dungeon, char levelnum)
         }
     }
 }
-#endif
 
 /* 
  * Keep going in one orthogonal direction or another until we hit our 

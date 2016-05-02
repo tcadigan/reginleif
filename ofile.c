@@ -7,11 +7,8 @@
  * curses functions
  */
 
-#include "curses.h"
-
-#ifndef MSDOS
+#include <curses.h>
 #include <sys/file.h>
-#endif
 
 #include "oglob.h"
 
@@ -248,12 +245,7 @@ void showscores()
     filescanstring(fd, Hiscorer);
     filescanstring(fd, Hidescrip);
 
-#ifndef MSDOS
     fscanf(fd, "%d\n%d\n%d\n", &Hiscore, &Hilevel, &Hibehavior);
-#else
-    fscanf(fd, "%ld\n%d\n%d\n", &Hiscore, &Hilevel, &Hibehavior);
-#endif
-
     filescanstring(fd, ChaosLord);
     fscanf(fd, "%d\n%d\n%d\n", &Chaoslordlevel, &Chaos, &ChaoslordBehavior);
     filescanstring(fd, Lawlord);
@@ -281,12 +273,7 @@ void showscores()
     fclose(fd);
     clear();
 
-#ifndef MSDOS
     printw("High Score: %d", Hiscore);
-#else
-    printw("High Score: %ld", Hiscore);
-#endif
-
     printw(", by %s (%s)", Hiscorer, levelname(Hilevel));
     printw("\n%s\n", Hidescrip);
     printw("\nLord of Chaos: %s (%s)", Chaoslord, levelname(Chaoslordlevel));
@@ -326,14 +313,8 @@ void showscores()
 /* Writes a new high score file */
 void checkhigh(char *descrip, int behavior)
 {
-#ifndef MSDOS
     int i;
     int points;
-#else
-    int i;
-    long points;
-#endif
-
     FILE *fd;
 
     if(FixedPoints > 0) {
@@ -354,26 +335,14 @@ void checkhigh(char *descrip, int behavior)
             morewait();
             fprintf(fd, "%s\n", Player.name);
             fprints(fd, "%s\n", descrip);
-
-#ifndef MSDOS
             fprintf(fd, "%d\n", points);
-#else
-            fprintf(fd, "%ld\n", points);
-#endif
-
             fprintf(fd, "%d\n", Player.level);
             fprintf(fd, "%d\n", behavior);
         }
         else {
             fprintf(fd, "%s\n", Hiscorer);
             fprintf(fd, "%s\n", Hidescrip);
-
-#ifndef MSDOS
             fprintf(fd, "%d\n", Hiscore);
-#else
-            fprintf(fd, "%ld\n", Hiscore);
-#endif
-
             fprintf(fd, "%d\n", Hilevel);
             fprintf(fd, "%d\n", Hibehavior);
         }
@@ -516,7 +485,6 @@ void extendlog(char *descrip, int lifestatus)
     }
 }
 
-#ifndef MSDOS
 /*
  * Reads a string from a file. If it is a line with more than 80 characters,
  * then remainder of line to '\n' is consumed.
@@ -540,7 +508,6 @@ void filescanstring(FILE *fd, char *fstr)
 
     fstr[i] = 0;
 }
-#endif
 
 /*
  * Check existence of omega data files.
@@ -636,13 +603,7 @@ int filecheck()
     }
 
     strcpy(Str1, OMEGALIB);
-
-#ifndef MSDOS
     strcat(Str1, "ovillage1.dat");
-#else
-    strcat(Str1, "ovillag1.dat");
-#endif
-
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
@@ -652,13 +613,7 @@ int filecheck()
     }
 
     strcpy(Str1, OMEGALIB);
-
-#ifndef MSDOS
     strcat(Str1, "ovillage2.dat");
-#else
-    strcat(Str1, "ovillag2.dat");
-#endif
-
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
@@ -669,12 +624,7 @@ int filecheck()
 
     strcpy(Str1, OMEGALIB);
 
-#ifndef MSDOS
     strcat(Str1, "ovillage3.dat");
-#else
-    strcat(Str1, "ovillag3.dat");
-#endif
-
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
@@ -684,13 +634,7 @@ int filecheck()
     }
 
     strcpy(Str1, OMEGALIB);
-
-#ifndef MSDOS
     strcat(Str1, "ovillage4.dat");
-#else
-    strcat(Str1, "ovillag4.dat");
-#endif
-
     result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {

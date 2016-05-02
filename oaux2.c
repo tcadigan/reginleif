@@ -572,7 +572,6 @@ void gain_levels()
 }
 
 /* Experience requirement */
-#ifndef MSDOS
 int expval(int plevel)
 {
     switch(plevel) {
@@ -627,65 +626,7 @@ int expval(int plevel)
     }
 }
 
-#else
-
-long expval(int plevel)
-{
-    switch(plevel) {
-    case 0:
-        return 0L;
-
-        break;
-    case 1:
-        return 20L;
-
-        break;
-    case 2:
-        return 50L;
-
-        break;
-    case 3:
-        return 200L;
-
-        break;
-    case 4:
-        return 500L;
-
-        break;
-    case 5:
-        return 1000L;
-
-        break;
-    case 6:
-        return 2000L;
-
-        break;
-    case 7:
-        return 3000L;
-
-        break;
-    case 8:
-        return 5000L;
-
-        break;
-    case 9:
-        return 7000L;
-
-        break;
-    case 10:
-        return 10000L;
-
-        break;
-    default:
-        return ((plevel - 9) * 10000L);
-
-        break;
-    }
-}
-#endif
-
 /* If an item is unidentified, it isn't worth much to those who would buy it */
-#ifndef MSDOS
 int item_value(pob item)
 {
     if(item->known == 0) {
@@ -709,34 +650,7 @@ int item_value(pob item)
     }
 }
 
-#else
-
-long item_value(pob item)
-{
-    if(item->known == 0) {
-        if(item->objchar == THING) {
-            return 1;
-        }
-        else {
-            return (true_item_value(item) / 10);
-        }
-    }
-    else if(item->known == 1) {
-        if(item->objchar == THING) {
-            return item->basevalue;
-        }
-        else {
-            return (item->basevalue / 2);
-        }
-    }
-    else {
-        return true_item_value(item);
-    }
-}
-#endif
-
 /* Figures value based on item base-value, charge, plus, and blessing */
-#ifndef MSDOS
 int true_item_value(pob item)
 {
     float value = item->basevalue;
@@ -761,35 +675,6 @@ int true_item_value(pob item)
         }
 
         return (int)value;
-    }
-}
-
-#else
-
-long true_item_value(pob item)
-{
-    double value = item->basevalue;
-
-    if(item->objchar == THING) {
-        return item->basevalue;
-    }
-    else {
-        if(item->objchar == STICK) {
-            value *= (1.0 + (item->charge / 20.0));
-        }
-
-        if(item->plus > -1.0) {
-            value *= (1.0 + (item->plus / 4.0));
-        }
-        else {
-            value *= (1.0 / abs(item->plus));
-        }
-
-        if(item->blessing > 0) {
-            value *= 2.0;
-        }
-
-        return (long)value;
     }
 }
 
@@ -1319,13 +1204,7 @@ void change_environment(char new_environment)
         LENGTH = 16;
         Player.y = 9;
         Player.x = 2;
-
-#ifndef MSDOS
         load_dlair(gamestatusp(KILLED_DRAGONLORD));
-#else
-        load_dlair(gamestatusp(KILLED_DRAGONLORD) != 0);
-#endif
-
         erase_level();
         ScreenOffset = 0;
         show_screen();
@@ -1336,13 +1215,7 @@ void change_environment(char new_environment)
         LENGTH = 16;
         Player.y = 9;
         Player.x = 2;
-
-#ifndef MSDOS
         load_speak(gamestatusp(KILLED_LAWBRINGER));
-#else
-        load_speak(gamestatusp(KILLED_LAWBRINGER) != 0);
-#endif
-
         erase_level();
         ScreenOffset = 0;
         show_screen();
@@ -1353,13 +1226,7 @@ void change_environment(char new_environment)
         LENGTH = 16;
         Player.y = 15;
         Player.x = 63;
-
-#ifndef MSDOS
         load_misle(gamestatusp(KILLED_EATER));
-#else
-        load_misle(gamestatusp(KILLED_EATER) != 0);
-#endif
-
         erase_level();
         ScreenOffset = 0;
         show_screen();
@@ -1390,18 +1257,9 @@ void change_environment(char new_environment)
             Player.y = 21;
         }
 
-#ifdef MSDOS
-        if(City == NULL) {
-            load_city();
-        }
-        else {
-            msdos_changelevel(Level, new_environment, 0);
-        }
-#else
         if(city == NULL) {
             load_city();
         }
-#endif
 
         Level = City;
         locprint("The City of Rampart.");
@@ -1464,7 +1322,6 @@ void change_environment(char new_environment)
             }
         }
 
-#ifndef MSDOS
         if(!emerging || (TempLevel == NULL)) {
             load_village(Villagenum);
         }
@@ -1474,18 +1331,6 @@ void change_environment(char new_environment)
         else {
             Level = TempLevel;
         }
-#else
-        if(!emerging || (TempLevel == NULL)) {
-            load_village(Villagenum);
-        }
-        else if(TempLevel->environment != E_VILLAGE) {
-            load_village(Villagenum);
-        }
-        else {
-            msdos_changelevel(Level, new_environment, 0);
-            LEvel = TempLevel;
-        }
-#endif
 
         switch(Villagenum) {
         case 1:

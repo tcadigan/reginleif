@@ -79,19 +79,11 @@ void load_dlair(int empty)
     TempLevel = Level;
 
     if(ok_to_free(TempLevel)) {
-#ifndef MSDOS
         free((char *)TempLevel);
-#endif
         TempLevel = NULL;
     }
 
-#ifndef MSDOS
     Level = (plv)malloc(sizeof(levtype));
-#else
-    msdos_changelevel(TempLevel, 0, -1);
-    Level = &TheLevel;
-#endif
-
     clear_level(level);
     Level->environment = E_DLAIR;
     strcpy(Str3, OMEGALIB);
@@ -239,19 +231,11 @@ void load_speak(int empty)
     TempLevel = Level;
 
     if(ok_to_free(TempLevel)) {
-#ifndef MSDOS
         free((char *)TempLevel);
-#endif
         TempLevel = NULL;
     }
 
-#ifndef MSDOS
     Level = (plv)malloc(sizeof(levtype));
-#else
-    msdos_changeLevel(TempLevel, 0, -1);
-    Level = &TheLevel;
-#endif
-
     clear_level(Level);
     Level->environment = E_STARPEAK;
     strcpy(Str3, OMEGALIB);
@@ -399,19 +383,11 @@ void load_isle(int empty)
     TempLevel = Level;
 
     if(ok_to_free(TempLevel)) {
-#ifndef MSDOS
         free((char *)TempLevel);
-#endif
         TempLevel = NULL;
     }
 
-#ifndef MSDOS
     Level = (plv)malloc(sizeof(levtype));
-#else
-    msdos_changelevel(TempLevel, 0, -1);
-    Level = &TheLevel;
-#endif
-
     clear_level(Level);
     Level->environment = E_MAGIC_ISLE;
     strcpy(Str3, OMEGALIB);
@@ -511,19 +487,11 @@ void load_temple(int deity)
     TempLevel = Level;
 
     if(ok_to_free(TempLevel)) {
-#ifndef MSDOS
         free((char *)TempLevel);
-#endif
         TempLevel = NULL;
     }
 
-#ifndef MSDOS
     Level = (plv)malloc(sizeof(levtype));
-#else
-    msdos_changelevel(TempLevel, 0, -1);
-    Level = &TheLevel;
-#endif
-
     clear_level(Level);
     Level->environment = E_TEMPLE;
     strcpy(Str2, OMEGALIB);

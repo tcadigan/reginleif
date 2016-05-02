@@ -18,7 +18,6 @@ void load_village(int villagenum)
 
     TempLevel = Level;
 
-#ifndef MSDOS
     if(ok_to_free(TempLevel)) {
         free((char *)TempLevel);
         TempLevel = NULL;
@@ -53,46 +52,6 @@ void load_village(int villagenum)
         break;
     case 6:
         strcat(Str3, "ovillage6.dat");
-
-        break;
-    }
-
-#else
-
-    if(ok_to_free(TempLevel)) {
-        TempLevel = NULL;
-    }
-
-    assign_village_function(0, 0, TRUE);
-    msdos_changelevel(TempLevel, 0, -1);
-    Level = &TheLevel;
-    clear_level(Level);
-    Level->environment = E_VILLAGE;
-    strcpy(Str3, OMEGALIB);
-
-    switch(villagenum) {
-    case 1:
-        strcat(Str3, "ovillag1.dat");
-
-        break;
-    case 2:
-        strcat(Str3, "ovillag2.dat");
-
-        break;
-    case 3:
-        strcat(Str3, "ovillag3.dat");
-
-        break;
-    case 4:
-        strcat(Str3, "ovillag4.dat");
-
-        break;
-    case 5:
-        strcat(Str3, "ovillag5.dat");
-
-        break;
-    case 6:
-        strcat(Str3, "ovillag6.dat");
 
         break;
     }

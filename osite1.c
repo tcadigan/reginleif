@@ -11,19 +11,9 @@
 /* The bank; can be broken into (!) */
 void l_bank()
 {
-#ifndef MSDOS
     int done = FALSE;
     int vald = FALSE;
     int amount;
-
-#else
-
-    int done = FALSE;
-    int valid = FALSE;
-    long amount;
-
-#endif
-
     char response;
     char passwd[64];
 

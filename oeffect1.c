@@ -65,12 +65,7 @@ void enchant(int delta)
                 print2("Maybe it wasn't such a good idea...");
             }
 
-#ifndef MSDOS
             Player.cash = (int)(mult * Player.cash);
-#else
-            Player.cash = (long)(mult * Player.cash);
-#endif
-
             morewait();
         }
         else {
@@ -722,25 +717,13 @@ void wish(int blessing)
         Player.status[POISONED] = 0;
     }
     else if(strcmp(wishstr, "Destruction") == 0) {
-#ifndef MSDOS
         annihilate(gamestatusp(CHEATED));
-#else
-        annihilate(gamestatusp(CHEATED) != 0);
-#endif
     }
     else if(strcmp(wishstr, "Acquisition") == 0) {
-#ifndef MSDOS
         acquire(gamestatusp(CHEATED));
-#else
-        acquire(gamestatusp(CHEATED) != 0);
-#endif
     }
     else if(strcmp(wishstr, "Summoning") == 0) {
-#ifndef MSDOS
         summon(gamestatusp(CHEATED), -1);
-#else
-        summon(gamestatusp(CHEATED) != 0, -1);
-#endif
     }
     else {
         print2("You feel stupid.");

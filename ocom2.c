@@ -7,10 +7,6 @@
  */
 #include "oglob.h"
 
-#ifdef MSDOS
-#include "curses.h"
-#endif
-
 void rest()
 {
     if(random_range(20) == 1) {
@@ -233,7 +229,6 @@ void pickup()
     }
 }
 
-#ifndef MSDOS
 /* Floor inventory */
 void floor_inv()
 {
@@ -256,7 +251,6 @@ void floor_inv()
     morewait();
     xredraw();
 }
-#endif
 
 void drop()
 {
@@ -669,12 +663,7 @@ void setoptions()
 {
     int slot = 1;
     int done = FALSE;
-
-#ifndef MSDOS
     char response;
-#else
-    int response;
-#endif
 
     clearmsg();
     menuclear();
@@ -689,33 +678,17 @@ void setoptions()
     switch(response) {
     case 'j':
     case '>':
-#ifdef MSDOS
-    case KEY_DOWN:
-#endif
         slot = move_slot(slot, slot + 1, NUMOPTIONS + 1);
 
         break;
     case 'k':
     case '<':
-#ifdef MSDOS
-    case KEY_UP:
-#endif
         /* Hack hack */
         if(slot > 1) {
             slot = move_slot(slot, slot - 1, NUMOPTIONS + 1);
         }
 
         break;
-#ifdef MSDOS
-    case KEY_HOME:
-        slot = move_slot(slot, 1, NUMOPTIONS + 1);
-
-        break;
-    case KEY_LL:
-        slot = move_slot(slot, NUMOPTIONS, NUMOPTIONS + 1);
-
-        break;
-#endif
     case 't':
         if(slot <= NUMTFOPTIONS) {
             optionset(pow2(slot - 1));
@@ -791,33 +764,17 @@ void setoptions()
         switch(response) {
         case 'j':
         case '>':
-#ifdef MSDOS
-        case KEY_DOWN:
-#endif
             slot = move_slot(slot, slot + 1, NUMOPTIONS + 1);
 
             break;
         case 'k':
         case '<':
-#ifdef MSDOS
-        case KEY_UP:
-#endif
             /* Hack hack */
             if(slot > 1) {
                 slot = move_slot(slot, slot - 1, NUMOPTIONS + 1);
             }
 
             break;
-#ifdef MSDOS
-        case KEY_HOME:
-            slot = move_slot(slot, 1, NUMOPTIONS + 1);
-
-            break;
-        case KEY_LL:
-            slot = move_slot(slot, NUMOPTIONS, NUMOPTIONS + 1);
-
-            break;
-#endif
         case 't':
             if(slot <= NUMTFOPTIONS) {
                 optionset(pow2(slot - 1));

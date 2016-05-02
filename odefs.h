@@ -23,9 +23,6 @@
  * string.h instead of strings.h (try man strings)
  */
 #define STRING
-#ifdef MSDOS
-#define SYSTEMV
-#endif
 
 /*
  * Implementor should uncomment the following if random and srandom
@@ -52,11 +49,7 @@
  * NOTE: The final '/' is necessary. This might usually be 
  *       "/usr/games/lib/omegalib/"
  */
-#ifdef MSDOS
-#define OMEAGLIB "omegalib\\"
-#else
 #define OMEGALIB "omegalib/"
-#endif
 
 /* Set WIZARD to implementor's username */
 #define WIZARD "max"
@@ -1273,14 +1266,7 @@ struct location {
 struct level {
     char depth;         /* Which level is this */
     struct level *next; /* Pointer to next level in dungeon */
-
-#ifndef MSDOS
     struct location site[MAXWIDTH][MAXLENGTH]; /* Dungeon data */
-#else
-    /* Over 64K worth of data! */
-    struct location *site[MAXWIDTH]; /* Dungeon data */
-#endif
-
     char generated;            /* Has the level been made (visited) yet? */
     char numrooms;             /* Number of rooms on level */
     char tunnelled;            /* Amount of tunnelling done on this level */
@@ -1308,83 +1294,9 @@ typedef objtype *pob;
 typedef struct objectlist oltype;
 typedef oltype *pol;
 
-/* Random function declarations from system libraries */
-#ifndef MSDOS
-char *malloc();
-char *calloc();
-char *getlogin();
-int free();
-long time();
-
-#else
-#include <stdlib.h>
-#include <time.h>
-
-#define getlogin() "pcuser"
-#define mnumprint(n) mlongprint((long)(n))
-#define menunumprint(n) menulongprint((long)(n))
-#define gain_experience(n) gain_lexperience((long)(n))
-
-#undef sign
-#undef max
-#undef min
-#undef abs
-
-/* These must be made to work for both longs and ints */
-#define sign(n) (((n) < 0) ? -1 : (((n) > 0) ? 1 : 0))
-#define max(a, b) (((a) > (b)) ? (a) : (b))
-#define min(a, b) (((a) < (b)) ? (a) : (b))
-#define abs(n) (((n) < 0) ? (-(n)) : (n))
-#endif
-
-#ifdef NORANDOM
-#ifndef MSDOS
-int rand();
-int srand();
-#endif
-
-#define RANDFUNCTION rand()
-#define SRANDFUNCTION srand((int)(time((long *)NULL) + Seed))
-#endif
-
-#ifndef NORANDOM
-long random();
-int srandom();
-
-#define RANDFUNCTION random()
-#define SRANDFUNCTION srandom((int)(time((long *)NULL) + Seed))
-#endif
-
 #define pow2(n) (1 << n)
-
-/*
- * SystemV for some reason uses string.h instead of strings.h
- * Also, random() and srandom() are unlikely to be found on SystemV...
- */
-#ifdef STRING
-#include <string.h>
-#endif
-
-#ifndef STRING
-#include <strings.h>
-#endif
-
-#ifndef MSDOS
-#include <stdio.h>
-
-#else
-
-/* Include stdio.h only if not already included (by curses.h) */
-#ifndef NULL
-#include <stdio.h>
-#endif
-#endif
 
 #ifndef TRUE
 #define TRUE 1
 #define FALSE 0
-#endif
-
-#ifdef MSDOS
-plv msdos_changelevel();
 #endif

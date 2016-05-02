@@ -19,14 +19,13 @@ int inbounds(int x, int y)
     }
 }
 
-/* RANDFUNCTION is defined in odefs.h */
 int random_range(int k)
 {
     if(k == 0) {
         return 0;
     }
     else {
-        return (int)(RANDFUNCTION % k);
+        return (rand() % k);
     }
 }
 
@@ -70,7 +69,6 @@ int hitp(int hit, int ac)
     }
 }
 
-#ifndef MSDOS
 /* This function doesn't seem to exist by itself... */
 int sign(int n)
 {
@@ -98,7 +96,7 @@ int max(int a, int b)
     }
 }
 
-/* Why load te math library... */
+/* Why load the math library... */
 int min(int a, int b)
 {
     if(a < b) {
@@ -108,8 +106,6 @@ int min(int a, int b)
         return b;
     }
 }
-
-#endif
 
 /* Number of moves from x1,y1 to x2,y2 */
 int distance(int x1, int y1, int x2, int y2)
@@ -237,8 +233,6 @@ int view_unblocked(int x, int y)
     }
 }
 
-#ifndef MSDOS
-
 /* 8 moves in Dirs */
 void initdirs()
 {
@@ -261,8 +255,6 @@ void initdirs()
     Dirs[1][7] = -1;
     Dirs[1][8] = 0;
 }
-
-#endif
 
 /*
  * Moves pvx along lineofsight from x1 to x2.
@@ -497,21 +489,10 @@ int view_los_p(int x1, int y1, int x2, int y2)
     }
 }
 
-#ifndef MSDOS
-
 int gamestatusp(long flag)
 {
     return (GameStatus & flag);
 }
-
-#else
-
-long gamestatusp(long flag)
-{
-    return (GameStatus & flag);
-}
-
-#endif
 
 void setgamestatus(long flag)
 {
@@ -522,8 +503,6 @@ void resetgamestatus(long flag)
 {
     GameStatus &= ~flag;
 }
-
-#ifndef MSDOS
 
 /* Returns the command direction from the index into Dirs */
 char inversedir(int dirindex)
@@ -556,9 +535,6 @@ char inversedir(int dirindex)
     }
 }
 
-#endif
-
-#ifndef MSDOS
 int calc_points()
 {
     int i;
@@ -634,85 +610,6 @@ int calc_points()
     return points;
 }
 
-#else
-
-long calc_points()
-{
-    int i;
-    long points;
-
-    if(gamestatusp(SPOKE_TO_DRUID)) {
-        points += 50;
-    }
-
-    if(gamestatusp(COMPLETED_CAVES)) {
-        points += 100;
-    }
-
-    if(gamestatusp(COMPLETED_SEWERS)) {
-        points += 200;
-    }
-
-    if(gamestatusp(COMPLETED_CASTLE)) {
-        points += 300;
-    }
-
-    if(gamestatusp(COMPLETED_ASTRAL)) {
-        points += 400;
-    }
-
-    if(gamestatusp(COMPLETED_VOLCANO)) {
-        points += 500;
-    }
-
-    if(gamestatusp(KILLED_DRAGONLORD)) {
-        points += 100;
-    }
-
-    if(gamestatusp(KILLED_EATER)) {
-        points += 100;
-    }
-
-    if(gamestatusp(KILLED_LAWBRINGER)) {
-        points += 100;
-    }
-
-    points += (Player.xp / 50);
-    points += (Player.cash / 500);
-
-    for(i = 0; i < MAXITEMS; ++i) {
-        if(Player.possessions[i] != NULL) {
-            points += (Player.possessions[i]->level * (Player.possessions[i]->known + 1));
-        }
-    }
-
-    for(i = 0; i < MAXPACK; ++i) {
-        if(Player.pack[i] != NULL) {
-            points += (Player.pack[i]->level & (Player.pack[i]->known + 1));
-        }
-    }
-
-    for(i = 0; i < NUMRANKS; ++i) {
-        if(Player.rank[i] == 5) {
-            points += 500;
-        }
-        else {
-            points += (20 * Player.rank[i]);
-        }
-    }
-
-    if(Player.hp < 1) {
-        points = points / 2;
-    }
-    else if(Player.rank[ADEPT]) {
-        points *= 10;
-    }
-
-    return points;
-}
-
-#ifndef MSDOS
-
 /* Returns the 24 hour clock hour */
 int hour()
 {
@@ -724,22 +621,6 @@ int showminute()
 {
     return (((Time % 60) / 10) * 10);
 }
-
-#else
-
-/* Returns the 24 hour clock hour */
-int hour()
-{
-    return ((int)(((Time + 720) / 60) % 24));
-}
-
-/* Returns 0, 10, 20, 30, 40, or 50 */
-int showminute()
-{
-    return ((int)((Time % 60) / 10) * 10);
-}
-
-#endif
 
 /* Returns the 12 hour clock hour */
 int showhour() 
@@ -1064,112 +945,4 @@ char *salloc(char *str)
     strcpy(s, str);
 
     return s;
-}
-
-#ifdef MSDOS
-
-/*
- * Moved here from another file
- *
- * Reads a string from a file. If it is a line with more than 80
- * characters, then remainder of line up to \n is consumed
- */
-void filescanstring(FILE *fd, char *fstr)
-{
-    int i = -1;
-    int byte = 'x';
-
-    while((i < 80) && (byte != '\n') && (byte != EOF)) {
-        ++i;
-        byte = fgetc(fd);
-        fstr[i] = byte;
-    }
-
-    if(byte != '\n') {
-        while((byte != '\n') && (byte != EOF)) {
-            byte = fgetc(fd);
-        }
-    }
-
-    fstr[i] = 0;
-}
-
-/*
- * Moved here from another file
- *
- * Returns a "level of difficult" based on current environment and
- * depth in dungeon. Is somewhat arbitrary. Value between 1 and
- * 10. May not actually represent real difficulty, but instead level
- * of items, monsters encountered.
- */
-int difficulty()
-{
-    int depth = 1;
-
-    if(Level != NULL) {
-        depth = Level->depth;
-    }
-
-    switch(Current_Environment) {
-    case E_COUNTRYSIDE:
-
-        return 7;
-    case E_CITY:
-
-        return 3;
-    case E_VILLAGE:
-
-        return 1;
-    case E_TACTICAL_MAP:
-
-        return 7;
-    case E_SEWERS:
-
-        return ((depth / 6) + 3);
-    case E_CASTLE:
-
-        return ((depth / 4) + 4);
-    case E_CAVES:
-
-        return ((depth / 3) + 1);
-    case E_VOLCANO:
-
-        return ((depth / 4) + 5);
-    case E_ASTRAL:
-
-        return 8;
-    case E_ARENA:
-
-        return 5;
-    case E_HOVEL:
-
-        return 3;
-    case E_MANSION:
-
-        return 7;
-    case E_HOUSE:
-
-        return 5;
-    case E_DLAIR:
-
-        return 9;
-    case E_ABYSS:
-
-        return 10;
-    case E_STARPEAK:
-
-        return 9;
-    case E_CIRCLE:
-
-        return 8;
-    case E_MAGIC_ISLE:
-
-        return 8;
-    case E_TEMPLE:
-
-        return 8;
-    default:
-
-        return 3;
-    }
 }

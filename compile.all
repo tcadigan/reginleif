@@ -21,8 +21,8 @@ To implement omega on your system:
 0) Feel free to change motd.txt in the omegalib directory to say whatever you
    like, keeping in mind the constraints of the Sedition Act.
 
-1) Make a director for omega's files. This will be the OMEGALIB path referred to
-   late. If you don't want to run omega setuid, you must allow the general
+1) Make a directory for omega's files. This will be the OMEGALIB path referred
+   to late. If you don't want to run omega setuid, you must allow the general
    public to write to certain files in this directory. There is no need to have
    a special directory, but it is neater that way.
 
@@ -46,7 +46,7 @@ To implement omega on your system:
    game can be found in README4.
 
 6) Laurence Brothers (the author - you still haven't read license.txt, have you?
-   :-) has graduate and gone into the Real World, and isn't maintaining omega
+   :-) has graduated and gone into the Real World, and isn't maintaining omega
    any more. I can answer question and deal with bug reports - email
    rendell@cs.monash.edu.au as long as it's before July 1994...after that,
    hopefully someone else will pick up the job. Tom O. Breton

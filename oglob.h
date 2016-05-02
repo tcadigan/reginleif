@@ -35,21 +35,13 @@ extern int LENGTH;
 extern int WIDTH;
 
 /* Game status bit vector */
-#ifndef MSDOS
 extern int GameStatus;
-#else
-extern long GameStatus;
-#endif
 
 /* How large is level window */
 extern int ScreenLength;
 
 /* The countryside */
 extern struct terrain Country[MAXWIDTH][MAXLENGTH];
-
-#ifdef MSDOS
-extern struct level TheLevel;
-#endif
 
 /* The city of Rampart */
 extern struct level *City;
@@ -166,11 +158,7 @@ extern int Verbosity;
 extern char Seed;
 
 /* Turn number */
-#ifndef MSDOS
 extern int Time;
-#else
-extern long Time;
-#endif
 
 /* Current second in minute; action coordinator */
 extern int Tick;
@@ -179,11 +167,7 @@ extern int Tick;
 extern char StringBuffer[10][80];
 
 /* Credit at Rampart gym */
-#ifndef MSDOS
 extern int Gymcredit;
-#else
-extern long Gymcredit;
-#endif
 
 /* Research allowance at college */
 extern int Spellsleft;
@@ -198,18 +182,10 @@ extern int HiMagicUse;
 extern HiMagic;
 
 /* Bank account */
-#ifndef MSDOS
 extern int Balance;
-#else
-extern long Balance;
-#endif
 
 /* Points are frozen after adepthood */
-#ifndef MSDOS
 extern int FixedPoints;
-#else
-extern long FixedPoints;
-#endif
 
 /* Previous position in countryside */
 extern int LastCountryLocX;
@@ -264,23 +240,11 @@ extern int Archmagelevel;
 extern int Primelevel;
 extern int Commandantlevel;
 extern int Dukelevel;
-
-#ifndef MSDOS
 extern int Championlevel;
 extern int Priestlevel[7];
 extern int Hiscore;
 extern int Hilevel;
 extern int Justiciarlevel;
-
-#else
-
-extern int Championlevel;
-extern int Priestlevel[7];
-extern int Hilevel;
-extern int Justiciarlevel;
-extern long Hiscore;
-#endif
-
 extern int Chaoslordlevel;
 extern int Lawlordlevel;
 extern int Chaos;

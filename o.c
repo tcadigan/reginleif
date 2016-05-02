@@ -14,77 +14,29 @@
 #include <alloc.h>
 #include <signal.h>
 
-#ifdef MSDOS
-#include <fcntl.h>
-#endif
-
 #include "oglob.h"
 
 /* One of each spell */
-#ifndef MSDOS
 struct spell Spells[NUMSPELLS + 1];
 
-#else
-
-struct spell Spells[NUMSPELLS + 1] = { 0 };
-#endif
-
 /* Locations of city sites: [0] - found, [1] - x, [2] - y */
-#ifndef MSDOS
 int CitySiteList[NUMCITYSITES][3];
-
-#else
-
-int CitySiteList[NUMCITYSITES][3] = { 0 };
-#endif
 
 /* Current defined in caps since it is now a variable, was a constant */
 int LENGTH = MAXLENGTH;
 int WIDTH = MAXWIDTH;
 
-#ifndef MSDOS
 /* Game Status bit vector */
 int GameStatus = 0L;
 
-#else
-
-/* Game Status bit vector */
-long GameStatus = 0L;
-#endif
-
-#ifndef MSDOS
 /* How large is level window */
 int ScreenLength;
 
-#else
-
-/* How large is level window */
-int ScreenLength = 0;
-#endif
-
-#ifndef MSDOS
 /* The player */
 struct player Player;
 
-#else
-
-/* The player */
-struct player Players = { 0 };
-#endif
-
-#ifndef MSDOS
 /* The countryside */
 struct terrain Country[MAXWIDTH][MAXLENGTH];
-
-#else
-
-/* The countryside */
-struct terrain Country[MAXWIDTH][MAXLENGTH] = { 0 };
-#endif
-
-#ifdef MSDOS
-struct level TheLevel;
-#endif
 
 /* The city of Rampart */
 struct level *City = NULL;
@@ -98,35 +50,14 @@ struct level *Level = NULL;
 /* Pointer to current Dungeon */
 struct level *Dungeon = NULL;
 
-#ifndef MSDOS
 /* Current Village number */
 int Villagenum;
 
-#else
-
-/* Current Village number */
-int Villagenum = 0;
-#endif
-
-#ifndef MSDOS
 /* Offset of displayed screen to level */
 int ScreenOffset;
 
-#else
-
-/* Offset of displayed screen to level */
-int ScreenOffset = 0;
-#endif
-
-#ifndef MSDOS
 /* Deepest level allowed in dungeon */
 int MaxDungeonLevels;
-
-#else
-
-/* Deepest level allowed in dungeon */
-int MaxDungeonLevels = 0;
-#endif
 
 /* What is Dungeon now */
 int Current_Dungeon = -1;
@@ -137,15 +68,8 @@ int Current_Environment = E_CITY;
 /* Which environment were we in */
 int Laste_Environment = E_COUNTRYSIDE;
 
-#ifndef MSDOS
 /* 9 x,y directions */
 int Dirs[2][9];
-
-#else
-
-/* 9 x,y directions */
-int Dirs[2][9] = { 1, 1, -1, -1, 1, -1, 0, 0, 0, 1, -1, 1, -1, 0, 0, 1, -1, 0 };
-#endif
 
 /* Last player command */
 char Cmd = 's';
@@ -159,15 +83,8 @@ struct monster *Arena_Monster = NULL;
 /* Case label of opponent in l_arena() */
 int Arena_Opponent = 0;
 
-#ifndef MSDOS
 /* Did player win in arena? */
 int Arena_Victory;
-
-#else
-
-/* Did player win in arena? */
-int Arena_Victory = 0;
-#endif
 
 /* Amount of time spent in jail */
 int Imprisonment = 0;
@@ -178,7 +95,6 @@ int Precipitation = 0;
 /* Effect of the moon on character */
 int Lunarity = 0;
 
-#ifndef MSDOS
 /* Phase of the moon */
 int Phase;
 
@@ -187,18 +103,6 @@ int Date;
 
 /* Pawn Shop item generation date */
 int Pawndate;
-
-#else
-
-/* Phase of the moon */
-int Phase = 0;
-
-/* Starting date */
-int Date;
-
-/* Pawn Shop item generation date */
-int Pawndate = 0;
-#endif
 
 pob Pawnitmes[PAWNITEMS] = {
     NULL,
@@ -256,25 +160,11 @@ int Searchnum = 1;
 /* Verbosity level */
 int Verbosity = VERBOSE;
 
-#ifndef MSDOS
 /* Random seed */
 char Seed;
 
-#else
-
-/* Random seed */
-char Seed;
-#endif
-
-#ifndef MSDOS
 /* Turn number */
 int Time = 0;
-
-#else
-
-/* Turn number */
-long Time = 0;
-#endif
 
 /* 10 a turn; action coordinator */
 int Tick = 0;
@@ -293,15 +183,8 @@ char Stringbuffer[10][80] = {
     "First String"
 };
 
-#ifndef MSDOS
 /* Credit at Rampart gym */
 int Gymcredit = 0;
-
-#else
-
-/* Credit at Rampart gym */
-long Gymcredit = 0;
-#endif
 
 /* Research allowance at college */
 int Spellsleft = 0;
@@ -315,25 +198,11 @@ int HiMagicUse = 0;
 /* Current level for l_throne() */
 int HiMagic = 0;
 
-#ifndef MSDOS
 /* Bank account */
 int Balance = 0;
 
-#else
-
-/* Banke account */
-long Balance = 0;
-#endif
-
-#ifndef MSDOS
 /* Points are frozen after adepthood */
 int FixedPoints = 0;
-
-#else
-
-/* Points are frozen after adepthood */
-long FixedPoints = 0;
-#endif
 
 /* Previous position in village or city */
 int LastTownLocX = 0;
@@ -347,36 +216,19 @@ int LastCountryLocX = 0;
 /* Previous position in countryside */
 int LastCountryLocY = 0;
 
-#ifndef MSDOS
 /* Autoteller password */
 char Password[64];
 
-#else
-
-/* Autoteller password */
-char Password[64] = { 0 };
-#endif
-
 /* Some string space, random use */
-#ifndef MSDOS
 char Str1[100];
 char Str2[100];
 char Str3[100];
 char Str4[100];
 
-#else
-
-char Str1[100] = { 0 };
-char Str2[100] = { 0 };
-char Str3[100] = { 0 };
-char Str4[100] = { 0 };
-#endif
-
 /* Items in condo */
 pol Condoitems = NULL;
 
 /* High score names, levels, behavior */
-#ifndef MSDOS
 int Shadowlordbehavior;
 int Archmagebehavior;
 int Primebehavior;
@@ -406,67 +258,16 @@ int Primelevel;
 int Commandantlevel;
 int Dukelevel;
 
-#else
-
-int Shadowlordbehavior = 0;
-int Archmagebehavior = 0;
-int Primebehavior = 0;
-int Commandantbehavior = 0;
-int Championbehavior = 0;
-int Priestbehavior[7] = { 0 };
-int Hibehavior = 0;
-int Dukebehavior = 0;
-int Chaoslordbehavior = 0;
-int Lawlordbehavior = 0;
-int Justiciarbehavior = 0;
-char Shadowlord[80] = { 0 };
-char Archmage[80] = { 0 };
-char Prime[80] = { 0 };
-char Commadant[80] = { 0 };
-char Duke[80] = { 0 };
-char Champion[80] = { 0 };
-char Priest[7][80] = { 0 };
-char Hiscorer[80] = { 0 };
-char Hidescrip[80] = { 0 };
-char Chaoslord[80] = { 0 };
-char Lawlord[80] = { 0 };
-char Justiciar[80] = { 0 };
-int Shadowlordlevel = 0;
-int Archmagelevel = 0;
-int Primelevel = 0;
-int Commandantlevel = 0;
-int Dukelevel = 0;
-#endif
-
-#ifndef MSDOS
 int Championlevel;
 int Priestlevel[7];
 int Hiscore;
 int Hilevel;
 int Justiciarlevel;
 
-#else
-
-int Championlevel = 0;
-int Priestlevel[7] = { 0 };
-int Hilevel = 0;
-int Justiciarlevel = 0;
-long Highscore = 0L;
-#endif
-
-#ifndef MSDOS
 int Chaoslordlevel;
 int Lawlordlevel;
 int Chaos;
 int Law;
-
-#else
-
-int Chaoslordlevel = 0;
-int Lawlordlevel = 0;
-int Chaos = 0;
-int Law = 0;
-#endif
 
 /* New globals which used to be statics */
 int twiddle = FALSE;
@@ -484,10 +285,9 @@ int boot_ids[30];
 
 int deepest[E_MAX + 1];
 
-/* This may be implementation dependent. SRANDFUNCTION is defined in odefs.h */
 void initrand()
 {
-    SRANDFUNCTION;
+    srand(time(NULL) + Seed);
 }
 
 int game_restore(int argc, char *argv[])
@@ -523,7 +323,6 @@ int main(int argc, char *argv[])
     /* Always catch ^c and hang-up signals */
     // signal(SIGINT, quit);
 
-#ifndef MSDOS
     signal(SIGHUP, signalsave);
 
     if(CATCH_SIGNALS) {
@@ -537,7 +336,6 @@ int main(int argc, char *argv[])
         signal(SIGSEGV, signalexit);
         signal(SIGSYS, signalexit);
     }
-#endif
 
     /* If filecheck is 0, some necessary data files are missing */
     if(filecheck() == 0) {
@@ -546,15 +344,10 @@ int main(int argc, char *argv[])
 
     /* All kinds of initialization */
     initgraf();
-
-#ifndef MSDOS
     initdirs();
-#endif
-
     initrand();
     initspells();
 
-#ifndef MSDOS
     strcpy(Stringbuffer[0], "First String");
     strcpy(Stringbuffer[1], "First String");
     strcpy(Stringbuffer[2], "First String");
@@ -565,11 +358,6 @@ int main(int argc, char *argv[])
     strcpy(Stringbuffer[7], "First String");
     strcpy(Stringbuffer[8], "First String");
     strcpy(Stringbuffer[9], "First String");
-#endif
-
-#ifdef MSDOS
-    msdos_init();
-#endif
 
     /* game_restore() attempts to restore game if there is an argument */
     continuing = game_restore(argc, argv);
@@ -617,7 +405,6 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-#ifndef MSDOS
 int signalexit()
 {
     mprint("Yikes!");

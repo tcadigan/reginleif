@@ -7,16 +7,11 @@
  * stuff also some in ofile.c
  */
 
+#include <curses.h>
 #include <sys/types.h>
 #include <sys/timeb.h>
 
-#include "curses.h"
-
 #include "oglob.h"
-
-#ifndef MSDOS
-char *sprintf();
-#endif
 
 #ifdef EXCESSIVE_REDRAW
 #define wclear werase
@@ -134,7 +129,6 @@ char mgetc()
 }
 
 /* Case insensitive mgetc -- sends uppercase to lowercase */
-#ifndef MSDOS
 char mcigetc()
 {
     char c = wgetch(Msgw);
@@ -146,24 +140,6 @@ char mcigetc()
         return c;
     }
 }
-
-#else
-
-int mcigetc()
-{
-    int c;
-
-    keypad(Msgw, TRUE);
-    c = wgetch(Msgw);
-
-    if((c >= 'A') && (c <= 'Z')) {
-        return (c + ('a' - 'A'));
-    }
-    else {
-        return c;
-    }
-}
-#endif
 
 char menugetc()
 {
@@ -857,7 +833,6 @@ void dataprint()
 {
     wclear(Dataw);
 
-#ifndef MSDOS
     wprintw(Dataw,
             "HP:%d/%d MANA:%d/%d AU:%d LEVEL:%d/%d CARRY:%d/%d \n",
             Player.hp,
@@ -869,21 +844,6 @@ void dataprint()
             Player.xp,
             Player.itemweight,
             Player.maxweight);
-
-#else
-
-    wprintw(Dataw,
-            "HP:%d/%d MANA:%ld/%ld AU:%ld LEVEL:%d/%d CARRY:%d/%d \n",
-            Player.hp,
-            Player.maxhp,
-            Player.mana,
-            Player.maxmana,
-            Player.cash,
-            Player.level,
-            Player.xp,
-            Player.itemweight,
-            Player.maxweight);
-#endif
 
     wprintw(Dataw,
             "STR:%d/%d CON:%d/%d DEX:%d/%d AGI:%d/%d INT:%d/%d POW:%d/%d   ",
@@ -1173,20 +1133,12 @@ int getnumber(int range)
 {
     int done = FALSE;
     int value = 1;
-
-#ifndef MSDOS
     char atom;
-
-#else
-
-    int atom;
-#endif
 
     if(range == 1) {
         return 1;
     }
     else {
-#ifndef MSDOS
         while(!done) {
             clearmsg1();
             wprintw(Msg1w, "How many? Change with < or >, ESCAPE to select:");
@@ -1206,57 +1158,13 @@ int getnumber(int range)
             else if(atom == ESCAPE) {
                 done = TRUE;
             }
-        }
-        
-#else
-        
-        while(!done) {
-            clearmsg1();
-            wprintw(Msg1w, "How many? Change with < or >, ESCAPE to select:");
-            mnumprint(value);
-            
-            stome = mcigetc();
-            
-            switch(atom) {
-            case '>':
-            case 'k':
-            case KEY_UP:
-                if(value < range) {
-                    ++value;
-                }
-
-                break;
-            case '<':
-            case 'j':
-            case KEY_DOWN:
-                if(value > 1) {
-                    --value;
-                }
-
-                break;
-            case KEY_HOME:
-                value = 1;
-
-                break;
-            case KEY_LL:
-                value = range;
-
-                break;
-            case ESCAPE:
-                done = TRUE;
-
-                break;
-            }
-        }
-#endif
-        
+        }        
     }
     
     return value;
 }
 
 /* Reads a positive number up to 999999 */
-#ifndef MSDOS
 int parsenum()
 {
     int number[8];
@@ -1305,57 +1213,6 @@ int parsenum()
     }
 }
 
-#else
-
-long parsenum()
-{
-    int number[8];
-    int place = -1;
-    int i;
-    int x;
-    int y;
-    int mult = 1;
-    long num = 0;
-    char byte = ' ';
-
-    while((byte != ESCAPE) && (byte != '\n')) {
-        byte = mgetc();
-
-        if((byte == BACKSPACE) || (byte == DELETE)) {
-            if(place > -1) {
-                number[place] = 0;
-                --place;
-                getyx(Msgw, y, x);
-                wmove(Msgw, y, x - 1);
-                waddch(Msgw, ' ');
-                wmove(Msgw, y, x - 1);
-                wrefresh(Msgw);
-            }
-        }
-        else if((byte <= '9') && (byte >= '0') && (place < 7)) {
-            ++place;
-            number[place] = byte;
-            waddch(Msgw, byte);
-            wrefresh(Msgw);
-        }
-    }
-
-    waddch(Msgw, ' ');
-
-    if(byte == ESCAPE) {
-        return ABORT;
-    }
-    else {
-        for(i = place; i >= 0; --i) {
-            num += (mult * (number[i] - '0'));
-            mult *= 10;
-        }
-
-        return num;
-    }
-}
-#endif
-
 void maddch(c)
 {
     waddch(Msgw, c);
@@ -1368,15 +1225,7 @@ void display_death(char *source)
     printw("\n\n\n\n");
     printw("Reuiescat In Pace, ");
     printw(Player.name);
-
-#ifndef MSDOS
     printw(" (%d points)", calc_points());
-
-#else
-
-    printw(" (%ld points)", calc_points());
-#endif
-
     strcpy(Str4, "Killed by ");
     strcat(Str4, source);
     printw("\n");
@@ -1396,7 +1245,6 @@ void display_win()
     printw("\n\n\n\n");
     printw(Player.name);
 
-#ifndef MSDOS
     if(Player.status[ADEPT]) {
         printw(" is a total master of omega with %d points!", FixedPoints);
         strcpy(Str4, "A total master of omega");
@@ -1405,18 +1253,6 @@ void display_win()
         strcpy(Str4, "retired winner");
         printw(" triumphed in omega with %d points!", calc_points());
     }
-    
-#else
-
-    if(Player.status[ADEPT]) {
-        printw(" is a total master of omega with %ld points!", FixedPoints);
-        strcpy(Str4, "A total master of omega");
-    }
-    else {
-        strcpy(Str4, "retired winner");
-        printw(" triumphed in omega with %ld points!", calc_points());
-    }
-#endif
 
     printw("\n\n\n\n\nHit any key to continue.");
     refresh();
@@ -1438,15 +1274,7 @@ void display_quit()
     printw("\n\n\n\n");
     printw(Player.name);
     strcpy(Str4, "A quitter.");
-
-#ifndef MSDOS
     printw(" wimped out with %d points!", calc_points());
-
-#else
-
-    printw(" wimped out with %ld points!", calc_points());
-#endif
-
     printw("\n\n\n\n\nHit any key to continue.");
     refresh();
     wgetch(stdscr);
@@ -1461,15 +1289,7 @@ void display_bigwin()
     printw("\n\n\n\n");
     printw(Player.name);
     strcpy(Str4, "retired, an Adept of Omega.");
-
-#ifndef MSDOS
     printw(" retired, an Adept of Omega with %d points!", FixedPoints);
-
-#else
-
-    printw(" retired, an Adept of Omega with %ld points!", FixedPoints);
-#endif
-
     printw("\n\n\n\n\nHit any key to continue.");
     refresh();
     wgetch(stdscr);
@@ -1478,7 +1298,6 @@ void display_bigwin()
     extendlog(Str4, BIGWIN);
 }
 
-#ifndef MSDOS
 void mnumprint(int n)
 {
     char numstr[20];
@@ -1488,19 +1307,6 @@ void mnumprint(int n)
     wrefresh(Msgw);
 }
 
-#else
-
-void mlongprint(long n)
-{
-    char numstr[20];
-    sprintf(numstr, "%ld", n);
-    buffercycle(numstr);
-    wprintw(Msgw, "%ld", n);
-    wrefresh(Msgw);
-}
-#endif
-
-#ifndef MSDOS
 void menunumprint(int n)
 {
     int x;
@@ -1516,25 +1322,6 @@ void menunumprint(int n)
     wprintw(Menuw, "%d", n);
     wrefresh(Menuw);
 }
-
-#else
-
-void menulongprint(long n)
-{
-    int x;
-    int y;
-
-    getyx(Menuw, y, x);
-
-    if(y >= (ScreenLength - 2)) {
-        morewait();
-        wclear(Menuw);
-    }
-
-    wprintw(Menuw, "%ld", n);
-    wrefresh(Menuw);
-}
-#endif
 
 void dobackspace()
 {
@@ -1790,10 +1577,7 @@ void display_possessions()
     }
 
     move_slot(1, 0, MAXITEMS);
-
-#ifndef MSDOS
     wrefresh(Menuw);
-#endif
 }
 
 void display_inventory_slot(int slotnum, int topline)
@@ -2085,7 +1869,6 @@ void buffercycle(char *s)
     strcpy(Stringbuffer[0], s);
 }
 
-#ifndef MSDOS
 void bufferprint()
 {
     int i = 0;
@@ -2116,61 +1899,3 @@ void bufferprint()
     clearmsg();
     showcursor(Player.x, Player.y);
 }
-
-#else
-
-void bufferprint()
-{
-    int i = 0;
-
-    clearmsg();
-    wprintw(Msg1w, "^o for last message, anything else to quit.");
-    wrefresh(Msg1w);
-    wclear(MSg2w);
-    wprintw(Msg2w, Stringbuffer[i]);
-    wrefresh(Msg2w);
-    ++i;
-
-    if(i > 9) {
-        i = 0;
-    }
-
-    while(mgetc() == 15) {
-        wclear(Msg2w);
-        wprintw(Msg2w, Stringbuffer[i]);
-        wrefresh(Msg2w);
-        ++i;
-
-        if(i > 9) {
-            i = 0;
-        }
-    }
-
-    clearmsg();
-    showcursor(Player.x, Player.y);
-}
-
-#endif
-
-#ifdef MSDOS
-/*
- * Moved here from another file
- *
- * bv access functions for dungeon location stati
- */
-int loc_statusp(int x, int y, int stat)
-{
-    return (Level->site[x][y].lstatus & stat);
-}
-
-void lset(int x, int y, int stat)
-{
-    Level->site[x][y].lstatus |= stat;
-}
-
-void lreset(int x, int y, int stat)
-{
-    Level->site[x][y].lstatus &= ~stat;
-}
-
-#endif

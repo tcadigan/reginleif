@@ -6,9 +6,9 @@ Original source: http://www.alcyone.com/binaries/omega/omega-0.75-src.tar.gz
 
 Goals:
 
-1) Re-type all source code [WIP]
+1) Re-type all source code [Done]
 
-2) Get it to compile [TBD]
+2) Get it to compile [WIP]
 
 3) Likely above won't work right, reimplement so it does [TBD]
 
