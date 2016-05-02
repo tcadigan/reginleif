@@ -7,6 +7,8 @@
  * stuff also some in ofile.c
  */
 
+#include "oscr.h"
+
 #include <curses.h>
 #include <sys/types.h>
 #include <sys/timeb.h>
@@ -269,7 +271,7 @@ void clearmsg()
     wrefresh(Msg3w);
 }
 
-void clearmsg()
+void clearmsg3()
 {
     wclear(Msg3w);
     wrefresh(Msg3w);

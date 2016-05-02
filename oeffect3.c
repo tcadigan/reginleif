@@ -4,6 +4,8 @@
  * oeffect3.c
  */
 
+#include "oeffect3.h"
+
 #include "oglob.h"
 
 /* If known id, then summon that monster; else (if < 0) get one. */

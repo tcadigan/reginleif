@@ -6,6 +6,8 @@
  * Functions having to do with player item inventory
  */
 
+#include "oinv.h"
+
 #include "oglob.h"
 
 /* Drops money, heh heh */

@@ -6,6 +6,8 @@
  * Various functions to do with monsters
  */
 
+#include "omon.h"
+
 #include "oglob.h"
 
 /* Consider one monster's action */

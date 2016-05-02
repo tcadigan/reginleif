@@ -6,6 +6,9 @@
  * This file is the header file for all omega modules
  */
 
+#ifndef ODEFS_H_
+#define ODEFS_H_
+
 /* 
  * Omega will NOT function unless the implementor sets the appropriate
  * definitions in the following section.
@@ -77,7 +80,7 @@
 #define SMALLSCREENLENGTH 16
 
 /* Number of slots in inventory. Cannot be changed without work */
-#define MAXITEMS
+#define MAXITEMS 16
 
 /* Number of slots in pack. Should be <= 26. */
 #define MAXPACK 26
@@ -112,7 +115,7 @@
 #define COMPLETED_VOLCANO 32L
 #define KILLED_DRAGONLORD 64L
 #define KILLED_EATER 128L
-#define KILLED_LAWGRINGER 256L
+#define KILLED_LAWBRINGER 256L
 #define COMPLETED_CHALLENGE 512L
 #define SOLD_CONDO 1024L
 #define FAST_MOVE 2048L
@@ -1133,7 +1136,7 @@ struct monster {
     int hp;
     int hit;
     int ac;
-    int dam;
+    int dmg;
     int sense;
     int wakeup;
     int level;
@@ -1299,4 +1302,6 @@ typedef oltype *pol;
 #ifndef TRUE
 #define TRUE 1
 #define FALSE 0
+#endif
+
 #endif

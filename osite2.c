@@ -6,6 +6,8 @@
  * Second half od site functions and aux functions for them
  */
 
+#include "osite2.h"
+
 #include "oglob.h"
 
 void l_condo()

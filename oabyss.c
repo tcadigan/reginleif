@@ -6,7 +6,13 @@
  * Some functions to make the abyss level and run the final challenge
  */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "ogen1.h"
 #include "oglob.h"
+#include "outil.h"
 
 /* Loads the abyss level into Level */
 void load_abyss()
@@ -30,7 +36,7 @@ void load_abyss()
     fd = fopen(Str3, "r");
 
     for(j = 0; j < LENGTH; ++j) {
-        for(i = 0, i < WIDTH; ++i) {
+        for(i = 0; i < WIDTH; ++i) {
             site = getc(fd);
 
             switch(site) {

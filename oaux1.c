@@ -6,7 +6,25 @@
  * Auxiliary functions for those in ocom.c, also see oaux2.c and oaux3.c
  */
 
+#include "oaux1.h"
+
+#include <string.h>
+#include <stdlib.h>
+
+#include "oaux2.h"
+#include "oaux3.h"
+#include "oeffect1.h"
+#include "oeffect3.h"
+#include "oetc.h"
+#include "ogen1.h"
 #include "oglob.h"
+#include "oinv.h"
+#include "olev.h"
+#include "ommove.h"
+#include "omon.h"
+#include "oscr.h"
+#include "osite2.h"
+#include "outil.h"
 
 /* Check to see if too much tunnelling has been done in this level */
 void tunnelcheck()
@@ -18,7 +36,7 @@ void tunnelcheck()
     }
 
     if((Level->tunnelled) > (LENGTH / 2)) {
-        mprintf("You hear groaning and creaking noises.");
+        mprint("You hear groaning and creaking noises.");
     }
 
     if((Level->tunnelled) > ((3 * LENGTH) / 4)) {
@@ -173,7 +191,7 @@ int p_moveable(int x, int y)
 
         return TRUE;
     }
-    else if(loc_status(x, y, SECRET)) {
+    else if(loc_statusp(x, y, SECRET)) {
         if(!gamestatusp(FAST_MOVE)) {
             print3("Ouch!");
         }
@@ -184,12 +202,9 @@ int p_moveable(int x, int y)
         if(!gamestatusp(FAST_MOVE)) {
             fight_monster(Level->site[x][y].creature);
             resetgamestatus(SKIP_MONSTERS);
+        }
 
-            return FALSE;
-        }
-        else {
-            return FALSE;
-        }
+        return FALSE;
     }
     else if((Level->site[x][y].locchar == WALL)
             || (Level->site[x][y].locchar == STATUE)
@@ -275,6 +290,8 @@ int p_country_moveable(int x, int y)
 /* Search one particular spot */
 void searchat(int x, int y)
 {
+    int i;
+    
     if(inbounds(x, y) && (random_range(3) || Player.status[ALERT])) {
         if(loc_statusp(x, y, SECRET)) {
             lreset(x, y, SECRET);
@@ -342,7 +359,7 @@ void calc_melee()
             Player.speed += 2;
 
             break;
-        case 1:
+        case 3:
             Player.speed += 1;
 
             break;
@@ -422,7 +439,7 @@ void fight_monster(struct monster *m)
         reallyfight = FALSE;
     }
     else if(player_on_sanctuary()) {
-        plrint3("You restrain yourself from desecrating this holy place.");
+        print3("You restrain yourself from desecrating this holy place.");
         reallyfight = FALSE;
     }
     else if(Player.status[SHADOWFORM]) {
@@ -472,7 +489,7 @@ void damage_item(pob o)
     if(o->id == (ARTIFACTID + 21)) {
         print1("The Star Gem shatters into a million glistening shards...");
 
-        if(Current_Environment == E_STARSPEAK) {
+        if(Current_Environment == E_STARPEAK) {
             if(!gamestatusp(KILLED_LAWBRINGER)) {
                 print2("You hear an agonizing scream of anguish and despair.");
             }
@@ -542,12 +559,12 @@ void damage_item(pob o)
                 print1(Str1);
             }
             else if((o->blessing < -1) && (o->level >= random_range(10))) {
-                strpcy(Str1, "You hear an evil giggle from your ");
+                strcpy(Str1, "You hear an evil giggle from your ");
                 strcat(Str1, itemid(o));
                 print1(Str1);
             }
             else if(o->plus > 0) {
-                strpcy(Str1, "Your ");
+                strcpy(Str1, "Your ");
                 strcat(Str1, itemid(o));
                 strcat(Str1, " glows and then fades.");
                 print1(Str1);
@@ -581,7 +598,7 @@ void p_damage(int dmg, int dtype, char *fromstring)
         }
 
         if(dtype == NORMAL_DAMAGE) {
-            player.hp -= max(1, (dmg - Player.absorption));
+            Player.hp -= max(1, (dmg - Player.absorption));
         }
         else {
             Player.hp -= dmg;
@@ -681,130 +698,56 @@ void setspot(int *x, int *y)
 /* Get a direction: Return index into Dirs array corresponding to direction */
 int getdir()
 {
-    int ok = TRUE;
-
-    mprint("Select direction [hjklyubn, ESCAPE to quit]: ");
-
-    switch(mgetc()) {
-    case '4':
-    case 'h':
-    case 'H':
-        return 5;
-
-        break;
-    case '2':
-    case 'j':
-    case 'J':
-        return 6;
-
-        break;
-    case '8':
-    case 'k':
-    case 'K':
-        return 7;
-
-        break;
-    case '6':
-    case 'l':
-    case 'L':
-        return 4;
-
-        break;
-    case '7':
-    case 'y':
-    case 'Y':
-        return 3;
-
-        break;
-    case '9':
-    case 'u':
-    case 'U':
-        return 1;
-
-        break;
-    case '1':
-    case 'b':
-    case 'B':
-        return 2;
-
-        break;
-    case '3':
-    case 'n':
-    case 'N':
-        return 0;
-
-        break;
-    case ESCAPE:
-        return ABORT;
-
-        break;
-    default:
-        print3("That's not a direction! ");
-        ok = FALSE;
-
-        break;
-    }
-
-    while(!ok) {
-        mprint("Select a direction [hjklyubn, ESCAPE to quit]: ");
+    while(TRUE) {
+        mprint("Select direction [hjklyubn, ESCAPE to quit]: ");
 
         switch(mgetc()) {
         case '4':
         case 'h':
         case 'H':
-            return 5;
 
-            break;
+            return 5;
         case '2':
         case 'j':
         case 'J':
+            
             return 6;
-
-            break;
         case '8':
         case 'k':
         case 'K':
+            
             return 7;
-
-            break;
         case '6':
         case 'l':
         case 'L':
+            
             return 4;
-
-            break;
         case '7':
         case 'y':
         case 'Y':
-            return 3;
 
-            break;
+            return 3;
         case '9':
         case 'u':
         case 'U':
+            
             return 1;
-
-            break;
         case '1':
         case 'b':
         case 'B':
-            return 2;
 
-            break;
+            return 2;
         case '3':
         case 'n':
         case 'N':
+
             return 0;
-
-            break;
         case ESCAPE:
+            
             return ABORT;
-
-            break;
         default:
             print3("That's not a direction! ");
-            ok = FALSE;
-
+            
             break;
         }
     }
@@ -827,7 +770,7 @@ void optionreset(int o)
 }
 
 /* Function describes monster m's state for examine function */
-char *mstatus_string(struct monster m)
+char *mstatus_string(struct monster *m)
 {
     if(m->uniqueness == COMMON) {
         if(m->hp < (Monsters[m->id].hp / 3)) {
@@ -896,6 +839,8 @@ void gain_experience(int amount)
     int count = 0;
     int share;
 
+    Player.xp += amount;
+    
     /* Actually, check to see if should gain level */
     gain_level();
 
@@ -905,7 +850,7 @@ void gain_experience(int amount)
         }
     }
 
-    share = amoonut / max(count, 1);
+    share = amount / max(count, 1);
 
     for(i = 0; i < NUMRANKS; ++i) {
         if(Player.guildxp[i] > 0) {
@@ -972,7 +917,7 @@ char *trapid(int trapno)
         return "A teleport trap";
 
         break;
-    case L_TRAP_DISINTREGRATE:
+    case L_TRAP_DISINTEGRATE:
         return "A disintegration trap";
 
         break;
@@ -1055,7 +1000,7 @@ void roomcheck()
        || (roomno == RS_DININGROOM)
        || (roomno == RS_CLOSET)
        || (roomno > ROOMBASE)) {
-        if(!loc_startup(Player.x, Player.y, LIT)
+        if(!loc_statusp(Player.x, Player.y, LIT)
            && !Player.status[BLINDED]
            && (Player.status[ILLUMINATION] || (difficulty() < 6))) {
             showroom(Level->site[Player.x][Player.y].roomnumber);
@@ -1072,7 +1017,7 @@ void roomcheck()
 }
 
 /* Ask for mercy */
-void surrender(struct monst *m)
+void surrender(struct monster *m)
 {
     int i;
     int bestitem;
@@ -1155,7 +1100,7 @@ void surrender(struct monst *m)
         }
 
         print2("You feel less experienced... ");
-        Player.exp = max(0, Player.xp - m->xpv);
+        Player.xp = max(0, Player.xp - m->xpv);
         nprint2("The monster seems more experienced!");
         m->level = min(10, m->level + 1);
         m->hp += (m->level * 20);
@@ -1365,7 +1310,7 @@ char *levelname(int level)
         if(level < 100) {
             strcpy(Str3, "Order ");
             Str3[6] = ((level / 10) - 2) + '0';
-            Str3[y] = 0;
+            Str3[7] = 0;
             strcat(Str3, " Master of Omega");
         }
         else {

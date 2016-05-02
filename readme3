@@ -86,7 +86,7 @@ Unfortunately, commenting is pretty minimal, mostly stupid things like:
   void showmonster(int m)
 
 ...and abstruse reminders to myself. As I clean the code up for the final
-release version, this will improve. I usually thry to avoid cleverness in my C
+release version, this will improve. I usually try to avoid cleverness in my C
 code, preferring two assignments and an if statement to a single complex line
 with three nested conditional expressions. Still, there are some places where
 the code is pretty opaque...sorry about that. Also, I will probably switch over

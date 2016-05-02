@@ -9,6 +9,8 @@
  * are not huge.
  */
 
+#include "oaux2.h"
+
 #include "oglob.h"
 
 /*
@@ -544,8 +546,8 @@ void tenminute_status_check()
     dataprint();
 }
 
-/* Increase in level at appropraite experience gain */
-void gain_levels()
+/* Increase in level at appropriate experience gain */
+void gain_level()
 {
     int gained = FALSE;
 

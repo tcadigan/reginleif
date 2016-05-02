@@ -6,6 +6,8 @@
  * Grab bag of random functions used in random places
  */
 
+#include "oetc.h"
+
 #include "oglob.h"
 
 /* There are various ways for the player to receive one of these hints */

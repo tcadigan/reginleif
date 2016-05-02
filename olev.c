@@ -7,6 +7,8 @@
  * level structure generation
  */
 
+#include "olev.h"
+
 #include "oglob.h"
 
 /* Monsters for tactical encounters */

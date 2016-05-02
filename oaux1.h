@@ -1,0 +1,12 @@
+#ifndef OAUX1_H_
+#define OAUX1_H_
+
+#include "odefs.h"
+
+void gain_experience(int amount);
+void p_death(char *fromstring);
+char *levelname(int level);
+void fight_monster(struct monster *m);
+int optionp(int o);
+
+#endif

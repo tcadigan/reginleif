@@ -8,6 +8,8 @@
  * elsewhere. It is mainly here so oaux1.c and oaux2 are not huge
  */
 
+#include "oaux3.h"
+
 #include "oglob.h"
 
 /* Check ever ten minutes */

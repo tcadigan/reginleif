@@ -8,10 +8,7 @@
  * o.c) can just include this file.
  */
 
-#include <stdio.h>
-
 #include "odefs.h"
-#include "oextern.h"
 
 /* One of each monster */
 extern struct monster Monsters[NUMMONSTERS];
@@ -62,7 +59,7 @@ extern int Current_Dungeon;
 extern int Villagenum;
 
 /* Offset of displayed screen to level */
-extern in ScreenOffset;
+extern int ScreenOffset;
 
 /* Deepest level allowed in dungeon */
 extern int MaxDungeonLevels;
@@ -98,13 +95,13 @@ extern int Imprisonment;
 extern int Precipitation;
 
 /* Phase of the moon */
-extern in Phase;
+extern int Phase;
 
 /* How player is affected by moon */
 extern int Lunarity;
 
 /* Day of the year */
-extern in Date;
+extern int Date;
 
 /* Pawn shop item generation date */
 extern int PawnDate;
@@ -113,7 +110,7 @@ extern int PawnDate;
 extern pob Pawnitems[PAWNITEMS];
 
 /* Crystal ball use marker */
-extern in ViewHour;
+extern int ViewHour;
 
 /* Staff of enchantment use marker */
 extern int ZapHour;
@@ -179,7 +176,7 @@ extern int StartGemUse;
 extern int HiMagicUse;
 
 /* Current level for l_throws */
-extern HiMagic;
+extern int HiMagic;
 
 /* Bank account */
 extern int Balance;

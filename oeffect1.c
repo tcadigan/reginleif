@@ -3,6 +3,9 @@
  *
  * oeffect1.c
  */
+
+#include "oeffect1.h"
+
 #include "oglob.h"
 
 /* Enchant */

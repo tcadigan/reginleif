@@ -6,6 +6,8 @@
  * Level generator functions
  */
 
+#include "ogen1.h"
+
 #include "oglob.h"
 
 /* bv access functions for dungeon location stati */

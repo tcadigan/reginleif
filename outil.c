@@ -6,6 +6,8 @@
  * Random utility functions called from all over
  */
 
+#include "outil.h"
+
 #include "oglob.h"
 
 /* x and y on level? */
