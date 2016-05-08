@@ -5,6 +5,7 @@
  *
  * Functions having to do with spellcasting
  */
+#include "ospell.h"
 
 #include "oglob.h"
 

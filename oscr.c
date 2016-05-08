@@ -1215,7 +1215,7 @@ int parsenum()
     }
 }
 
-void maddch(c)
+void maddch(char c)
 {
     waddch(Msgw, c);
     wrefresh(Msgw);

@@ -50,20 +50,20 @@ clean:
 oabyss.o: oabyss.h ogen1.h oglob.h outil.h
 oaux1.o: oaux1.h oaux2.h oaux3.h oeffect1.h oeffect3.h oetc.h ogen1.h oglob.h oinv.h olev.h ommove.h omon.h oscr.h outil.h
 oaux2.o: oaux2.h oabyss.h oaux1.h ochar.h ocity.h ocom3.h ocountry.h oeffect3.h oenv.h ofile.h ogen1.h ogen2.h oglob.h ohouse.h oinv.h oitem.h oitemf2.h olev.h ommelee.h omon.h oscr.h ovillage.h outil.h
-oaux3.o: oaux3.h oglob.h
-o.o: oglob.h
+oaux3.o: oaux3.h oaux1.h oaux2.h ochar.h ocity.h ocom2.h ocom3.h oeffect1.h oeffect2.h oeffect3.h oetc.h oglob.h oinv.h oitem.h olev.h omon.h omove.h oscr.h osite1.h outil.h
+o.o: o.h oaux2.h ochar.h ocity.h ocom1.h ocom2.h ocountry.h ofile.h ogen1.h oglob.h oitem.h otime.h osave.h oscr.h ospell.h outil.h
 occmds.o: oglob.h
 ochar.o: ochar.h oglob.h
 ocity.o: ocity.h oglob.h
-ocom1.o: oglob.h
-ocom2.o: oglob.h
+ocom1.o: ocom1.h oglob.h
+ocom2.o: ocom2.h oglob.h
 ocom3.o: ocom3.h oglob.h odate.h
 ocountry.o: ocountry.h oglob.h
 oeffect1.o: oeffect1.h oglob.h
-oeffect2.o: oglob.h
+oeffect2.o: oeffect2.h oglob.h
 oeffect3.o: oeffect3.h oglob.h
 oenv.o: oenv.h oglob.h
-oetc.o: oglob.h
+oetc.o: oetc.h oglob.h
 ofile.o: ofile.h oglob.h
 ogen1.o: ogen1.h oglob.h
 ogen2.o: ogen2.h oglob.h
@@ -79,18 +79,18 @@ olev.o: olev.h oglob.h
 ommelee.o: ommelee.h oglob.h
 ommove.o: ommove.h oglob.h
 omon.o: omon.h oglob.h
-omove.o: oglob.h
+omove.o: omove.h oglob.h
 omovef.o: oglob.h
 omspec.o: oglob.h
 omstrike.o: oglob.h
 omtalk.o: oglob.h
 opriest.o: oglob.h
-osave.o: oglob.h
+osave.o: osave.h oglob.h
 oscr.o: oscr.h oglob.h
-osite1.o: oglob.h
+osite1.o: osite1.h oglob.h
 osite2.o: osite2.h oglob.h
 ospell.o: oglob.h
-otime.o: oglob.h
+otime.o: otime.h oglob.h
 otrap.o: oglob.h
 outil.o: outil.h oglob.h 
 ovillage.o: ovillage.h oglob.h

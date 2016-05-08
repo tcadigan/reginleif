@@ -15,5 +15,7 @@ int player_hit(int hitmod, char hitloc, struct monster *m);
 int expval(int plevel);
 void break_weapon();
 void drop_weapon();
+void torch_check();
+void moon_check();
 
 #endif

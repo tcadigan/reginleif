@@ -11,5 +11,6 @@ void fight_monster(struct monster *m);
 int optionp(int o);
 void calc_melee();
 void damage_item(pob o);
+void foodcheck();
 
 #endif

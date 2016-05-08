@@ -10,9 +10,30 @@
 
 #include "oaux3.h"
 
-#include "oglob.h"
+#include <stdlib.h>
+#include <string.h>
 
-/* Check ever ten minutes */
+#include "oaux1.h"
+#include "oaux2.h"
+#include "ochar.h"
+#include "ocity.h"
+#include "ocom2.h"
+#include "ocom3.h"
+#include "oeffect1.h"
+#include "oeffect2.h"
+#include "oeffect3.h"
+#include "oetc.h"
+#include "oglob.h"
+#include "oinv.h"
+#include "oitem.h"
+#include "olev.h"
+#include "omon.h"
+#include "omove.h"
+#include "oscr.h"
+#include "osite1.h"
+#include "outil.h"
+
+/* Check every ten minutes */
 void tenminute_check()
 {
     if(Time % 60 == 0) {
@@ -186,7 +207,7 @@ void outdoors_random_event()
     int j;
     pob ob;
 
-    switch(random_ranger(300)) {
+    switch(random_range(300)) {
     case 0:
         switch(Country[Player.x][Player.y].current_terrain_type) {
         case TUNDRA:
@@ -216,7 +237,7 @@ void outdoors_random_event()
         mprint("Wow, man! These are some pretty poppies...");
         morewait();
         mprint("poppies...");
-        morwait();
+        morewait();
         mprint("poppies...");
         morewait();
         print3("You become somewhat disoriented...");
@@ -334,7 +355,7 @@ void outdoors_random_event()
             }
         }
         else if(num < 90) {
-            mprintf("You feel imbued with godlike power...");
+            mprint("You feel imbued with godlike power...");
             wish(1);
         }
         else if(num < 100) {
@@ -424,7 +445,7 @@ void outdoors_random_event()
 char getlocation()
 {
     char response;
-    char result;
+    char result = 'H';
     menuprint(" (enter location [HCL])");
 
     response = mcigetc();
@@ -461,9 +482,9 @@ char getlocation()
 int magic_resist(int hostile_magic)
 {
     if(((Player.rank[COLLEGE] + Player.rank[CIRCLE]) > 0) && (((Player.level / 2) + random_range(20)) > (hostile_magic + random_range(20)))) {
-        if(Player.mana > (hostile_magic * hostil_magic)) {
+        if(Player.mana > (hostile_magic * hostile_magic)) {
             mprint("Thinking fast, you defend yourself with a counterspell!");
-            Player.mana -= (hostile.magic * hostile_magic);
+            Player.mana -= (hostile_magic * hostile_magic);
             dataprint();
 
             return TRUE;
@@ -650,7 +671,7 @@ void terrain_check(int takestime)
             Time += 60;
             hourly_check();
 
-            if(!gametatusp(MOUNTED)) {
+            if(!gamestatusp(MOUNTED)) {
                 Time += 60;
                 hourly_check();
                 Time += 60;
@@ -1107,7 +1128,7 @@ char * citysiteid(int i)
     return Str4;
 }
 
-void expandsiteabbrevs(char prefix)
+void expandsiteabbrevs(char prefix[80])
 {
     int i;
     int printed = FALSE;
@@ -1131,7 +1152,7 @@ void expandsiteabbrevs(char prefix)
 int expandsite(char prefix[80])
 {
     int i;
-    int site;
+    int site = 0;
     int matched = 0;
 
     for(i = 0; i < NUMCITYSITES; ++i) {
@@ -1272,7 +1293,7 @@ int stonecheck(int alignment)
     int i;
 
     if(alignment == 1) {
-        stone = &lawstone;
+        stone = &Lawstone;
 
         if(Player.alignment > 0) {
             match = TRUE;
@@ -1342,7 +1363,7 @@ int stonecheck(int alignment)
             }
         }
 
-        Player.plackptr = 0;
+        Player.packptr = 0;
 
         break;
     case 3:
@@ -1384,7 +1405,7 @@ int stonecheck(int alignment)
     case 15:
         print1("The stone clows yellow");
         print2("Oh no! the DREADED AQUAE MORTIS!");
-        morwait();
+        morewait();
         print2("No, wait, it's just your imagination.");
 
         break;
@@ -1541,7 +1562,7 @@ void alert_guards()
             print2("Suddenly, the image of the LawBringer is gone.");
             print3("You hear a guardsman's whistle in the distance!");
             morewait();
-            ressurect_guards();
+            resurrect_guards();
         }
         else {
             print1("The Order's magical defenses have dropped, and the");

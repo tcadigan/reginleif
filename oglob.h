@@ -226,7 +226,7 @@ extern char Prime[80];
 extern char Commandant[80];
 extern char Duke[80];
 extern char Champion[80];
-extern char Priest[80];
+extern char Priest[7][80];
 extern char Hiscorer[80];
 extern char Hidescrip[80];
 extern char Chaoslord[80];

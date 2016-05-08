@@ -5,6 +5,8 @@
  *
  * This file contains toplevel commands called from ocom1.c
  */
+#include "ocom2.h"
+
 #include "oglob.h"
 
 void rest()

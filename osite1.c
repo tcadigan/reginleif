@@ -5,6 +5,7 @@
  *
  * First half of site functions and aux functions for them
  */
+#include "osite1.h"
 
 #include "oglb.h"
 

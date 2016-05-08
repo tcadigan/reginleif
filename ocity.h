@@ -2,5 +2,6 @@
 #define OCITY_H_
 
 void load_city();
+void resurrect_guards();
 
 #endif

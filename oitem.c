@@ -394,7 +394,7 @@ void make_artifact(pob new, int id)
 }
 
 /* Item name functions */
-char *scrollname(int rest, int id)
+char *scrollname(int reset, int id)
 {
     int i;
     int j;

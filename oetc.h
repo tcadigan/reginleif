@@ -2,5 +2,6 @@
 #define OETC_H_
 
 char *wordnum(int num);
+void hint();
 
 #endif

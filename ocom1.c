@@ -7,6 +7,7 @@
  * works everywhere but the countryside, and p_country_process, which
  * works...
  */
+#include "ocom1.h"
 
 #include "oglob.h"
 

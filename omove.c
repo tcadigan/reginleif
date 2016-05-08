@@ -5,6 +5,7 @@
  *
  * General functions for player moving
  */
+#include "omove.h"
 
 #include "oglob.h"
 

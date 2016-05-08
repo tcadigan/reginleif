@@ -2,5 +2,6 @@
 #define OCHAR_H_
 
 int calcmana();
+void initplayer();
 
 #endif

@@ -10,11 +10,30 @@
  * Note: In order to avoid a memory bug I've been told about, I'm
  *       explicitly initializing every global to something
  */
+#include "o.h"
 
-#include <alloc.h>
 #include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <unistd.h>
 
+#include "oaux2.h"
+#include "ochar.h"
+#include "ocity.h"
+#include "ocom1.h"
+#include "ocom2.h"
+#include "ocountry.h"
+#include "ofile.h"
+#include "ogen1.h"
 #include "oglob.h"
+#include "oitem.h"
+#include "otime.h"
+#include "osave.h"
+#include "oscr.h"
+#include "ospell.h"
+#include "outil.h"
 
 /* One of each spell */
 struct spell Spells[NUMSPELLS + 1];
@@ -317,9 +336,6 @@ int main(int argc, char *argv[])
 {
     int continuing;
 
-    printf("%lu\n", coreleft());
-    getchar();
-
     /* Always catch ^c and hang-up signals */
     // signal(SIGINT, quit);
 
@@ -330,7 +346,6 @@ int main(int argc, char *argv[])
         signal(SIGILL, signalexit);
         signal(SIGTRAP, signalexit);
         signal(SIGIOT, signalexit);
-        signal(SIGEMT, signalexit);
         signal(SIGFPE, signalexit);
         signal(SIGBUS, signalexit);
         signal(SIGSEGV, signalexit);
@@ -405,7 +420,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-int signalexit()
+void signalexit(int signum)
 {
     mprint("Yikes!");
     morewait();

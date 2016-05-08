@@ -3,6 +3,7 @@
  *
  * oeffect2.c
  */
+#include "oeffect2.h"
 
 #include "oglob.h"
 
@@ -635,7 +636,7 @@ void recover_stat(int blessing)
     calc_melee();
 }
 
-void argument(int blessing)
+void agument(int blessing)
 {
     if(blessing < 0) {
         mprint("You feel a cold surge!");

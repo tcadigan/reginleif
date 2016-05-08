@@ -10,6 +10,7 @@ char mgetc();
 char lgetc();
 void nprint1(char *s);
 void nprint2(char *s);
+char ynq();
 char ynq2();
 void levelrefresh();
 void spreadroomlight(int x, int y, int roomno);
@@ -31,5 +32,11 @@ void erase_level();
 void timeprint();
 void phaseprint();
 void display_win();
+void xredraw();
+void dobackspace();
+void maddch(char c);
+void menuclear();
+void menuprint(char *s);
+void initgraf();
 
 #endif

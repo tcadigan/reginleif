@@ -5,6 +5,7 @@
  *
  * This file deals with the passage of time in Omega
  */
+#include "otime.h"
 
 #include "oglob.h"
 

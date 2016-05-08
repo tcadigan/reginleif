@@ -7,6 +7,7 @@
  * remembers various player information, the city level, the country
  * level, and the last or current dungeon level
  */
+#include "osave.h"
 
 #include "oglob.h"
 
@@ -101,7 +102,7 @@ int save_game(int compress, char *savestr)
  * Saves on SIGHUP.
  * no longer tries to compress, which hangs
  */
-int signalsave()
+void signalsave(int signum)
 {
     int i;
     FILE *fd = fopen("Omega.sav", "w");

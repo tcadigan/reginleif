@@ -14,5 +14,8 @@ int gamestatusp(long flag);
 int inbounds(int x, int y);
 int hitp(int hit, int ac);
 char *salloc(char *str);
+int strprefix(char *prefix, char *s);
+int hour();
+void initdirs();
 
 #endif
