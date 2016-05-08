@@ -8,10 +8,34 @@
  * o.c, as well as elsewhere. It is mainly here so oaux1.c and oaux3.c
  * are not huge.
  */
-
 #include "oaux2.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "oabyss.h"
+#include "oaux1.h"
+#include "ochar.h"
+#include "ocity.h"
+#include "ocom3.h"
+#include "ocountry.h"
+#include "oeffect3.h"
+#include "oenv.h"
+#include "ofile.h"
+#include "ogen1.h"
+#include "ogen2.h"
 #include "oglob.h"
+#include "ohouse.h"
+#include "oinv.h"
+#include "oitem.h"
+#include "oitemf2.h"
+#include "olev.h"
+#include "ommelee.h"
+#include "omon.h"
+#include "oscr.h"
+#include "ovillage.h"
+#include "outil.h"
 
 /*
  * Player stats like str, agi, etc. give modifications to various
@@ -115,7 +139,7 @@ void player_miss(struct monster *m, int dtype)
     else {
         if(Verbosity != TERSE) {
             if(random_range(10)) {
-                strpcy(Str3, "You miss ");
+                strcpy(Str3, "You miss ");
             }
             else {
                 switch(random_range(4)) {
@@ -190,7 +214,7 @@ void drop_weapon()
         mprint(Str1);
         morewait();
         p_drop_at(Player.x, Player.y, 1, Player.possessions[O_WEAPON_HAND]);
-        confrom_lost_objects(1, Player.possessions[O_WEAPON_HAND]);
+        conform_lost_objects(1, Player.possessions[O_WEAPON_HAND]);
     }
     else {
         mprint("You feel fortunate.");
@@ -385,7 +409,7 @@ void torch_check()
                 
                 if(Player.possessions[i]->aux == 0) {
                     mprint("Your torch goes out!!!");
-                    confrom_unused_object(Player.possessions[i]);
+                    conform_unused_object(Player.possessions[i]);
                     
                     if(Player.possessions[i]->number > 1) {
                         --Player.possessions[i]->number;
@@ -490,7 +514,7 @@ void tenminute_status_check()
         --Player.status[INVISIBLE];
 
         if(Player.status[INVISIBLE] == 0) {
-            mrpint("You feel more opaque now.");
+            mprint("You feel more opaque now.");
         }
     }
 
@@ -561,7 +585,7 @@ void gain_level()
         nprint2(getarticle(levelname(Player.level)));
         nprint2(levelname(Player.level));
         Player.maxhp += (random_range(Player.con) + 1);
-        Player.maxmana = clacmana();
+        Player.maxmana = calcmana();
         Player.mana = Player.maxmana;
         morewait();
     }
@@ -747,7 +771,7 @@ void weapon_use(int dmgmod, pob weapon, struct monster *m)
         weapon_vorpal(dmgmod, weapon, m);
 
         break;
-    case I_DESCRATE:
+    case I_DESECRATE:
         weapon_desecrate(dmgmod, weapon, m);
 
         break;
@@ -843,7 +867,7 @@ void tacplayer(struct monster *m)
                     strcpy(Str1, "You strike ");
                 }
                 else {
-                    strcpy("You attack ");
+                    strcpy(Str1, "You attack ");
                 }
 
                 strcat(Str1, actionlocstr(Player.meleestr[i + 1]));
@@ -869,7 +893,7 @@ void tacplayer(struct monster *m)
                     mprint(Str1);
                 }
 
-                if(player_hit(Plyer.level + Player.dex, Player.meleestr[i + 1], m)) {
+                if(player_hit(Player.level + Player.dex, Player.meleestr[i + 1], m)) {
                     weapon_use(Player.level, Player.possessions[O_WEAPON_HAND], m);
                 }
                 else {
@@ -949,7 +973,7 @@ int player_hit(int hitmod, char hitloc, struct monster *m)
  */
 void toggle_item_use(int on)
 {
-    static int user[MAXITEMS];
+    static int used[MAXITEMS];
     int i;
 
     setgamestatus(SUPPRESS_PRINTING);
@@ -959,7 +983,7 @@ void toggle_item_use(int on)
             used[i] = FALSE;
 
             if(Player.possessions[i] != NULL) {
-                if(used[i] = Player.possessions[i]->used) {
+                if(used[i] == Player.possessions[i]->used) {
                     Player.possessions[i]->used = FALSE;
                     item_use(Player.possessions[i]);
                 }
@@ -1050,7 +1074,7 @@ void change_environment(char new_environment)
     }
 
     if(((Last_Environment == E_CITY) || (Last_Environment == E_VILLAGE))
-       && ((new_environment == E_MASION)
+       && ((new_environment == E_MANSION)
            || (new_environment == E_HOUSE)
            || (new_environment == E_HOVEL)
            || (new_environment == E_SEWERS)
@@ -1061,7 +1085,7 @@ void change_environment(char new_environment)
     else if(((Last_Environment == E_MANSION)
              || (Last_Environment == E_HOUSE)
              || (Last_Environment == E_HOVEL)
-             || (Last_Envrionment == E_SEWERS)
+             || (Last_Environment == E_SEWERS)
              || (Last_Environment == E_ARENA))
             && ((new_environment == E_CITY)
                 || (new_environment == E_VILLAGE))) {
@@ -1164,7 +1188,7 @@ void change_environment(char new_environment)
         Player.y = 2;
         load_court();
         erase_level();
-        ScreeOffset = 0;
+        ScreenOffset = 0;
         show_screen();
 
         break;
@@ -1259,7 +1283,7 @@ void change_environment(char new_environment)
             Player.y = 21;
         }
 
-        if(city == NULL) {
+        if(City == NULL) {
             load_city();
         }
 
@@ -1387,10 +1411,6 @@ void change_environment(char new_environment)
         MaxDungeonLevels = CAVELEVELS;
 
         if(Current_Dungeon != E_CAVES) {
-#ifdef MSDOS
-            msdos_changelevel(Level, 0, -1);
-#endif
-
             free_dungeon();
             Dungeon = NULL;
             Level = NULL;
@@ -1416,10 +1436,6 @@ void change_environment(char new_environment)
         MaxDungeonLevels = VOLCANOLEVELS;
 
         if(Current_Dungeon != E_VOLCANO) {
-#ifdef MSDOS
-            msdos_changelevel(Level, 0, -1);
-#endif
-
             free_dungeon();
             Dungeon = NULL;
             Level = NULL;
@@ -1443,10 +1459,6 @@ void change_environment(char new_environment)
         MaxDungeonLevels = ASTRALLEVELS;
 
         if(Current_Dungeon != E_ASTRAL) {
-#ifdef MSDOS
-            msdos_changelevel(Level, 0, -1);
-#endif
-
             free_dungeon();
             Dungeon = NULL;
             Level = NULL;
@@ -1470,11 +1482,7 @@ void change_environment(char new_environment)
 
         MaxDungeonLevels = CASTLELEVELS;
 
-        if(Current_dungeon != E_CASTLE) {
-#ifdef MSDOS
-            msdos_changelevel(Level, 0, -1);
-#endif
-
+        if(Current_Dungeon != E_CASTLE) {
             free_dungeon();
             Dungeon = NULL;
             Level = NULL;
@@ -1497,11 +1505,7 @@ void change_environment(char new_environment)
         MaxDungeonLevels = SEWERLEVELS;
 
         if(Current_Dungeon != E_SEWERS) {
-#ifdef MSDOS
-            msdos_changelevel(Level, 0, -1);
-#endif
-
-            free_dungon();
+            free_dungeon();
             Dungeon = NULL;
             Level = NULL;
             Current_Dungeon = E_SEWERS;

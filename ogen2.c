@@ -6,6 +6,8 @@
  * Level generator functions
  */
 
+#include "ogen2.h"
+
 #include "oglob.h"
 
 /*

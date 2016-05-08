@@ -6,6 +6,7 @@
  * Functions with file access in them. Also some direct calls to
  * curses functions
  */
+#include "ofile.h"
 
 #include <curses.h>
 #include <sys/file.h>

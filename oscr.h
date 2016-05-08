@@ -26,5 +26,10 @@ void dataprint();
 void showflags();
 void comwinprint();
 void drawvision(int x, int y);
+void show_screen();
+void erase_level();
+void timeprint();
+void phaseprint();
+void display_win();
 
 #endif

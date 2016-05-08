@@ -361,7 +361,7 @@
 #define POISONED 6
 #define HASTED 7
 #define BREATHING 8
-#define INVISBLE 9
+#define INVISIBLE 9
 #define REGENERATING 10
 #define VULNERABLE 11
 #define BERSERK 12

@@ -5,6 +5,7 @@
  *
  * Some load_* routines for special environments
  */
+#include "oenv.h"
 
 #include "oglob.h"
 

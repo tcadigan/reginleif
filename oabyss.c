@@ -5,6 +5,7 @@
  * 
  * Some functions to make the abyss level and run the final challenge
  */
+#include "oabyss.h"
 
 #include <stdio.h>
 #include <stdlib.h>

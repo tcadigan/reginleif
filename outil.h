@@ -12,5 +12,7 @@ int random_range(int k);
 int confirmation();
 int gamestatusp(long flag);
 int inbounds(int x, int y);
+int hitp(int hit, int ac);
+char *salloc(char *str);
 
 #endif

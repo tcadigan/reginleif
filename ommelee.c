@@ -5,6 +5,7 @@
  *
  * Various functions to do with monster melee
  */
+#include "ommelee.h"
 
 #include "oglob.h"
 

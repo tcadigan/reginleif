@@ -5,6 +5,7 @@
  *
  * Mostly ring, armor, and weapon functions
  */
+#include "oitemf2.h"
 
 #include "oglob.h"
 

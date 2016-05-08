@@ -5,6 +5,7 @@
  *
  * Some functions to make the village levels
  */
+#include "ovillage.h"
 
 #include "oglob.h"
 

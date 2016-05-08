@@ -6,6 +6,7 @@
  * load_country(), and all load_ functions for places which are
  * accessible from the country and don't have their own files.
  */
+#include "ocountry.h"
 
 #include "oglob.h"
 
@@ -369,7 +370,7 @@ void load_speak(int empty)
 }
 
 /* Loads the magic isle into level */
-void load_isle(int empty)
+void load_misle(int empty)
 {
     int i;
     int j;

@@ -3,6 +3,7 @@
  *
  * oitem.c
  */
+#include "oitem.h"
 
 #include "oglob.h"
 

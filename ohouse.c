@@ -5,6 +5,8 @@
  *
  * Some functions to make the house levels
  */
+#include "ohouse.h"
+
 #include "oglob.h"
 
 /* Loads the house level into Level */

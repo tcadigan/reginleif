@@ -6,6 +6,8 @@
  * This file contains some more top level command functions called from ocom1.c
  */
 
+#include "ocom3.h"
+
 #include "odate.h"
 #include "oglob.h"
 

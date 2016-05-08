@@ -5,6 +5,7 @@
  *
  * Some functions to make the city level
  */
+#include "ocity.h"
 
 #include "oglob.h"
 

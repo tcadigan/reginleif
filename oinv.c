@@ -5,7 +5,6 @@
  *
  * Functions having to do with player item inventory
  */
-
 #include "oinv.h"
 
 #include "oglob.h"
@@ -1803,7 +1802,7 @@ int cursed(pob obj)
  * inventory slot. Charge is used to differentiate coprses instead of
  * aux, which is their food value.
  */
-int find_item(pob *o, int id, in chargeval)
+int find_item(pob *o, int id, int chargeval)
 {
     int i;
     int found = FALSE;

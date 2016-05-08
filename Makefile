@@ -16,9 +16,10 @@ OBJS = oabyss.o oaux1.o oaux2.o oaux3.o o.o ochar.o ocity.o ocom1.o ocom2.o \
        omovef.o omspec.o omstrike.o omtalk.o opriest.o osave.o oscr.o osite1.o \
        osite2.o ospell.o otime.o otrap.o outil.o ovillage.o
 
-HDRS = oaux1.h oaux2.h oaux3.h odate.h odefs.h oeffect1.h oeffect3.h \
-       oetc.h ogen1.h oglob.h oiinit.h oinv.h olev.h ommove.h omon.h \
-       ominit.h oscr.h osite2.h outil.h
+HDRS = oabyss.h oaux1.h oaux2.h oaux3.h ochar.h ocity.h ocom3.h ocountry.h \
+       odate.h odefs.h oeffect1.h oeffect3.h oenv.h oetc.h ofile.h ogen1.h \
+       ogen2.h oglob.h ohouse.h oiinit.h oinv.h oitemf2.h oitem.h olev.h \
+       ominit.h ommelee.h ommove.h omon.h oscr.h osite2.h outil.h ovillage.h
 
 all: $(GAME) crypt decrypt
 
@@ -46,36 +47,36 @@ decrypt: $(DECRYPT_OBJ)
 clean:
 	rm -rf crypt decrypt $(DECRYPT_OBJ) $(CRYPT_OBJ) $(OBJS) $(GAME)
 
-oabyss.o: ogen1.h oglob.h outil.h
+oabyss.o: oabyss.h ogen1.h oglob.h outil.h
 oaux1.o: oaux1.h oaux2.h oaux3.h oeffect1.h oeffect3.h oetc.h ogen1.h oglob.h oinv.h olev.h ommove.h omon.h oscr.h outil.h
-oaux2.o: oaux2.h oglob.h
+oaux2.o: oaux2.h oabyss.h oaux1.h ochar.h ocity.h ocom3.h ocountry.h oeffect3.h oenv.h ofile.h ogen1.h ogen2.h oglob.h ohouse.h oinv.h oitem.h oitemf2.h olev.h ommelee.h omon.h oscr.h ovillage.h outil.h
 oaux3.o: oaux3.h oglob.h
 o.o: oglob.h
 occmds.o: oglob.h
-ochar.o: oglob.h
-ocity.o: oglob.h
+ochar.o: ochar.h oglob.h
+ocity.o: ocity.h oglob.h
 ocom1.o: oglob.h
 ocom2.o: oglob.h
-ocom3.o: oglob.h odate.h
-ocountry.o: oglob.h
+ocom3.o: ocom3.h oglob.h odate.h
+ocountry.o: ocountry.h oglob.h
 oeffect1.o: oeffect1.h oglob.h
 oeffect2.o: oglob.h
 oeffect3.o: oeffect3.h oglob.h
-oenv.o: oglob.h
+oenv.o: oenv.h oglob.h
 oetc.o: oglob.h
-ofile.o: oglob.h
+ofile.o: ofile.h oglob.h
 ogen1.o: ogen1.h oglob.h
-ogen2.o: oglob.h
+ogen2.o: ogen2.h oglob.h
 oguild1.o: oglob.h
 oguild2.o: oglob.h
-ohouse.o: oglob.h
+ohouse.o: ohouse.h oglob.h
 oinv.o: oinv.h oglob.h
-oitem.o: oglob.h
+oitem.o: oitem.h oglob.h
 oitemf1.o: oglob.h
-oitemf2.o: oglob.h
+oitemf2.o: oitemf2.h oglob.h
 oitemf3.o: oglob.h
 olev.o: olev.h oglob.h
-ommelee.o: oglob.h
+ommelee.o: ommelee.h oglob.h
 ommove.o: ommove.h oglob.h
 omon.o: omon.h oglob.h
 omove.o: oglob.h
@@ -92,11 +93,14 @@ ospell.o: oglob.h
 otime.o: oglob.h
 otrap.o: oglob.h
 outil.o: outil.h oglob.h 
-ovillage.o: oglob.h
+ovillage.o: ovillage.h oglob.h
 oaux1.h: odefs.h
 oaux2.h: odefs.h
 oglob.h: odefs.h
 ogen1.h: odefs.h
 oinv.h: odefs.h
+oitemf2.h: odefs.h
+oitem.h: odefs.h
+ommelee.h: odefs.h
 ommove.h: odefs.h
 omon.h: odefs.h

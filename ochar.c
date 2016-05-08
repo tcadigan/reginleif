@@ -5,6 +5,7 @@
  *
  * Player generation
  */
+#include "ochar.h"
 
 #include "oglob.h"
 

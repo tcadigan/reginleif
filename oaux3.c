@@ -424,6 +424,7 @@ void outdoors_random_event()
 char getlocation()
 {
     char response;
+    char result;
     menuprint(" (enter location [HCL])");
 
     response = mcigetc();
@@ -435,17 +436,22 @@ char getlocation()
     switch(response) {
     case 'h':
         menuprint(" High.");
+        result = 'H';
 
-        return 'H';
+        break;
     case 'c':
         menuprint(" Center.");
+        result = 'C';
 
-        return 'C';
+        break;
     case 'l':
         menuprint(" Low.");
+        result = 'L';
 
-        return 'L';
+        break;
     }
+
+    return result;
 }
 
 /*
