@@ -15,5 +15,10 @@ void lose_all_items();
 void p_drop_at(int x, int y, int n, pob o);
 void inventory_control();
 void top_inventory_control();
+void give_money(struct monster *m);
+int cursed(pob obj);
+void drop_money();
+void pickup_at(int x, int y);
+int getitem(char itype);
 
 #endif

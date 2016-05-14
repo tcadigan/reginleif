@@ -55,7 +55,7 @@ o.o: o.h oaux2.h ochar.h ocity.h ocom1.h ocom2.h ocountry.h ofile.h ogen1.h oglo
 ochar.o: ochar.h oaux1.h oaux2.h ocom2.h ofile.h oglob.h oscr.h outil.h
 ocity.o: ocity.h ogen1.h oglob.h olev.h omon.h outil.h
 ocom1.o: ocom1.h oaux1.h oaux3.h ocom2.h ocom3.h oeffect1.h ofile.h oglob.h oinv.h omovef.h oscr.h outil.h
-ocom2.o: ocom2.h oglob.h
+ocom2.o: ocom2.h oaux1.h oaux2.h oaux3.h oeffect1.h oeffect3.h ogen1.h oglob.h oinv.h oitem.h olev.h omon.h omovef.h osave.h oscr.h osite1.h ospell.h outil.h
 ocom3.o: ocom3.h oglob.h odate.h
 ocountry.o: ocountry.h oglob.h
 oeffect1.o: oeffect1.h oglob.h

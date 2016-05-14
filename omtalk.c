@@ -17,7 +17,7 @@ void m_talk_druid(struct monster *m)
         print1("The Archdruid raises a hand in greeting.");
 
         if(!gamestatusp(SPOKE_TO_DRUID)) {
-            setgamestatusp(SPOKE_TO_DRUID);
+            setgamestatus(SPOKE_TO_DRUID);
             morewait();
             print1("The Archdruid congratulates you on reaching his sanctum.");
             print2("You feel competent.");

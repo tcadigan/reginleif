@@ -7,7 +7,27 @@
  */
 #include "ocom2.h"
 
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#include "oaux1.h"
+#include "oaux2.h"
+#include "oaux3.h"
+#include "oeffect1.h"
+#include "oeffect3.h"
+#include "ogen1.h"
 #include "oglob.h"
+#include "oinv.h"
+#include "oitem.h"
+#include "olev.h"
+#include "omon.h"
+#include "omovef.h"
+#include "osave.h"
+#include "oscr.h"
+#include "osite1.h"
+#include "ospell.h"
+#include "outil.h"
 
 void rest()
 {
@@ -131,7 +151,7 @@ void activate()
     char response;
 
     clearmsg();
-    print("Activate -- item [i] or artifact [a] or quit [ESCAPE]?");
+    print1("Activate -- item [i] or artifact [a] or quit [ESCAPE]?");
     response = mcigetc();
 
     while((response != 'i') && (response != 'a') && (response != ESCAPE)) {
@@ -142,7 +162,7 @@ void activate()
         if(response == 'i') {
             index = getitem(THING);
         }
-        else if(response == 'a') {
+        else {
             index = getitem(ARTIFACT);
         }
 
@@ -235,7 +255,7 @@ void pickup()
 void floor_inv()
 {
     pol ol = Level->site[Player.x][Player.y].things;
-    setgamestatusp(SKIP_MONSTERS);
+    setgamestatus(SKIP_MONSTERS);
     menuclear();
 
     while(ol != NULL) {
@@ -264,7 +284,7 @@ void drop()
     index = getitem(CASHVALUE);
 
     if(index == ABORT) {
-        setgamestatusp(SKIP_MONSTERS);
+        setgamestatus(SKIP_MONSTERS);
     }
     else {
         if(index == CASHVALUE) {
@@ -283,7 +303,7 @@ void drop()
             }
         }
         else {
-            printf3("You can't seem to get rid of: ");
+            print3("You can't seem to get rid of: ");
             nprint3(itemid(Player.possessions[index]));
         }
     }
@@ -386,7 +406,7 @@ void disarm()
             print3("You can't see a trap there!");
         }
         else {
-            if(random_range(50 + (difficulty() * 5)) < ((Player.dex * 2) + (Player.level * 3) + (Player.rand[THIEVES] * 10))) {
+            if(random_range(50 + (difficulty() * 5)) < ((Player.dex * 2) + (Player.level * 3) + (Player.rank[THIEVES] * 10))) {
                 print1("You disarmed the trap!");
 
                 if(random_range(100) < (Player.dex + (Player.rank[THIEVES] * 10))) {
@@ -425,7 +445,7 @@ void disarm()
                         *o = Objects[THINGID + 18];
 
                         break;
-                    case L_TRAP_MANDARIN:
+                    case L_TRAP_MANADRAIN:
                         *o = Objects[THINGID + 25];
 
                         break;
@@ -614,7 +634,7 @@ void upstairs()
 
         if(Level->depth <= 1) {
             if(Level->environment == E_SEWERS) {
-                chage_environment(E_CITY);
+                change_environment(E_CITY);
             }
             else {
                 change_environment(E_COUNTRYSIDE);
@@ -859,13 +879,13 @@ void callitem()
     clearmsg();
     setgamestatus(SKIP_MONSTERS);
     print1("Call --");
-    index = getitem(NULL);
+    index = getitem('\0');
 
     if(index == CASHVALUE) {
         print3("Can't rename cash!");
     }
     else if(index != ABORT) {
-        obj = Player.possesions[index];
+        obj = Player.possessions[index];
 
         if(obj->known) {
             print3("That item is already identified!");
@@ -917,7 +937,7 @@ void opendoor()
             }
         }
         else if((Level->site[ox][oy].locchar != CLOSED_DOOR)
-                || log_statusp(ox, oy, SECRET)) {
+                || loc_statusp(ox, oy, SECRET)) {
             print3("You can't open that!");
             setgamestatus(SKIP_MONSTERS);
         }
@@ -1096,7 +1116,7 @@ void bash_item()
 
     clearmsg();
     print1("Destroy an item --");
-    item = getitem(NULL);
+    item = getitem('\0');
 
     if(item == CASHVALUE) {
         print3("Can't destroy cash!");
@@ -1277,7 +1297,7 @@ void moveplayer(int dx, int dy)
             }
         }
     }
-    else if(gamestatup(FAST_MOVE)) {
+    else if(gamestatusp(FAST_MOVE)) {
         drawvision(Player.x, Player.y);
         resetgamestatus(FAST_MOVE);
     }
@@ -1339,7 +1359,7 @@ void movepincountry(int dx, int dy)
                 Player.x += dx;
                 Player.y += dy;
 
-                if(!gamestatusp(MOUUNTED)
+                if(!gamestatusp(MOUNTED)
                    && (Player.possessions[O_BOOTS] != NULL)) {
                     if(Player.possessions[O_BOOTS]->usef == I_BOOTS_7LEAGUE) {
                         takestime = FALSE;
@@ -1354,7 +1374,7 @@ void movepincountry(int dx, int dy)
                             print1("Your boot disintegrate with a malicious giggle...");
                             dispose_lost_objects(1, Player.possessions[O_BOOTS]);
                         }
-                        else if(Player.possessions[O_BOOOTS]->known != 2) {
+                        else if(Player.possessions[O_BOOTS]->known != 2) {
                             print1("Wow! Your boots take you 7 leagues in a single stride!");
                             Player.possessions[O_BOOTS]->known = 2;
                         }
@@ -1374,7 +1394,7 @@ void movepincountry(int dx, int dy)
                 }
 
                 if(Precipitation > 0) {
-                    --Percipitation;
+                    --Precipitation;
                 }
 
                 Country[Player.x][Player.y].explored = TRUE;

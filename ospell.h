@@ -2,5 +2,7 @@
 #define OSPELL_H_
 
 void initspells();
+void cast_spell(int spell);
+int getspell();
 
 #endif

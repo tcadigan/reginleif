@@ -10,6 +10,7 @@ char mgetc();
 char lgetc();
 void nprint1(char *s);
 void nprint2(char *s);
+void nprint3(char *s);
 char ynq();
 char ynq1();
 char ynq2();
@@ -50,5 +51,9 @@ void redraw();
 void bufferprint();
 void display_pack();
 void clear_if_necessary();
+void display_option_slot(int slot);
+int move_slot(int oldslot, int newslot, int maxslot);
+void display_options();
+int getnumber(int range);
 
 #endif

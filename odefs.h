@@ -537,7 +537,7 @@
 #define BELLICOSE 1
 #define JUMPMOVE 2
 #define RUNSTOP 4
-#define PICKUP
+#define PICKUP 8
 #define CONFIRM 16
 #define TOPINV 32
 #define PACKADD 64
@@ -1297,7 +1297,7 @@ typedef objtype *pob;
 typedef struct objectlist oltype;
 typedef oltype *pol;
 
-#define pow2(n) (1 << n)
+#define pow2(n) (1 << (n))
 
 #ifndef TRUE
 #define TRUE 1

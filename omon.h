@@ -10,5 +10,6 @@ void m_status_reset(struct monster *m, int s);
 void m_status_set(struct monster *m, int s);
 int m_statusp(struct monster *m, int s);
 void make_hiscore_npc(pmt npc, int npcid);
+void monster_talk(struct monster *m);
 
 #endif

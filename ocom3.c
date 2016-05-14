@@ -503,6 +503,8 @@ int quit()
     else {
         resetgamestatus(SKIP_MONSTERS);
     }
+
+    return 0;
 }
 
 /*

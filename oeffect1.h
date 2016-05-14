@@ -7,5 +7,6 @@ void enchant(int delta);
 void acquire(int blessing);
 void identify(int blessing);
 void wish(int blessing);
+void heal(int amount);
 
 #endif
