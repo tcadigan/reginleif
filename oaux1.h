@@ -12,5 +12,8 @@ int optionp(int o);
 void calc_melee();
 void damage_item(pob o);
 void foodcheck();
+void roomcheck();
+void optionset(int o);
+int goberserk();
 
 #endif

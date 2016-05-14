@@ -9,7 +9,17 @@
  */
 #include "ocom1.h"
 
+#include "oaux1.h"
+#include "oaux3.h"
+#include "ocom2.h"
+#include "ocom3.h"
+#include "oeffect1.h"
+#include "ofile.h"
 #include "oglob.h"
+#include "oinv.h"
+#include "omovef.h"
+#include "oscr.h"
+#include "outil.h"
 
 /* Deal with a new player command in dungeon or city mode */
 void p_process()
@@ -109,7 +119,7 @@ void p_process()
             break;
         case 'd':
             drop();
-            Command_Duration = ((int)5.0 * Player.spped) / 5.0;
+            Command_Duration = ((int)5.0 * Player.speed) / 5.0;
 
             break;
         case 'e':
@@ -167,7 +177,7 @@ void p_process()
             search(&searchval);
             Command_Duration = 20;
 
-            breka;
+            break;
         case 't':
             talk();
             Command_Duration = 10;
@@ -201,7 +211,7 @@ void p_process()
             dismount_steed();
             Command_Duration = ((int)10.0 * Player.speed) / 5.0;
 
-            breakl
+            break;
         case 'F':
             tacoptions();
 
@@ -212,7 +222,7 @@ void p_process()
 
             break;
         case 'I':
-            if(!ioption(TOPINV)) {
+            if(!optionp(TOPINV)) {
                 top_inventory_control();
             }
             else {
@@ -272,7 +282,7 @@ void p_process()
 
             break;
         case '@':
-            p_move_function(Level->site[Player.x][Player.y].p_locf);
+            p_movefunction(Level->site[Player.x][Player.y].p_locf);
             Command_Duration = 5;
 
             break;
@@ -345,7 +355,7 @@ void p_process()
             }
 
             if(Cmd != ESCAPE) {
-                setgamestatus(FASE_MOVE);
+                setgamestatus(FAST_MOVE);
             }
 
             break;
@@ -417,7 +427,7 @@ void p_process()
         roomcheck();
     }
 
-    screen_check(Player.y);
+    screencheck(Player.y);
 }
 
 /* Deal with a new player command in countryside mode */
@@ -519,7 +529,7 @@ void p_country_process()
 
         break;
     case 'P':
-        showlicense();
+        show_license();
 
         /* Actually show_license is in ofile */
         break;
@@ -540,7 +550,7 @@ void p_country_process()
 
         break;
     case '>':
-        entersite(Country[Player.x][Player.y].base_terrain_type);
+        enter_site(Country[Player.x][Player.y].base_terrain_type);
 
         break;
     case '/':
@@ -705,7 +715,7 @@ void p_country_process()
             rename_player();
 
             break;
-        case 's':
+        case 'S':
             save(TRUE);
 
             break;

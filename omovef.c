@@ -5,6 +5,7 @@
  *
  * The movefunctions switch functions, for player and monster
  */
+#include "omovef.h"
 
 #include "oglob.h"
 

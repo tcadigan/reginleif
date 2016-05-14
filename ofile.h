@@ -3,5 +3,7 @@
 
 void abyss_file();
 int filecheck();
+void user_intro();
+void show_license();
 
 #endif

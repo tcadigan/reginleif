@@ -219,7 +219,7 @@
 
 /* Alignment used randomly throughout */
 #define LAWFUL 1
-#define CHOATIC 2
+#define CHAOTIC 2
 #define NEUTRAL 3
 
 /* Spells */

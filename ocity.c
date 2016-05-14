@@ -7,7 +7,15 @@
  */
 #include "ocity.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "ogen1.h"
 #include "oglob.h"
+#include "olev.h"
+#include "omon.h"
+#include "outil.h"
 
 /* Loads the city level */
 void load_city()
@@ -36,7 +44,7 @@ void load_city()
 
     Level = (plv)malloc(sizeof(levtype));
     clear_level(Level);
-    Level->depth = -;
+    Level->depth = 0;
     Level->environment = E_CITY;
 
     for(j = 0; j < LENGTH; ++j) {
@@ -174,7 +182,7 @@ void load_city()
                 break;
             case 'X':
                 Level->site[i][j].locchar = FLOOR;
-                Level->site[i][j].p_locf = L_COUNTRYSITE;
+                Level->site[i][j].p_locf = L_COUNTRYSIDE;
                 CitySiteList[L_COUNTRYSIDE - CITYSITEBASE][0] = TRUE;
                 CitySiteList[L_COUNTRYSIDE - CITYSITEBASE][1] = i;
                 CitySiteList[L_COUNTRYSIDE - CITYSITEBASE][2] = j;
@@ -300,7 +308,7 @@ void load_city()
                 break;
             case '#':
                 Level->site[i][j].locchar = WALL;
-                LEvel->site[i][j].aux = 500;
+                Level->site[i][j].aux = 500;
 
                 break;
             case '.':
@@ -348,7 +356,7 @@ void load_city()
     fclose(fd);
 }
 
-void assigne_city_functions(int x, int y)
+void assign_city_function(int x, int y)
 {
     static int setup = 0;
     static int next = 0;
@@ -431,7 +439,7 @@ void assigne_city_functions(int x, int y)
 
             break;
         case 5:
-            Level->site[x][y] = OPEN_DOOR;
+            Level->site[x][y].locchar = OPEN_DOOR;
             Level->site[x][y].p_locf = L_CASINO;
             CitySiteList[L_CASINO - CITYSITEBASE][1] = x;
             CitySiteList[L_CASINO - CITYSITEBASE][2] = y;
@@ -440,8 +448,8 @@ void assigne_city_functions(int x, int y)
         case 7:
             Level->site[x][y].locchar = OPEN_DOOR;
             Level->site[x][y].p_locf = L_DINER;
-            CitySiteBase[L_DINER - CITYSITEBASE][1] = x;
-            CitySiteBase[L_DINER - CITYSITEBASE][2] = y;
+            CitySiteList[L_DINER - CITYSITEBASE][1] = x;
+            CitySiteList[L_DINER - CITYSITEBASE][2] = y;
 
             break;
         case 8:
@@ -560,7 +568,6 @@ void resurrect_guards()
 {
     int i;
     int j;
-    pml ml;
     char site;
     FILE *fd;
 
@@ -679,7 +686,7 @@ void randommazesite(int i, int j)
     case 4:
     case 5:
         Level->site[i][j].locchar = FLOOR;
-        mate_site_treasure(y, j, 5);
+        make_site_treasure(i, j, 5);
 
         break;
     default:
@@ -726,11 +733,11 @@ void make_major_undead(int i, int j)
 }
 
 static char jail[5][11] = {
-    '#', '#', '*', '#', '#', '*', '#', '#', '*', '#', '#',
-    '#', '#', '*', '#', '#', '*', '#', '*', '#', '#', '#',
-    '#', '#', 'T', '#', 'T', '#', 'T', '#', 'T', '#', '#',
-    '#', '#', '7', '#', '7', '#', '7', '#', '7', '#', '#',
-    '#', '#', 'R', '#', 'R', '#', 'R', '#', 'R', '#', '#'
+    {'#', '#', '*', '#', '#', '*', '#', '#', '*', '#', '#'},
+    {'#', '#', '*', '#', '#', '*', '#', '*', '#', '#', '#'},
+    {'#', '#', 'T', '#', 'T', '#', 'T', '#', 'T', '#', '#'},
+    {'#', '#', '7', '#', '7', '#', '7', '#', '7', '#', '#'},
+    {'#', '#', 'R', '#', 'R', '#', 'R', '#', 'R', '#', '#'}
 };
 
 /* Fixes up the jail in case it has been munged by player action */
@@ -756,7 +763,7 @@ void repair_jail()
                 break;
             case 'T':
                 City->site[i + 35][j + 52].locchar = FLOOR;
-                City->site[i + 35][j + 52].p_locf = L_PORTULLIS_TRAP;
+                City->site[i + 35][j + 52].p_locf = L_PORTCULLIS_TRAP;
                 City->site[i + 35][j + 52].aux = NOCITYMOVE;
 
                 break;

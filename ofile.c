@@ -72,7 +72,7 @@ void commandlist()
     xredraw();
 }
 
-void user_into()
+void user_intro()
 {
     FILE *fd;
 

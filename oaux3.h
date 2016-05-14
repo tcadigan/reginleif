@@ -10,5 +10,6 @@ void indoors_random_event();
 void minute_status_check();
 void tenminute_status_check();
 void hourly_check();
+void countrysearch();
 
 #endif

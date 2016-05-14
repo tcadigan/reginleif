@@ -7,7 +7,16 @@
  */
 #include "ochar.h"
 
+#include <string.h>
+#include <unistd.h>
+
+#include "oaux1.h"
+#include "oaux2.h"
+#include "ocom2.h"
+#include "ofile.h"
 #include "oglob.h"
+#include "oscr.h"
+#include "outil.h"
 
 /* Set player to begin with */
 void initplayer()
@@ -50,7 +59,7 @@ void initplayer()
     if(fd == NULL) {
         fread((char *)&i, sizeof(int), 1, fd);
 
-        if(i != version) {
+        if(i != VERSION) {
             print1("Out of date .omegarc! Make another!");
             morewait();
         }
@@ -62,7 +71,7 @@ void initplayer()
             strcpy(Player.name, getlogin());
         }
 
-        fclose();
+        fclose(fd);
     }
 
     if(!oldchar) {
@@ -102,7 +111,7 @@ FILE *omegarc_check()
     return fd;
 }
 
-void initstatus()
+void initstats()
 {
     char response;
 
@@ -123,7 +132,7 @@ void initstatus()
         print1("Do you want to save this set-up to .omegarc in this wd? [yn] ");
 
         if(ynq() == 'y') {
-            save_omearc();
+            save_omegarc();
         }
     }
 
@@ -291,7 +300,7 @@ int competence_check(int attack)
     return ability;
 }
 
-void user_character_status()
+void user_character_stats()
 {
     int num;
     int iqpts = 0;
@@ -596,7 +605,7 @@ void user_character_status()
         conpts += 4;
     }
     else {
-        nprint(" Frequently? [yn] ");
+        nprint1(" Frequently? [yn] ");
 
         if(ynq1() == 'y') {
             conpts -= 4;
@@ -624,7 +633,7 @@ void user_character_status()
         conpts -= 2;
     }
 
-    print`("High Blood Pressure? [yn] ");
+    print1("High Blood Pressure? [yn] ");
 
     if(ynq1() == 'y') {
         conpts -= 2;
@@ -678,7 +687,7 @@ void user_character_status()
     print1("Can you see auras? [yn] ");
 
     if(ynq1() == 'y') {
-        nprint(" How strange.");
+        nprint1(" How strange.");
         morewait();
         powpts += 3;
     }
@@ -696,7 +705,7 @@ void user_character_status()
 
     if(ynq1() == 'y') {
         powpts += 3;
-        nprint(" Did it work? [yn] ");
+        nprint1(" Did it work? [yn] ");
 
         if(ynq1() == 'y') {
             powpts += 7;
@@ -742,7 +751,7 @@ void user_character_status()
     }
 
     Player.maxpow = 3 + (powpts / 2);
-    Player.pos = Player.maxpow;
+    Player.pow = Player.maxpow;
 
     Player.preference = mcigetc();
 
@@ -810,7 +819,7 @@ void omegan_character_stats()
 
     clearmsg();
     print1("Please enter your character's name: ");
-    strcpy(Player.name, msgcanstring());
+    strcpy(Player.name, msgscanstring());
     print1("What is your character's sexual preference? [mf] ");
 
     Player.preference = mcigetc();

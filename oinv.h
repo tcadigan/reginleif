@@ -13,5 +13,7 @@ int find_item(pob *o, int id, int chargeval);
 void gain_item(struct object *o);
 void lose_all_items();
 void p_drop_at(int x, int y, int n, pob o);
+void inventory_control();
+void top_inventory_control();
 
 #endif

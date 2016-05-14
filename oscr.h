@@ -11,6 +11,7 @@ char lgetc();
 void nprint1(char *s);
 void nprint2(char *s);
 char ynq();
+char ynq1();
 char ynq2();
 void levelrefresh();
 void spreadroomlight(int x, int y, int roomno);
@@ -38,5 +39,16 @@ void maddch(char c);
 void menuclear();
 void menuprint(char *s);
 void initgraf();
+char *msgscanstring();
+int parsenum();
+char menugetc();
+void menuaddch(char c);
+void commanderror();
+void display_possessions();
+void drawscreen();
+void redraw();
+void bufferprint();
+void display_pack();
+void clear_if_necessary();
 
 #endif
