@@ -14,7 +14,7 @@ L  --  LUNGE. This takes two maneuvers and executes an exceptional attack with
 
 R  --  RIPOSTE. This is the same as block, except that should you successfully
        block an attack with it, you get a free attack back on the monster who
-       attacked you. It takes two manevuers and can only be done with a
+       attacked you. It takes two maneuvers and can only be done with a
        thrusting-type weapon.
 
 Following the choice of the maneuver, you must select a line for the action L

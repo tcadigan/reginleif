@@ -22,5 +22,10 @@ void threaten(struct monster *m);
 void surrender(struct monster *m);
 int getdir();
 void searchat(int x, int y);
+void tunnelcheck();
+char *trapid(int trapno);
+void describe_player();
+char *mstatus_string(struct monster *m);
+void setspot(int *x, int *y);
 
 #endif

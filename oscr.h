@@ -55,5 +55,9 @@ void display_option_slot(int slot);
 int move_slot(int oldslot, int newslot, int maxslot);
 void display_options();
 int getnumber(int range);
+void mnumprint(int n);
+void clearmsg1();
+void display_bigwin();
+void display_quit();
 
 #endif

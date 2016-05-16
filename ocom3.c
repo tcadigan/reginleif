@@ -8,8 +8,25 @@
 
 #include "ocom3.h"
 
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#include "oaux1.h"
+#include "oaux2.h"
+#include "oaux3.h"
+#include "ocom2.h"
 #include "odate.h"
+#include "ofile.h"
+#include "ogen1.h"
 #include "oglob.h"
+#include "oinv.h"
+#include "oitem.h"
+#include "omon.h"
+#include "omovef.h"
+#include "oscr.h"
+#include "osite2.h"
+#include "outil.h"
 
 /* Look at some spot */
 void examine()
@@ -49,7 +66,7 @@ void examine()
                 describe_player();
             }
 
-            if(loc_status(x, y, SECRET)) {
+            if(loc_statusp(x, y, SECRET)) {
                 print2("An age-worn stone wall.");
             }
             else {
@@ -360,7 +377,7 @@ void help()
         filenum = c + 1 - 'a';
         n = strlen(filestr);
 
-        if(filename < 10) {
+        if(filenum < 10) {
             filestr[n] = filenum + '0';
             filestr[n + 1] = 0;
         }
@@ -411,7 +428,7 @@ void fire()
 
     clearmsg();
     print1("Fire/Throw --");
-    index = getitem(NULL);
+    index = getitem('\0');
 
     if(index == ABORT) {
         setgamestatus(SKIP_MONSTERS);
@@ -420,7 +437,7 @@ void fire()
         print3("Can't fire money at something!");
     }
     else if(cursed(Player.possessions[index])
-            && Player.possessions[index].used) {
+            && Player.possessions[index]->used) {
         print3("You can't seem to get rid of it!");
     }
     else if((Player.possessions[O_WEAPON_HAND] != NULL)
@@ -429,7 +446,7 @@ void fire()
             && (Player.possessions[index]->id == (WEAPONID + 29))) {
         /* Load a crossbow */
         mprint("You crank back the crossbow and load a bolt.");
-        Player.possesions[O_WEAPON_HAND]->aux = LOADED;
+        Player.possessions[O_WEAPON_HAND]->aux = LOADED;
     }
     else {
         if(Player.possessions[index]->used) {
@@ -448,7 +465,7 @@ void fire()
             mprint("You practice juggling for a moment or two.");
         }
         else {
-            do_object_los(obj->objchar, &x1, &y1, &x2, &y2);
+            do_object_los(obj->objchar, &x1, &y1, x2, y2);
             m = Level->site[x1][y1].creature;
 
             if(m != NULL) {
@@ -801,7 +818,7 @@ void vault()
             print3("You can't jump there.");
         }
         else {
-            resetgamestatus(SKIP_MONSTRS);
+            resetgamestatus(SKIP_MONSTERS);
             Player.x = x;
             Player.y = y;
 
@@ -828,7 +845,6 @@ void tacoptions()
     int actionsleft;
     int done;
     int place;
-    float times;
 
     setgamestatus(SKIP_MONSTERS);
     done = FALSE;
@@ -957,7 +973,7 @@ void tacoptions()
     case BACKSPACE:
     case DELETE:
         place = 0;
-        actionsleft = manevuers();
+        actionsleft = maneuvers();
 
         break;
     case RETURN:
@@ -981,7 +997,7 @@ void tacoptions()
         case 'a':
         case 'A':
             if(actionsleft < 1) {
-                print3("No more manevuers!");
+                print3("No more maneuvers!");
             }
             else {
                 if(Player.possessions[O_WEAPON_HAND] == NULL) {
@@ -1002,7 +1018,7 @@ void tacoptions()
                 }
 
                 ++place;
-                Place.meleestr[place] = getlocation();
+                Player.meleestr[place] = getlocation();
                 ++place;
                 --actionsleft;
             }
@@ -1036,7 +1052,7 @@ void tacoptions()
         case 'l':
         case 'L':
             if(actionsleft < 2) {
-                print3("Not enough manevuers to lunge!");
+                print3("Not enough maneuvers to lunge!");
             }
             else {
                 if(Player.possessions[O_WEAPON_HAND] != NULL) {
@@ -1063,7 +1079,7 @@ void tacoptions()
         case 'r':
         case 'R':
             if(actionsleft < 2) {
-                print3("Not enough manevuers to riposte!");
+                print3("Not enough maneuvers to riposte!");
             }
             else {
                 if(Player.possessions[O_WEAPON_HAND] != NULL) {
@@ -1224,7 +1240,7 @@ void tunnel()
                         || ((Player.possessions[O_WEAPON_HAND]->type != STRIKING)
                             && (Player.possessions[O_WEAPON_HAND]->fragility < random_range(20)))) {
                     mprint("Clang! Uh oh...");
-                    damage_items(Player.possessions[O_WEAPON_HAND]);
+                    damage_item(Player.possessions[O_WEAPON_HAND]);
                 }
                 else {
                     mprint("Your digging implement shows no sign of breaking.");
@@ -1294,7 +1310,7 @@ void hunt(int terrain)
         mprint("You feel it would be a better ide to hunt off the road.");
 
         break;
-    case CAHOS_SEA:
+    case CHAOS_SEA:
         mprint("Food in the Sea of Chaos? Go on!");
 
         break;
@@ -1467,7 +1483,7 @@ void frobgamestatus()
     response = mcigetc();
 
     while((response != 'r') && (response != 's') && (response != ESCAPE)) {
-        repsonse = mcigetc();
+        response = mcigetc();
     }
 
     if(response != ESCAPE) {

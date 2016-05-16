@@ -13,5 +13,8 @@ void hourly_check();
 void tenminute_check();
 void countrysearch();
 void terrain_check(int takestime);
+int parsecitysite();
+int hostilemonstersnear();
+char getlocation();
 
 #endif

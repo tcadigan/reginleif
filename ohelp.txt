@@ -204,7 +204,7 @@ The 'F' command allows you to select precisely which actions you will choose in
 a combat round -- parry high, thrust low, etc. You have several maneuver points
 for use in each TCM round, depending on level, status as a gladiator, etc. At
 the beginning of the game, your combat options are already set for you, but as
-you progress, and possibly gain more manevuers, the preset options will not be
+you progress, and possibly gain more maneuvers, the preset options will not be
 automatically updated, so remember to do it yourself periodically, as you my be
 losing the chance at more maneuvers if you do not.
 |

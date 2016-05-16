@@ -17,5 +17,7 @@ void break_weapon();
 void drop_weapon();
 void torch_check();
 void moon_check();
+void minute_status_check();
+void weapon_use(int dmgmod, pob weapon, struct monster *m);
 
 #endif

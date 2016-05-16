@@ -24,5 +24,6 @@ void eat();
 void drop();
 void closedoor();
 void zapwand();
+void pickup();
 
 #endif
