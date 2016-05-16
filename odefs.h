@@ -229,6 +229,7 @@
 #define S_OBJ_DET 1
 #define S_MISSILE 2
 #define S_FIREBOLT 3
+#define S_TELEPORT 4
 #define S_LBALL 5
 #define S_SLEEP 6
 #define S_DISRUPT 7
@@ -237,6 +238,8 @@
 #define S_HEAL 10
 #define S_DISPEL 11
 #define S_IDENTIFY 12
+#define S_BREATHE 13
+#define S_INVISIBLE 14
 #define S_WARP 15
 #define S_ENCHANT 16
 #define S_BLESS 17
@@ -250,7 +253,7 @@
 #define S_DESECRATE 25
 #define S_HASTE 26
 #define S_SUMMON 27
-#define S_SANCUARY 28
+#define S_SANCTUARY 28
 #define S_ACCURACY 29
 #define S_RITUAL 30
 #define S_FEAR 31

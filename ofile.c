@@ -9,15 +9,15 @@
 #include "ofile.h"
 
 #include <curses.h>
-#include <sys/file.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
+#include "oaux1.h"
+#include "ochar.h"
 #include "oglob.h"
-
-#ifndef F_OK
-#define F_OK 00
-#define R_OK 04
-#define W_OK 02
-#endif
+#include "oscr.h"
+#include "outil.h"
 
 FILE *checkfopen(char *filestring, char *optionstring)
 {
@@ -215,7 +215,9 @@ void showfile(FILE *fd)
     c = fgetc(fd);
 
     while((c != EOF) && ((char)d != 'q') && ((char)d != ESCAPE)) {
-        getyx(strscr, y, x);
+        getyx(stdscr, y, x);
+        x = 0;
+        y += x;
 
         if(y > ScreenLength) {
             printw("\n-More-");
@@ -247,8 +249,8 @@ void showscores()
     filescanstring(fd, Hidescrip);
 
     fscanf(fd, "%d\n%d\n%d\n", &Hiscore, &Hilevel, &Hibehavior);
-    filescanstring(fd, ChaosLord);
-    fscanf(fd, "%d\n%d\n%d\n", &Chaoslordlevel, &Chaos, &ChaoslordBehavior);
+    filescanstring(fd, Chaoslord);
+    fscanf(fd, "%d\n%d\n%d\n", &Chaoslordlevel, &Chaos, &Chaoslordbehavior);
     filescanstring(fd, Lawlord);
     fscanf(fd, "%d\n%d\n%d\n", &Lawlordlevel, &Law, &Lawlordbehavior);
     filescanstring(fd, Duke);
@@ -335,7 +337,7 @@ void checkhigh(char *descrip, int behavior)
             mprint("Yow! A new high score!");
             morewait();
             fprintf(fd, "%s\n", Player.name);
-            fprints(fd, "%s\n", descrip);
+            fprintf(fd, "%s\n", descrip);
             fprintf(fd, "%d\n", points);
             fprintf(fd, "%d\n", Player.level);
             fprintf(fd, "%d\n", behavior);
@@ -560,7 +562,7 @@ int filecheck()
     if(result == -1) {
         impossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        print(Str1);
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -570,7 +572,7 @@ int filecheck()
     if(result == -1) {
         impossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        print(Str1);
+        printf(Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -796,7 +798,7 @@ int filecheck()
 
     strcpy(Str1, OMEGALIB);
     strcat(Str1, "ohelp3.txt");
-    result = accesS(Str1, F_OK | R_OK);
+    result = access(Str1, F_OK | R_OK);
 
     if(result == -1) {
         badbutpossible = TRUE;
@@ -934,7 +936,7 @@ int filecheck()
         printf(Str1);
     }
 
-    strcpy(Str1, OMEGLIB);
+    strcpy(Str1, OMEGALIB);
     strcat(Str1, "oscroll3.txt");
     result = access(Str1, F_OK | R_OK);
 
@@ -991,6 +993,8 @@ void displayfile(char *filestr)
 
     while((c != EOF) && ((char)d != 'q') && ((char)d != ESCAPE)) {
         getyx(stdscr, y, x);
+        x = 0;
+        y += x;
 
         if(y > ScreenLength) {
             printw("\n-More-");
@@ -1020,7 +1024,7 @@ void copyfile(char *srcstr)
     char cmd[200];
 
     print1("Enter name of file to create: ");
-    strcpy(deststr, msgcanstring());
+    strcpy(deststr, msgscanstring());
     strcpy(cmd, "cp ");
     strcat(cmd, srcstr);
     strcat(cmd, " ");

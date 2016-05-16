@@ -8,7 +8,11 @@
 
 #include "oetc.h"
 
+#include <string.h>
+
 #include "oglob.h"
+#include "oscr.h"
+#include "outil.h"
 
 /* There are various ways for the player to receive one of these hints */
 void hint()
@@ -510,7 +514,7 @@ void learnclericalspells(int deity, int level)
         else if(deity == SET) {
             Spells[S_HELLFIRE].known = TRUE;
         }
-        else if(deity == ATEHNA) {
+        else if(deity == ATHENA) {
             Spells[S_HELLFIRE].known = TRUE;
         }
         else if(deity == HECATE) {
@@ -558,7 +562,7 @@ char *slotstr(int num)
     case 8:
 
         return "<Orb>";
-    case 9:
+    default:
 
         return "<Mithril Nugget>";
     }

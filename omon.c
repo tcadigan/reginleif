@@ -85,7 +85,7 @@ void movemonster(struct monster *m, int newx, int newy)
 }
 
 /* Give object o to monster m */
-void m_pickup(struct monster *m, struct objects *o)
+void m_pickup(struct monster *m, struct object *o)
 {
     pol tmp = (pol)malloc(sizeof(oltype));
     tmp->thing = o;

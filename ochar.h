@@ -11,5 +11,6 @@ void user_character_stats();
 int competence_check(int attack);
 void save_omegarc();
 FILE *omegarc_check();
+int fixnpc(int status);
 
 #endif

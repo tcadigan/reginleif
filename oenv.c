@@ -7,14 +7,23 @@
  */
 #include "oenv.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "ogen1.h"
 #include "oglob.h"
+#include "olev.h"
+#include "omon.h"
+#include "oscr.h"
+#include "outil.h"
 
 /* Loads the arena level into Level */
 void load_arena()
 {
     int i;
     int j;
-    char size;
+    char site;
     FILE *fd;
     pob box = (pob)malloc(sizeof(objtype));
 
@@ -259,7 +268,7 @@ void load_circle()
 }
 
 /* Make the prime sorceror */
-void make_print(int i, int j)
+void make_prime(int i, int j)
 {
     pml ml = (pml)malloc(sizeof(mltype));
     pmt m = (pmt)malloc(sizeof(montype));
@@ -331,7 +340,7 @@ void load_court()
                 make_site_monster(i, j, ML2 + 7);
 
                 m_status_reset(Level->site[i][j].creature, HOSTILE);
-                Level->site[i][j].creature->specialf = M_SP_SOURT;
+                Level->site[i][j].creature->specialf = M_SP_COURT;
 
                 break;
             case 'n':

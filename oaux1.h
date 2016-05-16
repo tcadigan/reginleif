@@ -27,5 +27,6 @@ char *trapid(int trapno);
 void describe_player();
 char *mstatus_string(struct monster *m);
 void setspot(int *x, int *y);
+char *levelname(int level);
 
 #endif

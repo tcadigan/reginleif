@@ -61,9 +61,9 @@ ocountry.o: ocountry.h ogen1.h oglob.h olev.h omon.h oscr.h outil.h
 oeffect1.o: oeffect1.h oaux1.h ochar.h oeffect3.h oglob.h oitem.h oinv.h omon.h oscr.h outil.h
 oeffect2.o: oeffect2.h oaux1.h oaux2.h oeffect1.h oeffect3.h ogen1.h oglob.h omovef.h oscr.h outil.h
 oeffect3.o: oeffect3.h oaux1.h oaux2.h oaux3.h oeffect1.h ogen1.h oglob.h oinv.h oitem.h olev.h omon.h oscr.h ospell.h outil.h
-oenv.o: oenv.h oglob.h
-oetc.o: oetc.h oglob.h
-ofile.o: ofile.h oglob.h
+oenv.o: oenv.h ogen1.h oglob.h olev.h omon.h oscr.h outil.h
+oetc.o: oetc.h oglob.h oscr.h outil.h
+ofile.o: ofile.h oaux1.h ochar.h oglob.h oscr.h outil.h
 ogen1.o: ogen1.h oglob.h
 ogen2.o: ogen2.h oglob.h
 oguild1.o: oglob.h
