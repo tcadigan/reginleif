@@ -1,6 +1,8 @@
 #ifndef OSCR_H_
 #define OSCR_H_
 
+#include "odefs.h"
+
 void mprint(char *s);
 void locprint(char *s);
 void putspot(int x, int y, char c);
@@ -59,5 +61,8 @@ void mnumprint(int n);
 void clearmsg1();
 void display_bigwin();
 void display_quit();
+void deathprint();
+void plotmon(struct monster *m);
+void draw_explosion(char pyx, int x, int y);
 
 #endif

@@ -57,8 +57,8 @@ ocity.o: ocity.h ogen1.h oglob.h olev.h omon.h outil.h
 ocom1.o: ocom1.h oaux1.h oaux3.h ocom2.h ocom3.h oeffect1.h ofile.h oglob.h oinv.h omovef.h oscr.h outil.h
 ocom2.o: ocom2.h oaux1.h oaux2.h oaux3.h oeffect1.h oeffect3.h ogen1.h oglob.h oinv.h oitem.h olev.h omon.h omovef.h osave.h oscr.h osite1.h ospell.h outil.h
 ocom3.o: ocom3.h oaux1.h oaux2.h oaux3.h ocom2.h odate.h ofile.h ogen1.h oglob.h oinv.h oitem.h omon.h omovef.h oscr.h osite2.h outil.h
-ocountry.o: ocountry.h oglob.h
-oeffect1.o: oeffect1.h oglob.h
+ocountry.o: ocountry.h ogen1.h oglob.h olev.h omon.h oscr.h outil.h
+oeffect1.o: oeffect1.h oaux1.h ochar.h oeffect3.h oglob.h oitem.h oinv.h omon.h oscr.h outil.h
 oeffect2.o: oeffect2.h oglob.h
 oeffect3.o: oeffect3.h oglob.h
 oenv.o: oenv.h oglob.h
@@ -103,3 +103,4 @@ oitem.h: odefs.h
 ommelee.h: odefs.h
 ommove.h: odefs.h
 omon.h: odefs.h
+oscr.h: odefs.h

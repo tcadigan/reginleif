@@ -6,7 +6,18 @@
 
 #include "oeffect1.h"
 
+#include <stdlib.h>
+#include <string.h>
+
+#include "oaux1.h"
+#include "ochar.h"
+#include "oeffect3.h"
 #include "oglob.h"
+#include "oitem.h"
+#include "oinv.h"
+#include "omon.h"
+#include "oscr.h"
+#include "outil.h"
 
 /* Enchant */
 void enchant(int delta)
@@ -28,11 +39,11 @@ void enchant(int delta)
                 morewait();
             }
             else {
-                user = Player.possessions[i]->used;
+                used = Player.possessions[i]->used;
 
                 if(used) {
                     Player.possessions[i]->used = FALSE;
-                    item_user(Player.possessions[i]);
+                    item_use(Player.possessions[i]);
                 }
 
                 print1("Your ");
@@ -45,19 +56,19 @@ void enchant(int delta)
 
                 if(used) {
                     Player.possessions[i]->used = TRUE;
-                    item_user(Player.possessions[i]);
+                    item_use(Player.possessions[i]);
                 }
             }
         }
     }
     else {
-        i = getitem(NULL);
+        i = getitem('\0');
 
         if(i == ABORT) {
             print1("You feel unlucky.");
             morewait();
         }
-        else if(i = CASHVALUE) {
+        else if(i == CASHVALUE) {
             print1("You enchant your money...What a concept!");
             mult = 1 + ((random_range(7) - 3) / 6.0);
 
@@ -84,8 +95,8 @@ void enchant(int delta)
 
                 if(used) {
                     setgamestatus(SUPPRESS_PRINTING);
-                    Player.possesions[i]->used = FALSE;
-                    item_user(Player.possessions[i]);
+                    Player.possessions[i]->used = FALSE;
+                    item_use(Player.possessions[i]);
                     resetgamestatus(SUPPRESS_PRINTING);
                 }
 
@@ -100,7 +111,7 @@ void enchant(int delta)
                 if(used) {
                     setgamestatus(SUPPRESS_PRINTING);
                     Player.possessions[i]->used = TRUE;
-                    item_user(Player.possessions[i]);
+                    item_use(Player.possessions[i]);
                     resetgamestatus(SUPPRESS_PRINTING);
                 }
             }
@@ -132,7 +143,7 @@ void bless(int blessing)
             if(used) {
                 setgamestatus(SUPPRESS_PRINTING);
                 Player.possessions[index]->used = FALSE;
-                item_user(Player.possessions[index]);
+                item_use(Player.possessions[index]);
                 resetgamestatus(SUPPRESS_PRINTING);
             }
 
@@ -145,13 +156,13 @@ void bless(int blessing)
             if(used) {
                 setgamestatus(SUPPRESS_PRINTING);
                 Player.possessions[index]->used = TRUE;
-                item_user(Player.possessions[index]);
+                item_use(Player.possessions[index]);
                 resetgamestatus(SUPPRESS_PRINTING);
             }
         }
     }
     else {
-        index = getitem(NULL);
+        index = getitem('\0');
 
         if(index == CASHVALUE) {
             print1("Blessing your money has no effect.");
@@ -193,7 +204,7 @@ void bless(int blessing)
             if(used && (Player.possessions[index] != NULL)) {
                 setgamestatus(SUPPRESS_PRINTING);
                 Player.possessions[index]->used = TRUE;
-                item_user(Player.possessions[index]);
+                item_use(Player.possessions[index]);
                 resetgamestatus(SUPPRESS_PRINTING);
             }
         }
@@ -235,9 +246,9 @@ void lbolt(int fx, int fy, int tx, int ty, int hit, int dmg)
     bolt(fx, fy, tx, ty, hit, dmg, ELECTRICITY);
 }
 
-void nbolt(int fx, int fy, int tx, int ty, in hit, int dmg)
+void nbolt(int fx, int fy, int tx, int ty, int hit, int dmg)
 {
-    bolt(fx, fy, tx, ty, dmg, NORMAL_DAMAGE);
+    bolt(fx, fy, tx, ty, hit, dmg, NORMAL_DAMAGE);
 }
 
 /* From f to t */
@@ -259,13 +270,13 @@ void bolt(int fx, int fy, int tx, int ty, int hit, int dmg, int dtype)
         boltchar = '^';
 
         break;
-    case NORMAL_DAMAGE:
+    default:
         boltchar = '!';
 
         break;
     }
 
-    do_los(boltchar, &xx, &&yy, tx, ty);
+    do_los(boltchar, &xx, &yy, tx, ty);
 
     if((xx == Player.x) && (yy == Player.y)) {
         if(Player.status[DEFLECTION] > 0) {
@@ -295,7 +306,7 @@ void bolt(int fx, int fy, int tx, int ty, int hit, int dmg, int dtype)
         target = Level->site[xx][yy].creature;
 
         if(hitp(hit, target->ac)) {
-            if(traget->uniqueness == COMMON) {
+            if(target->uniqueness == COMMON) {
                 strcpy(Str1, "The ");
                 strcat(Str1, target->monstring);
             }
@@ -368,7 +379,7 @@ void bolt(int fx, int fy, int tx, int ty, int hit, int dmg, int dtype)
         if(dtype == FLAME) {
             mprint("The water is vaporized!");
             Level->site[xx][yy].p_locf = L_NO_OP;
-            Level->size[xx][yy].loccar = FLOOR;
+            Level->site[xx][yy].locchar = FLOOR;
         }
     }
 }
@@ -383,7 +394,7 @@ void manastorm(int x, int y, int dmg)
     ball(x, y, x, y, dmg, UNSTOPPABLE);
 }
 
-void snowball(int fx, inf fy, int tx, int ty, int dmg)
+void snowball(int fx, int fy, int tx, int ty, int dmg)
 {
     ball(fx, fy, tx, ty, dmg, COLD);
 }
@@ -568,7 +579,7 @@ void identify(int blessing)
 
     if(blessing == 0) {
         print1("Idenitfy:");
-        index = getitem(NULL);
+        index = getitem('\0');
 
         if(index == CASHVALUE) {
             print3("Your money is really money.");
@@ -681,7 +692,7 @@ void wish(int blessing)
     }
     else if(strcmp(wishstr, "Skill") == 0) {
         print2("You feel more competent.");
-        gain_experience(min(10000, Player.ex));
+        gain_experience(min(10000, Player.xp));
     }
     else if(strcmp(wishstr, "Wealth") == 0) {
         print2("You are submerged in a shower of gold pieces!");
@@ -707,7 +718,7 @@ void wish(int blessing)
         i = random_range(NUMSPELLS);
 
         if(Spells[i].known) {
-            Spells[i] = powerdrain(max(1, Spells[i].powerdrain / 2));
+            Spells[i].powerdrain = max(1, Spells[i].powerdrain / 2);
         }
         else {
             Spells[i].known = TRUE;

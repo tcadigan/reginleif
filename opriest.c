@@ -127,7 +127,7 @@ void l_altar()
 
                     if(Player.possessions[i]->used) {
                         Player.possessions[i]->used = FALSE;
-                        item_user(Player.possessions[i]);
+                        item_use(Player.possessions[i]);
                         Player.possessions[i]->blessing = -1 - abs(Player.possessions[i]->blessing);
                         Player.possessions[i]->used = TRUE;
                         item_use(Player.possessions[i]);

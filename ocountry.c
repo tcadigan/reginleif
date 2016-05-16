@@ -8,7 +8,16 @@
  */
 #include "ocountry.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "ogen1.h"
 #include "oglob.h"
+#include "olev.h"
+#include "omon.h"
+#include "oscr.h"
+#include "outil.h"
 
 /* Loads the countryside level from the data file */
 void load_country()
@@ -47,10 +56,10 @@ void load_country()
                 Country[i][j].current_terrain_type = Country[i][j].base_terrain_type;
                 Country[i][j].aux = 1 + site - 'a';
             }
-            else if((size >= '1') && (site <= '6')) {
+            else if((site >= '1') && (site <= '6')) {
                 Country[i][j].base_terrain_type = TEMPLE;
                 Country[i][j].current_terrain_type = Country[i][j].base_terrain_type;
-                Country[i][j].aux = size - '0';
+                Country[i][j].aux = site - '0';
             }
             else {
                 Country[i][j].current_terrain_type = site;
@@ -85,7 +94,7 @@ void load_dlair(int empty)
     }
 
     Level = (plv)malloc(sizeof(levtype));
-    clear_level(level);
+    clear_level(Level);
     Level->environment = E_DLAIR;
     strcpy(Str3, OMEGALIB);
     strcat(Str3, "odlair.dat");
@@ -141,7 +150,7 @@ void load_dlair(int empty)
                 break;
             case 'S':
                 Level->site[i][j].locchar = FLOOR;
-                Level->site[i][j].shwochar = WALL;
+                Level->site[i][j].showchar = WALL;
 
                 if(!empty) {
                     lset(i, j, SECRET);
@@ -481,7 +490,7 @@ void load_temple(int deity)
 {
     int i;
     int j;
-    char size;
+    char site;
     pml ml;
     FILE *fd;
 
@@ -582,7 +591,7 @@ void load_temple(int deity)
                 break;
             case 'X':
                 Level->site[i][j].locchar = FLOOR;
-                Level->site[i][j].p_lcof = L_TACTICAL_EXIT;
+                Level->site[i][j].p_locf = L_TACTICAL_EXIT;
 
                 break;
             case '#':

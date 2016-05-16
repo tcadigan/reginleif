@@ -1217,7 +1217,7 @@ void l_voidstone()
             }
         }
 
-        toggle_item_user(FALSE);
+        toggle_item_use(FALSE);
         calc_melee();
     }
     else {

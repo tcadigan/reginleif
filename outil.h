@@ -21,5 +21,6 @@ int sign(int n);
 int distance(int x1, int y1, int x2, int y2);
 void do_object_los(char pyx, int *x1, int *y1, int x2, int y2);
 int los_p(int x1, int y1, int x2, int y2);
+void do_los(char pyx, int *x1, int *y1, int x2, int y2);
 
 #endif
