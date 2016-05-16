@@ -8,5 +8,8 @@ void summon(int blessing, int id);
 void dispel(int blessing);
 void cleanse(int blessing);
 int itemlist(int itemindex, int num);
+void sleep_player(int amount);
+void disease(int amount);
+int monsterlist();
 
 #endif

@@ -4,5 +4,6 @@
 void initspells();
 void cast_spell(int spell);
 int getspell();
+char *spellid(int id);
 
 #endif

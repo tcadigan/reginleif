@@ -1491,7 +1491,7 @@ void m_lava(struct monster *m)
 {
     char Str1[80];
 
-    if(!m_immunity(m, FLAME)
+    if(!m_immunityp(m, FLAME)
        || (!m_statusp(m, SWIMMING) && !m_statusp(m, ONLYSWIM))) {
         if(los_p(m->x, m->y, Player.x, Player.y)) {
             if(m->uniqueness != COMMON) {

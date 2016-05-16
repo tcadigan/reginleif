@@ -5,7 +5,17 @@
  */
 #include "oeffect2.h"
 
+#include <stdlib.h>
+
+#include "oaux1.h"
+#include "oaux2.h"
+#include "oeffect1.h"
+#include "oeffect3.h"
+#include "ogen1.h"
 #include "oglob.h"
+#include "omovef.h"
+#include "oscr.h"
+#include "outil.h"
 
 void knowledge(int blessing)
 {
@@ -199,21 +209,21 @@ void knowledge(int blessing)
             menuprint("Centurion of the Legion");
 
             break;
-        case LEGIONARE:
+        case LEGIONAIRE:
             menuprint("Legionaire");
 
             break;
         }
 
         if(Player.rank[LEGION] > 0) {
-            menupint(" (");
+            menuprint(" (");
             menunumprint(Player.guildxp[LEGION]);
             menuprint(" XP).\n");
         }
 
         switch(Player.rank[ARENA]) {
         case -1:
-            menprint("Ex-gladiator\n");
+            menuprint("Ex-gladiator\n");
 
             break;
         case CHAMPION:
@@ -475,7 +485,7 @@ void flux(int blessing)
     if(Current_Environment == E_CITY) {
         mprint("Sensing dangerous high order magic, the Collegium Magii");
         mprint("and the Circle of Sorcerors join forces to negat the spell.");
-        mrpint("You are zapped by an antimagic ray!!!");
+        mprint("You are zapped by an antimagic ray!!!");
         dispel(-1);
         mprint("The universe unwraps itself...");
     }
@@ -518,7 +528,7 @@ void invisible(int blessing)
 
 void warp(int blessing)
 {
-    int newlevel;
+    int newlevel = 0;
 
     if(Current_Environment != Current_Dungeon) {
         mprint("How strange! No effect...");
@@ -736,7 +746,7 @@ void i_chaos(pob o)
     }
 }
 
-void i_law(pob 0)
+void i_law(pob o)
 {
     if(Player.alignment > 0) {
         Player.alignment += random_range(20);
@@ -778,7 +788,7 @@ void sanctify(int blessing)
             Level->site[Player.x][Player.y].p_locf = L_NO_OP;
 
             if(Level->site[Player.x][Player.y].aux == Player.patron) {
-                mrpint("Your diety is not amused...");
+                mprint("Your diety is not amused...");
                 p_damage(Player.hp - 1, UNSTOPPABLE, "Divine Wrath");
             }
             else if((Player.patron == ATHENA) || (Player.patron == ODIN)) {

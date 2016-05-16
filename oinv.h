@@ -13,6 +13,7 @@ int find_item(pob *o, int id, int chargeval);
 void gain_item(struct object *o);
 void lose_all_items();
 void p_drop_at(int x, int y, int n, pob o);
+void drop_at(int x, int y, pob o);
 void inventory_control();
 void top_inventory_control();
 void give_money(struct monster *m);

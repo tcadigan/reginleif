@@ -6,7 +6,22 @@
 
 #include "oeffect3.h"
 
+#include <stdlib.h>
+#include <string.h>
+
+#include "oaux1.h"
+#include "oaux2.h"
+#include "oaux3.h"
+#include "oeffect1.h"
+#include "ogen1.h"
 #include "oglob.h"
+#include "oinv.h"
+#include "oitem.h"
+#include "olev.h"
+#include "omon.h"
+#include "oscr.h"
+#include "ospell.h"
+#include "outil.h"
 
 /* If known id, then summon that monster; else (if < 0) get one. */
 void summon(int blessing, int id)
@@ -34,7 +49,7 @@ void summon(int blessing, int id)
 
         if(!inbounds(x, y)
            || (Level->site[x][y].locchar != FLOOR)
-           || (Level->size[x][y].creature != NULL)) {
+           || (Level->site[x][y].creature != NULL)) {
             looking = TRUE;
         }
         else {
@@ -227,7 +242,7 @@ void sleep_monster(int blessing)
         }
     }
     else {
-        target = Level->size[x][y].creature;
+        target = Level->site[x][y].creature;
 
         if(target != NULL) {
             if(target->uniqueness == COMMON) {
@@ -351,7 +366,7 @@ void learnspell(int blessing)
             }
         }
         else {
-            nprint(" -- Research uneuccessful.");
+            nprint1(" -- Research unsuccessful.");
         }
     }
 }
@@ -691,7 +706,7 @@ void strategic_teleport(int blessing)
 
             break;
         case 'd':
-            change_environment(E_COUNTRY_SIDE);
+            change_environment(E_COUNTRYSIDE);
             locprint("The Village of Stormwatch.");
             Player.x = 10;
             Player.y = 40;
@@ -774,7 +789,7 @@ void strategic_teleport(int blessing)
         if(gamestatusp(LOST)) {
             print1("You know where you are now.");
             resetgamestatus(LOST);
-            Percipitation = 0;
+            Precipitation = 0;
         }
     }
 
@@ -954,7 +969,7 @@ void dispel(int blessing)
                 || (Level->site[x][y].p_locf == L_STATUE_WAKE)
                 || (Level->site[x][y].p_locf == L_TRAP_TELEPORT)
                 || (Level->site[x][y].p_locf == L_TRAP_DISINTEGRATE)) {
-            Level->site[x][y].p_locf == L_NO_OP;
+            Level->site[x][y].p_locf = L_NO_OP;
 
             if(Level->site[x][y].locchar == TRAP) {
                 Level->site[x][y].locchar = FLOOR;
@@ -970,7 +985,7 @@ void dispel(int blessing)
     else {
         mprint("A smell of ozone and positive ions fills the air...");
 
-        if(Player.status[ACCURACT] && (Player.status[ACCURACY] < 1000)) {
+        if(Player.status[ACCURACY] && (Player.status[ACCURACY] < 1000)) {
             Player.status[ACCURACY] = 1;
         }
 
@@ -983,11 +998,11 @@ void dispel(int blessing)
         }
 
         if(Player.status[BREATHING] && (Player.status[BREATHING] < 1000)) {
-            Palyer.status[BREATHING] = 1;
+            Player.status[BREATHING] = 1;
         }
 
         if(Player.status[INVISIBLE] && (Player.status[INVISIBLE] < 1000)) {
-            Palyer.status[INVISIBLE] = 1;
+            Player.status[INVISIBLE] = 1;
         }
 
         if(Player.status[REGENERATING] && (Player.status[REGENERATING] < 1000)) {
@@ -1034,7 +1049,7 @@ void polymorph(int blessing)
         p_death("polymorhping oneself");
     }
     else {
-        m = Level->site[x][y].creature == NULL;
+        m = Level->site[x][y].creature;
 
         if(m == NULL) {
             mprint("Nothing happens.");
@@ -1157,7 +1172,7 @@ void drain(int blessing)
     mprint("You being to drain energy...");
 
     if((x == Player.x) && (y == Player.y)) {
-        mrpint("You drain your own energy...");
+        mprint("You drain your own energy...");
         mprint("Uh oh, positive feedback...");
         level_drain(Player.level, "self-vampirism");
     }
@@ -1246,7 +1261,7 @@ void shadowform()
         ++Player.immunity[NORMAL_DAMAGE];
         ++Player.immunity[ACID];
         ++Player.immunity[THEFT];
-        ++Player.ummunity[INFECTION];
+        ++Player.immunity[INFECTION];
         Player.status[SHADOWFORM] += Player.level;
     }
     else {
@@ -1295,7 +1310,7 @@ void drain_life(int amount)
     amount = abs(amount);
     mprint("Your feel cold!");
 
-    if(p_immun(NEGENERGY)) {
+    if(p_immune(NEGENERGY)) {
         mprint("... but the feeling quickly fades.");
     }
     else {
