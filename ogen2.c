@@ -8,7 +8,14 @@
 
 #include "ogen2.h"
 
+#include <stdlib.h>
+#include <string.h>
+
+#include "ogen1.h"
 #include "oglob.h"
+#include "olev.h"
+#include "oscr.h"
+#include "outil.h"
 
 /*
  * For each level, there should be one stairway going up and one
@@ -42,7 +49,7 @@ void make_stairs(int fromlevel)
 
         if(fromlevel > Level->depth) {
             Player.x = i;
-            Palyer.y = j;
+            Player.y = j;
         }
     }
 }
@@ -285,7 +292,7 @@ void make_mountains()
     x = 0;
     x1 = WIDTH;
     y = random_range(LENGTH);
-    y1 = ranomd_range(LENGTH);
+    y1 = random_range(LENGTH);
     straggle_corridor(x, y, x1, y1, WATER, RS_COUNTRYSIDE);
 
     for(i = 0; i < 7; ++i) {
@@ -442,7 +449,7 @@ void room_level()
         }
     }
 
-    if(Current_Dungeon == SEWERS) {
+    if(Current_Dungeon == E_SEWERS) {
         if(Level->depth == SEWERLEVELS) {
             findspace(&tx, &ty, -1);
             Level->mlist = (pml)malloc(sizeof(mltype));
@@ -555,7 +562,7 @@ void maze_level()
             rsi = RS_FIREPLANE;
 
             break;
-        case 5:
+        default:
             rsi = RS_HIGHASTRAL;
 
             break;
@@ -568,7 +575,7 @@ void maze_level()
     maze_corridor(random_range(WIDTH - 1) + 1,
                   random_range(LENGTH - 1) + 1,
                   random_range(WIDTH - 1) + 1,
-                  random_range(LEGNTH - 1) + 1,
+                  random_range(LENGTH - 1) + 1,
                   rsi,
                   0);
 
@@ -627,7 +634,7 @@ void maze_level()
             mid = ML10 + 8;
 
             break;
-        case 5:
+        default:
             /* Elemental Master */
             mid = ML10 + 9;
         }

@@ -8,7 +8,15 @@
 
 #include "ogen1.h"
 
+#include <stdlib.h>
+#include <string.h>
+
+#include "oaux1.h"
+#include "ogen2.h"
 #include "oglob.h"
+#include "olev.h"
+#include "oscr.h"
+#include "outil.h"
 
 /* bv access functions for dungeon location stati */
 int loc_statusp(int x, int y, int stat)
@@ -121,7 +129,7 @@ void change_level(char fromlevel, char tolevel, char rewrite_level)
             room_level();
 
             break;
-        case E_STRAL:
+        case E_ASTRAL:
             maze_level();
 
             break;
@@ -171,7 +179,7 @@ void change_level(char fromlevel, char tolevel, char rewrite_level)
  * Tries to find the leve of depth levelnum in dungeon; if can't find it returns
  * NULL
  */
-plv findlevel(struct level * dungeon, char levelnum)
+plv findlevel(struct level *dungeon, char levelnum)
 {
     if(dungeon == NULL) {
         return NULL;
@@ -204,7 +212,7 @@ void straggle_corridor(int fx, int fy, int tx, int ty, char loc, char rsi)
         dy = ty - fy;
 
         if(random_range((abs(dx) + abs(dy)) < abs(dx))) {
-            corridor_crawl(&fx, &yf, sign(dx), 0, random_range(abs(dx)) + 1, loc, rsi);
+            corridor_crawl(&fx, &fy, sign(dx), 0, random_range(abs(dx)) + 1, loc, rsi);
         }
         else {
             corridor_crawl(&fx, &fy, 0, sign(dy), random_range(abs(dy)) + 1, loc, rsi);
@@ -248,7 +256,7 @@ void makedoor(int x, int y)
     Level->site[x][y].p_locf = L_NO_OP;
 }
 
-void corridor_crawl(int *fx, int *fy, int sx, int sy, in n, char loc, char rsi)
+void corridor_crawl(int *fx, int *fy, int sx, int sy, int n, char loc, char rsi)
 {
     int i;
 
@@ -283,7 +291,7 @@ char *roomname(int index)
         strcpy(Str4, "A place zorched by high power magic.");
 
         break;
-    case RS_COUNT:
+    case RS_COURT:
         strcpy(Str4, "The Court of the ArchMage.");
 
         break;
@@ -561,6 +569,7 @@ void find_stairs(char fromlevel, char tolevel)
     int i;
     int j;
     int found = FALSE;
+    char sitechar;
 
     if(fromlevel > tolevel) {
         sitechar = DOWN;
@@ -714,6 +723,8 @@ void sewer_level()
     int t;
     int l;
     int e;
+    char rsi;
+    char lchar;
 
     Level->numrooms = random_range(3) + 3;
     rsi = RS_DRAINED_SEWER;

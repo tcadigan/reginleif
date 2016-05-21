@@ -64,8 +64,8 @@ oeffect3.o: oeffect3.h oaux1.h oaux2.h oaux3.h oeffect1.h ogen1.h oglob.h oinv.h
 oenv.o: oenv.h ogen1.h oglob.h olev.h omon.h oscr.h outil.h
 oetc.o: oetc.h oglob.h oscr.h outil.h
 ofile.o: ofile.h oaux1.h ochar.h oglob.h oscr.h outil.h
-ogen1.o: ogen1.h oglob.h
-ogen2.o: ogen2.h oglob.h
+ogen1.o: ogen1.h oaux1.h ogen2.h oglob.h olev.h oscr.h outil.h
+ogen2.o: ogen2.h ogen1.h oglob.h olev.h oscr.h outil.h
 oguild1.o: oglob.h
 oguild2.o: oglob.h
 ohouse.o: ohouse.h oglob.h

@@ -9,5 +9,7 @@ void make_site_monster(int i, int j, int mid);
 void make_site_treasure(int i, int j, int itemlevel);
 void make_specific_treasure(int i, int j, int itemid);
 pmt make_creature(int mid);
+void stock_level();
+void populate_level(int monstertype);
 
 #endif

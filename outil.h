@@ -25,5 +25,6 @@ void do_los(char pyx, int *x1, int *y1, int x2, int y2);
 char *ordinal(int number);
 int calc_points();
 void findspace(int *x, int *y, int baux);
+int nighttime();
 
 #endif
