@@ -3,6 +3,7 @@
 
 #include "odefs.h"
 
+int item_value(pob item);
 int true_item_value(pob item);
 void gain_level();
 void movecursor(int *x, int *y, int dx, int dy);

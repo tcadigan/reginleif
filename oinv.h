@@ -10,6 +10,7 @@ void givemonster(struct monster *m, struct object *o);
 char *itemid(pob obj);
 void dispose_lost_objects(int n, pob obj);
 int find_item(pob *o, int id, int chargeval);
+int find_and_remove_item(int id, int chargeval);
 void gain_item(struct object *o);
 void lose_all_items();
 void p_drop_at(int x, int y, int n, pob o);
@@ -21,5 +22,6 @@ int cursed(pob obj);
 void drop_money();
 void pickup_at(int x, int y);
 int getitem(char itype);
+void fixpack();
 
 #endif

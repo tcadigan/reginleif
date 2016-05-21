@@ -10,7 +10,18 @@
  * other.
  */
 
+#include <string.h>
+
+#include "oaux1.h"
+#include "oaux2.h"
+#include "oetc.h"
 #include "oglob.h"
+#include "oinv.h"
+#include "omon.h"
+#include "oscr.h"
+#include "osite2.h"
+#include "otime.h"
+#include "outil.h"
 
 void l_merc_guild()
 {
@@ -194,7 +205,7 @@ void l_merc_guild()
             clearmsg();
             print1("Your CO expresses satisfaction with your progress.");
 
-            if(Player.guildxp[LEGiON] < 400) {
+            if(Player.guildxp[LEGION] < 400) {
                 print2("But your service record does not yet permit promotion.");
             }
             else {

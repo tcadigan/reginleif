@@ -66,9 +66,9 @@ oetc.o: oetc.h oglob.h oscr.h outil.h
 ofile.o: ofile.h oaux1.h ochar.h oglob.h oscr.h outil.h
 ogen1.o: ogen1.h oaux1.h ogen2.h oglob.h olev.h oscr.h outil.h
 ogen2.o: ogen2.h ogen1.h oglob.h olev.h oscr.h outil.h
-oguild1.o: oglob.h
-oguild2.o: oglob.h
-ohouse.o: ohouse.h oglob.h
+oguild1.o: oaux1.h oaux2.h oetc.h oglob.h oinv.h omon.h oscr.h osite2.h otime.h outil.h
+oguild2.o: oaux1.h oaux2.h ochar.h oeffect1.h oeffect3.h oglob.h oinv.h oitem.h oscr.h osite2.h outil.h
+ohouse.o: ohouse.h ogen1.h oglob.h olev.h omon.h oscr.h outil.h
 oinv.o: oinv.h oglob.h
 oitem.o: oitem.h oglob.h
 oitemf1.o: oglob.h

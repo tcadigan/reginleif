@@ -1840,7 +1840,7 @@ int find_item(pob *o, int id, int chargeval)
  * inventory slot. Destroys item. Charge is used to differentiate
  * corpses instead of aux, which is their food value.
  */
-int find_and_remote_item(int id, int chargeval)
+int find_and_remove_item(int id, int chargeval)
 {
     int i;
     int found = FALSE;

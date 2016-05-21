@@ -11,5 +11,6 @@ int itemlist(int itemindex, int num);
 void sleep_player(int amount);
 void disease(int amount);
 int monsterlist();
+void learnspell(int blessing);
 
 #endif

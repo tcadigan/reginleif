@@ -10,6 +10,7 @@ void m_status_reset(struct monster *m, int s);
 void m_status_set(struct monster *m, int s);
 int m_statusp(struct monster *m, int s);
 void make_hiscore_npc(pmt npc, int npcid);
+void make_log_npc(struct monster *npc);
 void monster_talk(struct monster *m);
 int m_immunityp(struct monster *m, int s);
 void m_pickup(struct monster *m, struct object *o);

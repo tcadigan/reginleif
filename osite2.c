@@ -405,7 +405,7 @@ void l_trifid()
         print2("Razor-edged vines covered in suckers attach themselves to you.");
         morewait();
 
-        if(find_and_remove_items(THINGID + 6, -1)) {
+        if(find_and_remove_item(THINGID + 6, -1)) {
             print1("Thinking fast, you toss salt water on the trifid...");
             print2("The trifid disintegrates with a frustrated sigh.");
             Level->site[Player.x][Player.y].locchar = FLOOR;

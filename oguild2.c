@@ -9,7 +9,21 @@
  * functions since they are basically activated at some site or other.
  */
 
+#include <stdlib.h>
+#include <string.h>
+
+#include "oaux1.h"
+#include "oaux2.h"
+#include "ochar.h"
+#include "oeffect1.h"
+#include "oeffect3.h"
 #include "oglob.h"
+#include "oinv.h"
+#include "oitem.h"
+#include "oscr.h"
+#include "osite2.h"
+#include "outil.h"
+
 void l_thieves_guild()
 {
     int fee;
@@ -79,7 +93,7 @@ void l_thieves_guild()
                 }
                 else {
                     dues = (int)(dues * (1 + ((12 - Player.dex) / 9.0)));
-                    dues += (Player.aignment * 5);
+                    dues += (Player.alignment * 5);
                     dues = max(100, dues);
                     print1("Dues are ");
                     mnumprint(dues);
@@ -133,7 +147,7 @@ void l_thieves_guild()
                         print2("You must bring back the Justiciar's Badge!");
                     }
                 }
-                else if(Player.rank[THEIVES] == THIEF) {
+                else if(Player.rank[THIEVES] == THIEF) {
                     if(Player.guildxp[THIEVES] < 4000) {
                         print2("You are not experienced enough to advance.");
                     }
@@ -246,7 +260,7 @@ void l_thieves_guild()
                     print1("Fence one item or go through pack? [ip] ");
 
                     if(mcigetc() == 'i') {
-                        i = getitem(NULL);
+                        i = getitem('\0');
 
                         if((i == ABORT) || (Player.possessions[i] == NULL)) {
                             print2("Huh, is this some kind of set-up?");
@@ -590,7 +604,7 @@ void l_sorcerors()
                             morewait();
                             clearmsg();
                             print1("You learn the Spell of Magic Missiles.");
-                            Spells[S_MISSLE].known = TRUE;
+                            Spells[S_MISSILE].known = TRUE;
                             Player.cash -= fee;
                             dataprint();
                             Player.rank[CIRCLE] = INITIATE;
@@ -631,7 +645,7 @@ void l_sorcerors()
                     print2("You are at the pinnacle of mastery in the Circle.");
                 }
                 else if(Player.rank[CIRCLE] == HIGHSORCEROR) {
-                    if(Player.level <= Primeleve) {
+                    if(Player.level <= Primelevel) {
                         print2("You are not experienced enough to advance.");
                     }
                     else {

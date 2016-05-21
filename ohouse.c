@@ -7,7 +7,16 @@
  */
 #include "ohouse.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "ogen1.h"
 #include "oglob.h"
+#include "olev.h"
+#include "omon.h"
+#include "oscr.h"
+#include "outil.h"
 
 /* Loads the house level into Level */
 void load_house(int kind)
@@ -223,7 +232,7 @@ void load_house(int kind)
 void make_house_npc(int i, int j)
 {
     pml ml = (pml)malloc(sizeof(mltype));
-    pob = ob;
+    pob ob;
 
     ml->m = (pmt)malloc(sizeof(montype));
     *(ml->m) = Monsters[NPC];

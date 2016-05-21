@@ -3,5 +3,6 @@
 
 char *wordnum(int num);
 void hint();
+char *nameprint();
 
 #endif
