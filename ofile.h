@@ -12,5 +12,6 @@ void copyfile(char *srcstr);
 void displayfile(char *filestr);
 void showfile(FILE *fd);
 void filescanstring(FILE *fd, char *fstr);
+void inv_help();
 
 #endif

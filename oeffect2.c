@@ -573,7 +573,7 @@ void regenerate(int blessing)
     }
 }
 
-void haster(int blessing)
+void haste(int blessing)
 {
     if(blessing > -1) {
         if(!Player.status[HASTED]) {

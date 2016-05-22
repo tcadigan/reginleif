@@ -7,7 +7,18 @@
  */
 #include "oinv.h"
 
+#include <stdlib.h>
+#include <string.h>
+
+#include "oaux1.h"
+#include "oaux2.h"
+#include "ofile.h"
 #include "oglob.h"
+#include "oitem.h"
+#include "olev.h"
+#include "omon.h"
+#include "oscr.h"
+#include "outil.h"
 
 /* Drops money, heh heh */
 void drop_money()
@@ -77,7 +88,7 @@ int get_money(int limit)
 void pickup_at(int x, int y)
 {
     int quit = FALSE;
-    char repsonse;
+    char response;
     pol ol = Level->site[x][y].things;
     pol temp;
 
@@ -136,7 +147,7 @@ void drop_at(int x, int y, pob o)
             tmp->next = Level->site[x][y].things;
             Level->site[x][y].things = tmp;
         }
-        else if(Level->site[x][y].p_loc_f == L_VOID_STATION) {
+        else if(Level->site[x][y].p_locf == L_VOID_STATION) {
             setgamestatus(PREPARED_VOID);
         }
     }
@@ -151,7 +162,7 @@ void p_drop_at(int x, int y, int n, pob o)
         if((Level->site[x][y].locchar != ' ')
            && (Level->site[x][y].locchar != '0')) {
             tmp = (pol)malloc(sizeof(oltype));
-            tmp->thin = (pob)malloc(sizeof(objtype));
+            tmp->thing = (pob)malloc(sizeof(objtype));
             *(tmp->thing) = *o;
             tmp->thing->used = FALSE;
             tmp->thing->number = n;
@@ -276,8 +287,8 @@ void setplustr(pob obj, char *pstr)
         pstr[3] = '\0';
     }
     else {
-        str[2] = '0' + abs(obj->plus / 10);
-        str[3] = '0' + abs(obj->plus % 10);
+        pstr[2] = '0' + abs(obj->plus / 10);
+        pstr[3] = '0' + abs(obj->plus % 10);
         pstr[4] = '\0';
     }
 }
@@ -302,7 +313,7 @@ void setnumstr(pob obj, char *nstr)
         nstr[4] = '\0';
     }
     else {
-        strpcy(nstr, "lots of ");
+        strcpy(nstr, "lots of ");
     }
 }
 
@@ -383,7 +394,7 @@ void givemonster(struct monster *m, struct object *o)
             strcpy(Str3, m->monstring);
         }
 
-        if(m_status(m, GREEDY) || m_statusp(m, NEEDY)) {
+        if(m_statusp(m, GREEDY) || m_statusp(m, NEEDY)) {
             m_pickup(m, o);
             strcat(Str3, " takes your gift");
             print1(Str3);
@@ -392,7 +403,7 @@ void givemonster(struct monster *m, struct object *o)
             if(m_statusp(m, GREEDY) && (true_item_value(o) < (m->level * 100))) {
                 nprint1("...but does not appear satisfied.");
             }
-            else if(m_statusp(NEEDY) && (true_item_value(o) < (Level->depth * Level->depth))) {
+            else if(m_statusp(m, NEEDY) && (true_item_value(o) < (Level->depth * Level->depth))) {
                 nprint1("...and looks chasteningly at you.");
             }
             else {
@@ -451,8 +462,6 @@ void dispose_lost_objects(int n, pob obj)
     int i;
     int conformed = FALSE;
     int subtracted = FALSE;
-    int freetrue;
-    int freecurse;
 
     if(obj != NULL) {
         for(i = 0; i < MAXITEMS; ++i) {
@@ -487,7 +496,7 @@ void conform_lost_objects(int n, pob obj)
 {
     int i;
     int conformed = FALSE;
-    int substracted = FALSE;
+    int subtracted = FALSE;
 
     if(obj != NULL) {
         for(i = 0; i < MAXITEMS; ++i) {
@@ -540,7 +549,7 @@ int getitem(char itype)
     int drewmenu = FALSE;
     int found = FALSE;
 
-    if((itype == NULL) || ((itype == CASHVALUE) && (Player.cash > 0))) {
+    if((itype == '\0') || ((itype == CASHVALUE) && (Player.cash > 0))) {
         found = 1;
     }
     else {
@@ -549,12 +558,12 @@ int getitem(char itype)
 
     for(i = 1; i < MAXITEMS; ++i) {
         if(Player.possessions[i] != NULL) {
-            if((itype == NULL)
+            if((itype == '\0')
                || (itype == CASHVALUE)
-               || (Player.pssoessions[i]->objchar == itype)
+               || (Player.possessions[i]->objchar == itype)
                || ((itype == FOOD) && (Player.possessions[i]->objchar == CORPSE))) {
                 found = TRUE;
-                investr[k] = 'a' + i - 1;
+                invstr[k] = 'a' + i - 1;
                 ++k;
                 invstr[k] = '\0';
             }
@@ -586,9 +595,9 @@ int getitem(char itype)
 
                 for(i = 1; i < MAXITEMS; ++i) {
                     if(Player.possessions[i] != NULL) {
-                        if((itype == NULL)
+                        if((itype == '\0')
                            || (itype == CASHVALUE)
-                           || (Player.possessions[i]=>objchar == itype)
+                           || (Player.possessions[i]->objchar == itype)
                            || ((itype == FOOD) && (Player.possessions[i]->objchar == CORPSE))) {
                             display_inventory_slot(i, FALSE);
                         }
@@ -637,7 +646,7 @@ int getitem(char itype)
  */
 int badobject(char slotchar)
 {
-    int slot = shotchar + 1 - 'a';
+    int slot = slotchar + 1 - 'a';
 
     if((slot < 1) || (slot >= MAXITEMS)) {
         return TRUE;
@@ -755,7 +764,7 @@ void take_from_pack(int slot, int display)
             quit = TRUE;
         }
         else {
-            if((response >= 'A') && (reponse < ('A' + Player.packptr))) {
+            if((response >= 'A') && (response < ('A' + Player.packptr))) {
                 ok = 1;
             }
             else {
@@ -777,11 +786,11 @@ void take_from_pack(int slot, int display)
                 displayed = TRUE;
                 ok = FALSE;
             }
-            else if(response == ENTER) {
+            else if(response == ESCAPE) {
                 quit = TRUE;
             }
             else {
-                if((reponse >= 'A') && (response < ('A' + Player.packptr))) {
+                if((response >= 'A') && (response < ('A' + Player.packptr))) {
                     ok = 1;
                 }
                 else {
@@ -813,7 +822,7 @@ void take_from_pack(int slot, int display)
             Player.possessions[slot] = Player.pack[response - 'A'];
             item = Player.possessions[slot];
 
-            for(i = response - 'A'l i < (Player.packptr - 1); ++i) {
+            for(i = response - 'A'; i < (Player.packptr - 1); ++i) {
                 Player.pack[i] = Player.pack[i + 1];
             }
 
@@ -1060,7 +1069,7 @@ void inventory_control()
             break;
         case '?':
             inv_help();
-            display_professions();
+            display_possessions();
 
             break;
         case ESCAPE:
@@ -1199,7 +1208,7 @@ void top_inventory_control()
         print1("Action [d,e,p,s,t,x,~,?,ESCAPE]:");
         print2("'Up in air':");
 
-        if(Player.possesssions[O_UP_IN_AIR] == NULL) {
+        if(Player.possessions[O_UP_IN_AIR] == NULL) {
             nprint2("NOTHING");
         }
         else {
@@ -1380,7 +1389,7 @@ int get_item_number(pob o)
     return n;
 }
 
-void drop_from_slow(int slot)
+void drop_from_slot(int slot)
 {
     int n;
     int waitflag;
@@ -1407,7 +1416,7 @@ void drop_from_slow(int slot)
                     waitflag = 0;
                 }
 
-                confrom_lost_objects(n, Player.possessions[slot]);
+                conform_lost_objects(n, Player.possessions[slot]);
 
                 if(waitflag) {
                     morewait();
@@ -1451,7 +1460,7 @@ void put_to_pack(int slot)
                 waitflag = 0;
             }
 
-            confrom_lost_objects(num, oslot);
+            conform_lost_objects(num, oslot);
 
             if(waitflag) {
                 morewait();
@@ -1503,7 +1512,6 @@ void switch_to_slot(int slot)
     int put = FALSE;
     int take = FALSE;
     int merge = FALSE;
-    int s2h = FALSE;
     int a2h = FALSE;
 
     /* i.e., is cursed and in use */
@@ -1526,15 +1534,6 @@ void switch_to_slot(int slot)
         }
         else {
             airnull = 0;
-        }
-
-        if(!slotnull) {
-            if(Player.possessions[O_READY_HAND] == Player.possessions[O_WEAPON_HAND]) {
-                s2h = 1;
-            }
-            else {
-                s2h = 0;
-            }
         }
 
         if(!airnull) {
@@ -1681,7 +1680,7 @@ int objequal(struct object *o, struct object *p)
 }
 
 /* Criteria for being able to put some item in some slot */
-int slottable(pob slot, int slot)
+int slottable(pob o, int slot)
 {
     int ok = TRUE;
 

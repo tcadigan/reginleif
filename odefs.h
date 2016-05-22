@@ -684,7 +684,7 @@
 #define I_PERM_GAZE_IMMUNE 704
 #define I_PERM_FIRE_RESIST 705
 #define I_PERM_POISON_RESIST 706
-#define I_PERM_REGNERATE 707
+#define I_PERM_REGENERATE 707
 #define I_PERM_KNOWLEDGE 708
 
 /* Armor functions */

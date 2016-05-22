@@ -75,7 +75,7 @@ void i_perm_burden(pob o)
     }
 }
 
-void i_perm_gaze(pob o)
+void i_perm_gaze_immune(pob o)
 {
     if(o->used) {
         ++Player.immunity[GAZE];

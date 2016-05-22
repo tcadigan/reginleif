@@ -18,5 +18,25 @@ void weapon_arrow(int dmgmod, pob o, struct monster *m);
 void weapon_tangle(int dmgmod, pob o, struct monster *m);
 void weapon_acidwhip(int dmgmod, pob o, struct monster *m);
 void weapon_bare_hands(int dmgmod, struct monster *m);
+void i_perm_deflect(pob o);
+void i_normal_shield(pob o);
+void i_victrix(pob o);
+void i_defend(pob o);
+void i_mace_disrupt(pob o);
+void i_desecrate(pob o);
+void i_demonblade(pob o);
+void i_lightsabre(pob o);
+void i_normal_weapon(pob o);
+void i_normal_armor(pob o);
+void i_perm_breathing(pob o);
+void i_perm_energy_resist(pob o);
+void i_perm_fear_resist(pob o);
+void i_perm_regenerate(pob o);
+void i_perm_knowledge(pob o);
+void i_perm_poison_resist(pob o);
+void i_perm_fire_resist(pob o);
+void i_perm_gaze_immune(pob o);
+void i_perm_strength(pob o);
+void i_perm_burden(pob o);
 
 #endif

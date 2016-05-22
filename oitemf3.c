@@ -5,6 +5,7 @@
  *
  * Mostly artifact and stick functions
  */
+#include "oitemf3.h"
 
 #include "oglob.h"
 

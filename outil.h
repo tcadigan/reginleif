@@ -26,5 +26,6 @@ char *ordinal(int number);
 int calc_points();
 void findspace(int *x, int *y, int baux);
 int nighttime();
+int strmem(char c, char *s);
 
 #endif

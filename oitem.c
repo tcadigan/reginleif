@@ -5,7 +5,19 @@
  */
 #include "oitem.h"
 
+#include <stdlib.h>
+#include <string.h>
+
+#include "oeffect2.h"
+#include "oetc.h"
 #include "oglob.h"
+#include "oitemf1.h"
+#include "oitemf2.h"
+#include "oitemf3.h"
+#include "oinv.h"
+#include "omon.h"
+#include "oscr.h"
+#include "outil.h"
 
 /* Make a random new object, returning pointer. May return NULL. */
 pob create_object(int itemlevel)
@@ -74,7 +86,7 @@ pob create_object(int itemlevel)
     }
 
     if(new->uniqueness == UNIQUE_UNMADE) {
-        Objects[new->id].uniqueness = UNIQUE_MAKE;
+        Objects[new->id].uniqueness = UNIQUE_MADE;
     }
 
     /* Allocate string space for item names -- should fix name mangling bug */
@@ -248,7 +260,7 @@ void make_scroll(pob new, int id)
     *new = Objects[SCROLLID + id];
 
     /* If a scroll of spells, aux is the spell id in Spells */
-    if(new->id = (SCROLLID + 1)) {
+    if(new->id == (SCROLLID + 1)) {
         new->aux = random_range(NUMSPELLS);
     }
 }
@@ -290,7 +302,7 @@ void make_weapon(pob new, int id)
             new->plus = -1 - abs(new->plus);
         }
         else if(new->blessing > 0) {
-            new->pluse = 1 + abs(new->plus);
+            new->plus = 1 + abs(new->plus);
         }
     }
 }
@@ -377,7 +389,7 @@ void make_stick(pob new, int id)
     }
 
     *new = Objects[STICKID + id];
-    new->chargs = itemcharge();
+    new->charge = itemcharge();
 
     if(new->blessing == 0) {
         new->blessing = itemblessing();
@@ -431,7 +443,7 @@ char *scrollname(int reset, int id)
 
             break;
         case 4:
-            strpcy(Str4, "scroll-Arcanum Prime");
+            strcpy(Str4, "scroll-Arcanum Prime");
 
             break;
         case 5:
@@ -538,6 +550,8 @@ char *scrollname(int reset, int id)
 
         return Str4;
     }
+
+    return NULL;
 }
 
 char *grotname()
@@ -838,6 +852,8 @@ char *stickname(int reset, int id)
 
         return Str4;
     }
+
+    return NULL;
 }
 
 char *ringname(int reset, int id)
@@ -944,6 +960,8 @@ char *ringname(int reset, int id)
 
         return Str4;
     }
+
+    return NULL;
 }
 
 char *cloakname(int reset, int id)
@@ -1050,6 +1068,8 @@ char *cloakname(int reset, int id)
 
         return Str4;
     }
+
+    return NULL;
 }
 
 char *bootname(int reset, int id)
@@ -1156,11 +1176,13 @@ char *bootname(int reset, int id)
 
         return Str4;
     }
+
+    return NULL;
 }
 
 int itemplus()
 {
-    int p = ;
+    int p = 0;
 
     while(random_range(2) == 0) {
         ++p;
@@ -1249,7 +1271,7 @@ void item_use(struct object *o)
         i_wish(o);
 
         break;
-    case I_CALIRVOYANCE:
+    case I_CLAIRVOYANCE:
         i_clairvoyance(o);
 
         break;
@@ -1262,7 +1284,7 @@ void item_use(struct object *o)
 
         break;
     case I_JANE_T:
-        i_jane_t(o);
+        i_jane_to(o);
 
         break;
     case I_FLUX:
@@ -1290,7 +1312,7 @@ void item_use(struct object *o)
 
         break;
     case I_HINT:
-        i_hint(o);
+        hint(o);
 
         break;
     case I_HERO:
@@ -1646,7 +1668,7 @@ void item_use(struct object *o)
 
         break;
     case I_VICTRIX:
-        i_veictrix(o);
+        i_victrix(o);
 
         break;
     case I_PICK:
@@ -1670,7 +1692,7 @@ void item_use(struct object *o)
 
         break;
     case I_NORMAL_SHIELD:
-        i_normal_sheild(o);
+        i_normal_shield(o);
 
         break;
     case I_PERM_DEFLECT:

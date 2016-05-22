@@ -5,8 +5,25 @@
  *
  * Various item functions: potions, scrolls, boots, cloaks, things, food
  */
+#include "oitemf1.h"
 
+#include <stdlib.h>
+
+#include "oaux1.h"
+#include "oaux2.h"
+#include "ochar.h"
+#include "oeffect1.h"
+#include "oeffect2.h"
+#include "oeffect3.h"
+#include "ogen1.h"
 #include "oglob.h"
+#include "oinv.h"
+#include "oitemf2.h"
+#include "omove.h"
+#include "omovef.h"
+#include "oscr.h"
+#include "ospell.h"
+#include "outil.h"
 
 /* General item functions */
 void i_no_op(pob o)
@@ -67,7 +84,7 @@ void i_jane_to(pob o)
         k = STICKID;
 
         break;
-    case 5:
+    default:
         nprint1("STICKS");
         j = STICKID;
         k = ARTIFACTID;
@@ -488,6 +505,11 @@ void i_lembas(pob o)
 
 void i_cure(pob o)
 {
+    cure(o->blessing);
+}
+
+void i_immune(pob o)
+{
     if(o->blessing > 0) {
         mprint("You feel a sense of innoculation");
         ++Player.immunity[INFECTION];
@@ -682,7 +704,7 @@ void i_key(pob o)
             mprint("You can't unlock that!");
             resetgamestatus(SKIP_MONSTERS);
         }
-        else if(Plevel->site[ox][oy].aux == LOCKED) {
+        else if(Level->site[ox][oy].aux == LOCKED) {
             mprint("The lock clicks open!");
             Level->site[ox][oy].aux = UNLOCKED;
             --o->blessing;
@@ -820,7 +842,7 @@ void i_perm_accuracy(pob o)
     Objects[o->id].known = 1;
 
     if(o->used && (o->blessing > -1)) {
-        Player.status[ACCURACTE] += 1500;
+        Player.status[ACCURATE] += 1500;
         mprint("You feel skillful and see bulls; eyes everywhere.");
     }
     else {
@@ -1034,7 +1056,7 @@ void i_trap(pob o)
     }
     else if(!o->known) {
         mprint("Fiddling with the thin, you have a small accident...");
-        p_movefunctions(o->aux);
+        p_movefunction(o->aux);
     }
     else {
         mprint("You successfully set a trap at your location.");
@@ -1048,5 +1070,5 @@ void i_raise_portcullis(pob o)
 {
     l_raise_portcullis();
     mprint("The box beeps once and explodes in your hands!");
-    confrom_lost_objects(1, o);
+    conform_lost_objects(1, o);
 }

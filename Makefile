@@ -69,11 +69,11 @@ ogen2.o: ogen2.h ogen1.h oglob.h olev.h oscr.h outil.h
 oguild1.o: oaux1.h oaux2.h oetc.h oglob.h oinv.h omon.h oscr.h osite2.h otime.h outil.h
 oguild2.o: oaux1.h oaux2.h ochar.h oeffect1.h oeffect3.h oglob.h oinv.h oitem.h oscr.h osite2.h outil.h
 ohouse.o: ohouse.h ogen1.h oglob.h olev.h omon.h oscr.h outil.h
-oinv.o: oinv.h oglob.h
-oitem.o: oitem.h oglob.h
-oitemf1.o: oglob.h
+oinv.o: oinv.h oaux1.h oaux2.h ofile.h oglob.h oitem.h olev.h omon.h oscr.h outil.h
+oitem.o: oitem.h oeffect2.h oetc.h oglob.h oitemf1.h oitemf2.h oitemf3.h oinv.h omon.h oscr.h outil.h
+oitemf1.o: oitemf1.h oaux1.h oaux2.h ochar.h oeffect1.h oeffect2.h oeffect3.h ogen1.h oglob.h oinv.h oitemf2.h omove.h omovef.h oscr.h ospell.h outil.h
 oitemf2.o: oitemf2.h oglob.h
-oitemf3.o: oglob.h
+oitemf3.o: oitemf3.h oglob.h
 olev.o: olev.h oglob.h
 ommelee.o: ommelee.h oglob.h
 ommove.o: ommove.h oglob.h
@@ -95,11 +95,14 @@ outil.o: outil.h oglob.h
 ovillage.o: ovillage.h oglob.h
 oaux1.h: odefs.h
 oaux2.h: odefs.h
+oeffect2.h: odefs.h
 oglob.h: odefs.h
 ogen1.h: odefs.h
 oinv.h: odefs.h
-oitemf2.h: odefs.h
 oitem.h: odefs.h
+oitemf1.h: odefs.h
+oitemf2.h: odefs.h
+oitemf3.h: odefs.h
 ommelee.h: odefs.h
 ommove.h: odefs.h
 omon.h: odefs.h

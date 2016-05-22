@@ -11,6 +11,7 @@ char *bootname(int reset, int id);
 char *stickname(int reset, int id);
 char *potionname(int reset, int id);
 char *scrollname(int reset, int id);
+char *grotname();
 void make_artifact(pob new, int id);
 void make_thing(pob new, int id);
 void make_food(pob new, int id);
@@ -23,5 +24,10 @@ void make_stick(pob new, int id);
 void make_ring(pob new, int id);
 void make_scroll(pob new, int id);
 void make_potion(pob new, int id);
+void make_cash(pob new, int level);
+int twohandedp(int id);
+int itemcharge();
+int itemplus();
+int itemblessing();
 
 #endif
