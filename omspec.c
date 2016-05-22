@@ -5,6 +5,7 @@
  *
  * Monster special functions
  */
+#include "omspec.h"
 
 #include "oglob.h"
 

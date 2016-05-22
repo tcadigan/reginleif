@@ -9,7 +9,13 @@
 
 #include "olev.h"
 
+#include <stdlib.h>
+#include <string.h>
+
 #include "oglob.h"
+#include "oitem.h"
+#include "omon.h"
+#include "outil.h"
 
 /* Monsters for tactical encounters */
 void make_country_monsters(char terrain)
@@ -17,7 +23,7 @@ void make_country_monsters(char terrain)
     pml tml;
     pml ml = NULL;
 
-    static in plains[10] = {
+    static int plains[10] = {
         BUNNY,
         BUNNY,
         BLACKSNAKE,
@@ -38,7 +44,7 @@ void make_country_monsters(char terrain)
         DEER,
         WOLF,
         BEAR,
-        BROGAND,
+        BRIGAND,
         RANDOM
     };
 
@@ -61,7 +67,7 @@ void make_country_monsters(char terrain)
         TROUT,
         MANOWAR,
         BASS,
-        MASS,
+        BASS,
         CROC,
         CROC,
         BRIGAND,
@@ -205,7 +211,7 @@ void populate_level(int monstertype)
     int i;
     int j;
     int k;
-    int monsterid;
+    int monsterid = -1;
     int nummonsters = ((random_range(difficulty() / 3) + 1) * 3) + 8;
 
     if(monstertype == E_CASTLE) {
@@ -218,7 +224,7 @@ void populate_level(int monstertype)
         nummonsters += 20;
     }
 
-    tml = (pml)mallod(sizeof(mltype));
+    tml = (pml)malloc(sizeof(mltype));
     head = tml;
 
     for(k = 0; k < nummonsters; ++k) {
@@ -379,7 +385,7 @@ void populate_level(int monstertype)
                     break;
                 case 7:
                     /* Rakshasa */
-                    mosnterid = ML6 + 9;
+                    monsterid = ML6 + 9;
                     
                     break;
                 case 8:
@@ -818,7 +824,7 @@ pmt make_creature(int mid)
 
         newmonster->monstring = salloc(Str3);
     }
-    else if(mid = (ML0 + 7)) {
+    else if(mid == (ML0 + 7)) {
         /* Generic 0th level human */
         newmonster->monstring = salloc(mantype());
         strcpy(Str1, "dead ");
@@ -828,7 +834,7 @@ pmt make_creature(int mid)
     else if(newmonster->monchar == '!') {
         /* The nymph/satyr and incubus/succubus */
         if(Player.preference == 'f') {
-            newmonster->mmonchar = 'n';
+            newmonster->monchar = 'n';
             newmonster->monstring = salloc("nymph");
             newmonster->corpsestr = salloc("dead nymph");
         }
@@ -866,8 +872,7 @@ pmt make_creature(int mid)
 
         for(i = 0; i < treasures; ++i) {
             ob = (pob)malloc(sizeof(objtype));
-
-            ob = (pob)(creature(object(newmonster->level)));
+            ob = (pob)(create_object(newmonster->level));
 
             while(ob->uniqueness != 0) {
                 ob = (pob)(create_object(newmonster->level));

@@ -28,5 +28,6 @@ void describe_player();
 char *mstatus_string(struct monster *m);
 void setspot(int *x, int *y);
 char *levelname(int level);
+int player_on_sanctuary();
 
 #endif

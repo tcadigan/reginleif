@@ -27,5 +27,7 @@ int calc_points();
 void findspace(int *x, int *y, int baux);
 int nighttime();
 int strmem(char c, char *s);
+int unblocked(int x, int y);
+int m_unblocked(struct monster *m, int x, int y);
 
 #endif

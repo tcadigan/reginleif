@@ -7,7 +7,16 @@
  */
 #include "ommelee.h"
 
+#include <string.h>
+
+#include "oaux1.h"
+#include "oaux2.h"
+#include "oeffect3.h"
 #include "oglob.h"
+#include "omon.h"
+#include "omspec.h"
+#include "oscr.h"
+#include "outil.h"
 
 void m_hit(struct monster *m, int dtype)
 {
@@ -81,7 +90,7 @@ void monster_melee(struct monster *m, char hitloc, int bonus)
 
         ++m->attacked;
 
-        if(m->uniquenee == COMMON) {
+        if(m->uniqueness == COMMON) {
             strcpy(Str2, "The ");
             strcat(Str2, m->monstring);
         }
@@ -138,7 +147,7 @@ void monster_melee(struct monster *m, char hitloc, int bonus)
 
                 break;
             case M_MELEE_POISON:
-                strcat(Str22, " hits you.");
+                strcat(Str2, " hits you.");
                 mprint(Str2);
                 m_hit(m, NORMAL_DAMAGE);
 
@@ -286,7 +295,7 @@ int monster_hit(struct monster *m, char hitloc, int bonus)
 
             if(hitp(Player.hit, m->ac)) {
                 mprint("You hit!");
-                weapon_user(0, Player.possessions[O_WEAPON_HAND], m);
+                weapon_use(0, Player.possessions[O_WEAPON_HAND], m);
             }
             else {
                 mprint("You missed.");
@@ -304,7 +313,7 @@ int monster_hit(struct monster *m, char hitloc, int bonus)
 void transcribe_monster_actions(struct monster *m)
 {
     int i;
-    char attack_lock;
+    char attack_loc;
     char block_loc;
     static char mmstr[80];
     int p_blocks[3];
@@ -356,7 +365,7 @@ void transcribe_monster_actions(struct monster *m)
         attack_loc = 'C';
     }
     else {
-        attack_lock = 'H';
+        attack_loc = 'H';
     }
 
     if((p_attacks[2] <= p_attacks[1]) && (p_attacks[2] <= p_attacks[0])) {
@@ -425,7 +434,7 @@ char random_loc()
     case 1:
 
         return 'C';
-    case 2:
+    default:
 
         return 'L';
     }

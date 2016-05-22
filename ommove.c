@@ -8,7 +8,12 @@
 
 #include "ommove.h"
 
+#include <string.h>
+
 #include "oglob.h"
+#include "omon.h"
+#include "oscr.h"
+#include "outil.h"
 
 /* Like m_normal_move, but can open doors */
 void m_smart_move(struct monster *m)
@@ -187,7 +192,7 @@ void m_flutter_move(struct monster *m)
             ty = m->y + Dirs[1][i];
             trange = distance(tx, ty, Player.x, Player.y);
 
-            if(m->hp < (Monsters[m->id] / 6)) {
+            if(m->hp < (Monsters[m->id].hp / 6)) {
                 if((trange > range) && m_unblocked(m, tx, ty)) {
                     range = trange;
                     nx = tx;

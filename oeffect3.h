@@ -28,5 +28,6 @@ void hide(int x, int y);
 void disintegrate(int x, int y);
 void inflict_fear(int x, int y);
 void disrupt(int x, int y, int amount);
+void drain_life(int amount);
 
 #endif

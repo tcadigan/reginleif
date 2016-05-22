@@ -16,10 +16,12 @@ OBJS = oabyss.o oaux1.o oaux2.o oaux3.o o.o ochar.o ocity.o ocom1.o ocom2.o \
        omovef.o omspec.o omstrike.o omtalk.o opriest.o osave.o oscr.o osite1.o \
        osite2.o ospell.o otime.o otrap.o outil.o ovillage.o
 
-HDRS = oabyss.h oaux1.h oaux2.h oaux3.h ochar.h ocity.h ocom3.h ocountry.h \
-       odate.h odefs.h oeffect1.h oeffect3.h oenv.h oetc.h ofile.h ogen1.h \
-       ogen2.h oglob.h ohouse.h oiinit.h oinv.h oitemf2.h oitem.h olev.h \
-       ominit.h ommelee.h ommove.h omon.h oscr.h osite2.h outil.h ovillage.h
+HDRS = oabyss.h oaux1.h oaux2.h oaux3.h ochar.h ocity.h ocom1.h ocom2.h ocom3.h \
+       ocountry.h odate.h odefs.h oeffect1.h oeffect2.h oeffect3.h oenv.h oetc.h \
+       ofile.h ogen1.h ogen2.h oglob.h o.h ohouse.h oiinit.h oinv.h oitemf1.h \
+       oitemf2.h oitemf3.h oitem.h olev.h ominit.h ommelee.h ommove.h omon.h \
+       omovef.h omove.h omspec.h osave.h oscr.h osite1.h osite2.h ospell.h \
+       otime.h outil.h ovillage.h
 
 all: $(GAME) crypt decrypt
 
@@ -74,13 +76,13 @@ oitem.o: oitem.h oeffect2.h oetc.h oglob.h oitemf1.h oitemf2.h oitemf3.h oinv.h 
 oitemf1.o: oitemf1.h oaux1.h oaux2.h ochar.h oeffect1.h oeffect2.h oeffect3.h ogen1.h oglob.h oinv.h oitemf2.h omove.h omovef.h oscr.h ospell.h outil.h
 oitemf2.o: oitemf2.h oaux1.h oaux2.h oeffect1.h oeffect2.h oeffect3.h oglob.h oinv.h ommove.h omon.h oscr.h outil.h
 oitemf3.o: oitemf3.h oaux1.h oaux2.h ochar.h oeffect1.h oeffect3.h oetc.h oglob.h oinv.h oitemf1.h omon.h oscr.h outil.h
-olev.o: olev.h oglob.h
-ommelee.o: ommelee.h oglob.h
-ommove.o: ommove.h oglob.h
+olev.o: olev.h oglob.h oitem.h omon.h outil.h
+ommelee.o: ommelee.h oaux1.h oaux2.h oeffect3.h oglob.h omon.h omspec.h oscr.h outil.h
+ommove.o: ommove.h oglob.h omon.h oscr.h outil.h
 omon.o: omon.h oglob.h
 omove.o: omove.h oglob.h
 omovef.o: omovef.h oglob.h
-omspec.o: oglob.h
+omspec.o: omspec.h oglob.h
 omstrike.o: oglob.h
 omtalk.o: oglob.h
 opriest.o: oglob.h
@@ -106,5 +108,6 @@ oitemf3.h: odefs.h
 olev.h: odefs.h
 ommelee.h: odefs.h
 ommove.h: odefs.h
+omspec.h: odefs.h
 omon.h: odefs.h
 oscr.h: odefs.h
