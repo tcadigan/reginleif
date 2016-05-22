@@ -7,7 +7,20 @@
  */
 #include "oitemf3.h"
 
+#include <stdlib.h>
+
+#include "oaux1.h"
+#include "oaux2.h"
+#include "ochar.h"
+#include "oeffect1.h"
+#include "oeffect3.h"
+#include "oetc.h"
 #include "oglob.h"
+#include "oinv.h"
+#include "oitemf1.h"
+#include "omon.h"
+#include "oscr.h"
+#include "outil.h"
 
 /* Amulet of the planes */
 void i_planes(pob o)
@@ -20,7 +33,7 @@ void i_planes(pob o)
         Player.mana = max(0, Player.mana - 100);
         dataprint();
         morewait();
-        stategic_teleport(1);
+        strategic_teleport(1);
     }
 }
 
@@ -124,7 +137,7 @@ void i_juggernaut(pob o)
         else {
             print2("Vroom!");
 
-            while(inbounds(x + Dirs[0][d], y + dirs[1][d])) {
+            while(inbounds(x + Dirs[0][d], y + Dirs[1][d])) {
                 x += Dirs[0][d];
                 y += Dirs[1][d];
                 Level->site[x][y].locchar = FLOOR;
@@ -157,7 +170,7 @@ void i_symbol(pob o)
         print3("You are enveloped in Godsfire!");
         morewait();
 
-        while(player.hp > 1) {
+        while(Player.hp > 1) {
             dataprint();
             morewait();
 
@@ -377,15 +390,15 @@ int orbcheck(char element)
     response = mcigetc();
 
     while((response != 'f')
-          && (repsonse != 'w')
+          && (response != 'w')
           && (response != 'e')
           && (response != 'a')
           && (response != 'm')) {
         print2("Which one [f,w,e,a,m] ");
-        response = micgetc();
+        response = mcigetc();
     }
 
-    if(repsonse == element) {
+    if(response == element) {
         return 1;
     }
     else {
@@ -397,7 +410,7 @@ int orbcheck(char element)
 void i_orbfire(pob o)
 {
     if(!orbcheck('f')) {
-        prin1("Bad choice!");
+        print1("Bad choice!");
         print2("The Orb of Fire blasts you!");
         fball(Player.x, Player.y, Player.x, Player.y, 250);
         o->known = 1;

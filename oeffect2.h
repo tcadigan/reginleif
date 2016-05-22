@@ -15,6 +15,7 @@ void recover_stat(int blessing);
 void haste(int blessing);
 void displace(int blessing);
 void flux(int blessing);
+void sanctify(int blessing);
 void i_chaos(pob o);
 void i_law(pob o);
 

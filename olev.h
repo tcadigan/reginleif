@@ -1,6 +1,8 @@
 #ifndef OLEV_H_
 #define OLEV_H_
 
+#include "odefs.h"
+
 int difficulty();
 void wandercheck();
 pmt m_create(int x, int y, int kind, int level);

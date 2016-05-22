@@ -170,7 +170,7 @@ extern int Gymcredit;
 extern int Spellsleft;
 
 /* Last date of star gem use */
-extern int StartGemUse;
+extern int StarGemUse;
 
 /* Last date of high magic use */
 extern int HiMagicUse;

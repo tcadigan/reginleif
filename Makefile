@@ -12,7 +12,7 @@ SRCS = oabyss.c oaux1.c oaux2.c oaux3.c o.c ochar.c ocity.c ocom1.c ocom2.c \
 OBJS = oabyss.o oaux1.o oaux2.o oaux3.o o.o ochar.o ocity.o ocom1.o ocom2.o \
        ocom3.o ocountry.o oeffect1.o oeffect2.o oeffect3.o oenv.o oetc.o \
        ofile.o ogen1.o ogen2.o oguild1.o oguild2.o ohouse.o oinv.o oitem.o \
-       oitemf1.o oitemf2.o otiemf3.o olev.o ommelee.o ommove.o omon.o omove.o \
+       oitemf1.o oitemf2.o oitemf3.o olev.o ommelee.o ommove.o omon.o omove.o \
        omovef.o omspec.o omstrike.o omtalk.o opriest.o osave.o oscr.o osite1.o \
        osite2.o ospell.o otime.o otrap.o outil.o ovillage.o
 
@@ -72,8 +72,8 @@ ohouse.o: ohouse.h ogen1.h oglob.h olev.h omon.h oscr.h outil.h
 oinv.o: oinv.h oaux1.h oaux2.h ofile.h oglob.h oitem.h olev.h omon.h oscr.h outil.h
 oitem.o: oitem.h oeffect2.h oetc.h oglob.h oitemf1.h oitemf2.h oitemf3.h oinv.h omon.h oscr.h outil.h
 oitemf1.o: oitemf1.h oaux1.h oaux2.h ochar.h oeffect1.h oeffect2.h oeffect3.h ogen1.h oglob.h oinv.h oitemf2.h omove.h omovef.h oscr.h ospell.h outil.h
-oitemf2.o: oitemf2.h oglob.h
-oitemf3.o: oitemf3.h oglob.h
+oitemf2.o: oitemf2.h oaux1.h oaux2.h oeffect1.h oeffect2.h oeffect3.h oglob.h oinv.h ommove.h omon.h oscr.h outil.h
+oitemf3.o: oitemf3.h oaux1.h oaux2.h ochar.h oeffect1.h oeffect3.h oetc.h oglob.h oinv.h oitemf1.h omon.h oscr.h outil.h
 olev.o: olev.h oglob.h
 ommelee.o: ommelee.h oglob.h
 ommove.o: ommove.h oglob.h
@@ -103,6 +103,7 @@ oitem.h: odefs.h
 oitemf1.h: odefs.h
 oitemf2.h: odefs.h
 oitemf3.h: odefs.h
+olev.h: odefs.h
 ommelee.h: odefs.h
 ommove.h: odefs.h
 omon.h: odefs.h

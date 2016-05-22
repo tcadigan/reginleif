@@ -9,6 +9,8 @@ void gain_level();
 void movecursor(int *x, int *y, int dx, int dy);
 int p_immune(int dtype);
 void p_fumble(int dtype);
+void p_hit(struct monster *m, int dmg, int dtype);
+void p_drown();
 void tacplayer(struct monster *m);
 int statmod(int stat);
 void change_environment(char new_environment);

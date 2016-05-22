@@ -7,7 +7,19 @@
  */
 #include "oitemf2.h"
 
+#include <stdlib.h>
+
+#include "oaux1.h"
+#include "oaux2.h"
+#include "oeffect1.h"
+#include "oeffect2.h"
+#include "oeffect3.h"
 #include "oglob.h"
+#include "oinv.h"
+#include "ommove.h"
+#include "omon.h"
+#include "oscr.h"
+#include "outil.h"
 
 /* Ring functions */
 void i_perm_knowledge(pob o)
@@ -62,7 +74,7 @@ void i_perm_burden(pob o)
         mprint("You feel heavier.");
     }
     else {
-        i->weight = 1;
+        o->weight = 1;
         mprint("Phew. What a relief.");
     }
 
@@ -154,7 +166,7 @@ void i_perm_energy_resist(pob o)
     if(o->used) {
         ++Player.immunity[FLAME];
         ++Player.immunity[COLD];
-        ++Player.immunity[ELECTRICTY];
+        ++Player.immunity[ELECTRICITY];
     }
     else {
         --Player.immunity[FLAME];
@@ -290,12 +302,12 @@ void weapon_lightsabre(int dmgmod, pob o, struct monster *m)
     }
     else {
         /* Test prevents confusing immunity messages... */
-        if(!m_immunity(m, NORMAL_DAMAGE)) {
+        if(!m_immunityp(m, NORMAL_DAMAGE)) {
             mprint("Vzzzzmmm!");
             m_damage(m, 20, NORMAL_DAMAGE);
         }
 
-        if((m->hp > 0) && !m_immunity(m, FLAME)) {
+        if((m->hp > 0) && !m_immunityp(m, FLAME)) {
             mprint("Zzzap!");
             m_damage(m, 20, FLAME);
         }
@@ -304,7 +316,7 @@ void weapon_lightsabre(int dmgmod, pob o, struct monster *m)
 
 void weapon_tangle(int dmgmod, pob o, struct monster *m)
 {
-    if((random_range(2) == 1) && !m_immunity(m, NORMAL_DAMAGE)) {
+    if((random_range(2) == 1) && !m_immunityp(m, NORMAL_DAMAGE)) {
         mprint("You entangle the monster!");
         m_status_reset(m, MOBILE);
     }
@@ -321,7 +333,7 @@ void weapon_arrow(int dmgmod, pob o, struct monster *m)
         p_hit(m, Player.dmg + o->plus + o->dmg + dmgmod, NORMAL_DAMAGE);
     }
     else {
-        m_hit(m, o->plus + o->dmg + dmgmod, NORMAL_DAMAGE);
+        p_hit(m, o->plus + o->dmg + dmgmod, NORMAL_DAMAGE);
     }
 }
 
@@ -330,7 +342,7 @@ void weapon_bolt(int dmgmod, pob o, struct monster *m)
 {
     if((Player.possessions[O_WEAPON_HAND] != NULL)
        && (Player.possessions[O_WEAPON_HAND]->id == (WEAPONID + 27))
-       && (Player.possesisons[O_WEAPON_HAND]->aux == LOADED)) {
+       && (Player.possessions[O_WEAPON_HAND]->aux == LOADED)) {
         /* Ie. using a crossbow */
         p_hit(m, Player.dmg + o->plus + o->dmg + dmgmod, NORMAL_DAMAGE);
         Player.possessions[O_WEAPON_HAND]->aux = UNLOADED;

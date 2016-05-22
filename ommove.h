@@ -4,5 +4,6 @@
 #include "odefs.h"
 
 void m_teleport(struct monster *m);
+void m_vanish(struct monster *m);
 
 #endif

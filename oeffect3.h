@@ -21,6 +21,12 @@ void p_poison(int toxicity);
 void p_teleport(int type);
 void deflection(int blessing);
 void clairvoyance(int vision);
+void polymorph(int blessing);
+void sleep_monster(int blessing);
 void amnesia();
+void hide(int x, int y);
+void disintegrate(int x, int y);
+void inflict_fear(int x, int y);
+void disrupt(int x, int y, int amount);
 
 #endif
