@@ -4,7 +4,7 @@
 void l_trap_abyss();
 void l_trap_acid();
 void l_trap_manadrain();
-void l_trap_sleep_gas();
+void l_trap_sleepgas();
 void l_trap_disintegrate();
 void l_trap_teleport();
 void l_trap_fire();

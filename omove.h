@@ -21,7 +21,6 @@ void l_void();
 void l_voice3();
 void l_voice2();
 void l_voice1();
-void l_adept();
 void l_mindstone();
 void l_sacrificestone();
 void l_lawstone();

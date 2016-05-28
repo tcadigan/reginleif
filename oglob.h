@@ -3,7 +3,7 @@
  *
  * oglob.h
  *
- * This file contains extern declarations of global variables used through the
+ * This file contains declarations of global variables used through the
  * program. It includes the other header files, so every program module (except
  * o.c) can just include this file.
  */
@@ -11,254 +11,254 @@
 #include "odefs.h"
 
 /* One of each monster */
-extern struct monster Monsters[NUMMONSTERS];
+struct monster Monsters[NUMMONSTERS];
 
 /* One of each spell */
-extern struct spell Spells[NUMSPELLS + 1];
+struct spell Spells[NUMSPELLS + 1];
 
 /* One of each item */
-extern struct object Objects[TOTALITEMS];
+struct object Objects[TOTALITEMS];
 
 /* Locations of city sites [0] - found, [1] - x, [2] - y */
-extern int CitySiteList[NUMCITYSITES][3];
+int CitySiteList[NUMCITYSITES][3];
 
 /* The player */
-extern struct player Player;
+struct player Player;
 
 /* Level y dimension */
-extern int LENGTH;
+int LENGTH;
 
 /* Level x dimension */
-extern int WIDTH;
+int WIDTH;
 
 /* Game status bit vector */
-extern int GameStatus;
+int GameStatus;
 
 /* How large is level window */
-extern int ScreenLength;
+int ScreenLength;
 
 /* The countryside */
-extern struct terrain Country[MAXWIDTH][MAXLENGTH];
+struct terrain Country[MAXWIDTH][MAXLENGTH];
 
 /* The city of Rampart */
-extern struct level *City;
+struct level *City;
 
 /* Player holder */
-extern struct level *TempLevel;
+struct level *TempLevel;
 
 /* Pointer to current dungeon */
-extern struct level *Dungeon;
+struct level *Dungeon;
 
 /* Pointer to current level */
-extern struct level *Level;
+struct level *Level;
 
 /* What is dungeon now (an E_ constant) */
-extern int Current_Dungeon;
+int Current_Dungeon;
 
 /* Current village number */
-extern int Villagenum;
+int Villagenum;
 
 /* Offset of displayed screen to level */
-extern int ScreenOffset;
+int ScreenOffset;
 
 /* Deepest level allowed in dungeon */
-extern int MaxDungeonLevels;
+int MaxDungeonLevels;
 
 /* Which environment are we in (an E_ constant) */
-extern int Current_Environment;
+int Current_Environment;
 
 /* Which environment were we in last (an E_ constant) */
-extern int Last_Environment;
+int Last_Environment;
 
 /* 9 x,y directions */
-extern int Dirs[2][9];
+int Dirs[2][9];
 
 /* Last player command */
-extern char Cmd;
+char Cmd;
 
 /* How lond does current command take */
-extern int Command_Duration;
+int Command_Duration;
 
 /* Opponent in arena */
-extern struct monster *Arena_Monster;
+struct monster *Arena_Monster;
 
 /* Case label of opponent in l_arena() */
-extern int Arena_Opponent;
+int Arena_Opponent;
 
 /* Did player win in arena? */
-extern int Arena_Victory;
+int Arena_Victory;
 
 /* Amount of time spent in jail */
-extern int Imprisonment;
+int Imprisonment;
 
 /* Hours of rain, snow, etc. */
-extern int Precipitation;
+int Precipitation;
 
 /* Phase of the moon */
-extern int Phase;
+int Phase;
 
 /* How player is affected by moon */
-extern int Lunarity;
+int Lunarity;
 
 /* Day of the year */
-extern int Date;
+int Date;
 
 /* Pawn shop item generation date */
-extern int PawnDate;
+int PawnDate;
 
 /* Items in pawn shop */
-extern pob Pawnitems[PAWNITEMS];
+pob Pawnitems[PAWNITEMS];
 
 /* Crystal ball use marker */
-extern int ViewHour;
+int ViewHour;
 
 /* Staff of enchantment use marker */
-extern int ZapHour;
+int ZapHour;
 
 /* Helm of teleportation use marker */
-extern int HelmHour;
+int HelmHour;
 
 /* Holy symbol use marker */
-extern int SymbolUseHour;
+int SymbolUseHour;
 
 /* Dragonlord attack state */
-extern int Constriction;
+int Constriction;
 
 /* Altar blessing state */
-extern int Blessing;
+int Blessing;
 
 /* DPW date of dole */
-extern int LastDay;
+int LastDay;
 
 /* Last use of ritual magic */
-extern int RitualHour;
+int RitualHour;
 
 /* Last room use of ritual magic */
-extern int RitualRoom;
+int RitualRoom;
 
 /* Magic stone counter */
-extern int Lawstone;
+int Lawstone;
 
 /* Magic stone counter */
-extern int Chaostone;
+int Chaostone;
 
 /* Magic stone counter */
-extern int Mindstone;
+int Mindstone;
 
 /* Number of times to search on 's' */
-extern int Searchnum;
+int Searchnum;
 
 /* Verbosity level */
-extern int Verbosity;
+int Verbosity;
 
 /* Random seed */
-extern char Seed;
+char Seed;
 
 /* Turn number */
-extern int Time;
+int Time;
 
 /* Current second in minute; action coordinator */
-extern int Tick;
+int Tick;
 
 /* The last printed strings */
-extern char StringBuffer[10][80];
+char Stringbuffer[10][80];
 
 /* Credit at Rampart gym */
-extern int Gymcredit;
+int Gymcredit;
 
 /* Research allowance at college */
-extern int Spellsleft;
+int Spellsleft;
 
 /* Last date of star gem use */
-extern int StarGemUse;
+int StarGemUse;
 
 /* Last date of high magic use */
-extern int HiMagicUse;
+int HiMagicUse;
 
 /* Current level for l_throws */
-extern int HiMagic;
+int HiMagic;
 
 /* Bank account */
-extern int Balance;
+int Balance;
 
 /* Points are frozen after adepthood */
-extern int FixedPoints;
+int FixedPoints;
 
 /* Previous position in countryside */
-extern int LastCountryLocX;
+int LastCountryLocX;
 
 /* Previous position in countryside */
-extern int LastCountryLocY;
+int LastCountryLocY;
 
 /* Previous position in village or city */
-extern int LastTownLocX;
+int LastTownLocX;
 
 /* Previous position in village or city */
-extern int LastTownLocY;
+int LastTownLocY;
 
 /* Autoteller password */
-extern char Password[64];
+char Password[64];
 
 /* Items in condo */
-extern pol Condoitems;
+pol Condoitems;
 
 /* Some string space, random uses */
-extern char Str1[100];
-extern char Str2[100];
-extern char Str3[100];
-extern char Str4[100];
+char Str1[100];
+char Str2[100];
+char Str3[100];
+char Str4[100];
 
 /* High score names, levels, behavior */
-extern int Shadowlordbehavior;
-extern int Archmagebehavior;
-extern int Primebehavior;
-extern int Justiciarbehavior;
-extern int Commandantbehavior;
-extern int Chaoslordbehavior;
-extern int Lawlordbehavior;
-extern int Championbehavior;
-extern int Priestbehavior[7];
-extern int Hibehavior;
-extern int Dukebehavior;
-extern char Shadowlord[80];
-extern char Archmage[80];
-extern char Prime[80];
-extern char Commandant[80];
-extern char Duke[80];
-extern char Champion[80];
-extern char Priest[7][80];
-extern char Hiscorer[80];
-extern char Hidescrip[80];
-extern char Chaoslord[80];
-extern char Lawlord[80];
-extern char Justiciar[80];
-extern int Shadowlordlevel;
-extern int Archmagelevel;
-extern int Primelevel;
-extern int Commandantlevel;
-extern int Dukelevel;
-extern int Championlevel;
-extern int Priestlevel[7];
-extern int Hiscore;
-extern int Hilevel;
-extern int Justiciarlevel;
-extern int Chaoslordlevel;
-extern int Lawlordlevel;
-extern int Chaos;
-extern int Law;
+int Shadowlordbehavior;
+int Archmagebehavior;
+int Primebehavior;
+int Justiciarbehavior;
+int Commandantbehavior;
+int Chaoslordbehavior;
+int Lawlordbehavior;
+int Championbehavior;
+int Priestbehavior[7];
+int Hibehavior;
+int Dukebehavior;
+char Shadowlord[80];
+char Archmage[80];
+char Prime[80];
+char Commandant[80];
+char Duke[80];
+char Champion[80];
+char Priest[7][80];
+char Hiscorer[80];
+char Hidescrip[80];
+char Chaoslord[80];
+char Lawlord[80];
+char Justiciar[80];
+int Shadowlordlevel;
+int Archmagelevel;
+int Primelevel;
+int Commandantlevel;
+int Dukelevel;
+int Championlevel;
+int Priestlevel[7];
+int Hiscore;
+int Hilevel;
+int Justiciarlevel;
+int Chaoslordlevel;
+int Lawlordlevel;
+int Chaos;
+int Law;
 
 /* New globals which used to be statics */
-extern int twiddle;
-extern int saved;
-extern int onewithchaos;
-extern int club_hinthour;
-extern int winnings;
-extern int tavern_hinthour;
-extern int scroll_ids[30];
-extern int potion_ids[30];
-extern int stick_ids[30];
-extern int ring_ids[30];
-extern int cloak_ids[30];
-extern int boot_ids[30];
+int twiddle;
+int saved;
+int onewithchaos;
+int club_hinthour;
+int winnings;
+int tavern_hinthour;
+int scroll_ids[30];
+int potion_ids[30];
+int stick_ids[30];
+int ring_ids[30];
+int cloak_ids[30];
+int boot_ids[30];
 
-extern int deepest[E_MAX + 1];
+int deepest[E_MAX + 1];

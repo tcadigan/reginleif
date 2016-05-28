@@ -29,6 +29,7 @@ void m_abyss(struct monster *m);
 void m_fire(struct monster *m);
 void m_lava(struct monster *m);
 void m_water(struct monster *m);
+void m_pulse(struct monster *m);
 void make_hiscore_npc(pmt npc, int npcid);
 void make_log_npc(struct monster *npc);
 void monster_talk(struct monster *m);

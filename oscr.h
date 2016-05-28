@@ -74,5 +74,11 @@ void checkclear();
 void erase_monster(struct monster *m);
 void plotspot(int x, int y, int showmonster);
 int stillonblock();
+void buffercycle(char *s);
+void lightspot(int x, int y);
+void drawmonsters(int display);
+void drawomega();
+void menuspellprint(int i);
+void plotchar(char pyx, int x, int y);
 
 #endif

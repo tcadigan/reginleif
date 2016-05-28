@@ -8,7 +8,13 @@
 
 #include "outil.h"
 
+#include <stdlib.h>
+#include <string.h>
+
+#include "ogen1.h"
 #include "oglob.h"
+#include "omon.h"
+#include "oscr.h"
 
 /* x and y on level? */
 int inbounds(int x, int y)
@@ -41,7 +47,7 @@ int offscreen(int y)
 {
     if((y < 0)
        || (y  < ScreenOffset)
-       || (y > (Screenoffset + ScreenLength - 1))
+       || (y > (ScreenOffset + ScreenLength - 1))
        || (y > LENGTH)) {
         return 1;
     }
@@ -55,7 +61,7 @@ int hitp(int hit, int ac)
 {
     int roll = random_range(20);
 
-    if(roll = 0) {
+    if(roll == 0) {
         return TRUE;
     }
     else if(roll == 19) {
@@ -156,7 +162,7 @@ int m_unblocked(struct monster *m, int x, int y)
             || (Level->site[x][y].locchar == OPEN_DOOR)) {
         return TRUE;
     }
-    else if((Level->site[x][y].locchar == PROTCULLIS)
+    else if((Level->site[x][y].locchar == PORTCULLIS)
             || (Level->site[x][y].locchar == WALL)
             || (Level->site[x][y].locchar == STATUE)
             || loc_statusp(x, y, SECRET)) {
@@ -191,7 +197,7 @@ int m_unblocked(struct monster *m, int x, int y)
     }
     else if(Level->site[x][y].locchar == LAVA) {
         if((m_immunityp(m, FLAME) && m_statusp(m, SWIMMING))
-           || m_stautsp(m, FLYING)) {
+           || m_statusp(m, FLYING)) {
             return 1;
         }
         else {
@@ -301,7 +307,7 @@ void do_los(char pyx, int *x1, int *y1, int x2, int y2)
         ox = *x1;
         oy = *y1;
         sx = sign(x2 - *x1);
-        xy = sign(y2 - *y1);
+        sy = sign(y2 - *y1);
 
         if(abs(x2 - *x1) > abs(y2 - *y1)) {
             *x1 += sx;
@@ -337,7 +343,7 @@ void do_object_los(char pyx, int *x1, int *y1, int x2, int y2)
     int ox;
     int oy;
     int sx;
-    int xy;
+    int sy;
     int v;
 
     ox = *x1;
@@ -370,7 +376,7 @@ void do_object_los(char pyx, int *x1, int *y1, int x2, int y2)
         ox = *x1;
         oy = *y1;
         sx = sign(x2 - *x1);
-        xy = sign(y2 - *y1);
+        sy = sign(y2 - *y1);
 
         if(abs(x2 - *x1) > abs(y2 - *y1)) {
             *x1 += sx;
@@ -531,8 +537,8 @@ char inversedir(int dirindex)
     case 6:
 
         return 'j';
-    case 7:
-
+    default:
+        
         return 'k';
     }
 }
@@ -542,7 +548,7 @@ int calc_points()
     int i;
     int points = 0;
 
-    if(gaemstatusp(SPOKE_TO_DRUID)) {
+    if(gamestatusp(SPOKE_TO_DRUID)) {
         points += 50;
     }
 
@@ -740,8 +746,8 @@ char *month()
     case 11:
 
         return "Dark";
-    case 12:
-
+    default:
+        
         return "Twixt";
     }
 }
@@ -932,7 +938,7 @@ void calc_weight()
 
     for(i = 1; i < MAXPACK; ++i) {
         if(Player.pack[i] != NULL) {
-            weight += (Palyer.pack[i]->weight * Player.pack[i]->number);
+            weight += (Player.pack[i]->weight * Player.pack[i]->number);
         }
     }
 

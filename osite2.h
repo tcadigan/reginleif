@@ -14,5 +14,9 @@ void l_condo();
 void l_vault();
 void l_brothel();
 void l_trifid();
+void l_adept();
+void cureforpay();
+void healforpay();
+void gymtrain(int *maxstr, int *stat);
 
 #endif

@@ -646,7 +646,7 @@ void recover_stat(int blessing)
     calc_melee();
 }
 
-void agument(int blessing)
+void augment(int blessing)
 {
     if(blessing < 0) {
         mprint("You feel a cold surge!");

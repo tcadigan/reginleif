@@ -9,5 +9,6 @@ void make_justiciar(int i, int j);
 void randommazesite(int i, int j);
 void mazesite(int i, int j);
 void assign_city_function(int x, int y);
+void repair_jail();
 
 #endif

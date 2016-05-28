@@ -7,7 +7,20 @@
  */
 #include "ospell.h"
 
+#include <string.h>
+
+#include "oaux1.h"
+#include "oeffect1.h"
+#include "oeffect2.h"
+#include "oeffect3.h"
 #include "oglob.h"
+#include "oinv.h"
+#include "olev.h"
+#include "omon.h"
+#include "oscr.h"
+#include "osite2.h"
+#include "otime.h"
+#include "outil.h"
 
 void s_wish()
 {
@@ -88,7 +101,7 @@ void s_invisible()
     invisible(0);
 }
 
-void s_warp();
+void s_warp()
 {
     warp(1);
 }
@@ -329,7 +342,7 @@ void s_ritual()
                             }
                             else if(random_range(3) == 1) {
                                 mprint("You feel Fated.");
-                                gain_experience(Player.level * Player.leve * 10);
+                                gain_experience(Player.level * Player.level * 10);
                                 Player.hp = Player.maxhp;
                             }
                             else if(random_range(2)) {
@@ -507,7 +520,7 @@ char *spellid(int id)
     case S_DISPEL:
 
         return "dispelling";
-    case S_BREATH:
+    case S_BREATHE:
 
         return "breathing";
     case S_INVISIBLE:
@@ -579,7 +592,7 @@ char *spellid(int id)
     case S_CLAIRVOYANCE:
 
         return "clairvoyance";
-    case DRAIN:
+    case S_DRAIN:
 
         return "energy drain";
     case S_LEVITATE:
@@ -611,7 +624,7 @@ void initspells()
     Spells[S_MON_DET].powerdrain = 3;
     Spells[S_MON_DET].id = S_MON_DET;
 
-    Seplls[S_OBJ_DET].powerdrain = 3;
+    Spells[S_OBJ_DET].powerdrain = 3;
     Spells[S_OBJ_DET].id = S_OBJ_DET;
 
     Spells[S_IDENTIFY].powerdrain = 10;
@@ -648,7 +661,7 @@ void initspells()
     Spells[S_BREATHE].id = S_BREATHE;
 
     Spells[S_INVISIBLE].powerdrain = 15;
-    Spells[S_INIVISBLE].id = S_INVISIBLE;
+    Spells[S_INVISIBLE].id = S_INVISIBLE;
 
     Spells[S_WARP].powerdrain = 50;
     Spells[S_WARP].id = S_WARP;
@@ -875,7 +888,7 @@ void cast_spell(int spell)
         s_sanctify();
 
         break;
-    case S_CALIRVOYANCE:
+    case S_CLAIRVOYANCE:
         s_clairvoyance();
 
         break;
@@ -1014,7 +1027,7 @@ void expandspellabbrevs(char prefix[80])
 int expandspell(char prefix[80])
 {
     int i;
-    int spell;
+    int spell = 0;
     int matched = 0;
 
     for(i = 0; i < NUMSPELLS; ++i) {

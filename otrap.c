@@ -7,7 +7,18 @@
  */
 #include "otrap.h"
 
+#include "oaux1.h"
+#include "oaux2.h"
+#include "ochar.h"
+#include "oeffect3.h"
+#include "ogen1.h"
 #include "oglob.h"
+#include "olev.h"
+#include "omon.h"
+#include "omove.h"
+#include "oscr.h"
+#include "osite2.h"
+#include "outil.h"
 
 /* Various traps */
 
@@ -116,7 +127,7 @@ void l_trap_door()
     else {
         Level->site[Player.x][Player.y].locchar = TRAP;
 
-        if(gamestatus[MOUNTED]) {
+        if(gamestatusp(MOUNTED)) {
             mprint("You and your horse fell through a trap door!");
             mprint("Your horse breaks its back. Snif.");
 
@@ -168,7 +179,7 @@ void l_trap_blade()
 {
     Level->site[Player.x][Player.y].locchar = TRAP;
 
-    if(random_range(30) < (Player.agi + Player.Level)) {
+    if(random_range(30) < (Player.agi + Player.level)) {
         mprint("You duck under a scything blade!");
     }
     else {
@@ -265,7 +276,7 @@ void l_trap_acid()
             k = 0;
             
             for(i = 0; (i < MAXITEMS) && (k < itemdamage); ++i) {
-                if(Player.possesions[i] != NULL) {
+                if(Player.possessions[i] != NULL) {
                     ++k;
                     damage_item(Player.possessions[i]);
                 }

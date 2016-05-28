@@ -7,14 +7,21 @@
  */
 #include "otime.h"
 
+#include <stdlib.h>
+
+#include "oaux3.h"
+#include "ocom1.h"
 #include "oglob.h"
+#include "omon.h"
+#include "oscr.h"
+#include "outil.h"
 
 /*
  * This function coordinates monsters and player actions, as well as random
  * events. Each tick is a second. There are therefore 60 ticks to the minute and
  * 60 minutes to the hour.
  */
-void time_clock(int rest)
+void time_clock(int reset)
 {
     pml ml;
 
@@ -38,7 +45,7 @@ void time_clock(int rest)
         Tick = Player.click;
     }
 
-    while((Tick == Player.click) && (Current_Environment != E_COUNTRSIDE)) {
+    while((Tick == Player.click) && (Current_Environment != E_COUNTRYSIDE)) {
         if(!gamestatusp(SKIP_PLAYER)) {
             resetgamestatus(SKIP_MONSTERS);
 
@@ -49,8 +56,8 @@ void time_clock(int rest)
             while(gamestatusp(SKIP_MONSTERS) && (Current_Environment != E_COUNTRYSIDE)) {
                 resetgamestatus(SKIP_MONSTERS);
 
-                if(!Player.status[SLEPT] && (Currnet_Environment != E_COUNTRYSIDE)) {
-                    p_procesS();
+                if(!Player.status[SLEPT] && (Current_Environment != E_COUNTRYSIDE)) {
+                    p_process();
                 }
             }
         }
@@ -75,7 +82,7 @@ void time_clock(int rest)
          * will be freed, getting rid of the dead 'uns
          */
 
-        for(ml = Level->mlist; ml != NULL; ml = ml->nexT) {
+        for(ml = Level->mlist; ml != NULL; ml = ml->next) {
             if(ml->m->hp > 0) {
                 /* 
                  * Following is a hack until I discover the source of the

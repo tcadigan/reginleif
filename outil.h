@@ -1,6 +1,8 @@
 #ifndef OUTIL_H_
 #define OUTIL_H_
 
+#include "odefs.h"
+
 int ok_to_free(plv level);
 void setgamestatus(long flag);
 void resetgamestatus(long flag);
@@ -30,6 +32,13 @@ int nighttime();
 int strmem(char c, char *s);
 int unblocked(int x, int y);
 int m_unblocked(struct monster *m, int x, int y);
+int calc_points();
+int day();
+char *month();
+int showhour();
+int showminute();
+int offscreen(int y);
+int screenmod(int y);
 
 
 #endif

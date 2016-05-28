@@ -8,7 +8,21 @@
 
 #include "osite2.h"
 
+#include <stdlib.h>
+
+#include "oaux1.h"
+#include "oaux2.h"
+#include "ocity.h"
+#include "oeffect1.h"
+#include "oeffect2.h"
+#include "ochar.h"
 #include "oglob.h"
+#include "oinv.h"
+#include "oitem.h"
+#include "olev.h"
+#include "omove.h"
+#include "oscr.h"
+#include "outil.h"
 
 void l_condo()
 {
@@ -71,7 +85,7 @@ void l_condo()
             response = mcigetc();
 
             if(response == 'a') {
-                i = getitem(NULL);
+                i = getitem('\0');
 
                 if(i != ABORT) {
                     if(Player.possessions[i]->blessing < 0) {
@@ -139,7 +153,7 @@ void l_condo()
         toggle_item_use(TRUE);
         Player.hp = Player.maxhp;
         Player.str = Player.maxstr;
-        Player.ag = Player.maxagi;
+        Player.agi = Player.maxagi;
         Player.con = Player.maxcon;
         Player.dex = Player.maxdex;
         Player.iq = Player.maxiq;
@@ -521,13 +535,13 @@ void l_brothel()
         menuprint("b: Try to pick the lock.\n");
         menuprint("c: Bash down the door.\n");
         menuprint("ESCAPE: Leave this house of ill repute.\n");
-        response = menutgetc();
+        response = menugetc();
 
         while((response != 'a')
               && (response != 'b')
               && (response != 'c')
               && (response != ESCAPE)) {
-            response = menugetC();
+            response = menugetc();
         }
 
         xredraw();
@@ -600,7 +614,7 @@ void l_brothel()
                             Time += ((24 - hour() + 8) * 60);
                         }
                         else {
-                            time += ((9 - hour()) * 60);
+                            Time += ((9 - hour()) * 60);
                             ++Date;
                         }
 
@@ -810,7 +824,7 @@ void sign_print(int x, int y, int sign)
         if(sign) {
             print1("You notive a sign:");
 
-            if(gamestatusp(SOLD_COMBO)) {
+            if(gamestatusp(SOLD_CONDO)) {
                 print2("Home Sweet Home");
             }
             else {
@@ -904,7 +918,7 @@ void l_oracle()
                 else if(!gamestatusp(COMPLETED_CAVES)) {
                     print3("\'Thou mayest find aught of interest in the caves to the South.\'");
                 }
-                else if(!gamestatup(COMPLETED_SEWERS)) {
+                else if(!gamestatusp(COMPLETED_SEWERS)) {
                     print3("\'Turn thy attention to the abyssal depths of the city.\'");
                 }
                 else if(gamestatusp(COMPLETED_CASTLE)) {
@@ -1043,7 +1057,7 @@ void l_safe()
     else {
         print3("Your attempt at burglary failed!");
 
-        if(attempt = -1) {
+        if(attempt == -1) {
             print1("A siren goes off! You see flashing red lights everywhere!");
 
             if(Last_Environment == E_CITY) {
@@ -1069,7 +1083,7 @@ void l_safe()
 
             if(Player.possessions[O_CLOAK] != NULL) {
                 print2("Your cloak is destroyed!");
-                confrom_lost_objects(Player.possessions[O_CLOAK]);
+                conform_lost_object(Player.possessions[O_CLOAK]);
                 p_damage(10, ACID, "a safe");
             }
             else if(Player.possessions[O_ARMOR] != NULL) {

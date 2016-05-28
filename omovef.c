@@ -142,7 +142,7 @@ void p_movefunction(int movef)
 
             break;
         case L_TRAP_SLEEP_GAS:
-            l_trap_sleep_gas();
+            l_trap_sleepgas();
 
             break;
         case L_TRAP_MANADRAIN:

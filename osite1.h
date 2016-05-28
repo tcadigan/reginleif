@@ -17,5 +17,7 @@ void l_club();
 void l_armorer();
 void l_bank();
 void statue_random(int x, int y);
+void wake_statue(int x, int y, int first);
+void buyfromstock(int base, int numitems);
 
 #endif

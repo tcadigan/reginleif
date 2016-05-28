@@ -7,13 +7,30 @@
  */
 #include "osite1.h"
 
-#include "oglb.h"
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#include "oaux1.h"
+#include "oaux2.h"
+#include "oeffect3.h"
+#include "oetc.h"
+#include "ofile.h"
+#include "ogen1.h"
+#include "oglob.h"
+#include "oitem.h"
+#include "oinv.h"
+#include "olev.h"
+#include "omon.h"
+#include "oscr.h"
+#include "osite2.h"
+#include "outil.h"
 
 /* The bank; can be broken into (!) */
 void l_bank()
 {
     int done = FALSE;
-    int vald = FALSE;
+    int valid = FALSE;
     int amount;
     char response;
     char passwd[64];
@@ -256,7 +273,7 @@ void buyfromstock(int base, int numitems)
             }
         }
         else {
-            free((char *)new_item);
+            free((char *)newitem);
         }
     }
 }
@@ -401,7 +418,7 @@ void l_gym()
 
             break;
         case 'd':
-            gymtrain(Player.maxagi, &Player.agi);
+            gymtrain(&Player.maxagi, &Player.agi);
 
             break;
         case ESCAPE:
@@ -468,9 +485,9 @@ void statue_random(int x, int y)
         break;
     case 3:
         print1("The statue hits you back!");
-        p_damage(random_range(difficulty() * 5), UNSTOPPABLE, "a statue")
+        p_damage(random_range(difficulty() * 5), UNSTOPPABLE, "a statue");
 
-            break;
+        break;
     case 4:
         print1("The statue looks slightly pained. It speaks:");
         morewait();
@@ -501,10 +518,10 @@ void statue_random(int x, int y)
         break;
     case 8:
         /* I think this is particularly evil. Heh heh. */
-        if(Player.possesions[O_WEAPON_HAND] != NULL) {
+        if(Player.possessions[O_WEAPON_HAND] != NULL) {
             print1("Your weapon sinks deeply into the statue and is sucked away!");
             item = Player.possessions[O_WEAPON_HAND];
-            confrom_lost_object(Player.possessions[O_WEAPON_HAND]);
+            conform_lost_object(Player.possessions[O_WEAPON_HAND]);
             item->blessing = -1 - abs(item->blessing);
             drop_at(x, y, item);
         }
@@ -573,7 +590,7 @@ void l_casino()
     int done = FALSE;
     int a;
     int b;
-    int x;
+    int c;
     int match;
     char response;
 
@@ -675,7 +692,7 @@ void l_casino()
                     print1("Red or Black? [rb]");
                     response = mcigetc();
 
-                    while((response != 'r') && (reponse != 'b')) {
+                    while((response != 'r') && (response != 'b')) {
                         response = mcigetc();
                     }
 
@@ -935,7 +952,7 @@ void l_tavern()
                 morewait();
                 clearmsg();
 
-                switch(randome_range(4)) {
+                switch(random_range(4)) {
                 case 0:
                     print1("\'You are a real pal. Say, have you heard...");
                     hint();
@@ -967,12 +984,12 @@ void l_tavern()
                     print1("Riley draws you a shot of his \'special reserve\'");
                     print2("Drink it [yn]?");
 
-                    if(ynq2() == y) {
+                    if(ynq2() == 'y') {
                         if(Player.con < random_range(20)) {
                             print1("<cough> Quite a kick!");
                             print2("You feel a fiery warmth in your tummy...");
                             ++Player.con;
-                            Player.maxcon;
+                            ++Player.maxcon;
                         }
                         else {
                             print2("You toss it back nonchalantly.");
@@ -1036,7 +1053,7 @@ void l_alchemist()
     int done = FALSE;
     int mlevel;
     char response;
-    pob = obj;
+    pob obj;
 
     print1("Ambrosias' Potions et cie.");
 
@@ -1101,7 +1118,7 @@ void l_alchemist()
                         if(Player.cash < max(10, obj->basevalue * 2)) {
                             print2("You can't afford it1");
                         }
-                        else if(Monsters[obj]->transformid == -1) {
+                        else if(Monsters[obj->charge].transformid == -1) {
                             print1("There is a puff of smoke, and the corpse disappears.");
                             Player.cash -= max(10, obj->basevalue * 2);
                             dispose_lost_objects(1, obj);
@@ -1283,17 +1300,17 @@ void l_pawn_shop()
         print1("Show Closed: Have a Nice (K)Night");
     }
     else {
-        limit = min(5, Date - Pawndate);
-        Pawndate = Date;
+        limit = min(5, Date - PawnDate);
+        PawnDate = Date;
 
         for(k = 0; i < limit; ++k) {
-            if(Pawnitmes[0] != NULL) {
+            if(Pawnitems[0] != NULL) {
                 free((char *)Pawnitems[0]);
                 Pawnitems[0] = NULL;
             }
 
             for(i = 0; i < (PAWNITEMS - 1); ++i) {
-                Pawitems[i] = Pawnitems[i + i];
+                Pawnitems[i] = Pawnitems[i + 1];
             }
 
             Pawnitems[PAWNITEMS - 1] = NULL;
@@ -1320,7 +1337,7 @@ void l_pawn_shop()
             menuclear();
 
             for(i = 0; i < PAWNITEMS; ++i) {
-                if(Pawitems[i] != NULL) {
+                if(Pawnitems[i] != NULL) {
                     strcpy(Str3, " :");
                     Str3[0] = i + 'a';
                     strcat(Str3, itemid(Pawnitems[i]));
@@ -1329,7 +1346,7 @@ void l_pawn_shop()
                 }
             }
 
-            action = micgetc();
+            action = mcigetc();
 
             if(action == ESCAPE) {
                 done = TRUE;
@@ -1370,7 +1387,7 @@ void l_pawn_shop()
             }
             else if(action == 's') {
                 print2("Sell which item: ");
-                i = getitem(NULL);
+                i = getitem('\0');
 
                 if((i != ABORT) && (Player.possessions[i] != NULL)) {
                     if(cursed(Player.possessions[i])) {

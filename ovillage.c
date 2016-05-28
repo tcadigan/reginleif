@@ -7,7 +7,15 @@
  */
 #include "ovillage.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "ogen1.h"
 #include "oglob.h"
+#include "oitem.h"
+#include "olev.h"
+#include "outil.h"
 
 /* Loads the village int Level */
 void load_village(int villagenum)
@@ -169,7 +177,7 @@ void load_village(int villagenum)
     fclose(fd);
 }
 
-void make_gaurd(int i, int j)
+void make_guard(int i, int j)
 {
     pml tml = (pml)malloc(sizeof(mltype));
     Level->site[i][j].creature = make_creature(ML0 + 3);

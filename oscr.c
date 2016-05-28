@@ -10,10 +10,18 @@
 #include "oscr.h"
 
 #include <curses.h>
-#include <sys/types.h>
-#include <sys/timeb.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
+#include "oaux1.h"
+#include "ofile.h"
+#include "ogen1.h"
 #include "oglob.h"
+#include "oinv.h"
+#include "omon.h"
+#include "ospell.h"
+#include "outil.h"
 
 #ifdef EXCESSIVE_REDRAW
 #define wclear werase
@@ -250,6 +258,9 @@ void checkclear()
     getyx(Msg1w, x1, y);
     getyx(Msg2w, x2, y);
 
+    y = 0;
+    x1 += y;
+    
     if((x1 != 0) || (x2 != 0)) {
         morewait();
         wclear(Msg1w);
@@ -341,7 +352,7 @@ void nprint2(char *s)
 void print3(char *s)
 {
     if(!gamestatusp(SUPPRESS_PRINTING)) {
-        buffercycl(s);
+        buffercycle(s);
         wclear(Msg3w);
         wprintw(Msg3w, s);
         wrefresh(Msg3w);
@@ -370,6 +381,8 @@ void mprint(char *s)
     if(!gamestatusp(SUPPRESS_PRINTING)) {
         buffercycle(s);
         getyx(Msgw, y, x);
+        y = 0;
+        x += y;
 
         if((x + strlen(s)) >= WIDTH) {
             if(Msgw == Msg1w) {
@@ -385,7 +398,7 @@ void mprint(char *s)
             }
         }
 
-        wprint(Msgw, s);
+        wprintw(Msgw, s);
         waddch(Msgw, ' ');
         wrefresh(Msgw);
     }
@@ -428,7 +441,7 @@ void initgraf()
         ScreenLength = LINES - 6;
     }
 
-    Rightside = newwin(Screenlength, 15, 2, 65);
+    Rightside = newwin(ScreenLength, 15, 2, 65);
     Msg1w = newwin(1, 80, 0, 0);
     Msg2w = newwin(1, 80, 1, 0);
     Msg3w = newwin(1, 80, 2, 0);
@@ -467,7 +480,7 @@ void drawplayer()
     if(Current_Environment == E_COUNTRYSIDE) {
         wmove(Levelw, screenmod(lasty), lastx);
         waddch(Levelw, Country[lastx][lasty].current_terrain_type);
-        wmove(Levelw, screenmon(Player.y), Player.x);
+        wmove(Levelw, screenmod(Player.y), Player.x);
         waddch(Levelw, PLAYER);
     }
     else {
@@ -482,7 +495,7 @@ void drawplayer()
 
         wmove(Levelw, screenmod(Player.y), Player.x);
 
-        if(!Player.status[INVISIBLE] || Player.status(TRUESIGHT)) {
+        if(!Player.status[INVISIBLE] || Player.status[TRUESIGHT]) {
             waddch(Levelw, PLAYER);
         }
     }
@@ -547,10 +560,10 @@ void drawvision(int x, int y)
             drawmonsters(FALSE);
 
             /* Draw those now visible */
-            drawmonsters(x + i, y + j);
+            drawmonsters(TRUE);
         }
 
-        if(!gamestatusp(FAST_MOVE) || !option(JUMPMOVE)) {
+        if(!gamestatusp(FAST_MOVE) || !optionp(JUMPMOVE)) {
             showcursor(Player.x, Player.y);
         }
 
@@ -639,7 +652,7 @@ void blotspot(int i, int j)
         Level->site[i][j].showchar = SPACE;
 
         if(!offscreen(j)) {
-            wmove(Levelw, screenmon(j), i);
+            wmove(Levelw, screenmod(j), i);
             wdelch(Levelw);
             winsch(Levelw, SPACE);
         }
@@ -661,7 +674,7 @@ void plotspot(int x, int y, int showmonster)
 void putspot(int x, int y, char c)
 {
     if(!offscreen(y)) {
-        wmove(Levelw, screenmon(y), x);
+        wmove(Levelw, screenmod(y), x);
         waddch(Levelw, c);
     }
 }
@@ -670,7 +683,7 @@ void putspot(int x, int y, char c)
 void plotmon(struct monster *m)
 {
     if(!offscreen(m->y)) {
-        wmove(Levelw, screenmon(m->y), m->x);
+        wmove(Levelw, screenmod(m->y), m->x);
         waddch(Levelw, m->monchar);
     }
 }
@@ -692,7 +705,7 @@ void drawmonsters(int display)
                         }
 
                         putspot(ml->m->x, ml->m->y, ml->m->monchar);
-                        wtandend(Levelw);
+                        wstandend(Levelw);
                     }
                 }
             }
@@ -795,7 +808,7 @@ void commanderror()
 {
     wclear(Msg2w);
     wprintw(Msg3w, "%c : unknown command", Cmd);
-    wrefresh(Msg3W);
+    wrefresh(Msg3w);
 }
 
 void timeprint()
@@ -827,7 +840,7 @@ void comwinprint()
     wprintw(Comwin, "Dmg: %d  \n", Player.dmg);
     wprintw(Comwin, "Def: %d  \n", Player.defense);
     wprintw(Comwin, "Arm: %d  \n", Player.absorption);
-    wprintw(comwin, "Spd: %.2f  \n", 5.0 / Player.speed);
+    wprintw(Comwin, "Spd: %.2f  \n", 5.0 / Player.speed);
     wrefresh(Comwin);
 }
 
@@ -954,7 +967,7 @@ int stillonblock()
         wprintw(Morew, "<<<STAY?>>>");
     }
     else {
-        wprint(Morew, ">>>STAY?<<<");
+        wprintw(Morew, ">>>STAY?<<<");
     }
 
     display = !display;
@@ -968,7 +981,7 @@ int stillonblock()
             wprintw(Morew, "<<<STAY?>>>");
         }
         else {
-            wprinte(Morew, ">>>STAY?<<<");
+            wprintw(Morew, ">>>STAY?<<<");
         }
 
         display = !display;
@@ -999,8 +1012,10 @@ void menuspellprint(int i)
     int y;
     
     getyx(Menuw, y, x);
+    x = 0;
+    y += x;
 
-    if(y >= (Screenlength - 2)) {
+    if(y >= (ScreenLength - 2)) {
         morewait();
         wclear(Menuw);
     }
@@ -1015,14 +1030,16 @@ void menuprint(char *s)
     int x;
     int y;
 
-    getyx(Menuw, y, c);
-
+    getyx(Menuw, y, x);
+    x = 0;
+    y += x;
+    
     if(y >= (ScreenLength - 2)) {
         morewait();
         wclear(Menuw);
     }
 
-    wprint(Menuw, s);
+    wprintw(Menuw, s);
     wrefresh(Menuw);
 }
 
@@ -1179,7 +1196,7 @@ int parsenum()
     char byte = ' ';
 
     while((byte != ESCAPE) && (byte != '\n')) {
-        byte = mgetC();
+        byte = mgetc();
 
         if((byte == BACKSPACE) || (byte == DELETE)) {
             if(place  > -1) {
@@ -1315,6 +1332,8 @@ void menunumprint(int n)
     int y;
 
     getyx(Menuw, y, x);
+    x = 0;
+    y += x;
 
     if(y >= (ScreenLength - 2)) {
         morewait();
@@ -1549,11 +1568,13 @@ void display_pack()
         wclear(Packw);
         wprintw(Packw, "Items in Pack:");
 
-        for(i = 0; i < Plaery.packptr; ++i) {
+        for(i = 0; i < Player.packptr; ++i) {
             wprintw(Packw, "\n");
             getyx(Packw, y, x);
+            x = 0;
+            y += x;
 
-            if(y >= (Screenlength - 2)) {
+            if(y >= (ScreenLength - 2)) {
                 wrefresh(Packw);
                 morewait();
                 wclear(Packw);
@@ -1734,7 +1755,7 @@ void display_option_slot(int slot)
             wprintw(Showline[slot], "(now T) ");
         }
         else {
-            wprinte(Showline[slot], "(now F) ");
+            wprintw(Showline[slot], "(now F) ");
         }
 
         break;
@@ -1839,6 +1860,8 @@ void clear_if_necessary()
     int y;
 
     getyx(Msg1w, y, x);
+    y = 0;
+    x += y;
 
     if(x != 0) {
         wclear(Msg1w);

@@ -5,8 +5,9 @@
  *
  * This file defines and initializes the Objects array
  */
+#include "odefs.h"
 
-struct object Objects[TOTALITEMS] = {
+extern struct object Objects[TOTALITEMS] = {
       0,   10,  0, 0,    0,    0,    0, 1, 10,    50, 0, 0,   0, 0, 0, 1107,  2, '\\',     "small grey box with red button",   "disposable garage door opener",   "disposable garage door opener",
       1,   20,  0, 0,    0,    0,    0, 1, 20,  2000, 0, 0,   0, 0, 0,    0,  4, '\\',                         "some rocks",                  "uncut diamonds",                  "uncut diamonds",
       2,   15,  0, 0,    0,    0,    0, 1, 10,    50, 0, 0,   0, 0, 0, 1101,  2, '\\',             "twisted piece of metal",                   "thieve's pick",                   "thieve's pick",
@@ -223,5 +224,5 @@ struct object Objects[TOTALITEMS] = {
     213, 1000,  0, 0,    0,    0,    0, 1, 10,  1000, 0, 0,   0, 0, 2,  917, 10,  '&',              "Extremely Heavy Stick",           "Sceptre of High Magic",           "Sceptre of High Magic",
     214,   10,  0, 0,    0,    0,    0, 1, 10,  1000, 0, 0,   0, 0, 2,  918, 10,  '&',            "Octagonal Copper Amulet",            "Amulet of the Planes",            "Amulet of the Planes",
     215,    0,  0, 0,    0,    0,    0, 1, 10,     0, 0, 0,   0, 0, 0,    0,  0,  '$',                              "money",                           "money",    "money (the root of all evil)",
-    216,  100,  0, 0,    0,    0,    0, 1, 10,     0, 0, 0,   0, 0, 0,  407,  0,  '+',                 "a mysteriou corpse",             "a mysterious corpse",              "a mysterious corpse"
+    216,  100,  0, 0,    0,    0,    0, 1, 10,     0, 0, 0,   0, 0, 0,  407,  0,  '+',                "a mysterious corpse",             "a mysterious corpse",             "a mysterious corpse"
 };
