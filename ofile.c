@@ -575,7 +575,7 @@ int filecheck()
     if(result == -1) {
         impossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -585,7 +585,7 @@ int filecheck()
     if(result == -1) {
         impossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -595,7 +595,7 @@ int filecheck()
     if(result == -1) {
         impossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -605,7 +605,7 @@ int filecheck()
     if(result == -1) {
         impossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -615,7 +615,7 @@ int filecheck()
     if(result == -1) {
         impossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -625,7 +625,7 @@ int filecheck()
     if(result == -1) {
         impossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -635,7 +635,7 @@ int filecheck()
     if(result == -1) {
         impossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -645,7 +645,7 @@ int filecheck()
     if(result == -1) {
         impossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -655,7 +655,7 @@ int filecheck()
     if(result == -1) {
         impossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -665,7 +665,7 @@ int filecheck()
     if(result == -1) {
         impossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -676,7 +676,7 @@ int filecheck()
     if(result == -1) {
         impossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -686,7 +686,7 @@ int filecheck()
     if(result == -1) {
         impossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -696,7 +696,7 @@ int filecheck()
     if(result == -1) {
         impossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -706,7 +706,7 @@ int filecheck()
     if(result == -1) {
         impossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -716,7 +716,7 @@ int filecheck()
     if(result == -1) {
         impossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -726,7 +726,7 @@ int filecheck()
     if(result == -1) {
         impossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -736,7 +736,7 @@ int filecheck()
     if(result == -1) {
         impossible = TRUE;
         printf("\nWarning! File not appendable or accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -746,7 +746,7 @@ int filecheck()
     if(result == -1) {
         impossible = TRUE;
         printf("\nWarning! File not appendable or accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -756,7 +756,7 @@ int filecheck()
     if(result == -1) {
         impossible = TRUE;
         printf("\nWarning! File not appendable or accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -766,7 +766,7 @@ int filecheck()
     if(result == -1) {
         impossible = TRUE;
         printf("\nWarning! File not appendable or accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -776,7 +776,7 @@ int filecheck()
     if(result == -1) {
         impossible = TRUE;
         printf("\nWarning! File not appendable or accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -786,7 +786,7 @@ int filecheck()
     if(result == -1) {
         impossible = TRUE;
         printf("\nWarning! File not appendable or accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -796,7 +796,7 @@ int filecheck()
     if(result == -1) {
         impossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -806,7 +806,7 @@ int filecheck()
     if(result == -1) {
         impossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -816,7 +816,7 @@ int filecheck()
     if(result == -1) {
         impossible = TRUE;
         printf("\nWarning! file not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -826,7 +826,7 @@ int filecheck()
     if(result == -1) {
         badbutpossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -836,7 +836,7 @@ int filecheck()
     if(result == -1) {
         badbutpossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -846,7 +846,7 @@ int filecheck()
     if(result == -1) {
         badbutpossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -856,7 +856,7 @@ int filecheck()
     if(result == -1) {
         badbutpossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -866,7 +866,7 @@ int filecheck()
     if(result == -1) {
         badbutpossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -876,7 +876,7 @@ int filecheck()
     if(result == -1) {
         badbutpossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -886,7 +886,7 @@ int filecheck()
     if(result == -1) {
         badbutpossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -896,7 +896,7 @@ int filecheck()
     if(result == -1) {
         badbutpossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -906,7 +906,7 @@ int filecheck()
     if(result == -1) {
         badbutpossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -916,7 +916,7 @@ int filecheck()
     if(result == -1) {
         badbutpossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -926,7 +926,7 @@ int filecheck()
     if(result == -1) {
         badbutpossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -936,7 +936,7 @@ int filecheck()
     if(result == -1) {
         badbutpossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -946,7 +946,7 @@ int filecheck()
     if(result == -1) {
         badbutpossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -956,7 +956,7 @@ int filecheck()
     if(result == -1) {
         badbutpossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -966,7 +966,7 @@ int filecheck()
     if(result == -1) {
         badbutpossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -976,7 +976,7 @@ int filecheck()
     if(result == -1) {
         badbutpossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -986,7 +986,7 @@ int filecheck()
     if(result == -1) {
         badbutpossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     strcpy(Str1, OMEGALIB);
@@ -996,7 +996,7 @@ int filecheck()
     if(result == -1) {
         badbutpossible = TRUE;
         printf("\nWarning! File not accessible: ");
-        printf(Str1);
+        printf("%s", Str1);
     }
 
     if(impossible) {
@@ -1073,6 +1073,10 @@ void copyfile(char *srcstr)
     strcat(cmd, " ");
     strcat(cmd, deststr);
     print2("Copying file...");
-    system(cmd);
+    int result = system(cmd);
+    if(result != 0) {
+        printf("System call unsuccessful\n");
+    }
+    
     print3("Done.");
 }

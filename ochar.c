@@ -57,7 +57,10 @@ void initplayer()
     fd = omegarc_check();
 
     if(fd == NULL) {
-        fread((char *)&i, sizeof(int), 1, fd);
+        int result = fread((char *)&i, sizeof(int), 1, fd);
+        if(result == 0) {
+            printf("Read nothing\n");
+        }
 
         if(i != VERSION) {
             print1("Out of date .omegarc! Make another!");
@@ -65,9 +68,21 @@ void initplayer()
         }
         else {
             oldchar = TRUE;
-            fread((char *)&Player, sizeof(Player), 1, fd);
-            fread((char *)&Searchnum, sizeof(int), 1, fd);
-            fread((char *)&Verbosity, sizeof(char), 1, fd);
+            result = fread((char *)&Player, sizeof(Player), 1, fd);
+            if(result == 0) {
+                printf("Read nothing\n");
+            }
+
+            result = fread((char *)&Searchnum, sizeof(int), 1, fd);
+            if(result == 0) {
+                printf("Read nothing\n");
+            }
+
+            result = fread((char *)&Verbosity, sizeof(char), 1, fd);
+            if(result == 0) {
+                printf("Read nothing\n");
+            }
+
             strcpy(Player.name, getlogin());
         }
 

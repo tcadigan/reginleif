@@ -282,91 +282,131 @@ void help()
             strcat(Str1, OMEGALIB);
             strcat(Str1, "ohelp1.txt");
             strcat(Str1, " >> omega.doc");
-            system(Str1);
+            int result = system(Str1);
+            if(result != 0) {
+                printf("System call unsuccessful\n");
+            }
             
             nprint2(".");
             strcpy(Str1, "cat ");
             strcat(Str1, OMEGALIB);
             strcat(Str1, "ohelp2.txt");
             strcat(Str1, " >> omega.doc");
-            system(Str1);
+            result = system(Str1);
+            if(result != 0) {
+                printf("System call unsuccessful\n");
+            }
 
             nprint2(".");
             strcpy(Str1, "cat ");
             strcat(Str1, OMEGALIB);
             strcat(Str1, "ohelp3.txt");
             strcat(Str1, " >> omega.doc");
-            system(Str1);
-
+            result = system(Str1);
+            if(result != 0) {
+                printf("System call unsuccessful\n");
+            }
+            
             nprint2(".");
             strcpy(Str1, "cat ");
             strcat(Str1, OMEGALIB);
             strcat(Str1, "ohelp4.txt");
             strcat(Str1, " >> omega.doc");
-            system(Str1);
+            result = system(Str1);
+            if(result != 0) {
+                printf("System call unsuccessful\n");
+            }
 
             nprint2(".");
             strcpy(Str1, "cat ");
             strcat(Str1, OMEGALIB);
             strcat(Str1, "ohelp5.txt");
             strcat(Str1, " >> omega.doc");
-            system(Str1);
+            result = system(Str1);
+            if(result != 0) {
+                printf("System call unsuccessful\n");
+            }
 
             nprint2(".");
             strcpy(Str1, "cat ");
             strcat(Str1, OMEGALIB);
             strcat(Str1, "ohelp6.txt");
             strcat(Str1, " >> omega.doc");
-            system(Str1);
+            result = system(Str1);
+            if(result != 0) {
+                printf("System call unsuccessful\n");
+            }
 
             nprint2(".");
             strcpy(Str1, "cat ");
             strcat(Str1, OMEGALIB);
             strcat(Str1, "ohelp7.txt");
             strcat(Str1, " >> omega.doc");
-            system(Str1);
+            result = system(Str1);
+            if(result != 0) {
+                printf("System call unsuccessful\n");
+            }
 
             nprint2(".");
             strcpy(Str1, "cat ");
             strcat(Str1, OMEGALIB);
             strcat(Str1, "ohelp8.txt");
             strcat(Str1, " >> omega.doc");
-            system(Str1);
-
+            result = system(Str1);
+            if(result != 0) {
+                printf("System call unsuccessful\n");
+            
+            }
+            
             nprint2(".");
             strcpy(Str1, "cat ");
             strcat(Str1, OMEGALIB);
             strcat(Str1, "ohelp9.txt");
             strcat(Str1, " >> omega.doc");
-            system(Str1);
+            result = system(Str1);
+            if(result != 0) {
+                printf("System call unsuccessful\n");
+            }
 
             nprint2(".");
             strcpy(Str1, "cat ");
             strcat(Str1, OMEGALIB);
             strcat(Str1, "ohelp10.txt");
             strcat(Str1, " >> omega.doc");
-            system(Str1);
+            result = system(Str1);
+            if(result != 0) {
+                printf("System call unsuccessful\n");
+            }
 
             nprint2(".");
             strcpy(Str1, "cat ");
             strcat(Str1, OMEGALIB);
             strcat(Str1, "ohelp11.txt");
             strcat(Str1, " >> omega.doc");
-            system(Str1);
+            result = system(Str1);
+            if(result != 0) {
+                printf("System call unsuccessful\n");
+            }
 
             nprint2(".");
             strcpy(Str1, "cat ");
             strcat(Str1, OMEGALIB);
             strcat(Str1, "ohelp12.txt");
             strcat(Str1, " >> omega.doc");
-            system(Str1);
+            result = system(Str1);
+            if(result != 0) {
+                printf("System call unsuccessful\n");
+            }
 
             nprint2(".");
             strcpy(Str1, "cat ");
             strcat(Str1, OMEGALIB);
             strcat(Str1, "ohelp13.txt");
             strcat(Str1, " >> omega.doc");
-            system(Str1);
+            result = system(Str1);
+            if(result != 0) {
+                printf("System call unsuccessful\n");
+            }
 
             nprint2(" Done.");
         }
