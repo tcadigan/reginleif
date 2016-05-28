@@ -1,0 +1,27 @@
+sudo: false
+
+language: c
+compiler:
+  - gcc
+  - clang
+
+env:
+  global:
+    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+    #   via the "travis encrypt" command using the project repo's public key
+    - secure: "Lb6LizWqvd6j3oOHsi5/d3l7P3GHPMbLPoSZQPHsUs6yrnIhppiuRB0+sDlYn2nvxV34YvQxCq2yk7uQWuuMy20y+S0Sd0Xv2EO2mczHlTbJyIkbG9pKUKiJ4c6W2Hz9qjTdCRFcorSOPn8w3jqfnyTiA6NhlcCWG0fmJLsymsxA6a8NMeuTt4C7DDJlGIuOEk3l+8RJUZE3CKjMGqTbC1PJICfDFLZ6u9m3N4ObKXEWqE0hFdrpHwLwPqLBIBBE+bMPzKNyKKQaMnx38qYnRbJgNYp7poBtRj8ynYJA93Mvo5cYSNNl7GkyJx5HSuhIR/HwKQeIMXRM17D5rkBSB/l6Y8bqP2Mu3emIj4s0UCNMJKtxvlHZP7VNtYvY+CkEqyxDm3w+bg3vURSmHDkg/AQRQifk6tjg+74VD1x8wHyj44j/WYjafqSiv8jbNyOGH0EIQLIphe+V6x9Tf2Vg1Kea2WDfYHJS2MhxjWulIb3YLPqiCzP2fZ5NAK6JqX+a4belqCUaczCjV9Gel1ROIL6C6yka91GjtLU0+qdtX+rsyOWSQI15P3wRCrmXFaKFJpS5OV98Ak4ONCFjDk0sAWv2qzkROhZDGaY/pO4DoR3VlYwdVqq6UwxVvLQHKtf3k5yiHxB6rdPDT8T8idYnf/CCNBuWrKRVUu8dyma4yrU="
+
+addons:
+  apt:
+    packages:
+      -libncurses5-dev
+  coverity_scan:
+    project:
+      name: "tcadigan/omega_0.75"
+      description: "My take on Omega 0.75"
+    notification_email: tylercadigan@gmail.com
+    build_command_prepend: "make clean"
+    build_command: "make"
+    branch_pattern: master
+    
+script: make
