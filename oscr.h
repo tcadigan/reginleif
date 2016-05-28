@@ -72,5 +72,7 @@ void plotmon(struct monster *m);
 void draw_explosion(char pyx, int x, int y);
 void checkclear();
 void erase_monster(struct monster *m);
+void plotspot(int x, int y, int showmonster);
+int stillonblock();
 
 #endif

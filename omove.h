@@ -1,7 +1,47 @@
 #ifndef OMOVE_H_
 #define OMOVE_H_
 
+void l_abyss();
 void l_chaos();
+void l_magic_pool();
+void l_rubble();
+void l_whirlwind();
+void l_fire();
+void l_lava();
+void l_lift();
+void l_no_op();
+void l_hedge();
 void l_raise_portcullis();
+void l_void_station();
+void l_air_station();
+void l_water_station();
+void l_earth_station();
+void l_fire_station();
+void l_void();
+void l_voice3();
+void l_voice2();
+void l_voice1();
+void l_adept();
+void l_mindstone();
+void l_sacrificestone();
+void l_lawstone();
+void l_balancestone();
+void l_voidstone();
+void l_chaostone();
+void l_charity();
+void l_tome2();
+void l_tome1();
+void l_circle_library();
+void l_enter_circle();
+void l_enter_court();
+void l_temple_warning();
+void l_house_exit();
+void l_tactical_exit();
+void l_arena_exit();
+void l_throne();
+void l_escalator();
+void l_drop_every_portcullis();
+void l_portcullis_trap();
+void stationcheck();
 
 #endif

@@ -947,7 +947,7 @@
 #define L_NO_OP 0
 
 /* Random sites */
-#define L_LIFT 0
+#define L_LIFT 1
 #define L_BALANCESTONE 2
 #define L_FIRE 3
 #define L_WHIRLWIND 4

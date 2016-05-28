@@ -8,6 +8,7 @@
  * These functions implement the various guilds. They are all l_*
  * functions since they are basically activated at some site or other.
  */
+#include "oguild2.h"
 
 #include <stdlib.h>
 #include <string.h>

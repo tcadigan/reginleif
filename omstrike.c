@@ -5,8 +5,16 @@
  *
  * Monster strike functions
  */
+#include "omstrike.h"
 
+#include <string.h>
+
+#include "oaux1.h"
+#include "oaux2.h"
+#include "oeffect1.h"
 #include "oglob.h"
+#include "oscr.h"
+#include "outil.h"
 
 void m_firebolt(struct monster *m)
 {
@@ -20,7 +28,7 @@ void m_nbolt(struct monster *m)
 
 void m_lball(struct monster *m)
 {
-    lball(m->x, m->y, Plyaer.x, Player.y, m->dmg);
+    lball(m->x, m->y, Player.x, Player.y, m->dmg);
 }
 
 void m_fireball(struct monster *m)

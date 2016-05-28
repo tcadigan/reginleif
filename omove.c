@@ -7,7 +7,22 @@
  */
 #include "omove.h"
 
+#include <stdlib.h>
+#include <string.h>
+
+#include "oaux1.h"
+#include "oaux2.h"
+#include "oaux3.h"
+#include "ochar.h"
+#include "oeffect1.h"
+#include "oeffect2.h"
+#include "oeffect3.h"
+#include "ogen1.h"
 #include "oglob.h"
+#include "oinv.h"
+#include "olev.h"
+#include "oscr.h"
+#include "outil.h"
 
 /* Various miscellaneous location functions */
 void l_water()
@@ -79,7 +94,7 @@ void l_chaos()
         Player.mana = max(Player.mana, calcmana());
         Player.hp = max(Player.hp, Player.maxhp);
     }
-    else if (Player.rank[PIRESTHOOD] && !saved) {
+    else if (Player.rank[PRIESTHOOD] && !saved) {
         print2("A mysterious force protects you from the Chaos!");
         print3("Wow...You feel a bit smug.");
         gain_experience(500);
@@ -188,7 +203,7 @@ void l_abyss()
 
     if(Current_Environment != Current_Dungeon) {
         print1("You fall through a dimensional portal!");
-        stategic_teleport(-1);
+        strategic_teleport(-1);
     }
     else {
         print1("You enter the infinite abyss!");
@@ -261,7 +276,7 @@ void l_lift()
     while((response != 'u')
           && (response != 'd')
           && (response != ESCAPE)) {
-        response = mcigetc;
+        response = mcigetc();
     }
 
     if(response != ESCAPE) {
@@ -328,7 +343,7 @@ void l_magic_pool()
     else if(possibilities < 80) {
         if(Player.possessions[O_WEAPON_HAND] != NULL) {
             print1("You drop your weapon in the pool! It's gone forever!");
-            dispose_lost_objected(1, Player.possessions[O_WEAPON_HAND]);
+            dispose_lost_objects(1, Player.possessions[O_WEAPON_HAND]);
         }
         else {
             print1("You feel fortunate.");
@@ -384,7 +399,7 @@ void l_tactical_exit()
     }
 }
 
-void l_ruble()
+void l_rubble()
 {
     int screwup = random_range(100) - (Player.agi + Player.level);
     print1("You climb over the unstable pile of rubble...");
@@ -631,7 +646,7 @@ void l_air_station()
 {
     print1("The whirlwind spins wildly and crackles with lightning.");
 
-    if(Player.immunity[ELECTRICTY]) {
+    if(Player.immunity[ELECTRICITY]) {
         print2("You feel static cling despite your immunity to electricity!");
     }
 
@@ -962,7 +977,7 @@ void l_throne()
                 print3("You hear the sound of a magic kazoo played by an asthmatic.");
             }
             else {
-                HiMagicUse = date;
+                HiMagicUse = Date;
                 print1("Following some strange impulse, you raise hte Sceptre...");
                 print2("You hear a magical fanfare, repeated three times.");
 
@@ -1099,7 +1114,7 @@ void l_chaostone()
 
         if(stonecheck(-1)) {
             print2("You feel stronger!");
-            Player.maxstr = min(Player.maxstr + 10, max(30, Player.maxtr));
+            Player.maxstr = min(Player.maxstr + 10, max(30, Player.maxstr));
             dataprint();
         }
     }
@@ -1121,12 +1136,12 @@ void l_balancestone()
 
         if(abs(Player.alignment) > random_range(50)) {
             print2("The cyclone whirls you off to a strange place!");
-            change_environment(E_COUNRTYSIDE);
+            change_environment(E_COUNTRYSIDE);
 
             Player.x = random_range(WIDTH);
             Player.y = random_range(LENGTH);
 
-            while(Country[Player.x][Player.y].currnet_terrain_type == CHAOS_SEA) {
+            while(Country[Player.x][Player.y].current_terrain_type == CHAOS_SEA) {
                 Player.x = random_range(WIDTH);
                 Player.y = random_range(LENGTH);
             }

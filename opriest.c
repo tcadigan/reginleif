@@ -5,8 +5,22 @@
  *
  * Functions for clerics.
  */
+#include "opriest.h"
 
+#include <stdlib.h>
+#include <string.h>
+
+#include "oaux1.h"
+#include "oaux2.h"
+#include "ochar.h"
+#include "oeffect1.h"
+#include "oeffect3.h"
+#include "oetc.h"
 #include "oglob.h"
+#include "oinv.h"
+#include "oitem.h"
+#include "oscr.h"
+#include "outil.h"
 
 /* Prayer occurs at altars, hence the name of the function */
 void l_altar()
@@ -100,7 +114,7 @@ void l_altar()
             }
             else if(response == 's') {
                 print1("Which item to Sacrifice?");
-                i = getitem(NULL);
+                i = getitem('\0');
 
                 if(i == ABORT) {
                     i = 0;
@@ -457,7 +471,7 @@ void increase_priest_rank(int deity)
                 answer_prayer();
             }
         }
-        else if(Player.rank[PREISTHOOD] == LAY) {
+        else if(Player.rank[PRIESTHOOD] == LAY) {
             if(Player.guildxp[PRIESTHOOD] >= 400) {
                 print1("A mellifuous chime sounds from above the altar.");
                 print2("Your deity raises you to the post of Acolyte.");

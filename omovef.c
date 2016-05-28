@@ -8,6 +8,16 @@
 #include "omovef.h"
 
 #include "oglob.h"
+#include "oguild1.h"
+#include "oguild2.h"
+#include "omon.h"
+#include "omove.h"
+#include "opriest.h"
+#include "oscr.h"
+#include "osite1.h"
+#include "osite2.h"
+#include "otrap.h"
+#include "outil.h"
 
 void p_movefunction(int movef)
 {
@@ -64,7 +74,7 @@ void p_movefunction(int movef)
 
             break;
         case L_PORTCULLIS_TRAP:
-            l_lortcullis_trap();
+            l_portcullis_trap();
 
             break;
         case L_RAISE_PORTCULLIS:
@@ -75,7 +85,7 @@ void p_movefunction(int movef)
             l_drop_every_portcullis();
 
             break;
-        case L_ARENA_EXIT():
+        case L_ARENA_EXIT:
             l_arena_exit();
 
             break;

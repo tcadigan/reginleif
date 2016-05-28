@@ -8,7 +8,27 @@
 
 #include "omon.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "oaux1.h"
+#include "oaux3.h"
+#include "oeffect3.h"
+#include "oetc.h"
+#include "ofile.h"
 #include "oglob.h"
+#include "oinv.h"
+#include "oitem.h"
+#include "olev.h"
+#include "ommelee.h"
+#include "ommove.h"
+#include "omovef.h"
+#include "omspec.h"
+#include "omstrike.h"
+#include "omtalk.h"
+#include "oscr.h"
+#include "outil.h"
 
 /* Consider one monster's action */
 void m_pulse(struct monster *m)
@@ -56,7 +76,7 @@ void m_pulse(struct monster *m)
                 if(m_statusp(m, GREEDY)) {
                     while(Level->site[m->x][m->y].things != NULL) {
                         m_pickup(m, Level->site[m->x][m->y].things->thing);
-                        Level->site[m->x][m->y] = Level->site[m->x][m->y].things->next;
+                        Level->site[m->x][m->y].things = Level->site[m->x][m->y].things->next;
                     }
                 }
             }
@@ -192,7 +212,7 @@ void m_death(struct monster *m)
         mprint("Death laughs ironically and gets back to his feet.");
         mprint("He gestures and another scythe appears in his hands.");
 
-        switch(range_range(10)) {
+        switch(random_range(10)) {
         case 0:
             mprint("Death performs a little bow and goes back on guard.");
 
@@ -269,7 +289,7 @@ void m_death(struct monster *m)
             case 7:
                 mprint("A furtive figure dashes out of the shadows, takes a look at");
                 mprint("the corpse, and runs away!");
-                strcpy(ShadowLord, nameprint());
+                strcpy(Shadowlord, nameprint());
                 Shadowlordbehavior = 2912;
 
                 break;
@@ -463,7 +483,7 @@ void monster_strike(struct monster *m)
         }
 
         ++m->attacked;
-        monster_action(m, m->strickf);
+        monster_action(m, m->strikef);
     }
 }
 
@@ -706,8 +726,8 @@ void monster_action(struct monster *m, int action)
             m_sp_leash(m);
 
             break;
-        case M_SP_WHERE:
-            m_sp_where(m);
+        case M_SP_WERE:
+            m_sp_were(m);
 
             break;
         case M_SP_WHISTLEBLOWER:
@@ -806,7 +826,7 @@ void monster_action(struct monster *m, int action)
             m_sp_angel(m);
 
             break;
-        case M_SERVANT:
+        case M_SP_SERVANT:
             m_sp_servant(m);
 
             break;
@@ -822,7 +842,7 @@ void monster_action(struct monster *m, int action)
             m_sp_mb(m);
 
             break;
-        case SP_RAISE:
+        case M_SP_RAISE:
             m_sp_raise(m);
 
             break;
@@ -839,7 +859,7 @@ void monster_action(struct monster *m, int action)
 
             break;
         case M_SP_PRIME:
-            m_sp_primt(m);
+            m_sp_prime(m);
 
             break;
         }
@@ -937,7 +957,7 @@ void make_hiscore_npc(pmt npc, int npcid)
         strcpy(Str2, Archmage);
 
         /* Kolwynia */
-        st = ATRIFACTID + 9;
+        st = ARTIFACTID + 9;
         npc->talkf = M_TALK_ARCHMAGE;
 
         break;
@@ -973,7 +993,7 @@ void make_hiscore_npc(pmt npc, int npcid)
         strcpy(Str2, Lawlord);
 
         break;
-    case 15:
+    default:
         st = THINGID + 16;
         level = Justiciarlevel;
         behavior = Justiciarbehavior;
@@ -1066,19 +1086,19 @@ void determine_npc_behavior(pmt npc, int level, int behavior)
 
             break;
         case 2:
-            npc->talk = M_TALK_MAN;
+            npc->talkf = M_TALK_MAN;
 
             break;
         case 3:
-            npc->talk = M_TALK_HINT;
+            npc->talkf = M_TALK_HINT;
 
             break;
         case 4:
-            npc->talk = M_TALK_BEG;
+            npc->talkf = M_TALK_BEG;
 
             break;
         case 5:
-            npc->talk = M_TALK_SILENT;
+            npc->talkf = M_TALK_SILENT;
 
             break;
         case 6:
@@ -1116,7 +1136,7 @@ void make_log_npc(struct monster *npc)
     i = getc(fd);
 
     while(i != EOF) {
-        fscanf(fd, "%d %d %d ", %s, %l, %b);
+        fscanf(fd, "%d %d %d ", &s, &l, &b);
         filescanstring(fd, Str2);
         j = random_range(10000);
 
@@ -1208,7 +1228,7 @@ void m_trap_pit(struct monster *m)
     m_damage(m, difficulty() * 5, NORMAL_DAMAGE);
 }
 
-void m_trap_door(struct monster m)
+void m_trap_door(struct monster *m)
 {
     if(los_p(m->x, m->y, Player.x, Player.y)) {
         if(m->uniqueness != COMMON) {
@@ -1318,7 +1338,7 @@ void m_fire(struct monster *m)
 {
     char Str1[80];
 
-    if(los_p(m->c, m->y, Player.x, Player.y)) {
+    if(los_p(m->x, m->y, Player.x, Player.y)) {
         if(m->uniqueness != COMMON) {
             strcpy(Str1, m->monstring);
         }
@@ -1443,7 +1463,7 @@ void m_trap_manadrain(struct monster *m)
     }
 }
 
-void m_water(struct mosnter *m)
+void m_water(struct monster *m)
 {
     char Str1[80];
 
@@ -1510,9 +1530,9 @@ void m_lava(struct monster *m)
     }
 }
 
-void m_alter(struct monster *m)
+void m_altar(struct monster *m)
 {
-    inf visible = view_lost_p(Player.x, Player.y, m->x, m->y);
+    int visible = view_los_p(Player.x, Player.y, m->x, m->y);
 
     if(m->uniqueness != COMMON) {
         strcpy(Str1, m->monstring);
@@ -1621,7 +1641,7 @@ char *mantype()
         strcpy(Str3, "tailor");
 
         break;
-    case 8:
+    case 9:
         strcpy(Str3, "soldier");
 
         break;
@@ -1680,20 +1700,7 @@ void strengthen_death(struct monster *m)
     m->dmg = min(10000, m->dmg * 2);
     m->ac += min(1000, m->ac + 10);
     m->speed = max(m->speed - 1, 1);
-
-    /*
-     * In order not to have to make the hp's into longs or unsigned, which would
-     * involve lots of changes, I'll make it max out at 30000.
-     */
-    tmp = 100 + (m->dmg * 10);
-
-    if(tmp > 30000) {
-        m->hp = 30000;
-    }
-    else {
-        m->hp = tmp;
-    }
-
+    m->hp = min(100000, 100 + (m->dmg * 10));
     *scythe = Objects[WEAPONID + 39];
     ol->thing = scythe;
     ol->next = NULL;

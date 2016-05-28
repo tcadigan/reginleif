@@ -7,7 +7,25 @@
  */
 #include "omspec.h"
 
+#include <stdlib.h>
+#include <string.h>
+
+#include "oaux1.h"
+#include "oaux2.h"
+#include "oaux3.h"
+#include "ochar.h"
+#include "oeffect1.h"
+#include "oeffect2.h"
+#include "oeffect3.h"
+#include "ogen1.h"
 #include "oglob.h"
+#include "oinv.h"
+#include "ommove.h"
+#include "omon.h"
+#include "omspec.h"
+#include "omtalk.h"
+#include "oscr.h"
+#include "outil.h"
 
 void m_sp_mp(struct monster *m)
 {
@@ -72,7 +90,7 @@ void m_sp_demon(struct monster *m)
     if(random_range(2)) {
         /* Succubi don't give fear */
         if((m->id != (ML4 + 6))
-           && lost(m->x, m->y, Player.x, Player.y)
+           && los_p(m->x, m->y, Player.x, Player.y)
            && (random_range(30) > (Player.level + 10))
            && (Player.status[AFRAID] == 0)) {
             mprint("You are stricken with fear!");
@@ -115,7 +133,7 @@ void m_sp_demon(struct monster *m)
             mid = ML6 + 10;
 
             break;
-        case 9: /* Inner circle demon */
+        default: /* Inner circle demon */
             mid = ML7 + 14;
 
             break;
@@ -142,7 +160,7 @@ void m_sp_escape(struct monster *m)
 
 void m_sp_ghost(struct monster *m)
 {
-    if(m_status(m, HOSTILE)) {
+    if(m_statusp(m, HOSTILE)) {
         mprint("The ghost moans horribly...");
         p_damage(1, FEAR, "a ghost-inspired heart attack");
         mprint("You've been terrorized!");
@@ -300,8 +318,6 @@ void m_sp_surprise(struct monster *m)
 
 void m_sp_whistleblower(struct monster *m)
 {
-    pml ml;
-
     if(m_statusp(m, HOSTILE)) {
         alert_guards();
         m->specialf = M_MELEE_NORMAL;
@@ -550,9 +566,7 @@ void m_sp_leash(struct monster *m)
 
 void m_sp_servant(struct monster *m)
 {
-    pml ml;
-
-    if((m->id == (ML4 + 14)) && (Player.alignemnt < 0)) {
+    if((m->id == (ML4 + 14)) && (Player.alignment < 0)) {
         m_status_set(m, HOSTILE);
     }
     else if((m->id == (ML4 + 13)) && (Player.alignment > 0)) {
@@ -610,7 +624,7 @@ void m_sp_angel(struct monster *m)
 
         break;
     case DESTINY:
-        if(Player.patron != DESTING) {
+        if(Player.patron != DESTINY) {
             hostile = 1;
         }
         else {
@@ -871,7 +885,7 @@ void m_sp_court(struct monster *m)
     if(m_statusp(m, HOSTILE)) {
         mprint("A storm of spells hits you!");
 
-        for(ml = Level->mlist; ml != NULL; ml = ml->nexT) {
+        for(ml = Level->mlist; ml != NULL; ml = ml->next) {
             m_status_set(ml->m, HOSTILE);
             m_sp_spell(ml->m);
 

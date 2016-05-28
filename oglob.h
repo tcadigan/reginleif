@@ -252,6 +252,8 @@ extern int twiddle;
 extern int saved;
 extern int onewithchaos;
 extern int club_hinthour;
+extern int winnings;
+extern int tavern_hinthour;
 extern int scroll_ids[30];
 extern int potion_ids[30];
 extern int stick_ids[30];

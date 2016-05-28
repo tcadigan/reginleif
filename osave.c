@@ -9,7 +9,15 @@
  */
 #include "osave.h"
 
+#include <stdlib.h>
+#include <string.h>
+
+#include "oaux1.h"
+#include "ofile.h"
 #include "oglob.h"
+#include "o.h"
+#include "oscr.h"
+#include "outil.h"
 
 /*
  * Checks to see if save file already exists. Checks to see if save
@@ -20,7 +28,6 @@ int save_game(int compress, char *savestr)
 {
     int i;
     int writeok = TRUE;
-    char cmd[80];
     FILE *fd = fopen(savestr, "r");
 
     if(fd != NULL) {
@@ -75,6 +82,8 @@ int save_game(int compress, char *savestr)
         print1("Game saved.");
 
 #ifdef COMPRESS_SAVE_FILES
+        char cmd[80];
+        
         if(compress) {
             print2("Compressing save file...");
             strcpy(smd, "compress ");
@@ -121,7 +130,7 @@ void signalsave(int signum)
            && (Current_Environment != E_COUNTRYSIDE)) {
             i = TRUE;
             fwrite((char *)&i, sizeof(int), 1, fd);
-            save_level(fd, level);
+            save_level(fd, Level);
         }
         else {
             i = FALSE;
@@ -167,13 +176,13 @@ void save_player(FILE *fd)
     fwrite((char *)&Spellsleft, sizeof(int), 1, fd);
     fwrite((char *)&SymbolUseHour, sizeof(int), 1, fd);
     fwrite((char *)&ViewHour, sizeof(int), 1, fd);
-    fwrite((char *)&Helmhour, sizeof(int), 1, fd);
+    fwrite((char *)&HelmHour, sizeof(int), 1, fd);
     fwrite((char *)&Constriction, sizeof(int), 1, fd);
     fwrite((char *)&Blessing, sizeof(int), 1, fd);
     fwrite((char *)&LastDay, sizeof(int), 1, fd);
     fwrite((char *)&RitualHour, sizeof(int), 1, fd);
     fwrite((char *)&Lawstone, sizeof(int), 1, fd);
-    fwrite((char *)&chaostone, sizeof(int), 1, fd);
+    fwrite((char *)&Chaostone, sizeof(int), 1, fd);
     fwrite((char *)&Mindstone, sizeof(int), 1, fd);
     fwrite((char *)&Arena_Opponent, sizeof(int), 1, fd);
     fwrite((char *)&Imprisonment, sizeof(int), 1, fd);
@@ -187,7 +196,7 @@ void save_player(FILE *fd)
     fwrite((char *)&LastCountryLocY, sizeof(int), 1, fd);
     fwrite((char *)&LastTownLocX, sizeof(int), 1, fd);
     fwrite((char *)&LastTownLocY, sizeof(int), 1, fd);
-    fwrite((char *)&Pawndate, sizeof(int), 1, fd);
+    fwrite((char *)&PawnDate, sizeof(int), 1, fd);
     fwrite((char *)&twohand, sizeof(int), 1, fd);
     fwrite((char *)Spells, sizeof(Spells), 1, fd);
     fwrite((char *)&Command_Duration, sizeof(Command_Duration), 1, fd);
@@ -202,12 +211,12 @@ void save_player(FILE *fd)
     fwrite((char *)&Primebehavior, sizeof(Primebehavior), 1, fd);
     fwrite((char *)&Justiciarbehavior, sizeof(Justiciarbehavior), 1, fd);
     fwrite((char *)&Commandantbehavior, sizeof(Commandantbehavior), 1, fd);
-    fwrite((char *)&Choaslordbehavior, sizeof(Chaoslordbehavior), 1, fd);
+    fwrite((char *)&Chaoslordbehavior, sizeof(Chaoslordbehavior), 1, fd);
     fwrite((char *)&Lawlordbehavior, sizeof(Lawlordbehavior), 1, fd);
     fwrite((char *)&Championbehavior, sizeof(Championbehavior), 1, fd);
     fwrite((char *)Priestbehavior, sizeof(Priestbehavior), 1, fd);
     fwrite((char *)&Hibehavior, sizeof(Hibehavior), 1, fd);
-    fwrite((char *)&Dukebehavior, sizeof(Bukebehavior), 1, fd);
+    fwrite((char *)&Dukebehavior, sizeof(Dukebehavior), 1, fd);
     fwrite((char *)Shadowlord, sizeof(Shadowlord), 1, fd);
     fwrite((char *)Archmage, sizeof(Archmage), 1, fd);
     fwrite((char *)Prime, sizeof(Prime), 1, fd);
@@ -320,7 +329,7 @@ void save_item(FILE *fd, pob o)
     nullobject.id = -1;
 
     if(o == NULL) {
-        fwrite((char *)&nullobjects, sizeof(objtype), 1, fd);
+        fwrite((char *)&nullobject, sizeof(objtype), 1, fd);
         fprintf(fd, "Null object. Report if you see this!\n");
     }
     else {
@@ -358,10 +367,11 @@ int restore_game(char *savestr)
 {
     int i;
     int version;
-    char cmd[80];
     FILE *fd;
 
 #ifdef COMPRESS_SAVE_FILES
+    char cmd[80];
+
     print1("Uncompressing save file...");
 
     if(strlen(savestr) < 13) {
@@ -488,7 +498,7 @@ void restore_player(FILE *fd)
     fread((char *)&Lawstone, sizeof(int), 1, fd);
     fread((char *)&Chaostone, sizeof(int), 1, fd);
     fread((char *)&Mindstone, sizeof(int), 1, fd);
-    fread((char *)&Area_Opponent, sizeof(int), 1, fd);
+    fread((char *)&Arena_Opponent, sizeof(int), 1, fd);
     fread((char *)&Imprisonment, sizeof(int), 1, fd);
     fread((char *)&Gymcredit, sizeof(int), 1, fd);
     fread((char *)&Balance, sizeof(int), 1, fd);
@@ -520,7 +530,7 @@ void restore_player(FILE *fd)
     fread((char *)&Championbehavior, sizeof(Championbehavior), 1, fd);
     fread((char *)Priestbehavior, sizeof(Priestbehavior), 1, fd);
     fread((char *)&Hibehavior, sizeof(Hibehavior), 1, fd);
-    fread((char *)&Dukebehavior, sizeof(Dukebehaivor), 1, fd);
+    fread((char *)&Dukebehavior, sizeof(Dukebehavior), 1, fd);
     fread((char *)Shadowlord, sizeof(Shadowlord), 1, fd);
     fread((char *)Archmage, sizeof(Archmage), 1, fd);
     fread((char *)Prime, sizeof(Prime), 1, fd);
@@ -533,7 +543,7 @@ void restore_player(FILE *fd)
     fread((char *)Chaoslord, sizeof(Chaoslord), 1, fd);
     fread((char *)Lawlord, sizeof(Lawlord), 1, fd);
     fread((char *)Justiciar, sizeof(Justiciar), 1, fd);
-    fread((char *)&Shadorlordlevel, sizeof(Shadowlordlevel), 1, fd);
+    fread((char *)&Shadowlordlevel, sizeof(Shadowlordlevel), 1, fd);
     fread((char *)&Archmagelevel, sizeof(Archmagelevel), 1, fd);
     fread((char *)&Primelevel, sizeof(Primelevel), 1, fd);
     fread((char *)&Commandantlevel, sizeof(Commandantlevel), 1, fd);
@@ -552,7 +562,7 @@ void restore_player(FILE *fd)
     fread((char *)&twiddle, sizeof(twiddle), 1, fd);
     fread((char *)&saved, sizeof(saved), 1, fd);
     fread((char *)&onewithchaos, sizeof(onewithchaos), 1, fd);
-    fread((char *)&club_hinthout, sizeof(club_hinthour), 1, fd);
+    fread((char *)&club_hinthour, sizeof(club_hinthour), 1, fd);
     fread((char *)&winnings, sizeof(winnings), 1, fd);
     fread((char *)&tavern_hinthour, sizeof(tavern_hinthour), 1, fd);
     fread((char *)scroll_ids, sizeof(scroll_ids), 1, fd);
@@ -675,12 +685,12 @@ void restore_monsters(FILE *fd, plv level)
     pml ml = NULL;
     int i;
     int nummonsters;
-    char tmpstr[80];
+    char tempstr[80];
 
     level->mlist = NULL;
     fread((char *)&nummonsters, sizeof(int), 1, fd);
 
-    for(i = 0; i < nummonsters, ++i) {
+    for(i = 0; i < nummonsters; ++i) {
         ml = (pml)malloc(sizeof(mltype));
         ml->m = (pmt)malloc(sizeof(montype));
         ml->next = NULL;

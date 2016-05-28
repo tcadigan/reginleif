@@ -16,5 +16,8 @@ void terrain_check(int takestime);
 int parsecitysite();
 int hostilemonstersnear();
 char getlocation();
+void alert_guards();
+int stonecheck(int alignment);
+int magic_resist(int hostile_magic);
 
 #endif

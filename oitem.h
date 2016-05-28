@@ -25,6 +25,7 @@ void make_ring(pob new, int id);
 void make_scroll(pob new, int id);
 void make_potion(pob new, int id);
 void make_cash(pob new, int level);
+void make_corpse(pob new, struct monster *m);
 int twohandedp(int id);
 int itemcharge();
 int itemplus();

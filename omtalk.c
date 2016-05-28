@@ -5,8 +5,23 @@
  *
  * Monster talk functions
  */
+#include "omtalk.h"
 
+#include <string.h>
+
+#include "oaux1.h"
+#include "oaux2.h"
+#include "ochar.h"
+#include "oeffect1.h"
+#include "oeffect3.h"
+#include "oetc.h"
 #include "oglob.h"
+#include "oinv.h"
+#include "ommove.h"
+#include "omon.h"
+#include "oscr.h"
+#include "osite2.h"
+#include "outil.h"
 
 /* The druid's altar is in the nothern forest */
 void m_talk_druid(struct monster *m)
@@ -203,7 +218,7 @@ void m_talk_guard(struct monster *m)
 {
     pml ml;
 
-    if(m_status_p(m, HOSTILE)) {
+    if(m_statusp(m, HOSTILE)) {
         print1("\'Surrender in the name of the Law!\'");
         print2("Do it? [yn] ");
 
@@ -311,7 +326,7 @@ void m_talk_im(struct monster *m)
     else {
         m->possessions->thing->known = 2;
         mprint("\'I have a fine");
-        mprint(itemid(m->possessions->thin));
+        mprint(itemid(m->possessions->thing));
         mprint("for only");
         mnumprint(max(10, 4 * true_item_value(m->possessions->thing)));
         mprint("Au.");
@@ -613,7 +628,7 @@ void m_talk_seductor(struct monster *m)
     }
     else {
         strcpy(Str2, "The ");
-        strcat(Str2, m-monstring);
+        strcat(Str2, m->monstring);
         strcat(Str2, "shows you a good time...");
         mprint(Str2);
         gain_experience(500);
@@ -797,7 +812,7 @@ void m_talk_archmage(struct monster *m)
         mprint("The Archmage ignores your attempt at conversation");
         mprint("and concentrates on his spellcasting...");
     }
-    else if(Current_environment == E_COURT) {
+    else if(Current_Environment == E_COURT) {
         mprint("The Archmage congratulates you on getting this far.");
         mprint("He invites you to attempt the Throne of High Magic");
         mprint("but warns you that it is important to wield the Sceptre");

@@ -23,5 +23,6 @@ void moon_check();
 void minute_status_check();
 void weapon_use(int dmgmod, pob weapon, struct monster *m);
 char *actionlocstr(char dir);
+void toggle_item_use(int on);
 
 #endif

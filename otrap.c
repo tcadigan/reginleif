@@ -5,6 +5,7 @@
  *
  * Trap movement functions
  */
+#include "otrap.h"
 
 #include "oglob.h"
 
