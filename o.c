@@ -46,7 +46,7 @@ int LENGTH = MAXLENGTH;
 int WIDTH = MAXWIDTH;
 
 /* Game Status bit vector */
-int GameStatus = 0L;
+int GameStatus = 0;
 
 /* How large is level window */
 int ScreenLength;

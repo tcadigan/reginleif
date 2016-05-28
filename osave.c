@@ -466,7 +466,7 @@ void restore_player(FILE *fd)
         printf("Read nothing\n");
     }
 
-    result = fread((char *)&GameStatus, sizeof(long), 1, fd);
+    result = fread((char *)&GameStatus, sizeof(int), 1, fd);
     if(result == 0) {
         printf("Read nothing\n");
     }
