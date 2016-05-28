@@ -97,6 +97,9 @@ void load_abyss()
             }
         }
 
-        fscanf(fd, "\n");
+        int result = fscanf(fd, "\n");
+        if(result == EOF) {
+            printf("Scanning failed\n");
+        }
     }
 }

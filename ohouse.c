@@ -222,7 +222,10 @@ void load_house(int kind)
             Level->site[i][j].showchar = ' ';
         }
 
-        fscanf(fd, "\n");
+        int result = fscanf(fd, "\n");
+        if(result == EOF) {
+            printf("Scanning failed\n");
+        }
     }
 
     fclose(fd);

@@ -68,7 +68,10 @@ void load_country()
             Country[i][j].explored = FALSE;
         }
 
-        fscanf(fd, "\n");
+        int result = fscanf(fd, "\n");
+        if(result == EOF) {
+            printf("Scanning failed\n");
+        }
     }
 
     fclose(fd);
@@ -219,7 +222,10 @@ void load_dlair(int empty)
             }
         }
 
-        fscanf(fd, "\n");
+        int result = fscanf(fd, "\n");
+        if(result == EOF) {
+            printf("Scanning failed\n");
+        }
     }
 
     fclose(fd);
@@ -372,7 +378,10 @@ void load_speak(int empty)
             }
         }
 
-        fscanf(fd, "\n");
+        int result = fscanf(fd, "\n");
+        if(result == EOF) {
+            printf("Scanning failed\n");
+        }
     }
 
     fclose(fd);
@@ -479,7 +488,10 @@ void load_misle(int empty)
             }
         }
 
-        fscanf(fd, "\n");
+        int result = fscanf(fd, "\n");
+        if(result == EOF) {
+            printf("Scanning failed\n");
+        }
     }
 
     fclose(fd);
@@ -635,7 +647,10 @@ void load_temple(int deity)
             }
         }
 
-        fscanf(fd, "\n");
+        int result = fscanf(fd, "\n");
+        if(result == EOF) {
+            printf("Scanning failed\n");
+        }
     }
 
     /* Main temple is peaceful for player of same sect, druids always peaceful */

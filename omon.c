@@ -1136,7 +1136,11 @@ void make_log_npc(struct monster *npc)
     i = getc(fd);
 
     while(i != EOF) {
-        fscanf(fd, "%d %d %d ", &s, &l, &b);
+        int result = fscanf(fd, "%d %d %d ", &s, &l, &b);
+        if(result == EOF) {
+            printf("Scanning failed\n");
+        }
+
         filescanstring(fd, Str2);
         j = random_range(10000);
 

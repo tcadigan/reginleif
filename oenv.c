@@ -89,7 +89,10 @@ void load_arena()
             Level->site[i][j].showchar = Level->site[i][j].locchar;
         }
 
-        fscanf(fd, "\n");
+        int result = fscanf(fd, "\n");
+        if(result == EOF) {
+            printf("Scanning failed\n");
+        }
     }
 
     Level->site[60][7].creature = Arena_Monster;
@@ -261,7 +264,10 @@ void load_circle()
             }
         }
 
-        fscanf(fd, "\n");
+        int result = fscanf(fd, "\n");
+        if(result == EOF) {
+            printf("Scanning failed\n");
+        }
     }
 
     fclose(fd);
@@ -389,7 +395,10 @@ void load_court()
             }
         }
 
-        fscanf(fd, "\n");
+        int result = fscanf(fd, "\n");
+        if(result == EOF) {
+            printf("Scanning failed\n");
+        }
     }
 
     fclose(fd);

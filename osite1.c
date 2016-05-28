@@ -1303,7 +1303,7 @@ void l_pawn_shop()
         limit = min(5, Date - PawnDate);
         PawnDate = Date;
 
-        for(k = 0; i < limit; ++k) {
+        for(k = 0; k < limit; ++k) {
             if(Pawnitems[0] != NULL) {
                 free((char *)Pawnitems[0]);
                 Pawnitems[0] = NULL;

@@ -338,7 +338,10 @@ void load_city()
             }
         }
         
-        fscanf(fd, "\n");
+        int result = fscanf(fd, "\n");
+        if(result == EOF) {
+            printf("Scanning failed\n");
+        }
     }
 
     City = Level;
@@ -595,7 +598,10 @@ void resurrect_guards()
             }
         }
 
-        fscanf(fd, "\n");
+        int result = fscanf(fd, "\n");
+        if(result == EOF) {
+            printf("Scanning failed\n");
+        }
     }
 
     City = Level;

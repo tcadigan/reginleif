@@ -248,29 +248,72 @@ void showscores()
     filescanstring(fd, Hiscorer);
     filescanstring(fd, Hidescrip);
 
-    fscanf(fd, "%d\n%d\n%d\n", &Hiscore, &Hilevel, &Hibehavior);
+    int result = fscanf(fd, "%d\n%d\n%d\n", &Hiscore, &Hilevel, &Hibehavior);
+    if(result == EOF) {
+        printf("Scanning failed\n");
+    }
+
     filescanstring(fd, Chaoslord);
-    fscanf(fd, "%d\n%d\n%d\n", &Chaoslordlevel, &Chaos, &Chaoslordbehavior);
+    result = fscanf(fd, "%d\n%d\n%d\n", &Chaoslordlevel, &Chaos, &Chaoslordbehavior);
+    if(result == EOF) {
+        printf("Scanning failed\n");
+    }
+
     filescanstring(fd, Lawlord);
-    fscanf(fd, "%d\n%d\n%d\n", &Lawlordlevel, &Law, &Lawlordbehavior);
+    result = fscanf(fd, "%d\n%d\n%d\n", &Lawlordlevel, &Law, &Lawlordbehavior);
+    if(result == EOF) {
+        printf("Scanning failed\n");
+    }
+
     filescanstring(fd, Duke);
-    fscanf(fd, "%d\n%d\n", &Dukelevel, &Dukebehavior);
+    result = fscanf(fd, "%d\n%d\n", &Dukelevel, &Dukebehavior);
+    if(result == EOF) {
+        printf("Scanning failed\n");
+    }
+
     filescanstring(fd, Justiciar);
-    fscanf(fd, "%d\n%d\n", &Justiciarlevel, &Justiciarbehavior);
+    result = fscanf(fd, "%d\n%d\n", &Justiciarlevel, &Justiciarbehavior);
+    if(result == EOF) {
+        printf("Scanning failed\n");
+    }
+
     filescanstring(fd, Commandant);
-    fscanf(fd, "%d\n%d\n", &Commandantlevel, &Commandantbehavior);
+    result = fscanf(fd, "%d\n%d\n", &Commandantlevel, &Commandantbehavior);
+    if(result == EOF) {
+        printf("Scanning failed\n");
+    }
+
     filescanstring(fd, Champion);
-    fscanf(fd, "%d\n%d\n", &Championlevel, &Championbehavior);
+    result = fscanf(fd, "%d\n%d\n", &Championlevel, &Championbehavior);
+    if(result == EOF) {
+        printf("Scanning failed\n");
+    }
+
     filescanstring(fd, Archmage);
-    fscanf(fd, "%d\n%d\n", &Archmagelevel, &Archmagebehavior);
+    result = fscanf(fd, "%d\n%d\n", &Archmagelevel, &Archmagebehavior);
+    if(result == EOF) {
+        printf("Scanning failed\n");
+    }
+
     filescanstring(fd, Prime);
-    fscanf(fd, "%d\n%d\n", &Primelevel, &Primebehavior);
+    result = fscanf(fd, "%d\n%d\n", &Primelevel, &Primebehavior);
+    if(result == EOF) {
+        printf("Scanning failed\n");
+    }
+
     filescanstring(fd, Shadowlord);
-    fscanf(fd, "%d\n%d\n", &Shadowlordlevel, &Shadowlordbehavior);
+    result = fscanf(fd, "%d\n%d\n", &Shadowlordlevel, &Shadowlordbehavior);
+    if(result == EOF) {
+        printf("Scanning failed\n");
+    }
+
 
     for(i = 1; i < 7; ++i) {
         filescanstring(fd, Priest[i]);
-        fscanf(fd, "%d\n%d\n", &Priestlevel[i], &Priestbehavior[i]);
+        result = fscanf(fd, "%d\n%d\n", &Priestlevel[i], &Priestbehavior[i]);
+        if(result == EOF) {
+            printf("Scanning failed\n");
+        }
     }
 
     fclose(fd);

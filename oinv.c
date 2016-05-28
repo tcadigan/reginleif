@@ -88,7 +88,7 @@ int get_money(int limit)
 void pickup_at(int x, int y)
 {
     int quit = FALSE;
-    char response;
+    char response = 'n';
     pol ol = Level->site[x][y].things;
     pol temp;
 

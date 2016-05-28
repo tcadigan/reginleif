@@ -171,7 +171,10 @@ void load_village(int villagenum)
             }
         }
 
-        fscanf(fd, "\n");
+        int result = fscanf(fd, "\n");
+        if(result == EOF) {
+            printf("Scanning failed\n");
+        }
     }
 
     fclose(fd);
