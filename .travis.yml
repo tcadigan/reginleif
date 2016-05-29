@@ -22,3 +22,5 @@ addons:
     build_command_prepend: "make clean"
     build_command: "make"
     branch_pattern: master
+
+script: make
