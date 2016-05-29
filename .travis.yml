@@ -16,8 +16,8 @@ addons:
       libncurses5-dev
   coverity_scan:
     project:
-      name: "tcadigan/omega_0.75"
-      description: "My take on Omega 0.75"
+      name: "tcadigan/moria_4.87"
+      description: "My take on Moria 4.87"
     notification_email: tylercadigan@gmail.com
     build_command_prepend: "make clean"
     build_command: "make"
