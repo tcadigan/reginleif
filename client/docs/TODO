@@ -1,0 +1,21 @@
+def x survey ; who
+/x >! test.log doesn't work.
+
+Fix up slash_commands to work better. Internal generated commands muck this up.
+
+Fix up client_command and way output is handled. Any commands which have an
+obvious start/end should be 'hidden' to reduce screen clutter.
+
+Add something to display the end_prompt if it is the only response from the
+server. Although broadcast/ann/th will mess this up.
+
+Make an array of server command separate from client commands.
+
+Add an at time feature.
+
+Fix up the if() stuff to work complexly.
+expression /*-+% && ||
+
+Add the ability of assign to handle math.
+assign x = x + 1
+/*+-% and () should do it.
