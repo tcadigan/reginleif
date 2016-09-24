@@ -29,9 +29,7 @@ char *intToBinary(int val)
 
 char *decToBinary(char *str)
 {
-    int val = atoi(str);
-
-    return intToBinary(val);
+    return intToBinary(atoi(str));
 }
 
 int main(int argc, char *argv[])
@@ -62,16 +60,8 @@ int main(int argc, char *argv[])
         return 1;
     }
     
-    initialize(argv[1]);
-    constructor();
-
-    char *temp = (char *)malloc(strlen("SCREEN") + 1);
-
-    if(temp == NULL) {
-        fprintf(stderr, "Unable to allocate initial strings");
-
-        return 1;
-    }
+    initialize_parser(argv[1]);
+    construct_symbol_table();
 
     add_entry("SP",     0x00000000);
     add_entry("R0",     0x00000000);
@@ -99,78 +89,169 @@ int main(int argc, char *argv[])
 
     int rom_address = 0;
     
-    while(has_more_commands()) {
-        advance();
+    while(parser_has_more_commands()) {
+        advance_parser();
 
-        if((command_type() == A_COMMAND) || (command_type() == C_COMMAND)) {
+        char *s;
+
+        switch(get_command_type()) {
+        case A_COMMAND:
+        case C_COMMAND:
             ++rom_address;
-        }
-        else {
-            char *s = get_symbol();
 
-            add_entry(s, rom_address);
+            break;
+        case L_COMMAND:
+            s = get_symbol();
+
+            if(s) {
+                add_entry(s, rom_address);
+                free(s);
+            }
+            
+            break;
+        default:
+            fprintf(stderr, "Unknown command type encountered in first pass.\n");
         }
     }
 
-    initialize(argv[1]);
+    initialize_parser(argv[1]);
     
     int ram_address = 16;
-    while(has_more_commands()) {
-        advance();
+    while(parser_has_more_commands()) {
+        advance_parser();
 
-        if(command_type() == A_COMMAND) {
-            char *s = get_symbol();
-            char *bs = NULL;
+        char *text;
+        char *binary;
+        char *buf = (char *)malloc(strlen("XXXXXXXXXXXXXXXX") + 1);
+
+        if(buf == NULL) {
+            fprintf(stderr, "Unable to allocate space for output");
+
+            continue;
+        }
+        
+        switch(get_command_type()) {
+        case A_COMMAND:
+            text = get_symbol();
+
+            if(!text) {
+                free(buf);
+                
+                continue;
+            }
             
-            if((s[0] >= '0') && (s[0] <= '9')) {
-                bs = decToBinary(s);
-                printf("symbol -> \'%s\', \'0%s\'\n", s, bs);
-                fprintf(fd, "0%s\n", bs);
+            binary = NULL;
+
+            strncpy(buf, "0", strlen("0"));
+            
+            if((text[0] >= '0') && (text[0] <= '9')) {
+                binary = decToBinary(text);
+                free(text);
             }
             else {
-                if(contains(s)) {
-                    bs = intToBinary(get_address(s));
-                    printf("symbol -> \'%s\', \'0%s\'\n", s, bs);
-                    fprintf(fd, "0%s\n", bs);
-                }
-                else {
-                    add_entry(s, ram_address);
+                if(!contains(text)) {
+                    add_entry(text, ram_address);
                     ++ram_address;
-                    
-                    bs = intToBinary(get_address(s));
-                    printf("symbol -> \'%s\', \'0%s\'\n", s, bs);
-                    fprintf(fd, "0%s\n", bs);
                 }
+
+                binary = intToBinary(get_address(text));
+                free(text);
             }
 
-            if(s) {
-                free(s);
+            if(!binary) {
+                free(buf);
+                free(text);
+
+                continue;
             }
 
-            if(bs) {
-                free(bs);
+            strncpy(buf + strlen("0"), binary, strlen(binary));
+            free(binary);
+            
+            break;
+        case C_COMMAND:
+            strncpy(buf, "111", strlen("111"));
+
+            text = get_comp();
+
+            if(!text) {
+                free(buf);
+
+                continue;
             }
+            
+            binary = comp(text);
+            free(text);
+            
+            if(!binary) {
+                free(buf);
+
+                continue;
+            }
+
+            strncpy(buf + strlen("111"), binary, strlen(binary));
+            free(binary);
+            text = get_dest();
+
+            if(!text) {
+                free(buf);
+
+                continue;
+            }
+
+            binary = dest(text);
+            free(text);
+            
+            if(!binary) {
+                free(buf);
+                
+                continue;
+            }
+
+            strncpy(buf + strlen("111XXXXXXX"), binary, strlen(binary));
+            free(binary);
+            text = get_jump();
+
+            if(!text) {
+                free(buf);
+
+                continue;
+            }
+
+            binary = jump(text);
+            free(text);
+            
+            if(!binary) {
+                free(buf);
+                
+                continue;
+            }
+
+            strncpy(buf + strlen("111XXXXXXXXXX"), binary, strlen(binary));
+            free(binary);
+            
+            break;
+        case L_COMMAND:
+            free(buf);
+            continue;
+
+            break;
+        default:
+            fprintf(stderr, "Unknown command type encountered in second pass.\n");
+            free(buf);
+
+            continue;
         }
-        else if(command_type() == C_COMMAND) {
-            char *d = get_dest();
-            char *c = get_comp();
-            char *j = get_jump();
-            char *bd = dest(d);
-            char *bc = comp(c);
-            char *bj = jump(j);
-            printf("dest -> \'%s\', comp -> \'%s\', jump -> \'%s\', \'111%s%s%s\'\n", d, c, j, bc, bd, bj);
-            fprintf(fd, "111%s%s%s\n", bc, bd, bj);
-            free(bd);
-            free(bc);
-            free(bj);
-            free(d);
-            free(c);
-            free(j);
-        }
+
+        buf[strlen("XXXXXXXXXXXXXXXX")] = '\0';
+        fprintf(fd, "%s\n", buf);
+        free(buf);
     }
 
     fclose(fd);
     free(output_filename);
+    destroy_symbol_table();
+    destroy_parser();
     
     return 0;
 }

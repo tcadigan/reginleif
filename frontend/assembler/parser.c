@@ -16,25 +16,42 @@ char *command;
 /*
  * Opens the input file/stream and gets ready to parse it.
  */
-void initialize(char *input_file)
+void initialize_parser(char *input_file)
 {
+    if(fd) {
+        fclose(fd);
+    }
+    
     fd = fopen(input_file, "r");
 
     if(!fd) {
         fprintf(stderr, "Unable to open file \'%s\'", input_file);
     }
 
-    command = (char *)malloc(257);
-
     if(command == NULL) {
-        fprintf(stderr, "Unable to create command buffer");
+        command = (char *)malloc(257);
+        
+        if(command == NULL) {
+            fprintf(stderr, "Unable to create command buffer");
+        }
+    }
+}
+
+void destroy_parser()
+{
+    if(fd) {
+        fclose(fd);
+    }
+
+    if(command) {
+        free(command);
     }
 }
 
 /*
  * Are there more commands in the input?
  */
-int has_more_commands()
+int parser_has_more_commands()
 {
     if(fd == NULL) {
         return 0;
@@ -78,9 +95,9 @@ int has_more_commands()
  * command. Should be called only if hasMoreCommands() is true. Initially there
  * is no current command.
  */
-void advance()
+void advance_parser()
 {
-    if(has_more_commands() && command) {
+    if(parser_has_more_commands() && command) {
         char c = fgetc(fd);
         int i = 0;
         int full = 0;
@@ -138,15 +155,17 @@ void advance()
  *     C_COMMAND for dest=comp;jump
  *     L_COMMAND (actually, pseudo-command) for (Xxx) where Xxx is a symbol
  */
-int command_type()
+int get_command_type()
 {
-    if(command[0] == '@') {
+    switch(command[0]) {
+    case '@':
+
         return A_COMMAND;
-    }
-    else if(command[0] == '(') {
+    case '(':
+
         return L_COMMAND;
-    }
-    else {
+    default:
+
         return C_COMMAND;
     }
 }
@@ -158,8 +177,9 @@ int command_type()
 char *get_symbol(void)
 {
     char *result = NULL;
-    
-    if(command_type() == A_COMMAND) {
+
+    switch(get_command_type()) {
+    case A_COMMAND:
         result = (char *)malloc(strlen(command));
         
         if(result == NULL) {
@@ -170,8 +190,9 @@ char *get_symbol(void)
         
         memcpy(result, command + 1, strlen(command) - 1);
         result[strlen(command) - 1] = '\0';
-    }
-    else if(command_type() == L_COMMAND) {
+
+        break;
+    case L_COMMAND:
         result = (char *)malloc((strlen(command) - 1));
 
         if(result == NULL) {
@@ -182,9 +203,14 @@ char *get_symbol(void)
 
         memcpy(result, command + 1, strlen(command) - 2);
         result[strlen(command) - 2] = '\0';
-    }
-    else if(command_type() == C_COMMAND) {
-        fprintf(stderr, "Invalid command type for symbol()");
+
+        break;
+    case C_COMMAND:
+        fprintf(stderr, "Invalid command type for get_symbol()");
+
+        break;
+    default:
+        fprintf(stderr, "Unknown command type for get_symbol()");
     }
 
     return result;
@@ -196,7 +222,7 @@ char *get_symbol(void)
  */
 char *get_dest(void)
 {
-    if(command_type() != C_COMMAND) {
+    if(get_command_type() != C_COMMAND) {
         fprintf(stderr, "Invalid command type for dest()");
         
         return NULL;
@@ -245,7 +271,7 @@ char *get_dest(void)
  */
 char *get_comp(void)
 {
-    if(command_type() != C_COMMAND) {
+    if(get_command_type() != C_COMMAND) {
         fprintf(stderr, "Invalid command type for comp()");
 
         return NULL;
@@ -265,11 +291,11 @@ char *get_comp(void)
 
     int j = strlen(command);
 
-    if(command[strlen(command) - 4] == ';') {
+    if((j >= 4) && (command[j - 4] == ';')) {
         j = strlen(command) - 4;
     }
 
-    char *result = (char *)malloc(j - i);
+    char *result = (char *)malloc(j - i + 1);
     
     if(result == NULL) {
         fprintf(stderr, "Unable to allocate space for comp");
@@ -277,17 +303,11 @@ char *get_comp(void)
         return NULL;
     }
 
-    int k = 0;
-
-    while(k < (j - i)) {
-        if(i == 0) {
-            result[k] = command[k];
-        }
-        else {
-            result[k] = command[i + k + 1];
-        }
-
-        ++k;
+    if(i == 0) {
+        strncpy(result, command, j - i);
+    }
+    else {
+        strncpy(result, command + i + 1, j - i);
     }
 
     result[j - i] = '\0';
@@ -301,7 +321,7 @@ char *get_comp(void)
  */
 char *get_jump(void)
 {
-    if(command_type() != C_COMMAND) {
+    if(get_command_type() != C_COMMAND) {
         fprintf(stderr, "Invalid command type for jump()");
         
         return NULL;
@@ -309,7 +329,7 @@ char *get_jump(void)
 
     char *result = NULL;
     
-    if(command[strlen(command) - 4] == ';') {
+    if((strlen(command) >= 4) && (command[strlen(command) - 4] == ';')) {
         result = (char *)malloc(strlen("XXX") + 1);
         
         if(result == NULL) {

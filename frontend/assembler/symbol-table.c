@@ -16,10 +16,28 @@ struct node *head;
 struct node *tail;
 
 /* Creates a new empty symbol table */
-void constructor()
+void construct_symbol_table()
 {
     head = NULL;
     tail = NULL;
+}
+
+void destroy_symbol_table()
+{
+    struct node *cur = head;
+    struct node *next = NULL;
+
+    while(cur != NULL) {
+        if(cur->symbol) {
+            free(cur->symbol);
+        }
+
+        next = cur->next;
+
+        free(cur);
+
+        cur = next;
+    }
 }
 
 /* Adds the pair (symbol, address to the table). */
@@ -33,7 +51,15 @@ void add_entry(char *symbol, int address)
     }
 
     n->symbol = (char *)malloc(strlen(symbol) + 1);
-    memcpy(n->symbol, symbol, strlen(symbol));
+
+    if(n->symbol == NULL) {
+        fprintf(stderr, "Unable to allocate space for symbol.");
+        free(n);
+        
+        return;
+    }
+
+    strncpy(n->symbol, symbol, strlen(symbol));
     n->symbol[strlen(symbol)] = '\0';
     n->address = address;
     n->prev = NULL;
@@ -42,8 +68,6 @@ void add_entry(char *symbol, int address)
     if((head == NULL) && (tail == NULL)) {
         head = n;
         tail = n;
-        n->prev = NULL;
-        n->next = NULL;
     }
     else {
         tail->next = n;
