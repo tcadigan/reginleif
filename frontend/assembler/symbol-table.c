@@ -1,5 +1,5 @@
-/* Keeps a correspondence between symbolic lables and numeric addresses. */
-#include "symbolTable.h"
+/* Keeps a correspondence between symbolic labels and numeric addresses. */
+#include "symbol-table.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,24 +8,24 @@
 struct node {
     char *symbol;
     int address;
-    node *prev;
-    node *next;
+    struct node *prev;
+    struct node *next;
 };
 
 struct node *head;
 struct node *tail;
 
 /* Creates a new empty symbol table */
-void Constructor()
+void constructor()
 {
     head = NULL;
     tail = NULL;
 }
 
 /* Adds the pair (symbol, address to the table). */
-void addEntry(char *symbol, int address)
+void add_entry(char *symbol, int address)
 {
-    struct node *n = (node *)malloc(sizeof(struct node));
+    struct node *n = (struct node *)malloc(sizeof(struct node));
     if(n == NULL) {
         fprintf(stderr, "Unable to allocate node");
 
@@ -72,7 +72,7 @@ int contains(char *symbol)
 }
 
 /* Returns the address associated with the symbol */
-int GetAddress(char *symbol)
+int get_address(char *symbol)
 {
     struct node *n = head;
     

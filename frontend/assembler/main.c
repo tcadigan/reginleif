@@ -1,6 +1,6 @@
 #include "code.h"
 #include "parser.h"
-#include "symbolTable.h"
+#include "symbol-table.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,24 +15,15 @@ char *intToBinary(int val)
 
         return NULL;
     }
+
+    int i;
+
+    for(i = 0; i < 15; ++i) {
+        result[i] = ((val & (1 << (14 - i))) >> (14 - i)) + '0';
+    }
     
-    result[0] = ((val & 0x00004000) >> 14) + '0';
-    result[1] = ((val & 0x00002000) >> 13) + '0';
-    result[2] = ((val & 0x00001000) >> 12) + '0';
-    result[3] = ((val & 0x00000800) >> 11) + '0';
-    result[4] = ((val & 0x00000400) >> 10) + '0';
-    result[5] = ((val & 0x00000200) >> 9) + '0';
-    result[6] = ((val & 0x00000100) >> 8) + '0';
-    result[7] = ((val & 0x00000080) >> 7) + '0';
-    result[8] = ((val & 0x00000040) >> 6) + '0';
-    result[9] = ((val & 0x00000020) >> 5) + '0';
-    result[10] = ((val & 0x00000010) >> 4) + '0';
-    result[11] = ((val & 0x00000008) >> 3) + '0';
-    result[12] = ((val & 0x00000004) >> 2) + '0';
-    result[13] = ((val & 0x00000002) >> 1) + '0';
-    result[14] = ((val & 0x00000001) >> 0) + '0';
     result[15] = '\0';
-    
+
     return result;
 }
 
@@ -60,10 +51,7 @@ int main(int argc, char *argv[])
     }
     
     memcpy(output_filename, argv[1], strlen(argv[1]) - 3);
-    output_filename[strlen(argv[1]) - 3] = 'h';
-    output_filename[strlen(argv[1]) - 2] = 'a';
-    output_filename[strlen(argv[1]) - 1] = 'c';
-    output_filename[strlen(argv[1])] = 'k';
+    strncpy(output_filename + strlen(argv[1]) - 3, "hack", strlen("hack"));
     output_filename[strlen(argv[1]) + 1] = '\0';
 
     FILE *fd = fopen(output_filename, "w");
@@ -75,7 +63,7 @@ int main(int argc, char *argv[])
     }
     
     initialize(argv[1]);
-    Constructor();
+    constructor();
 
     char *temp = (char *)malloc(strlen("SCREEN") + 1);
 
@@ -85,161 +73,53 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    temp[0] = 'S';
-    temp[1] = 'P';
-    temp[2] = '\0';
-    addEntry(temp, 0x00000000);
-
-    temp[0] = 'L';
-    temp[1] = 'C';
-    temp[2] = 'L';
-    temp[3] = '\0';
-    addEntry(temp, 0x00000001);
-
-    temp[0] = 'A';
-    temp[1] = 'R';
-    temp[2] = 'G';
-    temp[3] = '\0';
-    addEntry(temp, 0x00000002);
-
-    temp[0] = 'T';
-    temp[1] = 'H';
-    temp[2] = 'I';
-    temp[3] = 'S';
-    temp[4] = '\0';
-    addEntry(temp, 0x00000003);
-
-    temp[0] = 'T';
-    temp[1] = 'H';
-    temp[2] = 'A';
-    temp[3] = 'T';
-    temp[4] = '\0';
-    addEntry(temp, 0x00000004);
-
-    temp[0] = 'R';
-    temp[1] = '0';
-    temp[2] = '\0';
-    addEntry(temp, 0x00000000);
-
-    temp[0] = 'R';
-    temp[1] = '1';
-    temp[2] = '\0';
-    addEntry(temp, 0x00000001);
-
-    temp[0] = 'R';
-    temp[1] = '2';
-    temp[2] = '\0';
-    addEntry(temp, 0x00000002);
-
-    temp[0] = 'R';
-    temp[1] = '3';
-    temp[2] = '\0';
-    addEntry(temp, 0x00000003);
-
-    temp[0] = 'R';
-    temp[1] = '4';
-    temp[2] = '\0';
-    addEntry(temp, 0x00000004);
-
-    temp[0] = 'R';
-    temp[1] = '5';
-    temp[2] = '\0';
-    addEntry(temp, 0x00000005);
-
-    temp[0] = 'R';
-    temp[1] = '6';
-    temp[2] = '\0';
-    addEntry(temp, 0x00000006);
-
-    temp[0] = 'R';
-    temp[1] = '7';
-    temp[2] = '\0';
-    addEntry(temp, 0x00000007);
-
-    temp[0] = 'R';
-    temp[1] = '8';
-    temp[2] = '\0';
-    addEntry(temp, 0x00000008);
-
-    temp[0] = 'R';
-    temp[1] = '9';
-    temp[2] = '\0';
-    addEntry(temp, 0x00000009);
-
-    temp[0] = 'R';
-    temp[1] = '1';
-    temp[2] = '0';
-    temp[3] = '\0';
-    addEntry(temp, 0x0000000a);
-
-    temp[0] = 'R';
-    temp[1] = '1';
-    temp[2] = '1';
-    temp[3] = '\0';
-    addEntry(temp, 0x0000000b);
-
-    temp[0] = 'R';
-    temp[1] = '1';
-    temp[2] = '2';
-    temp[3] = '\0';
-    addEntry(temp, 0x0000000c);
-
-    temp[0] = 'R';
-    temp[1] = '1';
-    temp[2] = '3';
-    temp[3] = '\0';
-    addEntry(temp, 0x0000000d);
-
-    temp[0] = 'R';
-    temp[1] = '1';
-    temp[2] = '4';
-    temp[3] = '\0';
-    addEntry(temp, 0x0000000e);
-
-    temp[0] = 'R';
-    temp[1] = '1';
-    temp[2] = '5';
-    temp[3] = '\0';
-    addEntry(temp, 0x0000000f);
-
-    temp[0] = 'S';
-    temp[1] = 'C';
-    temp[2] = 'R';
-    temp[3] = 'E';
-    temp[4] = 'E';
-    temp[5] = 'N';
-    temp[6] = '\0';
-    addEntry(temp, 0x00004000);
-
-    temp[0] = 'K';
-    temp[1] = 'B';
-    temp[2] = 'D';
-    temp[3] = '\0';
-    addEntry(temp, 0x00006000);
+    add_entry("SP",     0x00000000);
+    add_entry("R0",     0x00000000);
+    add_entry("LCL",    0x00000001);
+    add_entry("R1",     0x00000001);
+    add_entry("ARG",    0x00000002);
+    add_entry("R2",     0x00000002);
+    add_entry("THIS",   0x00000003);
+    add_entry("R3",     0x00000003);
+    add_entry("THAT",   0x00000004);
+    add_entry("R4",     0x00000004);
+    add_entry("R5",     0x00000005);
+    add_entry("R6",     0x00000006);
+    add_entry("R7",     0x00000007);
+    add_entry("R8",     0x00000008);
+    add_entry("R9",     0x00000009);
+    add_entry("R10",    0x0000000a);
+    add_entry("R11",    0x0000000b);
+    add_entry("R12",    0x0000000c);
+    add_entry("R13",    0x0000000d);
+    add_entry("R14",    0x0000000e);
+    add_entry("R15",    0x0000000f);
+    add_entry("SCREEN", 0x00004000);
+    add_entry("KBD",    0x00006000);
 
     int rom_address = 0;
     
-    while(hasMoreCommands()) {
+    while(has_more_commands()) {
         advance();
 
-        if((commandType() == A_COMMAND) || (commandType() == C_COMMAND)) {
+        if((command_type() == A_COMMAND) || (command_type() == C_COMMAND)) {
             ++rom_address;
         }
         else {
-            char *s = symbol();
+            char *s = get_symbol();
 
-            addEntry(s, rom_address);
+            add_entry(s, rom_address);
         }
     }
 
     initialize(argv[1]);
     
     int ram_address = 16;
-    while(hasMoreCommands()) {
+    while(has_more_commands()) {
         advance();
 
-        if(commandType() == A_COMMAND) {
-            char *s = symbol();
+        if(command_type() == A_COMMAND) {
+            char *s = get_symbol();
             char *bs = NULL;
             
             if((s[0] >= '0') && (s[0] <= '9')) {
@@ -249,15 +129,15 @@ int main(int argc, char *argv[])
             }
             else {
                 if(contains(s)) {
-                    bs = intToBinary(GetAddress(s));
+                    bs = intToBinary(get_address(s));
                     printf("symbol -> \'%s\', \'0%s\'\n", s, bs);
                     fprintf(fd, "0%s\n", bs);
                 }
                 else {
-                    addEntry(s, ram_address);
+                    add_entry(s, ram_address);
                     ++ram_address;
                     
-                    bs = intToBinary(GetAddress(s));
+                    bs = intToBinary(get_address(s));
                     printf("symbol -> \'%s\', \'0%s\'\n", s, bs);
                     fprintf(fd, "0%s\n", bs);
                 }
@@ -271,10 +151,10 @@ int main(int argc, char *argv[])
                 free(bs);
             }
         }
-        else if(commandType() == C_COMMAND) {
-            char *d = dest();
-            char *c = comp();
-            char *j = jump();
+        else if(command_type() == C_COMMAND) {
+            char *d = get_dest();
+            char *c = get_comp();
+            char *j = get_jump();
             char *bd = dest(d);
             char *bc = comp(c);
             char *bj = jump(j);

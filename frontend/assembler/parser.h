@@ -8,12 +8,12 @@ enum {
 };
 
 void initialize(char *input_file);
-int hasMoreCommands();
+int has_more_commands();
 void advance();
-int commandType();
-char *symbol(void);
-char *dest(void);
-char *comp(void);
-char *jump(void);
+int command_type();
+char *get_symbol(void);
+char *get_dest(void);
+char *get_comp(void);
+char *get_jump(void);
 
 #endif

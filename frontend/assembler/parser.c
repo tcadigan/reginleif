@@ -34,7 +34,7 @@ void initialize(char *input_file)
 /*
  * Are there more commands in the input?
  */
-int hasMoreCommands()
+int has_more_commands()
 {
     if(fd == NULL) {
         return 0;
@@ -80,7 +80,7 @@ int hasMoreCommands()
  */
 void advance()
 {
-    if(hasMoreCommands() && command) {
+    if(has_more_commands() && command) {
         char c = fgetc(fd);
         int i = 0;
         int full = 0;
@@ -138,7 +138,7 @@ void advance()
  *     C_COMMAND for dest=comp;jump
  *     L_COMMAND (actually, pseudo-command) for (Xxx) where Xxx is a symbol
  */
-int commandType()
+int command_type()
 {
     if(command[0] == '@') {
         return A_COMMAND;
@@ -155,11 +155,11 @@ int commandType()
  * Returns the symbol or decimal Xxx of the current command @Xxx or
  * (Xxx). Should be called only when commandType() is A_COMMAND or L_COMMAND.
  */
-char *symbol(void)
+char *get_symbol(void)
 {
     char *result = NULL;
     
-    if(commandType() == A_COMMAND) {
+    if(command_type() == A_COMMAND) {
         result = (char *)malloc(strlen(command));
         
         if(result == NULL) {
@@ -171,7 +171,7 @@ char *symbol(void)
         memcpy(result, command + 1, strlen(command) - 1);
         result[strlen(command) - 1] = '\0';
     }
-    else if(commandType() == L_COMMAND) {
+    else if(command_type() == L_COMMAND) {
         result = (char *)malloc((strlen(command) - 1));
 
         if(result == NULL) {
@@ -183,7 +183,7 @@ char *symbol(void)
         memcpy(result, command + 1, strlen(command) - 2);
         result[strlen(command) - 2] = '\0';
     }
-    else if(commandType() == C_COMMAND) {
+    else if(command_type() == C_COMMAND) {
         fprintf(stderr, "Invalid command type for symbol()");
     }
 
@@ -194,9 +194,9 @@ char *symbol(void)
  * Returns the dest mnemonic in current C-command (8 possibilities). Should be
  * called only when commandType() is C_COMMAND.
  */
-char *dest(void)
+char *get_dest(void)
 {
-    if(commandType() != C_COMMAND) {
+    if(command_type() != C_COMMAND) {
         fprintf(stderr, "Invalid command type for dest()");
         
         return NULL;
@@ -231,10 +231,7 @@ char *dest(void)
         }
     }
     else {
-        result[0] = 'n';
-        result[1] = 'u';
-        result[2] = 'l';
-        result[3] = 'l';
+        strncpy(result, "null", strlen("null"));
     }
 
     result[i] = '\0';
@@ -246,9 +243,9 @@ char *dest(void)
  * Returns the comp mnemonic in the current C-command (28 possibilities). Should
  * be called only when commandType() is C_COMMAND.
  */
-char *comp(void)
+char *get_comp(void)
 {
-    if(commandType() != C_COMMAND) {
+    if(command_type() != C_COMMAND) {
         fprintf(stderr, "Invalid command type for comp()");
 
         return NULL;
@@ -302,9 +299,9 @@ char *comp(void)
  * Returns the jump mnemonic in current C-command (8 possibilities). Should be
  * called only when commandType() is C_COMMAND.
  */
-char *jump(void)
+char *get_jump(void)
 {
-    if(commandType() != C_COMMAND) {
+    if(command_type() != C_COMMAND) {
         fprintf(stderr, "Invalid command type for jump()");
         
         return NULL;
@@ -320,10 +317,8 @@ char *jump(void)
             
             return NULL;
         }
-        
-        result[0] = command[strlen(command) - 3];
-        result[1] = command[strlen(command) - 2];
-        result[2] = command[strlen(command) - 1];
+
+        strncpy(result, command + strlen(command) - 3, strlen("XXX"));
         result[3] = '\0';
     }
     else {
@@ -334,11 +329,8 @@ char *jump(void)
             
             return NULL;
         }
-        
-        result[0] = 'n';
-        result[1] = 'u';
-        result[2] = 'l';
-        result[3] = 'l';
+
+        strncpy(result, "null", strlen("null"));
         result[4] = '\0';        
     }
 
