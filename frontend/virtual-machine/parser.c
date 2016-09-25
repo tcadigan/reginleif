@@ -3,7 +3,7 @@
  * input code. It reads VM commands, parses them and provides convenient access
  * to these components. In addition, it removes all white space and comments.
  */
-#include "parse.h"
+#include "parser.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -14,10 +14,8 @@ FILE *fd;
 char *command;
 
 /* Opens the input file/stream and gets ready to parse it. */
-void parseConstructor(char *file)
+void construct_parser(char *file)
 {
-    printf("TC_DEBUG: opening input file -> \'%s\'\n", file);
-    
     fd = fopen(file, "r");
 
     if(!fd) {
@@ -32,7 +30,7 @@ void parseConstructor(char *file)
 }
 
 /* Are there more commands in the input? */
-int hasMoreCommands()
+int parser_has_more_commands()
 {
     if(fd == NULL) {
         return 0;
@@ -73,12 +71,12 @@ int hasMoreCommands()
 
 /*
  * Reads the next command from the input and makes it the current
- * command. Should be called only if hasMoreCommands() is true. Initialily there
- * is no current command.
+ * command. Should be called only if parse_has_more_commands() is
+ * true. Initialily there is no current command.
  */
-void advance()
+void advance_parser()
 {
-    if(hasMoreCommands() && command) {
+    if(parser_has_more_commands() && command) {
         char c = fgetc(fd);
         int i = 0;
         int full = 0;
@@ -141,7 +139,7 @@ void advance()
  * Returns the type of the current VM command. C_ARITHMETIC is returned for all
  * the arithmetic commands.
  */
-VM_TYPE commandType()
+enum VM_TYPE get_command_type()
 {
     if(strncmp(command, "push", strlen("push")) == 0) {
         return C_PUSH;
@@ -177,15 +175,15 @@ VM_TYPE commandType()
  * C_ARITHMETIC the command itself(add, sub, etc.) is returned. Should not get
  * called if the current commands is C_RETURN.
  */
-char *arg1()
+char *get_arg1()
 {
-    if(commandType() == C_RETURN) {
+    if(get_command_type() == C_RETURN) {
         return NULL;
     }
 
     char *result = NULL;
     
-    if(commandType() == C_ARITHMETIC) {        
+    if(get_command_type() == C_ARITHMETIC) {        
         int len = 2;
 
         if(!isspace(*(command + 2))) {
@@ -200,16 +198,8 @@ char *arg1()
             return NULL;
         }
 
-        result[0] = *command;
-        result[1] = *(command + 1);
-
-        if(len == 3) {
-            result[2] = *(command + 2);
-            result[3] = '\0';
-        }
-        else {
-            result[2] = '\0';
-        }
+        strncpy(result, command, len);
+        result[len] = '\0';
 
         return result;
     }
@@ -245,22 +235,27 @@ char *arg1()
  * Returns the second argument of the current command. Should be called only if
  * the current command is C_PUSH, C_POP, C_FUNCTION, or C_CALL.
  */
-int arg2()
+int get_arg2()
 {
-    if((commandType() != C_PUSH)
-       && (commandType() != C_POP)
-       && (commandType() != C_FUNCTION)
-       && (commandType() != C_CALL)) {
+    char *s;
+    int ctr;
+
+    switch(get_command_type()) {
+    case C_PUSH:
+    case C_POP:
+    case C_FUNCTION:
+    case C_CALL:
+        s = command + strlen(command) - 1;
+        ctr = 0;
+
+        while(!isspace(*s) && (ctr < strlen(command))) {
+            ++ctr;
+            --s;
+        }
+
+        return atoi(s + 1);
+        
+    default:
         return -1;
     }
-
-    char *s = command + strlen(command) - 1;
-    int ctr = 0;
-
-    while(!isspace(*s) && (ctr < strlen(command))) {
-        ++ctr;
-        --s;
-    }
-
-    return atoi(s + 1);
 }

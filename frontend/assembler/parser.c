@@ -249,12 +249,7 @@ char *get_dest(void)
     }
 
     if(i < 3) {
-        int k = 0;
-
-        while(k < i) {
-            result[k] = command[k];
-            ++k;
-        }
+        strncpy(result, command, i);
     }
     else {
         strncpy(result, "null", strlen("null"));

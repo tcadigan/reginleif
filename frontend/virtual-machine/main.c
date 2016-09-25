@@ -1,8 +1,9 @@
-#include "codeWriter.h"
-#include "parse.h"
+#include "code-writer.h"
+#include "parser.h"
 
 #include <dirent.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 
@@ -25,7 +26,23 @@ int main(int argc, char *argv[])
     }
     
     if(S_ISDIR(buf.st_mode)) {
-        DIR *dd = opendir(argv[1]);
+        char *full_path = (char *)malloc(PATH_MAX + 1);
+
+        if(full_path == NULL) {
+            fprintf(stderr, "Unable to allocate full path\n");
+
+            return -1;
+        }
+
+        full_path = realpath(argv[1], full_path);
+
+        if(full_path == NULL) {
+            fprintf(stderr, "Unable to resolve real path\n");
+
+            return -1;
+        }
+
+        DIR *dd = opendir(full_path);
 
         if(dd == NULL) {
             fprintf(stderr, "Unable to open source directory\n");
@@ -37,30 +54,63 @@ int main(int argc, char *argv[])
         int first = 1;
         
         while(dirp) {
-            if((dirp->d_name[strlen(dirp->d_name) - 1] == 'm')
-               && (dirp->d_name[strlen(dirp->d_name) - 2] == 'v')
-               && (dirp->d_name[strlen(dirp->d_name) - 3] == '.')) {               
+            if((strncmp(dirp->d_name, ".", strlen(dirp->d_name)) == 0)
+               || (strncmp(dirp->d_name, "..", strlen(dirp->d_name)) == 0)) {
+                dirp = readdir(dd);
+                
+                continue;
+            }
+            
+            char *suffix = strrchr(dirp->d_name, '.');
+            
+            if((suffix != NULL) && (strncmp(suffix, ".vm", strlen(suffix)) == 0)) {
                 if(first) {
-                    char filename[] = { 'm', 'i', 'x', 'e', 'd', '.', 'a', 's', 'm', '\0' };
-                    codeWriterConstructor(filename);
-                    first = 0;
+                    char *folder = strrchr(full_path, '/');
+                    
+                    if(folder != NULL) {
+                        while((*(folder + 1) == '\0') && (folder != NULL)) {
+                            *folder = '\0';
+                            folder = strrchr(full_path, '/');
+                        }
+
+                        if(folder) {
+                            construct_code_writer(folder + 1);
+                            first = 0;
+                        }
+                    }
                 }
                 else {
-                    
-                    setFileName(dirp->d_name);
+                    set_filename(dirp->d_name);
                 }
+
+                char *file_path = (char *)malloc(PATH_MAX + NAME_MAX + 2);
+
+                if(file_path == NULL) {
+                    fprintf(stderr, "Unable to allocate file path\n");
+
+                    return -1;
+                }
+
+                strncpy(file_path, full_path, strlen(full_path));
+                strncpy(file_path + strlen(full_path), "/", strlen("/"));
                 
-                parseConstructor(dirp->d_name);
+                strncpy(file_path + strlen(full_path) + strlen("/"),
+                        dirp->d_name,
+                        strlen(dirp->d_name));
                 
-                while(hasMoreCommands()) {
-                    advance();
-                    VM_TYPE type = commandType();
-                    
+                file_path[strlen(full_path) + strlen("/") + strlen(dirp->d_name)] = '\0';
+
+                construct_parser(file_path);
+                
+                while(parser_has_more_commands()) {
+                    advance_parser();
+                    enum VM_TYPE type = get_command_type();
+
                     if((type == C_PUSH) || (type == C_POP)) {
-                        writePushPop(type, arg1(), arg2());
+                        write_push_pop(type, get_arg1(), get_arg2());
                     }
                     else if(type == C_ARITHMETIC) {
-                        writeArithmetic(arg1());
+                        write_arithmetic(get_arg1());
                     }
                 }
             }
@@ -69,26 +119,26 @@ int main(int argc, char *argv[])
         }
     }
     else if(S_ISREG(buf.st_mode)) {
-        codeWriterConstructor(argv[1]);
-        parseConstructor(argv[1]);
+        construct_parser(argv[1]);        
+        construct_code_writer(argv[1]);
 
-        while(hasMoreCommands()) {
-            advance();
+        while(parser_has_more_commands()) {
+            advance_parser();
             
-            VM_TYPE type = commandType();
+            enum VM_TYPE type = get_command_type();
 
             if((type == C_PUSH) || (type == C_POP)) {
-                printf("TC_DEBUG: arg1() -> \'%s\' arg2() -> \'%d\'\n", arg1(), arg2());
-                writePushPop(type, arg1(), arg2());
+                printf("TC_DEBUG: arg1() -> \'%s\' arg2() -> \'%d\'\n", get_arg1(), get_arg2());
+                write_push_pop(type, get_arg1(), get_arg2());
             }
             else if(type == C_ARITHMETIC) {
-                printf("TC_DEBUG: arg1() -> \'%s\'\n", arg1());
-                writeArithmetic(arg1());
+                printf("TC_DEBUG: arg1() -> \'%s\'\n", get_arg1());
+                write_arithmetic(get_arg1());
             }
         }
     }
     
-    Close();
+    close_code_writer();
     
     return 0;
 }

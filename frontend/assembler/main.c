@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-char *intToBinary(int val)
+char *int_to_binary(int val)
 {
     char *result = (char *)malloc(16);
 
@@ -27,9 +27,9 @@ char *intToBinary(int val)
     return result;
 }
 
-char *decToBinary(char *str)
+char *decimal_to_binary(char *str)
 {
-    return intToBinary(atoi(str));
+    return int_to_binary(atoi(str));
 }
 
 int main(int argc, char *argv[])
@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
             strncpy(buf, "0", strlen("0"));
             
             if((text[0] >= '0') && (text[0] <= '9')) {
-                binary = decToBinary(text);
+                binary = decimal_to_binary(text);
                 free(text);
             }
             else {
@@ -154,7 +154,7 @@ int main(int argc, char *argv[])
                     ++ram_address;
                 }
 
-                binary = intToBinary(get_address(text));
+                binary = int_to_binary(get_address(text));
                 free(text);
             }
 

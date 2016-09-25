@@ -1,21 +1,21 @@
 PROG=VM
-SRCS=codeWriter.c main.c parse.c
-OBJS=codeWriter.o main.o parse.o
+SRCS=code-writer.c main.c parser.c
+OBJS=code-writer.o main.o parser.o
 CFLAGS=-O0 -g -Wall
 
 all: $(PROG)
 
 $(PROG): $(OBJS)
-	$(CXX) $(CFLAGS) $(OBJS) -o $(PROG)
+	$(CC) $(CFLAGS) $(OBJS) -o $(PROG)
 
-codeWriter.o: codeWriter.c codeWriter.h
-	$(CXX) -c codeWriter.c -o codeWriter.o
+code-writer.o: code-writer.c code-writer.h
+	$(CC) -c code-writer.c -o code-writer.o
 
-main.o: main.c codeWriter.h parse.h
-	$(CXX) -c main.c -o main.o
+main.o: main.c code-writer.h parser.h
+	$(CC) -c main.c -o main.o
 
-parse.o: parse.c parse.h
-	$(CXX) -c parse.c -o parse.o
+parser.o: parser.c parser.h
+	$(CC) -c parser.c -o parser.o
 
 clean:
 	rm -rf *.o $(PROG) *~

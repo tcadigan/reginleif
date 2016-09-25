@@ -1,5 +1,5 @@
 /* Translates VM commands into Hack assembly code. */
-#include "codeWriter.h"
+#include "code-writer.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,21 +10,23 @@ int ctr;
 char *filename;
 
 /* Opens the output file/stream and gets ready to write into it */
-void codeWriterConstructor(char *file)
+void construct_code_writer(char *file)
 {
-    filename = (char *)malloc(strlen(file) + 2);
+    char *suffix = strrchr(file, '.');
+
+    if(suffix != NULL) {
+        *suffix = '\0';
+    }
+    
+    filename = (char *)malloc(strlen(file) + 5);
     
     if(filename == NULL) {
         fprintf(stderr, "Unable to allocate output file");
     }
 
-    memcpy(filename, file, strlen(file) - 2);
-    filename[strlen(file) - 2] = 'a';
-    filename[strlen(file) - 1] = 's';
-    filename[strlen(file)] = 'm';
-    filename[strlen(file) + 1] = '\0';
-
-    printf("TC_DEBUG: opening output file -> \'%s\'\n", filename);
+    strncpy(filename, file, strlen(file));
+    strncpy(filename + strlen(file), ".asm", strlen(".asm"));
+    filename[strlen(file) + 4] = '\0';
     
     output_fd = fopen(filename, "w");
     
@@ -32,24 +34,38 @@ void codeWriterConstructor(char *file)
         fprintf(stderr, "Unable to open file \'%s\'", file);
     }
 
-    setFileName(file);
+    set_filename(file);
+}
+
+/* Closes the output file. */
+void close_code_writer()
+{
+    if(output_fd) {
+        fclose(output_fd);
+    }
 }
 
 /* Informs the code writer that the translation of a new VM is started */
-void setFileName(char *fileName)
+void set_filename(char *fileName)
 {
     if(filename) {
         free(filename);
     }
-    
-    filename = (char *)malloc(strlen(fileName) - 2);
+
+    char *suffix = strrchr(fileName, '.');
+
+    if(suffix != NULL) {
+        *suffix = '\0';
+    }
+
+    filename = (char *)malloc(strlen(fileName) + 1);
 
     if(filename == NULL) {
         fprintf(stderr, "Unable to allocate filename");
     }
 
-    memcpy(filename, fileName, strlen(fileName) - 3);
-    filename[strlen(fileName) - 3] = '\0';
+    strncpy(filename, fileName, strlen(fileName));
+    filename[strlen(fileName)] = '\0';
     
     ctr = 0;
 }
@@ -58,7 +74,7 @@ void setFileName(char *fileName)
  * Writes the assembly code that is the translation of the given arithmetic
  * command.
  */
-void writeArithmetic(char *string)
+void write_arithmetic(char *string)
 {
     if(strncmp(string, "add", strlen("add")) == 0) {
         fprintf(output_fd, "@SP\n");
@@ -196,7 +212,7 @@ void writeArithmetic(char *string)
  * Writes the assembly code that is the translation of the given command, where
  * command is either C_PUSH or C_POP.
  */
-void writePushPop(VM_TYPE command, char *segment, int index)
+void write_push_pop(enum VM_TYPE command, char *segment, int index)
 {
     if((command != C_PUSH) && (command != C_POP)) {
         return;
@@ -432,10 +448,4 @@ void writePushPop(VM_TYPE command, char *segment, int index)
             fprintf(output_fd, "M=D\n");
         }
     }
-}
-
-/* Closes the output file. */
-void Close()
-{
-    fclose(output_fd);
 }
