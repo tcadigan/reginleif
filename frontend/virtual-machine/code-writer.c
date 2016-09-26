@@ -76,136 +76,98 @@ void set_filename(char *fileName)
  */
 void write_arithmetic(char *string)
 {
-    if(strncmp(string, "add", strlen("add")) == 0) {
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "AM=M-1\n");
-        fprintf(output_fd, "D=M\n");
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "AM=M-1\n");
-        fprintf(output_fd, "MD=M+D\n");
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "M=M+1\n");
+    if((strncmp(string, "add", strlen("add")) == 0)
+       || (strncmp(string, "sub", strlen("sub")) == 0)
+       || (strncmp(string, "and", strlen("and")) == 0)
+       || (strncmp(string, "or", strlen("or")) == 0)) {
+        
+        fprintf(output_fd,
+                "@SP\n"
+                "AM=M-1\n"
+                "D=M\n"
+                "@SP\n"
+                "AM=M-1\n");
+
+        if(strncmp(string, "add", strlen("add")) == 0) {
+            fprintf(output_fd, "MD=M+D\n");
+        }
+        else if(strncmp(string, "sub", strlen("sub")) == 0) {
+            fprintf(output_fd, "MD=M-D\n");
+        }
+        else if(strncmp(string, "and", strlen("and")) == 0) {
+            fprintf(output_fd, "MD=M&D\n");
+        }
+        else {
+            fprintf(output_fd, "MD=M|D\n");
+        }
+
+        fprintf(output_fd,
+                "@SP\n"
+                "M=M+1\n");
     }
-    else if(strncmp(string, "sub", strlen("sub")) == 0) {
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "AM=M-1\n");
-        fprintf(output_fd, "D=M\n");
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "AM=M-1\n");
-        fprintf(output_fd, "MD=M-D\n");
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "M=M+1\n");
+    else if((strncmp(string, "neg", strlen("neg")) == 0)
+            || (strncmp(string, "not", strlen("not")) == 0)) {
+        
+        fprintf(output_fd,
+                "@SP\n"
+                "AM=M-1\n"
+                "D=M\n");
+
+        if(strncmp(string, "neg", strlen("neg")) == 0) {
+            fprintf(output_fd, "M=-D\n");
+        }
+        else {
+            fprintf(output_fd, "M=!D\n");
+        }
+        
+        fprintf(output_fd,
+                "@SP\n"
+                "M=M+1\n");
     }
-    else if(strncmp(string, "neg", strlen("neg")) == 0) {
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "AM=M-1\n");
-        fprintf(output_fd, "D=M\n");
-        fprintf(output_fd, "M=-D\n");
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "M=M+1\n");
-    }
-    else if(strncmp(string, "eq", strlen("eq")) == 0) {
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "AM=M-1\n");
-        fprintf(output_fd, "D=M\n");
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "AM=M-1\n");
-        fprintf(output_fd, "D=M-D\n");
-        fprintf(output_fd, "@NOTEQUAL.%s.%d\n", filename, ctr);
-        fprintf(output_fd, "D;JNE\n");
-        fprintf(output_fd, "D=-1\n");
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "A=M\n");
-        fprintf(output_fd, "M=D\n");
-        fprintf(output_fd, "@RESUME.%s.%d\n", filename, ctr);
-        fprintf(output_fd, "0;JMP\n");
-        fprintf(output_fd, "(NOTEQUAL.%s.%d)\n", filename, ctr);
-        fprintf(output_fd, "D=0\n");
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "A=M\n");
-        fprintf(output_fd, "M=D\n");
-        fprintf(output_fd, "(RESUME.%s.%d)\n", filename, ctr);
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "M=M+1\n");
+    else if((strncmp(string, "eq", strlen("eq")) == 0)
+            || (strncmp(string, "gt", strlen("gt")) == 0)
+            || (strncmp(string, "lt", strlen("lt")) == 0)) {
+        fprintf(output_fd,
+                "@SP\n"
+                "AM=M-1\n"
+                "D=M\n"
+                "@SP\n"
+                "AM=M-1\n"
+                "D=M-D\n"
+                "@LOGIC_FALSE.%s.%d\n", filename, ctr);
+
+        if(strncmp(string, "eq", strlen("eq")) == 0) {
+            fprintf(output_fd, "D;JNE\n");
+        }
+        else if(strncmp(string, "gt", strlen("gt")) == 0) {
+            fprintf(output_fd, "D;JLE\n");
+        }
+        else {
+            fprintf(output_fd, "D;JGE\n");
+        }
+        
+        fprintf(output_fd,
+                "D=-1\n"
+                "@SP\n"
+                "A=M\n"
+                "M=D\n"
+                "@RESUME.%s.%d\n"
+                "0;JMP\n"
+                "(LOGIC_FALSE.%s.%d)\n"
+                "D=0\n"
+                "@SP\n"
+                "A=M\n"
+                "M=D\n"
+                "(RESUME.%s.%d)\n"
+                "@SP\n"
+                "M=M+1\n",
+                filename,
+                ctr,
+                filename,
+                ctr,
+                filename,
+                ctr);
         ++ctr;
-    }
-    else if(strncmp(string, "gt", strlen("gt")) == 0) {
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "AM=M-1\n");
-        fprintf(output_fd, "D=M\n");
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "AM=M-1\n");
-        fprintf(output_fd, "D=M-D\n");
-        fprintf(output_fd, "@SMALLER.%s.%d\n", filename, ctr);
-        fprintf(output_fd, "D;JLE\n");
-        fprintf(output_fd, "D=-1\n");
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "A=M\n");
-        fprintf(output_fd, "M=D\n");
-        fprintf(output_fd, "@RESUME.%s.%d\n", filename, ctr);
-        fprintf(output_fd, "0;JMP\n");
-        fprintf(output_fd, "(SMALLER.%s.%d)\n", filename, ctr);
-        fprintf(output_fd, "D=0\n");
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "A=M\n");
-        fprintf(output_fd, "M=D\n");
-        fprintf(output_fd, "(RESUME.%s.%d)\n", filename, ctr);
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "M=M+1\n");
-        ++ctr;
-    }
-    else if(strncmp(string, "lt", strlen("lt")) == 0) {
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "AM=M-1\n");
-        fprintf(output_fd, "D=M\n");
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "AM=M-1\n");
-        fprintf(output_fd, "D=M-D\n");
-        fprintf(output_fd, "@BIGGER.%s.%d\n", filename, ctr);
-        fprintf(output_fd, "D;JGE\n");
-        fprintf(output_fd, "D=-1\n");
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "A=M\n");
-        fprintf(output_fd, "M=D\n");
-        fprintf(output_fd, "@RESUME.%s.%d\n", filename, ctr);
-        fprintf(output_fd, "0;JMP\n");
-        fprintf(output_fd, "(BIGGER.%s.%d)\n", filename, ctr);
-        fprintf(output_fd, "D=0\n");
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "A=M\n");
-        fprintf(output_fd, "M=D\n");
-        fprintf(output_fd, "(RESUME.%s.%d)\n", filename, ctr);
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "M=M+1\n");
-        ++ctr;
-    }
-    else if(strncmp(string, "and", strlen("and")) == 0) {
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "AM=M-1\n");
-        fprintf(output_fd, "D=M\n");
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "AM=M-1\n");
-        fprintf(output_fd, "MD=M&D\n");
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "M=M+1\n");
-    }
-    else if(strncmp(string, "or", strlen("or")) == 0) {
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "AM=M-1\n");
-        fprintf(output_fd, "D=M\n");
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "AM=M-1\n");
-        fprintf(output_fd, "MD=M|D\n");
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "M=M+1\n");
-    }
-    else if(strncmp(string, "not", strlen("not")) == 0) {
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "AM=M-1\n");
-        fprintf(output_fd, "D=M\n");
-        fprintf(output_fd, "M=!D\n");
-        fprintf(output_fd, "@SP\n");
-        fprintf(output_fd, "M=M+1\n");
     }
 }
 /*
@@ -220,232 +182,152 @@ void write_push_pop(enum VM_TYPE command, char *segment, int index)
 
     if(command == C_PUSH) {
         if(strncmp(segment, "constant", strlen("constant")) == 0) {
-            fprintf(output_fd, "@%d\n", index);
-            fprintf(output_fd, "D=A\n");
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "M=D\n");
-            fprintf(output_fd, "D=A+1\n");
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "M=D\n");
-        }
-        else if(strncmp(segment, "local", strlen("local")) == 0) {
-            fprintf(output_fd, "@%d\n", index);
-            fprintf(output_fd, "D=A\n");
-            fprintf(output_fd, "@LCL\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "A=D+A\n");
-            fprintf(output_fd, "D=M\n");
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "M=D\n");
-            fprintf(output_fd, "D=A+1\n");
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "M=D\n");
-        }
-        else if(strncmp(segment, "argument", strlen("argument")) == 0) {
-            fprintf(output_fd, "@%d\n", index);
-            fprintf(output_fd, "D=A\n");
-            fprintf(output_fd, "@ARG\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "A=D+A\n");
-            fprintf(output_fd, "D=M\n");
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "M=D\n");
-            fprintf(output_fd, "D=A+1\n");
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "M=D\n");
-        }
-        else if(strncmp(segment, "this", strlen("this")) == 0) {
-            fprintf(output_fd, "@%d\n", index);
-            fprintf(output_fd, "D=A\n");
-            fprintf(output_fd, "@THIS\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "A=D+A\n");
-            fprintf(output_fd, "D=M\n");
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "M=D\n");
-            fprintf(output_fd, "D=A+1\n");
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "M=D\n");
-        }
-        else if(strncmp(segment, "that", strlen("that")) == 0) {
-            fprintf(output_fd, "@%d\n", index);
-            fprintf(output_fd, "D=A\n");
-            fprintf(output_fd, "@THAT\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "A=D+A\n");
-            fprintf(output_fd, "D=M\n");
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "M=D\n");
-            fprintf(output_fd, "D=A+1\n");
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "M=D\n");
-        }
-        else if(strncmp(segment, "temp", strlen("temp")) == 0) {
-            fprintf(output_fd, "@%d\n", index);
-            fprintf(output_fd, "D=A\n");
-            fprintf(output_fd, "@R5\n");
-            fprintf(output_fd, "A=D+A\n");
-            fprintf(output_fd, "D=M\n");
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "M=D\n");
-            fprintf(output_fd, "D=A+1\n");
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "M=D\n");
-        }
-        else if(strncmp(segment, "pointer", strlen("pointer")) == 0) {
-            fprintf(output_fd, "@%d\n", index);
-            fprintf(output_fd, "D=A\n");
-            fprintf(output_fd, "@R3\n");
-            fprintf(output_fd, "A=D+A\n");
-            fprintf(output_fd, "D=M\n");
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "M=D\n");
-            fprintf(output_fd, "D=A+1\n");
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "M=D\n");
+            fprintf(output_fd,
+                    "@%d\n"
+                    "D=A\n",
+                    index);
         }
         else if(strncmp(segment, "static", strlen("static")) == 0) {
-            fprintf(output_fd, "@%s.%d\n", filename, index);
-            fprintf(output_fd, "D=M\n");
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "M=D\n");
-            fprintf(output_fd, "D=A+1\n");
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "M=D\n");
+            fprintf(output_fd,
+                    "@%s.%d\n"
+                    "D=M\n",
+                    filename,
+                    index);
         }
+        else if((strncmp(segment, "local", strlen("local")) == 0)
+                || (strncmp(segment, "argument", strlen("argument")) == 0)
+                || (strncmp(segment, "this", strlen("this")) == 0)
+                || (strncmp(segment, "that", strlen("that")) == 0)) {
+
+            fprintf(output_fd,
+                    "@%d\n"
+                    "D=A\n",
+                    index);
+
+            if(strncmp(segment, "local", strlen("local")) == 0) {
+                fprintf(output_fd, "@LCL\n");
+            }
+            else if(strncmp(segment, "argument", strlen("argument")) == 0) {
+                fprintf(output_fd, "@ARG\n");
+            }
+            else if(strncmp(segment, "this", strlen("this")) == 0) {
+                fprintf(output_fd, "@THIS\n");
+            }
+            else {
+                fprintf(output_fd, "@THAT\n");
+            }
+            
+            fprintf(output_fd,
+                    "A=M\n"
+                    "A=D+A\n"
+                    "D=M\n");
+        }
+        else if((strncmp(segment, "temp", strlen("temp")) == 0)
+                || (strncmp(segment, "pointer", strlen("pointer")) == 0)) {
+            
+            fprintf(output_fd,
+                    "@%d\n"
+                    "D=A\n",
+                    index);
+
+            if(strncmp(segment, "temp", strlen("temp")) == 0) {
+                fprintf(output_fd, "@R5\n");
+            }
+            else {
+                fprintf(output_fd, "@R3\n");
+            }
+            
+            fprintf(output_fd,
+                    "A=D+A\n"
+                    "D=M\n");
+        }
+
+        fprintf(output_fd,
+                "@SP\n"
+                "A=M\n"
+                "M=D\n"
+                "D=A+1\n"
+                "@SP\n"
+                "M=D\n");
     }
     else if(command == C_POP) {
-        if(strncmp(segment, "constant", strlen("contant")) == 0) {
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "MD=M-1\n");
+        fprintf(output_fd,
+                "@SP\n"
+                "MD=M-1\n");
+        
+        if(strncmp(segment, "static", strlen("static")) == 0) {
+            fprintf(output_fd,
+                    "A=D\n"
+                    "D=M\n"
+                    "@%s.%d\n"
+                    "M=D\n",
+                    filename,
+                    index);
         }
-        else if(strncmp(segment, "local", strlen("local")) == 0) {
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "MD=M-1\n");
-            fprintf(output_fd, "@%d\n", index);
-            fprintf(output_fd, "D=A\n");
-            fprintf(output_fd, "@LCL\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "D=D+A\n");
-            fprintf(output_fd, "@R13\n");
-            fprintf(output_fd, "M=D\n");
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "D=M\n");
-            fprintf(output_fd, "@R13\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "M=D\n");
-            fprintf(output_fd, "@R13\n");
-            fprintf(output_fd, "M=0\n");
+        else if((strncmp(segment, "local", strlen("local")) == 0)
+                || (strncmp(segment, "argument", strlen("argument")) == 0)
+                || (strncmp(segment, "this", strlen("this")) == 0)
+                || (strncmp(segment, "that", strlen("that")) == 0)) {
+            
+            fprintf(output_fd,
+                    "@%d\n"
+                    "D=A\n",
+                    index);
+
+            if(strncmp(segment, "local", strlen("local")) == 0) {
+                fprintf(output_fd, "@LCL\n");
+            }
+            else if(strncmp(segment, "argument", strlen("argument")) == 0) {
+                fprintf(output_fd, "@ARG\n");
+            }
+            else if(strncmp(segment, "this", strlen("this")) == 0) {
+                fprintf(output_fd, "@THIS\n");
+            }
+            else {
+                fprintf(output_fd, "@THAT\n");
+            }
+            
+            fprintf(output_fd,
+                    "A=M\n"
+                    "D=D+A\n"
+                    "@R13\n"
+                    "M=D\n"
+                    "@SP\n"
+                    "A=M\n"
+                    "D=M\n"
+                    "@R13\n"
+                    "A=M\n"
+                    "M=D\n"
+                    "@R13\n"
+                    "M=0\n");
         }
-        else if(strncmp(segment, "argument", strlen("argument")) == 0) {
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "MD=M-1\n");
-            fprintf(output_fd, "@%d\n", index);
-            fprintf(output_fd, "D=A\n");
-            fprintf(output_fd, "@ARG\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "D=D+A\n");
-            fprintf(output_fd, "@R13\n");
-            fprintf(output_fd, "M=D\n");
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "D=M\n");
-            fprintf(output_fd, "@R13\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "M=D\n");
-            fprintf(output_fd, "@R13\n");
-            fprintf(output_fd, "M=0\n");
-        }
-        else if(strncmp(segment, "this", strlen("this")) == 0) {
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "MD=M-1\n");
-            fprintf(output_fd, "@%d\n", index);
-            fprintf(output_fd, "D=A\n");
-            fprintf(output_fd, "@THIS\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "D=D+A\n");
-            fprintf(output_fd, "@R13\n");
-            fprintf(output_fd, "M=D\n");
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "D=M\n");
-            fprintf(output_fd, "@R13\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "M=D\n");
-            fprintf(output_fd, "@R13\n");
-            fprintf(output_fd, "M=0\n");
-        }
-        else if(strncmp(segment, "that", strlen("that")) == 0) {
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "MD=M-1\n");
-            fprintf(output_fd, "@%d\n", index);
-            fprintf(output_fd, "D=A\n");
-            fprintf(output_fd, "@THAT\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "D=D+A\n");
-            fprintf(output_fd, "@R13\n");
-            fprintf(output_fd, "M=D\n");
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "D=M\n");
-            fprintf(output_fd, "@R13\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "M=D\n");
-            fprintf(output_fd, "@R13\n");
-            fprintf(output_fd, "M=0\n");
-        }
-        else if(strncmp(segment, "temp", strlen("temp")) == 0) {
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "MD=M-1\n");
-            fprintf(output_fd, "@%d\n", index);
-            fprintf(output_fd, "D=A\n");
-            fprintf(output_fd, "@R5\n");
-            fprintf(output_fd, "D=D+A\n");
-            fprintf(output_fd, "@R13\n");
-            fprintf(output_fd, "M=D\n");
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "D=M\n");
-            fprintf(output_fd, "@R13\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "M=D\n");
-            fprintf(output_fd, "@R13\n");
-            fprintf(output_fd, "M=0\n");
-        }
-        else if(strncmp(segment, "pointer", strlen("pointer")) == 0) {
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "MD=M-1\n");
-            fprintf(output_fd, "@%d\n", index);
-            fprintf(output_fd, "D=A\n");
-            fprintf(output_fd, "@R3\n");
-            fprintf(output_fd, "D=D+A\n");
-            fprintf(output_fd, "@R13\n");
-            fprintf(output_fd, "M=D\n");
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "D=M\n");
-            fprintf(output_fd, "@R13\n");
-            fprintf(output_fd, "A=M\n");
-            fprintf(output_fd, "M=D\n");
-            fprintf(output_fd, "@R13\n");
-            fprintf(output_fd, "M=0\n");
-        }
-        else if(strncmp(segment, "static", strlen("static")) == 0) {
-            fprintf(output_fd, "@SP\n");
-            fprintf(output_fd, "MD=M-1\n");
-            fprintf(output_fd, "A=D\n");
-            fprintf(output_fd, "D=M\n");
-            fprintf(output_fd, "@%s.%d\n", filename, index);
-            fprintf(output_fd, "M=D\n");
+        else if((strncmp(segment, "temp", strlen("temp")) == 0)
+                || (strncmp(segment, "pointer", strlen("pointer")) == 0)) {
+            
+            fprintf(output_fd,
+                    "@%d\n"
+                    "D=A\n",
+                    index);
+
+            if(strncmp(segment, "temp", strlen("temp")) == 0) {
+                fprintf(output_fd, "@R5\n");
+            }
+            else {
+                fprintf(output_fd, "@R3\n");
+            }
+                
+            fprintf(output_fd,
+                    "D=D+A\n"
+                    "@R13\n"
+                    "M=D\n"
+                    "@SP\n"
+                    "A=M\n"
+                    "D=M\n"
+                    "@R13\n"
+                    "A=M\n"
+                    "M=D\n"
+                    "@R13\n"
+                    "M=0\n");
         }
     }
 }
