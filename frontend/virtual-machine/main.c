@@ -112,6 +112,15 @@ int main(int argc, char *argv[])
                     else if(type == C_ARITHMETIC) {
                         write_arithmetic(get_arg1());
                     }
+                    else if(type == C_LABEL) {
+                        write_label(get_arg1());
+                    }
+                    else if(type == C_GOTO) {
+                        write_goto(get_arg1());
+                    }
+                    else if(type == C_IF) {
+                        write_if(get_arg1());
+                    }
                 }
             }
 
@@ -132,8 +141,20 @@ int main(int argc, char *argv[])
                 write_push_pop(type, get_arg1(), get_arg2());
             }
             else if(type == C_ARITHMETIC) {
-                printf("TC_DEBUG: arg1() -> \'%s\'\n", get_arg1());
+                printf("TC_DEBUG: (arithmetic) arg1() -> \'%s\'\n", get_arg1());
                 write_arithmetic(get_arg1());
+            }
+            else if(type == C_LABEL) {
+                printf("TC_DEBUG: (label) arg1() -> \'%s\'\n", get_arg1());
+                write_label(get_arg1());
+            }
+            else if(type == C_GOTO) {
+                printf("TC_DEBUG: (goto) arg1() -> \'%s\'\n", get_arg1());
+                write_goto(get_arg1());
+            }
+            else if(type == C_IF) {
+                printf("TC_DEBUG: (if) arg1() -> \'%s\'\n", get_arg1());
+                write_if(get_arg1());
             }
         }
     }

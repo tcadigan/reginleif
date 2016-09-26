@@ -182,11 +182,16 @@ char *get_arg1()
     }
 
     char *result = NULL;
-    
-    if(get_command_type() == C_ARITHMETIC) {        
-        int len = 2;
+    char *s = command;
+    char *next;
 
-        if(!isspace(*(command + 2))) {
+    int len;
+
+    switch(get_command_type()) {
+    case C_ARITHMETIC:
+        len = 2;
+        
+        if(!isspace(*(s + 2))) {
             len = 3;
         }
 
@@ -201,34 +206,37 @@ char *get_arg1()
         strncpy(result, command, len);
         result[len] = '\0';
 
-        return result;
-    }
-
-    char *s = command;
-
-    while(!isspace(*s) && (*s != '\0')) {
-        s += 1;
-    }
-
-    while(isspace(*s) && (*s != '\0')) {
-        s += 1;
-    }
-
-    if(s != '\0') {
-        char *e = s + 1;
-
-        while(!isspace(*e) && (*e != '\0')) {
-            e += 1;
+        break;
+    default:
+        while(!isspace(*s) && (*s != '\0')) {
+            s += 1;
         }
 
-        result = (char *)malloc(e - s + 1);
-        strncpy(result, s, e - s);
-        result[e - s] = '\0';
+        while(isspace(*s) && (*s != '\0')) {
+            s += 1;
+        }
 
-        return result;
+        if(s != '\0') {
+            next = s + 1;
+            
+            while(!isspace(*next) && (*next != '\0')) {
+                next += 1;
+            }
+            
+            result = (char *)malloc(next - s + 1);
+
+            if(result == NULL) {
+                fprintf(stderr, "Unable to allocate arg1");
+
+                return NULL;
+            }
+            
+            strncpy(result, s, next - s);
+            result[next - s] = '\0';
+        }
     }
 
-    return NULL;
+    return result;
 }
 
 /*

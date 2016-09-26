@@ -331,3 +331,72 @@ void write_push_pop(enum VM_TYPE command, char *segment, int index)
         }
     }
 }
+
+/*
+ * Writes assembly code that effects the VM initialization, also called
+ * bootstrap code. This code must be placed at the beginning of the output file
+ */
+void write_init()
+{
+    /* fprintf(output_fd, */
+    /*         "@256\n" */
+    /*         "D=A\n" */
+    /*         "@SP\n" */
+    /*         "M=D\n" */
+    /*         ...); */    
+}
+
+/*
+ * Writes assembly code that effects the label command.
+ */
+void write_label(char *label)
+{
+    fprintf(output_fd, "(%s)\n", label);
+}
+
+/*
+ * Writes assembly code that effects the goto command.
+ */
+void write_goto(char *label)
+{
+    fprintf(output_fd,
+            "@%s\n"
+            "0;JMP\n",
+            label);
+}
+
+/*
+ * Writes assembly code that effects the if-goto command.
+ */
+void write_if(char *label)
+{
+    fprintf(output_fd,
+            "@SP\n"
+            "MD=M-1\n"
+            "A=D\n"
+            "D=M\n"
+            "@%s\n"
+            "D;JNE\n",
+            label);
+}
+
+/*
+ * Writes assembly code that effects the call command.
+ */
+void write_call(char *function_name, int num_args)
+{
+}
+
+/*
+ * Writes assembly code that effects the return command.
+ */
+void write_return()
+{
+}
+
+/*
+ * Writes assembly code that effects the function command.
+ */
+void write_function(char *function_name, int num_locals)
+{
+}
