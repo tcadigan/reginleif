@@ -426,7 +426,6 @@ void write_if(char *label)
  */
 void write_call(char *function_name, int num_args)
 {
-    fprintf(output_fd, "// CALL %s %d\n", function_name, num_args);
     fprintf(output_fd,
             "@RIP.%s.%d\n"
             "D=A\n"
@@ -494,8 +493,6 @@ void write_call(char *function_name, int num_args)
  */
 void write_return()
 {
-    fprintf(output_fd, "// RETURN\n");
-    
     fprintf(output_fd,
             "@LCL\n"
             "D=M\n"
@@ -579,7 +576,6 @@ void write_function(char *function_name, int num_locals)
     strncpy(in_function_name, function_name, strlen(function_name));
     in_function_name[strlen(function_name)] = '\0';
 
-    fprintf(output_fd, "// FUNCTION %s %d\n", function_name, num_locals);
     fprintf(output_fd,
             "(%s)\n"
             "@%d\n"
