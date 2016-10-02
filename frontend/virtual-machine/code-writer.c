@@ -7,7 +7,9 @@
 
 FILE *output_fd;
 int ctr;
+int return_ctr;
 char *filename;
+char *in_function_name = NULL;
 
 /* Opens the output file/stream and gets ready to write into it */
 void construct_code_writer(char *file)
@@ -55,19 +57,30 @@ void set_filename(char *fileName)
     char *suffix = strrchr(fileName, '.');
 
     if(suffix != NULL) {
-        *suffix = '\0';
+        filename = (char *)malloc(suffix - fileName + 1);
+
+        if(filename == NULL) {
+            fprintf(stderr, "Unable to allocate filename\n");
+
+            return;
+        }
+
+        strncpy(filename, fileName, suffix - fileName);
+        filename[suffix - fileName] = '\0';
     }
-
-    filename = (char *)malloc(strlen(fileName) + 1);
-
-    if(filename == NULL) {
-        fprintf(stderr, "Unable to allocate filename");
+    else {
+        filename = (char *)malloc(strlen(fileName) + 1);
+        
+        if(filename == NULL) {
+            fprintf(stderr, "Unable to allocate filename");
+        }
+        
+        strncpy(filename, fileName, strlen(fileName));
+        filename[strlen(fileName)] = '\0';
     }
-
-    strncpy(filename, fileName, strlen(fileName));
-    filename[strlen(fileName)] = '\0';
     
     ctr = 0;
+    return_ctr = 0;
 }
 
 /*
@@ -338,12 +351,13 @@ void write_push_pop(enum VM_TYPE command, char *segment, int index)
  */
 void write_init()
 {
-    /* fprintf(output_fd, */
-    /*         "@256\n" */
-    /*         "D=A\n" */
-    /*         "@SP\n" */
-    /*         "M=D\n" */
-    /*         ...); */    
+    fprintf(output_fd,
+            "@256\n"
+            "D=A\n"
+            "@SP\n"
+            "M=D\n");
+
+    write_call("Sys.init", 0);
 }
 
 /*
@@ -351,7 +365,12 @@ void write_init()
  */
 void write_label(char *label)
 {
-    fprintf(output_fd, "(%s)\n", label);
+    if(in_function_name != NULL) {
+        fprintf(output_fd, "(%s$%s)\n", in_function_name, label);
+    }
+    else {
+        fprintf(output_fd, "(%s)\n", label);
+    }
 }
 
 /*
@@ -359,10 +378,19 @@ void write_label(char *label)
  */
 void write_goto(char *label)
 {
-    fprintf(output_fd,
-            "@%s\n"
-            "0;JMP\n",
-            label);
+    if(in_function_name != NULL) {
+        fprintf(output_fd,
+                "@%s$%s\n"
+                "0;JMP\n",
+                in_function_name,
+                label);
+    }
+    else {
+        fprintf(output_fd,
+                "@%s\n"
+                "0;JMP\n",
+                label);
+    }   
 }
 
 /*
@@ -370,14 +398,27 @@ void write_goto(char *label)
  */
 void write_if(char *label)
 {
-    fprintf(output_fd,
-            "@SP\n"
-            "MD=M-1\n"
-            "A=D\n"
-            "D=M\n"
-            "@%s\n"
-            "D;JNE\n",
-            label);
+    if(in_function_name != NULL) {
+        fprintf(output_fd,
+                "@SP\n"
+                "MD=M-1\n"
+                "A=D\n"
+                "D=M\n"
+                "@%s$%s\n"
+                "D;JNE\n",
+                in_function_name,
+                label);
+    }
+    else {
+        fprintf(output_fd,
+                "@SP\n"
+                "MD=M-1\n"
+                "A=D\n"
+                "D=M\n"
+                "@%s\n"
+                "D;JNE\n",
+                label);
+    }
 }
 
 /*
@@ -385,6 +426,67 @@ void write_if(char *label)
  */
 void write_call(char *function_name, int num_args)
 {
+    fprintf(output_fd, "// CALL %s %d\n", function_name, num_args);
+    fprintf(output_fd,
+            "@RIP.%s.%d\n"
+            "D=A\n"
+            "@SP\n"
+            "A=M\n"
+            "M=D\n"
+            "D=A+1\n"
+            "@SP\n"
+            "M=D\n"
+            "@LCL\n"
+            "D=M\n"
+            "@SP\n"
+            "A=M\n"
+            "M=D\n"
+            "@SP\n"
+            "M=M+1\n"
+            "@ARG\n"
+            "D=M\n"
+            "@SP\n"
+            "A=M\n"
+            "M=D\n"
+            "@SP\n"
+            "M=M+1\n"
+            "@THIS\n"
+            "D=M\n"
+            "@SP\n"
+            "A=M\n"
+            "M=D\n"
+            "@SP\n"
+            "M=M+1\n"
+            "@THAT\n"
+            "D=M\n"
+            "@SP\n"
+            "A=M\n"
+            "M=D\n"
+            "@SP\n"
+            "M=M+1\n"
+            "@SP\n"
+            "D=M\n"
+            "@%d\n"
+            "D=D-A\n"
+            "@5\n"
+            "D=D-A\n"
+            "@ARG\n"
+            "M=D\n"
+            "@SP\n"
+            "D=M\n"
+            "@LCL\n"
+            "M=D\n"
+            "@%s\n"
+            "0;JMP\n"
+            "(RIP.%s.%d)\n",
+            filename,
+            return_ctr,
+            num_args,
+            function_name,
+            filename,
+            return_ctr);
+
+    ++return_ctr;
 }
 
 /*
@@ -392,6 +494,71 @@ void write_call(char *function_name, int num_args)
  */
 void write_return()
 {
+    fprintf(output_fd, "// RETURN\n");
+    
+    fprintf(output_fd,
+            "@LCL\n"
+            "D=M\n"
+            "@R13\n"
+            "M=D\n"
+            "@5\n"
+            "D=A\n"
+            "@R13\n"
+            "A=M-D\n"
+            "D=M\n"
+            "@R14\n"
+            "M=D\n"
+            "@SP\n"
+            "MD=M-1\n"
+            "D=0\n"
+            "@ARG\n"
+            "A=M\n"
+            "D=A\n"
+            "@R15\n"
+            "M=D\n"
+            "@SP\n"
+            "A=M\n"
+            "D=M\n"
+            "@R15\n"
+            "A=M\n"
+            "M=D\n"
+            "@R15\n"
+            "M=0\n"
+            "@ARG\n"
+            "D=M+1\n"
+            "@SP\n"
+            "M=D\n"
+            "@R13\n"
+            "M=M-1\n"
+            "A=M\n"
+            "D=M\n"
+            "@THAT\n"
+            "M=D\n"
+            "@R13\n"
+            "M=M-1\n"
+            "A=M\n"
+            "D=M\n"
+            "@THIS\n"
+            "M=D\n"
+            "@R13\n"
+            "M=M-1\n"
+            "A=M\n"
+            "D=M\n"
+            "@ARG\n"
+            "M=D\n"
+            "@R13\n"
+            "M=M-1\n"
+            "A=M\n"
+            "D=M\n"
+            "@LCL\n"
+            "M=D\n"
+            "@R13\n"
+            "M=0\n"
+            "@R14\n"
+            "D=M\n"
+            "M=0\n"
+            "A=D\n"
+            "0;JMP\n");
 }
 
 /*
@@ -399,4 +566,48 @@ void write_return()
  */
 void write_function(char *function_name, int num_locals)
 {
+    if(in_function_name) {
+        free(in_function_name);
+    }
+
+    in_function_name = (char *)malloc(strlen(function_name) + 1);
+
+    if(in_function_name == NULL) {
+        fprintf(stderr, "Unable to allocation function name\n");
+    }
+    
+    strncpy(in_function_name, function_name, strlen(function_name));
+    in_function_name[strlen(function_name)] = '\0';
+
+    fprintf(output_fd, "// FUNCTION %s %d\n", function_name, num_locals);
+    fprintf(output_fd,
+            "(%s)\n"
+            "@%d\n"
+            "D=A\n"
+            "@R13\n"
+            "M=D\n"
+            "@%s.while.check\n"
+            "0;JMP\n"
+            "(%s.while)\n"
+            "@SP\n"
+            "A=M\n"
+            "M=0\n"
+            "D=A+1\n"
+            "@SP\n"
+            "M=D\n"
+            "@R13\n"
+            "M=M-1\n"
+            "(%s.while.check)\n"
+            "@R13\n"
+            "D=M\n"
+            "@%s.while\n"
+            "D;JNE\n"
+            "@R13\n"
+            "M=0\n",
+            function_name,
+            num_locals,
+            function_name,
+            function_name,
+            function_name,
+            function_name);
 }

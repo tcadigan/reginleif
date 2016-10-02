@@ -75,6 +75,7 @@ int main(int argc, char *argv[])
 
                         if(folder) {
                             construct_code_writer(folder + 1);
+                            write_init();
                             first = 0;
                         }
                     }
@@ -97,29 +98,46 @@ int main(int argc, char *argv[])
                 strncpy(file_path + strlen(full_path) + strlen("/"),
                         dirp->d_name,
                         strlen(dirp->d_name));
-                
-                file_path[strlen(full_path) + strlen("/") + strlen(dirp->d_name)] = '\0';
 
+                file_path[strlen(full_path) + strlen("/") + strlen(dirp->d_name)] = '\0';
+                
                 construct_parser(file_path);
                 
                 while(parser_has_more_commands()) {
                     advance_parser();
                     enum VM_TYPE type = get_command_type();
-
+                    
                     if((type == C_PUSH) || (type == C_POP)) {
+                        printf("TC_DEBUG: arg1() -> \'%s\' arg2() -> \'%d\'\n", get_arg1(), get_arg2());
                         write_push_pop(type, get_arg1(), get_arg2());
                     }
                     else if(type == C_ARITHMETIC) {
+                        printf("TC_DEBUG: (arithmetic) arg1() -> \'%s\'\n", get_arg1());
                         write_arithmetic(get_arg1());
                     }
                     else if(type == C_LABEL) {
+                        printf("TC_DEBUG: (label) arg1() -> \'%s\'\n", get_arg1());
                         write_label(get_arg1());
                     }
                     else if(type == C_GOTO) {
+                        printf("TC_DEBUG: (goto) arg1() -> \'%s\'\n", get_arg1());
                         write_goto(get_arg1());
                     }
                     else if(type == C_IF) {
+                        printf("TC_DEBUG: (if) arg1() -> \'%s\'\n", get_arg1());
                         write_if(get_arg1());
+                    }
+                    else if(type == C_RETURN) {
+                        printf("TC_DEBUG: (return)\n");
+                        write_return();
+                    }
+                    else if(type == C_FUNCTION) {
+                        printf("TC_DEBUG: (function) arg1() -> \'%s\' arg2() -> %d\n", get_arg1(), get_arg2());
+                        write_function(get_arg1(), get_arg2());
+                    }
+                    else if(type == C_CALL) {
+                        printf("TC_DEBUG: (call) arg1() -> \'%s\' arg2() -> %d\n", get_arg1(), get_arg2());
+                        write_call(get_arg1(), get_arg2());
                     }
                 }
             }
@@ -155,6 +173,18 @@ int main(int argc, char *argv[])
             else if(type == C_IF) {
                 printf("TC_DEBUG: (if) arg1() -> \'%s\'\n", get_arg1());
                 write_if(get_arg1());
+            }
+            else if(type == C_RETURN) {
+                printf("TC_DEBUG: (return)\n");
+                write_return();
+            }
+            else if(type == C_FUNCTION) {
+                printf("TC_DEBUG: (function) arg1() -> \'%s\' arg2() -> %d\n", get_arg1(), get_arg2());
+                write_function(get_arg1(), get_arg2());
+            }
+            else if(type == C_CALL) {
+                printf("TC_DEBUG: (call) arg1() -> \'%s\' arg2() -> %d\n", get_arg1(), get_arg2());
+                write_call(get_arg1(), get_arg2());
             }
         }
     }
