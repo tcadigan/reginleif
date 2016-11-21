@@ -1,0 +1,169 @@
+
+        @@@@@@@   @@@@@@  @@@       @@@@@@   @@@@@@@ @@@@@@@ @@@  @@@@@@@
+       !@@       @@!  @@@ @@!      @@!  @@@ !@@        @@!   @@! !@@
+       !@! @!@!@ @!@!@!@! @!!      @!@!@!@! !@!        @!!   !@@ !@!
+       :!!   !!: !!:  !!! !!:      !!:  !!! :!!        !!:   !!: :!!
+        :: :: :   :   : : : ::.: :  :   : :  :: :: :    :    :    :: :: :
+
+@@@@@@@  @@@       @@@@@@   @@@@@@  @@@@@@@   @@@@@@ @@@  @@@ @@@@@@@@ @@@@@@@
+@@!  @@@ @@!      @@!  @@@ @@!  @@@ @@!  @@@ !@@     @@!  @@@ @@!      @@!  @@@
+@!@!@!@  @!!      @!@  !@! @!@  !@! @!@  !@!  !@@!!  @!@!@!@! @!!!:!   @!@  !@!
+!!:  !!! !!:      !!:  !!! !!:  !!! !!:  !!!     !:! !!:  !!! !!:      !!:  !!!
+:: : ::  : ::.: :  : :. :   : :. :  :: :  :  ::.: :   :   : : : :: ::: :: :  :
+
+
+                Galactic Bloodshed (GB+) server README file
+
+                         Michael Wilkinson (03/05)
+
+
+
+If you're not familiar with GB, please read the INTRO file. You should
+read everything in here before trying to run the game. If at-all possible
+you should participate in a game before trying to run one.
+
+
+SUMMARY
+
+My first GB games was back in 1991 and I played it over a 1200bps modem,
+I was daring enough to run my own game by 1995. I have been a fan since
+I played by first game (and lost horribly).
+
+You must understance there has been many flavors of GB over the years, and
+even more code contributors. Originally there was GB; from this spun several
+different flavors of GB. Many God plyers made their own mods, however, most
+of these mods did not continue along the main tree (being instead unique to
+the particular game), these modes were HAP, MarVin, Balanced Treehouse, Jekyll
+& Hyde, and Vengence of Solkan. However, development along the main line
+continued through the GB+ versions. Finally, after a period of inactivity GB+
+was renewed by some Finnish students under their own mod, HUT. HUT had some
+major bug fixes and additions so, for coding purposes, I have considered it
+part of the main development line. Here's a sort of time-line:
+
+        Year  Main    Mod
+        ----  ----    ---
+        1989  GB
+               |
+        1991   |----> Heuristic Astronomy Project (HAP)
+        1992  GB+
+        1993   |----> MarVin
+        1994   |----> Balanced Treehouse
+               |
+        1997  HUT
+        1998   |----> Jekyll & Hyde
+        1999   |----> Vengeance of Solkan (VoS)
+               |
+        2005  GB+ (6.0)
+
+I've gone back through time and collected each of these source trees (the
+main ones and the mods), painstakingly picked through each one, and using
+HUT-5.1.1 as my starting point, I've included all of the unique features of
+each source tree. Because HUT was really a mod of GB+, I've gone back to
+that name. And to indicate that HUT was a starting point, and because I've
+made about a maxillion changes, this version will be 6.0. A lower-case letter
+following the version number indicates the bug fix leve. So this new main
+development tree is starting as GB+ 6.0a. Welcome!
+
+DIRECTORIES
+
+bin - This directory is created at install, you should add it to your PATH.
+
+hdrs, utils, user, server - Directories containing the GB+ server source
+code. If you're a code hacker, and are interested in modifying GB, you'll
+want to get to know the files in these directories. If you don't know C or
+don't have a desire to learn it, you probably don't want to be in these
+directories.
+
+Docs - contains some documents on GB, most of the stuff in here is out-of-
+date, however, it's privded for historical reasons. Refer to my time-line
+above so you'll know how these documents relate to each-other.
+
+Help - These are the help files for the GB server that will be presented to
+the user. You should read these, they are up-to-date. Particularly if you're
+new to managing a GB game you should read admin.txt and the files it
+references.
+
+misc - Misc files used during the game, particularly you'll probably want to
+modify welcome.txt and motd.txt for your game. The bugrep.txt file contains
+bugs reported by users during the course of the game.
+
+Logs - This is where the GB server logs and pid files go. Look here for errors.
+
+Backups - You game directories are backed up according to a backup schedule.
+This is where the tar files are dated and stored during the course of a game.
+
+Data, Msgs, News - Game directories, created by 'makeuniv'. This is all your
+vital game data.
+
+
+SETUP
+
+1. Run the 'Configure' script. This asks information about your environment
+   and options you want for the game.
+
+2. Edit hdrs/game_info.h and change the information for your game.
+
+3. (optional) Look at hdrs/tweakables.h see if there's anything in there you
+    want to change. Only experienced GB folk should be in this file.
+
+4. Run a 'make' and address any errors.
+
+5. Do a 'make install'. This puts all executables in the bin directory. You
+   should have this directory in your PATH.
+
+6. Execute the 'makeuniv' command. This asks you a series of questions to help
+   you set up your GB universe. When done this will have created the Data,
+   News, and Msgs game directories.
+
+7. Start up the 'GB_racegen' program and create your God player and enroll
+   it. You should also consider creating a Guest player at this point.
+
+8. Finally, fire up the daemon processes with 'gbctl start'. This will start
+   the GB_guardian, GB_server, and GB_racegen daemons. You can connect to
+   the GB_server on the port you specified when running 'Configure' (default
+   port 2010). The GB_racegen is runnong on a port 10 higher than the server
+   port (default 2020).
+
+
+CONNECTING
+
+You'll need a client to connect to the GB server, I recommend gbII, it's
+available where you downloaded GB+. However, gbII is for Unix (and Linux),
+and although that's not a problem for you, some of your players may not have
+a Unix box. There was a GB client for PC (gbpc), but I've never used it and
+don't know where you can find it now. If you've compiled using the CHAP
+authentication, only the gbII client (2.6) will work with it.
+
+There has been considerable work done on getting gbII to compile under the
+Cygwin environment. In fact, an installer has been created that will allow
+PC users to install and run gbII under Windows without requiring Cygwin.
+Look for this installer on SourceForge under the Galactic Bloodshed Project.
+
+As an alternative you may compile gbII in restricted mode and provide it on
+a restricted account on your Unix box.
+
+Once you log in you should read all the help pages, particularly the
+'help admin' section and all pages it references.
+
+
+USERS
+
+Although the group is now mostly crap-spam, you should post the announcement
+of your game to alt.games.gb, this is the official USENET newsgroup, and some
+of us old-timers still read it. On the group post about your game, how to
+connect to the guest account and how to connect to the racegen.
+
+When enrolling races using GB_racegen, you should first stop the GB server
+with 'gbctl stop'. Then enroll the races, then 'gbctl start'. This will
+prevent database overwrites.
+
+
+FINALLY
+
+If you have any questions, comments, complaints, criticisms and/or kudus
+please email me.
+
+Michael Wilkinson
+Game Designer
+Tower Ravens LLC
+mike@towerravens.com
