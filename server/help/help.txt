@@ -1,0 +1,20 @@
+& help
+
+{{SUBJECT}}
+  Galactic Bloodshed System Help, Indexed Topics (GBSHIT)
+
+{{SYNTAX}}
+  help <subject>         -- View the various topics under a <subject>
+  help <subject> <topic> -- View help on a given <topic> under <subject>
+
+{{DESCRIPTION}}
+  This help system is designed to organize topics into various subjects. To get
+help on a particular subject you'd use the first form of the syntax. Once you've
+located a particular topic, you'd use the second form.
+
+{{SUBJECTS}}
+  concept  -- Various important topics in GB (read these first)
+  glossary -- Keywords you'll need to know when playing GB (pending)
+  command  -- Commands you use to play GB
+  tour     -- A brief tour on how to play GB
+  faq      -- Frequently Asked Questions (with answers)
