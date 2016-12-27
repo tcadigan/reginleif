@@ -475,7 +475,7 @@ against missile attackes and are executed automatically. The more batteries a
 planet has the more change of intercepting and incoming missile. This ship is
 built with 50% damage. Construction must be completed manually.
 
-__Tanker__ (You will need more fuel than you believe, take advanted of these)
+__Tanker__ (You will need more fuel than you believe, take advantage of these)
 
   This ship can carry large amonuts of fuel and moderate amounts of other
 commodities. In addition, it can also collect fuel at a high rater, which is
