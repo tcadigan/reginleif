@@ -478,9 +478,9 @@ built with 50% damage. Construction must be completed manually.
 __Tanker__ (You will need more fuel than you believe, take advantage of these)
 
   This ship can carry large amonuts of fuel and moderate amounts of other
-commodities. In addition, it can also collect fuel at a high rater, which is
+commodities. In addition, it can also collect fuel at a high rate, which is
 one fifth of tanker's fuel capacity, by orbiting a gas giant. They have very
-small gunery strengths and light armor, but since they are relatively huge they
+small gunnery strengths and light armor, but since they are relatively huge they
 have a lot of staminal strength against attacks.
 
   Take a look at all other ships too. __ships__
