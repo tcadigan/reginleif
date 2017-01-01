@@ -1,0 +1,1337 @@
+& misc
+
+{{SUBJECT}}
+  Galactic Bloodshed unrelated stories and jokes
+
+{{DESCRIPTION}}
+  These stories and jokes were found lingering in the old GB help files. Not
+having the heart to delete them from the distribution forever, I've put them in
+their own 'hidden' section. Some are long, some are short.
+
+  "While you were out: your people plated your planet. Will call back."
+    -- Note greeting someone after they came back a few hours after their
+       Galactic Bloodshed game went to three-minute updates.
+
+& dhuttle
+
+{{HISTORY}} - The Dhuttle
+
+The dhuttles was a ship found in the HUT variation of GB+. It was exactly like a
+space shuttle. The only different was it showed a little saying upon launching:
+"Creepy will return!" That's it, otherwise it was EXACTLY the same as a shuttle.
+I've removed it from the GB+ source code, it was apparently some kind of inside
+joke for the Finnish GB'ers; the code changes were made by Kharush. Here's a
+description of the Dhuttle as it appeared in the help file:
+
+__Dhuttle__
+
+The Mighty Dhuttle
+  Approximately ten years ago scientists found a design of an alien ship from a
+distant planet around star Orion. After months of decoding engineers were able
+to construct the ship, which resembles very much our shuttle. It is believed,
+though, that this dhuttle is a design of an extinct race that was superior to us
+in technology. Dhuttle has one mighty light gun for defence and attack purposes
+and it has no need for armor whatsoever.
+  There are two notable differences between shuttles and dhuttles. A shuttle
+makes normal marks of rocket launch on the ground when it is luanched but
+dhuttle engraves a certain pattern to the Earth. Big thing here is that the
+exhaust pipes of both designs are the same.
+  This pattern made by a dhuttle is a triangle in center of which you can
+perceive letters HUT. Two points of the triangle have also letters. On one point
+of the triangle letters form a word GEM and on the other one a word of Jurmet.
+However, in the last year there have been reports of a word on the third point
+also. This third word has reported to have a form of Ix, Hitchhiker, Romans or
+Turtles. It seems that the final form of the third word is not yet fixed, which,
+in fact, implies that this alien race is not extinct but lives somewhere in the
+galaxy...
+  The other difference is a very special feature. The noise caused by dhuttle
+launch sounds like cry: 'Creepy will return!'
+
+& history
+
+__Galactic Bloodshed History__
+as known by Keeshans
+
+Table of Contents
+    I. Introduction
+   II. The Early Days
+  III. Another Server Arrives
+   IV. GB Development Continues
+    V. Renewed Interest from Finland
+   VI. Document History
+
+{{I. Introduction}}
+  From my perspective, here is my understanding of the history of the game known
+as GB (Galactic Bloodshed). One day, in the summer of 1990, when I went to read
+USENET, my trusty newsreader, rn at the time, prompted me with new newsgroups.
+Among them was alt.games.galactic-bloodshed. Having been playing tinyMUDs, IRC,
+and Empire a bit, I started reading the newsgroup and following the topics.
+Shortly, thereafter it was determined that the name galactic-bloodshed was too
+long of a name on some UNIXes and so a new newsgroup, alt.games.gb, was created.
+I actually played in a game over the summer and learned a bit more about GB. The
+game was originally created by Robert Chansky and development was passed on to
+Garrett VanCleef. Vancleef had help from Brian Scearce, who went by Humanity
+Version 2.3. This occurred before my time, so VanCleef was the developer when I
+started to play.
+
+{{II. The Early Days}}
+  At that time, yo usigned up for a race by picking 1 of 10 predetermined races.
+Numbers 1 and 2 were morphs, and the rest were a mixture of normals (the
+attributes varied). Also interesting to note is that iceballs were the prime
+planet to pick, high in resources and large enough for a young race to grow
+from. Money didn't exist, which means neither did the market. One person played
+the race since there were no Governors yet.
+  After having played the game for the summer, I felt the client could be
+improved since I was familiar with the things clients for IRC and MUDs could do.
+So I set out to rewrite the gb client. Being original, I called it gbII.
+
+From the gbII history file:
+  Early October I started playing Galactic Bloodshed. On the 17th of that month,
+I decided that the client could be made better and I started to write the client
+from scratch so that everything would be done in a way I understood. By the 20th
+(and shortly after my GMAT exam) I had finished the main routines, and proceeded
+to add history, recall, and logging. This was released on October 26, 1990 as
+version 1.0.1.
+  I continued from there enhancing the client, leaving the server development to
+VanCleef. The client got enhanced and had analysis (Nov. 23, 1990), which I used
+to a great advantage in a blitz game, since I was the only one with it. It's
+value prompted it to be added directly into the server (Feb. 27, 1991).
+  At some point the server picked up money, markets, racegen (a wonderful
+improvement if I sy so myself), and governors (from HAP, see below).
+
+{{III. Another Server Arrives}}
+  A second parallel server effort was started, by someone who's name I will have
+to look up from the source, called HAP, Heuristic Astronomy Project. It had some
+differences from the normal GB server. You had to have significant contact with
+someone to understand what they were saying, broadcasts were garbled with not
+all the words coming through clearly. It had a drawback in that if you could
+understand some of it, you could repeat your message many times and different
+words would be readable. So if it was repeated enough time you could understand
+the other person.
+  HAP contributed Governors to the GB mainline as well.
+
+{{IV. GB Development Continues}}
+  At some point, VanCleef became too busy to maintain the server and development
+was taken over by John Deragon. He ambitiously started a port to C++ since GB
+lends itself to object oriented technology. The real world, since he and I both
+graduated by now, took it's toll and neither of us had much time or desire to be
+coding after work. So development was slow. The client last had a release on
+Dec. 3, 1993.
+
+{{V. Renewed Interest from Finland}}
+  For some unknown reason, the GB players are extremely loyal and several came
+back to it after a lull and started running games again. The Finland crowd got
+ambitious and started rewritting the server (Click here for their project
+information).
+  My work had me learning Java so I started writing a graphical client. It is
+rudimentary at this time, but so is Java. Hopefully the Finn's server will
+breathe new life into GB. And someday I may release a new client. The future
+will tell.
+
+  PS. If I've missed anything that is worth adding PLEASE tell me and I will
+update this. It is a living document and I wanted to get it down on paper and
+then polish it up!
+
+{{IV. Document History}}
+  Feb. 24, 1997 - Evan Koffler - Corrections.
+  Jan. 1, 1997 - Evan Koffler - Created
+
+& laugh
+
+{{FICTION}}
+  '__The Last Laugh__' by Rob Chanksy, (c) 1991
+
+  From the Jul. '91 issue of Quanta, an online 'zine.
+  http://www.etext.org/zines/Quanta
+
+  The Camp had grown from a lone trailer to a massive though temporary
+installation, only to shrink back. The trailer sat again by itself, soon to be
+moved to wherever it would be deemed more useful.
+  The second-to-last keep was leaving, shaking off the dust of the site behind
+it. The military wanted nothing more to do with this elaborate joke.
+  The Arizona sun beat relentlessly on the trailer's white metal surface, daring
+the overworked air conditioner to maintain a comfortable roome temperature. The
+old man inside cared little for the weather; he knew nothing but a life wasted,
+squandered on a useless task now completed. If he could remember...if only...
+  Something he had started, thought about, in his past. The idea eluded him
+still.
+  Or perhaps not. Perhaps it had all been a hoax. But that letter--it had been
+so self-satisfied, so damnably smug.
+  He would kill that man, whoever had written that letter, if in all of creation
+there was a way to get to him...
+  For him, it had started with a phone call.
+  To his colleagues, the scribbles on his office blackboard were
+incomprehensible; but Professor Bequay used a mathematical notation meaningful
+only to himself. He was sixty-five years old, and he had done things this way
+all his life. He would not change it for the University or for anyone.
+  He had been free-associating that morning, as he normally did, but today he
+felt he was onto something that could be important. But Bequay was never one who
+could ignore the anxious trilling of his telephone. The scribbles would have to
+wait for now, while he answered it.
+  "Professor Anderson Bequay?" The voice sounded very official and important;
+probably one worth a modicrum of politeness.
+  "Yes, what can I do for you?"
+  "Professor, I have been in touch with certain research elements in the
+military." Ah, yes. He had done several government consultations here and there
+in the past, and the government had a way of remembering your name. "There is a
+problem for which your name happened to come up."
+  "Certainly. Could you come to my office to discuss it?"
+  "I'm afraid that in the interests of National Security..." The man went on to
+mention the code and section, and, amazingly, recited a paragraph taken verbatim
+from the book. Bequay was talking to a man who had actually memorized the
+paragraph, rather than merely one who enjoyed quoting it to him. He admired a
+stickler for details, it meant an ordered mind. "..you would have to agree to
+join the project before any details can be given. Do you understand?"
+  Of course he did. There were, he supposed, worse things he could do with his
+time than spend it sweating in the Arizona sun. For instance, staying here...and
+staying here meant the annual faculty awards banquet. He had always hated the
+awards dinners, much more so this year as the guest of honor. The other faulty
+don't much care for him, and the feeling was mutual; leaving that unpleasentness
+for whatever awaited him in the desert sounded like a good way to avoid his
+implending social demands.
+  Professor Bequay, forgetting the attraction of his blackboard and the ideas on
+it, turned his attention to the terminal on his desk. He checked his electronic
+mail; apparently the government had already contacted the dean and Benquay had
+been cleared for two weeks leave. He sent memos to a few of the faculty and
+students, being purposefully vague on where he was going and what he was
+doing. The datanalysis classes he was teaching would have to fend for themselves
+for the time being; it would reflect badly on his record, but so what. They
+certainly hadn't hired him for his teaching ability. His research had
+revolutionized the field of datanalysis, to the point where it was (nearly) its
+own discipline now.
+  Not much more to do here. Someone would come int and water his plants; he had
+found this out after his last extended absence, discovering that his kudzu
+hybrid had burst from its glass container and enrooted itself into some of his
+paper files and the wall nearby. Now he kept it stunted with mercury. He locked
+the computer up, and glanced at the blackboard. Something wrong.
+  There it was. He picked up the eraser and remove a "-" from the equation.
+There; everything was much clearer.
+  But clear or not, it would have to wait. He locked the door behind him.
+  The hall containing his office made a 90-degree right turn before it came to
+an exit. entering the turn, Berquay collided with a bespectacled young man
+carrying reams of computer printouts. The printouts scattered like laundry in a
+storm. "Sorry, sorry" the grad student muttered as he tried to gather them back.
+Rules of politeness compelled Bequay to reluctantly stoop and help him. The
+student looked up.
+  "Prof -- Professor Bequay, I was just trying to see you," the male student
+said, his astonishment quickly escalating to enthusiasm. "Here, I'm from the
+astrophys department -- oh, it's just amazing, sir, we've picked up--"
+  "Not now, I'm very busy." Bequay proferred the three or four sheafs of
+printout at the grad student, but both his hands were busy trying to control his
+own bundle. Bequay, not seeing any point in forcing the man to accept the papers
+he'd picked up, let them drop on the floor with the rest.
+  "But-- it's-- will you, will you be in your office tomorrow? The student
+looked despondently at the papers in a mess on the floor. He looked haggard and
+out of breath; it didn't seem as though he'd slept in several days.
+  But the professor had turned and was walking away. He waved his hand at the
+question, hoping the student would take it as a yes and leave him alone. Bequay
+had seen the heading on one of the sheets of paper the student had dropped:
+"Astrophys. SETI division, e-mag. anomaly IV. Time: 03:45:32 - 03:50:23". Bequay
+had no patience with the sort of people involved in the Search for
+Extraterrestrial Intelligence, in fact with the whole idealist mindset that
+would want to join such an organization. His pioneering work in datanlysis had
+benefited their program immensely, if only to keep them from crying
+"extraterrestrial" every time someone turned on a malfunctioning hair drier in
+the suburbs. They bothered him occasionally, trying to get him involved in some
+project of theirs. Bequay did not wish to be involved.
+  He was met at the Pheonix airport by two men in full officer uniform, complete
+with salute. They drove him to the site-- an uncomfortable four hour trip.
+  The last few miles saw them through a winding absence of rocks and brush that
+might have been called a road. Bequay became even more irritable with every bump
+and jostle. Finally, though, Bequay and the two silent men came to a
+dust-covered white trailer in the middle of nowhere. Several jeeps and a troop
+carrier were in position next to it.
+  When the car pulled up next to the largest vehicle, Bequay could make out men
+at work everywhere-- spreading camouflage nets over the trailer, setting up a
+fence perimeter, fastening together sheets of sand-colored plastic in a large
+sircular area that would presumably become a landing pad for helicopters.
+  Bequay and the two men got out, an escort appearing immediately around all of
+them. They took his small suitcase. He was gently tugged along into a blessedly
+cool trailer. An overweight man in a colonel's uniform took Bequay's hand and
+pumped it jovially. "Professor Bequay, glad you coud make it. Have you been
+briefed?"
+  The professor said no. The colonel dismissed the uniformed men and offered him
+coffee.
+  Bequay took black, no sugar. Motioning towards the window and the activities
+going on outside it, he said, "What's this all about?"
+  The colonel leaned comfortably back in his chair. "We have discovered
+something here, professor Bequay. Something extraordinary, if my assistants are
+to be believed." It sounded as though he believed it. "Are your security folder
+in order?"
+  "They rushed me through all that; yes, I am under oath to repeat nothing of
+what I see. Now get on with it."
+  "The official word for this," the colonel leaned close for emphasis, "is a
+'chronological anomaly'."
+  "And how did you find this 'anomaly'?"
+  "There is a russian submarine with a titanium hull," the colonel
+explained. "Some of our people have been trying to come up with a metal detector
+specifically tuned to titanium, such that this type of sub can be detected deep
+under the sea. We were testing this device with a hidden cache of titanium near
+here..."
+  "In the desert?"
+  "The principle is almost the same in sand as it is under the ocean; and here
+the search was less expensive. Regardless, we turned up this anomaly instead of
+the scrap of metal that had been hidden." The colonel -- his name was Sutherland
+-- led Bequay outside again, into the scorching afternoon. On the other side of
+the trailer was a hole in the ground, about ten meters in diameter. A stout
+wooden ladder led to the bottom. Sutherland went first, motioning for Bequay to
+follow.
+  "The helicopter crew was working here for a three day pass. They tried to get
+the anomaly out of the rock, thinking the crew that had hidden the metal
+fragments had decided to make them work for their prize. At the time, it was
+fused into solid rock with one corner protruding. Eventually they realized that
+what they'd found was not what they'd been told to bring back."
+  They were both inside the dig now, a little deeper than the professor's
+height. It sloped upwards toward one corner, where a man hunched over something,
+making brushing motions with his arms. He turned around. Sutherland introduced
+Bequay to Lieutenant Gordon, who smiled and called him "sir" as he offered his
+hand. The professor shook it tersely, not even looking at the man.
+  "this is your anomaly?" he asked.
+  'This' was a small metallic box. It jutted straight out from the sandstone
+wall of the dig, about half a meter from rounded corner to rounded corner. Four
+of the corners were still buried in solid rock, bot someone had dug all around
+it. Rust and corrosion seemed to have ignored it completely.
+  The lieutanent smiled. "This is what we found. Beautiful, isn't it?"
+  Bequay didn't like the lieutenant. "So," he said, "you've found a metal box."
+  The lieutenant struggled inwardly, trying to sort out all the things that he
+wanted to say. The professor said testily, "you must have called me here for
+something, some data to analyze. That's what I do, unless you got my name off
+the wrong list."
+  Sutherland, a hint of a grin on his lips, simply gestured towards the box. The
+professor bent closer to one particular face -- nearly touching it. That one
+face, not completely excavated from the stone around it, was not featureless; in
+fact there was a square of glass inlaid there -- like a small window, but
+opaque. There was writing there.
+  Property of the United States of America.
+  And, under that
+  Important Data
+  "Important," said the lieutenant. "Damn right it's important. Important enough
+to be left in layers of sediment formed at least six million years
+ago. Important enough to last all that time-- and God knows how much longer."
+The soldier inspected each face in turn, from Sutherland's gloating expression
+to Bequay's attitude of cynical fascination. "Pretty important, all right," he
+said.
+  The box was cut out of the rock, and a portable crane produced to lift it from
+its ancient home. Now it sat on a reinforced steel table beneath a large tent i
+nthe Camp, calmly guarding whatever secrets it contained, preparatory to its
+being moved to an undisclosed location. The dig was being widened, deepened, in
+the hopes of another find. A helicopter performed tighter and tighter
+grid-searches of the area, and more of the metal detectors were on their way.
+  "Some sort of geological survey, maybe," the lieutenant offered. "They set it
+back in time to record seismic data. Not much else it could record, stuck in the
+ground like that."
+  Bequay sipped his coffee and glowered at the lieutenant. His mild dislike had
+blossomed into continuing irritation. The lieutenant consistently reminded him
+of a personality he had never gotten along with.
+  He got up to walk around the box. Featureless gray metal greeted him from all
+sides-- except for the almost invisible seam that encircled it. He turned to the
+two men. "How do we get it open?"
+  "I still don't know if we should." They both looked at the
+lieutenant. "Obviously it's not meant for us."
+  "Misgivings so soon, lieutenant?" Sutherland, previously silent, decided to
+join the conversation. "I'm afraid it's ours now. Whoever put it there didn't
+bother to check our schedule." He shrugged. "Their loss." He asked Bequay, "were
+you awake this morning when we tried the drill?"
+  "No. It woke me up." Pieces of the tent flapped loosely in the wind, marking
+the passage of fragments of the exploding drill bit. It had nearly cost two
+lives, and there wasn't a mark on the box.
+  Bequay ran his fingers over the lid-- what was presumably the lid, anyway. The
+small glass square on the top seemed to be the only thing that even hinted at
+its great age; tiny scratches crisscrossed its surface. They hadn't wanted to
+drill here, even though it seemed the weakest part, for fear it might have
+broken some apparaturs inside. Now it looked like they would have to...
+  As the tips of his fingers brushed the glass, something seems to shift
+inside. A thump, from somewhere inside the impervious structure.
+  Professor Bequay backpedaled from the box, fearing whatever might happen. But
+it remained where it was, waiting.
+  "What's wrong?"
+  "Something happened. I fealt something move inside." He peered more closely at
+the sides of the box; the seam that marked the border between box and lid should
+have been barely perceptible-- now it seemed wider, possibly wide enough to
+admit a dime.
+  The colonel noticied it too. "Sergeant! Give me your tool belt." From it he
+produced a pair of flat screwdrivers, giving one to the lieutenant. Both worked
+at the thin seam, twisting and prying the screwdrivers to widen it. Bequay
+watched them work, arms folded.
+  There was a sucking sound of ancient air being exchanged, and the colonel and
+lieutenant were lifting the heavy lid, amazingly separate from its box. They
+dropped it to the side.
+  Smoke curled up from the inside; Bequay couldn't see what was in the box. Both
+box and lid were trembling slightly, vibrating as though some engine had started
+up inside. The vibrations increased in intensity, first producing a strange
+double-toned hum as the vibrations transferred to the steel table-- then
+stronger, the sound filling the space around them as something physical-- and
+then thudding into the steel table while the three men desperately clasped their
+ears agains the sound.
+  The air was suddenly drenched with light -- a light that burned his face and
+blinded his eyes. Bequay saw nothing more for a while.
+  Men filled the small tent, trying to help him up and chattering among
+themselves. they were frightened voices. "I can't see. I can't see," Bequay told
+them, blinking his eyes. His vision was nothing but a continual grayness
+occasionally streaked with blue.
+  There must have been a doctor at the Camp, for someone was swirling a penlight
+before his dimmed vision and trying to reassure him. "Here, it's only
+temporary. You'll have a hell of a sunburn through. It's over. It's all over."
+  But it was not over.
+  Whatever else had been in the box was now slag puddled in the bottom of the
+small cavity; only a cube of quartz-like material had survived. Bequay knew
+there had been speculations about the development of crystalline recording
+media. Since this box was from the future, the crystal might be one of those
+speculations brought to life.
+  The cube shimmered in his hand, when he held it; rainbow patterns shifted and
+curled within the enigmatic crystal. All his life, he realized, he had looked
+for a challenge of this equal. His earlier experiences had taught him that
+looking for order in the chaotic randomness of the universe could drive one
+hopelessly pedantic -- or else just as hopelessly eager to see intelligence
+behind every little pip and spike on a frequency graph. Here was something
+genuine -- an encoding of information, completely man-made yet as alien as
+anything yet discovered -- and he intended to deduce its purpose here. No device
+currently existed to read the data encoded in the smoke-like wisps of color. It
+would be necessary to invent one.
+  The lettering on the box suggested that, if there were textual data here --
+and there was no reason to assume there weren't -- it would be in English. This
+was a break. If, as the lieutenant had suggested, it consisted only of a seismic
+readout, it sill would not be edifficult to decode; and the data uncovered would
+be very useful and profitable, whatever the crystal contained.
+  Bequay was certain of that.
+  The only question was how it was encoded. A person from the time that had
+built this object would no doubt have little trouble buying a machine to read
+the crystal, but no such machines existed now. Bequay would have to deduce what
+standards had been chosen for the construction of such a machine, and those for
+the encoding of the crystals it used.
+  Bequay gleefully allowed his project directors to exert political pressure on
+the dean of the university, to grant him indefinite leave to work on the
+project. He had never liked life in academia, anyway. The dean told him there
+were more communiques awaiting his attention, particularly from the SETI
+organization, which maintained that they needed his expertise to decode
+anomalous transmissions of non-terrestrial origin they had intercepted. Bequay
+disregarded the messages. He had a much bigger project already on hand.
+  To the rest of the world, Anderson Bequay had dropped out of sight.
+  A secret lab was prepared in Colorado; Bequay asked for, and received,
+assistants and equipment from all over the country. The cube was measured,
+mapped, weighed, chemically analyzed, micrographed, and magnetically
+tested. After a year of more complex examinations, the team came to a
+conclusion: the information Bequay sought hid behind the molecular bonds of the
+crystal itself. The cube could not be "read" by currently available
+means. Bequay was upset. This would mean more delays, if indeed the technology
+ever became viable at all -- though of course it was obvious that it would.
+  Analysis of the box that had brought this cube proved futile. If any machinery
+had been functional before the box was opened, it had melted itself down
+completely. Even the formerly impervious outer shell was now weak and cumbly
+after the booby trap, or whatever it was, had been tripped by its opening. No
+futuristic miracles of metallury would be learned from it.
+  There was still one avenue to take. They knew there WOULD, someday, be an
+information storage/retrieval system that would use this crystal. If it did not
+come from too far in the future, there may be a corporation that has considered
+the system at some time. This meant reports and specifications would be
+available, reports that may give a direction on development of the way in which
+the crystal was (would be) encoded.
+  A large Japanese-based corporation took its time in responding to their
+inquiries. They had, in fact, considered a crystal medium for a recording
+device; however, it was far too impractical to produce. Bequay asked for the
+reports anyhow.
+  After two more years a prototype reader was ready. It took up the space of a
+high school gymnasium, had leached half a billion dollars from the Pentagon's
+budget, and used a sizable portion of the power output of a nearby plant. Three
+equisitely miniaturized lasers aimed at three sides of the cube, turning it into
+a blaze of fiery red for all of the twenty minutes it took to read the
+cube. Bequay's task could finally begin.
+  Data is essentially one-dimensional, a binary function of time, but the
+crystal was a three-dimensional object. Was the data on it recorded from left to
+right, top to bottom, in some other order, or in a more complex pattern? The
+cube had no defined top or bottom, so Bequay had hundreds of distinct sets of
+data to decode, for just the simpler patterns.
+  Each set was analyzed in its turn. there existed rigorous standards for binary
+notation; each "bit" of 1 or 0 could be grouped together in established
+patterns; seven of eight to a character in the English alphabet, for
+instance. It was reasonable to assume the makers of the cube would not change
+these standards, but nothing of meaning was found in any interpretation.
+  Bequay and his hand-picked team tried everything, every possible formula they
+could think of, but it stubbornly refused to be turned into sense. His own
+analysis formulae told him that every interpretation was random data.
+  The military wanted results, and were getting impatient. Five years had
+passed.
+  Bequay was now seventy years old. His eyes had failed him long ago and now his
+body and mind were beginning to follow suit. He resisted the aging process every
+step of the way. He remained at his workstation late at night, sometimes waking
+at his terminal the next morning with the computer's keyboard imprinted on his
+forehead.
+  His sleeping habit deteriorated his health further, and pneumonia put him in
+the hospital. As he lay dreaming of shimmering cubes, the team of graduates that
+had been working with him grew shiftless; personality conflicts previously
+suppressed by his strong leadership were brought into the open.
+  Bequay returned to health to find his team split up, his project about to be
+dissolved. Surprisingly, he did not care.
+  He had found it.
+  A vision had come to his confused mind again and again: bending over the
+etched words of that ancient box, reading the words there, printed so neatly and
+so obviously on the cover. Whey bother writing those words at all? Who would
+need identification? What if it had been discovered by someone else, before the
+United Stats had even existed? Six million years was a long time. Not that
+Bequay swallowed those stories of Atlantean civilizations or ancient astronauts
+-- that was for others to believe -- but he could picture Indians spotting the
+dull corner of metal and trying to chip it out, or a group of early American
+settlers break a wagon wheel on it.
+  Important Data...Why inform the casual observer of the artifact's contents?
+The people who had sent it obviously meant to find it again, and they needed no
+memory jogging as to its purpose.
+  Was there something IN those words? A message for him, perhaps. Why not? The
+engraving had mentioned data, and who else would the government contact if they
+wanted to analyze data?
+  Bequay found he liked that explanation.
+  His vision only pointed this out, but he had deciphered its true meaning. It
+was time to visit the desert site again.
+  It had not changed much in the years since he had been here last. The fences
+were still there, and the guards, though there were much fewer of both
+now. Excavation had been abandoned, after nothing more had been found. The heat
+was still the same. The younger Bequay had borne the oppresive heat fairly
+easily, but now he found it difficult to even move.
+  He carried his briefcase to the white trailer, still there, but much more
+uncomfortable than it had been. The briefcase was a portable terminal, and,
+hooked to the trailer's communication system, allowed him to access the
+computers that had still not been taken away from his project.
+  The box was there, but he was not interested in that. It had cumbled under its
+own weight, a despondent heap in a nitrogen tank.
+  The lid was here, damaged as well. Bequay had brought with him a microscope.
+  The words were as he had recalled them, but hcanged slightly-- instead of
+lettering sunken straight into the metal, parts of the sunken engravings had
+evaporated, leaving irregular ridges instead of smooth ones. The ridges went up
+and down like the surface of a key, in regular patterns: up, up, down, up, down,
+et cetera.
+  Bequay wrote these down in order, from the top stroke of the 'P' to the bottom
+of the 'a' in 'Data'. He entered these into the computer as the Camp guards
+watched him. If they were mask bits, they were a key to Bequay's magic data. He
+told the project computer to run each set of data through his decoding program
+once more.
+  After ten minutes the first dataset produced nothing. The second gave the same
+results; likewise the third. Bequay went to take a nap.
+  After the thirty-seventh the computer gave a distinct chime, and one of the
+soldiers had to wake Bequay. When he returned to the workstation he saw his
+program had produced a diagnostic-- the only such it had ever made in the last
+five years:
+  English text corollary found @ byte 45024852
+  He told the the computer to read to the end of the gigantic mass of data--to
+find a page of English text. His eyes grew wide.
+  My dear professor Bequay,
+  Obviously you have invented a machine to read this datacube, and discovered my
+simple coding scheme to interpret the data as it was meant to be read. Do not
+congratulate yourself just yet.
+  After having studied you, profiled you, and categorized you, I feel I know you
+as I might know myself; and as such, I could not let you die without ever
+knowing the true purpose of the artifact on which you have spent much of your
+remaining life. Even more importantly, I dislike you.
+  And so I thought I would include this brief note in the morass of random bits;
+without it you would have died never knowing the artifact's true purpose.
+  And what is this purpose, you ask? A simple one...
+  The old man was oblivious to everything around him, as the excited soldiers
+called someone on another base to tell the news, as men arrived from all over
+the country to examine the message and its implications.
+  What else could be done? Oh, they could bring someone to dissect his mind --
+try to bring back the thought, development, whatever it might have been, perhaps
+by hypnosis -- but he was sure it was long gone by now. Decoding the box had
+taken all his energy, all his intelligence -- as it had been designed to do.
+  The man who had written that message had done his job well; decoding the
+crystal's data had occupied his complete attention, and he would never have
+accomplished it were it not forthe clue in the lettering. The writer had been so
+smug...
+  That blackboard. He remembered something -- not what he had been working on,
+but a feeling about it, that it might have lead to something big.
+  The University was thorough and meticulous, if anything -- he had left them,
+but they would neve have thrown away his things, should he return.
+  In a file in a box, in a dusty corner of a subbasement, was all his
+accumulated mail. He paged through it briefly. Much of it was more
+communications from SETI. They needed him to analyze their transmissions;
+without him the data could never be translated. They desperately, desperately
+needed him...Bequay shoved it all back into the box, disgusted. Perhaps the
+University would let him return -- to pursue his own project, of course, but
+ostensibly to teach again. He hated teaching.
+  He must figure out what he had been working on, and develop it to the
+fullest. Though stuck deep in the past, he would have the last laugh.
+
+--------------------------------------------------------------------------------
+
+  Robert Chansky is a vaguely asipiring writer in Santa Cruz, CA. He enjoys
+computer and Peter Gabriel. This is hte second story he has published in Quanta,
+the first one being "Literature," which was published in the December '89 issue.
+
+robertc@sco.com
+
+& literature
+
+{{FICTION}}
+  '__Literature__' by Robert chansky, (c)1989
+
+  From the Dec '89 issue of Quanta, an online 'zine.
+  http://www.etext.org/zines/Quanta
+
+  Charles Pennet always felt a particular pleasure when he pulled the cover over
+his ancient typewriter and went to the cupboard to fix himself the usual
+post-novel drink. It was a great reward, that drink; the stuff that had almost
+finished him once before now became his reward for a job well done. Nowadays he
+allowed himself the alcohol only after the finish of a novel. Cause to
+celebrate, as always.
+  Charles Pennet wrote dirty books. Pornography was his life.
+  There was a demand for it, and he seemed to have a talent, or so his many
+editors told him, and as long as that demand and talent coincided, he would
+continue with his chosen line.
+  Oh, there was the occasional twinge of guilt-- not for what he did of course,
+for Charles was a pragmatic man, but for what he did not do; A real book, real
+literature, something to be proud of, a profession that he didn't have to hide
+away beneath his many pseudonyms. Indeed, he had started several serious books,
+only to give up, frustrated. Each quickly became boring without the added
+flavor, so to speak, that was Charles' unique style. And his books, after all,
+had paid for the house he lived in, kept him well fed and with a hefty bank
+account. He had done quite well for himself.
+  One might think it odd that Charles never actually did many of the things he
+wrote of in his many books and articles. He lived a very sheltered life. But
+that was fine with him. (What was that author's name, the woman who lived out in
+the moors in England and wrote?-- Well, it didn't matter.) Charles was in
+company with a lot of authors, writing about the human experience while too busy
+to join in. The only difference between he and they being the experiences he
+wrote about.
+  Another ritual consisted of bundling the manuscript up for a stop at the
+library-- photocopying it all was an expensive, but necessary, task, or so his
+lawyer told him. the industry was very cutthroat. A few big rubber bands kept it
+together nicely. Charles was engaged in this when there was a knock at the the
+door.
+  Unfortunately Charles was the type of person who never used the small peephole
+provided for them to see potential criminals before letting them in. He opened
+the door wide, and wondered why there seemed tobe nobody there, when he chanced
+to look down and beheld the creature.
+  Through the miracle of human perception, Charles was instantly able to
+determine that the creature before him was an alien. Not of this Earth. Not, one
+would suppose, from anywhere nearby at all.
+  The alien looked like a boulder. It was about three feet high, mostly round,
+in fact spherical, and a reddish-brown that might have looked almost comforting
+on a familiar object such as a rotten tomato. Its skin was wrinkled and worn,
+like an old leather jacket. Eyestalks sprouted from its right and left flanks,
+aimed at Charles. What looked like a tentacle sprouted from the side of the
+boulder (being careful not to get in the way of its eye) aiming a gun-- not a
+streamlined raygun, but a functional Colt .45-- directly at Charles. He backed
+away.
+  The alien rolled after him. To do this it flattened an area of itself facing
+Charles, so that it would tumble into the cavity thus created. The eyestalks on
+both sides of the creature rotated slightly but did not waver from him. Neither
+did the tentacle with the gun.
+  Another tentacle made an appearance. This one emerged (from behind the other
+eyestalk) wrapped around a square black box, grilled at one end. Squeaks and
+incomprehensible noises came from the creature, and from the box came a voice.
+  "You," it said, "are Charles Pennet." The box sounded electronic, with
+irregular pauses between its words.
+  Charles swallowed. If given a few minutes, he might have said something,
+either to confirm or deny his name. Neither of these options presented
+themselves.
+  "There is something which you will do for me." The alien rolled further into
+the room without asking for an invitation. Yet another tentacle emerged from the
+same side of its body as the first to snake around the doorknob and pull it
+shut.
+  Charles was not sure how to react to the alien. His life had been very
+structured, very ordered, until now. The alien's presence offended him, in a way
+he could not really describe, not even to himself. Just as if a total stranger
+had nudged him with an unwanted elbow, the alien was an intrusion into his life,
+one he didn't really want, not just now. Charles felt a kind of anger rising
+inside him.
+  "Now wait a minute. Wait a minute--" he said, though there was really nothing
+he could think of to say to the creature.
+  It didn't care. Something reached out from the creature and pushed at his
+mind. Charles sank to the floor. He could see and hear, but he could not
+move. At least he didn't think he could move; it just seemed like moving so much
+as a finger didn't appeal to him at all. Laying as he was on the floor seemed,
+in the absence of other ideas, an excellent option. Anything else was not to be
+considered.
+  "My place of origin," the alien explained, "is known as Cetella. My name is
+unpronounceable and not important. What you will do for me is." The alien rolled
+closer to him, giving him the full benefit of a body odor that reminded him of
+egg salad, as it explained.
+  Charles had just finished a particularly explicit novel for which he had real
+hopes just before he was contacted by the Cetellan alien, who had developed a
+taste for human books.
+  The Cetellan idea of literature was not at all the same as the human idea of
+literature. But some of their scrawlings intrigued it greatly. As it pred with
+glassy eyes over the mass of data the ship's computer had translated for it, it
+had found, here and there, something that piqued its interest.
+  And it had decided, fatefully, that here was money to be made.
+  Regretfully, humans being who they are, and Cetellans being what they are, it
+was necessary that some adjustments be made before anything of a potential
+money-making nature was introduced to a Cetellan culture at large.
+  And the alien, whose name is unpronounceable by a human as well as unprintable
+by any human typesetter, had thought of a way. A way that involved as little
+work for it as possible.
+  Charles wanted to hide in a corner somewhere and gibber. He somehow remained
+standing. "What... what am I supposed to do?"
+  The gun, and the tentacle that held it, Occupied Charles' full attention, to
+the point that he had not heard much of what the alien was saying. Now he forced
+himself to listen.
+  "It has taken me some time to find you. There is-- some literature which you
+will-- translate for me." the electronic voice paused before certain words,
+possibly because its translator had to look them up. "You will change only
+certain species-specific passages, as I have machines to translate to my own
+language. I will leave you books and materials to help you." The it waited for
+him to speak.
+  "I don't understand this. You're... and alien!"
+  "Human powers of perception are most impressive."
+  "What... what if I refuse?"
+  This question was obvious, and the boulder appeared to have worked it out
+beforehand. "You have ten seconds to accept. Otherwise, a-- virus will be
+introduced into your-- biosphere which will render it lifeless. This is your
+incentive to work for me. Remember it, and do not doubt that I will do as I
+say."
+  It paused. "Very well," it said. It produced another device, like a small
+computer, from somewhere inside its actual body, Charles supposed. "this machine
+is -- programmed with translations of an anatomy text of my race, and another
+book which will help you with what you are to do. The tentacle dropped the
+machine on Charles' desk nine feet away. "You are to translate this book." The
+book slapped down next to the other machine. "I will return in seven days. If
+the book has not been translated by that time, or if you have contacted --
+authorities of your -- government in an attempt to avoid this task, the virus of
+which I spoke will be immediately vented into your planet's biosphere. I will
+leave now."
+  "Wha... wait, you can't--..."
+  The alient turned to face him by spiraling like a top. "Remember," it said,
+"that you are translating the literature into a different culture, and not
+language, as my devices can manage that. Also remember to preserve the
+original... flavor... for which the writing was intended."
+  The creature quivered, and began, ponderously, to roll across Charles'
+floor. One of its tentacles (this made a total of four; he wondered how many it
+had) opened the door for its owner. The creature rolled heavily down Charles'
+walkway into the dark, oblivious to its surroundings, to a car waiting for
+it. Charles could see through the open door that the interior of the car had
+been removed its windows artificially darkened. The car was cavernous
+inside. Charles watched the alien as it rolled aboard, lowering its vehicle with
+its weight.
+  Charles shut his door. He had seen an alien. He had actually seen an alien.
+  It sounded like some stupid science fiction story.
+  The Cetellan's car drove off. Would it really destroy the Earth, or was it a
+bluff?
+  Charles went to his deskt to examine the machine the alien had given him. It
+seemed very simple; in fact instructions were written in English on the
+front. He figured out how to call up the anatomy text. He summoned the other,
+and discovered that it seemed to be the alien equivalent of a sexual self-help
+book. It was very detailed, and fascinating to someone in Charles' profession.
+  The title of the terrastrial book on his study, an ordinary hardcover, caught
+his attention. It was, he found, Lady chatterly's Lover. This was the literature
+the Cetellan wanted him to translate.
+  The alien had not left unobserved. A Mrs. Edith Cummings lived next door to
+him, not knowing (of course) his exact occupation. Mrs. cummings was an ardent
+Christian fundamentalist, her thoughts never straying from purity and good
+faith. She had always kept an eye on Charles, ever since he'd moved in. He was
+an easy man not to trust. There had been something shiftless about him, like he
+didn't really belong in this quiet upper-class neighborhood.
+  And a chance look out her kitchen window, to investigate that strange car
+parked before her neighbor's house, proved her suspicions correct.
+  Charles was keeping strange company, indeed.
+  Aliens.
+  She decided that this would do with some looking into.
+  All night and the next day the furious tapping of charles' typewriter reached
+Mrs. Cummings' ears incessantly. Eventually the next afternoon the typing came
+to a halt, and she looked up from her knitting. A quick glance across her front
+yeard told her that Charles had left the house. The time, she thought, was now.
+  Walking slowly (so as not to arouse suspicion), she headed out of her own
+abode toward her neighbor's. She tried the door, and found that it was
+unlocked. Probably going out for something to eat, she thought.
+  Mrs. Cummings never wasted time. She examined drawers, closets, under
+beds. Charles' shower and bath did not escape her scrutiny. Eventually she got
+to the bookshelf, and was, predictably, shocked. "Filth!" she cried.
+  Adorning the shelf were an uncountable number of books and magazines, their
+content easily identifiable by the racy pictures on the front. Mrs. Cummings was
+familiar with many of the titles, as she had participated in a book rally
+(burning) in which they had been prominently featured. This time, she examined
+the authors. The names all seemed to have something in common. Chuck
+Penn.. C. Penter... all the names sounded very nearly like her neighbor, Charles
+Pennet.
+  Suddenly it dawned on her. He had written them. HE was the author of
+this.. this...
+  "Filth!" she said again, louder this time. In fact Charles was the reason of
+the P section in many adult bookstores was disproportionately large.
+  Mrs. Cummings examined the typewriter and the paper that lay inside it, and
+unknowningly became the first Cetellan literary critic.
+    She saw him again, in the garden. Just to touch him, she though. Just to
+    stroke his tight calloused skin would be heaven... suddenly she stopped. She
+    realized her dorsal tentacle was fully extended! What would her husband say,
+    if he knew? But... on the other hand, what would he say?
+  Her first though was to burn it-- burn it all! But then--
+  No, she through. She would wait. The police would never understand.
+  Mrs. Cummings tried to put everything back where it had been, and after
+reading through the contents of the Cetellan reading machine, exited Charles'
+house barely five minutes before he returned.
+  Charles knew it was the alien even before he heard the car door open. It was
+late again, and exactly one week after its first appearance. He was not too
+nervous. He had done what it demanded of him, finished the manuscript. The
+boulder would not sterlize the planet, and then all of this would be behind him.
+  This time it did not bother with knocking. The door swung wide, and closed
+again.
+  He looked up, and there was the alien. It still aimed the gun at him. Charles
+wondered where it had gotten it from.
+  "You have done what I wish." A statement, not a question.
+  "Yes."
+  "Give me the manuscript." Charles handed the pages to the alien, which put
+them in case and concealed it inside itself.
+  "You're not going to kill everybody?"
+  In response the alien produced two more hardcovers, placing them on the same
+corner of Charles' study again. He suddenly felt very sick. He had stayed up
+three nights.. "I will return," the Cetellan said, "in six days. If this
+literature is not translated in the same manner as the previous sample I gave
+you, I will sterilize--"
+  At that moment Charles' front door exploded inward, as though by some
+artillery burst. The doorknob sailed across the room, burying itself in the
+opposite wall. A women entered, an old woman. She was carrying a
+shotgun. "Mrs. Cummings!" Charles said, astonished.
+  Mrs. Cummings saw the Cetellan, and her eyes took on an angry reddish color as
+she swung her weapon around toward it. "Filth mongerer!" he thought she
+shouted. This seems to be all too fast for the alien to use its mind-push or the
+.45. She fired.
+  The The boulder seemed to explode gore all over the room and
+Mrs. Cummings. Shredded typewriter paper flew everywhere, the work of the last
+week scattered all over the room and spattered with what passed for alien
+blood. Charles, shocked but still retaining his sense, tried to shrink from her
+view, looking for a way to get past her without being killed.
+  From his knowledge of Cetellan anatomy Charles figured the alien would not be
+easily killed by a gun like that, as its thick braincase was approximately in
+its middle and little else but muscle outside that. But Mrs. Cummings seemed to
+know that too. She took the alien's .45 from the floor and proceeded to pump the
+center of the leeding mass full of bullets until the gun was out, then dropped
+it.
+  Charles' rear doorknob poked him in the small of his back. He reached behind
+himself to open it, then sat the old women had her shotgun on him now. "Don't
+you move," she said. Ice coated his stomach. "It was you," she said. "You wrote
+that... that..."
+  The word exploded, "Filth!" and the gun would have as well, but it only
+clicked. Two shots. Chrales pushed his way past the women, grabbed the alien's
+book and vacated the premises.
+  The alien body made an incredible media sensation when it was discovered, and
+Mrs. Cummings became an unwitting instant hero. Chares, who had changed his name
+so many times that it was almost a habit for him, managed to avoid the
+persistent reporters and the net of government agents trying to track him, until
+the sensation died down. Eventually he found another house-- smaller but much
+more isolated-- and bought a typewriter.
+  Cautiously, he checked the aliennn's sex-and-anatomy book, and was pleased to
+find it still operative. It was time to go to work.
+  Of course he'd have to find one of the Cetellans again, but perhaps they would
+find him. They would deal with him on his own terms this time. There was a new
+demand, and Charles Prendergast intended to fill it.
+
+--------------------------------------------------------------------------------
+
+Robert Chansky is a CIS graduate from UC Santa Cruz. This is, he says, one of
+the few stories he's managed to finish. He's the creator of a UNIX game called
+"Galactic Bloodshed", a mutli-player Empire-like game of interstellar war.
+
+& meat
+
+{{HISTORY}}
+
+  THEY'RE MADE OUT OF MEAT
+
+  A dialogue by Terry Bisson, from OMNI, April 1991, in the "Alien/Nation"
+  series of stories. This story, which was a 1991 Nebula nominee, appears
+  frequently around the internet, it was the #1 post on UseNet in 1991.
+
+{{DIALOGUE}}
+
+  "They're made ouf of meat."
+  "Meat?"
+  "Meat. They're made out of meat."
+  "Meat?"
+  "There's no doubt about it. We picked up several from different parts of the
+planet, took them onboard our recon vessels, and probed them all the way
+through. They're completely meat."
+  "That's impossible. What about the radio signals? The messages to the stars?"
+  "They use the radio waves to talk, but the signals don't come from them. The
+signals come from machines."
+  "So who made the machines? That's who we want to contact."
+  "__They__ made the machines. That's what I'm trying to tell you. Meat made the
+machines."
+  "That's ridiculous. How can meat make a machine? You're asking me to believe
+in sentient meat."
+  "I'm not asking you, I'm telling you. These creatures are the only sentient
+race in that sector and they're made out of meat."
+  "Maybe they're like the Orfolei. You know, a carbon-based intelligence that
+goes through a meat stage."
+  "Nope. They're born meat and they die meat. We studied them for several of
+their life spans, which didn't take long. Do you have any idea what's the life
+span of meat?"
+  "Spare me. Okay, maybe they're only part meat. You know, like the Weddilei. A
+meat head with an electron plasma brain inside."
+  "Nope. We thought of that, since they do have meat heads, like the
+Weddilei. But I told you, we probed them. They're meat all the way through."
+  "No brain?"
+  "Oh, there's a brain all right. It's just that the brain is __made out of
+meat__ That's what I've been trying to tell you."
+  "So ... what does the thinking?"
+  "You're not understanding me, are you? You're refusing to deal with what I'm
+telling you. The brain does the thinking. The meat."
+  "Thinking meat! You're asking me to believe in thinking meat!"
+  "Yes, thinking meat! Conscious meat! Loving meat. Dreaming meat. The meat is
+the whole deal! Are you beginning to get the picture or do I have to start all
+over?"
+  "Omigod. You're serious then. They're made out of meat."
+  "Thank you. Finally. Yes. They are indeed made out of meat. And they've been
+trying to get in touch with us for almost a hundred of their years."
+  "Omigod. So what does this meat have in mind?"
+  "First it wants to talk to us. Then I imagine it wants to explore the
+Universe, contact other sentiences, swap ideas and information. The usual."
+  "We're supposed to talk to meat."
+  "That's the idea. That's the message they're sending out by
+radio. 'Hello. Anyone out there. Anybody home.' That sort of thing."
+  "They actually do talk, then. They use words, ideas, concepts?"
+  "Oh, yes. Except they do it with meat."
+  "I thought you just told me they used radio."
+  "They do, but what do you think is __on__ the radio? Meat sounds. You know how
+when you slap or flap meat, it makes a noise? They talk by flapping their meat
+at each other. They can even sing by squirting air through their meat."
+  "Ohmigod. Singing meat. This is altogether too much. So what do you advise?"
+  "Officially or unoficially?"
+  "Both."
+  "Officially, we are required to contact, welcome and log in any and all
+sentient races or mutlibeings in this quadrant of the Universe, without
+prejudice, fear or favor. Unofficially, I advise that we erase the records and
+forget the whole thing."
+  "I was hoping you would say that."
+  "It seems harsh, but there is a limit. Do we really want to make contact with
+meat?"
+  "I agree one hundred percent. What's there to say? 'Hello, meat. How's it
+going?' But will this work? How many planets are we dealing with here?"
+  "Just one. They can travel to other planets in special meat containers, but
+they can't live on them. And being meat, they can only travel through C
+space. Which limits them to the speed of light and makes the possibility of
+their ever making contact pretty slim. Infinitesimal, in fact."
+  "So we just pretend there's no one home in the Universe."
+  "That's it."
+  "Cruel. But you said it yourself, who wants to meet meat? And the ones who
+have been aboard our vessels, the ones your probed? You're sure they won't
+remember?"
+  "They'll be considered crackpots if they do. We went into their heads and
+smoothed out their meat so that we're just a dream to them."
+  "A dream to meat! How strangely appropriate, that we should be meat's dream."
+  "And we marked the entire sector __unoccupied__."
+  "Good Agreed, officially and unofficially. Case closed. Any others? Anyone
+interesting on that side of the galaxy?"
+  "Yes, a rather shy but sweet hydrogen core cluster intelligence in a class
+nine star in G445 zone. Was in contact two galactic rotations ago, wants to be
+friendly again."
+  "They always come around."
+  "And why not? Imagine how unbearably, how unutterably cold the Universe would
+be if one were all alone ..."
+
+  The end
+
+& newship
+
+                 How to add a new ship type to GB
+    _________________________________________________________________
+
+  This is not going to be easy...My C programming is very...very rusty...
+  But... Lets nuke the Quarry (thanks Tapsa)...
+
+  In ships.h
+  #define OTYPE_BEERKEG 47
+  #define NUMSTYPES (STYPE_SUPERPOD+2)
+
+  The first lineis for a new type. And it is ship number 47, the next line,
+  I just added 1...so the number of ships is correct. (OK...I nuked this
+  part...but I am keeping it in here for reference.
+    _________________________________________________________________
+
+  shipdata.h
+  Since I am using "q" lets keep that for now...
+  char Shipltrs[] = { 'p', 's', 'X', 'D', 'B', 'I', 'C', 'd', 'f', 'e', 'H',
+                      'S', 'O', 'c', 't', '+', 'M', '=', 'i', '-', 'a', 'g',
+		      'h', '2', 'l', 'w', ':', 'G', 'F', 'T', '[', '^', 'n',
+		      'q', 'K', 'Y', 'W', 'J', '&', 'R', 'b', 'L', 'm', 'k',
+		      'j', '!', 'P' };
+
+  Now, need to add the data line for this new ship: need to find the quarry
+  line..and first, change "QUA" to "KEG" then we can play with the numbers
+  {/*Keg"/ 5, 0, 0, 0, 0, 0, 0, 0, 1, 0, 35, 0, 0, 1, 1, 0, 10, 17, 8, 0, 0, 0,
+   0, 0, 1, 0, 1, 1, 1}
+
+  Tech level to creat ship, number of cargo space, number of bays, max amount of
+  dest, number of guns, prim gun str, sec gun str, fuel capacity, number of
+  crew, armor level, cst mt, jump capable, ld sw, speed, dm, bd, cn, mod, laser
+  capable, crew capable, clk, god only, rg, port, rep, pay, dock
+
+  In the "const char *Shipnames[NUMSTYPES] = {" part add:
+  "Beer Keg"
+  To the end
+    _________________________________________________________________
+
+  exam.dat
+  Add the end, add in the information about your ship. In this case:
+  ~
+  Beer Keg
+    The Beer Key. Hey? What can I say about this. It's a Beer Keg!! Oh, it
+  increases Moale :-) (Well, duh!)
+    _________________________________________________________________
+
+  This is as far as I got. With this in play. I can see the new ship in the
+  "build ?" listing:
+    i Ground Telescope  0 0 0 0 0 0 0  0  2 0 5  2
+    q Beer Keg          0 0 0 0 0 0 0 20 10 0 5 20
+    s Shuttle          10 0 0 1 1 1 0 20 10 3 5  8
+
+  and the "build ? q" works :-) But...these are the wrong order...should be
+    F Factory             0 0  0   0  0 0 0    0  20 0 0  21
+    q Quarry              0 0  0   0  0 0 0   20  10 0 0  16
+    W Weapons Plant     500 0  5   0  0 0 0  500  20 0 0 110
+    J Space Port          0 0  1   0  0 0 0    0 100 0 0  58
+    @ Government Center 500 0 20 100 10 1 0 1000  10 0 0 913
+    p Spore Pod           0 0  0   0  0 0 0   20   1 3 0   3
+    i Ground Telescope    0 0  0   0  0 0 0    0   2 0 5   2
+    K Space Plow          0 0  0   0  0 0 0   20  10 0 5  20
+    s Shuttle            10 0  0   1  1 1 0   20  10 3 5   8
+
+& plan
+
+                                   {{THE PLAN}}
+
+                          In the beginning was the Plan.
+
+                          And then came the Assumptions.
+		      And the Assumptions were without form.
+		       And the Plan was without substance.
+		And the darkness was upon the face of the Workers.
+
+                     And they spake among themselves, saying,
+		    "It is a crock of shit, and it stinketh."
+
+              And the Workers went unto their Supervisors and said,
+	  "It is a pail of dung, and none may abide the odor there of."
+
+              And the Supervisors went unto their Managers, saying,
+	     "It is a container of excrement, and it is very strong,
+	                 such that none may abide by it."
+
+               And the Managers went unto their Directors, saying,
+	 "It is a vessel of fertilizer, and none may abide its strength."
+
+        And the Directors spoke amongst themselves, saying one to another,
+	"It contains that which aids plant growth, and it is very strong."
+
+        And the Directors went unto the Vice Presidents, saying unto them
+	      "It promotes growth, and it is very powerful indeed."
+
+        And the Vice Presidents went unto the President, saying unto him,
+  "This new plan will actively promote the growth and vigor of the company, with
+                                powerful effects."
+
+        And the President looked upon the Plan, and saw that it was good.
+
+                           And the Plan became Policy.
+
+& prance
+
+Some old jokes from prance.hlp...
+
+{{PANDA}}
+
+  A PANDA walks into an old West saloon and growls "GIMME SOME FOOD!" after
+wolfing down (panda-ing down?) the food, he draws a six-shooter, plugs the piano
+player dead in the back, and heads for the door.
+
+  The bartender hollers "Hey! You just killed my piano player, and you haven't
+paid me for he food!" The panda replies "Idiot! I'm a *panda*! LOOK IT UP!" And
+away he goes.
+
+  The bartender looks up "panda" in the dictionary and finds: "large furry
+marsupial of the Asian continent. Eats shoots and leaves."
+
+{{HIPPIE}}
+
+  A hippie gets onto a bus and proceeds to sit next to a Nun in the front
+seat. The Hippie looks over and asks the Nun if she would have sec with him. The
+Nun surprised by the question politely declines and gets off at the next stop.
+  When the bus starts on it's way the guy driving the bus says to the hippie,
+"If you want I can tell you how you can get that nun to have sex with you." The
+hippie of course says that he'd love to know so the bus driver tells him that
+every Tuesday evening at midnight the nun goes to the cemetary to pray to the
+lord. "If you went dressed in robes and some glowing powder," said the bus
+driver guy, "you could tell her you were God and command her to have sex with
+you."
+  Well the Hippie decided to try this out. So that Tuesday he goes to the
+cemetary and waits for the nun. And right on schedule the nun shows up. When
+she's in the middle of praying the hippie walks out from hiding, in robes and
+glowing with a mask of god. "I am God, I have heard your prayers and I will
+answer them but you must have sex with me first."
+  The nun agrees but asks for anal sex so she might keep her virginity. The
+hippie agrees to this and quickly sets about to go to work on the nun.
+  After the Hippie finishes, he rips off his mask and shouts out, "Ha ha, I'm
+the hippie!!" The nun replied by whipping off her mask and shouting, "Ha ha, I'm
+the bus driver!!"
+
+{{SAMURAI}}
+  There was a samurai contest, and at the end a reporter decided to do his job
+and report on it...
+  First, he talked to the 3rd place Samurai, "Why did you finish 3rd?"
+  The samurai replied, "Watch." He opened a window, and a fly flew in. The
+Samurai swung his blade and sliced the fly in half.
+  The reporter gasped, and said "Wow, if 3rd place is THIS good, I can't wait to
+see the 2nd place Samurai!" So he went to talk to the 2nd place Samurai. He
+asked "Why did you finish 2nd?"
+  The Samurai replied, "Watch." He opened a window and a fly flew in, and he
+swung twice and chopped it in four pieces.
+  The reporter gasped again, and said "Wow, if 2nd is THIS good, I can't wait to
+see the 1st place Samurai!" So he went and asked the winning Samuari, "Why is it
+that you won the tournament?"
+  The Samurai replied, "Watch." He opened a window, and a fly flew in. The
+Samuari slashed at it, and it flew away unscathed.
+  The reporter said "But, you didn't kill it!"
+  The Samurai replied "No, but it'll never have kids again."
+
+& racehelp
+
+                    So you want to make a race for GB...
+                       By Mathew Anderson (God @ Kaos)
+
+  IQ: The first thing you want to decide on when you make your race is what IQ
+you want to have. Your IQ/100 is how much tech you gain each update
+normally. Getting to new techs first can give you a great advantage over less
+intelligent races, but the higher reaches of IQ cost quite a bit.
+
+  Sample Techs: 50 Hyperjump/Crystal tech/Planetary Terraform. 80 Atmosphere
+Terraform. 100 Space Habitats (usually excellent production of resources
+requires access to a Jovian planet to scoop fuel from)/Destroyers.
+
+  Race Type: The two race types are 'Normal' and 'Metamorph/Meso.' Normal races
+are the most common choice and tend to have lower costs on IQ and other 'techie'
+scores. Metamorphs tend to have cost breaks on combat and production stats,
+while sufferng in birth rate and 'techie' things. Mesos are the only ones who
+can get Pods and Absorb. Although the costs can get a bit strange the occasional
+smart Meso or dumb/aggressive Normal do work out.
+
+  Metabolism: This is your production of resources and fuel. More correctly this
+is the chance that a sector you have people in will increase in efficiency at
+the update. a 1.2 metab would cause you to gain 1 efficiency each update, with a
+20% chance of a second, each update. It also is a direct multiplier of your
+production (varies). Taxes (see help in the game) reduce your effective metab on
+planets for the purposes of efficiency gain.
+
+  Planet Type: The planet type you choose will determine your primary sector
+type and the costs for purchasing compatability with other sectors. Here are
+some general notes on each of the planet types and their main sector types:
+  Earth: Land/Water/Ice, good size.
+  Forest: Forest/Ice, nice size, really high population base.
+  Dessert: Dessert/Ice/Mountain, good size, low pop, high resources.
+  Water: Water/Ice, ok size, high pop.
+  Ice: Ice/Mountain, sorta small, fairly common.
+  Airless: Mountain/Land/Ice, sorta small low pop, common.
+  Jovian: Gas, huge, really high pop, moderate res, uncommon.
+  Asteroid: Mountain, yuck.
+
+  % With Sector Types: This is your ability to live on sectors of that type, as
+well as a direct multiplier of your chance to gain efficiency in sectors or that
+type you are living in each update. There is also a charge for each sector type
+you choose. The charge for each sector type and the relatively low cost for %
+makes 100% pretty much the only choice when assigning compats. Only Jovian
+Planet players may curchase compat with Gas sectors. During the games
+Terraforming Devices may transform non-gas sectors to Gas on planets for Jovian
+players, but Gas sectors cannot be changed except where they have been changed
+to Gas on other planet types.
+
+  Fight: Pretty simple. The combat str of each of your people.
+
+  # of Sexes: 1 or more (most commony 2, 1 for Mesos). This is the number of
+'tons of biomass (people)' you need to have in a sector in order to
+reproduce. Having 1 sex is relatively cheap and makes setting up colonies a
+little easier on you, but if you need the points it's not a must-have.
+
+  Birth Rate: How close to the theoretical max pop you can get in each sector
+you inhabit.
+
+  Adventurism: How much your people tend to spill out of sectors as they fill up
+with population. Saves work moving people around on your planets, nice when you
+start to get a lot of colonies you don't have time for. :)
+
+  Fertility: The chance that the fertility in a sector will raise by 1 each
+update. The maximum population in a sector is based on your birth rate, the
+efficiency of the sector (1-100), the fertility of your sector (1-100), the
+plaentary compatibility (temp/atmosphere), and your compat % with the sector
+type.
+
+  Pods*: Pods are small ships that can be build directly from a planet's surface
+and sent off to 'infect' other planets. Pods work like most other ships but they
+can't be modified, and they can 'infect' planets. When a pod enters a solar
+system it has a chance each update to burst and send a seed shooting towards one
+of the planets in the system (about 1 in 4 succeed). You can also rush towards
+the planets and land if you make it in time.
+
+  Absorb*: An evil combat ability. The ability to absorb your enemy's population
+as you fight with him. Your birth rate effects how much of the killed population
+is added to your own.
+
+  Collective IQ: A racial mind, your race has a maximum IQ and a current IQ
+based on your total population. A lot of points, but takes a while to get your
+population up to the point where you have a good IQ.
+
+  Strange things: You should experiment with you stats and see how they affect
+each other (yes, they actually do). An example: the higher the mass your race
+has the less IQ costs and the more metab costs.
+
+  * = Only available to metamorph race types.
+
+  _____________________________________________________________________________
+
+  So you are mkae a GB race for the first time..
+
+  I'd recomment a Normal race with at least IQ 150, at least Metab 1.0, several
+sector types at 100%, at least .4 birth rate, some adventurism would be nice,
+and a planet type of at least average size. Other than that experiment :)
+
+  Once the game starts ask a lot of questions.
+
+& shiphelp
+
+Dan Bongar (dbongard@netcom.com) wrote:
+
+  Heya. A few tips for Galactic-Bloodshed newbies. Don't be insulted if you
+think some of these are glaringly obvious; you'd be surprised what people have,
+in the past, not known.
+
+1) Most ships are built by factories. Here is a partial list of ones which are
+   not:
+     Pods
+     Ground Telescopes
+     Weapons Plants
+     Factories
+     Domes
+     Space Plows
+     Terraformers
+     Atmosphere Processors
+     ABM Battery
+     Gamma Ray Laser
+     Government Center
+     Planet Defense Net
+
+   (There are others; do a "build ?" to see what can build a given type of
+   ship.)
+
+2) Here is the procedure for building ships in factories:
+   a) Build a factory on a planet. For example "build F 3,2" builds a factory on
+      sector 3,2 of the planet you are currently at.
+
+   b) Change scope into the factory. This is done by typing "cs #", where
+      "shipnumber" is the number of the factory in question (Note: It told you
+      this number when you built the factory in the first place).
+
+Someone:
+  Yes, it good practice to name factories as 'Missiles speed9', 'Destroyer',
+etc. ... not - basically it's better the less information you give to your
+fellow players. On the other hand you could name later that tech 11.2 shuttle
+factory as 'Mines d50' and missile factory as 'El Cheapo dhuttles'.
+
+  If you happen to be attacking someone's systems hs Fs are top priority
+targets. You should try to figure out what each factory produces - if your enemy
+hasn't names them only information you have is the size of factories (which you
+can find out from 'tactical' report). Size of a factory is same as the size of a
+ship it makes.
+
+  Size 1 factories make missiles, mines or shuttles - you probabaly want to
+destroy all size 1 factories so that your enemy can't make any missiles to
+destroy your fleet.
+
+  Huge factories usually make tankers, caros or little carriers. Mid size ones
+might make nearly anything - if there is enemy ships you could try to match
+their size to F's size.
+
+Gary:
+  A few interesting things about factories... There are several ways to figure
+out what you have being build in your factory without actually having to go into
+the factory and check.
+  a) Name the Fs after what you are producing. Easy to spot for you and for your
+    enemies. :) You name ships by cs'ing into them and typing 'name ship
+    WHATEVER'.
+  b) Type weap F in the scope with the factories in question. This gives you a
+    weapon report of the Fs, which strangely enough lists what they are building
+    too. It shows the ship type and the class of ship being build there. You set
+    the class by cs'ing into the factory and typing 'name class WHATEVER' just
+    before you turn it on.
+
+Kari Seppanen:
+  Wouldn't 'factory' command be the easiest way?
+  c) Type "make ", where "shipletter" is the letter of the ship you want to
+     build. For instance, "make s" sets the factory to produce Shuttles. This is
+     probably what your first factory will be for. :)
+  d) Modify the ship's stas,m if desired. (more on this is (3), below).
+  e) When you are abso-smurfly positive you have the ship design you want, type
+     "order # on", where "shipnumber" is the number of the factory. NOTE:
+     Turning the factory on costs resources! The cost is equal to twice the cost
+     of the ship you will be producing. ALSO NOTE: You can't change the stats of
+     the factory's production model once the factory has been turned on. Want to
+     build a new ship type? Build a new factory.
+  f) Wait for three updates. "Why wait?" you ask? Well, a factory starts at 75%
+     damage and can't produce ships until it is fully "healed". Damage heals at
+     25% per update. If the game has movesegs (which they pretty much all do
+     these days), the 25% will be divided up among the movesegs... this can
+     result in it taking a little longer for factories to fully heal, since the
+     damage healed each moveseg is rounded down. If that sounded confusing, it
+     isn't: just wait patiently for three updates or so and the factory will be
+     ready. There's nothing you can do to speed this up, and nothing will slow
+     it down short of somebody shooting the factory. :)
+  g) When the factory is healed... congrats! You can produce ships! To do this,
+     change scope into the factory again and type "build". Poof! A new ship!
+     Alternately, you can type "build " to build ships at once. Beats typing
+     "build" fifty times, let me tell you. :)
+
+3) Modifying ships:
+  OK, so you're in the factory's scope, you've ordered it to "make" a type of
+ship... now what?
+  Now you learn the joys of the "modify" command ("mod") for short). :)
+  Type "make". You'll see a printout of the ship's stats. The good news is that
+you can modify almost every single one of those stats!
+  "But why", you ask, "would I want to do that?"
+  Well, besides the obvious benefits of, for instance, adding extra fuel or crew
+to a ship, or increasing the number of guns... you can take features OFF of a
+ship to decrease it's efective tech level. This means you can be building
+Destroyers, Tankers, and Cargo ships literally dozens of updates before Tech
+100. Granted, they will be comparatively wimpy for thier class, but they can
+still be effective.
+  The Tanker, for instance, is often used as a "jumpship". Hyperdrive tech comes
+along at tech 50, but there generally aren't any good long-range hyperdrive
+craft at that tech level. However, by dropping a few thousand Fuel Capacity from
+a Tanker, and dropping its Destruct and Guns to lower levels, and lowering the
+crew... voila. A Tech 50 Tanker, with Hyperdrive, and with 5 hangers... that's
+enough to carry 4 shuttles and a space telescope.
+  This means that you can jump into a system, use the space telescope to examine
+all the planets, and send shuttles to the 4 best planets right away. Which,
+trust me, is a HELL of a lot faster than messing around with Explorers.
+  NOTE: Some versions of GB have a ship type called the "Light Carrier". The
+symbol is "j". These tend to be _extremely_ effective ships, so if you see them
+in the game you may want to experiment between those and Tankers and see which
+gives you better bang for your buck.
+  Which reminds me... not all ship types are created equal, nor are all ship
+types used for their intended purpose. For instance, Cargo Ships often make
+might good warships, particularly at low tech; whereas the usefulness of
+Destroyers tends to be limited by their low fuel capacity (which limits jump
+range). The moral of this story is: experiment! I like to have one factory on my
+homeworld which I neve, ever turn on. I just use it as a "research lab" of
+sorts... basically just change scope, "make" a ship type, modify it, "make" a
+new ship type, etc... this gives me an idea of what sorts of ships I'm capable
+of building. NOTE: "make" and "build" are not the same thing. I don't mean to
+imply that I'm actually _building_ all these different ship types. Using "make"
+is like giving the factory a set of blueprints; "modify" modifies those
+blueprints; ordering the factory on sets up the machinery to make the ship
+specified by the blueprints; "build" actually builds the ships.
+  Which reminds me: how Modify works. Just type "help modify" and it'll tell you
+the commands, but, in short, "mod " is the formula. "Mod fuel 100" changes the
+blueprints so that the new ship design will have 100 fuel.
+  Keep an eye on two things above all else: Tech and cost. cost is how many
+Resources it will take to build one of these. Tech is the tech level you'll have
+to be at before you can _build_ one. Note that you can order the factory on even
+if you can't build the design it is set to!
+  Yes, this means my race, at tech 10, can design a tech 100 ship (a shuttle
+that carries a billion crew, for instance). I can even order the factory
+"on". However, even after the factory is fully repaired I won't be able to build
+the ship design until I reach tech 100.
+  A corollary to this: never forget it takes 3 updates for the factory to come
+online. This means you can always get away with designing ships for tech levels
+3 updates away. Let's say you have an IQ of 200, which is fairly normal for a
+"techie" race. This means you will be gaining 2 tech per turn (200/100=2). So
+even if you are only at Tech 24 now, you can design a Tech 30 ship and order the
+factory on, because by the time it factory heals and comes online you will have
+reached tech 30. Be careful; nothing is more annoying than having an unbuildable
+Tech 30.1 design which you race is at Tech 30; err on the side of caution.
+  One final note: you can "upgrade" ships after they are built. This costs
+resources, and those resources HAVE to be IN the ship. So, if you ever want to
+upgrade a ship, leave some of the cargo capacity when you "modify" the
+design. This isn't all that important for a "throwaway" ship, but it is a good
+idea for those multi-hundred-resources jumpships and warships. Besides, who
+knows when it'll come in handy. :)
