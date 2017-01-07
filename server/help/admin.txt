@@ -1,0 +1,1393 @@
+& admin
+
+{{SUBJECT}}
+  Galactic Bloodshed admin (God player, Deity)
+
+{{DESCRIPTION}}
+  The admin of the Galactic Bloodshed game is also known as the god player. They
+are the individual responsible for organizing, configuring, maintaining, and
+administrating the game in progress. Please be considerate to this individual.
+Of all the players in the game, it's likely their love for GB is the highest,
+however, because of their responsibilities they are not able to participate in
+the actual game. This is a sacrifice they are willing to make simply to allow
+others to enjoy the game.
+  There is a 'monitor' option to the 'toggle' command that allows the deity to
+monitor messages etc. Use it to monitor battles in progress.
+
+{{COMMANDS}}
+  The god player has access to a few additional commands to allow them to
+maintain the game and make repairs. There's also some additional concepts
+they'll need to know.
+
+& @backup
+
+{{NAME}}
+  [0] @backup -- Backup vital game information to archive file (admin only)
+
+{{SYNOPSIS}}
+  @backup
+
+{{DESCRIPTION}}
+  Normally the GB server does automated backups according to the define
+DEFAULT_BACKUP_TIME in tweakables.h. However, you may want to force a backup
+occasionally (like before a code update); this command will do that for you.
+Backups are saved in a compressed tar archive in the 'backups' directory.
+Backups are performed by the backup.sh script as called by the GB server. The
+backup.sh script currently backs up the data, news, and tele directories.
+
+{{EXAMPLE}}
+  > @backup
+  DOING BACKUP...
+  BACKUP DONE...
+
+{{SEE ALSO}}
+  admin
+
+& @bless
+
+{{NAME}}
+  [0] @bless -- Alter attributes of a race (admin only)
+
+{{SYNOPSIS}}
+  @bless <who> <attribute> <value>
+
+{{DESCRIPTION}}
+  @bless changes the attributes of a particular race, or it may be used to grant
+the user something. <who> must be the race number of the user (ex. 1 is god).
+Use cautiously, this could have devastating effects on game-play. This command
+was included to counteract bugs.
+  Values of <attribute> := money | password | morale | pods | nopods
+                           | collectiveiq | nocollectiveiq | maxiq | mass
+			   | metabolism | adventurism | ap | birthrate
+			   | fertility | IQ | fight | technology | guest | god
+			   | mortal | water | land | mountain | gas | ice
+			   |forest | desert | plated | explorebit | noexplorebit
+			   | inhabited | numsectsowned | resource | destruct
+			   | fuel | planetpopulation | xtall | activate
+			   | deactivate | homesystem | homeplanet
+
+{{EXAMPLES}
+  Sector Prefs:
+    @bless 1 w 10             - Water percentage
+    @bless 1 ga 10            - Gas percentage
+    @bless 1 i 10             - Ice percentage
+    @bless 1 mou 10           - Mountain percentage
+    @bless 1 l 10             - Land percentage
+    @bless 1 d 10             - Desert percentage
+    @bless 1 fo 10            - Forest percentage
+    @bless 1 pl 10            - Plated percentage
+
+  Planet Stockpile:
+    @bless 1 plan 100         - Population on planet
+    @bless 1 r 10             - Resources
+    @bless 1 dest 10          - Destruct
+    @bless 1 fu 10            - Fuel
+    @bless 1 x 10             - Crystals
+
+  Personal Info:
+    @bless 1 f 10             - Fertility
+    @bless 1 b 3              - Birthrate
+    @bless 1 fight 10         - Fight
+    @bless 1 mass .1          - Mass
+    @bless 1 fi 10            - Fight
+    @bless 1 me 3             - Metabolism
+    @bless 1 a .8             - Adventurism
+    @bless 1 c                - Collective intelligence
+    @bless 1 noc              - Turn off collective intelligence
+    @bless 1 t 10             - Technology
+    @bless 1 maxiq 10         - Sets the max IQ to 10
+    @bless 1 IQ 10            - Sets current IQ to 10 (Avg Int)
+
+  Misc:
+    @bless 1 mor 200          - Morale
+    @bless 1 m 10             - Money
+    @bless 1 e                - Explored bit to where god is at
+    @bless 1 noe sys          - Clear explored bit (including system)
+    @bless 1 g                - Turned into gues race...(Doh!)
+    @bless 1 god              - Turns to deity race
+    @bless 1 mortal           - Turns to a mortal race
+    @bless 1 n                - Deity took away pod ability
+    @bless 1 pod              - Gave you pod ability
+    @bless p string           - Change race password to 'string'
+    @bless ap 10              - Action points at scope
+    @bless activate 2         - Activate governor 2
+    @bless 1 deactivate 2     - Deactivate governor 2
+    @bless 1 homesystem 12    - Set home system to start #12
+    @bless 1 homeplanet       - Set homeworld to planet #5
+
+{{SEE ALSO}}
+  admin, @fix
+
+& @boot
+
+{{NAME}}
+  [0] @boot -- Disconnect a player (admin only)
+
+{{SYNOPSIS}}
+  @boot <number>
+
+{{DESCRIPTION}}
+  The @boot command disconnect a user from the GB server (it does not block
+their reconnection). The <number> to use is the descriptor obtained from the
+@who (q.v) command.
+
+{{EXAMPLES}}
+  > @boot 13
+  Descriptor 13 disconnected.
+
+{{SEE ALSO}}
+  admin, @who
+
+& chap
+
+{{CONCEPT}}
+  CHAP -- Challenge Handshake Authentication Protocol
+
+{{INTRODUCTION}}
+  CHAP is an option for the GB+ server selected at compile-time. CHAP is a login
+authentication method that does not transmit password over the network. This
+assures that when a player logs in their passwords can not be stolen by network
+sniffers.
+
+{{DESCRIPTION}}
+  For a description of what CHAP is and how it works see RFC 1994:
+http://www.faqs.org/rfcs/rfc1994.html
+
+__Galactic Bloodshed's Implementation of CHAP__
+
+  Server Commands:
+    CHAP CHALLENGE - Issued to client upon connection, follwed by a 12 character
+                     random alphanum string (the challenge string).
+    CHAP FAILURE   - Response to client after receiving incorrect RESPONSE,
+                     followed by a new CHALLENGE.
+    CHAP SUCCESS   - Response to client after receiving correct RESPONSE,
+                     followed by entry into game.
+
+  Client Commands:
+    CHAP RESPONSE  - Issued to server from client, the response string is the
+                     race name, gov name, and an MD5 string of the concatenation
+		     of the race pass, gov pass, and challenge string.
+    CHAP ABORT     - May be issued to server to abort the CHAP sessions and
+                     disconnect from server.
+
+  A C example of creating the MD5 string:
+    sprintf(hashbuf, "%s%s%s", racepass, govpass, challengestr);
+    md5resonse = MD5String(hashbuf);
+
+  Sample Sessions:
+    Server Sends -> CHAP CHALLENGE jYgRjGiZMUIA\n
+    Client Sends -> CHAP RESPONSE Vulcans Spock e0f3f3570c8e2c65de24e53bb2a0a3cd\n
+    Server Sends -> CHAP SUCCESS\n
+
+{{SEE ALSO}}
+  client, admin
+
+& @close
+
+{{NAME}}
+  [0] @close -- Disable player logins (admin only)
+
+{{SYNOPSIS}}
+  @close [yes|no]
+
+{{DESCRIPTION}}
+  The @close command tells the server to not permit player logins. God accounts
+are sill permitted access. This command is typically used for maintenance work.
+
+{{EXAMPLES}}
+  > @close yes
+  The game has been closed to logins.
+
+{{SEE ALSO}}
+  admin
+
+& csp
+
+{{CONCEPT}
+  CSP -- Client-Server Protocol for GB+
+
+{{INTRODUCTION}}
+  Originally GB's client to server communication was based off of TinyMUD's and
+was mainly connected via the telnet command. However, as GB clients were
+developed and became more robust, it was obvious a different method of passing
+data was needed. For example, in the original communication, white-spaces were
+displayed by the server to create the proper orbit appearances. But a new method
+was needed where the data should simply be passed and the client be responsible
+for rendering the appearance. This is as it should be by design.
+  CSP was developed to fulfill this need. This page contains a description of
+CSP, this information is provided mainly for development purposes.
+
+{{DESCRIPTION}}
+  This file is to explain the client <-> server protocols that have developed
+over the past few years of me (Evan Koffler) working on the client and server.
+  First off, the server should NEVER make a ship with the letter \ or |. These
+2 characters are reserved for client-server protocol (hereafter referred to as
+CSP).
+  To introduce a NEW CSP or to change an existing CSP, PLEASE POST all relevant
+information on the appropriate newsgroup (alt.games.gb) currently and if a
+client or server developers mail list exist then send a message to them as well.
+Allow enough time to pass for discussion about the appropriateness of the
+arguments in the command output and then add the information to this file. This
+helps prevent frequent changes to the commands and informs all client developers
+of any changes they may need to cope with in the future. The road has been paved
+so far for you, continue to pave it for those who follow.
+
+{{FORMAT}}
+  The standard format for the numeric protocol is:
+    <csp identifier> <csp command> [<arg1> <arg2> ... <argn>]
+
+  The <csp identifier> from server to client is: |
+  The <csp identifier> from client to server is: CSP
+
+  While the <csp command> should be within distinct ranges based on the command
+set. That is, a command uses 101 then, the next set should be at 150 or even 200
+so that there is room to grow, and there is no confusion for the commands.
+
+{{PROTOCOL}}
+  The initial protocol for CSP is as follows:
+    client: CSP CSP_LOGIN_COMMAND
+    server: | CSL_CLIENT ON
+    server: | CSP_KNOWLEDGE (list) 'server knowledge, what commands it knows
+    client: CSP CSP_KNOWLEDGE (list) ' list of ALL commands the client knows
+
+  The exchange above gets you going. The client simply needs to process all the
+commands it said it could.
+
+{{SPECIFICATION}}
+  Each CSP range should be specified in documentation using the following
+method:
+    Client Command Name: <csp command (code)
+    Server Response Rage: X-Y
+
+    Client Input Formats:
+      CSP <csp command> <arguments or options> (X-Y) responses for command)
+      CSP <csp command> <another way of getting information> [X-Y]
+
+    Server Output Formats:
+      | N "scanf/printf format. Preferably the scanf format so the client can be
+          modified to read it easily by copying the line"
+      | N "arg format, for human readability N is response name here" arg
+          descriptions
+
+{{CAVEATS}}
+  At present there are 2 commands that were old server formats that do not
+follow the official format. The two commands are map and orbit. The format for
+them follows:
+
+    __Map:__
+      $<Planet Name>;<X>;<Y>;<SHOW>;<sector info>
+
+      $             in position 0, this is the map command identifier.
+      <Planet Name> is a string ending in a ;.
+      <X>           is the width of the planet.
+      <Y>           is the height of the planet.
+      <SHOW>        is unused.
+      <sector info> is a single digit number followed by a character. The digit
+      	      	    means 1 of 2 things, depending if the toggle color option is
+		    set on the server. If color is NOT set, then the digit will
+		    be either a 1 or a 0 if you own or do not own the sector. If
+		    color is set then it will be a unique number for coloring
+		    the sector. After the color/ownership information comes the
+		    actual character to be used to represent this sector. The
+		    sector info continues for X * Y pairs of sectors.
+
+    Example:
+      $Test;2;2;1*1*0^0^
+
+      This planet is named Test, it is a 2x2 planet. You own the first 2
+      sectors, which are land, and do not own the 2 mtn sectors below.
+      (assuming color is off).
+
+      Map in a working client would display:
+
+            'Test'
+	    00
+	    01
+	 00 ** <- These 2 sectors would be colored/highlighted to represent ownership
+	 01 ^^
+
+    __Orbit:__
+      #<stand1> <X> <Y> <array> <symbol> <stand2> <Name>;[<stand1> <X> <Y>
+          <array> <stand2> <Name>;]
+
+      #        in position 0, this is the orbit command identifier.
+      <stand1> is whether the planet is 'explored' by the player and should be
+       	       highlighted.
+      <X>      is x coords.
+      <Y>      is y coords.
+      <array>  is the special output array index indicating which array to be
+      	       displayed. Which specific array to be used is determined by
+	       <symbol>
+      <symbol> if a 'm' or 'M' then a mirror should be displayed, if it is '*'
+      	       and <array> 0 then a nova should be displayed else it is a normal
+	       orbit map. Also, <symbol> will contain a ship letter if the data
+	       here is a ship and <stand1> and <stand2> will a positive number
+	       if the player owns the ship.
+      <stand2> is whether the planet has population of the player on it.
+
+      Standard convention is to highlight the symbol if the planet has been
+      owned, and highlight if the player has colonized the planet. (i.e.,
+      highlight symbol if <stand1> and name if <stand2>)
+
+    Example:
+      #1 100 100 0 * 1 Minos;1 93 104 0 o 0 Earth;1 90 90 0 D 1 456;
+
+      A star (*) named Minos is not undergoing a nova (since array is 0) and is
+      located at coords 100,100. The player has 'knowledge' of the type (stand1)
+      and 'owns' the star (meaning popn in the system) (stand2). Next is a
+      planet Earth (o) located at 93,104 which the player as explored (1 for
+      stand1) but does not have popn on (stand2 is 0). The array has no meaning
+      here so is 0. The last field is a ship (D) located at 90,90 owned by the
+      player (stand1 and stand2 are 1). Again array of 0 has no meaning. And the
+      ship is #456 (as specified in the name spot).
+
+{{EXAMPLES}}
+  All other CSP commands follow the standard specification outlined above.
+
+  Client Command Name: CSP_SURVEY_COMMAND (1103)
+  Server Response Range: 101-103
+
+  Client Input Formats:
+    CSP CSP_SURVEY_COMMAND -                         (returns 101-103)
+    CSP CSP_SURVEY_COMMAND minx[:maxx],miny[maxy]    (returns 102-103)
+
+    The - will request ALL sectors. That is, CSP_SURVEY_COMMAND 0:MAXX,0:MAXY.
+
+  Server Output Formats:
+    CSP_SURVEY_INTRO <maxX> <maxY> <sname> <pname> <res> <fuel> <des> <popn>
+        <mpopn> <tox> <compat> <enslaved>
+    "| 101 %d %d %s %s %d %d %d %d %d %d %lf %d"
+      maxX:     int     width of planet
+      maxY:     int     height of planet
+      sname:    word    char * of star name
+      pname:    word    char * of planet name
+      res:      int     amt of res on planet
+      fuel:     int     amt of fuel on planet
+      des:      int     amt of des on planet
+      popn:     int     amt of popn on planet
+      mpopn:    int     amt of max popn for planet
+      tox:      int     current toxicity of planet
+      compat:   double  % compat with planet.
+      enslaved: boolean is planet enslaved
+
+    | CSP_SURVEY_SECTOR <x> <y> <sectc> <des> <wasted> <own> <eff> <frt> <mob>
+        <xtal> <res> <civ> <mil> <mpopn>
+    "| 102 %d %d %c %c %d %d %d %d %d %d %d %d %d %d"
+      x:        int     x of sector
+      y:        int     y of sector (x,y)
+      sectc:    char    type of sector #^*)-o
+      des:      char    server description. Could be mil/ship ltr
+      wasted:   boolean is sector wasted
+      own:      int     player#
+      eff:      int     eff%
+      frt:      int     frt in sector
+      mob:      int     mobility of sector
+      xtal:     boolean is sector xtal.
+      res:      int     # res on sector
+      mil:      int     # mil on sector
+      mpopn:    int     max popn for sector
+
+    | CSP_SURVEY_END
+    "| 103"
+      NO arguments, it is END OF COMMAND
+
+{{AUTHOR}}
+  By: Evan Koffler <joffleva@darkwing.uoregon.edu>
+  On: Sat Jan 23 19:42:09 PST 1993
+
+{{SEE ALSO}}
+  client, cspcmd
+
+& cspcmd
+
+{{CONCEPT}}
+  CSP Commands -- List of official CSP commands
+
+{{COMMANDS}}
+  __VERSION__
+    10    CSP_VERSION_INFO          - Version XX
+    11    CSP_VERSION_OPTIONS       - Options set YY
+
+  __LOGIN__
+    30    CSP_CLIENT_ON             - Client mode on
+    31    CSP_CLIENT_OFF            - Client mode off
+    32    CSP_KNOWLEDGE
+    35    CSP_ZOOM
+
+  __INFO__
+    40    CSP_SCOPE_PROMPT
+
+  __UPDATE/SEGMENT/RESET__
+    50    CSP_UPDATE_START          - Update started
+    51    CSP_UPDATE_END            - Update finished
+    52    CSP_SEGMENT_START         - Segment started
+    53    CSP_SEGMENT_END           - Segment finished
+    54    CSP_RESET_START           - Reset started
+    55    CSP_RESET_END             - Reset finished
+    56    CSP_BACKUP_START          - Backup started
+    57    CSP_BACKUP_END            - Backup finished
+    58    CSP_UPDATES_SUSPENDED     - Updates suspended
+    59    CSP_UPDATES_RESUMED       - Updates resumed
+
+  __CLIENT CONTROL__
+    60    CSP_PING                  - Ping pong
+    61    CSP_PAUSE                 - Pause display
+
+  __SURVEY__
+    101   CSP_SURVEY_INTRO          - Planet info
+    102   CSP_SURVEY_SECTOR         - Sector info
+    103   CSP_SURVEY_END            - End of command (EOC)
+
+  __RELATION__
+    201   CSP_RELATION_INTRO        - Race # and name
+    202   CSP_RELATION_DATA         - The data
+    203   CSP_RELATION_END          - End of command (EOC)
+
+  __PROFILE__
+    301   CSP_PROFILE_INTRO         - Header, racenum gov racename
+    302   CSP_PROFILE_PERSONAL      - Personal string
+    303   CSP_PROFILE_DYNAMIC       - Updates unk capitol morale guns sran gran
+    304   CSP_PROFILE_DYNAMIC_OTHER - Any other race
+    305   CSP_PROFILE_RACE_STATS    - Typ fert br mass fight met sex exp iq tech
+    306   CSP_PROFILE_PLANET        - Temp and atmos (order unk)
+    307   CSP_PROFILE_SECTOR        - Sector prefs (order unk)
+    308   CSP_PROFILE_DISCOVERY     - Discoveries (order unk)
+    309   CSP_PROFILE_END
+
+  __WHO__
+    401   CSP_WHO_INTRO             - Header
+    402   CSP_WHO_DATA              - Actual data
+    403   CSP_WHO_COWARDS           - Send either # of cowards
+    403   CSP_WHO_END               - Or WHO_END as terminator
+
+  __EXPLORE__
+    501   CSP_EXPLORE_INTRO         - A 135 shows up here, do not know why
+    502   CSP_EXPLORE_STAR          - Name, starnum, APs
+    503   CSP_EXPLORE_STAR_ALIENS   - Racenums
+    504   CSP_EXPLORE_STAR_DATA     - 1 based plannum, planname, explored,
+    	  			      numsects, unk, unk, unk, compat, deposit,
+				      ptype
+    505   CSP_EXPLORE_STAR_END      - This star end, can be a list of many
+    506   CSP_EXPLORE_END           - End of command (EOC)
+
+  __MAP__
+    601   CSP_MAP_INTRO
+    602   CSP_MAP_DYNAMIC_1
+    603   CSP_MAP_DYNAMIC_2
+    604   CSP_MAP_ALIENS
+    605   CSP_MAP_DATA
+    606   CSP_MAP_END
+
+  __COMMUNICATION__
+    802   CSP_BROADCAST             - Broadcast
+    803   CSP_ANNOUNCE              - Announce
+    804   CSP_THINK                 - Think
+    805   CSP_SHOUT                 - Shout
+    806   CSP_EMOTE                 - Emote
+
+  __CLIENT GENERATED COMMANDS__
+    1101  CSP_LOGIN_COMMAND         - Login command
+    1102  CSP_VERSION_COMMAND       - Version command
+    1103  CSP_SURVEY_COMMAND        - Imap command
+    1104  CSP_RELATION_COMMAND      - Relation command
+    1105  CSP_PROFILE_COMMAND       - Profile command
+    1106  CSP_WHO_COMMAND           - Who command
+    1107  CSP_EXPLORE_COMMAND       - Exploration command
+    1108  CSP_MAP_COMMAND           - Map command
+    1110  CSP_SCOPE_COMMAND         - Request a prompt
+    1111  CSP_SHIPLIST_COMMAND      - Request a ship list
+    1112  CSP_STARDUMP_COMMAND      - Request a star dump
+    1113  CSP_SECTORS_COMMAND       - Request a sector count
+    1114  CSP_UNIVDUMP_COMMAND      - Request a universe dump
+
+  __XGB__ By Dan Dickey (not fully supported)
+    1501  CSP_ORBIT_COMMAND         - Orbit command
+    1502  CSP_ZOOM_COMMAND          - Zoom command
+    1503  CSP_PLANDUMP_COMMAND      - Planet dump command
+    1504  CSP_SHIPDUMP_COMMAND      - Ship dump command
+    2000  CSP_PLANDUMP_INTRO        - Planet name = 0 based plan num, planName
+    2001  CSP_PLANDUMP_CONDITIONS   - Conditions = temp, normTemp, meth, oxy,
+    	  			      co2, hyd, nit, sul, hel, other, tox?
+    2002  CSP_PLANDUMP_STOCK        - Stockpiles
+    2003  CSP_PLANDUMP_PROD         - Production last update
+    2004  CSP_PLANDUMP_MISC         - Rest of stuff
+    2005  CSP_PLANDUMP_NOEXPL       - Planet not explored
+    2009  CSP_PLANDUMP_END          - Sent when done
+    2010  CSP_STAR_UNEXPL           - Star is not explored
+    2020  CSP_ORBIT_OUTPUT_INTRO    - Orbit parameters
+    2021  CSP_ORBIT_STAR_DATA       - Star info
+    2022  CSP_ORBIT_UNEXP_PL_DATA   - Unexplored planet info
+    2023  CSP_ORBIT_EXP_PL_DATA     - Explored planet info
+    2024  CSP_ORBIT_SHIP_DATA       - Ship info
+    2025  CSP_ORBIT_OUTPUT_END      - End of command (EOC)
+    2030  CSP_SHIPDUMP_GEN          - General information
+    2031  CSP_SHIPDUMP_STOCK        - Stock information
+    2032  CSP_SHIPDUMP_STATUS       - Status information
+    2033  CSP_SHIPDUMP_WEAPONS      - Weapons information
+    2034  CSP_SHIPDUMP_FACTORY      - Factory information
+    2035  CSP_SHIPDUMP_DEST         - Destination information
+    2036  CSP_SHIPDUMP_PTACT_GEN    - General planet tactical
+    2037  CSP_SHIPDUMP_PTACT_PDIST  - Distance between planets
+    2038  CSP_SHIPDUMP_STACT_PDIST  - Distance between a ship
+    2039  CSP_SHIPDUMP_PTACT_INFO   - For a ship from a planet
+    2040  CSP_SHIPDUMP_STACT_INFO   - For a ship from a ship
+    2041  CSP_SHIPDUMP_ORDERS       - Ship orders
+    2042  CSP_SHIPDUMP_THRESH       - Ship threshloading
+    2043  CSP_SHIPDUMP_SPECIAL      - Ship specials
+    2044  CSP_SHIPDUMP_HYPER        - Hyper drive usage
+    2055  CSP_SHIPDUMP_END          - End of command (EOC)
+    3000  CSP_SHPILIST_INTRO        - General info
+    3001  CSP_SHIPLIST_DATA         - A shipno - repeats for each ship in star
+    3002  CSP_SHIPLIST_END          - Done. In case client is waiting for signal
+    4000  CSP_STARDUMP_INTRO
+    4001  CSP_STARDUMP_CONDITION
+    4002  CSP_STARDUMP_PLANET
+    4003  CSP_STARDUMP_END
+    4004  CSP_STARTDUMP_WORMHOLE
+    4010  CSP_UNIVDUMP_INTRO
+    4011  CSP_UNIVDUMP_STAR
+    4012  CSP_UNIVDUMP_END
+    4100  CSP_SECTORS_INFO
+    4101  CSP_SECTORS_END
+
+  __ERROR RESPONSES__
+    9900  CSP_ERR                   - Error
+    9901  CSP_ERR_TOO_MANY_ARGS     - Too many args
+    9902  CSP_ERR_TOO_FEW_ARGS      - Too few args
+    9903  CSP_ERR_UNKNOWN_COMMAND   - Unknown command
+    9904  CSP_ERR_NOSUCH_PLAYER     - No such player
+    9905  CSP_ERR_NOSUCH_PLACE      - No such place, scope err
+
+{{SEE ALSO}}
+  client, csp
+
+& @debug
+
+{{NAME}}
+  [0] @debug -- Set the debug level for a descriptor (admin only)
+
+{{SYNOPSIS}}
+  @debug <descriptor> [level]
+
+{{DESCRIPTION}}
+  This command sets the debug level for a particular <descriptor>. The
+descriptor for a particular user may be obtained via the @who command. The @who
+command will also list the debug level set for each descriptor. By setting the
+debug level per descriptor and not player number, logging out will turn off the
+debug level; this is intentional.
+
+  Lv  Name     Debug Output
+  --  ----     ------------
+  0   none     None
+  1   login    Login messages
+  2   general  General server messages
+  3   command  Messages from called command
+  4   handler  Messages from command handler
+  5   csp      Basic CSP command
+  6   detail   Detailed CSP commands
+  7   raw      Raw descriptor messages
+  8   all      All debugging messages
+
+{{EXAMPLES}
+  > @debug 14
+  Debug not set on fd [14]
+  > @debug 14 3
+  Debug set on fd [14] level 3
+
+{{SEE ALSO}}
+  admin, @who
+
+& @emulate
+
+{{NAME}}
+  [0] @emulta -- Become another player (admin only)
+
+{{SYNOPSIS}}
+  @emulate <racenum> <govnum>
+
+{{DESCRIPTION}}
+  This command allows the manager (god player) to become another player. It
+requires both the race number and governor number. Once you're emulating another
+player you're able to act as that player (so be careful). This command is mainly
+used to replicate problems that other players report. To return to the god
+player simply: @emulate 1 0
+
+{{EXAMPLE}}
+  > @emulate 4 0
+  Emulating Rednecks "BillyBob" [4,0]
+
+{{SEE ALSO}}
+  admin
+
+& exship
+
+{{NAME}}
+  exship -- Inspect ship datafile for errors and/or discrepencies
+
+{{SYNTAX}}
+  exship [#] { from UNIX shell only }
+
+{{SUMMARY}}
+  If invoked with zero arguments, it will open the ship datafile and go through
+looking for obvious errors and correct them. If invoked with a ship number it
+will print out a very verbose listing of the requested ship. This may be run
+regularly as a cron job or periodically from the UNIX shell.
+
+{{DESCRIPTION}}
+  This is a small utility to examine the ship database for Galactic Bloodshed.
+It can be used in two ways:
+    a: Run exship with no arguments, and it will scane through the entire
+       database, looking for ships whose cargo exceeds the maximum allowed.
+    b: Run exship with a ship number and it will display a more verbose listing
+       of the ships.
+
+  The following are sample outpus from both cases...
+
+    bash%: exship
+    number of ships in database is 5
+    Problem with ship number 1
+                  Owner: 1
+		  Governor: 0
+		  Name: Tester
+		  Type: @
+
+                  popn: 10         max_popn: 10
+		  troops: 0        max_troops: 10
+           -----> resources: 600   max_resources: 500
+	          destruct: 100    max_destruct: 100
+		  fuel: 1000       max_fuel: 1000
+		  speed: 0         max_speed: 0
+		  hanger: 0        max_hanger: 0
+    I found a total of 1 bad ships our of 5
+    All Done
+
+  -----
+  As you can see there is a problem with wth ship [denoted by the ----->] in
+which the ship has more resources loaded then it should have. It also at the top
+of the screen will display the number of ships in the database.
+
+  When run with an argument, it displays a short formatted output of the ship:
+
+    bash%: exship 1
+    Number of ships in database is 5
+    Ship Number: 1  Ship Type: @    Ship Owner: 1   Ship Governor: 0
+    Ship Name: Tester
+
+    Crew: 10          Troops: 0             Armor: 20
+    Size: 25          Base Mass: 100.0      Base Tech: 100.0
+    Destruct: 100     Resources: 600        Crystals: 0
+    Fuel: 4.1f
+
+    Guns:   Primary: 10 L
+          Secondary: 10 L
+
+    Fleet: 0 (@)
+
+    Nextship: 2              (ALIVE)
+    All done
+
+  -----
+  Compiling information:
+    This program has only been tested on a Sun running Sun OS 4.1.1, and
+    compiled successfully with the Sun compile and gcc 1.42.
+
+    Compile with the following line:
+      gcc -I/work/GB/hdrs -g -o exship exship.c
+
+    but change /work/GB/hdrs to be the location where the compiler can find the
+    ships.h and shipdata.h files. (These file are part of the GB release)
+
+  This is something I hacked together very very quickly to just fix a few
+problems with the database. It is not meant to be a catch all for database
+problems. If I have some time in the future, I will add new bells and whistles.
+Feel free to modify this source, and if you make any improvements, please email
+them back to me, so I can merge them into the next version.
+
+  John Paul Deragon
+  deragon@jethro.nyu.edu
+  Fri Jan  1 21:59:49 EST 1993
+
+{{SEE ALSO}}
+  admin
+
+& @fix
+
+{{NAME}}
+  [0] @fix -- Alter conditions on sector/planet/ship/star (admin only)
+
+{{SYNOPSIS}}
+  @fix <what> <attribute> <value>
+
+{{DESCRIPTION}}
+  @fix changes the attributes of a planet, ship, race, or star. These can be
+altered by typing in the type of object, an attribute (specific for that object)
+and the new value. The admin must "cs" to the object (including ships) being
+altered. For example, if the admin wishes to fix a sector, the current scope
+must be that planet. This command was included to counteract bugs.
+  Values of <what> := sector | planet | ship | star
+  For <what> == sector, <attribute> := res | mob | owner | popn | eff | fert
+      	     			       | mil | cond
+  For <what> == planet, <attribute> := Maxx | Maxy | xpos | ypos | ships
+      	     			       | sectormappos | rtemp | temperature
+				       | methane | oxygen | co2 | hydrogen
+				       | nitrogen | sulfur | helium | other
+				       | toxic | population
+  For <what> == ship, <attribute> := fuel | max_fuel | destruct | resource
+      	     	      		     | damage | alive | dead | destroyed |ships
+				     | nextship | owner | hanger
+  For <what> == star, <attribute> := ships | stab | nova | temp | grav
+
+{{EXAMPLES}}
+  @fix sector x y mob 10     - Change mobility of x,y to 10
+  @fix sector x y owner 1    - Change ownership of sector to god
+  @fix sector x y popn 10    - Change population of x,y to 10
+  @fix sector x y eff 10     - Change efficiency of x,y to 10
+  @fix sector x y vert 10    - Change fertility of x,y to 10
+
+  @fix planet Maxx           - Change the size (dimension) of the planet
+  @fix planet Maxy           - Change the size (dimension) of the planet
+  @fix planet xpos           - Move the planet's current position in the solar system
+  @fix planet ypos           - Move the planet's current position in the solar system
+  @fix planet ships          - First ship in the scope's linked list
+  @fix planet sectormappos   -
+  @fix planet rtemp 60       - Sets normal temp to 60
+  @fix planet temp 70        - Sets current temp to 70
+  @fix planet methane 2      - Sets methane to 2%
+  @fix planet oxygen 21      - Sets oxygen to 21%
+  @fix planet co2 6          - Sets co2 to 6%
+  @fix planet hydrogen 10    - Sets hydrogen to 10%
+  @fix planet nitrogen 55    - Sets nitrogen to 55%
+  @fix planet sulfur 1       - Sets sulfur to 1%
+  @fix planet helium 4       - Sets helium to 4%
+  @fix planet other 1        - Sets other to 1%
+  @fix planet toxic 100      - Sets toxic level to 100
+  @fix planet population 100 - Sets total planet population to 100
+
+  @fix ship fuel 80          - Gives ship 80 fuel units
+  @fix ship max_fuel 100     - Sets ship max fuel to 100
+  @fix ship destruct 20      - Gives ship 20 destruct
+  @fix ship resource 20      - Gives ship 20 resource
+  @fix ship damage 10        - Sets damage to 10
+  @fix ship nextship 0       - Sets nextship in scope to 0 (end of list)
+  @fix ship alive            - Resurrects dead ships
+  @fix ship dead             - Ship destroyed
+  @fix ship owner 2          - Sets ship ownership to race 2 (gov 0)
+
+  @fix star ships 2112       - Set first ship in scope array to #2112
+  @fix star nova 2           - Set the nova stage to the 2nd phase
+
+{{SEE ALSO}}
+  admin
+
+& @freeships
+
+{{NAME}}
+  [0] @freeships -- Comand for maintaining the free ships list (admin only)
+
+{{SYNOPSIS}}
+  @freeships <what>
+
+{{DESCRIPTION}}
+  @repair fixes certain variables in memory that may become confused.
+  Values of <what> := reinit | show
+
+{{EXAMPLES}}
+  @freeships reinit - Reinitializes the free ships list
+  @freeships show   - Shows the first ship in the freeships list
+
+{{SEE ALSO}}
+  admin
+
+& @garble
+
+{{NAME}}
+  [0] @garble -- Set the chat and static levels (admin only)
+
+{{SYNOPSIS}}
+  @garble <0|1|2> [1|2|3|4]
+
+{{DESCRIPTION}}
+  Garbled chat is a concept created by Clay Luther for his HAP server. It's been
+ported to GB+ (by Mike Wilkinson) and changed only slightly (now works with
+stargrams, emotes, and block messages). The idea is fairly interesting: if your
+race is not familiar with another race then how are they able to cross the
+language barrier? Garbled chat simulates this by replacing words in
+communications with random, nonsense words, based on your race's knowledge
+percent of the other race.
+  There are two types of communication considered in garbled chat, announcement
+types (broadcast, announce, emote), and message types (send). Shouts and thinks
+are not affected. When setting the chat level (first arg, 0-2), a level of 0
+disables all announcements types, however, still permits messages. Chat level 2
+allows free communication for all types without garbling any announcements or
+messages. The interesting one is chat level 1, when this is specified words are
+translated or converted to 'static'. Only announcement types are affected by
+static, message types are not. Words are translated based on the race's
+knowledge of the other race, and the amount of static is based on the second
+argument (1-4), from excellent transmission quality to poor transmission
+quality.
+  To illustrate this effect, lets say the chat leve is set to 1 and the static
+level to 2 and a race broadcasts the following:
+    bro Hey, does anyone have fuel they can trade for destruct?
+A race that knows the broadcaster 50% may see:
+    Smogbol "LordHuldep" [3,0] > Hey, dulegh anyone daqtagh **** then can *****
+    +hehgtay destruct?
+  When setting up your game, look in tweakables.h for the DEFAULT_CHAT variable
+and set the chat level you'll be using in your game (for possible values see
+vars.h). The static level initially starts at 1 and is randomly determined at
+each turn (update/segment). When translating, words are taken from the
+garble.dat file. If you want to use your own garble.dat file you must first run
+the makewords.pl script on it, this speeds up access to the file by allowing
+direct access to the words, rather than sequential access.
+
+{{EXAMPLES}}
+  @garble 0   - Disable all chatting (announce, broadcast, and emote)
+  @garble 1 1 - Translated chat with no static
+  @garble 1 2 - Translated chat with some static
+  @garble 1 3 - Translated chat with moderate static
+  @garble 1 4 - Translated chat with lots of static
+  @garble 2   - Free chat, no translation or static
+
+{{SEE ALSO}}
+  admin
+
+& gbctl
+
+{{NAME}}
+  gbctl -- Script to manage GB processes
+
+{{SYNTAX}}
+  gbctl <start|stop|restart|status> { from UNIX shell only }
+
+{{DESCRIPTION}}
+  This is a simple Bourne rc script that is used to start and stop the GB
+processes (GB_guardian, GB_server, and GB_racegen). When using this script to
+start the processes, only the guardian and racegen processes are started; the
+guardian starts the GB server. When stopping hte processes all three processes
+are sent the TERM signal. The 'restart' command does both a 'start' and 'stop'.
+'status' simply shows a ps of the relevant processes. By default this script
+sets the ulimit for core files to unlimited, if this is undesired this value
+should be changed in the script.
+
+{{SEE ALSO}}
+  guardian, racegen, admin
+
+& gbwho
+
+{{NAME}}
+  gbwho -- Offline 'who' command for GB server
+
+{{SYNTAX}}
+  gbwho [-d] { from UNIX shell only }
+
+{{DESCRIPTION}}
+  This is a perl script that displays the players logged into the server. It
+uses the Logs/user.log file to determine who's connected.
+
+{{EXAMPLE}}
+  foo:~$ gbwho
+  2 Users Connected:
+  Con  User    Race Name        Gov Name          On Since        IP Addr
+  ---  ------  ---------------  ----------------  -------------   --------------
+  D11  [01,0]  OverLord         Mike              4/26 16:57:11   127.0.0.1
+  D12  [10,0]  Smogbol          LordHuldep        4/26 16:47:22   10.0.0.86
+
+{{SEE ALSO}}
+  admin
+
+& guardian
+
+{{NAME}}
+  guardian -- Program to guard the GB_server process from crashes.
+
+{{SYNTAX}}
+  GB_guardian { from UNIX shell only }
+
+{{DESCRIPTION}}
+  This program starts the GB_server and guards it against crashes. If the
+GB_server crashes, and email message is generated and sent to the admin
+notifying them of the crash and the crash is logged in the guardian's log file,
+then 60 seconds later the guardian attempts to restart the GB_server. If the
+GB_server crashes more than 5 times the guardian will not attempt further
+restarts. If a core file is generated the guardian will move it out of the way
+(with a date stamp) before restarting the GB_server. The guardian is usually
+started with the gbctl script.
+
+{{SEE ALSO}}
+  gbctl, admin
+
+& @last
+
+{{NAME}}
+  [0] @last -- Show the last time and IP a player connected (admin only)
+
+{{SYNOPSIS}}
+  @last <race> <governor>
+
+{{DESCRIPTION}}
+  This command simply shows the last time a player connected and from what IP
+they connected from. This is mainly used for debugging connection problems.
+
+{{EXAMPLES}}
+  > @last 3 0
+  OverLord "Mike" [3,0]
+  From host: 192.169.004.016
+  Last seen: Tue Feb  8 10:33:56 2005
+
+{{SEE ALSO}}
+  admin
+
+& @list
+
+{{NAME}}
+  [0] @list -- Lists ships in the current scope (admin only)
+
+{{SYNOPSIS}}
+  @list
+
+{{DESCRIPTION}}
+  This command will list all ships in the current scope and show the type, ship
+number, ship name (if any), owner number, the next ship in the linked list
+(ships are inserted at the top of the list), and if the ship is marked as dead.
+  Ships dislayed are only in the current scope, that is, if you execute this
+command at the system scope you will not see ships in the various planetary
+scopes. This command is mainly used to debug the ship database.
+
+{{EXAMPLES}}
+  > @list
+  Governmnt. Center #2 '' (pl 2) -> #0
+
+{{SEE ALSO}}
+  admin, exship
+
+& makeindex
+
+{{NAME}}
+  makeindex -- Construct index files for GB File Viewer
+
+{{SYNTAX}}
+  makeindex <bundle> { from UNIX shell only }
+
+{{DESCRIPTION}}
+  Galactic Bloodshed File Indexer
+  This program takes an ASCII file with a .txt extension, looks for index
+markers, then creates an accompanying .idx file. This speeds up lookups in an
+information file where it can jump directly to a marking in the file.
+  The index marker is of the form: & string
+  Where it's at the beginning of the line and on it's own line, 'string' may be
+any keyword used in the lookup.
+  So to use this, for example, you'd created a file named foo.txt with the
+following data:
+    & foo
+    This file is an example on how to use the GB indexed, it has two items
+    as an example: 'easy' and 'cake'
+    & easy
+    This is easy
+    & cake
+    as cake!
+  Then after you've created this file run: makeindex foo
+  This will take the foo.txt file and create foo.idx. Later, if you make any
+changes to the txt file you'll need to re-run makeindex to recreate the position
+index.
+  Within the GB server you can access these files with the do_idx function. See
+how I've used it with the 'faq' for an example.
+
+  -Michael F. Wilkinson (mfw) 03/18/05
+
+{{SEE ALSO}}
+  faq, admin
+
+& makelist
+
+{{NAME}}
+  makelist -- Utility to consolidate stellar object name lists
+
+{{SYNTAX}}
+  makelist oldlist addlist > newlist { from UNIX shell only }
+
+{{DESCRIPTION}}
+  Galactic Bloodshed Planet List Consolidator
+  This program takes a list of planets and alphabetizes them and then takes the
+addlist and tries to unique planet names up to NUM_CHARS (as defined in the
+source code), if it can. Otherwise, it informs which name is being ommitted and
+what name caused the clash.
+
+{{SEE ALSO}}
+  admin
+
+& makeuniv
+
+{{NAME}}
+  makeuniv -- Construct data files for "Galactic Bloodshed"
+
+{{SYNTAX}}
+  makeuniv [-a] [-b] [-d] [-e E] [-l MIN] [-m MAX] [-p] [-s N] [-v] [-w C] [-x]
+    { from UNIX shell only }
+
+{{DESCRIPTION}}
+  This command constrcuts the data files used in the game. The admin runs this
+command to create the 'universe' for the game; it's the first command run after
+installing the software. Makeuniv accepts a number of optional arguments, if not
+specified on the command line it'll prompt for them:
+    -a      Autoload star names.
+    -b      Autoload planet names.
+    -d      Use smashup (asteroid impact) routines.
+    -e E    Make E% of the stars have no planets.
+    -l MIN  Other systems will have at lesat MIN planets.
+    -m MAX  Other systems will have at most MAX planets.
+    -p      Create postscript map file of the universe.
+    -s N    The universe will have N stars.
+    -v      Do not print info and map of planets generated.
+    -w C    The universe will have C wormholes.
+    -x      Do not print info on stars generated.
+  Makeuniv requires the number of stars, which cannot exceed the maximum listed
+there without dire consequences. It also requires a lower and upper range of
+planets that the program will not exceed, and the name of each star system and
+planet. Makeuniv asks if yo uwant to use the star.list and planet.list files to
+pull the names from, if not, you'll be prompted for each one, so it's highly
+recommended to that you use these lists. If you want to add your own custom
+names you'll want to use the 'makelist' program to merge your custom names into
+these files.
+  WARNING: Makeuniv will destroy any game previousl in operation.
+
+{{SEE ALSO}}
+  admin
+
+& makewords
+
+{{NAME}}
+  makewords -- Outputs a uniform length list of words
+
+{{SYNTAX}}
+  makelist wordlist > garble.dat { from UNIX shell only }
+
+{{DESCRIPTION}}
+  Garbled communication requires a 'garble.dat' file containing words that will
+be substituted during 'translated chat' mode.
+  This perl script takes a list of words and appends '%' to each word to bring
+them to the same length. The reason for making the works the same length is for
+speedy word lookups when using garbled communication. The UNIFORM_FILLER
+character defined in tweakables.h must match what this perl script appends to
+each word.
+
+{{SEE ALSO}}
+  @garble, admin
+
+& @purge
+
+{{NAME}}
+  [0] @purge -- Purge news files (admin only)
+
+{{SYNOPSIS}}
+  @purge
+
+{{DESCRIPTION}}
+  Occasionally the news files in the news directory can become overfilled with
+old news items no-longer of interest. The "Galactic News" should be purged from
+time-to-time. this command will empty and zero out all four news files:
+announce, combat, declaration, and transfer.
+
+{{EXAMPLES}}
+  > @purge
+  News files purged.
+
+{{SEE ALSO}}
+  admin
+
+& @query
+
+{{NAME}}
+  [0] @query -- List client CSP knowledge (admin only)
+
+{{SYNOPSIS}}
+  @query <descriptor>
+
+{{DESCRIPTION}}
+  This command lists all the CSP commands that the client application connected
+to <descriptor> knows about (as sent by the client's CSP_KNOWLEDGE command).
+This is primarily for debugging client applications. The output is fairly raw
+(intended to be) so likely you'll need to cross-reference with the csp2 help
+page (q.v.). To get the descriptor number use the @who help page.
+
+{{NOTE}}
+Client initiated CSP commands might not be returned.
+
+{{EXAMPLES}}
+  > @query 11
+  Descriptor [11]: 10 11 30 31 32 40 50 51 52 53 54 55 56 57 58 59 60 101 102
+  103 201 202 203 301 302 303 304 305 306 307 308 309 401 402 403 501 502 503
+  504 505 506 512 601 602 603 604 605 606 899
+
+{{SEE ALSO}}
+  admin, csp, csp2, @who
+
+& @repair
+
+{{NAME}}
+  [0] @repair -- Command for repair of some running variables (admin only)
+
+{{SYNOPSIS}}
+  @repair <what>
+
+{{DESCRIPTION}}
+  @repair fixes certain variables in memory that may become confused.
+  Vales of <what> := freeships | schedule
+
+{{EXAMPLES}}
+  @repair freeships - Rebuilds the free ships list
+  @repair schedule  - Rereads the Update.time and Segment.time files
+
+{{SEE ALSO}}
+  admin
+
+& @reset
+
+{{NAME}}
+  [0] @reset -- Reread the data information (admin only)
+
+{{SYNOPSIS}}
+  @reset
+
+{{DESCRIPTION}}
+  This command performs a data reset, meaning all information is re-read from
+the disk without first saving the data. This will destroy any data that has not
+been written out to disk; be careful with this command! This command is mainly
+used to counter broken linked lists. Notice of the reset is pushed out to all
+connected players.
+
+{{EXAMPLE}}
+  > @reset
+  DOING RESET...
+  RESET DONE...
+
+{{SEE ALSO}}
+  admin
+
+& @schedule
+
+{{NAME}}
+  [0] @schedule -- Sets update and/or segment schedule (admin only)
+
+{{SYNOPSIS}}
+  @schedule <reread|repair|updates|segments|shutdown> <time|amount>
+
+{{DESCRIPTION}}
+  This command can force a reread of the schedule.cfg file, this is it's primary
+purpose. However, if you need to modify the next update time, or segment this
+command can change the update and segment times that were orginally coded in at
+compile time. However, if/when the server is rebooted the original schedule will
+be in place. So this command only affects the current running GB process. Use
+the 'schedule' command to view the current implemented schedule.
+
+{{EXAMPLES}}
+  You want the next update to occur in 720 minutes with 2 segs per update, use:
+    > @schedule updates 720
+    Setting update time to 720
+    > @schedule segments 2
+    Number of segments set to 2
+    > @schedule repair
+    repairs the schedule from the Update.time and Segment.time files
+
+{{SEE ALSO}}
+  admin, schedule
+
+& @segment
+
+{{NAME}}
+  [0] @segment -- Force a segment to occur (admin only)
+
+{{SYNOPSIS}}
+  @segment
+
+{{DESCRIPTION}}
+  This command forces the next segment to happen immediately. The schedule is
+updated.
+
+{{EXAMPLE}}
+  > @segment
+  DOING SEGMENT...
+  SEGMENT DONE...
+
+{{SEE ALSO}}
+  admin, @update, schedule
+
+& @shutdown
+
+{{NAME}}
+  [0] @shutdown -- Shutdown the server (admin only)
+
+{{SYNOPSIS}}
+  @shutdown
+
+{{DESCRIPTION}}
+  This command immediately brings down the GB_server from in-game. If the
+GB_guardian process was used to start GB_server then GB_guardian will be shut
+down as well so as to not automatically restart the GB_server. It's also polite
+to notify all logged in users of the pending shutdown, you can use the 'shout'
+command to do this.
+  Although the 'gbctl' script may be used to bring down the GB_server process,
+this is not advieable. 'gbctl' uses the OS kill command which will not do memory
+cleanup properly like @shutdown will.
+
+{{EXAMPLE}}
+  > @shutdown
+  -- Game closed.
+
+{{SEE ALSO}}
+  gbctl, guardian, admin, shout
+
+& @suspend
+
+{{NAME}}
+  [0] @suspend -- Suspend updates and segments (admin only)
+
+{{SYNOPSIS}}
+  @suspend
+
+{{DESCRIPTION}}
+  This command toggles suspension of updates and segments. When suspended the
+'schedule' command lets users know. GB my be suspended in one of two ways, via
+this command, or adding a 'nogo' file in the top-level directory of GB. There is
+a slight difference between the two methods. When using the 'nogo' method,
+updates and segments are simply skipped at their normal times. The @suspend
+method 'holds back' updates and segments.
+
+{{EXAMPLES}}
+  @suspend - Suspend updates and segments
+  @suspend - Unsuspend updates and segments
+
+{{SEE ALSO}}
+  admin
+
+& @update
+
+{{NAME}}
+  [0] @update -- Force an update to occur (admin only)
+
+{{SYNOPSIS}}
+  @update
+
+{{DESCRIPTION}}
+  This command forces the next update to happen immediately. The schedule is
+updated. Keep in mind that a segment happens with an update; this command runs
+the next segment as well.
+
+{{EXAMPLE}}
+  > @update
+  DOING UPDATE...
+  UPDATE DONE... 2
+
+{{SEE ALSO}}
+  admin, @segment, schedule
+
+& @uptime
+
+{{NAME}}
+  [0] @uptime -- Shows the time since last boot (admin only)
+
+{{SYNOPSIS}}
+  @uptime
+
+{{DESCRIPTION}}
+  This command shows the days, hours, minutes, and seconds since the GB+ server
+was last started.
+
+{{EXAMPLE}}
+  > @uptime
+  4 days, 8 hours, 15 minutes, 16 seconds.
+
+{{SEE ALSO}}
+  admin
+
+& @who
+
+{{NAME}}
+  [0] @who -- Vital information regarding connections (admin only)
+
+{{SYNOPSIS}}
+  @who
+
+{{DESCRIPTION}}
+  Unlike the 'who' command, '@who' displays information regarding connections
+that is more of use to the admin (god) of the game.
+  The @who command displays the following information (in order):
+    Descriptor Number
+    Race and Governor Name
+    Race and Governor Numbers
+    Connection and Idle Times
+    Current Player Scope
+    Gag and Invisible Flags
+    Source IP Address
+    Debug Level
+
+{{EXAMPLE}}
+  > @who
+  Current Players Mon Apr 21 08:47:30 1997
+  10:     Simpsons "Homer"     [03,0]  1514sC/ 245sI Woos G  129.024.016.102  3
+  11:     OverLord "Mike"      [04,0]    10sC/   5sI Hype    129.123.008.043  0
+  14:     God "Ignatius"       [01,0]   229sC/  46sI Proc  I 127.000.000.001  0
+  16:     Guestians "Guest3"   [02,2]  2134sC/   0sI Gala    129.024.016.102  0
+
+{{SEE ALSO}}
+  admin, who
+
+& psmap
+
+{{NAME}}
+  psmap -- Create a postscript file of the map of the 'universe'
+
+{{SYNTAX}}
+  psmap < stars.out { from UNIX shell only }
+
+{{DESCRIPTION}}
+  This command takes the output from the 'stars' command and creates a
+postscript map suitable for printing on any PostScript(r) capable printer. Rings
+are spaced at intervals from your home system to represent distance. Your home
+system is also presented in bold.
+
+{{SEE ALSO}}
+  admin, stars
+
+& shout
+
+{{NAME}}
+  [0] shout -- Send a message to all logged in players (admin only)
+
+{{SYNTAX}}
+  shout <message>
+
+{{DESCRIPTION}}
+  This is a priviliged god-only command. It sends a message to all players
+logged in whether or not they are gagged. This command is typically used for
+emergencies, like notifying players of impending shutdown, etc.
+
+{{SEE ALSO}}
+  broadcast, communications, admin
+
+& @vnbrain
+
+{{NAME}}
+  [0] @vnbrain -- Get information on current VN behavior
+
+{{SYNOPSIS}}
+  @vnbrain [vn number]
+
+{{DESCRIPTION}}
+  The @vnbrain command gives you particulars on the current state of the VN
+brain (the collective state) or the state of the mind of each VN ship (the
+machines or the berserkers).
+
+{{EXAMPLES}}
+  > @vnbrain
+  VN Brain --
+    Total Mad: 164
+    Deathtoll: 50
+    Most Mad:  7
+
+  > @vnbrain #3101
+  Von Neumann Mind for V3101:
+    Progenitor: 1    Generation: 8
+    Busy: yest       Target: 7
+    Who Killed: 0    Tampered: no
+
+{{SEE ALSO}}
+  admin
