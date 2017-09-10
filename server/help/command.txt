@@ -1,0 +1,3313 @@
+& command
+
+{{SUBJECT}}
+  Help for Galactic Bloodshed commands
+
+{{SYNOPSIS}}
+  Use
+    'help command list'  -- For an itemized list of commands
+    'help command index' -- For an alphabetized summary of commands
+  Or 'help command <topic>' where 'topic' is any of the following:
+
+& allocate
+
+{{NAME}}
+  allocate [0] -- Transfer global action points to star system
+
+{{SYNTAX}}
+  allocate <action points>
+
+{{DESCRIPTION}}
+  The allocate command transfers global action points to a star system. The one
+return parameter is the number of APs to transfer and this value must be a
+positive integer. Upon executing the command this amount will be transferred to
+the star system of the current scope. The scope can be set to a planet or lower,
+but allocate will not work from the universe (or root, '/') scope. The maximum
+number of APs you can have at the global and star system levels is a constant
+determined by the deity. The default value for this maximum is 255.
+  Once executed, this command can not be reversed. Action points can only be
+transferred from the global level to a stellar level, not vice versa.
+
+{{EXAMPLE}}
+  allocate 10 (Transfers 10 APs from the global level to a star system's AP
+               store)
+
+{{SEE ALSO}}
+  actionpoints
+
+& analysis
+
+{{NAME}}
+  analysis [0] -- Provide sector report for planet
+
+{{SYNTAX}}
+  analysis [[-] [<sector type>] [<race #>] [<scope>]]
+
+{{DESCRIPTION}}
+  Use analysis to obtain a detailed listing of the highest or lowest five
+sectors in each sector category and a summary of holdings, yours and alien, on
+the planet. The sector categories reported are troops, resources, efficiency,
+fertilization, mobilization, population, and population capacity. You can not
+analyze a planet you have not explored or have received information about.
+  If a '-' is specified, the lowest five sectors will be reported. All
+additional parameters are completely optional, but when specified, restrict the
+type of sector reported:
+    sector type    Reports only sectors of specified type. The sector types is
+    	   	   specified by the character used to represent the terrain of
+		   the sector and must be from the set of characters:
+		     . * ^ ) # d o % ~
+		   ('d' is used to denote desert sectors to avoid confusion with
+		   the leading '-' in the analysis command.)
+    race #	   Reports only sectors belonging to the specified race.
+    scope	   If a planet's scope is specified, that planet's sectors will
+    		   be analyzed and reported. If a star scope is specified, all
+		   explored planets in the specified star system will be
+		   reporter. If no scope is specified, the current scope will be
+		   used.
+
+{{EXAMPLE}}:
+  analysis       (Produce analysis from all sectors of planet of the current
+  		  scope)
+  anaylsis - # 7 (Produce analysis from lowest 5 ice sectors owned by player 7
+  	       	  of the planet in the current scope)
+
+{{SEE ALSO}}
+  survey, map
+
+& announce
+
+{{NAME}}
+  announce [0] -- Send message to other races in a star system
+
+{{SYNTAX}}
+  announce <message>
+
+{{DESCRIPTION}}
+  This command is used to communicate with other races in a star system. If your
+current scope is set to a star system or lower, and you inhabit this particular
+system (a ship is enough), a message is sent to all other races who inhabit this
+system, provided that their current scope also includes this system.
+  If you do not inhabit the system, an error message is returned informing you
+of the situation. If your current scope is at the universe (or root '/) level,
+announce is identical to the broadcast command.
+
+{{EXAMPLE}}
+announce Is there anybody out there? (Send a message to all races inhabiting a
+	    	  	      	      a star system whose current scope includes
+				      that system)
+
+{{SEE ALSO}}
+  communications, broadcast, think, post
+
+& appoint
+
+{{NAME}}
+  appoint [0] -- Initialize governor position and assign a password
+
+{{SYNTAX}}
+  appoint <governor #> <name> <password> <rank>
+
+{{DESCRIPTION}}
+  This command initializes and assigns a name and password for a new governor
+for your race. The governor number must be a currently inactive spot. Use the
+governors command to check the status of your governor positions. If a position
+is labeled ACTIVE, but is not in use anymore and you with to re-initialize the
+spot, use the revoke command to free the position before executing appoing for a
+new governor.
+  Rank is one of these:
+    novice  - Can communicate and gets general game info (post, victory, ...)
+    private - Like novice + general race info (power, colonies, ...)
+    captain - Like private + ship and combat commands (build, fire, assault, ...)
+    general - Almost as powerful as leader
+  If rank is not specified, governor will be private.
+
+{{EXAMPLE}}
+  appoint 1 Stan blahblah general (Appoint a new general governor named 'Stan'
+  	    	 	  	   to position 1 with password 'blahblah')
+
+{{SEE ALSO}}
+  governors, revoke, grant, rank, promote
+
+& arm
+
+{{NAME}}
+  arm [0] -- Convert civilian population to military units
+
+{{SYNTAX}}
+  arm <sector x,y> [<# of civs to arm>]
+
+{{DESCRIPTION}}
+  The arm command transforms civilians into miliary units. The current scope
+must be a planet and sector coordinates must be specified. This maximum number
+able to be armed is given by the fomula:
+    maxarm = planet destruct * ((2 * sector mobilization) + 1)
+but can not exceed the population of the sector; e.g. if you have 20d on a
+planet and the sector's mobilization is 5, a total of 220 civs could be armed.
+If you specify a number of civs to arm greater than maxarm, only maxarm will be
+armed. If the number of civs to convert is not specified, maxarm or the total
+population of the sector is armed, whichever is less.
+  Arming a sector also costs money. The method used to compute the total cost of
+arming is selected by the deity before the game begins. Typical methods charge a
+constant amount (default is 5) per unit armed, or charnge money equal to the
+race's fight characteristic per unit armed. The default method is to use the
+fight characteristic; e.g. if you armed 120 civs whose fight value is 6, you
+need 720 money to arm them. If you do not have the required amount of money to
+arm the number you specify, no civs will be armed.
+  Use the disarm command to reverse the transformation. Destruct used to arm is
+lost and is not regained by the used of disarm.
+
+{{EXAMPLE}}
+  arm 1,5 20 (Arm 20 civs from sector 1,5; will cost
+      	      20 / ((sector mob * 2) + 1) destruct and (20 * 5) money)
+
+{{SEE ALSO}}:
+  miliatry, destruct, disarm, mobilize
+
+& assault
+
+{{NAME}}
+  assault [1] -- Attempt a capture of an enemy ship in space
+
+{{SYNTAX}}
+  assault [#]<boarding ship #> [#]<target ship #> [<boarders [civ | mil]]
+
+{{DESCRIPTION}}
+  An assault attempts to dock with and capture an alien ship. You must specify
+your attacking ship and the target ship. You may also specify the number of
+units to use in the boarding. If you do not specify this number, the maximum
+number of military units on your ship will be used. If you specify a number to
+board, the type of units can also be specified, civilian or miliatry. If you do
+not specify this fourth argument, the boarders will be miliatyr units (see NOTE
+below, though).
+  Both ships that you specify must be in the same scope and must be within a
+minimum docking distance of each other set by the deity (the default value is
+10). An assault includes a small maneuver by the boarding ship and it must have
+sufficient fuel for the move:
+    fuel = 0.05 + ((0.05 * dist) * sqrt(ship mass))
+  Before the actual assault occurs, the defending ship will get a chance to fire
+its defensive weapons. The details about defensive fire can be found under the
+command fire. If neither ship is destroyed in this phase, your ship docks with
+the target and the assault will occur. Along with unit casualties, ships will be
+damaged in the assault and may be destroyed. If both ships remain and you have
+eliminated all enemy crew on the target ship, you gain control of the ship and
+your boarding party moves in. If you fail to kill the entire crew, your assault
+is repulsed and your units retreat back to the boarding ship.
+  If you success in gaining contorl of the enemy ship, you get morale point
+equal to the ship's build cost and the former owner loses this amount. If you
+must retreat, the enemy gains morale equals to your race's Fight, and you loose
+this amount. You also gain information about the race you are attacking,
+especially if you are successful.
+  NOTE:
+  ** If you have no military units aboard your ship and do not explicitly
+  specify civilians for the assault, you will receive a message that you have no
+  troops to board with. The assault command always assumes military units unless
+  you specify the number and type 'civ'.
+  ** You can not use a docked ship or a ship in a hanger for the boarding ship.
+  ** You can not use pods or terraformers for boarding with the assault command.
+
+{{EXAMPLE}}
+  assault #453 #998  (Assault ship #998 with ship #453 with all military units
+  	       	      onboard)
+  assault #1202 #309 5 civ  (Assault ship #309 with ship #1202 with 5 civilians)
+
+{{SEE ALSO}}
+  combat, dock, fire
+
+& autoreport
+
+{{NAME}}
+  autoreport [0] -- Toggle automatic update reports from a planet
+
+{{SYNTAX}}
+  autoreport <planet>
+
+{{DESCRIPTION}}
+  This command toggles the automatic reporting feature of a planet. The single
+parameter is optional, but must be a valid planet scope if specified. If not
+specified, the current scope must be a planet.
+  When autoreport is set for a planet, a telegram will be sent at each update to
+the planet owner describing the production, discoveries, and status of the
+planet. To avoid an overflow of unread telegrams, the reports will only be sent
+for a set number of updates after the autoreport command is executed. This
+number can be changed by the deity, but the default value causes the planet to
+report to the owner for seven updates before automatically shutting off. If you
+wish the reports to continue, you must execute autoreport again.
+
+{{SEE ALSO}}
+  colonies
+
+& bid
+
+{{NAME}}
+  bid [0] -- List market items and make a bid
+
+{{SYNTAX}}
+  bid [ <resource_type> | <lot #> <bid> ]
+
+{{DESCRIPTION}}
+  Use the bid command to check the Galactic Bloodshed Commodities Market for
+current resources being sold or to place a bid on one of the lot numbers.
+Without arguments, this command lists all the lots currently on the market. If
+you specifiy a commodity type as a single argument (r, f, x, d), you will get a
+list of only those lots selling that commodity. When you decide to place a bid,
+specify both the lot number and the amount you wish to offer; you must have the
+money before you place the bid. The money will not be subtracted from your
+account until you win the bid and the goods are solde to you -- you must still
+have enough money then! The race with the higest bid on the second update after
+the lot appears on the market wins the bidding. A lot will have a '*' next to
+it's lot number if it has been on the market for one update -- it will be sold
+the following update.
+  When you place a bid, you must be at a planet scope and that planet be under
+your control. Furthermore, you must have a ship which is able to receive
+shipments on or in orbit around the planet. Currently, only five ships can serve
+as shipping docks: @, a government center; S, a station; H, a habitat; J, a
+space port; and !, a god-ship. Upon winning a bid, the goods will be delivered
+to this scope.
+  With the defaults, you must bid 10% higher than the previous bid on a lot for
+your offer to be accepted, but this value can be changed by the deity. You will
+be notified if you have been outbid by another player. Keep in mind that there
+is also a shipping charge for the transfer of the commodity. If you can not pay
+the shipping on the update when the lot is sold to you, your race will lose
+morale equal to the amount you are short, divided by ten -- this loss is
+equivalent to the moral loss when you are unable to maintain your ships and
+troops. This shipping charge is given by the formule:
+    shipping = (1.0 - Exp(-(rdist / dc))) * bid
+Where rdist is the distance between the bidder and seller star systems, rounded
+to the 10000s (e.g. 435304 -> 430000), and dc is a distance constant set by the
+deity (the default is 200000).
+
+{{EXAMPLE}}
+  bid d        (List all lots selling destruct)
+  bid 5 10000  (Bid 10000 on lot number 5)
+
+{{SEE ALSO}}
+  money, sell
+
+& block
+
+{{NAME}}
+  block [0] -- Display list of power blocks
+
+{{SYNTAX}}
+  block [ <block leader #> | player <race> ]
+
+{{DESCRIPTION}}
+  With no arguments, the block command lists all alliance groups, called power
+blocks, that are in effect. Each group is listed with its current stats as
+estimated by your race's knowledge of that group's leader.
+  Blocks are numbered by the race number of their leader. If block is called
+with a single number for an argument, the report will list all of that
+particular block's members and their stats as estimated by your race.
+  If the keyword {{player}} and a number are specified with the block command,
+that race's status with regard to power blocks is reported: which, if any, block
+the race belongs to, whether it has been invited to join a block, or whether it
+has pledged a block.
+
+{{EXAMPLE}}
+  block player 21         (List the block status of race 21)
+  block player Neighbors  (List the block status of Neighbors)
+  block 12                (List all members and stats of power block 12)
+
+{{SEE ALSO}}
+  blocks, victory, invite, pledge, uninvite, unpledge
+
+& bombard
+
+{{NAME}}
+  bombard [1] -- Fire a ship's weapons at a planet
+
+{{SYNTAX}}
+  bombard <ship #> [ <sector x,y> [ <strength> ] ]
+
+{{DESCRIPTION}}
+  This command is used to damage or destroy sectors on a planet from an orbiting
+or landed ship. If the ship is landed, the specified sect must be adjacent to
+the sector the ship occupies. If the sector to be hit is not specified, a random
+one will be computed by the server. If the strength of the attack is not
+specified, the ship will use the maximum strength possible (see the fire command
+for a discussion of this calculation). If a strength greater than this computed
+number is specified in the bombard command, the player will be notified that the
+ship's guns have been reset to fire with the maximum possible strength. A planet
+can not be attacked from orbit if it still has operational Planetary Defense
+Networks (ship n).
+  The damage from a bombard will be most intense in the targeted sector, but
+surrounding sectors may also be damaged. If the damage is severe and the sector
+type had previously been altered (plating or terraforming for example), there is
+a chance the sector may mutate back to its natural state. There is also a chance
+that the sector will be wasted, killing all civs, leaving a random number of
+troops, crippling the sector, and increasing the toxicity of the planet. If the
+sector is not wasted, normal damage will be inflicted.
+  A planet will retaliate, if possible, using its planetary guns if at least one
+sector has been wasted in an attack. Any ships which are in orbit around the
+planet (using the order command) will retaliate against the bombarding ship. No
+retaliation, planetary or ship, will be triggered if the bombarding ship is a
+Mech (R). However, note that Mechs must be landed on the planet to initiate an
+attack and, thus, may only attack adjacent sectors.
+
+{{EXAMPLE}}
+  bombard #985          (Bomard a random sector using default gun strength)
+  bombard @1042 10,3 5  (Bombard sector 10,3 at strength of 5)
+
+{{SEE ALSO}}
+  combat, fire
+
+& broadcast
+
+{{NAME}}
+  broadcast [0] -- Send a message to all players logged in
+
+{{SYNTAX}}
+  broadcast <message>
+
+{{DESCRIPTION}}
+  This command allows players to communicate with each other. All text following
+the broadcast command is sent to each player currently logged in, unless they
+are GAGed (see the toggle command).
+
+{{EXAMPLE}}
+  broadcast Boo!  (Sends "Boo!" to every player logged in and ungaged)
+
+{{SEE ALSO}}
+  communications, announce, channel, emote, think
+
+& bug
+
+{{NAME}}
+  bug [0] -- Make a bug report
+
+{{SYNTAX}}
+  bug <message>
+
+{{DESCRIPTION}}
+  This command will send a bug report vai Internet email to the host (god) of
+the game while recording it to the maintenance database. It assures prompt
+action on possible bugs. If you find a bug, please use this mechanism to alert
+the god player.
+  Please, before submitting a bug, look at '__help bugrep__' and make sure the
+bug you found has not yet been reported. The '__help bugrep__' page will also
+show you the current status of each bug and the working narrative.
+  Bugs move through the following STATUS pipeline:
+    REPORTED - Bug is newly reported by user.
+    ASSIGNED - God Player has assigned a bugid and passed it to a coder.
+    REVIEWED - Coder has reviewed and replicated the bug.
+    FIXING   - Coder is working on the bug.
+    TESTING  - A bug solution is being tested in the debugging server.
+    PENDING  - Bug has been fixed and is ready to be loaded into the server.
+    COMPLETE - Bug has been removed from the production server.
+  A bug may also be marked as CANCELLED at any time with reasons given in the
+narrative.
+
+{{SEE ALSO}}
+  __bugrep__, page, communications
+
+& build
+
+{{NAME}}
+  build [0] -- Construct a ship
+
+{{SYNTAX}}
+  Current Scope     Syntax
+  Planet:       (I)  build <ship type> <sector x,y> [<# to build>]
+  Factory:     (II)  build [<# to build>]
+  Other ship: (III)  build <ship type> [<# to build>]
+  Any scope:         build ? [<ship type>]
+
+{{DESCRIPTION}}
+  The build command allows a race to convert their stored resources into useful
+machinery. Many different types of ships, buildings, devices, and weapons can be
+built in Galactic Bloodshed, each with its own special characteristics and
+abilities. Due to the complex design of ships in the game, this command has
+several variants, each of which will be dicussed below. At a minimum, for every
+build variant, a race must have the minimum technology level and resources on
+hand to create the specified ship.
+  Each ship has a default set of parameters which can be listed by using the
+command build ?. This variant can be executed at any scope. Without any
+argument, this command will print a table of all the default parameters for all
+ship types. Given a specific ship type, this variant will print a short
+description of the ship, where the ship can be built, and the default parameters
+for that ship.
+  The other variants of the bulid command arise since ships can be built in a
+variety of locations in Galactic Bloodhshed: on a planet surface, in factories,
+in other ships, or in space by other ships. Certain ship types have restricted
+build locations. Use the build ? command to see where a ship may be built. There
+are currently five build locations for ships:
+    On a planet
+    In a factory: F
+    In hanger of some ships
+    In habitat
+    Outside some ships
+  The first class of ships can use the first build variant (I) when the current
+scope is set to a planet. The sector the ship is built in must be specified
+along with the ship type. A race must be above the mimimum technology level to
+build the ship and must have the resources available in the planetary stores.
+The planet must not be enslaved to another race. A governor who attempts to
+build on a planet must have control over that planet. The specified sector must
+be owned by the builder, have at least one civilian on the sector, and not be
+wasted. A second Quarry (q) cannot be built on a sector.
+  The second class of ships must be build by Factories (F). A brief summary of
+the building of these ships follows below (for a more detailed description, see
+the manual section on ships):
+    1) A Factory (F) must be built. Factories can be built on planets or in
+       Habitats -- refer to the appropriate paragraph in this command to build a
+       Factory. The rest of this summary assumes the Factory is on a planet.
+       Factories on Habitats function similarly.
+    2) Change scope to the Factory.
+    3) Decide which ship types this Factory will produce and execute the make
+       command at this scope.
+    4) The design specifications may be changed via the modify command at this
+       scope.
+    5) Once the design has been set, order the Factory on. An initial start-up
+       cost for the Factory will be extracted from the planet's resource
+       stockpile. This cost is twice the resources needed to build its specified
+       ship. Ths type of ship produced and the design specifications cannot be
+       changed once the Factory is online!
+    6) Factories are built with 75% damage. They do not require resources to be
+       fixed but will repair themselves over the course of several update --
+       {{but only after they have been ordered online}}.
+    7) Once the Factory is completely repaired, change scope to the Factory
+       again. The second build command variant (II) can now be executed to
+       produce ships from the Factory. The planet must have sufficient resources
+       to produce the ships. The ships will appear on the same sector of the
+       planet as the Factory.
+  The third and fourth class, when built, appear in the hanger of the building
+ship. The current scope must be set to the building ship, where the thid build
+variant (III) can be used to construct the ships. The building ship must have
+adequate hanger space and resources for the ship to be built.
+  The first class of ships are built outside of the constructing ship, and thus
+hanger space is not a factor. The third build variant (III) is used for this
+class also. The building ships of this class cannot construct ships when landed.
+Shuttles (s) can be loaded with more resources than their specified maximum, but
+they cannot land while overloaded (see the related command load). These
+resources can then be used to make the large ships in this class.
+
+{{EXAMPLE}}
+  build F 5,4  (Build a Factory at sector 5,4. Current scope must be a planet)
+  build : 5    (Build five Space Probes inside a ship's hanger)
+
+{{SEE ALSO}}
+  ships, technology, make, modify
+
+& capital
+
+{{NAME}}
+  capital [5] -- Designate the new seat of government
+
+{{SYNTAX}}
+  captial [#shipnum]
+
+{{DESCRIPTION}}
+  Your capital is a "Governmental Center" ship which produces action points as
+the workings of a government. It is posible to maintain more than one
+governmental center in your empire for use as backups in case something should
+happen to your capital (of course, they are very expensive).
+  Without a capital, no AP's will be produced. Also if the capital is damaged or
+understaffed the government will experience a slowdown in proportion to its
+handicap.
+  If no argument is specified, the current efficiency of your capital is
+displayed. This is proportional to the number of crew (officials working in the
+capital) and the damage of the capital. Efficiency does not influence
+actionpoints production however.
+
+{{SEE ALSO}}
+  actionpoints
+
+& capture
+
+{{NAME}}
+  capture [1] -- Order population to attempt to seize an alien ship landed in
+                 the same sector.
+
+{{SYNTAX}}
+  capture <#shipno> <boarders> [<what>]
+
+{{DESCRIPTION}}
+  This command is similar to the 'assault' command and the agreesive move
+command. The player designates which landed alien ship he wishes to assault.
+If the sector where the ship is located is occupied by the player, the combat
+strengths of the player (attacker) and alien (defender) are computed. The combat
+strengths depend on number of beings, fighting ability, sector terrain and
+technology of the races as well as ship sizes morale and armor. The assault is
+evaluated and casualties are removed from each defender and attacker.
+  A player may attack with as many population as the sector contains. If the
+number of boarders isn't specified, all occupants of the sector will assault the
+ship.
+    Defense strengths of terrain:
+      land   = 1
+      sea    = 1
+      mount  = 3
+      wasted = 0
+      gas    = 2
+      ice    = 2
+      forest = 3
+      desert = 2
+      plate  = 4
+  This command cannot be used on planets that have been enslaved to another
+player.
+  The player can specify whether he/she will use civilians or military for the
+assault. Specify "civ" or "mil" for <what>, the default is military.
+
+{{SEE ALSO}}
+  assaul, enslave, morale
+
+& center
+
+{{NAME}}
+  center [0] -- Change orbit map center to another star or planet
+
+{{SYNTAX}}
+  center [star/planet]
+
+{{DESCRIPTION}}
+  Map centerpoint is always the same system where scope has been latest.
+However, if you'd like to examine better the neighborhood of some specific
+region, you can change the map centerpoint using this command. This is
+particularly useful at closer zoom values. The center command takes either a
+star name or planet as an argument. If no argument is given the centerpoint
+is reset to 0,0 at the current scope.
+
+{{SEE ALSO}}
+  explore, orbit, stars, zoom
+
+& cew
+
+{{NAME}}
+  cew [1] -- Fire CEWs 'confined energy weapons'
+
+{{SYNTAX}}
+  cew <firing ship> <target ship>
+
+{{DESCRIPTION}}
+  CEWs (confined energy weapons) are energy weapons which have an optimal range.
+Unlike lasers and guns which have their maximum hit percentage at close range,
+CEWs can be designed to have an optimal range. The optimal range is set using
+the modify command during ship design. The hit probability is independent of the
+firing/target ship's disposition and has maximum at the optimal range R:
+  hit probability = 100 * exp(-50 * (f - 1)^2)
+where
+  f = (r + 1) / (R + 1)
+At the optimal range r = R, the hit probability is normalized to 100%.
+  CEWs also have a strength which is prescribed during the ship modification
+procedure. The strength of a CEW is in equivalent destruct units. Each CEW
+attack uses 2 * destruct fuel units to execute. Unlike normal fire attacks
+(lasers and destruct), a CEW attack either hits or misses, according to the
+above hit probability formula. If the attack hits, the hits (equal to the CEW
+attack strength) are evaluated for penetration and damage according to the
+normal damage procedures. If the hit misses, no damage is done.
+  Once designed, a CEW range can be modified only upwards.
+  CEW require a special technology. Some ships cannot install CEW technology.
+  Technology limits on functions crystal ranges are proportional to the amount
+of damage on the ship. Heavily damaged shpis may find their crystals breaking at
+lower limits.
+
+{{SEE ALSO}}
+  fire, modify
+
+& channel
+
+{{NAME}}
+  channel [0] -- Manage communication channels (beta)
+
+{{SYNTAX}}
+  channel [1|2|3] [xmit]
+
+{{DESCRIPTION}}
+  Multiple communications channel capabililty. There are three channels in GB,
+numbered 1, 2, and 3. Players can send on any channel by using the number of the
+channel you wish to send on. Channels are used with the broadcast and emote
+commands. To set the transmit channel use 'channel <channel> xmit', to view
+current channels use 'channel', to set channels to monitor use
+'channel <channel>' (toggle). You will only receive messages for channels you
+have turned on. By default, channel 1 is set upon login if all channels were OFF
+at the time of the last logout.
+
+{{EXAMPLE}}
+  > channel 2 xmit
+  Channel Status:
+     One: RCV
+     Two: RCV XMIT
+   Three: OFF
+
+{{SEE ALSO}}
+  broadcast, emote
+
+& colonies
+
+{{NAME}}
+  colonies [0] -- List colonies
+
+{{SYNTAX}}
+  colonies
+
+{{DESCRIPTION}}
+  This command list the attributes of all current colonies belonging to the
+player. If the name of the planet is followed by an asterik '*', this means that
+autoreport is on at that colony.
+
+{{SEE ALSO}}
+  production
+
+& cs
+
+{{NAME}}
+  cs [0] -- Change scope
+
+{{SYNTAX}}
+  cs <-d> <path>  where path = <#shipnumber> | <:> | </[path]> | <..[/path]>
+                               | [name] | next | prev
+
+{{DESCRIPTION}}
+  cs changes from the current operative scope to the specified one. If no scope
+is specified, cs will change to the default scope. If the -d option is
+specified, cs will make [path] the new default scope. If the word 'next' is used
+as a path, the scope will be changed to your next colony; the word 'prev' goes
+back on colony. You cannot cs into areas that have not yet been explored by you.
+
+{{SEE ALSO}}
+  scope, orbit
+
+& declare
+
+{{NAME}}
+  declare [0] -- State relations with other races
+
+{{SYNTAX}}
+  declare <race> <status>
+
+{{DESCRIPTION}}
+  The fricition between two disparate races competing for the same limited
+resources may be such that no matter what diplomatic means exist between them
+(telegram), conflict may still ensue.
+  To facilitate this, a player may declare his/her race's intentions toward
+other races in the game, whether allied, neutral, or at war.
+  When invoked, a prompt will ask how he wishes his relations to be with that
+race, and the race number. This will be in effect until the user changes
+his/her mind.
+  A race's relation state affects the way a few things happen in the game:
+  - A ship following another will 'lose sight' of that ship at a certain
+    distance, if the other ship is not an ally.
+  - Mines look for ships belonging to enemy players. If it finds one within its
+    trigger radius, it will detonate.
+  - A player is prompted when firing on or boarding (assault) a ship belonging
+    to an ally.
+  - Allied ships and planets do not return fire.
+  - When bombard is set on a ship, that ship will fire at sectors owned by
+    players the owner is at war with. If there are no such it finds players
+    with which the owner is neutral.
+  You may declare war, alliance, or neutrality.
+
+{{SEE ALSO}}
+  communication, relation
+
+& defend
+
+{{NAME}}
+  defend [1] -- Shoot a planet at a ship
+
+{{SYNTAX}}
+  defend <target> <x,y> [<strength>]
+
+{{DESCRIPTION}}
+  When using the 'defend' command the player must have the planet in question
+as the current scope. Only ships in orbit or landed at the planet can be
+designated.
+  The maximum number of guns for a planet depends on planet size. The actual
+number of guns a planet has available for use begins at 0, and will increase as
+the sector mobility status increases.
+    Number of planetary guns = number_of_sectors * average_mobility * 0.001
+  The formulas for calculating hit probability and damage are the same as for
+the "fire" command.
+
+{{SEE ALSO}}
+  fire, tactical, mobilize
+
+& delete
+
+{{NAME}}
+  delete [0] -- Mark dispatches for deletion
+
+{{SYNTAX}}
+  read dispatch <#>  -- Marks displatch # for deletion
+
+{{DESCRIPTION}}
+  The 'delete' command is used to mark dispatches for deletion. You may view
+your displatches with the 'read' command. Once dispatches are marked, you may
+get rid of all of them with the 'purge' command.
+  Using the 'delete' command on an already marked message will unmark it.
+
+{{SEE ALSO}}
+  purge, read
+
+& deploy
+
+{{NAME}}
+  deploy [variable] -- Move military from one sector to another
+
+{{SYNTAX}}
+  deploy <origin sector x, y> <direction list> <number of troops>
+
+{{DESCRIPTION}}
+  This command is used to move troops from one sector to an adjacent sector. The
+player enters or originating sector, target sector, and the amount of troops to
+move. If a destination sector is occupied by aliens, the combat strengths of the
+player (attacker) and alien (defender) are computed. See 'combat' for details.
+  If number of troops argument is not given, all troops in the original sector
+will be moved. If a negative troops is specified, then all troops, except for
+the amount specified, will move.
+  The direction orders the group to move in one of 8 compass directions:
+    7   8   9
+     \  |  /
+      \ | /
+   4 -- . -- 6
+      / | \
+     /  |  \
+    1   2   3
+  The troops will continue to move as long as a valid move is available.
+Movement stops when an illegal move, lost/draw combat; or lack of action points
+occurs. For example, 'move 10,4 6698 -2' will leave two people behind in sector
+10,4 move the rest to 11,4 leave 2, move the rest to 12,4, leave 2, move the
+rest to 11,3 leave 2, finish the move to 11,2. This would cost 4 APs.
+  This command cannot be used on planets that have been enslaved to another
+player. Moving civilians uses up more action points than moving troops.
+
+  +---------------------+---+----+-----+------+------+-----+------+------+
+  | APs                 | 1 |  2 |   3 |    4 |    5 |   6 |    7 |    8 |
+  +---------------------+---+----+-----+------+------+-----+------+------+
+  | Civilians    Min    | 1 |  2 |   7 |   20 |   54 | 148 |  403 | 1096 |
+  |              Max    | * |  6 |  19 |   53 |  147 | 402 | 1095 |      |
+  +---------------------+---+----+-----+------+------+-----+------+------+
+  | Military     Min    | 1 |  9 |  99 |  999 | 9999 |     |      |      |
+  |              Max    | 8 | 98 | 998 | 9998 |      |     |      |      |
+  +---------------------+---+----+-----+------+------+-----+------+------+
+    * NOTE: Moving max civilians cost only 1 AP
+
+  For attacks (against alien occupied positions) add 1 to the action point cost.
+
+{{SEE ALSO}}
+  combat, enslave, move
+
+& detonate
+
+{{NAME}}
+  detonate [0] -- Force a mine to explode
+
+{{SYNTAX}}
+  detonated <mine>
+
+{{DESCRIPTION}}
+  Normally, a mine is set to detonate at the prearranged trigger radius using
+the 'order' command. However, players may find it useful to order their space
+mines to explode upon request, between updates. This command is used to do this.
+
+{{SEE ALSO}}
+  order
+
+& disarm
+
+{{NAME}}
+  disarm [0] -- Convert military into civilians
+
+{{SYNTAX}}
+  disarm <sector> [<troops>]
+
+{{DESCRIPTION}}
+  This is used to turn troops back into civilians. All weapons are lost (there
+is no recovery of destruct used to arm troops).
+
+{{SEE ALSO}}
+  arm, military
+
+& dismount
+
+{{NAME}}
+  mount [0] -- Mount a crystal into a ship's hyperdrive
+  dismount [0] -- Dismount a crystal from the hyperdrive
+
+{{SYNTAX}}
+  mount <ship>
+  dismount <ship>
+
+{{DESCRIPTION}}
+  Normally, a ship required a waiting period before a hyperspace jump can be
+executed. This requires powering up the drive for some period of time. However,
+the charge-up time can be bypassed if a player has a crystal mounted. The effect
+of a crystal also allows the ship to jump farther and more fuel efficiently than
+for a ship without a crystal mounted.
+  Laser guns also requires mounted crystal in ship.
+  In order to mount a crystal, the player can change scope to the ship which is
+to have a crystal mounted, or specify the ship's number. This ship must have a
+crystal on board. A crystal can be dismounted using the 'dismount' command.
+
+{{SEE ALSO}}
+  crystal
+
+& dissolve
+
+{{NAME}}
+  disoolve -- Resign your forces from play in the game.
+
+{{SYNTAX}}
+  dissolve <password>
+
+{{DESCRIPTION}}
+  A player can resign from the game by issuing a dissolve command. All ships,
+sectors, resources, destruct, etc. are permanently eliminated from the game.
+Dissolved players also do not appear on power reports.
+  You must specify your password to dissolve. Make sure you want to do this
+before using it, as all is immediately lost!
+
+{{SEE ALSO}}
+  power
+
+& distance
+
+{{NAME}}
+  distance [0] -- Get the distance between two object
+
+{{SYNTAX}}
+  distance <from> <to>
+
+{{DESCRIPTION}}
+  Players can use this command to obatin the distances between any pair of
+stars/planets/ships.
+
+{{EXAMPLE}}
+  dist #123 #456            Gives you distance between ships #123 and 456
+
+  distance /Sol/Earth /Sol  Gives the distance between the start and the planet
+
+  distance .Earth #456      Gives the distance between the planet and the ship
+                            (from planet scope).
+
+{{SEE ALSO}}
+  fuel
+
+& dock
+
+{{NAME}}
+  dock [0] -- Land a ship
+
+{{SYNTAX}}
+  dock <#shipnumber> <#to shipnumber>
+
+{{DESCRIPTION}}
+  This command docks two own ships together. The two ships in question must be
+closer than the minimum landing distance (10).
+
+{{SEE ALSO}}
+  undock
+
+& dump
+
+{{NAME}}
+  dump [0] -- Give another player your exploration data
+
+{{SYNTAX}}
+  dump <race> [list of stars]
+
+{{DESCRIPTION}}
+  This allows a player to give another player (usually a trusted ally) all of
+your exploration data. This information is permanently recorded in the receiving
+player's exploration list.
+  If a list of stars is given only those in the list will be dumped.
+
+{{EXAMPLE}}
+  dump 12 /Sol /Regulus /Taurus  Transfers information of those start systems
+
+{{SEE ALSO}}
+  explore
+
+& emote
+
+{{NAME}}
+  emote [0] -- Tell all players logged in what you are thinking using thrid
+               person.
+
+{{SYNTAX}}
+  emote <message>
+
+{{DESCRIPTION}}
+  This command is like broadcast. Text following the emote command is sent to
+each player currently logged in, unless they are GAGed (see the toggle command).
+
+{{EXAMPLE}}
+  Player named Skywalker emotes: 'emote just loves Dreadnaughts.'
+  And every player logged in and ungaged receives message:
+    'Skywalker just loves Dreadnaughts.'
+
+{{SEE ALSO}}
+  ocmmunications, broadcast, channel
+
+& enslave
+
+{{NAME}}
+  enslave [1] -- Enslave a world
+
+{{SYNTAX}}
+  enslave <shipnumber>
+
+{{DESCRIPTION}}
+  This command is used to convert entire planets to a condition of slavery. When
+invoked the ship specified must be an Orbital Assault Platform, which is the
+only ship type sufficiently impressive to convince the planetary population of
+the futility of resistance. The platform must be orbiting the planet to be
+enslaved.
+  To commence a proper enslavement, the forces bearing (the platform itself plus
+the other ships which might be orbiting the planet) against the planet must be
+more than twice the defending strength (weapons under the control of the
+inhabitants plust the weapons on board any ships they own in orbit around the
+planet). The enslaving player must have a garrison (at least one population) on
+the planet.
+  The enslaving player is not told how much strength the other players might
+have, but he is told whether the planet was enslaved or not. Telegram messages
+are sent to any players affected by the command.
+  To keep the planet the enslaving player must maintain a garrison of at least
+0.1% of the total population on the planet. (The garrison need not be that large
+to initiate slavery, but must be that large to maintain it.) If the garrison
+falls below this threshold, and the OAP is no longer in orbit around the planet,
+a revolution is immediate and devestating: all sectors belonging to the former
+slave holder are destroyed in the inhabitants' fury of revolution. If the OAP is
+still there, there is a chance (50%) that a revolution will not occur, and some
+occupying sectors may not be destroyed (without it overhead, they will be).
+Other random sectors will be damaged as well in the fight.
+  When a planet is under enslavement, everything produced there will be credited
+to the slave-holding player's stockpiles. Races enslaved on a planet can still
+survey, map, and otherwise observe things happening there (there is an active
+resistance).
+
+{{SEE ALSO}}
+  survey, map
+
+& examine
+
+{{NAME}}
+  examine [0] -- Look at a ship/object
+
+{{SYNTAX}}
+  examine <#shipnum>
+
+{{DESCRIPTION}}
+  Examine gives the user a short paragraph-summary description of a ship or
+object and how it can be used. This command can be applied to any ship or object
+in a system where a player has equipment (ships, objects, or a colonized
+planet).
+
+{{SEE ALSO}}
+  build
+
+& explore
+
+{{NAME}}
+  explore [0] -- Global survey of explored worlds
+
+{{SYNTAX}}
+  explore <where>
+
+{{DESCRIPTION}}
+  This command gives a brief census of all stars and worlds the player currently
+occupies, or has occupied, and those which exploration data other races has
+given (using dump command).
+  More detailed information about stars/planets can be found using the 'survey'
+command.
+
+{{SEE ALSO}}
+  survey, dump
+
+& factories
+
+{{NAME}}
+  factories [0] -- Look at what your factories are making
+
+{{SYNTAX}}
+  factories
+
+{{DESCRIPTION}}
+  This command outputs a table from whihc you can see all of your factories in
+the current scope are producing. All data on the table are stats of the ship the
+factory will produce, and NOT the stats of the factory itself (except the
+"Damage" and "#" columns).
+
+{{SEE ALSO}}
+  report, build, modify
+
+& fire
+
+{{NAME}}
+  fire [1] -- Shoot a ship at another ship
+
+{{SYNTAX}}
+  fire <from> <to> [<strength>]
+
+{{DESCRIPTION}}
+  The fire commands allow players to attach each others ships/planets with
+available guns. Fire attempts to use stockpiled destructive capacity from one
+place, to give damage to another.
+  The maximum number of guns for a ship is proportional to the maximum number of
+guns which the ship was originally constructed with, and the damage level of the
+ship. As the ship accumulates more damage the number of guns available
+decreases.
+  Ship-to-ship combact is the 'essence' of the Galactic Bloodshed combat system.
+The program will compute the 'hit probability'. This designates the chances that
+a particular gun will actually hit the target ship with the potential of doing
+damage to it. When a player designates a 'salvo' of so many guns, each gun is
+evaluated for hit/mass, the sum of all hits is then used to determine the
+results of the salvo.
+  If a ship is firing on another ship, and no strength is given, the salvo
+strength specified by the player (see 'order salvo <strength>') is used.
+  The hit probability depnds on several factors:
+    1) The technology of firing ship. The higher the technology, the more
+       accurate the firing vessels shots are.
+    2) The size of the target vessel. Larger targets are easier to hit.
+    3) The speed of the firing and target ships. It is assumed that the
+       motions of the ships can affect the chances of hitting the target.
+    4) Whether or not 'evasive maneuvers' have been ordered for the ship in
+       question.
+  The hit probability can be found from the 'tactical' display.
+  Note, that a ship must actually be 'going somewhere' (plotted move in 'order')
+for the evasive and speed factors to be taken into effect (otherwise they are
+set to zero).
+  After the hit probability is determined each firing gun is evaluated for
+hit/miss. Each hit is then checked to for penetration. The probability of a hit
+penetrating depnds on the ship's armor. The armor effectiveness factor depends
+on the technology of both the firing and the target ship.
+  Bigger ships (represented by body) can absorb more hits less ensuing damage
+than little ships. Also notice that smaller ships, although harder to hit, are
+easier to damage *when* hit.
+  Special rule: Every 5 hits in a salvo against a target reduces its armor value
+for that attack by 1.
+  After evaluating for structure damage, the program then checks for 'critical
+hits'. EACH hit is evaluated, whether or not any real structural damage has
+occured on the target vessel. The chances of a critical hit depends on the size
+of the target ship. Smaller ships are more likely to suffer damage from critical
+hits than big ships. A random amount of damage between 1 and 100% is assessed
+for each critical hit, in additiona to the normal structural damage.
+
+Defensive and Offensive Combat Options
+  A player may set up his own defense/response networks. Specifically, in the
+'order' command, a player may designate his ships to retaliate (default) if they
+are attacked. Whenever you fire at a ship, if you have done any damage to his
+ship, you ship will return fire immediately, thereby damaging the attacker. The
+retaliate option can be toggled on and off, depending on the player's
+intentions. A player may also designate his ships to defend other ships, so that
+is you ship is attacked and damaged, all other ships designated to 'protect' the
+ship will fire back at the attacking vessel.
+  Ships may also be designated to be on 'planetary defense' alert. If the planet
+is attacked, all ships defending will retaliate against the intruder.
+
+{{SEE ALSO}}
+  bombard, defend, tactical, order
+
+& fleet
+
+{{NAME}}
+  fleet [0] -- Shows your race's fleets
+
+{{SYNTAX}}
+  fleet
+
+{{DESCRIPTION}}
+  This command shows your race's current fleets, which governor is the current
+admiral of that fleet, what the fleet name is, and which ships are attached to
+that fleet.
+
+{{SEE ALSO}}
+  fleets
+
+& fuel
+
+{{NAME}}
+  fuel [0] -- Show how much fuel ordered travel needs
+
+{{SYNTAX}}
+  fuel <#ship> <destination>
+
+{{DESCRIPTION}}
+  The fuel command is used to obtain information about how much fuel traveling
+to a destination consumes. Command also gives you the time (in segments) how
+long the trip will take.
+  Ship must either have a destination in its orders or you can give destination
+with command. If you give destination the command will show the time and fuel
+needed to that destination but orders of the ship are left unchanged.
+  The amount of fuel consumed depends from the speed of the ship. Higher speeds
+use more fuel to cover the same distance. Relative amount of fuel used with
+different speeds is:
+    speed    multiplier
+      1          1.0
+      2          1.4
+      3          1.7
+      4          2.0
+      5          2.2
+      6          2.4
+      7          2.6
+      8          2.8
+      9          3.0
+  The amount of fuel consumed depends also from the mass of the ship. Heavy
+ships use more fuel than light ships.
+
+{{SEE ALSO}}
+  distance
+
+& give
+
+{{NAME}}
+  give [3] -- Give a mutual ally a ship
+
+{{SYNTAX}}
+  give <racE> <ship>
+
+{{DESCRIPTION}}
+  You can give another player a ship if you are both mutuall allied. The ship
+becomes immediately under the new player's control. Ship must be without crew
+and military. Spore pods cannot have their ownership changed.
+
+{{SEE ALSO}}
+  declare, relation
+
+& governors
+
+{{NAME}}
+  governors [0] -- Information about a race's governors
+
+{{SYNTAX}}
+  governors
+  governors <governor #> password <new password>
+
+{{DESCRIPTION}}
+  The first of the "governors command will list all the governors currently
+appointed. Information given includes governor name, password (if you are the
+race leader), time online, and last login date.
+  The second form of the command is used to change a governor's password. The
+race leader can change the password of any of the governors, while governors
+can only change their own password.
+
+{{SEE ALSO}}
+  appoint, grant, name, revoke, promote
+
+& grant
+
+{{NAME}}
+  grant [0] -- Give a governor something
+
+{{SYNTAX}}
+  grant <governor #> <what> [amount]
+
+{{DESCRIPTION}}
+  This command is used by the race leader to give a governor objects in the
+game. Things that can be "grant"ed include:
+    STARS - Granting a star gives the governor the ownership of all population
+            in the system. Anything built, produced, etc. in the system will
+	    belong to the governor and can be used as the governor wishes.
+	    Syntax: "grant <governor #> star /<Star>"
+    SHIPS - This will give the governor complete control over the ship(s).
+            Any new systems the ship discovers, or any ships it takes over will
+	    also belong to the governor. Any number of ships can be used with
+	    the command.
+	    Syntax: "grant <governor #> shipnumber <#shipnumber> ..."
+    MONEY - Gives the governor money to be put in the treasury. Each governor
+            has a separate treasury. Money is used automatically in update for
+	    ship upkeep, and can be used for insurgencies.
+	    Syntax: "grant <governor #> money <amount>"
+  To take any of these items back from the governor, the <governor #> can be
+specified as "0".
+
+{{SEE ALSO}}
+  appoint, governors, revoke
+
+& highlight
+
+{{NAME}}
+  highligh [0] -- Highlight given race's ships on map
+
+{{SYNTAX}}
+  highlight <race>
+
+{{DESCRIPTION}}
+  A player can specify which race he/she wishes to highlight. Given race's ships
+will be easier to note from a map. It is initially set to the player.
+
+{{SEE ALSO}}
+  map, identify
+
+& identify
+
+{{NAME}}
+  identify [0] -- Gives you the race name given the race's number
+
+{{SYNTAX}}
+  identify <race # to identify>
+
+{{DESCRIPTION}}
+  This command can be used when you know a race's number (such as information
+you find on "tactical", etc.) and you want to look up the race's name. "whois"
+does the same thing.
+
+{{SEE ALSO}}
+  who, whois
+
+& index
+
+{{CONCEPT}}
+  commands -- List of server (game) commands
+
+    {{allocate}}   -- Transfer global action points to a star system
+    {{analysis}}   -- Provide sector report for planet
+    {{announce}}   -- Send message to other races in a star system
+    {{appoint}}    -- Initialize governor position and assign a password
+    {{arm}}        -- Convert civilian population to military units
+    {{assault}}    -- Attempt a capture of an enemy ship in space
+    {{autoreport}} -- Toggle automatic update reports from a planet
+    {{bid}}        -- List market items and make a bid
+    {{block}}      -- Display list of power blocks
+    {{bombard}}    -- Fire ship's weapons at planet
+    {{broadcast}}  -- Send a message to all players logged in
+    {{bug}}        -- Send deity a bug report
+    {{build}}      -- Construct a ship
+    {{capital}}    -- Designate the new seat of governemnt
+    {{capture}}    -- Order population to attempt to seize an alien ship
+    		      landed in the same sector
+    {{center}}     -- Change global map center point in another system
+    {{cew}}        -- Fire confined energy weapons
+    {{colonies}}   -- List colonies
+    {{cs}}         -- Change scope
+    {{declare}}    -- State relations with other player
+    {{defend}}     -- Shoot a planet at a ship
+    {{deploy}}     -- Move military from one sector to another
+    {{detonate}}   -- Force a mine to explode
+    {{disarm}}     -- Convert military into civilians
+    {{dismount}}   -- Remove a crystal from a ship's hyperdrive
+    {{dissolve}}   -- Resign your forces from play in the game
+    {{distance}}   -- Get the distance between two objects
+    {{dock}}       -- Dock two ships together
+    {{dump}}       -- Give another player your exploration data
+    {{emote}}      -- Send message to all players logged in using third person
+    {{enslave}}    -- Enslave a world
+    {{examine}}    -- Look at ship/object
+    {{explore}}    -- Global survey of explored worlds
+    {{factories}}  -- Look at what your factories are making
+    {{fire}}       -- Shoot a ship to another ship
+    {{fleet}}      -- Shows your race's fleets
+    {{fuel}}       -- Show how much fuel and time ordered travel needs
+    {{give}}       -- Give a mutual ally a ship
+    {{governors}}  -- Information about race's governors
+    {{grant}}      -- Give a governor something
+    {{help}}       -- Ask more information
+    {{highlight}}  -- Highlight any race's ships in map
+    {{identify}}   -- Show you the race name given the race's number
+    {{insurgency}} -- Try to force enemy population into civil revolt
+    {{invite}}     -- Invite another race to join your block
+    {{jettison}}   -- Unload commodities from a ship into space
+    {{land}}       -- Land a ship
+    {{launch}}     -- Launch a ship
+    {{load}}       -- Load commodities to a ship
+    {{make}}       -- Command a factory to make specific ship type
+    {{map}}        -- Show a map
+    {{mobilize}}   -- Increase military mobilization in sectors
+    {{modify}}     -- Modify attributes of a ship
+    {{motto}}      -- Set a motto for an alliance block
+    {{mount}}      -- Mount a crystal into a ship's hyperdrive
+    {{move}}       -- Move civilians from sector to another
+    {{name}}       -- Rename an object
+    {{orbit}}      -- Graphic representation of object in current scope
+    {{order}}      -- Give ship standing orders
+    {{page}}       -- Tell another player that you are looking for them
+    {{pay}}        -- Pay money to another player
+    {{personal}}   -- Leave a personal message in your profile
+    {{pledge}}     -- say 'yes' to an invitation to join a block
+    {{post}}       -- Write a message to Galactic News
+    {{power}}      -- List empires and their approximate influences
+    {{production}} -- Show latest planet production statistics
+    {{prance}}     -- Prance happily around
+    {{profile}}    -- Racial profile
+    {{promote}}    -- Promote your governor
+    {{quit}}       -- Disconnect from the server
+    {{read}}       -- Read message sent to you or read Galactic News
+    {{relation}}   -- State relations
+    {{repair}}     -- Repair wasteland sectors
+    {{report}}     -- Navigational ship report
+    {{revoke}}     -- Remove governor's powers
+    {{route}}      -- Set and provide information about shipping routes
+    {{schedule}}   -- Give player information about update schedule
+    {{scrap}}      -- Junk a ship
+    {{sell}}       -- Put a lot of commodities up for sale in the market
+    {{send}}       -- Send messages to other players
+    {{ship}}       -- Ship report
+    {{stars}}      -- Obtain information of star positions
+    {{stats}}      -- Report ship characteristics
+    {{status}}     -- Status report for all colonies
+    {{stock}}      -- Give stockpile report on ships
+    {{survey}}     -- More detailed survey of star/planet/sector
+    {{tactical}}   -- Provide a report on ship's ability to do military
+                      maneuvers
+    {{tax}}        -- Set the tax rate of a planet
+    {{technology}} -- Invest money into tech production
+    {{think}}      -- Send message to every governor of your race
+    {{time}}       -- Show current time and other stats
+    {{toggle}}     -- Turn on/off some options
+    {{toxicity}}   -- Set threshold for building toxic waste canister
+    {{transfer}}   -- Transfer supplies to alien stockpiles
+    {{treasury}}   -- Show your financial situation
+    {{undock}}     -- Undock a ship
+    {{unpledge}}   -- Leave block
+    {{unload}}     -- Unload commodities from your ship
+    {{uninvite}}   -- Kick a race out of your block
+    {{upgrade}}    -- Upgrade attributes of a ship
+    {{victory}}    -- Describe current standings of players
+    {{vote}}       -- Vote on a Galactic Bloodshed issue
+    {{walk}}       -- Move AFV from sector to another
+    {{weapons}}    -- Show an armament status of a ship
+    {{who}}        -- Describe who is currently connected to a race
+    {{whois}}      -- Give the race name given the race's number
+    {{zoom}}       -- Declare zoom values
+
+& insurgency
+
+{{NAME}}
+  insurgency [10] -- Try to force enemy population into civil revolt
+
+{{SYNTAX}}
+  insurgency <victim> <funds>  Spend a given amount of founds to persuade
+  	     	      	       the population of the victim to throw a bloody
+			       little revolt.
+
+{{DESCRIPTION}}
+  The insurgency command is used to persuade the population of a planet, through
+financial means, that they have had enough of their bloody dictator and should
+rise in revolt. This command will only work at planet scope. You must have
+population in that planet's system, before you can attempt an insurgency. The
+probability of a successful insurgency depends on the following things:
+    Victim's population in system
+    Victim's population in target planet
+    Victim's tax rate in traget planet
+    Your population in system
+    Amount of money you spend
+  It is much wiser to try several times with smaller amount of money, than try
+one huge investment. Prepare yourself to spend each try about as much money as
+victim's popluation on target planet. If the attempt fails, some of the money
+spend on it goes to victim and the rest of it is lost permanently. If the
+attempt succeeds, each individual sector occupied by the player is evalauted for
+revolt. Troops on sector will reduce chance of revolt. So you can defend your
+important sectors by arming civilians on those sectors. If the sector revolts,
+all troops are killed, and the instigating player gains control of the sector.
+
+NOTE: Only sectors that are compatible to you can revolt.
+
+{{SEE ALSO}}
+  money, tax treasury
+
+& invite
+
+{{NAME}}
+  invite [0]   -- Invite another race to joing your block
+  uninvite [0] -- Kick a race out of your block
+  pledge [0]   -- Say yes to an invitation to join a block
+  unpledge [0] -- Leave a block
+
+{{SYNTAX}}
+  invite <race>
+  uninvite <race>
+  pledge <race>
+  <unpledge <race>
+
+{{DESCRIPTION}}
+  Each race may lead one alliance block. In order to get people into the group
+you must you the 'invite <race>' command to request membership. The other player
+may join the alliance block by using 'pledge <leader race>'. A race may quit by
+doing 'unpledge <leader race>', or blackball another for his group by doing
+'uninvite <race>'. Alliance blocks do not force alliances among it's members. In
+fact, it is solely used for political purposes.
+
+{{SEE ALSO}}
+  block, power, relation
+
+& jettison
+
+{{NAME}}
+  jettison [0] -- Unload commodities from a ship into space
+
+{{SYNTAX}}
+  jettison <#shipnum> <commodity> <amount>
+
+{{DESCRIPTION}}
+  The jettison command is used to eject unwanted cargo from ships. The
+permissable commodities are d, c, m, r, f and x meaning destruct, crew, military
+resource, fuel and crystal. If <amount> is omitted or zero, all of the commodity
+is jettisoned. Jettison can only be used on ship in space; landed ships cannot
+jettison. Jettisoned cargo is lost forever.
+
+{{SEE ALSO}}
+  load
+
+& land
+
+{{NAME}}
+  land [1] -- Land a ship
+
+{{SYNTAX}}
+  land <#shipnum | ship types> [<x, y> | #<shipnum>]
+
+{{DESCRIPTION}}
+  This command lands ships on planets or one some types of ships. To do so the
+ship must be closer than 45 distance units away from the planet or ship it is
+trying to land on.
+  This maneuver costs an amount of fuel proportional to the mass of the ship
+(and the gravitational field of the planet below if landing on a planet). When
+landing on a planet, if the ship does not have enough fuel it will either crash
+or refuse to try landing. Crashing will give damage to the planet in proportion
+to the mass of the ship, the gravitational field of the planet, and the amount
+of destructive capacity the ship happs to be carrying. If ship is damaged, it
+got also chance (equal to damage %) to crash when it is trying to land.
+  Ships can be transported by other ships provided hanger space is available.
+The hanger space is the total size of ships which can be carried. The mothership
+and the ships it is carrying move as one unit. Ships may be debarked by using
+the 'launch' command. You can see which ships are landed on your motherships by
+changing scope to the motherships and using report/stock. Landing in hanger will
+not cost actionpoints.
+  If a mothership is destroyed for any reason, all loaded ships are also
+eliminated. If a ship gets captured, all ships on board are also captured.
+  Land based ships (a, P, G for example) can only be loaded if the mothership is
+landed on the same planet and occupied the same sector. A ship may not be loaded
+if it is 'on' (see order) and, as cargo, cannot be turned on.
+
+{{SEE ALSO}}
+  dock, launch, undock, profile, colony
+
+& launch
+
+{{NAME}}
+  launch [0] -- Launch a ship
+
+{{SYNTAX}}
+  launch <#shipnum>
+
+{{DESCRIPTION}}
+  This command attempts to launch ships that are landed on planets. To do so a
+ship must have an amount of fuel proportional to the gravitational field of the
+planet and the mass of the ship. If the ship does not have enough fuel, it will
+not be able to launch. This ship must not be irradiated.
+
+{{SEE ALSO}}
+  undock, land, dock
+
+& list
+  __{{COMBAT}}__ -
+    assault        bombard        capture        cew
+    defend         enslave        fire
+
+  __{{COMMUNICATIONS}}__ -
+    announce       broadcast      bug            channel
+    delete         emote          highlight      page
+    post           purge          read           send
+    think
+
+  __{{GOVERNMENT}}__ -
+    allocate       capital        dissolve       move
+    repair         route          technology     toxicity
+    vote
+
+  __{{INFORMATION}}__ -
+    analysis       autoreport     colonies       distance
+    dump           examine        explore        fuel
+    governors      identify       map            motto
+    name           orbit          personal       power
+    production     profile        schedule       ship
+    stars          status         survey         techlevel
+    victory        who            whois
+
+  __{{MILITARY}}__ -
+    arm            deploy         disarm         mobilize
+
+  __{{MONETARY}}__ -
+    bid            insurgency     pay            sell
+    tax            transfer       treasury
+
+  __{{RELATIONS}}__ -
+    appoint        block          declare        give
+    grant          invite         pledge         promote
+    relation       revoke         uninvite       unpledge
+
+  __{{SERVER}}__ -
+    center         cs             quit           time
+    toggle         zoom
+
+  __{{SHIPS}}__ -
+    build          detonate       dismount       dock
+    factories      fleet          jettison       land
+    launch         load           make           modify
+    mount          order          report         scrap
+    stats          stock          tactical       undock
+    unload         upgrade        walk           weapons
+
+& load
+
+{{NAME}}
+  load [0] -- Load/unload commodities to/from a ship
+
+{{SYNTAX}}
+  load <#shipnum> <commodity> <amount>
+
+{{DESCRIPTION}}
+  The load command is used for the resupplying of ships, and the disembarking of
+colonies. If no arguments are specified, the program will prompte the user for:
+    #shipnum    -- What ship to load from/to
+    d|c|r|f|x|m -- Specify destruction, crew, resources, fuel, military or
+                   crystals to load/unload. Destruction, resources and fuel are
+		   taken from that user's stockpiles, while people are taken
+		   from the sector the ship is landed on. If the ship is docked
+		   with another ship and not a planet, the transfers will be
+		   direct.
+    amount      -- The amount to load (if negative, the amount will be
+                   subtracted). This must be within certain bounds: The maximum
+		   cargo capacity of each ship, unless one or both of the ships
+		   are shuttles. Shuttles are unique in that their design allows
+		   cargo to be strapped to their hull, and thus they can
+		   actually hold more cargo than the maximum. An overloaded
+		   shuttle cannot, however, take off or land until it jettisons
+		   its excess. If no amount argument is specified, the maximum
+		   available of the commodity will be loaded on board.
+  If the ship is neither landed at a planet nor docked with another vessel, the
+player can't load/unload its cargo/passengers.
+
+{{SEE ALSO}}
+  unload, jettison
+
+& make
+
+{{NAME}}
+  make [0] -- This commands a factory to make a specific ship type
+
+{{SYNTAX}}
+  make <ship type>
+
+{{DESCRIPTION}}
+  In order to build ships, a factory must be programmed to produce the desired
+type of ship. For example, if a factory is to produce explorers, the player must
+issue the command 'make e'. The make with a ship argument can only be issued to
+offline factories. Once online, the ship design is set. If no argument is
+specified, the command will list the characteristics of the ship type being
+produced. These characteristics can be altered via the 'modify' command.
+
+{{SEE ALSO}}
+  modify, build
+
+& map
+
+{{NAME}}
+  map [0] -- Cartesian coordinate map of planet's surface
+
+{{SYNTAX}}
+  map <path>
+
+{{DESCRIPTION}}
+  The map command gives a sector map of the planet in [path]. If [path] is not a
+planet, map will instead run orbit (see orbit) with lastx,lasty both equal to
+0,0 or starmap of whole galaxy. A player cannot map a planet that has not yet
+been explored. These are the different tyles of terrain:
+    '*' -- Unexplored wilderness or undeveloped land
+    '^' -- Mountainous area (more resources, less fertility)
+    '.' -- Area containing water (or other liquid)
+    '#' -- Area covered with ice
+    '~' -- Gas (such as might be found on a gas giant planet)
+    '"' -- Forest
+    '-' -- Desert
+    '%' -- Wasteland (uninhabitable)
+    ' ' -- (Under certain circumstances the sector may be blank)
+    'o' -- A steel (or whatever) plated sector, much like the planet Trantor
+           (from Asimov's _Foundation_), 100% efficiency.
+  In addition are the designations that map gives the player:
+    Areas owned by your race use 'reverse background' (highlighted) so you can
+    see the terrain occupied as well. If you terminal type does not work with
+    the reverse background, use 'toggle inverse' to toggle it off.
+
+    '?' -- Area owned by another player where ? is the on's digit of the
+           player's number.
+    'A' -- There is allied troops in sector.
+    'N' -- There is neutral troops.
+    'X' -- There is enemy troops.
+    'x' -- Sector is containing crystals.
+    '<sign or ship>' -- A ship of that type is landed on the sector
+
+    You can use the 'aliens' option to toggle the way alien sectors are
+    displayed. The default option is that aliens have their full number
+    printed out. For example player 9 will have a '9' in each sector occupied.
+    However player 10 will have the alternate digits '1' and '0' displayed. The
+    player may change it so only the one's digit of the number is displayed.
+    Then player 10 will have a '0' in each sector occupied.
+
+    Use the 'geography' option to toggle whether or not aliens are displayed at
+    all. The default value is that they are displayed.
+
+------------------- THE PLANETS -------------------
+  There are four basic types of planets.
+
+  Earth-type
+
+        00000000001111111111222222222233333333
+	01234567890123456789012345678901234567
+      1 ######################################
+      2 ############..*...#***##....#####*#.##
+      3 ..#*^*#*.....*.*^^^****#*******#**.*..
+      4 ..*^**.*.......*****.*************.*..
+      5 ..*..*.......**....*..**^^^^******.*..
+      6 ......))......*----****..***.***^**.*.
+      7 .....^))).....*---**^**...*....**^^...
+      8 .....^)*........***^*........*...*..*.
+      9 ......^*.........**^*..........**^*...
+     10 #..#####...####...##....####...##.*##.
+     11 ######################################
+             Sample Earth-type planet
+
+    Continents are generated randomly by the game, and approximate real growth
+    of islands by geologic processes. On the average, sectors closer to water
+    have greater fertility than sectors farther aware, which have greater
+    resource deposits. On the norht and south poles of the planet lies ice,
+    prime real estate for certain races.
+
+  Gas Giant type
+
+    This type of planet is mostly a large ball of gas. They do not have many
+    resources but they are useful; for instance any ship orbiting a gas giant
+    can gain fuel by 'skimming' it's surface for hydrogen (provided its race
+    has developed hydrogen fusion for fuel.)
+
+        000000000011111111112222222222333333333344444444445
+	012345678901234567890123456789012345678901234567890
+      1 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.~~~~~
+      2 ~~~~~~~~~~.~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      3 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~........~~~~~~~~~~~~
+      4 ...................................................
+      5 ~~~~~~~~~~~~~~~~~~~~~~~~~.................~~~~~~~~~
+      6 ~~~~~~.~~~~~~~~~~.~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      7 ~~~~~~~~~~.~~~~~~~~~~~~~~~~~~~.~~~~~~~~~~~.~~~~~~~~
+      8 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      9 ~~~~~~~~~~~~~~~~~~..............~~~~~~~~~~~~~~~~~~~
+     10 ...................................................
+     11 ~~~~~~~~~~~~~~~~~~~~~~~~~~...............~~~~~~~~~~
+     12 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.~~~~~~~~~~~~~~.~~~~~
+                      Sample gas giant planet
+
+    Notice the narrow bands streaked across the surface; this represents bands
+    of weather across the face of the planet.
+
+  Airless, Asteroidal, and Iceball Types
+
+    These planets are too small to hold an atmosphere, or have had it stripped
+    off by natural or artficial disaseter. They consist of land mountainous
+    and/or ice sectors, with high resource deposits and comparitvely low
+    fertility. Both types contain large craters in them from meteorite impacts,
+    while asteroidal bodies often appear in unusal shapes (i.e. not exactly
+    square). If the temperature is sufficiently low, ice may cover the surface.
+    This is an 'iceball' type planet.
+
+        00000000001111111111222                  000
+	01234567890123456789012                  012
+      1 ^#####^^#########^^####                1 *^^
+      2 ^^^^^*^^^^^^^*^^^^^^^^^                2 ^*^
+      3 ^^^*^^^^^^^^***^^*^^^^^          Sample Asteroid type
+      4 *^^^^*****^^^*^^^^^^^**
+      5 **^^***^***^^^*^^^*^**^                  000000
+      6 *^^*^******^^^^^^^^^^**                  012345
+      7 *^^^^^****^^*^^^^^*^^^*                1 ^##^##
+      8 ^^*^^^^^^^^^^^^^^^^^^^^                2 ^#^###
+      9 ###########^^######^###                3 ##^###
+         Sample Airless type             Sample Iceball type
+
+  Desert and Forest Types
+
+    Arakis (Dune) and Endor are two examples of desert and forest types
+    respectively. Desert planets are high in resource content and are mostly
+    desert sectors with a few mountain sectors. Forest planets are high in
+    fertility and are made up of mostly forest sectors with some scattered water
+    sectors.
+
+        0000000000111111111122
+	0123456789012345678901
+      1 ------------*****^----             000000000011111
+      2 -------------****^----             012345678901234
+      3 --------------***^----           1 ))..)))))))))))
+      4 -^-------------------*           2 )))..))))))))))
+      5 -*-------------------*           3 ))).).).)))))))
+      6 **-------------------*           4 ))))))).)))))))
+      7 **-------------------*           5 ))))).).)))))))
+         Sample Desert type              Sample Forest type
+
+  Water Types
+
+    Aquatic planets are for those races that like to swim. They are made of
+    mostly water with some ice at the poles and a few scattered islands.
+
+        00000000001111111111
+	01234567890123456789
+      1 ..#..#.......^#.####
+      2 ....................
+      3 .^^.................
+      4 ..^.........^^.....^
+      5 ^..................^
+      6 ^##.####..##.#####^#
+         Sample Water type
+
+{{SEE ALSO}}
+  orbit, cs, scope
+
+& mobilize
+
+{{NAME}}
+  mobilize [1] -- Increase military mobilization in sectors
+
+{{SYNTAX}}
+  mobilize <new quota>
+
+{{DESCRIPTION}}
+  This command sets quotas for mobilization in sectors, for the production of
+"destructive capacity" which represented weapons in GB.
+  The "mobilization" of a sector represents its miliatry readiness; the greater
+the percentage (up to 100), the higher the mobilization. Sectors that are
+mobilized produce quantities of destructive capacity according to the degree of
+mobilization and the amount of resource deposits in the sector.
+  This command only sets a quota, it does not do any actual work. Mobilization
+will be built up by the citizenry a small amount at a time as the population
+works to organize things and set up factories and shelters and so forth. Each
+mobilization point on each sector costs 0.1 resource points to produce. This
+amount is deducted from the resource points available on the planet.
+
+{{SEE ALSO}}
+  defend, arm, commodities
+
+& modify
+
+{{NAME}}
+  modify [0] -- Modify attributes of a ship being designed at a factory.
+
+{{SYNTAX}}
+  modify <attribute> <value>
+
+{{DESCRIPTION}}
+  Once a ship design has been specified for a factory, you may alter the design
+attributes to suit your needs. Each attribute is compared to the 'standard'
+design and a cost for producing the ship is evaluated based on these attributes.
+Specifically, the following attributes may be altered:
+    armor
+    size
+    crew
+    fuel
+    cargo
+    destruct
+    speed
+    hyperdrive
+along with the special modification commands below.
+  The modify command reports the current cost of producing the ship type at the
+factory.
+  A base mass is also computed, the mass of the ship with nothing loaded on
+board. Each point of armor has a mass of 1 while each gun and point of size has
+a mass of 1/10.
+  Special systems:
+         laser - A player can mount/dismount combat lasers by using
+	         'modify laser'.
+          CEWs - A player can modify 'confined energy weapon' parameters. A CEW
+	         is assumed to be active if it has strength. To specify a CEW
+	         strength do 'mod cew strength <strength>'. To modify the CEW
+	         range do 'mod cew range <range>'.
+       primary - A player may modify the primary gun caliber and strength with
+                 'mod primary strength <strength>' and
+                 'mod primary caliber <light|medium|heavy>'. A particular ship
+	         type has a limit to the maximum gun caliber.
+     secondary - Same as for primary except the word 'secondar' is used. Some
+                 ships may not have seconadry gun systems.
+
+{{SEE ALSO}}
+  make, build, lasers, cew
+
+& motto
+
+{{NAME}}
+  motto [0] -- Set a motto for an alliance block
+
+{{SYNTAX}}
+  motto <motto>
+
+{{DESCRIPTION}}
+  Players may give the alliance block they control a motto which will show up on
+individual block reports. This is strictly for entertainment/communications and
+has no effect on the play of the game.
+
+{{SEE ALSO}}
+  blocks
+
+& mount
+
+{{NAME}}
+  mount [0] -- Mount a crystal into a ship's hyperdrive.
+  dismount [0] -- Dismount a crystal from the hyperdrive.
+
+{{SYNTAX}}
+  mount <ship>
+  dismount <ship>
+
+{{DESCRIPTION}}
+  Normally, a ship requires a waiting period before a hyperspace jump can be
+executed. This requires powering up the drive for some period of time. However,
+the charge-up time can be bypassed if a player has a crystal mounted. The effect
+of a crystal also allows the ship to jump farther and more fuel efficiently than
+for a shipw without a crystal mounted.
+  Laser guns also require a mounted crystal in the ship.
+  In order to mount a crystal, the plyer can change scope to the ship which is
+to have a crystal mounted, or specify the ship's number. The ship must have a
+crystal on board. A crystal can be dismounted using the 'dismount' command.
+
+{{SEE ALSO}}
+  crystal, order
+
+& move
+
+{{NAME}}
+  move [variable] -- Move civilians from one sector to another.
+
+{{SYNTAX}}
+  move <origin sector x,y> <direction list> <number of population>
+
+{{DESCRIPTION}}
+  This command is used to move population from one sector to an adjacent sector.
+The player enters the origination sector, target sector, and the amount of
+population to move. If a destination sector is occupied by aliens, the combat
+strengths of the player (attacker) and alien (defender) are computed. The
+assault is evaluation and casualties are removed from each sector. See 'combat'
+for more details.
+  If no population argument is given, all population in the original sector will
+be moved. If a negative population is specified, the all population, except for
+the amount specified, will move.
+  The direction orders the group to move in one of 8 compass directions:
+    7   8   9
+     \  |  /
+      \ | /
+   4 -- . -- 6
+      / | \
+     /  |  \
+    1   2   3
+  The population will continue to move as long as a valid move is available.
+Movement stops when an illegal move, lost/draw combat, or lack of action points
+occurs. For example, 'move 10,4 6698 -2' will leave two people behind in sector
+10,4 move the rest to 11,4, leave 2, move the rest to 12,4, leave 2, move the
+rest to 11,3, leave 2, finish the move to 11,2. This move can be executed until
+the availability of action points (see below).
+  This command cannot be used on planets that have been enslaved to another
+race.
+  Moving civilians uses up more action points than moving troops.
+    +-----------------------+---+----+-----+------+------+-----+------+------+
+    | AP's                  | 1 |  2 |  3  |   4  |   5  |  6  |   7  |   8  |
+    +-----------------------+---+----+-----+------+------+-----+------+------+
+    | Civilians     Min     | 1 |  3 |   7 |   20 |   54 | 148 |  403 | 1096 |
+    |               Max     | * |  6 |  19 |   53 |  147 | 402 | 1095 |      |
+    +-----------------------+---+----+-----+------+------+-----+------+------+
+    | Military      Min     | 1 |  9 |  99 |  999 | 9999 |     |      |      |
+    |               Max     | 8 | 98 | 998 | 9998 |    - |     |      |      |
+    +-----------------------+---+----+-----+------+------+-----+------+------+
+      * NOTE: Moving minsex cost only 1 ap.
+  For attacks (against alien occupied positions add 1 to the action point cost.
+
+{{SEE ALSO}}
+  combat, enslave, deploy
+
+& name
+
+{{NAME}}
+  name [8] -- Rename an object (ship, star, planet, your race)
+
+{{SYNTAX}}
+  name <what> <name>
+
+{{DESCRIPTION}}
+  In order to rename a ship, cs to the ship, then do 'name ship <name>'. To
+name a fleet, cs to a ship in the fleet then 'name fleet <name>'. You can also
+rename your race with 'name race <name>', or your own governor name with
+'name governor <name>'. You must own ships to rename them.
+  To name a class of ships being produced by a factory, you use
+'name class <name>'. The factory must be off-line for this to work.
+
+{{SEE ALSO}}
+  cs, report, weapons
+
+& orbit
+
+{{NAME}}
+  orbit [0] -- Graphic representation of objects in current scope
+
+{{SYNTAX}}
+  orbit <[-n] [-S] [-p] [-s] [-ship/planet number]> <path>
+
+{{DESCRIPTION}}
+  Orbit gives a visual map of all stars, planets, and ships in the scope of
+path or the current scope if none is specified. You cannot map an area that has
+not been visited by one of your ships.
+  If path is the root, orbit will show all the stars in the game, and all ships
+travelling in interstellar space that belong to the player.
+  If path is a star, orbit will display the solar system there whit its star in
+the center and orbiting planets around it, plus all ships that are the player's
+(or that can be detected).
+  If path is a planet orbit will display that plaent and orbiting ships.
+  If path is in the form #shipnum orbit will display a map of whichever system
+or planet the ship is at.
+  If no path is specified, the current scope is used, and display will be
+centered around the current lastx,lasty coordinates. These coordinates represent
+the x,y location of the last scope the player was in. For instance, if a player
+types the following:
+    [xx] / >cs #5/..
+    [yy] / Sol / Sol-III >orbit
+  The orbit display will be centered around the location of ship #5.
+  When no path is specified, the zoom factor comes into play as well. Display
+will appear larger or smaller according to the zoom factor (1.0 being normal).
+If there is a specified path argument to orbit, zoom and last coordinates are
+not dealt with. (It is as if they are 0,0 and 1.0, respectively.)
+
+{{OPTIONS}}
+  When invoking orbit the options given (except for -(number)) can be either in
+the form "-pSs" or spread out as in "-p -S -s -3".
+           -p : If this option is set, orbit will not display planet names.
+           -S : Do not display star names.
+           -s : Do not display ships.
+    -(number) : Do not display the #'d ship or planet (should it obstruct the
+    	        view of another object). Stars or planets are numbered
+		sequentially from 1, while ships can be references by their ship
+		number.
+
+{{SEE ALSO}}
+  map, cs, scope, zoom
+
+& order
+
+{{NAME}}
+  order [0] -- Give ships standing orders
+
+{{SYNTAX}}
+  order <shipnumber of shiptypes> <order> <arguments...>
+
+{{DESCRIPTION}}
+  Order gives standing orders to the ship specified. A list of ship types can
+also be used instead of a ship number. This will order all ships of the
+designated types in the same level the same. For example,
+'order dBC <orders...>' will order all destroyers, battleships, and cruisers in
+the current scope.
+  Certain ships cannot be given certain orders; The program will notify the user
+of illegal orders.
+  If no shipnumber is specified, the program will list the orders of all ships
+in the current ship. If a shipnumber is specified, but no other arguments are
+given, the orders for that ship will be displayed.
+  Currently the orders that can be changed are:
+    merchant -- Controls whether or not ship is in merchant mode. See
+    	        'help route' for details.
+		Syntax: order <shipnumber> merchant <off/route number>
+
+    destination -- The ship will attempt to move towards the star/planet/ship
+                   specified. This order cannot be changed for ships that are
+		   landed or docked.
+		   Syntax: order <shipnumber> destination <destination>
+
+    speed -- change the speed of a ship. All speed factors between 0 and 9.
+             Higher speeds use fuel less efficiently than lower speeds.
+	     Syntax: order <shipnumber> speed <speed factor>
+
+    stockpile -- Many of ships use stockpiles. That means you don't need to
+                 load resources in ships to repair or use them. It is enough
+		 if there is resos or fuel on planet where they are landed.
+		 Syntax: order stockpile (on or off)
+		 NOTE: Ships work before planet produces new goodies. So if
+		       you want your ships to use stockpiles be sure there
+		       is one to use BEFORE an update.
+
+    jump -- This orders the ship to activate its hyper-space engines in order
+            to jump to another star system. The ship cannot be ordered to
+	    navigate when the engines are activated. In order to use the
+	    hyperspace jump, the engines must reach a charge level of 1, then
+	    the ship is 'ready'. When the engines are activated and charge is
+	    complete, the ship will automatically jump to the destination
+	    system (specified with order). Ships that do not have hyper-drive
+	    may not use this option.
+	    Syntax: order jump <on or off>
+
+    impact -- A missile can be designated an impact sector. Upon reaching the
+              destination planet it will explode centered upon the designated
+	      sector. A missile must have destruct loaded on board to be
+	      effective.
+	      Syntax: order <shipnumber> impact <x,y>
+
+    scatter -- A missile can be designated to impact a random sector. When this
+               is set, impact order above is undone. Ordering an impact sector
+	       undoes this order.
+	       Syntax: order <shipnumber> scatter
+
+    switch -- Many devices have an on/off switch to activate or deactivate them.
+              This option toggles the on or off status.
+	      Syntax: order <shipnumber> switch
+
+    online -- Factories can be turned online by issuing this command.
+              Syntax: order <shipnumber> online
+
+    aim -- Change the ship/object 'aimed at'. There are several ship types that
+           can do this, with different effect for each. For instance, Space
+	   Mirrors can be focused at an object in the same system or 2000
+	   distance away at a cost of 0.3 fuel (for maneuvering). Ships being
+	   focused on will take a certain about of damage per turn, and planets
+	   will experience temperature change corresponding to the intensity.
+	   Syntax: order <shipnumber> aim <target>
+
+    intensity -- Change degree of focus for a space mirror.
+                 Syntax: order <shipnumber> intensity <new intensity>
+
+    transport -- This sets the target device for a transporter.
+                 Syntax: order <shipnumber> transport <target device>
+
+    evade -- This orders a ship to be performing evasive maneauvers. Although
+             this makes a ship, when moving, harder to hit, it also uses up
+	     twice as much fuel as normal.
+	     Syntax: order <shipnumber> evade <on or off>
+
+    primary/secondary -- Activate primary or secondary gun systems. If no
+                         argument is given the old default retaliation strength
+			 is used.
+			 Syntax: order <shipnumber> primary [<strength>]
+			 Syntax: order <shipnumber> secondar [<strenght>]
+
+    retaliate -- Normally, if a ship is attacked and suffers damage, it and all
+                 ships assigned to protect will immediately retaliate with one
+		 salvo against the violating ships. A ship can also be ordered
+		 *not* to retaliate.
+		 Syntax: order <shipnumber> retaliate <on or off>
+
+    laser -- If this is set, the ship will use it's combat lasers to attack with
+             instead of normal fire. The player must specify how many strength
+	     points will fire upon retaliation (or default fire power). For
+	     every point of strenght, a laser uses 2 fuel points instead of
+	     destruct for the attack. The ship must have lasers mounted as well
+	     as a crystal in the hyperdrive.
+	     Sytanx: order <shipnumber> laser <on or off> <default strength>
+
+    navigate -- While this is on the destination described above is ignored and
+                instead, the ship will travel in the direction specified by the
+		course. The directions are specified with degrees between 0 and
+		360 where 0 is 'up', 90 is 'right', 180 is 'down' etc. You must
+		also specify the number of turns to do the maneuver. After every
+		move the turn count is decremented one until it becomes zero.
+		After the maneuver the navigate setting is automatically turned
+		off and if a destination has been set the ship will then proceed
+		in that direction.
+		Syntax: order <shipnumber> navigate <course> <turns>
+
+    protect -- This allows a ship to protect another ship. Suppose, for example,
+               ship A is set to protect ship B. If another ship C fires at B
+	       then both B *and* A will retaliate. This allows players to design
+	       their own defense networks. If no argument is specified protect
+	       will be turned off.
+	       Syntax: order <shipnumber> protect <ship to protect>
+
+    salvo -- This allows players to control the strength of their
+             retaliate/defense/protect response. By default it is set to the
+	     number of guns of the ship.
+	     Sytanx: order <shipnumber> salvo <number of guns>
+
+    defense -- If this is set 'on' it will retaliate if the planet that it is
+               in orbit around or landed on is attacked. If it is set 'off' the
+	       ship will not retaliate if its host planet is attacked.
+	       Syntax: order <shipnumber> defense <on or off>
+
+    switch -- Turn mines and transporters on or off.
+              Syntax: order <shipnumber> switch
+
+    explosive -- If the ship is a mine or a gamma ray laser, this command will
+                 set it to be in explosive mode which can damage ships.
+		 Syntax: order <shipnumber> explosive
+
+    radiative -- Similar to the previous command. Radiation mines and gamma ray
+                 lasers incapacitate ships.
+		 Syntax: order <shipnumber> radiative
+
+    move -- If the ship is a terraforming device or space plow, the direction it
+            is to move across the planet. the direction is given as a single
+	    digit, similar to those used in the regular "move" command.
+	    Syntax: order <shipnumber> move <x>
+
+    hop -- If ship is a terraformer, space plow or dome, hop order can be given.
+           If hop is on (default) ship will automatically change sector it's
+	   working on when sector becomes ready (fert 100%, efficiency 100% or
+	   wanted sectortype). Plow will hop into the lowest fertility, dome in
+	   lowest efficiency compatible own or empty sector, and terraformer
+	   into another non compatible and non wasteland, own or empty sector.
+
+    limit -- Limit will set the target efficiency compatibility or fertility
+             when Y, T or K will hop into next sector.
+	     Syntax: order <sip> limit <wanted %>
+
+    autoscrap -- When YKT type of ship got nothing else to do and autoscrap
+                 is ordered on, ship will automatically scrap itself.
+
+    trigger -- If the ship is a mine the trigger radius can be specified.
+               Syntax: order <shipnumber> trigger <trigger radius>
+
+    disperse -- Will mine disperse when it becomes empty. Word of warning...
+                empty mines are easy to capture by your enemy.
+
+    fleet -- Order a ship to join a fleet from A to Z. You must be the admiral
+             of the fleet (or be an unused fleet).
+
+    cloak -- Order a ship to activate its cloaking device. The cloak will be
+             activated on the next segment or update.
+	     Syntax: order <shipnumber> cloak <on|off>
+
+    smartgun -- Automatically return fire on the types of ships in <list>.
+                This is used to prevent less significant ships from wasting
+		your ship's destruct in retaliation.
+		Syntax: order <shipnumber> smart strength <amt>
+		        order <shipnumber> smart list <list>
+			order <shipnumber> smart gun <primary|secondary|off>
+
+  Ships that are landed or docked, or have no crew and are not robotic ships,
+cannot be given orders.
+
+{{SEE ALSO}}
+  scope, actionpoints
+
+& page
+
+{{NAME}}
+  page [0] -- Tell another player that you are looking for them
+
+{{SYNTAX}}
+  page <player>
+
+{{DESCRIPTION}}
+  If a player not at universal scope, he/shee can page another player. The
+player must have diety status or physically be inhabiting the system in some
+capacity. The paged player will get a message that the paging player is looking
+for him in the system. This is a way of calling someone for a conference.
+
+{{SEE ALSO}}
+  announce, who
+
+& pay
+
+{{NAME}}
+  pay [variable] -- Pay money to another race
+
+{{SYNTAX}}
+  pay <race> <amount>
+
+{{DESCRIPTION}}
+  This command is used to transfer funds from your treasury to another race's
+treasury. There are not conditions on payments. Paying spends 1 global ap / 1000
+money.
+
+{{SEE ALSO}}
+  money, treasury
+
+& personal
+
+{{NAME}}
+  personal [0]  -- Leave a personal message in your profile
+
+{{SYNTAX}}
+  personal <message>
+
+{{DESCRIPTION}}
+  Races can put a personal message in their profile such as mailing address of
+whatever they wish.
+
+{{SEE ALSO}}
+  profile
+
+& pledge
+
+{{NAME}}
+  pledge [0] -- Say yes to an invitation to join a block
+  unpledge [0] -- Leave a block
+  invite [0] -- Invite another race to join your block
+  uninvite [0] -- Kick a race out of your block
+
+{{SYNTAX}}
+  pledge <race>
+  unpledge <race>
+  invite <race>
+  uninvite <race>
+
+{{DESCRIPTION}}
+  Each race may lead one alliance block. In order to get people into the group
+you must use the 'invite <race>' to request membership. The other player may
+join the alliance block by using 'pledge <leader race>'. A race may quit by
+doing 'unpledge <leader race>', or blackball another for his group by doing
+'uninvite <race>'. Alliance blocks do not force alliances among its members. In
+fact, it solely is used for political purposes.
+
+{{SEE ALSO}}
+  block, power, relation
+
+& post
+
+{{NAME}}
+  post [1] -- Post a message to the Galactic News
+
+{{SYNTAX}}
+  post
+
+{{DESCRIPTION}}
+  Message can be posted to the Galactic News using the 'post' command. This
+(depending on game settings) costs action points.
+
+{{SEE ALSO}}
+  send, read
+
+& power
+
+{{NAME}}
+  power [0] -- List empires and their approximate influence
+
+{{SYNTAX}}
+  power
+
+{{DESCRIPTION}}
+  This command lists all races you know at least 11%. The more you know about
+the race, the more correct the information will be. Power provides summary
+information as follows:
+    rank - Race's rank standing in the game (who's winning)
+    #    - Race number (followed by relationship indicators)
+    Name - Race name
+    VP   - Estimated victory points (for comparing relative standing)
+    mil  - Estimated total military size
+    civ  - Estimated total population
+    cash - Estimated treasury size
+    ship - Estimated number of ships
+    pl   - Estimated number of controlled planets (colonies)
+    res  - Estimated resources accumulated total stockpile
+    fuel - Estimated fuel accumulated total stockpile
+    dest - Estimated destruct accumulated total stockpile
+    morl - Estimated morale of the race
+    know - What percent you know this particular race
+
+{{SEE ALSO}}
+  victory
+
+& profile
+
+{{NAME}}
+  profile [0] -- Racial profile
+
+{{SYNTAX}}
+  profile <race name>
+
+{{DESCRIPTION}}
+  This points out some major information about a race. For example:
+    Race's morale
+    Race's tech (and list of your race's discoveries)
+    Gun ranges
+    Space telescope range
+    Ground telescope range
+    Major sectortype
+
+  And a bunch of less important info, like capital ship, number of active
+updates. This command also prints out a short summary of race's major
+characteristics, like IQ, mass, fight, metabolism...
+  You can see race's optimal planet conditions and your own sector preferences
+too. Add some personal information with 'personal' command.
+
+{{SEE ALSO}}
+  victory, power, relation, personal
+
+& promote
+
+{{NAME}}
+  promote [0] -- Promote your governor
+
+{{SYNTAX}}
+  promote <governor> <rank level>
+
+{{DESCRIPTION}}
+  Every governor have a military rankings. Different governors can give
+different commands. Raceleader can assign ranks to governors using 'promote'
+command. Different rank levels are:
+    General
+    Captain
+    Private
+    Novice
+
+{{SEE ALSO}}
+  appoint, ranks
+
+& purge
+
+{{NAME}}
+  purge [0] -- Clean out marked dispatches or wipe all telegrams
+
+{{SYNTAX}}
+  purge dispatches -- Cleans out all dispatches marked for deletion
+  purge telegrams  -- Wipes out all telegrams
+  purge all        -- Accomplishes both of the above
+
+{{DESCRIPTION}}
+  The 'purge' command will remove all dispatches that have been previously
+marked for deletion. It will also erase all telegrams that have been sent to you
+so far.
+  There is also an 'autopurge' toggle that will immediately run the purge
+command upon executing the 'delete' command. It will also run the purge command
+immediately after reading your telegrams. The 'autopurge' toggle makes it
+unnecessary to run 'purge' command.
+  This command has abbreviations: 'purge d', 'purge t', and 'purge a'.
+
+{{SEE ALSO}}
+  delete, toggle
+
+& quit
+
+{{NAME}}
+  quit [0] -- Disconnect from the server.
+
+{{SYNTAX}}
+  quit
+
+{{DESCRIPTION}}
+  This closes down the connection between the user's site and the server.
+
+& read
+
+{{NAME}}
+  read [0] -- Read dispatches sent to you by other players, or read telegrams
+              sent by ships/planets, or read the Galactic News.
+
+{{SYNTAX}}
+  read dispatches  -- Read all dispatches sent to you by players
+  read dispatch #  -- Read a specific dispatch #
+  read telegrams   -- Read all telegrams sent to you by ships and planets
+  read news        -- Read the Galactic News
+  read declaration -- Read the Galactic News gossip column
+  read combat      -- Read the Galactic News bloodshed
+  read bussiness   -- Read the Galactic News business pages
+  read postings    -- Read letters to the editor
+
+{{DESCRIPTION}}
+  The 'read' command is used to read dispatches sent to you by other players,
+telegrams sent by the server during updates or segments, or the Galactic News.
+Players may send you dispatches from time to time. Dispatches are messages used
+for intra-player communication, basically a type of email. The server will send
+you telegrams when things happen such as ships reading their destinations,
+attacks against you when you ewre not signed into the game, and other such
+events. The Galactic News contains information about new relations between
+races, combat reports, trading between races, and general message from other
+races. A player can post a message on the Galactic News by using the 'post'
+command.
+  The commands my be abbreviated (i.e., 'read d', 'read t', 'read n', etc.)
+
+{{SEE ALSO}}
+  post, send
+
+& relation
+
+{{NAME}}
+  relation [0] -- State relations
+
+{{SYNTAX}}
+  relation <race>
+
+{{DESCRIPTION}}
+  This command prints out the relations between the player's race and those of
+other races in the game. It also gives the translation modifiers for each race.
+  If an argument is given, the relationships towards that race is displayed
+only. If no arguments are given, the relationships towards your race are shown.
+
+{{SEE ALSO}}
+  declare
+
+& repair
+
+{{NAME}}
+  repair [0] -- Repair a planet/sectors
+
+{{SYNTAX}}
+  repair <xlow:xhi,ylow:yhi or x,y>
+
+{{DESCRIPTION}}
+  Players can repair sectors which have wasted designations, due to combat or
+other effects. The player must change scope to the planet. If no arguments are
+given, all sectors will be repaired to the limit of available resources. A
+player must inhabit at least one sector and have 10 resources for each sector
+repaired. If arguments are given, a rectangular area specified by the player
+will be repaired. Note that only wasted sectors can be repaired, and sectors
+inhabited by aliens may not be repaired.
+
+{{SEE ALSO}}
+  survey
+
+& report
+
+{{NAME}}
+  report [0] -- Navigational ship report
+
+{{SYNTAX}}
+  report <#shipnum or ship types>
+
+{{DESCRIPTION}}
+  This command allows users to survey their ships. Where 'stock' gives
+information about what a ship is carrying, 'report' will give information about
+where the ship is and where it is going.
+  If given with no arguments, 'report' will start with the current scope and
+give reports on all ships from there down.
+  Additional information about the ship can be obtained with the 'examine'
+command.
+
+{{SEE ALSO}}
+  examine, ship, stock, stats
+
+& reserve
+
+{{NAME}}
+  reserve -- Used to reserved fuel and resources on a planet
+
+{{SYNTAX}}
+  reserve <amt> res
+  reserve <amt> fuel
+
+{{DESCRIPTION}}
+  Use this command to reserved fuel or resources in your stockpiles that the
+infrastructure machine and any other machines that use stockpiles will ignore.
+
+{{SEE ALSO}}
+  infrastructure
+
+& revoke
+
+{{NAME}}
+  revoke [0] -- Remove a governor's powers
+
+{{SYNTAX}}
+  revoke <governor #> <governor to get belongings>
+
+{{DESCRIPTION}}
+  This command removes a governor from power, and it can only be done by the
+race's leader. When a governor is remove, the leader must specify which other
+governor will get the ex-governor's ships, star systems, and money. The leader
+can specify "0" for themselves.
+
+{{SEE ALSO}}
+  appoint, governors, grant, who
+
+& route
+
+{{NAME}}
+  route [0] -- Sets and provides information about shipping routes
+
+{{SYNTAX}}
+  route - Show all active shipping routes for the planet
+  route <number> - Show the route at the planet specified by <number>
+  route <number> <path> - This will set the route number to the planet given by
+                          the path. The route must be active.
+  route <number> activate - Activate the shipping route
+  route <number> deactivate - Deactivate the route
+  route <number> land <x,y> - Ships will land on sector x,y
+  route <number> load <list of commodities> - Load the commodities when landed
+  route <number> unload <list of commodities> - Unload the commodities when
+                                                landed
+
+{{DESCRIPTION}}
+  This command is used to set up automated shipping for your empires. Each
+planet is allowed to have 4 routes activated, number 1 through 4. A route has
+the following components:
+    destination: This is where ships on the route will travel to next, after
+                 loading and unloading at the planet. If a ship has hyperspace
+		 capability, jumps will be ordered. Destinations are set during
+		 all movement segments and updates. Only ships with merchant
+		 shipping set to the route will be given the orders.
+    activate/deactivate: This will control whether route orders are given to
+                         arriving merchant ships.
+    land: Ships must land on a sector to perform their loading/unloading orders.
+          If a ship does not have the fuel to land, it won't. Merchant ships
+	  will not crash land. The player must also control the route sector, or
+	  it must be vacant.
+    load/unload: Once landed, ships will embark and disembark commodities
+                 specified at the planet. Note that the maximum possible
+		 transfer will always be ordered.
+		 Example:
+		   route 3 load rfdx   Will order route 3 merchants to load
+		                       r, f, d, and xtals.
+                   route 1 unload rd   Will order route 1 merchants to unload
+		                       all r and d. Note that you should not
+				       order ships to unload fuel for obvious
+				       reasons!
+
+{{EXAMPLE}}
+  You produce destruction in /Vaasa/Hima, resource in /Espoo/Otski and you want
+to move those in your home planet /Espoo/Nysvaekoto, using cargoship #357.
+  First create route.
+    'cs /Espoo/Nysvaekoto'
+    'route 1 activate'
+    'route 1 land 0,0'           Or whatever is a good sector
+    'route 1 load f'             Now your ship has fuel to travel
+    'route 1 unload rd'          Commodities delivery
+    'route 1 /Espoo/Otski'       Next stop
+    'cs /Espoo/Otski'
+    'route 1 activate'
+    'route 1 land 0,0'
+    'route 1 load r'
+    'route 1 /Vaasa/Hima'        Next stop
+    'cs /Vaasa/Hima'
+    'route 1 activate'
+    'route 1 land 3,4'           Again sector is just an example
+    'route 1 load d'
+    'route 1 /Espoo/Nysvaekoto'  Back to home and ship will start another round
+
+  Second order ship into that route.
+    'order #357 merchant 1'         Now #357 knows to follow route 1
+    'roder #357 dest /Espoo/Otski'  First travel must be ordered
+
+{{SEE ALSO}}
+  order
+
+& schedule
+
+{{NAME}}
+  schedule [0] -- Give player information of the schedule for updates
+
+{{SYNTAX}}
+  schedule
+
+{{DESCRIPTION}}
+  This option provides information about the update schedule
+
+{{SEE ALSO}}
+  time
+
+& scrap
+
+{{NAME}}
+  scrap [1|0] -- Junk a ship
+
+{{SYNTAX}}
+  scrap <#shipnum>
+
+{{DESCRIPTION}}
+  Scrap allows users to reclaim the resources consumed in building a ship or
+object. Because of labor costs, only 50% of the original cost of the ship/object
+can be reclaimed.
+  Upon scrapping this ship, its reclamation value plus any commodities it may
+have in its hold, are added to the stockpiles of the planet it is on. If the
+ship is docked with another ship, commodities up to equal of the free space of
+another ship can be reclaimed.
+  If the ship is not landed, no resources may be reclaimed. If the ship has crew
+or troops that cannot be rescued then your race will suffer a morale hit equal
+to double the cost of the ship (this does not apply to pods). Scrapping normally
+costs one AP, however, does not cost APs at the universe level scope.
+
+{{SEE ALSO}}
+  dock, build
+
+& sell
+
+{{NAME}}
+  sell [20] -- Put a lot of commodities up for sale in the market
+
+{{SYNTAX}}
+  sell <commodity> <amount>
+
+{{DESCRIPTION}}
+  Galactic Bloodshed allows players to sell raw commodities. You must 'cs' to a
+planet which contains the goods to be sold. These goods are then subtracted from
+the planet stockpiles, and placed as a 'lot' for open bidding between players.
+The highest bidder on the lot will get the goods at the second update after
+putting it up for sale.
+  You must have a government center '@', space port 'J', space station 'S', or
+habitat 'H', at a planet to sell from it. The ship must be undamaged.
+
+{{EXAMPLE}}
+  sell f 100  - Subtracts 100 fuel from the planet and puts up a lot for sale in
+                the market. The higest bidder two updates later will get the
+		fuel.
+
+{{SEE ALSO}}
+  bid, money
+
+& send
+
+{{NAME}}
+  send [1] -- Send dispatches to other players
+
+{{SYNTAX}}
+  send <race #> <message>        -- This will send a dispatch to all governors
+                                    of the given race.
+  send <race #> <governor #>     -- This will send a dispatch to the given
+                                    governor of the given race.
+  send block <block #> <message> -- Sends a dispatch to every member of the
+                                    given block.
+  send star </Star> <message>    -- Send a dispatch to all inhabitants of a
+                                    star.
+
+{{DESCRIPTION}}
+  This command allows users to communicate with each other. The player must
+specify who they wish to contact, and a message to send to that player. Races
+that receive your dispatch will gain a little knowledge of your race.
+
+{{SEE ALSO}}
+  read
+
+& ship
+
+{{NAME}}
+  ship [0] -- Ship report
+
+{{SYNTAX}}
+  ship <#shipnum or shiptypes>
+
+{{DESCRIPTION}}
+  This command allows users to survey their ships. It is equivalent to
+requesting a stock, report, and tactical report for each ship. This command
+uses scoping in the same way other commands do. Ship types are detailed in the
+"build" docs. Additional information about ships can be obtained with the
+'examine' command.
+
+{{SEE ALSO}}
+  examine, report, tactical, stats
+
+& stars
+
+{{NAME}}
+  stars [0] -- Obtain information of star positions
+
+{{SYNTAX}}
+  stars <radius>
+
+{{DESCRIPTION}}
+  This command is used to examine information regarding stellar positions. If
+the argument is specified, all stars within the given (integer) range are
+listed. If no argument all positions are listed.
+  NOTE: Output may be used with the 'psmap' program.
+
+{{SEE ALSO}}
+  map, psmap
+
+& stats
+
+{{NAME}}
+  stats [0] -- Report ship characteristics
+
+{{SYNTAX}}
+  stats <#shipnum or ship types>
+
+{{DESCRIPTION}}
+  This command allows users to examine characteristics of their ships.
+
+{{SEE ALSO}}
+  examine, ship, stock, tactical, scope, report
+
+& status
+
+{{NAME}}
+  status [0] -- Status report for colonies
+
+{{SYNTAX}}
+  status <star>
+
+{{DESCRIPTION}}
+  This command gives a list of all the occupied planets in the star systems
+given, along with the population and level of tech investment at each of them.
+It shows the amount of "extra" technology that will be generated by the given
+investment, and the "maximum" amount (the amount that would be gained by
+investing all the production (but not all the stockpiles)) in technology. If no
+stars are specified, a status report for all colonies is printed.
+
+{{SEE ALSO}}
+  profile, technology
+
+& stock
+
+{{NAME}}
+  stock [0] -- Stockpile report
+
+{{SYNTAX}}
+  stock <#shipnum or shiptypes>
+
+{{DESCRIPTION}}
+  This command allows users to survey their ships. It gives basic information
+about cargo and crew. If given with no arguments, 'stock' will start with the
+current scope and give reports on all ships form there down.
+
+{{SEE ALSO}}
+  ship, report, tactical, scope
+
+& survey
+
+{{NAME}}
+  survey [0] -- More details survey of planet, sector, star
+
+{{SYNTAX}}
+  survey <xlow:xhi,ylow:yhi or x,y>
+
+{{DESCRIPTION}}
+  Survey gives a different report depending on what scope it is used on. The
+possible scopes are sector, planet, and star. Census on sector:
+    > x,y cond/type  owner race eff mob frt  res  mil popn ^popn xtals
+    > 0,0   o   #        2    0  15  10  34  205    0  517     0
+
+      x,y: Map coordinates of sector
+     cond: Designation of sector appearance (after terraforming, nuking etc.)
+     type: Desgination of sector (land, water, etc.)
+    owner: Owner of sector
+     race: Original owner (startingsectors only)
+      eff: Efficiency (%age it is built up) of the sector
+      mob: % mobilization of the citizens in that sector
+      frt: Fertility of the sector (supports people)
+      res: Resource deposits in the sector
+     popn: Population of the sector
+    ^popn: Maximum population the sector can support
+    xtals: This says yes if sector contains crystals (only if you have
+           crystaltech)
+
+  Census on planet
+  Example planet Ergos:
+    > Ergos
+    > gravity   x,y absolute     x,y relative to Artemis
+    >    0.30   193860.0,148066.4     -289.4,  -772.0
+
+      gravity: Gravity of the planet (relative to Earth normal)
+      x,y absolute: Coordinates relative to the Center of the Universe
+      x,y relative...: Coordinates relative to the planet's primary
+
+    > ======== Planetary conditions: =======
+    > atmosphere concentrations:
+    >      methane 72%(72%)     oxygen 00%(00%)
+    >          CO2 01%(01%)   hydrogen 12%(12%)      temperature: -28 (-25)
+    >     nitrogen 02%(02%)     sulfur 01%(01%)           normal: -25
+    >       helium 01%(01%)      other 11%(11%)
+    >                      Toxicity: 14% (Stage 1, mild)
+    > Total planetary compatibility: 85.74%
+    >             Average fertility: 8
+    >              Average resource: 202
+    >               Crystal sectors: 0
+    >       Total resource deposits: 24343
+
+      ======== planetary conditions: ========
+      Gives the atmospheric concentrations of certain key elements in the
+      planet's atmosphere: Oxygen, CO2, Methane, Hydrogen, Nitrogen, Helium,
+      Sulfur, surface temperature, normal temperature (without artifical
+      influencing factors like space mirros), and 'Other'. The 'Total planetary
+      compatibility' is the difference between the weighted sum of each of these
+      characteristics and the preferences of the player (express in parentheses
+      after each characteristic).
+
+    > fuel_stock  resource_stock dest_pot.   popltn    ^popltn
+    >     173             92       101       1158       2901
+
+      fuel_stock: Fuel the player has managed to stockpile on the planet
+      resource_stock: Stockpiled resources on the planet
+      dest_pot: Stockpiled destructive potential on the planet (weapons)
+      popltn: Total population of living beings
+      ^popltn: Maximum number of living beings the planet can support (inhabited
+               sectors only)
+
+  Census on star
+  Example star Artemis
+    > Star Artemis
+    > locn: 194149.437261,148838.373757
+    > Gravity: 455.50        Instability: 2% (stable)
+    > temperature class (1->10) 4
+    > 9 planets are Larissa Gorgon Bragi Geirrod Ergos Dagon Argus Euripedes
+    >   Drak
+
+      locn: x,y coordinates of the star from the Center of the Universe
+      gravity: Gravitational influence
+      Instability: Stability of the star. As stability approaches 100, the star
+                   will become more and more unstable. The player must have a
+		   technology of 3 or more to determine the stability.
+      Temperature class: How hot the star is. Hotter it is fast the pods will
+                         warm.
+      List of obiting planets
+
+{{SEE ALSO}}
+  colonies, explore
+
+& tactical
+
+{{NAME}}
+  tactical [0] -- Provies a report on a ship or ships ability to perform
+                  military maneuvers.
+
+{{SYNTAX}}
+  tactical                     Provides summary tactical information for all
+                               enemy, allied, and neutral ships and planets
+			       in the current scope.
+
+  tactical <shiptype>          Provides summary tactical information for all
+                               ships (of a given type) and planets at the
+			       current scope
+
+  tactical <#ship>             Provides detailed tactical information for the
+                               given ship.
+
+  tactical <#ship> <shiptype>  Provides detailed tactical information for the
+                               given ship limited to viewing shiptype.
+
+  tactical <#ship> <player>    Provides detailed tactical information for the
+                               given ship limited to a player's ships.
+
+  tactical -                   Provides detailed tactical information for the
+                               planet at the current scope.
+
+{{DESCRIPTION}}
+  The tactical command allows a governor to survey their ships for the purpose
+of conducting offensive/defensive activities. This command differs from 'report'
+in that it provides information on a ship's ability to attack enemy ships or
+planets. Information provided includes enemy's size, range, bearing, speed,
+heading, evasive maneuvers, the range at which the chance to hit will be 50%,
+the chance to hit at the current range, the ship's current damage level, and the
+potential damage from a full broadside of the attacking ship's guns. Enemy ships
+will only appear on tactical display if they are in the same scope as the
+calling ship. This limitation is the same as the orbit command.
+
+{{SEE ALSO}}
+  report, weapons, stats
+
+& tax
+
+{{NAME}}
+  tax [0] -- Set the tax rate of a planet
+
+{{SYNTAX}}
+  tax <rate>
+
+{{DESCRIPTION}}
+  A player can generate money by "taxing" his populations. Each planet can be
+assigned a tax rate. In order to set the tax rate of a planet, the player must
+first change scope it and tax a rate between 0 and 100 (percent). The tax rate
+is then placed into the "new" tax rate. This is the rate that the existing rate
+will change towards 5% to after every update. The tax rate may have several
+effects on the production/stability of the planet.
+    Effective metabolism = race metabolism & (1 - tax% / 100)
+    Example metab 1.4 tax 30% yields 1.4 * (1 - 30 / 100) = 0.98
+ The amonut of money generated by a planet per update is tax% * popluation / 5.
+The tax rate may adversely affect a planet in that it opens the possibility that
+insurgency may be used against it, which can cause revolts and ensuing civil
+war.
+
+{{SEE ALSO}}
+  money, treasury, pay, technology, insrugency
+
+& techlevel
+
+{{NAME}}
+  techlevel [0] -- Displays tech level required for discovery.
+
+{{SYNTAX}}
+  techlevel
+
+{{DESCRIPTION}}
+  This command shows what technology level is required to obtain a given
+discovery and what technologies your race has currently discovered.
+
+{{SEE ALSO}}
+  discoveries
+
+& technology
+
+{{NAME}}
+  technology [1] -- Invest money into tech production
+
+{{SYNTAX}}
+  technology <money from treasury per update>
+
+{{DESCRIPTION}}
+  This command sets a quota for technological investment. Each turn, each race's
+technology is decreased by 1% then intelligence / 100 is added to its
+technology. If your race is disadvantaged by a low IQ you can balance this
+discrepency by investing money into research and development.
+  Each turn the quota is deducted from your race's treasury (if there is enough)
+and added logrithmically to your race's total tech production. As you increase
+the quota on one planet, you will notice, the actual tech production increases
+less and elss; thus, it is important to have a wider cultural base (lots of
+planets) for better tech development.
+  The additional technology increase per update for a planet is given by a
+rather complex forumal:
+    tech = 0.001 * sqrt(investment * SCALE)  where SCALE = population / 1000
+
+{{SEE ALSO}}
+  status, treasury, money
+
+& think
+
+{{NAME}}
+  think 0] -- Send a message to every governor/leader of your race
+
+{{SYNTAX}}
+  think <message>
+
+{{DESCRIPTION}}
+  This comand is similar to 'broadcast', except instead of sending your message
+to everyone in the game, it sends the message to the leader of your race and all
+its governors. Note that in order to receive the message, the leader or governor
+must be logged on. This command also can only be used to send messages to your
+own race
+
+{{SEE ALSO}}
+  communications
+
+& time
+
+{{NAME}}
+  time [0] -- Show current time and other stats
+
+{{SYNTAX}}
+  time
+
+{{DESCRIPTION}}
+  This command tells the player the current time, times of latest updates and
+movement segments, and when the server was started.
+
+{{SEE ALSO}}
+  schedule
+
+& toggle
+
+{{NAME}}
+  toggle [0] -- Turn on/off some options
+
+{{SYNTAX}}
+  toggle <option_name>
+
+{{DESCRIPTION}}
+  Toggle turns on or off the named option. If no option is given, toggle will
+list all available options and thier values. Options:
+      autoload       If set, full crew and fuel will be loaded after building a
+                     new ship.
+      autopurge      Automatically purges all telegrams after reading and
+                     instantly purges dispatches upon deleting.
+      client         If set, the server will send CSP codes. If you're using a
+                     GB client you'll want this on.
+      color          If set, color codes will be sent. This requires an ANSI
+                     capable term and like some other settings on your client
+		     (like 'set ansi on' for gbII).
+      compatability  Controls whether or not explored planets have the
+                     compatability displayed on orbit maps.
+      double_digits  Display alien numbers with double digits.
+      gag            Will turn off global broadcasts.
+      geography      If set, playernumbers will not be displayed.
+      inverse        Whether or not to use reverse video.
+      visible        Controls whether or not the player appears on the 'who'
+                     list.
+
+{{SEE ALSO}}
+  map, highlight
+
+& toxicity
+
+{{NAME}}
+  toxicity [1] -- Set threshold for building toxic waste canisters
+
+{{SYNTAX}}
+  toxicity <threshold>
+
+{{DESCRIPTION}}
+  This command sets a toxicity threshold for the planet in the current scope.
+When toxicity of the planet is greater than or equal to this threshold, a toxic
+waste canister will be built and as much toxic waste loaded on as will fit.
+
+{{SEE ALSO}}
+  survey
+
+& transfer
+
+{{NAME}}
+  transfer [0] -- Transfer supplies to alien stockpiles
+
+{{SYNTAX}}
+  transfer <race> <commodity> <amount>
+
+{{DESCRIPTION}}
+  This command allows the player to transfer resources/fuel/destruct to another
+race. To do this the player must have the planet where the transfer is to take
+place as the current scope. Transferred supplies are immediately deducted from
+the transferring race's stockpiles and added to the targeted race's stockpiles.
+
+{{SEE ALSO}}
+  scope
+
+& treasury
+
+{{NAME}}
+  treasury [0] -- Shows your financial situation
+
+{{SYNTAX}}
+  treasury
+
+{{DESCRIPTION}}
+  This shows the player how much money he/she currently has, how much were
+incomes and costs last update.
+
+{{SEE ALSO}}
+  money
+
+& undock
+
+{{NAME}}
+  undock [0] -- Undock a ship
+
+{{SYNTAX}}
+  undock <#shipnum>
+
+{{DESCRIPTION}}
+  This command is a synonym for luanch
+
+{{SEE ALSO}}
+  launch, land, dock
+
+& uninvite
+
+{{NAME}}
+  uninvite [0] -- Kick a race out of your block
+  invite [0] -- Invite another race to join your block
+  pledge [0] -- Say yes to an invitation to join a block
+  unpledge [0] -- Leave a block
+
+{{SYNTAX}}
+  uninvite <race>
+  invite <race>
+  pledge <race>
+  unpledge <race>
+
+{{DESCRIPTION}}
+  Each race may lead one alliance block. In order to get people into the group
+you must use the 'invite <race>' to request membership. The other play may join
+the alliance block by using 'pledge <leader race>'. A race may quit by doing
+'unpledge <leader race>, or blackball another for his group by doing
+'uninvite race'. Alliance blocks do not force alliances among its members. In
+fact, it is solely used for poliitical purposes.
+
+{{SEE ALSO}}
+  block, power, relation
+
+& unload
+
+{{NAME}}
+  unload [0] -- Load/unload commodities to/from a hip
+
+{{SYNTAX}}
+  unload <#shipnum> <commodity> <amount>
+
+{{DESCRIPTION}}
+  The load command is used for the resupplying of ships, and the disembarking of
+colonies. If no arguments are specified, the program will prompt the user for:
+      #shipnum -- What ship to load from/to
+      d|c|r|f|x|m -- Specify destruction, crew, resources, fuel, military, or
+                     crystals to load/unload. Destruction, resources and fuel
+		     are taken from that user's stockpiles, while people are
+		     tacken from the sector the ship is landed on. If the ship
+		     is docked with another ship and not a planet, the transfers
+		     will be direct.
+      amount -- The amount to load (if negative, the amount will be subtracted).
+                This must be within certain bounds: the maximum cargo capacity
+		of each ship unless one or both of the ships are shuttles.
+		Shuttles are unique in that their design allows cargo to be
+		strapped to their hull, and thus they can actually hold more
+		cargo than the maximum. An overloaded shuttle cannot, however,
+		take off or land until it jettisons its excess. If no amount
+		argument is specified, the maximum available of the commodity
+		will be loaded on board.
+  If the ship is neither landed at a planet nor docked with another vessel, the
+player can't load/unload its cargo/passengers.
+
+{{SEE ALSO}}
+  loda, jettison
+
+& unpledge
+
+{{NAME}}
+  unpledge [0] -- Leave a block
+  pledge [0] -- Say yes to an invitation to join a block
+  invite [0] -- Invite another race to join your block
+  uninvite [0] -- Kick a race out of your block
+
+{{SYNTAX}}
+  unpledge <race>
+  pledge <race>
+  invite <race>
+  uninvite <race>
+
+{{DESCRIPTION}}
+  Each race may lead one alliance block. In order to get people to into their
+group you must use the 'invite <race>' to request membership. The other player
+may join the alliance block by using 'pledge <leader race>'. A race may quit by
+doing 'unpledge <leader race>', or blackball another for his group by doing
+'uninvite <race>'. Alliance blocks do not force alliances among its members. In
+fact, it solely is used for political purposes.
+
+{{SEE ALSO}}
+  block, power, relation
+
+& upgrade
+
+{{NAME}}
+  upgrade [0] -- Upgrade attributes of a ship
+
+{{SYNTAX}}
+  upgrade <attribute> <value>
+
+{{DESCRIPTION}}
+  This command works just liek 'modify' except that it is performed on ships
+(non-factories) which have already been built. The player must have enough
+resources on board the ship or on planet if it is landed to make the upgrade.
+The cost for an upgrade is 2 * (the difference between the ship with the
+alteration and the old value of the ship). Upgrade is only used to increase a
+parameter (you may not decrease a parameter).
+
+{{SEE ALSO}}
+  modify, make, build
+
+& victory
+
+{{NAME}}
+  victory [0] -- Describe current standings of players
+
+{{SYNTAX}}
+  victory
+
+{{DESCRIPTION}}
+  This commands shows how close players are to winning the game. It sorts the
+player list by proximity to winning, so the object of the game is to get your
+name to the top of the list. :-) Here are the winning conditions, where X and Y
+are settable for each game:
+      1) "Control" of a planet is more than 50% occupancy of same.
+      2) The first player to control X percent of all planets for Y conseuctive
+         updates wins.
+      3) Any other players who controls X percent of all planets at that time
+         also win.
+  Note: Asteroids do not count in the victory totals.
+
+{{SEE ALSO}}
+  power
+
+& vote
+
+{{NAME}}
+  vote [0] -- Vote on Galactic Bloodshed issue
+
+{{SYNTAX}}
+  vote [issue [option]]
+
+{{DESCRIPTION}}
+  Issues - update
+  Options - 'go' or 'wait'
+  You may vote on the 'update' issue using the command 'vote update go'. This
+tells the server that you are done doing whatever it is that you want to do, and
+are just basically waiting for the next update. If you have voted to go and
+think of something else that you would list to do before an update, you can
+'vote update wait'. After each update, your vote is reset to the wait state. If
+and when EVERYONE (not counting Deities or Guests) votes to 'go'; an update will
+be done. This is most likely to be used during the early portion of the game
+when not much is happening and most people are just waiting for supplies to
+build up. This gives the players a sort of "variable" input to the update
+process. The update interval length chosen by the Deity then becomes the maximum
+length, with a shorter interval occuring when everyone votes to go.
+
+{{SEE ALSO}}
+  update, segment, daemon
+
+& walk
+
+{{NAME}}
+  walk [1] -- Move an AFV from one sector to another.
+
+{{SYNTAX}}
+  walk <ship> <direction>
+
+{{DESCRIPTION}}
+  This is used to move your AFVs from one sector to an adjacent sector. You may
+move into alien occupied sectors with AFVs. Here are the permitted directions:
+      7   8   9
+       \  |  /
+        \ | /
+     4 -- . -- 6
+        / | \
+       /  |  \
+      1   2   3
+  Each sector costs 1 fuel point to execute and a crew must be present.
+
+{{SEE ALSO}}
+  afv
+
+& weapons
+
+{{NAME}}
+  weapons [0] -- Show arament status of ships
+
+{{SYNTAX}}
+  weapons <#shipnum or shiptype>
+
+{{DESCRIPTION}}
+  Show arament report of ship or ships. Example:
+    > weapon
+        #       name      laser    cew     safe      guns    damage   class
+	2 @                          0/0      25     0 /  0       0%    Standard
+      161 t                          0/0     136    10L/ 10       0%    Standard
+      162 t                          0/0     136    10L/ 10       0%    Standard
+      983 O                yes       0/0     253    50H/ 50       0%    Standard
+
+         #: shipnumber and type
+      name: Possible name of ship
+     laser: Do this ship have a laser
+       cew: cew strength/range
+      safe: Max lasersalvo ship can shoot without a chance of crystal explosion
+      guns: Number and caliber of primary/secondary guns
+    damage: Ship's damage status
+     class: Ship's class (see 'name' for info about creating different classes)
+
+{{SEE ALSO}}
+  report, tactical
+
+& who
+
+{{NAME}}
+  who [0] -- Describes who is current connected to the game
+
+{{SYNTAX}}
+  who
+
+{{DESCRIPTION}}
+  This describes which players are currently logged into the game. The last 3
+fields are the status fields. The first is the DEITY or GUEST flag. The second
+is the GAG flag, and the third is the INVISIBLE flag. Player can set
+invisibility on/off by typing 'toggle visibility'. If invisibility is on, no
+other but your own governors can see you. Currently logged in invisible players
+are shown as cowards.
+
+{{SEE ALSO}}
+  announce, page
+
+& whois
+
+{{NAME}}
+  whois [0] -- Gives you the race name given the race's number
+
+{{SYNTAX}}
+  whois <race # to identify>
+
+{{DESCRIPTION}}
+  This command can be used when you know a race's number (such as information
+you find on 'tactical', etc.) and you want to look up the race's name.
+'identify' does the same thing.
+
+{{SEE ALSO}}
+  identify, who
+
+& zoom
+
+{{NAME}}
+  zoom [0] -- Declare zoom values
+
+{{SYNTAX}}
+  zoom (amount) <x,y>
+
+{{DESCRIPTION}}
+  This command allows users to alter the scale used in an orbit display. The
+lower the number, the larger the display will be. Amount can be specified in one
+of two ways: a floating-point format, in which case the amount will be the
+amount give, or an i/j format, in which case the ammount will be the numerator
+(i) divided by the denominator (j). The optional argument changes the
+'lastx,lasty' coordinates to the specified coordinates, in case the player
+desires a closeup of an area he has not explored yet. At a zoom scale of 1.0,
+the display will be equal to the screen size. At a scale of greater than 1.0,
+the display will be smaller than the screen; smaller than 1.0, and the screen
+will zoom in to the displayed map. Display is centered around the current
+'lastx,lasty' coordinates (see orbit). At game start, the zoom value is declared
+as 1.0. There are two zoom factors, one for 'star' levl, and one for 'universe'
+level. You can specify the 'lastx,lasty' for the universe level with the
+'center <star>' command.
+
+{{SEE ALSO}}
+  orbit, map, center
