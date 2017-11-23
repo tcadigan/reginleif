@@ -6,12 +6,12 @@
 # (If you are tryping to port this package to a machine without hs, I would
 # suggest you cut out the prototypical config.h from the end of Configure
 # and edit it to reflect your system. Some packages may include samples
-# of config.h for certain machinez, so you might look for one of those.)
+# of config.h for certain machines, so you might look for one of those.)
 #
 # $Header: /var/cvs/gbp/GB+/Configure,v 1.4 2007/07/06 16:57:32 gbp Exp $
 #
 # Yes, you may rip this off to use in distribution packages.
-# (Note: thei Configure script was generated automatically. Rather than
+# (Note: this Configure script was generated automatically. Rather than
 # working with this copy of Configure, you may wish to get metaconfig.)
 #
 # ident "@(#)Configure  1.16 12/1/93 "
@@ -223,7 +223,7 @@ rm -f grimble
 case "$contains" in
     contains*)
         echo " "
-        echo "AGH! Grep doesn't requtrn a status. Attempting a remidial action."
+        echo "AGH! Grep doesn't return a status. Attempting a remidial action."
         cat >contains <<EOSS
 grep "$1" "$2" >.greptemp && cat .greptmp && test -s .greptmp
 EOSS
@@ -903,12 +903,12 @@ case "$cppflags" in
        shift
        cppflags=''
        for flag in $*; do
-           case $flag in 
+           case $flag in
                -D*|-I*) cppflags="$cppflags $flag"
                         ;;
            esac
        done
-       
+
        case "$cppflags" in
            *-*) echo "(C preprocessor flags: $cppflags)"
                 ;;
