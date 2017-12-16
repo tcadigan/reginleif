@@ -1,0 +1,2455 @@
+& concept
+
+{{SUBJECT}}
+  Galactic Bloodshed concepts
+
+{{DESCRIPTION}}
+  This subject contains many topics on important concepts within Galactic
+Bloodshed. If you're not familiar with these concepts you should read them
+before proceding to the command help.
+
+& about
+
+{{############################################################################}}
+{{###########       ####  #### #########  #####    ####     ##### #####    ###}}
+{{########## ######### ## ### ######## ## ### #### ##### ####### #### #### ###}}
+{{######### ##    ## #### ## ####### #### ## ########## ####### #### #########}}
+{{######## ##### ##      ## #######      ## ########## ####### #### ##########}}
+{{########     ### #### ##      ## #### ###    ###### ####### #####    #######}}
+{{############################################################################}}
+{{#####     ### ########    ####    ###     ####    ### #### ##      ##     ##}}
+{{#### #### ## ####### #### ## #### ## #### ## ####### #### ## ####### #### ##}}
+{{###     ### ####### #### ## #### ## #### ###    ###      ##      ## #### ###}}
+{{## #### ## ####### #### ## #### ## #### ####### ## #### ## ####### #### ####}}
+{{#     ###      ###    ####    ###     ####    ### #### ##      ##     ######}}
+{{############################################################################}}
+
+{{CONCEPT}}
+  about -- Welcome to GB
+
+Galactic Bloodshed, copyright (c) 1989-1990 Robert P. Chansky,
+smq@ucsb.uscs.edu, Univerisy of California at Santa Cruz.
+
+Version: GB+ 6.0
+
+"GB" stands for "Galactic Bloodshed". It is a multiplayer galactic exporation,
+colonization and conquest game. GB is a game played on a network by several
+users at various sites. The home site, where the game and its database reside,
+is generally referred to as the "server".
+
+__The Game__
+At the beginning of the game, a player selects thw type of race and home planet
+he would like. There are two major types of races: mesomorphs (metamorphs) and
+techies. Techies are normal humanoid races. Mesos can absorb people, and have
+group consciousness. Home worlds range from asteroids to gas giants though the
+players on tiny planets tend not to do well.
+In the early phases of the game, it is important to build large populations on
+as many planets as possible. This involves investing in technology, exploration,
+and developing planets.
+The game from there goes in the next stage where players begin meeting each
+other and either fighting or forming alliances. As the game progresses, some
+races die off and a few players or alliances usually start dominating the game.
+Ships, also get more and more powerful.
+
+__Basic Rules__
+GB operates on an update (or turn) basis. Each update is also broken into
+segments. When a player performs an action, it may occur immediately or wait
+until the next segment or update. An example of an immediate action is firing a
+laser or loading cargo into a ship. On movements, ships actually move. On an
+update, ships move, jump through hyperspace, populations increase or decrease,
+pollution increases, technology level goes up, taxes are earned, and maintenance
+is paid among other things.
+Each solar system and the galactic level earn APs on every update for a player
+based on population and number of ships. Almost any action uses APs. When you
+run out of APs in a system, you are unable to do anything in that system.
+
+__How to Start Playing__
+The first step is to start reading alt.games.gb. The FAQ will fill in a lot of
+gaps in this article. The client and server code is available on:
+  ftp://scam.berkeley.edu/pub/gb
+Then you have to find a game. The best thing to do is to wait for a new game
+starting up. They are usually posted on alt.games.gb. Sometimes there are
+newbie games. Please, however, do not play unless you are sure that you can
+regularly spend the time playing. If you dutn out to be wrong, give your race
+over to another player. Races dropping out in the middle of the game can
+unbalance a game pretty badly.
+
+__Conclusion__
+GB is fun, but dangerously addictive. Also, it demands serious time commitments
+from its players. If you decide to play, just remember it is only a game.
+
+  *********************** I M P O R T A N T ***************************
+  *   Finally, remember that the deity of the game is there to help   *
+  * you. If it weren't for him/her, you wouldn't be playing GB at     *
+  * all. So don't whine. Be polite. Make constructive comments. It'll *
+  * be easier for everyone that way.                                  *
+  *********************** I M P O R T A N T ***************************
+
+                   *** RELAX. IT IS ONLY A GAME. ***
+
+{{SEE ALSO}}
+  overview, beginner, tour, faq (probably in that order)
+
+& actionpoints
+
+{{CONCEPT}}
+  actionpoints -- Indicators to time and possibilites to run a race during one
+                  update.
+
+Action Points are built up slowly by the player's presence in a solar system.
+They are a mechanism to represent the "bureaucratic grind" of a star-spanning
+government. Every command uses a certain number of action points; some commands,
+being observatory in nature, use none.
+A player's action points for each system are displayed in his prompt when his
+scope is in that system (changed by the 'cs' command). The action point cost of
+each command can be found just before it's listing in each document entry.
+Each solar system and the galactic level earn APs on every update for a player
+based on population and number of ships. When you run out of APs in a system,
+you are unable to do anything in that system. APs can be reallocated from the
+galactic (global) level to a particular system, but that is usually reserved
+for important situations as global APs are a rare and precious commodity.
+
+{{SEE ALSO}}
+  commands, allocate
+
+& afv
+
+{{CONCEPT}}
+  AFV -- Armored Fighting Vehicles
+
+{{DESCRIPTION}}
+AFVs, denoted by the letter R, represent giant mechanical "robots" controlled
+in most cases by a single crewmember.
+AFVs are ground based ships with guns, armor, and legs to move around the
+planet. They are moved on the surface via 'walk' command. They can only move one
+sector at time, and each sector they walk uses up 1 fuel point.
+AFVs are designed to be used in assaulting enemy troops, (civs/mil), other
+ships, and other AFVs. If an AFV walks into a sector with no enemy ships, but
+enemy troops, then the AFV will use his weapons and his legs to shoot and kick
+the enemy troops. This uses destruct. The AFV will continue until all enemy
+troops in this sector are dead, or the AFV itself is destroyed. The AFV will
+take damage from the troops it is attacking, depending on the number and type
+(civ/mil/both) of enemy troops in the sector being walked into. If the sector
+being walked into contains an enemy AFV, then both AFvs will assault each othe
+until one (or both) is destroyed. If there are enemy troops as well as an AFV,
+the AFV will be attacked first, and if the attacking AFV survives then it will
+hit the troops.
+If a player orders troops into a sector containing an enemy AFV, they will
+attack the AFV, and either destroy it orbe forced to retreat.
+The fighting strength of an AFV is = tech * guns * armor * fight modified by
+appropriate modifiers.
+Note that AFV do NOT need crewmembers equal to the number of guns it has to fire
+all of them, only one crewmember will be required.
+
+{{SEE ALSO}}
+  walk, build
+
+& automove
+
+{{CONCEPT}}
+  automove -- TKY ship automatic moving
+
+Auto-Movement (hopping)
+TKY's are moving themselves once they consider their job done in sector they are
+landed. They will move to the most suitable sector to continue their job.
+Command 'order <ships> limit n' could be used to control their decision to move
+and command 'order <ships> hop [on|off]' could be used to turn auto-movement on
+or off.
+Terraformers will terraform the sector they are landed on in one segment so
+'limit n' setting is used to control the selection of the next sector to
+terraform: value n (in percents) will limit their activity to sectors that has
+capability less than n% for your race. So if you have compatabilities 100% of
+land and 70% for water you should give 'order T limit 70' to prevent water
+sectors from being terraformed. T's will 1st look if there is suitable target
+sector that you own if not unowned sectors are searched. If T hops to unowned
+sector that will be randomly chosen to prevent other players to predict where
+you T is going to be after update. NOTE: you can still T's move orders - move
+orders will be evaluated first and then auto-hop so using move and hop at same
+time could lead to quite confusing results.
+Space plows will do auto-hop if the sector they are landed on has higher
+fertility than their limit setting. As with T's player's own sectors are
+preferred and old move code is still working. K's will hop to sector that has
+lowest fertility (even if it is higher than its limit setting - so you could
+give 'order K limit 1', K's will hop in every update but you planet will end up
+100% fert in each sector) if all player's own sectors has 100% fert K's will hop
+to any sector that has minimum fertility value target sector will be chosen by
+random.
+Domes will auto-hop if the sector they are landed on has higher efficiency than
+their limit setting is. They will hop only to player's own sectors. Sector of
+lowest eff is chosen and if there is more than one sector eff target will be
+chosen by random.
+
+{{SEE ALSO}}
+  move
+
+& beginner
+
+{{CONCEPT}}
+  beginner -- Advice for beginners
+
+{{DESCRIPTION}}
+If you are a beginner to Galactic Bloodshed (GB), no problem. They game may seem
+a bit overwhelming at first, but so is everything at first :) Just relax, get a
+cup of coffee, and enjoy. A typical GB game may last months and everything you
+do first, even if you are out of touch for awhile, isn't totally critical! You
+can take off for the weekend, and have a real life at the same time and come
+back and have your race intact.
+At any rate, what *is* GB anyway? Well, it's a wargame. But it is also a
+campaign style war game. It is also a game of diplomacy, making and breaking
+alliances, back stabbing, and megalomania! All accessible via the net!
+Basically, you start off with a race of people, and every race has it's own
+unique set of characteristics. What you want to do with this race is explore and
+maybe conquer the galaxy and be great big and famous and powerful...! BUT, you
+can't do it alone, this is an important point ;)
+Speaking of points, what is the *point* of GB in the first place? Well, you want
+to *have fun*! Yes, that's the whole poing of any game isn't it? If you don't
+want to have fun, stop reading here and may your first born have the nose of
+camel and drink like one too :) In order to have fun you must realize at first -
+not all races are the same! In fact, every race is different. Every race has
+advantages and disadvantages. During the first set of updates, things may seem
+uneven - but it's how you play the game in the long run which matters! Trust me
+on this.
+Each turn in GB is called an 'update'. Updates are run at a schedule set by your
+game administrator (player #1 always!). During each update, your population
+explores new sectors, the planets revolve about their primaries (using Keppler's
+laws), ships are moved, production of resources, fuel, etc. are made. In between
+updates you can order your ships, move your people about on planets, attack
+enemy ships and planets, design your shipts, etc...
+What you want to do at first, is gather 50 resources, and then build a
+factory. A factory is essential to the game. These things build ships! You build
+a factory, then tell it what kind of ship design you want to make. The available
+ship designs are based on your technology which grows each update. It takes a
+factory time to be ready to build it's ship design. Once the factory is ready,
+you can build ships there!
+Next thing you want to do is explore the galaxy. Other planets in your home
+start system should always be examined first. You might want to start colonies
+on these. If you find a planet which you think your race can live on, land there
+and colonize!
+As the game goes on, you will definitely run into other races. Talk to them!
+They may be good allies in the end - or maybe horrid enemies. That's up to
+you. there's a big universe out there! And remember to *have fun*!
+
+:)
+
+Garrett van Cleef
+6-14-90
+
+{{SEE ALSO}}
+  overview
+
+& blocks
+
+{{CONCEPT}}
+  blocks -- Power blocks
+
+Each race may lead one alliance block. Alliance blocks do not force alliances
+among it's members. In fact, it solely is used for politiical purposes. However,
+an alliance block can win the game by accumulating the required number of
+victory points.
+
+{{SEE ALSO}}
+  block, victory, invite, pledge, uninvite, unpledge
+
+& civilians
+
+{{CONCEPT}}
+  civilians -- Representatives of your race
+
+Civilians and military are two different type representatives of your
+race. Civilians have a fighting strength equal to your race's fight. Military
+has fighting strength 10 times stronger than your civilians.
+Contrary to what you might think, military cannot pilot ships or fire
+guns...only civilians can do that. Thus, if you have 5 guns on your explorer and
+2 mil and 3 crew, you will only be able to fire 3 guns at a time. Also, if you
+have only mil on board a given ship (i.e. your only civ on board gets killed by
+a lucky shot from an enemy), you cannot order this ship to any destination. Only
+fighters, afvs, and robotic ships may fire more guns than they have cre
+(obviously).
+Only civilians can multiple, so if you inhabit sector with military only it's
+population will not grow. It will not descrease because military can survive on
+non compatible sectors. Sector efficiency and fertility will stay as it is also.
+You can tun military back to civilians by disarming them. No money or
+destruction can be recovered.
+
+{{SEE ALSO}}
+  arm, disarm, move
+
+& client
+
+{{CONCEPT}}
+  client -- Client utility
+
+{{DESCRIPTION}}
+Because the Galactic Bloodshed game sequence is running on a unix server, the
+player needs software to connect to the daemon process. Traditionally this was
+done using telnet, however, over the years GB has become quite a sophisticated
+piece of software that pretty much requires its own connection software, this is
+the client.
+There are many GB clients out there, these are some of the more common that
+you'll find out there:
+  gbII By Evan Koffler
+    This is the second generation of unix client for GB, it you're a real man
+    you'll probably use this. The original can be found via ftp at
+    scam.xcf.berkely.edu. I also have a hacked gbII which has a few extra handy
+    features at ftp.towerravens.com. If you're currently using gbII you can type
+    'helpc' for help with it.
+  Jumunian JavaClient by Kari Seppanen
+    This is by one of the folks involved in the GB HUT project. This is not a
+    java applet and it does not require the JRE. There is a homepage for it at:
+    http://www.hut.fi/~kse/gb/JavaClient/
+  VBRG by Tim Brown
+    This is a GB client for Windows 95 written in Visual Basic. It is a 10 MB
+    beast. More info at: http://www.incenter.org/gb/vbgb.html
+  JavaGB by Tim Brown
+    Another java client on par with gbII. You'll find more information at:
+    http://www.incenter.org/gb/javagb.html
+I'm sure you'll also find a few other older gb clients out there as well, like
+xgb, and gbpc, however, I have no further info on these.
+
+{{SEE ALSO}}
+  daemon
+
+& colony
+
+{{CONCEPT}}
+  colony -- One inhabited planet
+
+To start a colony, you must first build a ship. Several ships are excellent for
+colony development, but this really depends on your racial characteristics. For
+example, an explorer can only carry few crew members. Shuttles do well for this
+purpose since they are cheap.
+At the beginning of the game it is important to get your race established on the
+several planets in your solar system and get a good resource base, then expand
+to other solar systems.
+Once your ship is in orbit around the planet you must land it on a sector
+there. Your race has a few sector types that they like; these are listed in your
+racial profile. You should survey a few sectors to see which can actually hold
+your colony. Also look for a sector with lots of resources. Every update sector
+efficiency increases if it is inhabited by race who got compatibility for that
+sector type, so it's a good idea to occupy as much compatible sectors you can,
+even if your population will not yet survive that sector.
+Population of a sector increases (or decreases) toward the sector's max
+population value, so take this inot account. A sector that is a wasteland will
+kill 90% of its population every update.
+Land your ship there, and use load to unload some people. Congratulations, you
+have a new colony.
+Most of the time your colony planets will be less than ideal places to
+live. There are some devices to help you terraform your new planet. One of these
+is the atomsphere processor, which sucks in the atmosphere and converts it to
+one more suitable to you. If your planet is too hot to begin with, a canister of
+dust luanched into orbit will absorb sunlight and make it cooler. This has an
+added effect of being bale to make a planet inhospitable to another race.
+Efficiency on a sector represents how "built up" the area is. This number
+increases as time goes by, according to how many people are there to do the
+work. Efficiency, in turn, controls how many people the sector can support. The
+maximum population is the sum of the maximum sector populations of every
+sector. As the planet's popluation increases toward this figure, environmental
+conditions, prepresented by toxicity, worsen. Toxicity also affects the maximum
+population of the sectors on the planet, sometimes causing an increased death
+rate and massive damage to the planet beyond a certain threshold (85).
+To deal with this you have to build toxic waste cnaisters. Each one can hold up
+to 20 units of waste, but can be built with less. The canisters, if breached,
+add their waste back to the planet. Even orbiting them will not alleviate this
+problem; you must send them to another planet (preferably someone else's).
+
+{{SEE ALSO}}
+  profile, production
+
+& combat
+
+{{CONCEPT}}
+  combat -- Battle on a surface of a planet
+
+{{DESCRIPTION}}
+'move' and 'deploy' commands are used to move civilan/troops from one sector to
+an adjacent sector. If a destination sector is occupied by aliens, the combat
+strengths of the player (attacker) and alien (defender) are computed. The combat
+strengths depend on number of beings, fighting ability, sector terrain and
+technology of the races according to the formula:
+  strength = [(civ) * (fighting ability) + (troops) * (fighting ability) * 10]
+             * (sector compatibility factor) * (terrain defense factor)
+	     * morale_factor(difference of race morales)
+The assault is evaluated and casulties are remove from each sector. The origggin
+sector is where the people will begin to move from. This must be occupied
+by the player. Attacking commands are:
+  deploy <origin sector x,y> <direction>  <numbers of troops>
+  move <origin sector x,y> <direction> <number of civilians>
+If number of civ/troops argument is not given, all in the original sector will
+be moved. If a negative number is specified, the all civs or troops, except for
+the amount specified, will move.
+If mesomorphic races are involved in the combat, and are victorious, by either
+taking the assaulted sector or repulsing an attack, they may absorb alien
+bodies, adding to their own numbers. Note that all enemy casualties are
+converted to civilans (not troops!).
+  Defense strengths of terrain:
+    wasted = 0
+    land   = 1
+    sea    = 1
+    gas    = 2
+    ice    = 2
+    desert = 2
+    mount  = 3
+    forest = 3
+    plate  = 4
+Attacking is not possible on planets that have been enslaved to another
+race. Moving civilians uses up more action points than moving troops.
+
++------------------+---+----+-----+------+------+-----+------+------+
+|AP's              | 1 |  2 |   3 |    4 |    5 |   6 |    7 |    8 |
++------------------+---+----+-----+------+------+-----+------+------+
+|move          Min | 1 |  2 |   7 |   20 |   54 | 148 |  403 | 1096 |
+|civilians     Max | * |  6 |  19 |   53 |  147 | 402 | 1095 |      |
++------------------+---+----+-----+------+------+-----+------+------+
+|deploy        Min | 1 |  9 |  99 |  999 | 9999 |     |      |      |
+|military      Max | 8 | 98 | 998 | 9998 |    - |     |      |      |
++------------------+---+----+-----+------+------+-----+------+------+
+
+* NOTE: moving minsex cost only 1 ap.
+
+For attacks (against alien occupied positions) add 1 to the action point cost.
+
+{{SEE ALSO}}
+  move, deploy
+
+& commodities
+
+{{CONCEPT}}
+  commodities -- Goodies
+
+RESOURCE
+Resource is the basic commodity, which is needed to build and fix ships and
+repair wasted sectors.
+Each sector have resource deposity. You can mine these by inhabiting
+sector. Amount of produced resources depends mostly on sector efficiency,
+secondly races metabolism and of course when deposity is getting empty
+production will decelerate. Resource production is most important thing among
+expanding your empire to succeed in game. Often, races with low metabolism
+and/or small homeworlds or worse, a combination of the two, will take painfully
+long to start generating any.
+There is two ships that can turn fuel to resources. Chemistry plant y (y is not
+very often in games) and space habitat H. H uses 20 fuel to make one resource
+(this rate depends on game settings however).
+
+FUEL
+Fuel is the energy source of all ships. Also lasers use fuel to attack with. 2
+points of fuel is equivalent to 1 light gun.
+Sectors produce fuel just like and as much as resources. One exception is jovian
+sectors which produce double amount of fuel. Ships orbiting jovian planet can
+also suck fuel from jovian atmosphere. Tanker ships are especially effective on
+this, they can scoop 1/5 of tanker room fuel each update.
+
+DESTRUCTION
+Desctructive potential is what guns shoot. Arming troops requires destruction
+also.
+There is two ways to create destruction. Weapons plant W is a ship that produces
+it (1 fuel + 1 resource = 1 destruction). One W can only make tech / 2 amount of
+destruction every update. Another way to produce destruction is to rise sector
+mobilization. On such a sector part of resource production pops up directly as
+destruction.
+
+{{SEE ALSO}}
+  mobilize, production
+
+& communications
+
+{{CONCEPT}}
+  communications -- How to communicate with other players
+
+{{NAME}}
+  [0] announce -- Make an announcement
+  [0] broadcast -- Make a global announcement
+  [0] think -- Make an announcement to your governors and race leader
+  [1] post -- Post a news message to all players
+
+{{SYNTAX}}
+  announce <message>
+  broadcast <message>
+  think <message>
+  post
+
+{{DESCRIPTION}}
+If a player not at universal scope, he/she can make an announcement. The player
+must have deity status or physically be inhabiting the system in some
+capacity. All players who are current at that systems scope who also inhabit the
+system may receive the messages. This allows players to have conferences through
+the game interface.
+A player can send a message to all players currently logged in with the
+'broadcast' command. Players can ignore broadcasts by using 'toggle gag'.
+If a player uses think command, only currently logged in own race governors and
+race leader receives the message.
+Messages can also be posted to the news using the 'post' command. This
+(depending on game settings) costs action points.
+
+{{SEE ALSO}}
+  page, who, read, toggle
+
+& crystal
+
+{{CONCEPT}}
+  crystal -- Extremely valuable dillithium energy source
+
+{{DESCRIPTION}}
+  When the universe is created, some sectors on planets may contain crystal
+deposits denoted by an 'x'. As long as there are crystals in a sector the symbol
+remains on the sector. Through their explorations players will find sectors that
+have these deposits although they can never know exactly how many crystals are
+hidden in the sector.
+  When a player occupies a sector with crystal deposits in them, during the
+update, his race will attempt to find crystals. The probability of success per
+update is equal to the sector efficiency. During an update, the planet's total
+crystal production can be determined by setting autoreport. A line telling how
+many crystals are in the player's stockpiles also will appear on map.
+Crystals are like other commodities, populations, resources, fuel, and
+destruct. They may be loaded and unloaded from ships as for other
+commodities. They may also be captured just like other commodities.
+  If a ship with hyper-drive has at least one crystal on board, the player may
+mount the crystal into the hyper-drive (see help on the 'mount' command). Only
+one crystal needs to be mounted. However a player may carry more if he/she
+chooses. If a player has a crystal mounted in the hyper-drive, the ship does not
+need to recharge, it is always considered to be charged for hyper-space jump
+during the update. The crystal also allows the ship to travel longer distances
+due to fuel efficiency.
+  Crystals in the hyper-drive also allows a player to use laser-beam-like
+weapons. These weapons, however, will consume fuel, not destruct to
+operate. These weapons have the same effect as normal fire, except there is no
+limit to how much fuel you may expend in an attack.
+  Players should be careful of the amount of fuel they wish to put through a
+crystal at anytime. Crystals may break, rendering them useless, or, in extreme
+cases, cause the detonation of the ship they are in, along with everything else
+nearby.
+  The maximum safe limit of fuel passing through a crystal deponds on ships
+tech. For every point of fuel passed through above (shiptect / 2) increases
+chance breaking it and every point of fuel passed through above (shiptech)
+increases chance of blowing up the ship!
+
+{{SEE ALSO}}
+  mount, fire, order
+
+& daemon
+
+{{CONCEPT}}
+  daemon -- Unix server daemon
+
+{{DESCRIPTION}}
+  The Galactic Bloodshed game sequence is controled by a __daemon__. The daemon
+is a program which constantly runs on a unix server. This __daemon__ updates the
+positions of the ships, planets and stars at a set time interval (usuallye 1 to
+3 hours, det by the game master). The growth/depletion of the planetary
+resources, population, fuel and destructive capacity is monitored and updated by
+this program. To play GB the player's client connects to the GB __daemon__ where
+between updates, players may issue commands, construct ships, initiate attacks
+and do whatever they see fit with the available commands.
+  Because the __daemon__ is running at all times it isn't necessary for players
+to present at all times; interstellar travel takes some time, and it takes
+several iterations of the __daemon__ to generate significant changes
+planetary status. It is wise, however, to check up on things from time to time
+to keep yourself from getting overrun by some hostile race...
+
+__Game master information__
+  The Galactic Bloodshed game sequence is controller by two defines in
+__tweakables.h__.
+  The first is {{DEFAULT_UPDATE_TIME}}. This specifies an interval of minutes
+between updates.
+  The second is {{MOVES_PER_UPDATE}}. This specifies how many movement segments
+should be included in each update phase. An update counts as one movement
+segment; so, if you set this to 1, there will be zero segments between
+update. Setting it to 3 would give you two evenly spaced movement segments
+between the updates. Any movement segments between updates will be evenly spaced
+in terms of time.
+  To provide a little randomness into the expected update/movement time, there
+are two more defines: {{DEFAULT_RANDOM_UPDATE_RANGE}} and
+{{DEFAULT_RANDOM_SEGMENT_RANGE}}. A random number of minutes between zero and
+these values will be added to the "programmed" update/movement time. (I'm not
+exactly sure why this is needed, but the old GB_daemon program used to do this,
+so I left it in).
+  The server now keeps track of when the last update/movement_time was using two
+new files: {{DFILE(Update.time)}} and {{DFILE(Segment.time)}}. The last
+modification time of these files indicates the last time of that particular
+operation. In addition, the ascii value in Segment.time specified which movement
+segment was the last one performed. If this value is less than
+{{MOVES_PER_UPDATE}}, there are more movement segments to do. When the server
+starts up, it looks at these files to determine the next update/movement
+times. If it determines that the time indicated was in the past (it was down
+when it would normally have done an update/movement), it will basically "skip"
+that time and figure the next time from when it was started (i.e., the next
+update time will be {{DEFAULT_UPDATE_TIME}} minutes into the future).
+  One other file added was {{PATH(nogo)}}. If this file exists, the server will
+not do any "automatic" updates/movements. When the file is removed or does not
+exist, updates/movements will continue normally. I have found it useful to make
+crontab entries to create/delete this file on weekend, effectively stopping
+updates/movements during that time.
+  You may still connect to the server and give either the update or movement
+password to cause one of these things to happen. This overrides the existence
+check for the nogo file (just like the old GB_daemon).
+
+{{CAVEATS}}
+- This server modification does away with the need for the GB_daemon
+program. The function provided by the daemon program has been internalized by
+the server.
+- {{DEFAULT_UPDATE_TIME}} used to specify hours, not minutes.
+
+{{SEE ALSO}}
+  client, update, segment, vote
+
+& dispatches
+
+{{CONCEPT}}
+  Message from player to other players
+
+{{SYNTAX}}
+  [1] send <race> <message> -- This will send a dispatch to another race.
+  [1] send <race> <governor> <message> -- This will send a dispatch to a
+      	   	  	     	       	  specific player.
+  [1] send block <block> <message> -- Sends a dispatch to an alliance block.
+  [1] send star <star> <message> -- Send a dispatch to the inhabitants.
+  [0] read displatches -- This will read all of the dispatch.
+
+{{DESCRIPTION}}
+  This command allwos users to communicate with each other. The player must
+specify who they wish to contact, and a message to send to that player.
+  When you send a dispatch, you also send a bit of inofrmation about your race.
+
+{{SEE ALSO}}
+  send, read, post
+
+& discoveries
+
+{{CONCEPT}}
+  discoveries -- Special technologies discoveries
+
+{{DESCRIPTION}}
+  In some tech races discovers diference equipments they may use now on. Here is
+a list of them with required tech:
+Hyper-drive     - After this you may upgrade or build new ships with hyper-drive
+		  engines.
+Crystal         - Crystal energy source. You may use crystal along with fuel to
+		  make much faster and longer hyperjumps.
+Atmosphere      - Atmospheric processing, that allows changing a planet's
+		  atmosphere to the race's preference.
+Laser           - Light-beam weapon that will use fuel instead of destruction.
+Wormhole        - Able to detect wormholes. NOTE: Using them does not require
+		  this.
+VN Machines     - May create Von Neumann Machines.
+CEW             - Confined Energy Weapons, which unlike lasers and guns can be
+		  designed to have an optimal range.
+Cloaking Device - EM Refracting technology, can hide a ship from detection.
+AVPM            - Audio-Vibratory-Physio-Molecular Transport Device. This will
+		  transport loaded material into the hopper of its target
+  		  device.
+
+Tractor Beam    - Gravity Tractor/Pressor system. (Not implemented in code yet)
+Transporter     - (Not implemented in code yet)
+
+{{SEE ALSO}}
+  techlevel
+
+& fleets
+
+{{CONCEPT}}
+  fleets -- Detachements of ships under a singular command
+
+{{IMPORTANT}}
+  This is an old idea taken from the HAP version of GB, somehow, it didn't make
+it into this source tree (GB+). However, being an ex-HAP player, I've found that
+fleets were quite handy so I have added it with the simplest of changes to the
+source code (not quite the beast as in HAP, however, with the full
+functionality). Because this is new code watch for bugs and please report
+them. Thanks, -Mike
+
+{{DESCRIPTION}}
+  Ships may be placed in a fleet for ease of issuing orders. They are not required
+to be of the same ship type, nor do they initially have to be in the same scope
+or location.
+  A ship may be ordered to a fleet with the __order__ command, example:
+    order #213 fleet q
+  This will place ship 123 into fleet Q. You may also order all ships of a given
+type in the current scope to a fleet, the following example orders all
+destroyers at scope to fleet D:
+    order d fleet d
+  The letters A-Z are used for fleet assignments, thus each Race is permitted to
+have up to 26 fleets which must be shared between existing governors. Upon
+assigning ships to a new or unused letter the governor issuing the order because
+the 'admiral' of the new fleet. All governors may view the existing fleets with
+the __fleet__ command. A governor may not add a ship to another admiral's fleet,
+however, they may remove (detach) it if they are permitted to issue orders to
+that ship.
+  To help organize fleets are permitted to name their fleets, however they must
+first change scope to any ship in that fleet and issue the "name fleet <new
+name>" command.
+  Once a fleet has been created it may be ordered as a group with the __order__
+command, however, prepend a '%' sign to the fleet letter to distinguish it from
+a ship type. For example, the following command sets a new destination for all
+ships in fleet N:
+    order %n dest /Tuk/Rom
+  This it is simple to keep track of and issue orders to groups of ships wihtout
+first having to cs to the proper scope or issuing orders to individual ships or
+types of ships.
+  If you would like to disband a fleet, the following command will work:
+    order %f fleet
+  This command will unset the fleet assignment of all ships in that fleet.
+  You may also apply the fleet character (%) with a fleet letter to the launch,
+load, land, and fire commands.
+
+{{SEE ALSO}}
+  order, fleet
+
+& formulas
+
+{{CONCEPT}}
+  formulas -- Computations algorithms of importance
+
+{{DESCRIPTION}}
+Some of the moew technical players like to know how certain aspects of the game
+are determined. This section describes some of the formulas used in Galactic
+Bloodshed.
+
+__Fire Formula__
+The formula used to determine the hit probability is:
+  probabiltity = 100 / (1 + (range / 50% range))
+When the range = '50% range', the chances of hitting the target is 50%. The
+'50% range', or 'effective radius' of a ship's guns is determined from the above
+factors as:
+  50% range = (((log10(1 + technology of ship) * 80 * body^(1/3) * 72) /
+              (2 + fev)) / (2 + fev)) / (18 + fspd + tspd)
+where
+  tech = The technology of the firing vessel or of the race (for planet firing)
+  body = Target size
+  fev = 0 or 1 for whether or not firing vessel
+  tev = Defending ship evasive maneuvers
+  fspd = Firing ship speed
+  tspd = Target ship speed
+Using the above porbability formula a hit or miss determination is made for each
+shot. After which, each successful hit is checked for possible target
+penetration. Armor is the primary factor for determining the probability of
+penetration:
+  penetration probability = factor ^ armor
+where
+            2            firing ship technology + 1
+  factor = -- arctan(5 * --------------------------)
+           PI            target ship technology + 1
+Every 5 hits in a salvo against a target reduces its armor value for that attack
+by 1. The structural damage to the ship is then evaluated by the formula:
+  % damage = (2 * caliber * penetrated hits) / body
+Because damage is represented in percentage, large ships are capable of
+sustaining more damage than small ships.
+  body = SQRT(size / 10)
+Every hit has a chance of being a critical hit, the size of the ship determines
+probability; smaller ships are more likely to received critical hits:
+  critical hit probability = size / caliber : 1
+For example, a Battleship with a size of 30 has a 30:1 odds of taking a critical
+hit from each penetration. A fighter group with size 10 and no armor has a 10:1
+odds against such a hit. Each critical hit is then evaluated, and if successful,
+a random amount of damage between 1% and 100% is give in addition to previous
+damage.
+
+__Modify Formula__
+The cost of producing the ship is determined, after evaluating the total
+'advantage' and total 'disadvantage', by:
+  (cost) = ((base cost) * (1 + advantage)) / (1 + disadvantage)
+And advantage/disadvantage is computed, for each modifiable attribute, by:
+  ((new value + 1) / (standard value + 1)) - 1
+For each attribute, if this number is positive it is considered to be an
+'advantage' and if it is negative, the absolute value of it is considered to be
+a 'disadvantage'. All ships built at a factory may have hyper-space jump
+capabilities by installing 'hyperdrive'. Having this is assumed to be an
+advantage of 1. Each point of armor above the standard amount is considered an
+advantage. Each point below the standard is a disadvantage. The maximum value by
+which an attribute may be modified to is dependent on the technology the factory
+used to construct the ship by:
+  (max value) = MAX(1, tech / 100) * (standard value)
+
+__Insurgency Formula__
+The probability of a successful insurgency is given by the following formula:
+  chance = (tax factor) * (inhabiting factor) * (money factor) *
+           (minimum money factor)
+where
+                                             victim
+  tax factor = (TAX_RATE * 0.8) + (0.2 * ---------------)
+                                         (victim + 1000)
+  victim = Your victim's population in system
+So tax factor will be 0.2 if TAX_RATE is 0% and colony is big. There is a safety
+factor that keeps tax factor near 0.0 if colony is very small.
+                                popula
+  inhabiting factor = sqrt(-----------------)
+                           (popula + victim)
+If you have a lot of population in system compared your vicitim's population
+chance of successful insurgency will be much higher.
+                   (2 * money)
+  money factor = ----------------
+                 (money + colony)
+where
+  money = Amount of money you spend
+  colony = Victim population on colony in question
+and
+                              money
+  minimum money factor = --------------
+                         (money + 4000)
+where
+  money = Amount of money you spend
+This one prevents attempts to cause revolts too cheaply. Factor disappears
+(closer to 1) when the amount of money is big. After a successful insurgency,
+the chance that each sector will revolt is:
+  (revolt chance) = (compatability factor) * (morale factor) * 0.5 *
+                    (military factor)
+where
+  compability factor = Your compability % to sector types in question
+  morale factor = Depends on you and your victim's morale
+  military factor = Success is harder if there are troops in sector
+
+{{SEE ALSO}}
+  fire, modify, insurgency
+
+& hyperdrive
+
+{{CONCEPT}}
+  hyperdrive -- A piece of equipment that allows jumps through hyper-space
+
+{{DESCRIPTION}}
+The hyperdrive is a piece of equipment that allows ships to jump through
+hyperspace, and travel much much faster than with normal pulsedrives. The
+destination can be any starsystem in the galaxy and once the hyperdrive is
+charged, the jump will happen in one update no matter the distance. Charging
+the hyperdrive will take two more updates. Hyperdrives use a lot more fuel than
+normal pulsedrives. The amount of spent fuel follows the formula:
+  fuel = 5 * mass^0.5 * (distance / (200 * (technology + 1)))^3
+So it's obvious that a ship's fuel capacity limits the possible jumping distance.
+If a ship with a hyperdrive has at least one crystal on board, the player may
+mount the crystal into the hyperdrive (see help on the 'mount' command). Only
+one crystal needs to be mounted. If a player has a crystal mounted in the
+hyperdrive, the ship does not need to recharge, it is always considered to be
+charged for hyper-space jump duing the update. The crystal also allows the ship
+to travel longer distances due to fuel efficienty. Formula with crystal is:
+  fuel = 5 * mass^0.5 * (dist / (200 + (tech + 100)))^2
+Crystals in the hyperdrive also allow a player to use laser-beam-like weapons.
+
+HOW TO USE HYPERDRIVE
+  1) Your ship needs to have a hyperdrive. (Some ships can't have it at all).
+     Factories built after reaching hyperdrive tech will produce ships with it.
+     You can also upgrad hyperdrive ships with 0% damage.
+  2) If you have available crystal, load it into your ship and mount it.
+  3) Launch your ship (if landed) and order the destination
+  4) Order jump on.
+
+Now the ship's hyperdrive will begin to charge. And after the third update (with
+crystal after next update) you'll find your ship in the destination starsystem.
+If the ship didn't have enough fuel to do jump, instead of jumping the
+hyperdrive will turn off.
+
+{{SEE ALSO}}
+  order, crystal, laser, modify, mount, upgrade
+
+& infrastructure
+
+{{CONCEPT}}
+  infrastructure -- The infrastructure machine.
+
+{{DESCRIPTION}}
+This machine is built on a planet (build ? i) and is used to increase efficiency
+and fertilization of planet sectors. You can set up to 20 target sectors for
+each. The targets can be different sectors or they can be duplicated to increase
+them faster.
+
+Example commands:
+  order i inf eff 10             Sets 10 sectors to increase, it will choose the
+                                 lowest ones.
+  order i inf eff target 0,0 75  Uses one target setting to focus on 0,0. It
+                                 stop after getting eff to 75%. It will use one
+                                 setting for this.
+  order i inf atmos 1            Have the machine improve the atmosphere more to
+                                 your race's liking.
+  order i inf report on          This will tell the machine that you want
+                                 reports every update on what it did.
+
+{{SEE ALSO}}
+  build ? i
+
+& lasers
+
+{{CONCEPT}}
+  lasers -- Ships may mount combat lasers for use in battle
+
+{{DESCRIPTION}}
+Some ships may be permitted to mount combat lasers at time of construction. Race
+required a laser tech to do that. A ship which has a laser mounted may
+optionally use these for firing instead of the normal guns. Unlike guns, lasers
+use fuel equivalent to one light gun. the player must also have a crystal
+mounted to use the fuel for attacking.
+There is no limit to the amount of fuel that may be used in an attack. However,
+there is a tehnological stability limit, beyond which crystal damage may result,
+or even an explosion. Ship explosion is determined by the formula:
+  Explosion if rand(0, strength) > ship tech / 2
+A 100 technology ship may fire up to 50 strength points safely, a 200 tech ship
+100, etc. Pushing it far beyond this limit may result in a matter/anti-matter
+explosion!
+Crystals may damage before they explode a ship. The chances of damage (and hence
+an automatic dismount and loss of the crystal) is determined by:
+  Damaged if rand(0, strength) > ship tech / 4
+A ship will only fire lasers if told to do so. This is done using the order
+command 'order <ship> laser on <default strength>'. The laser may be turned off
+with 'order laser off'. If the laser is set on, then executing the 'fire'
+command uses lasers instead of normal weapons.
+Lasers may be set to 'focus' or 'non-focus' mode by using
+'order <ship> focus <on/off>'. In focused mode, the entire salvo will either hit
+or miss (based on the hit probability), while in non-focused mode each strength
+point of the salvo is evaluated for hit or miss.
+Technology limits on functional crystal ranges are proportional to the amonut of
+damage on the ship. Heavily damaged ships may find their crystals breaking at
+lower limits.
+Command 'ship' line 'safe' will tell you maximum salvo ship can fire without
+chance of breaking the crystal.
+
+{{SEE ALSO}}
+  fire, order
+
+& maintain
+
+{{CONCEPT}}
+  maintain -- Money is needed to pay troops and ships.
+
+{{DESCRIPTION}}
+Money is needed to pay the costs of troops and ships each update. Maintenance
+costs are deducted from the player's treasury, and if funds are not available in
+the treasury, the deficit is deducted from the race's morale.
+Each ship must be paid an amount equal to it's build cost if there are
+non-military crew on board the ship (robot ships, some civilian ships and
+'mothballed' ships do not pay this cost). Each troop, whether on a ship or
+planet costs an additiona $1 to maintain.
+
+{{SEE ALSO}}
+  money, morale, treasury, military
+
+& military
+
+{{CONCEPT}}
+  military -- Army troops
+
+{{DESCRIPTION}}
+Civilians and military (troops) are two different type representatives of your
+race. Civilians have a fighting strength equal to your race's fight. Military
+have fighting strength 10 times stronger than your civilians. Contrary to what
+you might think, military cannot pilot ships or fire guns...only civilians can
+do that. Thus, if you have 5 guns on your explorer and 2 mil and 3 crew, you
+will only be able to fire 3 guns at a time. Also, if you have only mil onboard a
+given ship (i.e. your only civ on board gets killed by a lucky shot from an
+enemy), you cannot order the ship to any destinations.
+Only civilians can multiply, so if you inhabit a sector with military only, its
+population will not grow. It will not decrease either because military can
+survive on non-compatable sectors. Sector efficienty and fertility will stay as
+they are as well.
+You can make military by arming civilians. That will cost $5 each and some
+amount of destruction. Amount depends on sector mobilization level, higher the
+mobility cheaper the arming. Unlike civilians, military moves when you order
+them to deploy.
+
+{{SEE ALSO}}
+  arm, deploy
+
+& missiles
+
+{{CONCEPT}}
+  missiles - Interplanetary ballistic missiles
+
+{{DESCRIPTION}}
+ Missiles are a special ship type. They must be constructed in a factory. The
+ strength of a missile in an attack is dependent on its destruct
+ payload. Missiles attack during the segments. When a missile arrives at its
+ destination it is detonated and damage to the target is evaluated. The missile
+ is destroyed. To attack with a missile, the destination must be ordered. The
+ destination is either a ship or a planet. If the destination is a planet, the
+ player can order the sector for the missile to land on by using
+ 'order <missile> impact <x,y>'.
+
+{{SEE ALSO}
+  order
+
+& money
+
+{{CONCEPT}}
+  money - Galactic Credits
+
+{{DESCRIPTION}}
+Money can be used by players as a medium of exchange and can be trasferred using
+the 'pay' command. Money is generated by setting tax rates at key planets using
+the 'tax' option.
+Money generated from taxes, in addition to being exchangable using the 'pay'
+option, can be used to increase racial technology levels using the 'technology'
+option. You can buy goodies from GB Commodities Market (see bid to get more info
+about this). Revolutions on planets can also be instigated with
+'insurgency'. Money is also used to pay maintenance costs of armies and ships.
+
+{{SEE ALSO}}
+  maintain, pay, tax, technology, treasury, insurgency, bid
+
+& morale
+
+{{CONCEPT}}
+  morale - The willingness of your race to be successful in battle
+
+{{DESCRIPTION}}
+Morale represents the willingness of your race to be successful in battle. The
+morale of race depends on its success in colonization as well as combat
+situations. As the morale of a race increases, it becomes more effective against
+other races in combat.
+Each race starts off with a morale of 0. Each update, each race loses 10% of
+it's morale, which is a good thing if it's negative, and receives 1 morale point
+for each sector. Morale points are cumulative. Players also receive morale
+points for capturing alien occupied sectors and destroying or capturing alien
+ships:
+  +defenders fight    Capture an alien occupied sector
+  -your race's fight  Lose a sector in land combat
+  +cost               Capture/destroy an alien ship
+  -cost               Lost ship to an alien
+  +1/update           For each sector
+  -10%/update
+During assault/capture and land combat morale between opposing forces is
+compared and the 'morale factor' is compute which modifies attack/defence
+strengths. Morale factor is given by:
+                   1             1
+  morale factor = -- arctan(x) + -
+                  PI             2
+where
+  x = (morale difference) / 10000
+
+{{SEE ALSO}}
+  assault, capture, move fire
+
+& overview
+
+{{CONCEPT}}
+  overview - of Galactic Bloodshed
+
+{{DESCRIPTION}}
+Galactic Bloodshed: Fun and Death on the Internet
+
+The first thing to say about Galactic Bloodshed (GB) is that it is not that
+bloody (more on this later). GB is a TCP/IP based, multiuser galactic
+colonization and conquest game. If you have played Empire, imagine Empire in
+space. Normally there are several games being run on the Internet and lots of
+people having fun at any given time.
+
+Implementation
+
+GB uses a client-server architecture. There is one major client known as
+gbII. On the server side, there have been two major and many minor versions of
+the server. The original server, which is still being updated regularly, is
+called GB. All code is written in C with the exception of a few supplemental
+programs that are not a standard part of the GB distribution. Unfortunately, the
+code tends to be rather buggy. Most of the bugs are the minor annoying type of
+bugs instead of the total disaster type though they exist also. Additionally,
+some versions of the client are incompatible with some versions of the
+server. The server is well known for memory leask, and it is in God's (the
+person running the game) best interest to restart the server every few
+days. Many games have ended due to database corruption instead of having an
+actual victor. (ed. note: Code is much more stable nowadays).
+
+For running the server, it is very important to keep the game database smaller
+than the size of free RAM on the server machine. If the database is too big, the
+server will thrash at times. This not only slows the game down, but the whole
+server machine.
+
+Basic Rules
+
+GB operates on an update (or turn) basis. Each update is broken into
+movements. When a player performs an action, it may occur immediately or wait
+until the next movement or update. An example of an immediate action is firing a
+laser of loading cargo into a ship. On movements, ships actually move. On an
+update, ships move, jump through hyperspace, populations increase or decrease,
+pollution increases, technology level goes up, taxes are earned, and maintenance
+is paid among other things.
+
+Action Points (APs) play an important part in the game. Each solar system and
+the galactic level earn APs on every update for a player based on population and
+number of ships. Almost any action uses APs. When you run out of APs in a
+system, you are unable to do anything in that system. APs can be reallocated
+from the galactic (global) level to a particular system, but that is usually
+reserved for important situations as global APs are a rare and precious
+commodity.
+
+At the beginning of the game, a player select the type of race and home planet
+he would like. There are two major types of races: mesomorphs (metamorphs) and
+techies. Techies are normal humanoid races. Mesos can absorb people, have a
+lower intelligence (at least to start with), have group consciousness, and have
+space pods. A space pod flies to a remote solar system and explodes sending
+spores which land on planets and absorb population. In the earlier days of GB,
+mesos had an enormous advantage and almost always won games. Then point based
+race creation came along which equalized things. Home worlds range from
+asteroids to gas giants though the players on tiny planets tend to not do well.
+
+In the early phases of the game, it is important to build large populations on
+as many planets as possible. This involves investing in technology, exploration,
+and developing planets. A common mistake by many techie races at this stage of
+the game is to wait until they have hyperdrive to explore other
+systems. Properly build sublight ships will arrive in other systems long before
+the player has hyperdrive. I have noticed two trends regarding starting
+location. The first is that the races that do not have nearby neighbors do
+extremely well unless they are poorly played. The other is that races that start
+on the edge of the galaxy either do extremely well or get stomped quickly. The
+reason is that the race either gets surrounded early on and dies off, or
+survives and then in the later stages of the game has less fronts to fight
+on. For example, in the fall 92 UNM game, all of the major races started on the
+edge of the galaxy.
+
+The game from there goes into the next stage where players begin meeting each
+other and either fighting or forming alliances. As the game progresses, some
+races die off and a few players or alliances usually start dominating the
+game. Ships, also, get more and more powerful.
+
+Another method of playing is known as the blitz. In a blitz game, updates happen
+every few minutes and the game lasts one night or weekend. I'm going to ignore
+blitzes for this article and concentrate on regular games, but most of the
+material here applies to blitzes as well as regular games.
+
+Winner & Losers
+
+Several factors distinguish the winner from the losers. Luck of the draw
+(starting location and the random number generator) does play a big part in the
+game. However, even so certain players almost alwasy do well and others always
+do poorly.
+
+Good players always try to be on immediately following an update. On an update,
+ships jump through hyperspace, pods explode, and populations increase. When
+ships jump through hyperspace, they will often immediately be involved in a
+space battle. Your ships will automatically defend themselves if you are not
+on. However, manually handling your ship's firing works much better than the
+primitive automatic algorithm. When pods explode or populations increase, ground
+combat may occur. It is advantageous to be the attacked in almost all cases
+because you can try to capture enemy ships instead of vice versa.
+
+Good players spend more time playing. Almost always the races that get more
+attention do better. Especially the area of planetary development suffers with
+limited attention. However, GB can be addicting and dangerous to the rest of
+your life. Working full-time and being a top GB player is doable. Working
+full-time, having a girlfriend, and being a top GB player would be tough (I
+couldn't do it).
+
+Good players learn timesaving measure to offset playing too much to a
+degree. Using client macros is a must for such things as building ships and
+launching pods. the other reason I used macros was, on occasion, I would plan
+battles out before the update and write a macro. After the update, I would
+immediately execute the macro which would make attacks faster than the enemy
+could respond. The opttech package is a must for calculating investments. There
+are some breaking and automated people moving code in existance, but may not be
+publically avialable. Automatic playing programs, known as cyborgs, also exist
+by have been banned from many GB games.
+
+Good players report bugs to God and gets God's opinion on whether or not they
+should be used. Many players try to keep bugs secret, but usually someone else
+figures out what is going on and reports it. The player, who was using the bug
+to their advantage, usually ends up getting penalized and incurs the wrath of
+the other players in the game. Also allies sometimes desert these people.
+
+Good players do not use the default ship configurations in general. To begin
+with, some of the defaults are not well balanced and some of the ship types are
+useless in my opinion. I went one game without building a single explorer or
+destroyer and used interesting low-tech cargo ships and tanker
+configurations. (ed. note: modified caros and takers can't compete with warships
+anymore). Also, specialized ships are very useful. the high armor shuttle for
+landing on those highly defended planets is a good one. A real game example of
+this was the time an enemy used up most of his defensive capability on attacking
+my highly armored cargo ships. Then my and my ally's weakly armoed, but heavily
+armed, fleet of battleships, missiles, space mies, and Orbital Assault Platforms
+(OAPs) came in and easily took over the system.
+
+Good players come up with surprises. One strategy, which is no well known, but
+was a shocker in its early use was the "no destruct" missile. In this strategy,
+you build two types of missiles. The first ones use the usual conifguration. The
+second type are cheap missiles that have no explosion capability (the "no
+destruct" missiles). In battle, you launch the "no destruct" missiles first. The
+enemy usually flees or expends a log ot firepower on these harmless missiles
+leaving thme vulnerale to your real attack.
+
+Good players do not give out too much information about their race. If the enemy
+knows where you home world is and all your factories are, then you are not in as
+good a defensive position.
+
+Good players know how to play GB politics. This is the real meat of the
+game. One of the most famous races of all times Erk in the summer 91 Berkeley
+game. The ultrapowerful Erk had made enemies out of basically every other race
+in the game with one exception. By the end of the game, Erk was no longer the
+top ranked player due to overwhelming odds. The counterexample was Bovin
+Combustion in the summer UNM game. The Bovines were another runaway leader
+(partly due to incredible racial statistics) though not as much as Erk, but the
+Bovines found some relatively strong allies including the third ranked player
+and held on to the top ranking.
+
+The formation of alliances is an important step. A good alliance consists of
+races that all have a useful characteristic that is missing from the other
+races. This could be raw materials (resources), fuel, ground fighting ability,
+high technology level, manpower, or strategic location.
+
+However, alliances are not always what they appear. An example was the fall 91
+UNM where the Slinkies (me), the Phreddies, and the Rats plus a couple of other
+minor races were involved in a secret alliance from very early on in the
+game. We have planned out in detail how to confuse, divide, and conquer the
+universe. The Phreddies attacked many of their allies disabiling them and
+leaving them open to attack form the Rats. I publically called the Phreddies
+scum and declared neutrality with them (we had been allies up until then). This
+allowed me to maintain good relations with the enemies of the Rats and Phreddies
+and gather intelligence on their plans. There is an interesting story on how the
+secret alliance had discussions during the game without the other races being
+bale to tell that, but I am keepin this trick to myself for future games. :-) A
+little later on, the Phreddies blew up one of my ships, which happened to be out
+of fuel and useless anyway, to firmly plant the idea that we were not getting
+along in the minds of other races. However, at the same time, the Phreddies were
+secretly building ships for me. The point of this game description was to show
+the lengths that people will go to win. This particular alliance was rath
+effective though there were some near disasters like when my close public ally,
+the Sons of ET, tried to start a war against the Rats. In another game I was in,
+a triple agent existed at one point.
+
+Internet Implications
+
+GB does have an impact on the Internet traffic load. Games are on different port
+numbers so there is no way to calculate its overall impact on the network. It is
+safe to say that a GB session is roughly equivalent to a high-use telnet
+session. It's also safe to say that the majority of the traffic is on the NSFNET
+backbone and not CIX in the US. Over 90% of the traffic during a GB session
+(byte wise) is from the server to the client. It should be noted that players
+with faster internet access to the server have a slight advantage over further
+away players. This is especially true when transatlantic links are involved.
+
+How to start Playing
+
+hopefully, by now, you somewhat have a general feeling of how the game
+works. The first step is to start reading alt.games.gb. The FAQ will ifll in a
+lot of the gaps in this article. The client and server code is available for
+anonymous FTP on scam.berkely.edu.
+
+Then you have to find a game. The best thing to do is wait for a new game
+starting up. They are usually posted on alt.games.gb. Sometimes there are newbie
+games. Please, however, do not play nuless you are sure that you can regularly
+spend the time playing. If you turn out to be wrong, give your race over to
+another player. Races dropping out in the middle of the game can unbalance the
+game pretty badly.
+
+Conclusion
+
+GB is fun, but dangerously addictive. Also, it demands serious time commitments
+from its players. If you decide to play, just remember it is only a game.
+
+by Billy Barron, University of North Texas (billy@unt.edu)
+   aka the Sea Kings
+   aka the Slinkies
+   aka Bovine Combustion
+   (edited by Tra, 15.2.1997)
+
+& production
+
+{{NAME}}
+  production [0] - Show latest planet production statistics
+
+{{SYNTAX}}
+  production
+
+{{DESCRIPTION}} - COMMAND
+This command will show the number of resources, fuel, crystal, and destruct that
+a planet production during the previous update.
+
+{{DESCRIPTION}} - CONCEPT
+The amonut of resources/fuel/destruct depends produced on a planet can be
+determined by two methods, preset by the game master.
+In LIMITED resource mode the total amount of resources available at a planet is
+finite and player obtain resources by minig the resources. Specifically the
+chance of sector producing resources during an update is the efficiency. Players
+may construct 'quarry' objects which can be used to also mine resources. It
+should be noted however that quarry objects may produce toxicity while in
+operation.
+In UNLIMITED resource mode each planet has an unlimited of available resources,
+and the number of resources obtained from each sector depend on the efficiency,
+population, as well as number of resource deposits. This is the 'old-method' of
+resource production.
+
+{{SEE ALSO}}
+  survey
+
+& racegen
+
+{{CONCEPT}}
+  racegen - Help generating your race with racegen
+
+{{DESCRIPTION}}
+Racegen is a program to construct races for Galactic Bloodshed. It runs as a
+separate daemon program usually running on the same server. Typically you
+connect to it with your client and spend points to create your race. Once done
+it is emailed to your game host (God), then is enrolled into the GB game.
+The easiest way to learn how to use racegen is to use it. Connect to it. Type,
+"help" to see more info on the available commands. The main command you will use
+is "modify". Try modifying a few things: "modify fight 6", "modify name Demons",
+"modify pass whatnot". You can save races ("save") and work on them later
+("load"); you can also print what the screen shows to files. When you are done
+with your race, typing "send" will dispatch it to your game host.
+
+__CHARACTERISTICS
+  Absorption - Only metamorphs may have this attribute, which allows them to
+               absorb enemy troops and civilians in combat if the morph
+               wins. Combined with pods, it allows metamorphs to replace alien
+               population on planets wen pods burst.
+
+  Adventurism - This describes what percentage of a sector's population may move
+                and explore other sectors. High values tend to settle planets on
+                their own far more efficiently. If you have a low value, you can
+                order movements with the 'move' option. The amount of population
+                to move is equal to the number of race's sexes.
+                As you can see from the moving percentage equation this
+                percentage follows linearly race's adventurism so 10%
+                adventurism is two times as effective as 5% adventurism
+                [Note: Experienced player usually settle with low adeventurism.]
+
+  Birthrate - This factor determins how rapidly the population in the sector
+              will converge to the maximum population supportable on the there.
+              High valus mean that the population multiplies faster.
+
+  Collective IQ; IQ limit - The intelligence of a race with collective IQ is
+                            related to the race's total population, as follows:
+                            IQ = ID_limit * ((2 / PI)atan(population / 50000))^2
+                            [Note: Be carefule with this one! If you can't build
+                            pods, then having a collective IQ could be
+                            disasterous as you won't have the knowhow to build
+                            *any* kind of useful ships for a very long time.]
+
+  Fertilize - This attribute represents the percentage chance that a race will
+              increase by one percent the fertility of an sector it owns. Any
+              race may take advantage of space plows for a similar effect, once
+              it gets to tech level 5.
+
+  Fighting Ability - Higher values mean that the race is more likely to kill an
+                     alien than a lower value. Races with lower values will
+                     usually need to have larger forces to win in direct combat
+                     over a high fighting ability. It is important to note that
+                     this effects only land combat and ship boarding strengths,
+                     and not ship to ship fighting.
+
+  IQ - The raw growth rate of a race's technology is governed by the race's
+       intelligence. The technology increase per update is IQ / 100. Additional
+       technology gain is available by tehcnology investments on the individual
+       planets under the race's control.
+
+  Mass - Each race has a mass. The heavier the individual, the more fuel it will
+         take to launch land travel and hyperjump ships full of the race. Race
+         with a good fight might like low mass since heavy weight tends to limit
+         troops transferring.
+
+  Metabolism - This value ocntrols how industrious the race is. Higher
+               metabolism races will produce resources more rapidly than lower
+               metabolisms, and also increase the efficiency of sectors faster.
+
+  Pods - Pods are small shpis, available only to metamorphs but at tech level 0,
+         buildable instantly on the surface of planets. Each one may carry a
+         single crew-thing; this makes them ideal for settling other
+         planets. Pods which enter a system after having frozen in deep space
+         will warm and eventually burst, possibly leading to spores landing on
+         worlds in the new system. If a spore lands on a sector, a ton or more
+         of biomass will be created, resulting in a new colony for the podding
+         race. Note that spores may never land on alien occupied sectors unless
+         the podding race has absorption.
+
+  Racial type - There are two main racial types in GB: normal races (think of
+                humans, Klingons, Wookies, Pierson's Pupeteers, etc.) and
+                metamorphs (Alien, the Thing, body snatchers, etc.). The primary
+                difference between these two race classes is that only
+                metamorphs may have pods and absorption as racial
+                attributes. Metamorphs are also required to have one sex, which
+                is another advantage.
+
+  Sexes - Each race has a number of sexes. This respresent the minimum
+          population that a sector must have in order to be able to
+          reproduce. Lower values are preferable to high values for colonization
+          efforts. It is not recommended to have more than 3 to 6 sexes at the
+          outset, unless you are really looking for a challenge.
+
+
+__SECTOR_TYPES__
+  Desert sector - This is main sectortype of desert planets and also very common
+                  on airless planets, and few sectors be found on asteroids and
+                  class M planets. Dsesert is resource rich but very log in
+                  fertility. It's slightly most common normal sectortype in
+                  galaxy.
+                  Good choices to combine with desert: land, mountain
+
+  Water sector - This is main sectortype on waterballs and there is lot of water
+                 on class M planets also. It can be found on forests too. It's
+                 medium rich and got better fertility than average sector.
+                 Good choices to combine with water: land, ice, forest, mountain
+
+  Land sector - Land sectors can be found almost everywhere...class M,
+                asteroids, airless, deserts. Mostly in class M. Land sectors are
+                low in fertility and a bit better than average amount of
+                resources.
+                Good choices to combine with land: anything but gas
+
+  Mountain sector - There is no special mountain planet, but desert worlds have
+                    sometimes lot of it. It can also be found on airless
+                    planets, waterballs and asteroids. Mountain is the richest
+                    sectortype, but with very low in fertility.
+                    Good choices to combine with mountain: desert, ice, land,
+                    water
+
+  Forest sector - Forest is highest in fertility sectortype, but it's quite
+                  resource poor. It can be found mostly on forest planets. Class
+                  M planet usually have some sectors too.
+                  Good choices to combine with forest: water, ice
+
+  Ice sector - Ice is nice in fertility and average in resource sector. It can
+               be found on class M planets and iceballs.
+               Good choice to combine with ice: anything but gas. If you choose
+               mountain, take at least third sectortype also.
+
+  Gas sector - It's clearly the most ocmmon sectortype because jovian balls are
+               so huge, but it can't be found anywhere else. It's extremely poor
+               on resources but large number of them compensates this. It got
+               nice fertility.
+               Good choices to combine with gas: nothing
+
+  Plated sector - When inhabited non-gas sectors efficiency reaches 100% sector
+                  becomes plated. It means whole sector is totally built and
+                  nothing of original sector is left. Tokyo is good example of
+                  an almost plated sector on isle Honshu.
+
+__PLANET TYPES__
+
+  Class M - 6% - These planets are usually about everything. Mostly land and
+                 water. This is rarest type, but also largest normal planet.
+
+  Jovian - 9% - These planets are 100% gaseous, and they are usually twice as
+                large as the typical class M planet. they tend to be very high
+                in fertility too, so you can easily build up a large population
+                for taxation. Also, ships in orbit around Jovians add fuel to
+                their holds every update (tankers are very efficient at this),
+                so even if you're not a jovian-type race, having one of these
+                nearby can be a tremendous asset. [Note: Remember to take some
+                adventurism if you choose jovian]
+
+  Water - 9% - These are largely water planets, and they are generally resource
+               rich. They can be quite large, randing up in size to class M
+               quality, but they are usually about 40% smaller. There is
+               mountain isles and navel ice fields on waterballs.
+
+  Desert - 8% - These planets are usually 70% desert and 15% mountain and 15%
+                land. Resource content is very high, but they are very poor in
+                fertility. They produce lot of resources but population will
+                grow very slowly and leave you vulnerable to invasion. Their
+                size range is bit smaller than class M planets.
+
+  Forest - 9% - These planets are almost entirely covered in forest, but there
+                is also some water and ice. Size range is like Water
+                planets. Fertility is lot higher than in any other planettype.
+
+  Iceball - 20% - These planets are generally small (1/5 the size of class M or
+                  less), and they consist of around 80% ice and 20%
+                  mountain. Relative to their size they are resource rich, but
+                  the small number of sectors means that resources will come
+                  more slowly. This is most common planettype in galaxy. [Note:
+                  Newbie... don't choose iceball]
+
+  Airless - 15% - These small planets are mostly land (60%) whith some mountain
+                  and desert sectors. The atmosphere is almost always hostile,
+                  of course, but these planets are quite resource rich relative
+                  to their size (i.e. 1/2 the resources of a typical forest, but
+                  1/4 the size). [Note: Newbie...don't choose airless]
+
+  Asteroid - >20% - these are just floating rocks in space, not good for a heck
+                    of a lot. They don't count as planets in victory
+                    conditions. Small number (but sometimes extremely rich) of
+                    sectors and killing heat make it very difficult for most
+                    asteroids to contribute to your cause, though having
+                    colonies on them have other advantages, such as morale
+                    bonus. Sector types are land, desert, and mountain.
+
+{{SEE ALSO}}
+  races
+
+& races
+
+{{CONCEPT}}
+  races -- Difference characteristic combinations create different races
+
+{{DESCRIPTION}}
+  There are a bunch of programmed racial characteristics which offer players a
+large variety in Capabilities. Of course, no one race is intended to be ideal
+over another, and players should learn how to optimize their particular
+choice. There are 9 basic characteristics of each race:
+    1) Mesomorph - A player can request to be a mesomorphic' race. They have an
+                   advantage of only 1 sex. They can also take over the bodies
+                   of their victims. A well run mesomorphic player can be a
+                   formidable foe.
+
+    2) Mass - Each race has a mass. The heavier the individual, the more fuel it
+              usually takes to launch and land them. Heavy creatures may require
+              more fuel to move around than light creatures.
+
+    3) Birthrate - This factor (infection rate for mesos) controls how rapidly
+                   the population in the sector will try to adjust to the
+                   maximum support of the sector. High values mean that the
+                   populations multiply faster.
+
+    4) Fighting Ability - Higher values mean that the race is more likely to
+                          kill an alien with that a lower value. Races with
+                          lower values will usually need to have larger forces
+                          to win in direct combat over a high fighting
+                          ability. It is important to note that this affects
+                          only land combat and boarding strengths, and not ship
+                          to ship fighting.
+
+    5) Intelligence - The raw growth rate of technology is governed by the
+                      race's intelligence. The technology increase per update is
+                      IQ / 100. Additional technology boosts for a race is
+                      controlled by technology investments by the individual
+                      planets under the player's control.
+
+                      Collective intelligence is related to the race's total
+                      population, a sort of collective intelligence.
+                      Specifically, C IQ = 200 * [(2 / PI) * atan(population /
+                      50000)]^2. It's usually a good idea to take advantage of
+                      the 'technology investment' option to keep pace with more
+                      intelligent racial types.
+
+    6) Adventurism - This describes how often a sector's population wants to
+                     move and explore and conquer planets on their own more
+                     efficiently. If you have a low value, you can order
+                     movements with the 'move' option.
+
+    7) Sexes - Each race has a number of sexes. This represents the minimum
+               population that a sector must have in order to be able to
+               reproduce. Lower values are preferable to high values for
+               colonization efforts.
+
+    8) Metabolism - This value controls how industrious the race. Higher
+                    metabolism races will produce resources more rapidly than
+                    lower metabolisms.
+
+    9) Fertilize - This attribute represents the percentage chance that a race
+                   will increase by one percent the fertility of any sector it
+                   owns. Any race may take advantage of space plows for a
+                   similar effect, once it gets to tech level 5.
+
+{{SEE ALSO}}
+  racegen
+
+& ranks
+
+{{CONCEPT}}
+  ranks -- Military rankings and permissions of players
+
+{{DESCRIPTION}}
+  Every governor has a military ranking. Different governors can give different
+commands. Raceleader can assign ranks to governors using 'promote'
+command. Different rank levels are:
+    General
+    Captain
+    Private
+    Novice
+
+These commands require governor at least:
+    route     GENERAL        build       CAPTAIN
+    upgrade   CAPTAIN        modify      CAPTAIN
+    sell      GENERAL        bid         GENERAL
+    arm       CAPTAIN        move        CAPTAIN
+    walk      CAPTAIN        scrap       CAPTAIN
+    toxicity  CAPTAIN        technology  GENERAL
+    dissolve  LEADER         repair      CAPTAIN
+    survey    CAPTAIN        schedule    NOVICE
+    relation  NOVICE         whois       NOVICE
+    treasury  NOVICE         profile     NOVICE
+    personal  NOVICE         insurgency  GENERAL
+    pay       GENERAL        give        GENERAL
+    page      PRIVATE        motto       NOVICE
+    announce  NOVICE         block       PRIVATE
+    power     PRIVATE        map         NOVICE
+    mobilize  GENERAL        tax         GENERAL
+    analysis  PRIVATE        autoreport  CAPTAIN
+    capital   GENERAL        cs          NOVICE
+    invite    GENERAL        declare     GENERAL
+    pledge    GENERAL        vote        GENERAL
+    enslave   CAPTAIN        colonies    PRIVATE
+    explore   PRIVATE        fuel        CAPTAIN
+    dock      CAPTAIN        land        CAPTAIN
+    launch    CAPTAIN        load        CAPTAIN
+    jettison  CAPTAIN        dump        GENERAL
+    transfer  CAPTAIN        mount       CAPTAIN
+    capture   CAPTAIN        fire        CAPTAIN
+    bombard   CAPTAIN        defend      CAPTAIN
+    detonate  CAPTAIN        orbit       NOVICE
+    tactical  CAPTAIN
+
+{{SEE ALSO}}
+  appoint, promote
+
+& scope
+
+{{CONCEPT}}
+  scope -- Operative scope
+
+{{DESCRIPTION}}
+  Scope represents the operative scope of certain commands. The operative scope
+(display along with the APs in the user's prompt, and changed with cs) is
+similar to the tree-like directory level structure found in most computer
+systems, with the root directory being a universe scope followed by the various
+stars, followed by the planets orbiting these starts. The scope can also
+represent a single ship.
+  Commands are affected by the scope in a different manner than that which
+operating systems treat their directory structure. For example, if the current
+scope is that of a star, the command report, if given with no arguments, will
+prompt report or each ship orbiting that star. If the scope was the universal
+scope, report would prompt each ship everywhere that the player owns. Many
+commands will work differently, or not at all in certain scopes. The syntax of a
+scope, when prompted for, is thus:
+    path = : | #shipnum | /path | ../path | name | path/name
+  The shell will interpret a ':' as meaning the object of the current scope
+(star, planet, or ship). A '/' at the beginning of the string represents the
+root. It could be followed by a star name, or not, to represent the upper,
+interstellar, level. A '..' or '.' represents the scope just above the current
+scope. '#shipnum' represents that ship. A number by itself will be interpreted
+as meaning a star or planet name. Specifying a name means to move down to that
+star or planet.
+
+{{SEE ALSO}}
+  cs, order, actionpoints
+
+& segment
+
+{{CONCEPT}}
+  segment -- Secondary movement update
+
+{{DESCRIPTION}}
+  A movement segment (or a move seg) is a procedure during which the server
+updates the positions of all ships in the game based on their current
+orders. For example, if you have a ship ordered to move toward a particular
+star, planet, or ship, this process moves your ship closer based upon the ship's
+speed. You'll receive messages from the server when you arrive at your
+destination, at which time your ship stops moving.
+  Repairs also occur at move segs. This means that everytime there is a move
+seg, any of your ships which are currently trying to repair themselves,
+regardless of how they incurred damage, will have their damage percent reduced
+by some amount.
+
+{{SEE ALSO}}
+  update, daemon
+
+
+& shipdesign
+
+{{CONCEPT}}
+  shipdesign -- Some tips when designing ships
+
+{{DESCRIPTION}}
+A few tips for Galactic Bloodshed newbies.
+  1) Most ships are built by factories. Here is a partial list of ones which
+     are not:
+       Pods
+       Ground Telescopes
+       Weapons Plants
+       Factories
+       Domes
+       Space Plows
+       Terraformers
+       Atmosphere Processors
+       ABM Battery
+       Gamma Ray Laser
+       Government Center
+       Planet Defense Net
+       (There are others; do a "build ? (letter)" to see what can build a given
+       type of ship)
+
+  2) Here is the procedure for building ships in the factories:
+    a) Build a factory on a planet. For example "build F 3,2" builds a factory
+       on sector 3,2 of the planet you are currently at.
+    b) Change scope into the factory. This is done by typing "cs #(shipnumber)",
+       where "shipnumber" is the number of the factory in question (note: it
+       told you this number when you built the factory in the first place).
+    c) Type "make (shipletter)", where "shipletter" is the letter of the ship
+       you want to build. For instance "make s" sets the factory to produce
+       Shuttles. This is probably what your first factory will be for.
+    d) Modify the ship's stats, if desired. (More on this is 3), below).
+    e) When you are abso-smurfly positive you have the ship design you want,
+       type "order #(shipnumber) on", where "shipnumber" is the number of the
+       factory. (note: Turning the factory on costs resources! The cost is equal
+       to twice the cost of the ship you will be producing. Also note, you can't
+       change the stats of the factory's production model once the factory has
+       been turned on. Want to build a new ship type? Build a new factory.)
+    f) Wait three update. "Why wait?" you ask? Well, a factory starts at 75%
+       damage and can't produce ships until it is fully "healed". Damage heals
+       at 25% per update. If the game has movesegs (which they pretty much all
+       do these days), the 25% will be divided up among the movesegs...this can
+       result in it taking a little longer for factories to fully heal, since
+       the damage healed each moveseg is rounded down. Id that sounded
+       confusing, it isn't: just wait patiently for three updates or so and the
+       factory will be ready. There's nothing you can do to speed this up, and
+       nothing will slow it down short of somebody shooting the factory.
+    g) When the factory is healed...congrats! You can produce ships! To do this,
+       change scope into the factory again and type "build". Poof! A new ship!
+       Alternately, you can type "build (number)" to build (number) ships at
+       once. Beats typing "build" fifty times, let me tell you.
+
+  3) Modifying ships: Ok, so you're in the factory's scope, you've orded it to
+     "make" a type of ship...now what? Now you learn the joys of the "modify"
+     command ("mod" for short). Type "make". You'll see a printout of the ship's
+     stats. The good news is that you can modify almost every single one of
+     those stats! "But why", you ask, "would I want to do that?" Well, besides
+     the obvious benefits of, for instance, adding extra fuel or crew to a ship,
+     or increasing the number of guns...you can take features OFF of a ship to
+     decrease its effective tech level. This means you can be building
+     Destroyers, Tankers, and Cargo ships literally dozens of updates before
+     Tech 100. Granted, they will be comparatively wimpy for their class, but
+     they can still be effective. The Tanker, for instance, is often used as a
+     "jumpship". Hyperdrive tech comes along at tech 50, but there generally
+     aren't any good long-range hyperdrive craft at that tech level. However, by
+     dropping a few thousand Fuel Capacity form a Tanker, and dropping its
+     Destruct and Guns to lower levels, and lowering the crew...voila. A Tech 50
+     Tanker, with Hyperdrive, and with 5 hangers...that's enough to carry 4
+     shuttles and a space telescope. This means that you can jump into a system,
+     use the space telescope to examine all the planets, and send shuttles to
+     the 4 best planets right away. Which, trust me, is a HELL of a lot faster
+     than messing around with explorers.
+
+Note: Some versions of gb have a ship type called the "Light Carrier". The
+symbol is "j". These tend to be _extremely_ effective ships, so if you see them
+in the came you may want to experiment between those and Tankers and see which
+gives the better bang for your buck.
+
+Which reminds me...not all ship types are created equal, nor are all ship types
+used for their intended purpose. For instance, Cargo Ships often make mighty
+good warships, particularly at low tech; whereas the usefulness of Destroyers
+tends to be limited by their low fuel capacity (which limits jump range). The
+moral of this story is: experiment! I like to have one factory on my homeworld
+which I never, ever turn on. I just use it as a "research lab" of
+sorts...basically just change scopes, "make" a ship type, modify it, "make" a
+new ship type, etc...this gives me an idea of what sorts of ships I'm capable of
+building. Note: "make" and "build" are not the same thing. I don't mean to imply
+that I'm actually _building_ all these different ship types. Using "make" is
+like giving the factory a set of blueprints; "modify" modifies those blueprints;
+ordering the factory on sets up the machinery to make the ship specified by the
+blueprints; "build" actually builds the ships.
+
+Which reminds me: how Modify works. Just type "help modify" and it'll tell you
+the commands, but, in short, "mod (feature) (new value)" is the formula. "Mod
+fuel 100" changes the blueprints so that the new ship design will have 100 fuel.
+
+Keep an eye on two things above all else: Tech and Cost. Cost is how many
+Resources it will take to build one of these. Tech is the tech level you'll have
+to be at before you can _build_ one. Note that you can order the factory on even
+if you can't build the design it is set to!
+
+Yes, this means that my race at tech 10, can design a tech 100 ship (a shuttle
+that carries a billion crew for instance). I can even order the factory
+"on". However, even after the factory is fully repaired I won't be able to build
+the ship design until I reach tech 100.
+
+A corollary to this is: never ever forget it takes 3 updates for the factory to
+come online. This means you can always get away with designing ships for tech
+levels 3 updates away. Let's say you have an IQ of 200, which is fairly normal
+for a "techie" race. This means you will be gaining 2 tech per turn (200 / 100 =
+2).  So even if you are only at Tech 24 now, you can design a Tech 30 ship and
+order the factory on, because by the time the factory heals and comes online you
+will have reached tech 30. Be careful; nothing is more annoying than having an
+unbuildable Tech 30.1 design while your race is at Tech 30; err on the side of
+caution.
+
+One final note: you can "upgrade" ships after they are built. This costs
+resources, and those resources HAVE to be IN the ship. So, if you ever want to
+be able to upgrade a ship, leave some of the cargo capacity when you "modify"
+the design. This isn't all that important for "throwaway" ships, but it is a
+good idea for those multi-hundred-resources jumpships and warships. Besides, who
+knows when it'll come in handy.
+
+Dan Bongard 1996
+
+{{SEE ALSO}}
+  ships, factories, modify, upgrade
+
+& shipkey
+
+{{CONCEPT}}
+  shipkey -- List of ships and their character representation
+
+{{DESCRIPTION}}
+  p  Spore Pod        /  Ground Telescope    W  Weapons Planet
+  s  Shuttle          -  * T-R beam          J  Space Port
+  X  Carrier          a  Atmosph Processor   &  ABM Battery
+  D  Dreadnaught      g  Dust Canister       R  Mech
+  B  Battleship       h  Greenhouse Gases    b  Bunker
+  I  Interceptor      @  Governmnt. Center   L  Lander
+  C  Cruiser          l  Mind Control Lsr    m  Mine Sweeper
+  d  Destroyer        w  Tox Waste Canister  k  Colonizer
+  f  Fighter Group    :  Space Probe         j  Light Carrier
+  e  Explorer         G  Gamma Ray Laser     x  Corvette
+  H  Habitat          F  Factory             P  Super Pod
+  S  Station          T  Terraform Device    i  Infrastructure
+  O  Ob Asst Pltfrm   [  AVPM Transporter    v  Von Neumann Machine
+  c  Cargo Ship       ^  Missile             V  VN Berserker
+  t  Tanker           n  Planet Def Net      Z  Berserker Control Center
+  +  Mine Field       q  Quarry              z  Berserker Autofactory
+  u  SETI             E  Frigate             r  Refinery
+  M  Space Mirror     K  Space Plow          A  Dreaded Space Amoeba
+  =  Space Telescope  Y  Dome                !  Godship
+
+{{SEE ALSO}}
+  ships, examine
+
+& ships
+
+{{CONCEPT}}
+  ships -- Presentation of standard type ships in GB
+
+__Spore Pod__
+  This is a small see pod grown by a mesomorphic race and is used primarily to
+colonize other planets. A Pod can be landed like a normal ship upon reaching a
+destination. However, a Pod can also be warmed by a star, causing it to explode,
+possibly seeding a random planet in that star system. Deterioration builds up in
+a Pod and will eventually cause it to decay. Pods usually last around four
+updates.
+  Some notes: You cannot unload crew or military from a pod; You cannot assault
+other ships with a pod; You cannot change the destination of a pod once it is on
+its way.
+
+__Shuttle__
+  This is a small, short-range spacecraft, intended for exploration and
+shuttling things between ground and orbit. This ship is also useful for
+assembling other ships in space, as resources can be transferred from another
+ship using the load command until it is carrying more than the maximum
+cargo. The Shuttle, however, cannot take off or land with this cargo. Shuttles
+are one of the few classes of ships that can construct other ships. They have
+one light gun for self defense and no armor.
+
+__Carrier__
+  Carriers have huge hangers, enabling them to carry and support many companion
+ships. Any real battle group will be equipped with one of these massive
+machines. They are not amazingly armored, but are armed about equivalent to a
+Battleship. These ships are so large, they can not land on planets and must be
+built in space. If you must tangle with a Carrier...be sure that you have PLENTY
+of warships to do it with. These guys are nasty; they can carry about 7 cruisers
+all by themselves! This ship is built with 48% damage. Construction must be
+completed manually.
+
+__Dreadnaught__
+  This ship is the largest and best armored combat vessel. With twice the
+gunpower of the Battleship and heavy-duty armor, the Dreadnaught makes an
+excellent flagship for any navy. this ship is built with 48%
+damage. Construction must be completed manually.
+
+__Battleship__
+  Although not quite the mighty Dreadnaught, the Battleship is the basic heavy
+class combat ship. With its excellent armor and heavy firepower, this ship works
+will for general-purpose assaults, and fleet duty. This ship is built with 48%
+damage. Construction must be completed manually.
+
+__Interceptor__
+  this ship is a step above the Destroyer. Although equipped with the same
+armor, the Interceptor has more firepower and excellent range via its large fuel
+capacity, which can even outdistance a standard Cruiser class ship. An
+Interceptor is very fast, it's like the 'Porsche' of the battlefield and an
+excellent choice for lengthy, but potentially dangerous patrols. This ship is
+built with 48% damage. Construction must be completed manually.
+
+__Cruiser__
+  This ship is a medium class escort/battle vessel. Although without the range
+of the Interceptor, the Cruiser boasts heavy caliber firepower and substantially
+more armor. These ships can provide a strong foundation for a powerful
+fleet. This ship is built with 48% damage. Construction must be completed
+manually.
+
+__Destroyer__
+  This ship is the smallest of the combat ships. With moderate arms and armor,
+this ship can provide decent star system security at the lower technology
+levels, and later can be produced en masse to fill in a fleet. It is always a
+good choice for escort duty. This ship is built with 48% damage. Construction
+must be completed manually.
+
+__Fighter Group__
+  The Fighter Group is a quick, high power weapon when utilized correctly. Their
+short range necessitates transport ships, but the tactical advantage these ships
+can create make them indispensable assets in combat. Fighter Groups represent up
+to five individual craft at full strength. This interpretation, however, is
+unimportant with the scale of the game.
+
+__Explorer__
+  This is a small and fast exploration craft with some armor. It has increased
+range over shuttle and it's the smallest shiptype capable to jump. It is more
+heavily armed than shuttle. This is not a ship to tangle with warships, although
+it is rather ideal for armed recon. This ship is built with 48%
+damage. Construction must be completed manually.
+
+__Space Habitat__
+  This is a residential platform, a space colony. It can be used to manufacture
+other ships, as well as safeguard your race against extinction, if you choose to
+send it into interstellar space as an insurance measure. Habitats can build any
+ship a warship is able to, and may also build this ship types: X, H, S, O, M, @,
+:, F, T, and W. Both Factories (F) and Weapon Plants (W) may be operated in the
+hanger area of a Habitat. They are equipped with defensive strength arms and
+armor.
+  Habitats also have sophisticated manufacturing and refining equipment,
+enabling the Habitat to convert fuel into resources (typically at 20 fuel per
+resource), in proportion to the number of people staffing it. To facilitate the
+conversion, they also gather fuel at gas giants at a high rate, normally 200
+fuel units per update. The Habitat must be switched on with the order command
+before it will produce resources. Habitats are the only ships in which citizens
+feel comfortable enough to reproduce freely. This ship is build with 72%
+damage. Construction must be completed manually.
+
+__Space Station__
+  This is an orbital installation useful as a military depot as well as a
+perimeter planetary defense base. They do not pack heavy firepower, though, and
+have little armor. It can build any ships that warships or shuttles can build.
+  Stations are unusual in that they can repair themselves for free, without
+charging resources. Ships docked with or landed on a station can also take
+advantage of this feature. This ship is built with 72% damage. Construction must
+be completed manually.
+
+__Orbital Assault Platform__
+  This is a huge station-like construction, bristling with firepower. It's
+horribly impressive weaponry system makes it useful for enslaving recalcitrant
+worlds (with the 'enslave' command). It can also be used for constructing other
+ships as can shuttles and habitats, however it cannot reproduce citizens or
+manufacture resources. An OAP must be built in space and is too large to be
+landed on a planet. This ship is built with 72% damage. Construction must be
+completed manually.
+
+__Cargo Ship__
+  A basic all-purpose transport ship, a cargo ship has long range capability,
+but little defensive capability. Escort ships are a definite must when using
+these ships in volatile areas.
+
+__Tanker__
+  This ship can carry large amounts of fuel and moderate amounts of other
+commodities. In addition, it can also collect fuel at a high rate, which is one
+fifth of tanker's fuel capacity, by orbiting a gas giant. They have very small
+gunnery strengths and light armor, but since they are relatively huge they have
+lot of staminal strength against attacks.
+
+__Mine Fields__
+  This device is a proximity mine, exploding on contact with enemy ships or, if
+set with the 'order' command, showering them with deadly radiation. It gives
+damage appropriate to the amount of destructive capacity it is
+carrying. Affected ships, when irradiated, can become periodically immobile;
+each turn, an affected ship's crew is reduced by 20%. The mine can be
+armed/disarmed with 'order', and its trigger radius also altered with the
+'order' command.
+  Alien space mines are difficult to detect. They are invisible on the solar
+system maps but can be detected with the 'tactical' command. Their precise
+locations may be difficult to triangulate. They also possess a high defense
+strength since they are small object and difficult to hit nonetheless find. A
+Mine Sweeper can facilitate rooting out these dangerous objects.
+  Mines are triggered by ships moving inside of their assigned trigger radius,
+or by owner using detonate command. If a ship is within the trigger radius the
+ship is evaluated as to whether the mine is in fact triggered. The chance of
+triggering the mine is proportional to the size of the ship. For example, a ship
+with a size 30 the trigger odd is 2 * 30 = 60% chance. Smaller ships are less
+likely to trigger the mines. These are evaluated for each ship in each mine's
+radius each update.
+
+__Space Mirror__
+  This is a large plane of reflecting material, suitable for altering the
+ambient temperature of a planet if aimed at one (via the 'order' command). The
+intensity of the reflected beam can also be set with 'order'. The intensity is
+the maximum temperature rise of the planet in degrees; this amount may be
+reduced by damage to the Mirror or by range.
+  A Space Mirror may also be used as a weapon if aimed at a ship. The damage
+done to the ship is proportional to the intensity set on the Mirror and
+inversely related to the target's size and the range to the target. This ship
+also has attitude jets for maneuvering. This ship is built with 72%
+damage. Construction must be complete manually.
+
+__Space Telescope__
+  This is a space-based astronomical facility, with fuel and engines for
+launching it into orbit. It has a much longer range than a ground-based
+telescope. The tech level of a race determines the telescope's range at build
+time. Ranges for telescopes built before the next update are listed in a race's
+profile.
+
+__Ground Telescope__
+  This is a ground-based astronomical facility. It is able to survey the nearest
+planets for mapping purposes. The tech level of a race determines the
+telescope's range at build time. Ranges for telescopes built before the next
+update are listed in a race's profile. (No...placing it on mountain areas does
+not increase it's range). Usage: order / aim <target planet>
+
+__Tractor/Repulsor Beam__
+  When this device can be aimed at a ship or planet and activated, it will
+attract/repel the other object. Newton's Law, however, requires that the smaller
+of the two objects move more than the larger. (This is a non-functional device.)
+
+__Atmosphere Processor__
+  This is a large machine (of the type in _Aliens_) that sucks in the atmosphere
+of a planet, converting it to the type of air preferred by its owner. You must
+load crew into these objects for them to operate. The device also must be
+activated with the order command. Larger planets take longer to convert than
+smaller planets. The Processor uses three fuel per turn.
+** INFO only. Ship superceeded by the Infrastructure Machine (i) **
+
+__Dust Canister__
+  This is a small canister of light-absorbing dust. When launched it will spread
+into the atmosphere of the planet, lowering its ambient temperature by ten
+degrees per update. Multiple Dust Canisters have a cumulative effect, but the
+temperature of a planet can not be lowered by more than 100 degrees. This can be
+used for terraforming purposes, when the temperature is too high for
+comfort. The dust disperses after 80 turns.
+
+__Greenhouse Gases__
+  This device produces large amounts of greenhouse cases when launched in the
+atmosphere of a planet, raising the temperature near the planet surface by ten
+degrees per update. Launching more than one will warm the planet faster, but the
+temperature of a planet can not be raised by more than 100 degrees. This can be
+used for terraforming purposes, when the temperature is too low for comfort. The
+gases disperse after 80 turns.
+
+__Governmental Center__
+  This represents the seat of government of an entire civilization. Although
+superficially a ship, it is not designed to be moved; if your capitol is not
+landed on a planet, it produces no action points. However it can be launched and
+landed like any other ship should an emergency arise. If a capitol is destroyed
+another one must be designated with the 'capitol' command. Note that it is
+possible to maintain more than one government center; this has no benefit beyond
+serving as a backup in the case of destruction of the current capitol. This ship
+is build with 72% damage. Construction must be completed manually.
+
+__Orbital Mind Control Laser__
+  This device, when aimed at a ship, produces resonating vibrations within the
+ship's hull, to cause the mental attitude of the crew to be altered. The crew's
+response to influence is dependent on the armor of the affected ship, becoming
+more and more difficult for the vibrations to be produced as the target ship's
+armor increases. The laser has a range similar to the player's gun range.
+  Response can be toggled by the "desired response" register in the order
+command: from convincing the crew to trigger their aggressive response and kill
+each other, to converting them to sympathy for your race and its motivations;
+each response has a percentage chance of conversion.
+  The orbital mind-control lasers are currently only effective on planets, and
+have one setting: to suppress emotion, which causes no fighting or migrations to
+take place.
+
+__Toxic Waste Container__
+  This is a sealed container used to store environmental poisons. When toxicity
+of a planet becomes too high, constructing one of these containers will reduce
+the poison level by 20%. If the container is breached, however, the toxic waste
+inside will escape.
+
+__Space Probe__
+  This device is used to sight positions of enemy fleets. The ship is robotic
+and requires no crew, but reports data from its explorations to the building
+race as if it were manned. It is extremely fast and can be useful for analyzing
+the strategic deployments of enemy ships.
+
+__Gamma Ray Laser__
+  This device shoots medium gun shots or deadly streams of radiation at its
+target when fired. It uses destructive capacity in the same manner for both
+guns. Radiation is not accumulated in target ships; if a ship's radiation level
+is 10, only a more powerful shot from the laser may increase the radiation
+level. A weaker shot will have no effect at all.
+  Radiation does not kill immediately, but will kill off 20% of the ship's
+population each update. Each movement segment, a ship may have a chance of
+becoming inactive due to the radiation levels in the ship. this ship is built
+with 72% damage. Construction must be completed manually.
+
+__Factory__
+  A Factory is built to produce other ships. To see a list of other ships which
+must be built in a Factory, see the help topic 'build'. After being built,
+descend to the ship's scope and specify the ship type this Factory will be able
+to produce with the 'make' command. The stats of the ship to be produced can
+then be modified by using the 'modify' command. Finally, the Factory must be
+ordered online with the 'order' command. Once activated it cannot be turned off,
+nor can the specification of the ships it is to manufacture be altered in any
+way.
+  A Factory is built with 48% damage. This represents the time it will take to
+start up production. Damage will repair itself during movement segments
+automatically. To begin repairing however the ship must first be ordered
+'on'. See 'help build' for more information regarding factories.
+
+__Terraforming Device__
+  This device alters the surface of a planet to better suit its owner. Once
+activated and given a move command (see the command 'order' for more help), the
+Terraforming Device moves each update to a new position, altering sectors as it
+goes.
+  It will move first, then terraform, so that it will not destroy the sector on
+which it was built. Any sector terraformed will have its efficiency and
+mobilization count reduced to 0. Terraformers will terraform sectors owned by
+other players but civilians and military are not destroyed, owner is not changed
+and victims receive a warning message. 'Gas' sectors can not be terraformed to
+any other type of sector, but not vice versa. Terraforming requires three fuel
+per update. Terraforming can increase the toxicity level of a planet.
+
+__Audio-Vibratory-Physio-Molecular Transport Device__
+  This device has a hopper for the loading of material. When it detects the
+presence of something in the hopper, it will transport this material into the
+hopper of its target device. The target device can be specified with the 'order'
+command.
+  You should specify the number of the receiving Transporter. If the target ship
+is set to '0' cargo will not be transported anywhere and will remain in the
+hopper. Both the sending and target Transporters must be landed and undamaged to
+transport material. This ship is built with 48% damage. Construction must be
+completed manually.
+
+__Missile__
+  This weapon can be used to attack enemy planets or ships. In order to attack
+with a missile, they must be launched and then given a destination. If the
+destination is a ship it will detonate upon reaching the enemy ship. If the
+destination is a planet, the missile will impact on the designated sector. See
+help on 'order' for designating missile impact coordinates. A missile may be
+designated to impact a specific sector, or may be allowed to randomly hit the
+planet.
+  A missile aimed for a planet will automatically switch its target to any
+Planetary Defense Networks protecting the planet. The only automatic defense
+against missiles is the ABM battery. Missiles are, needless to say, considered
+to be nuclear (the default is a 10-MegaD warhead).
+
+__Planetary Defense Network__
+  These are powerful, well armored third generation planetary defense (after
+gamma ray lasers) which prevent enemy players to fire at planets as long as they
+are present. Before a player may attack sectors with orbiting ships, all
+planetary defense systems must be eliminated. This ship is build with 72%
+damage. construction must be completed manually.
+
+__Quarry__
+  This ship is used to mine resources from a sector. The amount of resource per
+update mined from a sector with a Quarry is five. The disadvantage of Quarries
+is not only that they will reduce the fertility of a sector by the amount of
+resources produced, but they also will turn the sector into waste and increase
+the toxicity on the planet. Mining requires two fuel per update.
+NOTE: This is useful ship only if resource deposits are infinite, so newbies ask
+      the deity about that before building a Quarry.
+
+__Space Plow__
+  This type of ship allows you to increase the fertility of sectors. Once
+activated and given a move command (see the command 'order' for more help), a
+fully manned and undamaged plow will increase the fertility of each sector
+traversed by 10%. If it reaches the north or south of the planet map, it will
+bounce off and continue. There is also a hop option to move a plow automatically
+into own low fertility sector when sector's fertility reaches wanted level
+(ordered with limit command). The Space Plow uses two fuel per update. Plowing
+can increase the toxicity on a planet.
+** INFO only. Ship superceeded by the Infrastructure Machine (i) **
+
+__Dome__
+  This ship can be used to increase sector efficiencies. At maximum crew the
+efficiency an undamaged Dome can increase the efficiency by 5% per update. A
+Dome must be switched on to be effective. If a Dome is set to autoscrap (with
+the 'order' command), the Dome will be automatically scrapped upon reaching a
+sector efficiency of 100%. There is a hop option for Dome to make it
+automatically hop into own low efficiency sector when sector's efficiency
+reaches wanted level (ordered with limit command). A Dome uses one resource per
+update.
+** INFO only. ship superceeded by the Infrastructure Machine (i) **
+
+__Weapons Plant__
+  This installation produces destruct. Players feed the plant resources and
+fuel, and these are converted into destruct during each update. Each destruct
+produced costs one fuel and one resource point. The maximum amount of destruct a
+fully manned and undamaged plant can produce in one update is given by the
+owner's current technology divided by two. This ship is built with 72%
+damage. Construction must be completed manually.
+
+__Space Port__
+  This represents a facility set up for merchant shipping. This is its sole
+function and therefore has little armor and no weapons. In order to buy or sell
+from a planet, you must have one of these, or a ship with port abilities in an
+undamaged state there. Other than the Space Port, the only other ships available
+to conduct merchant transactions are: @, H, and S. This ship is built with 72%
+damage. Construction must be completed manually.
+
+__Anti-Ballistic Missile Battery__
+  This unit represents a battery of guns which can be used to attempt to down
+incoming alien missiles. If activated, each battery will fire at the
+predesignated salvo strength at each missile in orbit around the planet it is
+based upon during each update. The defensive fire is evaluated after missile
+movement, but before impact is evaluated. ABMs represent a last line of defense
+against missile attacks and are executed automatically. the more batteries a
+planet has the more chance of intercepting an incoming missile. This ship is
+build with 48% damage. construction must be completed manually.
+
+__AFV__
+  This machine is a land based Armored Fighting Vehicle. These type of ships may
+fire on other ships if adjacent. They may also bombard adjacent sectors. AFVs
+may only attack other landed ships. AFVs can be moved using the 'walk' command.
+NOTE: These are weaker than they look.
+
+__Bunker__
+  A heavily fortified position. Use it to store supplies and AFVs in, as well as
+offering a haven for ships. This ship is built with 48% damage. Construction
+must be completed manually.
+
+__Lander__
+  A heavily armored planetary assault ship. This carries a large crew, with
+decent hanger for transporting AFVs. With its heavy armor it can successfully
+survive planetary defense fire enough to establish a significantly large landing
+party on a planet. It also carries plenty of firepower for bombarding runs. The
+Lander is quite slow, however. This ship is built with 48% damage. Construction
+must be completed manually.
+
+__Mine Sweeper__
+  A medium armored and armed ship, capable of seeking (automatically) out mines
+and destroying them before other ships come in contact with them. The Sweeper is
+not particularly fast, but it has a kind of shotgun cannons. These cannons give
+better hit probability against mines than cannons of any other ship. The Sweeper
+is best used when loaded into a faster ship and sent out before exploring an
+unknown system. A mine sweeper's % chance to detect the mine is equal to:
+    chance % = 5 + (2 * sqrt(tech))
+This ship is built with 48% damage. Construction must be completed manually.
+
+__Colonizer__
+  An unarmed, lightly armored recon ship, with a large crew compartment, and
+ample resource space, this ship is perfect for scouting out prospective homes
+for your race. This ship is built with 20% damage. Construction must be
+completed manually.
+
+__Light Carrier__
+  This is a low tech, small, carrier, useful for transporting shuttles or domes
+to your colonies. They have light armor, and only minimal guns for defensive
+purposes. This ship is built with 48% damage. Construction must be completed
+manually.
+
+__Corvette__
+  The Corvette is designed to perform light system defense duties. It has no
+capability for hyperdrive, nor large cargo, fuel, or crew spaces which would
+make it a good choice for colonization. Its mission is to ensure system
+security, not to go boldly where no one has gone before.
+
+__Super Pod__
+  Super Pods are like the normal pods except it is slightly faster and seeds
+sectors in star systems three times more likely.
+
+__Infrastructure Machine__
+  This is a machine you build to increase efficiency and fertilization of the
+planet's sectors. It can also transform your atmosphere. The machine will spend
+a high proportion of effort on sectors with crystals or higher than average
+resources. You have to have atmos tech to use that feature. You tell it what to
+do with the order command. Orders are:
+    order <shipno> inf eff <setting>   - Cost is 1 res per setting
+    order <shipno> inf fert <setting>  - Cost is 2 fuel per setting
+    order <shipno> inf atmos <setting> - Cost is 3 fuel per setting
+Machine cost per update is 1/2 of total settings in res for eff and 1/2 total
+fuel settings for fert and atmos. Example:
+    order 111 inf eff 20
+This device must be turned on.
+
+__Science Research Center (SETI)__
+  This is a huge scientific research center that provides your race with two
+benefits. First, a research center increases the speed at which your race gains
+technology. The more research centers you have, the more tech you will gain,
+although gains are logarithmic. For instance, having 100 SETIs will not increase
+your tech gains 100 times. Second, science research centers are the only devices
+that can detect, albeit somewhat unreliably, a cloaked ship.
+  In a scrape, you can order a SETI to overload its telescope arrays and fire at
+another ship much like a laser. Doing so requires laser and crystal
+technology. However, using a SETI in this manner will cause severe damage to the
+center and can result in its destruction.
+  Science research centers require fuel and resources to work, and must be
+turned on. Furthermore, the research station will only produce tech on planets
+with a non-zero tech investment.
+
+__Frigate__
+  The Frigate will defend fleets against any missiles directed at ships in the
+fleet. Frigates, like mine sweepers, detect the subtle sub-ether emanations
+missiles give off just as they begin to explode. The more Frigates a fleet has
+in its number, the more safe every ship in the fleet becomes. Unfortunately,
+Frigates are not fool-proof, even in great numbers.
+
+__Refinery__
+  This installation produces fuel. Players feed the plant resources, and these
+are converted into fuel during each update. Each fuel produced costs 1 resource
+point. The maximum of fuel a refinery can produce is related to a race's
+technology divided by two. Refineries produce a great deal of waste and promote
+the greenhouse effect on the planet.
+
+__Von Neumann Machine__
+  VNs are excellent strip mining machines. They can quickly produce resources
+from a sector, but their methods are crude and destructive. What is left behind
+is an empty, scarred, and poisoned sector unfit for life.
+  They are robotic and self-replicating. First generation VNs are under the
+builder's control. However, when a VN produces offspring, the new VN is not
+controlled by the original owner. Furthermore, any VN left on its own long
+enough will eventually become rogue.
+  VNs, which their group mind, remember who has destroyed them and attempt to
+exact revenge by building Berserkers, death machines that attempt to hunt down
+players they are angry at. You may want to consider it before purchasing these
+things, as they can get rather out of hand...
+
+__Berserker__
+  This is a robotic ship built by the Von Neumann Machines as part of their
+revenge program against players who have destroyed too many of their ships. It
+is very well-armed, with about the capabilities of a dreadnaught. When targeted
+at an individual player, it heads to the area where the last VNs were destroyed,
+and attempts to wipe out colonies and ships belonging to the offending player
+until one or the other is destroyed. It does not build copies of itself, but it
+can perform self-repair and re-arm itself when needed. It is rumored that there
+is a berserker control code that can be used to take charge of the machines...
+
+__Berserker Control Center__
+  (description pending)
+
+__Berserker Auto-Factory__
+  (description pending)
+
+__The Dreaded Space Ameoba__
+  What the hell is a Space Ameoba? A Space Ameoba is a huge single-celled
+create that flies through the universe searching for food. What does it eat?
+Biomass. The Space Ameoba searches out planets of high biomass. What does it do
+when it finds a planet of high biomass? It consumes. And consumes. a Space
+Ameoba will continue to consume biomass from a planet until it is "full". It
+will then leave for the depths of space again.
+
+__Godship__
+  This entity pulsates, throbs with power. Don't mess with it. They are usually
+named with names appropriate to their purpose...Watcher would mean observation
+duties. Bulldozer might mean moving cargo...Destructor means run for your
+life...etc.
+
+__Oceanic Transport Fleet__
+  This is an equivalent to the ground transport fleet, however it represents a
+fleet of ocean-going ships. This fleet can only move over water, at a cost of 1
+fuel point, however it can 'dock' with a different type of sector, as long as it
+border an ocean sector.
+(This device has not been programmed)
+
+__Dirigible Transport Fleet__
+  This is a fleet of lighter-than-air vehicles. It costs more resources to
+assemble and cannot hold as much as the other planetary transport types, but it
+is free to roam over the surface of any planet (provided, of course, that the
+planet has an atmosphere).
+(This device has not bee programmed)
+
+{{SEE ALSO}}
+  shipkey, build
+
+& specifics
+
+{{CONCEPT}}
+  specifics -- Particular game specifics
+
+{{DESCRIPTION}}
+__E a t   m y   S t a r d u s t__
+
+Here's the disposition of the galaxy:
+Planet/sector distribution:
+Type NP    .   *    ^    ~   #   "    -    NS   Avg     Res     Avg A/Sec
+Ear  10  541  352 246    0 179 225  181  1724 172.4  398765 39876.5 231.3
+Ast  34    0    1  66    0   0   0   35   102   3.0   77952  2292.7 764.2
+Air  29    0  337 224    0   0   0  117   678  23.4  226031  7794.2 333.4
+Ice  39    0    0 179    0 789   0    0   968  24.8  309409  7933.6 319.6
+Gas  23  831    0   0 7279   0   0    0  8110 352.6  325587 14156.0  40.1
+Wat  10  726    0 202    0  86   0    0  1014 101.4  250677 25067.7 247.2
+For  10  170    0   0    0 102 866    0  1138 113.8  205669 20566.9 180.7
+Des  15    0  361 312    0   0   0 1235  1908 127.2  660504 44033.6 346.2
+Wor 170 14.5  6.7 7.9 46.5 7.4 7.0 10.0 15642  92.0 2454594 14438.8 156.9
+
+Average Sector Fertility:
+Type NP    .    *    ^    ~    #    "   -   Fert   /Plan /Sect
+Ear  10 32.4 27.3 14.9    - 30.4 55.5 9.9  50511  5051.1 29.3
+Ast  34    -  1.0  2.5    -    -    - 1.5    218     6.4  2.1
+Air  29    -  4.1  3.0    -    -    - 2.5   2329    80.3  3.4
+Ice  39    -    - 11.7    - 29.9    -   -  25682   658.5 26.5
+Gas  23  0.0    -    - 45.0    -    -   - 327389 14234.3 40.4
+Wat  10 40.1    - 10.1    - 30.0    -   -  33760  3376.0 33.3
+For  10 45.2    -    -    - 40.6 75.2   -  76974  7697.4 67.6
+Des  15    -  7.4  4.0    -    -    - 5.0  10093   672.9  5.3
+Wor 170 2.40 13.0  8.1 45.0 30.9 71.2 5.3 526956  3099.7 33.7
+
+{{SEE ALSO}}
+  faq
+
+& speed
+
+{{CONCEPT}}
+  speed -- How fast ships travel through space
+
+{{DESCRIPTION}}
+  Speed reflects a ship's ability to move through the space. The bigger speed
+the ship has the faster it goes. Usually, the speed is one critical factor when
+you design your ships. Watching a slow ship to reach its destination is
+frustrating. The distance covered with each speed can be calculated with a
+following formula:
+    distance = SPEED * MOVEMENT LEVEL
+where:
+    SPEED corresponds to ship's speed, that is if the speed of the ship is 2 the
+    SPEED is 2.
+
+    MOVEMENT LEVEL depends from when where your ship starts its move. This
+    reflects the fact that if you maneuver near planets you will not want to use
+    the cruising speed of the universe (and hit the planet). MOVEMENT LEVEL is
+    given by:
+        universe level = 400
+        system level = 100
+        planet level = 50
+
+Note: Damaged ships move slower proportional to their damage.
+
+-segment-
+To calculate the distance ship moves in ONE SEGMENT you need to divide MOVEMENT
+LEVEL by the number of segments:
+Example:
+  for 3 segments per update, MOVEMENT LEVEL is 400, 100, or 50
+  for 4 segments per update, MOVEMENT LEVEL is 300, 75, or 37.5
+The speed of the ship has also an effect on other things such as firing and fuel
+usage.
+
+{{SEE ALSO}}
+  fire, fuel
+
+& stockpile
+
+{{CONCEPT}}
+  stockpile -- Automatic stockpile usage
+
+{{DESCRIPTION}}
+  TKYs will now use planetary stockpile so basically you don't have to load res
+of fuel or use threshloading with them - they'll just take everything they need
+from stockpile. Anyhow because they operate before production cycle in updates
+you should look after that there is enough resources for _all_ landed ships that
+you could just use threshloading which is easier I think). this one thing which
+might be done other way. i.e. planetary production first and ship update
+then. Stockpile usage can be toggled using 'order TKY stockpile [on|off]'.
+
+{{SEE ALSO}}
+  stock
+
+& update
+
+{{CONCEPT}}
+  update -- One turn of game
+
+{{DESCRIPTION}}
+  An update is a "glorified move seg". Basically, everything that happens in a
+move seg happens here PLUS the following:
+    - Tax collecting and maintain expenses paying.
+    - Resource, fuel, destruction, crystal a toxic waste production.
+    - Colony population growth.
+    - Sector and atmosphere developing.
+    - Ships attempting hyperspace jumps either jump or charge in increments
+      towards a level where they can jump.
+    - Marketing.
+  What this translates to is this: the pace of the game depends almost entirely
+on how often these updates occur. There will always be a given number of move
+segs (usually anywhere from 2 to 6) between updates, but updates are the real
+pulse of the game. Also, you should note that the period right after updates is
+usually when the most frantic action in the game takes place.
+  This is important when choosing what game you wish to play in. For example, if
+you live over in Europe and the update schedule is such that updates always
+occur at 4 am for you, you might want to pass on the game. If you aren't on at
+updates, enemies often get the chance of jump into your system and start
+attacking while you aren't on to defend yourself. This can have disastrous
+effects.
+  This clears up a bit what is happening during updates to TKY type ships:
+    * Process move orders (only T and K)
+    * Hop if sector is ready and autoscrap if hop fails
+    * Do your things to sector
+    * autoscrap Y's
+
+{{SEE ALSO}}
+  segment, daemon
+
+& wormholes
+
+{{CONCEPT}}
+  wormholes -- Space-time anomaly
+
+{{DESCRIPTION}}
+  Wormholes were originally created for the J&H games and have been brought into
+the current GB+ code. They are implemented as special kinds of planets,
+appearing as weird asteroids. To traverse them simply land on them. Once you
+have attained wormhole tech level (see: techlevel) you can see them for what
+they are. Regardless if you can identify them correctly or not they will work
+the same. Traversing wormholes will damage your ship based both on the distance
+the wormhole covers and how far the ship's tech level is below the wormhole tech
+level, a ship built at (or above) the wormhole tech level may traverse wormholes
+without risk of damage.
+  Whether or not wormholes are present (and how many) depends upon the options
+your deity selected upon creating the universe.
+
+{{SEE ALSO}}
+  techlevel, makuniv
