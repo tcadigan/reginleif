@@ -2452,4 +2452,4 @@ without risk of damage.
 your deity selected upon creating the universe.
 
 {{SEE ALSO}}
-  techlevel, makuniv
+  techlevel, makeuniv
