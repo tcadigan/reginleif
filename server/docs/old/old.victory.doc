@@ -1,0 +1,57 @@
+> From the victory.doc at the Stanford game...
+
+               THE STANFORD CONVENTION OF VICTORY CONDITIONS
+               =============================================
+
+THE RULES:
+==========
+
+  1) Victory conditions are based on the control of systems a system is
+     controlled by a block, if all occupied sectors belong to members of the
+     block at that turn.
+
+  2) Each block gets 10 Victory Points (VPs) for every system it holds every
+     turn.
+
+  3) The block which satisfies the following conditions for at least ten
+     consecutive updates will be declared the victor.
+
+       a) A block must control 1 / 2 + n / 24 of all systems (where n = the
+          number of members in the block).
+
+       b) A block must have acquired 100% more victory points than any other
+          block, plus the block must control an additional 10% per block member
+          more points than any other block.
+
+          For example, block 8 (10,000 Maniacs) has 7 members; therefore they
+          must acquire 170% more victory points than any other block.
+
+       c) All of a block's members must have acquired a tech over 200.
+
+THE MOTIVIATION:
+================
+
+Ah, the sweet smell of Victory! We all long for it; we all long to taste it, but
+none of us really knew what it was.
+
+Oh, we had a vague idea. One block totally dominating the entire galaxy. All
+other blocks merely crushed and worthless shells of biomass, but unfortunately,
+Galactic Bloodshed lives in the precise realm of numbers and logic, and while we
+might long for the more flowery and literary description of victory, the
+environment demands a formula. So I hereby present the Stanford Convention.
+
+When looking for victory conditions, I wanted to find a situation based upon the
+familiar notion of 10 VP's per controlled system that would accurately portray
+that literary notion of victory that we all knew in our hearts.
+
+So I made the requirements for victory more strict than before, and I based a
+'neutral time period' where no one could achieve victory on tech levels.
+
+Furthermore, while basing the victory condition on block size, I feel two
+interesting situation will develop. One, the alliance of convenience, where a
+block is formed merely to keep another block from winning. Which leads to, the
+Post-Alliance situation, where a large block must break up in order to achieve
+victory.
+
+Well, I've rambled enough. These victory conditions are far from set in stone,
+so feel free to make suggestions on them.

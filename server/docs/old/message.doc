@@ -1,0 +1,37 @@
+********************************************************************************
+
+12/14/89 - 4 hour updates have started (we changed our minds). 12, 4, 8 am/pm
+           PST. there may also be unscheduled updates in case of anything
+           unusual that may crop up (hopefully nothing).
+
+12/13/89 - Looks like we got major problems ironed out now. Production is fixed,
+           planets now orbit stars by Kepler's Law, and a few other technical
+           stuff to improve reliability. You can go ahead and enroll again.
+
+           Also, if you have never played before, when the program asks for your
+           password, type the password by which you expect to be referred to of
+           by GB. This *is* your password. Please do not enroll more than once,
+           we have limited number of openings.
+
+12/12/89 - WELL I LOST THE DATA BASE!! (accidentally used 'rm' instead of 'cp'
+           when I was trying to back it up. GRR!!!) Production was messed up
+           anyway (unknown, some pointer is mislabeled). I want to make sure
+           this is working tonight before we start again. Sorry folks!
+           -Garrett
+
+12/8/89 - Make sure that your combat ships ('d', 'C', 'B', 'D', '$') have
+          resources on board to repair damage! (When these ships are built they
+          begin with a 50% damage level). During battle, resources are required
+          to be on board to repair ships. Also, make sure you load destruct on
+          ships so your guns have ammo to fire. The game automatically loads
+          fuel and crew to the max available in a sector. If you don't want that
+          unload the crew with 'load' or 'unload' (same thing). Keep in mind
+          that the efficiency of the ship depends on the amount of crew
+          available (max crew is best!)
+
+12/5/89 - Check out the new options 'aliens', 'geography' and 'inverse'. Do
+          'help map' to find out what they do.
+            --> I compile these options into one command 'toggle', in
+                anticipation of adding tons more later on. -Rob
+
+********************************************************************************

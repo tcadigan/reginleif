@@ -1,0 +1,74 @@
+I have implemented a new firing routine. The attitude I took in implementing
+these changes was minimalistic, i.e. I implemented the easiest and most
+transparent coding for the changes I wanted to make. What is being run now is a
+debugging version. The damage calculation is completely deterministic. this is
+to allow players to judge better whether they are happy with this
+implementation, comments are most welcome!!! Here is how it now works.
+
+Ship-Ship combat:
+  The data done from one ship to another is calculated in two steps:
+    effstr = ((firing strength) * FAC) / (1 + (dist / RANGE))
+
+  where FAC = 2 and RANGE = 300. This means the strength will fall by a factor
+  of 2 from 0 to 300 distance units.
+
+    damage = (Norm / BODY) * (effstr - (2 * armor))
+
+  where NORM = 20 and BODY depends on the defending ship. Here are some BODY
+  values:
+    f                10
+    C, d, I, c, t    30
+    B, S             45
+    O, D, $, H       50
+    G, A, s, e, ...   5
+
+  For a first shot form some of the combat ships (0 distance, 0 damage) this
+  computes to the following damage percentages:
+
+              at ship
+         f   d   C   B   O   D
+    f   78  24  22  13  12  11
+    d   38  10   9   4   4   3
+    C   78  24  22  13  12  11
+    B  118  37  36  22  20  19
+    O  198  64  62  40  36  35
+    D  238  77  76  48  44  43
+
+  Retaliation as before.
+
+Ship-Planet:
+  You are only allowed to fire at a planet when in orbit (distance < 40).
+
+Planet-Planet:
+  A common trick used to attack planets was to waste one sector and then let
+  planetary defenses work against your own planet by landing and firing from the
+  planet. The fix to that: The planet may no longer fire on itself, it may still
+  fire on other planets if you chose to, though. If you wish to attack a planet,
+  build ships!!!
+
+Planet-Ship:
+  The planet guns will be increase to 40. They had been reduced because of the
+  problem mentioned above. Note, that planetary defenses are not useful!!! You
+  can beef up your planet to the point where it will vaporize any ship that
+  attacks it.
+
+Ship-Planet:
+  This is not the only way to attack a planet. Damage is calculated as before,
+  but you may no longer attack when not in orbit. This was done, so that the
+  attacker may no longer pop into the planetary system and attack
+  instantaneously.
+
+Planetary retaliation:
+  I am working on something that would allow the planet to retaliate
+  intelligently. It will determine the attacking ship and fire with a strength
+  which will do 75% damage on the attacking ship at zero range. This is tricky
+  though, so watch for strange side effects.
+
+A note on randomness:
+  Once this is tested, I will implement a 10% variation on all these
+  percentiles.
+
+Again, comments are welcome, I hope this improves the situation.
+
+Good luck,
+Wolfgang

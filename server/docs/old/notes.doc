@@ -1,0 +1,120 @@
+This is a game of interstellar exploration/conquest/ By the time I realized
+there really wasn't going to be much fighting going on in the game, I was so in
+love with the titles that I just couldn't change it...
+
+Players begin the game as members of a randomly generated race, with attributes
+(intelligence, birth rate, size, metabolism, etc.) that affect development
+later. Each turn, population will migrate to unpopulated areas of the planet.
+
+Currently I have the following feature:
+  * Exploration: Players can build many types of ships with which to colonize
+                 other planets.
+  * Terraforming: Planets have atmospheres, composed of different amounts of
+                  gases. Players can build machines to alter the atmosphere to
+                  one more suited to their race.
+  * Von Neumann machineze: This is a ship-type that can be build. It exists to
+                           reproduce itself using whatever resources are
+                           available, and can be useful to send to other
+                           players. I got this idea after reading _The Forge of
+                           God_.
+  * Co-existance: There are several types of terrain: land, ice, ocean,
+                  mountainous, and gas (gas giant). Each player has a type which
+                  he prefers; if one race's preference differs from another,
+                  both races can co-exist on the same planet.
+  * Communication: Players can communicate with each other, but only if they
+                   sacrifice valuable resources to translate another language.
+  * Combat: If the above breaks down.
+
+The game is not (of course) complete, but it's fixed up enough to post I
+think. It runs pretty good on a 4.3 and 4.2, but as our versions of both here
+are a little funky, it may require some tweaking before it runs to a game
+keeper's satisfaction.
+
+BUGS:
+None serious that I know of, however there are a few things that need to be
+fixed up in the near future:
+  * Mines might have problems.
+  * Well the Space Amoebae are new, there may be some foulups with them as well,
+    such as not digesting planets properly.
+  * Mirrors face the wrong way.
+  * Ships with "*" before their names (shipdata.h) don't work as yet. Don't
+    build them.
+  * Probably shouldn't have used a square grid implementation for planet maps,
+    but I wanted the simplest thing possible for that. I'm thinking of adding
+    new planet types if I can get information on their generation. Any help on
+    this point (once you have seen the game and know hot it is done here) would
+    be appreciated. Ideas of mine on this cover things such as Ringworlds, Dyson
+    spheres, space elevators, artificial hollow planets, the list goes on...
+
+New versions will be posted/added to/however this is done, when I have the time
+to write same. I've spent two years writing this program, and I hope it is
+enjoyed by everyone using it.
+
+Suggestions are welcome, as are bug reports, but don't expect really fantastic
+and difficult ideas to be implemented, unless of course they are really
+fascinating...
+
+STARTING THE GAME:
+This was done on two separate machined, one running 4.2 and the other running a
+tweaked version 4.3. Edit the Makefile and delete the wrong one. When it's done
+making, try this:
+  Makeuniv < planet.list (wait about 20 minutes)
+
+This will set up a fair-sized game with 30 stars and 30 planets, should be good
+for a decent system. GB_daemon updates every 3 hours, which is kinda slow at the
+beginning, but once the game gets more mature, things tend to pick up. This was
+not intended to be as intense a game as, say, multi-trek or empire.
+
+Once the game is set up, you, as the deity player, must enroll first. (several
+object in the game are owned by player 1, it would be better if this were
+you...) To make the game more interesting, you can build (yes build) a space
+amoeba or two (be sure to send it somewhere else so it doesn't eat YOUR planet);
+also you could make a couple fleet of Von Neumann machines to generally become a
+nuisance to everybody. (To make yourself some resources, use the fix command.)
+Occasionally you might want to tweak a star or two to go nova (fix its stability
+to 100); this is especially useful for racalcitrant game-players complaining
+about bugs. Put the fear of god into them.
+
+Please send me information on trends in the game; what trends to happen here and
+there.
+
+FIXES:
+We are now at Version 0.975. The datafiles are *NOT* compatible with previous
+version you may have.
+
+Some recent fixes (over 0.95) are:
+  * Ships are now stored in a list, instead of slots in planets. this makes a
+    lot of things much faster, as well as more efficient, and you won't run into
+    the barrier of 25 ships max in orbit around every planet.
+  * Alterations in some algorithms make it impossible (well, hopefully) for
+    ships to be in two lists at once, or in the wrong list.
+  * Build no longer tries to load stuff onto new ships.
+  * Build also lets you examine a ship (same as the examine command) before you
+    build it, so new people can figure out what it does.
+  * Load used to not check for other ship overflowing its bounds; I fixed this
+    since you could load a whole colony onto an explorer. You can, however, load
+    as many resource points as you want.
+  * We now have Space Amoebae, (ever play a game call Amoeba Wars?) which
+    randomly wander around the universe, digesting planets.
+  * Planets are now moved in their orbits before ships are moved; this makes
+    them more efficient in interplanetary navigation.
+  * New ship type: toxic waste canister, which reduces your toxicity of the
+    planet you build it on -- but what do you do with all the canisters?
+  * More new ships: ground and space telescopes. Ground telescopes are way cheap
+    and have a much lower tech, while space telescopes cost more but have a
+    longer range. Range is proportional to your tech. These were put in so
+    people don't have to send ships out blindly. Once you've surveyed someplace
+    with one of these, you can then map and 'cs' to it.
+  * The bug in 'fire', that allowed people to survey any planet by pretending to
+    fire at it, should be gone.
+
+Many thanks to Steven Grimm (koreth@ssyx), without whose help in the early
+stages of the game, development would not have been possible, and Evan Schaffer
+admin of ssyx, whose tolerance of huge CPU usages by a lowly undergrad making a
+game is greatly appreciated.
+
+Rob Chansky
+smq@ucsb.ucsc.edu
+smq@ssyx.ucsc.edu
+...!ucbvax!ucscc!ssyx!smq
+...!ucbvax!ucscc!ucscb!smq

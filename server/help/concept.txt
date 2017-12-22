@@ -28,7 +28,7 @@ before proceding to the command help.
   about -- Welcome to GB
 
 Galactic Bloodshed, copyright (c) 1989-1990 Robert P. Chansky,
-smq@ucsb.uscs.edu, Univerisy of California at Santa Cruz.
+smq@ucscb.uscs.edu, Univerisy of California at Santa Cruz.
 
 Version: GB+ 6.0
 

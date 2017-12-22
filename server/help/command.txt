@@ -53,23 +53,23 @@ analyze a planet you have not explored or have received information about.
 additional parameters are completely optional, but when specified, restrict the
 type of sector reported:
     sector type    Reports only sectors of specified type. The sector types is
-    	   	   specified by the character used to represent the terrain of
-		   the sector and must be from the set of characters:
-		     . * ^ ) # d o % ~
-		   ('d' is used to denote desert sectors to avoid confusion with
-		   the leading '-' in the analysis command.)
-    race #	   Reports only sectors belonging to the specified race.
-    scope	   If a planet's scope is specified, that planet's sectors will
-    		   be analyzed and reported. If a star scope is specified, all
-		   explored planets in the specified star system will be
-		   reporter. If no scope is specified, the current scope will be
-		   used.
+                   specified by the character used to represent the terrain of
+                   the sector and must be from the set of characters:
+                     . * ^ ) # d o % ~
+                   ('d' is used to denote desert sectors to avoid confusion with
+                   the leading '-' in the analysis command.)
+    race #         Reports only sectors belonging to the specified race.
+    scope          If a planet's scope is specified, that planet's sectors will
+                   be analyzed and reported. If a star scope is specified, all
+                   explored planets in the specified star system will be
+                   reporter. If no scope is specified, the current scope will be
+                   used.
 
 {{EXAMPLE}}:
   analysis       (Produce analysis from all sectors of planet of the current
-  		  scope)
+                  scope)
   anaylsis - # 7 (Produce analysis from lowest 5 ice sectors owned by player 7
-  	       	  of the planet in the current scope)
+                  of the planet in the current scope)
 
 {{SEE ALSO}}
   survey, map
@@ -93,8 +93,8 @@ announce is identical to the broadcast command.
 
 {{EXAMPLE}}
 announce Is there anybody out there? (Send a message to all races inhabiting a
-	    	  	      	      a star system whose current scope includes
-				      that system)
+                                      a star system whose current scope includes
+                                      that system)
 
 {{SEE ALSO}}
   communications, broadcast, think, post
@@ -123,7 +123,7 @@ new governor.
 
 {{EXAMPLE}}
   appoint 1 Stan blahblah general (Appoint a new general governor named 'Stan'
-  	    	 	  	   to position 1 with password 'blahblah')
+                                   to position 1 with password 'blahblah')
 
 {{SEE ALSO}}
   governors, revoke, grant, rank, promote
@@ -158,7 +158,7 @@ lost and is not regained by the used of disarm.
 
 {{EXAMPLE}}
   arm 1,5 20 (Arm 20 civs from sector 1,5; will cost
-      	      20 / ((sector mob * 2) + 1) destruct and (20 * 5) money)
+              20 / ((sector mob * 2) + 1) destruct and (20 * 5) money)
 
 {{SEE ALSO}}:
   miliatry, destruct, disarm, mobilize
@@ -207,7 +207,7 @@ especially if you are successful.
 
 {{EXAMPLE}}
   assault #453 #998  (Assault ship #998 with ship #453 with all military units
-  	       	      onboard)
+                      onboard)
   assault #1202 #309 5 civ  (Assault ship #309 with ship #1202 with 5 civilians)
 
 {{SEE ALSO}}
@@ -1195,17 +1195,17 @@ can only change their own password.
 game. Things that can be "grant"ed include:
     STARS - Granting a star gives the governor the ownership of all population
             in the system. Anything built, produced, etc. in the system will
-	    belong to the governor and can be used as the governor wishes.
-	    Syntax: "grant <governor #> star /<Star>"
+            belong to the governor and can be used as the governor wishes.
+            Syntax: "grant <governor #> star /<Star>"
     SHIPS - This will give the governor complete control over the ship(s).
             Any new systems the ship discovers, or any ships it takes over will
-	    also belong to the governor. Any number of ships can be used with
-	    the command.
-	    Syntax: "grant <governor #> shipnumber <#shipnumber> ..."
+            also belong to the governor. Any number of ships can be used with
+            the command.
+            Syntax: "grant <governor #> shipnumber <#shipnumber> ..."
     MONEY - Gives the governor money to be put in the treasury. Each governor
             has a separate treasury. Money is used automatically in update for
-	    ship upkeep, and can be used for insurgencies.
-	    Syntax: "grant <governor #> money <amount>"
+            ship upkeep, and can be used for insurgencies.
+            Syntax: "grant <governor #> money <amount>"
   To take any of these items back from the governor, the <governor #> can be
 specified as "0".
 
@@ -1263,7 +1263,7 @@ does the same thing.
     {{build}}      -- Construct a ship
     {{capital}}    -- Designate the new seat of governemnt
     {{capture}}    -- Order population to attempt to seize an alien ship
-    		      landed in the same sector
+                      landed in the same sector
     {{center}}     -- Change global map center point in another system
     {{cew}}        -- Fire confined energy weapons
     {{colonies}}   -- List colonies
@@ -1365,8 +1365,8 @@ does the same thing.
 
 {{SYNTAX}}
   insurgency <victim> <funds>  Spend a given amount of founds to persuade
-  	     	      	       the population of the victim to throw a bloody
-			       little revolt.
+                               the population of the victim to throw a bloody
+                               little revolt.
 
 {{DESCRIPTION}}
   The insurgency command is used to persuade the population of a planet, through
@@ -1550,19 +1550,19 @@ colonies. If no arguments are specified, the program will prompte the user for:
     #shipnum    -- What ship to load from/to
     d|c|r|f|x|m -- Specify destruction, crew, resources, fuel, military or
                    crystals to load/unload. Destruction, resources and fuel are
-		   taken from that user's stockpiles, while people are taken
-		   from the sector the ship is landed on. If the ship is docked
-		   with another ship and not a planet, the transfers will be
-		   direct.
+                   taken from that user's stockpiles, while people are taken
+                   from the sector the ship is landed on. If the ship is docked
+                   with another ship and not a planet, the transfers will be
+                   direct.
     amount      -- The amount to load (if negative, the amount will be
                    subtracted). This must be within certain bounds: The maximum
-		   cargo capacity of each ship, unless one or both of the ships
-		   are shuttles. Shuttles are unique in that their design allows
-		   cargo to be strapped to their hull, and thus they can
-		   actually hold more cargo than the maximum. An overloaded
-		   shuttle cannot, however, take off or land until it jettisons
-		   its excess. If no amount argument is specified, the maximum
-		   available of the commodity will be loaded on board.
+                   cargo capacity of each ship, unless one or both of the ships
+                   are shuttles. Shuttles are unique in that their design allows
+                   cargo to be strapped to their hull, and thus they can
+                   actually hold more cargo than the maximum. An overloaded
+                   shuttle cannot, however, take off or land until it jettisons
+                   its excess. If no amount argument is specified, the maximum
+                   available of the commodity will be loaded on board.
   If the ship is neither landed at a planet nor docked with another vessel, the
 player can't load/unload its cargo/passengers.
 
@@ -1641,7 +1641,7 @@ been explored. These are the different tyles of terrain:
   Earth-type
 
         00000000001111111111222222222233333333
-	01234567890123456789012345678901234567
+        01234567890123456789012345678901234567
       1 ######################################
       2 ############..*...#***##....#####*#.##
       3 ..#*^*#*.....*.*^^^****#*******#**.*..
@@ -1669,7 +1669,7 @@ been explored. These are the different tyles of terrain:
     has developed hydrogen fusion for fuel.)
 
         000000000011111111112222222222333333333344444444445
-	012345678901234567890123456789012345678901234567890
+        012345678901234567890123456789012345678901234567890
       1 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.~~~~~
       2 ~~~~~~~~~~.~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       3 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~........~~~~~~~~~~~~
@@ -1698,7 +1698,7 @@ been explored. These are the different tyles of terrain:
     This is an 'iceball' type planet.
 
         00000000001111111111222                  000
-	01234567890123456789012                  012
+        01234567890123456789012                  012
       1 ^#####^^#########^^####                1 *^^
       2 ^^^^^*^^^^^^^*^^^^^^^^^                2 ^*^
       3 ^^^*^^^^^^^^***^^*^^^^^          Sample Asteroid type
@@ -1719,7 +1719,7 @@ been explored. These are the different tyles of terrain:
     sectors.
 
         0000000000111111111122
-	0123456789012345678901
+        0123456789012345678901
       1 ------------*****^----             000000000011111
       2 -------------****^----             012345678901234
       3 --------------***^----           1 ))..)))))))))))
@@ -1735,7 +1735,7 @@ been explored. These are the different tyles of terrain:
     mostly water with some ice at the poles and a few scattered islands.
 
         00000000001111111111
-	01234567890123456789
+        01234567890123456789
       1 ..#..#.......^#.####
       2 ....................
       3 .^^.................
@@ -1800,15 +1800,15 @@ board. Each point of armor has a mass of 1 while each gun and point of size has
 a mass of 1/10.
   Special systems:
          laser - A player can mount/dismount combat lasers by using
-	         'modify laser'.
+                 'modify laser'.
           CEWs - A player can modify 'confined energy weapon' parameters. A CEW
-	         is assumed to be active if it has strength. To specify a CEW
-	         strength do 'mod cew strength <strength>'. To modify the CEW
-	         range do 'mod cew range <range>'.
+                 is assumed to be active if it has strength. To specify a CEW
+                 strength do 'mod cew strength <strength>'. To modify the CEW
+                 range do 'mod cew range <range>'.
        primary - A player may modify the primary gun caliber and strength with
                  'mod primary strength <strength>' and
                  'mod primary caliber <light|medium|heavy>'. A particular ship
-	         type has a limit to the maximum gun caliber.
+                 type has a limit to the maximum gun caliber.
      secondary - Same as for primary except the word 'secondar' is used. Some
                  ships may not have seconadry gun systems.
 
@@ -1963,9 +1963,9 @@ the form "-pSs" or spread out as in "-p -S -s -3".
            -S : Do not display star names.
            -s : Do not display ships.
     -(number) : Do not display the #'d ship or planet (should it obstruct the
-    	        view of another object). Stars or planets are numbered
-		sequentially from 1, while ships can be references by their ship
-		number.
+                view of another object). Stars or planets are numbered
+                sequentially from 1, while ships can be references by their ship
+                number.
 
 {{SEE ALSO}}
   map, cs, scope, zoom
@@ -1991,61 +1991,61 @@ in the current ship. If a shipnumber is specified, but no other arguments are
 given, the orders for that ship will be displayed.
   Currently the orders that can be changed are:
     merchant -- Controls whether or not ship is in merchant mode. See
-    	        'help route' for details.
-		Syntax: order <shipnumber> merchant <off/route number>
+                'help route' for details.
+                Syntax: order <shipnumber> merchant <off/route number>
 
     destination -- The ship will attempt to move towards the star/planet/ship
                    specified. This order cannot be changed for ships that are
-		   landed or docked.
-		   Syntax: order <shipnumber> destination <destination>
+                   landed or docked.
+                   Syntax: order <shipnumber> destination <destination>
 
     speed -- change the speed of a ship. All speed factors between 0 and 9.
              Higher speeds use fuel less efficiently than lower speeds.
-	     Syntax: order <shipnumber> speed <speed factor>
+             Syntax: order <shipnumber> speed <speed factor>
 
     stockpile -- Many of ships use stockpiles. That means you don't need to
                  load resources in ships to repair or use them. It is enough
-		 if there is resos or fuel on planet where they are landed.
-		 Syntax: order stockpile (on or off)
-		 NOTE: Ships work before planet produces new goodies. So if
-		       you want your ships to use stockpiles be sure there
-		       is one to use BEFORE an update.
+                 if there is resos or fuel on planet where they are landed.
+                 Syntax: order stockpile (on or off)
+                 NOTE: Ships work before planet produces new goodies. So if
+                       you want your ships to use stockpiles be sure there
+                       is one to use BEFORE an update.
 
     jump -- This orders the ship to activate its hyper-space engines in order
             to jump to another star system. The ship cannot be ordered to
-	    navigate when the engines are activated. In order to use the
-	    hyperspace jump, the engines must reach a charge level of 1, then
-	    the ship is 'ready'. When the engines are activated and charge is
-	    complete, the ship will automatically jump to the destination
-	    system (specified with order). Ships that do not have hyper-drive
-	    may not use this option.
-	    Syntax: order jump <on or off>
+            navigate when the engines are activated. In order to use the
+            hyperspace jump, the engines must reach a charge level of 1, then
+            the ship is 'ready'. When the engines are activated and charge is
+            complete, the ship will automatically jump to the destination
+            system (specified with order). Ships that do not have hyper-drive
+            may not use this option.
+            Syntax: order jump <on or off>
 
     impact -- A missile can be designated an impact sector. Upon reaching the
               destination planet it will explode centered upon the designated
-	      sector. A missile must have destruct loaded on board to be
-	      effective.
-	      Syntax: order <shipnumber> impact <x,y>
+              sector. A missile must have destruct loaded on board to be
+              effective.
+              Syntax: order <shipnumber> impact <x,y>
 
     scatter -- A missile can be designated to impact a random sector. When this
                is set, impact order above is undone. Ordering an impact sector
-	       undoes this order.
-	       Syntax: order <shipnumber> scatter
+               undoes this order.
+               Syntax: order <shipnumber> scatter
 
     switch -- Many devices have an on/off switch to activate or deactivate them.
               This option toggles the on or off status.
-	      Syntax: order <shipnumber> switch
+              Syntax: order <shipnumber> switch
 
     online -- Factories can be turned online by issuing this command.
               Syntax: order <shipnumber> online
 
     aim -- Change the ship/object 'aimed at'. There are several ship types that
            can do this, with different effect for each. For instance, Space
-	   Mirrors can be focused at an object in the same system or 2000
-	   distance away at a cost of 0.3 fuel (for maneuvering). Ships being
-	   focused on will take a certain about of damage per turn, and planets
-	   will experience temperature change corresponding to the intensity.
-	   Syntax: order <shipnumber> aim <target>
+           Mirrors can be focused at an object in the same system or 2000
+           distance away at a cost of 0.3 fuel (for maneuvering). Ships being
+           focused on will take a certain about of damage per turn, and planets
+           will experience temperature change corresponding to the intensity.
+           Syntax: order <shipnumber> aim <target>
 
     intensity -- Change degree of focus for a space mirror.
                  Syntax: order <shipnumber> intensity <new intensity>
@@ -2055,83 +2055,83 @@ given, the orders for that ship will be displayed.
 
     evade -- This orders a ship to be performing evasive maneauvers. Although
              this makes a ship, when moving, harder to hit, it also uses up
-	     twice as much fuel as normal.
-	     Syntax: order <shipnumber> evade <on or off>
+             twice as much fuel as normal.
+             Syntax: order <shipnumber> evade <on or off>
 
     primary/secondary -- Activate primary or secondary gun systems. If no
                          argument is given the old default retaliation strength
-			 is used.
-			 Syntax: order <shipnumber> primary [<strength>]
-			 Syntax: order <shipnumber> secondar [<strenght>]
+                         is used.
+                         Syntax: order <shipnumber> primary [<strength>]
+                         Syntax: order <shipnumber> secondary [<strength>]
 
     retaliate -- Normally, if a ship is attacked and suffers damage, it and all
                  ships assigned to protect will immediately retaliate with one
-		 salvo against the violating ships. A ship can also be ordered
-		 *not* to retaliate.
-		 Syntax: order <shipnumber> retaliate <on or off>
+                 salvo against the violating ships. A ship can also be ordered
+                 *not* to retaliate.
+                 Syntax: order <shipnumber> retaliate <on or off>
 
     laser -- If this is set, the ship will use it's combat lasers to attack with
              instead of normal fire. The player must specify how many strength
-	     points will fire upon retaliation (or default fire power). For
-	     every point of strenght, a laser uses 2 fuel points instead of
-	     destruct for the attack. The ship must have lasers mounted as well
-	     as a crystal in the hyperdrive.
-	     Sytanx: order <shipnumber> laser <on or off> <default strength>
+             points will fire upon retaliation (or default fire power). For
+             every point of strength, a laser uses 2 fuel points instead of
+             destruct for the attack. The ship must have lasers mounted as well
+             as a crystal in the hyperdrive.
+             Sytanx: order <shipnumber> laser <on or off> <default strength>
 
     navigate -- While this is on the destination described above is ignored and
                 instead, the ship will travel in the direction specified by the
-		course. The directions are specified with degrees between 0 and
-		360 where 0 is 'up', 90 is 'right', 180 is 'down' etc. You must
-		also specify the number of turns to do the maneuver. After every
-		move the turn count is decremented one until it becomes zero.
-		After the maneuver the navigate setting is automatically turned
-		off and if a destination has been set the ship will then proceed
-		in that direction.
-		Syntax: order <shipnumber> navigate <course> <turns>
+                course. The directions are specified with degrees between 0 and
+                360 where 0 is 'up', 90 is 'right', 180 is 'down' etc. You must
+                also specify the number of turns to do the maneuver. After every
+                move the turn count is decremented one until it becomes zero.
+                After the maneuver the navigate setting is automatically turned
+                off and if a destination has been set the ship will then proceed
+                in that direction.
+                Syntax: order <shipnumber> navigate <course> <turns>
 
     protect -- This allows a ship to protect another ship. Suppose, for example,
                ship A is set to protect ship B. If another ship C fires at B
-	       then both B *and* A will retaliate. This allows players to design
-	       their own defense networks. If no argument is specified protect
-	       will be turned off.
-	       Syntax: order <shipnumber> protect <ship to protect>
+               then both B *and* A will retaliate. This allows players to design
+               their own defense networks. If no argument is specified protect
+               will be turned off.
+               Syntax: order <shipnumber> protect <ship to protect>
 
     salvo -- This allows players to control the strength of their
              retaliate/defense/protect response. By default it is set to the
-	     number of guns of the ship.
-	     Sytanx: order <shipnumber> salvo <number of guns>
+             number of guns of the ship.
+             Sytanx: order <shipnumber> salvo <number of guns>
 
     defense -- If this is set 'on' it will retaliate if the planet that it is
                in orbit around or landed on is attacked. If it is set 'off' the
-	       ship will not retaliate if its host planet is attacked.
-	       Syntax: order <shipnumber> defense <on or off>
+               ship will not retaliate if its host planet is attacked.
+               Syntax: order <shipnumber> defense <on or off>
 
     switch -- Turn mines and transporters on or off.
               Syntax: order <shipnumber> switch
 
     explosive -- If the ship is a mine or a gamma ray laser, this command will
                  set it to be in explosive mode which can damage ships.
-		 Syntax: order <shipnumber> explosive
+                 Syntax: order <shipnumber> explosive
 
     radiative -- Similar to the previous command. Radiation mines and gamma ray
                  lasers incapacitate ships.
-		 Syntax: order <shipnumber> radiative
+                 Syntax: order <shipnumber> radiative
 
     move -- If the ship is a terraforming device or space plow, the direction it
             is to move across the planet. the direction is given as a single
-	    digit, similar to those used in the regular "move" command.
-	    Syntax: order <shipnumber> move <x>
+            digit, similar to those used in the regular "move" command.
+            Syntax: order <shipnumber> move <x>
 
     hop -- If ship is a terraformer, space plow or dome, hop order can be given.
            If hop is on (default) ship will automatically change sector it's
-	   working on when sector becomes ready (fert 100%, efficiency 100% or
-	   wanted sectortype). Plow will hop into the lowest fertility, dome in
-	   lowest efficiency compatible own or empty sector, and terraformer
-	   into another non compatible and non wasteland, own or empty sector.
+           working on when sector becomes ready (fert 100%, efficiency 100% or
+           wanted sectortype). Plow will hop into the lowest fertility, dome in
+           lowest efficiency compatible own or empty sector, and terraformer
+           into another non compatible and non wasteland, own or empty sector.
 
     limit -- Limit will set the target efficiency compatibility or fertility
              when Y, T or K will hop into next sector.
-	     Syntax: order <sip> limit <wanted %>
+             Syntax: order <sip> limit <wanted %>
 
     autoscrap -- When YKT type of ship got nothing else to do and autoscrap
                  is ordered on, ship will automatically scrap itself.
@@ -2147,14 +2147,14 @@ given, the orders for that ship will be displayed.
 
     cloak -- Order a ship to activate its cloaking device. The cloak will be
              activated on the next segment or update.
-	     Syntax: order <shipnumber> cloak <on|off>
+             Syntax: order <shipnumber> cloak <on|off>
 
     smartgun -- Automatically return fire on the types of ships in <list>.
                 This is used to prevent less significant ships from wasting
-		your ship's destruct in retaliation.
-		Syntax: order <shipnumber> smart strength <amt>
-		        order <shipnumber> smart list <list>
-			order <shipnumber> smart gun <primary|secondary|off>
+                your ship's destruct in retaliation.
+                Syntax: order <shipnumber> smart strength <amt>
+                        order <shipnumber> smart list <list>
+                        order <shipnumber> smart gun <primary|secondary|off>
 
   Ships that are landed or docked, or have no crew and are not robotic ships,
 cannot be given orders.
@@ -2505,25 +2505,25 @@ planet is allowed to have 4 routes activated, number 1 through 4. A route has
 the following components:
     destination: This is where ships on the route will travel to next, after
                  loading and unloading at the planet. If a ship has hyperspace
-		 capability, jumps will be ordered. Destinations are set during
-		 all movement segments and updates. Only ships with merchant
-		 shipping set to the route will be given the orders.
+                 capability, jumps will be ordered. Destinations are set during
+                 all movement segments and updates. Only ships with merchant
+                 shipping set to the route will be given the orders.
     activate/deactivate: This will control whether route orders are given to
                          arriving merchant ships.
     land: Ships must land on a sector to perform their loading/unloading orders.
           If a ship does not have the fuel to land, it won't. Merchant ships
-	  will not crash land. The player must also control the route sector, or
-	  it must be vacant.
+          will not crash land. The player must also control the route sector, or
+          it must be vacant.
     load/unload: Once landed, ships will embark and disembark commodities
                  specified at the planet. Note that the maximum possible
-		 transfer will always be ordered.
-		 Example:
-		   route 3 load rfdx   Will order route 3 merchants to load
-		                       r, f, d, and xtals.
+                 transfer will always be ordered.
+                 Example:
+                   route 3 load rfdx   Will order route 3 merchants to load
+                                       r, f, d, and xtals.
                    route 1 unload rd   Will order route 1 merchants to unload
-		                       all r and d. Note that you should not
-				       order ships to unload fuel for obvious
-				       reasons!
+                                       all r and d. Note that you should not
+                                       order ships to unload fuel for obvious
+                                       reasons!
 
 {{EXAMPLE}}
   You produce destruction in /Vaasa/Hima, resource in /Espoo/Otski and you want
@@ -2611,7 +2611,7 @@ habitat 'H', at a planet to sell from it. The ship must be undamaged.
 {{EXAMPLE}}
   sell f 100  - Subtracts 100 fuel from the planet and puts up a lot for sale in
                 the market. The higest bidder two updates later will get the
-		fuel.
+                fuel.
 
 {{SEE ALSO}}
   bid, money
@@ -2806,7 +2806,7 @@ possible scopes are sector, planet, and star. Census on sector:
       gravity: Gravitational influence
       Instability: Stability of the star. As stability approaches 100, the star
                    will become more and more unstable. The player must have a
-		   technology of 3 or more to determine the stability.
+                   technology of 3 or more to determine the stability.
       Temperature class: How hot the star is. Hotter it is fast the pods will
                          warm.
       List of obiting planets
@@ -2823,11 +2823,11 @@ possible scopes are sector, planet, and star. Census on sector:
 {{SYNTAX}}
   tactical                     Provides summary tactical information for all
                                enemy, allied, and neutral ships and planets
-			       in the current scope.
+                               in the current scope.
 
   tactical <shiptype>          Provides summary tactical information for all
                                ships (of a given type) and planets at the
-			       current scope
+                               current scope
 
   tactical <#ship>             Provides detailed tactical information for the
                                given ship.
@@ -2972,7 +2972,7 @@ list all available options and thier values. Options:
                      GB client you'll want this on.
       color          If set, color codes will be sent. This requires an ANSI
                      capable term and like some other settings on your client
-		     (like 'set ansi on' for gbII).
+                     (like 'set ansi on' for gbII).
       compatability  Controls whether or not explored planets have the
                      compatability displayed on orbit maps.
       double_digits  Display alien numbers with double digits.
@@ -3086,19 +3086,19 @@ colonies. If no arguments are specified, the program will prompt the user for:
       #shipnum -- What ship to load from/to
       d|c|r|f|x|m -- Specify destruction, crew, resources, fuel, military, or
                      crystals to load/unload. Destruction, resources and fuel
-		     are taken from that user's stockpiles, while people are
-		     tacken from the sector the ship is landed on. If the ship
-		     is docked with another ship and not a planet, the transfers
-		     will be direct.
+                     are taken from that user's stockpiles, while people are
+                     tacken from the sector the ship is landed on. If the ship
+                     is docked with another ship and not a planet, the transfers
+                     will be direct.
       amount -- The amount to load (if negative, the amount will be subtracted).
                 This must be within certain bounds: the maximum cargo capacity
-		of each ship unless one or both of the ships are shuttles.
-		Shuttles are unique in that their design allows cargo to be
-		strapped to their hull, and thus they can actually hold more
-		cargo than the maximum. An overloaded shuttle cannot, however,
-		take off or land until it jettisons its excess. If no amount
-		argument is specified, the maximum available of the commodity
-		will be loaded on board.
+                of each ship unless one or both of the ships are shuttles.
+                Shuttles are unique in that their design allows cargo to be
+                strapped to their hull, and thus they can actually hold more
+                cargo than the maximum. An overloaded shuttle cannot, however,
+                take off or land until it jettisons its excess. If no amount
+                argument is specified, the maximum available of the commodity
+                will be loaded on board.
   If the ship is neither landed at a planet nor docked with another vessel, the
 player can't load/unload its cargo/passengers.
 
@@ -3233,7 +3233,7 @@ move into alien occupied sectors with AFVs. Here are the permitted directions:
   Show arament report of ship or ships. Example:
     > weapon
         #       name      laser    cew     safe      guns    damage   class
-	2 @                          0/0      25     0 /  0       0%    Standard
+        2 @                          0/0      25     0 /  0       0%    Standard
       161 t                          0/0     136    10L/ 10       0%    Standard
       162 t                          0/0     136    10L/ 10       0%    Standard
       983 O                yes       0/0     253    50H/ 50       0%    Standard
