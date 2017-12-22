@@ -1,0 +1,210 @@
+Galactic Bloodshed
+
+Aldan
+
+In-reply-to: baal@garnet.msen.com's message of 31 Dec 1993 13:46:51 -0500
+Newsgroups: alt.games.gb
+Subject: Old gb ideas and little for new...
+Distribution: inet
+-- text follows this line --
+
+Some of these ideas are usable for old and new code. That will depend heavily
+from output of voting of hull-based ships. But here comes:
+
+Idea: Everyone will lose x% per update.
+      Especially useful with Ancient Race-idea
+      When getting high on tech you would need more tech production to keep
+      getting tech. And getting hurt would eventually mean losing tech.
+      Normals will suffer from this more than mesos and to balance out this
+      amount of planets per system should be decreased.
+
+      What is good value for x?
+      Maybe GOD-option...
+      Should be around 0-2...on tech 100 and x=2 you have to keep making 2 tech
+      per update to be ale to build lasers...
+
+Have no comments right now, just make sure you explain why we want the changes.
+
+Magnus.
+
+Ok, here comes:
+There were changes we work out with Magnus (aka Spaceorcs) last summer. Correct
+me if there are mistakes or errors on these calculations.
+
+:-------------------------------------------------------------------------------
+: Changes:
+: Item: hyperjump with xtal
+: From: 5 * mass^0.5 * (dist / (200 * (tech + 100)))
+: To: 5  *mass^0.5 * (dist / (200 * ((tech / 2) + 125)))^1.5
+:
+: Item: hyperdump without xtal
+: From: 5 * mass^0.5 * (dist / (200 * (tech + 100)))^2
+: To: 5 * mass^0.5 * (dist / (200 * ((tech / 2) + 125)))^3
+:
+: Item: ship mass formula
+: SubItem: ship base mass
+: From: 1 + armor + ((size - hanger) * 0.2) + (hanger * 0.1) + (primary *
+:       strength * caliber) + (secondary * strength * caliber)
+: To: 1 + armor + ((size - hanger) * 0.2) + (hanger * 0.1) + (primary * strength
+:     * caliber) + (secondary * strength * caliber) +
+:     ((max crew * race weight) / 2)
+:
+: SubItem: ship mass
+: From: base mass + (race weight * (crew + mil)) + (destruct * 0.15) + (fuel *
+:       0.05) + (resos * 0.1)
+: To: base mass + ((race weight * (crew + mil)) / 10) + (destruct * 0.15) +
+:     (fuel * 0.05) + (resos * 0.1)
+
+Example of effects. Regular cargo.
+
+Crew of 100             | Old   | Old   | Old   | New   | New   | New   |
+------------------------+-------+-------+-------+-------+-------+-------+
+Mass of race            |   0.2 |     1 |     3 |   0.2 |     1 |     3 |
+------------------------+-------+-------+-------+-------+-------+-------+
+Base mass of ship       |  24.1 |  24.1 |  24.1 |  34.1 |  74.1 | 174.1 |
+------------------------+-------+-------+-------+-------+-------+-------+
+Mass of goods when full | 300.0 | 300.0 | 300.0 | 300.0 | 300.0 | 300.0 |
+------------------------+-------+-------+-------+-------+-------+-------+
+Mass of crew            |  20.0 | 100.0 | 300.0 |   2.0 |  10.0 |  30.0 |
+------------------------+-------+-------+-------+-------+-------+-------+
+Total                   | 344.1 | 424.1 | 624.1 | 336.1 | 384.1 | 504.1 |
+
+Crew of 1               | Old   | Old   | Old   | New    | New   | New   |
+------------------------+-------+-------+-------+--------+-------+-------+
+Mass of race            |   0.2 |     1 |     3 |    0.2 |     1 |     3 |
+------------------------+-------+-------+-------+--------+-------+-------+
+Base mass of ship       |  24.1 |  24.1 |  24.1 |   34.1 |  74.1 | 174.1 |
+------------------------+-------+-------+-------+--------+-------+-------+
+Mass of goods when full | 300.0 | 300.0 | 300.0 |  300.0 | 300.0 | 300.0 |
+------------------------+-------+-------+-------+--------+-------+-------+
+Mass of crew            |   0.2 |   1.0 |   3.0 |   0.02 |   0.1 |   0.3 |
+------------------------+-------+-------+-------+--------+-------+-------+
+Total                   | 324.3 | 325.1 | 327.1 | 334.12 | 374.2 | 474.4 |
+
+Saved by dropping crew  |  6.1% | 30.9% | 92.3% |   0.6% |  2.7% |  6.3% |
+
+If ship is made heavy for heavy race, they need more room for supplies, air and
+for themselves so heavier life support and crew area. Makes things more
+realistic but that only a side effect. Major thing is makes moving population
+little easier as lowering fuel cost since mass caused by crew will decrease.
+
+The fuel consumption on jumps. Same ship. Full crew. No xtal
+
+Tech level |                100 |                       200 | With crew of 1 |
+-----------+------+------+------+------+------+------+------+ cut amount of  |
+Jump dist  |  50k | 100k | 150k |  50k | 100k | 150k | 200k | fuel consumed  |
+-----------+------+------+------+------+------+------+------+----------------+
+Old 0.2    |142.8 |571.2 |1285.2| 63.5 |255.3 | 571.2|1015.4|  2.9%          |
+-----------+------+------+------+------+------+------+------+----------------+
+Old 1.0    |160.9 |643.6 |1448.0| 71.5 |286.0 | 643.6|1144.1| 12.9%          |
+-----------+------+------+------+------+------+------+------+----------------+
+Old 3.0    |195.2 |780.7 |1756.5| 86.7 |347.0 | 780.7|1387.9| 27.6%          |
+-----------+------+------+------+------+------+------+------+----------------+
+New 0.2    |267.3 |748.3 |1683.7|113.2 |452.7 |1018.6|1810.8|  0.3%          |
+-----------+------+------+------+------+------+------+------+----------------+
+New 1.0    |285.7 |799.9 |1799.8|121.0 |483.9 |1088.8|1935.6|  1.3%          |
+-----------+------+------+------+------+------+------+------+----------------+
+New 3.0    |327.3 |916.4 |2061.9|138.6 |554.4 |1274.3|2217.5|  3.0%          |
+-----------+------+------+------+------+------+------+------+----------------+
+
+For xtal-mounted ships fuel consumed is %-amount of above.
+
+Tech level |                100 |                       200 |
+-----------+------+------+------+------+------+------+------+
+Jump dist  |  50k | 100k | 150k |  50k | 100k | 150k | 200k |
+-----------+------+------+------+------+------+------+------+
+Old 3.0    | 80.0 | 40.0 | 26.7 |120.0 | 60.0 | 40.0 | 30.0 |
+-----------+------+------+------+------+------+------+------+
+New        | 58.6 | 20.7 | 11.3 | 85.4 | 30.2 | 16.4 | 10.7 |
+-----------+------+------+------+------+------+------+------+
+
+As you can see from above race with mass 3 can make much longer jumps with few
+crew on board than with full crew. And we are now talking about cargo ships,
+which is supposed to carry lots of goodies on board. So race are most likely to
+send ships with full crew and lower mass races get advantage of lower mass via
+longer jumps. With xtals that advantage will even grow which will make low mass
+techies playable. And xtal more important.
+
+: Item: universum
+: SubItem: amount of system
+: To: race amount * 5
+:
+: SubItem: amount of planets on systems
+: To: 1-5
+:
+: SubItem: quality of home systems
+: To: 4-5 planets
+:
+: SubItem: locations of home systems
+: To: evenly dispersed
+:
+: SubItem: quality of home planets
+: To: better than average planet of type
+
+These will make home systems more important as they are best in
+universum. Realistic since new races will appear there were are best places to
+live. Game balance will improve since there are lot of empty systems which will
+stay quite long empty since jumps are very short at first. And beginners has
+little time to learn since power of experienced races will grow little slower
+'cause they don't get new planets very fast as they are quite few on close
+range. That would make systems more easily defend, db smaller due less resos
+digged, more systems could be placed on universum and bigger univ could be
+greated. More below. And would bring strategy aspect to game since there would
+be border and inner areas.
+
+Few ideas of my own (and maybe with other Gemsters):
+
+Item: Starting resos
+To: Off game. They will make things too easy for techies. Or if they are there
+    to techies and mesos equal amounts of res (in treehouse there was 60 for
+    mesos and 100 for techies). Maybe 40-60 would be reasonable so techies will
+    get off home planet early but not with many s's since mesos need time to get
+    tech-lead get by techies via higher iq. With new ship: j techies will get
+    too much advantage to being able to get stuff moved easily between systems.
+
+Item: Ships tech
+      Ships should not allowed to build before name-tech. Would make name tech
+      more clearly defined. Downgrading should still decrease costs.
+
+Item: q, W, K, Y, T, a, G, &, n should use planetary stockpiles and hence remove
+      cargo space of d, f, r.
+
+Item: Old mines could bring back with modifications.
+Mods: Should not fire ships on planet
+      Should not bombard planets
+      Name tech amount of dest should decrease radically.
+      But do not remove minefields. They are just great.
+      Maybe activation announcement should not be put to news.
+
+Item: Gun ranges
+Mods:          Now   New
+      Light:  100%   50%
+      Medium:  50%  100%
+      Heavy:   33%  150%
+      This would make warships more powerful compared to "civilian" vessels like
+      t's and c's.
+
+Item: T
+Modes: Own ability to fly should be removed.
+
+Item: R
+Mods: Make them more able to deliver damage to civs and mils.
+
+Item: c
+Mods: Reduce amount of crew.
+
+Item: j
+Mods: Increase amount of crew. Slow them down.
+
+Item: Damage delivered by guns
+Mods: Armor should have more effect to protect than size.
+      On larger ship there should not be so likely to be criticals
+      to special items like engines, but that should not reduce chance to get
+      critical damage.
+
+For new version of gb: I vote NO for hull-based ships.
+
+Commends are welcomed.
+
+Gardan of GEM
+________________________________________________________________________________
