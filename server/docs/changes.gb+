@@ -1,0 +1,354 @@
+This fill denotes changes that were made between this release of Galactic
+Bloodshed and GB5.2.
+
+Version 1.1.0
+-------------
+  * loginfo function -- All information that was written to stdout before is now
+    written to one of 2 log files. There are currently 3 log files.
+      user.log
+      error.log
+      update.log
+  * GB_server.c -- Alot of function were removed from this file and put in other
+    files.
+  * psmap.c -- Is now included in the utils directory.
+  * togg.c, vict.c, zoom.c, sche.c, toxi.c, tele.c, tech.c -- These files were
+    just cleaned up, and comments were added. Eventually all the files will be
+    in this format.
+  * prof.c -- Fixed some formatting bugs in profile.
+  * analysis.c -- Fixed some formatting bugs in analysis.
+  * shootblast.c -- Fixed divide by zero error in do_critical_hits().
+  * order.c, build.c , doplanet.c, ships.h, vars.h -- Added ifdefs for
+    treshload/autoscrap code.
+  * shipdata.h -- Added a dock field to the file, which shows if the ship can be
+    loaded into hangers. (i.e. Fixes floating ground telescope bug)
+  * land.c -- Fixed bug that allowed ground telescope to be launched from a ship
+    at universe/star/planet level. Any ship with maxspeed of 0 cannot be loaded
+    into a ship.
+
+Version 1.1.1
+-------------
+  * shipdata.h, ship.h -- Added minesweeper shiptype
+  * shipdata.h, tweakables.h, config.h -- Added ifdef for SUPER_PODS
+  * cs.c -- Added Shawn Fox's fix to cs to planets via cs ../2 cs ../1 instead
+    of using names.
+  * doplanet.c -- Added Shawn Fox's est_production fix...
+
+Version 1.1.2
+-------------
+  * Keesh's change to survey.c and tele.c to comply with GBII ver 2.4.6
+
+Version 1.1.3
+-------------
+  Tues Jan 26 08:01:00 EST 1993 johnd
+    * shlmisc.c - Grant now works correctly (fixed bug, that prevents
+      subtraction of money from governors)
+
+  Wed Jan 27 20:07:56 EST 1993 johnd
+    * shipdata.h - Changed space telescope letter from \ to E and missile from ^
+      to z
+
+  Thu Jan 28 03:49:02 EST 1993 johnd
+    * GB_server.c - Added governor logout message.
+    * GB_server.c - Added server generated password prompt for client.
+    * dock.c - Fixed bug in dock(), s->whatorbits should be s2->whatorbits
+    * rst.c, order.c - Make mod to the way xtals/hyperdrives are shown. If ship
+      doesn't have hyper * is shown, hyper/no xtal - is shown, hyper/xtal + is
+      shown.
+    * name.c, chan.c, GB_server.c, vars.h, prof.c, Configure - Added multiple
+      communications channel capability. Channels are numbered 1,2,3. Can send
+      on any channel by using the number of the channel you wish to send on. Set
+      the default channel (for use with broadcast and ') via 'channel <channel>
+      default', view current channels with 'channel', set channels to monitor
+      via 'channel <channel> (toggle)'. You will only receive messages for
+      channels you have turned on. (By default channel one is set upon login)
+
+  Thu Jan 28 21:38:28 EST 1993 johnd
+    * all Makefile.SH -- Added clean targets
+    * GB_server.c, sche.c -- Changed long to time_t for clock defs.
+    * many *.c's -- changed sprintf to strcat where ever possible
+    * vars.h -- Removed clk, added to GB_server.c and sche.c
+    * tele.c -- Removed ctime and fopen defs (included in time.h and stdlib.h)
+    * GB_server.c -- Added #include sys/stat.h
+    * all *.c's -- Removed #include "*.p" and move all prototypes to
+      hdrs/proto.h
+
+  Sat Jan 30 20:28:58 EST 1993 johnd
+    * lists.c -- changes [MAXSTARS] and [MAXPLANETS] to [MAXSTARS - 1] and
+      [MAXPLANETS - 1].
+    * max.c -- compatibility() changed add from int to double.
+    * build.c -- get_build_type() removed line to init to -1, changed order of
+      comparisions to check for (i < NUMSTYPES) first.
+    * fuel.c -- Was assigning information from a struct that was free'ed.
+
+  -- END OF GB+ 1.1.4
+
+  Mon Feb  1 00:26:07 EST 1993
+
+  -- START OF GB+ 1.2.0
+
+  This version is the start of serious development work, many changes started
+  including closer interaction between client and server.
+
+  * client.c -- Added client.c to handle all client specific parsing and
+    commands.
+  * csp.h -- Added cps.h. This file should be the same in the client as well as
+    the server.
+  * toggle.c -- Added new 'toggle client' option to use client result codes.
+  * vars.h -- Added #defs for UPDATE_START, UPDATE_END, SEGMENT_START,
+    SEGMENT_END, RESET_START, RESET_END.
+  * GB_server.c -- added CSP_process_command into process_command function.
+
+  ** All client commands should be added to CSP_process_command.c, not in
+     process_command.
+
+  -- END OF GB+ 1.2.0
+
+  Fri Feb 12 04:44:03 EST 1993
+
+  -- START OF GB+ 1.2.1
+
+  * doship.c -- Pods with 0 populations will no longer infect. Instead will just
+    decay.
+  * build.c -- Added ability to upgrade tech on ships. -ksf-
+  * doplanet.c -- Terraformers can now terraform gas sectors on NON-JOVIAN
+    planets. This prevents jovians from converting every non-jovian planet to a
+    jovian forver.
+  * Configure -- Fixed a few small bugs
+  * makeuniv.c -- New version
+  * makeplanet.c -- New version
+  * racegen.c -- Server based version now available.
+  * hdrs/*.h -- Shuffled things around to fix the word boundaries on structs.
+  * server/*.c, user/*.c -- Misc. changes to source, general cleanup.
+  * explore.c -- Changed autoreport display. Was toasting opttech if name was
+    too long before. Now it has its own field.
+
+  Thu Feb 18 05:02:20 EST 1993
+
+  * proto.h -- proto.h redone using mkptypes. This file should now include a
+    prototype for every function.
+  * vars.h -- Added CanDo and SetLevel macros for general code.
+  * races.h -- Added rank field to governors struct.
+  * ranks.h -- This is where the permissions are kept to run every
+    command. Change this at your discretion.
+  * shlmisc.c, GB_server.c -- Added promote and demote code. Added the ability
+    to give the governors a rank.
+  * misc.c -- no_permission and no_permission_thing added. Display/Error
+    routines associated with the general code.
+  * user/*.c -- General code
+  * tweakables.h -- Version string modified
+
+  -- END OF GB+ 1.2.1
+
+  Tue Feb 23 23:07:15 EST 1993
+
+  -- START of GB+ 1.2.2
+
+  * user/*.c, server/*.c - Moved various #ident into comments
+  * Configure - Added option to perform a chmod +w on all files
+  * user/Makefile.SH - Changed faulty make libgbuser.a target.
+  * user/tele.c - Added check to include time.h
+  * server/GB_server.c - Added check to include time.h
+  * tweakables.h - #ifdefs for MAX, MIN, abs, and sqr
+
+  -- END of GB+ 1.2.2
+
+  Mon Mar  1 09:24:10 EST 1993
+
+  -- START OF GB+ 1.2.3
+
+  Make of Mike Varney's mods added:
+  * GB_server.c - Added the dump_users_priv and boot_user. Use @@who for a more
+    detailed who, and @@boot <descriptor> to dump a user off the game.
+  * log.c - Reformatted the output.
+  * proto.h - Added prototypes for dump_user2 and boot_user
+  * order.c, moveship.c - Added the ability to move mil with the route command.
+  * vars.h - Added M_MILITARY and Military() macros
+  * Added utils/check_it - A simple shell script to restart the server
+
+  -- END OF GB+ 1.2.3
+
+  Mon Mar 20 14:40:00 EST 1993
+
+  -- START OF GB+ 1.2.4
+
+  Racegen changes:
+  CHANGES: There is now only one settable define, PRIV, which has replaced both
+  ENROLL and SERVER. Compiling with -DPRIV creates a version of racegen which
+  can be run for enrolling (no command line options) or as a server (using -s
+  [port]). This define is set in the distributed Makefile.SH to aid
+  deities. Without this define, the non-deity version of racegen is created. It
+  has no ability to run as a server or to enroll races.
+
+  Configure changes: There is a new option that check to see if a mesos
+  technology is at least ship->tech / 3. This prevents mesos from running around
+  in ships they can't operate.
+
+  server/*.c, user*/c - Many, many, many small changes contributed by
+  ddickey@aspen.cray.com, and varneyml@wckn.dorm.clarkson.edu. Too many to
+  mention here.
+
+  -- END OF GB+ 1.2.4
+
+  -- Mike Varney's Changes: varneyml@wckn.dorm.clarkson.edu
+  -- May 1993
+
+  * Logs cleaned up
+  * @who, @boot commands added
+  * Option of using SuperPods, NormalPods _OR_ _BOTH_. Ground telescopes are now
+    "i". SuperPods "P". Regular pods "p".
+  * Option of having races use collective money, rather than each governor
+    having their own treasury. Govs would then see the race's TOTAL money,
+    costs and income.
+  * Output for order, report changed to also include gov# owned by.
+  * Modified the authorized() function to allow General ranked governors to have
+    TOTAL control over ANYTHING.
+  * Safety put on EMULATE to prevent the god from picking a race that is outside
+    the bounds (1 - NUMRACES), and a governor greater than 5.
+  * General cosmetic changes.
+
+  -- Dan's (ddickey@cray.com) changes:
+  -- May 1993
+
+  * Code to optionally "Output Flushed". If configured to do so, output overflow
+    will be put into files, and eventually sent. With this option configured,
+    there will be no more output flushed msgs.
+  * CSP changes:
+    * Added code to the CSP stuff to do planet and ship "dumps". Basically, they
+      dump out ALL information on a particular object, depending of course on
+      whether it belongs to the player or not, is explored or not, etc.
+    * Added code to handle how "smart" the csp user is. It keeps track of a bit
+      for each command that the csp client says it knows about. This is
+      initially set by the client sending a CSP_RANGE_COMMAND with the arguments
+      being the first and last commands understood. In addition, the client can
+      send back a CSP_ERR_UNKNOWN_COMMAND with one argument being the command
+      that it doesn't know about and the server will clear that bit. This is so
+      that the server can now call "client_can_understand()" to see in what
+      format it should output data.
+  * Added @@explore command. Sets the explore bit on all stars for god.
+
+  -- This was "released" internally as version 1.3.1
+
+  -- Version 1.4.0
+
+  Totally new and improved networking code. TinyMUD copyright removed.
+
+  New command parsing routing. Now uses a binary dispatch function. All commands
+  listed in hdrs/command.h
+
+  @debug added. usage: @debug <fd> <level> Allows debugging data to be displayed
+  on a specific file descriptor.
+
+  @backup. Calls the misc/backup.sh script to perform a backup.
+
+  Most god commands moved to be @ prefixes. (See command.h for list).
+
+  Few small bug fixes having to do with hangers.
+
+  -- GB 1.6.0 [Yes, I know, no changes for 1.5.0]
+
+  Another new and improved networking code including Dan's output overflow code.
+
+  Minefields replace mines
+
+  New improved csp code.
+
+  -- end of gb 1.6.0
+
+  -- GB 1.6.2
+
+  Fixed a few bugs in the network code.
+
+  Added CSP_prompt stuff.
+
+  -- end of gb 1.6.2
+
+  -- GB 1.6.3
+
+  Added CSP_relation
+
+  Added/Fixed all the #idents in all the files
+
+  Added dinfo, and @query for query clients about CSP knowledge.
+  @query <descriptor #>
+  dinfo <governor name>
+
+  -- GB 1.6.4
+
+  Added CSP_profile
+
+  Added CSP_who
+
+  Added @nologins, prevents logins while god is doing debugging, problem
+  solving.
+
+  Fixed J bug/feature. J's can no longer be loaded into ships.
+
+  Added new debugging information
+
+  -- GB 1.7.0
+
+  Added CSP_explore, CSP_map
+
+  Changed the binary search to hash_search to allow the most used commands to be
+  placed first.
+
+  Fixed # of sectors owned bug, in which you would get an enormous amount of
+  sectors owned, when you removed all civs/mil from the planets. (This should
+  also fix the power bug).
+
+  T's can no longer assault ships.
+
+  T's are now tech 35.
+
+  +'s and m's are now both 65 tech.
+
+  AP's are now an int, instead of a char.
+
+  Fixed (hopefully) the bug where ships would not show up, after the same type
+  have been scrapped.
+
+  Fixed a bug, that prevented telegrams being sent to victims of attacks.
+
+  Fixed a bug that kept player's logging in, and was generating the "Player
+  already logged on!" message.
+
+  General code cleanup.
+
+  Assaulting ships now work properly.
+
+  Habitats and Stations now scoop fuel properly.
+
+  Factories should now work inside H's.
+
+  *** NOTE ***
+  In order to use the csp_map and csp_explore you must have a client > 2.5.3.
+
+  *** POSSIBLE BUG ***
+  This is a recurring bug in the network code that sometimes keeps people logged
+  in when they have actually disconnected. I cannot recreate this problem, but
+  have tried to put in as many possible checks for it as possible.
+
+  If you stumble across this bug, please send me an email (deregon@doc.nyu.edu)
+  with the details of it.
+
+  -- Code released --
+
+  GB 1.7.1
+
+  Fixed bug in csp_explore
+
+  GB 1.7.2
+
+  Fixed bug in csp_prof
+
+  Fixed bug in cleardes *** IMPORTANT FIX ***
+
+  -- Code released --
+
+  GB 1.7.3
+
+  Fixed a bug in survey for IMAP and popn
+
+  Fixed another bug in csp_prof
+
+  --
