@@ -596,7 +596,7 @@ typedef struct OrbitInfo orbitinto;
 #define LOCK_RNAME 0x02
 
 
-/* Channel communication systme */
+/* Channel communication system */
 #define COMM_RCV_CHANNEL1 1
 #define COMM_RCV_CHANNEL2 2
 #define COMM_RCV_CHANNEL3
