@@ -3880,4 +3880,3 @@ void show_update(int playernum, int governor)
 
     notify(playernum, governor, tbuf);
 }
-
