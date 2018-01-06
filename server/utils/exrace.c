@@ -97,33 +97,33 @@ int main(int argc, char *argv[])
     race_fd = open(DATAFILE, 000, 0777);
 
     if (race_fd < 0) {
-	perror("main");
-	printf("Unable to open %s\n", DATAFILE);
+        perror("main");
+        printf("Unable to open %s\n", DATAFILE);
 
-	exit(-1);
+        exit(-1);
     }
 
     check_size();
 
     if (argv == 1) {
-	/*
-	 * Check the whole database for errors
-	 */
-	for (i = 1; i < num_races; ++i) {
-	    readrace(&display, i);
-	    check_race();
-	    free(display);
-	}
+        /*
+         * Check the whole database for errors
+         */
+        for (i = 1; i < num_races; ++i) {
+            readrace(&display, i);
+            check_race();
+            free(display);
+        }
 
-	printf("I found a total of %d corrupt races out of %d\n",
-	       bad_race_count,
-	       num_races);
+        printf("I found a total of %d corrupt races out of %d\n",
+               bad_race_count,
+               num_races);
     } else {
-	/*
-	 * We want a specific ship display
-	 */
-	readrace(&display, atoi(argv[1]));
-	display_race();
+        /*
+         * We want a specific ship display
+         */
+        readrace(&display, atoi(argv[1]));
+        display_race();
     }
 
     printf("All done\n");
@@ -145,27 +145,27 @@ void readrace(racetype **s, int racenum)
     int n;
 
     if (racenum <= 0) {
-	exit(1);
+        exit(1);
     }
 
     *s = (racetype *)malloc(sizeof(racetype));
 
     if (*s == 0) {
-	printf("readrace: malloc() error\n");
+        printf("readrace: malloc() error\n");
 
-	exit(0);
+        exit(0);
     }
 
     if (lseek(race_fd, (racenum - 1) * sizeof(racetype), L_SET) < 0) {
-	perror("lseek");
+        perror("lseek");
 
-	exit(1);
+        exit(1);
     }
 
     n = read(race_fd, (char *)*s, sizeof(racetype));
 
     if (n != sizeof(racetype)) {
-	perror("read");
+        perror("read");
     }
 }
 
@@ -216,29 +216,29 @@ void display_race(void)
     printf("\tRace Password: %s\n", display->password);
 
     if (display->God) {
-	printf("Race had GOD permissions.\n");
+        printf("Race had GOD permissions.\n");
     }
 
     if (display->Guest) {
-	printf("Race has GUEST permissions.\n");
+        printf("Race has GUEST permissions.\n");
     }
 
     if (display->Metamorph) {
-	printf("Race is a Metamorph.\n");
+        printf("Race is a Metamorph.\n");
     }
 
     if (display->dissolved) {
-	printf("Race is DISSOLVED.\n");
+        printf("Race is DISSOLVED.\n");
     }
 
     printf("Gov ship: %d\n\n", display->Gov_ship);
 
     for (i = 0; i < 6; ++i) {
-	if (display->governor[i].active) {
-	    printf("Gov Number: %d", i);
-	    prtinf("\tGov Name: %s", display->governor[i].name);
-	    printf("\tGov Password: %s", display->governor[i].password);
-	    printf("\tRank: %d\n", display->governor[i].rank);
-	}
+        if (display->governor[i].active) {
+            printf("Gov Number: %d", i);
+            prtinf("\tGov Name: %s", display->governor[i].name);
+            printf("\tGov Password: %s", display->governor[i].password);
+            printf("\tRank: %d\n", display->governor[i].rank);
+        }
     }
 }

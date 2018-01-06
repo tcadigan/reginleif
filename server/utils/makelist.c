@@ -62,47 +62,47 @@ int main(int argc, char *argv[])
     int names;
 
     if (argc != 3) {
-	printf("Usage: %s oldlist newlist > outputlist\n", argv[0]);
+        printf("Usage: %s oldlist newlist > outputlist\n", argv[0]);
 
-	exit(1);
+        exit(1);
     }
 
     input = fopen(argv[1], "r");
 
     if (input == NULL) {
-	printf("Can not open %s for reading.\n", argv[1]);
+        printf("Can not open %s for reading.\n", argv[1]);
 
-	exit(1);
+        exit(1);
     }
 
     add = fopen(argv[2], "r");
 
     if (add == NULL) {
-	printf("Can not open %s for reading.\n", argv[2]);
+        printf("Can not open %s for reading.\n", argv[2]);
 
-	exit(1);
+        exit(1);
     }
 
     if (fgets(buf, BUFSIZE, input)) {
-	list_head = (LIST *)malloc(sizeof(LIS));
-	list_head->prev = NULL;
-	list_head->next = NULL;
+        list_head = (LIST *)malloc(sizeof(LIS));
+        list_head->prev = NULL;
+        list_head->next = NULL;
 
-	c = index(buf, '\n');
+        c = index(buf, '\n');
 
-	if (c != NULL) {
-	    *c = '\0';
-	}
+        if (c != NULL) {
+            *c = '\0';
+        }
 
-	strcpy(list_head->name, buf);
+        strcpy(list_head->name, buf);
     }
 
     while (fgets(buf, BUFSIZ, input)) {
-	add_to_list(buf);
+        add_to_list(buf);
     }
 
     while (fgets(buf, BUFSIZ, add)) {
-	add_to_list(buf);
+        add_to_list(buf);
     }
 
     names = print_list();
@@ -121,53 +121,53 @@ void add_to_list(char *s)
     c = index(s, '\n');
 
     if (c) {
-	*c = '\0';
+        *c = '\0';
     }
 
     if (*s == '\0') {
-	return;
+        return;
     }
 
     for (p = list_head; p; p = p->next) {
-	val = strncmp(p->name, s, NUM_CHARS);
+        val = strncmp(p->name, s, NUM_CHARS);
 
-	if (val > 0) {
-	    q = (LIST *)malloc(sizeof(LIST));
-	    strcpy(q->name, s);
+        if (val > 0) {
+            q = (LIST *)malloc(sizeof(LIST));
+            strcpy(q->name, s);
 
-	    if (p == list_head) {
-		list_head = q;
-		p->prev = q;
-		q->next = p;
-	    } else {
-		q->prev = p->prev;
-		p->prev->next = q;
-		q->next = p;
-		p->prev = q;
-	    }
+            if (p == list_head) {
+                list_head = q;
+                p->prev = q;
+                q->next = p;
+            } else {
+                q->prev = p->prev;
+                p->prev->next = q;
+                q->next = p;
+                p->prev = q;
+            }
 
-	    return;
-	} else if (val == 0) {
-	    fprintf(stderr,
-		    "Duplicate name. In list %s. Omitting %s\n",
-		    p->name,
-		    s);
+            return;
+        } else if (val == 0) {
+            fprintf(stderr,
+                    "Duplicate name. In list %s. Omitting %s\n",
+                    p->name,
+                    s);
 
-	    return;
-	}
+            return;
+        }
     }
 
     if (!p) {
-	p = list_head;
+        p = list_head;
 
-	while (p->next) {
-	    p = p->next;
-	}
+        while (p->next) {
+            p = p->next;
+        }
 
-	p->next = (LIST *)malloc(sizeof(LIST));
-	strcpy(p->name, s);
-	p->next->prev = p;
-	p->next->next = NULL;
+        p->next = (LIST *)malloc(sizeof(LIST));
+        strcpy(p->name, s);
+        p->next->prev = p;
+        p->next->next = NULL;
     }
 }
 
@@ -177,8 +177,8 @@ int print_list(void)
     int i = 0;
 
     for (p = list_head; p; p = p->next) {
-	printf("%s\n", p->name);
-	++i;
+        printf("%s\n", p->name);
+        ++i;
     }
 
     return i;

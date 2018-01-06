@@ -37,32 +37,32 @@ int main(int argc, char *argv[])
     sect_fd = open(DATAFILE, 000, 0777);
 
     if (sect_fd < 0) {
-	perror("main");
-	printf("Unable to open %s\n", DATAFILE);
+        perror("main");
+        printf("Unable to open %s\n", DATAFILE);
 
-	exit(-1);
+        exit(-1);
     }
 
     sect = malloc(sizeof(sectortype));
 
     while (Filerad(sect_fd, sect, sizeof(sectortype), i * sizeof(sectortype))) {
-	if (!sect->eff
-	    && !sect_fert
-	    && !sect->mobilization
-	    && !sect->crystals
-	    && !sect->owner
-	    && !sect->race
-	    && !sect->type
-	    && !sect->condition
-	    && !sect->resource
-	    && !sect->popn
-	    && !sect->troops) {
-	    printf("Bad record found at position %d\n", i);
+        if (!sect->eff
+            && !sect_fert
+            && !sect->mobilization
+            && !sect->crystals
+            && !sect->owner
+            && !sect->race
+            && !sect->type
+            && !sect->condition
+            && !sect->resource
+            && !sect->popn
+            && !sect->troops) {
+            printf("Bad record found at position %d\n", i);
 
-	    break;
-	}
+            break;
+        }
 
-	++i;
+        ++i;
     }
 
     clos(sect_fd);
@@ -78,19 +78,19 @@ int Fileread(int fd, sectortype *p, unsigned num, int posn)
     char buf[1024];
 
     if (lseek(fd, posn, L_SET) < 0) {
-	sprintf(buf, "Fileread seek");
-	perror(buf);
+        sprintf(buf, "Fileread seek");
+        perror(buf);
 
-	return FAIL;
+        return FAIL;
     }
 
     n2 = read(fd, p, num);
 
     if (n2 != num) {
-	sprintf(buf, "Fileread read");
-	perror(buf);
+        sprintf(buf, "Fileread read");
+        perror(buf);
 
-	return FAIL;
+        return FAIL;
     }
 
     return SUCCESS;
@@ -102,17 +102,17 @@ void Filewrite(int fd, sectortype const *p, unsigned num, int posn)
     char errmsg[1024];
 
     if (lseek(fd, posn, L_SET) < 0) {
-	sprintf(errmsg, "Filewrite 1");
-	perror(errmsg);
+        sprintf(errmsg, "Filewrite 1");
+        perror(errmsg);
 
-	return;
+        return;
     }
 
     n2 = write(fd, p, num);
 
     if (n2 != num) {
-	perror("Filewrite 2");
+        perror("Filewrite 2");
 
-	return;
+        return;
     }
 }

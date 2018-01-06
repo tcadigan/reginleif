@@ -107,29 +107,29 @@ int enroll_valid_race(void)
     playernum = Numraces() + 1;
 
     if ((playernum == 1) && (race.priv_type != P_GOD)) {
-	close_data_files();
-	sprintf(race.rejection,
-		"The first race enrolled must have God privileges.\n");
+        close_data_files();
+        sprintf(race.rejection,
+                "The first race enrolled must have God privileges.\n");
 
-	return 1;
+        return 1;
     }
 
     if (playernum >= MAXPLAYERS) {
-	close_data_files();
-	sprintf(race.rejection,
-		"There are already %d players; No more allowed.\n",
-		MAXPLAYERS - 1);
-	race.status = STATUS_RUNENROLLABLE;
+        close_data_files();
+        sprintf(race.rejection,
+                "There are already %d players; No more allowed.\n",
+                MAXPLAYERS - 1);
+        race.status = STATUS_RUNENROLLABLE;
 
-	return 1;
+        return 1;
     }
 
     getsdata(&Sdata);
     star_arena = (startype *)malloc(Sdata.numstars * sizeof(startype));
 
     for (star = 0; star < Sdata.numstars; ++star) {
-	Stars[star] = &star_arena[star];
-	getstar(&Stars[star], star);
+        Stars[star] = &star_arena[star];
+        getstar(&Stars[star], star);
     }
 
     printf("Looking for %s...", planet_print_name[race.home_planet_type]);
@@ -138,40 +138,40 @@ int enroll_valid_race(void)
     ppref = planet_translate[race.home_planet_type];
 
     for (i = 0; i < Sdata.numstars; ++i) {
-	indirect[i] = i;
+        indirect[i] = i;
     }
 
     last_star_left = Sdata.numstars - 1;
 
     while (last_star_left >= 0) {
-	i = int_rand(0, last_star_left);
-	star = indirect[i];
+        i = int_rand(0, last_star_left);
+        star = indirect[i];
 
-	/*
-	 * printf(".", star);
-	 */
-	printf(".");
-	fflush(stdout);
+        /*
+         * printf(".", star);
+         */
+        printf(".");
+        fflush(stdout);
 
-	/*
-	 * Skip over inhabited stars and stars with few planets.
-	 */
-	if ((Stars[star]->numplanets >= 6)
-	    && !Stars[star]->inhabited[0]
-	    && !Stars[star]->inhabited[1]) {
-	    /* Look for uninhabited planets */
-	    for (pnum = 0; pnum < Stars[star]->numplanets; ++pnum) {
-		found_planet(playernum, star, pnum);
+        /*
+         * Skip over inhabited stars and stars with few planets.
+         */
+        if ((Stars[star]->numplanets >= 6)
+            && !Stars[star]->inhabited[0]
+            && !Stars[star]->inhabited[1]) {
+            /* Look for uninhabited planets */
+            for (pnum = 0; pnum < Stars[star]->numplanets; ++pnum) {
+                found_planet(playernum, star, pnum);
 
-		return 0;
-	    }
-	}
+                return 0;
+            }
+        }
 
-	/*
-	 * Since we get here, this star didn't work out
-	 */
-	indirect[i] = indirect[last_star_left];
-	--last_star_left;
+        /*
+         * Since we get here, this star didn't work out
+         */
+        indirect[i] = indirect[last_star_left];
+        --last_star_left;
     }
 
     /*
@@ -179,8 +179,8 @@ int enroll_valid_race(void)
      */
     printf(" Failed!\n");
     sprintf(race.rejection,
-	    "Didn't find any free %s. Choose another home planet type.\n",
-	    planet_print_name[race.home_planet_type]);
+            "Didn't find any free %s. Choose another home planet type.\n",
+            planet_print_name[race.home_planet_type]);
     close_data_files();
     race.status = STATUS_UNENROLLABLE;
 
@@ -299,7 +299,7 @@ void found_planet(int playernum, int star, int pnum)
     Race->governor[0].active = 1;
 
     for (i = 0; i <= OTHER; ++i) {
-	Race->conditions[i] = planet->conditions[i];
+        Race->conditions[i] = planet->conditions[i];
     }
 
 #if 0
@@ -309,25 +309,25 @@ void found_planet(int playernum, int star, int pnum)
      * difference between planet and race
      */
     for (i = 0; i <= OTHER; ++i) {
-	Race->conditions[j] = planet->conditions[i]
-	    + int_rand(round_rand(-planet->conditions[i] * 2.0),
-		       round_rand(planet->conditions[i] * 2.0));
+        Race->conditions[j] = planet->conditions[i]
+            + int_rand(round_rand(-planet->conditions[i] * 2.0),
+                       round_rand(planet->conditions[i] * 2.0));
     }
 #endif
 
     for (i = 0; i < MAXPLAYERS; ++i) {
-	/*
-	 * Message from autoreport, player #1 are decodable
-	 */
-	if ((i == playernum) || (playernum == 1) || Race->God) {
-	    /*
-	     * You can talk to own race
-	     */
-	    Race->translate[i - 1] = 100;
-	}
-	else {
-	    Race->translate[i - 1] = 1;
-	}
+        /*
+         * Message from autoreport, player #1 are decodable
+         */
+        if ((i == playernum) || (playernum == 1) || Race->God) {
+            /*
+             * You can talk to own race
+             */
+            Race->translate[i - 1] = 100;
+        }
+        else {
+            Race->translate[i - 1] = 1;
+        }
     }
 
 #if 0
@@ -336,7 +336,7 @@ void found_planet(int playernum, int star, int pnum)
      * memset to 0 prior.
      */
     for (i = 0; i < 80; ++i) {
-	Race->discoverables[i] = 0;
+        Race->discoverables[i] = 0;
     }
 
     Race->tech = 0.0;
@@ -348,7 +348,7 @@ void found_planet(int playernum, int star, int pnum)
     Race->atwar[0] = Race->atwar[1];
 
     for (i = 0; i < MAXPLAYERS; ++i) {
-	Race->points[i] = 0;
+        Race->points[i] = 0;
     }
 #endif
 
@@ -362,9 +362,9 @@ void found_planet(int playernum, int star, int pnum)
     Race->fighters = race.attr[FIGHT];
 
     if (race.attr[COL_IQ] == 1.0) {
-	Race->IQ_limit = race.attr[A_IQ];
+        Race->IQ_limit = race.attr[A_IQ];
     } else {
-	Race->IQ = race.attr[A_IQ];
+        Race->IQ = race.attr[A_IQ];
     }
 
     Race->number_sexes = race.attr[SEXES];
@@ -375,15 +375,15 @@ void found_planet(int playernum, int star, int pnum)
     Race->metabolism = race.attr[METAB];
 
     /*
-     * Assign sector compatabilities and determine a primary sector type.
+     * Assign sector compatibilities and determine a primary sector type.
      */
     for (i = FIRST_SECTOR_TYPE; i <= LAST_SECTOR_TYPE; ++i) {
-	Race->likes[i] = race.compat[i] / 100.0;
+        Race->likes[i] = race.compat[i] / 100.0;
 
-	if ((race.compat[i] == 100)
-	    && (planet_compat_cov[race.home_planet_type][i] == 1.0)) {
-	    Race->likesbest = i;
-	}
+        if ((race.compat[i] == 100)
+            && (planet_compat_cov[race.home_planet_type][i] == 1.0)) {
+            Race->likesbest = i;
+        }
     }
 
     /*
@@ -395,16 +395,16 @@ void found_planet(int playernum, int star, int pnum)
     i = Getxysect(planet, &x, &y, 0);
 
     while (i) {
-	if (Sector(*planet, x, y).condition == Race->likesbest) {
-	    break;
-	}
+        if (Sector(*planet, x, y).condition == Race->likesbest) {
+            break;
+        }
 
-	i = Getxysect(planet, &x, &y, 0);
+        i = Getxysect(planet, &x, &y, 0);
     }
 
     if (!i) {
-	y = 0;
-	x = 0;
+        y = 0;
+        x = 0;
     }
 
     sect = &Sector(*planet, x, y);
@@ -415,9 +415,9 @@ void found_planet(int playernum, int star, int pnum)
     sect->troops = 0;
 
     if (ADAM_AND_EVE) {
-	sect->popn = Race->number_sexes;
+        sect->popn = Race->number_sexes;
     } else {
-	sect->popn = 0;
+        sect->popn = 0;
     }
 
     /*
@@ -433,15 +433,15 @@ void found_planet(int playernum, int star, int pnum)
      * planet->info[playernum - 1].autorep = 1;
      */
     planet->maxpopn =
-	((maxsupport(race, sect, 100.0, 0) * planet->Maxx) * planet->Maxy) / 2;
+        ((maxsupport(race, sect, 100.0, 0) * planet->Maxx) * planet->Maxy) / 2;
     planet->popn = sect->popn;
 
 #ifdef STARTING_INVENTROY
     if (Race->Metamorph) {
-	planet->info[playernum - 1].resource +=
-	    (START_REST - START_MESO_RES_DIFF);
+        planet->info[playernum - 1].resource +=
+            (START_REST - START_MESO_RES_DIFF);
     } else {
-	planet->info[playernum - 1].resource += START_REST;
+        planet->info[playernum - 1].resource += START_REST;
     }
 
     planet->info[playernum - 1].fuel += START_FUEL;
@@ -467,12 +467,12 @@ void found_planet(int playernum, int star, int pnum)
      */
 
     printf("Player %d (%s) created on sector %d,%d on %s/%s.\n",
-	   playernum,
-	   race.name,
-	   x,
-	   y,
-	   Stars[star]->name,
-	   Stars[star]->pnames[pnum]);
+           playernum,
+           race.name,
+           x,
+           y,
+           Stars[star]->name,
+           Stars[star]->pnames[pnum]);
     race.status = STATUS_ENROLLED;
 
     free(planet);

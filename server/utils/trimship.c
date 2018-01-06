@@ -63,24 +63,24 @@ int main(int argc, char *argv[])
     ship_fd = open(DATAFILE, 000, 0777);
 
     if (ship_fd < 0) {
-	perror("main");
-	printf("Unable to open %s\n", DATAFILE);
+        perror("main");
+        printf("Unable to open %s\n", DATAFILE);
 
-	exit(-1);
+        exit(-1);
     }
 
     if (argc != 2) {
-	fprintf(stderr, "usage: %s <shipnum>\n", argv[0]);
+        fprintf(stderr, "usage: %s <shipnum>\n", argv[0]);
 
-	exit(1);
+        exit(1);
     }
 
     cutoff = atoi(argv[1]);
     slist = malloc(sizeof(shiptype *) *cutoff);
 
     for (i = 0; i < cutoff; ++i) {
-	slist[i] = malloc(sizeof(shiptype));
-	file_read(ship_fd, slist[i], sizeof(shiptype), (i * sizeof(shiptype)));
+        slist[i] = malloc(sizeof(shiptype));
+        file_read(ship_fd, slist[i], sizeof(shiptype), (i * sizeof(shiptype)));
     }
 
     close(ship_fd);
@@ -88,20 +88,20 @@ int main(int argc, char *argv[])
     ship_fd = open(DATAFILE, OWRONLY | O_TRUNC, 0777);
 
     if (ship_fd < 0) {
-	perror("main");
-	printf("unable to open %s\n", DATAFILE);
+        perror("main");
+        printf("unable to open %s\n", DATAFILE);
 
-	exit(-1);
+        exit(-1);
     }
 
     for (i = 0; i < cutoff; ++i) {
-	file_write(ship_fd, slist[i], sizeof(shiptype), (i * sizeof(shiptype)));
+        file_write(ship_fd, slist[i], sizeof(shiptype), (i * sizeof(shiptype)));
     }
 
     close(ship_fd);
 
     for (i = 0; i < cutoff; ++i) {
-	free(slist[i]);
+        free(slist[i]);
     }
 
     free(slist);
@@ -115,19 +115,19 @@ int file_read(int fd, shiptype *p, unsigned int num, int posn)
     char buf[1024];
 
     if (lseek(fd, posn, L_SET) < 0) {
-	sprintf(buf, "file_read seek");
-	perror(buf);
+        sprintf(buf, "file_read seek");
+        perror(buf);
 
-	return FAIL;
+        return FAIL;
     }
 
     n2 = read(fd, p, num);
 
     if (n2 != num) {
-	sprintf(buf, "file_read read");
-	perror(buf);
+        sprintf(buf, "file_read read");
+        perror(buf);
 
-	return FAIL;
+        return FAIL;
     }
 
     return SUCCESS;
@@ -139,15 +139,15 @@ void file_write(int fd, shipttype const *p, unsigned int num, int pos)
     char errmsg[1024];
 
     if (lseek(fd, posn, L_SET) < 0) {
-	sprintf(errmsg, "file_write seek");
-	perror(errmsg);
+        sprintf(errmsg, "file_write seek");
+        perror(errmsg);
 
-	return;
+        return;
     }
 
     n2 = write(fd, p, num);
 
     if (n2 != num) {
-	perror("file_write write");
+        perror("file_write write");
     }
 }

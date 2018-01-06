@@ -55,9 +55,9 @@ int main(int argc, char *argv[])
     scan_stars(stdin);
 
     if (nstars == 0) {
-	fprintf(stderr, "No stars\n");
+        fprintf(stderr, "No stars\n");
     } else {
-	produce_postscript();
+        produce_postscript();
     }
 
     return 0;
@@ -72,24 +72,24 @@ int scan_stars(FILE *fin)
     nstars = 0;
 
     while (fgets(line, 200, fin) != NULL) {
-	if (sscanf(line,
-		   "(%*d) %79s ( %d, %d) %d",
-		   stars[nstars].name,
-		   &stars[nstars].x,
-		   &stars[nstars].y,
-		   &distance) == 4) {
-	    if (highlight_home && (distance == 0)) {
-		highlighted_star = nstars;
-	    }
+        if (sscanf(line,
+                   "(%*d) %79s ( %d, %d) %d",
+                   stars[nstars].name,
+                   &stars[nstars].x,
+                   &stars[nstars].y,
+                   &distance) == 4) {
+            if (highlight_home && (distance == 0)) {
+                highlighted_star = nstars;
+            }
 
-	    ++nstars;
+            ++nstars;
 
-	    if (!in_stars) {
-		in_stars = 1;
-	    }
-	} else if (in_stars) {
-	    break;
-	}
+            if (!in_stars) {
+                in_stars = 1;
+            }
+        } else if (in_stars) {
+            break;
+        }
     }
 
     return 1;
@@ -111,21 +111,21 @@ int produce_postscript(void)
     min_y = max_y;
 
     for (i = 1; i < nstars; ++i) {
-	if (stars[i].x < min_x) {
-	    min_x = stars[i].x;
-	}
+        if (stars[i].x < min_x) {
+            min_x = stars[i].x;
+        }
 
-	if (stars[i].x > max_x) {
-	    max_x = stars[i].x;
-	}
+        if (stars[i].x > max_x) {
+            max_x = stars[i].x;
+        }
 
-	if (stars[i].y < min_y) {
-	    min_y = stars[i].y;
-	}
+        if (stars[i].y < min_y) {
+            min_y = stars[i].y;
+        }
 
-	if (stars[i].y > max_y) {
-	    max_y = stars[i].y;
-	}
+        if (stars[i].y > max_y) {
+            max_y = stars[i].y;
+        }
     }
 
     /*
@@ -139,7 +139,7 @@ int produce_postscript(void)
     nscale = (10.0 * 72) / (max_y - min_y);
 
     if (nscale < scale) {
-	scale = nscale;
+        scale = nscale;
     }
 
     printf("%%!PS-Adobe-2.0\n\n");
@@ -165,27 +165,27 @@ int produce_postscript(void)
     printf("0 setlinewidth\n");
     printf("newpath -10 10 moveto 7.5 72 mul 10 add 10 lineto\n");
     printf("7.5 72 mul 10 add %d lineto -10 %d lineto closepath clip\n",
-	   (int)((min_y - max_y) * scale) - 10,
-	   (int)((min_y - max_y) * scale) - 10);
+           (int)((min_y - max_y) * scale) - 10,
+           (int)((min_y - max_y) * scale) - 10);
 
     if ((highlighted_star >= 0) && (highlighted_star < nstars)) {
-	printf("\n/Times-Bold findfont 9 scalefont setfont\n\n");
-	draw_star(stars + highlighted_star, min_x, min_y, scale);
+        printf("\n/Times-Bold findfont 9 scalefont setfont\n\n");
+        draw_star(stars + highlighted_star, min_x, min_y, scale);
 
-	for (i = 1; i <= nrings; ++i) {
-	    printf("%d %d %d drawcircle\n",
-		   (int)((stars[highlighted_star].x - min_x) * scale),
-		   (int)((min_y - stars[highlighted_star].y) * scale),
-		   (int)(i * ring_spacing * scale));
-	}
+        for (i = 1; i <= nrings; ++i) {
+            printf("%d %d %d drawcircle\n",
+                   (int)((stars[highlighted_star].x - min_x) * scale),
+                   (int)((min_y - stars[highlighted_star].y) * scale),
+                   (int)(i * ring_spacing * scale));
+        }
     }
 
     printf("\n/Times-Roman findfont 8 scalefont setfont\n\n");
 
     for (i = 0; i < nstars; ++i) {
-	if (i != highlighted_star) {
-	    draw_star(stars + i, min_x, min_y, scale);
-	}
+        if (i != highlighted_star) {
+            draw_star(stars + i, min_x, min_y, scale);
+        }
     }
 
     printf("\nshowpage\n");
@@ -196,9 +196,9 @@ int produce_postscript(void)
 int draw_star(struct star *star, int min_x, int min_y, double scale)
 {
     printf("%d %d (%s) drawstar\n",
-	   (int)((star->x - min_x) * scale),
-	   (int)((min_y - star_y) * scale),
-	   star->name);
+           (int)((star->x - min_x) * scale),
+           (int)((min_y - star_y) * scale),
+           star->name);
 
     return 1;
 }

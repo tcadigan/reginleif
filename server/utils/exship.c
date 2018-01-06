@@ -117,42 +117,42 @@ int main(int argc, char *argv[])
     ship_fd = open(DATA_FILE, 000, 0777);
 
     if (ship_fd < 0) {
-	perror("main");
-	printf("Unable to open %s\n", DATAFILE);
+        perror("main");
+        printf("Unable to open %s\n", DATAFILE);
 
-	exit(-1);
+        exit(-1);
     }
 
     check_size();
 
     if (argc == 1) {
-	/*
-	 * Check the whole database for errors
-	 */
-	for (i = 1; i <= num_ships; ++i) {
-	    readship(&display, i);
-	    check_ship(i);
-	    free(display);
-	}
+        /*
+         * Check the whole database for errors
+         */
+        for (i = 1; i <= num_ships; ++i) {
+            readship(&display, i);
+            check_ship(i);
+            free(display);
+        }
 
-	printf("I found a total of %d bad ships out of %d\n",
-	       bad_ship_count,
-	       num_ships);
+        printf("I found a total of %d bad ships out of %d\n",
+               bad_ship_count,
+               num_ships);
     } else if (!atoi(argv[1])) {
-	/*
-	 * A summary of all ships
-	 */
-	for (i = 1; i <= num_ships; ++i) {
-	    readship(&display, i);
-	    summarize_ship();
-	    free(display);
-	}
+        /*
+         * A summary of all ships
+         */
+        for (i = 1; i <= num_ships; ++i) {
+            readship(&display, i);
+            summarize_ship();
+            free(display);
+        }
     } else {
-	/*
-	 * We want a specific ship display
-	 */
-	readship(&display, atoi(argv[1]));
-	display_ship();
+        /*
+         * We want a specific ship display
+         */
+        readship(&display, atoi(argv[1]));
+        display_ship();
     }
 
     printf("All done\n");
@@ -174,27 +174,27 @@ void readship(shiptype **s, int shipnum)
     int n;
 
     if (shipnum <= 0) {
-	exit(1);
+        exit(1);
     }
 
     *s = (shiptype *)malloc(sizeof(shiptype));
 
     if (*s == 0) {
-	printf("readship: malloc() error\n");
+        printf("readship: malloc() error\n");
 
-	exit(0);
+        exit(0);
     }
 
     if (lseek(ship_fd, (shipnum - 1) * sizeof(shiptype), L_SET) < 0) {
-	perror("lseek");
+        perror("lseek");
 
-	exit(1);
+        exit(1);
     }
 
     n = read(ship_fd, (char *)*s, sizeof(shiptype));
 
     if (n != sizeof(shiptype)) {
-	perror("read");
+        perror("read");
     }
 }
 
@@ -236,154 +236,154 @@ void check_ship(int idx)
     int hanger = 1;
 
     if ((display->owner == 0)
-	&& (display->governor == 0)
-	&& (display->type == 0)
-	&& (display->number == 0)) {
-	++bad_ship_count;
-	printf("Uninitialized ship in position %d\n", idx);
+        && (display->governor == 0)
+        && (display->type == 0)
+        && (display->number == 0)) {
+        ++bad_ship_count;
+        printf("Uninitialized ship in position %d\n", idx);
 
-	return;
+        return;
     }
 
     if (display->type == OTYPE_FACTORY) {
-	if (display->popn > Shipdata[display->type][ABIL_MAXCREW]) {
-	    pop = 0;
-	    ship_ok = pop;
-	}
+        if (display->popn > Shipdata[display->type][ABIL_MAXCREW]) {
+            pop = 0;
+            ship_ok = pop;
+        }
 
-	if (dsiplay->troops > Shipdata[display->type][ABIL_MAXCREW]) {
-	    troops = 0;
-	    ship_ok = troops;
-	}
+        if (dsiplay->troops > Shipdata[display->type][ABIL_MAXCREW]) {
+            troops = 0;
+            ship_ok = troops;
+        }
 
-	if ((display->popn + display->troops) > Shipdata[display-type][ABIL_MAXCREW]) {
-	    troops = 0;
-	    pop = troops;
-	    ship_ok = pop;
-	}
+        if ((display->popn + display->troops) > Shipdata[display-type][ABIL_MAXCREW]) {
+            troops = 0;
+            pop = troops;
+            ship_ok = pop;
+        }
     } else {
-	if (display->popn > display->max_crew) {
-	    pop = 0;
-	    ship_ok = pop;
-	}
+        if (display->popn > display->max_crew) {
+            pop = 0;
+            ship_ok = pop;
+        }
 
-	if (display->troops > display->max_crew) {
-	    troops = 0;
-	    ship_ok = troops;
-	}
+        if (display->troops > display->max_crew) {
+            troops = 0;
+            ship_ok = troops;
+        }
 
-	if ((display->popn + display->troops) > display->max_crew) {
-	    troops = 0;
-	    pop = troops;
-	    ship_ok = pop;
-	}
+        if ((display->popn + display->troops) > display->max_crew) {
+            troops = 0;
+            pop = troops;
+            ship_ok = pop;
+        }
     }
 
     if ((display->resource > Max_resource(display))
-	&& (display->type != STYPE_SHUTTLE)) {
-	res = 0;
-	ship_ok = res;
+        && (display->type != STYPE_SHUTTLE)) {
+        res = 0;
+        ship_ok = res;
     }
 
     if (display->destruct > Max_destruct(display)) {
-	des = 0;
-	ship_ok = des;
+        des = 0;
+        ship_ok = des;
     }
 
     if ((int)display->fuel > Max_fuel(display)) {
-	fu = 0;
-	ship_ok = fu;
+        fu = 0;
+        ship_ok = fu;
     }
 
     if (display->speed > Max_speed(display)) {
-	speed = 0;
-	ship_ok = speed;
+        speed = 0;
+        ship_ok = speed;
     }
 
     if (display->hanger > display->max_hanger) {
-	hanger = 0;
-	ship_ok = hanger;
+        hanger = 0;
+        ship_ok = hanger;
     }
 
     if (!ship_ok) {
-	++bad_ship_count;
+        ++bad_ship_count;
 
-	printf("Problem with ship number %d\n", display->number);
-	printf("\t\tOwner: %d\n", display->owner);
-	printf("\t\tGovernor: %d\n", display->governor);
-	printf("\t\tName: %s\n", display->name);
-	printf("\t\tType: %c\n", Shipltrs[display->type]);
-	printf("\n");
+        printf("Problem with ship number %d\n", display->number);
+        printf("\t\tOwner: %d\n", display->owner);
+        printf("\t\tGovernor: %d\n", display->governor);
+        printf("\t\tName: %s\n", display->name);
+        printf("\t\tType: %c\n", Shipltrs[display->type]);
+        printf("\n");
 
-	if (pop) {
-	    printf("\t        popn: %d\t max_popn: %d\n",
-		   display->popn,
-		   display->max_crew);
-	} else {
-	    printf("\t -----> popn: %d\t max_pop: %d\n",
-		   display->popn,
-		   display->max_crew);
-	}
+        if (pop) {
+            printf("\t        popn: %d\t max_popn: %d\n",
+                   display->popn,
+                   display->max_crew);
+        } else {
+            printf("\t -----> popn: %d\t max_pop: %d\n",
+                   display->popn,
+                   display->max_crew);
+        }
 
-	if (troops) {
-	    printf("\t        troops: %d\t max_troops: %d\n",
-		   display->troops,
-		   display->max_crew);
-	} else {
-	    printf("\t -----> troops: %d\t max_troops: %d\n",
-		   display->troops,
-		   display->max_crew);
-	}
+        if (troops) {
+            printf("\t        troops: %d\t max_troops: %d\n",
+                   display->troops,
+                   display->max_crew);
+        } else {
+            printf("\t -----> troops: %d\t max_troops: %d\n",
+                   display->troops,
+                   display->max_crew);
+        }
 
-	if (res) {
-	    printf("\t        resources: %d\t max_resources: %d\n",
-		   display->resource,
-		   display->max_resources);
-	} else {
-	    printf("\t -----> resources: %d\t max_resources: %d\n",
-		   display->resource,
-		   display->max_resources);
-	}
+        if (res) {
+            printf("\t        resources: %d\t max_resources: %d\n",
+                   display->resource,
+                   display->max_resources);
+        } else {
+            printf("\t -----> resources: %d\t max_resources: %d\n",
+                   display->resource,
+                   display->max_resources);
+        }
 
-	if (des) {
-	    printf("\t        destruct: %d\t max_destruct: %d\n",
-		   display->destruct,
-		   display->max_destruct);
-	} else {
-	    printf("\t -----> destruct: %d\t max_destruct: %d\n",
-		   display->destruct,
-		   display->max_destruct);
-	}
+        if (des) {
+            printf("\t        destruct: %d\t max_destruct: %d\n",
+                   display->destruct,
+                   display->max_destruct);
+        } else {
+            printf("\t -----> destruct: %d\t max_destruct: %d\n",
+                   display->destruct,
+                   display->max_destruct);
+        }
 
-	if (fu) {
-	    printf("\t        fuel: %d\t max_fuel: %d\n",
-		   (int)display->fuel,
-		   (int)display->max_fuel);
-	} else {
-	    printf("\t -----> fuel: %d\t max_fuel: %d\n",
-		   (int)display->fuel,
-		   (int)display->max_fuel);
-	}
+        if (fu) {
+            printf("\t        fuel: %d\t max_fuel: %d\n",
+                   (int)display->fuel,
+                   (int)display->max_fuel);
+        } else {
+            printf("\t -----> fuel: %d\t max_fuel: %d\n",
+                   (int)display->fuel,
+                   (int)display->max_fuel);
+        }
 
-	if (speed) {
-	    printf("\t        speed: %d\t max_speed: %d\n",
-		   display->speed,
-		   display->max_speed);
-	} else {
-	    printf("\t -----> speed: %d\t max_speed: %d\n",
-		   display->speed,
-		   display->max_speed);
-	}
+        if (speed) {
+            printf("\t        speed: %d\t max_speed: %d\n",
+                   display->speed,
+                   display->max_speed);
+        } else {
+            printf("\t -----> speed: %d\t max_speed: %d\n",
+                   display->speed,
+                   display->max_speed);
+        }
 
-	if (hanger) {
-	    printf("\t        hanger: %d\t max_hanger: %d\n",
-		   display->hanger,
-		   display->max_hanger);
-	} else {
-	    printf("\t -----> hanger: %d\t max_hanger: %d\n",
-		   display->hanger,
-		   display->max_hanger);
-	}
+        if (hanger) {
+            printf("\t        hanger: %d\t max_hanger: %d\n",
+                   display->hanger,
+                   display->max_hanger);
+        } else {
+            printf("\t -----> hanger: %d\t max_hanger: %d\n",
+                   display->hanger,
+                   display->max_hanger);
+        }
     }
 }
 
@@ -441,26 +441,26 @@ void display_ship(void)
     printf("Guns:\tPrimary: %-3d", display->primary);
 
     if (display->primtype == LIGHT) {
-	printf("L");
+        printf("L");
     } else if (display->primtype == MEDIUM) {
-	printf("M");
+        printf("M");
     } else if (display->primtype == HEAVY) {
-	printf("H");
+        printf("H");
     } else {
-	printf("N");
+        printf("N");
     }
 
     printf("\n");
     printf("     \tSecondary:  %-3d", display->secondary);
 
     if (display->sectype == LIGHT) {
-	printf("L");
+        printf("L");
     } else if (display->sectype == MEDIUM) {
-	printf("M");
+        printf("M");
     } else if (display->sectype == HEAVY) {
-	printf("H");
+        printf("H");
     } else {
-	printf("N");
+        printf("N");
     }
 
     printf("\n");
@@ -470,38 +470,38 @@ void display_ship(void)
      */
     printf("\n");
     printf("Fleet: %d (%c)  Next in Fleet: %d\n",
-	   display->fleetmember,
-	   display->fleetmember + ('A' - 1),
-	   display->nextinfleet);
+           display->fleetmember,
+           display->fleetmember + ('A' - 1),
+           display->nextinfleet);
 
 #ifdef USE_VN
     /*
      * VN mind output -mfw
      */
     if((display->type == OTYPE_VN) || (display->type == OTYPE_BERS)) {
-	printf("\nVon Neumann Mind:\n");
-	printf("\tProgenitor: %-3u  Generation: %-3u\n",
-	       display->special.mind.progenitor,
-	       display->special.mind.generation);
-	printf("\tBusy: %-3u        Target: %-3u\n",
-	       display->special.mind.busy,
-	       display->special.mind.target);
-	printf("\tWho Killed: %-3u  Tampered: %-3u\n",
-	       display->special.mind.who_killed,
-	       display->special.mind.tampered);
+        printf("\nVon Neumann Mind:\n");
+        printf("\tProgenitor: %-3u  Generation: %-3u\n",
+               display->special.mind.progenitor,
+               display->special.mind.generation);
+        printf("\tBusy: %-3u        Target: %-3u\n",
+               display->special.mind.busy,
+               display->special.mind.target);
+        printf("\tWho Killed: %-3u  Tampered: %-3u\n",
+               display->special.mind.who_killed,
+               display->special.mind.tampered);
     }
 #endif
 
     printf("\nShips: %-6d\n", display->ships);
 
     if (display->alive) {
-	printf("Nextship: %-6d\t (ALIVE) Reuse=%d\n",
-	       display->nextship,
-	       display->reuse);
+        printf("Nextship: %-6d\t (ALIVE) Reuse=%d\n",
+               display->nextship,
+               display->reuse);
     } else {
-	printf("Nextship: %-6d\t (DEAD) Reuse=%d\n",
-	       display->nextship,
-	       display->reuse);
+        printf("Nextship: %-6d\t (DEAD) Reuse=%d\n",
+               display->nextship,
+               display->reuse);
     }
 }
 
@@ -517,21 +517,21 @@ void display_ship(void)
 void summarize_ship(void)
 {
     printf("#%d %c [%d,%d] ",
-	   display->number,
-	   Shipltrs[display->type],
-	   display->owner,
-	   display->governor);
+           display->number,
+           Shipltrs[display->type],
+           display->owner,
+           display->governor);
 
     if (display->alive) {
-	printf("alive ");
+        printf("alive ");
     } else {
-	printf("dead ");
+        printf("dead ");
     }
 
     if (display->reuse) {
-	printf("reuse %d", display->age);
+        printf("reuse %d", display->age);
     } else {
-	printf("%d", display->age);
+        printf("%d", display->age);
     }
 
     printf("\n");

@@ -150,45 +150,45 @@ void PrintStatistics(FILE *outputtxt)
     fprintf(outputtxt, "A/Sec\n");
 
     for (i = 0; i < (TYPE_DESERT + 1); ++i) {
-	fprintf(outputtxt, "%3.3s%4d ", Nametypes[i], Numtypes[i]);
+        fprintf(outputtxt, "%3.3s%4d ", Nametypes[i], Numtypes[i]);
 
-	if (i < (TYPE_DESERT + 1)) {
-	    Numtypes[TYPE_DESERT = 1] += Numtypes[i];
+        if (i < (TYPE_DESERT + 1)) {
+            Numtypes[TYPE_DESERT = 1] += Numtypes[i];
 
-	    for (j = 0; j < PLATED; ++j) {
-		fprintf(outputtxt, "%5d", Numsects[i][j]);
-		Numsects[i][PLATED] += Numsects[i][j];
+            for (j = 0; j < PLATED; ++j) {
+                fprintf(outputtxt, "%5d", Numsects[i][j]);
+                Numsects[i][PLATED] += Numsects[i][j];
 
-		if (i <= TYPE_DESERT) {
-		    Numsects[TYPES_DESERT + 1][j] += Numsects[i][j];
-		}
-	    }
-	} else {
-	    for (j = 0; j < PLATED; ++j) {
-		Numsects[i][PLATED] += Numsects[i][j];
+                if (i <= TYPE_DESERT) {
+                    Numsects[TYPES_DESERT + 1][j] += Numsects[i][j];
+                }
+            }
+        } else {
+            for (j = 0; j < PLATED; ++j) {
+                Numsects[i][PLATED] += Numsects[i][j];
 
-	    }
+            }
 
-	    for (j = 0; j < PLATED; ++j) {
-		fprintf(outputtxt,
-			"%5.1f",
-			(100.0 * (float)Numsects[i][j])
-			/ (float)Numsects[i][PLATED]);
-	    }
-	}
+            for (j = 0; j < PLATED; ++j) {
+                fprintf(outputtxt,
+                        "%5.1f",
+                        (100.0 * (float)Numsects[i][j])
+                        / (float)Numsects[i][PLATED]);
+            }
+        }
 
-	fprintf(outputtxt,
-		"%6d %5.1f",
-		Numsects[i][PLATED],
-		(float)Numsects[i][PLATED] / (float)Numtypes[i]);
+        fprintf(outputtxt,
+                "%6d %5.1f",
+                Numsects[i][PLATED],
+                (float)Numsects[i][PLATED] / (float)Numtypes[i]);
 
-	fprintf(outputtxt,
-		"%8d %7.1f %5.1f\n",
-		Resource[i],
-		(double)Resource[i] / Numtypes[i],
-		(double)Resource[i] / Numsects[i][PLATED]);
+        fprintf(outputtxt,
+                "%8d %7.1f %5.1f\n",
+                Resource[i],
+                (double)Resource[i] / Numtypes[i],
+                (double)Resource[i] / Numsects[i][PLATED]);
 
-	Resource[TYPE_DESERT + 1] += Resource[i];
+        Resource[TYPE_DESERT + 1] += Resource[i];
     }
 
     fprintf(outputtxt, "\nAverage Sector Fertility -\n");
@@ -206,27 +206,27 @@ void PrintStatistics(FILE *outputtxt)
     fprintf(outputtxt, "/Sect\n");
 
     for (i = 0; i <= (TYPE_DESERT + 1); ++i) {
-	fprintf(outputtxt, "%3.3s%4d ", Nametypes[i], Numtypes[i]);
-	y = 0;
+        fprintf(outputtxt, "%3.3s%4d ", Nametypes[i], Numtypes[i]);
+        y = 0;
 
-	for (j = 0; j < PLATED; ++j) {
-	    if (Numsects[i][j]) {
-		fprintf(outputtxt,
-			"%5.1f",
-			(double)Fertsects[i][j] / Numsects[i][j]);
-	    } else {
-		fprintf(outputtxt, "    -");
-	    }
+        for (j = 0; j < PLATED; ++j) {
+            if (Numsects[i][j]) {
+                fprintf(outputtxt,
+                        "%5.1f",
+                        (double)Fertsects[i][j] / Numsects[i][j]);
+            } else {
+                fprintf(outputtxt, "    -");
+            }
 
-	    y += Fertsects[i][j];
-	    Fertsects[TYPE_DESERT + 1][j] += Fertsects[i][j];
-	}
+            y += Fertsects[i][j];
+            Fertsects[TYPE_DESERT + 1][j] += Fertsects[i][j];
+        }
 
-	fprintf(outputtxt,
-		"%8 %7.1f %5.1f\n",
-		y,
-		(1.0 * y) / Numtypes[i],
-		(1.0 * y) / Numsects[i][PLATED]);
+        fprintf(outputtxt,
+                "%8 %7.1f %5.1f\n",
+                y,
+                (1.0 * y) / Numtypes[i],
+                (1.0 * y) / Numsects[i][PLATED]);
     }
 }
 
@@ -238,62 +238,62 @@ int ReadNameList(char ss[1000][20], int n, int m, char const *filename)
     FILE *f = fopen(filename, "r");
 
     if (f == NULL) {
-	printf("Unable to open \"%s\"\n", filename);
+        printf("Unable to open \"%s\"\n", filename);
 
-	return -1;
+        return -1;
     }
 
     for (i = 0; i < n; ++i) {
-	flag = 0;
+        flag = 0;
 
-	for (j = 0; j < m; ++j) {
-	    ss[i][j] = getc(f);
+        for (j = 0; j < m; ++j) {
+            ss[i][j] = getc(f);
 
-	    if (ss[i][j] == '\n') {
-		/*
-		 * This check is here to prevent empty string for name. If there
-		 * is an empty string, put 'Q' for name, otherwise cut the
-		 * string setting last char to '\0' /Gardan 4.6.97
-		 */
-		if (j != 0) {
-		    ss[i][j] = '\0';
-		} else {
-		    /*
-		     * Empty text lines cause problems!
-		     * scrolli
-		     */
-		    fclose(f);
-		    printf("%d names listed in %s\n", i, filename);
+            if (ss[i][j] == '\n') {
+                /*
+                 * This check is here to prevent empty string for name. If there
+                 * is an empty string, put 'Q' for name, otherwise cut the
+                 * string setting last char to '\0' /Gardan 4.6.97
+                 */
+                if (j != 0) {
+                    ss[i][j] = '\0';
+                } else {
+                    /*
+                     * Empty text lines cause problems!
+                     * scrolli
+                     */
+                    fclose(f);
+                    printf("%d names listed in %s\n", i, filename);
 
-		    return i;
-		}
+                    return i;
+                }
 
-		flag = 1;
+                flag = 1;
 
-		break;
-	    } else if (!isprint((unsigned char)ss[i][j])) {
-		fclose(f);
-		printf("%d names listed in %s\n", i, filename);
+                break;
+            } else if (!isprint((unsigned char)ss[i][j])) {
+                fclose(f);
+                printf("%d names listed in %s\n", i, filename);
 
-		return i;
-	    }
-	}
+                return i;
+            }
+        }
 
-	if (!flag) {
-	    ss[i][j] = '\0';
-	    j = getc(f);
+        if (!flag) {
+            ss[i][j] = '\0';
+            j = getc(f);
 
-	    while (j != '\n') {
-		if (EOF == j) {
-		    fclose(f);
-		    printf("%d names listed in %s\n", i, filename);
+            while (j != '\n') {
+                if (EOF == j) {
+                    fclose(f);
+                    printf("%d names listed in %s\n", i, filename);
 
-		    return i;
-		}
+                    return i;
+                }
 
-		j = getc(f);
-	    }
-	}
+                j = getc(f);
+            }
+        }
     }
 
     fclose(f);
@@ -315,36 +315,36 @@ void rand_list(int n, int *list)
     short ii;
 
     for (i = 0; i <= n; ++i) {
-	nums[i] = 0;
+        nums[i] = 0;
     }
 
     for (j = 0; j <= n; ++j) {
-	k = int_rand(0, n);
-	i = k;
+        k = int_rand(0, n);
+        i = k;
 
-	while (nums[k] != 0) {
-	    k += nums[k];
-	}
+        while (nums[k] != 0) {
+            k += nums[k];
+        }
 
-	list[j] = k;
+        list[j] = k;
 
-	if (k == n) {
-	    nums[k] = -n;
-	    kk = 0;
-	} else {
-	    nums[k] = 1;
-	    kk = k + 1;
-	}
+        if (k == n) {
+            nums[k] = -n;
+            kk = 0;
+        } else {
+            nums[k] = 1;
+            kk = k + 1;
+        }
 
-	/*
-	 * K is now the next position in the list after the most recent number.
-	 * Go through the list, make each pointer point to k.
-	 */
-	while (i != k) {
-	    ii = i + nums[i];
-	    nums[i] = kk - 1;
-	    i = ii;
-	}
+        /*
+         * K is now the next position in the list after the most recent number.
+         * Go through the list, make each pointer point to k.
+         */
+        while (i != k) {
+            ii = i + nums[i];
+            nums[i] = kk - 1;
+            i = ii;
+        }
     }
 }
 
@@ -354,7 +354,7 @@ void Makeplanet_init(void)
     rand_list(numplist, planet_list);
 
     if (numplist < 0) {
-	exit(0);
+        exit(0);
     }
 
     namepcount = 0;
@@ -363,15 +363,15 @@ void Makeplanet_init(void)
 char const *NextPlanetName(int i)
 {
     static const char *Numbers = {
-	"1", "2", "3", "4", "5", "6", "7", "8",
-	"9", "10", "11", "12", "13", "14", "15"
+        "1", "2", "3", "4", "5", "6", "7", "8",
+        "9", "10", "11", "12", "13", "14", "15"
     };
 
     if (autoname_plan && (namepcount < numplist)) {
-	++namepcount;
-	return PNames[planet_list[namepcount - 1]];
+        ++namepcount;
+        return PNames[planet_list[namepcount - 1]];
     } else {
-	return Numbers[i];
+        return Numbers[i];
     }
 }
 
@@ -381,7 +381,7 @@ void Makestar_init(void)
     rand_list(numslist, star_list);
 
     if (numslist < 0) {
-	exit(0);
+        exit(0);
     }
 
     namestcount = 0;
@@ -393,24 +393,24 @@ char *NextStarName(void)
     int i;
 
     if (autoname_star && (namestcount <= numslist)) {
-	++namestcount;
-	return SNames[star_list[namestcount - 1]];
+        ++namestcount;
+        return SNames[star_list[namestcount - 1]];
     } else {
-	printf("Next star name:");
+        printf("Next star name:");
 
-	for (i = 0; i < (NAMESIZE - 4); ++i) {
-	    putchr('.');
-	}
+        for (i = 0; i < (NAMESIZE - 4); ++i) {
+            putchr('.');
+        }
 
-	for (i = 0; i < (NAMESIZE - 4); ++i) {
-	    /*
-	     * ^H
-	     */
-	    putchr('\010');
-	}
+        for (i = 0; i < (NAMESIZE - 4); ++i) {
+            /*
+             * ^H
+             */
+            putchr('\010');
+        }
 
-	scanf("%14[^\n]", buf);
-	getchr();
+        scanf("%14[^\n]", buf);
+        getchr();
     }
 
     return buf;
@@ -443,9 +443,9 @@ startype *Makestar(FILE *planetdata, FILE *sectordata, FILE *outputtxt)
     memset(Star, 0, sizeof(startype));
 
     Star->gravity = int_rand(0, int_rand(0, 300))
-	+ int_rand(0, 300)
-	+ int_rand(100, 400)
-	+ (int_rand(0, 9) / 10.0);
+        + int_rand(0, 300)
+        + int_rand(100, 400)
+        + (int_rand(0, 9) / 10.0);
 
     Star->temperature = round_rand(Star->gravity / 100.0);
     /*
@@ -455,13 +455,13 @@ startype *Makestar(FILE *planetdata, FILE *sectordata, FILE *outputtxt)
     place_star(Star);
 
     if (printstarinfo) {
-	fprintf(outputtxt,
-		"Star %s: position (%d, %d), gravity %1.1f, temp %d\n\n",
-		Star->name,
-		(int)Star->xpos,
-		(int)Star->ypos,
-		Star->gravity,
-		(int)Star->temperature);
+        fprintf(outputtxt,
+                "Star %s: position (%d, %d), gravity %1.1f, temp %d\n\n",
+                Star->name,
+                (int)Star->xpos,
+                (int)Star->ypos,
+                Star->gravity,
+                (int)Star->temperature);
     }
 
     /*
@@ -471,266 +471,265 @@ startype *Makestar(FILE *planetdata, FILE *sectordata, FILE *outputtxt)
      * function
      */
     if (int_rand(0, 99) > planetlesschance) {
-	Star->numplanets = int_rand(minplanets, maxplanets);
+        Star->numplanets = int_rand(minplanets, maxplanets);
     } else {
-	Star->numplanets = 0;
+        Star->numplanets = 0;
     }
 
     distmin = PLANET_DIST_MIN;
 
     for (i = 0; i < Star->numplanets; ++i) {
-	distsep = (PLANET_DIST_MAX - distmin) / (double)(Star->numplanets - i);
-	distmax = distmin + distsep;
-	dist = distmin + (double_rand() * (distmax - distmin));
-	distmin = dist;
-	temperature = Temperature(dist, Star->temperature);
+        distsep = (PLANET_DIST_MAX - distmin) / (double)(Star->numplanets - i);
+        distmax = distmin + distsep;
+        dist = distmin + (double_rand() * (distmax - distmin));
+        distmin = dist;
+        temperature = Temperature(dist, Star->temperature);
 
-	if (((temperature > 100) || (temperature < 0)) && !int_rand(0, 3)) {
-	    --i;
+        if (((temperature > 100) || (temperature < 0)) && !int_rand(0, 3)) {
+            --i;
 
-	    continue;
-	}
+            continue;
+        }
 
-	angle = 2.0 * M_PI * double_rand();
-	xpos = dist * sin(angle);
-	ypos = dist = cos(angle);
+        angle = 2.0 * M_PI * double_rand();
+        xpos = dist * sin(angle);
+        ypos = dist = cos(angle);
 
-	strcpy(Star->pnames[i], NextPlanetName(i));
+        strcpy(Star->pnames[i], NextPlanetName(i));
 
-	roll = int_rand(1, 100);
+        roll = int_rand(1, 100);
 
-	if (temperature > 400) {
-	    type = TYPE_ASTEROID;
-	} else if (temperature > 250) {
-	    if (roll <= 60) {
-		type = TYPE_MARS;
-	    } else {
-		type = TYPE_ASTEROID;
-	    }
-	} else if (temperature > 100) {
-	    /*
-	     * Gardan: new
-	     */
-	    if (roll <= 5) {
-		type = TYPE_ASTEROID;
-	    } else if (roll <= 60) {
-		type = TYPE_MARS;
-	    } else {
-		type = TYPE_DESERT;
-	    }
-	} else if (temperature > 30) {
-	    /*
-	     * Gardan: new
-	     */
-	    if (roll <= 5) {
-		type = TYPE_ASTEROID;
-	    } else if (roll <= 35) {
-		/*
-		 * Gardan: was 30
-		 */
-		type = TYPE_EARTH;
-	    } else if (roll <= 60) {
-		/*
-		 * Gardan: was 65
-		 */
-		type = TYPE_WATER;
-	    } else {
-		type = TYPE_FOREST;
-	    }
-	} else if (temperature > -1) {
-	    /*
-	     * Gardan: new
-	     */
-	    if (roll <= 5) {
-		type = TYPE_ASTEROID;
-	    } else if (roll <= 35) {
-		/*
-		 * Gardan: was 45
-		 */
-		type = TYPE_EARTH;
-	    } else if (roll <= 75) {
-		/*
-		 * Gardan: was 60
-		 */
-		type = TYPE_WATER;
-	    } else if (roll <= 90) {
-		/*
-		 * Gardan: was 80
-		 */
-		type = TYPE_FOREST;
-	    } else {
-		type = TYPE_DESERT;
-	    }
-	} else if (temperature > -50) {
-	    /*
-	     * Gardan: new
-	     */
-	    if (roll <= 5) {
-		type = TYPE_ASTEROID;
-	    } else if (roll <= 25) {
-		/*
-		 * Gardan: was 30
-		 */
-		type = TYPE_DESERT;
-	    } else if (roll <= 40) {
-		/*
-		 * Gardan: new one
-		 */
-		type = TYPE_WATER;
-	    } else if (roll <= 65) {
-		/*
-		 * Gardan: was 60
-		 */
-		type = TYPE_ICEBALL;
-	    } else if (roll <= 80) {
-		type = TYPE_FOREST;
-	    } else {
-		type = TYPE_MARS;
-	    }
-	} else if (temperature > -100) {
-	    /*
-	     * Gardan: new
-	     */
-	    if (roll <= 5) {
-		type = TYPE_ASTEROID;
-	    } else if (roll <= 40) {
-		type = TYPE_GASGIANT;
-	    } else if (roll <= 80) {
-		type = TYPE_ICEBALL;
-	    } else {
-		type = TYPE_MARS;
-	    }
-	} else {
-	    /*
-	     * Gardan: new
-	     */
-	    if (roll <= 5) {
-		type = TYPE_ASTEROID;
-	    } else if (roll <= 80) {
-		type = TYPE_ICEBALL;
-	    } else {
-		type = TYPE_GASGIANT;
-	    }
-	}
+        if (temperature > 400) {
+            type = TYPE_ASTEROID;
+        } else if (temperature > 250) {
+            if (roll <= 60) {
+                type = TYPE_MARS;
+            } else {
+                type = TYPE_ASTEROID;
+            }
+        } else if (temperature > 100) {
+            /*
+             * Gardan: new
+             */
+            if (roll <= 5) {
+                type = TYPE_ASTEROID;
+            } else if (roll <= 60) {
+                type = TYPE_MARS;
+            } else {
+                type = TYPE_DESERT;
+            }
+        } else if (temperature > 30) {
+            /*
+             * Gardan: new
+             */
+            if (roll <= 5) {
+                type = TYPE_ASTEROID;
+            } else if (roll <= 35) {
+                /*
+                 * Gardan: was 30
+                 */
+                type = TYPE_EARTH;
+            } else if (roll <= 60) {
+                /*
+                 * Gardan: was 65
+                 */
+                type = TYPE_WATER;
+            } else {
+                type = TYPE_FOREST;
+            }
+        } else if (temperature > -1) {
+            /*
+             * Gardan: new
+             */
+            if (roll <= 5) {
+                type = TYPE_ASTEROID;
+            } else if (roll <= 35) {
+                /*
+                 * Gardan: was 45
+                 */
+                type = TYPE_EARTH;
+            } else if (roll <= 75) {
+                /*
+                 * Gardan: was 60
+                 */
+                type = TYPE_WATER;
+            } else if (roll <= 90) {
+                /*
+                 * Gardan: was 80
+                 */
+                type = TYPE_FOREST;
+            } else {
+                type = TYPE_DESERT;
+            }
+        } else if (temperature > -50) {
+            /*
+             * Gardan: new
+             */
+            if (roll <= 5) {
+                type = TYPE_ASTEROID;
+            } else if (roll <= 25) {
+                /*
+                 * Gardan: was 30
+                 */
+                type = TYPE_DESERT;
+            } else if (roll <= 40) {
+                /*
+                 * Gardan: new one
+                 */
+                type = TYPE_WATER;
+            } else if (roll <= 65) {
+                /*
+                 * Gardan: was 60
+                 */
+                type = TYPE_ICEBALL;
+            } else if (roll <= 80) {
+                type = TYPE_FOREST;
+            } else {
+                type = TYPE_MARS;
+            }
+        } else if (temperature > -100) {
+            /*
+             * Gardan: new
+             */
+            if (roll <= 5) {
+                type = TYPE_ASTEROID;
+            } else if (roll <= 40) {
+                type = TYPE_GASGIANT;
+            } else if (roll <= 80) {
+                type = TYPE_ICEBALL;
+            } else {
+                type = TYPE_MARS;
+            }
+        } else {
+            /*
+             * Gardan: new
+             */
+            if (roll <= 5) {
+                type = TYPE_ASTEROID;
+            } else if (roll <= 80) {
+                type = TYPE_ICEBALL;
+            } else {
+                type = TYPE_GASGIANT;
+            }
+        }
 
-	planet = Makeplanet(dist, Star->temperature, type);
-	planet.xpos = xpos;
-	planet.ypos = ypos;
-	planet.total_resource = 0;
-	++Numtypes[type];
+        planet = Makeplanet(dist, Star->temperature, type);
+        planet.xpos = xpos;
+        planet.ypos = ypos;
+        planet.total_resource = 0;
+        ++Numtypes[type];
 
-	if (printplaninfo) {
-	    fprintf(outputtxt,
-		    "Planet %s: temp %d, type %s (%u)\n",
-		    Star->pnames[i],
-		    planet.conditions[RTEMP],
-		    Nametypes[planet.type],
-		    planet.type);
+        if (printplaninfo) {
+            fprintf(outputtxt,
+                    "Planet %s: temp %d, type %s (%u)\n",
+                    Star->pnames[i],
+                    planet.conditions[RTEMP],
+                    Nametypes[planet.type],
+                    planet.type);
 
-	    fprintf(outputtxt,
-		    "Position is (%1.0f,%1.0f) relative to %s; distance %1.0f.\n",
-		    planet.xpos,
-		    planet.ypos,
-		    Star->name,
-		    dist);
+            fprintf(outputtxt,
+                    "Position is (%1.0f,%1.0f) relative to %s; distance %1.0f.\n",
+                    planet.xpos,
+                    planet.ypos,
+                    Star->name,
+                    dist);
 
-	    fprintf(outputtxt, "sect map(%dx%d):\n", planet.Maxx, Planet.Maxy);
+            fprintf(outputtxt, "sect map(%dx%d):\n", planet.Maxx, Planet.Maxy);
 
-	    for (y = 0; y < planet.Maxy; ++y) {
-		for (x = 0; x < planet.Maxx; ++x) {
-		    switch (sector(planet, x, y).condition) {
-		    case LAND:
-			fprintf(outputtxt, "%c", CHAR_LAND);
+            for (y = 0; y < planet.Maxy; ++y) {
+                for (x = 0; x < planet.Maxx; ++x) {
+                    switch (sector(planet, x, y).condition) {
+                    case LAND:
+                        fprintf(outputtxt, "%c", CHAR_LAND);
 
-			break;
-		    case SEA:
-			fprintf(outputtxt, "%c", CHAR_SEA);
+                        break;
+                    case SEA:
+                        fprintf(outputtxt, "%c", CHAR_SEA);
 
-			break;
-		    case MOUNT:
-			fprintf(outputtxt, "%c", CHAR_MOUNT);
+                        break;
+                    case MOUNT:
+                        fprintf(outputtxt, "%c", CHAR_MOUNT);
 
-			break;
-		    case ICE:
-			fprintf(outputtxt, "%c", CHAR_ICE);
+                        break;
+                    case ICE:
+                        fprintf(outputtxt, "%c", CHAR_ICE);
 
-			break;
-		    case GAS:
-			fprintf(outputtxt, "%c", CHAR_GAS);
+                        break;
+                    case GAS:
+                        fprintf(outputtxt, "%c", CHAR_GAS);
 
-			break;
-		    case DESERT:
-			fprintf(outputtxt, "%c", CHAR_DESERT);
+                        break;
+                    case DESERT:
+                        fprintf(outputtxt, "%c", CHAR_DESERT);
 
-			break;
-		    case FOREST:
-			fprintf(outputtxt, "%c", CHAR_FOREST);
+                        break;
+                    case FOREST:
+                        fprintf(outputtxt, "%c", CHAR_FOREST);
 
-			break;
-		    case PLATED:
-			fprintf(outputtxt, "%c", CHAR_PLATED);
+                        break;
+                    case PLATED:
+                        fprintf(outputtxt, "%c", CHAR_PLATED);
 
-			break;
-		    case WASTED:
-			fprintf(outputtxt, "%c", CHAR_WASTED);
+                        break;
+                    case WASTED:
+                        fprintf(outputtxt, "%c", CHAR_WASTED);
 
-			break;
-		    case WORM:
-			fprintf(outputtxt, "%c", CHAR_WORM);
+                        break;
+                    case WORM:
+                        fprintf(outputtxt, "%c", CHAR_WORM);
 
-			break;
-		    default:
-			fprintf(outputtxt, "?");
+                        break;
+                    default:
+                        fprintf(outputtxt, "?");
 
-			break;
-		    }
-		}
+                        break;
+                    }
+                }
 
-		fprintf(outputtxt, "\n");
-	    }
+                fprintf(outputtxt, "\n");
+            }
 
-	    fprintf(outputtxt, "\n");
-	}
+            fprintf(outputtxt, "\n");
+        }
 
-	/*
-	 * Tabulate statistics for this star's planets.
-	 */
-	for (y = 0; y < planet.Maxy; ++y) {
-	    for(x = 0; x < planet.Maxx; ++x) {
-		char d = Sector(planet, x, y).condition;
-		planet.total_resource += Sector(planet, x, y).resource;
-		Resource[type] += Sector(planet, x, y).resource;
-		++Numsects[type][(unsigned int)d];
-		Fertsects[type][(unsigned int)d] += Sector(planet, x, y).fert;
-	    }
-	}
+        /*
+         * Tabulate statistics for this star's planets.
+         */
+        for (y = 0; y < planet.Maxy; ++y) {
+            for(x = 0; x < planet.Maxx; ++x) {
+                char d = Sector(planet, x, y).condition;
+                planet.total_resource += Sector(planet, x, y).resource;
+                Resource[type] += Sector(planet, x, y).resource;
+                ++Numsects[type][(unsigned int)d];
+                Fertsects[type][(unsigned int)d] += Sector(planet, x, y).fert;
+            }
+        }
 
-	Star->planetpos[i] = (int)ftell(planetdata);
+        Star->planetpos[i] = (int)ftell(planetdata);
 
-	/*
-	 * posn of file-last write
-	 */
-	/*
-	 * Sector map pos
-	 */
-	planet.sectormappos = (int)ftell(sectordata);
+        /*
+         * posn of file-last write
+         */
+        /*
+         * Sector map pos
+         */
+        planet.sectormappos = (int)ftell(sectordata);
 
-	/*
-	 * Write planet
-	 */
-	fwrite(&planet, sizeof(planettype), 1, planetdata);
+        /*
+         * Write planet
+         */
+        fwrite(&planet, sizeof(planettype), 1, planetdata);
 
-	/*
-	 * Write each sector row
-	 */
-	for (y = 0; y < planet.Maxy; ++y) {
-	    fwrite(&Sector(planet, 0, y),
-		   sizeof(sectortype),
-		   planet.Maxx,
-		   sectordata);
-	}
+        /*
+         * Write each sector row
+         */
+        for (y = 0; y < planet.Maxy; ++y) {
+            fwrite(&Sector(planet, 0, y),
+                   sizeof(sectortype),
+                   planet.Maxx,
+                   sectordata);
+        }
     }
 
     return Star;
 }
-    

@@ -321,10 +321,10 @@ planettype Makeplanet(double dist, short stemp, int type)
      * Maxy for asteroids is reduced from 3 to 2 -- Gardan
      */
     if (type == TYPE_ASTEROID) {
-	/*
-	 * Asteroids have funny shapes.
-	 */
-	planet.Maxy = int_rand(1, 2);
+        /*
+         * Asteroids have funny shapes.
+         */
+        planet.Maxy = int_rand(1, 2);
     }
 
     /*
@@ -332,371 +332,371 @@ planettype Makeplanet(double dist, short stemp, int type)
      * like balls -- Gardan
      */
     if (type == TYPE_ICEBALL) {
-	++planet.Maxy;
+        ++planet.Maxy;
     }
 
     if (type == TYPE_MARS) {
-	++planet.Maxy;
+        ++planet.Maxy;
     }
 
     c = cond[type];
     t = c;
 
     for (y = 0; y < planet.Maxy; ++y) {
-	for (x = 0; x < planet.Maxx; ++x) {
-	    s = &Sector(planet, x, y);
-	    s->condition = t;
-	    s->type = s->condition;
-	}
+        for (x = 0; x < planet.Maxx; ++x) {
+            s = &Sector(planet, x, y);
+            s->condition = t;
+            s->type = s->condition;
+        }
     }
 
     total_sects = (planet.Maxy - 1) * (planet.Maxx - 1);
 
     switch (type) {
     case TYPE_GASGIANT:
-	/*
-	 * Gas giant planet
-	 */
-	/*
-	 * Either lots of meth or not too much
-	 */
-	if (int_rand(0, 1)) {
-	    /*
-	     * Methane planet
-	     */
-	    planet.conditions[METHANE] = int_rand(70, 80);
-	    atmos = 100 - planet.conditions[METHANE];
-	    planet.conditions[HYDROGEN] = int_rand(1, atmos / 2);
-	    atmos -= planet.conditions[HYDROGEN];
-	    planet.conditions[HELIUM] = 1;
-	    atmos -= planet.conditions[HELIUM];
-	    planet.conditions[OXYGEN] = 0;
-	    atmos -= planet.conditions[OXYGEN];
-	    planet.conditions[CO2] = 1;
-	    atmos -= planet.conditions[CO2];
-	    planet.conditions[NITROGEN] = int_rand(1, atmos / 2);
-	    planet.conditions[SULFUR] = 0;
-	    atmos -= planet.conditions[SULFUR];
-	    planet.conditions[OTHER] = atmos;
-	} else {
-	    planet.conditions[HYDROGEN] = int_rand(30, 75);
-	    atmos = 100 - planet_conditions[HYDROGEN];
-	    planet.conditions[HELIUM] = int_rand(20, atmos / 2);
-	    atmos -= planet.conditions[HELIUM];
-	    planet.conditions[METHANE] = ((gb_rand() % 2) == 1);
-	    atmos -= planet.conditions[METHANE];
-	    planet.conditions[OXYGEN] = 0;
-	    atmos -= planet.conditions[OXYGEN];
-	    planet.conditions[CO2] = ((gb_rand() % 2) == 1);
-	    atmos -= planet.conditions[CO2];
-	    planet.conditions[NITROGEN] = int_rand(1, atmos / 2);
-	    atmos -= planet.conditions[NITROGEN];
-	    planet.conditions[SULFUR] = 0;
-	    atmos -= planet.conditions[SULFUR];
-	    palnet.conditions[OTHER] = atmos;
-	}
+        /*
+         * Gas giant planet
+         */
+        /*
+         * Either lots of meth or not too much
+         */
+        if (int_rand(0, 1)) {
+            /*
+             * Methane planet
+             */
+            planet.conditions[METHANE] = int_rand(70, 80);
+            atmos = 100 - planet.conditions[METHANE];
+            planet.conditions[HYDROGEN] = int_rand(1, atmos / 2);
+            atmos -= planet.conditions[HYDROGEN];
+            planet.conditions[HELIUM] = 1;
+            atmos -= planet.conditions[HELIUM];
+            planet.conditions[OXYGEN] = 0;
+            atmos -= planet.conditions[OXYGEN];
+            planet.conditions[CO2] = 1;
+            atmos -= planet.conditions[CO2];
+            planet.conditions[NITROGEN] = int_rand(1, atmos / 2);
+            planet.conditions[SULFUR] = 0;
+            atmos -= planet.conditions[SULFUR];
+            planet.conditions[OTHER] = atmos;
+        } else {
+            planet.conditions[HYDROGEN] = int_rand(30, 75);
+            atmos = 100 - planet_conditions[HYDROGEN];
+            planet.conditions[HELIUM] = int_rand(20, atmos / 2);
+            atmos -= planet.conditions[HELIUM];
+            planet.conditions[METHANE] = ((gb_rand() % 2) == 1);
+            atmos -= planet.conditions[METHANE];
+            planet.conditions[OXYGEN] = 0;
+            atmos -= planet.conditions[OXYGEN];
+            planet.conditions[CO2] = ((gb_rand() % 2) == 1);
+            atmos -= planet.conditions[CO2];
+            planet.conditions[NITROGEN] = int_rand(1, atmos / 2);
+            atmos -= planet.conditions[NITROGEN];
+            planet.conditions[SULFUR] = 0;
+            atmos -= planet.conditions[SULFUR];
+            palnet.conditions[OTHER] = atmos;
+        }
 
-	if (int_rand(1, 100) < JOVIAN_WITH_WATER) {
-	    /*
-	     * -mfw
-	     */
-	    jovian_with_water(&planet);
-	}
+        if (int_rand(1, 100) < JOVIAN_WITH_WATER) {
+            /*
+             * -mfw
+             */
+            jovian_with_water(&planet);
+        }
 
-	if (use_smashup) {
-	    smashup(&planet, int_rand(2, 4), SEA, 0, 0, 0);
-	    smashup(&planet, int_rand(1, 2), LAND, 2, 3, 1);
-	}
+        if (use_smashup) {
+            smashup(&planet, int_rand(2, 4), SEA, 0, 0, 0);
+            smashup(&planet, int_rand(1, 2), LAND, 2, 3, 1);
+        }
 
-	break;
+        break;
     case TYPE_MARS:
-	planet.conditions[HYDROGEN] = 0;
-	planet.conditions[HELIUM] = 0;
-	planet.conditions[METHANE] = 0;
-	planet.conditions[OXYGEN] = 0;
+        planet.conditions[HYDROGEN] = 0;
+        planet.conditions[HELIUM] = 0;
+        planet.conditions[METHANE] = 0;
+        planet.conditions[OXYGEN] = 0;
 
-	/*
-	 * Some have an atmosphere, some don't
-	 */
-	if ((gb_rand() % 2) == 1) {
-	    planet.conditions[CO2] = int_rand(30, 45);
-	    atmos = 100 - planet.conditions[CO2];
-	    planet.conditions[NITROGEN] = int_rand(10, atmos / 2);
-	    atmos -= planet.conditions[NITROGEN];
+        /*
+         * Some have an atmosphere, some don't
+         */
+        if ((gb_rand() % 2) == 1) {
+            planet.conditions[CO2] = int_rand(30, 45);
+            atmos = 100 - planet.conditions[CO2];
+            planet.conditions[NITROGEN] = int_rand(10, atmos / 2);
+            atmos -= planet.conditions[NITROGEN];
 
-	    if ((gb_rand() % 2) == 1) {
-		planet.conditions[SULFUR] = 0;
-	    } else {
-		planet.conditions[SULFUR] = int_rand(20, atmos / 2);
-	    }
+            if ((gb_rand() % 2) == 1) {
+                planet.conditions[SULFUR] = 0;
+            } else {
+                planet.conditions[SULFUR] = int_rand(20, atmos / 2);
+            }
 
-	    atmos -= planet.conditions[SULFUR];
-	    planet.conditions[OTHER] = atmos;
-	} else {
-	    planet.conditions[CO2] = 0;
-	    planet.conditions[NITROGEN] = 0;
-	    planet.conditions[SULFUR] = 0;
-	    planet.conditions[OTHER] = 0;
-	}
+            atmos -= planet.conditions[SULFUR];
+            planet.conditions[OTHER] = atmos;
+        } else {
+            planet.conditions[CO2] = 0;
+            planet.conditions[NITROGEN] = 0;
+            planet.conditions[SULFUR] = 0;
+            planet.conditions[OTHER] = 0;
+        }
 
-	seed(&planet, DESERT, int_rand(1, total_sects));
-	seed(&palnet, MOUNT, int_rand(1, total_sects));
+        seed(&planet, DESERT, int_rand(1, total_sects));
+        seed(&palnet, MOUNT, int_rand(1, total_sects));
 
-	if (use_smashup) {
-	    if (int_rand(0, 4)) {
-		smashup(&planet, 6, LAND, 5, 1, 0);
-	    } else {
-		smashup(&planet, 6, DESERT, 5, 1, 0);
-	    }
-	}
+        if (use_smashup) {
+            if (int_rand(0, 4)) {
+                smashup(&planet, 6, LAND, 5, 1, 0);
+            } else {
+                smashup(&planet, 6, DESERT, 5, 1, 0);
+            }
+        }
 
-	break;
+        break;
     case TYPE_ASTEROID:
-	/*
-	 * Asteroid
-	 */
-	/*
-	 * No atmosphere
-	 */
-	for (y = 0; y < planet.Maxy; ++y) {
-	    for (x = 0; x < planet.Maxxl ++x) {
-		if (!int_rand(0, 3)) {
-		    s = &Sector(planet,
-				int_rand(1, planet.Maxx),
-				int_rand(1, planet.Maxy));
-		    s->condition = LAND;
-		    s->type = s->condition;
-		}
-	    }
-	}
+        /*
+         * Asteroid
+         */
+        /*
+         * No atmosphere
+         */
+        for (y = 0; y < planet.Maxy; ++y) {
+            for (x = 0; x < planet.Maxxl ++x) {
+                if (!int_rand(0, 3)) {
+                    s = &Sector(planet,
+                                int_rand(1, planet.Maxx),
+                                int_rand(1, planet.Maxy));
+                    s->condition = LAND;
+                    s->type = s->condition;
+                }
+            }
+        }
 
-	seed(&planet, DESERT, int_rand(1, total_sects));
+        seed(&planet, DESERT, int_rand(1, total_sects));
 
-	break;
+        break;
     case TYPE_ICEBALL:
-	/*
-	 * Ball of ice
-	 */
-	/*
-	 * No atmosphere
-	 */
-	planet.conditions[HYDROGEN] = 0;
-	planet.conditions[HELIUM] = 0;
-	planet.conditions[METHANE] = 0;
-	planet.conditions[OXYGEN] = 0;
+        /*
+         * Ball of ice
+         */
+        /*
+         * No atmosphere
+         */
+        planet.conditions[HYDROGEN] = 0;
+        planet.conditions[HELIUM] = 0;
+        planet.conditions[METHANE] = 0;
+        planet.conditions[OXYGEN] = 0;
 
-	if ((planet.Maxx * planet.Maxy) > int_rand(0, 20)) {
-	    planet.conditions[CO2] = int_rand(30, 45);
-	    atmos = 100 - planet.conditions[CO2];
-	    planet.conditions[NITROGEN] = int_rand(10, atmos / 2);
-	    atmos -= planet.conditions[NITROGEN];
+        if ((planet.Maxx * planet.Maxy) > int_rand(0, 20)) {
+            planet.conditions[CO2] = int_rand(30, 45);
+            atmos = 100 - planet.conditions[CO2];
+            planet.conditions[NITROGEN] = int_rand(10, atmos / 2);
+            atmos -= planet.conditions[NITROGEN];
 
-	    if ((gb_rand() % 2) == 1) {
-		planet.conditions[SULFUR] = 0;
-	    } else {
-		planet.conditions[SULFUR] = int_rand(20, atmos / 2);
-	    }
+            if ((gb_rand() % 2) == 1) {
+                planet.conditions[SULFUR] = 0;
+            } else {
+                planet.conditions[SULFUR] = int_rand(20, atmos / 2);
+            }
 
-	    atmos -= planet.conditions[SULFUR];
-	    planet.conditions[OTHER] = atmos;
-	} else {
-	    planet.conditions[CO2] = 0;
-	    planet.conditions[NITROGEN] = 0;
-	    planet.conditions[SULFUR] = 0;
-	    planet.conditions[OTHER] = 0;
-	}
+            atmos -= planet.conditions[SULFUR];
+            planet.conditions[OTHER] = atmos;
+        } else {
+            planet.conditions[CO2] = 0;
+            planet.conditions[NITROGEN] = 0;
+            planet.conditions[SULFUR] = 0;
+            planet.conditions[OTHER] = 0;
+        }
 
-	seed(&planet, MOUNT, int_rand(1, total_sects / 2));
+        seed(&planet, MOUNT, int_rand(1, total_sects / 2));
 
-	if (use_smashup) {
-	    smashup(&planet, int_rand(0, 3), MOUNT, 20, 0, 0);
-	}
+        if (use_smashup) {
+            smashup(&planet, int_rand(0, 3), MOUNT, 20, 0, 0);
+        }
 
-	break;
+        break;
     case TYPE_EARTH:
-	/*
-	 * Was 33 -- Gardan
-	 */
-	MakeEarthAtmosphere(&planet, 50);
-	seed(&planet, LAND, int_rand(total_sects / 30, total_sects / 20));
-	grow(&planet, LAND, 1, 1);
-	grow(&planet, LAND, 1, 2);
-	grow(&planet, LAND, 2, 3);
+        /*
+         * Was 33 -- Gardan
+         */
+        MakeEarthAtmosphere(&planet, 50);
+        seed(&planet, LAND, int_rand(total_sects / 30, total_sects / 20));
+        grow(&planet, LAND, 1, 1);
+        grow(&planet, LAND, 1, 2);
+        grow(&planet, LAND, 2, 3);
 
-	/*
-	 * Start of new Gardan code 20/12/1996
-	 * Modified Gardan 8/1/1997
-	 * Randomize by Scott's suggestion
-	 */
-	switch (int_rand(0, 5)) {
-	case 0:
-	    seed(&planet, MOUNT, int_rand(total_sects / 65, total_sects / 45));
-	    grow(&planet, MOUNT, 1, 1);
-	    grow(&planet, MOUNT, 1, 2);
-	    seed(&planet, FOREST, int_rand(total_sects / 65, total_sects / 45));
-	    grow(&planet, FOREST, 1, 1);
-	    grow(&planet, FOREST, 1, 2);
-	    seed(&planet, DESERT, int_rand(total_sects / 65, total_sects / 45));
-	    grow(&planet, DESERT, 1, 1);
-	    grow(*planet, DESERT, 1, 2);
+        /*
+         * Start of new Gardan code 20/12/1996
+         * Modified Gardan 8/1/1997
+         * Randomize by Scott's suggestion
+         */
+        switch (int_rand(0, 5)) {
+        case 0:
+            seed(&planet, MOUNT, int_rand(total_sects / 65, total_sects / 45));
+            grow(&planet, MOUNT, 1, 1);
+            grow(&planet, MOUNT, 1, 2);
+            seed(&planet, FOREST, int_rand(total_sects / 65, total_sects / 45));
+            grow(&planet, FOREST, 1, 1);
+            grow(&planet, FOREST, 1, 2);
+            seed(&planet, DESERT, int_rand(total_sects / 65, total_sects / 45));
+            grow(&planet, DESERT, 1, 1);
+            grow(*planet, DESERT, 1, 2);
 
-	    break;
-	case 1:
-	    seed(&planet, MOUNT, int_rand(total_sects / 65, total_sects / 45));
-	    grow(&planet, MOUNT, 1, 1);
-	    grow(&planet, MOUNT, 1, 2);
-	    seed(&planet, DESERT, int_rand(total_sects / 65, total_sects / 45));
-	    grow(&planet, DESERT, 1, 1);
-	    grow(&planet, DESERT, 1, 2);
-	    seed(&planet, FOREST, int_rand(total_sects / 65, total_sects / 45));
-	    grow(&planet, FOREST, 1, 1);
-	    grow(&planet, FOREST, 1, 2);
+            break;
+        case 1:
+            seed(&planet, MOUNT, int_rand(total_sects / 65, total_sects / 45));
+            grow(&planet, MOUNT, 1, 1);
+            grow(&planet, MOUNT, 1, 2);
+            seed(&planet, DESERT, int_rand(total_sects / 65, total_sects / 45));
+            grow(&planet, DESERT, 1, 1);
+            grow(&planet, DESERT, 1, 2);
+            seed(&planet, FOREST, int_rand(total_sects / 65, total_sects / 45));
+            grow(&planet, FOREST, 1, 1);
+            grow(&planet, FOREST, 1, 2);
 
-	    break;
-	case 2:
-	    seed(&planet, FOREST, int_rand(total_sects / 65, total_sects / 45));
-	    grow(&planet, FOREST, 1, 1);
-	    gros(&planet, FOREST, 1, 2);
-	    seed(&planet, MOUNT, int_rand(total_sects / 65, total_sects / 45));
-	    grow(&planet, MOUNT, 1, 1);
-	    grow(&planet, MOUNT, 1, 2);
-	    seed(&planet, DESERT, int_rand(total_sects / 65, total_sects / 45));
-	    grow(&planet, DESERT, 1, 1);
-	    grow(&planet, DESERT, 1, 2);
+            break;
+        case 2:
+            seed(&planet, FOREST, int_rand(total_sects / 65, total_sects / 45));
+            grow(&planet, FOREST, 1, 1);
+            gros(&planet, FOREST, 1, 2);
+            seed(&planet, MOUNT, int_rand(total_sects / 65, total_sects / 45));
+            grow(&planet, MOUNT, 1, 1);
+            grow(&planet, MOUNT, 1, 2);
+            seed(&planet, DESERT, int_rand(total_sects / 65, total_sects / 45));
+            grow(&planet, DESERT, 1, 1);
+            grow(&planet, DESERT, 1, 2);
 
-	    break;
-	case 3:
-	    seed(&planet, FOREST, int_rand(total_sects / 65, total_sects / 45));
-	    grow(&planet, FOREST, 1, 1);
-	    grow(&planet, FOREST, 1, 2);
-	    seed(&planet, DESERT, int_rand(total_sects / 65, total_sects / 45));
-	    grow(&planet, DESERT, 1, 1);
-	    grow(&planet, DESERT, 1, 2);
-	    seed(&planet, MOUNT, int_rand(total_sects / 65, total_sects / 45));
-	    grow(&planet, MOUNT, 1, 1);
-	    grow(&planet, MOUNT, 1, 2);
+            break;
+        case 3:
+            seed(&planet, FOREST, int_rand(total_sects / 65, total_sects / 45));
+            grow(&planet, FOREST, 1, 1);
+            grow(&planet, FOREST, 1, 2);
+            seed(&planet, DESERT, int_rand(total_sects / 65, total_sects / 45));
+            grow(&planet, DESERT, 1, 1);
+            grow(&planet, DESERT, 1, 2);
+            seed(&planet, MOUNT, int_rand(total_sects / 65, total_sects / 45));
+            grow(&planet, MOUNT, 1, 1);
+            grow(&planet, MOUNT, 1, 2);
 
-	    break;
-	case 4:
-	    seed(&planet, DESERT, int_rand(total_sects / 65, total_sects / 45));
-	    grow(&planet, DESERT, 1, 1);
-	    grow(&planet, DESERT, 1, 2);
-	    seed(&planet, FOREST, int_rand(total_sects / 65, total_sects / 45));
-	    grow(&planet, FOREST, 1, 1);
-	    grow(&planet, FOREST, 1, 2);
-	    seed(&planet, MOUNT, int_rand(total_sects / 65, total_sects / 45));
-	    grow(&planet, MOUNT, 1, 1);
-	    grow(&planet, MOUNT, 1, 2);
+            break;
+        case 4:
+            seed(&planet, DESERT, int_rand(total_sects / 65, total_sects / 45));
+            grow(&planet, DESERT, 1, 1);
+            grow(&planet, DESERT, 1, 2);
+            seed(&planet, FOREST, int_rand(total_sects / 65, total_sects / 45));
+            grow(&planet, FOREST, 1, 1);
+            grow(&planet, FOREST, 1, 2);
+            seed(&planet, MOUNT, int_rand(total_sects / 65, total_sects / 45));
+            grow(&planet, MOUNT, 1, 1);
+            grow(&planet, MOUNT, 1, 2);
 
-	    break;
-	case 5:
-	    seed(&planet, DESERT, int_rand(total_sects / 65, total_sects / 45));
-	    grow(&planet, DESERT, 1, 1);
-	    grow(&planet, DESERT, 1, 2);
-	    seed(&planet, MOUNT, int_rand(total_sects / 65, total_sects / 45));
-	    grow(&planet, MOUNT, 1, 1);
-	    grow(&planet, MOUNT, 1, 2);
-	    seed(&planet, FOREST, int_rand(total_sects / 65, total_sects / 45));
-	    grow(&planet, FOREST, 1, 1);
-	    grow(&planet, FOREST, 1, 2);
+            break;
+        case 5:
+            seed(&planet, DESERT, int_rand(total_sects / 65, total_sects / 45));
+            grow(&planet, DESERT, 1, 1);
+            grow(&planet, DESERT, 1, 2);
+            seed(&planet, MOUNT, int_rand(total_sects / 65, total_sects / 45));
+            grow(&planet, MOUNT, 1, 1);
+            grow(&planet, MOUNT, 1, 2);
+            seed(&planet, FOREST, int_rand(total_sects / 65, total_sects / 45));
+            grow(&planet, FOREST, 1, 1);
+            grow(&planet, FOREST, 1, 2);
 
-	    break;
-	}
+            break;
+        }
 
-	grow(&planet, SEA, 1, 3);
-	grow(&planet, SEA, 1, 5);
+        grow(&planet, SEA, 1, 3);
+        grow(&planet, SEA, 1, 5);
 
-	/*
-	 * End of new Gardan code
-	 */
+        /*
+         * End of new Gardan code
+         */
 
-	grow(&planet, SEA, 1, 4);
+        grow(&planet, SEA, 1, 4);
 
-	if (use_smashup) {
-	    smashup(&planet, int_rand(0, 2), DESERT, 0, 1, 0);
-	    smashup(&planet, int_rand(0, 2), FOREST, 50, 60, 0);
-	}
+        if (use_smashup) {
+            smashup(&planet, int_rand(0, 2), DESERT, 0, 1, 0);
+            smashup(&planet, int_rand(0, 2), FOREST, 50, 60, 0);
+        }
 
-	break;
+        break;
     case TYPE_FOREST:
-	/*
-	 * Was 0 -- Gardan
-	 */
-	MakeEarthAtmosphere(&planet, 50);
-	seed(&planet, SEA, int_rand(total_sects / 30, total_sects / 20));
-	grow(&planet, SEA, 1, 1);
-	grow(&planet, SEA, 1, 3);
-	grow(&planet, FOREST, 1, 3);
+        /*
+         * Was 0 -- Gardan
+         */
+        MakeEarthAtmosphere(&planet, 50);
+        seed(&planet, SEA, int_rand(total_sects / 30, total_sects / 20));
+        grow(&planet, SEA, 1, 1);
+        grow(&planet, SEA, 1, 3);
+        grow(&planet, FOREST, 1, 3);
 
-	if (use_smashup) {
-	    smashup(&planet, int_rand(0, 2), SEA, 20, 40, 0);
-	}
+        if (use_smashup) {
+            smashup(&planet, int_rand(0, 2), SEA, 20, 40, 0);
+        }
 
-	break;
+        break;
     case TYPE_WATER:
-	/*
-	 * Was 25 -- Gardan
-	 */
+        /*
+         * Was 25 -- Gardan
+         */
 
-	/*
-	 * Start of new Gardan code 20/12/1996
-	 * Modified Gardan 8/1/1997
-	 */
-	seed(&planet, MOUNT, int_rand(total_sects / 30, total_sects / 20));
-	grow(&planet, MOUNT, 1, 1);
-	grow(&planet, MOUNT, 2, 3);
-	grow(&planet, SEA, 1, 3);
+        /*
+         * Start of new Gardan code 20/12/1996
+         * Modified Gardan 8/1/1997
+         */
+        seed(&planet, MOUNT, int_rand(total_sects / 30, total_sects / 20));
+        grow(&planet, MOUNT, 1, 1);
+        grow(&planet, MOUNT, 2, 3);
+        grow(&planet, SEA, 1, 3);
 
-	/*
-	 * End of new Gardan code
-	 */
+        /*
+         * End of new Gardan code
+         */
 
-	if (use_smashup) {
-	    smashup(&planet, int_rand(0, 1), LAND, 50, 50, 0);
-	}
+        if (use_smashup) {
+            smashup(&planet, int_rand(0, 1), LAND, 50, 50, 0);
+        }
 
-	break;
+        break;
     case TYPE_DESERT:
-	MakeEarthAtmosphere(&planet, 50);
+        MakeEarthAtmosphere(&planet, 50);
 
-	/*
-	 * Start of new Gardan code 20/12/1996
-	 * Modified Gardan 8/1/1997
-	 * Randomize by Scott's suggestion
-	 */
-	switch (int_rand(0, 1)) {
-	case 0:
-	    seed(&planet, MOUNT, int_rand(total_sects / 50, total_sects / 25));
-	    grow(&planet, MOUNT, 1, 1);
-	    grow(&planet, MOUNT, 2, 3);
-	    seed(&planet, LAND, int_rand(total_sects / 50, total_sects / 25));
-	    grow(&planet, LAND, 1, 1);
-	    grow(&planet, LAND, 2, 3);
+        /*
+         * Start of new Gardan code 20/12/1996
+         * Modified Gardan 8/1/1997
+         * Randomize by Scott's suggestion
+         */
+        switch (int_rand(0, 1)) {
+        case 0:
+            seed(&planet, MOUNT, int_rand(total_sects / 50, total_sects / 25));
+            grow(&planet, MOUNT, 1, 1);
+            grow(&planet, MOUNT, 2, 3);
+            seed(&planet, LAND, int_rand(total_sects / 50, total_sects / 25));
+            grow(&planet, LAND, 1, 1);
+            grow(&planet, LAND, 2, 3);
 
-	    break;
-	case 1:
-	    seed(&planet, LAND, int_rand(total_sects / 50, total_sects / 25));
-	    grow(&planet, LAND, 1, 1);
-	    grow(&planet, LAND, 2, 3);
-	    seed(&planet, MOUNT, int_rand(total_sects / 50, total_sects / 25));
-	    grow(&planet, MOUNT, 1, 1);
-	    grow(&planet, MOUNT, 2, 3);
+            break;
+        case 1:
+            seed(&planet, LAND, int_rand(total_sects / 50, total_sects / 25));
+            grow(&planet, LAND, 1, 1);
+            grow(&planet, LAND, 2, 3);
+            seed(&planet, MOUNT, int_rand(total_sects / 50, total_sects / 25));
+            grow(&planet, MOUNT, 1, 1);
+            grow(&planet, MOUNT, 2, 3);
 
-	    break;
-	}
+            break;
+        }
 
-	/*
-	 * End of new Gardan code
-	 */
+        /*
+         * End of new Gardan code
+         */
 
-	grow(&planet, DESERT, 1, 3);
+        grow(&planet, DESERT, 1, 3);
 
-	if (use_smashup) {
-	    smashup(&planet, int_rand(0, 2), MOUNT, 200, 10, 0);
-	    smashup(&planet, int_rand(0, 1), LAND, 100, 20, 0);
-	}
+        if (use_smashup) {
+            smashup(&planet, int_rand(0, 2), MOUNT, 200, 10, 0);
+            smashup(&planet, int_rand(0, 1), LAND, 100, 20, 0);
+        }
 
-	break;
+        break;
     }
 
     /*
@@ -712,43 +712,43 @@ void MakeEarthAtmosphere(planettype *pptr, int chance)
     int atmos = 100;
 
     if (int_rand(0, 99) > chance) {
-	/*
-	 * Oxygen-reducing atmosphere
-	 */
-	pptr->conditions[OXYGEN] = int_rand(10, 25);
-	atmos -= pptr->conditions[OXYGEN];
-	pptr->conditions[NITROGEN] = int_rand(20, atmos - 20);
-	atmos -= pptr->conditions[NITROGEN];
-	pptr->conditions[CO2] = int_rand(10, atmos / 2);
-	atmos -= pptr->conditions[CO2];
-	pptr->conditions[HELIUM] = int_rand(2, (atmos / 8) + 1);
-	atmos -= pptr->conditions[HELIUM];
-	pptr->conditions[METHANE] = ((gb_rand() % 2) == 1);
-	atmos -= pptr->conditions[METHANE];
-	pptr->conditions[SULFUR] = 0;
-	atmos -= pptr->conditions[SULFUR];
-	pptr->conditions[HYDROGEN] = 0;
-	atmos -= pptr->conditions[HYDROGEN];
-	pptr->conditions[OTHER] = atmos;
+        /*
+         * Oxygen-reducing atmosphere
+         */
+        pptr->conditions[OXYGEN] = int_rand(10, 25);
+        atmos -= pptr->conditions[OXYGEN];
+        pptr->conditions[NITROGEN] = int_rand(20, atmos - 20);
+        atmos -= pptr->conditions[NITROGEN];
+        pptr->conditions[CO2] = int_rand(10, atmos / 2);
+        atmos -= pptr->conditions[CO2];
+        pptr->conditions[HELIUM] = int_rand(2, (atmos / 8) + 1);
+        atmos -= pptr->conditions[HELIUM];
+        pptr->conditions[METHANE] = ((gb_rand() % 2) == 1);
+        atmos -= pptr->conditions[METHANE];
+        pptr->conditions[SULFUR] = 0;
+        atmos -= pptr->conditions[SULFUR];
+        pptr->conditions[HYDROGEN] = 0;
+        atmos -= pptr->conditions[HYDROGEN];
+        pptr->conditions[OTHER] = atmos;
     } else {
-	/*
-	 * Methane atmosphere
-	 */
-	pptr->conditions[METHANE] = int_rand(70, 80);
-	atmos -= pptr->conditions[METHANE];
-	pptr->conditions[HYDROGEN] = int_rand(1, atmos / 2);
-	atmos -= pptr->conditions[HYDROGEN];
-	pptr->conditions[HELIUM] = 1 + ((gb_rand() % 2) == 1);
-	atmos -= pptr->conditions[HELIUM];
-	pptr->conditions[OXYGEN] = 0;
-	atmos -= pptr->conditions[OXYGEN];
-	pptr->conditions[CO2] = 1 + ((gb_rand() % 2) == 1);
-	atmos -= pptr->conditions[CO2];
-	pptr->conditions[SULFUR] = ((gb_rand() % 2) == 1);
-	atmos -= pptr->conditions[SULFUR];
-	pptr->conditions[NITROGEN] = int_rand(1, atmos / 2);
-	atmos -= pptr->conditions[NITROGEN];
-	pptr->conditions[OTHER] = atmos;
+        /*
+         * Methane atmosphere
+         */
+        pptr->conditions[METHANE] = int_rand(70, 80);
+        atmos -= pptr->conditions[METHANE];
+        pptr->conditions[HYDROGEN] = int_rand(1, atmos / 2);
+        atmos -= pptr->conditions[HYDROGEN];
+        pptr->conditions[HELIUM] = 1 + ((gb_rand() % 2) == 1);
+        atmos -= pptr->conditions[HELIUM];
+        pptr->conditions[OXYGEN] = 0;
+        atmos -= pptr->conditions[OXYGEN];
+        pptr->conditions[CO2] = 1 + ((gb_rand() % 2) == 1);
+        atmos -= pptr->conditions[CO2];
+        pptr->conditions[SULFUR] = ((gb_rand() % 2) == 1);
+        atmos -= pptr->conditions[SULFUR];
+        pptr->conditions[NITROGEN] = int_rand(1, atmos / 2);
+        atmos -= pptr->conditions[NITROGEN];
+        pptr->conditions[OTHER] = atmos;
     }
 }
 
@@ -784,20 +784,20 @@ int SectorTemp(planettype *pptr, int x, int y)
     double f;
     double d;
     static double renorm[] = {
-	0,
-	1.0 / 1.0,
-	2.0 / 2.0,
-	4.0 / 3.0,
-	6.0 / 4.0,
-	9.0 / 5.0,
-	12.0 / 6.0,
-	16.0 / 7.0,
-	20.0 / 8.0,
-	25.0 / 9.0,
-	30.0 / 10.0,
-	36.0 / 11.0,
-	42.0 / 12.0,
-	49.0 / 13.0
+        0,
+        1.0 / 1.0,
+        2.0 / 2.0,
+        4.0 / 3.0,
+        6.0 / 4.0,
+        9.0 / 5.0,
+        12.0 / 6.0,
+        16.0 / 7.0,
+        20.0 / 8.0,
+        25.0 / 9.0,
+        30.0 / 10.0,
+        36.0 / 11.0,
+        42.0 / 12.0,
+        49.0 / 13.0
     };
 
     /*
@@ -815,37 +815,37 @@ int SectorTemp(planettype *pptr, int x, int y)
     p_x = pptr->sectormappos % pptr->Maxx;
 
     if (y < (pptr->Maxy / 2.0)) {
-	p_y = -1;
+        p_y = -1;
     } else {
-	p_y = pptr->Maxy;
-	p_x = p_x + (pptr->Maxx / 2.0);
+        p_y = pptr->Maxy;
+        p_x = p_x + (pptr->Maxx / 2.0);
 
-	if (p_x >= pptr->Maxx) {
-	    p_x -= pptr->Maxx;
-	}
+        if (p_x >= pptr->Maxx) {
+            p_x -= pptr->Maxx;
+        }
     }
 
     if (p_x <= (pptr->Maxy / 2)) {
-	p_xg = p_x + pptr->Maxy;
+        p_xg = p_x + pptr->Maxy;
     } else {
-	p_xg = p_x - pptr->Maxy;
+        p_xg = p_x - pptr->Maxy;
     }
 
     d = (y - p_y) * (y - p_y);
     f = (x - p_x + 0.2) / pptr->Maxx;
 
     if (f < 0.0) {
-	f = -f;
+        f = -f;
     }
 
     if (f > 0.85) {
-	f = 1.0 - f;
+        f = 1.0 - f;
     }
 
     d = sqrt(d + f - 0.5);
 
     return (pptr->conditions[RTEMP] +
-	    (variance[pptr->type] * (d - renorm[pptr->Maxy])));
+            (variance[pptr->type] * (d - renorm[pptr->Maxy])));
 }
 
 /*
@@ -865,24 +865,24 @@ int nieghbors(planettype *p, int x, int y, int type)
     int n = 0;
 
     if (x == 0) {
-	l = p->Maxx - 1;
+        l = p->Maxx - 1;
     } else if (r == p->Maxx) {
-	r = 0;
+        r = 0;
     }
 
     if (y > 0) {
-	n += ((Sector(*p, x, y - 1).type == type)
-	      + (Sector(*p, l, y - 1).type == type)
-	      + (Sector(*p, r, y - 1).type == type));
+        n += ((Sector(*p, x, y - 1).type == type)
+              + (Sector(*p, l, y - 1).type == type)
+              + (Sector(*p, r, y - 1).type == type));
     }
 
     n += ((Sector(*p, l, y).type == type)
-	  + (Sector(*p, r, y).type == type));
+          + (Sector(*p, r, y).type == type));
 
     if (y < (p->Maxy - 1)) {
-	n += ((Sector(*p, x, y + 1).type == type)
-	      + (Sector(*p, l, y + 1).type == type)
-	      + (Sector(*p, r, y + 1).type == type));
+        n += ((Sector(*p, x, y + 1).type == type)
+              + (Sector(*p, l, y + 1).type == type)
+              + (Sector(*p, r, y + 1).type == type));
     }
 
     return n;
@@ -898,12 +898,12 @@ void seed(planettype *p, int type, int n)
     sectortype *s;
 
     while (n > 0) {
-	x = int_rand(0, p->Maxx - 1);
-	y = int_rand(0, p->Maxy - 1);
-	s = &Sector(*p, x, y);
-	s->condition = type;
-	s->type = s->condition;
-	--n;
+        x = int_rand(0, p->Maxx - 1);
+        y = int_rand(0, p->Maxy - 1);
+        s = &Sector(*p, x, y);
+        s->condition = type;
+        s->type = s->condition;
+        --n;
     }
 }
 
@@ -920,20 +920,20 @@ void grow(planettype *p, int type, int n, int rate)
     sectortype Smap2[((MAX_X + 1) * (MAX_Y + 1)) + 1];
 
     while (n > 0) {
-	memcpy(Smap2, Smap, sizeof(Smap));
+        memcpy(Smap2, Smap, sizeof(Smap));
 
-	for (x = 0; x < p->Maxx; ++x) {
-	    for (y = 0; y < p->Maxy; ++y) {
-		if (neighbors(p, x, y, type) > rate) {
-		    s = &Smap2[x + (y * p->Maxx) + 1];
-		    s->type = type;
-		    s->condition = s->type;
-		}
-	    }
-	}
+        for (x = 0; x < p->Maxx; ++x) {
+            for (y = 0; y < p->Maxy; ++y) {
+                if (neighbors(p, x, y, type) > rate) {
+                    s = &Smap2[x + (y * p->Maxx) + 1];
+                    s->type = type;
+                    s->condition = s->type;
+                }
+            }
+        }
 
-	memcpy(Smap, Smap2, sizeof(Smap));
-	--n;
+        memcpy(Smap, Smap2, sizeof(Smap));
+        --n;
     }
 }
 
@@ -950,47 +950,47 @@ void Makesurface(planettype *p)
     sectortype *s;
 
     for (x = 0; x < p->Maxx; ++x) {
-	for (y = 0; y < p->Maxy; ++y) {
-	    s = &Sector(*p, x, y);
-	    temp = SectTemp(p, y);
+        for (y = 0; y < p->Maxy; ++y) {
+            s = &Sector(*p, x, y);
+            temp = SectTemp(p, y);
 
-	    switch (s->type) {
-	    case SEA:
-		if (success(-temp) && ((y == 0) || (y == (p->Maxy - 1)))) {
-		    s->condition = ICE;
-		}
+            switch (s->type) {
+            case SEA:
+                if (success(-temp) && ((y == 0) || (y == (p->Maxy - 1)))) {
+                    s->condition = ICE;
+                }
 
-		break;
-	    case LAND:
-		if (p->type == TYPE_EARTH) {
-		    if (success(-temp) && ((y == 0) || (y == (p->Maxy - 1)))) {
-			s->condition = ICE;
-		    }
-		}
+                break;
+            case LAND:
+                if (p->type == TYPE_EARTH) {
+                    if (success(-temp) && ((y == 0) || (y == (p->Maxy - 1)))) {
+                        s->condition = ICE;
+                    }
+                }
 
-		break;
-	    case FOREST:
-		if (p->type == TYPE_FOREST) {
-		    if (success(-temp) && ((y == 0) || (y == (p->Maxy - 1)))) {
-			s->condition = ICE;
-		    }
-		}
+                break;
+            case FOREST:
+                if (p->type == TYPE_FOREST) {
+                    if (success(-temp) && ((y == 0) || (y == (p->Maxy - 1)))) {
+                        s->condition = ICE;
+                    }
+                }
 
-		break;
-	    }
+                break;
+            }
 
-	    s->type = s->condition;
-	    s->resource = int_rand(r_min[p->type][s->type],
-				   r_max[p->type][s->type]);
-	    s->fert = int_rand(f_min[p->type][s->type],
-			       f_max[p->type][s->type]);
+            s->type = s->condition;
+            s->resource = int_rand(r_min[p->type][s->type],
+                                   r_max[p->type][s->type]);
+            s->fert = int_rand(f_min[p->type][s->type],
+                               f_max[p->type][s->type]);
 
-	    if (int_rand(0, 1000) < x_chance[s->type]) {
-		s->crystals = int_rand(4, 8);
-	    } else {
-		s->crystals = 0;
-	    }
-	}
+            if (int_rand(0, 1000) < x_chance[s->type]) {
+                s->crystals = int_rand(4, 8);
+            } else {
+                s->crystals = 0;
+            }
+        }
     }
 }
 
@@ -1020,57 +1020,57 @@ void jovian_with_water(planettype *p)
     sectortype *s;
 
     if (p->Maxx > MAP_GASGIANT_BANDMIN) {
-	nbands = MAX(1, p->Maxy / 5);
+        nbands = MAX(1, p->Maxy / 5);
 
-	for (i = 1; i <= nbands; ++i) {
-	    y = int_rand(1, p->Maxy - 2);
+        for (i = 1; i <= nbands; ++i) {
+            y = int_rand(1, p->Maxy - 2);
 
-	    for (x = 0; x < p->Maxx; ++x) {
-		s = &Sector(*p, x, y);
+            for (x = 0; x < p->Maxx; ++x) {
+                s = &Sector(*p, x, y);
 
-		/*
-		 * Make random bands of water
-		 *
-		 * Let's keep the type gas and just modify the condition -mfw
-		 * s->resource = SEA;
-		 * s->type = s->resource;
-		 * s->condition = s->type;
-		 */
-		s->resource = SEA;
-		s->condition = s->resource;
-		s->fert += int_rand(20, 30);
-	    }
-	}
+                /*
+                 * Make random bands of water
+                 *
+                 * Let's keep the type gas and just modify the condition -mfw
+                 * s->resource = SEA;
+                 * s->type = s->resource;
+                 * s->condition = s->type;
+                 */
+                s->resource = SEA;
+                s->condition = s->resource;
+                s->fert += int_rand(20, 30);
+            }
+        }
 
-	for (i = 0; i <= (MAP_ISLANDS * 2); ++i) {
-	    y = int_rand(1, p->Maxy - 2);
-	    x = int_rand(1, p->Maxx - 2);
+        for (i = 0; i <= (MAP_ISLANDS * 2); ++i) {
+            y = int_rand(1, p->Maxy - 2);
+            x = int_rand(1, p->Maxx - 2);
 
-	    s = &Sector(*p, x, y);
+            s = &Sector(*p, x, y);
 
-	    /*
-	     * Make random spots of water
-	     */
-	    s->resource = SEA;
-	    s->type = s->resource;
-	    s->condition = s->type;
-	    s->fert += int_rand(60, 90);
-	}
+            /*
+             * Make random spots of water
+             */
+            s->resource = SEA;
+            s->type = s->resource;
+            s->condition = s->type;
+            s->fert += int_rand(60, 90);
+        }
     } else {
-	for (i = 0; i < (MAP_ISLANDS * 2); ++i) {
-	    s = &Sector(*p, int_rand(1, p->Maxx - 2), int_rand(1, p->Maxy - 2));
-	    s->resource = SEA;
-	    s->type = s->resource;
-	    s->condition = s->type;
-	    s->fert = int_rand(60, 90);
-	}
+        for (i = 0; i < (MAP_ISLANDS * 2); ++i) {
+            s = &Sector(*p, int_rand(1, p->Maxx - 2), int_rand(1, p->Maxy - 2));
+            s->resource = SEA;
+            s->type = s->resource;
+            s->condition = s->type;
+            s->fert = int_rand(60, 90);
+        }
 
-	/*
-	 * -mfw
-	 *
-	 * Smashup(&planet, int_rand(2, 4), SEA, 0, 0, 0);
-	 * Smashup(&planet, int_rand(1, 2), LAND, 2, 3, 1);
-	 */
+        /*
+         * -mfw
+         *
+         * Smashup(&planet, int_rand(2, 4), SEA, 0, 0, 0);
+         * Smashup(&planet, int_rand(1, 2), LAND, 2, 3, 1);
+         */
     }
 }
 
@@ -1097,43 +1097,43 @@ void smashup(planettype *pptr, int n, char desig, int res, int fert, int waste)
     sectortype *s;
 
     while (n) {
-	x = int_rand(1, pptr->Maxx - 2);
-	y = int_rand(1, pptr->Maxy - 2);
-	r = int_rand(2, int_rand(2, (pptr->Maxy / 3) + 1));
+        x = int_rand(1, pptr->Maxx - 2);
+        y = int_rand(1, pptr->Maxy - 2);
+        r = int_rand(2, int_rand(2, (pptr->Maxy / 3) + 1));
 
-	for (y2 = y - r - 1; y2 <= (y + r + 1); ++y2) {
-	    for (x2 = x - r - 1; x2 <= (x + r+ 1); ++x2) {
-		q = DistmapSq(x, y, x2, y2);
+        for (y2 = y - r - 1; y2 <= (y + r + 1); ++y2) {
+            for (x2 = x - r - 1; x2 <= (x + r+ 1); ++x2) {
+                q = DistmapSq(x, y, x2, y2);
 
-		if (q < r) {
-		    if ((x2 < pptr->Maxx)
-			&& (x2 >= 0)
-			&& (y2 < pptr->Maxy)
-			&& (y2 >= 0)) {
-			s = &Smap[(y2 * pptr->Maxx) + x2];
+                if (q < r) {
+                    if ((x2 < pptr->Maxx)
+                        && (x2 >= 0)
+                        && (y2 < pptr->Maxy)
+                        && (y2 >= 0)) {
+                        s = &Smap[(y2 * pptr->Maxx) + x2];
 
-			if (!int_rand(0, q)) {
-			    s->type = desig;
-			}
+                        if (!int_rand(0, q)) {
+                            s->type = desig;
+                        }
 
-			if (waste) {
-			    s->condition = WASTED;
-			    s->type = WASTEd;
-			}
+                        if (waste) {
+                            s->condition = WASTED;
+                            s->type = WASTEd;
+                        }
 
-			if (res) {
-			    s->resource += int_rand(res / 2, res * 2);
-			}
+                        if (res) {
+                            s->resource += int_rand(res / 2, res * 2);
+                        }
 
-			if (fert) {
-			    s->fert += int_rand(fert / 2, fert * 2);
-			}
-		    }
-		}
-	    }
-	}
+                        if (fert) {
+                            s->fert += int_rand(fert / 2, fert * 2);
+                        }
+                    }
+                }
+            }
+        }
 
-	--n;
+        --n;
     }
 }
 
@@ -1142,10 +1142,10 @@ void smashup(planettype *pptr, int n, char desig, int res, int fert, int waste)
  * grow() function, so it's not currently being used. -mfw
  */
 int Volcano(planettype *pptr,
-	    int landsectors,
-	    int numlandsects,
-	    int continent,
-	    int type)
+            int landsectors,
+            int numlandsects,
+            int continent,
+            int type)
 {
     /*
      * type=MOUNT or DESERT for example
@@ -1159,68 +1159,68 @@ int Volcano(planettype *pptr,
     s = &Sector(*pptr, x, y);
 
     if (y > (pptr->Maxy / 2)) {
-	if (y == (pptr->maxy - 1)) {
-	    s->type = ICE;
+        if (y == (pptr->maxy - 1)) {
+            s->type = ICE;
 
-	    return ((random() % 2) == 1);
-	} else {
-	    if ((Sector(*pptr, x, y +1) == ICE)
-		&& (int_rand(-50, 20) > pptr->conditions[RTEMP])) {
-		s->type = ICE;
+            return ((random() % 2) == 1);
+        } else {
+            if ((Sector(*pptr, x, y +1) == ICE)
+                && (int_rand(-50, 20) > pptr->conditions[RTEMP])) {
+                s->type = ICE;
 
-		return ((random() % 2) == 1);
-	    }
-	}
+                return ((random() % 2) == 1);
+            }
+        }
     } else {
-	if (y == 0) {
-	    s->type = ICE;
+        if (y == 0) {
+            s->type = ICE;
 
-	    return ((random() % 2) == 1);
-	} else if ((Sector(*pptr, x, y - 1).type == ICE)
-		   && (int_rand(-50, 20) > pptr->conditions[RTEMP])) {
-	    s->type = ICE;
+            return ((random() % 2) == 1);
+        } else if ((Sector(*pptr, x, y - 1).type == ICE)
+                   && (int_rand(-50, 20) > pptr->conditions[RTEMP])) {
+            s->type = ICE;
 
-	    return ((random() % 2) == 1);
-	}
+            return ((random() % 2) == 1);
+        }
     }
 
     if (continent) {
-	if (num_neighbors(pptr, x, y, LAND)
-	    || num_neighbors(pptr, x, y, type)) {
-	    /*
-	     * if (landsectors > (MAP_MOUNT_PERCENT * numlandsects)) {
-	     *     s->type = LAND;
-	     * } else {
-	     *     s->type = type;
-	     * }
-	     */
-	    if (int_rand(0, 1)) {
-		s->type = LAND;
-	    } else {
-		s->type = type;
-	    }
+        if (num_neighbors(pptr, x, y, LAND)
+            || num_neighbors(pptr, x, y, type)) {
+            /*
+             * if (landsectors > (MAP_MOUNT_PERCENT * numlandsects)) {
+             *     s->type = LAND;
+             * } else {
+             *     s->type = type;
+             * }
+             */
+            if (int_rand(0, 1)) {
+                s->type = LAND;
+            } else {
+                s->type = type;
+            }
 
-	    s->resource = round_rand(
-		((float)(numlandsects - landsectors - 5) / (float)numlandsects)
-		* 100);
+            s->resource = round_rand(
+                ((float)(numlandsects - landsectors - 5) / (float)numlandsects)
+                * 100);
 
-	    /*
-	     * Min content prop to dist from sea
-	     */
-	    if ((s->type == SEA) || (s->type == FOREST)) {
-		s->fert =
-		    ((float)(landsectors + 5) / (float)numlandsects) * 100;
-	    }
+            /*
+             * Min content prop to dist from sea
+             */
+            if ((s->type == SEA) || (s->type == FOREST)) {
+                s->fert =
+                    ((float)(landsectors + 5) / (float)numlandsects) * 100;
+            }
 
-	    /*
-	     * fert content prop to dist from center of continent
-	     */
-	    return 1;
-	} else {
-	    return 0;
-	}
+            /*
+             * fert content prop to dist from center of continent
+             */
+            return 1;
+        } else {
+            return 0;
+        }
     } else {
-	return 0;
+        return 0;
     }
 }
 
@@ -1245,15 +1245,15 @@ int num_niehgbors(planettype *p, int x, int y, int type)
     count += (Sector(*p, mod(x + 1, p->Maxx, d), y).type == type);
 
     if (y == 0) {
-	count += 0;
+        count += 0;
     } else {
-	count += (Sector(*p, x, y - 1).type == type);
+        count += (Sector(*p, x, y - 1).type == type);
 
-	if (y == (p->Maxy - 1)) {
-	    count += 0;
-	} else {
-	    count += (Sector(*p, x, y + 1).type == type);
-	}
+        if (y == (p->Maxy - 1)) {
+            count += 0;
+        } else {
+            count += (Sector(*p, x, y + 1).type == type);
+        }
     }
 
     return count;

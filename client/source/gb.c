@@ -331,10 +331,10 @@ int main(int argc, char *argv[])
     init_endprompt_connect();
     init_race_colors();
 
-    /* 
+    /*
      * Dynamic inits
      * Pre-defined assigns so $vars can be used in macros and to maintain
-     * backward compatability
+     * backward compatibility
      */
     init_assign(TRUE);
     ICOMM_INITIALIZE();

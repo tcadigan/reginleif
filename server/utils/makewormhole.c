@@ -48,9 +48,9 @@ extern double double_rand(void);
 char const *NextPlanetName(int);
 
 void make_wormhole(startype *star,
-		   FILE *planetdata,
-		   FILE *sectordata,
-		   FILE *outputtxt)
+                   FILE *planetdata,
+                   FILE *sectordata,
+                   FILE *outputtxt)
 {
     planettype planet;
     double angle;
@@ -73,7 +73,7 @@ void make_wormhole(startype *star,
      * sprintf(star->pnames[star->numplanets - 1], "%d", star->numplanets);
      */
     strcpy(star->pnames[star->numplanets - 1],
-	   NextPlanetName(star->numplanets));
+           NextPlanetName(star->numplanets));
 
     distsep = (PLANET_DIST_MAX - distmin) / (double)(star->numplanets - 1);
     distmax = distmin + distsep;
@@ -83,11 +83,11 @@ void make_wormhole(startype *star,
      * Calculate stability of wormhole here
      */
     star->wh_stability = (unsigned short)
-	((double)(star->gravity / (double)(star->temperature * 100))
-	 * star->stability);
+        ((double)(star->gravity / (double)(star->temperature * 100))
+         * star->stability);
 
     if ((dist > 1500) && (star->wh_stability > 1)) {
-	--star->wh_stability;
+        --star->wh_stability;
     }
 
     star->wh_has_wormhole = 1;
@@ -121,14 +121,14 @@ void make_wormhole(startype *star,
     planet.ypos = dist * cos(angle);
 
     for (y = 0; y < planet.Maxy; ++y) {
-	for (x = 0; x < planet.Maxx; ++x) {
-	    s = &Sector(planet, x, y);
-	    s->condition = WORM;
-	    s->type = s->condition;
-	    s->crystals = 0;
-	    s->fert = s->crystals;
-	    s->resource = s->fert;
-	}
+        for (x = 0; x < planet.Maxx; ++x) {
+            s = &Sector(planet, x, y);
+            s->condition = WORM;
+            s->type = s->condition;
+            s->crystals = 0;
+            s->fert = s->crystals;
+            s->resource = s->fert;
+        }
     }
 
     /*
@@ -148,74 +148,74 @@ void make_wormhole(startype *star,
      * Write each sector row
      */
     for (y = 0; y < planet.Maxy; ++y) {
-	fwrite(&Sector(planet, 0, y),
-	       sizeof(sectortype),
-	       planet.Maxx,
-	       sectordata);
+        fwrite(&Sector(planet, 0, y),
+               sizeof(sectortype),
+               planet.Maxx,
+               sectordata);
     }
 
     if (printplaninfo) {
-	fprintf(outputtxt,
-		"Planet %s: temp %d, type %s (%u)\n",
-		star->pnames[star->numplanets - 1],
-		planet.conditions[RTEMP],
-		Nametypes[planet.type],
-		planet.type);
+        fprintf(outputtxt,
+                "Planet %s: temp %d, type %s (%u)\n",
+                star->pnames[star->numplanets - 1],
+                planet.conditions[RTEMP],
+                Nametypes[planet.type],
+                planet.type);
 
-	fprintf(outputtxt,
-		"Position is (%1.0f,%1.0f) relative to %s; distance %1.0f.\n",
-		planet.xpos,
-		planet.ypos,
-		star->name,
-		dist);
+        fprintf(outputtxt,
+                "Position is (%1.0f,%1.0f) relative to %s; distance %1.0f.\n",
+                planet.xpos,
+                planet.ypos,
+                star->name,
+                dist);
 
-	fprintf(outputtxt, "sect map(%dx%d):\n", planet.Maxx, planet.Maxy);
+        fprintf(outputtxt, "sect map(%dx%d):\n", planet.Maxx, planet.Maxy);
 
-	for (y = 0; y < planet.Maxy; ++y) {
-	    for (x = 0; x < planet.Maxx; ++x) {
-		switch (Sector(planet, x, y).condition) {
-		case LAND:
-		    fprintf(outputtxt, "%c", CHAR_LAND);
+        for (y = 0; y < planet.Maxy; ++y) {
+            for (x = 0; x < planet.Maxx; ++x) {
+                switch (Sector(planet, x, y).condition) {
+                case LAND:
+                    fprintf(outputtxt, "%c", CHAR_LAND);
 
-		    break;
-		case SEA:
-		    fprintf(outputtxt, "%c", CHAR_SEA);
+                    break;
+                case SEA:
+                    fprintf(outputtxt, "%c", CHAR_SEA);
 
-		    break;
-		case MOUNT:
-		    fprintf(outputtxt, "%c", CHAR_MOUNT);
+                    break;
+                case MOUNT:
+                    fprintf(outputtxt, "%c", CHAR_MOUNT);
 
-		    break;
-		case ICE:
-		    fprintf(outputtxt, "%c", CHAR_ICE);
+                    break;
+                case ICE:
+                    fprintf(outputtxt, "%c", CHAR_ICE);
 
-		    break;
-		case GAS:
-		    fprintf(outputtxt, "%c", CHAR_GAS);
+                    break;
+                case GAS:
+                    fprintf(outputtxt, "%c", CHAR_GAS);
 
-		    break;
-		case DESERT:
-		    fprintf(outputtxt, "%c", CHAR_DESERT);
+                    break;
+                case DESERT:
+                    fprintf(outputtxt, "%c", CHAR_DESERT);
 
-		    break;
-		case FOREST:
-		    fprintf(outputxt, "%c", CHAR_FOREST);
+                    break;
+                case FOREST:
+                    fprintf(outputxt, "%c", CHAR_FOREST);
 
-		    break;
-		case WORM:
-		    fprintf(outputtxt, "%c", CHAR_WORM);
+                    break;
+                case WORM:
+                    fprintf(outputtxt, "%c", CHAR_WORM);
 
-		    break;
-		default:
-		    fprintf(outputtxt, "?");
+                    break;
+                default:
+                    fprintf(outputtxt, "?");
 
-		    break;
-		}
-	    }
+                    break;
+                }
+            }
 
-	    fprintf(outputtxt, "\n");
-	}
+            fprintf(outputtxt, "\n");
+        }
 
-	fprintf(outputtxt, "\n");
+        fprintf(outputtxt, "\n");
     }
 }

@@ -78,10 +78,10 @@ int main(int argc, char *argv[])
     char indxfile[40];
 
     if (argc != 2) {
-	fprintf(stderr, "usage: makeindex <bundle>\n");
-	fprintf(stderr, "for instance: makeindex faq\n");
+        fprintf(stderr, "usage: makeindex <bundle>\n");
+        fprintf(stderr, "for instance: makeindex faq\n");
 
-	exit(1);
+        exit(1);
     }
 
     sprintf(textfile, "%s.txt", argv[1]);
@@ -90,17 +90,17 @@ int main(int argc, char *argv[])
     rfp = fopen(textfile, "r");
 
     if (rfp == NULL) {
-	fprintf(stderr, "Can't open %s for reading\n", textfile);
+        fprintf(stderr, "Can't open %s for reading\n", textfile);
 
-	exit(1);
+        exit(1);
     }
 
     wfp = fopen(indxfile, "w");
 
     if (wfp == NULL) {
-	fprintf(stderr, "Can't open %s for writing\n", indxfile);
+        fprintf(stderr, "Can't open %s for writing\n", indxfile);
 
-	exit(1);
+        exit(1);
     }
 
     pos = 0L;
@@ -108,63 +108,63 @@ int main(int argc, char *argv[])
     ntopics = 0;
 
     while (fgets(line, LINE_SIZE, rfp) != NULL) {
-	++lineno;
-	n = strlen(line);
+        ++lineno;
+        n = strlen(line);
 
-	if (line[n - 1] != '\n') {
-	    fprintf(stderr, "line %d: Line too long\n", lineno);
-	}
+        if (line[n - 1] != '\n') {
+            fprintf(stderr, "line %d: Line too long\n", lineno);
+        }
 
-	if (line[0] == '&') {
-	    ++ntopics;
+        if (line[0] == '&') {
+            ++ntopics;
 
-	    if (ntopics > 1) {
-		entry.len = (int)(pos - entry.pos);
+            if (ntopics > 1) {
+                entry.len = (int)(pos - entry.pos);
 
-		if (fwrite(&entry, sizeof(idx_mark), 1, wfp) < 1) {
-		    fprintf(stderr, "Error writing %s\n", indxfile);
+                if (fwrite(&entry, sizeof(idx_mark), 1, wfp) < 1) {
+                    fprintf(stderr, "Error writing %s\n", indxfile);
 
-		    exit(2);
-		}
-	    }
+                    exit(2);
+                }
+            }
 
-	    topic = &line[1];
+            topic = &line[1];
 
-	    while (((*topic == ' ') || (*topic == '\t'))
-		   && (*topic != '\0')) {
-		++topic;
-	    }
+            while (((*topic == ' ') || (*topic == '\t'))
+                   && (*topic != '\0')) {
+                ++topic;
+            }
 
-	    i = -1;
-	    s = topic;
+            i = -1;
+            s = topic;
 
-	    while ((*s != '\n') && (*s != '\0')) {
-		if (i >= (TOPIC_NAME_LEN - 1)) {
-		    break;
-		}
+            while ((*s != '\n') && (*s != '\0')) {
+                if (i >= (TOPIC_NAME_LEN - 1)) {
+                    break;
+                }
 
-		if ((*s != ' ') || (entry.topic[i] != ' ')) {
-		    ++i;
-		    entry.topic[i] = *s;
-		}
+                if ((*s != ' ') || (entry.topic[i] != ' ')) {
+                    ++i;
+                    entry.topic[i] = *s;
+                }
 
-		++s;
-	    }
+                ++s;
+            }
 
-	    ++i;
-	    entry.topic[i] = '\0';
-	    entry.pos = pos + (long)n;
-	}
+            ++i;
+            entry.topic[i] = '\0';
+            entry.pos = pos + (long)n;
+        }
 
-	pos += n;
+        pos += n;
     }
 
     entry.len = (int)(pos - entry.pos);
 
     if (fwrite(&entry, sizeof(idx_mark), 1, wfp) < 1) {
-	fprintf(stderr, "Error writing %s\n", indxfile);
+        fprintf(stderr, "Error writing %s\n", indxfile);
 
-	exit(1);
+        exit(1);
     }
 
     fclose(rfp);

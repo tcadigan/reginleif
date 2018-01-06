@@ -649,7 +649,7 @@ int main(int argc, char *argv[])
     }
 
     if (printstarinfo) {
-	fprintf(outputtxt, "Total Wormholes: %d\n", wormidx);
+        fprintf(outputtxt, "Total Wormholes: %d\n", wormidx);
     }
 
 #if 0
@@ -669,86 +669,86 @@ int main(int argc, char *argv[])
     dist = CLUSTER_FROM_CENTER;
 
     for (its = 1; its <= 6; ++its) {
-	/*
-	 * Circle of stars
-	 */
-	fprintf(outputtxt, "Grouping [%f]", dist);
+        /*
+         * Circle of stars
+         */
+        fprintf(outputtxt, "Grouping [%f]", dist);
 
-	for (clusters = 1; clusters <= CLUSTER_COUNTER; ++clusters) {
-	    /*
-	     * Number of clusters in circle
-	     */
-	    for (starsinclus = 1; starsinclus <= STAR_COUNTER; ++starsinclus) {
-		/*
-		 * Number of stars in cluster
-		 */
-		ange = 2.0 * M_PI * ANGLE;
-		cluster_delta_x = int_rand(CLUSTER_STAR_MIN, CLUSTER_STAR_MAX);
-		cluster_delta_y = int_rand(CLUSTER_STAR_MIN, CLUSTER_STAR_MAX);
-		clusterx = dist * sin(angle);
-		clustery = dist * cos(angle);
+        for (clusters = 1; clusters <= CLUSTER_COUNTER; ++clusters) {
+            /*
+             * Number of clusters in circle
+             */
+            for (starsinclus = 1; starsinclus <= STAR_COUNTER; ++starsinclus) {
+                /*
+                 * Number of stars in cluster
+                 */
+                ange = 2.0 * M_PI * ANGLE;
+                cluster_delta_x = int_rand(CLUSTER_STAR_MIN, CLUSTER_STAR_MAX);
+                cluster_delta_y = int_rand(CLUSTER_STAR_MIN, CLUSTER_STAR_MAX);
+                clusterx = dist * sin(angle);
+                clustery = dist * cos(angle);
 
-		if (starindex >= Sdatanumstars) {
-		    flag = 1;
+                if (starindex >= Sdatanumstars) {
+                    flag = 1;
 
-		    break;
-		}
+                    break;
+                }
 
-		fprintf(outputtxt, " %s ", Stars[starindex]->name);
+                fprintf(outputtxt, " %s ", Stars[starindex]->name);
 
-		if ((its == 1) || (its == 3) || (its == 6)) {
-		    setbit(Stars[starindex]->explored, 1);
-		    setbit(Stars[starindex]->inhabited, 1);
-		}
+                if ((its == 1) || (its == 3) || (its == 6)) {
+                    setbit(Stars[starindex]->explored, 1);
+                    setbit(Stars[starindex]->inhabited, 1);
+                }
 
-		Stars[starindex]->xpos = clusterx + cluster_delta_x;
-		Stars[starindex]->ypos = clustery + cluster_delta_y;
+                Stars[starindex]->xpos = clusterx + cluster_delta_x;
+                Stars[starindex]->ypos = clustery + cluster_delta_y;
 
-		ANGLE = (ANGLE + 0.15) + double_rand();
-		fprintf(outputtxt, "ANGLE 1 %f\n", ANGLE);
-		++starindex;
-	    }
-	}
+                ANGLE = (ANGLE + 0.15) + double_rand();
+                fprintf(outputtxt, "ANGLE 1 %f\n", ANGLE);
+                ++starindex;
+            }
+        }
 
-	if (flag) {
-	    break;
-	}
+        if (flag) {
+            break;
+        }
 
-	switch (its + 1) {
-	case 2:
-	    ANGLE = 0.20 + double_rand();
-	    CLUSTER_COUNTER = 10;
-	    dist += 25000;
+        switch (its + 1) {
+        case 2:
+            ANGLE = 0.20 + double_rand();
+            CLUSTER_COUNTER = 10;
+            dist += 25000;
 
-	    break;
-	case 3:
-	    ANGLE = 0.35 + double_rand();
-	    CLUSTER_COUNTER = 13;
-	    dist += 27000;
+            break;
+        case 3:
+            ANGLE = 0.35 + double_rand();
+            CLUSTER_COUNTER = 13;
+            dist += 27000;
 
-	    break;
-	case 4:
-	    ANGLE = 0.40 + double_rand();
-	    CLUSTER_COUNTER = 15;
-	    dist += 27000;
+            break;
+        case 4:
+            ANGLE = 0.40 + double_rand();
+            CLUSTER_COUNTER = 15;
+            dist += 27000;
 
-	    break;
-	case 5:
-	    ANGLE = 0.25 + double_rand();
-	    CLUSTER_COUNTER = 17;
-	    dist += 32000;
+            break;
+        case 5:
+            ANGLE = 0.25 + double_rand();
+            CLUSTER_COUNTER = 17;
+            dist += 32000;
 
-	    break;
-	case 6:
-	    ANGLE = 0.12 + double_rand();
-	    CLUSTER_COUNTER = 17;
-	    dist += 32000;
+            break;
+        case 6:
+            ANGLE = 0.12 + double_rand();
+            CLUSTER_COUNTER = 17;
+            dist += 32000;
 
-	    break;
-	}
+            break;
+        }
 
-	fprintf(outputtxt, "\n\n");
-	fprintf(outputtxt, "ANGLE 2 %f\n", ANGLE);
+        fprintf(outputtxt, "\n\n");
+        fprintf(outputtxt, "ANGLE 2 %f\n", ANGLE);
     }
 
     Stars[0]->xpos = 0;
@@ -759,15 +759,15 @@ int main(int argc, char *argv[])
     stardata = fopen(STARDATAFL, "w+");
 
     if (stardata == NULL) {
-	printf("Unable to open star data file \"%s\"\n", STARDATAFL);
+        printf("Unable to open star data file \"%s\"\n", STARDATAFL);
 
-	return 01;
+        return 01;
     }
 
     fwrite(&Sdata, sizeof(Sdata), 1, stardata);
 
     for (star = 0; star < Sdata.numstars; ++star) {
-	fwrite(Stars[star], sizeof(startype), 1, stardata);
+        fwrite(Stars[star], sizeof(startype), 1, stardata);
     }
 
     chmod(STARDATAFL, 00660);
@@ -798,8 +798,8 @@ int main(int argc, char *argv[])
      * Why is this not needed anymore?
      */
     for (i = 1; i < MAXPLAYERS; ++i) {
-	sprintf(str, "%s.%d", TELEGRAMFL, i);
-	Empyfile(str);
+        sprintf(str, "%s.%d", TELEGRAMFL, i);
+        Empyfile(str);
     }
 #endif
 
@@ -815,18 +815,18 @@ int main(int argc, char *argv[])
     EmptyFile(ANNOUNCEFL);
 
     if (printstarinfo) {
-	PrintStatistics(outputtxt);
+        PrintStatistics(outputtxt);
     }
 
     if (printpostscript) {
-	produce_postscript(DEFAULT_POSTSCRIPT_MAP_FILENAME);
+        produce_postscript(DEFAULT_POSTSCRIPT_MAP_FILENAME);
     }
 
     printf("Universe Created!\n");
 
     if (printstarinfo || printplaninfo) {
-	printf("Summary output written to %s\n", OUTPUTFILE);
-	fclose(outputtxt);
+        printf("Summary output written to %s\n", OUTPUTFILE);
+        fclose(outputtxt);
     }
 
     return 0;
@@ -854,9 +854,9 @@ void produce_postscript(char const *filename)
     FILE *f = fopen(filename, "w+");
 
     if (f == NULL) {
-	printf("Unable to open postscript file \"%s\".\n", filename);
+        printf("Unable to open postscript file \"%s\".\n", filename);
 
-	return;
+        return;
     }
 
     printf("Creating postscript file...");
@@ -867,21 +867,21 @@ void produce_postscript(char const *filename)
     min_y = max_y;
 
     for (i = 1; i < nstars; ++i) {
-	if (Stars[i]->xpos < min_x) {
-	    min_x = Stars[i]->xpos;
-	}
+        if (Stars[i]->xpos < min_x) {
+            min_x = Stars[i]->xpos;
+        }
 
-	if (Stars[i]->xpos > max_x) {
-	    max_x = Stars[i]->xpos;
-	}
+        if (Stars[i]->xpos > max_x) {
+            max_x = Stars[i]->xpos;
+        }
 
-	if (stars[i]->ypos < min_y) {
-	    min_y = Stars[i]->ypos;
-	}
+        if (stars[i]->ypos < min_y) {
+            min_y = Stars[i]->ypos;
+        }
 
-	if (Stars[i]->ypos > max_y) {
-	    max_y = Stars[i]->ypos;
-	}
+        if (Stars[i]->ypos > max_y) {
+            max_y = Stars[i]->ypos;
+        }
     }
 
     /*
@@ -896,7 +896,7 @@ void produce_postscript(char const *filename)
     nscale = (10.0 * 72) / (max_y - min_y);
 
     if (nscale < scale) {
-	scale = nscale;
+        scale = nscale;
     }
 
     fprintf(f, "%%!PS-Adobe-2.0\n\n");
@@ -922,8 +922,8 @@ void produce_postscript(char const *filename)
     fprintf(f, "0 setlinewidth\n");
     fprintf(f, "newpath -10 10 moveto 7.5 72 mul 10 add 10 lineto\n");
     fprintf(f, "7.5 72 mul 10 add %d lineto -10 %d lineto closepath clip\n",
-	    (int)((min_y * max_y) * scale) - 10,
-	    (int)((min_y * max_y) * scale) - 10);
+            (int)((min_y * max_y) * scale) - 10,
+            (int)((min_y * max_y) * scale) - 10);
 
 #if 0
     /*
@@ -932,11 +932,11 @@ void produce_postscript(char const *filename)
     fprintf("\n/Times-Bold findfont 9 scalefont setfont\n\n");
 
     for (i = 1; i < NRINGS; ++i) {
-	fprintf(f,
-		"%d %d %d drawcircle\n",
-		(int)(-x_min * scale),
-		(int)(min_y * scale),
-		(int)(i * RING_SPACING * scale));
+        fprintf(f,
+                "%d %d %d drawcircle\n",
+                (int)(-x_min * scale),
+                (int)(min_y * scale),
+                (int)(i * RING_SPACING * scale));
     }
 #endif
 
@@ -946,11 +946,11 @@ void produce_postscript(char const *filename)
     fprintf(f, "\ntimes-Roman findfont 8 scalefone setfont\n\n");
 
     for (i = 0; i < nstars; ++i) {
-	fprintf(f,
-		"%d %d (%s) drawstar\n",
-		(int)((Stars[i]->xpos - min_x) * scale),
-		(int)((min_y - Stars[i]->ypos) * scale),
-		Stars[i]->name);
+        fprintf(f,
+                "%d %d (%s) drawstar\n",
+                (int)((Stars[i]->xpos - min_x) * scale),
+                (int)((min_y - Stars[i]->ypos) * scale),
+                Stars[i]->name);
     }
 
     fprintf(f, "\nshowpage\n");
@@ -973,30 +973,30 @@ void place_star(startype *star)
      */
 
     while (!found) {
-	star->xpos = (double)int_rand(-UNIVSIZE, UNIVSIZE);
-	star->ypos = (double)int_rand(-UNIVSIZE, UNIVSIZE);
+        star->xpos = (double)int_rand(-UNIVSIZE, UNIVSIZE);
+        star->ypos = (double)int_rand(-UNIVSIZE, UNIVSIZE);
 
-	/*
-	 * Let's try a more interesting algorithm -mfw
-	 */
-	/*
-	 * xfac = M_PI / UNIVSIZE;
-	 * star->xpos = (double)int_rand(-UNIV_SIZE, UNIVSIZE);
-	 * yfac = xfac * star->xpos;
-	 * zfac = sin(yfac);
-	 * star->ypos = zfac * UNIVSIZE;
-	 * printf("x: %lf, y: %lf, z: %lf\n", xfac, yfac, zfac);
-	 */
+        /*
+         * Let's try a more interesting algorithm -mfw
+         */
+        /*
+         * xfac = M_PI / UNIVSIZE;
+         * star->xpos = (double)int_rand(-UNIV_SIZE, UNIVSIZE);
+         * yfac = xfac * star->xpos;
+         * zfac = sin(yfac);
+         * star->ypos = zfac * UNIVSIZE;
+         * printf("x: %lf, y: %lf, z: %lf\n", xfac, yfac, zfac);
+         */
 
-	/*
-	 * Check to see if another star is nearby
-	 */
-	i = 100 * ((int)star->xpos + UNIVSIZE) / (2 * UNIVSIZE);
-	j = 100 * ((int)star->ypos + UNIVSIZE) / (2 * UNIVSIZE);
+        /*
+         * Check to see if another star is nearby
+         */
+        i = 100 * ((int)star->xpos + UNIVSIZE) / (2 * UNIVSIZE);
+        j = 100 * ((int)star->ypos + UNIVSIZE) / (2 * UNIVSIZE);
 
-	if (!occupied[i][j]) {
-	    found = 1;
-	    occupied[i][j] = found;
-	}
+        if (!occupied[i][j]) {
+            found = 1;
+            occupied[i][j] = found;
+        }
     }
 }

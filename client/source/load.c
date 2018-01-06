@@ -4,7 +4,7 @@
  *         Saving of init file (.gbrc)
  *         Logging files
  *         Shell escaping (old version)
- * 
+ *
  * Written by Evan D. Koffler <evank@netcom.com>
  *
  * Copyright (c) 1990-1993

@@ -58,13 +58,13 @@ Use cautiously, this could have devastating effects on game-play. This command
 was included to counteract bugs.
   Values of <attribute> := money | password | morale | pods | nopods
                            | collectiveiq | nocollectiveiq | maxiq | mass
-			   | metabolism | adventurism | ap | birthrate
-			   | fertility | IQ | fight | technology | guest | god
-			   | mortal | water | land | mountain | gas | ice
-			   |forest | desert | plated | explorebit | noexplorebit
-			   | inhabited | numsectsowned | resource | destruct
-			   | fuel | planetpopulation | xtall | activate
-			   | deactivate | homesystem | homeplanet
+                           | metabolism | adventurism | ap | birthrate
+                           | fertility | IQ | fight | technology | guest | god
+                           | mortal | water | land | mountain | gas | ice
+                           |forest | desert | plated | explorebit | noexplorebit
+                           | inhabited | numsectsowned | resource | destruct
+                           | fuel | planetpopulation | xtall | activate
+                           | deactivate | homesystem | homeplanet
 
 {{EXAMPLES}
   Sector Prefs:
@@ -166,7 +166,7 @@ __Galactic Bloodshed's Implementation of CHAP__
   Client Commands:
     CHAP RESPONSE  - Issued to server from client, the response string is the
                      race name, gov name, and an MD5 string of the concatenation
-		     of the race pass, gov pass, and challenge string.
+                     of the race pass, gov pass, and challenge string.
     CHAP ABORT     - May be issued to server to abort the CHAP sessions and
                      disconnect from server.
 
@@ -283,13 +283,13 @@ them follows:
       <Y>           is the height of the planet.
       <SHOW>        is unused.
       <sector info> is a single digit number followed by a character. The digit
-      	      	    means 1 of 2 things, depending if the toggle color option is
-		    set on the server. If color is NOT set, then the digit will
-		    be either a 1 or a 0 if you own or do not own the sector. If
-		    color is set then it will be a unique number for coloring
-		    the sector. After the color/ownership information comes the
-		    actual character to be used to represent this sector. The
-		    sector info continues for X * Y pairs of sectors.
+                    means 1 of 2 things, depending if the toggle color option is
+                    set on the server. If color is NOT set, then the digit will
+                    be either a 1 or a 0 if you own or do not own the sector. If
+                    color is set then it will be a unique number for coloring
+                    the sector. After the color/ownership information comes the
+                    actual character to be used to represent this sector. The
+                    sector info continues for X * Y pairs of sectors.
 
     Example:
       $Test;2;2;1*1*0^0^
@@ -301,10 +301,10 @@ them follows:
       Map in a working client would display:
 
             'Test'
-	    00
-	    01
-	 00 ** <- These 2 sectors would be colored/highlighted to represent ownership
-	 01 ^^
+            00
+            01
+         00 ** <- These 2 sectors would be colored/highlighted to represent ownership
+         01 ^^
 
     __Orbit:__
       #<stand1> <X> <Y> <array> <symbol> <stand2> <Name>;[<stand1> <X> <Y>
@@ -312,17 +312,17 @@ them follows:
 
       #        in position 0, this is the orbit command identifier.
       <stand1> is whether the planet is 'explored' by the player and should be
-       	       highlighted.
+               highlighted.
       <X>      is x coords.
       <Y>      is y coords.
       <array>  is the special output array index indicating which array to be
-      	       displayed. Which specific array to be used is determined by
-	       <symbol>
+               displayed. Which specific array to be used is determined by
+               <symbol>
       <symbol> if a 'm' or 'M' then a mirror should be displayed, if it is '*'
-      	       and <array> 0 then a nova should be displayed else it is a normal
-	       orbit map. Also, <symbol> will contain a ship letter if the data
-	       here is a ship and <stand1> and <stand2> will a positive number
-	       if the player owns the ship.
+               and <array> 0 then a nova should be displayed else it is a normal
+               orbit map. Also, <symbol> will contain a ship letter if the data
+               here is a ship and <stand1> and <stand2> will a positive number
+               if the player owns the ship.
       <stand2> is whether the planet has population of the player on it.
 
       Standard convention is to highlight the symbol if the planet has been
@@ -465,8 +465,8 @@ them follows:
     502   CSP_EXPLORE_STAR          - Name, starnum, APs
     503   CSP_EXPLORE_STAR_ALIENS   - Racenums
     504   CSP_EXPLORE_STAR_DATA     - 1 based plannum, planname, explored,
-    	  			      numsects, unk, unk, unk, compat, deposit,
-				      ptype
+                                      numsects, unk, unk, unk, compat, deposit,
+                                      ptype
     505   CSP_EXPLORE_STAR_END      - This star end, can be a list of many
     506   CSP_EXPLORE_END           - End of command (EOC)
 
@@ -507,7 +507,7 @@ them follows:
     1504  CSP_SHIPDUMP_COMMAND      - Ship dump command
     2000  CSP_PLANDUMP_INTRO        - Planet name = 0 based plan num, planName
     2001  CSP_PLANDUMP_CONDITIONS   - Conditions = temp, normTemp, meth, oxy,
-    	  			      co2, hyd, nit, sul, hel, other, tox?
+                                      co2, hyd, nit, sul, hel, other, tox?
     2002  CSP_PLANDUMP_STOCK        - Stockpiles
     2003  CSP_PLANDUMP_PROD         - Production last update
     2004  CSP_PLANDUMP_MISC         - Rest of stuff
@@ -647,17 +647,17 @@ It can be used in two ways:
     number of ships in database is 5
     Problem with ship number 1
                   Owner: 1
-		  Governor: 0
-		  Name: Tester
-		  Type: @
+                  Governor: 0
+                  Name: Tester
+                  Type: @
 
                   popn: 10         max_popn: 10
-		  troops: 0        max_troops: 10
+                  troops: 0        max_troops: 10
            -----> resources: 600   max_resources: 500
-	          destruct: 100    max_destruct: 100
-		  fuel: 1000       max_fuel: 1000
-		  speed: 0         max_speed: 0
-		  hanger: 0        max_hanger: 0
+                  destruct: 100    max_destruct: 100
+                  fuel: 1000       max_fuel: 1000
+                  speed: 0         max_speed: 0
+                  hanger: 0        max_hanger: 0
     I found a total of 1 bad ships our of 5
     All Done
 
@@ -726,15 +726,15 @@ altered. For example, if the admin wishes to fix a sector, the current scope
 must be that planet. This command was included to counteract bugs.
   Values of <what> := sector | planet | ship | star
   For <what> == sector, <attribute> := res | mob | owner | popn | eff | fert
-      	     			       | mil | cond
+                                       | mil | cond
   For <what> == planet, <attribute> := Maxx | Maxy | xpos | ypos | ships
-      	     			       | sectormappos | rtemp | temperature
-				       | methane | oxygen | co2 | hydrogen
-				       | nitrogen | sulfur | helium | other
-				       | toxic | population
+                                       | sectormappos | rtemp | temperature
+                                       | methane | oxygen | co2 | hydrogen
+                                       | nitrogen | sulfur | helium | other
+                                       | toxic | population
   For <what> == ship, <attribute> := fuel | max_fuel | destruct | resource
-      	     	      		     | damage | alive | dead | destroyed |ships
-				     | nextship | owner | hanger
+                                     | damage | alive | dead | destroyed |ships
+                                     | nextship | owner | hanger
   For <what> == star, <attribute> := ships | stab | nova | temp | grav
 
 {{EXAMPLES}}

@@ -158,7 +158,7 @@ or off.
 Terraformers will terraform the sector they are landed on in one segment so
 'limit n' setting is used to control the selection of the next sector to
 terraform: value n (in percents) will limit their activity to sectors that has
-capability less than n% for your race. So if you have compatabilities 100% of
+capability less than n% for your race. So if you have compatibilities 100% of
 land and 70% for water you should give 'order T limit 70' to prevent water
 sectors from being terraformed. T's will 1st look if there is suitable target
 sector that you own if not unowned sectors are searched. If T hops to unowned
@@ -368,7 +368,7 @@ strengths depend on number of beings, fighting ability, sector terrain and
 technology of the races according to the formula:
   strength = [(civ) * (fighting ability) + (troops) * (fighting ability) * 10]
              * (sector compatibility factor) * (terrain defense factor)
-	     * morale_factor(difference of race morales)
+             * morale_factor(difference of race morales)
 The assault is evaluated and casulties are remove from each sector. The origggin
 sector is where the people will begin to move from. This must be occupied
 by the player. Attacking commands are:
@@ -599,7 +599,7 @@ the server.
 {{SYNTAX}}
   [1] send <race> <message> -- This will send a dispatch to another race.
   [1] send <race> <governor> <message> -- This will send a dispatch to a
-      	   	  	     	       	  specific player.
+                                          specific player.
   [1] send block <block> <message> -- Sends a dispatch to an alliance block.
   [1] send star <star> <message> -- Send a dispatch to the inhabitants.
   [0] read displatches -- This will read all of the dispatch.
@@ -621,21 +621,21 @@ specify who they wish to contact, and a message to send to that player.
   In some tech races discovers diference equipments they may use now on. Here is
 a list of them with required tech:
 Hyper-drive     - After this you may upgrade or build new ships with hyper-drive
-		  engines.
+                  engines.
 Crystal         - Crystal energy source. You may use crystal along with fuel to
-		  make much faster and longer hyperjumps.
+                  make much faster and longer hyperjumps.
 Atmosphere      - Atmospheric processing, that allows changing a planet's
-		  atmosphere to the race's preference.
+                  atmosphere to the race's preference.
 Laser           - Light-beam weapon that will use fuel instead of destruction.
 Wormhole        - Able to detect wormholes. NOTE: Using them does not require
-		  this.
+                  this.
 VN Machines     - May create Von Neumann Machines.
 CEW             - Confined Energy Weapons, which unlike lasers and guns can be
-		  designed to have an optimal range.
+                  designed to have an optimal range.
 Cloaking Device - EM Refracting technology, can hide a ship from detection.
 AVPM            - Audio-Vibratory-Physio-Molecular Transport Device. This will
-		  transport loaded material into the hopper of its target
-  		  device.
+                  transport loaded material into the hopper of its target
+                  device.
 
 Tractor Beam    - Gravity Tractor/Pressor system. (Not implemented in code yet)
 Transporter     - (Not implemented in code yet)
@@ -789,10 +789,10 @@ where
 This one prevents attempts to cause revolts too cheaply. Factor disappears
 (closer to 1) when the amount of money is big. After a successful insurgency,
 the chance that each sector will revolt is:
-  (revolt chance) = (compatability factor) * (morale factor) * 0.5 *
+  (revolt chance) = (compatibility factor) * (morale factor) * 0.5 *
                     (military factor)
 where
-  compability factor = Your compability % to sector types in question
+  compatibility factor = Your compatibility % to sector types in question
   morale factor = Depends on you and your victim's morale
   military factor = Success is harder if there are troops in sector
 
@@ -934,7 +934,7 @@ given ship (i.e. your only civ on board gets killed by a lucky shot from an
 enemy), you cannot order the ship to any destinations.
 Only civilians can multiply, so if you inhabit a sector with military only, its
 population will not grow. It will not decrease either because military can
-survive on non-compatable sectors. Sector efficienty and fertility will stay as
+survive on non-compatible sectors. Sector efficienty and fertility will stay as
 they are as well.
 You can make military by arming civilians. That will cost $5 each and some
 amount of destruction. Amount depends on sector mobilization level, higher the

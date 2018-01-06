@@ -936,9 +936,9 @@ be if one were all alone ..."
   Since I am using "q" lets keep that for now...
   char Shipltrs[] = { 'p', 's', 'X', 'D', 'B', 'I', 'C', 'd', 'f', 'e', 'H',
                       'S', 'O', 'c', 't', '+', 'M', '=', 'i', '-', 'a', 'g',
-		      'h', '2', 'l', 'w', ':', 'G', 'F', 'T', '[', '^', 'n',
-		      'q', 'K', 'Y', 'W', 'J', '&', 'R', 'b', 'L', 'm', 'k',
-		      'j', '!', 'P' };
+                      'h', '2', 'l', 'w', ':', 'G', 'F', 'T', '[', '^', 'n',
+                      'q', 'K', 'Y', 'W', 'J', '&', 'R', 'b', 'L', 'm', 'k',
+                      'j', '!', 'P' };
 
   Now, need to add the data line for this new ship: need to find the quarry
   line..and first, change "QUA" to "KEG" then we can play with the numbers
@@ -987,28 +987,28 @@ be if one were all alone ..."
                           In the beginning was the Plan.
 
                           And then came the Assumptions.
-		      And the Assumptions were without form.
-		       And the Plan was without substance.
-		And the darkness was upon the face of the Workers.
+                      And the Assumptions were without form.
+                       And the Plan was without substance.
+                And the darkness was upon the face of the Workers.
 
                      And they spake among themselves, saying,
-		    "It is a crock of shit, and it stinketh."
+                    "It is a crock of shit, and it stinketh."
 
               And the Workers went unto their Supervisors and said,
-	  "It is a pail of dung, and none may abide the odor there of."
+          "It is a pail of dung, and none may abide the odor there of."
 
               And the Supervisors went unto their Managers, saying,
-	     "It is a container of excrement, and it is very strong,
-	                 such that none may abide by it."
+             "It is a container of excrement, and it is very strong,
+                         such that none may abide by it."
 
                And the Managers went unto their Directors, saying,
-	 "It is a vessel of fertilizer, and none may abide its strength."
+         "It is a vessel of fertilizer, and none may abide its strength."
 
         And the Directors spoke amongst themselves, saying one to another,
-	"It contains that which aids plant growth, and it is very strong."
+        "It contains that which aids plant growth, and it is very strong."
 
         And the Directors went unto the Vice Presidents, saying unto them
-	      "It promotes growth, and it is very powerful indeed."
+              "It promotes growth, and it is very powerful indeed."
 
         And the Vice Presidents went unto the President, saying unto him,
   "This new plan will actively promote the growth and vigor of the company, with
@@ -1106,7 +1106,7 @@ production (varies). Taxes (see help in the game) reduce your effective metab on
 planets for the purposes of efficiency gain.
 
   Planet Type: The planet type you choose will determine your primary sector
-type and the costs for purchasing compatability with other sectors. Here are
+type and the costs for purchasing compatibility with other sectors. Here are
 some general notes on each of the planet types and their main sector types:
   Earth: Land/Water/Ice, good size.
   Forest: Forest/Ice, nice size, really high population base.

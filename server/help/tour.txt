@@ -424,7 +424,7 @@ efficiency of 100%. There is a jump option for Dome to make it automatically
 jump into own low efficiency sector. A dome uses one resource per update.
 
 __Explorer__ (The second step inhabiting craft after shuttles. These can even
-	      shoot :))
+              shoot :))
 
   This is a small and fast exploration craft with some armor. It has increased
 range over shuttle and it's the smallest shiptype capable to jump. It is more
@@ -432,7 +432,7 @@ heavily armed than a shuttle. This is not a ship to tangle warships, although it
 is rather ideal for armed recon.
 
 __Missile__ (One of the main weapons when tech is not yet very high. The larger
-	     group, the better effectivity)
+             group, the better effectivity)
 
   This weapon can be used to attack enemy planets or ships. In order to attack
 with a missile, they must be launched and then given a destination. If the
@@ -464,7 +464,7 @@ be activated with the order command. Larger planets take longer to convert than
 smaller planets. The Processor uses three fuel units per turn.
 
 __Anit-Ballistic Missile Battery__ (Basic planetary device equipment along
-		 	 	    with G)
+                                    with G)
 
   This unit represent a battery of guns which can be used to attempt to down
 incoming aline missiles. If activated, each battery will fire at the

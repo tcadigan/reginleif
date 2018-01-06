@@ -2973,8 +2973,8 @@ list all available options and thier values. Options:
       color          If set, color codes will be sent. This requires an ANSI
                      capable term and like some other settings on your client
                      (like 'set ansi on' for gbII).
-      compatability  Controls whether or not explored planets have the
-                     compatability displayed on orbit maps.
+      compatibility  Controls whether or not explored planets have the
+                     compatibility displayed on orbit maps.
       double_digits  Display alien numbers with double digits.
       gag            Will turn off global broadcasts.
       geography      If set, playernumbers will not be displayed.

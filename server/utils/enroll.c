@@ -69,137 +69,137 @@ int enroll_player_race(char *failure_filename)
     n = critique_to_file(NULL, 1, 1);
 
     while (n) {
-	if (n > 1) {
-	    printf("Race (%s) unacceptable, for the following reasons:\n",
-		   race.name);
-	} else {
-	    printf("Race (%s) unacceptable, for the following reason:\n",
-		   race.name);
-	}
+        if (n > 1) {
+            printf("Race (%s) unacceptable, for the following reasons:\n",
+                   race.name);
+        } else {
+            printf("Race (%s) unacceptable, for the following reason:\n",
+                   race.name);
+        }
 
-	critique_to_file(stdout, 1, 1);
+        critique_to_file(stdout, 1, 1);
 
-	if (recursing) {
-	    printf("\"Quit\" to break out of fix mode.\n");
+        if (recursing) {
+            printf("\"Quit\" to break out of fix mode.\n");
 
-	    return 1;
-	}
+            return 1;
+        }
 
-	if (race.status == STATUS_ENROLLED) {
-	    return 0;
-	}
+        if (race.status == STATUS_ENROLLED) {
+            return 0;
+        }
 
-	n = Dialgoue("Abort, enroll anyway, fix, mail rejection?",
-		     "abort",
-		     "enroll",
-		     "fix",
-		     "mail",
-		     0);
+        n = Dialgoue("Abort, enroll anyway, fix, mail rejection?",
+                     "abort",
+                     "enroll",
+                     "fix",
+                     "mail",
+                     0);
 
-	/*
-	 * Enroll anyway
-	 */
-	if (n == 1) {
-	    break;
-	}
+        /*
+         * Enroll anyway
+         */
+        if (n == 1) {
+            break;
+        }
 
-	/*
-	 * Fix
-	 */
-	if (n == 2) {
-	    printf("Recursive racegen. \"Enroll\" or \"Quit\" to exit.\n");
-	    recursing = 1;
-	    modify_print_loop(1);
-	    recursing = 0;
-	    please_quit = recursing;
+        /*
+         * Fix
+         */
+        if (n == 2) {
+            printf("Recursive racegen. \"Enroll\" or \"Quit\" to exit.\n");
+            recursing = 1;
+            modify_print_loop(1);
+            recursing = 0;
+            please_quit = recursing;
 
-	    if (successful_enroll_in_fix_mode) {
-		successful_enroll_in_fix_mode = 0;
+            if (successful_enroll_in_fix_mode) {
+                successful_enroll_in_fix_mode = 0;
 
-		return 0;
-	    }
+                return 0;
+            }
 
-	    continue;
-	}
+            continue;
+        }
 
-	if (failure_filename != NULL) {
-	    f = fopen(failure_filename, "w+");
+        if (failure_filename != NULL) {
+            f = fopen(failure_filename, "w+");
 
-	    if (f == NULL) {
-		printf("Warning: Unable to open failures file \"%s\".\n",
-		       failure_filename);
-		printf("Race not saved to failures file.\n");
-	    } else {
-		print_to_file(f, 0);
-		printf("Race appended to failures file \"%s\".\n",
-		       failure_filename);
-		fclose(f);
-	    }
-	}
+            if (f == NULL) {
+                printf("Warning: Unable to open failures file \"%s\".\n",
+                       failure_filename);
+                printf("Race not saved to failures file.\n");
+            } else {
+                print_to_file(f, 0);
+                printf("Race appended to failures file \"%s\".\n",
+                       failure_filename);
+                fclose(f);
+            }
+        }
 
-	/*
-	 * Abort
-	 */
-	if (n == 0) {
-	    return 1;
-	}
+        /*
+         * Abort
+         */
+        if (n == 0) {
+            return 1;
+        }
 
-	g = fopen(TMP, "w");
+        g = fopen(TMP, "w");
 
-	if (g == NULL) {
-	    printf("Unable to open file \"%s\".\n", TMP);
+        if (g == NULL) {
+            printf("Unable to open file \"%s\".\n", TMP);
 
-	    return 1;
-	}
+            return 1;
+        }
 
-	fprintf(g, "To: %s\n", race.address);
-	fprintf(g, "Subject: %s Race Registration\n", GAME);
-	fprintf(g, "\n");
-	fprintf(g, "The race you submitted (%s) was not accepted, ", race.name);
-	if (n > 1) {
-	    fprintf(g, "for the following reasons:\n");
-	} else {
-	    fprintf(g, "for the following reason:\n");
-	}
+        fprintf(g, "To: %s\n", race.address);
+        fprintf(g, "Subject: %s Race Registration\n", GAME);
+        fprintf(g, "\n");
+        fprintf(g, "The race you submitted (%s) was not accepted, ", race.name);
+        if (n > 1) {
+            fprintf(g, "for the following reasons:\n");
+        } else {
+            fprintf(g, "for the following reason:\n");
+        }
 
-	critique_to_file(g, 1, 1);
-	fprintf(g, "\n");
-	fprintf(g,
-		"Please re-submit a race if you want to play in %s.\n",
-		GAME);
-	fprintf(g,
-		"(Check to make sure you are using racegen %s)\n",
-		RG_VERSION);
-	fprintf(g, "\n");
-	fprintf(g,
-		"For verification, here is my understanding of your race:\n");
-	print_to_file(g, 1);
-	fclose(g);
+        critique_to_file(g, 1, 1);
+        fprintf(g, "\n");
+        fprintf(g,
+                "Please re-submit a race if you want to play in %s.\n",
+                GAME);
+        fprintf(g,
+                "(Check to make sure you are using racegen %s)\n",
+                RG_VERSION);
+        fprintf(g, "\n");
+        fprintf(g,
+                "For verification, here is my understanding of your race:\n");
+        print_to_file(g, 1);
+        fclose(g);
 
-	printf("Sending critique to %s via %s...", race.address, MAILER);
-	fflush(stdout);
-	sprintf(c, "cat %s | %s %s", TMP, MAILER, race.address);
-	system(c);
-	printf("done.\n");
+        printf("Sending critique to %s via %s...", race.address, MAILER);
+        fflush(stdout);
+        sprintf(c, "cat %s | %s %s", TMP, MAILER, race.address);
+        system(c);
+        printf("done.\n");
 
-	return 1;
+        return 1;
     }
 
     if (enroll_valid_race()) {
-	return enroll_player_race(failure_filename);
+        return enroll_player_race(failure_filename);
     }
 
     if (recursing) {
-	successful_enroll_in_fix_mode = 1;
-	please_quit = 1;
+        successful_enroll_in_fix_mode = 1;
+        please_quit = 1;
     }
 
     g = fopen(TMP, "w");
 
     if (g == NULL) {
-	printf("Unable to open file \"%s\".\n", TMP);
+        printf("Unable to open file \"%s\".\n", TMP);
 
-	return 0;
+        return 0;
     }
 
     fprintf(g, "To: %s\n", race.address);
@@ -209,11 +209,11 @@ int enroll_player_race(char *failure_filename)
 
 #if 0
     if (race.modified_by_deity) {
-	fprintf(g, "The race was altered in order to be acceptable.\n");
-	fprintf(g, "Your race now looks like this:\n");
-	fprintf(g, "\n");
-	print_to_file(g, verbose, 0);
-	fprintf(g, "\n");
+        fprintf(g, "The race was altered in order to be acceptable.\n");
+        fprintf(g, "Your race now looks like this:\n");
+        fprintf(g, "\n");
+        print_to_file(g, verbose, 0);
+        fprintf(g, "\n");
     }
 #endif
 
@@ -234,13 +234,13 @@ int enroll(int argc, char *argv[])
     FILE *g;
 
     if (argc < 2) {
-	argv[1] = DEFAULT_ENROLLMENT_FAILURE_FILENAME;
+        argv[1] = DEFAULT_ENROLLMENT_FAILURE_FILENAME;
     }
 
     g = fopen(argv[1], "w+");
 
     if (g == NULL) {
-	printf("Unable to open failures file \"%s\".\n", argv[1]);
+        printf("Unable to open failures file \"%s\".\n", argv[1]);
     }
 
     fclose(g);
@@ -252,31 +252,31 @@ int enroll(int argc, char *argv[])
      * race submission mailed from somebody other than the moderator.
      */
     if (strcmp(race.address, GODADDR)) {
-	ret = enroll_player_race(argv[1]);
+        ret = enroll_player_race(argv[1]);
     } else {
-	ret = critique_to_file(NULL, 1, 0);
+        ret = critique_to_file(NULL, 1, 0);
 
-	if (ret) {
-	    if (ret > 1) {
-		printf("Race (%s) unacceptable, for the following reasons:\n",
-		       race.name);
-	    } else {
-		printf("Race (%s) unacceptable, for the following reason:\n",
-		       race.name);
-	    }
+        if (ret) {
+            if (ret > 1) {
+                printf("Race (%s) unacceptable, for the following reasons:\n",
+                       race.name);
+            } else {
+                printf("Race (%s) unacceptable, for the following reason:\n",
+                       race.name);
+            }
 
-	    critique_to_file(stdout, 1, 0);
-	} else {
-	    ret = enroll_valid_race();
+            critique_to_file(stdout, 1, 0);
+        } else {
+            ret = enroll_valid_race();
 
-	    if (ret) {
-		critique_to_file(stdout, 1, 0);
-	    }
-	}
+            if (ret) {
+                critique_to_file(stdout, 1, 0);
+            }
+        }
     }
 
     if (ret) {
-	printf("Enroll failed.\n");
+        printf("Enroll failed.\n");
     }
 
     return ret;
@@ -293,25 +293,25 @@ void process(int argc, char *argv[])
     int nenrolled;
 
     if (argc < 2) {
-	argv[1] = DEFAULT_ENROLLMENT_FILENAME;
+        argv[1] = DEFAULT_ENROLLMENT_FILENAME;
     }
 
     f = fopen(argv[1], "r");
 
     if (f == NULL) {
-	printf("Unable to open races file \"%s\".\n", argv[1]);
+        printf("Unable to open races file \"%s\".\n", argv[1]);
 
-	return;
+        return;
     }
 
     if (argc < 3) {
-	argv[2] = DEFAULT_ENROLLMENT_FAILURE_FILENAME;
+        argv[2] = DEFAULT_ENROLLMENT_FAILURE_FILENAME;
     }
 
     g = fopen(argv[2], "w");
 
     if (g == NULL) {
-	printf("Unable to open failures file \"%s\".\n", argv[2]);
+        printf("Unable to open failures file \"%s\".\n", argv[2]);
     }
 
     fclose(g);
@@ -320,22 +320,22 @@ void process(int argc, char *argv[])
     nenrolled = 0;
 
     while (!feof(f)) {
-	if (load_from_file(f) == 1) {
-	    continue;
-	}
+        if (load_from_file(f) == 1) {
+            continue;
+        }
 
-	++n;
-	printf("%s, from %s\n", race.name, race.address);
+        ++n;
+        printf("%s, from %s\n", race.name, race.address);
 
-	/*
-	 * We need the side effects:
-	 */
-	last_npoints = npoints;
-	npoints = STARTING_POINTS - cost_of_race();
+        /*
+         * We need the side effects:
+         */
+        last_npoints = npoints;
+        npoints = STARTING_POINTS - cost_of_race();
 
-	if (!enroll_player_race(argv[2])) {
-	    ++nenrolled;
-	}
+        if (!enroll_player_race(argv[2])) {
+            ++nenrolled;
+        }
     }
 
     fclosef(f);
@@ -343,17 +343,17 @@ void process(int argc, char *argv[])
     printf("Enrolled %d ", nenrolled);
 
     if (nenrolled != 1) {
-	printf("races; ");
+        printf("races; ");
     } else {
-	printf("race; ");
+        printf("race; ");
     }
 
     printf("%d ", n - nenrolled);
 
     if ((n - nenrolled) != 1) {
-	printf("failures ");
+        printf("failures ");
     } else {
-	printf("failure ");
+        printf("failure ");
     }
 
     printf("saved in file %s.\n", argv[2]);

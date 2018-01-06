@@ -84,70 +84,70 @@ int main(int argc, char *argv[])
     uid = getuid();
 
     if (uid < UIDMIN) {
-	fprintf(stderr,
-		"%s tried to run as user-id %d, requires at least %d.\n",
-		guard,
-		uid,
-		UIDMIN);
+        fprintf(stderr,
+                "%s tried to run as user-id %d, requires at least %d.\n",
+                guard,
+                uid,
+                UIDMIN);
 
-	exit(1);
+        exit(1);
     } else {
-	uid = geteuid();
+        uid = geteuid();
 
-	if (uid < UIDMIN) {
-	    fprintf(stderr,
-		    "%s tried to run as user-id %d, reuires at least %d.\n",
-		    guard,
-		    uid,
-		    UIDMIN);
+        if (uid < UIDMIN) {
+            fprintf(stderr,
+                    "%s tried to run as user-id %d, reuires at least %d.\n",
+                    guard,
+                    uid,
+                    UIDMIN);
 
-	    exit(1);
-	}
+            exit(1);
+        }
     }
 
     gid = getgid();
 
     if (gid < GIDMIN) {
-	fprintf(stderr,
-		"%s tried to run as group-id %d, requires at least %d.\n",
-		guard,
-		gid,
-		GIDMIN);
+        fprintf(stderr,
+                "%s tried to run as group-id %d, requires at least %d.\n",
+                guard,
+                gid,
+                GIDMIN);
 
-	exit(1);
+        exit(1);
     } else {
-	gid = getegid();
+        gid = getegid();
 
-	if (gid < GIDMIN) {
-	    fprintf(stderr,
-		    "%s tried to run as group-id %d, requires at least %d.\n",
-		    guard,
-		    gid,
-		    GIDMIN);
+        if (gid < GIDMIN) {
+            fprintf(stderr,
+                    "%s tried to run as group-id %d, requires at least %d.\n",
+                    guard,
+                    gid,
+                    GIDMIN);
 
-	    exit(1);
-	}
+            exit(1);
+        }
     }
 
     if (getenv("HOME") == NULL) {
-	fprintf(stderr, "Problem with shell, check HOME variable.\n");
+        fprintf(stderr, "Problem with shell, check HOME variable.\n");
 
-	exit(1);
+        exit(1);
     }
 
     if (argc != 1) {
-	fprintf(stderr, "No arguments required...\n");
-	fprintf(stderr, "%s will automatically start %s\n", guard, prog);
+        fprintf(stderr, "No arguments required...\n");
+        fprintf(stderr, "%s will automatically start %s\n", guard, prog);
 
-	exit(1);
+        exit(1);
     }
 
     if (chdir(PATH(bin)) != 0) {
-	fprintf(stderr, "%s: Could not change directory to: %s\n",
-		guard,
-		PATH(BIN));
+        fprintf(stderr, "%s: Could not change directory to: %s\n",
+                guard,
+                PATH(BIN));
 
-	exit(1);
+        exit(1);
     }
 
     bfn = basename(prog);
@@ -163,15 +163,15 @@ int main(int argc, char *argv[])
     sigaddset(&newsigset, SIGHUP);
 
     if (sigprocmask(SIG_BLOCK, &newsigset, NULL) < 0) {
-	perror("Could not block the signal");
+        perror("Could not block the signal");
 
-	exit(1);
+        exit(1);
     }
 
     if (dup2(1, 2) < 0) {
-	perror("Cound not duplicate stderr/stdout");
+        perror("Cound not duplicate stderr/stdout");
 
-	exit(1);
+        exit(1);
     }
 
     /*
@@ -181,157 +181,157 @@ int main(int argc, char *argv[])
     pidfile = fopen(temp, "w+");
 
     if (pidfile != 0) {
-	fprintf(pidfile, "%d", (int)getpid());
-	fclose(pidfile);
+        fprintf(pidfile, "%d", (int)getpid());
+        fclose(pidfile);
     } else {
-	fprintf(stderr, "Unable to create %s\n", temp);
+        fprintf(stderr, "Unable to create %s\n", temp);
 
-	exit(1);
+        exit(1);
     }
 
     fprintf(stderr, "%s: on duty.\n", guard);
 
     while (1) {
-	pid = fork();
+        pid = fork();
 
-	switch(pid) {
-	case -1:
-	    /*
-	     * Error!
-	     */
-	    perror("Can't fork a child");
+        switch(pid) {
+        case -1:
+            /*
+             * Error!
+             */
+            perror("Can't fork a child");
 
-	    /*
-	     * 10 minutes
-	     */
-	    sleep(600);
+            /*
+             * 10 minutes
+             */
+            sleep(600);
 
-	    break;
-	case 0:
-	    /*
-	     * Child
-	     */
-	    execl(prog, bfn, (char *)NULL);
-	    perror("Can't exec child");
+            break;
+        case 0:
+            /*
+             * Child
+             */
+            execl(prog, bfn, (char *)NULL);
+            perror("Can't exec child");
 
-	    exit(1);
+            exit(1);
 
-	    break;
-	default:
-	    /*
-	     * Parent
-	     */
-	    fprintf(stderr,
-		    "%s: starting \'%s\' with pid [%d]\n",
-		    guard,
-		    bfn,
-		    pid);
+            break;
+        default:
+            /*
+             * Parent
+             */
+            fprintf(stderr,
+                    "%s: starting \'%s\' with pid [%d]\n",
+                    guard,
+                    bfn,
+                    pid);
 
-	    /*
-	     * Wait for the little brat
-	     */
-	    while (wait(&status) != pid) {
-	    }
+            /*
+             * Wait for the little brat
+             */
+            while (wait(&status) != pid) {
+            }
 
-	    break;
-	}
+            break;
+        }
 
-	/*
-	 * Did the child exit abnormally?
-	 */
-	if (WIFEXITED(status) == 0) {
-	    /*
-	     * We're out of fork, the process has died
-	     */
-	    ++died;
+        /*
+         * Did the child exit abnormally?
+         */
+        if (WIFEXITED(status) == 0) {
+            /*
+             * We're out of fork, the process has died
+             */
+            ++died;
 
-	    fprintf(stderr, "%s: \'%s\' died!\n", guard, bfn);
+            fprintf(stderr, "%s: \'%s\' died!\n", guard, bfn);
 
-	    /*
-	     * Get the current time
-	     */
-	    tim = time(NULL);
-	    mytime = localtime(&tim);
-	    strftime(timestr, sizeof(timestr), "%m.%d.%Y-%T", mytime);
-	    sprintf(corestr, "core-%s", timestr);
+            /*
+             * Get the current time
+             */
+            tim = time(NULL);
+            mytime = localtime(&tim);
+            strftime(timestr, sizeof(timestr), "%m.%d.%Y-%T", mytime);
+            sprintf(corestr, "core-%s", timestr);
 
 #ifdef DEBUG
-	    if (rename("core", corestr) == 0) {
-		foundcore = 1;
-		fprintf(stderr,
-			"%s: Found core file, moved to %s\n",
-			guard,
-			corestr);
-	    }
+            if (rename("core", corestr) == 0) {
+                foundcore = 1;
+                fprintf(stderr,
+                        "%s: Found core file, moved to %s\n",
+                        guard,
+                        corestr);
+            }
 
 #ifdef WCOREDUMP
-	    if (WCOREDUMP(status)) {
-		foundcore = 1;
-	    }
+            if (WCOREDUMP(status)) {
+                foundcore = 1;
+            }
 #endif
 #endif
-	    sprintf(repfile, "/tmp/%s-%d", guard, pid);
-	    fp = fopen(repfile, "w");
+            sprintf(repfile, "/tmp/%s-%d", guard, pid);
+            fp = fopen(repfile, "w");
 
-	    if (fp != 0) {
-		fprintf(fp,
-			"Notice from %s\n\'%s\' died on %s\n",
-			guard,
-			bfn,
-			timestr);
+            if (fp != 0) {
+                fprintf(fp,
+                        "Notice from %s\n\'%s\' died on %s\n",
+                        guard,
+                        bfn,
+                        timestr);
 
-		if (foundcore) {
-		    fprintf(fp, "A core file was produced.\n");
-		}
+                if (foundcore) {
+                    fprintf(fp, "A core file was produced.\n");
+                }
 
-		if (died > RESTARTS) {
-		    fprintf(fp, "\nToo many restarts...giving up!\n\n");
-		} else {
-		    fprintf(fp,
-			    "\nWill attempt a restart...have a nice day!\n\n");
-		}
+                if (died > RESTARTS) {
+                    fprintf(fp, "\nToo many restarts...giving up!\n\n");
+                } else {
+                    fprintf(fp,
+                            "\nWill attempt a restart...have a nice day!\n\n");
+                }
 
-		fclose(fp);
+                fclose(fp);
 
-		sprintf(temp,
-			"cat %s | %s -s \"GB Crash Guard Report\" %s; rm %s",
-			repfile,
-			MAILPROG,
-			GODADDR,
-			repfile);
+                sprintf(temp,
+                        "cat %s | %s -s \"GB Crash Guard Report\" %s; rm %s",
+                        repfile,
+                        MAILPROG,
+                        GODADDR,
+                        repfile);
 
-		if (!system(temp)) {
-		    fprintf(stderr, "%s: Sent email crash report\n", guard);
-		} else {
-		    fprintf(stderr,
-			    "%s: Could not send email crash report\n",
-			    guard);
-		}
-	    } else {
-		fprintf(stderr, "%s: Could not open %s\n", guard, repfile);
-	    }
+                if (!system(temp)) {
+                    fprintf(stderr, "%s: Sent email crash report\n", guard);
+                } else {
+                    fprintf(stderr,
+                            "%s: Could not send email crash report\n",
+                            guard);
+                }
+            } else {
+                fprintf(stderr, "%s: Could not open %s\n", guard, repfile);
+            }
 
-	    fprintf(stderr, "%s: Time is \'%s\'\n", guard, timestr);
+            fprintf(stderr, "%s: Time is \'%s\'\n", guard, timestr);
 
-	    if (died > RESTARTS) {
-		fprintf(stderr,
-			"Too many restarts (%d), shutting down.\n",
-			died);
+            if (died > RESTARTS) {
+                fprintf(stderr,
+                        "Too many restarts (%d), shutting down.\n",
+                        died);
 
-		exit(1);
-	    }
+                exit(1);
+            }
 
-	    /*
-	     * Wait a minute then try to start it up again
-	     */
-	    sleep(60);
+            /*
+             * Wait a minute then try to start it up again
+             */
+            sleep(60);
 
-	    foundcore = 0;
-	} else {
-	    /*
-	     * We exited normally, so the guardian will shut down too
-	     */
-	    exit(0);
-	}
+            foundcore = 0;
+        } else {
+            /*
+             * We exited normally, so the guardian will shut down too
+             */
+            exit(0);
+        }
     }
 }
