@@ -1,0 +1,10 @@
+---
+layout: page
+title: Books I have read
+---
+
+<ul class="books">
+  {% for book in site.books %}
+  <li><a href="{{ book.url }}">{{ book.title }}</a></li>
+  {% endfor %}
+</ul>
