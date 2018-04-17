@@ -6,7 +6,7 @@ gbII 2.5.4
 
   Fix some problems and made login cleaner for older servers. Also fixes a
   problem with scope prompts on older servers.
-  
+
 gbII 2.6.0 (Released: 2005-03-01)
 
   Started with gbII client version 2.5.4 as a codebase. -mfw
