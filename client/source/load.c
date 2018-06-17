@@ -11,14 +11,16 @@
  *
  * See the COPYRIGHT file.
  */
+#include "load.h"
 
 #include "csp.h"
 #include "gb.h"
-#include "proto.h"
 #include "str.h"
 #include "term.h"
 #include "types.h"
 #include "vars.h"
+
+#include <stdbool.h>
 
 #define GBRC_SAVE_LINE "# Put your stuff below here -- Keep this line here\n"
 
@@ -26,19 +28,13 @@ extern int end_msg;
 extern int hide_msg;
 extern int kill_socket_output;
 
-extern char *ctime(const time_t *);
-extern char *getenv(const char *);
-extern int fclose(FILE *);
-extern int fprintf(FILE *, const char *, ...);
-extern int system(const char *);
-extern time_t time(time_t *);
 void expand_file(char *filename);
 void load_init_file(FILE *fd);
 void load_predefined(char *fname);
 void log_file(char *args);
 
 /*
- * lodaf: Has several functions.
+ * loadf: Has several functions.
  * No arguments: It prompts for loading of the defined GBRC file.
  * Arguments trip certain output flags and load the file and take
  * appropriate action base on the flags.
@@ -151,7 +147,8 @@ void cmd_loadf(char *args)
 
     while(fgets(buf, MAXSIZ, fd)) {
         if((*buf == ';') || (*buf == '#')) {
-            if((type == SCREEN_ONLY) && streq(buf, "# Galactic Bloodshed Client II Initialization File\n")) {
+            if ((type == SCREEN_ONLY)
+                && !strcmp(buf, "# Galactic Bloodshed Client II Initialization File\n")) {
                 msg("-- loadf Loading GB II Init File: \'%s\'", args);
                 load_init_file(fd);
 
@@ -210,7 +207,7 @@ void cmd_loadf(char *args)
 
             if(hidden) {
                 ++hide_msg;
-                kill_socket_output = TRUE;
+                kill_socket_output = true;
             }
         }
 
@@ -321,7 +318,7 @@ void load_init_file(FILE *fd)
             continue;
         }
 
-        process_key(buf, FALSE);
+        process_key(buf, false);
     }
 
     fclose(fd);
@@ -329,7 +326,7 @@ void load_init_file(FILE *fd)
 
 void cmd_source(char *args)
 {
-    char buf[BUFSIZE];
+    char buf[BUFSIZ];
 
     sprintf(buf, "-d %s", args);
     cmd_loadf(buf);
@@ -373,19 +370,21 @@ void log_file(char *args)
 
     strcpy(mode, "a+");
 
-    /* Turn off logging, if approriate */
-    if(streq(args, "off") || (*args == '\0') || streq(args, "off no msg")) {
+    /* Turn off logging, if appropriate */
+    if (!strcmp(args, "off")
+        || (*args == '\0')
+        || !strcmp(args, "off no msg")) {
         if(logfile.on) {
             fclose(logfile.fd);
         }
 
-        logfile.on = FALSE;
-        logfile.redirect = FALSE;
+        logfile.on = false;
+        logfile.redirect = false;
         logfile.level = LOG_OFF;
 
         /* noclobber sets name ot null is error */
         if(*logfile.name == '\0') {
-            if(!streq(args, "off no msg")) {
+            if (strcmp(args, "off not msg")) {
                 msg("-- Logging turned off.");
             }
         }
@@ -439,7 +438,7 @@ void log_file(char *args)
     }
 
     /* If filename is on, use ~/gb.log */
-    if(streq(args, "on")) {
+    if (!strcmp(args, "on")) {
         strcpy(args, "~/gb.log");
         expand_file(args);
     }
@@ -450,7 +449,7 @@ void log_file(char *args)
     strcpy(logfile.name, args);
 
     if(GET_BIT(options, NOCLOBBER) && (*mode == 'w') && (stat(logfile.name, &statbuf) == 0)) {
-        logfile.on = FALSE;
+        logfile.on = false;
         msg("-- Log: noclobber is set and file \'%s\' exists. Not writing.", logfile.name);
         *logfile.name = '\0';
 
@@ -461,7 +460,7 @@ void log_file(char *args)
 
     if(logfile == NULL) {
         msg("-- Log: Could not open \'%s\' for writing (%s)", logfile.name, mode);
-        logfile.on = FALSE;
+        logfile.on = false;
 
         return;
     }
@@ -469,7 +468,7 @@ void log_file(char *args)
     clk = time(0);
     fprintf(logfile.fd, "GBII Log File: %s\n", ctime(&clk));
     msg("-- Log file %s opened.", logfile.name);
-    logfile.on = TRUE;
+    logfile.on = true;
 #endif
 }
 

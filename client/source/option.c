@@ -9,8 +9,8 @@
  */
 #include "option.h"
 
+#include "args.h"
 #include "gb.h"
-#include "proto.h"
 #include "str.h"
 #include "term.h"
 #include "types.h"
@@ -18,6 +18,7 @@
 
 #include <ctype.h>
 #include <string.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <sys/types.h>
 
@@ -53,6 +54,69 @@ extern int strncmp(const char *, const char *, size_t);
 extern long int atol(const char *);
 void display_set(void);
 
+static CommandSet commandset_table[] = {
+    {              "actions",               ACTIONS,                  toggle, 0 },
+    {                 "ansi",             DISP_ANSI,                set_ansi, 0 },
+    {            "autologin",     AUTOLOGIN_STARTUP,            doubletoggle, 0 },
+    {                 "beep",                  BEEP,                  toggle, 0 },
+    {                 "bell",              DO_BELLS,                  toggle, 0 },
+    {            "bold_comm",             BOLD_COMM,                  toggle, 0 },
+    {   "bold_communication",             BOLD_COMM,                  toggle, 0 },
+    {             "brackets",              BRACKETS,                  toggle, 0 },
+    {        "client_prompt",               OP_NONE,       set_client_prompt, 0 },
+    {              "connect",       CONNECT_STARTUP,            doubletoggle, 0 },
+    {        "connect_delay",               OP_NONE,       set_connect_delay, 0 },
+#ifdef IMAP
+    {        "cursor_sector",               OP_NONE,               set_debug, 0 },
+#endif
+    {                "debug",               OP_NONE,               set_debug, 0 },
+#ifdef CLIENT_DEVEL
+    {                "devel",               OP_NONE,               set_devel, 0 },
+#endif
+    {              "display",            DISPLAYING,                  toggle, 0 },
+    {     "display_from_top",           DISPLAY_TOP,                  toggle, 0 },
+    {              "encrypt",               OP_NONE,             set_encrypt, 0 },
+    {          "entry_quote",               OP_NONE,         set_entry_quote, 0 },
+    {           "exit_quote",               OP_NONE,          set_exit_quote, 0 },
+    {          "full_screen",               OP_NONE,         set_full_screen, 0 },
+    {                 "help",               OP_NONE,                set_help, 0 },
+    {      "hide_end_prompt",       HIDE_END_PROMPT,                  toggle, 0 },
+    {              "history",               OP_NONE,             set_history, 0 },
+    {         "input_prompt",               OP_NONE,        set_input_prompt, 0 },
+    {     "insert_edit_mode",               OP_NONE,    set_insert_edit_mode, 0 },
+    {              "inverse",               OP_NONE,       term_standout_off, 0 },
+    {       "login_suppress", LOGINSUPPRESS_STARTUP,            doubletoggle, 0 },
+    {           "macro_char",               OP_NONE,          set_macro_char, 0 },
+    {                  "map",               OP_NONE,            set_map_opts, 0 },
+    {                 "more",               OP_NONE,                set_more, 0 },
+    {           "more_delay",               OP_NONE,          set_more_delay, 0 },
+    {            "more_rows",               OP_NONE,           set_more_rows, 0 },
+    {            "no_logout",             NO_LOGOUT,                  toggle, 0 },
+    {            "noclobber",             NOCLOBBER,                  toggle, 0 },
+    {               "notify",               OP_NONE,              set_notify, 0 },
+    {         "notify_beeps",               OP_NONE,        set_notify_beeps, 0 },
+    {        "output_prompt",               OP_NONE,       set_output_prompt, 0 },
+    {  "overwrite_edit_mode",               OP_NONE, set_overwrite_edit_mode, 0 },
+    {        "partial_lines",         PARTIAL_LINES,                  toggle, 0 },
+    {     "primary_password",               OP_NONE,    set_primary_password, 0 },
+    {             "quit_all",              QUIT_ALL,                  toggle, 0 },
+    {                  "raw",               RAWMODE,                  toggle, 0 },
+    {               "recall",               OP_NONE,              set_recall, 0 },
+    {       "repeat_connect",       CONNECT_STARTUP,            doubletoggle, 0 },
+    {                 "robo",               OP_NONE,                set_robo, 0 },
+    {                 "rwho",               OP_NONE,                set_rwho, 0 },
+    {               "scroll",                SCROLL,                  toggle, 0 },
+    {         "scroll_clear",            SCROLL_CLR,                  toggle, 0 },
+    {   "secondary password",               OP_NONE,  set_secondary_password, 0 },
+    {         "show_actions",          SHOW_ACTIONS,                  toggle, 0 },
+    {           "show_clock",            SHOW_CLOCK,          set_show_clock, 0 },
+    {            "show_mail",             SHOW_MAIL,           set_show_mail, 0 },
+    {       "slash_commands",        SLASH_COMMANDS,                  toggle, 0 },
+    {           "status_bar",               OP_NONE,          set_status_bar, 0 },
+    {      "status_bar_char",               OP_NONE,     set_status_bar_char, 0 },
+    { "status_bar_character",               OP_NONE,     set_status_bar_char, 0 }
+};
+
 void display_set(void)
 {
     char dsbuf[BUFSIZ];
@@ -62,7 +126,7 @@ void display_set(void)
     sprintf(dsbuf,
             "actions: %s",
             (GET_BIT(options, ACTIONS) ? "on " : "off"));
-    
+
     do_column_maker(dsbuf);
 
     sprintf(dsbuf,
@@ -273,24 +337,23 @@ void display_set(void)
     msg("-- end of set.");
 }
 
-/* 
+/*
  * Takes the args and if on or off set/clears the bits. Otherwise it
  * flips the bit from which ever way it was.
  */
 void toggle(int *args, int type, char *name)
 {
-    if(*args && streq(args, "on")) {
+    if (*args && !strcmp(args, "on")) {
         if(*name) {
             msg("-- %s: on", name);
         }
 
         SET_BIT(options, type);
-    }
-    else if(*args && streq(args, "off")) {
+    } else if (*args && !strcmp(args, "off")) {
         if(*name) {
             msg("-- %s: off", name);
         }
-        
+
         CLR_BIT(options, type);
     }
     else if(GET_BIT(options, type)) {
@@ -353,14 +416,14 @@ void cmd_set(char *s)
         return;
     }
 
-    handler->has_changed = TRUE;
+    handler->has_changed = true;
     handler->func(args, handler->value, handler->name);
 }
 
 CommandSet *binary_set_search(char *cmd)
 {
     int bottom = 0;
-    int top = NUM_OPTIONS - 1;
+    int top = (sizeof(commandset_table) / sizeof(CommandSet)) - 1
     int mid;
     int value;
 
@@ -389,7 +452,7 @@ void set_client_prompt(char *args)
 
     p = get_args(2, 0);
 
-    if(streq(p, "default")) {
+    if (!strcmp(p, "default")) {
         strfree(client_prompt);
         client_prompt = string(DEFAULT_CLIENT_PROMPT);
         strfee(p);
@@ -452,11 +515,10 @@ void set_debug(char *args)
 
 void set_encrypt(char *args)
 {
-    if(streq(args, "on") || streqln(args, "hide")) {
+    if (!strcmp(args, "on") || !strncmp(args, "hide", strlen(args))) {
         SET_BIT(options, ENCRYPT);
         msg("-- encrypt: hidden.");
-    }
-    else if(streq(args, "off") || streqln(args, "shown")) {
+    } else if (!strcmp(args, "off") || !strncmp(args, "shown", strlen(args))) {
         CLR_BIT(optoins, ENCRYPT);
         msg("-- encrypt: shown.");
     }
@@ -467,7 +529,7 @@ void set_encrypt(char *args)
 
 void set_entry_quote(char *args)
 {
-    if(streq(args, "none")) {
+    if (!strcmp(args, "none")) {
         strfree(entry_quote);
         entry_quote = (char *)NULL;
         msg("-- entry_quote: cleared.");
@@ -481,7 +543,7 @@ void set_entry_quote(char *args)
 
 void set_exit_quote(char *args)
 {
-    if(streq(args, "none")) {
+    if (!strcmp(args, "none")) {
         strfree(exit_quote);
         exit_quote = (char *)NULL;
         msg("-- exit_quote: cleared.");
@@ -504,7 +566,7 @@ void set_help(char *args)
     if(*args) {
         strfree(help_client);
 
-        if(streq(args, "default")) {
+        if (!strcmp(args, "default")) {
 #ifdef HELP_CLIENT
             help_client = string(HELP_CLIENT);
 
@@ -541,7 +603,7 @@ void set_input_prompt(char *args)
 
     p = get_args(2, 0);
 
-    if(streq(p, "default")) {
+    if (!strcmp(p, "default")) {
         strfree(input_prompt);
         input_prompt = string(DEFAULT_INPUT_PROMPT);
         strfree(p);
@@ -569,7 +631,7 @@ void set_insert_edit_mode(char *args)
 
 void set_macro_char(char *args)
 {
-    if(streq(args, "default")) {
+    if (!strcmp(args, "default")) {
 #ifdef DEFAULT_MACRO_CHAR
         macro_char = DEFAULT_MACRO_CHAR;
 
@@ -587,7 +649,7 @@ void set_macro_char(char *args)
 
 void set_map_opts(char *args)
 {
-    if(streqln(args, "double")) {
+    if (!strncmp(args, "double", strlen(args))) {
         if(GET_BIT(options, MAP_DOUBLE)) {
             CLR_BIT(options, MAP_DOUBLE);
             msg("-- map: double numbers turned off.");
@@ -596,8 +658,7 @@ void set_map_opts(char *args)
             SET_BIT(options, MAP_DOUBLE);
             msg("-- map: double numbers turned on.");
         }
-    }
-    else if(streqln(args, "space")) {
+    } else if (!strncmp(args, "space", strlen(args))) {
         if(GET_BIT(options, MAP_SPACE)) {
             CLR_BIT(options, MAP_SPACE);
             msg("-- map: spacing disabled.");
@@ -614,11 +675,10 @@ void set_map_opts(char *args)
 
 void set_more(char *args)
 {
-    if(*args && streq(args, "on")) {
-        move_val.on = TRUE;
-    }
-    else if(*args && streq(args, "off")) {
-        more_val.on = FALSE;
+    if (*args && !strcmp(args, "on")) {
+        more_val.on = true;
+    } else if (*args && !strcmp(args, "off")) {
+        more_val.on = false;
     }
     else {
         more_val.on = (more_val.on + 1) % 2;
@@ -651,14 +711,13 @@ void set_more_rows(char *args)
 
 void set_notify(char *args)
 {
-    if(((notify > 0) || streq(args, "off")) && !streq(args, "on")) {
+    if (((notify > 0) || !strcmp(args, "off")) && strcmp(args, "on")) {
         if(notify > 0) {
             notify = 0 - notify;
         }
 
         msg("-- notify: off");
-    }
-    else if((notify < 0) || streq(args, "on")) {
+    } else if ((notify < 0) || !strcmp(args, "on")) {
         if(notify < 0) {
             notify = 0 - notify;
         }
@@ -690,7 +749,7 @@ void set_output_prompt(char *args)
 
     p = get_args(2, 0);
 
-    if(streq(p, "default")) {
+    if (!strcmp(p, "default")) {
         strfree(output_prompt);
 
 #ifdef DEFAULT_OUTPUT_PROMPT
@@ -698,7 +757,7 @@ void set_output_prompt(char *args)
 
 #else
 
-        output_prompt = string(NULL_STRING);
+        output_prompt = string("");
 #endif
 
         strfree(p);
@@ -767,7 +826,7 @@ void set_show_mail(char *args, int val, char *names)
 
 void set_status_bar(char *args)
 {
-    if(streq(args, "default")) {
+    if (!strcmp(args, "default")) {
 #ifdef DEFAULT_STATUS_BAR
         strcpy(status.format, DEFAULT_STATUS_BAR);
 
@@ -847,7 +906,7 @@ void save_settings(FILE *fd)
         fprintf(fd, "set brackets on\n");
     }
 
-    if(!streq(client_prompt, DEFAULT_CLIENT_PROMPT)) {
+    if (strcmp(client_prompt, DEFAULT_CLIENT_PROMPT)) {
         fprintf(fd, "set client_prompt \"%s\"\n", client_prompt);
     }
 
@@ -885,7 +944,7 @@ void save_settings(FILE *fd)
         fprintf(fd, "set full_screen on\n");
     }
 
-    if(!streq(help_client, HELP_CLIENT)) {
+    if (strcmp(help_client, HELP_CLIENT)) {
         fprintf(fd, "set help %s\n", help_client);
     }
 
@@ -897,7 +956,7 @@ void save_settings(FILE *fd)
         fprintf(fd, "set history %d\n", max_history);
     }
 
-    if(!streq(input_prompt, DEFAULT_INPUT_PROMPT)) {
+    if (strcmp(input_prompt, DEFAULT_INPUT_PROMPT)) {
         fprintf(fd, "set input_prompt \"%s\"\n", input_prompt);
     }
 
@@ -935,7 +994,7 @@ void save_settings(FILE *fd)
         fprintf(fd, "set notify_beeps %d\n", (notify > 0 ? notify : -notify));
     }
 
-    if(!streq(output_prompt, DEFAULT_OUTPUT_PROMPT)) {
+    if (strcmp(output_prompt, DEFAULT_OUTPUT_PROMPT)) {
         fprintf(fd, "set output_prompt \"%d\"\n", output_prompt);
     }
 
@@ -975,11 +1034,11 @@ void save_settings(FILE *fd)
         fprintf(fd, "set show_mail on\n");
     }
 
-    if(!streq(status.format, DEFAULT_STATUS_BAR)) {
+    if (strcmp(status.format, DEFAULT_STATUS_BAR)) {
         fprintf(fd, "set status_bar %s\n", status.format);
     }
 
-    if(!streq(status.char, DEFAULT_STATUS_BAR_CHAR)) {
+    if (strcmp(status.char, DEFAULT_STATUS_BAR_CHAR)) {
         fprintf(fd, "set status_bar_char %c\n", status.schar[0]);
     }
 }

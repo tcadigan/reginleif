@@ -7,6 +7,8 @@
  *
  * See the COPYRIGHT file.
  */
+#ifndef GB_H_
+#define GB_H_
 
 /*
  * The VERSION is used to track differences between client versions. This should
@@ -35,12 +37,6 @@
  * These lines are set by the setup script and can NOT be removed
  *
  * LINUX a unix that's become hugely popular (esp. in opensource communities)
- * CYGWIN a Linux-like environment for Windows
- * TERMIO causes the client to compile using termio instead of termcap
- * SYSV forces client compilation for a System V environment
- * CTIX is a unix like version used by a player
- * INDEX is used by some systesm over strchr along with a few other functions.
- * memcpy/bcopy, memset/bzero, strchar/index, strrchr/rindex
  * XMAP compiles the client with the XMAP functions
  * IMAP compiles the client with the Imap functions
  * OPTTECH compiles the client with the code for opttech included
@@ -53,13 +49,8 @@
  * setup script so it will be set automatically.
  */
 #define TERMIO
-#define SYSV
-#define CTIX
-#define CYGWIN
 
-#define USE_INDEX
-
-#define XMAP
+// #define XMAP
 
 #define ARRAY
 #define IMAP
@@ -110,16 +101,7 @@
 /* Use for current sector in Imap */
 #define DEFAULT_CURSOR_SECTOR "$"
 
-#define DEFAULT_SHELL "/bin/csh"
-#define DEFAULT_SHELL_FLAGS "-cf"
-
-#ifndef TRUE
-#define TRUE 1
-#endif
-
-#ifndef FALSE
-#define FALSE 0
-#endif
+#define DEFAULT_SHELL "/usr/bin/bash"
 
 #ifndef ERROR
 #define ERROR -1
@@ -134,3 +116,14 @@ extern int client_devel;
 
 #define HYPER_DIST_FACTOR 200.0
 #define HYPER_DRIVE_FUEL_USE 5.0
+
+#ifdef RWHO
+struct rwhostruct rwho;
+#endif
+
+int main(int, char *argv[]);
+void gbs(void);
+void test_client(char ch);
+void init_race_colors(void);
+
+#endif // GB_H_

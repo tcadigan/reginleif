@@ -7,27 +7,10 @@
  *
  * See the COPYRIGHT file.
  */
+#ifndef TERM_H_
+#define TERM_H_
 
 #include <sys/termios.h>
-
-extern char *tgoto(char *, int, int);
-extern void putchar_x();
-
-extern speed_t ospeed; /* For tputs */
-extern int num_columns;
-extern int num_rows;
-extern int output_row;
-extern int last_output_row;
-
-extern int (*term_scroll)();
-extern int (*term_insert)();
-extern int (*term_delete)();
-extern int (*term_cursor_left)();
-extern int (*term_cursor_right)();
-extern int (*term_clear_to_eol)();
-extern void term_standout_on();
-extern void term_standout_off();
-extern int term_standout_status();
 
 /* The termcap variables */
 extern char *CM;
@@ -49,22 +32,51 @@ extern char *LE;
 extern char *BL;
 extern int SG;
 
-extern int term_CE_clear_to_eol();
-extern int term_SPACE_clear_to_eol();
-extern int term_CS_scroll();
-extern int term_ALDL_scroll();
-extern int term_param_ALDL_scroll();
-extern int term_IC_insert();
-extern int term_IMEI_insert();
-extern int term_DC_delete();
-extern int term_null_function();
-extern int term_BS_cursor_left();
-extern int term_LE_cursor_left();
-extern int term_ND_cursor_right();
+void term_test(void);
+void term_termcap(void);
+int term_null(void *n);
+int term_CE_clear_to_eol(void);
+int term_SPACE_clear_to_eol(int x, int y);
+int term_CS_scroll(int l1, int l2, int n);
+int term_ALDL_scroll(int l1, int l2, int n);
+int term_param_ALDL_scroll(int l1, int l2, int n);
+int term_IC_insert(char *c);
+int term_IMEI_insert(char *c);
+int term_DC_delete(void);
+int term_ND_cursor_right(void);
+int term_LE_cursor_left(void);
+int term_BS_cursor_left(void);
+int term_putchar(char c);
+void term_puts(char *str, int len);
+void term_normal_mode(void);
+void term_toggle_standout(void);
+void term_standout_on(void);
+void term_standout_off(void);
+int term_standout_status(void);
+void term_toggle_underline(void);
+void term_underline_on(void);
+void term_underline_off(void);
+void term_toggle_boldface(void);
+void term_boldface_on(void);
+void term_boldface_off(void);
+void term_put_termstring(char *c);
+void term_move_cursor(int x, int y);
+void term_clear_screen(void);
+void term_clear(int l1, int l2);
+void term_beep(int n);
+void get_screen_size(void);
+void term_mode_on(void);
+void term_mode_off(void);
+
+extern int output_row;
+extern int num_columns;
+extern int num_rows;
 
 #define NAMESIZE 18
 #define SCALE 100.0
 #define S_X (num_columns - NAMESIZE)
-#define S_Y (output_row);
+#define S_Y (output_row)
 #define Midx ((0.5 * (S_X - NAMESIZE)) / SCALE)
 #define Midy ((0.5 * S_Y) / SCALE)
+
+#endif // TERM_H_

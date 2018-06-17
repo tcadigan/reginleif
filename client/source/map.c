@@ -7,11 +7,11 @@
  *
  * See the COPYRIGHT file.
  */
+#include "map.h"
 
 #include "ansi.h"
 #include "arrays.h"
 #include "gb.h"
-#include "proto.h"
 #include "str.h"
 #include "term.h"
 #include "types.h"
@@ -23,10 +23,6 @@
 
 char maplog[BUFSIZ];
 
-extern char *strcat(char *, const char *);
-extern char *strncat(char *, const char *, size_t);
-extern int atoi(const char *);
-extern int sscanf(const char *, const char *, ...);
 void print_X(int Maxx);
 
 void plot_surface(char *t)

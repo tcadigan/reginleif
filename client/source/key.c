@@ -7,12 +7,14 @@
  *
  * See the COPYRIGHT file.
  *
- * NOTE: KEY_DEBUG is a #define which will enable a 'beep' in select routines 
+ * NOTE: KEY_DEBUG is a #define which will enable a 'beep' in select routines
  *       which may (or may not) facilitate debugging.
  */
+#include "key.h"
 
+#include "args.h"
+#include "crypt.h"
 #include "gb.h"
-#include "proto.h"
 #include "str.h"
 #include "term.h"
 #include "types.h"
@@ -20,6 +22,7 @@
 
 #include <fcntl.h>
 #include <signal.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,9 +41,6 @@
 /* Need this for the termcap stuff */
 #ifndef CYGWIN
 #include <curses.h>
-
-#undef TRUE
-#undef FALSE
 #endif
 
 #define SIGWINCH
@@ -63,9 +63,9 @@ static char key_buf[MAXSIZ + 1];
 static char key_store[MAXSIZ + 1];
 
 char pbuf[MAXSIZ + 1];
-int cursor_display = FALSE;
-int escape = FALSE;
-int quoted_char = FALSE;
+int cursor_display = false;
+int escape = false;
+int quoted_char = false;
 
 struct posstruct {
     int key;
@@ -86,35 +86,6 @@ struct marskstruct {
 
 struct markstruct mark = { 0, 0, 0 };
 
-extern int fclose(FILE *);
-extern int read(int, void *, unsigned int);
-extern pid_t getpid(void);
-extern void free(void *);
-
-void add_key_buf(char ch);
-void clear_buf(void);
-void cmd_talk_off(void);
-void cursor_to_input(void);
-void do_key(char *buf, int interactive);
-void process_key(char *s, int interactive);
-void promptfor(char *prompt, char *s, int mode);
-void put_input_prompt(void);
-void reset_key(void);
-void set_marks(void);
-void update_input_prompt(char *str);
-void update_key(int mode);
-void cancel_input(void);
-void clear_screen(void);
-void erase_input(int position);
-void refresh_input(void);
-void refresh_screen(void);
-void signal_int(int);
-void signal_pipe(int);
-void signal_tstp(int);
-void signal_usr1(int);
-void signal_winch(int);
-void stop_things(void);
-
 void init_key(void)
 {
     term_mode_off();
@@ -134,14 +105,14 @@ void init_key(void)
 
     /* Input and status bar is 2, and then -1 more to start at 0 */
     output_row = num_rows - 3;
-    move_val.num_rows = output_row;
+    more_val.num_rows = output_row;
     strfree(pos.prompt);
     pos.prompt = string(input_prompt);
     pos.plen = strlen(input_prompt);
     clear_buf();
 }
 
-void quit_gb(int exitstatus, char *s, char *a1, char *a1)
+void quit_gb(int exitstatus, char *s, char *a1, char *a2)
 {
     sprintf(pbuf, s, a1, a2);
 
@@ -197,7 +168,7 @@ void signal_tstp(int sig)
     term_scroll(0, num_rows - 1, 2);
     refresh_screen();
     put_status();
-    refresh_input();
+    refresh_input(NULL);
 #endif
 }
 
@@ -233,8 +204,8 @@ void signal_watch(int sig)
     force_update_status();
     term_move_cursor(0, num_rows - 2);
     term_puts(last_update_buf, num_columns);
-    cursor_display = TRUE;
-    move_val.num_rows = output_row;
+    cursor_display = true;
+    more_val.num_rows = output_row;
 
     msg("-- Window size changed to %d columns by %d rows.",
         num_columns,
@@ -275,11 +246,11 @@ void cursor_to_window(void)
         }
 
 #else
-        
+
         cursor_to_input();
 #endif
 
-        cursor_display = TRUE;
+        cursor_display = true;
     }
 }
 
@@ -315,7 +286,7 @@ void add_key_buf(char ch)
     char sbuf[MAXSIZ];
 
     if(input_mode.promptfor == PROMPT_CHAR) {
-        prompt_return = TRUE;
+        prompt_return = true;
 
         return;
     }
@@ -328,7 +299,7 @@ void add_key_buf(char ch)
 
     if(input_mode.post) {
         if((strlen(post_buf) + pos.key + 1) >= MAX_POST_LEN) {
-            if(input_mode.post == TRUE) {
+            if(input_mode.post == true) {
                 ++input_mode.post;
                 msg("-- Post: The maximum post size has been reached.");
             }
@@ -378,10 +349,8 @@ void add_key_buf(char ch)
     }
 }
 
-void transpose_chars(void)
+void transpose_chars(char ch)
 {
-    char ch;
-
     ch = key_buf[pos.cur];
     key_buf[pos.cur] = key_buf[pos.cur + 1];
     key_buf[pos.cur + 1] = ch;
@@ -432,7 +401,7 @@ void erase_input(int position)
     term_clear_to_eol();
 }
 
-void delete_under_cursor(void)
+void delete_under_cursor(char ch)
 {
     if(pos.cur == pos.key) {
 #ifdef KEY_DEBUG
@@ -448,7 +417,7 @@ void delete_under_cursor(void)
     update_key(UPDATE_CURSOR_END);
 }
 
-void delete_word_left(void)
+void delete_word_left(char ch)
 {
     erase_space_left();
 
@@ -467,7 +436,7 @@ void delete_word_left(void)
     }
 }
 
-void delete_word_right(void)
+void delete_word_right(char ch)
 {
     erase_space_right();
 
@@ -481,7 +450,7 @@ void delete_word_right(void)
     update_key(UPDATE_CURSOR_END);
 }
 
-void backspace(void)
+void backspace(char ch)
 {
     if(!pos.cur) {
 #ifdef KEY_DEBUG
@@ -524,13 +493,13 @@ void set_marks(void)
     }
 }
 
-void refresh_input(void)
+void refresh_input(char ch)
 {
     set_marks();
     update_key(UPDATE_LOWER_MARK);
 }
 
-void updatE_key(int mode)
+void update_key(int mode)
 {
     int len;
     int i;
@@ -624,7 +593,7 @@ void updatE_key(int mode)
     }
 }
 
-void cursor_forward(void)
+void cursor_forward(char ch)
 {
     if(pos.cur == pos.key) {
 #ifdef KEY_DEBUG
@@ -645,7 +614,7 @@ void cursor_forward(void)
     }
 }
 
-void cursor_backward(void)
+void cursor_backward(char ch)
 {
     if(pos.cur == 0) {
 #ifdef KEY_DEBUG
@@ -666,7 +635,7 @@ void cursor_backward(void)
     }
 }
 
-void cancel_input(void)
+void cancel_input(char ch)
 {
     erase_input(0);
     clear_buf();
@@ -678,45 +647,43 @@ void set_edit_buffer(char *s)
 {
     strcpy(key_buf, s);
     pos.cur = strlen(key_buf);
-    refresh_input();
+    refresh_input(NULL);
 }
 
-void do_recallf(void)
+void do_recallf(char ch)
 {
     if(recallf(key_buf)) {
         pos.cur = strlen(key_buf);
-        refresh_input();
+        refresh_input(NULL);
     }
     else {
         term_beep(1);
     }
 }
 
-void do_recallb(void)
+void do_recallb(char ch)
 {
     if(recallb(key_buf)) {
         pos.cur = strlen(key_buf);
-        refresh_input();
+        refresh_input(NULL);
     }
     else {
         term_beep(1);
     }
 }
 
-void recall_crypts(void)
+void recall_crypts(char ch)
 {
-    int do_crypt_recall();
-
     if(do_crypt_recall(key_buf)) {
         pos.cur = strlen(key_buf);
-        refresh_input();
+        refresh_input(NULL);
     }
     else {
         term_beep(1);
     }
 }
 
-void refresh_screen(void)
+void refresh_screen(char ch)
 {
     int i;
     int cnt = 0;
@@ -728,7 +695,7 @@ void refresh_screen(void)
         cnt = 0;
     }
     else {
-        /* 
+        /*
          * Where on screen do we start
          * from output row, back up # of lines in buffer
          */
@@ -762,10 +729,10 @@ void refresh_screen(void)
 
     force_update_status();
     erase_input(0);
-    refresh_input();
+    refresh_input(NULL);
 }
 
-void clear_screen(void)
+void clear_screen(char ch)
 {
     term_clear_screen();
     clear_refresh_line();
@@ -778,10 +745,10 @@ void clear_screen(void)
     }
 #endif
 
-    cursor_display = FALSE;
+    cursor_display = false;
 }
 
-void do_edit_mode(void)
+void do_edit_mode(char ch)
 {
     if(input_mode.edit == EDIT_OVERWRITE) {
         input_mode.edit = EDIT_INSERT;
@@ -800,33 +767,33 @@ void do_edit_mode(void)
     force_update_status();
 }
 
-void cursor_begin(void)
+void cursor_begin(char ch)
 {
     pos.cur = 0;
     set_marks();
     update_key(UPDATE_LOWER_MARK);
 }
 
-void cursor_end(void)
+void cursor_end(char ch)
 {
     pos.cur = pos.key;
     set_marks();
     update_key(UPDATE_LOWER_MARK);
 }
 
-void kill_to_end_line(void)
+void kill_to_end_line(char ch)
 {
     pos.key = pos.cur;
     key_buf[pos.cur] = '\0';
     term_clear_to_eol();
 }
 
-void escape_eky(void)
+void escape_key(char ch)
 {
-    escape = TRUE;
+    escape = true;
 }
 
-void esc_escap(void)
+void esc_escape(char ch)
 {
     term_beep(1);
 }
@@ -888,10 +855,10 @@ void print_key_string(int parse)
        || (*key_store == '\"')
        || (*key_store == ';')
        || (*key_store == ':')
-       || (strncmp(key_store, "broadcast", MAX(2, strlen(cmdbuf))) == 0)
-       || (strncmp(key_store, "announce", MAX(2, strlen(cmdbuf))) == 0)
-       || (strncmp(key_store, "think", MAX(2, strlen(cmdbuf))) == 0)
-       || streq(cmdbuf, "cr")) {
+       || (strncmp(key_store, "broadcast", 2 < strlen(cmdbuf) ? strlen(cmdbuf) : 2) == 0)
+       || (strncmp(key_store, "announce", 2 < strlen(cmdbuf) ? strlen(cmdbuf) : 2) == 0)
+       || (strncmp(key_store, "think", 2 < strlen(cmdbuf) ? strlen(cmdbuf) : 2) == 0)
+       || !strcmp(cmdbuf, "cr")) {
         add_recall(outbuf, 1);
         msg_type = MSG_COMMUNICATION;
     }
@@ -900,33 +867,33 @@ void print_key_string(int parse)
         msg_type = MSG_ALL;
     }
 
-    action_match_suppress = TRUE;
+    action_match_suppress = true;
     msg("%s", outbuf);
-    action_match_suppress = FALSE;
+    action_match_suppress = false;
 }
 
-void handle_key_buf(void)
+void handle_key_buf(char ch)
 {
     char kbuf[MAXSIZ];
 
     if(input_mode.promptfor) {
-        prompt_return = TRUE;
+        prompt_return = true;
 
         return;
     }
 
     erase_input(0);
-    cleaR_buf();
+    clear_buf();
     strcpy(kbuf, key_buf);
 
     /* Must be here to prevent prompt */
     add_history(kbuf);
 
     if(pos.talk) {
-        if(streq(kbuf, "talk off")
-           || streq(kbuf, "talk .")
-           || streq(kbuf, ".")) {
-            cmd_talk_off();
+        if (!strcmp(kbuf, "talk off")
+            || !strcmp(kbuf, "talk .")
+            || !strcmp(kbuf, ".")) {
+            cmd_talk_off(NULL);
 
             return;
         }
@@ -937,13 +904,13 @@ void handle_key_buf(void)
     term_move_cursor(0, num_rows - 1);
     put_input_prompt();
     *key_buf = '\0';
-    refresh_input();
+    refresh_input(NULL);
 
     if(input_file) {
         add_queue(kbuf, 0);
     }
 
-    process_key(kbuf, TRUE);
+    process_key(kbuf, true);
 }
 
 /*
@@ -1051,7 +1018,7 @@ void do_key(char *buf, int interactive)
 
     /* If a pipe/redirect, it gets added onto the queue again */
     if(handle_pipes_and_redirects(start)) {
-        debug(4, "pipe/redirect is TRUE");
+        debug(4, "pipe/redirect is true");
 
         return;
     }
@@ -1069,7 +1036,8 @@ void do_key(char *buf, int interactive)
         }
     }
     else if(*holdbuf == macro_char) {
-        if(GET_BIT(options, SLASH_COMMANDS) && client_command(holdbuf + 1, interactive)) {
+        if (GET_BIT(options, SLASH_COMMANDS)
+            && client_command(holdbuf + 1, interactive)) {
             set_values_on_end_prompt();
             cursor_to_window();
 
@@ -1077,7 +1045,7 @@ void do_key(char *buf, int interactive)
         }
 
         if(interactive) {
-            print_key_string(TRUE);
+            print_key_string(true);
         }
 
         parse_variables(holdbuf);
@@ -1100,7 +1068,8 @@ void do_key(char *buf, int interactive)
             }
         }
     }
-    else if(!GET_BIT(options, SLASH_COMMANDS) && client_command(holdbuf, interactive)) {
+    else if (!GET_BIT(options, SLASH_COMMANDS)
+             && client_command(holdbuf, interactive)) {
         /* Argify is called in client_command after variables parsing */
         if(interactive) {
             set_values_on_end_prompt();
@@ -1126,7 +1095,7 @@ void do_key(char *buf, int interactive)
 
         /* Things to do interactive - print it out */
         if(interactive) {
-            print_key_string(TRUE);
+            print_key_string(true);
         }
     }
 }
@@ -1165,11 +1134,11 @@ void get_key(void)
         gbch = *p++;
 
         if(quoted_char) {
-            quoted_char = FALSE;
+            quoted_char = false;
             input_ch_into_buf(gbch);
         }
         else if(escape) {
-            escape = FALSE;
+            escape = false;
 
             /* Code change to allow binding of arrow and function keys -mfw */
             if((gbch == '[') || (gbch == 'O')) {
@@ -1220,12 +1189,12 @@ void get_key(void)
     }
 }
 
-void quote_key(void)
+void quote_key(char ch)
 {
-    quoted_char = TRUE;
+    quoted_char = true;
 }
 
-void stop_things(void)
+void stop_things(char ch)
 {
     char c;
     int type = 0;
@@ -1240,7 +1209,7 @@ void stop_things(void)
     else if(have_queue()) {
         strcpy(prbuf, "Clear the command queue (y/n)? ");
         type = 2;
-        queue_clear = TRUE;
+        queue_clear = true;
     }
     else if(input_mode.post) {
         strcpy(prbuf, "Cancel posting (y/n)? ");
@@ -1308,9 +1277,9 @@ void promptfor(char *prompt, char *s, int mode)
     strcpy(key_buf, storebuf);
     pos.cur = strlen(key_buf);
     set_marks();
-    refresh_input();
+    refresh_input(NULL);
     input_mode.promptfor = PROMPT_OFF;
-    prompt_return = FALSE;
+    prompt_return = false;
 }
 
 void update_input_prompt(char *str)
@@ -1337,10 +1306,10 @@ void cmd_talk(char *args)
     force_update_status();
     sprintf(buf, "talk (%s)> ", pos.talk);
     update_input_prompt(buf);
-    refresh_input();
+    refresh_input(NULL);
 }
 
-void cmd_talk_off(void)
+void cmd_talk_off(char ch)
 {
     if(pos.talk) {
         strfree(pos.talk);
@@ -1355,10 +1324,10 @@ void cmd_talk_off(void)
 int in_talk_mode(void);
 {
     if(pos.talk) {
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 int trans_func_key_to_num(char c)

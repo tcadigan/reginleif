@@ -7,6 +7,10 @@
  *
  * See the COPYRIGHT file.
  */
+#ifndef CSPARR_H_
+#define CSPARR_H_
+
+#include "psmap.h"
 
 /* For receive binary search */
 void cspr_backup_end(int cnum, char *line);
@@ -31,7 +35,6 @@ void cspr_update_end(int cnum, char *line);
 void cspr_updates_suspended(int cnum, char *line);
 void cspr_updates_resumed(int cnum, char *line);
 void cspr_who(int cnum, char *line);
-void cspr_psmap(int cnum, char *line);
 void cspr_fuse(int cnum, char *line);
 
 /* For send binary search */
@@ -61,7 +64,7 @@ static CSPReceiveVal csp_receive_table[] = {
     {     CSP_EXPLORE_STAR_DATA,           cspr_explore, 0, 0 },
     {   CSP_EXPLORE_STAR_ALIENS,           cspr_explore, 0, 0 },
     {      CSP_EXPLORE_STAR_END,           cspr_explore, 0, 0 },
-    {            CSP_EXLORE_END,           cspr_explore, 0, 0 },
+    {           CSP_EXPLORE_END,           cspr_explore, 0, 0 },
     {             CSP_KNOWLEDGE,         cspr_knowledge, 0, 0 },
     {             CSP_MAP_INTRO,               cspr_map, 0, 0 },
     {         CSP_MAP_DYNAMIC_1,               cspr_map, 0, 0 },
@@ -145,3 +148,5 @@ static CSPSendVal csp_send_table[] = {
 
 #define NUM_RECEIVE_COMMANDS (sizeof(csp_receive_table) / sizeof(CSPReceiveVal))
 #define NUM_SEND_COMMANDS (sizeof(csp_send_table) / sizeof(CSPSendVal))
+
+#endif // CSPARR_H_

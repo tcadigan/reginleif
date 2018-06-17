@@ -7,10 +7,12 @@
  *
  * See the COPYRIGHT file.
  */
+#include "socket.h"
 
+#include "action.h"
+#include "args.h"
 #include "csp.h"
 #include "gb.h"
-#include "proto.h"
 #include "str.h"
 #include "term.h"
 #include "types.h"
@@ -25,6 +27,7 @@
 #include <memory.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,17 +41,6 @@
 
 #ifndef CYGWIN
 #include <curses.h>
-
-#undef TRUE
-#undef FALSE
-#endif
-
-#ifndef TRUE
-#define TRUE 1
-#endif
-
-#ifndef FALSE
-#define FALSE 0
 #endif
 
 #define ENDHELP "Help on that subject unavailable"
@@ -76,13 +68,13 @@ extern int queue_sending;
 BufferInfo gbsobuf; /* Socket buffer list ptrs */
 char builtship[6] = "0"; /* Contains # of last ship built */
 char lotnum[6] = "0"; /* Last lot # you put up for sale */
-int command_has_output = FALSE;
+int command_has_output = false;
 int end_msg = 0;
-int hide_msg = FALSE; /* Turn off kill_socket_output */
-int kill_socket_output = FALSE;
+int hide_msg = false; /* Turn off kill_socket_output */
+int kill_socket_output = false;
 int notify = -2;
-int password_invalid = FALSE; /* Password prompt flag */
-int server_help = FALSE; /* Doing a server help */
+int password_invalid = false; /* Password prompt flag */
+int server_help = false; /* Doing a server help */
 long last_no_logout_time; /* For no_logout */
 char last_prompt[BUFSIZ]; /* Holds last prompt found */
 
@@ -147,7 +139,7 @@ int connectgb(char *gbhost, char *charport, char *s)
             return -1;
         }
 
-        memcpy((char *)&sin.sin_addr, hp->h_addr, hp->h_length);
+        memmove((char *)&sin.sin_addr, hp->h_addr, hp->h_length);
         sin.sin_family = hp->h_addrtype;
     }
 
@@ -173,10 +165,10 @@ int connectgb(char *gbhost, char *charport, char *s)
 int is_connected(void)
 {
     if(gb >= 0) {
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 /* Handles the reading from the buffer and the processing of socket output */
@@ -191,14 +183,14 @@ void get_scoket(void)
         if(racegen) {
             /* Fancy prompt stuff */
             update_input_prompt(gbbuf);
-            refresh_input();
+            refresh_input(NULL);
             strfree(gbbuf);
-            gsobuf.is_partial = FALSE;
+            gsobuf.is_partial = false;
 
             return;
         }
 
-        gsobuf.is_partion = FALSE;
+        gsobuf.is_partion = false;
     }
 
     process_gb(gbbuf);
@@ -255,7 +247,7 @@ void procesS_gb(char *s)
                     return;
                 }
             }
-            
+
             process_socket(s);
 
             break;
@@ -314,7 +306,7 @@ void process_socket(char *s)
     check_for_time_codes(s); /* mfw */
     parse_socket_output(s); /* For simple matches */
 
-    if(MATCH(s, "* \"*\" [*,*] *> *")) {
+    if (pattern_match(s, "* \"*\" [*,*] *> *", pattern)) {
         type = GB_BROADCAST;
         msg_type = MSG_COMMUNICATION;
         strcpy(racename, pattern1);
@@ -322,8 +314,7 @@ void process_socket(char *s)
         strcpy(raceid, pattern3);
         strcpy(govid, pattern4);
         strcpy(actualmsg, pattern6);
-    }
-    else if(MATCH(s, "* \"*\" [*,*] > *")) {
+    } else if (pattern_match(s, "* \"*\" [*,*] > *", pattern)) {
         type = GB_BROADCAST;
         msg_type = MSG_COMMUNICATION;
         strcpy(racename, pattern1);
@@ -331,8 +322,7 @@ void process_socket(char *s)
         strcpy(raceid, pattern3);
         strcpy(govid, pattern4);
         strcpy(actualmsg, pattern5);
-    }
-    else if(MATCH(s, "* \"*\" [*,*] = *")) {
+    } else if (pattern_match(s, "* \"*\" [*,*] = *", pattern)) {
         type = GB_THINK;
         msg_type = MSG_COMMUNICATION;
         strcpy(racename, pattern1);
@@ -340,8 +330,7 @@ void process_socket(char *s)
         strcpy(raceid, pattern3);
         strcpy(govid, pattern4);
         strcpy(actualmsg, pattern5);
-    }
-    else if(MATCH(s, "* \"*\" [*,*] : *")) {
+    } else if (pattern_match(s, "* \"*\" [*,*] : *", pattern)) {
         type = GB_ANNOUNCE;
         msg_type = MSG_COMMUNICATION;
         strcpy(racename, pattern1);
@@ -349,8 +338,7 @@ void process_socket(char *s)
         strcpy(raceid, pattern3);
         strcpy(govid, pattern4);
         strcpy(actualmsg, pattern5);
-    }
-    else if(MATCH(s, "* [*,*] * *")) {
+    } else if (pattern_match(s, "* [*,*] * *", pattern)) {
         type = GB_EMOTE;
         msg_type = MSG_COMMUNICATION;
         strcpy(racename, pattern1);
@@ -358,8 +346,7 @@ void process_socket(char *s)
         strcpy(raceid, pattern3);
         strcpy(govid, pattern4);
         strcpy(actualmsg, pattern5);
-    }
-    else if(MATCH(s, "(* [*.*]) *")) {
+    } else if (pattern_match(s, "(* [*.*]) *", pattern)) {
         type = HAP_THINK;
         msg_type = MSG_COMMUNICATION;
         strcpy(racename, profile.racename);
@@ -367,8 +354,7 @@ void process_socket(char *s)
         strcpy(raceid, pattern2);
         strcpy(govid, pattern3);
         strcpy(actualmsg, pattern4);
-    }
-    else if(MATCH(s, "*:* [*.*] > *")) {
+    } else if (pattern_match(s, "*:* [*.*] > *", pattern)) {
         type = HAP_BROADCAST;
         msg_type = MSG_COMMUNICATION;
         strcpy(racename, pattern1);
@@ -376,8 +362,7 @@ void process_socket(char *s)
         strcpy(raceid, pattern3);
         strcpy(govid, pattern4);
         strcpy(actualmsg, pattern5);
-    }
-    else if(MATCH(s, "*:* [*.*] : *")) {
+    } else if (pattern_match(s, "*:* [*.*] : *", pattern)) {
         type = HAP_ANNOUNCE;
         msg_type = MSG_COMMUNICATION;
         strcpy(racename, pattern1);
@@ -385,8 +370,7 @@ void process_socket(char *s)
         strcpy(raceid, pattern3);
         strcpy(govid, pattern4);
         strcpy(actualmsg, pattern5);
-    }
-    else if(MATCH(s, "* [*] > *")) {
+    } else if (pattern_match(s, "* [*] > *", pattern)) {
         type = NORM_BROADCAST;
         msg_type = MSG_COMMUNICATION;
         strcpy(racename, pattern1);
@@ -394,8 +378,7 @@ void process_socket(char *s)
         strcpy(raceid, pattern2);
         *govid = '\0';
         strcpy(actualmsg, pattern3);
-    }
-    else if(MATCH(s, "* [*] : *")) {
+    } else if (pattern_match(s, "* [*] : *", pattern)) {
         type = NORM_ANNOUNCE;
         msg_type = MSG_COMMUNICATION;
         strcpy(racename, pattern1);
@@ -429,7 +412,7 @@ void process_socket(char *s)
         }
     }
     else {
-        command_has_output = TRUE;
+        command_has_output = true;
     }
 
     if(GET_BIT(options, BEEP) && !end_prompt) {
@@ -500,7 +483,7 @@ void parse_socket_output(char *s)
         loggedin();
         game_type = GAME_HAP;
         add_assign("game_type", "HAP");
-        password_invalid = FALSE;
+        password_invalid = false;
     }
     else if(((sscanf(s, "%[^\"]\"%[^\"]\" [%d,%d] logged on.", dmbuf, dmbuf2, &dmint, &dmint2) == 4)
              || (sscanf(s, "%[^\"]\"\" [%d,%d]", dmbuf, &dmint, &dmint2) == 3))
@@ -518,26 +501,23 @@ void parse_socket_output(char *s)
         sprintf(dmbuf, "%d", profile.govid);
         add_assign("govid", dmbuf);
         loggedin();
-        password_invalid = FALSE;
+        password_invalid = false;
         on_endprompt(LEVEL_PROMPT);
     }
     else if(sscanf(s, "Name changed to `%s[^']'.", dmbuf) == 1) {
         strcpy(profile.racename, dmbuf);
         add_assign("racename", dmbuf);
-    }
-    else if(MATCH(s, "Ship $* build at a cost*")) {
+    } else if (pattern_match(s, "Ship $* built at a cost *", pattern)) {
         strcpy(builtship, pattern1);
         add_assing("builtship", builtship);
     }
     else if(sscanf(s, "%c%d build at a cost of %d resources.", &dmch, &dmint, &dmint2) == 3) {
         sprintf(builtship, "%d", dmint);
         add_assign("builtship", builtship);
-    }
-    else if(MATCH(s, "Lot #* - *")) {
+    } else if (pattern_match(s, "Lot #* - *", pattern)) {
         strcpy(lognum, pattern1);
         add_assign("lotnum", lotnum);
-    }
-    else if(streq(s, "Diety has kicked you off")) {
+    } else if (!strcmp(s, "Deity has kicked you off")) {
         close_gb();
     }
 }
@@ -633,17 +613,14 @@ void oldcheck4_endprompt(char *s)
         add_assign("ship", scope.shipc);
         add_assign("mothership", scope.mothership);
         *s = 24; /* Cancel the line -mfw */
-    }
-    else if(streqrn(s, ENDREFUSED)) {
+    } else if (!strncmp(s, ENDREFUSED, strlen(ENDREFUSED))) {
         end_prompt = END_PROMPT;
-    }
-    else if(streqrn(s, ENDHELP)) {
+    } else if (!strncmp(s, ENDHELP, strlen(ENDHELP))) {
         end_prompt = END_PROMPT;
-    }
-    else if(streqrn(s, GBMFINISH)
-            || (sscanf(s, GBUFINISH, &dummint) == 1)
-            || streqrn(s, HAPMFINISH)
-            || streqrn(s, HAPUFINISH)) {
+    } else if (!strncmp(s, GBMFINISH, strlen(GBMFINISH))
+               || (sscanf(s, GBUFINISH, &dummint) == 1)
+               || !strncmp(s, HAPMFINISH, strlen(HAPMFINISH))
+               || !strncmp(s, HAPUFINISH, strlen(HAPUFINISH))) {
         end_prompt = ENDDOING_PROMPT;
 
         if(client_stats == L_SEGMENT) {
@@ -659,30 +636,26 @@ void oldcheck4_endprompt(char *s)
                 term_beep(notify);
             }
 
-            init_start_command(1);
+            init_start_commands(1);
             client_stats = L_REINIT;
         }
-    }
-    else if(streqrn(s, ENDDOINGSEGMENT)) {
+    } else if (!strncmp(s, ENDDOINGSEGMENT, strlen(ENDDOINGSEGMENT))) {
         end_prompt = DOING_PROMPT;
         client_stats = L_SEGMENT;
-    }
-    else if(streqrn(s, ENDDOINGUPDATE)) {
+    } else if (!strncmp(s, ENDDOINGUPDATE, strlen(ENDDOINGUPDATE))) {
         end_prompt = DOING_PROMPT;
-        client_status = L_UPDATE;
-    }
-    else if(streqrn(s, ENDFINISH)) {
+        client_stats = L_UPDATE;
+    } else if (!strncmp(s, ENDFINISH, strlen(ENDFINISH))) {
         end_prompt = FINISHED_PROMPT;
-        server_help = FALSE;
+        server_help = false;
     }
-    else if(streqrn(s, ENDLOGIN)
-            || MATCH(s, "Please * password*")
-            || MATCH(s, "please * password*")
-            || MATCH(s, "Please * Password*")
-            || MATCH(s, "Password: *")) {
+    else if(!strncmp(s, ENDLOGIN, strlen(ENDLOGIN))
+            || pattern_match(s, "Please * password*", pattern)
+            || pattern_match(s, "please * password*", pattern)
+            || pattern_match(s, "Please * Password*", pattern)
+            || pattern_match(s, "Password: *", pattern)) {
         end_prompt = PASS_PROMPT;
-    }
-    else if(streq(s, "Enter Password <race> <gov>:")) {
+    } else if (!strcmp(s, "Enter Password <race> <gov>:")) {
         end_prompt = PASS_PROMPT;
         game_type = GAME_GBDT;
         add_assign("game_type", "GB+");
@@ -693,13 +666,12 @@ void oldcheck4_endprompt(char *s)
             SECRET("Password> ", dummybuf, PROMPT_STRING);
             send_gb(dummybuf, strlen(dummybuf));
         }
-    }
-    else if((streq(s, "Invalid: Bad Password.")
-             || streq(s, "Invalid: Player already logged on!"))
-            && (client_stats == L_PASSWORD)) {
+    } else if ((!strcmp(s, "Invalid: Bad Password.")
+                || !strcmp("Invalid: Player already logged on!"))
+               && (client_stats == L_PASSWORD)) {
         end_prompt = NODIS_PROMPT;
         client_stats = L_CONNECTED;
-        password_invalid = TRUE;
+        password_invalid = true;
 
         if(GBDT()) {
             CLR_BIT(options, LOGINSUPPRESS);
@@ -711,7 +683,7 @@ void oldcheck4_endprompt(char *s)
         msg("-- Please enter a new password or 'quit' to disconnect from the server.");
         SECRET("Password> ", dummybuf, PROMPT_STRING);
 
-        if(streq(dummybuf, "quit")) {
+        if (!strcmp(dummybuf, "quit")) {
             cmd_quote(dummybuf);
         }
         else {
@@ -719,7 +691,7 @@ void oldcheck4_endprompt(char *s)
         }
     }
     else if(strstr(s, RACEGEN)) {
-        racegen = TRUE;
+        racegen = true;
         msg("-- Client is in RACEGEN mode.");
         strcpy(last_prompt, "[ GB Racegen ]");
         STR_BIT(options, PARTIAL_LINES);
@@ -738,14 +710,13 @@ void connect_prompts(char *s)
 
     debug(4, "In connect_prompts on a prompt: %s", s);
 
-    if(streqrn(s, ENDLOGIN)
-       || MATCH(s, "Please * password*")
-       || MATCH(s, "please * password*")
-       || MATCH(s, "Please * Password*")
-       || MATCH(s, "Password:*")) {
+    if(!strncmp(s, ENDLOGIN, strlen(ENDLOGIN))
+       || pattern_match(s, "Please * password*", pattern)
+       || pattern_match(s, "please * password*", pattern)
+       || pattern_match(s, "Please * Password*", pattern)
+       || pattern_match(s, "Password: *", pattern)) {
         end_prompt = PASS_PROMPT;
-    }
-    else if(streq(s, "Enter Password <race> <gov>:")) {
+    } else if (!strcmp(s, "Enter Password <race> <gov>:")) {
         end_prompt = PASS_PROMPT;
         game_type = GAME_GDBT;
         add_assign("game_type", "GB+");
@@ -756,17 +727,16 @@ void connect_prompts(char *s)
             SECRET("PASSWORD> ", buf, PROMPT_STRING);
 
             /* Allow the user to quit -mfw */
-            if(streqn(buf, "quit", 4)) {
+            if (!strncmp(buf, "quit", strlen("quit"))) {
                 cmd_quote(buf);
             }
             else {
                 send_gb(buf, strlen(buf));
             }
         }
-    }
-    else if((streq(s, "Invalid: Bad Password.")
-             || streq(s, "Invalid: Player already logged on!"))
-            && (client_stats == L_PASSWORD)) {
+    } else if ((!strcmp(s, "Invalid: Bad Password.")
+                || !strcmp("Invalid: Player already logged on!"))
+               && (client_stats == L_PASSWORD)) {
         end_prompt = NODIS_PROMPT;
 
         /*
@@ -774,7 +744,7 @@ void connect_prompts(char *s)
          * to L_PASSWORD. I'm commenting out L_CONNECTED for now -mfw
          */
         client_stats = L_PASSWORD;
-        password_invalid = TRUE;
+        password_invalid = true;
 
         if(GBDT()) {
             CLR_BIT(options, LOGINSUPPRESS);
@@ -790,21 +760,20 @@ void connect_prompts(char *s)
         msg("-- Please enter a new password or 'ctrl-c' to quit.");
         SECRET("PASSWORD> ", buf, PROMPT_STRING);
 
-        if(streqn(buf, "quit", 4)) {
+        if (!strncmp(buf, "quit", strlen("quit"))) {
             cmd_quote(buf);
         }
         else {
             send_gb(buf, strlen(buf));
         }
-    }
-    else if(streqn(s, "CHAP CHALLENGE", 14)) {
+    } else if (!strncmp(buf, "CHAP CHALLENGE", strlen("CHAP CHALLENGE"))) {
         /* Mike's CHAP login hack -mfw */
         end_prompt = PASS_PROMPT;
         game_type = GAME_GBDT;
         add_assign("game_type", "GB+");
 
         if(GET_BIT(options, AUTOLOGIN)) {
-            if(streq(cur_game.game.type, "chap")) {
+            if (!strcmp(cur_game.game.type, "chap")) {
                 strcpy(race_name, cur_game.game.racename);
                 strcpy(govn_name, cur_game.game_govname);
                 strcpy(race_pass, cur_game.game.pripassword);
@@ -816,8 +785,7 @@ void connect_prompts(char *s)
         }
 
         chap_response(s);
-    }
-    else if(streq(s, "CHAP FAILURE")) {
+    } else if (!strcmp(s, "CHAP FAILURE")) {
         end_prompt = INTERNAL_PROMPT;
         client_stats = L_PASSWORD;
         password_failed = 1;
@@ -830,12 +798,11 @@ void connect_prompts(char *s)
             CLR_BIT(options, AUTOLOGIN);
             CLR_BIT(options, CONNECT);
         }
-    }
-    else if(streq(s, "CHAP SUCCESS")) {
+    } else if (!strcmp(s, "CHAP SUCCESS")) {
         strcpy(s, ""); /* To blank out the message -mfw */
     }
     else if(strstr(s, RACEGEN)) {
-        racegen = TRUE;
+        racegen = true;
         msg("-- Client is in RACEGEN mode.");
         strcpy(last_prompt, "[ GB Racegen ]");
         SET_BIT(options, PARTIAL_LINES);
@@ -877,7 +844,7 @@ void send_gb(char *s, int len)
         set_no_logout();
     }
 
-    do_queue = FALSE;
+    do_queue = false;
 
     if(gb < 0) {
         return;
@@ -951,14 +918,14 @@ void cursor_output_window(void)
         term_move_cursor(0, output_row);
     }
 
-    cursor_display = FALSE;
+    cursor_display = false;
 }
 
 void scroll_output_window(void)
 {
     if((last_output_row >= output_row) || !GET_BIT(options, DISPLAY_TOP)) {
         term_scroll(0, output_row, 1);
-        crusor_display_FALSE;
+        crusor_display_false;
 
         if(last_output_row > output_row) {
             --last_output_row;
@@ -972,8 +939,8 @@ void cmd_connect(char *s)
     char host_try[BUFSIZ];
     char port_try[BUFSIZ];
     int fd;
-    int unknown = FALSE;
-    int dup_game = FALSE;
+    int unknown = false;
+    int dup_game = false;
 
     if(!*s) {
         msg("Usage: connect [nick | host] [port]");
@@ -985,12 +952,12 @@ void cmd_connect(char *s)
 
     if(p) {
         if(cur_game.game.host /* Added this, was segfaulting on next line -mfw */
-           && streq(cur_game.game.host, p->host)
-           && streq(cur_game.game.port, p->port)
-           && streq(cur_game.game.nick, p->nick)
-           && streq(cur_game.game.pripassword, p->pripassword)
-           && streq(cur_game.game.secpassword, p->secpassword)) {
-            dup_game = TRUE;
+           && !strcmp(cur_game.game.host, p->host)
+           && !strcmp(cur_game.port, p->port)
+           && !strcmp(cur_game.nick, p->nick)
+           && !strcmp(cur_game.game.pripassword, p->pripassword)
+           && !strcmp(cur_game.game.secpassword, p->secpassword)) {
+            dup_game = true;
         }
 
         strcpy(host_try, p->host);
@@ -1008,14 +975,14 @@ void cmd_connect(char *s)
             strcpy(port_try, "2010");
 #endif
         }
-        
-        unknown = TRUE;
+
+        unknown = true;
     }
-    
+
     msg("-- Trying new host (%s %s)", host_try, port_try);
     fd = connectgb(host_try, port_try, "Connect: ");
     debug(1, "cmd_connect() fd: %d gb: %d", fd, gb);
-    
+
     if(fd > 0) {
         if(gb > 0) {
             close_gb();
@@ -1025,12 +992,12 @@ void cmd_connect(char *s)
         else {
             gb = fd;
         }
-        
+
         /* Connecting to same site and race? If so, don't re-init everything */
         if(!dup_game) {
-            init_assign(TRUE);
+            init_assign(true);
         }
-        
+
         cur_game.game.pripassword = strfree(cur_game.game.pripassword);
         cur_game.game.secpassword = strfree(cur_game.game.secpassword);
         cur_game.game.host = strfree(cur_game.game.host);
@@ -1039,10 +1006,10 @@ void cmd_connect(char *s)
         cur_game.game.type = strfree(cur_game.game.type);
         cur_game.game.racename = strfree(curgame.game.racename);
         cur_game.game.govname = strfree(cur_game.game.govname);
-        
+
         cur_game.game.host = string(host_try);
         cur_game.game.port = string(port_try);
-        
+
         if(!unknown) {
             cur_game.game.pripassword = string(p->pripassword);
             cur_game.game.secpassword = string(p->secpassword);
@@ -1059,7 +1026,7 @@ void cmd_connect(char *s)
             cur_game.game.racename = string("");
             cur_game.game.govname = string("");
         }
-        
+
         add_assign("game_nick", cur_game.game.nick);
         add_assign("host", cur_game.game.host);
         add_assign("port", cur_game.game.port);
@@ -1068,15 +1035,15 @@ void cmd_connect(char *s)
         add_assign("pripassword", cur_game.game.pripassword);
         add_assign("govname", cur_game.game.govname);
         add_assign("secpassword", cur_game.game.secpassword);
-        
+
         if(GET_BIT(options, AUTOLOGIN_STARTUP)) {
             SET_BIT(options, AUTOLOGIN);
         }
-        
+
         if(GET_BIT(options, LOGINSUPPRESS_STARTUP)) {
             SET_BIT(options, LOGINSUPPRESS);
         }
-        
+
         msg("-- Connected to new host.");
         client_stats = L_CONNECTED;
         connect_time = time(0);
@@ -1088,14 +1055,14 @@ void cmd_connect(char *s)
 
 void set_values_on_end_prompt(void)
 {
-    move_val.non_stop = FALSE;
-    move_val.forward = FALSE;
+    more_val.non_stop = false;
+    more_val.forward = false;
 
     if(!hide_msg) {
-        kill_socket_output = FALSE;
+        kill_socket_output = false;
     }
 
-    kill_client_output = FALSE;
+    kill_client_output = false;
 }
 
 void set_no_logout(void)
@@ -1192,7 +1159,7 @@ void check_for_special_formatting(char *s, int type)
         if((*p == SEND_QUOTE_CHAR) && (type == FORMAT_NORMAL)) {
             ++p;
 
-            if(streqrn(p, SEND_QUOTE_PHRASE)) {
+            if (!strncmp(p, SEND_QUOTE_PHRASE, strlen(SEND_QUOTE_PHARSE))) {
                 p += strlen(SEND_QUOTE_PHARSE);
 
                 if(*p == SEND_QUOTE_CHAR) {
@@ -1201,8 +1168,7 @@ void check_for_special_formatting(char *s, int type)
                 else {
                     *q = *p - 64;
                 }
-            }
-            else if(streqrn(p, SEND_OLD_QUOTE_PHRASE)) {
+            } else if (!strncmp(p, SEND_OLD_QUOTE_PHRASE, strlen(SEND_OLD_QUOTE_PHRASE))) {
                 p += strlen(SEND_OLD_QUOTE_PHRASE);
                 *q = *p - 64;
             }
@@ -1261,10 +1227,10 @@ void close_gb(void)
     }
 
     client_stats = L_BOOTED;
-    password_invalid = FALSE;
+    password_invalid = false;
     game_type = GAME_NOTGB;
     csp_server_vers = 0;
-    init_assign(FALSE);
+    init_assign(false);
     ICOMM_UTILIZE();
 
     if(gb > 0) {
@@ -1378,7 +1344,7 @@ void loggedin(void)
 
     /* For init_start_comm, but after entry_quote */
     client_stats = L_INTERNALINIT;
-    move_val.num_lines_scrolled = 0;
+    more_val.num_lines_scrolled = 0;
 }
 
 void cmd_ping(char *s)
@@ -1434,17 +1400,17 @@ int on_endprompt(int eprompt)
     extern char *build_scope_prompt();
 
     if(!eprompt) {
-        return FALSE;
+        return false;
     }
 
     if(ICOMM_DOING_COMMAND
        && (ICOMM_STATE == S_PROC)
        && (ICOMM_PROMPT == eprompt)) {
-        icomm_command_done();
+        icomm_command_done('\0');
     }
 
     set_values_on_end_prompt();
-    do_queue = TRUE; /* Special case...must be socket */
+    do_queue = true; /* Special case...must be socket */
 
     if(eprompt == LEVE_PROMPT) {
         if((client_stats = L_PASSWORD) && !GET_BIT(options, PARTIAL_LINES)) {
@@ -1464,9 +1430,9 @@ int on_endprompt(int eprompt)
         }
 
         if(command_has_output) {
-            command_has_output = FALSE;
+            command_has_output = false;
         }
-        
+
 #ifdef IMAP
         if(input_mode.map && (scope.level == LEVEL_PLANET)) {
             map_prompt_force_redraw();
@@ -1478,28 +1444,28 @@ int on_endprompt(int eprompt)
         --hide_msg;
 
         if(!hide_msg) {
-            kill_socket_output = FALSE;
+            kill_socket_output = false;
         }
         else {
             /* Should this be false? */
-            return TRUE;
+            return true;
         }
     }
 
     if(end_msg) {
         --end_msg;
 
-        return TRUE;
+        return true;
     }
 
     if(eprompt == FINISHED_PROMPT) {
-        server_help = FALSE;
+        server_help = false;
     }
 
     if(end_prompt == LEVEL_PROMPT) {
         p = build_scope_prompt();
 
-        if(!streq(last_prompt, p)) {
+        if (strcmp(last_promtp, p)) {
             strcpy(last_prompt, p);
             force_update_status();
         }
@@ -1508,10 +1474,10 @@ int on_endprompt(int eprompt)
     if((eprompt >= NODIS_PROMPT) && GET_BIT(options, HIDE_END_PROMPT)) {
         cursor_to_window();
 
-        return TRUE:
+        return true:
     }
 
-    return FALSE;
+    return false;
 }
 
 void get_pass_info(void)
@@ -1592,7 +1558,7 @@ void chap_abort(void)
     promptfor("Quit client (y/n)? ", &c, PROMPT_CHAR);
 
     if(YES(c)) {
-        quit_all = TRUE;
+        quit_all = true;
     }
     else {
         update_input_prompt(input_prompt);

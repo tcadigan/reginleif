@@ -9,29 +9,33 @@
  */
 #include "csp.h"
 
-#include <ctype.h>
-#include <malloc.h>
-#include <math.h>
-#include <memory.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/types.h>
-
 #include "ansi.h"
+#include "args.h"
 #include "arrays.h"
 #include "csparr.h"
-#include "gh.h"
-#include "proto.h"
+#include "gb.h"
+#include "icomm.h"
+#include "imap.h"
+#include "key.h"
+#include "map.h"
+#include "popn.h"
+#include "socket.h"
+#include "status.h"
 #include "str.h"
 #include "term.h"
-#include "types.h"
 #include "vars.h"
 
 #ifdef XMAP
 #include "xmap.h"
+#endif
 
-char xtring[BUFSIZ];
+#include <math.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stdlib.h>
+
+#ifdef XMAP
+char xstring[BUFSIZ];
 #endif
 
 #define INIT 0
@@ -40,18 +44,10 @@ char xtring[BUFSIZ];
 extern int notify;
 extern int socket_return;
 
-extern int atoi(const char *);
-extern int icomm_valid_csp(int);
-extern int icomm_valid_csp_end(int);
-extern int sscanf(const char *, const char *, ...);
-extern void icomm_command_done(void);
-extern void process_socket(char *);
-void csp_msg(char *, ...);
-void csp_profile_output(Profile *prof);
-
-static int csp_kill_output = FALSE;
+static int csp_kill_output = false;
 static int csp_last_comm_num = 0;
 static Pmap map;
+
 Orbit orbit;
 
 void process_special(char *s)
@@ -62,12 +58,12 @@ void process_special(char *s)
     static CSPReceiveVal *handler = NULL;
 
     split(s, temp, line);
-    ocmm_num = atoi(temp);
+    comm_num = atoi(temp);
 
     if(wait_csp.lo && (wait_csp.lo <= comm_num) && (wait_csp.hi >= comm_num)) {
         strcpy(wait_csp.buf, line);
-        wait_csp.have = TRUE;
-        socket_return = TRUE;
+        wait_csp.have = true;
+        socket_return = true;
         debug(2, "proc_spec, wait_csp found!");
 
         return;
@@ -87,26 +83,26 @@ void process_special(char *s)
         }
 #endif
 
-        return; /* (FALSE) */
+        return; /* (false) */
     }
 
-    csp_kill_output = FALSE;
+    csp_kill_output = false;
     debug(1, "checking icomm/csp");
 
     if(icomm_valid_csp(comm_num)) {
         debug(1, "CSP and icomm say to kill output");
-        csp_kill_output = TRUE;
+        csp_kill_output = true;
     }
 
     ++handler->cnt;
-    handler_func(comm_num, line);
+    handler->func(comm_num, line);
 
     if(icomm_valid_csp_end(comm_num)) {
         debug(1, "CSP and icomm say to do done");
-        icomm_command_done();
+        icomm_command_done('\0');
     }
 
-    return; /* (TRUE) */
+    return; /* (true) */
 }
 
 int cspr_qsort_cmp(const void *a, const void *b)
@@ -153,7 +149,7 @@ void cspr_segment_end(int cnum, char *line)
     }
 
     init_start_commands(2);
-    client_status = L_REINIT;
+    client_stats = L_REINIT;
     csp_msg("SEGMENT DONE... %s", line);
 }
 
@@ -226,7 +222,7 @@ void cspr_map(int cnum, char *line)
          */
 
         break;
-    case CSP_MAP_DYNAMIC: /* 602 */
+    case CSP_MAP_DYNAMIC_1: /* 602 */
 #ifdef XMAP
         if(xmap_active) {
             break;
@@ -238,7 +234,7 @@ void cspr_map(int cnum, char *line)
                &map.type,
                &map.sects,
                &map.guns,
-               &map.mobptr,
+               &map.mobpts,
                &map.res,
                &map.des,
                &map.fuel,
@@ -317,15 +313,15 @@ void cspr_map(int cnum, char *line)
         }
 #endif
 
-        inverse = FALSE;
+        inverse = false;
         pad = 0;
-        *outbuf = '\0';
+        *outbuf1 = '\0';
         p = line;
 
         for(i = 0; i < map.x; ++i) {
             q = strchr(p, ';');
             *q = '\0';
-            sect.geotype = *p++ - '0';
+            sect.geo_type = *p++ - '0';
             sect.symbol = *p++;
             sect.owner = atoi(p);
 
@@ -352,13 +348,13 @@ void cspr_map(int cnum, char *line)
                 if(map.inverse && (sect.owner == profile.raceid)) {
                     if(!inverse) {
                         strcat(outbuf1, "");
-                        inverse = TRUE;
+                        inverse = true;
                         ++pad;
                     }
                 }
                 else if(inverse) {
                     strcat(outbuf1, "");
-                    inverse = FALSE;
+                    inverse = false;
                     ++pad;
                 }
 
@@ -369,10 +365,10 @@ void cspr_map(int cnum, char *line)
                     if(map.inverse) {
                         if(!inverse) {
                             strcat(outbuf1, "");
-                            inverse = TRUE;
+                            inverse = true;
                             ++pad;
                         }
-                        
+
                         sprintf(outbuf2, "%c", sect.symbol);
                     }
                     else {
@@ -392,7 +388,7 @@ void cspr_map(int cnum, char *line)
                 else { /* Not owned by us */
                     if(inverse) {
                         strcat(outbuf1, "");
-                        inverse = FALSE;
+                        inverse = false;
                         ++pad;
                     }
 
@@ -425,8 +421,8 @@ void cspr_map(int cnum, char *line)
         } /* for loop */
 
         if(inverse) {
-            strcat(outbuf, "");
-            inverse = FALSE;
+            strcat(outbuf1, "");
+            inverse = false;
             ++pad;
         }
 
@@ -477,7 +473,7 @@ void cspr_map(int cnum, char *line)
                 strcat(outbuf1, outbuf2);
             }
 
-            p = get_map_info(NEXT, &map);
+            p = get_map_info_buf(NEXT, &map);
 
             if(p) {
                 csp_msg("%-40s%s", outbuf1, p);
@@ -611,7 +607,7 @@ char *get_map_info_buf(int cnt, Pmap *map)
     return xtrabuf;
 }
 
-void cspr_pint(int cnum, char *line)
+void cspr_ping(int cnum, char *line)
 {
     csp_send_request(CSP_PING, "");
 
@@ -626,9 +622,9 @@ void cspr_pause(int cnum, char *line)
 {
     char c;
 
-    paused = TRUE;
+    paused = true;
     promptfor("-- paused --", &c, PROMPT_CHAR);
-    paused = FALSE;
+    paused = false;
 }
 
 void cspr_survey(int cnum, char *line)
@@ -661,13 +657,13 @@ void cspr_survey(int cnum, char *line)
 void cspr_updates_suspended(int cnum, char *line)
 {
     csp_msg("== Updates/Segments have been suspended.");
-    servinfo.updates_suspended = TRUE;
+    servinfo.updates_suspended = true;
 }
 
 void cspr_updates_resumed(int cnum, char *line)
 {
     csp_msg("== Updates/Segmets have resumed.");
-    servinfo.updates_suspended = FALSE;
+    servinfo.updates_suspended = false;
 }
 
 /* Receiving a list of those commands that we can _send_ */
@@ -676,7 +672,7 @@ void cspr_knowledge(int cnum, char *line)
     char *p;
     char *q = line;
     CSPSendVal *handler;
-    char known[MAXISZ];
+    char known[MAXSIZ];
     char unknown[MAXSIZ];
     extern char *entry_quote;
 
@@ -694,7 +690,7 @@ void cspr_knowledge(int cnum, char *line)
         handler = csps_binary_search(atoi(q));
 
         if(handler) {
-            handler->know = TRUE;
+            handler->know = true;
             strcat(known, handler->name);
             strcat(known, " ");
         }
@@ -702,7 +698,7 @@ void cspr_knowledge(int cnum, char *line)
             strcat(unknown, q);
             strcat(unknown, " ");
         }
-        
+
         q = p + 1;
         p = strchr(q, ' ');
     }
@@ -710,7 +706,7 @@ void cspr_knowledge(int cnum, char *line)
     handler = csps_binary_search(atoi(q));
 
     if(handler) {
-        handler->know = TRUE;
+        handler->know = true;
         strcat(known, handler->name);
         strcat(known, " ");
     }
@@ -783,7 +779,7 @@ CSPReceiveVal *cspr_binary_search(int cnum)
 
     while(bottom <= top) {
         mid = bottom + ((top - bottom) / 2);
-        value = cnum - csp_receive_tabl[mid].comm_num;
+        value = cnum - csp_receive_table[mid].comm_num;
 
         if(value == 0) {
             return &csp_receive_table[mid];
@@ -813,8 +809,8 @@ void waitfor(char *buf, int lo, int hi)
     gbs();
     strcpy(buf, wait_csp.buf);
     wait_csp.lo = 0;
-    wait_csp.have = FALSE;
-    socket_return = FALSE;
+    wait_csp.have = false;
+    socket_return = false;
 }
 
 int csp_send_request(int comm_num, char *buf)
@@ -848,7 +844,7 @@ int csp_send_request(int comm_num, char *buf)
         }
 #endif
 
-        return 0; /* (FALSE) */
+        return 0; /* (false) */
     }
 
     ++handler->cnt;
@@ -862,9 +858,9 @@ int csp_send_request(int comm_num, char *buf)
     }
 
     send_gb(str, strlen(str));
-    csp_las_comm_num = handler_comm_num;
+    csp_last_comm_num = handler->comm_num;
 
-    return 1; /* (TRUE) */
+    return 1; /* (true) */
 }
 
 void cspr_profile(int cnum, char *line)
@@ -889,7 +885,7 @@ void cspr_profile(int cnum, char *line)
                "%d %d %d %d %d %d %d %s",
                &prof.updates_active,
                &prof.know,
-               &prof.capital,
+               &prof.capitol,
                &prof.raceinfo.morale,
                &prof.ranges.guns,
                &prof.ranges.space,
@@ -916,11 +912,11 @@ void cspr_profile(int cnum, char *line)
                &prof.raceinfo.birthrate,
                &prof.raceinfo.mass,
                &prof.raceinfo.fight,
-               &prog.raceinfo.metab,
+               &prof.raceinfo.metab,
                &prof.raceinfo.sexes,
                &prof.raceinfo.explore,
-               &prof.raceingo.tech,
-               &prog.raceinf.iq);
+               &prof.raceinfo.tech,
+               &prof.raceinfo.iq);
 
         prof.raceinfo.racetype = rt;
 
@@ -992,12 +988,12 @@ void csp_profile_output(Profile *prof)
     csp_msg("Personal: %s", prof->personal);
 
     if((prof->raceid == profile.raceid) || (profile.player_type == CSPD_DEITY)) {
-        csp_msg("Default Scope: %-20s Capital: #%-d",
+        csp_msg("Default Scope: %-20s Capitol: #%-d",
                 prof->defscope,
-                prof->capital);
+                prof->capitol);
 
         csp_msg("Morale: %-28d  Ranges:   guns   space   ground",
-                prof->raceinfo.moral);
+                prof->raceinfo.morale);
 
         csp_msg("Updates Active: %-18d            %6d %7d %8d",
                 prof->updates_active,
@@ -1007,17 +1003,17 @@ void csp_profile_output(Profile *prof)
 
         csp_msg("");
         csp_msg("%s Race%s            Planet Conditions         Sector Preferences",
-                Racetype[prof->raceinfo.racetype],
+                RaceType[prof->raceinfo.racetype],
                 RaceTypePad[prof->raceinfo.racetype]);
 
         csp_msg("Fert: %6d%%           Temp: %9d",
-                prof.raceinfo.fert,
+                prof->raceinfo.fert,
                 prof->planet.temp);
 
         csp_msg("Rate: %6.1lf            methane %6d%%           ocean    . %3d%%",
                 prof->raceinfo.birthrate,
                 prof->planet.methane,
-                prof->second.ocean);
+                prof->sector.ocean);
 
         csp_msg("Mass: %6.2lf            oxygen  %6d%%           gaseous  ~ %3d%%",
                 prof->raceinfo.mass,
@@ -1027,7 +1023,7 @@ void csp_profile_output(Profile *prof)
         csp_msg("Fight: %5d            helium %7%%            ice      # %3d%%",
                 prof->raceinfo.fight,
                 prof->planet.helium,
-                prof->second.ice);
+                prof->sector.ice);
 
         csp_msg("Metab: %5.2lf            nitrogen %5d%%           mountain ^ %3d%%",
                 prof->raceinfo.metab,
@@ -1044,7 +1040,7 @@ void csp_profile_output(Profile *prof)
                 prof->planet.hydrogen,
                 prof->sector.desert);
 
-        csp_msg("Avg Int:%4.0lf            sulfer %7d%%           forest  \ %3d%%",
+        csp_msg("Avg Int:%4.0lf            sulfer %7d%%           forest  \" %3d%%",
                 prof->raceinfo.iq,
                 prof->planet.sulfur,
                 prof->sector.forest);
@@ -1241,7 +1237,7 @@ void cspr_client_on(int cnum, char *line)
         msg("== Updates/Segments are currently suspended.");
     }
 
-    csp_server_vers = TRUE;
+    csp_server_vers = true;
     csp_send_request(CSP_KNOWLEDGE, NULL);
     game_type = GAME_GBDT;
 }
@@ -1273,7 +1269,7 @@ void cspr_scope_prompt(int cnum, char *line)
     Ship *mptr;
 
     scope.starnum = -1;
-    *scope.start = '\0';
+    *scope.star = '\0';
     scope.planetnum = '\0';
     *scope.planet = '\0';
     scope.ship = 0;
@@ -1282,14 +1278,14 @@ void cspr_scope_prompt(int cnum, char *line)
     p = strtok(rest, " ");
     scope.level = atoi(p);
     p = strtok(NULL, " ");
-    scop.numships = atoi(p);
+    scope.numships = atoi(p);
     p = strtok(NULL, " ");
     scope.aps = atoi(p);
 
     if((scope.level == CSPD_STAR) || (scope.level == CSPD_PLAN)) {
         p = strtok(NULL, " ");
         scope.starnum = atoi(p);
-        strcpy(scope.start, strtok(NULL, " "));
+        strcpy(scope.star, strtok(NULL, " "));
     }
 
     if(scope.level == CSPD_PLAN) {
@@ -1398,7 +1394,7 @@ void cspr_explore(int cnum, char *line)
         csp_msg("#%-3d %s[%3d](%d)", id, name, aps, stab);
 
         break;
-    case CSP_EXPLORE_START_ALIENS: /* 503 */
+    case CSP_EXPLORE_STAR_ALIENS: /* 503 */
         if(*line) {
             strcpy(aliens, line);
         }
@@ -1461,7 +1457,7 @@ void cspr_who(int cnum, char *line)
     int idle;
     int gag;
     int invis;
-    int rd;
+    int rc;
     char scope[SMABUF];
 
     switch(cnum) {
@@ -1502,7 +1498,7 @@ void cspr_who(int cnum, char *line)
         idle = atoi(line);
 
         if(idle != -1) {
-            cps_msg("And %d coward%s",
+            csp_msg("And %d coward%s",
                     idle,
                     (((idle == 0) || (idle > 1)) ? "s" : ""));
 
@@ -1627,7 +1623,7 @@ void cspr_orbit(int cnum, char *line)
 
         // Do we care about this?
         orbit.bcnt = 0;
-        orbit.pcnt = obrit.bcnt;
+        orbit.pcnt = orbit.bcnt;
         orbit.scnt = orbit.pcnt;
 
 #ifdef XMAP
@@ -1645,7 +1641,7 @@ void cspr_orbit(int cnum, char *line)
         orbit.position = 0;
 
         // Print survey infor in a nice little box
-        term_pove_cursor(num_columns - 20, orbit.position++);
+        term_move_cursor(num_columns - 20, orbit.position++);
         sprintf(colbuf, "+-------------------");
         term_puts(colbuf, strlen(colbuf));
 
@@ -1663,7 +1659,7 @@ void cspr_orbit(int cnum, char *line)
         ++orbit.scnt;
 
         sscanf(line,
-               "%d %lf %lf %s %s %s %s %s %s %lf %s",
+               "%d %lf %lf %d %d %d %d %d %d %lf %s",
                &orbit.star.snum,
                &orbit.star.x,
                &orbit.star.y,
@@ -1742,7 +1738,7 @@ void cspr_orbit(int cnum, char *line)
             dy = pow(orbit.planet.y - orbit.star.y, 2);
             dt = sqrt(dx + dy);
             term_move_cursor(num_columns - 20, orbit.position++);
-            sprintf(colbuf, "| %5.0f %s", orbit.planet.name);
+            sprintf(colbuf, "| %5.0f %s", dt, orbit.planet.name);
             term_puts(colbuf, strlen(colbuf));
         }
         else {
@@ -1781,7 +1777,7 @@ void cspr_orbit(int cnum, char *line)
         }
 #endif
 
-        term_move_cursor(num_cols - 20, orbit.position);
+        term_move_cursor(num_columns - 20, orbit.position);
         sprintf(colbuf, "+---------------");
         term_puts(colbuf, strlen(colbuf));
 
@@ -1813,11 +1809,11 @@ void plot_orbit_object(void)
 
     want_color = GET_BIT(options, DISP_ANSI);
 
-    if((orbit.type == TYPE_STAR) && (orbit_scope == LEVEL_UNIV)) {
+    if((orbit.type == TYPE_STAR) && (orbit.scope == LEVEL_UNIV)) {
         x = (int)(orbit.scale + ((orbit.scale * (orbit.star.x - orbit.lastx)) / (orbit.univsize * orbit.zoom)));
         y = (int)(orbit.scale + ((orbit.scale * (orbit.star.y - orbit.lasty)) / (orbit.univsize * orbit.zoom)));
     }
-    else if((orbit_type == TYPE_STAR) && (orbit.scope == LEVEL_STAR)) {
+    else if((orbit.type == TYPE_STAR) && (orbit.scope == LEVEL_STAR)) {
         x = (int)(orbit.scale + ((orbit.scale * -orbit.lastx) / (orbit.syssize * orbit.zoom)));
         y = (int)(orbit.scale + ((orbit.scale * -orbit.lasty) / (orbit.syssize * orbit.zoom)));
     }
@@ -1893,6 +1889,9 @@ void plot_orbit_object(void)
 
     if((x >= 0) && (y >= 1) && (x <= S_X) && (y <= S_Y)) {
 #ifdef ARRAY
+        extern char *Novae[16][5];
+        extern char *Mirror[8][5];
+
         if((orbit.type == TYPE_STAR)
            && (orbit.scope == LEVEL_STAR)
            && (orbit.star.novastage > 0)
@@ -1907,7 +1906,7 @@ void plot_orbit_object(void)
          */
         if((orbit.type == TYPE_SHIP)
            && (orbit.scope == LEVEL_PLANET)
-           && (orbit.ship_type == 'M')
+           && (orbit.ship.type == 'M')
            && (orbit.ship.array <= 8)
            && (orbit.ship.array > 0)) {
             /* Mirror */
@@ -1930,7 +1929,7 @@ void plot_orbit_object(void)
         else if(orbit.type == TYPE_PLANET) {
             if(orbit.planet.explored && orbit.inverse) {
                 term_standout_on();
-                term_putchar(ptyes[orbit.planet.type]);
+                term_putchar(ptype[orbit.planet.type]);
                 term_standout_off();
             }
             else {
@@ -2051,7 +2050,7 @@ void orbit_info_box(void)
         term_puts(colbuf, strlen(colbuf));
 
         term_move_cursor(num_columns - 20, orbit.position++);
-        sprintf(colbuf, "| %d Planets --", orbit.star_numplan);
+        sprintf(colbuf, "| %d Planets --", orbit.star.numplan);
         term_puts(colbuf, strlen(colbuf));
     }
     else if(orbit.scope == LEVEL_PLANET) {

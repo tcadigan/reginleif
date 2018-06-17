@@ -7,10 +7,10 @@
  *
  * See the COPYRIGHT file.
  */
+#include "popn.h"
 
 #include "csp.h"
 #include "gb.h"
-#include "proto.h"
 #include "str.h"
 #include "term.h"
 #include "types.h"
@@ -19,6 +19,7 @@
 #include <ctype.h>
 #include <malloc.h>
 #include <math.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -28,7 +29,7 @@
 #define EMPTY 1
 #define MY_SECT 2
 
-Map pop_map = { 0, 0, "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, TRUE, FALSE, FALSE, (Sector *)NULL };
+Map pop_map = { 0, 0, "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, true, false, false, (Sector *)NULL };
 
 struct popn_infostruct {
     int doing;
@@ -42,7 +43,7 @@ struct popn_infostruct {
     int comandcnt;
 };
 
-struct popn_infostruct popn_info = { FALSE, 0, -1, -1, -1, -1, 0, TRUE, 0 };
+struct popn_infostruct popn_info = { false, 0, -1, -1, -1, -1, 0, true, 0 };
 
 extern char pbuf[];
 extern int end_msg;
@@ -67,7 +68,7 @@ void popn_input(int comm_num, char *procbuf)
 
         if(popn_map.ptr == (Sector *)NULL) {
             msg("-- Popn: could not malloc map space. Aborting.");
-            popn_info.doing = FALSE;
+            popn_info.doing = false;
 
             return;
         }
@@ -119,7 +120,7 @@ void cmd_popn(char *args)
 
     if(profile.raceinfo.sexes <= 0) {
         msg("-- WARNING: Client does not know number of sexes. Please input it now.");
-        int1 = TRUE;
+        int1 = true;
 
         while(int1) {
             promptfor("# of sexes? ", pbuf, PROMPT_STRING);
@@ -128,7 +129,7 @@ void cmd_popn(char *args)
                 profile.raceinfo.sexes = atoi(pbuf);
 
                 if(profile.raceinfo.sexes > 0) {
-                    int1 = FALSE;
+                    int1 = false;
                 }
             }
         }
@@ -225,10 +226,10 @@ void cmd_popn(char *args)
     promptfor("(y/n)? ", &ch, PROMPT_CHAR);
 
     if((ch == 'y') || (ch == 'Y')) {
-        popn_info.do_use_compat = TRUE;
+        popn_info.do_use_compat = true;
     }
     else {
-        popn_info.do_use_compat = FALSE;
+        popn_info.do_use_compat = false;
     }
 
     if(GBDT()) {
@@ -238,7 +239,7 @@ void cmd_popn(char *args)
         send_gb("client_survey -\n", 16);
     }
 
-    popn_info.doing = TRUE;
+    popn_info.doing = true;
     msg("-- Popn: Gathering data. Please hold.");
 
 #else
@@ -264,7 +265,7 @@ void handle_popn(void)
     int moving_civs;
     int emtpy_adj_sects = 0;
     int max_move;
-    int changes_made = TRUE;
+    int changes_made = true;
     char movebuf[BUFSIZ];
 
     static int movement_direction_table[9] = {
@@ -288,7 +289,7 @@ void handle_popn(void)
         popn_info.ymax,
         popn_info.aps_spend);
 
-    popn_info.doing = FALSE;
+    popn_info.doing = false;
 
     /* Mark which ones for moving? */
     p = popn_map.ptr;
@@ -325,12 +326,12 @@ void handle_popn(void)
         } /* For x */
     } /* For y */
 
-    kill_socket_output = TRUE;
+    kill_socket_output = true;
     popn_info.commandcnt = 0;
 
     /* Repeat until we don't move any more civs */
     while(changes_made) {
-        changes_made = FALSE;
+        changes_made = false;
 
         /* Count the number of empty sects adj to an owned sector */
         for(x = popn_info.xmin; x < popn_map.maxx; ++x) {
@@ -482,7 +483,7 @@ void handle_popn(void)
                         }
 
                         if((moving_civs > 0) && ((p->civ - moving_civs) >= profile.raceinfo.sexes)) {
-                            changes_made = TRUE;
+                            changes_made = true;
                         }
                         else {
                             continue;
@@ -522,8 +523,8 @@ void handle_popn(void)
                             --end_msg;
 
                             if(!hide_msg) {
-                                kill_socket_output = FALSE;
-                                end_msg = FALSE;
+                                kill_socket_output = false;
+                                end_msg = false;
                             }
 
                             msg("-- Popn: Sending %d commands. Please hold.",
@@ -540,8 +541,8 @@ void handle_popn(void)
     --end_msg;
 
     if(!hide_msg) {
-        kill_socket_output = FALSE;
-        end_msg = FALSE;
+        kill_socket_output = false;
+        end_msg = false;
     }
 
     msg("-- Popn: Sending %d commands. Please hold.",

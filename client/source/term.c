@@ -9,11 +9,11 @@
  */
 
 #include "gb.h"
-#include "proto.h"
 #include "str.h"
 #include "types.h"
 #include "vars.h"
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,7 +29,6 @@
 #endif
 
 #define term_move(c, r) (term_put_termstring(tgoto(CM, (c), (r))))
-#define NULL_STRING ""
 
 extern int cursor_display;
 
@@ -64,9 +63,9 @@ static char *UE; /* Underline off */
 static char *MD; /* Bold/bright mode on */
 static char *ME; /* End all most */
 static int SG;
-static int boldface = FALSE;
-static int inverse = FALSE;
-static int underline = FALSE;
+static int boldface = false;
+static int inverse = false;
+static int underline = false;
 
 /* Terminal structures saved ones and ones client plays with */
 #ifdef TERMIO
@@ -315,24 +314,24 @@ void get_termcap(void)
     SE = tgetstr("se", &ptr);
 
     if((SO == NULL) || (SE == NULL)) {
-        SO = NULL_STRING;
-        SE = NULL_STRING;
+        SO = "";
+        SE = "";
     }
 
     US = tgetstr("us", &ptr);
     UE = tgetstr("ue", &ptr);
 
     if((US == NULL) || (UE == NULL)) {
-        US = NULL_STRING;
-        UE = NULL_STRING;
+        US = "";
+        UE = "";
     }
 
     MD = tgetstr("md", &ptr);
     ME = tgetstr("me", &ptr);
 
     if((MD == NULL) || (ME == NULL)) {
-        MD = NULL_STRING;
-        ME = NULL_STRING;
+        MD = "";
+        ME = "";
     }
 
     SG = tgetflag("sg");
@@ -530,13 +529,13 @@ void term_toggle_standout(void)
 void term_standout_on(void)
 {
     term_put_termstring(SO);
-    inverse = TRUE;
+    inverse = true;
 }
 
 void term_standout_off(void)
 {
     term_put_termstring(SE);
-    inverse = FALSE;
+    inverse = false;
 }
 
 int term_standout_status(void)
@@ -557,13 +556,13 @@ void term_toggle_underline(void)
 void term_underline_on(void)
 {
     term_put_termstring(US);
-    underline = TRUE;
+    underline = true;
 }
 
 void term_underline_off(void)
 {
     term_put_termstring(UE);
-    underline = FALSE;
+    underline = false;
 }
 
 void term_toggle_boldface(void)
@@ -579,7 +578,7 @@ void term_toggle_boldface(void)
 void term_boldface_on(void)
 {
     term_put_termstring(MD);
-    boldface = TRUE;
+    boldface = true;
 }
 
 void term_boldface_off(void)
@@ -594,7 +593,7 @@ void term_boldface_off(void)
         term_underline_on();
     }
 
-    boldface = FALSE;
+    boldface = false;
 }
 
 void term_put_termstring(char *c)
@@ -609,7 +608,7 @@ void term_put_termstring(char *c)
 
 void term_move_cursor(int x, int y)
 {
-    cursor_display = FALSE;
+    cursor_display = false;
     term_move(x, y);
 }
 

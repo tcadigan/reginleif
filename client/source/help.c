@@ -24,49 +24,35 @@
  * -- second
  *   A line of help regarding second.
  */
-#include <memory.h>
-#include <stdio.h>
-#include <sys/types.h>
+#include "help.h"
 
-#include "gb.h"
-#include "proto.h"
 #include "str.h"
 #include "types.h"
-#include "vars.h"
 
-#define HELP_INC 20 /* Width of help column */
-#define MULTI_CHAR '*'
+#include <stdbool.h>
+#include <string.h>
 
 /*
  * Various 'types' of help. Done and need to exit; one specific item
  * requested; all items requested; set help requested; and lastly bind
  * help requested
  */
-#define HELP_DONE  -1
-#define HELP_ONE    0
-#define HELP_ALL    1
-#define HELP_MULTI  2
-
-/* Standard single level help entry and offset amount */
-#define STR_NORM "-- "
-#define OFFSET_NORM 3
-
-/* 2 level help entry and offset amount */
-#define STR_MULTI "-- *"
-#define OFFSET_MULTI 4
+enum help_type {
+    HELP_DONE = -1,
+    HELP_ONE = 0,
+    HELP_ALL = 1,
+    HELP_MULTI = 2
+};
 
 extern char pbuf[];
 extern int num_columns;
 
-extern int strncmp(const char *, const char *, size_t);
-extern int fclose(FILE *);
-
 void help(char *args, FILE *fdhelp)
 {
-    int mode = HELP_ONE;  /* Searching for command (0)/all commands (1) */
-    int found = FALSE;    /* Find the entry */
-    int multi = FALSE;    /* Multi level command? */
-    int oldmulti = FALSE; /* Storage status variable */
+    enum help_type mode = HELP_ONE; /* Searching for command (0)/all commands (1) */
+    int found = false;    /* Find the entry */
+    int multi = false;    /* Multi level command? */
+    int oldmulti = false; /* Storage status variable */
     char *ptr;
     char multistr[200];   /* Store current multi level name */
     char buf[BUFSIZ];
@@ -78,10 +64,10 @@ void help(char *args, FILE *fdhelp)
         msg("Entries with further topics are marked by (*). Do not type the (*).");
     }
 
-    set_column_marker(HELP_INC);
+    set_column_maker(20);
     strcpy(multistr, "-=null=-");
 
-    while(fgets(buf, BuFSIZ, fdhelp)) {
+    while(fgets(buf, BUFSIZ, fdhelp)) {
         if(*buf == '\n') {
             if(found) {
                 msg("");
@@ -97,15 +83,21 @@ void help(char *args, FILE *fdhelp)
         }
 
         /* Topic */
-        if((streqrn(buf, STR_MULTI) && (multi = TRUE)) || streqrn(buf, STR_NORM)) {
+        if (!strncmp(buf, "-- *", strlen("-- *"))
+            || !strncmp(buf, "-- ", strlen("-- "))) {
+
+            if (!strncmp(buf, "-- *", strlen("-- *"))) {
+                multi = true;
+            }
+
             if(found) {
                 /*
                  * It's multi we've printed out multi info now we need
                  * to print out subtopics
                  */
-                if(mode == HELP_MULTI) {
+                if (mode == HELP_MULTI) {
                     mode = HELP_DONE;
-                    found = FALSE;
+                    found = false;
                 }
                 else {
                     /* We are all done, so quit */
@@ -114,25 +106,24 @@ void help(char *args, FILE *fdhelp)
             }
 
             /* Find what we are looking for? */
-            if(mode == HELP_ONE) {
+            if (mode == HELP_ONE) {
                 /* Find the multi we are looking for? */
-                if(multi && streq(buf + OFFSET_MULTI, args)) {
-                    found = TRUE;
+                if (multi && !strcmp(buf + strlen("-- *"), args)) {
+                    found = true;
                     mode = HELP_MULTI;
-                    sprintf(mutlistr, "-- %s", buf + OFFSET_MULTI);
+                    sprintf(multistr, "-- %s", buf + strlen("-- *"));
                     msg("");
-                }
-                else if(streq(buf + OFFSET_NORM, args)) {
-                    found = TRUE;
-                    multi = FALSE;
+                } else if (!strcmp(buf + strlen("-- "), args)) {
+                    found = true;
+                    multi = false;
                     msg("");
                 }
             }
             else {
                 /* We've printed all the multi there are */
-                if(mode == HELP_DONE) {
-                    if(streqrn(buf, multistr)) {
-                        found = TRUE;
+                if (mode == HELP_DONE) {
+                    if (!strncmp(buf, multistr, strlen(multistr))) {
+                        found = true;
 
                         break;
                     }
@@ -142,29 +133,29 @@ void help(char *args, FILE *fdhelp)
                 }
 
                 /* Print specials (multi) only once */
-                if(mode == HELP_ALL) {
+                if (mode == HELP_ALL) {
                     if(oldmulti) {
-                        if(streqrn(buf + OFFSET_NORM, mutlistr)) {
+                        if (!strncmp(buf + strlen("-- "), multistr, strlen(multistr))) {
                             continue;
                         }
 
-                        oldmulti = FALSE;
+                        oldmulti = false;
                     }
 
                     if(multi) {
-                        if(streqrn(buf + OFFSET_NORM, multistr)) {
+                        if (!strncmp(buf + strlen("-- "), multistr, strlen(multistr))) {
                             continue;
                         }
                         else {
-                            sprintf(temp, "%s (*)", buf + OFFSET_MULTI);
+                            sprintf(temp, "%s (*)", buf + strlen("-- *"));
                             do_column_maker(temp);
-                            strcpy(multistr, buf + OFFSET_MULTI);
-                            oldmulti = TRUE;
-                            multi = FALSE;
+                            strcpy(multistr, buf + strlen("-- *"));
+                            oldmulti = true;
+                            multi = false;
                         }
                     }
                     else {
-                        do_column_maker(buf + OFFSET_NORM);
+                        do_column_maker(buf + strlen("-- "));
                     }
                 }
             } /* Special indent */

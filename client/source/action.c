@@ -5,33 +5,27 @@
  *
  * Copyright (c) 1992-1993
  *
- * See the COPYRIGHT file.
+ * See the COPYRIGHT file
  */
+#include "action.h"
 
-#include <malloc.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/types.h>
-
-#include "gb.h"
-#include "proto.h"
+#include "args.h"
+#include "key.h"
 #include "str.h"
-#include "types.h"
 #include "vars.h"
+
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 
 static Action *action_head = NULL;
 static Action *action_tail = NULL;
 
-Action *find_action(char *pat);
-void cmd_listaction(char *args);
 void cmd_unaction(char *pat);
+void cmd_listaction(char *args);
 void action_update_index(void);
-
-extern int fprintf(FILE *, const char *, ...);
-extern int atoi(const char *);
-extern char *strcat(char *, const char *);
-
-/* Action ROUTINES */
+void cmd_clearaction(char *args);
+Action *find_action(char *pat);
 
 void cmd_action(char *args)
 {
@@ -39,43 +33,43 @@ void cmd_action(char *args)
     char *ptr;
     char *ptr2;
     char buf[MAXSIZ];
-    int nooutput = FALSE;
-    int quiet = FALSE;
-    int notify = FALSE;
-    int active = TRUE;
+    int nooutput = false;
+    int quiet = false;
+    int notify = false;
+    int active = true;
     int argval = 1;
-    int edit = FALSE;
-    int activating = FALSE;
+    int edit = false;
+    int activating = false;
 
     ptr = get_args(argval, 0);
 
-    if(!*ptr) {
+    if (!*ptr) {
         cmd_listaction(NULL);
         strfree(ptr);
 
         return;
     }
 
-    while(*ptr == '-') {
-        if(streq(ptr, "-nooutput")) {
-            nooutput = TRUE;
+    while (*ptr == '-') {
+        if (!strcmp(ptr, "-nooutput")) {
+            nooutput = true;
         }
-        else if(streq(ptr, "-edit")) {
-            edit = TRUE;
+        else if (!strcmp(ptr, "-edit")) {
+            edit = true;
         }
-        else if(streq(ptr, "-quiet")) {
-            quiet = TRUE;
+        else if (!strcmp(ptr, "-quiet")) {
+            quiet = true;
         }
-        else if(streq(ptr, "-notify")) {
-            notify = TRUE;
+        else if (!strcmp(ptr, "-notify")) {
+            notify = true;
         }
-        else if(streq(ptr, "-active")) {
-            active = TRUE;
-            activating = TRUE;
+        else if (!strcmp(ptr, "-active")) {
+            active = true;
+            activating = true;
         }
-        else if(streq(ptr, "-inactive")) {
-            active = FALSE;
-            activating = TRUE;
+        else if (!strcmp(ptr, "-inactive")) {
+            active = false;
+            activating = true;
         }
         else {
             cmd_unaction(ptr + 1);
@@ -89,18 +83,18 @@ void cmd_action(char *args)
         ptr = get_args(argval, 0);
     }
 
-    if(streq(ptr, "edit")
-       || streq(ptr, "nooutput")
-       || streq(ptr, "quiet")
-       || streq(ptr, "notify")
-       || streq(ptr, "active")
-       || streq(ptr, "inactive")) {
-        msq("-- Action: Invalid name ('%s') since it is an option.");
+    if (!strcmp(ptr, "edit")
+        || !strcmp(ptr, "nooutput")
+        || !strcmp(ptr, "quiet")
+        || !strcmp(ptr, "notify")
+        || !strcmp(ptr, "active")
+        || !strcmp(ptr, "inactive")) {
+        msg("-- Action: Invalid name ('%s') since it is an option.");
         strfree(ptr);
 
         return;
     }
-    else if((*ptr == '#') && !(edit || activating)) {
+    else if ((*ptr == '#') && !(edit || activating)) {
         msg("-- Action: can not start with %c due to their use in indexes.", *ptr);
         strfree(ptr);
 
@@ -110,8 +104,8 @@ void cmd_action(char *args)
     p = find_action(ptr);
     ptr2 = get_args(argval + 1, 100);
 
-    if(edit) {
-        if(p) {
+    if (edit) {
+        if (p) {
             sprintf(buf,
                     "action %s%s%s\"%s\" %s",
                     (p->nooutput ? "-nooutput " : ""),
@@ -131,8 +125,8 @@ void cmd_action(char *args)
 
         return;
     }
-    else if(activating && !*ptr2) {
-        if(p) {
+    else if (activating && !*ptr2) {
+        if (p) {
             p->active = active;
             msg("-- Action: '%s' %sactivated", ptr, (active ? "" : "de"));
         }
@@ -146,10 +140,10 @@ void cmd_action(char *args)
         return;
     }
 
-    if(!p) {
-        p = (Action *)malloc(sizeof(Action));
+    if (!p) {
+        p = malloc(sizeof(Action));
 
-        if(!p) {
+        if (!p) {
             msg("-- Could not allocate memory for action.");
             strfree(ptr);
             strfree(ptr2);
@@ -157,7 +151,7 @@ void cmd_action(char *args)
             return;
         }
 
-        if(!action_head) {
+        if (!action_head) {
             action_head = p;
             action_tail = action_head;
             p->next = NULL;
@@ -179,7 +173,7 @@ void cmd_action(char *args)
     p->active = active;
 
     action_update_index();
-    action_match_suppress = TRUE;
+    action_match_suppress = true;
 
     msg("-- Action($%d): added %s%s%s'%s' = '%s'",
         p->indx,
@@ -189,7 +183,7 @@ void cmd_action(char *args)
         p->pattern,
         p->action);
 
-    action_match_suppress = FALSE;
+    action_match_suppress = false;
     sprintf(buf, "#%d", p->indx);
     add_assign("pid", buf);
 }
@@ -201,16 +195,16 @@ void cmd_unaction(char *pat)
 
     p = find_action(pat);
 
-    if(!p) {
+    if (!p) {
         msg("-- Action %s was not defined.", pat);
 
         return;
     }
 
     /* Head of list? */
-    if(!p->prev) {
+    if (!p->prev) {
         /* Not sole node, move head up one */
-        if(p->next) {
+        if (p->next) {
             action_head = p->next;
             action_head->prev = (Action *)NULL;
         }
@@ -219,7 +213,7 @@ void cmd_unaction(char *pat)
             action_tail = (Action *)NULL;
         }
     }
-    else if(!p->next) { /* End of list */
+    else if (!p->next) { /* End of list */
         action_tail = p->prev;
         p->prev->next = (Action *)NULL;
     }
@@ -241,7 +235,7 @@ void cmd_listaction(char *args)
     Action *p;
     int i = 1;
 
-    if(!action_head) {
+    if (!action_head) {
         msg("-- No actions defined.");
 
         return;
@@ -250,7 +244,7 @@ void cmd_listaction(char *args)
     msg("-- Actions (Globbaly %s):",
         (GET_BIT(options, ACTIONS) ? "ACTIVE" : "INACTIVE"));
 
-    for(p = action_head; p; p = p->next) {
+    for (p = action_head; p; p = p->next) {
         p->indx = i;
 
         msg("%3d) %s%s%s%s%s = %s",
@@ -271,11 +265,11 @@ void action_update_index(void)
     Action *p;
     int i = 1;
 
-    if(!action_head) {
+    if (!action_head) {
         return;
     }
 
-    for(p = action_head; p; p = p->next) {
+    for (p = action_head; p; p = p->next) {
         p->indx = i++;
     }
 }
@@ -284,13 +278,13 @@ void save_actions(FILE *fd)
 {
     Action *p;
 
-    if(!action_head) {
+    if (!action_head) {
         return;
     }
 
     fprintf(fd, "\n#\n# Actions\n#\n#");
 
-    for(p = action_head; p; p = p->next) {
+    for (p = action_head; p; p = p->next) {
         fprintf(fd,
                 "action %s%s%s%s\"%s\" %s\n",
                 (p->active ? "" : "-inactive "),
@@ -307,7 +301,7 @@ void cmd_clearaction(char *args)
 {
     Action *p;
 
-    for(p = action_head; p; p = p->next) {
+    for (p = action_head; p; p = p->next) {
         strfree(p->pattern);
         strfree(p->action);
         free(p);
@@ -323,18 +317,18 @@ Action *find_action(char *pat)
     int val;
     Action *p;
 
-    if(*pat == '#') {
+    if (*pat == '#') {
         val = atoi(pat + 1);
         p = action_head;
-        
-        while(p && (p->indx != val)) {
+
+        while (p && (p->indx != val)) {
             p = p->next;
         }
     }
     else {
         p = action_head;
 
-        while(p && !streq(pat, p->pattern)) {
+        while (p && strcmp(pat, p->pattern)) {
             p = p->next;
         }
     }
@@ -358,27 +352,27 @@ int handle_action_matches(char *s)
     char *p;
     int cnt = 0;
     int i;
-    int outval = FALSE;
+    int outval = false;
 
-    if(!GET_BIT(options, ACTIONS)) {
-        return FALSE;
+    if (!GET_BIT(options, ACTIONS)) {
+        return false;
     }
 
     debug(1, "match: %s is string", s);
 
-    for(ptr = action_head; ptr; ptr = ptr->next) {
-        if(MATCH(s, ptr->pattern) && ptr->active) {
+    for (ptr = action_head; ptr; ptr = ptr->next) {
+        if (pattern_match(s, ptr->pattern, pattern) && ptr->active) {
             p = ptr->pattern;
 
-            for(p = ptr->pattern; *p; ++p) {
-                if(*p == '*') {
+            for (p = ptr->pattern; *p; ++p) {
+                if (*p == '*') {
                     ++cnt;
                 }
             }
 
             *buf = '\0';
 
-            for(i = 0; i < cnt; ++i) {
+            for (i = 0; i < cnt; ++i) {
                 p = skip_space(pattern[i]);
                 sprintf(temp, "\"%s\" ", p);
                 strcat(buf, temp);
@@ -388,21 +382,21 @@ int handle_action_matches(char *s)
             p = parse_sec_args(ptr->action, buf);
             debug(1, "got back: %s", p);
 
-            if(!ptr->quiet) {
+            if (!ptr->quiet) {
                 sprintf(temp, "-- Action(#%d) activated by: %-30s", ptr->indx, s);
                 display_msg(temp);
             }
 
-            if(GET_BIT(options, SHOW_ACTIONS) || ptr->notify) {
-                process_key(p, TRUE);
+            if (GET_BIT(options, SHOW_ACTIONS) || ptr->notify) {
+                process_key(p, true);
             }
             else {
-                process_key(p, FALSE);
+                process_key(p, false);
             }
 
             strfree(p);
 
-            if(!outval) {
+            if (!outval) {
                 outval = ptr->nooutput;
             }
         } /* if match */

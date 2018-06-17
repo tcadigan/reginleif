@@ -7,14 +7,15 @@
  *
  * See the COPYRIGHT file.
  */
+#include "proc.h"
 
 #include "gb.h"
-#include "proto.h"
 #include "str.h"
 #include "types.h"
 #include "vars.h"
 
 #include <signal.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,17 +31,6 @@
 #define PIPEBUF 1024
 #define PIPE_WRITE 1
 #define PIPE_READ 0
-
-#ifndef FD_ZERO
-#define DESCR_MASK int
-#define FD_ZERO(A) (*(A) = 0)
-#define FD_SET(A, B) (*(B) |= (1 << (A)))
-#define FD_ISSET(A, B) (*(B) & (1 << (A)))
-
-#else
-
-#define DESCR_MASK fd_set
-#endif
 
 extern int gb;
 extern int end_msg;
@@ -66,33 +56,17 @@ static Process proc = {
     -1,
     -1,
     -1,
-    FALSE,
-    FLASE,
+    false,
+    false,
     "",
     "",
     SCREEN_ONLY,
-    FALSE,
+    false,
     (char *)NULL
 };
 
-int pipe_running = FALSE;
-int pipe_output = FALSE;
-
-extern char *strcat(char *, const char *);
-extern int clost(int);
-extern int dup2(int, int);
-extern int execl(const char *, const char *, ...);
-extern int pipe(int *);
-extern int read(int, void *, unsigned int);
-extern int write(int, const void *, unsigned int);
-extern pid_t fork(void);
-extern pid_t getpgrp(int);
-extern pid_t getpid(void);
-extern pid_t setpgrp(int, int);
-/* extern pid_t wait3(union wait *, int, struct rusage *); */
-extern pid_t wait3(int *, int, struct rusage *);
-extern unsigned int sleep(unsigned int);
-extern void free(void *);
+int pipe_running = false;
+int pipe_output = false;
 
 char *print_process_string(char *header, char *s);
 void kill_process(void);
@@ -123,17 +97,17 @@ void cmd_proc(char *args)
         return;
     }
 
-    if(streq(args, "eof")) {
+    if (!strcmp(args, "eof")) {
         process_eof();
         msg("-- proc: eof done.");
 
         return;
     }
 
-    if(streq(args, "ill")) {
+    if (!strcmp(args, "ill")) {
         kill_process();
         msg("-- proc: killed.");
-        proc.on = FALSE;
+        proc.on = false;
 
         if(!proc.done) {
             close_up_process();
@@ -284,7 +258,7 @@ void cmd_proc(char *args)
         proc.p_stdin = pifd[PIPE_WRITE];
         proc.p_stdout = pofd[PIPE_READ];
         proc.p_stderr = pefd[PIPE_READ];
-        proc.on = TRUE;
+        proc.on = true;
         *proc.outpipe = '\0';
         *proc.errpipe = '\0';
 
@@ -461,7 +435,7 @@ void kill_process(void)
         }
 
         if(getpgrp(proc.pid) == -1) {
-            proc.done = TRUE;
+            proc.done = true;
         }
     }
 }
@@ -504,8 +478,8 @@ void flush_process_string(char *header, char *s)
 
 void close_up_process(void)
 {
-    proc.on = FALSE;
-    proc.done = FALSE;
+    proc.on = false;
+    proc.done = false;
     close(proc.p_stdin);
     close(proc.p_stdout);
     close(proc.p_stderr);
@@ -513,7 +487,7 @@ void close_up_process(void)
     proc.p_stdout = -1;
     proc.p_stderr = -1;
     proc.redirect = SCREEN_ONLY;
-    proc.hide = FALSE;
+    proc.hide = false;
     free(proc.cmd);
 
     if(proc.string) {
@@ -571,9 +545,9 @@ void procmsg(char *header, char *args)
     }
 
     if(!proc.hide) {
-        pipe_output = TRUE;
+        pipe_output = true;
         msg("%s %s", header, buf2);
-        pipe_output = FALSE;
+        pipe_output = false;
     }
 
     if((proc.redirect != SCREEN_ONLY) && (proc.redirect != ENCRYPTED)) {
@@ -592,6 +566,6 @@ void internal_pipe_off(void)
 
     if(pipe_running) {
         process_eof();
-        pipe_running = FALSE;
+        pipe_running = false;
     }
 }

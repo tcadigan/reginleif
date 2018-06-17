@@ -1,11 +1,12 @@
-#ifdef ARRAY
 #ifndef ARRAYS_H
 #define ARRAYS_H
+
+#ifdef ARRAY
 
 /* The wonderful text graphic arrays from the old old GB client */
 
 /* 16 Novaes of 11 (+1 for null)x7 */
-static char *Novae[16][7] = {
+char *Novae[16][7] = {
     {"           ",
      "           ",
      "           ",
@@ -121,7 +122,7 @@ static char *Novae[16][7] = {
 };
 
 /* 8 mirrors of size 9 (+1 for null)x5 */
-static char *Mirror[8][5] = {
+char *Mirror[8][5] = {
     {"         ",
      "         ",
      "\\=======/",
@@ -164,5 +165,6 @@ static char *Mirror[8][5] = {
      "         "}
 };
 
-#endif
-#endif
+#endif // ARRAY
+
+#endif // ARRAYS_H_

@@ -7,10 +7,10 @@
  *
  * See the COPYRIGHT file.
  */
+#include "status.h"
 
 #include "csp_types.h"
 #include "gb.h"
-#include "proto.h"
 #include "str.h"
 #include "term.h"
 #include "types.h"
@@ -60,17 +60,6 @@ struct tm {
 int mcnt = 9999999;
 char last_update_buf[BUFSIZ];
 
-extern char *getlogin(void);
-extern char *strcat(char *, const char *);
-extern int fclose(FILE *);
-extern int strncmp(const char *, const char *, size_t);
-extern time_t time(time_t *);
-extern uid_t getuid(void);
-
-void force_update_status(void);
-void put_status(void);
-char *print_time(long);
-
 void update_status(void)
 {
     long present;
@@ -100,7 +89,7 @@ void force_update_status(void)
     getbuf = build_status();
     strcpy(status.current_buf, getbuf);
 
-    if(!streq(status.last_buf, status.current_buf)) {
+    if (strcmp(status.last_buf, status.current_buf)) {
         put_status();
     }
 }

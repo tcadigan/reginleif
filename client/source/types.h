@@ -1,7 +1,7 @@
 /*
  * types.h: Used to define the needed #defines as well as to set up structures
  *          used throughout the client. They get declared by gb.c (with the
- *          trick of including types.h first) and then are forever after 
+ *          trick of including types.h first) and then are forever after
  *          declared as externs by included vars.h
  *
  * Written by Evan D. Koffler <evank@netcom.com>
@@ -10,11 +10,12 @@
  *
  * See the COPYRIGHT file.
  */
-#ifndef _CLIENT_TYPES_H_
-#define _CLIENT_TYPES_H_
-#endif
+#ifndef TYPES_H_
+#define TYPES_H_
 
 #include "csp_types.h"
+
+#include <stdio.h>
 
 /* A yes macro from promptfor() */
 #define YES(A) (((A) == 'Y') || ((A) == 'y'))
@@ -193,7 +194,7 @@
 
 /* Default chars for more chars */
 #define MORE_DEFAULT_QUITCH    'q'
-#define MORE_DEFUALT_CLEARCH   'c'
+#define MORE_DEFAULT_CLEARCH   'c'
 #define MORE_DEFAULT_CANCELCH  'k'
 #define MORE_DEFAULT_NONSTOPCH 'n'
 #define MORE_DEFAULT_FORWARDCH 'f'
@@ -307,8 +308,6 @@
 #define TYPE_MOON    3
 #define TYPE_SHIP    4
 
-#define set_display(A) toggle((int *)(A), DISPLAYING, "display")
-
 /* Macro for secret input */
 #define SECRET(B, S, T) {                       \
         ++hide_input;                           \
@@ -317,7 +316,7 @@
     }
 
 /* imap/popn defines */
-#define MAX_ShIPS_IN_SURVEY 10
+#define MAX_SHIPS_IN_SURVEY 10
 
 /*
  * For time tags. The strlen of these plus the strlen of a unix
@@ -388,7 +387,7 @@ struct rwhoplayers {
     int watch4;
 };
 
-struct wrhostruct {
+struct rwhostruct {
     long last_time;
     int on;
     struct rwhoplayers info[MAX_NUM_PLAYERS];
@@ -472,18 +471,18 @@ typedef struct profilestruct {
     char govname[SMABUF];
     int raceid;
     int govid;
-    int capital;
+    int capitol;
     int updates_active;
     int know;
     char discovery[SMABUF];
-    struct ranges rages;
+    struct ranges ranges;
     struct raceinfo raceinfo;
     struct planetinfo planet;
     struct sectorinfo sector;
 } Profile;
 
 struct sector_typestruct {
-    char setc;
+    char sectc;
     int compat;
 };
 
@@ -540,7 +539,6 @@ typedef struct sectorstruct {
     int own;
     int eff;
     int frt;
-    int frt;
     int mob;
     int xtal;
     int res;
@@ -594,7 +592,7 @@ typedef struct infostruct {
 } Info;
 
 typedef struct serverinfo {
-    int update_suspended;
+    int updates_suspended;
     int version;
 } ServInfo;
 
@@ -630,7 +628,7 @@ typedef struct orbship {
     char type;
     double x;
     double y;
-    double st;
+    double xt;
     double yt;
     int array;
 } OrbShip;
@@ -681,7 +679,7 @@ typedef struct pmap {
     int type;
     int sects;
     int guns;
-    int mobptr;
+    int mobpts;
     int res;
     int des;
     int fuel;
@@ -747,9 +745,11 @@ typedef struct commandset_struct {
 typedef struct loopstruct {
     long time; /* Time to wait in seconds */
     char *cmd; /* cmd to pass to the process_key */
-    ing user_defn; /* User defined or client */
+    int user_defn; /* User defined or client */
     long last_time; /* Last time cmd done */
     int indx;
     struct loopstruct *next;
     struct loopstruct *prev;
 } Loop;
+
+#endif // TYPES_H_

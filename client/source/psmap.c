@@ -7,13 +7,14 @@
  *
  * Modified to be part of the gbII client by mike@towerravens.com (7/6/01)
  */
+#include "psmap.h"
 
 #include "csp.h"
 #include "gb.h"
-#include "proto.h"
 #include "types.h"
 #include "vars.h"
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -48,19 +49,17 @@ static struct univ {
     char galaxyname[80];
 } univ;
 
-void cmd_psmap(char *);
-void cspr_psmap(int, char *);
 void scan_stars(void);
 int produce_postscript(void);
-int draw_star(FILE *, struct star *, int, int, double);
+int draw_star(FILE *fd, struct star *star, int min_x, int min_y, double scale);
 void process_psmap(void);
 void display_psmap(void);
-double myround(double);
+double myround(double value);
 
 void cmd_psmap(char *args)
 {
     char str[MAXSIZ];
-    int int1 = TRUE;
+    int int1 = true;
 
     univ.highlight_home = 1;
     univ.highlighted_star = -1;
@@ -74,11 +73,11 @@ void cmd_psmap(char *args)
 
         if(YES(*pbuf)) {
             univ.highlight_home = 1;
-            int1 = FALSE;
+            int1 = false;
         }
         else {
             univ.highlight_home = 0;
-            int1 = FALSE;
+            int1 = false;
         }
     }
 
@@ -91,16 +90,16 @@ void cmd_psmap(char *args)
      *
      *     if(amt <= 0) {
      *         univ.max_dist = 999999;
-     *         int1 = FALSE;
+     *         int1 = false;
      *     }
      *     else if((amt > 0) && (amt < 1000000)) {
      *         univ.max_dist = amt;
-     *         int1 = FALSE;
+     *         int1 = false;
      *     }
      * }
      */
 
-    int1 = TRUE;
+    int1 = true;
 
     /*
      * We print one ring every inch now, the scale is not printed on the map
@@ -111,19 +110,19 @@ void cmd_psmap(char *args)
      *
      *     if(amt <= 0) {
      *         univ.ring_spacing = 50000;
-     *         int1 = FALSE;
+     *         int1 = false;
      *     }
      *     else if(amt < 5000) {
      *         univ.ring_spacing = 5000;
-     *         int1 = FALSE;
+     *         int1 = false;
      *     }
      *     else if(amt > 1000000) {
      *         univ.ring_spacing = 1000000;
-     *         int1 = FALSE;
+     *         int1 = false;
      *     }
      *     else {
      *         univ.ring_spacing = amt;
-     *         int1 = FALSE;
+     *         int1 = false;
      *     }
      * }
      */
@@ -282,7 +281,7 @@ int produce_postscript(void)
         }
     }
 
-    /* 
+    /*
      * Max map size: 8.5in x 11in sheet, 0.5 boarders, 0.5in on the
      * right for star names
      *
@@ -539,7 +538,7 @@ void display_psmap(void)
     cmd_proc(mbuf);
 }
 
-/* I had to code this up becuase round() was not working onr Redhat 9 */
+/* I had to code this up becuase round() was not working on Redhat 9 */
 double myround(double value)
 {
     double foo;

@@ -8,19 +8,19 @@
  *
  * See the COPYRIGHT file
  */
+#include "icomm.h"
 
-#include <malloc.h>
-#include <math.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/types.h>
-
+#include "command.h"
 #include "csp.h"
 #include "gb.h"
-#include "proto.h"
+#include "socket.h"
 #include "str.h"
 #include "types.h"
+#include "util.h"
 #include "vars.h"
+
+#include <math.h>
+#include <stdlib.h>
 
 #define SCALE 0.01
 
@@ -70,7 +70,7 @@ void init_icommand(void)
     icomm.num = 0;
 }
 
-void init_start_command(int flag)
+void init_start_commands(int flag)
 {
 #ifdef SMART_CLIENT
     start_command(C_PROFILE, 0);
@@ -94,7 +94,7 @@ int start_command(int val, int flag)
     /* Don't add if already on the list */
     for(indx = 0; indx < icomm.num; ++indx) {
         if((icomm.list[indx].comm == val) && (icomm.list[indx].flag == flag)) {
-            return FALSE;
+            return false;
         }
     }
 
@@ -103,13 +103,13 @@ int start_command(int val, int flag)
     if((icomm.num + 1) > MAX_ICOMMANDS) {
         msg("-- Icommands buffer full, could not issue command.");
 
-        return FALSE;
+        return false;
     }
 
     icomm.list[indx].comm = val;
     icomm.list[indx].flag = flag;
     icomm.list[indx].state = S_WAIT;
-    icomm.list[indx].ignore = FALSE;
+    icomm.list[indx].ignore = false;
     icomm.list[indx].csp_start = 0;
     icomm.list[indx].csp_end = 0;
 
@@ -142,7 +142,7 @@ int start_command(int val, int flag)
 
         break;
     case C_READ:
-        icomm_usse_command("read", 0);
+        icomm_issue_command("read", 0);
         icomm.list[indx].prompt = LEVEL_PROMPT;
 
         break;
@@ -154,7 +154,7 @@ int start_command(int val, int flag)
             start_rwho();
         }
         else {
-            return TRUE;
+            return true;
         }
 
         break;
@@ -168,7 +168,7 @@ int start_command(int val, int flag)
     case C_RELATION:
         icomm_issue_command("relation", 0);
         icomm.list[indx].prompt = LEVEL_PROMPT;
-        icomm.list[indx].csp_prompt = CSP_RELATION_INTRO;
+        icomm.list[indx].csp_start = CSP_RELATION_INTRO;
         icomm.list[indx].csp_end = CSP_RELATION_END;
 
         break;
@@ -185,15 +185,15 @@ int start_command(int val, int flag)
         }
 #endif
 
-        return FALSE;
+        return false;
     }
 
     ++icomm.num;
 
-    return TRUE;
+    return true;
 }
 
-void icomm_command_done(void)
+void icomm_command_done(char ch)
 {
     int i;
 
@@ -272,11 +272,11 @@ void icomm_command_done(void)
 
     if(icomm.num) {
         for(i = 1; i < icomm.num; ++i) {
-            icom.list[i - 1] = icomm.list[i];
+            icomm.list[i - 1] = icomm.list[i];
         }
 
         if(icomm.list[0].comm < C_NONE) {
-            icomm_command_done();
+            icomm_command_done('\0');
         }
     }
 }
@@ -290,19 +290,19 @@ int icomm_valid_csp(int num)
           num);
 
     if((icomm.list[0].csp_start <= num) && (icomm.list[0].csp_end >= num)) {
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 int icomm_valid_csp_end(int num)
 {
     if(icomm.list[0].csp_end == num) {
-        return TRUE;
+        return true;
     }
     else {
-        return FALSE;
+        return false;
     }
 }
 
@@ -329,10 +329,10 @@ void icomm_handling_command(char *s)
 
         break;
     case C_TELEGRAM:
-        if(icomm.list[0].stats == S_WAIT) {
-            if(streqrn(s, "Telegrams:")) {
+        if(icomm.list[0].state == S_WAIT) {
+            if (!strncmp(s, "Telegrams:", strlen("Telegrams:"))) {
                 icomm.list[0].state = S_PROC;
-                icomm.list[0].ignore = FALSE;
+                icomm.list[0].ignore = false;
                 msg_type = MSG_TELEGRAMS;
             }
         }
@@ -344,9 +344,9 @@ void icomm_handling_command(char *s)
         break;
     case C_DISPATCH:
         if(icomm.list[0].state == S_WAIT) {
-            if(streqrn(s, "Dispatch")) {
+            if (!strncmp(s, "Dispatch", strlen("Dispatch"))) {
                 icomm.list[0].state = S_PROC;
-                icomm.list[0].ignore = FALSE;
+                icomm.list[0].ignore = false;
                 msg_type = MSG_TELEGRAMS;
             }
         }
@@ -358,9 +358,9 @@ void icomm_handling_command(char *s)
         break;
     case C_READ:
         if(icomm.list[0].state == S_WAIT) {
-            if(streqrn(s, "Read what?")) {
+            if (!strncmp(s, "Read what?", strlen("Read what?"))) {
                 icomm.list[0].state = S_PROC;
-                icomm.list[0].ignore = FALSE;
+                icomm.list[0].ignore = false;
                 msg_type = MSG_TELEGRAMS;
             }
         }
@@ -411,50 +411,46 @@ void icomm_issue_command(char *command, int flag)
 void icomm_profile(char *s)
 {
     if(ICOMM_STATE == S_WAIT) {
-        if(streqrn(s, "--==** Racial profile for ")) {
+        if (!strncmp(s, "--==** Racial profile for ", strlen("--==** Racial profile for "))) {
             ICOMM_STATE = S_PROC;
-            ICOMM_IGNORE = TRUE;
+            ICOMM_IGNORE = true;
             profile.player_type = 0;
-            profile.capital = 0;
+            profile.capitol = 0;
         }
 
         return;
     }
 
-    if(streqrn(s, "Default Score:")) {
+    if (!strncmp(s, "Default Score:", strlen("Default Score:"))) {
         strcpy(profile.defscope, s + 15);
-    }
-    else if(streqrn(s, "*** Deity Status ***")) {
+    } else if (!strncmp(s, "*** Deity Status ***", strlen("*** Deity Status ***"))) {
         profile.player_type = 1;
-    }
-    else if(streqrn(s, "NO DESIGNATED CAPITAL!!")) {
-        profile.capital = 0;
+    } else if (!strncmp(s, "NO DESIGNATED CAPITOL!!", strlen("NO DESIGNATED CAPITOL!!"))) {
+        profile.capitol = 0;
 
         sscanf(s,
-               "NO DESIGNATED CAPITAL!!\t\t\tRanges:     guns:   %d",
+               "NO DESIGNATED CAPITOL!!\t\t\tRanges:     guns:   %d",
                &profile.ranges.guns);
     }
-    else if(sscanf(s, "Designated Capital: #%d\t\t\tRanges:     guns:   %d", &profile.capital, &profile.ranges.guns) == 2) {
+    else if(sscanf(s, "Designated Capitol: #%d\t\t\tRanges:     guns:   %d", &profile.capitol, &profile.ranges.guns) == 2) {
     }
     else if(sscanf(s, "Morale: %6d\t\t\t\t\t    space:  %d", &profile.raceinfo.morale, &profile.ranges.space) == 2) {
     }
     else if(sscanf(s, "Updates active: %d\t\t\t\t    ground: %d", &profile.updates_active, &profile.ranges.ground) == 2) {
     }
     else if(sscanf(s, "Up%*s active: %d\t\t\t\t    ground: %d", &profile.updates_active, &profile.ranges.ground) == 2) {
-    }
-    else if(streqrn(s, "Mesomorphic Race")
-            || streqrn(s, "Biomorph Race")
-            || streqrn(s, "Metamorphic Race")) {
+    } else if (!strncmp(s, "Mesomorphic Race", strlen("Mesomorphic Race"))
+               || !strncmp(s, "Biomorph Race", strlen("Biomorph Race"))
+               || !strncmp(s, "Metamorphic Race", strlen("Metamorphic Race"))) {
         profile.raceinfo.racetype = RACE_MESO;
-    }
-    else if(streqrn(s, "Normal Race")) {
+    } else if (!strncmp(s, "Normal Race", strlen("Normal Race"))) {
         profile.raceinfo.racetype = RACE_NORM;
     }
     else if(sscanf(s, "\t\t\t  Temp:\t%d", &profile.planet.temp) == 1) {
     }
     else if(sscanf(s, "Fert: %d%%", &profile.raceinfo.fert) == 1) {
     }
-    else if(sscan(s, "Rate:   %lf\t\t  methane  %5d%%\t    ocean    . %d%%", &profile.raceinfo.birthrate, &profile.planet.methane, &profile.sector.ocean) == 3) {
+    else if(sscanf(s, "Rate:   %lf\t\t  methane  %5d%%\t    ocean    . %d%%", &profile.raceinfo.birthrate, &profile.planet.methane, &profile.sector.ocean) == 3) {
         sector_type[SECTOR_OCEAN].sectc = '.';
         sector_type[SECTOR_OCEAN].compat = profile.sector.ocean;
     }
@@ -485,8 +481,8 @@ void icomm_profile(char *s)
     else if(sscanf(s, "Tech:    %lf\t\t  other      %5d%%\t      plated   o %d%%", &profile.raceinfo.tech, &profile.planet.other, &profile.sector.plated) == 3) {
         sector_type[SECTOR_PLATED].sectc = 'o';
         sector_type[SECTOR_PLATED].compat = profile.sector.plated;
-    }
-    else if(streqrn(s, "Personal: ") || streqrn(s, "Discoveries:")) {
+    } else if (!strncmp(s, "Personal: ", strlen("Personal: "))
+               || !strncmp(s, "Discoveries:", strlen("Discoveries:"))) {
         return;
     }
     else {
@@ -507,21 +503,21 @@ void icomm_relation(char *s)
     char *p;
 
     if(ICOMM_STATE == S_WAIT) {
-        if(streqrn(s, "              Racial Relations Report for ")) {
+        if (!strncmp(s, "             Racial Relations Report for ", strlen("             Racial Relations Report for "))) {
             ICOMM_STATE = S_PROC;
-            ICOMM_IGNORE = TRUE;
+            ICOMM_IGNORE = true;
         }
 
         return;
     }
 
-    if(streqrn(s, " # ") || streqrn(s, " - ")) {
+    if (!strncmp(s, " # ", strlen(" # ")) || !strncmp(s, " - ", strlen(" - "))) {
         return;
     }
 
     if(sscanf(s, "%d  Morph (%3d%%)%[^:]: %s %s", &id, &know, name, yours, theirs) == 5
        || sscanf(s, "%2d Biom (%3d%%)%[^:]: %s %s", &id, &know, name, yours, theirs) == 5) {
-        meso = RACE_MASO;
+        meso = RACE_MESO;
     }
     else if(sscanf(s, "%2d  Unknown (%3d%%)%[^:]: %s %s", &id, &know, name, yours, theirs) == 5) {
         meso = RACE_UNKNOWN;
@@ -562,13 +558,11 @@ void icomm_done_relation(void)
 
 int type_relation(char *s)
 {
-    if(streq(s, "ALLIED")) {
+    if (!strcmp(s, "ALLIED")) {
         return RELATION_ALLIED;
-    }
-    else if(streq(s, "WAR")) {
+    } else if (!strcmp(s, "WAR")) {
         return RELATION_ENEMY;
-    }
-    else {
+    } else {
         return RELATION_NEUTRAL;
     }
 }
@@ -578,18 +572,18 @@ int type_relation(char *s)
 /* Process incoming lines */
 void icomm_status(char *s)
 {
-    if(ICOMM_STATE = S_WAIT) {
-        if(streqrn(s, "             ========== Technology Report ==========")) {
+    if(ICOMM_STATE == S_WAIT) {
+        if (!strncmp(s, "            ========== Technology Report ==========", strlen( "            ========== Technology Report =========="))) {
             ICOMM_STATE = S_PROC;
-            ICOMM_IGNORE = TRUE;
+            ICOMM_IGNORE = true;
         }
 
         return;
     }
 
-    if(streqrn(s, "Tech:")
-       || streqrn(s, "       Total Popn:")
-       || streqrn(s, "       Planet          popn    invest    gain   ^gain")) {
+    if (!strncmp(s, "Tech:", strlen("Tech:"))
+        || !strncmp(s, "       Total Popn:", strlen("       Total Popn:"))
+        || !strncmp(s, "       Planet          popn    invest    gain   ^gain", strlen("       Planet          popn    invest    gain   ^gain"))) {
         return;
     }
 
@@ -603,7 +597,7 @@ void icomm_status(char *s)
         if(opt.planets[opt.number].name[strlen(opt.planets[opt.number].name) - 1] == '*') {
             opt.planets[opt.number].name[strlen(opt.planets[opt.number].name) - 1] = '\0';
         }
-        
+
         ++opt.number;
     }
 }
@@ -720,7 +714,7 @@ void icomm_done_status(void)
         if(opt.planets[i].n_inv > opt.thresh) {
             opt.technew = (double)(opt.technew + (SCALE * log10(((double)opt.planets[i].pop * ((double)opt.planets[i].n_inv / 10000.0)) + 1.0)));
         }
-        
+
         opt.techold = (double)(opt.techold + (SCALE * log10(((double)opt.planets[i].pop * ((double)opt.planets[i].c_inv / 10000.0)) + 1.0)));
     }
 
@@ -745,21 +739,22 @@ void cmd_opttech(char *s)
     int i;
 
 #ifdef SMART_CLIENT
-    split(x, fbuf, rbuf);
-    
+    split(s, fbuf, rbuf);
+
     if(!*fbuf) {
         msg("-- Usage: opttech [-t[otal]] investment [threshold]");
 
         return;
     }
 
-    if(streqrn(fbuf, "-total") || streqrn(fbug, "-t")) {
-        opt.display_onlyt = TRUE;
+    if (!strncmp(fbuf, "-total", strlen("-total"))
+        || !strncmp(fbuf, "-t", strlen("-t"))) {
+        opt.display_only = true;
         strcpy(temp, rbuf);
         split(temp,fbuf, rbuf);
     }
     else {
-        opt.display_only = FALSE;
+        opt.display_only = false;
     }
 
     opt.invest = atol(fbuf);
@@ -803,7 +798,7 @@ void cmd_opttech(char *s)
     start_command(C_STATUS, 0);
 
 #else
-    
+
     msg("-- opttech requires the client to be compiled with OPTTECH and SMART_CLIENT available");
 #endif /* SMART_CLIENT */
 }

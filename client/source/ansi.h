@@ -13,8 +13,8 @@
  * with '\07'.
  */
 
-#ifndef _ANSI_H_
-#define _ANSI_H_
+#ifndef ANSI_H_
+#define ANSI_H_
 
 #define BEEP_CHAR            '\a'
 #define ESC_CHAR             '\x1B'
@@ -84,9 +84,4 @@
 
 #define MAX_RCOLORS 7 /* Number of colors used for races */
 
-/* If we're adding y to x, do we need to add z as well? */
-#define EDGE_UP(x, y, z) (((y) & (z)) && !((x) && (z)))
-
-#endif /* _ANSI_H_ */
-    
-    
+#endif /* ANSI_H_ */

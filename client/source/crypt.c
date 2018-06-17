@@ -11,42 +11,28 @@
  *
  * See the COPYRIGHT file.
  */
-#include "gb.h"
-
-#include <malloc.h>
-#include <memory.h>
-#include <stdio.h>
-#include <sys/file.h>
-#include <sys/types.h>
+#include "crypt.h"
 
 #include "str.h"
-#include "proto.h"
-#include "types.h"
 #include "vars.h"
 
-#define CRYPT_HEADER     "CRYPT"
-#define CRYPT_HEADER_LEN 5
-#define MOD1             95
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 
-extern pbuf();
+extern char pbuf[];
 
 CryptRecall *cryptrecall = NULL;
 CryptRecall *cryptcur = NULL;
 char crypt_values[100];
 static Crypt *crypt_list = NULL;
 
-void cmd_listcrypt(void);
-void cmd_uncrypt(char *nick);
 void crypt_update_index(void);
 void encode(char *str, char *key);
 void add_crypt_recall(char *key);
 
-extern int atoi(const char *);
-extern int strncmp(const char *, const char *, size_t);
-extern int fprintf(FILE *, const char *, ...);
-
 /*
- * find_crypt: Looks up nick in the crypt list and returns the Crypt structure 
+ * find_crypt: Looks up nick in the crypt list and returns the Crypt structure
  *             if found, NULL otherwise.
  */
 Crypt *find_crypt(char *id)
@@ -55,7 +41,7 @@ Crypt *find_crypt(char *id)
 
     p = crypt_list;
 
-    while(p && !streq(id, p->nick)) {
+    while(p && strcmp(id, p->nick)) {
         p = p->next;
     }
 
@@ -64,7 +50,7 @@ Crypt *find_crypt(char *id)
 
 /*
  * cmd_crypt: Adds the nickname and key pair to the crypt list. If the nickname
- *            is already in the list, then the key is changed to the supplied 
+ *            is already in the list, then the key is changed to the supplied
  *            key.
  */
 void cmd_crypt(char *args)
@@ -157,7 +143,7 @@ void cmd_uncrypt(char *nick)
             crypt_list = NULL;
         }
     }
-    else if(!p-<next) {
+    else if(!p->next) {
         p->prev->next = NULL;
     }
     else {
@@ -235,13 +221,14 @@ char *is_crypted(char *nick)
 char *check_crypt(char *message, int type)
 {
     char *key;
-    char returnfmt[SMABUF];
-    char buf[MAXSIZ];
+    char returnfmt[NORMSIZ];
+    char buf[NORMSIZ];
     static char buf2[MAXSIZ];
-    char pat[BUFSIZ];
+    char pat[SMABUF];
     char *p;
+    char *header = "CRYPT";
 
-    if(strncmp(message, CRYPT_HEADER, CRYPT_HEADER_LEN)) {
+    if(strncmp(message, header, strlen(header))) {
         debug(4, "NO crypt header. Returning null");
 
         return NULL;
@@ -255,7 +242,7 @@ char *check_crypt(char *message, int type)
 
     *p = '\0';
     strcpy(buf, p + 1);
-    strcpy(pat, message + CRYPT_HEADER_LEN);
+        strcpy(pat, message + strlen(header));
 
     /* Replace back for strlen in socket.c */
     *p = '|';
@@ -299,12 +286,12 @@ char *check_crypt(char *message, int type)
     if(!key) {
         debug(3, "Crypt: no key for message");
 
-        if(GET_BIT(options, ENCRYPT)) {
+
+        if (options[ENCRYPT / 32] & (1 << ENCRYPT)) {
             sprintf(buf2, "%s [encrypted]", returnfmt);
 
             return buf2;
-        }
-        else {
+        } else {
             return NULL;
         }
     }
@@ -317,16 +304,14 @@ char *check_crypt(char *message, int type)
 }
 
 /*
- * Takes the given input and creates the approrpaite output for sending to the
+ * Takes the given input and creates the appropriate output for sending to the
  * socket.
  *
  * Formerly build_crypt
  */
-#define MOD2 95
-
 void cmd_cr(char *args)
 {
-    char pat[BUFSIZ];
+    char pat[SMABUF];
     int type = NORM_BROADCAST;
     char *p;
     char *key;
@@ -403,7 +388,7 @@ void cmd_cr(char *args)
              : (type == NORM_ANNOUNCE ? "announce"
                 : (type == GB_EMOTE ? "emote"
                    : "think"))),
-            CRYPT_HEADER,
+            "CRYPT",
             pat,
             args);
 
@@ -413,7 +398,7 @@ void cmd_cr(char *args)
 
 /*
  * Fill the crypt array with the ascii values for use by the encoding
- * process. 
+ * process.
  */
 void init_crypt(void)
 {
@@ -444,10 +429,10 @@ void encode(char *str, char *key)
     slen = strlen(str) - 1;
 
     while(*str) {
-        *str = crypt_values[(int)((*str - 32) + (int)((*kptr + ((klen + key[klen] + slen) % MOD1)) % MOD1)) % MOD2];
+        *str = crypt_values[(int)((*str - 32) + (int)((*kptr + ((klen + key[klen] + slen) % 95)) % 95)) % 95];
         ++str;
         ++kptr;
-        
+
         if(!*kptr) {
             kptr = key;
         }
@@ -489,10 +474,10 @@ int do_crypt_recall(char *str)
             cryptcur = cryptrecall;
         }
 
-        return TRUE;
+        return true;
     }
     else {
-        return FALSE;
+        return false;
     }
 }
 
@@ -503,7 +488,7 @@ void add_crypt_recall(char *key)
     cryptcur = NULL;
 
     /* Try to find the crypt first, if it exists, remove to front */
-    while(new && !streq(key, new->key)) {
+    while (new && strcmp(key, new->key)) {
         new = new->next;
     }
 

@@ -74,7 +74,7 @@
 
 /*
  * PROFILE
- * DYNAMIC = Active Knowledge Capital Morale Gun GTele Stele
+ * DYNAMIC = Active Knowledge Capitol Morale Gun GTele Stele
  * DYNAMIC_OTHER = %Know Morale Gun GTele OTele SecPref
  */
 #define CSP_PROFILE_INTRO 301 /* Header */

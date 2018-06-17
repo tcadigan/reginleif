@@ -30,7 +30,7 @@ CFLAGS = -Wall -g ${XINC}
 
 # Libraries needed for compiling
 #
-# SYSV uses: -ltermcap -lm -loscket
+# SYSV uses: -ltermcap -lm -lsocket
 # BSD uses: -ltermcap -lm
 #
 # NOTE: This client makes use of termcap, socket, and math libraries

@@ -8,31 +8,18 @@
  *
  * See the COPYRIGHT file.
  */
+#ifndef VARS_H_
+#define VARS_H_
+
+#include "ansi.h"
+#include "types.h"
+
+#include <stdbool.h>
+#include <string.h>
 
 #ifdef SYSV
 #define TERMIO
 #endif
-
-#ifdef CTIX
-#define signal sigset
-#endif
-
-#ifdef USE_INDEX
-extern char *index(const char *, int);
-extern char *rindex(const char *, int);
-extern void bcopy(const void *, void *, int);
-extern void bzero(void *, int);
-
-#define strchr(s, c)      index((s), (int)(c))
-#define strrchr(s, c)     rindex((s), (int)(c))
-#define memcpy(s1, s2, n) bcopy((s2), (s1), (n))
-#define memset(s, l)      bzero((s), 0, (l))
-
-#else
-
-extern char *strchr(const char *, int);
-extern char *strrchr(const char *, int);
-#endif /* USE_INDEX */
 
 /* Maximum amount of arguments in parsing line arguments */
 #define MAX_NUM_ARGS 20
@@ -66,9 +53,9 @@ typedef struct ptarraystruct {
 typedef struct command_struct {
     char *name;
     void (*func)();
-    int parse_var;
-    int echo_command;
-    int send_to_socket;
+    bool parse_var;
+    bool echo_command;
+    bool send_to_socket;
     int cnt;
 } Command;
 
@@ -102,12 +89,12 @@ typedef struct node {
     char *line;
     int type; /* For queueing. Do we wait for prompt */
     int indx;
-    struct node *prev;
+    struct node *next;
     struct node *prev;
 } Node;
 
 extern int action_match_suppress;
-extern struct morestruct move_val;
+extern struct morestruct more_val;
 extern Info info;
 
 #ifdef RWHO
@@ -130,7 +117,6 @@ extern struct scopestruct scope;
 extern struct sector_typestruct sector_type[SECTOR_MAX];
 extern struct statusstruct status;
 extern struct waitforstruct wait_csp;
-extern Game *find_game(char *nick);
 extern ServInfo servinfo;
 extern int client_stats;
 extern int csp_server_vers;
@@ -162,4 +148,6 @@ extern char govn_name[];
 extern char race_pass[];
 extern char govn_pass[];
 extern int password_failed;
-extern char *race_colors[];
+extern char *race_colors[MAX_RCOLORS];
+
+#endif // VARS_H_

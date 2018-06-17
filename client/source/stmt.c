@@ -7,15 +7,17 @@
  *
  * See the COPYRIGHT file.
  */
+#include "stmt.h"
 
+#include "args.h"
 #include "gb.h"
-#include "proto.h"
 #include "str.h"
 #include "types.h"
 #include "vars.h"
 
 #include <ctype.h>
 #include <malloc.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -28,7 +30,7 @@ typedef struct loopheadstruct {
     Loop *tail;
 } LoopHead;
 
-LoopHead loope_info = { 1000000, 0, (Loop *)NULL, (Loop *)NULL };
+LoopHead loop_info = { 1000000, 0, (Loop *)NULL, (Loop *)NULL };
 
 extern int atoi(const char *);
 extern time_t time(time_t *);
@@ -47,7 +49,7 @@ void cmd_loop(char *args)
     long timel;
     int resp;
 
-    if(!*args || streq(args, "-")) {
+    if (!*args || !strcmp(args, "-")) {
         cmd_listloop(args);
 
         return;
@@ -56,7 +58,7 @@ void cmd_loop(char *args)
     if(*args == '-') {
         resp = remove_loop(args + 1);
 
-        if(resp == TRUE) {
+        if(resp == true) {
             msg("-- loop: %s remove.", args + 1);
         }
         else if(resp == 0) {
@@ -81,7 +83,7 @@ void cmd_loop(char *args)
         return;
     }
 
-    resp = add_loop(restbuf, timel, TRUE);
+    resp = add_loop(restbuf, timel, true);
 
     if(resp == ERROR) {
         msg("-- loop: could not malloc the memory. loop not added.");
@@ -145,10 +147,10 @@ void cmd_removeloop(char *args)
 
     resp = remove_loop(args);
 
-    if(resp == TRUE) {
+    if(resp == true) {
         msg("-- loop: %s removed.", args);
     }
-    else if(resp == FALSE) {
+    else if(resp == false) {
         msg("-- loop: %s not found.", args);
     }
 }
@@ -172,7 +174,7 @@ int remove_loop(char *cmd_name)
     }
 
     if(!p) {
-        return FALSE;
+        return false;
     }
 
     /* Head of list? */
@@ -207,17 +209,17 @@ int remove_loop(char *cmd_name)
     free(p);
     loop_update_index();
 
-    return TRUE;
+    return true;
 }
 
 void cmd_listloop(char *args)
 {
     Loop *p = loop_info.head;
-    int show_all = FALSE;
+    int show_all = false;
     int cnt = 1;
 
-    if(streq(args, "-")) {
-        show_all = TRUE;
+    if (!strcmp(args, "-")) {
+        show_all = true;
     }
 
     if(!loop_info.head) {
@@ -255,7 +257,7 @@ void loop_update_index(void)
 {
     Loop *p;
     int cnt = 1;
-    
+
     for(p = loop_info.head; p; p = p->next) {
         p->indx = cnt++;
     }
@@ -265,7 +267,7 @@ Loop *find_loop(char *name)
 {
     Loop *p = loop_info.head;
 
-    while(p && !streq(name, p->cmd)) {
+    while (p && strcmp(name, p->cmd)) {
         p = p->next;
     }
 
@@ -292,7 +294,7 @@ void handle_loop(void)
             process_key(temp, 0);
             p->last_time = cur_time;
         }
-        
+
         p = p->next;
     }
 }
@@ -320,7 +322,7 @@ void cmd_for(char *args)
     int firstvat = 0; /* Low val */
     int lastval = -1; /* High val */
     int crement; /* Decrement or increment */
-    int nooutput = FALSE; /* Show or not on msg stuff */
+    int nooutput = false; /* Show or not on msg stuff */
     int i; /* Counter */
     char *p;
     char *q;
@@ -336,12 +338,12 @@ void cmd_for(char *args)
         return;
     }
     else {
-        if(streq(p, "-nooutput")) {
-            nooutput = TRUE;
+        if (!strcmp(p, "-nooutput")) {
+            nooutput = true;
             q = rest(r);
             r = q; /* For down below when we get rest */
             p = first(q);
-            debug(4, "for: nooutput is TRUE, first is %s, rest is %s", p, r);
+            debug(4, "for: nooutput is true, first is %s, rest is %s", p, r);
 
             if(!*p) {
                 msg("-- Usage: for loopname min,max command");
@@ -547,22 +549,19 @@ int analyze_cndtl(char *s)
      */
     p = skip_space(s);
 
-    if(MATCH(p, "* = *") || MATCH(p, "* == *")) {
+    if (pattern_match(p, "* = *", pattern)
+        || pattern_match(p, "* == *", pattern)) {
         oper_flag = 1;
-    }
-    else if(MATCH(p, "* > *")) {
+    } else if (pattern_match(p, "* > *", pattern)) {
         oper_flag = 2;
-    }
-    else if(MATCH(p, "* >= *")) {
+    } else if (pattern_match(p, "* >= *", pattern)) {
         oper_flag = 3;
-    }
-    else if(MATCH(p, "* < *")) {
+    } else if (pattern_match(p, "* < *", pattern)) {
         oper_flag = 4;
-    }
-    else if(MATCH(p, "* <= *")) {
+    } else if (pattern_match(p, "* <= *", pattern)) {
         oper_flag = f;
-    }
-    else if(MATCH(p, "* != *") || MATCH(p, "* <> *")) {
+    } else if (pattern_match(p, "* != *", pattern)
+               || pattern_match(p, "* <> *", pattern)) {
         oper_flag = 6;
     }
 
@@ -630,7 +629,7 @@ int analyze_cndtl(char *s)
 
     switch(oper_flag) {
     case 1:
-        if(streq(left, right)) {
+        if (!strcmp(left, right)) {
             return 1;
         }
 
@@ -672,7 +671,7 @@ int analyze_cndtl(char *s)
 
         break;
     case 6:
-        if(!streq(left, right)) {
+        if (strcmp(left, right)) {
             return 1;
         }
 

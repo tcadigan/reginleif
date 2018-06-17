@@ -7,10 +7,11 @@
  *
  * See the COPYRIGHT file.
  */
+#include "imap.h"
+
 #include "ansi.h"
 #include "csp.h"
 #include "gb.h"
-#include "proto.h"
 #include "str.h"
 #include "term.h"
 #include "types.h"
@@ -20,6 +21,7 @@
 #include <malloc.h>
 #include <math.h>
 #include <memory.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <sys/types.h>
 
@@ -42,8 +44,8 @@ struct cursectstruct {
     int has_ships;
 };
 
-struct cursectstruct cursect = { -1, -1, 0, 0, FALSE, FALSE };
-map imap_map = { 0, 0, "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, TRUE, FALSE, FALSE, (Sector *)NULL };
+struct cursectstruct cursect = { -1, -1, 0, 0, false, false };
+map imap_map = { 0, 0, "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, true, false, false, (Sector *)NULL };
 long map_time = -1;
 char cursor_sector = DEFAULT_CURSOR_SECTOR;
 
@@ -51,10 +53,6 @@ Sector *get_direction(char *c);
 Sector *find_ship(int ship, int *pos);
 #endif
 
-extern int _filbuf(FILE *);
-extern int atoi(const char *);
-extern int sscanf(const char *, const char *, ...);
-extern time_t time(time_t *);
 void handle_map_mode(int nomsgs);
 void ping_current_sector(void);
 void ping_sector(int x, int y);
@@ -231,7 +229,7 @@ void process_client_survey(int cnum, char *s, Map *buildmap)
         if(input_mode.map && !input_mode.say) {
             if(cursect.ping && (cursect.x == p.x) && (cursect.y == p.y)) {
                 redraw_sector();
-                cursect.ping = FALSE;
+                cursect.ping = false;
             }
         }
 #endif
@@ -253,7 +251,12 @@ void set_up_map_window(void)
 {
     int old_orow = output_row;
 
-    output_row = num_rows - MAX(imap_map.maxy + 1, MIN_MAP_WIN_SIZE) - 4;
+    if ((imap_map.maxy + 1) < MIN_MAP_WIN_SIZE) {
+        output_row = num_rows - MIN_MAP_WIN_SIZE - 4;
+    } else {
+        output_row = num_rows - (imap_map.maxy + 1) - 4;
+    }
+
     last_output_row = output_row;
 
     /* -2 for status, -1 for map status, -1 to place correctly */
@@ -282,7 +285,7 @@ void set_up_map_window(void)
 
     cursect.leftbound = imap_map.maxx + 7;
     redraw_map_window();
-    cursect.ping = FALSE;
+    cursect.ping = false;
 }
 
 void set_up_interactive_map(void)
@@ -353,9 +356,16 @@ void clear_map_window(void)
 {
     int i;
 
-    for(i = MAX(MIN_MAP_WIN_SIZE, imap_map.maxy) + 1; i > 0; --i) {
+    if (MIN_MAP_WIN_SIZE < imap_map.maxy) {
+        i = MIN_MAP_WIN_SIZE + 1;
+    } else {
+        i = imap_map.maxy + 1;
+    }
+
+    while (i > 0) {
         term_move_cursor(0, num_rows - 2 - i);
         term_clear_to_eol();
+        --i;
     }
 }
 
@@ -381,7 +391,7 @@ void redraw_map(void)
     int y;
     int x;
     Sector *p = imap_map.ptr;
-    int inverse = FALSE;
+    int inverse = false;
     int colored = -1;
 
     if(!input_mode.map) {
@@ -410,7 +420,7 @@ void redraw_map(void)
                 if(imap_map.inverse && (p->own == profile.raceid)) {
                     /* Do inverse */
                     if(!inverse) {
-                        inverse = TRUE;
+                        inverse = true;
                         term_standout_on();
                     }
                 }
@@ -422,7 +432,7 @@ void redraw_map(void)
                 if(p->own == profile.raceid) {
                     /* My sect */
                     if(imap_map.inverse && !inverse && (colored < 0)) {
-                        inverse = TRUE;
+                        inverse = true;
                         term_standout_on();
                     }
 
@@ -442,7 +452,7 @@ void redraw_map(void)
                 else if(!p->own) {
                     if(inverse) {
                         term_standout_off();
-                        inverse = FALSE;
+                        inverse = false;
                     }
 
                     if(p->numships) {
@@ -462,7 +472,7 @@ void redraw_map(void)
                     /* Owned by someone but not me */
                     if(inverse) {
                         term_standout_off();
-                        inverse = FALSE;
+                        inverse = false;
                     }
 
                     if(p->numships) {
@@ -538,9 +548,19 @@ void redraw_sector(void)
     term_puts(sectbuf, strlen(sectbuf));
 
     if(p->numships) {
-        cursect.has_ships = TRUE;
+        cursect.has_ships = true;
 
-        for(i = 0; (i < MAX(imap_map.maxy, MIN_MAP_WIN_SIZE)) && (i < MAX_SHIPS_IN_SURVEY); ++i) {
+        for(i = 0; i < MAX_SHIPS_IN_SURVEY; ++i) {
+            if (imap_map.maxy < MIN_MAP_WIN_SIZE) {
+                if (i < MIN_MAP_WIN_SIZE) {
+                    break;
+                }
+            } else {
+                if (i < imap_map.maxy) {
+                    break;
+                }
+            }
+
             term_move_cursor(cursect.leftbound + 22, i + output_row + 2);
 
             if(i < p->numships) {
@@ -559,12 +579,22 @@ void redraw_sector(void)
     }
     else {
         if(cursect.has_ships) {
-            for(i = 0; (i < MAX(imap_map.maxy, MIN_MAP_WIN_SIZE)) && (i < MAX_SHIPS_IN_SURVEY); ++i) {
+            for(i = 0; i < MAX_SHIPS_IN_SURVEY; ++i) {
+                if (imap_map.maxy < MIN_MAP_WIN_SIZE) {
+                    if (i < MIN_MAP_WIN_SIZE) {
+                        break;
+                    }
+                } else {
+                    if (i < imap_map.maxy) {
+                        break;
+                    }
+                }
+
                 term_move_cursor(vursect.leftbound + 22, i + output_row + 2);
                 term_clear_to_eol();
             }
 
-            cursect.has_ships = FALSE;
+            cursect.has_ships = false;
         }
     }
 
@@ -649,7 +679,7 @@ void update_sector(Sector *ptr)
     }
 }
 
-void imap_test(void)
+void imap_test(char ch)
 {
 }
 
@@ -662,8 +692,8 @@ void handle_map_mode(int nomsgs)
             return;
         }
 
-        input_mode.map = TRUE;
-        input_mode.say = FALSE;
+        input_mode.map = true;
+        input_mode.say = false;
         imap_map.map = NEW_MAP;
         cursect.x = -1;
         cursect.oldx = -1;
@@ -678,7 +708,7 @@ void handle_map_mode(int nomsgs)
         msg("-- Interactive map activated.");
     }
     else {
-        input_mode.map = FALSE;
+        input_mode.map = false;
         output_row = num_rows - 3;
         last_output_row = output_row;
         cursect.x = -1;
@@ -700,20 +730,20 @@ void cursor_to_map(void)
     term_move_cursor(cursect.relx + cursect.x, cursect.rely + cursect.y);
 }
 
-void imap_map_mode(void)
+void imap_map_mode(char ch)
 {
     handle_map_mode(0);
 }
 
-void imap_say_mode(void)
+void imap_say_mode(char ch)
 {
     if(input_mode.map) {
         if(!input_mode.say) {
-            input_mode.say = TRUE;
+            input_mode.say = true;
             msg("-- Say mode activated");
         }
         else {
-            input_mode.say = FALSE;
+            input_mode.say = false;
             msg("-- Say mode deactivated");
         }
 
@@ -762,7 +792,7 @@ void map_move_left(void)
     }
 }
 
-void imap_mover(void)
+void imap_mover(char ch)
 {
     Sector *p = imap_map.ptr;
     Sector *q;
@@ -838,7 +868,7 @@ void imap_mover(void)
     }
 }
 
-void imap_deploy(void)
+void imap_deploy(char ch)
 {
     char buf[MAXSIZ];
     char c;
@@ -1002,7 +1032,7 @@ Sector *get_direction(char *c)
     return q;
 }
 
-void imap_zoom_sector(void)
+void imap_zoom_sector(char ch)
 {
     int x;
     int y;
@@ -1026,7 +1056,7 @@ void imap_zoom_sector(void)
     }
 }
 
-void imap_capture_ship(void)
+void imap_capture_ship(char ch)
 {
     int ship;
     int boarders;
@@ -1083,7 +1113,7 @@ void imap_capture_ship(void)
     ping_sector(p->x, p->y);
 }
 
-void imap_launch_ship(void)
+void imap_launch_ship(char ch)
 {
     int pos;
     int ship;
@@ -1116,7 +1146,7 @@ void imap_launch_ship(void)
     send_gb(buf, strlen(buf));
 }
 
-void imap_fire(void)
+void imap_fire(char ch)
 {
     int tship;
     int fship;
@@ -1207,7 +1237,7 @@ void map_bombard_or_defend(int mode)
     send_gb(buf, strlen(buf));
 }
 
-void imap_land_ship(void)
+void imap_land_ship(char ch)
 {
     int ship;
     char buf[MAXSIZ];
@@ -1227,7 +1257,7 @@ void ping_current_sector(void)
     }
 
     ping_sector(cursect.x, cursect.y);
-    cursect.ping = TRUE;
+    cursect.ping = true;
 }
 
 void ping_sector(int x, int y)
@@ -1278,14 +1308,14 @@ Sector *find_ship(int ship, int *pos)
         while((j < MAX_SHIPS_IN_SURVEY) && (p->ships[j].shipno != ship)) {
             ++j;
         }
-        
+
         --i;
         ++p;
     }
-    
+
     if((i == 0) && (j == MAX_SHIPS_IN_SURVEY)) {
         *pos = -1;
-        
+
         return (Sector *)NULL;
     }
 
@@ -1296,17 +1326,26 @@ Sector *find_ship(int ship, int *pos)
 
 int invalid_map_screen_sizes(void)
 {
-    if((MAX(imap_map.maxy, MIN_MAP_WIN_SIZE) >= output_row)
-       || (imap_map.maxx > (num_columns - 35))) {
-        msg("-- Imap: Screen sizes will not work for the planet.");
+    if (imap_map.maxy < MIN_MAP_WIN_SIZE) {
+        if ((MIN_MAP_WIN_SIZE >= output_row)
+            || (imap_map.maxx > (num_columns - 35))) {
+            msg("-- Imap: Screen sizes will not work for the planet.");
 
-        return 1;
+            return 1;
+        }
+    } else {
+        if ((imap_map.maxy >= output_row)
+            || (imap_map.maxx > (num_colums - 35))) {
+            msg("-- Imap: Screen sizes will not work for the planet.");
+
+            return 1;
+        }
     }
 
     return 0;
 }
 
-void imap_complex_move(void)
+void imap_complex_move(char ch)
 {
     map_complex_move(0);
 
@@ -1318,74 +1357,74 @@ void imap_complex_move(void)
     }
 }
 
-void imap_default(void)
+void imap_default(char ch)
 {
     msg("-- Imap: map mode - Hit <ESC> s to type");
 }
 
-void imap_bombard(void)
+void imap_bombard(char ch)
 {
     map_bombard_or_defend(0);
 }
 
-void imap_defend(void)
+void imap_defend(char ch)
 {
     map_bombard_or_defend(1);
 }
 
-void imap_move_sw(void)
+void imap_move_sw(char ch)
 {
     map_move_down();
     map_move_left();
     map_time = time(0);
 }
 
-void imap_move_s(void)
+void imap_move_s(char ch)
 {
     map_move_down();
     map_time = time(0);
 }
 
-void imap_move_se(void)
+void imap_move_se(char ch)
 {
     map_move_down();
     map_move_right();
     map_time = time(0);
 }
 
-void imap_move_e(void)
+void imap_move_e(char ch)
 {
     map_move_right();
     map_time = time(0);
 }
 
-void imap_move_ne(void)
+void imap_move_ne(char ch)
 {
     map_move_up();
     map_move_right();
     map_time = time(0);
 }
 
-void imap_move_n(void)
+void imap_move_n(char ch)
 {
     map_move_up();
     map_time = time(0);
 }
 
-void imap_move_nw(void)
+void imap_move_nw(char ch)
 {
     map_move_up();
     map_move_left();
     map_time = time(0);
 }
 
-void imap_move_w(void)
+void imap_move_w(char ch)
 {
     map_move_left();
     map_time = time(0);
 }
 
-void imap_toggle_inverse(void)
+void imap_toggle_inverse(char ch)
 {
     imap_map.inverse = (imap_map.inverse + 1) % 2;
     msg("-- Iamp: inverse mode %s", (imap_map.inverse ? "on" : "off"));
@@ -1393,7 +1432,7 @@ void imap_toggle_inverse(void)
     redraw_sector();
 }
 
-void imap_toggle_geography(void)
+void imap_toggle_geography(char ch)
 {
     imap_map.geo = (imap_map.geo + 1) % 2;
     msg("-- Imap: geography mode %s", (imap_map.geo ? "on" : "off"));
@@ -1401,7 +1440,7 @@ void imap_toggle_geography(void)
     redraw_sector();
 }
 
-void imap_toggle_ansi(void)
+void imap_toggle_ansi(char ch)
 {
     imap_map.ansi = (imap_map.ansi + 1) % 2;
     msg("-- Imap: ansi color %s", (imap_map.ansi ? "on" : "off"));
@@ -1409,7 +1448,7 @@ void imap_toggle_ansi(void)
     redraw_sector();
 }
 
-void imap_force_redraw(void)
+void imap_force_redraw(char ch)
 {
     if(scope.level != LEVEL_PLANET) {
         msg("-- You are NOT at planet scope.");
@@ -1431,15 +1470,15 @@ void imap_force_redraw(void)
 
 void map_prompt_force_redraw(void)
 {
-    if(streq(scope.star, imap_map.star)
-       && strq(scop.planet, imap_map.planet)) {
+    if (!strcmp(scope.star, imap_map.star)
+        && !strcmp(scope.planet, imap_map.planet)) {
         return;
     }
 
     imap_force_redraw();
 }
 
-void imap_ping_sector(void)
+void imap_ping_sector(char ch)
 {
     ping_current_sector();
 }

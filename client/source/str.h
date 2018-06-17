@@ -7,32 +7,8 @@
  *
  * See the COPYRIGHT file.
  */
-
-#ifndef MAX
-#define MAX(A, B) (((A) < (B)) ? (B) : (A))
-#endif
-
-#ifndef MIN
-#define MIN(A, B) (((A) > (B)) ? (B) : (A))
-#endif
-
-/* String equal */
-#define streq(A, B) (!strcmp((char *)(A), (char *)(B)))
-
-/* String equal for N characters */
-#define streqrn(A, B, N) (!strncmp((char *)(A), (char *)(B), (N)))
-
-/* String equal for N characters of first parameter */
-#define strqeln(A, B) (!strncmp((char *)(A), (char *)(B), (strlen((A)))))
-
-/* String qual to the N characters of second parameter */
-#define streqrn(A, B) (!strncmp((char *)(A), (char *)(B), (strlen((B)))))
-
-/* String matching */
-#define MATCH(D, P) pattern_match((D), (P), pattern)
-
-/* A NULL string to be used anywhere in the client */
-#define NULL_STRING ""
+#ifndef STR_H_
+#define STR_H_
 
 /* Results for pattern matcher */
 extern char pattern1[];
@@ -60,11 +36,36 @@ extern char *client_prompt;
 extern char *input_prompt;
 extern char *output_prompt;
 
-extern char *first();
-extern char *fstring();
-extern char *maxsting();
-extern char *rest();
-extern char *skip_space();
-extern char *string();
-extern char *strou();
-extern char *strfree();
+char *first(char *str);
+char *rest(char *str);
+void split(char *s, char *fbuf, char *rbuf);
+char *skip_space(char *s);
+char *fstring(char *str);
+int pattern_match(char *string1, char *string2, char **pattern);
+char *strtou(char *str);
+char *string(char *str);
+char *maxstring(char *str);
+int wrap(char *line);
+int more(void);
+void msg(char *fmt, ...);
+void display_msg(char *s);
+void display_bold_communication(char *s);
+void msg_error(char *fmt, ...);
+void debug(int level, char *fmt, ...);
+void do_column_maker(char *s);
+void set_column_maker(int width);
+void flush_column_maker(void);
+char *time_dur(long int dur);
+void remove_space_at_end(char *s);
+char *strfree(char *ptr);
+void place_string_on_output_window(char *str, int len);
+void write_string(char *s, int cnt);
+void init_refresh_lines(void);
+void free_refresh_lines(void);
+void add_refresh_line(char *s, int cnt);
+int start_refresh_line_index(int *start_pos);
+void clear_refresh_line(void);
+void clear_refresh_line_mode(void);
+int has_esc_codes(char *str);
+
+#endif // STR_H_

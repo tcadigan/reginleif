@@ -7,21 +7,15 @@
  *
  * See the COPYRIGHT file
  */
+#include "buffer.h"
 
-#include "gb.h"
-
-#include <malloc.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/types.h>
-
-#include "proto.h"
 #include "str.h"
-#include "types.h"
 #include "vars.h"
 
-extern char *strcat(char *, char const *);
-extern time_t time(time_t *);
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
 void add_buffer(BufferInfo *infoptr, char *str, int partial)
 {
@@ -80,7 +74,7 @@ void add_buffer(BufferInfo *infoptr, char *str, int partial)
         p->prev = NULL;
         infoptr->tail = p;
     }
-    
+
     ++info.lines_read;
     p->buf = maxstring(str);
     infoptr->partial = partial;
@@ -99,7 +93,7 @@ char *remove_buffer(BufferInfo *infoptr)
     char *str;
 
     if(!infoptr->head) {
-        return NULL_STRING;
+        return "";
     }
 
     /* Lop off the head node */
@@ -111,7 +105,7 @@ char *remove_buffer(BufferInfo *infoptr)
     if(infoptr->head == infoptr->tail) {
         infoptr->tail = NULL;
         infoptr->head = infoptr->tail;
-        infoptr->parial = FALSE;
+        infoptr->partial = false;
     }
     else {
         /* Else move head back one node */
@@ -135,7 +129,7 @@ int have_buffer(BufferInfo *infoptr)
     static long last_check = -1;
 
     if(!infoptr) {
-        return FALSE;
+        return false;
     }
 
     if((infoptr->tail == infoptr->head) && infoptr->partial) {
@@ -144,22 +138,22 @@ int have_buffer(BufferInfo *infoptr)
                 last_check = time(0);
             }
             else if(last_check < (time(0) /* - 1 */)) {
-                infoptr->partial = FALSE;
-                infoptr->is_partial = TRUE;
+                infoptr->partial = false;
+                infoptr->is_partial = true;
                 last_check = -1;
 
-                return TRUE;
+                return true;
             }
         }
 
-        return FALSE;
+        return false;
     }
 
     if(infoptr->head) {
         last_check = -1;
 
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }

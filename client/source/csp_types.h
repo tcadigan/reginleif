@@ -10,8 +10,8 @@
  * #ident  "@(#)csp_types.h     i.1 11/20/93 "
  */
 
-#ifndef _CSP_TYPES_H_
-#define _CSP_TYPES_H_
+#ifndef CSP_TYPES_H_
+#define CSP_TYPES_H_
 
 /*
  * Character to be found in column 0 of a CSP output line send by server to
@@ -65,7 +65,7 @@ enum DISCOVERIES {
 
 enum PLAYER_TYPE {
     CSPD_NORMAL, /* 0 */
-    CSPD_DIETY,  /* 1 */
+    CSPD_DEITY,  /* 1 */
     CSPD_GUEST   /* 2 */
 };
 
@@ -101,4 +101,4 @@ enum COMMUNICATION {
     CSPD_EMOTE
 };
 
-#endif /* _CSP_TYPES_H_ */
+#endif /* CSP_TYPES_H_ */

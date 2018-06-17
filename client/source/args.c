@@ -7,24 +7,16 @@
  *
  * See the COPYRIGHT file
  */
-
-#include <ctype.h>
-#include <malloc.h>
-#include <memory.h>
-#include <stdio.h>
-#include <sys/types.h>
+#include "args.h"
 
 #include "gb.h"
-#include "proto.h"
 #include "str.h"
-#include "types.h"
 #include "vars.h"
 
-#define LOOPNAME "__internal_loop"
-#define OPEN_BRACKET '{'
-#define END_BRACKET '}'
-
-#define is_valid_assign_char(C) (isalnum(C) || (C) == '_')
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 static ArrStruct main_arg_list;
 static ArrStruct macro_arg_list;
@@ -32,30 +24,13 @@ static ArrStruct sec_arg_list;
 static ArrStruct *arg_list = &main_arg_list;
 
 Assign *assign_head = NULL;
-
-/* For the parsing of variables */
-/* static char assign_buf[BUFSIZ]; */
-/* static char *assign_ptr; */
-
-int assign_flag = TRUE;
+bool assign_flag = true;
 
 Assign *find_assign(char *name);
-char *get_assign_unit();
-char *get_assign_identifier();
-char *get_argify(char *fmt);
-char *get_args(int lo, int hi);
-char *get_assign(char *name);
-void argify(char *list);
-void add_assign(char *name, char *value);
 void remove_assign(char *name);
-int valid_assign_name(char *name);
+char *get_argify(char *fmt);
 int return_range(char *s, int *low, int *high, int *len);
-
-extern int strncmp(const char *, const char *, size_t);
-extern int fprintf(FILE *, const char *, ...);
-extern int fputc(int, FILE *);
-extern int sscanf(const char *, const char *, ...);
-extern int atoi(const char *);
+void strcap(char *s, char c);
 
 /*
  * parse_given_string: Takes a string (s) and based on the specified
@@ -69,29 +44,29 @@ char *parse_given_string(char *s, int mode)
     static char parsedstring[MAXSIZ + 1];
     char *p;
     char *q;
-    int made_change = FALSE;
+    bool made_change = false;
 
     p = s;
     q = parsedstring;
 
     debug(3, "In parse_given_string (%d)", mode);
 
-    while(*p) {
-        if((*p == '\\')
-           && ((mode == PARSE_SLASH)
-               || (mode == PARSE_SLASH_NOTNL)
-               || (mode == PARSE_ALL))) {
+    while (*p) {
+        if ((*p == '\\')
+            && ((mode == PARSE_SLASH)
+                || (mode == PARSE_SLASH_NOTNL)
+                || (mode == PARSE_ALL))) {
             ++p;
-            made_change = TRUE;
+            made_change = true;
 
-            switch(*p) {
+            switch (*p) {
             case '\\':
                 *q++ = '\\';
                 ++p;
 
                 break;
             case 'n':
-                if(mode == PARSE_SLASH_NOTNL) {
+                if (mode == PARSE_SLASH_NOTNL) {
                     *q++ = '\\';
                     *q++ = 'n';
                 }
@@ -118,7 +93,7 @@ char *parse_given_string(char *s, int mode)
           (made_change ? parsedstring : s),
           made_change);
 
-    if(!made_change) {
+    if (!made_change) {
         return s;
     }
 
@@ -132,42 +107,42 @@ void parse_variables(char *s)
     char *n;
     char *r;
     char *x;
-    char name[MAXSIZ];
+    char name[NORMSIZ];
     char out[MAXSIZ];
     char temp[MAXSIZ];
     int nest = 0;
-    int made_change = TRUE;
+    bool made_change = true;
 
-    if(!*s) {
+    if (!*s) {
         return;
     }
 
-    while(made_change) {
+    while (made_change) {
         p = s;
         q = out;
-        made_change = FALSE;
+        made_change = false;
 
-        while(*p) {
-            if(*p == VAR_CHAR) {
+        while (*p) {
+            if (*p == VAR_CHAR) {
                 ++p;
 
                 /* Put 1 $ */
-                if(*p == VAR_CHAR) {
+                if (*p == VAR_CHAR) {
                     *q++ = VAR_CHAR;
                     *q++ = *p++;
                 }
                 else { /* Is it a variable ? */
-                    if(*p == OPEN_BRACKET) {
+                    if (*p == '{') {
                         n = name;
                         ++nest;
                         x = p;
                         ++p;
 
-                        while(*p && nest) {
-                            if(*p == OPEN_BRACKET) {
+                        while (*p && nest) {
+                            if (*p == '{') {
                                 ++nest;
                             }
-                            else if(*p == END_BRACKET) {
+                            else if (*p == '}') {
                                 --nest;
                             }
 
@@ -178,10 +153,10 @@ void parse_variables(char *s)
                         *n = '\0';
                         r = get_assign(name);
 
-                        if(r) {
+                        if (r) {
                             strcpy(q, r);
                             q += strlen(r);
-                            made_change = TRUE;
+                            made_change = true;
                         }
                         else {
                             p = x;
@@ -193,7 +168,7 @@ void parse_variables(char *s)
                         n = name;
                         r = p;
 
-                        while(*r && is_valid_assign_char(*r)) {
+                        while (*r && (isalnum(*r) || (*r == '_'))) {
                             *n++ = *r++;
                         }
 
@@ -201,10 +176,10 @@ void parse_variables(char *s)
                         n = get_assign(name);
 
                         /* Valid assign name */
-                        if(n) {
+                        if (n) {
                             strcpy(q, n);
                             q += strlen(n);
-                            made_change = TRUE;
+                            made_change = true;
                             p = r;
                         }
                         else { /* Invalid assign name */
@@ -224,17 +199,17 @@ void parse_variables(char *s)
         *q = '\0';
         strcpy(s, out);
     }
-    
+
     /* now parse out any double $'s */
     p = s;
     q = out;
-    
-    while(*p) {
-        if(*p == VAR_CHAR) {
+
+    while (*p) {
+        if (*p == VAR_CHAR) {
             ++p;
-            
+
             /* Put 1 $ */
-            if(*p == VAR_CHAR) {
+            if (*p == VAR_CHAR) {
                 *q++ = *p++;
             }
             else { /* Is it a variable? */
@@ -246,7 +221,7 @@ void parse_variables(char *s)
             *q++ = *p++;
         }
     }
-    
+
     *q = '\0';
     strcpy(s, out);
 }
@@ -254,13 +229,13 @@ void parse_variables(char *s)
 /*
  * Assign the pre-defined variables so that their names are set by the
  * client and not the user, hence reserving the name for our use
- * new_conn: if TRUE it reset all assign variables, otherwise we are
+ * new_conn: if true it reset all assign variables, otherwise we are
  * reconnecting to our previous game, so retain information. (like
  * builtship, etc.).
  */
 void init_assign(int new_conn)
 {
-    if(new_conn) {
+    if (new_conn) {
         add_assign("aps", "0");
         add_assign("builtship", "0");
         add_assign("govid", "0");
@@ -276,7 +251,7 @@ void init_assign(int new_conn)
         add_assign("star", "");
     }
 
-    add_assign("connected", "FALSE");
+    add_assign("connected", "false");
     add_assign("game_type", "UNKNOWN");
     add_assign("game_nick", "none");
     add_assign("host", "none");
@@ -294,28 +269,28 @@ void add_assign(char *name, char *value)
     p = find_assign(name);
 
     /* New assignment */
-    if(!p) {
-        if(!assign_head) {
-            assign_head = (Assign *)malloc(sizeof(Assign));
+    if (!p) {
+        if (!assign_head) {
+            assign_head = malloc(sizeof(Assign));
             assign_head->prev = (Assign *)NULL;
             assign_head->next = (Assign *)NULL;
             p = assign_head;
         }
         else {
             p = assign_head;
-            
-            while(p->next) {
+
+            while (p->next) {
                 p = p->next;
             }
-            
-            p->next = (Assign *)malloc(sizeof(Assign));
+
+            p->next = malloc(sizeof(Assign));
             p->next->next = (Assign *)NULL;
             p->next->prev = p;
             p = p->next;
         }
     }
     else { /* Old assignment */
-        if(p->mode && !assign_flag) {
+        if (p->mode && !assign_flag) {
             msg("-- Assign: you can not redefine that variable.");
 
             return;
@@ -333,20 +308,20 @@ void add_assign(char *name, char *value)
 
 void free_assign(void)
 {
-    while(assign_head) {
+    while (assign_head) {
         Assign *temp;
         temp = assign_head;
         assign_head = assign_head->next;
 
-        if(assign_head != NULL) {
+        if (assign_head != NULL) {
             assign_head->prev = NULL;
         }
 
-        if(temp->name) {
+        if (temp->name) {
             free(temp->name);
         }
 
-        if(temp->str) {
+        if (temp->str) {
             free(temp->str);
         }
 
@@ -358,7 +333,7 @@ Assign *find_assign(char *name)
 {
     Assign *p = assign_head;
 
-    while(p && !streq(name, p->name)) {
+    while (p && strcmp(name, p->name)) {
         p = p->next;
     }
 
@@ -368,24 +343,24 @@ Assign *find_assign(char *name)
 void cmd_listassign(char *args)
 {
     Assign *p = assign_head;
-    int show_all = FALSE;
+    int show_all = false;
 
-    if(args && streq(args, "-")) {
-        show_all = TRUE;
+    if (args && strcmp(args, "-")) {
+        show_all = true;
     }
 
     msg("-- Assign list:");
 
-    while(p) {
-        if(p->mode) {
-            if(show_all) {
+    while (p) {
+        if (p->mode) {
+            if (show_all) {
                 msg(" * %s = %s", p->name, p->str);
             }
         }
         else {
             msg("   %s = %s", p->name, p->str);
         }
-        
+
         p = p->next;
     }
 
@@ -410,7 +385,7 @@ char *get_assign(char *name)
 
     p = find_assign(name);
 
-    if(!p) {
+    if (!p) {
         debug(3, "get_assign (%s) found_nothing.", name);
 
         return (char *)NULL;
@@ -429,17 +404,17 @@ void cmd_assign(char *args)
 
     aptr = get_args(1, 1);
 
-    if(!*aptr || streq(aptr, "-")) {
+    if (!*aptr || !strcmp(aptr, "-")) {
         cmd_listassign(aptr);
         strfree(aptr);
 
         return;
     }
 
-    if(*aptr == '-') {
-        assign_flag = 0;
+    if (*aptr == '-') {
+        assign_flag = false;
         remove_assign(aptr + 1);
-        assign_flag = 1;
+        assign_flag = true;
         strfree(aptr);
 
         return;
@@ -451,21 +426,21 @@ void cmd_assign(char *args)
      * An override, just in case also the ^ does not generate a msg which
      * cmd_for takes advantage of
      */
-    if((*aptr == '^') && valid_assign_name(aptr + 1)) {
-        assign_flag = 1;
+    if ((*aptr == '^') && valid_assign_name(aptr + 1)) {
+        assign_flag = true;
         add_assign(aptr + 1, rptr);
     }
-    else if(streqrn(aptr, "__")) {
+    else if (!strncmp(aptr, "__", strlen("__"))) {
         msg("-- Assign: Invalid name (%s). __ is reserved for internal usage.", aptr);
         strfree(aptr);
         strfree(rptr);
 
         return;
     }
-    else if(valid_assign_name(aptr)) {
-        assign_flag = 0;
+    else if (valid_assign_name(aptr)) {
+        assign_flag = false;
         add_assign(aptr, rptr);
-        assign_flag = 1;
+        assign_flag = true;
         msg("-- Assign: '%s' was assigned '%s'", aptr, rptr);
     }
     else {
@@ -485,49 +460,49 @@ int valid_assign_name(char *name)
     char *p;
 
     /* Assume true until proven otherwise */
-    int is_num = TRUE;
+    int is_num = true;
 
-    for(p = name; *p; ++p) {
-        if(!is_valid_assign_char(*p)) {
-            return FALSE;
+    for (p = name; *p; ++p) {
+        if (!isalnum(*p) && (*p != '_')) {
+            return false;
         }
 
-        if(!isdigit(*p) && is_num) {
-            is_num = FALSE;
+        if (!isdigit(*p) && is_num) {
+            is_num = false;
         }
     }
 
-    if(is_num) {
-        return FALSE;
+    if (is_num) {
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 void remove_assign(char *name)
 {
     Assign *p;
-    int override = FALSE;
+    int override = false;
 
-    if(*name == '^') {
-        override = TRUE;
+    if (*name == '^') {
+        override = true;
         ++name;
     }
 
     p = find_assign(name);
 
-    if(!p) {
+    if (!p) {
         return;
     }
 
-    if(p->mode && !assign_flag && !override) {
+    if (p->mode && !assign_flag && !override) {
         msg("-- Assign: '%s' can not be removed by you.", name);
 
         return;
     }
 
-    if(!p->prev) {
-        if(p->next) {
+    if (!p->prev) {
+        if (p->next) {
             assign_head = p->next;
             assign_head->prev = NULL;
         }
@@ -535,7 +510,7 @@ void remove_assign(char *name)
             assign_head = NULL;
         }
     }
-    else if(!p->next) {
+    else if (!p->next) {
         p->prev->next = NULL;
     }
     else {
@@ -554,31 +529,31 @@ int test_assign(char *name)
 
     p = find_assign(name);
 
-    if(p) {
-        return TRUE;
+    if (p) {
+        return true;
     }
     else {
-        return FALSE;
+        return false;
     }
 }
 
 void save_assigns(FILE *fd)
 {
     Assign *p = assign_head;
-    int changed = FALSE;
+    int changed = false;
     char *q;
 
-    while(p) {
-        if(!changed && !p->mode) {
+    while (p) {
+        if (!changed && !p->mode) {
             fprintf(fd, "\n#\n# Assign variables\n#\n");
-            changed = TRUE;
+            changed = true;
         }
 
-        if(!p->mode) {
+        if (!p->mode) {
             fprintf(fd, "assign %s ", p->name);
 
-            for(q = p->str; *q; ++q) {
-                if(*q == '$') {
+            for (q = p->str; *q; ++q) {
+                if (*q == '$') {
                     fputc(*q, fd);
                 }
 
@@ -587,24 +562,24 @@ void save_assigns(FILE *fd)
 
             fputc('\n', fd);
         }
-        
+
         p = p->next;
     }
 
-    if(changed) {
+    if (changed) {
         fprintf(fd, "\n");
     }
 }
 
 /*
- * parse_args_from_string: 
- * 
+ * parse_args_from_string:
+ *
  * Takes a formatting string which contains the $ marked numerical arguments to
  * substitute from the string list. $ marked arguments can be in one of four
- * forms as follows: 
- * $X or ${X} which means substitute with argument X from the string list 
+ * forms as follows:
+ * $X or ${X} which means substitute with argument X from the string list
  * $-X or ${-X} which means substitute from argument 0 through X
- * $X-$Y or ${X-Y} which means substitute from argument X through Y 
+ * $X-$Y or ${X-Y} which means substitute from argument X through Y
  * $X- or ${X-} which means substitute from argument X through the end of the list
  *
  * Passing a NULL list will cause the function to use the contents of the static
@@ -618,7 +593,7 @@ char *parse_macro_args(char *fmt, char *list)
     char *p;
     char temp[SMABUF];
 
-    arg_list = &marco_arg_list;
+    arg_list = &macro_arg_list;
     argify(list);
     p = get_argify(fmt);
     sprintf(temp, "%d", macro_arg_list.arg_cnt);
@@ -631,9 +606,9 @@ char *parse_macro_args(char *fmt, char *list)
 char *parse_sec_args(char *fmt, char *list)
 {
     char *p;
-    char tmp[SMABUF];
+    char temp[SMABUF];
 
-    args_list = &sec_arg_list;
+    arg_list = &sec_arg_list;
     argify(list);
     p = get_argify(fmt);
     sprintf(temp, "%d", sec_arg_list.arg_cnt);
@@ -651,28 +626,28 @@ void argify(char *list)
     int i;
     char quotes;
 
-    if(list) {
+    if (list) {
         p = list;
         q = arg_list->arr[0];
         arg_list->arg_cnt = 0;
 
-        while(*p && (arg_list->arg_cnt < (MAX_NUM_ARGS - 1))) {
-            while(isspace(*p)) {
+        while (*p && (arg_list->arg_cnt < (MAX_NUM_ARGS - 1))) {
+            while (isspace(*p)) {
                 ++p;
             }
 
-            if(((*p == '\"') || (*p == '\'')) && (*(p - 1) != '\\')) {
+            if (((*p == '\"') || (*p == '\'')) && (*(p - 1) != '\\')) {
                 quotes = *p;
                 ++p;
 
-                while(*p && !((*p == quotes) && (*(p - 1) != '\\'))) {
+                while (*p && !((*p == quotes) && (*(p - 1) != '\\'))) {
                     *q++ = *p++;
                 }
 
                 ++p;
             }
             else {
-                while(!isspace(*p) && *p) {
+                while (!isspace(*p) && *p) {
                     *q++ = *p++;
                 }
             }
@@ -685,8 +660,8 @@ void argify(char *list)
             q = arg_list->arr[arg_list->arg_cnt];
         }
 
-        if(*p && (arg_list->arg_cnt == (MAX_NUM_ARGS - 1))) {
-            while(isspace(*p)) {
+        if (*p && (arg_list->arg_cnt == (MAX_NUM_ARGS - 1))) {
+            while (isspace(*p)) {
                 ++p;
             }
 
@@ -697,7 +672,7 @@ void argify(char *list)
             ++arg_list->arg_cnt;
         }
 
-        for(i = arg_list->arg_cnt + 1; i < MAX_NUM_ARGS; ++i) {
+        for (i = arg_list->arg_cnt + 1; i < MAX_NUM_ARGS; ++i) {
             *arg_list->arr[i] = '\0';
         }
     }
@@ -717,12 +692,12 @@ char *get_argify(char *fmt)
     int high;
     int i;
 
-    parsedstring = (char *)malloc(MAXSIZ + 1);
+    parsedstring = malloc(MAXSIZ + 1);
 
-    if(!parsedstring) {
+    if (!parsedstring) {
         msg("-- Malloc: failed in get_argify. Aborting.");
 
-        return NULL_STRING;
+        return "";
     }
 
     p = fmt;
@@ -730,44 +705,42 @@ char *get_argify(char *fmt)
 
     debug(4, "entering get_argify: %s", p);
 
-    while(*p) {
-        if(*p == '$') {
+    while (*p) {
+        if (*p == '$') {
             ++p;
 
-            switch(*p) {
+            switch (*p) {
             case '$':
                 *q++ = '$';
                 ++p;
-                made_change = TRUE;
 
                 break;
             default:
-                switch(return_range(p, &low, *high, &skiplen)) {
-                case TRUE:
+                switch (return_range(p, &low, &high, &skiplen)) {
+                case true:
                     p += skiplen;
                     debug(4, "remaining: '%s'", p);
 
-                    if(high > (arg_list->arg_cnt - 1)) {
+                    if (high > (arg_list->arg_cnt - 1)) {
                         high = arg_list->arg_cnt - 1;
                     }
 
-                    if(low > (arg_list->arg_cnt - 1)) {
+                    if (low > (arg_list->arg_cnt - 1)) {
                         break;
                     }
 
                     debug(4, "range (%d,%d) %d", low, high, skiplen);
 
-                    for(i = low; i <= high; ++i) {
+                    for (i = low; i <= high; ++i) {
                         strcpy(q, arg_list->arr[i]);
                         q += strlen(arg_list->arr[i]);
                         *q++ = ' ';
                     }
 
                     --q;
-                    made_change = TRUE;
 
                     break;
-                case FALSE:
+                case false:
                     *q++ = '$';
                     *q++ = *p++;
 
@@ -797,21 +770,21 @@ int return_range(char *s, int *low, int *high, int *len)
     char *p;
     char *ptr;
     char name[BUFSIZ];
-    int end_bracket = FALSE;
+    int end_bracket = false;
     int l = 0;
     int h = MAX_NUM_ARGS;
 
-    if(*s == '{') {
+    if (*s == '{') {
         p = strchr(s, '}');
 
-        if(p) {
+        if (p) {
             *p = '\0';
-            end_bracket = TRUE;
+            end_bracket = true;
             ptr = first(s + 1);
             *len = strlen(ptr) + 2;
         }
         else {
-            return FALSE;
+            return false;
         }
     }
     else {
@@ -822,58 +795,58 @@ int return_range(char *s, int *low, int *high, int *len)
     debug(4, "skiplen for return_range is: %d", *len);
 
     /* Isolate the word and put it in name */
-    if(ptr) {
+    if (ptr) {
         strcpy(name, ptr);
     }
     else {
         *name = '\0';
     }
 
-    if(streq(name, "*")) {
+    if (!strcmp(name, "*")) {
         *low = 0;
         *high = MAX_NUM_ARGS;
     }
-    else if(sscanf(name, "%d-%d", &l, &h) == 2) {
+    else if (sscanf(name, "%d-%d", &l, &h) == 2) {
         *low = l;
         *high = h;
     }
-    else if(sscanf(name, "-%d", &h) == 1) {
+    else if (sscanf(name, "-%d", &h) == 1) {
         *low = 0;
         *high = h;
     }
-    else if(sscanf(name, "%d", &l) == 1) {
+    else if (sscanf(name, "%d", &l) == 1) {
         *low = 1;
 
-        if(strchr(name, '-')) {
+        if (strchr(name, '-')) {
             *high = MAX_NUM_ARGS;
         }
         else {
             *high = l;
         }
     }
-    else if(sscanf(name, "%d-", &l) == 1) {
+    else if (sscanf(name, "%d-", &l) == 1) {
         *low = l;
         *high = MAX_NUM_ARGS;
     }
     else {
-        if(end_bracket) {
+        if (end_bracket) {
             *p = '}';
         }
 
-        return FALSE;
+        return false;
     }
 
     /* Do the calculation here */
-    if(end_bracket) {
+    if (end_bracket) {
         *p = '}';
     }
 
     /* Consistency checks for large args request by used, just abort */
-    if((*low < 0) || (*high < 0)) {
+    if ((*low < 0) || (*high < 0)) {
         return ERROR;
     }
 
-    return TRUE;
+    return true;
 }
 
 char *get_args(int lo, int hi)
@@ -881,11 +854,11 @@ char *get_args(int lo, int hi)
     char temp[SMABUF];
     char *p;
 
-    if(hi <= lo) {
+    if (hi <= lo) {
         sprintf(temp, "${%d}", lo);
     }
     else {
-        sprintf(temp, "%{%d-%d}", lo, hi);
+        sprintf(temp, "${%d-%d}", lo, hi);
     }
 
     p = get_argify(temp);
@@ -903,27 +876,27 @@ void strcap(char *s, char c)
     *(s + len + 1) = '\0';
 }
 
-int parse_for_loops(char *s)
+bool parse_for_loops(char *s)
 {
     char *p;
     char *q;
     char *r;
     char buf[MAXSIZ];
-    int made_change = FALSE;
+    bool made_change = false;
     int lo;
     int hi;
-    int loocnt = 0;
+    int loopcnt = 0;
 
     /* Format is: $[lo-hi] or $[hi-lo] */
     p = s;
     r = strchr(p, '$');
 
-    while(r) {
+    while (r) {
         p = r + 1;
 
         /* Multiple $, skip over this */
-        if(*p == '$') {
-            while(*p == '$') {
+        if (*p == '$') {
+            while (*p == '$') {
                 ++p;
             }
 
@@ -931,29 +904,32 @@ int parse_for_loops(char *s)
         }
 
         /* Not $[ so continue */
-        if(*p != '[') {
+        if (*p != '[') {
+            r = strchr(p, '$');
             continue;
         }
 
         ++p;
         q = p;
 
-        if(*q == '-') {
-            if(isdigit(*(q + 1))) {
+        if (*q == '-') {
+            if (isdigit(*(q + 1))) {
                 ++q;
             }
             else {
+                r = strchr(p, '$');
                 continue;
             }
         }
 
         /* Skip digits */
-        while(isdigit(*q) && (*q != '-')) {
+        while (isdigit(*q) && (*q != '-')) {
             ++q;
         }
 
         /* Format error */
-        if(*q != '-') {
+        if (*q != '-') {
+            r = strchr(p, '$');
             continue;
         }
 
@@ -961,22 +937,24 @@ int parse_for_loops(char *s)
         ++q;
         p = q;
 
-        if(*q == '-') {
-            if(isdigit(*(q + 1))) {
+        if (*q == '-') {
+            if (isdigit(*(q + 1))) {
                 ++q;
             }
             else {
+                r = strchr(p, '$');
                 continue;
             }
         }
 
         /* Skip 2nd set of digits */
-        while(isdigit(*q)) {
+        while (isdigit(*q)) {
             ++q;
         }
 
         /* Format error */
-        if(*q != ']') {
+        if (*q != ']') {
+            r = strchr(p, '$');
             continue;
         }
 
@@ -989,32 +967,32 @@ int parse_for_loops(char *s)
 
         /* Get a unique loop name */
         ++loopcnt;
-        sprintf(buf, "%s%d", LOOPNAME, loopcnt);
+        sprintf(buf, "%s%d", "__internal_loop", loopcnt);
 
-        while(test_assign(buf)) {
+        while (test_assign(buf)) {
             ++loopcnt;
-            sprintf(buf, "%s%d", LOOPNAME, loopcnt);
+            sprintf(buf, "%s%d", "__internal_loop", loopcnt);
         }
 
         debug(4, "cnt: %d, s = '%s', p = '%s'", loopcnt, s, p);
 
         sprintf(buf,
                 "for -nooutput %s%d %d,%d %s{%s%d}%s",
-                LOOPNAME,
+                "__internal_loop",
                 loopcnt,
                 lo,
                 hi,
                 s,
-                LOOPNAME,
+                "__internal_loop",
                 loopcnt,
                 p);
 
         ++loopcnt;
         debug(4, "new loop: %s", buf);
         strcpy(s, buf);
-        made_change = TRUE;
+        made_change = true;
         p = s;
-        
+
         r = strchr(p, '$');
     }
 

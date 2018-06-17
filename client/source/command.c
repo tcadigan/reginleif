@@ -9,29 +9,37 @@
  */
 #include "command.h"
 
-#include <ctype.h>
-#include <malloc.h>
-#include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <time.h>
-
+#include "action.h"
+#include "args.h"
+#include "bind.h"
+#include "crypt.h"
 #include "csp.h"
+#include "fuse.h"
 #include "gb.h"
-#include "proto.h"
+#include "help.h"
+#include "icomm.h"
+#include "key.h"
+#include "load.h"
+#include "option.h"
+#include "popn.h"
+#include "proc.h"
+#include "psmap.h"
+#include "socket.h"
+#include "status.h"
+#include "stmt.h"
 #include "str.h"
-#include "term.h"
-#include "types.h"
-#include "vars.h"
+#include "util.h"
+#include "xmap.h"
 
-#define GBRC_SAVE_LINE "# PUt your stuff below here -- Keep this line here\n"
+#include <ctype.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <time.h>
+#include <unistd.h>
 
-extern int end_msg;
+#define GBRC_SAVE_LINE "# Put your stuff below here -- Keep this line here\n"
+
 extern int exit_now;
-extern int gb;
 extern int hide_msg;
 extern int kill_socket_output;
 extern int max_recall;
@@ -39,27 +47,97 @@ extern int pipe_running;
 extern int server_help;
 extern int robo;
 
+static Command command_table[] = {
+    /*               Name           Function    Sub   Echo  Socket Cnt */
+    {            "action",        cmd_action,  true, false, false, 0 },
+    {           "addgame",          cmd_game,  true,  true, false, 0 },
+    {            "assign",        cmd_assign,  true,  true, false, 0 },
+    {              "bind",          cmd_bind,  true,  true, false, 0 },
+    {                "cd",            cmd_cd,  true,  true,  true, 0 },
+    {             "clear",         cmd_clear,  true, false, false, 0 },
+    {          "cleardef",      cmd_cleardef,  true,  true, false, 0 },
+    {          "cleargag",      cmd_cleargag,  true,  true, false, 0 },
+    {           "connect",       cmd_connect,  true,  true, false, 0 },
+    {             "convo",         cmd_convo,  true, false, false, 0 },
+    {                "cr",            cmd_cr,  true,  true,  true, 0 },
+    {             "crypt",         cmd_crypt,  true,  true, false, 0 },
+    {               "def",           cmd_def, false,  true, false, 0 },
+    {            "detach",        cmd_detach,  true,  true, false, 0 },
+    {              "echo",          cmd_echo,  true, false, false, 0 },
+    {               "for",           cmd_for, false,  true, false, 0 },
+    {              "fuse",          cmd_fuse,  true,  true, false, 0 },
+    {               "gag",           cmd_gag,  true,  true, false, 0 },
+    {              "game",          cmd_game,  true,  true, false, 0 },
+    {              "help",          cmd_help, false,  true,  true, 0 },
+    {             "helpc",         cmd_helpc,  true, false, false, 0 },
+    {             "helps",         cmd_helps,  true,  true, false, 0 },
+    {              "hide",          cmd_hide,  true,  true, false, 0 },
+    {                "if",            cmd_if, false,  true, false, 0 },
+    {              "info",          cmd_info,  true, false, false, 0 },
+    {          "internal",      cmd_internal,  true,  true, false, 0 },
+    { "internal_pipe_off", internal_pipe_off, false, false, false, 0 },
+    {              "last",        cmd_recall,  true, false, false, 0 },
+    {        "listassign",    cmd_listassign,  true, false, false, 0 },
+    {         "listcrypt",     cmd_listcrypt,  true, false, false, 0 },
+    {           "listdef",       cmd_listdef,  true, false, false, 0 },
+    {           "listgag",       cmd_listgag,  true, false, false, 0 },
+    {          "listgame",      cmd_listgame,  true, false, false, 0 },
+    {          "listloop",      cmd_listloop,  true, false, false, 0 },
+    {             "loadf",         cmd_loadf,  true,  true, false, 0 },
+    {               "log",           cmd_log,  true, false, false, 0 },
+    {              "loop",          cmd_loop,  true,  true, false, 0 },
+#ifdef XMAP
+    {               "map",           cmd_map,  true,  true,  true, 0 },
+#endif
+    {               "msg",           cmd_msg,  true, false, false, 0 },
+    {             "oldsh",      cmd_oldshell,  true,  true, false, 0 },
+#ifdef OPTTECH
+    {           "opttech",       cmd_opttech, false, false, false, 0 },
+#endif
+    {              "ping",          cmd_ping,  true,  true, false, 0 },
+    {              "popn",          cmd_popn,  true,  true, false, 0 },
+    {              "post",          cmd_post,  true,  true, false, 0 },
+    {              "proc",          cmd_proc,  true, false, false, 0 },
+    {             "psmap",         cmd_psmap,  true,  true, false, 0 },
+    {             "queue",         cmd_queue,  true,  true, false, 0 },
+    {              "quit",          cmd_quit,  true, false, false, 0 },
+    {             "quote",         cmd_quote,  true,  true, false, 0 },
+    {               "rea",          cmd_read, false,  true, false, 0 },
+    {              "read",          cmd_read, false,  true, false, 0 },
+    {            "recall",        cmd_recall,  true, false, false, 0 },
+    {        "removeloop",    cmd_removeloop,  true,  true, false, 0 },
+    {            "repeat",        cmd_repeat,  true,  true, false, 0 },
+    {             "savef",         cmd_savef,  true,  true, false, 0 },
+    {               "set",           cmd_set, false, false, false, 0 },
+    {                "sh",          cmd_proc,  true, false, false, 0 },
+    {             "shell",          cmd_proc,  true, false, false, 0 },
+    {             "sleep",         cmd_sleep,  true,  true, false, 0 },
+    {            "source",        cmd_source,  true,  true, false, 0 },
+    {              "talk",          cmd_talk,  true, false, false, 0 },
+    {           "uncrypt",       cmd_uncrypt,  true,  true, false, 0 },
+    {             "undef",         cmd_undef,  true,  true, false, 0 },
+    {             "ungag",         cmd_ungag,  true,  true, false, 0 },
+    {            "ungame",        cmd_ungame,  true,  true, false, 0 },
+    {            "unloop",    cmd_removeloop,  true,  true, false, 0 },
+    {           "version",       cmd_version,  true, false, false, 0 },
+    {              "wait",          cmd_wait,  true,  true, false, 0 },
+    {            "watch4",        cmd_watch4,  true, false, false, 0 }
+#ifdef XMAP
+    ,{             "xmap",          cmd_xmap, false, false, false, 0}
+#endif
+};
+
 char tbuf[MAXSIZ];
 char post_buf[BUFSIZ];
 
-extern char *ctime(const time *);
-extern char *getenv(const char *);
-extern int atoi(const char *);
-extern int fclose(FILE *);
-extern int fprintf(FILE *, const char *, ...);
-extern pid_t fork(void);
-extern time_t time(time_t *);
-extern unsigned int sleep(unsigned int);
-extern void *realloc(void *, size_t);
-extern void socket_final_process(char *, int);
 void add_to_post(char *s);
 void robo_say(char *, int);
 
 /* Return '1' if it is a client command else return '0' */
 int client_command(char *s, int interactive)
 {
-    char cmd[BUFSIZ];
-    char args[MAXSIZ];
+    char cmd[NORMSIZ];
+    char args[NORMSIZ];
     char buf[MAXSIZ];
     Command *handler;
 
@@ -70,14 +148,14 @@ int client_command(char *s, int interactive)
     if(input_mode.post) {
         add_to_post(s);
 
-        return TRUE;
+        return true;
     }
 
 
     if(*s == '!') {
         cmd_proc(s + 1);
 
-        return TRUE;
+        return true;
     }
 
     split(s, cmd, args);
@@ -85,13 +163,13 @@ int client_command(char *s, int interactive)
     if(*s == '^') {
         history_sub(s + 1);
 
-        return TRUE;
+        return true;
     }
 
     handler = binary_search(cmd);
 
     if(handler == NULL) {
-        return FALSE;
+        return false;
     }
 
     ++handler->cnt;
@@ -118,7 +196,7 @@ int client_command(char *s, int interactive)
     if(handler->parse_var && parse_for_loops(buf)) {
         add_queue(buf, 0);
 
-        return TRUE;
+        return true;
     }
 
     handler->func(args);
@@ -127,13 +205,13 @@ int client_command(char *s, int interactive)
         send_gb(args, strlen(args));
     }
 
-    return TRUE;
+    return true;
 }
 
 Command *binary_search(char *cmd)
 {
     int bottom = 0;
-    int top = NUM_COMMANDS - 1;
+    int top = (sizeof(command_table) / sizeof(Command)) - 1;
     int mid;
     int value;
 
@@ -161,23 +239,23 @@ void cmd_info(char *args)
     int i;
     int numc;
     int total = 0;
-    int total_only = TRUE;
+    int total_only = true;
     char buf[SMABUF];
 
     msg("-- Info:");
 
-    if(!streq(args, "total")) {
+    if (strcmp(args, "total")) {
         promptfor("Are you sure? (y/n) ", buf, PROMPT_CHAR);
 
         if(!YES(*buf)) {
             return;
         }
 
-        total_only = FALSE;
+        total_only = false;
         set_column_maker(20);
     }
 
-    numc = NUM_COMMANDS;
+    numc = sizeof(command_table) / sizeof(Command);
 
     for(i = 0; i < numc; ++i) {
         if(!total_only) {
@@ -195,19 +273,15 @@ void cmd_info(char *args)
 
 void cmd_wait(char *args)
 {
-    if(streq(args, "none") || streq(args, "off")) {
+    if (!strcmp(args, "none") || !strcmp(args, "off")) {
         wait_status = WAIT_NONE;
-    }
-    else if(streq(args, "booted")) {
+    } else if (!strcmp(args, "booted")) {
         wait_status = WAIT_BOOTED;
-    }
-    else if(streq(args, "connect")) {
+    } else if (!strcmp(args, "connect")) {
         wait_status = WAIT_CONNECT;
-    }
-    else if(streq(args, "password")) {
+    } else if (!strcmp(args, "password")) {
         wait_status = WAIT_PASSWORD;
-    }
-    else if(streq(args, "login")) {
+    } else if (!strcmp(args, "login")) {
         wait_status = WAIT_LOGIN;
     }
 }
@@ -219,22 +293,20 @@ void cmd_help(char *args)
 
     sprintf(temp, "help %s", args);
     strcpy(args, temp);
-    server_help = TRUE;
+    server_help = true;
 }
 
 void cmd_read(char *args)
 {
     char junk[80];
-    int flag;
+    int flag = 0;
 
     /* Read news was typed */
-    if(streqrn(args, "n")) {
+    if (!strncmp(args, "n", strlen("n"))) {
         start_command(C_RNEWS, flag);
-    }
-    else if(streqrn(args, "t")) {
+    } else if (!strncmp(args, "t", strlen("t"))) {
         start_command(C_TELEGRAM, flag);
-    }
-    else if(streqrn(args, "d")) {
+    } else if (!strncmp(args, "d", strlen("d"))) {
         sscanf(args, "%s %d", junk, &flag);
         start_command(C_DISPATCH, flag);
     }
@@ -270,7 +342,7 @@ void cmd_hide(char *args)
 
 void cmd_internal(char *args)
 {
-    if(streq(args, "scope")) {
+    if (!strcmp(args, "scope")) {
         strcpy(args, " ( [123] /Test/Scope )");
     }
 
@@ -279,10 +351,10 @@ void cmd_internal(char *args)
 
 void cmd_detach(char *args)
 {
+#ifndef RESTRICTED_ACCESS
     int pid;
     char buf[SMABUF];
 
-#ifndef RESTRICTED ACCESS
     pid = fork();
 
     switch(pid) {
@@ -291,7 +363,7 @@ void cmd_detach(char *args)
 
         break;
     case 0: /* I'm the child */
-        detached = TRUE;
+        detached = true;
 
         break;
     default: /* I'm the parent */
@@ -308,7 +380,7 @@ void cmd_detach(char *args)
 
 void cmd_post(char *args)
 {
-    input_mode.post = TRUE;
+    input_mode.post = true;
     strcpy(post_buf, "post ");
 
     if(*args) {
@@ -324,7 +396,7 @@ void cmd_echo(char *args)
     socket_final_process(args, 0);
 }
 
-void cmd_msg(void)
+void cmd_msg(char *args)
 {
     char *p;
     char *q;
@@ -381,9 +453,9 @@ void cmd_watch4(char *args)
     char temp[BUFSIZ];
 
 #ifdef RWHO
-    if(streq(args, "all")) {
+    if (!strcmp(args, "all")) {
         for(id = 0; id <= cur_game.maxplayers; ++id) {
-            rwho.info[id].watch4 = TRUE;
+            rwho.info[id].watch4 = true;
         }
 
         msg("-- watch4 placed on all players.");
@@ -394,13 +466,13 @@ void cmd_watch4(char *args)
         if(isdigit(*(args + 1))) {
             id = atoi(args + 1);
 
-            if(id > cur_gamae.maxplayers) {
+            if(id > cur_game.maxplayers) {
                 msg("-- watch4: invalid player number.");
 
                 return;
             }
 
-            rwho.info[id].watch4 = FALSE;
+            rwho.info[id].watch4 = false;
             msg("-- watch4: turned off for player #%d", id);
         }
     }
@@ -413,7 +485,7 @@ void cmd_watch4(char *args)
             return;
         }
 
-        rwho.info[id].watch4 = TRUE;
+        rwho.info[id].watch4 = true;
         msg("-- watch4 placed on %d.", id);
 
         return;
@@ -428,7 +500,7 @@ void cmd_watch4(char *args)
                     sprintf(temp, "  Player #%-2d - ON", id);
                 }
                 else {
-                    sprintf(temp, "  Player #%-2d - not on");
+                    sprintf(temp, "  Player #%-2d - not on", id);
                 }
 
                 do_column_maker(temp);
@@ -441,7 +513,7 @@ void cmd_watch4(char *args)
     }
 
 #else
-    msg("-- You must compiled with the RWHO defined for watch4 to work.");
+    msg("-- You must compile with the RWHO defined for watch4 to work.");
 #endif
 }
 
@@ -472,7 +544,7 @@ void start_rwho(void)
     int i;
 
     for(i = 0; i <= cur_game.maxplayers; ++i) {
-        rwho.info[i].on = FALSE;
+        rwho.info[i].on = false;
     }
 }
 
@@ -483,12 +555,12 @@ void start_rwho(void)
  */
 void cmd_version(char *args)
 {
-    char opts[BUFSIZ];
-    char board[BUFSIZ];
+    char opts[SMABUF];
+    char broad[NORMSIZ];
 
     csp_send_request(CSP_VERSION_COMMAND, NULL);
     msg("-- Client version %s.", VERSION);
-    strcp(opts, "-- Client options set:");
+    strcpy(opts, "-- Client options set:");
 
 #ifdef ARRAY
     strcat(opts, " ARRAY");
@@ -514,10 +586,6 @@ void cmd_version(char *args)
     strcat(opts, " SMART_CLIENT");
 #endif
 
-#ifdef USE_INDEX
-    strcat(opts, " INDEX");
-#endif
-
 #ifdef SYSV
     strcat(opts, " SYSV");
 #endif
@@ -532,7 +600,7 @@ void cmd_version(char *args)
 
     msg(opts);
 
-    if(streq(args, "-b")) {
+    if (!strcmp(args, "-b")) {
         sprintf(broad,
                 "broadcast Version (%s), Term (%s)\nbroadcast %s\n",
                 VERSION,
@@ -543,10 +611,10 @@ void cmd_version(char *args)
     }
 
 #ifdef RESTRICTED_ACCESS
-    if(streq(args, "-b")) {
+    if (!strcmp(args, "-b")) {
         send_gb("broadcast Client is running in RESTRICTED_ACCESS MODE\n", 54);
     }
-    
+
     msg("-- Client is running in RESTRICTED_ACCESS MODE");
 #endif
 
@@ -555,7 +623,7 @@ void cmd_version(char *args)
 
 void cmd_clear(char *args)
 {
-    clear_screen();
+    clear_screen(' ');
 }
 
 void cmd_quote(char *args)
@@ -567,18 +635,15 @@ void cmd_quote(char *args)
 
 void cmd_savef(char *args)
 {
-    FILE *fd;
-    char askbuf[MAXSIZ];
-    char str[MAXSIZ];
-    time_t clk;
-    char *p;
-    char *gbrc_save_buf;
-    int gbrc_buf_size;
-    int first_blanks = TRUE;
-
 #ifdef RESTRICTED_ACCESS
     msg("-- Restricted access: savef not available.");
 #else
+    char str[MAXSIZ];
+    char askbuf[MAXSIZ];
+    char *gbrc_save_buf;
+    int gbrc_buf_size;
+    int first_blanks = true;
+
     if(!*args) {
         expand_file(gbrc_path);
         sprintf(askbuf, "Really save to %s (y/n)? ", gbrc_path);
@@ -596,17 +661,17 @@ void cmd_savef(char *args)
     }
 
     /* Open to read for the GBRC_SAVE_LINE stuff */
-    fd = fopen(askbuf, "r");
+    FILE *fd = fopen(askbuf, "r");
 
     if(fd != NULL) {
         /* Using it as flag for now */
-        gbrc_buf_size = FALSE;
+        gbrc_buf_size = false;
 
         while(fgets(str, MAXSIZ - 1, fd)) {
-            if(streq(str, GBRC_SAVE_LINE)) {
+            if (!strcmp(str, GBRC_SAVE_LINE)) {
                 gbrc_save_buf = (char *)malloc(MAXSIZ);
                 *gbrc_save_buf = '\0';
-                gbrc_buf_siz = MAXSIZ;
+                gbrc_buf_size = MAXSIZ;
 
                 continue;
             }
@@ -621,13 +686,13 @@ void cmd_savef(char *args)
 
             /* Realloc the buffer */
             if(strlen(str) > (gbrc_buf_size - strlen(gbrc_save_buf))) {
-                p = (char *)realloc(gbrc_save_buf, MAXSIZ);
+                char *p = (char *)realloc(gbrc_save_buf, MAXSIZ);
                 gbrc_save_buf = p;
                 gbrc_buf_size += MAXSIZ;
             }
 
             strcat(gbrc_save_buf, str);
-            first_blanks = FALSE;
+            first_blanks = false;
         }
 
         fclose(fd);
@@ -642,7 +707,7 @@ void cmd_savef(char *args)
         return;
     }
 
-    clk = time(0);
+    time_t clk = time(0);
     fprintf(fd, "#\n# Galactic Bloodshed client II Initialization File\n");
     fprintf(fd, "# Created: %s#\n\n", ctime(&clk));
     fprintf(fd, "set display off\n\n");
@@ -655,7 +720,7 @@ void cmd_savef(char *args)
     save_gags(fd);
     save_games(fd);
     save_settings(fd);
-    
+
     fprintf(fd, "\nset display on\n\n");
     fprintf(fd, "# Do NOT put anything below here that is SAVED above.\n");
     fprintf(fd, "# Commands (like connect) NOT saved by the client\n");
@@ -725,14 +790,14 @@ void cmd_quit(char *args)
         send_gb("quit", 4);
         CLR_BIT(options, CONNECT);
 
-        if(GET_BIT(options, QUIT_ALL) || streq(args, "all")) {
-            quit_all = TRUE;
+        if (GET_BIT(options, QUIT_ALL) || !strcmp(args, "all")) {
+            quit_all = true;
         }
         else {
             promptfor("Quit client (y/n)? ", &c, PROMPT_CHAR);
 
             if(YES(c)) {
-                quit_all = TRUE;
+                quit_all = true;
             }
             else {
                 update_input_prompt(input_prompt);
@@ -740,7 +805,7 @@ void cmd_quit(char *args)
         }
     }
     else {
-        exit_now = TRUE;
+        exit_now = true;
     }
 }
 
@@ -748,14 +813,12 @@ void cmd_recall(char *args)
 {
     if(!args) {
         msg("Usage: recall [num | *pat* | all]");
-    }
-    else if(streq(args, "all")) {
+    } else if (!strcmp(args, "all")) {
         recall(max_recall, 0);
-    }
-    else if(MATCH(args, "*,*")
-            || MATCH(args, "*, *")
-            || MATCH(args, "*-*")
-            || MATCH(args, "* *")) {
+    } else if (pattern_match(args, "*,*", pattern)
+               || pattern_match(args, "*, *", pattern)
+               || pattern_match(args, "*-*", pattern)
+               || pattern_match(args, "* *", pattern)) {
         if(isdigit(*pattern1) && isdigit(*pattern2)) {
             recall_n_m(atoi(pattern1), atoi(pattern2), 0);
         }
@@ -775,15 +838,13 @@ void cmd_convo(char *args)
 {
     if(!args) {
         msg("Usage: convo [num | *pat* | all]");
-    }
-    else if(streq(args, "all")) {
+    } else if (!strcmp(args, "all")) {
         recall(max_recall, 1);
-    }
-    else if(MATCH(args, "*,*")
-            || MATCH(args, "*, *")
-            || MATCH(args, "*-*")
-            || MATCH(args, "* *")) {
-        if(isdigt(*pattern1) && isdigit(*pattern2)) {
+    } else if (pattern_match(args, "*,*", pattern)
+               || pattern_match(args, "*, *", pattern)
+               || pattern_match(args, "*-*", pattern)
+               || pattern_match(args, "* *", pattern)) {
+        if(isdigit(*pattern1) && isdigit(*pattern2)) {
             recall_n_m(atoi(pattern1), atoi(pattern2), 1);
         }
         else {
@@ -804,26 +865,26 @@ int can_log(char *s)
         return 1;
     }
 
-    if((*s == '\'') /* Short broadcast */
-       || (*s == '\"')
-       || (strncmp(s, "announce", strlen(s)) == 0)
-       || (strncmp(s, "broadcast", MAX(2, strlen(s))) == 0)
-       || (strncmp(s, "think", strlen(s)) == 0)
-       || streqrn(s, "sen") /* Send */
-       || streqrn(s, "cr") /* Crypt */
-       || streqrn(s, "set") /* Settings */
-       || streqrn(s, "gag") /* Gag */
-       || streqrn(s, "ungag") /* Ungag */
-       || streqrn(s, "def") /* Def */
-       || streqrn(s, "bind") /* Bind */
-       || streqrn(s, "sh") /* Shell escape */
-       || (*s == '!') /* Shell escape */
-       || streqrn(s, "if") /* If command */
-       || streqrn(s, "action") /* Action */
-       || streqrn(s, "pos")) { /* Post */
+    if ((*s == '\'') /* Short broadcast */
+        || (*s == '\"')
+        || (strncmp(s, "announce", strlen(s)) == 0)
+        || (strncmp(s, "broadcast", 2 < strlen(s) ? strlen(s) : 2) == 0)
+        || (strncmp(s, "think", strlen(s)) == 0)
+        || !strncmp(s, "sen", strlen("sen")) /* Send */
+        || !strncmp(s, "cr", strlen("cr")) /* Crypt */
+        || !strncmp(s, "set", strlen("set")) /* Settings */
+        || !strncmp(s, "gag", strlen("gag")) /* Gag */
+        || !strncmp(s, "ungag", strlen("ungag")) /* Ungag */
+        || !strncmp(s, "def", strlen("def")) /* Def */
+        || !strncmp(s, "bind", strlen("bind")) /* Bind */
+        || !strncmp(s, "sh", strlen("sh")) /* Shell escape */
+        || (*s == '!') /* Shell escape */
+        || !strncmp(s, "if", strlen("if")) /* If command */
+        || !strncmp(s, "action", strlen("action")) /* Action */
+        || !strncmp(s, "pos", strlen("pos"))) { /* Post */
         return 0;
     }
-    
+
     return 1;
 }
 
@@ -842,9 +903,9 @@ void icomm_rwho(char *s)
     debug(2, "icomm_rwho()");
 
     if(ICOMM_STATE == S_WAIT) {
-        if(streqrn(s, "Current Players:")) {
+        if (!strncmp(s, "Current Players:", strlen("Current Players:"))) {
             ICOMM_STATE = S_PROC;
-            ICOMM_IGNORE = TRUE;
+            ICOMM_IGNORE = true;
         }
 
         return;
@@ -852,16 +913,16 @@ void icomm_rwho(char *s)
 
     unow = time(0);
 
-    if((HAP() && MATCH(s, "*:* [*.*] seconds idle"))
-       || MATCH(s, "* \"*\" [*] * idle")) {
+    if ((HAP() && pattern_match(s, "*:* [*.*] seconds idle", pattern))
+        || pattern_match(s, "* \"*\" [*] * idle", pattern)) {
         p = skip_space(pattern1);
         remove_space_at_end(pattern1);
         strcpy(name, p);
         id = atoi(pattern3);
         rwho.info[id].last_on = unow;
-        rwho.info[id].on = TRUE;
+        rwho.info[id].on = true;
 
-        if(!streq(rwho.info[id].name, name)) {
+        if (strcmp(rwho.info[id].name, name)) {
             rwho.info[id].changed_names = unow;
             strcpy(rwho.info[id].last_name, name);
             strcpy(rwho.info[id].name, name);
@@ -874,15 +935,12 @@ void init_rwho(void)
 {
 #ifdef RWHO
     int i;
-    long now;
-
-    now = time(0);
 
     for(i = 0; i < MAX_NUM_PLAYERS; ++i) {
         rwho.info[i].last_on = -1;
         rwho.info[i].last_spoke = -1;
         rwho.info[i].changed_names = -1;
-        rwho.info[i].watch4 = FALSE;
+        rwho.info[i].watch4 = false;
         strcpy(rwho.info[i].name, races[i].name);
         strcpy(rwho.info[i].last_name, races[i].name);
     }
@@ -901,9 +959,9 @@ void process_spoken(char *race, char *gov, int rid, int gid, char *message)
     strcpy(name, race);
     split(message, fword, rword);
 
-    if(streq(fword, profile.racename)
-       && (streq(race, "Q continuum") || streq(gov, "Priam"))
-       && streq(rword, "GBII_CLIENT_INFORMATION")) {
+    if (!strcmp(fword, profile.racename)
+        && (!strcmp(race, "Q continuum") || !strcmp(gov, "Priam"))
+        && !strcmp(rword, "GBII_CLIENT_INFORMATION")) {
         sprintf(psbuf,
                 "send %s %s Info %s@%s -- version (%s) -- term (%s)\n",
                 race,
@@ -925,7 +983,7 @@ void process_spoken(char *race, char *gov, int rid, int gid, char *message)
     now = time(0);
 
 #ifdef RWHO
-    if(!streq(rwho.info[rid].last_name, name)) {
+    if (strcmp(rwho.info[rid].last_name, name)) {
         strcpy(rwho.info[rid].last_name, rwho.info[rid].name);
         strcpy(rwho.info[rid].name, name);
         rwho.info[rid].changed_names = now;
@@ -937,40 +995,38 @@ void process_spoken(char *race, char *gov, int rid, int gid, char *message)
 
 #define PHRASE1 ROBONAME
 
-    if(streq("Robby", fword)
-       || streq("robby", fword)
-       || streq("Robby:", fword)
-       || streq("robby:", fword)
-       || streq("Robby,", fword)
-       || streq("robby,", fword)) {
-        ;
-    }
-    else {
+    if (strcmp("Robby", fword)
+        && strcmp("robby", fword)
+        && strcmp("Robby:", fword)
+        && strcmp("robby:", fword)
+        && strcmp("Robby,", fword)
+        && strcmp("robby,", fword)) {
         return;
     }
 
-    if(streq("help", rword) || streq("Help", rword)) {
+    if (!strcmp("help", rword) || !strcmp("Help", rword)) {
         robo_say("Help: fortune; info on #", 0);
 
         return;
     }
 
-    if(streq("fortune", rword)) {
+    if (!strcmp("fortune", rword)) {
         robo_say("-b fortune", 1);
 
         return;
     }
 
 #ifdef RWHO
-    if(MATCH(rword, "*when was * on*") || MATCH(rword, "*info on *")) {
+    if (pattern_match(rword, "*when was * on*", pattern)
+        || pattern_match(rword, "*info on *", pattern)) {
         if(isdigit(*pattern2)) {
             player = atoi(pattern2);
         }
         else {
             player = 1;
 
-            while(!streq(pattern2, rwho.info[player].name)
-                  && (player < MAX_NUM_PLAYERS)) {
+            while (strcmp(pattern2, rwho.info[player].name)
+                   && (player < MAX_NUM_PLAYERS)) {
                 ++player;
             }
         }
@@ -1037,7 +1093,7 @@ void robo_say(char *message, int proc)
 
 void cancel_post(void)
 {
-    input_mode.post = FALSE;
+    input_mode.post = false;
     *post_buf = '\0';
     force_update_status();
 }
@@ -1046,12 +1102,12 @@ void add_to_post(char *s)
 {
     char *p;
 
-    if(streq(s, ".")) {
+    if (!strcmp(s, ".")) {
         parse_variables(post_buf);
         p = post_buf;
         send_gb(p, strlen(p));
         msg("-- Posting message.");
-        input_mode.post = FALSE;
+        input_mode.post = false;
         *post_buf = '\0';
         force_update_status();
 
@@ -1074,15 +1130,13 @@ int handle_pipes_and_redirects(char *str)
 {
     char cmd[BUFSIZ];
     char s[MAXSIZ];
-    char mode[5];
-    char buf[BUFSIZ];
     char *c;
 
     split(str, cmd, s);
     strcpy(s, str);
     debug(3, "pipes/redirects: %s (%s)", str, cmd);
 
-    c = strchr(s, "|");
+    c = strchr(s, '|');
 
     if(c && (*(c - 1) != '\\') && can_log(cmd)) {
         *c = '\0';
@@ -1092,11 +1146,11 @@ int handle_pipes_and_redirects(char *str)
 
         if(*c == '!') {
             ++c;
-            kill_socket_output = TRUE;
+            kill_socket_output = true;
         }
 
         c = skip_space(c);
-        pipe_running = TRUE;
+        pipe_running = true;
         cmd_proc(c);
         add_queue(s, 0);
         add_queue("internal_pipe_off", 0);
@@ -1114,13 +1168,16 @@ int handle_pipes_and_redirects(char *str)
         *c = '\0';
 
 #ifndef RESTRICTED_ACCESS
+        char mode[5];
+        char buf[BUFSIZ];
+
         /* hmmm append it */
         if(*(c + 1) == '>') {
             strcpy(mode, "a");
 
             if(*(c + 2) == '!') {
                 c += 3;
-                kill_socket_output = TRUE;
+                kill_socket_output = true;
             }
             else {
                 c += 2;
@@ -1132,14 +1189,14 @@ int handle_pipes_and_redirects(char *str)
 
             if(*(c + 1) == '!') {
                 c += 2;
-                kill_socket_output = TRUE;
+                kill_socket_output = true;
             }
             else {
                 ++c;
             }
         }
 
-        logfile.redirect = TRUE;
+        logfile.redirect = true;
         logfile.level = LOG_ALL;
 
         c = skip_space(c);

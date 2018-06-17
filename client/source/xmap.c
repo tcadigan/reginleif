@@ -10,14 +10,15 @@
  * Black and white xmap
  * See CHANGES.XMAP, xmap.h
  */
-
 #ifdef XMAP
+
+#include "xmap.h"
 
 #include "csp.h"
 #include "gb.h"
-#include "proto.h"
 #include "types.h"
 #include "vars.h"
+#include "widget.h"
 
 #ifdef ARRAY
 #include "arrays.h"
@@ -25,6 +26,7 @@
 
 #include <malloc.h>
 #include <math.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -157,7 +159,7 @@ void xmap_replot_orbit(xOrb *head);
 void xmap_plot_redraw();
 void xmap_replot_orbit(xOrb *head);
 void xmap_plot_continue();
-void x_DispArray(int, int, int, int, char **, float);
+void x_DispArray(int x, int y, int maxx, int maxy, char *array[], float mag);
 widget *create_mwin(Display *dpy, widget *parent, int x, int y, int w, int h);
 widget *create_panel(Display *dpy, widget *parent, int x, int y, int w, int h);
 widget *create_button(Display *dpy, widget *parent, int x, int y, int w, int h);
@@ -514,7 +516,7 @@ void do_zoom_up(but_win *win)
         orb_max_x = Orb_Default_max_x;
         orb_min_y = Orb_Default_min_y;
         orb_max_y = Orb_Default_max_y;
-        is_zoom = FALSE;
+        is_zoom = false;
     }
     else {
         mid = (orb_max_x + orb_min_x) / 2.0;
@@ -525,7 +527,7 @@ void do_zoom_up(but_win *win)
         range = (orb_max_y - orb_min_y) / 2.0;
         orb_max_y = mid + (range * new_zoom);
         orb_min_y = mid - (range * new_zoom);
-        is_zoom = TRUE;
+        is_zoom = true;
     }
 
     if(x_is_orbit) {
@@ -969,7 +971,7 @@ void sector_redraw(sec_win *win)
                 strlen(win->label));
 
     /* Force redraw of contents, stats */
-    sector_redraw_info(win, TRUE);
+    sector_redraw_info(win, true);
 }
 
 /* Map window utilities */
@@ -997,7 +999,7 @@ void redraw(mwin *win)
     h = win->core.h;
 
     XFillRectangle(win->core.dpy, win->core.win, clear_gv, 0, 0, w, h);
-    
+
     XCopyArea(win->core.dpy,
               win->buffer,
               win->core.win,
@@ -1020,40 +1022,40 @@ void resize(mwin *win)
         if(win->buffer) {
             XFreePixmap(win->core.dpy, win->buffer);
         }
-        
+
         win->buffer = XCreatePixmap(win->core.dpy,
                                     win->core.win,
                                     win->core.w,
                                     win->core.h,
                                     win->bitdepth);
-        
+
         XMoveWindow(bottom_panel->core.dpy,
                     bottom_panel->core.win,
                     0,
                     win->core.h - bottom_panel->core.h - 1);
-        
+
         XMoveWindow(right_panel->core.dpy,
                     right_panel->core.win,
                     win->core.w - right_panel->core.w - 1,
                     -1);
-        
+
         XMoveWindow(orb_panel->core.dpy,
                     orb_panel->core.win,
                     win->core.w - orb_panel->core.w - 1,
                     right_panel->core.h + PanelSpacing);
-        
+
         /* Need to redraw image in buffer */
-        x_is_redraw = TRUE;
+        x_is_redraw = true;
         clear_winow(win);
-        
+
         if(x_is_map) {
             xmap_plot_redraw();
         }
         else if(x_is_orbit) {
             xmap_replot_orbit(xOrbit_head);
         }
-        
-        x_is_redraw = FALSE;
+
+        x_is_redraw = false;
     }
 }
 
@@ -1298,7 +1300,7 @@ void draw_line(int x1, int y1, int x2, int y2)
         --xx1;
         --xx2;
     }
-    
+
     if((x1 <= (x2 - 1)) && (y1 >= (y2 + 1))) {
         --xd1;
         --xd2;
@@ -1495,7 +1497,7 @@ void map_move(mwin *win, XMotionEvent *ev)
     if(!x_is_map) {
         if(!no_sector) {
             sprintf(sector_win->info, "None");
-            sector_redraw_info(sector_win, FALSE);
+            sector_redraw_info(sector_win, false);
         }
 
         return;
@@ -1558,7 +1560,7 @@ void map_move(mwin *win, XMotionEvent *ev)
             x_prev_y = (int)y3;
         }
 
-        no_sector = FALSE;
+        no_sector = false;
 
         sprintf(sector_win->info,
                 "%2d,%-2d to %2d,%-2d",
@@ -1578,7 +1580,7 @@ void map_move(mwin *win, XMotionEvent *ev)
          * area, otherwise "None".
          */
         if((x3 >= 0) && (x3 < x_maxx) && (y3 >= 0) && (y3 < x_maxy)) {
-            no_sector = FALSE;
+            no_sector = false;
             x_prev_x = (int)x3;
             x_prev_y = (int)y3;
 
@@ -1588,7 +1590,7 @@ void map_move(mwin *win, XMotionEvent *ev)
         }
         else if(!x_is_pressed && !no_sector) {
             sprintf(sector_win->info, "None");
-            no_sector = TRUE;
+            no_sector = true;
         }
 
         if(x_is_pressed) {
@@ -1605,7 +1607,7 @@ void map_move(mwin *win, XMotionEvent *ev)
         }
     }
 
-    sector_redraw_info(sector_win, FALSE);
+    sector_redraw_info(sector_win, false);
 }
 
 void button_press(mwin *win, XButtonEvent *ev)
@@ -1646,11 +1648,11 @@ void button_press(mwin *win, XButtonEvent *ev)
                 }
             }
             else {
-                x_is_pressed = FALSE;
+                x_is_pressed = false;
             }
         }
         else {
-            x_is_pressed = FALSE;
+            x_is_pressed = false;
         }
     }
     else if(x_is_orbit) {
@@ -1661,7 +1663,7 @@ void button_press(mwin *win, XButtonEvent *ev)
         x_is_pressed = ev->button;
     }
     else {
-        x_is_pressed = FALSE;
+        x_is_pressed = false;
     }
 }
 
@@ -1773,7 +1775,7 @@ void button_release(mwin *win, XButtonEvent *ev)
             }
             else {
                 sprintf(sector_win->info, "%2d,%-2d", x_prev_x, x_prev_y);
-                sector_redraw_info(sector_win, FALSE);
+                sector_redraw_info(sector_win, false);
             }
 
             break;
@@ -1783,7 +1785,7 @@ void button_release(mwin *win, XButtonEvent *ev)
             }
             else {
                 sprintf(sector_win->info, "%2d,%-2d", x_prev_x, x_prev_y);
-                sector_redraw_info(sector_win, FALSE);
+                sector_redraw_info(sector_win, false);
             }
 
             break;
@@ -1798,7 +1800,7 @@ void button_release(mwin *win, XButtonEvent *ev)
         }
     }
 
-    x_is_pressed = FALSE;
+    x_is_pressed = false;
 }
 
 /*
@@ -1906,7 +1908,7 @@ void xmap_mover(int x, int y, int x2, int y2, char *u)
                      q->inverse);
 
             /* Update sector data from moved-to sector */
-            sector_redraw_info(sector_win, FALSE);
+            sector_redraw_info(sector_win, false);
 
             /* Update display */
             (*map_win->core.procs.expose)(map_win);
@@ -2028,7 +2030,7 @@ void xmap_deploy(int x, int y, int x2, int y2, char *u)
                      q->inverse);
 
             /* Update sector data for moved-to sector */
-            sector_redraw_info(sector_win, FALSE);
+            sector_redraw_info(sector_win, false);
 
             /* Update display */
             (*map_win->core.procs.expose)(map_win);
@@ -2120,7 +2122,7 @@ void add_input(char the_char)
 
     if(input_win->len <= 100) {
         i = input_win->len++;
-        
+
         while(i >= input_win->cur_char_pos) {
             input_win->info[i + 1] = input_win->info[i];
             --i;
@@ -2132,7 +2134,7 @@ void add_input(char the_char)
     }
 }
 
-void remove_input()
+void remove_input(void)
 {
     int i;
 
@@ -2148,15 +2150,15 @@ void remove_input()
     }
 }
 
-void do_input()
+void do_input(void)
 {
     /* Must be here to prevent prompt */
     add_history(input_win->info);
-    process_key(input_win->info, TRUE);
+    process_key(input_win->info, true);
     clear_input();
 }
 
-void clear_input()
+void clear_input(void)
 {
     input_win->len = 0;
     input_win->cur_char_pos = input_win->len;
@@ -2238,14 +2240,14 @@ void key_command(mwin *win, char cmd)
     return;
 }
 
-void mwin_event_loop()
+void mwin_event_loop(void)
 {
     widget *trv;
     int moo;
     XEvent ev;
     XEvent dummy;
 
-    if(Xavailable == FALSE) {
+    if(Xavailable == false) {
         return;
     }
 
@@ -2351,7 +2353,7 @@ void xmap_plot_orbit(char *t)
     }
 #endif
 
-    if((Xavailable == FALSE) || !(xmap_on & Do_Orbit)) {
+    if((Xavailable == false) || !(xmap_on & Do_Orbit)) {
         plot_orbit(t);
 
         return;
@@ -2384,7 +2386,7 @@ void xmap_plot_orbit(char *t)
     }
 
     xOrbit_head = NULL;
-    gave_msg = FALSE;
+    gave_msg = false;
 
     p = strchr(q, ';');
 
@@ -2395,7 +2397,7 @@ void xmap_plot_orbit(char *t)
         if(next_pos == NULL) {
             if(!gave_msg) {
                 msg("Unable to allocate orbit memory; functions may not work.");
-                gave_msg = TRUE;
+                gave_msg = true;
             }
 
             sscanf(q,
@@ -2434,7 +2436,7 @@ void xmap_plot_orbit(char *t)
             next_pos->next = NULL;
             cur_pos = next_pos;
         }
-        
+
         x = p + 1; /* New */
         p = strchr(q, ';');
     }
@@ -2457,9 +2459,9 @@ void xmap_plot_orbit(char *t)
 
     draw_name(map_win, x_scope);
     xmap_replot_orbit(xOrbit_head);
-    x_is_map = FALSE;
-    x_is_orbit = TRUE;
-    x_is_pressed = FALSE;
+    x_is_map = false;
+    x_is_orbit = true;
+    x_is_pressed = false;
 
     /* Clear out any leftover plaent stats */
     (*bottom_panel->core.procs.expose)(bottom_panel);
@@ -2482,7 +2484,7 @@ void xmap_replot_orbit(xOrb *head)
 #endif
 
 #ifdef ARRAY
-    /* Mirrors and Novae not longer supported */
+    /* Mirrors and Novae no longer supported */
     extern char *Novae[16][7];
     extern char *Mirror[8][5];
 #endif
@@ -2501,7 +2503,7 @@ void xmap_replot_orbit(xOrb *head)
     }
 
     while(cur_pos) {
-        not_ship = FALSE;
+        not_ship = false;
 
         switch(cur_pos->symbol) {
         case '*':
@@ -2519,7 +2521,7 @@ void xmap_replot_orbit(xOrb *head)
                 break;
             }
 
-            not_ship = TRUE;
+            not_ship = true;
         default:
             if((show_ships == ShowNoShips) && !not_ship) {
                 break;
@@ -2609,7 +2611,7 @@ int set_zoom(int x1, int y1, int x2, int y2)
         orb_max_x = max(x3, x4);
         orb_min_y = min(y3, y4);
         orb_max_y = max(y3, y4);
-        is_zoom = TRUE;
+        is_zoom = true;
 
         return 1;
     }
@@ -2631,7 +2633,7 @@ void xmap_plot_surface(char *t)
     }
 #endif
 
-    if((Xavailable == FALSE) || !(xmap_on & Do_Map)) {
+    if((Xavailable == false) || !(xmap_on & Do_Map)) {
         plot_surface(t);
 
         return;
@@ -2667,7 +2669,7 @@ void xmap_plot_surface(char *t)
  * Called after receiving client survey data; finish setting up
  * map_window and display map.
  */
-void xmap_plot_continue()
+void xmap_plot_continue(void)
 {
     xSector p;
     xSector *p = xcur_map.ptr;
@@ -2686,9 +2688,9 @@ void xmap_plot_continue()
 
     if(q == NULL) {
         msg("-- Xmap: map allocation failed.");
-        x_is_map = FALSE;
-        x_is_orbit = FALSE;
-        x_is_pressed = FALSE;
+        x_is_map = false;
+        x_is_orbit = false;
+        x_is_pressed = false;
         clear_window(map_win);
 
         return;
@@ -2719,16 +2721,16 @@ void xmap_plot_continue()
         add_recall(maplog, 0);
     }
 
-    x_is_map = TRUE;
-    x_is_orbit = FALSE;
-    x_is_pressed = FALSE;
+    x_is_map = true;
+    x_is_orbit = false;
+    x_is_pressed = false;
     x_maxx = xcur_map.maxx;
     x_maxy = xcur_map.maxy;
     (*bottom_panel->core.procs.expose)(bottom_panel);
     xmap_plot_redraw();
 }
 
-void xmap_plot_redraw()
+void xmap_plot_redraw(void)
 {
     xSector p;
     xSector *q = xcur_map.ptr;
@@ -2756,14 +2758,14 @@ void xmap_plot_redraw()
     }
 }
 
-/* TRUE if we're ready to take client survey data */
-int doing_xmap_command()
+/* true if we're ready to take client survey data */
+int doing_xmap_command(void)
 {
     if((x_is_map || is_xmap_survey) && xmap_on && xmap_active) {
-        return TRUE;
+        return true;
     }
     else {
-        return FALSE;
+        return false;
     }
 }
 
@@ -2892,7 +2894,7 @@ void process_xmap_survey(int num, char *s)
         if(p.mob < xcur_map.minmob) {
             xcur_map.minmob = p.mob;
         }
-        
+
         if(p.mob < xcur_map.minmil) {
             xcur_map.minmil = p.mil;
         }
@@ -3002,7 +3004,7 @@ char xmap_get_graph(int x, int y)
         else {
             i = ((p.frt - xcur_map.winfert) * 10) / (xcur_map.maxfert - xcur_map.minfert);
         }
-        
+
         break;
     case RES_GRAPH:
         if(xcur_map.maxres == xcur_map.minres) {
@@ -3011,7 +3013,7 @@ char xmap_get_graph(int x, int y)
         else {
             i = ((p.res - xcur_map.minres) * 10) / (xcur_map.maxres - xcur_map.minres);
         }
-        
+
         break;
     case EFF_GRAPH:
         if(xcur_map.maxeff == xcur_map.mineff) {
@@ -3020,7 +3022,7 @@ char xmap_get_graph(int x, int y)
         else {
             i = ((p.res - xcur_map.minerff) * 10) / (xcur_map.maxeff - xcur_map.mineff);
         }
-        
+
         break;
     case MOB_GRAPH:
         if(xcur_map.maxmob == xcur_map.minmob) {
@@ -3029,7 +3031,7 @@ char xmap_get_graph(int x, int y)
         else {
             i = ((p.res - xcur_map.minmob) * 10) / (xcur_map.maxmob - xcur_map.minmob);
         }
-        
+
         break;
     case MIL_GRAPH:
         if(xcur_map.maxmil == xcur_map.minmil) {
@@ -3038,7 +3040,7 @@ char xmap_get_graph(int x, int y)
         else {
             i = ((p.mil - xcur_map.minmil) * 10) / (xcur_map.maxmil - xcur_map.minmil);
         }
-        
+
         break;
     case POP_GRAPH:
         if(xcur_map.maxpopn == xcur_map.minpopn) {
@@ -3047,7 +3049,7 @@ char xmap_get_graph(int x, int y)
         else {
             i = ((p.civ - xcur_map.minpopn) * 10) / (xcur_map.maxpopn - xcur_map.minpopn);
         }
-        
+
         break;
     case MPOPN_GRAPH:
         if(xcur_map.maxmpopn == xcur_map.minmpopn) {
@@ -3056,50 +3058,50 @@ char xmap_get_graph(int x, int y)
         else {
             i = ((p.mpopn - xcur_map.minmpopn) * 10) / (xcur_map.maxmpopn - xcur_map.minmpopn);
         }
-        
+
         break;
     case GEOG_GRAPH:
-        
+
         return p.sectc;
     }
-    
+
     if(i == 10) {
         i = 9;
     }
-    
+
     switch(i) {
     case 0:
-        
+
         return '0';
     case 1:
-        
+
         return '1';
     case 2:
 
         return '2';
     case 3:
-        
+
         return '3';
     case 4:
-        
+
         return '4';
     case 5:
-        
+
         return '5';
     case 6:
-        
+
         return '6';
     case 7:
-        
+
         return '7';
     case 8:
-        
+
         return '8';
     case 9:
-        
+
         return '9';
     }
-    
+
     return p.des;
 }
 
@@ -3119,7 +3121,7 @@ widget *create_mwin(Display *dpy, widget *parent, int x, int y, int w, int h)
 
     if(win == NULL) {
         fprintf(stderr, "Map widget allocation failed\n");
-        Xavailable = FALSE;
+        Xavailable = false;
 
         return NULL;
     }
@@ -3180,7 +3182,7 @@ widget *create_panel(Display *dpy, widget *parent, int x, int y, int w, int h)
 
     if(win == NULL) {
         fprintf(stderr, "Panel widget allocation failed\n");
-        Xavailable = FALSE;
+        Xavailable = false;
 
         return NULL;
     }
@@ -3255,7 +3257,7 @@ widget *create_button(Display *dpy, widget *parent, int x, int y, int w, int h)
 
     if(win == NULL) {
         fprintf(stderr, "Button widget allocation failed\n");
-        Xavailable = FALSE;
+        Xavailable = false;
 
         return NULL;
     }
@@ -3330,7 +3332,7 @@ widget *create_input(Display *dpy, widget parent, int x, int y, int w, int h)
 
     if(win == NULL) {
         fprintf(stderr, "Input widget allocation failed\n");
-        Xavailable = FALSE;
+        Xavailable = false;
 
         return NULL;
     }
@@ -3405,7 +3407,7 @@ widget *create_sector(Display *dpy, widget *parent, int x, int y, int w, int h)
 
     if(win == NULL) {
         fprintf(stderr, "Sector widget allocation failed\n");
-        Xavailable = FALSE;
+        Xavailable = false;
 
         return NULL;
     }
@@ -3520,20 +3522,20 @@ void setup_button(but_win *win, char *name, int tog, function proc, int graph)
     win->graph_type = graph;
 }
 
-void make_mwin()
+void make_mwin(void)
 {
     widget_list = NULL;
-    x_is_map = FALSE;
-    x_is_orbit = FALSE;
-    x_is_redraw = FALSE;
-    no_sector = TRUE;
+    x_is_map = false;
+    x_is_orbit = false;
+    x_is_redraw = false;
+    no_sector = true;
     x_maxx = 0;
     x_maxy = 0;
-    Xavailable = TRUE;
+    Xavailable = true;
     mdpy = XOpenDisplay("");
 
     if(mdpy == NULL) {
-        Xavailable = FALSE:
+        Xavailable = false:
     }
     else {
         create_gcs(mdpy);
@@ -3839,10 +3841,10 @@ void make_mwin()
     MapWidget(map_win->core);
 
     x_graph_type = 0;
-    xmap_active = TRUE;
+    xmap_active = true;
 }
 
-void empty_proc()
+void empty_proc(void)
 {
 }
 
@@ -3902,7 +3904,7 @@ void cmd_xmap(void)
     /* If XMAP is on, then turn it off. */
     if(xmap_active) {
         XCloseDisplay(mdpy);
-        xmap_active = FALSE;
+        xmap_active = false;
     }
     else {
         make_mwin();

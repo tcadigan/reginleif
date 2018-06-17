@@ -1,7 +1,7 @@
 /*
  * util.c: Parsing of socket output checking for lines to gag. Maintains the
- *         list of input commands (history and recall). Handles the macro 
- *         lists. Handles the queueing of commands for sending to socket. 
+ *         list of input commands (history and recall). Handles the macro
+ *         lists. Handles the queueing of commands for sending to socket.
  *         Handles the read news routines.
  *
  * Written by Evan D. Koffler <evank@netcom.com>
@@ -10,14 +10,16 @@
  *
  * See the COPYRIGHT file.
  */
+#include "util.h"
 
+#include "args.h"
 #include "gb.h"
-#include "proto.h"
 #include "str.h"
 #include "types.h"
 #include "vars.h"
 
 #include <malloc.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -58,8 +60,8 @@ Node *queue_head = NULL; /* Input/back of line */
 Node *queue_tail = NULL; /* Output/front of line */
 Node *sec_queue_head = NULL; /* Secondary for process */
 Node *sec_queue_tail = NULL;
-int queue_sending = FALSE; /* Flag to send through send_gb in socket code */
-int queue_clear = FALSE; /* Clear queue upon return */
+int queue_sending = false; /* Flag to send through send_gb in socket code */
+int queue_clear = false; /* Clear queue upon return */
 
 /* Variables for news */
 extern RNode *find_news(char *date, char *line);
@@ -96,7 +98,7 @@ int match_gag(char *pat)
     Gag *p;
 
     for(p = gag_head; p; p = p->next) {
-        if(MATCH(pat, p->name)) {
+        if (pattern_match(pat, p->name, pattern)) {
             return 1;
         }
     }
@@ -277,7 +279,7 @@ Gag *find_gag(char *name)
 
     p = gag_head;
 
-    while(p && !streq(name, p->name)) {
+    while (p && strcmp(name, p->name)) {
         p = p->next;
     }
 
@@ -347,20 +349,20 @@ void free_history(void)
 int recallf(char *line)
 {
     if(!hist_head || !hist_recall || !hist_recall->next) {
-        return FALSE;
+        return false;
     }
 
     hist_recall = hist_recall->next;
     strcpy(line, hist_recall->line);
 
-    return TRUE;
+    return true;
 }
 
 /* Recall one line back in the history list. ctrl-p is the usual key */
 int recallb(char *line)
 {
     if(!hist_head) {
-        return FALSE;
+        return false;
     }
 
     if(!hist_recall) {
@@ -368,7 +370,7 @@ int recallb(char *line)
     }
     else {
         if(!hist_recall->prev) {
-            return FALSE;
+            return false;
         }
 
         hist_recall = hist_recall->prev;
@@ -376,7 +378,7 @@ int recallb(char *line)
 
     strcpy(line, hist_recall->line);
 
-    return TRUE;
+    return true;
 }
 
 /* Recall routines */
@@ -412,7 +414,7 @@ void recall(int n, int type)
         else {
             msg("%s", temp->line);
         }
-        
+
         temp = temp->next;
     }
 
@@ -458,7 +460,7 @@ void recall_n_m(int n, int m, int type)
         else {
             msg("%s", p->line);
         }
-        
+
         p = p->next;
         --dist;
     }
@@ -528,7 +530,7 @@ void free_recall(void)
 
 /*
  * Recalls all nodes from recall list matching <args> utilizes the
- * MATCH function.
+ * pattern_match function.
  */
 void recall_match(char *args, int type)
 {
@@ -539,7 +541,7 @@ void recall_match(char *args, int type)
             continue;
         }
 
-        if(MATCH(p->line, args)) {
+        if (pattern_match(p->line, args, pattern)) {
             msg("%s", p->line);
         }
     }
@@ -568,7 +570,7 @@ void history_sub(char *args)
     *p = '\0';
     sprintf(pat, "*%s*", args);
 
-    if(!MATCH(hist_cur->prev->line, pat)) {
+    if (!pattern_match(hist_cur->prev_line, pat, pattern)) {
         msg("-- Modifier failed.");
 
         return;
@@ -576,7 +578,7 @@ void history_sub(char *args)
     else {
         sprintf(buf, "%s%s%s", pattern1, p + 1, pattern2);
         msg("%s", buf);
-        procesS_key(buf, FALSE);
+        procesS_key(buf, false);
         add_history(buf);
     }
 }
@@ -634,7 +636,7 @@ void cmd_def(char *args)
     char *action;
     char fmtact[MAXSIZ];
     int carg = 1;
-    int edit = FALSE;
+    int edit = false;
 
     name = get_args(carg, 0);
 
@@ -644,7 +646,7 @@ void cmd_def(char *args)
         return;
     }
 
-    if(streq(name, "edit")) {
+    if (!strcmp(name, "edit")) {
         msg("-- alias: %s is an invalid macro name since it is an option.", name);
         strfree(name);
 
@@ -657,9 +659,9 @@ void cmd_def(char *args)
         return;
     }
     else if(*name == '-') { /* -macro will delete the macro from the list */
-        if(streq(name + 1, "edit")) {
+        if (!strcmp(name + 1, "edit")) {
             ++carg;
-            edit = TRUE;
+            edit = true;
             strfree(name);
             name = get_args(carg, 0);
         }
@@ -774,7 +776,7 @@ void cmd_def(char *args)
     strcpy(action, fmtact);
     new->name = name;
     new->action = action;
-    new->flag = FALSE;
+    new->flag = false;
     def_update_index();
     msg("-- Alias(#%d): \'%s\' \'%s\'", new->indx, new->name, new->action);
     sprintf(fmtact, "#%d", new->indx);
@@ -848,14 +850,14 @@ int do_macro(char *str)
 
     /* Silent macro */
     if(*name == '-') {
-        silent = TRUE;
+        silent = true;
         ++name;
     }
 
     macro_ptr = find_macro(name);
 
     if(!macro) {
-        return FALSE;
+        return false;
     }
 
     r = parse_macro_args(macro_ptr->action, args);
@@ -882,7 +884,7 @@ int do_macro(char *str)
 
     strfree(r);
 
-    return TRUE;
+    return true;
 }
 
 /* List macros by name */
@@ -992,7 +994,7 @@ void cmd_game(char *args)
                  sub4);
 
     if(cnt > 3) {
-        if(streq(type, "plain")) {
+        if (!strcmp(type, "plain")) {
             switch(cnt) {
             case 5:
                 *sub2 = '\0';
@@ -1010,8 +1012,7 @@ void cmd_game(char *args)
             }
 
             return;
-        }
-        else if(streq(type, "chap")) {
+        } else if (!strcmp(type, "chap")) {
             if(cnt == 8) {
                 add_game(nick, host, port, type, sub1, sub2, sub3, sub4);
             }
@@ -1091,13 +1092,12 @@ void add_game(char *nick,
     p->govname = string(govname);
     p->secpassword = string(secpasswd);
 
-    if(streq(type, "chap")) {
+    if (!strcmp(type, "chap")) {
         msg("-- Game: %s added. %s %s with CHAP authentication.",
             p->nick,
             p->host,
             p->port);
-    }
-    else if(streq(type, "plain")) {
+    } else if (!strcmp(type, "plain")) {
         /*
          * msg("-- Game: %s added. %s %s with password: %s %s",
          *     p->nick,
@@ -1110,8 +1110,7 @@ void add_game(char *nick,
             p->nick,
             p->host,
             p->port);
-    }
-    else if(streq(type, "none")) {
+    } else if (!strcmp(type, "none")) {
         msg("-- Game: %s added. %s %s with no authentication method.",
             p->nick,
             p->host,
@@ -1192,10 +1191,10 @@ Game *find_game(char *nick)
     Game *gp = game_head;
 
     while(gp) {
-        if(streq(gp->nick, nick)) {
+        if (!strcmp(gp->nick, nick)) {
             return gp;
         }
-        
+
         gp = gp->next;
     }
 
@@ -1226,7 +1225,7 @@ void cmd_listgame(void)
             p->port,
             p->pripassword,
             p->secpassword);
-        
+
         p = p->next;
     }
 
@@ -1269,7 +1268,7 @@ void save_games(FILE *fd)
                 p->port,
                 p->pripassword,
                 p->secpassword);
-        
+
         p = p->next;
     }
 }
@@ -1281,15 +1280,14 @@ void send_password(void)
 
     debug(1, "send_password() type: %s", cur_game.game.type);
 
-    if(streq(cur_game.game.type, "plain")) {
+    if (!strcmp(cur_game.game.type, "plain")) {
         sprintf(pass,
                 "%s %s\n",
                 cur_game.game.pripassword,
                 cur_game.game.secpassword);
 
         send_gb(pass, strlen(pass));
-    }
-    else if(streq(cur_game.game.type, "chap")) {
+    } else if (!strcmp(cur_game.game.type, "chap")) {
         /* Do nothing, handled in connect_promps() -mfw */
     }
     else {
@@ -1304,7 +1302,7 @@ void add_queue(char *args, int wait)
 {
     Node *p;
 
-    if((*args == '\n') || streq(args, "")) {
+    if ((*args == '\n') || !strcmp(args, "")) {
         return;
     }
 
@@ -1370,9 +1368,9 @@ void process_queue(char *s)
     queue_head = NULL;
 
     debug(3, "process_queue: %s", s);
-    queue_sending = TRUE;
-    process_key(s, FALSE);
-    queue_sending = FALSE;
+    queue_sending = true;
+    process_key(s, false);
+    queue_sending = false;
 
     /* Old queue exists, place back in line, q is front of old */
     if(sec_queue_tail) {
@@ -1391,7 +1389,7 @@ void process_queue(char *s)
 }
 
 /*
- * Returns TRUE if the queue exists, otherwise FALSE. Returns TRUE
+ * Returns true if the queue exists, otherwise false. Returns true
  * also if we are not connected to a gb server so that the queue
  * doesn't block output on other connections (or lack of connections).
  */
@@ -1401,38 +1399,38 @@ int check_queue(void)
 
     /* No queue */
     if(!queue_head) {
-        return FALSE;
+        return false;
     }
 
     /*
-     * Is socket connected? If no, TRUE.
-     * Is it gb? If no, then TRUE.
-     * Are we doing queue? If no, then TRUE.
+     * Is socket connected? If no, true.
+     * Is it gb? If no, then true.
+     * Are we doing queue? If no, then true.
      */
     if(is_connected() && !NOTGB() && !do_queue) {
-        return FALSE;
+        return false;
     }
 
     /* Else do the queue */
-    return TRUE;
+    return true;
 }
 
 int have_queue(void)
 {
     if(queue_head || sec_queue_head) {
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 int do_clear_queue(void)
 {
     if(queue_head && queue_clear) {
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 /* Removes all nodes from the queue */
@@ -1444,7 +1442,7 @@ void clear_queue(void)
         remove_queue(buf);
     }
 
-    queue_clear = FALSE;
+    queue_clear = false;
 }
 
 /* News routines */
@@ -1454,18 +1452,17 @@ void check_news(char *s)
 {
     bulletin = 0;
 
-    if(streq(s, "The Galactic News")) {
+    if (!strcmp(s, "The Galactic News")) {
         ICOMM_STATE = S_PROC;
-        ICOMM_IGNORE = TRUE;
+        ICOMM_IGNORE = true;
     }
     else if(*s == '-') {
         ICOMM_STATE = S_PROC;
-        ICOMM_IGNORE = TRUE;
-    }
-    else if(streq(s, "<Output Flushed>")) {
+        ICOMM_IGNORE = true;
+    } else if (!strcmp(s, "<Output Flushed>")) {
         bulletin = 1;
         ICOMM_STATE = S_PROC;
-        ICOMM_IGNORE = TRUE;
+        ICOMM_IGNORE = true;
     }
 
     /*
@@ -1523,7 +1520,10 @@ int add_news(char *s)
 
     p = find_news(date, line);
 
-    if(((bulletin != 4) || streqrn(line, "Server") || streqrn(line, "Shutdown")) && p) {
+    if (((bulletin != 4)
+         || !strncmp(line, "Server", strlen("Server"))
+         || !strncmp(line, "Shutdown", strlen("Shutdown")))
+        && p) {
         ++(p->count);
         strcpy(p->ltime, time);
 
@@ -1556,7 +1556,7 @@ RNode *find_news(char *date, char *line)
 
     p = rhead;
 
-    while(p && (!streq(date, p->date) || !streq(line, p->line))) {
+    while (p && (strcmp(date, p->date) || strcmp(line, p->line))) {
         p = p->next;
     }
 

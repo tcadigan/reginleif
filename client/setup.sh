@@ -214,7 +214,7 @@ if [ "$index" = FALSE ]; then
     fi
 fi
 
-rp='Do yo uwish to have XMAP (y/n) [n]: '
+rp='Do you wish to have XMAP (y/n) [n]: '
 echo $n "$rp $c"
 read answer
 echo ""
@@ -632,7 +632,7 @@ if [ "$compile" = TRUE ]; then
         makestatus=FALSE
         echo ""
         echo ""
-        echo "A problem hsa occurred in making the client."
+        echo "A problem has occurred in making the client."
         echo "Please report any problems or fixes to the author."
         echo "Email address is: $email"
         echo ""

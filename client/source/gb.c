@@ -9,49 +9,41 @@
  */
 #include "gb.h"
 
-#include <ctype.h>
-#include <memory.h>
-#include <pwd.h>
-#include <setjmp.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/errno.h>
-#include <sys/stat.h>
-#include <sys/time.h>
-#include <sys/types.h>
-
-#ifdef __hpux
-#include <unistd.h>
-#endif
-
 #include "ansi.h"
-#include "proto.h"
+#include "args.h"
+#include "bind.h"
+#include "command.h"
+#include "crypt.h"
+#include "csp.h"
+#include "icomm.h"
+#include "imap.h"
+#include "key.h"
+#include "load.h"
+#include "option.h"
+#include "proc.h"
+#include "socket.h"
+#include "status.h"
+#include "stmt.h"
 #include "str.h"
-#include "terms.h"
 #include "types.h"
-#include "vars.h"
+#include "util.h"
 
 #ifdef XMAP
 #include "xmap.h"
 #endif
+
+#include <errno.h>
+#include <ctype.h>
+#include <pwd.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <setjmp.h>
 
 #define REFRESH_TIME_IMAP 30000 /* When in imap */
 #define REFRESH_TIME_NORM 80000
 #define REFRESH_TIME_LONG 150000
 #define MAX_QUEUE_COMMANDS 10
 #define MAX_SOCKET_COMMANDS 3
-
-#ifndef FD_ZERO
-#define DESCR_MASK int
-#define FD_ZERO(A) (*(A) = 0)
-#define FD_SET(A, B) (*(B) |= (1 << (A)))
-#define FD_ISSET(A, B) (*(B) & (1 << (A)))
-
-#else
-
-#define DESCR_MASK fd_set
-
-#endif
 
 extern char last_prompt[];
 extern long last_no_logout_time; /* For no_logout */
@@ -63,25 +55,25 @@ extern long map_time;
 int errno;
 static jmp_buf int_jmp;
 static int nfds;
-struct logstruct logfile = { (FILE *)NULL, "", FALSE, FALSE, LOG_OFF };
+struct logstruct logfile = { (FILE *)NULL, "", false, false, LOG_OFF };
 struct scopestruct scope;
-struct waitforstruct wait_csp = { 0, 0, FALSE, "" };
+struct waitforstruct wait_csp = { 0, 0, false, "" };
 
 struct morestruct more_val = {
     MORE_DEFAULT_QUITCH,
-    MORE_DEFAULT_CLREACH,
+    MORE_DEFAULT_CLEARCH,
     MORE_DEFAULT_CANCELCH,
     MORE_DEFAULT_NONSTOPCH,
     MORE_DEFAULT_FORWARDCH,
     MORE_DEFAULT_ONELINECH,
     21,
     MORE_DELAY,
-    FALSE,
+    false,
     0,
     0,
-    FALSE,
-    FALSE,
-    FALSE
+    false,
+    false,
+    false
 };
 
 struct statusstruct status = {
@@ -94,7 +86,7 @@ struct statusstruct status = {
 
 struct profilestruct profile;
 struct racestruct races[MAX_NUM_PLAYERS];
-struct input_modestruct input_mode = { EDIT_INSERT, FALSE, FALSE, FALSE, PROMPT_OFF, 0 };
+struct input_modestruct input_mode = { EDIT_INSERT, false, false, false, PROMPT_OFF, 0 };
 struct sector_typestruct sector_type[SECTOR_MAX];
 ServInfo servinfo = { 0, 0 };
 CurGame cur_game;
@@ -147,33 +139,29 @@ char *progname;
 char *shell; /* User's preferred shell */
 char *shell_flags;
 char **refresh_line;
-char **race_colors[MAX_RCOLORS];
+char *race_colors[MAX_RCOLORS];
 
-#ifdef RWHO
-struct rwhostruct rwho;
-#endif
-
-int action_match_suppress = FALSE; /* String is user(keyboard) definition */
+int action_match_suppress = false; /* String is user(keyboard) definition */
 int client_stats = L_NOTHING; /* Stats of the client */
-int detached = FALSE;
-int do_queue = TRUE; /* For the queue */
+int detached = false;
+int do_queue = true; /* For the queue */
 int end_prompt = NOT_PROMPT;
-int exit_now = FALSE;
+int exit_now = false;
 int game_type = GAME_NOTGB;
 int gb = -1; /* Socket descriptor */
-int gb_close_socket = FALSE;
-int hide_input = FALSE; /* Secret/password typing */
-int input_file = FALSE; /* -e flag for redirected file */
+int gb_close_socket = false;
+int hide_input = false; /* Secret/password typing */
+int input_file = false; /* -e flag for redirected file */
 int msg_type = MSG_NONE;
-int prompt_return = FALSE;
-int paused = FALSE;
-int queue_wait = TRUE; /* Wait only when a %l or %b */
-int quit_all = FALSE;
-int racegen = FALSE;
+int prompt_return = false;
+int paused = false;
+int queue_wait = true; /* Wait only when a %l or %b */
+int quit_all = false;
+int racegen = false;
 int reconnect_delay = REPEAT_SLEEP_TIME;
-int socket_return = FALSE; /* waitfor_csp return flag */
+int socket_return = false; /* waitfor_csp return flag */
 int csp_server_vers = 0;
-int robo = FALSE;
+int robo = false;
 int wait_status = WAIT_NONE;
 long boot_time = -1;
 long connect_time = -1;
@@ -181,11 +169,11 @@ long now;
 long then = -1; /* Initialize */
 
 #ifdef CLIENT_DEVEL
-int client_devel = FALSE;
+int client_devel = false;
 #endif
 
 #ifdef XMAP
-int xmap_active = FALSE;
+int xmap_active = false;
 
 extern void mwin_event_loop();
 extern void makw_mwin();
@@ -220,8 +208,8 @@ int main(int argc, char *argv[])
 {
     char *env;
     Game *game;
-    int allow_init_file = TRUE;
-    int editclient = FALSE;
+    int allow_init_file = true;
+    int editclient = false;
 
     /* Set up game struct */
     game = (Game *)NULL;
@@ -246,7 +234,7 @@ int main(int argc, char *argv[])
     cur_game.game.pripassword = string("");
     cur_game.game.secpassword = string("");
     cur_game.game.nick = string("");
-    strcpy(las_prompt, "Not Connected");
+    strcpy(last_prompt, "Not Connected");
 
     /* Check user's environment */
     env = getenv("GBHOST");
@@ -323,6 +311,7 @@ int main(int argc, char *argv[])
 
     setjmp(int_jmp);
     init_key();
+    init_binding();
 
     /* Fixed inits */
     init_refresh_lines();
@@ -336,7 +325,7 @@ int main(int argc, char *argv[])
      * Pre-defined assigns so $vars can be used in macros and to maintain
      * backward compatibility
      */
-    init_assign(TRUE);
+    init_assign(true);
     ICOMM_INITIALIZE();
 
     term_clear_screen();
@@ -353,12 +342,12 @@ int main(int argc, char *argv[])
         strcpy(gbrc_path, DEFAULT_GBRC_PATH);
 
 #else
-        
+
         strcpy(gbrc_path, "~/.gbrc");
 #endif
     }
 
-    set_display("off");
+    toggle((int *)"off", DISPLAYING, "display");
 
     while((--argc > 0) && ((*++argv)[0] == '-')) {
         while(*++(*argv)) {
@@ -372,17 +361,17 @@ int main(int argc, char *argv[])
 
                 break;
             case 'e':
-                input_file = TRUE;
+                input_file = true;
 
                 break;
             case 'f':
-                allow_init_file = FALSE;
+                allow_init_file = false;
 
                 break;
             case 'i':
 #ifndef RESTRICTED_ACCESS
                 load_predefined(*argv + 1);
-                
+
                 while(*++(*argv)) {
                     ;
                 }
@@ -393,7 +382,7 @@ int main(int argc, char *argv[])
                 break;
             case 'l':
                 CLR_BIT(options, DISPLAY_TOP);
-                set_display("on");
+                toggle((int *)"on", DISPLAYING, "display");
                 cmd_listgame();
                 quit_gb(0, "", NULL, NULL);
 
@@ -412,7 +401,7 @@ int main(int argc, char *argv[])
                 break;
             case 'v':
                 CLR_BIT(options, DISPLAY_TOP);
-                set_display("on");
+                toggle((int *)"on", DISPLAYING, "display");
                 cmd_version("");
                 quit_gb(-1, "", NULL, NULL);
 
@@ -420,12 +409,12 @@ int main(int argc, char *argv[])
                 break;
 #ifdef XMAP
             case 'x':
-                xmap_active = TRUE;
+                xmap_active = true;
 
                 break;
 #endif
             case 'E':
-                editclient = TRUE;
+                editclient = true;
 
                 break;
             case 'R':
@@ -434,7 +423,7 @@ int main(int argc, char *argv[])
                 break;
 #ifdef CLIENT_DEVEL
             case 'D':
-                client_devel = TRUE;
+                client_devel = true;
 
                 break;
 #endif
@@ -452,7 +441,7 @@ int main(int argc, char *argv[])
             case '?':
             default:
                 CLR_BIT(options, DISPLAY_TOP);
-                set_display("on");
+                toggle((int *)"on", DISPLAYING, "display");
                 msg("-- Usage: %s [-adehlrsvER?] [-e<filename>] [-i<filename>] [-V<version#>] [host | nick] [port]", progname);
                 msg("  -a      toggles autologin");
                 msg("  -d      toggles display_from_top");
@@ -469,7 +458,8 @@ int main(int argc, char *argv[])
                 msg("  -E      edit mode. Enters %s, without connecting to a game", progname);
                 msg("  -R      toggles raw mode");
 #ifdef CLIENT_DEVEL
-                msg("  -D      eneable developer informative output");
+                msg("  -D      enable developer informative output");
+#endif
                 msg("  -e<filename>  will use <filename> as a script for reading input");
                 msg("  -i<filename>  will start %s with filename as an init file", progname);
                 msg("  -V<version#>  for backwards compatibility");
@@ -482,11 +472,11 @@ int main(int argc, char *argv[])
         }
     }
 
-    /* Needs to be her in case of -f argument */
+    /* Needs to be here in case of -f argument */
     if(allow_init_file) {
-        set_display("on");
+        toggle((int *)"on", DISPLAYING, "display");
         load_predefined(gbrc_path);
-        set_display("off");
+        toggle((int *)"off", DISPLAYING, "display");
     }
 
     while((argc > 0) && *argv) {
@@ -506,7 +496,7 @@ int main(int argc, char *argv[])
                 game = find_game(*argv);
 
                 if(!game) {
-                    strfree(cur_ganme.game.host);
+                    strfree(cur_game.game.host);
                     cur_game.game.host = string(*argv);
                 }
                 else {
@@ -524,7 +514,7 @@ int main(int argc, char *argv[])
 
                     strfree(cur_game.game.pripassword);
                     cur_game.game.pripassword = string(game->pripassword);
-                    add_assign("pripassword", game->password);
+                    add_assign("pripassword", game->pripassword);
 
                     strfree(cur_game.game.secpassword);
                     cur_game.game.secpassword = string(game->secpassword);
@@ -553,7 +543,7 @@ int main(int argc, char *argv[])
 
         if(!game) {
             /* Nope, no game, just enter in edit mode */
-            editclient = TRUE;
+            editclient = true;
             strfree(cur_game.game.host);
             cur_game.game.host = string("");
         }
@@ -579,7 +569,7 @@ int main(int argc, char *argv[])
             cur_game.game.secpassword = string(game->secpassword);
             add_assign("secpassword", game->secpassword);
 
-            strfree(curgame.game.nick);
+            strfree(cur_game.game.nick);
             cur_game.game.nick = string(game->nick);
             add_assign("game_nick", game->nick);
             SET_BIT(options, AUTOLOGIN);
@@ -602,7 +592,7 @@ int main(int argc, char *argv[])
     }
 
     /* We are initialized and booted, so let's go on! */
-    set_display("on");
+    toggle((int *)"on", DISPLAYING, "display");
     client_stats = L_BOOTED;
     boot_time = time(0);
 
@@ -610,7 +600,7 @@ int main(int argc, char *argv[])
     force_update_status();
 
     /* Clean input line */
-    cancel_input();
+    cancel_input('\0');
 
 #ifdef XMAP
     if(xmap_active) {
@@ -677,7 +667,7 @@ int main(int argc, char *argv[])
         debug(1, "main(): gbII connected, descriptor value: %d", gb);
 
         if(gb > 0) {
-            add_assign("connected", "TRUE");
+            add_assign("connected", "true");
         }
     }
     else {
@@ -693,7 +683,7 @@ int main(int argc, char *argv[])
         close_gb();
     }
 
-    quite_gb(0, GBSAYING, NULL, NULL);
+    quit_gb(0, GBSAYING, NULL, NULL);
 
     return 0;
 }
@@ -702,8 +692,8 @@ int main(int argc, char *argv[])
 void gbs(void)
 {
     int count;
-    DESCR_MASK rd;
-    DESCR_MASK except;
+    fd_set rd;
+    fd_set except;
     struct timeval refresh_time;
     struct timeval *timev;
     char buf[MAXSIZ];
@@ -862,16 +852,16 @@ void gbs(void)
 
         check_no_logout();
 
-        if(gb_close_socket == GB_CLOSE_SOCKET_DISPLAY) {
+        if(gb_close_socket == GB_CLOSE_SOCKET_DELAY) {
             close_gb();
-            gb_close_socket = FALSE;
+            gb_close_socket = false;
 
             if(quit_all) {
-                exit_now = TRUE;
+                exit_now = true;
             }
         }
-        else if((gb_close_socket == FALSE) && quit_all) {
-            exit_now = TRUE;
+        else if((gb_close_socket == false) && quit_all) {
+            exit_now = true;
         }
 
         fflush(stdout);
@@ -883,10 +873,8 @@ void gbs(void)
  * function client_test (i.e. bind ESC-t client-test). It is used for internal
  * testing and aiding in debugging.
  */
-void test_client(void)
+void test_client(char ch)
 {
-    extern void crypt_test(void);
-
     crypt_test();
     msg("-- done with client test.");
 }

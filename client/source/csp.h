@@ -9,6 +9,52 @@
  *    evank@netcom.com
  *    deragon@jethro.nyu.edu
  */
+#ifndef CSP_H_
+#define CSP_H_
+
+#include "types.h"
+
+void process_special(char *s);
+int cspr_qsort_cmp(void const *a, void const *b);
+int csps_qsort_cmp(void const *a, void const *b);
+void init_csp(void);
+void cspr_backup_end(int cnum, char *line);
+void cspr_update_end(int cnum, char *line);
+void cspr_segment_end(int cnum, char *line);
+void cspr_map(int cnum, char *line);
+char *get_map_info_buf(int cnt, Pmap *map);
+void cspr_ping(int cnum, char *line);
+void cspr_pause(int cnum, char *line);
+void cspr_survey(int cnum, char *line);
+void cspr_updates_suspended(int cnum, char *line);
+void cspr_updates_resumed(int cnum, char *line);
+void cspr_knowledge(int cnum, char *line);
+void cspr_err(int cnum, char *line);
+CSPSendVal *csps_binary_search(int cnum);
+CSPReceiveVal *cspr_binary_search(int cnum);
+void waitFor(char *buf, int lo, int hi);
+int csp_send_request(int comm_num, char *buf);
+void cspr_profile(int cnum, char *line);
+void csp_profile_output(Profile *prof);
+void cspr_relation(int cnum, char *line);
+void cspr_print(int cnum, char *line);
+void cspr_client_on(int cnum, char *line);
+void cspr_client_off(int cnum, char *line);
+void cspr_event(int cnum, char *line);
+void cspr_scope_prompt(int cnum, char *line);
+void cspr_explore(int cnum, char *line);
+void cspr_who(int cnum, char *line);
+char *csps_relation(char *s);
+char *csps_knowledge(char *s);
+char *csps_login(char *s);
+char *csps_map(char *s);
+char *csps_ping(char *s);
+char *csps_survey(char *s);
+char *csps_null(char *s);
+void csp_msg(char *fmt, ...);
+void cspr_orbit(int cnum, char *line);
+void plot_orbit_object(void);
+void orbit_info_box(void);
 
 /*---- Server responses ----*/
 
@@ -48,9 +94,9 @@
 #define CSP_RELATION_DATA  202 /* The data */
 #define CSP_RELATION_END   203 /* End of command (EOC) */
 
-/* 
+/*
  * PROFILE
- * DYNAMIC = Active Knowledge Capital Morale Cun GTele STele 
+ * DYNAMIC = Active Knowledge Capitol Morale Gun GTele STele
  * DYNAMIC_OTHER = %Know Morale Gun GTele OTele SecPref
  */
 #define CSP_PROFILE_INTRO         301 /* Header */
@@ -168,7 +214,7 @@
 #define CSP_SHIPDUMP_DEST        2035 /* Destination information */
 #define CSP_SHIPDUMP_PTACT_GEN   2036 /* General planet tactical */
 #define CSP_SHIPDUMP_PTACT_PDIST 2037 /* Distance between planets */
-#define CSP_SHIPDUMP_STACT_PDITS 2038 /* Distance between a ship */
+#define CSP_SHIPDUMP_STACT_PDIST 2038 /* Distance between a ship */
 #define CSP_SHIPDUMP_PTACT_INFO  2039 /* For a ship from a planet */
 #define CSP_SHIPDUMP_STACT_INFO  2040 /* For a ship from a ship */
 #define CSP_SHIPDUMP_ORDERS      2041 /* Ship orders */
@@ -180,7 +226,7 @@
 /* Ship list */
 #define CSP_SHIPLIST_INTRO 3000 /* General info */
 #define CSP_SHIPLIST_DATA  3001 /* A shipno - this will repeat for each ship in star */
-#define CSP_SHIPLIST_END   3002 /* Don. In case client is waiting for a signal */
+#define CSP_SHIPLIST_END   3002 /* Done. In case client is waiting for a signal */
 
 #define CSP_STARDUMP_INTRO     4000
 #define CSP_STARDUMP_CONDITION 4001
@@ -194,3 +240,5 @@
 
 #define CSP_SECTORS_INTRO 4100
 #define CSP_SECTORS_END   4101
+
+#endif // CSP_H_

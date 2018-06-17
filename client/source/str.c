@@ -8,13 +8,16 @@
  *
  * See the COPYRIGHT file.
  */
+#include "str.h"
 
+#include "action.h"
 #include "ansi.h"
 #include "gb.h"
-#include "proto.h"
 #include "term.h"
 #include "types.h"
 #include "vars.h"
+
+#include <stdbool.h>
 
 extern int errno;
 /* Using strerror() now -mfw */
@@ -24,7 +27,7 @@ extern int kill_socket_output;
 extern int pipe_output;
 extern int pipe_running;
 
-int kill_client_output = FALSE;
+int kill_client_output = false;
 int refresh_next = 0;
 int debug_level = 0;
 char *client_prompt;
@@ -63,15 +66,6 @@ char *pattern[] = {
     pattern13, pattern14, pattern15, pattern16,
     pattern17, pattern18, pattern19, pattern10
 };
-
-#ifndef CYGWIN
-extern char *strncpy(char *, const char *, size_t);
-extern int fflush(FILE *);
-extern int fprintf(FILE *, const char *, ...);
-extern int strncmp(const char *, const char *, size_t);
-extern int toupper(int);
-extern time_t time(time_t *);
-#endif
 
 char *skip_space(char *s);
 void add_refresh_line(char *s, int cnt);
@@ -204,7 +198,7 @@ char *skip_space(char *s)
 
 /*
  * fstring: Prepares a string, generally for writing to a file, by doubling up
- *          the backslashes. Generated so strings could be read in correctly 
+ *          the backslashes. Generated so strings could be read in correctly
  *          from the GBRC
  */
 char *fstring(char *str)
@@ -345,7 +339,7 @@ int wrap(char *line)
     char ch;
     char *p;
     int i;
-    int first_line = TRUE;
+    int first_line = true;
     int num_lines = 0;
     int len;
     int flag = 0;
@@ -425,7 +419,7 @@ int wrap(char *line)
                 strncpy(out + 1, p, num_columns - 1);
             }
             else {
-                first_line = FALSE;
+                first_line = false;
                 strncpy(out, p, num_columns);
             }
 
@@ -453,7 +447,7 @@ int wrap(char *line)
             ++len;
         }
         else {
-            first_line = FALSE;
+            first_line = false;
             strncpy(out, temp, len);
         }
 
@@ -495,7 +489,7 @@ int wrap(char *line)
                     strncpy(out + 1, p, num_columns - 1);
                 }
                 else {
-                    first_line = FALSE;
+                    first_line = false;
                     strncpy(out, p, num_columns);
                 }
 
@@ -524,7 +518,7 @@ int wrap(char *line)
                 ++len;
             }
             else {
-                first_line = FALSE;
+                first_line = false;
                 strncpy(out, temp, len);
             }
 
@@ -550,7 +544,7 @@ int wrap(char *line)
             ++len;
         }
         else {
-            first_line = FALSE;
+            first_line = false;
             strncpy(out, s, len);
         }
 
@@ -587,7 +581,7 @@ int more(void)
             return 1;
         }
         else {
-            move_val.forward = FALSE;
+            more_val.forward = false;
             more_val.num_lines_scrolled = 0;
         }
     }
@@ -597,7 +591,7 @@ int more(void)
 
     if(present_time > (more_val.last_line_time + more_val.delay)) {
         more_val.num_lines_scrolled = 1;
-        move_val.last_line_time = present_time;
+        more_val.last_line_time = present_time;
 
         return 0;
     }
@@ -610,9 +604,9 @@ int more(void)
     }
 
     /* Oops..too many lines...prompt the more */
-    paused = TRUE;
+    paused = true;
     promptfor(more_buf, &c, PROMPT_CHAR);
-    pasued = FALSE;
+    paused = false;
 
     if(c == more_val.k_quit) {
         /* Prevent problems if prompt triggers */
@@ -620,26 +614,16 @@ int more(void)
         ++kill_socket_output;
 
         return 1;
-    }
-    else if(c == more_val.k_clear) {
-        clear_screen();
-        more_val.num_lines_scrolled = 0;
-    }
-    else if(c == more_val.k_cancel) {
-        move_val.on = FALSE;
-    }
-    else if(c == more_val.k_nonstop) {
-        more_val.non_stop = TRUE;
-    }
-    else if(c == more_val.k_forward) {
-        more_val.forward = TRUE;
+    } else if (c == more_val.k_forward) {
+        more_val.forward = true;
 
         return 1;
-    }
-    else if(c == more_val.k_oneline) {
-        --more_val.num_lines_scrolled;
-    }
-    else {
+    } else if (c == more_val.k_clear) {
+               || (c == more_val.k_cancel)
+               || (c == more_val.k_nonstop)
+               || (c == more_val.k_oneline)) {
+        bind_translate_char(c, MORE_MODE);
+    } else {
         more_val.num_lines_scrolled = 0;
     }
 

@@ -5,18 +5,19 @@
  * starting point for this program. Obviously, integrated with gbII, this does
  * quite a bit more. -Michael Wilkinson (12/3/96)
  */
-
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
+#include "fuse.h"
 
 #include "csp.h"
 #include "gb.h"
-#include "proto.h"
+#include "key.h"
+#include "socket.h"
+#include "str.h"
 #include "types.h"
-#include "vars.h"
+
+#include <math.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 
 /* #define PLOTTER "/usr/local/bin/gnuplot -mono */
 #define PLOTTER "/usr/bin/gnuplot -mono"
@@ -42,17 +43,17 @@ struct fuse {
     int speed;
     float fuel;
     long maxfuel;
-    ing dist;
+    int dist;
     int xtal;
     int plot;
     int xterm;
 } fuse;
 
-int doing_fuse = FALSE;
+int doing_fuse = false;
 
 void cmd_fuse(char *args)
 {
-    int int1 = TRUE;
+    int int1 = true;
     int shipno;
     char str[MAXSIZ];
 
@@ -63,7 +64,7 @@ void cmd_fuse(char *args)
         shipno = atoi(pbuf);
 
         if(shipno > 0) {
-            int1 = FALSE;
+            int1 = false;
         }
     }
 
@@ -71,37 +72,37 @@ void cmd_fuse(char *args)
     promptfor("Do you want a plot (y/n) ", pbuf, PROMPT_CHAR);
 
     if(YES(*pbuf)) {
-        fuse.plot = TRUE;
+        fuse.plot = true;
         promptfor("Use xterm for display (y/n) ", pbuf, PROMPT_CHAR);
 
         if(YES(*pbuf)) {
-            fuse.xterm = TRUE;
+            fuse.xterm = true;
         }
         else {
-            fuse.xterm = FALSE;
+            fuse.xterm = false;
         }
     }
     else {
-        fuse.plot = FALSE;
+        fuse.plot = false;
     }
 
 #else
 
-    fuse.plot = FALSE;
+    fuse.plot = false;
 #endif
 
-    int1 = TRUE;
+    int1 = true;
 
     while(int1 && !fuse.plot) {
         promptfor("Distance to Travel? ", pbuf, PROMPT_STRING);
         fuse.dist = atoi(pbuf);
 
         if(fuse.dist > 0) {
-            int1 = FALSE;
+            int1 = false;
         }
     }
 
-    int1 = TRUE;
+    int1 = true;
 
     while((fuse.dist < 1000) && int1 && !fuse.plot) {
         msg("-- Fuse: Short distance, calculating sub-hyper journey.");
@@ -109,11 +110,11 @@ void cmd_fuse(char *args)
         fuse.speed = atoi(pbuf);
 
         if((fuse.speed > 0) && (fuse.speed < 10)) {
-            int1 = FALSE;
+            int1 = false;
         }
     }
 
-    doing_fuse = TRUE;
+    doing_fuse = true;
     msg("-- Fuse: Gathering data. Please hold.");
     sprintf(str, "%s %d %d\n", CSP_SERVER, CSP_SHIPDUMP_COMMAND, shipno);
     send_gb(str, strlen(str));
@@ -133,8 +134,8 @@ void cspr_fuse(int cnum, char *line)
     int d11;
     int d12;
     long int d6;
-    long int d9;
-    char *junk;
+    long int d8;
+    char *junk = NULL;
     int i;
     int j;
 
@@ -260,7 +261,7 @@ void proc_fuel(void)
         fuse.mass,
         (fuse.xtal ? "mounted." : "unmounted."));
 
-    doing_fuse = FALSE;
+    doing_fuse = false;
 
     if(fuse.plot) {
         plot_fuse();
@@ -382,7 +383,7 @@ double calc_fuse(double dist)
 
 double max_range(double fuel)
 {
-    double dist;
+    double dist = 0.0;
     double distfac;
 
     if(fuse.speed) {

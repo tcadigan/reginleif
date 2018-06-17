@@ -51,259 +51,91 @@
  * 11/30/93   : Made ANSI-compatible, cleaned up.                          *
  ***************************************************************************/
 
+#ifndef XMAP_H_
+#define XMAP_H_
+
 #ifdef XMAP
+
+#include "widget.h"
+
 #define XMAP_VERSION "XMAP v. 3.2.4 11/30/93"
-
-/* Don't execute this file more than once, even if included multiple times */
-#ifndef _WIDGET_H
-#define _WIDGET_H
-
-#include <stdio.h>
-#include <X11/keysym.h>
-#include <X11/X.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-
-/* Program parameters */
-#define XDefaultCivsToMove 2
-#define XDefaultMilToMove  2
-
-#define MAXDATA 2000
-
-/* Row positions in pixels from bottom panel display */
-#define Row1 10
-#define Row2 Row1 + 15
-#define Row3 Row2 + 15
-
-/* Parameters for input window */
-#define Input_x          20
-#define Input_y          22
-#define Input_prompt     "^"
-#define Input_prompt_len 1
-
-/* Parameters for orbit display button (ships_win) */
-#define ShowAll     0
-#define ShowShips   1
-#define ShowNoShips 2
-
-/* Parameters for mapon_win */
-#define Do_Map   1
-#define Do_Orbit 2
-
-/* Parameters for resize */
-#define PanelSpacing 22 /* Space between right and orbit panels */
-
-/* Parameters for displaying orbits */
-#define Orb_Default_min_x   0.0
-#define Orb_Default_max_x 200.0
-#define Orb_Default_min_y   0.0
-#define Orb_Default_max_x 200.0
-
-#define LeftMargin   102 /* Space for left panel */
-#define Res_Name_Len   6 /* # char to ensure space for */
-#define RightMargin  102 + (6 * Res_Name_Len) /* Space for right panel, text */
-#define TopMargin     35 /* Space for input panel */
-#define BottomMargin  50 + 15 /* Space for bottom panel, text */
-#define XRESERVED    (LeftMargin + RightMargin)
-#define YRESERVED    (TopMargin + BottomMargin)
-
-#define MAX_SHIPS 10
-
-#define NOT_GRAPH   0
-#define FERT_GRAPH  1
-#define RES_GRAPH   2
-#define EFF_GRAPH   3
-#define MOB_GRAPH   4
-#define MIL_GRAPH   5
-#define POPN_GRAPH  6
-#define MPOPN_GRAPH 7
-#define GEOG_GRAPH  8
-
-#define XMAP_MAP_TYPE   1
-#define XMAP_ORBIT_TYPE 2
-
-#ifndef TRUE
-#define TRUE 1
-#endif
-
-#ifndef FALSE
-#define FALSE 0
-#endif
-
-#define min(x, y) (x <= y ? x : y)
-#define max(x, y) (x >= y ? x : y)
-
-/*
- * Event dispatching will be through a procedure vector associated
- * with each widget. First define a function pointer type, then define
- * the procedure vector.
- */
-#define WIDGET_EVENT_MASK \
-    (ButtonPressMask | ButtonReleaseMask | PointerMotionMask | ExposureMask | StructureNotifyMask | EnterWindowMask | LeaveWindowMask | KeyPressMask)
-
-typedef void (*function)();
-
-typedef struct _ev_proc_vec {
-    function btn_down; /* Function to call when button is pressed */
-    function btn_up; /* Function to call when button is released */
-    function motion; /* Function to call when pointer is moved */
-    function expose; /* When window is exposed */
-    function resize; /* When window is resized */
-    function enter; /* When pointer enters window */
-    function leave; /* When pointer leaves window */
-    function key; /* When a key is pressed */
-} ev_proc_vec;
-
-/*
- * Data structure associate with each widget. Contains basic
- * information about the widget including:
- *     - A pointer for linking widgets into a list.
- *     - The window contained the widget.
- *     - A pointer to the parent of this widget.
- *     - The widget type. This is a pointer to a structure defining the widget type.
- *     - The position of the window within it's parent.
- *     - The actual size of the the window.
- *     - The desired size of the window.
- *     - The event procedure vector for the widget.
- */
-
-typedef struct _widget_type widget_type; /* Need to forward ref */
-
-typedef struct _widget {
-    struct widget *next; /* For linking into a list of all widgets */
-    Display *dpy; /* Display this widget lives on */
-    Window win; /* The window */
-    struct _widget *parent; /* If NULL then root */
-    widget_type *type; /* The widget type */
-    int is_mapped; /* True if widget is really mapped */
-    int x; /* Position of window within parent */
-    int y; /* Position of window within parent */
-    int w; /* Width of window */
-    int h; /* Height of window */
-    int des_w; /* Desired width of window */
-    int des_h; /* Desired height of window */
-    int resized; /* Size-chaged flag */
-    ev_proc_vec procs; /* Associated procedure vector */
-} widget;
-
-/*
- * Data struct defining a widget type. This provides type-independent
- * generic procedures for things like widget creation.
- */
-struct _widget_type {
-    char *name; /* Name of widget type */
-
-    /* Widget creation function. Called as create(parent, x, y, w, h) */
-    widget *(*create)();
-};
-
-#define create_widget(type, dpy, parent, x, y, w, h) \
-    (*type.create)(dpy, parent, x, y, w, h)
-
-typedef struct _mwin {
-    widget core;
-    Pixmap buffer; /* Id of offscreen buffer */
-    int bitdepth; /* Depth of screen */
-} mwin;
-
-typedef struct _pan_win {
-    widget core;
-} pan_win;
-
-typedef struct _but_win {
-    widget core;
-    char label[30];
-    function button_proc_up;
-    function button_proc_down;
-    int toggle;
-    int graph_type;
-} but_win;
-
-typedef struct _sec_win {
-    widget core;
-    char into[30];
-    char old_info[30];
-    char label[30];
-} sec_win;
-
-typedef struct _in_win {
-    widget core;
-    char info[351];
-    char label[30];
-    int cur_char_pos;
-    int len;
-} in_win;
-
-typedef struct xshipstruct {
-    int shipno;
-    char ltr;
-    int owner;
-} xShip;
-
-typedef struct xsectorstruct {
-    int x;
-    int y;
-    char sectc;
-    char des;
-    int wasted;
-    int own;
-    int eff;
-    int frt;
-    int mob;
-    int xtal;
-    int res;
-    int civ;
-    int mil;
-    int mpopn;
-    int numships;
-    int inverse;
-    xShip ships[MAX_SHIPS];
-} xSector;
-
-typedef struct xmapstruct {
-    int maxx;
-    int maxy;
-    char star[700];
-    char planet[700];
-    int res;
-    int fuel;
-    int des;
-    int popn;
-    int mpopn;
-    int maxfet;
-    int maxres;
-    int maxeff;
-    int maxmob;
-    int maxmil;
-    int maxpopn;
-    int maxmpopn;
-    int minfert;
-    int minres;
-    int mineff;
-    int minmob;
-    int minmil;
-    int minpopn;
-    int tox;
-    double compat;
-    int enslaved;
-    int map;
-    xSector *ptr;
-} xMap;
-
-typedef struct xorbitstruct {
-    struct xorbitstruct *next;
-    struct xorbitstruct *prev;
-    int stand1;
-    int x;
-    int y;
-    int array;
-    char symbol;
-    int stand2;
-    char name[200];
-} xOrb;
-
-#endif /* _WIDGET_H */
 
 extern int xmap_active;
 
-#endif /* XMAP */
+void send_client_survey(char *s, int changescope);
+void send_xmap_command(char *s, int changescope);
+void button_redraw(but_win *win);
+void do_button_down(but_win *win, XButtonEvent *ev);
+void do_button_up(but_win *win, XButtonEvent *ev);
+void do_remap_up(but_win *win);
+void do_mapnow_up(but_win *win);
+void do_anal_up(but_win *win);
+void do_sur_up(but_win *win);
+void do_rep_up(but_win *win);
+void do_graph_up(but_win *win);
+void do_gbut_up(but_win *win);
+void do_shipbut_up(but_win *win);
+void do_zoom_up(but_win *win);
+void toggle_xmap_on(but_win *win);
+void do_cd_up(but_win *win);
+void do_cd_uni(but_win *win);
+void do_cd_here(but_win *win);
+void do_cd_home(but_win *win);
+void draw_panel(pan_win *win);
+void clear_sector_data(pan_win *win);
+void sector_redraw_info(sec_win *win, int force_redraw);
+void sector_redraw(sec_win *win);
+void clear_window(mwin *win);
+void redraw(mwin *win);
+void resize(mwin *win);
+void draw_name(mwin *win, char *u);
+void draw_orb(mwin *win, int x, int y, char *u, int len, int inv);
+void draw_sec(mwin *win, int Maxx, int Maxy, int x, int y, char u, int inv);
+void draw_line(int x1, int y1, int x2, int y2);
+void draw_box(int x1, int y1, int x2, int y2);
+void map_move(mwin *win, XMotionEvent *ev);
+void button_press(mwin *win, XButtonEvent *ev);
+void button_release(mwin *win, XButtonEvent *ev);
+void xmap_mover(int x, int y, int x2, int y2, char *u);
+void xmap_deploy(int x, int y, int x2, int y2, char *u);
+void xmap_ping(xSector *q);
+void set_cur_char_pos(in_win *win, XButtonEvent *ev);
+void key_event(mwin *win, XKeyEvent *ev);
+void add_input(char the_char);
+void remove_input(void);
+void do_input(void);
+void clear_input(void);
+void input_redraw(in_win *win);
+void input_update(in_win *win, int pos);
+void key_command(mwin *mwin, char cmd);
+void mwin_event_loop(void);
+void xmap_plot_orbit(char *t);
+void x_DispArray(int x, int y, int maxx, int maxy, char *array[], float mag);
+int set_zoom(int x1, int y1, int x2, int y2);
+void xmap_plot_surface(char *t);
+void xmap_plot_continue(void);
+void xmap_plot_redraw(void);
+int doing_xmap_command(void);
+void xmap_input(int comm_num, char *procbuf);
+void process_xmap_survey(int num, char *s);
+char xmap_get_graph(int x, int y);
+void hilite_command_in(but_win *win);
+void hilite_command_out(but_win *win);
+char xmap_get_graph(int x, int y);
+widget *create_mwin(Display *dpy, widget *parent, int x, int y, int w, int h);
+widget *create_panel(Display *dpy, widget *parent, int x, int y, int w, int h);
+widget *create_button(Display *dpy, widget *parent, int x, int y, int w, int h);
+widget *create_input(Display *dpy, widget *parent, int x, int y, int w, int h);
+widget *create_sector(Display *dpy, widget *parent, int x, int y, int w, int h);
+void create_gcs(Display *dpy);
+void setup_button(but_win *win, char *name, int tog, function proc, int graph);
+void make_mwin(void);
+void empty_proc(void);
+void add_new_widget(widget *w);
+void MapWidget(widget w);
+void cmd_map(char *args);
+void cmd_xmap(void);
+
+#endif // XMAP
+
+#endif // XMAP_H_
