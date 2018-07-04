@@ -75,8 +75,8 @@ void cmd_loadf(char *args)
         c = args + 1;
         args = rest(args);
 
-        while(*c != ' ') {
-            switch(*c++) {
+        while (*c != ' ') {
+            switch (*c++) {
             case 'a':
                 type = NORM_ANNOUNCE;
 
@@ -97,7 +97,7 @@ void cmd_loadf(char *args)
                 type = ENCRYPTED;
                 p = first(c);
 
-                while(*c != ' ') {
+                while (*c != ' ') {
                     ++c;
                 }
 
@@ -110,7 +110,7 @@ void cmd_loadf(char *args)
                 type = USER_DEFINED;
                 p = first(c);
 
-                while(*c != ' ') {
+                while (*c != ' ') {
                     ++c;
                 }
 
@@ -145,7 +145,7 @@ void cmd_loadf(char *args)
         return;
     }
 
-    while(fgets(buf, MAXSIZ, fd)) {
+    while (fgets(buf, MAXSIZ, fd)) {
         if((*buf == ';') || (*buf == '#')) {
             if ((type == SCREEN_ONLY)
                 && !strcmp(buf, "# Galactic Bloodshed Client II Initialization File\n")) {
@@ -164,7 +164,7 @@ void cmd_loadf(char *args)
             *c = '\0';
         }
 
-        switch(type) {
+        switch (type) {
         case NORM_ANNOUNCE:
             sprintf(buf2, "announce %s", buf);
 
@@ -241,7 +241,7 @@ void cmd_loadf(char *args)
 void shell_out(char *args)
 {
     char buf[MAXSIZ];
-    char fname[BUFSIZ];
+    char fname[NORMSIZ];
     int flag = 0;
 
 #ifndef RESTRICTED_ACCESS
@@ -287,7 +287,7 @@ void shell_out(char *args)
 void load_predefined(char *fname)
 {
     FILE *fd;
-    char buf[MAXSIZ];
+    char buf[NORMSIZ];
 
     strcpy(buf, fname);
     expand_file(buf);
@@ -302,10 +302,10 @@ void load_predefined(char *fname)
 
 void load_init_file(FILE *fd)
 {
-    char buf[MAXSIZ];
+    char buf[NORMSIZ];
     char *p;
 
-    while(fgets(buf, MAXSIZ, fd)) {
+    while (fgets(buf, NORMSIZ, fd)) {
         p = strchr(buf, '\n');
 
         if(!p) {
@@ -326,7 +326,7 @@ void load_init_file(FILE *fd)
 
 void cmd_source(char *args)
 {
-    char buf[BUFSIZ];
+    char buf[MAXSIZ];
 
     sprintf(buf, "-d %s", args);
     cmd_loadf(buf);
@@ -400,11 +400,11 @@ void log_file(char *args)
     logfile.level = LOG_ALL;
     debug(1, "log str: %s", args);
 
-    while(*args == '-') {
+    while (*args == '-') {
         ++args;
         debug(1, "log hyphen: %s", args);
 
-        while(!isspace(*args)) {
+        while (!isspace(*args)) {
             debug(1, "log !space: %c", *args);
 
             switch(*args++) {
@@ -426,7 +426,7 @@ void log_file(char *args)
             }
         }
 
-        while(isspace(*args)) {
+        while (isspace(*args)) {
             ++args;
         }
     }
@@ -479,7 +479,7 @@ void log_file(char *args)
 void expand_file(char *fname)
 {
     char *env;
-    char temp[BUFSIZ];
+    char temp[NORMSIZ];
 
     if(fname[0] != '~') {
         return;

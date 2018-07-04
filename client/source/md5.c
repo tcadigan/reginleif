@@ -128,7 +128,7 @@ void MD5String(char *string, char *hexdigest)
     MD5Final(digest, &context);
 
     /* Converts to hexadecimal. */
-    for(i = 0; i < 16; ++i) {
+    for (i = 0; i < 16; ++i) {
         sprintf(hextemp, "%02x", digest[i]);
         strcat(hexdigest, hextmp);
     }
@@ -178,7 +178,7 @@ void MD5Update(MD5_CTX *context, unsigned char *input, unsigned int inputLen)
         MD5_memcpy((POINTER)&context->buffer[index], (POINTER)input, partLen);
         MD5Transform(context->state, context->buffer);
 
-        for(i = partLen; (i + 63) < inputLen; i += 64) {
+        for (i = partLen; (i + 63) < inputLen; i += 64) {
             MD5Transform(context->state, &input[i]);
         }
 
@@ -328,7 +328,7 @@ static void Encode(unsigned char *output, UINT4 *input, unsigned int len)
     unsigned int i;
     unsigned int j;
 
-    for(i = 0, j = 0; j < len; ++i, j += 4) {
+    for (i = 0, j = 0; j < len; ++i, j += 4) {
         output[j] = (unsigned char)(input[i] & 0xff);
         output[j + 1] = (unsigned char)((input[i] >> 8) & 0xff);
         output[j + 2] = (unsigned char)((input[i] >> 16) & 0xff);
@@ -345,7 +345,7 @@ static void Decode(UINT4 *output, unsigned char *input, unsigned int len)
     unsigned int i;
     unsigned int j;
 
-    for(i = 0, j = 0; j < len; ++i, j += 4) {
+    for (i = 0, j = 0; j < len; ++i, j += 4) {
         output[i] = ((UINT4)input[j]) | (((UINT4)input[j + 1]) << 8) | (((UINT4)input[j + 2]) << 16) | (((UINT4)input[j + 3]) << 24);
     }
 }
@@ -355,7 +355,7 @@ static void MD5_memcpy(POINTER output, POINTER input, unsigned int len)
 {
     unsigned int i;
 
-    for(i = 0; i < len; ++i) {
+    for (i = 0; i < len; ++i) {
         output[i] = input[i];
     }
 }
@@ -365,7 +365,7 @@ static void MD5_memset(POINTER output, int value, unsigned int len)
 {
     unsigned int i;
 
-    for(i = 0; i < len; ++i) {
+    for (i = 0; i < len; ++i) {
         ((char *)output)[i] = (char)value;
     }
 }

@@ -97,7 +97,7 @@ int match_gag(char *pat)
 {
     Gag *p;
 
-    for(p = gag_head; p; p = p->next) {
+    for (p = gag_head; p; p = p->next) {
         if (pattern_match(pat, p->name, pattern)) {
             return 1;
         }
@@ -166,7 +166,7 @@ void cmd_ungag(char *name)
         val = atoi(name + 1);
         p = gag_head;
 
-        while(p && (p->indx != val)) {
+        while (p && (p->indx != val)) {
             p = p->next;
         }
     }
@@ -221,7 +221,7 @@ void cmd_listgag(char *args)
 
     msg("-- Gags:");
 
-    for(p = gag_head; p; p = p->next) {
+    for (p = gag_head; p; p = p->next) {
         p->indx = i;
         msg("%3d) %s", i++, p->name);
     }
@@ -238,7 +238,7 @@ void gag_update_index(void)
         return;
     }
 
-    for(p = gag_head; p; p = p->next) {
+    for (p = gag_head; p; p = p->next) {
         p->index = i++;
     }
 }
@@ -253,7 +253,7 @@ void save_gags(FILE *fd)
 
     fprintf(fd, "\n#\n# Gags\n#\n");
 
-    for(p = gag_head; p; p = p->next) {
+    for (p = gag_head; p; p = p->next) {
         fprintf(fd, "gag %s\n", p->name);
     }
 }
@@ -263,7 +263,7 @@ void cmd_cleargag(char *args)
 {
     Gag *p;
 
-    for(p = gag_head; p; p = p->next) {
+    for (p = gag_head; p; p = p->next) {
         free(p->name);
         free(p);
     }
@@ -311,7 +311,7 @@ void add_history(char *line)
     hist_cur->line = string(line);
     ++num_hist;
 
-    while(num_hist > max_history) {
+    while (num_hist > max_history) {
         Node *temp;
         temp = hist_head;
         hist_head = hist_head->next;
@@ -330,7 +330,7 @@ void add_history(char *line)
 
 void free_history(void)
 {
-    while(hist_head) {
+    while (hist_head) {
         Node *temp;
         temp = hist_head;
         hist_head = hist_head->next;
@@ -390,7 +390,7 @@ void recall(int n, int type)
 
     --n;
 
-    for(temp = recall_cur; temp && n; temp = temp->prev) {
+    for (temp = recall_cur; temp && n; temp = temp->prev) {
         if(type) {
             if(temp->type) {
                 --n;
@@ -405,7 +405,7 @@ void recall(int n, int type)
         temp = recall_head;
     }
 
-    while(temp) {
+    while (temp) {
         if(type) {
             if(temp->type) {
                 msg("%s", temp->line);
@@ -440,7 +440,7 @@ void recall_n_m(int n, int m, int type)
         return;
     }
 
-    for(p = recall_head; p && n; p->next) {
+    for (p = recall_head; p && n; p->next) {
         if(type) {
             if(p->type) {
                 --n;
@@ -451,7 +451,7 @@ void recall_n_m(int n, int m, int type)
         }
     }
 
-    while(p && dist) {
+    while (p && dist) {
         if(type) {
             if(p->type) {
                 msg("%s", p->line);
@@ -493,7 +493,7 @@ void add_recall(char *line, int type)
     recall_cur->type = type;
     ++num_recall;
 
-    while(num_recall > max_recall) {
+    while (num_recall > max_recall) {
         Node *temp;
         temp = recall_head;
         recall_head = recall_head->next;
@@ -510,7 +510,7 @@ void add_recall(char *line, int type)
 
 void free_recall(void)
 {
-    while(recall_head) {
+    while (recall_head) {
         Node *temp;
         temp = recall_head;
         recall_head = recall_head->next;
@@ -536,7 +536,7 @@ void recall_match(char *args, int type)
 {
     Node *p;
 
-    for(p = recall_head; p; p = p->next) {
+    for (p = recall_head; p; p = p->next) {
         if(type && !p->type) {
             continue;
         }
@@ -556,8 +556,8 @@ void recall_match(char *args, int type)
 void history_sub(char *args)
 {
     char *p;
-    char buf[BUFSIZ];
-    char pat[BUFSIZ];
+    char buf[MAXSIZ];
+    char pat[MAXSIZ];
 
     p = strchr(args, '^');
 
@@ -598,12 +598,12 @@ Macro *find_macro(char *name)
         val = atoi(name + 1);
         p = macro_head;
 
-        while(p && (p->indx != val)) {
+        while (p && (p->indx != val)) {
             p = p->next;
         }
     }
     else {
-        for(p = macro_head; p; p = p->next) {
+        for (p = macro_head; p; p = p->next) {
             val = strcmp(name, p->name);
 
             if(!val) {
@@ -727,7 +727,7 @@ void cmd_def(char *args)
         /* Add in, in strcmp order */
         p = macro_head;
 
-        while(p->next && (strcmp(name, p->name) > 0)) {
+        while (p->next && (strcmp(name, p->name) > 0)) {
             p = p->next;
         }
 
@@ -754,7 +754,7 @@ void cmd_def(char *args)
     }
 
     /* Put spaces around semi-colons to prevent arg problems later */
-    for(r = fmtact, q = action; *q; ++q) {
+    for (r = fmtact, q = action; *q; ++q) {
         if(*q == ';') {
             if(*(q - 1) != ' ') {
                 *r++ = ' ';
@@ -837,7 +837,7 @@ void remove_macro(char *name)
 /* Upon matching name, do the corresponding action */
 int do_macro(char *str)
 {
-    char named[BUFSIZ];
+    char named[MAXSIZ];
     char args[MAXSIZ];
     Macro *macro_ptr;
     char *r;
@@ -869,7 +869,7 @@ int do_macro(char *str)
 
     p = strchr(d, ';');
 
-    while(p) {
+    while (p) {
         *p = '\0';
         add_queue(d, 1);
         d = p + 1;
@@ -901,7 +901,7 @@ void cmd_listdef(char *args)
 
     msg("-- Aliases:");
 
-    for(p = macro_head; p; p = p->next) {
+    for (p = macro_head; p; p = p->next) {
         p->indx = i;
         msg("%3d) %s = %s", i++, p->name, p->action);
     }
@@ -918,7 +918,7 @@ void def_update_index(void)
         return;
     }
 
-    for(p = macro_head; p; p = p->next) {
+    for (p = macro_head; p; p = p->next) {
         p->indx = i++;
     }
 }
@@ -933,7 +933,7 @@ void save_defs(FILE *fd)
 
     fprintf(fd, "\n#\n# Macros\n#\n");
 
-    for(p = macro_head; p; p = p->next) {
+    for (p = macro_head; p; p = p->next) {
         fprintf(fd, "def %s %s\n", p->name, p->action);
     }
 }
@@ -943,7 +943,7 @@ void cmd_cleardef(void)
 {
     Macro *p;
 
-    for(p = macro_head; p; p = p->next) {
+    for (p = macro_head; p; p = p->next) {
         free(p->name);
         free(p->action);
         free(p);
@@ -957,14 +957,14 @@ void cmd_cleardef(void)
 /* Preps a line for possible adding to game list */
 void cmd_game(char *args)
 {
-    char nick[BUFSIZ];
-    char host[BUFSIZ];
-    char port[BUFSIZ];
-    char type[BUFSIZ];
-    char sub1[BUFSIZ];
-    char sub2[BUFSIZ];
-    char sub3[BUFSIZ];
-    char sub4[BUFSIZ];
+    char nick[NORMSIZ];
+    char host[NORMSIZ];
+    char port[NORMSIZ];
+    char type[NORMSIZ];
+    char sub1[NORMSIZ];
+    char sub2[NORMSIZ];
+    char sub3[NORMSIZ];
+    char sub4[NORMSIZ];
     int cnt;
 
     memset(nick, '\0', sizeof(nick));
@@ -995,7 +995,7 @@ void cmd_game(char *args)
 
     if(cnt > 3) {
         if (!strcmp(type, "plain")) {
-            switch(cnt) {
+            switch (cnt) {
             case 5:
                 *sub2 = '\0';
             case 6:
@@ -1062,7 +1062,7 @@ void add_game(char *nick,
             p = game_head;
         }
         else {
-            while(p->next) {
+            while (p->next) {
                 p = p->next;
             }
 
@@ -1122,7 +1122,7 @@ void add_game(char *nick,
 
 void free_game(void)
 {
-    while(game_head) {
+    while (game_head) {
         Game *temp;
         temp = game_head;
         game_head = game_head->next;
@@ -1190,7 +1190,7 @@ Game *find_game(char *nick)
 {
     Game *gp = game_head;
 
-    while(gp) {
+    while (gp) {
         if (!strcmp(gp->nick, nick)) {
             return gp;
         }
@@ -1215,7 +1215,7 @@ void cmd_listgame(void)
 
     msg("-- Games:");
 
-    while(p) {
+    while (p) {
         p->indx = i;
 
         msg("%2d) %s %s %s %s %s",
@@ -1241,7 +1241,7 @@ void game_update_index(void)
         return;
     }
 
-    for(p = game_head; p; p = p->next) {
+    for (p = game_head; p; p = p->next) {
         p->indx = i++;
     }
 }
@@ -1260,7 +1260,7 @@ void save_games(FILE *fd)
 
     fprintf(fd, "\n#\n# List of Current Games\n#\n");
 
-    while(p) {
+    while (p) {
         fprintf(fd,
                 "game %s %s %s %s %s\n",
                 p->nick,
@@ -1276,7 +1276,7 @@ void save_games(FILE *fd)
 /* Send the primary and secondary passwords as needed */
 void send_password(void)
 {
-    char pass[BUFSIZ];
+    char pass[NORMSIZE];
 
     debug(1, "send_password() type: %s", cur_game.game.type);
 
@@ -1407,7 +1407,7 @@ int check_queue(void)
      * Is it gb? If no, then true.
      * Are we doing queue? If no, then true.
      */
-    if(is_connected() && !NOTGB() && !do_queue) {
+    if (is_connected() && (game_type != GAME_NOTGB) && !do_queue) {
         return false;
     }
 
@@ -1438,7 +1438,7 @@ void clear_queue(void)
 {
     char buf[MAXSIZ];
 
-    while(queue_head) {
+    while (queue_head) {
         remove_queue(buf);
     }
 
@@ -1453,16 +1453,16 @@ void check_news(char *s)
     bulletin = 0;
 
     if (!strcmp(s, "The Galactic News")) {
-        ICOMM_STATE = S_PROC;
-        ICOMM_IGNORE = true;
+        icomm.list[0].state = S_PROC;
+        icomm.list[0].ignore = true;
     }
     else if(*s == '-') {
-        ICOMM_STATE = S_PROC;
-        ICOMM_IGNORE = true;
+        icomm.list[0].state = S_PROC;
+        icomm.list[0].ignore = true;
     } else if (!strcmp(s, "<Output Flushed>")) {
         bulletin = 1;
-        ICOMM_STATE = S_PROC;
-        ICOMM_IGNORE = true;
+        icomm.list[0].state = S_PROC;
+        icomm.list[0].ignore = true;
     }
 
     /*
@@ -1493,7 +1493,7 @@ int add_news(char *s)
         return 1;
     }
 
-    if(ICOMM_STATE != S_PROC) {
+    if (icomm.list[0].state != S_PROC) {
         return 0;
     }
 
@@ -1566,9 +1566,9 @@ RNode *find_news(char *date, char *line)
 void print_news(void)
 {
     RNode *p;
-    char buf[BUFSIZ];
+    char buf[NORMSIZ];
 
-    for(p = rhead; p; p = p->next) {
+    for (p = rhead; p; p = p->next) {
         if(*p->date == '-') {
             sprintf(buf, "%s", p->line);
             msg_type = MSG_NEWS;
@@ -1606,7 +1606,7 @@ void print_news(void)
 
     p = rhead;
 
-    while(p) {
+    while (p) {
         p = p->next;
         free(rhead);
         rhead = p;

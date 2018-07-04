@@ -57,7 +57,7 @@ void handle_popn(void);
 #ifdef POPN
 void popn_input(int comm_num, char *procbuf)
 {
-    switch(comm_num) {
+    switch (comm_num) {
     case CSP_SURVEY_INTRO:
         if(popn_map.ptr) {
             free(popn_map.ptr);
@@ -122,7 +122,7 @@ void cmd_popn(char *args)
         msg("-- WARNING: Client does not know number of sexes. Please input it now.");
         int1 = true;
 
-        while(int1) {
+        while (int1) {
             promptfor("# of sexes? ", pbuf, PROMPT_STRING);
 
             if(isdigit(*pbuf)) {
@@ -232,7 +232,7 @@ void cmd_popn(char *args)
         popn_info.do_use_compat = false;
     }
 
-    if(GBDT()) {
+    if (game_type == GAME_GBDT) {
         csp_send_request(CSP_SURVEY_COMMAND, "-");
     }
     else {
@@ -266,7 +266,7 @@ void handle_popn(void)
     int emtpy_adj_sects = 0;
     int max_move;
     int changes_made = true;
-    char movebuf[BUFSIZ];
+    char movebuf[NORMSIZ];
 
     static int movement_direction_table[9] = {
         7, 8, 9, /* nw, n, ne */
@@ -294,8 +294,8 @@ void handle_popn(void)
     /* Mark which ones for moving? */
     p = popn_map.ptr;
 
-    for(y = 0; y < popn_map.maxy; ++y) {
-        for(x = 0; x < popn_map.maxx; ++x) {
+    for (y = 0; y < popn_map.maxy; ++y) {
+        for (x = 0; x < popn_map.maxx; ++x) {
             p = popn_map.ptr + x + (y * popn_map.maxx);
 
             if(p->own == profile.raceid) {
@@ -317,7 +317,7 @@ void handle_popn(void)
              * if we are not compat with it.
              */
             if((p->sect_status == EMPTY) && popn_info.do_use_compat) {
-                for(i = 0; i < SECTOR_MAX; ++i) {
+                for (i = 0; i < SECTOR_MAX; ++i) {
                     if((p->sectc == sector_type[i].sectc) && !sector_type[i].compat) {
                         p->sect_status = IGNORE;
                     }
@@ -330,20 +330,20 @@ void handle_popn(void)
     popn_info.commandcnt = 0;
 
     /* Repeat until we don't move any more civs */
-    while(changes_made) {
+    while (changes_made) {
         changes_made = false;
 
         /* Count the number of empty sects adj to an owned sector */
-        for(x = popn_info.xmin; x < popn_map.maxx; ++x) {
-            for(y = popn_info.ymin; y < popn_map.maxy; ++y) {
+        for (x = popn_info.xmin; x < popn_map.maxx; ++x) {
+            for (y = popn_info.ymin; y < popn_map.maxy; ++y) {
                 p = popn_map.ptr + x + (y * popn_map.maxx);
 
                 if(p->sect_status != EMPTY) {
                     continue;
                 }
 
-                for(x2 = (x - 1); x2 < (x + 2); ++x2) {
-                    for(y2 = (y - 1); y2 < (y + 2); ++y2) {
+                for (x2 = (x - 1); x2 < (x + 2); ++x2) {
+                    for (y2 = (y - 1); y2 < (y + 2); ++y2) {
                         if((y2 < popn_info.ymin) || (y2 > popn_info.ymax)) {
                             continue;
                         }
@@ -371,7 +371,7 @@ void handle_popn(void)
         } /* For x */
 
         /* Move civs into unused sectors */
-        for(y = popn_info.ymin; y <= popn_map.maxy; ++y) {
+        for (y = popn_info.ymin; y <= popn_map.maxy; ++y) {
             for(x = popn_info.xmin; x < popn_map.maxx; ++x) {
                 p = popn_map.ptr + x + (y * popn_map.maxx);
 
@@ -385,7 +385,7 @@ void handle_popn(void)
                     continue;
                 }
 
-                /* 
+                /*
                  * If we are a 1 sex race, and there are more empty
                  * sectors that are adjacent to our sector, move one
                  * cive to them first, else move as many as we can up
@@ -402,12 +402,12 @@ void handle_popn(void)
                 empty_secs = 0;
                 xtra_civs = 0;
 
-                /* 
+                /*
                  * Count the number of empty sectors adjacent to this
                  * sector
                  */
-                for(x2 = (x - 1); x2 < (x + 2); ++x2) {
-                    for(y2 = (y - 1); y2 < (y + 2); ++y2) {
+                for (x2 = (x - 1); x2 < (x + 2); ++x2) {
+                    for (y2 = (y - 1); y2 < (y + 2); ++y2) {
                         if((y2 < popn_info.ymin) || (y2 > popn_info.ymax)) {
                             continue;
                         }
@@ -446,8 +446,8 @@ void handle_popn(void)
                     xtra_civs = 0;
                 }
 
-                for(x2 = (x - 1); x2 < (x + 2); ++x2) {
-                    for(y2 = (y - 1); y2 < (y + 2); ++y2) {
+                for (x2 = (x - 1); x2 < (x + 2); ++x2) {
+                    for (y2 = (y - 1); y2 < (y + 2); ++y2) {
                         if((y2 < popn_info.ymin) || (y2 > popn_info.ymax)) {
                             continue;
                         }

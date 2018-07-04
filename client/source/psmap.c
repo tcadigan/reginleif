@@ -68,7 +68,7 @@ void cmd_psmap(char *args)
     /* univ.ring_spacing = 10000; */
     univ.ring_spacing = 50000; /* HUT value */
 
-    while(int1) {
+    while (int1) {
         promptfor("Highlight home planet? (y/n) ", pbuf, PROMPT_CHAR);
 
         if(YES(*pbuf)) {
@@ -84,7 +84,7 @@ void cmd_psmap(char *args)
     /*
      * Don't need to prompt for this anymore, we scale it below
      *
-     * while(int1) {
+     * while (int1) {
      *     promptfor("Max Distance? [999999] ", pbuf, PROMPT_STRING);
      *     amt = atoi(pbuf);
      *
@@ -104,7 +104,7 @@ void cmd_psmap(char *args)
     /*
      * We print one ring every inch now, the scale is not printed on the map
      *
-     * while(int1) {
+     * while (int1) {
      *     promptfor("Ring spacing? [50000] ", pbuf, PROMPT_STRING);
      *     amt = atoi(pbuf);
      *
@@ -146,10 +146,10 @@ void cspr_psmap(int cnum, char *line)
     int dist;
     char sname[SMABUF];
 
-    switch(cnum) {
+    switch (cnum) {
     case CSP_UNIVDUMP_INTRO:
         /* Initialize stars array */
-        for(i = 0; i < MAXSTARS; ++i) {
+        for (i = 0; i < MAXSTARS; ++i) {
             strcpy(univ.stars[i].name, "");
             univ.stars[i].x = 0;
             univ.stars[i].y = 0;
@@ -213,7 +213,7 @@ void scan_stars(void)
     int in_stars = 0;
     int i;
 
-    for(i = 0; i < univ.nstars; ++i) {
+    for (i = 0; i < univ.nstars; ++i) {
         if(univ.highlight_home && (univ.stars[i].dist == 0)) {
             univ.highlighted_star = i;
             in_stars = 1;
@@ -234,7 +234,7 @@ int produce_postscript(void)
     int i;
     double scale;
     double nscale;
-    char fname[BUFSIZ];
+    char fname[NORMSIZ];
     FILE *fd;
     time_t now;
     struct tm *today;
@@ -263,7 +263,7 @@ int produce_postscript(void)
     max_y = univ.stars[0].y;
     min_y = max_y;
 
-    for(i = 1; i < univ.nstars; ++i) {
+    for (i = 1; i < univ.nstars; ++i) {
         if(univ.stars[i].x < min_x) {
             min_x = univ.stars[i].x;
         }
@@ -473,7 +473,7 @@ int produce_postscript(void)
         fprintf(fd, "%% Draw the distance rings\n");
         frptinf(fd, "%%\n");
 
-        for(i = 1; i <= univ.nrings; ++i) {
+        for (i = 1; i <= univ.nrings; ++i) {
             fprintf(fd,
                     "%d %d %d drawcircle\n",
                     (int)((univ.stars[univ.highlighted_star].x - min_x) * scale),
@@ -489,7 +489,7 @@ int produce_postscript(void)
     fprintf(fd, "%%\n");
     fprintf(fd, "Starfont setfont\n");
 
-    for(i = 0; i < univ.nstars; ++i) {
+    for (i = 0; i < univ.nstars; ++i) {
         if(i != univ.highlighted_star) {
             draw_star(fd, univ.stars + i, min_x, min_y, scale);
         }
@@ -522,7 +522,7 @@ void display_psmap(void)
 {
     char mbuf[SMABUF];
     char obuf[SMABUF];
-    char fname[BUFSIZ];
+    char fname[NORMSIZ];
 
     msg("-- Psmap: Finished.");
     sprintf(obuf, "Display using %s? (y/n)", PSVIEWER);

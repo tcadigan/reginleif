@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 
-char maplog[BUFSIZ];
+char maplog[MAXSIZ];
 
 void print_X(int Maxx);
 
@@ -35,7 +35,7 @@ void plot_surface(char *t)
     char *u;
     char *v;
     int inverse = 0;
-    char temp[BUFSIZ];
+    char temp[SMABUF];
     char convbuf[SMABUF];
 
     /* -mfw */
@@ -85,11 +85,11 @@ void plot_surface(char *t)
 
     u = v + 1;
 
-    for(y = 0; y < Maxy; ++y) {
+    for (y = 0; y < Maxy; ++y) {
         sprintf(convbuf, "%c%c ", (y / 10) + '0', (y % 10) + '0');
         strcpy(maplog, convbuf);
 
-        for(x = 0; x < Maxx; ++x) {
+        for (x = 0; x < Maxx; ++x) {
             c = *u++;
 
             if(c == '1') {
@@ -153,11 +153,11 @@ void print_X(int Maxx)
 {
     int x;
     char buf[MAXSIZ];
-    char temp[BUFSIZE];
+    char temp[SMABUF];
 
     strcpy(buf, "   ");
 
-    for(x = 0; x < Maxx; ++x) {
+    for (x = 0; x < Maxx; ++x) {
         sprintf(temp, "%d", x / 10);
         strcat(buf, temp);
     }
@@ -165,7 +165,7 @@ void print_X(int Maxx)
     msg(buf);
     strcpy(buf, "   ");
 
-    for(x = 0; x < Maxx; ++x) {
+    for (x = 0; x < Maxx; ++x) {
         sprintf(temp, "%d", x % 10);
         strcat(buf, temp);
     }
@@ -210,7 +210,7 @@ void plot_orbit(char *t)
 
     p = strchr(q, ';');
 
-    while(p) {
+    while (p) {
         /* New */
         *p = '\0';
 
@@ -320,12 +320,12 @@ void DispArray(int x, int y, int maxx, int maxy, char *array[], float mag)
     }
 #endif
 
-    for(cury = y - (maxy / 2), y2 = 0; y2 < maxy; ++cury) {
+    for (cury = y - (maxy / 2), y2 = 0; y2 < maxy; ++cury) {
         if((cury >= 0) && (cury <= S_Y)) {
             curx = x - (maxx / 2);
             term_move_cursor(curx, cury);
 
-            for(x2 = 0; x2 < maxx; ++curx) {
+            for (x2 = 0; x2 < maxx; ++curx) {
                 if((curx >= 0) && (curx <= S_X)) {
                     /* One to right */
                     term_putchar(array[y2][x2]);

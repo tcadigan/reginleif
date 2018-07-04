@@ -12,18 +12,18 @@
 #include "ansi.h"
 #include "csp.h"
 #include "gb.h"
+#include "key.h"
 #include "str.h"
+#include "socket.h"
+#include "status.h"
 #include "term.h"
-#include "types.h"
-#include "vars.h"
 
-#include <ctype.h>
-#include <malloc.h>
 #include <math.h>
-#include <memory.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <sys/types.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
 #define MIN_MAP_WIN_SIZE 8
 #define NO_MAP 0
@@ -45,7 +45,7 @@ struct cursectstruct {
 };
 
 struct cursectstruct cursect = { -1, -1, 0, 0, false, false };
-map imap_map = { 0, 0, "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, true, false, false, (Sector *)NULL };
+Map imap_map = { 0, 0, "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, true, false, false, (Sector *)NULL };
 long map_time = -1;
 char cursor_sector = DEFAULT_CURSOR_SECTOR;
 
@@ -67,26 +67,26 @@ void update_sector(Sector *ptr);
 void imap_input(int comm_num, char *procbuf)
 {
 #ifdef IMAP
-    if(!input_mode.map) {
+    if (!input_mode.map) {
         return;
     }
 
-    switch(comm_num) {
+    switch (comm_num) {
     case CSP_SURVEY_INTRO:
-        if(imap_map.ptr) {
+        if (imap_map.ptr) {
             free(imap_map.ptr);
         }
 
         process_client_survey(comm_num, procbuf, &imap_map);
         imap_map.ptr = (Sector *)malloc(sizeof(Sector) * imap_map.maxx * imap_map.maxy);
 
-        if(imap_map.ptr == (Sector *)NULL) {
+        if (imap_map.ptr == (Sector *)NULL) {
             msg("-- Imap: Could not malloc map space. Aborting.");
             handle_map_mode(1);
         }
 
-        if(input_mode.map) {
-            if(imap_map.maxx > (num_columns - 35)) {
+        if (input_mode.map) {
+            if (imap_map.maxx > (num_columns - 35)) {
                 msg("-- Imap: The planet is too big for your screen.");
                 handle_map_mode(1);
                 free(imap_map.ptr);
@@ -100,7 +100,7 @@ void imap_input(int comm_num, char *procbuf)
 
         break;
     case CSP_SURVEY_SECTOR:
-        if(!imap_map.ptr) {
+        if (!imap_map.ptr) {
             return;
         }
 
@@ -108,8 +108,8 @@ void imap_input(int comm_num, char *procbuf)
 
         break;
     case CSP_SURVEY_END:
-        if(input_mode.map) {
-            if((imap_map.map == NEW_MAP) || (imap_map.map == RE_MAP)) {
+        if (input_mode.map) {
+            if ((imap_map.map == NEW_MAP) || (imap_map.map == RE_MAP)) {
                 set_up_interactive_map();
                 imap_map.map = HAVE_MAP;
             }
@@ -126,10 +126,9 @@ void imap_input(int comm_num, char *procbuf)
 
 int doing_imap_command(void)
 {
-    if(input_mode.map && !input_mode.say) {
+    if (input_mode.map && !input_mode.say) {
         return 1;
-    }
-    else {
+    } else {
         return 0;
     }
 }
@@ -152,7 +151,7 @@ void process_client_survey(int cnum, char *s, Map *buildmap)
     char *qtr;
     int i;
 
-    switch(cnum) {
+    switch (cnum) {
     case CSP_SURVEY_INTRO:
         sscanf(s,
                "%d %d %s %s %d %d %d %d %d %d %lf %d",
@@ -173,7 +172,7 @@ void process_client_survey(int cnum, char *s, Map *buildmap)
     case CSP_SURVEY_SECTOR:
         ptr = strchr(s, ';');
 
-        if(ptr) {
+        if (ptr) {
             *ptr = '\0';
             ++ptr;
         }
@@ -182,7 +181,7 @@ void process_client_survey(int cnum, char *s, Map *buildmap)
                "%d %d %c %c %d %d %d %d %d %d %d %d %d %d",
                &p.x,
                &p.y,
-               &p.setc,
+               &p.sectc,
                &p.des,
                &p.wasted,
                &p.own,
@@ -197,14 +196,14 @@ void process_client_survey(int cnum, char *s, Map *buildmap)
 
         p.numships = 0;
 
-        if(ptr) {
+        if (ptr) {
             i = 0;
             qtr = ptr;
 
-            while(qtr && *qtr && (i < MAX_SHIPS_IN_SURVEY)) {
-                ptr = strchr(qtr, ';,');
+            while (qtr && *qtr && (i < MAX_SHIPS_IN_SURVEY)) {
+                ptr = strchr(qtr, ';');
 
-                if(!ptr) {
+                if (!ptr) {
                     break;
                 }
 
@@ -223,11 +222,11 @@ void process_client_survey(int cnum, char *s, Map *buildmap)
             p.numships = i;
         }
 
-        *(buildmap.ptr + p.x + (p.y * buildmap->maxx)) = p;
+        *(buildmap->ptr + p.x + (p.y * buildmap->maxx)) = p;
 
 #ifdef IMAP
-        if(input_mode.map && !input_mode.say) {
-            if(cursect.ping && (cursect.x == p.x) && (cursect.y == p.y)) {
+        if (input_mode.map && !input_mode.say) {
+            if (cursect.ping && (cursect.x == p.x) && (cursect.y == p.y)) {
                 redraw_sector();
                 cursect.ping = false;
             }
@@ -262,7 +261,7 @@ void set_up_map_window(void)
     /* -2 for status, -1 for map status, -1 to place correctly */
     more_val.num_rows = output_row - 1;
 
-    if(output_row < 1) {
+    if (output_row < 1) {
         msg("-- Imap: Not enough rows to display the planet.");
 
         /* Toggle it off */
@@ -271,14 +270,14 @@ void set_up_map_window(void)
         return;
     }
 
-    if(output_row < old_orow) {
+    if (output_row < old_orow) {
         term_scroll(0, old_orow, old_orow - output_row);
     }
 
     cursect.rely = output_row + 2;
     cursect.relx = 3;
 
-    if(cursect.x == -1) {
+    if (cursect.x == -1) {
         cursect.x = imap_map.maxx / 2;
         cursect.y = imap_map.maxy / 2;
     }
@@ -303,7 +302,7 @@ void redraw_map_window(void)
 {
     int i;
     int len;
-    char temp[BUFSIZ];
+    char temp[NORMSIZ];
 
     sprintf(temp,
             "-R:%4d-F:%4d-D:%4d-Pop:%7d-^pop:%7d-Tox:%3d-Comp:%5.1lf",
@@ -318,21 +317,21 @@ void redraw_map_window(void)
     term_move_cursor(0, output_row + 1);
     len = strlen(temp);
 
-    if(len > num_columns) {
+    if (len > num_columns) {
         len = num_columns;
     }
 
     term_puts(temp, len);
 
-    for(i = num_columns - len; i > 0; --i) {
+    for (i = num_columns - len; i > 0; --i) {
         term_putchar('-');
     }
 
     len = 0;
 
-    for(i = output_row + 2; i < (num_rows - 2); ++i) {
+    for (i = output_row + 2; i < (num_rows - 2); ++i) {
         /* Put row #'s on right side */
-        if(len < imap_map.maxy) {
+        if (len < imap_map.maxy) {
             term_move_cursor(0, i);
             sprintf(temp, "%d%d", len / imap_map.maxy, len % imap_map.maxy);
             term_puts(temp, 2);
@@ -346,7 +345,7 @@ void redraw_map_window(void)
     /* Bottom map row for #'s */
     term_move_cursor(3, output_row + imap_map.maxy + 2);
 
-    for(i = 0; i < imap_map.maxx; ++i) {
+    for (i = 0; i < imap_map.maxx; ++i) {
         sprintf(temp, "%d", i % 10);
         term_putchar(*temp);
     }
@@ -377,12 +376,12 @@ void refresh_map(void)
     redraw_map();
     redraw_sector();
 
-    if(!input_mode.map) {
+    if (!input_mode.map) {
         return;
     }
 
     term_move_cursor(cursect.leftbound + 2, num_rows - 3);
-    sprintf(buf, "/%4.4s/%-4.4s", imap_map.str, imap_map.planet);
+    sprintf(buf, "/%4.4s/%-4.4s", imap_map.star, imap_map.planet);
     term_puts(buf, strlen(buf));
 }
 
@@ -394,104 +393,94 @@ void redraw_map(void)
     int inverse = false;
     int colored = -1;
 
-    if(!input_mode.map) {
+    if (!input_mode.map) {
         return;
     }
 
-    if(imap_map.maxx > (num_columns - 35)) {
+    if (imap_map.maxx > (num_columns - 35)) {
         msg("Imap: Planet is too big for your screen.");
         handle_map_mode(1);
 
         return;
     }
 
-    for(y = 0; y < imap_map.maxy; ++y) {
+    for (y = 0; y < imap_map.maxy; ++y) {
         term_move_cursor(cursect.relx, cursect.rely + y);
 
-        for(x = 0; c < imap_map.maxx; ++x, ++p) {
-            if(imap_map.ansi && (p->own > 0)) {
-                colored = p->own % MAX_RECORDS;
+        for (x = 0; x < imap_map.maxx; ++x, ++p) {
+            if (imap_map.ansi && (p->own > 0)) {
+                colored = p->own % MAX_RCOLORS;
                 term_puts(race_colors[colored], 5);
                 term_puts(ANSI_FOR_BLACK, 5);
             }
 
-            if(imap_map.geo) {
+            if (imap_map.geo) {
                 /* Doing geography only */
-                if(imap_map.inverse && (p->own == profile.raceid)) {
+                if (imap_map.inverse && (p->own == profile.raceid)) {
                     /* Do inverse */
-                    if(!inverse) {
+                    if (!inverse) {
                         inverse = true;
                         term_standout_on();
                     }
                 }
 
-                term_putchar(p->setc);
-            }
-            else {
+                term_putchar(p->sectc);
+            } else {
                 /* Not showing geography only */
-                if(p->own == profile.raceid) {
+                if (p->own == profile.raceid) {
                     /* My sect */
-                    if(imap_map.inverse && !inverse && (colored < 0)) {
+                    if (imap_map.inverse && !inverse && (colored < 0)) {
                         inverse = true;
                         term_standout_on();
                     }
 
-                    if(p->numships) {
+                    if (p->numships) {
                         term_putchar(p->ships[0].ltr);
-                    }
-                    else if(p->wasted) {
+                    } else if (p->wasted) {
                         term_putchar('%');
-                    }
-                    else if(p->xtal) {
+                    } else if (p->xtal) {
                         term_putchar('x');
-                    }
-                    else {
+                    } else {
                         term_putchar(p->sectc);
                     }
-                }
-                else if(!p->own) {
-                    if(inverse) {
+                } else if (!p->own) {
+                    if (inverse) {
                         term_standout_off();
                         inverse = false;
                     }
 
-                    if(p->numships) {
+                    if (p->numships) {
                         term_putchar(p->ships[0].ltr);
-                    }
-                    else if(p->wasted) {
+                    } else if (p->wasted) {
                         term_putchar('%');
-                    }
-                    else if(p->xtal) {
+                    } else if (p->xtal) {
                         term_putchar('x');
-                    }
-                    else {
+                    } else {
                         term_putchar(p->sectc);
                     }
-                }
-                else {
+                } else {
                     /* Owned by someone but not me */
-                    if(inverse) {
+                    if (inverse) {
                         term_standout_off();
                         inverse = false;
                     }
 
-                    if(p->numships) {
+                    if (p->numships) {
                         term_putchar(p->ships[0].ltr);
-                    }
-                    else {
+                    } else {
                         term_putchar((p->own % 10) + '0');
                     }
                 }
             }
 
-            if(colored > -1) {
+            if (colored > -1) {
                 term_puts(ANSI_NORMAL, strlen(ANSI_NORMAL));
                 colored = -1;
             }
         }
     }
 
-    if(inverse) {
+    if (inverse) {
         term_standout_off();
     }
 }
@@ -500,10 +489,10 @@ void redraw_sector(void)
 {
     char sectbuf[20];
     Sector *p = imap_map.ptr;
-    sector *q = imap_map.ptr;
+    Sector *q = imap_map.ptr;
     int i;
 
-    if(!input_mode.map) {
+    if (!input_mode.map) {
         return;
     }
 
@@ -512,23 +501,22 @@ void redraw_sector(void)
     sprintf(sectbuf, "%2d,%-2d %c", p->x, p->y, p->sectc);
     term_puts(sectbuf, strlen(sectbuf));
 
-    if(imap_map.enslaved) {
+    if (imap_map.enslaved) {
         sprintf(sectbuf, "ENSLAVED-%d", imap_map.enslaved);
         term_puts(sectbuf, strlen(sectbuf));
     }
 
     term_move_cursor(cursect.leftbound + 2, output_row + 3);
 
-    if(p->wasted || p->xtal) {
+    if (p->wasted || p->xtal) {
         sprintf(sectbuf,
                 "%s%s",
                 (p->xtal ? "CRYSTAL " : ""),
                 (p->wasted ? "WASTED" : ""));
 
         term_puts(sectbuf, strlen(sectbuf));
-    }
-    else {
-        perm_puts("              ", 15);
+    } else {
+        term_puts("              ", 15);
     }
 
     term_move_cursor(cursect.leftbound + 2, output_row + 4);
@@ -547,10 +535,10 @@ void redraw_sector(void)
     sprintf(sectbuf, "eff:%3d mob:%5d", p->eff, p->mob);
     term_puts(sectbuf, strlen(sectbuf));
 
-    if(p->numships) {
+    if (p->numships) {
         cursect.has_ships = true;
 
-        for(i = 0; i < MAX_SHIPS_IN_SURVEY; ++i) {
+        for (i = 0; i < MAX_SHIPS_IN_SURVEY; ++i) {
             if (imap_map.maxy < MIN_MAP_WIN_SIZE) {
                 if (i < MIN_MAP_WIN_SIZE) {
                     break;
@@ -563,7 +551,7 @@ void redraw_sector(void)
 
             term_move_cursor(cursect.leftbound + 22, i + output_row + 2);
 
-            if(i < p->numships) {
+            if (i < p->numships) {
                 sprintf(sectbuf,
                         "%2d %c %4d",
                         p->ships[i].owner,
@@ -571,15 +559,13 @@ void redraw_sector(void)
                         p->ships[i].shipno);
 
                 term_puts(sectbuf, strlen(sectbuf));
-            }
-            else {
+            } else {
                 term_clear_to_eol();
             }
         }
-    }
-    else {
-        if(cursect.has_ships) {
-            for(i = 0; i < MAX_SHIPS_IN_SURVEY; ++i) {
+    } else {
+        if (cursect.has_ships) {
+            for (i = 0; i < MAX_SHIPS_IN_SURVEY; ++i) {
                 if (imap_map.maxy < MIN_MAP_WIN_SIZE) {
                     if (i < MIN_MAP_WIN_SIZE) {
                         break;
@@ -590,7 +576,7 @@ void redraw_sector(void)
                     }
                 }
 
-                term_move_cursor(vursect.leftbound + 22, i + output_row + 2);
+                term_move_cursor(cursect.leftbound + 22, i + output_row + 2);
                 term_clear_to_eol();
             }
 
@@ -599,7 +585,7 @@ void redraw_sector(void)
     }
 
     /* Remove old highlight */
-    if(cursect.oldx >= 0) {
+    if (cursect.oldx >= 0) {
         q += (cursect.oldx + (cursect.oldy * imap_map.maxx));
         update_sector(q);
     }
@@ -616,63 +602,52 @@ void redraw_sector(void)
 
 void update_sector(Sector *ptr)
 {
-    term_move_cursor(vursect.relx + ptr->x, cursect.rely + ptr->y);
+    term_move_cursor(cursect.relx + ptr->x, cursect.rely + ptr->y);
 
-    if(imap_map.geo) {
-        if(imap_map.inverse && (ptr->own == profile.raceid)) {
+    if (imap_map.geo) {
+        if (imap_map.inverse && (ptr->own == profile.raceid)) {
             term_standout_on();
             term_putchar(ptr->sectc);
             term_standout_off();
-        }
-        else {
+        } else {
             term_putchar(ptr->sectc);
         }
-    }
-    else {
+    } else {
         /* Not geo */
-        if(ptr->own == profile.raceid) {
+        if (ptr->own == profile.raceid) {
             /* My sect */
-            if(imap_map.inverse) {
+            if (imap_map.inverse) {
                 term_standout_on();
             }
 
-            if(ptr->numships) {
+            if (ptr->numships) {
                 term_putchar(ptr->ships[0].ltr);
-            }
-            else if(ptr->wasted) {
+            } else if (ptr->wasted) {
                 term_putchar('%');
-            }
-            else if(ptr->xtal) {
+            } else if (ptr->xtal) {
                 term_putchar('x');
-            }
-            else {
+            } else {
                 term_putchar(ptr->sectc);
             }
 
-            if(imap_map.inverse) {
+            if (imap_map.inverse) {
                 term_standout_off();
             }
-        }
-        else if(!ptr->own) {
-            if(ptr->numships) {
+        } else if (!ptr->own) {
+            if (ptr->numships) {
                 term_putchar(ptr->ships[0].ltr);
-            }
-            else if(ptr->wasted) {
+            } else if (ptr->wasted) {
                 term_putchar('%');
-            }
-            else if(ptr->xtal) {
+            } else if (ptr->xtal) {
                 term_putchar('x');
-            }
-            else {
+            } else {
                 term_putchar(ptr->sectc);
             }
-        }
-        else {
+        } else {
             /* Owned by someone but not me */
-            if(ptr->numships) {
+            if (ptr->numships) {
                 term_putchar(ptr->ships[0].ltr);
-            }
-            else {
+            } else {
                 term_putchar((ptr->own % 10) + '0');
             }
         }
@@ -685,8 +660,8 @@ void imap_test(char ch)
 
 void handle_map_mode(int nomsgs)
 {
-    if(!input_mode.map) {
-        if(scope_level != LEVEL_PLANET) {
+    if (!input_mode.map) {
+        if (scope.level != LEVEL_PLANET) {
             msg("-- You must be at plaent scope for interactive map.");
 
             return;
@@ -698,16 +673,14 @@ void handle_map_mode(int nomsgs)
         cursect.x = -1;
         cursect.oldx = -1;
 
-        if(GBDT()) {
+        if (game_type == GAME_GBDT) {
             csp_send_request(CSP_SURVEY_COMMAND, "-");
-        }
-        else {
+        } else {
             send_gb("client_survey -\n", 16);
         }
 
         msg("-- Interactive map activated.");
-    }
-    else {
+    } else {
         input_mode.map = false;
         output_row = num_rows - 3;
         last_output_row = output_row;
@@ -715,7 +688,7 @@ void handle_map_mode(int nomsgs)
         cursect.oldx = -1;
         more_val.num_rows = output_row;
 
-        if(!nomsgs) {
+        if (!nomsgs) {
             msg("-- Interactive map turned off.");
         }
 
@@ -737,12 +710,11 @@ void imap_map_mode(char ch)
 
 void imap_say_mode(char ch)
 {
-    if(input_mode.map) {
-        if(!input_mode.say) {
+    if (input_mode.map) {
+        if (!input_mode.say) {
             input_mode.say = true;
             msg("-- Say mode activated");
-        }
-        else {
+        } else {
             input_mode.say = false;
             msg("-- Say mode deactivated");
         }
@@ -754,40 +726,36 @@ void imap_say_mode(char ch)
 
 void map_move_down(void)
 {
-    if((cursect.y + 1) == imap_map.maxy) {
+    if ((cursect.y + 1) == imap_map.maxy) {
         cursect.y = 0;
-    }
-    else {
+    } else {
         ++cursect.y;
     }
 }
 
 void map_move_up(void)
 {
-    if(cursect.y == 0) {
+    if (cursect.y == 0) {
         cursect.y = imap_map.maxy - 1;
-    }
-    else {
+    } else {
         --cursect.y;
     }
 }
 
 void map_move_right(void)
 {
-    if(cursect.x == (imap_map.maxx - 1)) {
+    if (cursect.x == (imap_map.maxx - 1)) {
         cursect.x = 0;
-    }
-    else {
+    } else {
         ++cursect.x;
     }
 }
 
 void map_move_left(void)
 {
-    if(cursect.x == 0) {
+    if (cursect.x == 0) {
         cursect.x = imap_map.maxx - 1;
-    }
-    else {
+    } else {
         --cursect.x;
     }
 }
@@ -804,7 +772,7 @@ void imap_mover(char ch)
     /* From pos */
     p += (cursect.x + (cursect.y * imap_map.maxx));
 
-    if(p->own != profile.raceid) {
+    if (p->own != profile.raceid) {
         msg("You don't own that sector!");
 
         return;
@@ -812,56 +780,53 @@ void imap_mover(char ch)
 
     q = get_direction(&c);
 
-    if(q == NULL) {
+    if (q == NULL) {
         return;
     }
 
     promptfor("#of people? ", buf, PROMPT_STRING);
     amt = atoi(buf);
 
-    if(!amt) {
+    if (!amt) {
         return;
     }
 
-    if(p->civ >= amt) {
-        if(p->own && q->own && (p->own != q->own)) {
+    if (p->civ >= amt) {
+        if (p->own && q->own && (p->own != q->own)) {
             apcost = (int)log(1.0 + (double)amt) + 2;
-        }
-        else {
-            apcost = (int)log(1.0 + (double)amd) + 1;
+        } else {
+            apcost = (int)log(1.0 + (double)amt) + 1;
         }
 
-        if(apcost > scope.aps) {
+        if (apcost > scope.aps) {
             msg("You don't have enough APs. Need %.lf", apcost);
 
             return;
         }
 
-        if(amt < 0) {
+        if (amt < 0) {
             q->civ = p->civ + amt;
             p->civ = -amt;
-        }
-        else {
+        } else {
             p->civ -= amt;
-            1->civ += amt;
+            q->civ += amt;
         }
 
         sprintf(buf, "move %d,%-d %c %d\n", p->x, p->y, c, amt);
         send_gb(buf, strlen(buf));
 
-        if(!q->own) {
+        if (!q->own) {
             q->own = p->own;
         }
 
         update_sector(q);
 
-        if(!p->mil && !p->civ) {
+        if (!p->mil && !p->civ) {
             p->own = 0;
         }
 
         redraw_sector();
-    }
-    else {
+    } else {
         msg("Not enough people for me to move.");
 
         return;
@@ -880,7 +845,7 @@ void imap_deploy(char ch)
     /* From pos */
     p += (cursect.x + (cursect.y * imap_map.maxx));
 
-    if(p->own != profile.raceid) {
+    if (p->own != profile.raceid) {
         msg("You don't own that sector!");
 
         return;
@@ -888,49 +853,46 @@ void imap_deploy(char ch)
 
     q = get_direction(&c);
 
-    if(q == NULL) {
+    if (q == NULL) {
         return;
     }
 
     promptfor("# of troops? ", buf, PROMPT_STRING);
     amt = atoi(buf);
 
-    if(!amt) {
+    if (!amt) {
         return;
     }
 
-    if(p->mil >= amt) {
-        if(p->own && 1->own && (p->own != q->own)) {
+    if (p->mil >= amt) {
+        if (p->own && q->own && (p->own != q->own)) {
             apcost = (int)log10(1.0 + (double)amt) + 2;
-        }
-        else {
+        } else {
             apcost = (int)log10(1.0 + (double)amt) + 1;
         }
 
-        if(apcost > scope.aps) {
+        if (apcost > scope.aps) {
             msg("You didn't have enough APs. Need %.lf", apcost);
 
             return;
         }
 
-        if(amt < 0) {
+        if (amt < 0) {
             q->mil = p->mil + amt;
             p->mil = -amt;
-        }
-        else {
+        } else {
             p->mil -= amt;
             q->mil += amt;
         }
 
-        if(!p->mil && !p->civ) {
+        if (!p->mil && !p->civ) {
             p->own = 0;
         }
 
         sprintf(buf, "deploy %d,%-d %c %d\n", p->x, p->y, c, amt);
         send_gb(buf, strlen(buf));
         redraw_sector();
-    }
-    else {
+    } else {
         msg("Not enough troops for me to move.");
 
         return;
@@ -945,7 +907,7 @@ Sector *get_direction(char *c)
 
     promptfor("direction? ", c, PROMPT_CHAR);
 
-    switch(*c) {
+    switch (*c) {
     case 'b':
         *c = '1';
     case '1':
@@ -974,8 +936,8 @@ Sector *get_direction(char *c)
         newy = 0;
 
         break;
-    case ' ';
-    case '\n';
+    case ' ':
+    case '\n':
     case '5':
 
         return (Sector *)NULL;
@@ -1013,19 +975,17 @@ Sector *get_direction(char *c)
         return (Sector *)NULL;
     }
 
-    if(((cursect.y + newy) == -1) || ((cursect.y + newy) == imap_map.maxy)) {
+    if (((cursect.y + newy) == -1) || ((cursect.y + newy) == imap_map.maxy)) {
         msg("Invalid move. Aborting.");
 
         return (Sector *)NULL;
     }
 
-    if((cursect.x + newx) == imap_map.maxx) {
+    if ((cursect.x + newx) == imap_map.maxx) {
         q += ((cursect.y + newy) + imap_map.maxx);
-    }
-    else if((cursect.x + newx) == -1) {
+    } else if ((cursect.x + newx) == -1) {
         q += ((imap_map.maxx - 1) + ((cursect.y + newy) * imap_map.maxx));
-    }
-    else {
+    } else {
         q += ((cursect.x + newx) + ((cursect.y + newy) * imap_map.maxx));
     }
 
@@ -1040,18 +1000,17 @@ void imap_zoom_sector(char ch)
 
     promptfor("Goto to where(x,y)? ", buf, PROMPT_STRING);
 
-    if(sscanf(buf, "%d,%d", &x, &y) != 2) {
+    if (sscanf(buf, "%d,%d", &x, &y) != 2) {
         return;
     }
 
-    if(((x >= 0) && (x < imap_map.maxx)) && ((y >= 0) && (y < imap_map.maxy))) {
+    if (((x >= 0) && (x < imap_map.maxx)) && ((y >= 0) && (y < imap_map.maxy))) {
         cursect.oldx = cursect.x;
         cursect.oldy = cursect.y;
         cursect.x = x;
         cursect.y = y;
         redraw_sector();
-    }
-    else {
+    } else {
         msg("Invalid coordinates.");
     }
 }
@@ -1068,19 +1027,19 @@ void imap_capture_ship(char ch)
     promptfor("ship number: ", buf, PROMPT_STRING);
     ship = atoi(buf);
 
-    if(!ship) {
+    if (!ship) {
         return;
     }
 
     p = find_ship(ship, &pos);
 
-    if(!p && (pos == -1)) {
+    if (!p && (pos == -1)) {
         msg("-- No such ship #%d on planet. Imap may need updating.", ship);
 
         return;
     }
 
-    if(p->own != profile.raceid) {
+    if (p->own != profile.raceid) {
         msg("-- You dont own the sector ship #%d is landed on.", ship);
 
         return;
@@ -1089,7 +1048,7 @@ void imap_capture_ship(char ch)
     promptfor("number of boarders? ", buf, PROMPT_STRING);
     boarders = atoi(buf);
 
-    if(boarders < 0) {
+    if (boarders < 0) {
         msg("-- Capture: aborting.");
 
         return;
@@ -1097,7 +1056,7 @@ void imap_capture_ship(char ch)
 
     promptfor("(c)iv/(m)il? ", &type, PROMPT_CHAR);
 
-    if((type != 'c') && (type != 'm')) {
+    if ((type != 'c') && (type != 'm')) {
         msg("-- Capture: Invalid type for boarders-%c. Aborting.", type);
 
         return;
@@ -1123,20 +1082,20 @@ void imap_launch_ship(char ch)
     promptfor("ship number: ", buf, PROMPT_STRING);
     ship = atoi(buf);
 
-    if(!ship) {
+    if (!ship) {
         return;
     }
 
     p = find_ship(ship, &pos);
 
-    if(!p && (pos == -1)) {
+    if (!p && (pos == -1)) {
         msg("-- Can't find ship #%d to launch.", ship);
         ping_current_sector();
 
         return;
     }
 
-    if(p->ships[pos].owner != profile.raceid) {
+    if (p->ships[pos].owner != profile.raceid) {
         msg("-- You don't own ship #%d.", p->ships[pos].shipno);
 
         return;
@@ -1158,18 +1117,18 @@ void imap_fire(char ch)
 
     buf[0] = getchar();
 
-    while(buf[0] != '\n') {
+    while (buf[0] != '\n') {
         buf[0] = getchar();
     }
 
-    if(tship <= 0) {
+    if (tship <= 0) {
         return;
     }
 
     promptfor("at ship#: ", buf, PROMPT_STRING);
     fship = atoi(buf);
 
-    if(fship <= 0) {
+    if (fship <= 0) {
         return;
     }
 
@@ -1178,18 +1137,17 @@ void imap_fire(char ch)
 
     buf[0] = getchar();
 
-    while(buf[0] != '\n') {
+    while (buf[0] != '\n') {
         buf[0] = getchar();
     }
 
-    if(str == 0) {
+    if (str == 0) {
         return;
     }
 
-    if(str > 0) {
+    if (str > 0) {
         sprintf(buf, "fire %d %d %d\n", tship, fship, str);
-    }
-    else {
+    } else {
         sprintf(buf, "fire %d %d\n", tship, fship);
     }
 
@@ -1205,18 +1163,18 @@ void map_bombard_or_defend(int mode)
     promptfor("ship#: ", buf, PROMPT_STRING);
     ship = atoi(buf);
 
-    if(ship <= 0) {
+    if (ship <= 0) {
         return;
     }
 
     promptfor("#guns: ", buf, PROMPT_STRING);
     str = atoi(buf);
 
-    if(str == 0) {
+    if (str == 0) {
         return;
     }
 
-    if(str > 0) {
+    if (str > 0) {
         sprintf(buf,
                 "%s %d %d,%-d %d\n",
                 (mode ? "defend" : "bombard"),
@@ -1224,8 +1182,7 @@ void map_bombard_or_defend(int mode)
                 cursect.x,
                 cursect.y,
                 str);
-    }
-    else {
+    } else {
         sprintf(buf,
                 "%s %d %d,%-d\n",
                 (mode ? "defend" : "bombard"),
@@ -1252,7 +1209,7 @@ void imap_land_ship(char ch)
 
 void ping_current_sector(void)
 {
-    if(scope.level != LEVEL_PLANET) {
+    if (scope.level != LEVEL_PLANET) {
         return;
     }
 
@@ -1264,15 +1221,14 @@ void ping_sector(int x, int y)
 {
     char pingbuf[25];
 
-    if(scope.level != LEVEL_PLANET) {
+    if (scope.level != LEVEL_PLANET) {
         return;
     }
 
-    if(GBDT()) {
+    if (game_type == GAME_GBDT) {
         sprintf(pingbuf, "%d,%-d", x, y);
         csp_send_request(CSP_SURVEY_COMMAND, pingbuf);
-    }
-    else {
+    } else {
         sprintf(pingbuf, "client_survey %d,%-d\n", x, y);
         send_gb(pingbuf, strlen(pingbuf));
     }
@@ -1280,15 +1236,14 @@ void ping_sector(int x, int y)
 
 void map_complex_move(int mode)
 {
-    char mbuf[BUFSIZ];
+    char mbuf[NORMSIZ];
     char buf[MAXSIZ];
 
     promptfor("Move: ", mbuf, PROMPT_STRING);
 
-    if(mode) {
+    if (mode) {
         sprintf(buf, "move %d,%-d %s\n", cursect.x, cursect.y, mbuf);
-    }
-    else {
+    } else {
         sprintf(buf, "move %s\n", mbuf);
     }
 
@@ -1304,8 +1259,8 @@ Sector *find_ship(int ship, int *pos)
     j = 0;
     i = imap_map.maxx * imap_map.maxy;
 
-    while(i && (p->ships[j].shipno != ship)) {
-        while((j < MAX_SHIPS_IN_SURVEY) && (p->ships[j].shipno != ship)) {
+    while (i && (p->ships[j].shipno != ship)) {
+        while ((j < MAX_SHIPS_IN_SURVEY) && (p->ships[j].shipno != ship)) {
             ++j;
         }
 
@@ -1313,7 +1268,7 @@ Sector *find_ship(int ship, int *pos)
         ++p;
     }
 
-    if((i == 0) && (j == MAX_SHIPS_IN_SURVEY)) {
+    if ((i == 0) && (j == MAX_SHIPS_IN_SURVEY)) {
         *pos = -1;
 
         return (Sector *)NULL;
@@ -1335,7 +1290,7 @@ int invalid_map_screen_sizes(void)
         }
     } else {
         if ((imap_map.maxy >= output_row)
-            || (imap_map.maxx > (num_colums - 35))) {
+            || (imap_map.maxx > (num_columns - 35))) {
             msg("-- Imap: Screen sizes will not work for the planet.");
 
             return 1;
@@ -1349,10 +1304,9 @@ void imap_complex_move(char ch)
 {
     map_complex_move(0);
 
-    if(GBDT()) {
+    if (game_type == GAME_GBDT) {
         csp_send_request(CSP_SURVEY_COMMAND, "-");
-    }
-    else {
+    } else {
         send_gb("client_survey -\n", 16);
     }
 }
@@ -1450,7 +1404,7 @@ void imap_toggle_ansi(char ch)
 
 void imap_force_redraw(char ch)
 {
-    if(scope.level != LEVEL_PLANET) {
+    if (scope.level != LEVEL_PLANET) {
         msg("-- You are NOT at planet scope.");
 
         return;
@@ -1460,10 +1414,9 @@ void imap_force_redraw(char ch)
     imap_map.map = RE_MAP;
     cursect.x = -1;
 
-    if(GBDT()) {
+    if (game_type == GAME_GBDT) {
         csp_send_request(CSP_SURVEY_COMMAND, "-");
-    }
-    else {
+    } else {
         send_gb("client_curvey -\n", 16);
     }
 }
@@ -1475,7 +1428,7 @@ void map_prompt_force_redraw(void)
         return;
     }
 
-    imap_force_redraw();
+    imap_force_redraw('\0');
 }
 
 void imap_ping_sector(char ch)

@@ -55,10 +55,10 @@ void help(char *args, FILE *fdhelp)
     int oldmulti = false; /* Storage status variable */
     char *ptr;
     char multistr[200];   /* Store current multi level name */
-    char buf[BUFSIZ];
+    char buf[NORMSIZ];
     char temp[SMABUF];
 
-    if(!*args || !args || (*args == '?')) {
+    if (!*args || !args || (*args == '?')) {
         mode = HELP_ALL;
         msg("-- Client Help:");
         msg("Entries with further topics are marked by (*). Do not type the (*).");
@@ -67,9 +67,9 @@ void help(char *args, FILE *fdhelp)
     set_column_maker(20);
     strcpy(multistr, "-=null=-");
 
-    while(fgets(buf, BUFSIZ, fdhelp)) {
-        if(*buf == '\n') {
-            if(found) {
+    while (fgets(buf, NORMSIZ, fdhelp)) {
+        if (*buf == '\n') {
+            if (found) {
                 msg("");
             }
 
@@ -78,7 +78,7 @@ void help(char *args, FILE *fdhelp)
 
         ptr = strchr(buf, '\n');
 
-        if(ptr) {
+        if (ptr) {
             *ptr = '\0';
         }
 
@@ -90,7 +90,7 @@ void help(char *args, FILE *fdhelp)
                 multi = true;
             }
 
-            if(found) {
+            if (found) {
                 /*
                  * It's multi we've printed out multi info now we need
                  * to print out subtopics
@@ -98,8 +98,7 @@ void help(char *args, FILE *fdhelp)
                 if (mode == HELP_MULTI) {
                     mode = HELP_DONE;
                     found = false;
-                }
-                else {
+                } else {
                     /* We are all done, so quit */
                     break;
                 }
@@ -118,23 +117,21 @@ void help(char *args, FILE *fdhelp)
                     multi = false;
                     msg("");
                 }
-            }
-            else {
+            } else {
                 /* We've printed all the multi there are */
                 if (mode == HELP_DONE) {
                     if (!strncmp(buf, multistr, strlen(multistr))) {
                         found = true;
 
                         break;
-                    }
-                    else {
+                    } else {
                         do_column_maker(buf + strlen(multistr));
                     }
                 }
 
                 /* Print specials (multi) only once */
                 if (mode == HELP_ALL) {
-                    if(oldmulti) {
+                    if (oldmulti) {
                         if (!strncmp(buf + strlen("-- "), multistr, strlen(multistr))) {
                             continue;
                         }
@@ -142,40 +139,37 @@ void help(char *args, FILE *fdhelp)
                         oldmulti = false;
                     }
 
-                    if(multi) {
+                    if (multi) {
                         if (!strncmp(buf + strlen("-- "), multistr, strlen(multistr))) {
                             continue;
-                        }
-                        else {
+                        } else {
                             sprintf(temp, "%s (*)", buf + strlen("-- *"));
                             do_column_maker(temp);
                             strcpy(multistr, buf + strlen("-- *"));
                             oldmulti = true;
                             multi = false;
                         }
-                    }
-                    else {
+                    } else {
                         do_column_maker(buf + strlen("-- "));
                     }
                 }
             } /* Special indent */
-        }
-        else {
+        } else {
             /* Not a topic line */
-            if(found) {
+            if (found) {
                 /* We found the entry print to end */
                 msg("%s", buf);
             }
         }
     }
 
-    if(mode) {
+    if (mode) {
         flush_column_maker();
     }
 
     fclose(fdhelp);
 
-    if(!found && !mode) {
+    if (!found && !mode) {
         msg("-- No help available on that topic");
         msg("-- type: helpc for a list of client commands");
         msg("-- type: helps for a list of server info");

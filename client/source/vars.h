@@ -94,17 +94,13 @@ typedef struct node {
 } Node;
 
 extern int action_match_suppress;
-extern struct morestruct more_val;
 extern Info info;
 
 #ifdef RWHO
 extern struct rwhostruct rwho;
 #endif
 
-extern int game_type;
-extern struct input_modestruct input_mode;
 extern Icomm icomm;
-extern struct profilestruct profile;
 extern struct racestruct races[MAX_NUM_PLAYERS];
 extern struct logstruct logfile;
 extern int quit_all;
@@ -113,7 +109,6 @@ extern Orbit orbit;
 extern CurGame cur_game;
 extern int detached;
 extern int options[2];
-extern struct scopestruct scope;
 extern struct sector_typestruct sector_type[SECTOR_MAX];
 extern struct statusstruct status;
 extern struct waitforstruct wait_csp;
@@ -148,6 +143,5 @@ extern char govn_name[];
 extern char race_pass[];
 extern char govn_pass[];
 extern int password_failed;
-extern char *race_colors[MAX_RCOLORS];
 
 #endif // VARS_H_

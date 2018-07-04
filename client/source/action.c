@@ -53,25 +53,19 @@ void cmd_action(char *args)
     while (*ptr == '-') {
         if (!strcmp(ptr, "-nooutput")) {
             nooutput = true;
-        }
-        else if (!strcmp(ptr, "-edit")) {
+        } else if (!strcmp(ptr, "-edit")) {
             edit = true;
-        }
-        else if (!strcmp(ptr, "-quiet")) {
+        } else if (!strcmp(ptr, "-quiet")) {
             quiet = true;
-        }
-        else if (!strcmp(ptr, "-notify")) {
+        } else if (!strcmp(ptr, "-notify")) {
             notify = true;
-        }
-        else if (!strcmp(ptr, "-active")) {
+        } else if (!strcmp(ptr, "-active")) {
             active = true;
             activating = true;
-        }
-        else if (!strcmp(ptr, "-inactive")) {
+        } else if (!strcmp(ptr, "-inactive")) {
             active = false;
             activating = true;
-        }
-        else {
+        } else {
             cmd_unaction(ptr + 1);
             strfree(ptr);
 
@@ -93,8 +87,7 @@ void cmd_action(char *args)
         strfree(ptr);
 
         return;
-    }
-    else if ((*ptr == '#') && !(edit || activating)) {
+    } else if ((*ptr == '#') && !(edit || activating)) {
         msg("-- Action: can not start with %c due to their use in indexes.", *ptr);
         strfree(ptr);
 
@@ -115,8 +108,7 @@ void cmd_action(char *args)
                     fstring(p->action));
 
             set_edit_buffer(buf);
-        }
-        else {
+        } else {
             msg("-- Action: '%s' not found.", ptr);
         }
 
@@ -124,13 +116,11 @@ void cmd_action(char *args)
         strfree(ptr2);
 
         return;
-    }
-    else if (activating && !*ptr2) {
+    } else if (activating && !*ptr2) {
         if (p) {
             p->active = active;
             msg("-- Action: '%s' %sactivated", ptr, (active ? "" : "de"));
-        }
-        else {
+        } else {
             msg("--Action: '%s' not found.", ptr);
         }
 
@@ -156,8 +146,7 @@ void cmd_action(char *args)
             action_tail = action_head;
             p->next = NULL;
             p->prev = NULL;
-        }
-        else {
+        } else {
             p->prev = action_tail;
             action_tail->next = p;
             p->next = NULL;
@@ -207,17 +196,14 @@ void cmd_unaction(char *pat)
         if (p->next) {
             action_head = p->next;
             action_head->prev = (Action *)NULL;
-        }
-        else { /* Sole node */
+        } else { /* Sole node */
             action_head = (Action *)NULL;
             action_tail = (Action *)NULL;
         }
-    }
-    else if (!p->next) { /* End of list */
+    } else if (!p->next) { /* End of list */
         action_tail = p->prev;
         p->prev->next = (Action *)NULL;
-    }
-    else { /* Middle of list */
+    } else { /* Middle of list */
         p->prev->next = p->next;
         p->next->prev = p->prev;
     }
@@ -324,8 +310,7 @@ Action *find_action(char *pat)
         while (p && (p->indx != val)) {
             p = p->next;
         }
-    }
-    else {
+    } else {
         p = action_head;
 
         while (p && strcmp(pat, p->pattern)) {
@@ -389,8 +374,7 @@ int handle_action_matches(char *s)
 
             if (GET_BIT(options, SHOW_ACTIONS) || ptr->notify) {
                 process_key(p, true);
-            }
-            else {
+            } else {
                 process_key(p, false);
             }
 

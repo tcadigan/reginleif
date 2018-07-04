@@ -93,7 +93,7 @@ CurGame cur_game;
 Icomm icomm;
 Info info = { 0, 0, 0, 0 };
 char macro_char;
-char gbrc_path[BUFSIZ + 1];
+char gbrc_path[NORMSIZ + 1];
 
 char *Discoveries[] = {
     "Hyperdrive ",
@@ -246,7 +246,7 @@ int main(int argc, char *argv[])
 
     env = getenv("GBPORT");
 
-    if(env != NULL) {
+    if (env != NULL) {
         strfree(cur_game.game.port);
         cur_game.game.port = string(env);
     }
@@ -281,14 +281,13 @@ int main(int argc, char *argv[])
     /* Get user's shell for shell escapes */
     shell = getenv("SHELL");
 
-    if(shell != NULL) {
+    if (shell != NULL) {
         struct passwd *pwd;
         pwd = getpwuid(getuid());
 
-        if(pwd) {
+        if (pwd) {
             shell = string(pwd->pw_shell);
-        }
-        else {
+        } else {
 #ifdef DEFAULT_SHELL
             shell = string(DEFAULT_SHELL);
 #else
@@ -326,7 +325,7 @@ int main(int argc, char *argv[])
      * backward compatibility
      */
     init_assign(true);
-    ICOMM_INITIALIZE();
+    icomm.num = 0;
 
     term_clear_screen();
     term_move_cursor(0, num_rows - 2);
@@ -334,10 +333,9 @@ int main(int argc, char *argv[])
     /* Load up the initialization file */
     env = getenv("GBRC");
 
-    if(env != NULL) {
+    if (env != NULL) {
         strcpy(gbrc_path, env);
-    }
-    else {
+    } else {
 #ifdef DEFAULT_GBRC_PATH
         strcpy(gbrc_path, DEFAULT_GBRC_PATH);
 
@@ -349,9 +347,9 @@ int main(int argc, char *argv[])
 
     toggle((int *)"off", DISPLAYING, "display");
 
-    while((--argc > 0) && ((*++argv)[0] == '-')) {
-        while(*++(*argv)) {
-            switch(**argv) {
+    while ((--argc > 0) && ((*++argv)[0] == '-')) {
+        while (*++(*argv)) {
+            switch (**argv) {
             case 'a':
                 toggle(options, AUTOLOGIN_STARTUP, "pre-init al");
 
@@ -372,7 +370,7 @@ int main(int argc, char *argv[])
 #ifndef RESTRICTED_ACCESS
                 load_predefined(*argv + 1);
 
-                while(*++(*argv)) {
+                while (*++(*argv)) {
                     ;
                 }
 
@@ -430,7 +428,7 @@ int main(int argc, char *argv[])
             case 'V':
                 servinfo.version = atoi(*argv + 1);
 
-                while(*++(*argv)) {
+                while (*++(*argv)) {
                     ;
                 }
 
@@ -473,33 +471,31 @@ int main(int argc, char *argv[])
     }
 
     /* Needs to be here in case of -f argument */
-    if(allow_init_file) {
+    if (allow_init_file) {
         toggle((int *)"on", DISPLAYING, "display");
         load_predefined(gbrc_path);
         toggle((int *)"off", DISPLAYING, "display");
     }
 
-    while((argc > 0) && *argv) {
-        if(**argv == '-') {
+    while ((argc > 0) && *argv) {
+        if (**argv == '-') {
             continue;
         }
 
         env = strchr(*argv, '.');
 
-        if(env == NULL) {
+        if (env == NULL) {
             /* It's a port */
-            if(isdigit(**argv)) {
+            if (isdigit(**argv)) {
                 strfree(cur_game.game.port);
                 cur_game.game.port = string(*argv);
-            }
-            else {
+            } else {
                 game = find_game(*argv);
 
-                if(!game) {
+                if (!game) {
                     strfree(cur_game.game.host);
                     cur_game.game.host = string(*argv);
-                }
-                else {
+                } else {
                     strfree(cur_game.game.port);
                     strfree(cur_game.game.host);
                     cur_game.game.host = string(game->host);
@@ -526,8 +522,7 @@ int main(int argc, char *argv[])
                     SET_BIT(options, AUTOLOGIN);
                 }
             }
-        }
-        else {
+        } else {
             /* It's a host */
             strfree(cur_game.game.host);
             cur_game.game.host = string(*argv);
@@ -538,16 +533,15 @@ int main(int argc, char *argv[])
     }
 
     /* No game found on command line, try defaults */
-    if(!game && (cur_game.game.host == (char *)NULL)) {
+    if (!game && (cur_game.game.host == (char *)NULL)) {
         game = find_game("default");
 
-        if(!game) {
+        if (!game) {
             /* Nope, no game, just enter in edit mode */
             editclient = true;
             strfree(cur_game.game.host);
             cur_game.game.host = string("");
-        }
-        else {
+        } else {
             strfree(cur_game.game.host);
             strfree(cur_game.game.port);
 
@@ -577,17 +571,15 @@ int main(int argc, char *argv[])
     }
 
     /* Set up the duplicate options so as to preserve GBRC info */
-    if(GET_BIT(options, AUTOLOGIN_STARTUP)) {
+    if (GET_BIT(options, AUTOLOGIN_STARTUP)) {
         SET_BIT(options, AUTOLOGIN);
-    }
-    else {
+    } else {
         CLR_BIT(options, AUTOLOGIN);
     }
 
-    if(GET_BIT(options, LOGINSUPPRESS_STARTUP)) {
+    if (GET_BIT(options, LOGINSUPPRESS_STARTUP)) {
         SET_BIT(options, LOGINSUPPRESS);
-    }
-    else {
+    } else {
         CLR_BIT(options, LOGINSUPPRESS);
     }
 
@@ -603,7 +595,7 @@ int main(int argc, char *argv[])
     cancel_input('\0');
 
 #ifdef XMAP
-    if(xmap_active) {
+    if (xmap_active) {
         /* XMAP set up the map window... */
         make_mwin();
     }
@@ -621,13 +613,13 @@ int main(int argc, char *argv[])
     /* Default to hide encrypted messages (confuses newbies) -mfw */
     SET_BIT(options, ENCRYPT);
 
-    if(editclient) {
+    if (editclient) {
         msg("-- client running in editing mode.");
         msg("-- Use 'connect' to connect with a server.");
     }
 
 #ifdef CLIENT_DEVEL
-    if(client_devel) {
+    if (client_devel) {
         msg(":: Developer output will be displayed.");
     }
 #endif
@@ -645,11 +637,11 @@ int main(int argc, char *argv[])
      * Need this to accomodate some machines. Currently the client does not use
      * more than 9 fds at any one time.
      */
-    if(nfds > 20) {
+    if (nfds > 20) {
         nfds = 20;
     }
 
-    if(!editclient) {
+    if (!editclient) {
         add_assign("host", cur_game.game.host);
         add_assign("port", cur_game.game.port);
         msg("-- Connecting to: %s %s", cur_game.game.host, cur_game.game.port);
@@ -660,17 +652,16 @@ int main(int argc, char *argv[])
          * statement makes sure we don't connect again if we're already
          * connected. (3/15/05 -mfw)
          */
-        if(gb < 1) {
+        if (gb < 1) {
             gb = connectgb(cur_game.game.host, cur_game.game.port, "Connect: ");
         }
 
         debug(1, "main(): gbII connected, descriptor value: %d", gb);
 
-        if(gb > 0) {
+        if (gb > 0) {
             add_assign("connected", "true");
         }
-    }
-    else {
+    } else {
         /* Flagged for repeat_connect in gbs() */
         gb = -2;
     }
@@ -679,7 +670,7 @@ int main(int argc, char *argv[])
     more_val.last_line_time = last_no_logout_time;
     gbs();
 
-    if(gb >= 0) {
+    if (gb >= 0) {
         close_gb();
     }
 
@@ -697,16 +688,15 @@ void gbs(void)
     struct timeval refresh_time;
     struct timeval *timev;
     char buf[MAXSIZ];
-    int num_commands;
     int q_cnt;
 
-    while(!exit_now) {
-        if(gb_close_socket) {
+    while (!exit_now) {
+        if (gb_close_socket) {
             ++gb_close_socket;
         }
 
 #ifdef XMAP
-        if(xmap_active) {
+        if (xmap_active) {
             /* XMAP code: check even queue */
             mwin_event_loop();
         }
@@ -715,26 +705,23 @@ void gbs(void)
         FD_ZERO(&rd);
         FD_ZERO(&except);
         FD_SET(0, &rd);
-        num_commands = 0;
 
-        if(gb > 0) {
+        if (gb > 0) {
             FD_SET(gb, &rd);
-        }
-        else if(gb != -2) {
+        } else if (gb != -2) {
             now = time(0);
 
-            if(then == -1) {
+            if (then == -1) {
                 then = now;
-            }
-            else if(!exit_now
-                    && GET_BIT(options, CONNECT)
-                    && (now > (then + reconnect_delay))) {
-                if(GBDT()) {
-                    if(GET_BIT(options, AUTOLOGIN_STARTUP)) {
+            } else if (!exit_now
+                       && GET_BIT(options, CONNECT)
+                       && (now > (then + reconnect_delay))) {
+                if (game_type == GAME_GBDT) {
+                    if (GET_BIT(options, AUTOLOGIN_STARTUP)) {
                         SET_BIT(options, AUTOLOGIN);
                     }
 
-                    if(GET_BIT(options, LOGINSUPPRESS_STARTUP)) {
+                    if (GET_BIT(options, LOGINSUPPRESS_STARTUP)) {
                         SET_BIT(options, LOGINSUPPRESS);
                     }
                 }
@@ -743,7 +730,7 @@ void gbs(void)
                 gb = connectgb(cur_game.game.host, cur_game.game.port, "Reconnect: ");
                 then = now;
 
-                if(gb > 0) {
+                if (gb > 0) {
                     msg("-- Connection re-established");
                     then = -1;
                 }
@@ -753,21 +740,20 @@ void gbs(void)
         /* Get time for various loops below */
         now = time(0);
 
-        if(client_stats == L_LOGGEDIN) {
+        if (client_stats == L_LOGGEDIN) {
             init_start_commands(0);
             client_stats = L_INTERNALINIT;
             more_val.num_lines_scrolled = 0;
         }
 
 #ifdef RWHO
-        if((client_stats == L_ACTIVE)
-           && rwho.on
-           && ((rwho.last_time + RWHO_DELAY) < now)) {
-            if(start_command(C_RWHO, 0)) {
+        if ((client_stats == L_ACTIVE)
+            && rwho.on
+            && ((rwho.last_time + RWHO_DELAY) < now)) {
+            if (start_command(C_RWHO, 0)) {
                 /* A small delay */
                 rwho.last_time = now + 20;
-            }
-            else {
+            } else {
                 rwho.last_time += 90;
             }
         }
@@ -775,20 +761,19 @@ void gbs(void)
 
         handle_loop();
 
-        if((status.last_time + 60) < now) {
+        if ((status.last_time + 60) < now) {
             force_update_status();
         }
 
 #ifdef IMAP
-        if((map_time != -1) && (map_time < now)) {
+        if ((map_time != -1) && (map_time < now)) {
             redraw_sector();
             ping_current_sector();
         }
 
-        if(input_mode.map) {
+        if (input_mode.map) {
             refresh_time.tv_usec = REFRESH_TIME_IMAP;
-        }
-        else {
+        } else {
             refresh_time.tv_usec = REFRESH_TIME_NORM;
         }
 #else
@@ -802,20 +787,19 @@ void gbs(void)
 
         count = select(nfds, &rd, NULL, &except, timev);
 
-        if(count == -1) {
-            if(errno != EINTR) {
+        if (count == -1) {
+            if (errno != EINTR) {
                 msg_error("-- Error in select:");
             }
-        }
-        else if(count > 0) {
-            if((gb > 0) && FD_ISSET(gb, &rd)) {
+        } else if (count > 0) {
+            if ((gb > 0) && FD_ISSET(gb, &rd)) {
                 read_socket();
             }
 
-            if(FD_ISSET(0, &rd) && !detached) {
+            if (FD_ISSET(0, &rd) && !detached) {
                 get_key();
 
-                if(prompt_return) {
+                if (prompt_return) {
                     return;
                 }
             }
@@ -827,10 +811,10 @@ void gbs(void)
 
         q_cnt = 0;
 
-        if(have_socket_output() && !paused && (q_cnt < MAX_SOCKET_COMMANDS)) {
+        if (have_socket_output() && !paused && (q_cnt < MAX_SOCKET_COMMANDS)) {
             get_socket();
 
-            if(socket_return) {
+            if (socket_return) {
                 return;
             }
 
@@ -839,11 +823,11 @@ void gbs(void)
 
         q_cnt = 0;
 
-        while(check_queue() && (q_cnt <= MAX_QUEUE_COMMANDS)) {
+        while (check_queue() && (q_cnt <= MAX_QUEUE_COMMANDS)) {
             remove_queue(buf);
             process_queue(buf);
 
-            if(do_clear_queue()) {
+            if (do_clear_queue()) {
                 clear_queue();
             }
 
@@ -852,15 +836,14 @@ void gbs(void)
 
         check_no_logout();
 
-        if(gb_close_socket == GB_CLOSE_SOCKET_DELAY) {
+        if (gb_close_socket == GB_CLOSE_SOCKET_DELAY) {
             close_gb();
             gb_close_socket = false;
 
-            if(quit_all) {
+            if (quit_all) {
                 exit_now = true;
             }
-        }
-        else if((gb_close_socket == false) && quit_all) {
+        } else if ((gb_close_socket == false) && quit_all) {
             exit_now = true;
         }
 

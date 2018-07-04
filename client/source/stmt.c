@@ -45,7 +45,7 @@ int remove_loop(char *cmd_name);
 void cmd_loop(char *args)
 {
     char timebuf[SMABUF];
-    char restbuf[BUFSIZ];
+    char restbuf[MAXSIZ];
     long timel;
     int resp;
 
@@ -165,7 +165,7 @@ int remove_loop(char *cmd_name)
         val = atoi(cmd_name + 1);
         p = loop_info.head;
 
-        while(p && (p->indx != val)) {
+        while (p && (p->indx != val)) {
             p = p->next;
         }
     }
@@ -230,7 +230,7 @@ void cmd_listloop(char *args)
 
     msg("-- Loop list:");
 
-    while(p) {
+    while (p) {
         if(p->user_defn) {
             msg("%3d) \'$s\' (%d secs) %s",
                 cnt,
@@ -258,7 +258,7 @@ void loop_update_index(void)
     Loop *p;
     int cnt = 1;
 
-    for(p = loop_info.head; p; p = p->next) {
+    for (p = loop_info.head; p; p = p->next) {
         p->indx = cnt++;
     }
 }
@@ -288,7 +288,7 @@ void handle_loop(void)
 
     loop_info.last_time = cur_time;
 
-    while(p) {
+    while (p) {
         if((p->last_time + (long)p->time) < cur_time) {
             strcpy(temp, p->cmd);
             process_key(temp, 0);
@@ -304,7 +304,7 @@ void loop_update_time(void)
     Loop *q;
     long newlow = 10000000;
 
-    for(q = loop_info.head; q; q = q->next) {
+    for (q = loop_info.head; q; q = q->next) {
         if(q->time < newlow) {
             newlow = q->time;
         }
@@ -394,7 +394,7 @@ void cmd_for(char *args)
         q = args + 1;
         p = strchr(q, ',');
 
-        while(p) {
+        while (p) {
             *p = '\0';
             sprintf(val, "assign ^%s %s", loopname, q);
             add_queue(val, 1);
@@ -466,7 +466,7 @@ void cmd_for(char *args)
     i = firstval;
     lastval += crement;
 
-    while(i != lastval) {
+    while (i != lastval) {
         /* By pass the msg system with the ^ */
         sprintf(val, "assign ^%s %d", loopname, i);
         add_queue(val, 1);
@@ -501,7 +501,7 @@ void cmd_if(char *args)
         return;
     }
 
-    for(q = p; *q; ++q) {
+    for (q = p; *q; ++q) {
         if(*q == '(') {
             ++parencnt;
         }
@@ -627,7 +627,7 @@ int analyze_cndtl(char *s)
     debug(2, "left: \'%s\'", left);
     debug(2, "right: \'%s\'", right);
 
-    switch(oper_flag) {
+    switch (oper_flag) {
     case 1:
         if (!strcmp(left, right)) {
             return 1;

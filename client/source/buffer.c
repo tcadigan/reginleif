@@ -1,7 +1,7 @@
 /*
  * buffer.c: Handles the buffering of output on a linked list
  *
- * Written by Evan D. Kofflet <evank@netcom.com>
+ * Written by Evan D. Koffler <evank@netcom.com>
  *
  * Copyright (c) 1993
  *
@@ -24,18 +24,17 @@ void add_buffer(BufferInfo *infoptr, char *str, int partial)
     int len;
 
     /* Partial lines so append incoming data */
-    if(infoptr->partial) {
-        if(partial) {
+    if (infoptr->partial) {
+        if (partial) {
             debug(2, "add_buffer (partial): adding to line. This line is: partial");
-        }
-        else {
+        } else {
             debug(2, "add_buffer (partial): adding to line. This line is: done");
         }
 
         len = strlen(infoptr->tail->buf) + strlen(str);
         q = (char *)malloc(len + 1);
 
-        if(!q) {
+        if (!q) {
             msg("-- Malloc: Could not allocate socket output!");
 
             return;
@@ -56,19 +55,18 @@ void add_buffer(BufferInfo *infoptr, char *str, int partial)
     /* New data coming in, set up linked list */
     p = (Buffer *)malloc(sizeof(Buffer));
 
-    if(!p) {
+    if (!p) {
         msg("-- Malloc: Could not allocate socket output!");
 
         return;
     }
 
-    if(!infoptr->tail) {
+    if (!infoptr->tail) {
         infoptr->tail = p;
         infoptr->head = p;
         p->next = NULL;
         p->prev = NULL;
-    }
-    else {
+    } else {
         p->next = infoptr->tail;
         infoptr->tail->prev = p;
         p->prev = NULL;
@@ -79,10 +77,9 @@ void add_buffer(BufferInfo *infoptr, char *str, int partial)
     p->buf = maxstring(str);
     infoptr->partial = partial;
 
-    if(partial) {
+    if (partial) {
         debug(2, "add_buffer (newline): adding to line. This line is: partial");
-    }
-    else {
+    } else {
         debug(2, "add_buffer (newline): adding to line. This line is: done");
     }
 }
@@ -92,22 +89,21 @@ char *remove_buffer(BufferInfo *infoptr)
     Buffer *p = infoptr->head;
     char *str;
 
-    if(!infoptr->head) {
+    if (!infoptr->head) {
         return "";
     }
 
     /* Lop off the head node */
-    if(p->prev) {
+    if (p->prev) {
         p->prev->next = NULL;
     }
 
     /* One node, head/tail point to it */
-    if(infoptr->head == infoptr->tail) {
+    if (infoptr->head == infoptr->tail) {
         infoptr->tail = NULL;
         infoptr->head = infoptr->tail;
         infoptr->partial = false;
-    }
-    else {
+    } else {
         /* Else move head back one node */
         infoptr->head = p->prev;
     }
@@ -128,16 +124,15 @@ int have_buffer(BufferInfo *infoptr)
 {
     static long last_check = -1;
 
-    if(!infoptr) {
+    if (!infoptr) {
         return false;
     }
 
-    if((infoptr->tail == infoptr->head) && infoptr->partial) {
-        if(GET_BIT(options, PARTIAL_LINES)) {
-            if(last_check == -1) {
+    if ((infoptr->tail == infoptr->head) && infoptr->partial) {
+        if (GET_BIT(options, PARTIAL_LINES)) {
+            if (last_check == -1) {
                 last_check = time(0);
-            }
-            else if(last_check < (time(0) /* - 1 */)) {
+            } else if (last_check < (time(0) /* - 1 */)) {
                 infoptr->partial = false;
                 infoptr->is_partial = true;
                 last_check = -1;
@@ -149,7 +144,7 @@ int have_buffer(BufferInfo *infoptr)
         return false;
     }
 
-    if(infoptr->head) {
+    if (infoptr->head) {
         last_check = -1;
 
         return true;

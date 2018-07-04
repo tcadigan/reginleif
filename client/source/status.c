@@ -58,7 +58,7 @@ struct tm {
 
 /* Set it way high so new mail notification does not occur at login */
 int mcnt = 9999999;
-char last_update_buf[BUFSIZ];
+char last_update_buf[NORMSIZ];
 
 void update_status(void)
 {
@@ -108,7 +108,7 @@ int check_mail(void)
     int cnt;
     int oldmcnt = mcnt;
     FILE *fmail;
-    char mpath[BUFSIZ];
+    char mpath[NORMSIZ];
     static char *uname = NULL;
     struct passwd *pwname;
 
@@ -135,7 +135,7 @@ int check_mail(void)
 
     cnt = 0;
 
-    while(fgets(pbuf, BUFSIZ, fmail)) {
+    while (fgets(pbuf, NORMSIZ, fmail)) {
         if(strncmp(pbuf, MAIL_DELIMITER, MAIL_DELIMITER_LEN) == 0) {
             ++cnt;
         }
@@ -182,8 +182,8 @@ char *print_time(long ptime)
 
 char *build_status(void)
 {
-    static char new_status_buf[BUFSIZ];
-    char end_buf[BUFSIZ];
+    static char new_status_buf[NORMSIZ];
+    char end_buf[NORMSIZ];
     char *p = status.format;
     char *q = new_status_buf;
     long present;
@@ -195,9 +195,9 @@ char *build_status(void)
     status.last_time = present;
     *end_ubf = '\0';
 
-    while(*p) {
+    while (*p) {
         if(*p == '$') {
-            switch(*++p) {
+            switch (*++p) {
             case 'B':
                 strcpy(q, print_time(boot_time));
                 q += 5; /* HH:MM is 5 */
@@ -339,7 +339,7 @@ char *build_status(void)
     *q = '\0';
     len = num_columns - strlen(new_status_buf) - strlen(end_buf);
 
-    while(len > 0) {
+    while (len > 0) {
         strcat(new_status_buf, status.schar);
         --len;
     }
@@ -352,8 +352,8 @@ char *build_status(void)
 
 char *build_scope_prompt(void)
 {
-    static char sbuf[BUFSIZ];
-    char shipbuf[BUFSIZ];
+    static char sbuf[MAXSIZ];
+    char shipbuf[NORMSIZ];
     char temp[SMABUF];
     int i;
     Ship *s;
@@ -362,7 +362,7 @@ char *build_scope_prompt(void)
 
     /* Old stype scope */
     if(scope.numships == -1) {
-        switch(scope.level) {
+        switch (scope.level) {
         case LEVEL_USSHIP:
         case LEVEL_SSSHIP:
         case LEVEL_PSSHIP:
@@ -383,7 +383,7 @@ char *build_scope_prompt(void)
         }
     }
     else if(scope.numships) {
-        for(s = scope.motherlist, i = 1; i < scope.numships; s = s->next, ++i) {
+        for (s = scope.motherlist, i = 1; i < scope.numships; s = s->next, ++i) {
             sprintf(temp, "/#%d", s->shipno);
             strcat(shipbuf, temp);
         }
@@ -392,7 +392,7 @@ char *build_scope_prompt(void)
         strcat(shipbuf, temp);
     }
 
-    switch(scope.level) {
+    switch (scope.level) {
     case CSPD_UNIV:
         sprintf(sbuf, "( [%d] /%s )", scope.aps, shipbuf);
 

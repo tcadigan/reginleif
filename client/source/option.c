@@ -119,7 +119,7 @@ static CommandSet commandset_table[] = {
 
 void display_set(void)
 {
-    char dsbuf[BUFSIZ];
+    char dsbuf[NORMSIZ];
 
     set_column_maker(num_columns / 2);
     msg("-- set:");
@@ -297,7 +297,7 @@ void display_set(void)
 
     sprintf(dsbuf,
             "show_actions: %s",
-            (GET_BIG(options, SHOW_ACTIONS) ? "on " : "off"));
+            (GET_BIT(options, SHOW_ACTIONS) ? "on " : "off"));
 
     do_column_maker(dsbuf);
 
@@ -427,7 +427,7 @@ CommandSet *binary_set_search(char *cmd)
     int mid;
     int value;
 
-    while(bottom <= top) {
+    while (bottom <= top) {
         mid = bottom + ((top - bottom) / 2);
         value = strcmp(cmd, commandset_table[mid].name);
 

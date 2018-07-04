@@ -34,7 +34,7 @@ gb.o: gb.h args.h bind.h command.h crypt.h csp.h icomm.h imap.h key.h load.h opt
 fuse.o: fuse.h csp.h gb.h key.h socket.h str.h types.h
 help.o: help.h str.h types.h
 icomm.o: icomm.h csp.h gb.h str.h types.h vars.h
-imap.o: imap.h ansi.h csp.h gb.h str.h term.h types.h vars.h
+imap.o: imap.h ansi.h csp.h gb.h key.h str.h socket.h status.h term.h
 key.o: key.h args.h crypt.h gb.h str.h term.h types.h vars.h
 load.o: load.h csp.h gb.h str.h term.h types.h vars.h
 map.o: map.h ansi.h arrays.h gb.h str.h term.h types.h vars.h
@@ -55,6 +55,7 @@ command.h: vars.h
 crypt.h: types.h
 csp.h: types.h
 csparr.h: psmap.h
+gb.h: ansi.h
 imap.h: types.h
 option.h: term.h
 stmt.h: types.h

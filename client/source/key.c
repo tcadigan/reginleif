@@ -276,7 +276,7 @@ void input_string_into_buf(char *s)
 {
     char *p;
 
-    for(p = s; *p; ++p) {
+    for (p = s; *p; ++p) {
         add_key_buf(*p);
     }
 }
@@ -421,7 +421,7 @@ void delete_word_left(char ch)
 {
     erase_space_left();
 
-    while(pos.cur && (key_buf[pos.cur - 1] != ' ')) {
+    while (pos.cur && (key_buf[pos.cur - 1] != ' ')) {
         erase_space_left();
     }
 
@@ -440,7 +440,7 @@ void delete_word_right(char ch)
 {
     erase_space_right();
 
-    while((pos.cur != pos.key) && (key_buf[pos.cur] != ' ')) {
+    while ((pos.cur != pos.key) && (key_buf[pos.cur] != ' ')) {
         erase_space_right();
     }
 
@@ -478,7 +478,7 @@ void set_marks(void)
     mark.lower = 0;
     mark.upper = num_columns - WIDTH - pos.plen;
 
-    while(mark.upper < pos.cur) {
+    while (mark.upper < pos.cur) {
         mark.lower = mark.upper - WIDTH;
         mark.upper += (num_columns - (2 * WIDTH));
     }
@@ -519,7 +519,7 @@ void update_key(int mode)
                 len = num_columns;
             }
 
-            for(i = 0; i < len; ++i) {
+            for (i = 0; i < len; ++i) {
                 term_puts("*", 1);
             }
 
@@ -538,7 +538,7 @@ void update_key(int mode)
                 }
             }
 
-            for(i = 0; i < len; ++i) {
+            for (i = 0; i < len; ++i) {
                 term_puts("*", 1);
             }
         }
@@ -702,12 +702,12 @@ void refresh_screen(char ch)
         cnt = output_row - start_pos;
     }
 
-    for(start_pos = 0; start_pos < cnt; ++start_pos) {
+    for (start_pos = 0; start_pos < cnt; ++start_pos) {
         term_move_cursor(0, start_pos);
         term_clear_to_eol();
     }
 
-    while(cnt <= output_row) {
+    while (cnt <= output_row) {
         term_move_cursor(0, cnt);
 
         if(refresh_line[i] != NULL) {
@@ -805,7 +805,7 @@ void esc_default(char ch)
 
 void arrow_default(char ch)
 {
-    switch(ch) {
+    switch (ch) {
     case 'A':
         msg("-- ARROW-U has no string of function attached.");
 
@@ -835,7 +835,7 @@ void print_key_string(int parse)
 {
     char *q;
     char outbuf[MAXSIZ];
-    char cmdbuf[BUFSIZ];
+    char cmdbuf[NORMSIZ];
 
     if(parse) {
         parse_variables(key_store);
@@ -943,8 +943,8 @@ void process_key(char *s, int interactive)
         return;
     }
 
-    while(*p) {
-        switch(*p) {
+    while (*p) {
+        switch (*p) {
         case '\'':
         case '\"':
             if(quoted == *p) {
@@ -969,7 +969,7 @@ void process_key(char *s, int interactive)
             ++slashes;
             ++p;
 
-            while(*p && (*p == '\\')) {
+            while (*p && (*p == '\\')) {
                 ++slashes;
                 ++p;
             }
@@ -1130,7 +1130,7 @@ void get_key(void)
     getkey[count] = '\0';
     p = getkey;
 
-    while(*p) {
+    while (*p) {
         gbch = *p++;
 
         if(quoted_char) {
@@ -1223,7 +1223,7 @@ void stop_things(char ch)
     promptfor(prbuf, &c, PROMPT_CHAR);
 
     if(YES(c)) {
-        switch(type) {
+        switch (type) {
         case 1:
             kill_process();
 
@@ -1334,7 +1334,7 @@ int trans_func_key_to_num(char c)
 {
     int x = -1;
 
-    switch(c) {
+    switch (c) {
     case 'S':
         x = 0;
 

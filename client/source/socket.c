@@ -76,7 +76,7 @@ int notify = -2;
 int password_invalid = false; /* Password prompt flag */
 int server_help = false; /* Doing a server help */
 long last_no_logout_time; /* For no_logout */
-char last_prompt[BUFSIZ]; /* Holds last prompt found */
+char last_prompt[MAXSIZ]; /* Holds last prompt found */
 
 extern char *check_encrypt();
 extern char *match_action();
@@ -215,7 +215,7 @@ void procesS_gb(char *s)
 
     /* If line has not been cancelled -mfw */
     if(*s != 24) {
-        switch(*s) {
+        switch (*s) {
         case '#':
             plot_orbit(s);
 
@@ -240,10 +240,10 @@ void procesS_gb(char *s)
 #endif
         default:
             /* So CSP can catch end prompts this has to be here */
-            if(ICOMM_DOING_COMMAND) {
+            if (icomm.num) {
                 icomm_handling_command(s);
 
-                if(ICOMM_IGNORE) {
+                if (icomm.list[0].ignore) {
                     return;
                 }
             }
@@ -260,10 +260,10 @@ void process_socket(char *s)
     int type = NONE; /* To signal for announce/braodcast */
     char *ptr;
     char *p;
-    char racename[BUFSIZ];
-    char govname[BUFSIZ];
-    char raceid[BUFSIZ];
-    char govid[BUFSIZ];
+    char racename[NORMSIZ];
+    char govname[NORMSIZ];
+    char raceid[NORMSIZ];
+    char govid[NORMSIZ];
     char actualmsg[MAXSIZ];
 
     if(match_gag(s)) {
@@ -597,7 +597,7 @@ void oldcheck4_endprompt(char *s)
             }
         }
 
-        if(NOTGB()) {
+        if (game_type == GAME_NOTGB) {
             game_type = GAME_UNKNOWN;
             add_assign("game_type", "UNKNOWN");
         }
@@ -663,7 +663,9 @@ void oldcheck4_endprompt(char *s)
 
         if(!GET_BIT(options, AUTOLOGIN)) {
             msg("%s", s);
-            SECRET("Password> ", dummybuf, PROMPT_STRING);
+            hide_input = true;
+            promptfor("Password> ", dummybuf, PROMPT_STRING);
+            hide_input = false;
             send_gb(dummybuf, strlen(dummybuf));
         }
     } else if ((!strcmp(s, "Invalid: Bad Password.")
@@ -673,7 +675,7 @@ void oldcheck4_endprompt(char *s)
         client_stats = L_CONNECTED;
         password_invalid = true;
 
-        if(GBDT()) {
+        if (game_type == GAME_GBDT) {
             CLR_BIT(options, LOGINSUPPRESS);
             CLR_BIT(options, AUTOLOGIN);
             CLR_BIT(options, CONNECT);
@@ -681,7 +683,9 @@ void oldcheck4_endprompt(char *s)
 
         msg("%s", s);
         msg("-- Please enter a new password or 'quit' to disconnect from the server.");
-        SECRET("Password> ", dummybuf, PROMPT_STRING);
+        hide_input = true;
+        promptfor("Password> ", dummybuf, PROMPT_STRING);
+        hide_input = false;
 
         if (!strcmp(dummybuf, "quit")) {
             cmd_quote(dummybuf);
@@ -724,7 +728,9 @@ void connect_prompts(char *s)
 
         if(!GET_BIT(options, AUTOLOGIN)) {
             msg("%s", s);
-            SECRET("PASSWORD> ", buf, PROMPT_STRING);
+            hide_input = true;
+            promptfor("PASSWORD> ", buf, PROMPT_STRING);
+            hide_input = false;
 
             /* Allow the user to quit -mfw */
             if (!strncmp(buf, "quit", strlen("quit"))) {
@@ -746,7 +752,7 @@ void connect_prompts(char *s)
         client_stats = L_PASSWORD;
         password_invalid = true;
 
-        if(GBDT()) {
+        if (game_type == GAME_GBDT) {
             CLR_BIT(options, LOGINSUPPRESS);
             CLR_BIT(options, AUTOLOGIN);
             CLR_BIT(options, CONNECT);
@@ -758,7 +764,9 @@ void connect_prompts(char *s)
         /* Hmmm, the quit command isn't working -mfw */
         /* msg("-- Please enter a new password or 'quit' to disconnect from the server."); */
         msg("-- Please enter a new password or 'ctrl-c' to quit.");
-        SECRET("PASSWORD> ", buf, PROMPT_STRING);
+        hide_input = true;
+        prompt_for("PASSWORD> ", buf, PROMPT_STRING);
+        hide_input = false;
 
         if (!strncmp(buf, "quit", strlen("quit"))) {
             cmd_quote(buf);
@@ -793,7 +801,7 @@ void connect_prompts(char *s)
         strcpy(s, ""); /* To blank out the message -mfw */
         msg("-- CHAP login failed, try again or 'ctrl-c' to quit.");
 
-        if(GBDT()) {
+        if (game_type == GAME_GBDT) {
             CLR_BIT(options, LOGINSUPPRESS);
             CLR_BIT(options, AUTOLOGIN);
             CLR_BIT(options, CONNECT);
@@ -854,8 +862,8 @@ void send_gb(char *s, int len)
     p = outbuf;
     q = s;
 
-    while(*q) {
-        switch(*q) {
+    while (*q) {
+        switch (*q) {
         case BELL_CHAR:
         case BOLD_CHAR:
         case INVERSE_CHAR:
@@ -936,8 +944,8 @@ void scroll_output_window(void)
 void cmd_connect(char *s)
 {
     Game *p = (Game *)NULL;
-    char host_try[BUFSIZ];
-    char port_try[BUFSIZ];
+    char host_try[NORMSIZ];
+    char port_try[NORMSIZ];
     int fd;
     int unknown = false;
     int dup_game = false;
@@ -1073,7 +1081,7 @@ void set_no_logout(void)
 void check_no_logout(void)
 {
     long now;
-    char tbuf[BUFSIZ];
+    char tbuf[NORMSIZ];
 
     if(!GET_BIT(options, NO_LOGOUT)) {
         return;
@@ -1092,7 +1100,7 @@ void check_no_logout(void)
 
 char *build_scope(void)
 {
-    static char scopebuf[BUFSIZ];
+    static char scopebuf[NROMSIZ];
 
     if(scope.level >= LEVEL_SHIP) {
         if(scope.numships == -1) {
@@ -1155,7 +1163,7 @@ void check_for_special_formatting(char *s, int type)
         return;
     }
 
-    for(p = s, q = outbuf; *p; ++p, ++q) {
+    for (p = s, q = outbuf; *p; ++p, ++q) {
         if((*p == SEND_QUOTE_CHAR) && (type == FORMAT_NORMAL)) {
             ++p;
 
@@ -1178,7 +1186,7 @@ void check_for_special_formatting(char *s, int type)
             }
         }
         else if(type == FORMAT_HELP) {
-            switch(*p) {
+            switch (*p) {
             case '{':
             case '}':
                 ch = *p++;
@@ -1222,7 +1230,7 @@ void check_for_special_formatting(char *s, int type)
 /* Close the socket and clean up variables */
 void close_gb(void)
 {
-    while(have_socket_output() && !paused) {
+    while (have_socket_output() && !paused) {
         get_socket();
     }
 
@@ -1278,7 +1286,7 @@ int read_socket(void)
     /* Break into newlines if possible */
     p = strchr(q, '\n');
 
-    while(p) {
+    while (p) {
         *p = '\0';
         add_buffer(&gbsobuf, q, 0);
         q = p + 1;
@@ -1307,7 +1315,7 @@ void loggedin(void)
     client_stats = L_LOGGEDIN;
     connect_time = time(0);
 
-    if(GBDT()) {
+    if (game_type == GAME_GBDT) {
         /* Arg of 0 for color off, 1 for color on */
         csp_send_request(CSP_LOGIN_COMMAND, NULL);
 
@@ -1338,7 +1346,7 @@ void loggedin(void)
 
     init_start_commands(0); /* Set client_stats below */
 
-    if(!GBDT() && entry_quote) {
+    if ((game_type != GAME_GBDT) && entry_quote) {
         send_gb(entry_quote, strlen(entry_quote));
     }
 
@@ -1350,8 +1358,8 @@ void loggedin(void)
 void cmd_ping(char *s)
 {
     Game *p = (Game *)NULL;
-    char host_try[BUFSIZ];
-    char port_try[BUFSIZ];
+    char host_try[NORMSIZ];
+    char port_try[NORMSIZ];
     int fd;
 
     if(!*s) {
@@ -1403,9 +1411,9 @@ int on_endprompt(int eprompt)
         return false;
     }
 
-    if(ICOMM_DOING_COMMAND
-       && (ICOMM_STATE == S_PROC)
-       && (ICOMM_PROMPT == eprompt)) {
+    if (icomm.num
+        && (icomm.list[0].state = S_PROC)
+        && (icomm.list[0].prompt == eprompt)) {
         icomm_command_done('\0');
     }
 
@@ -1416,7 +1424,7 @@ int on_endprompt(int eprompt)
         if((client_stats = L_PASSWORD) && !GET_BIT(options, PARTIAL_LINES)) {
             msg("-- WARNING: The client does NOT know your race id number.");
 
-            while((client_stats != L_LOGGEDIN) && (client_stats >= L_PASSWORD)) {
+            while ((client_stats != L_LOGGEDIN) && (client_stats >= L_PASSWORD)) {
                 promptfor("Race Id#? ", pbuf, PROMPTSTRING);
 
                 if(isdigit(*pbuf)) {
@@ -1491,7 +1499,9 @@ void get_pass_info(void)
         return;
     }
 
-    SECRET("Race Password: ", pbuf, PROMPT_STRING);
+    hide_input = true;
+    promptfor("Race Password: ", pbuf, PROMPT_STRING);
+    hide_input = false;
     strcpy(race_pass, pbuf);
 
     promptfor("Governor Name: ", pbuf, PROMPT_STRING);
@@ -1503,7 +1513,9 @@ void get_pass_info(void)
         return;
     }
 
-    SECRET("Governor Password: ", pbuf, PROMPT_STRING);
+    hide_input = true;
+    promptfor("Governor Password: ", pbuf, PROMPT_STRING);
+    hide_input = false;
     strcpy(govn_pass, pbuf);
 
     return;
@@ -1511,12 +1523,12 @@ void get_pass_info(void)
 
 void chap_response(char *line)
 {
-    char auth_string[BUFSIZ];
-    char client_hash[BUFSIZ];
-    char pass_cat[BUFSIZ];
-    char key[BUFSIZ];
-    char garb1[BUFSIZ];
-    char garb2[BUFSIZ];
+    char auth_string[NORMSIZ];
+    char client_hash[NORMSIZ];
+    char pass_cat[NORMSIZ];
+    char key[NORMSIZ];
+    char garb1[NORMSIZ];
+    char garb2[NORMSIZ];
 
     debug(2, "Received CHAP Challenge.");
     sscanf(line, "%s %s %s", garb1, garb2, key);
@@ -1532,7 +1544,7 @@ void chap_response(char *line)
     }
 
     sprintf(pass_cat, "%s%s%s", race_pass, govn_pass, key);
-    memset(client_hash, '\0', sizeof(BUFSIZ));
+    memset(client_hash, '\0', sizeof(NORMSIZ));
     MD5String(pass_cat, client_hash);
 
     sprintf(auth_string,

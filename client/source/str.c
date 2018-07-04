@@ -33,38 +33,38 @@ int debug_level = 0;
 char *client_prompt;
 char *input_prompt;
 char *output_prompt;
-char column_maker_buf[BUFSIZ]; /* For building the columns */
+char column_maker_buf[MAXSIZ]; /* For building the columns */
 int column_maker_pos; /* Indexing location columns */
 int column_maker_width;
 
 /* Results for pattern matcher */
-char pattern1[BUFSIZ];
-char pattern2[BUFSIZ];
-char pattern3[BUFSIZ];
-char pattern4[BUFSIZ];
-char pattern5[BUFSIZ];
-char pattern6[BUFSIZ];
-char pattern7[BUFSIZ];
-char pattern8[BUFSIZ];
-char pattern9[BUFSIZ];
-char pattern10[BUFSIZ];
-char pattern11[BUFSIZ];
-char pattern12[BUFSIZ];
-char pattern13[BUFSIZ];
-char pattern14[BUFSIZ];
-char pattern15[BUFSIZ];
-char pattern16[BUFSIZ];
-char pattern17[BUFSIZ];
-char pattern18[BUFSIZ];
-char pattern19[BUFSIZ];
-char pattern20[BUFSIZ];
+char pattern1[MAXSIZ];
+char pattern2[MAXSIZ];
+char pattern3[MAXSIZ];
+char pattern4[MAXSIZ];
+char pattern5[MAXSIZ];
+char pattern6[MAXSIZ];
+char pattern7[MAXSIZ];
+char pattern8[MAXSIZ];
+char pattern9[MAXSIZ];
+char pattern10[MAXSIZ];
+char pattern11[MAXSIZ];
+char pattern12[MAXSIZ];
+char pattern13[MAXSIZ];
+char pattern14[MAXSIZ];
+char pattern15[MAXSIZ];
+char pattern16[MAXSIZ];
+char pattern17[MAXSIZ];
+char pattern18[MAXSIZ];
+char pattern19[MAXSIZ];
+char pattern20[MAXSIZ];
 
 char *pattern[] = {
     pattern1, pattern2, pattern3, pattern4,
     pattern5, pattern6, pattern7, pattern8,
     pattern9, pattern10, pattern11, pattern12,
     pattern13, pattern14, pattern15, pattern16,
-    pattern17, pattern18, pattern19, pattern10
+    pattern17, pattern18, pattern19, pattern20
 };
 
 char *skip_space(char *s);
@@ -82,7 +82,7 @@ int has_esc_codes(char *str);
 /* Returns a pointer to a static containing the first word of a string */
 char *first(char *str)
 {
-    static char buf[BUFSIZ];
+    static char buf[MAXSIZ];
     char *s = buf;
 
     if(!str) {
@@ -95,13 +95,13 @@ char *first(char *str)
         /* Copy from " to " */
         ++str;
 
-        while(*str && (*str != '\"')) {
+        while (*str && (*str != '\"')) {
             *s++ = *str++;
         }
     }
     else {
         /* Copy from here to first whitspace */
-        while(*str && !isspace(*str)) {
+        while (*str && !isspace(*str)) {
             *s++ = *str++;
         }
     }
@@ -129,7 +129,7 @@ char *rest(char *str)
         /* Copy from " to " */
         ++str;
 
-        while(*str && (*str != '\"')) {
+        while (*str && (*str != '\"')) {
             ++str;
         }
 
@@ -137,7 +137,7 @@ char *rest(char *str)
     }
     else {
         /* Copy from here to first whitespace */
-        while(*str && !isspace(*str)) {
+        while (*str && !isspace(*str)) {
             ++str;
         }
     }
@@ -188,7 +188,7 @@ char *skip_space(char *s)
         return NULL;
     }
 
-    while(*str && isspace(*str)) {
+    while (*str && isspace(*str)) {
         ++str;
     }
 
@@ -207,7 +207,7 @@ char *fstring(char *str)
     char *p;
     char *q;
 
-    for(p = str, q = buf; *p; *q++ = *p++) {
+    for (p = str, q = buf; *p; *q++ = *p++) {
         if(*p == '\\') {
             *q = '\\';
         }
@@ -231,7 +231,7 @@ int pattern_match(char *string1, char *string2, char **pattern)
     char *resp = NULL;
     int nres = 0;
 
-    while(1) {
+    while (1) {
         if(*string2 == '*') {
             star = ++string2; /* Pattern after * */
             starend = string1; /* Data after * match */
@@ -272,7 +272,7 @@ char strtou(char *str)
     char *p = str;
     char *q = upper;
 
-    while(*p) {
+    while (*p) {
         if(islower(*p)) {
             *q++ = toupper(*p);
         }
@@ -359,8 +359,8 @@ int wrap(char *line)
     }
 
     if(GET_BIT(options, BRACKETS)) {
-        for(p = s; *p; ++p) {
-            switch(*p) {
+        for (p = s; *p; ++p) {
+            switch (*p) {
             case '[':
             case '{':
                 *p = '(';
@@ -396,7 +396,7 @@ int wrap(char *line)
     *p = '\0';
     place = p - 1;
 
-    while(!isspace(*place) && (place != temp)) {
+    while (!isspace(*place) && (place != temp)) {
         --place;
     }
 
@@ -409,7 +409,7 @@ int wrap(char *line)
         p = s;
         i = strlen(p);
 
-        while(i > (num_columns - 1)) {
+        while (i > (num_columns - 1)) {
             if(more()) {
                 return 0;
             }
@@ -459,14 +459,14 @@ int wrap(char *line)
     strcpy(temp, p); /* Rest of string */
     strcpy(s, temp);
 
-    while(!flag && (strlen(s) > num_columns)) {
+    while (!flag && (strlen(s) > num_columns)) {
         ++num_lines;
         p = temp + num_columns - 1;
         ch = *p;
         *p = '\0';
         place = p -1;
 
-        while(!isspace(*place) && (place != temp)) {
+        while (!isspace(*place) && (place != temp)) {
             --place;
         }
 
@@ -479,7 +479,7 @@ int wrap(char *line)
             p = s;
             i = strlen(p);
 
-            while(i > (num_columns - 1)) {
+            while (i > (num_columns - 1)) {
                 if(more()) {
                     return 0;
                 }
@@ -812,7 +812,7 @@ void set_colum_maker(int width)
     column_maker_pos = 0;
     column_maker_width = width;
 
-    for(i = 0; i < num_columns; ++i) {
+    for (i = 0; i < num_columns; ++i) {
         *(column_maker_buf + i) = ' ';
     }
 }
@@ -921,7 +921,7 @@ void remove_space_at_end(char *s)
 
     p += (strlen(s) - 1); /* Get past the NULL term */
 
-    while(*p == ' ') {
+    while (*p == ' ') {
         --p;
     }
 
@@ -963,8 +963,8 @@ void write_string(char *s, int cnt)
     int i;
     char *p;
 
-    for(i = 0, p = s; i <= cnt; ++i) {
-        switch(*p) {
+    for (i = 0, p = s; i <= cnt; ++i) {
+        switch (*p) {
         case BELL_CHAR:
             if(GET_BIT(options, DO_BELLS)) {
                 term_beep(1);
@@ -1014,7 +1014,7 @@ void init_refresh_lines(void)
     refresh_next = 0;
     refresh_line = (char **)malloc((output_row + 1) * sizeof(char));
 
-    for(i = 0; i < (output_row + 1); ++i) {
+    for (i = 0; i < (output_row + 1); ++i) {
         refresh_line[i] = NULL;
     }
 }
@@ -1023,7 +1023,7 @@ void free_refresh_lines(void)
 {
     int i;
 
-    for(i = 0; i < (output_row + 1); ++i) {
+    for (i = 0; i < (output_row + 1); ++i) {
         free(refresh_line[1]);
     }
 
@@ -1050,7 +1050,7 @@ int start_refresh_line_index(int *start_pos)
     int i = refresh_next;
     int oldrn = refresh_next;
 
-    while(!refresh_line[i]) {
+    while (!refresh_line[i]) {
         ++i;
 
         if(i > output_row) {
@@ -1078,7 +1078,7 @@ void clear_refresh_line(void)
 {
     int i;
 
-    for(i = 0; i < (output_row + 1); ++i) {
+    for (i = 0; i < (output_row + 1); ++i) {
         if(refresh_line[i] != NULL) {
             refresh_line[i] = strfree(refresh_line[i]);
         }
@@ -1104,7 +1104,7 @@ int has_esc_codes(char *str)
 {
     char *p;
 
-    for(p = str; *p; *p++) {
+    for (p = str; *p; *p++) {
         if(*p == ESC_CHAR) {
             return 1;
         }

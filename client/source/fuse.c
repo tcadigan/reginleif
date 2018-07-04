@@ -59,11 +59,11 @@ void cmd_fuse(char *args)
 
     fuse.speed = 0;
 
-    while(int1) {
+    while (int1) {
         promptfor("Ship Number? ", pbuf, PROMPT_STRING);
         shipno = atoi(pbuf);
 
-        if(shipno > 0) {
+        if (shipno > 0) {
             int1 = false;
         }
     }
@@ -71,18 +71,16 @@ void cmd_fuse(char *args)
 #ifndef RESTRICTED_ACCESS
     promptfor("Do you want a plot (y/n) ", pbuf, PROMPT_CHAR);
 
-    if(YES(*pbuf)) {
+    if (YES(*pbuf)) {
         fuse.plot = true;
         promptfor("Use xterm for display (y/n) ", pbuf, PROMPT_CHAR);
 
-        if(YES(*pbuf)) {
+        if (YES(*pbuf)) {
             fuse.xterm = true;
-        }
-        else {
+        } else {
             fuse.xterm = false;
         }
-    }
-    else {
+    } else {
         fuse.plot = false;
     }
 
@@ -93,7 +91,7 @@ void cmd_fuse(char *args)
 
     int1 = true;
 
-    while(int1 && !fuse.plot) {
+    while (int1 && !fuse.plot) {
         promptfor("Distance to Travel? ", pbuf, PROMPT_STRING);
         fuse.dist = atoi(pbuf);
 
@@ -104,12 +102,12 @@ void cmd_fuse(char *args)
 
     int1 = true;
 
-    while((fuse.dist < 1000) && int1 && !fuse.plot) {
+    while ((fuse.dist < 1000) && int1 && !fuse.plot) {
         msg("-- Fuse: Short distance, calculating sub-hyper journey.");
         promptfor("Ship's Speed? ", pbuf, PROMPT_STRING);
         fuse.speed = atoi(pbuf);
 
-        if((fuse.speed > 0) && (fuse.speed < 10)) {
+        if ((fuse.speed > 0) && (fuse.speed < 10)) {
             int1 = false;
         }
     }
@@ -137,12 +135,12 @@ void cspr_fuse(int cnum, char *line)
     long int d8;
     char *junk = NULL;
     int i;
-    int j;
+    int j = 0;
 
-    switch(cnum) {
+    switch (cnum) {
     case CSP_SHIPDUMP_GEN:
 #ifdef CLIENT_DEVEL
-        if(client_devel) {
+        if (client_devel) {
             msg(":: CSP_SHIPDUMP_GEN - %s", line);
         }
 #endif
@@ -164,14 +162,13 @@ void cspr_fuse(int cnum, char *line)
          * Postscript doesn't like the quote marks around the ship name so this
          * little routine removes them.
          */
-        if(!strncmp(fuse.shipname, "\"\"", 2)) {
+        if (!strncmp(fuse.shipname, "\"\"", 2)) {
             /* Delete the name if it was only quote marks */
             strcpy(fuse.shipname, "");
-        }
-        else {
-            for(i = 0; i < strlen(fuse.shipname); ++i) {
-                if(fuse.shipname[i] == '"') {
-                    for(j = i; j < strlen(fuse.shipname); ++j) {
+        } else {
+            for (i = 0; i < strlen(fuse.shipname); ++i) {
+                if (fuse.shipname[i] == '"') {
+                    for (j = i; j < strlen(fuse.shipname); ++j) {
                         fuse.shipname[j] = fuse.shipname[j + 1];
                     }
                 }
@@ -183,7 +180,7 @@ void cspr_fuse(int cnum, char *line)
         break;
     case CSP_SHIPDUMP_STATUS:
 #ifdef CLIENT_DEVEL
-        if(client_devel) {
+        if (client_devel) {
             msg(":: CSP_SHIPDUMP_STATUS - %s", line);
         }
 #endif
@@ -205,7 +202,7 @@ void cspr_fuse(int cnum, char *line)
         break;
     case CSP_SHIPDUMP_STOCK:
 #ifdef CLIENT_DEVEL
-        if(client_devel) {
+        if (client_devel) {
             msg(":: CSP_SHIPDUMP_STOCK - %s", line);
         }
 #endif
@@ -230,19 +227,19 @@ void cspr_fuse(int cnum, char *line)
         break;
     case CSP_SHIPDUMP_END:
 #ifdef CLIENT_DEVEL
-        if(client_devel) {
+        if (client_devel) {
             msg(":: CSP_SHIPDUMP_END - %s", line);
         }
 #endif
 
-        if(doing_fuse) {
+        if (doing_fuse) {
             proc_fuse();
         }
 
         break;
     default:
 #ifdef CLIENT_DEVEL
-        if(client_devel) {
+        if (client_devel) {
             msg(":: CSP_SHIPDUMP %d - %s", cnum, line);
         }
 #endif
@@ -263,7 +260,7 @@ void proc_fuel(void)
 
     doing_fuse = false;
 
-    if(fuse.plot) {
+    if (fuse.plot) {
         plot_fuse();
 
         return;
@@ -271,18 +268,16 @@ void proc_fuel(void)
 
     fused = calc_fuse(fuse.dist);
 
-    if(fused > fuse.maxfuel) {
+    if (fused > fuse.maxfuel) {
         msg("-- Fuse: WARNING - Fuel required exceeds ship's total fuel capacity.");
-    }
-    else if(fused > fuse.fuel) {
+    } else if (fused > fuse.fuel) {
         msg("-- Fuse: WARNING - Fuel required exceeds ship's current fuel load.");
     }
 
-    if(fuse.speed) {
+    if (fuse.speed) {
         msg("-- Fuse: Divide fuel usage by segments and multiply by 2 for evasive manuevers.");
         msg("-- Fuse: Distance to Travel: %d, Speed: %d, Fuel Usage: %.2lf", fuse.dist, fuse.speed, fused);
-    }
-    else {
+    } else {
         msg("-- Fuse: Distance to Travel: %d, Speed: Hyper, Fuel Usage: %.2lf", fuse.dist, fused);
     }
 }
@@ -291,24 +286,22 @@ void plot_fuse(void)
 {
     double fuel;
     double dist;
-    double distfac;
     char obuf[MAXSIZ];
     char tbuf[1024];
     FILE *pfd;
 
-    if(strlen(fuse.shipname)) {
+    if (strlen(fuse.shipname)) {
         sprintf(obuf,
                 "set title \"Fuel Prediction for %s (#%d)\"\n",
                 fuse.shipname,
                 fuse.shipno);
-    }
-    else {
+    } else {
         sprintf(obuf,
                 "set title \"Fuel Prediction for Ship #%d\"\n",
                 fuse.shipno);
     }
 
-    if(!fuse.xterm) {
+    if (!fuse.xterm) {
         strcat(obuf, "set term dumb feed 79 20\n");
     }
 
@@ -326,9 +319,8 @@ void plot_fuse(void)
             (fuse.xtal ? "with" : "without"));
 
     strcat(obuf, tbuf);
-    distfac = HYPER_DIST_FACTOR * (fuse.tech + 100.0);
 
-    for(fuel = 0; fuel <= fuse.maxfuel; ++fuel) {
+    for (fuel = 0; fuel <= fuse.maxfuel; ++fuel) {
         dist = max_range(fuel);
         /* msg("-- Fuse: dist: %lf, fuel: %lf", dist, fuel); */
         sprintf(tbuf, "%.0lf %.2lf\n", dist, fuel);
@@ -337,17 +329,16 @@ void plot_fuse(void)
 
     strcat(obuf, "e\n");
 
-    if(fuse.xterm) {
+    if (fuse.xterm) {
         sprintf(tbuf, "pause %d\n", PAUSE);
-    }
-    else {
+    } else {
         sprintf(tbuf, "pause 5\n");
     }
 
     strcat(obuf, tbuf);
     pfd = popen(PLOTTER, "w");
 
-    if(!pfd) {
+    if (!pfd) {
         msg("-- Fuse: cannot open %s, aborting.", PLOTTER);
 
         return;
@@ -356,7 +347,7 @@ void plot_fuse(void)
     fprintf(pfd, "%s", obuf);
     fflush(pfd);
 
-    if(fuse.xterm) {
+    if (fuse.xterm) {
         msg("-- Fuse: displaying plot for %d seconds.", PAUSE);
     }
 
@@ -367,16 +358,15 @@ double calc_fuse(double dist)
 {
     double distfac;
 
-    if(fuse.speed) {
+    if (fuse.speed) {
         return (0.5 * pow(fuse.speed, 1.5) * fuse.mass * FUEL_USE);
     }
 
     distfac = HYPER_DIST_FACTOR * (fuse.tech + 100.0);
 
-    if(fuse.xtal && (dist > distfac)) {
+    if (fuse.xtal && (dist > distfac)) {
         return (HYPER_DRIVE_FUEL_USE * sqrt(fuse.mass) * pow(dist / distfac, 2));
-    }
-    else {
+    } else {
         return (HYPER_DRIVE_FUEL_USE * sqrt(fuse.mass) * pow(dist / distfac, 3));
     }
 }
@@ -386,16 +376,15 @@ double max_range(double fuel)
     double dist = 0.0;
     double distfac;
 
-    if(fuse.speed) {
+    if (fuse.speed) {
         return pow(fuse.speed, 1.5);
     }
 
     distfac = HYPER_DIST_FACTOR * (fuse.tech + 100.0);
 
-    if(fuse.xtal && (dist > distfac)) {
+    if (fuse.xtal && (dist > distfac)) {
         dist = distfac * sqrt((fuel / HYPER_DRIVE_FUEL_USE) / sqrt(fuse.mass));
-    }
-    else {
+    } else {
         dist = distfac * cbrt((fuel / HYPER_DRIVE_FUEL_USE) / sqrt(fuse.mass));
     }
 

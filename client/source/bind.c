@@ -812,7 +812,7 @@ void cmd_bind(char *args)
         return;
     }
 
-    switch(mode) {
+    switch (mode) {
     case BIND_NORM:
         if ((BindNormKeys[bindkey].cptr != NULL)
             && BindNormKeys[bindkey].is_string) {
@@ -969,8 +969,7 @@ char convert_string(char *s, int *mode)
 
             return 0;
         }
-    }
-    else {
+    } else {
         p = s;
     }
 
@@ -986,8 +985,7 @@ char convert_string(char *s, int *mode)
         /* Highest ctrl char char value */
         if (*p <= '_') {
             return (*p - 64);
-        }
-        else {
+        } else {
             /* -mfw */
             *mode = BIND_ERR;
 
@@ -1001,8 +999,7 @@ char convert_string(char *s, int *mode)
         /* Highest ctrl char char value */
         if(*p <= '_') {
             return (*p - 64);
-        }
-        else {
+        } else {
             /* -mfw */
             *mode = BIND_ERR;
 
@@ -1016,8 +1013,7 @@ char convert_string(char *s, int *mode)
         /* Highest ctrl char char value */
         if (*p <= '_') {
             return (*p - 64);
-        }
-        else {
+        } else {
             /* -mfw */
             *mode = BIND_ERR;
 
@@ -1028,33 +1024,26 @@ char convert_string(char *s, int *mode)
     if (*mode == BIND_ARROW) {
         if ((*p == 'U') || (*p == 'u')) {
             return 'A';
-        }
-        else if ((*p == 'D') || (*p == 'd')) {
+        } else if ((*p == 'D') || (*p == 'd')) {
             return 'B';
-        }
-        else if ((*p == 'R') || (*p == 'r')) {
+        } else if ((*p == 'R') || (*p == 'r')) {
             return 'C';
-        }
-        else if ((*p == 'L') || (*p == 'l')) {
+        }else if ((*p == 'L') || (*p == 'l')) {
             return 'D';
-        }
-        else {
+        } else {
             *mode = BIND_ERR;
 
             return -1;
         }
-    }
-    else if(*mode == BIND_FUNC) {
+    } else if(*mode == BIND_FUNC) {
         if ((*p < '1') || (*p > '9')) {
             *mode = BIND_ERR;
 
             return -1;
-        }
-        else {
+        } else {
             return *p;
         }
-    }
-    else {
+    } else {
         return *p;
     }
 }
@@ -1067,12 +1056,10 @@ char *display_char(char c, int mode)
     if (mode == BIND_ESC) {
         strcpy(ret, "ESC-");
         start += 4;
-    }
-    else if (mode == BIND_IMAP) {
+    } else if (mode == BIND_IMAP) {
         strcpy(ret, "IMAP-");
         start += 5;
-    }
-    else if (mode == BIND_MORE) {
+    } else if (mode == BIND_MORE) {
         strcpy(ret, "MORE-");
         start += 5;
 
@@ -1089,25 +1076,20 @@ char *display_char(char c, int mode)
         } else if (c == 5) {
             c = BindMoreKeys[5].cptr[0];
         }
-    }
-    else if (mode == BIND_ARROW) {
+    } else if (mode == BIND_ARROW) {
         strcpy(ret, "ARROW-");
         start += 6;
 
         if (c == 0) {
             c = 'U';
-        }
-        else if (c == 1) {
+        } else if (c == 1) {
             c = 'D';
-        }
-        else if (c == 2) {
+        } else if (c == 2) {
             c = 'R';
-        }
-        else if (c == 3) {
+        } else if (c == 3) {
             c = 'L';
         }
-    }
-    else if (mode == BIND_FUNC) {
+    } else if (mode == BIND_FUNC) {
         strcpy(ret, "FUNC-");
         start += 5;
         c += '1';
@@ -1119,18 +1101,15 @@ char *display_char(char c, int mode)
         ret[start] = 'n';
         ++start;
         ret[start] = '\0';
-    }
-    else if (c <= 32) { /* ctrl char */
+    } else if (c <= 32) { /* ctrl char */
         ret[start] = '^';
         ++start;
         ret[start] = c + 64;
         ++start;
         ret[start] = '\0';
-    }
-    else if (c == 127) {
+    } else if (c == 127) {
         strcpy(ret + start, "^?");
-    }
-    else {
+    } else {
         ret[start] = c;
         ++start;
         ret[start] = '\0';
@@ -1144,14 +1123,13 @@ void bind_translate_char(signed char c, int mode)
     char buf[MAXSIZ];
     int x;
 
-    switch(mode) {
+    switch (mode) {
     case BIND_NORM:
         if ((BindNormKeys[c].cptr != NULL) && BindNormKeys[c].is_string) {
             msg("--> %s", BindNormKeys[c].cptr);
             strcpy(buf, BindNormKeys[c].cptr);
             process_key(buf, false);
-        }
-        else {
+        } else {
             BindNormKeys[c].func(c);
         }
 
@@ -1161,8 +1139,7 @@ void bind_translate_char(signed char c, int mode)
             msg("--> %s", BindEscKeys[c].cptr);
             strcpy(buf, BindEscKeys[c].cptr);
             process_key(buf, false);
-        }
-        else {
+        } else {
             BindEscKeys[c].func(c);
         }
 
@@ -1195,8 +1172,7 @@ void bind_translate_char(signed char c, int mode)
             msg("--> %s", BindArrowKeys[c - 'A'].cptr);
             strcpy(buf, BindArrowKeys[c - 'A'].cptr);
             process_key(buf, false);
-        }
-        else {
+        } else {
             BindArrowKeys[c - 'A'].func(c);
         }
 
@@ -1208,8 +1184,7 @@ void bind_translate_char(signed char c, int mode)
             msg("--> %s", BindFuncKeys[x].cptr);
             strcpy(buf, BindFuncKeys[x].cptr);
             process_key(buf, false);
-        }
-        else {
+        } else {
             BindFuncKeys[x].func(x);
         }
 
@@ -1227,7 +1202,7 @@ void list_binding(int listkey, int mode)
     BindKey *bind;
 
     if (listkey != -1) {
-        switch(mode) {
+        switch (mode) {
         case BIND_NORM:
             bind = BindNormKeys;
 

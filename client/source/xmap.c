@@ -184,7 +184,7 @@ void send_client_survey(char *s, int changescope)
         send_gb(csbuf2, strlen(csbuf2));
     }
 
-    if(GBDT()) {
+    if (game_type == GAME_GBDT) {
         csp_send_request(CSP_SURVEY_COMMAND, s);
     }
     else {
@@ -903,7 +903,7 @@ void sector_display_stats(pan_win *win)
         texty += 15;
     }
 
-    for(i = 0; i < p.numships; ++i) {
+    for (i = 0; i < p.numships; ++i) {
         sprintf(buf,
                 "%d %c %d",
                 p.ships[i].owner,
@@ -1629,7 +1629,7 @@ void button_press(mwin *win, XButtonEvent *ev)
                 x_prev_x = x_pressed_x;
                 x_prev_y = x_pressed_y;
 
-                switch(ev_button) {
+                switch (ev_button) {
                 case Button1:
                     draw_box(x_pressed_x, x_pressed_y, x_prev_x, x_prev_y);
                     x_is_pressed = 1;
@@ -1712,7 +1712,7 @@ void button_release(mwin *win, XButtonEvent *ev)
             xt = x_prev_x;
         }
 
-        switch((3 * (x_pressed_y - x_prev_y)) + (x_pressed_x - x_prev_x)) {
+        switch ((3 * (x_pressed_y - x_prev_y)) + (x_pressed_x - x_prev_x)) {
         case 1:
             sprintf(u, "4");
 
@@ -1747,7 +1747,7 @@ void button_release(mwin *win, XButtonEvent *ev)
             break;
         }
 
-        switch(ev_button) {
+        switch (ev_button) {
         case Button1:
             if((x_pressed_x != x_prev_x) || (x_pressed_y != x_prev_y)) {
                 sprintf(u,
@@ -2098,7 +2098,7 @@ void key_event(mwin *win, XKeyEvent *ev)
         add_input(buf[0]);
     }
     else {
-        switch((int)keysym) {
+        switch ((int)keysym) {
         case XK_Escape:
             clear_input();
 
@@ -2123,7 +2123,7 @@ void add_input(char the_char)
     if(input_win->len <= 100) {
         i = input_win->len++;
 
-        while(i >= input_win->cur_char_pos) {
+        while (i >= input_win->cur_char_pos) {
             input_win->info[i + 1] = input_win->info[i];
             --i;
         }
@@ -2141,7 +2141,7 @@ void remove_input(void)
     if(input_win->cur_char_pos >= 1) {
         --input_win->cur_char_pos;
 
-        for(i = input_win->cur_char_pos; i < input_win->len; ++i) {
+        for (i = input_win->cur_char_pos; i < input_win->len; ++i) {
             input_win->info[i] = input_win->info[i + 1];
         }
 
@@ -2257,20 +2257,20 @@ void mwin_event_loop(void)
 
     moo = XPending(mdpy);
 
-    while(moo >= 1) {
+    while (moo >= 1) {
         moo = moo - 1;
         XNextEvent(mdpy, &ev);
 
-        for(trv = widget_list; trv->next != NULL; trv = trv->next) {
+        for (trv = widget_list; trv->next != NULL; trv = trv->next) {
             if(trv->win == ev.xany.window) {
                 break;
             }
         }
 
         if(trv != NULL) {
-            switch(ev.type) {
+            switch (ev.type) {
             case ConfigureNotify:
-                while(XCheckTypedWindowEvent(mdpy, trv->win, ConfigureNotify, &dummy)) {
+                while (XCheckTypedWindowEvent(mdpy, trv->win, ConfigureNotify, &dummy)) {
                     --moo;
                 }
 
@@ -2295,7 +2295,7 @@ void mwin_event_loop(void)
 
                 break;
             case Expose:
-                while(XCheckTypesWindowEvent(mdpy, trv->win, Expose, &dummy)) {
+                while (XCheckTypesWindowEvent(mdpy, trv->win, Expose, &dummy)) {
                     --moo;
                 }
 
@@ -2379,7 +2379,7 @@ void xmap_plot_orbit(char *t)
     /* Free old orbit info */
     cur_pos = xOrbit_head;
 
-    while(cur_pos) {
+    while (cur_pos) {
         next_pos = cur_pos->next;
         free(cur_pos);
         cur_pos = next_pos;
@@ -2390,7 +2390,7 @@ void xmap_plot_orbit(char *t)
 
     p = strchr(q, ';');
 
-    while(p) { /* New */
+    while (p) { /* New */
         *p = '\0'; /* New */
         next_pos = (xOrb *)malloc(sizeof(xOrb));
 
@@ -2496,16 +2496,16 @@ void xmap_replot_orbit(xOrb *head)
     if(reverse_orbit && cur_pos) {
         next_pos = cur_pos->next;
 
-        while(next_pos) {
+        while (next_pos) {
             cur_pos = next_pos;
             next_pos = cur_pos->next;
         }
     }
 
-    while(cur_pos) {
+    while (cur_pos) {
         not_ship = false;
 
-        switch(cur_pos->symbol) {
+        switch (cur_pos->symbol) {
         case '*':
         case '@':
         case 'o':
@@ -2577,7 +2577,7 @@ void x_DispArray(int x, int y, int maxx, int maxy, char *array[], float mag)
     /* Use 13 pixels/line spacing */
     cury = y - ((maxy / 2) * 13);
 
-    for(y2 = 0; y2 < maxy; ++y2) {
+    for (y2 = 0; y2 < maxy; ++y2) {
         draw_orb(map_win, x2, cury, array[y2], strlen(array[y2]), 0);
         cury += 13;
     }
@@ -2675,7 +2675,7 @@ void xmap_plot_continue(void)
     xSector *p = xcur_map.ptr;
     int x;
     int y;
-    char maplog[BUFSIZ];
+    char maplog[NORMSIZ];
     char convbuf[SMABUF];
 
     xmap_expecting = 0;
@@ -2699,11 +2699,11 @@ void xmap_plot_continue(void)
     sprintf(x_scope, "/%s/%s", xcur_map.star, xcur_map.planet);
     draw_name(map_win, x_scope);
 
-    for(y = 0; i < xcur_map.maxy; ++y) {
+    for (y = 0; i < xcur_map.maxy; ++y) {
         sprintf(convbuf, "%c%c", (y / 10) + '0', (y % 10) + '0');
         strcpy(maplog, convbuf);
 
-        for(x = 0; x < xcur_map.maxx; ++x) {
+        for (x = 0; x < xcur_map.maxx; ++x) {
             p = *(q + x + (y * xcur_map.maxx));
             strncat(maplog, &p.des, 1);
         }
@@ -2738,8 +2738,8 @@ void xmap_plot_redraw(void)
     int y;
     char u2;
 
-    for(y = 0; y < xcur_map.maxy; ++y) {
-        for(x = 0; x < scur_map.maxx; ++x) {
+    for (y = 0; y < xcur_map.maxy; ++y) {
+        for (x = 0; x < scur_map.maxx; ++x) {
             p = *(q + x + (y * xcur_map.maxx));
             u2 = xmap_get_graph(x, y);
 
@@ -2782,7 +2782,7 @@ void process_xmap_survey(int num, char *s)
     int i;
     char u2;
 
-    switch(num) {
+    switch (num) {
     case CSP_SURVEY_INTRO:
         if(xcur_map.ptr) {
             free(xcur_map.ptr);
@@ -2911,7 +2911,7 @@ void process_xmap_survey(int num, char *s)
             i = 0;
             qtr = ptr;
 
-            while(qtr && *qtr) {
+            while (qtr && *qtr) {
                 ptr = strchr(qtr, ';');
 
                 if(!ptr || (i >= MAX_SHIPS)) {
@@ -2996,7 +2996,7 @@ char xmap_get_graph(int x, int y)
         return p.des;
     }
 
-    switch(x_graph_type) {
+    switch (x_graph_type) {
     case FERT_GRAPH:
         if(xcur_map.maxfert == xcur_map.minfert) {
             i = (p.frt - xcur_map.minfert) * 10;
@@ -3069,7 +3069,7 @@ char xmap_get_graph(int x, int y)
         i = 9;
     }
 
-    switch(i) {
+    switch (i) {
     case 0:
 
         return '0';
@@ -3878,7 +3878,7 @@ void cmd_map(char *args)
 
     p = args;
 
-    while((*p == '.') || (*p == '/')) {
+    while ((*p == '.') || (*p == '/')) {
         /* Skip past non-names */
         ++p;
     }

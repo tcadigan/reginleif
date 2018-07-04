@@ -80,8 +80,7 @@ char *parse_given_string(char *s, int mode)
             default:
                 *q++ = *p++;
             }
-        }
-        else {
+        } else {
             *q++ = *p++;
         }
     }
@@ -130,8 +129,7 @@ void parse_variables(char *s)
                 if (*p == VAR_CHAR) {
                     *q++ = VAR_CHAR;
                     *q++ = *p++;
-                }
-                else { /* Is it a variable ? */
+                } else { /* Is it a variable ? */
                     if (*p == '{') {
                         n = name;
                         ++nest;
@@ -141,8 +139,7 @@ void parse_variables(char *s)
                         while (*p && nest) {
                             if (*p == '{') {
                                 ++nest;
-                            }
-                            else if (*p == '}') {
+                            } else if (*p == '}') {
                                 --nest;
                             }
 
@@ -157,14 +154,12 @@ void parse_variables(char *s)
                             strcpy(q, r);
                             q += strlen(r);
                             made_change = true;
-                        }
-                        else {
+                        } else {
                             p = x;
                             *q++ = '$';
                             *q++ = *p++;
                         }
-                    }
-                    else {
+                    } else {
                         n = name;
                         r = p;
 
@@ -181,8 +176,7 @@ void parse_variables(char *s)
                             q += strlen(n);
                             made_change = true;
                             p = r;
-                        }
-                        else { /* Invalid assign name */
+                        } else { /* Invalid assign name */
                             sprintf(temp, "$%s", name);
                             strcpy(q, temp);
                             q += strlen(temp);
@@ -190,8 +184,7 @@ void parse_variables(char *s)
                         }
                     }
                 }
-            }
-            else {
+            } else {
                 *q++ = *p++;
             }
         }
@@ -211,13 +204,11 @@ void parse_variables(char *s)
             /* Put 1 $ */
             if (*p == VAR_CHAR) {
                 *q++ = *p++;
-            }
-            else { /* Is it a variable? */
+            } else { /* Is it a variable? */
                 *q++ = VAR_CHAR;
                 *q++ = *p++;
             }
-        }
-        else {
+        } else {
             *q++ = *p++;
         }
     }
@@ -275,8 +266,7 @@ void add_assign(char *name, char *value)
             assign_head->prev = (Assign *)NULL;
             assign_head->next = (Assign *)NULL;
             p = assign_head;
-        }
-        else {
+        } else {
             p = assign_head;
 
             while (p->next) {
@@ -288,8 +278,7 @@ void add_assign(char *name, char *value)
             p->next->prev = p;
             p = p->next;
         }
-    }
-    else { /* Old assignment */
+    } else { /* Old assignment */
         if (p->mode && !assign_flag) {
             msg("-- Assign: you can not redefine that variable.");
 
@@ -356,8 +345,7 @@ void cmd_listassign(char *args)
             if (show_all) {
                 msg(" * %s = %s", p->name, p->str);
             }
-        }
-        else {
+        } else {
             msg("   %s = %s", p->name, p->str);
         }
 
@@ -389,8 +377,7 @@ char *get_assign(char *name)
         debug(3, "get_assign (%s) found_nothing.", name);
 
         return (char *)NULL;
-    }
-    else {
+    } else {
         debug(3, "get_assign (%s) found: '%s'", name, p->str);
 
         return (char *)p->str;
@@ -429,21 +416,18 @@ void cmd_assign(char *args)
     if ((*aptr == '^') && valid_assign_name(aptr + 1)) {
         assign_flag = true;
         add_assign(aptr + 1, rptr);
-    }
-    else if (!strncmp(aptr, "__", strlen("__"))) {
+    } else if (!strncmp(aptr, "__", strlen("__"))) {
         msg("-- Assign: Invalid name (%s). __ is reserved for internal usage.", aptr);
         strfree(aptr);
         strfree(rptr);
 
         return;
-    }
-    else if (valid_assign_name(aptr)) {
+    } else if (valid_assign_name(aptr)) {
         assign_flag = false;
         add_assign(aptr, rptr);
         assign_flag = true;
         msg("-- Assign: '%s' was assigned '%s'", aptr, rptr);
-    }
-    else {
+    } else {
         msg("-- Assign: Invalid name (%s). Valid names can contain only characters, numbers, or underscore. And must not be a number", aptr);
         strfree(aptr);
         strfree(rptr);
@@ -505,15 +489,12 @@ void remove_assign(char *name)
         if (p->next) {
             assign_head = p->next;
             assign_head->prev = NULL;
-        }
-        else {
+        } else {
             assign_head = NULL;
         }
-    }
-    else if (!p->next) {
+    } else if (!p->next) {
         p->prev->next = NULL;
-    }
-    else {
+    } else {
         p->prev->next = p->next;
         p->next->prev = p->prev;
     }
@@ -531,8 +512,7 @@ int test_assign(char *name)
 
     if (p) {
         return true;
-    }
-    else {
+    } else {
         return false;
     }
 }
@@ -645,8 +625,7 @@ void argify(char *list)
                 }
 
                 ++p;
-            }
-            else {
+            } else {
                 while (!isspace(*p) && *p) {
                     *q++ = *p++;
                 }
@@ -753,8 +732,7 @@ char *get_argify(char *fmt)
 
                 break;
             }
-        }
-        else {
+        } else {
             *q++ = *p++;
         }
     }
@@ -769,7 +747,7 @@ int return_range(char *s, int *low, int *high, int *len)
 {
     char *p;
     char *ptr;
-    char name[BUFSIZ];
+    char name[NORMSIZ];
     int end_bracket = false;
     int l = 0;
     int h = MAX_NUM_ARGS;
@@ -782,12 +760,10 @@ int return_range(char *s, int *low, int *high, int *len)
             end_bracket = true;
             ptr = first(s + 1);
             *len = strlen(ptr) + 2;
-        }
-        else {
+        } else {
             return false;
         }
-    }
-    else {
+    } else {
         ptr = first(s);
         *len = strlen(ptr);
     }
@@ -797,38 +773,31 @@ int return_range(char *s, int *low, int *high, int *len)
     /* Isolate the word and put it in name */
     if (ptr) {
         strcpy(name, ptr);
-    }
-    else {
+    } else {
         *name = '\0';
     }
 
     if (!strcmp(name, "*")) {
         *low = 0;
         *high = MAX_NUM_ARGS;
-    }
-    else if (sscanf(name, "%d-%d", &l, &h) == 2) {
+    } else if (sscanf(name, "%d-%d", &l, &h) == 2) {
         *low = l;
         *high = h;
-    }
-    else if (sscanf(name, "-%d", &h) == 1) {
+    } else if (sscanf(name, "-%d", &h) == 1) {
         *low = 0;
         *high = h;
-    }
-    else if (sscanf(name, "%d", &l) == 1) {
+    } else if (sscanf(name, "%d", &l) == 1) {
         *low = 1;
 
         if (strchr(name, '-')) {
             *high = MAX_NUM_ARGS;
-        }
-        else {
+        } else {
             *high = l;
         }
-    }
-    else if (sscanf(name, "%d-", &l) == 1) {
+    } else if (sscanf(name, "%d-", &l) == 1) {
         *low = l;
         *high = MAX_NUM_ARGS;
-    }
-    else {
+    } else {
         if (end_bracket) {
             *p = '}';
         }
@@ -856,8 +825,7 @@ char *get_args(int lo, int hi)
 
     if (hi <= lo) {
         sprintf(temp, "${%d}", lo);
-    }
-    else {
+    } else {
         sprintf(temp, "${%d-%d}", lo, hi);
     }
 
@@ -915,8 +883,7 @@ bool parse_for_loops(char *s)
         if (*q == '-') {
             if (isdigit(*(q + 1))) {
                 ++q;
-            }
-            else {
+            } else {
                 r = strchr(p, '$');
                 continue;
             }
@@ -940,8 +907,7 @@ bool parse_for_loops(char *s)
         if (*q == '-') {
             if (isdigit(*(q + 1))) {
                 ++q;
-            }
-            else {
+            } else {
                 r = strchr(p, '$');
                 continue;
             }

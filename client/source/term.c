@@ -129,13 +129,13 @@ int term_IMEI_insert(char *c);
 void term_test(void)
 {
     char *p;
-    char buf[BUFSIZ];
+    char buf[NORMSIZ];
     char *q;
     char *r;
 
     *buf = '\0';
 
-    for(q = buf, p = MD; *p; ++p) {
+    for (q = buf, p = MD; *p; ++p) {
         r = dislay_char(*p, 0);
         strcat(q, r);
         q += strlen(r);
@@ -145,7 +145,7 @@ void term_test(void)
     msg("boldon: %s", buf);
     *buf = '\0';
 
-    for(q = buf, p = ME; *p; ++p) {
+    for (q = buf, p = ME; *p; ++p) {
         r = display_char(*p, 0);
         strcat(q, r);
         q += strlen(r);
@@ -159,8 +159,8 @@ void term_test(void)
 /* Initialize term variables for future use */
 void get_termcap(void)
 {
-    static char tinfo[BUFSIZ];
-    static char terminfo[BUFSIZ];
+    static char tinfo[NORMSIZ];
+    static char terminfo[NORMSIZ];
     char *term_name;
     char *ptr;
     int state = 0;
@@ -355,7 +355,7 @@ int term_SPACE_clear_to_eol(int x, int y)
     int i = 0;
     int cnt = num_columns - x;
 
-    while(i < cnt) {
+    while (i < cnt) {
         term_putchar(c);
         ++i;
     }
@@ -387,7 +387,7 @@ int term_CS_scroll(int l1, int l2, int n)
 
     term_move_cursor(0, l2);
 
-    for(i = 0; i < n; ++i) {
+    for (i = 0; i < n; ++i) {
         term_put_termstring(thing);
     }
 
@@ -400,13 +400,13 @@ int term_ALDL_scroll(int l1, int l2, int n)
 
     term_move_cursor(0, l1);
 
-    for(i = 0; i < n; ++i) {
+    for (i = 0; i < n; ++i) {
         term_put_termstring(DL);
     }
 
     term_move_cursor(0, l2 - n + 1);
 
-    for(i = 0; i < n; ++i) {
+    for (i = 0; i < n; ++i) {
         term_put_termstring(AL);
     }
 
@@ -485,7 +485,7 @@ void term_puts(char *str, int len)
 {
     int i;
 
-    for(i = 0; *str && (i < len); ++str, ++i) {
+    for (i = 0; *str && (i < len); ++str, ++i) {
         /*
          * Allow for escape character below -mfw
          * if((*str < 32) && (*str != '\t')) {
@@ -628,7 +628,7 @@ void term_clear(int l1, int l2)
 {
     int i = l1;
 
-    while(i < l2) {
+    while (i < l2) {
         term_move_cursor(0, i);
         term_clear_to_eol();
         ++i;
@@ -637,7 +637,7 @@ void term_clear(int l1, int l2)
 
 void term_beep(int n)
 {
-    while(n) {
+    while (n) {
         write(1, "\007", 1);
         --n;
     }

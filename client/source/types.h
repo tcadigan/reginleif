@@ -56,12 +56,6 @@
 #define GAME_HAP     2
 #define GAME_GBDT    3
 
-#define NOTGB()   (game_type == GAME_NOTGB)
-#define UNKNOWN() (game_type == GAME_UNKNOWN)
-#define GB()      (game_type == GAME_GB)
-#define HAP()     (game_type == GAME_HAP)
-#define GBDT()    (game_type == GAME_GBDT)
-
 /* Types of end prompts */
 #define INTERNAL_PROMPT -1 /* For internal workings */
 #define NOT_PROMPT      0 /* None */
@@ -164,18 +158,6 @@
 
 /* Number of allowed queued Icommands */
 #define MAX_ICOMMANDS 10
-
-/* Macros for manipulating Icommands */
-#define ICOMM_DOING_COMMAND   (icomm.num)
-#define ICOMM_INITIALIZE()    (icomm.num = 0)
-#define ICOMM_IGNORE          icomm.list[0].ignore
-#define ICOMM_PROMPT          icomm.list[0].prompt
-#define ICOMM_STATE           icomm.list[0].state
-#define ICOMM_COMM            icomm.list[0].comm
-#define ICOMM_SIGIGNORE(n, x) (icomm.list[(n)].ignore = (x))
-#define ICOMM_SPROMPT(n, x)   (icomm.list[(n)].prompt = (x))
-#define ICOMM_SSTATE(n, x)    (icomm.list[(n)].state = (x))
-#define ICOMM_SCOMM(n, x)     (icomm.list[(n)].comm = (x))
 
 /* Types of relations (there are cross referenced to CSP_RELATION) */
 #define RELATION_UNKNOWN 0
@@ -308,13 +290,6 @@
 #define TYPE_MOON    3
 #define TYPE_SHIP    4
 
-/* Macro for secret input */
-#define SECRET(B, S, T) {                       \
-        ++hide_input;                           \
-        promptfor((B), (S), (T));               \
-        hide_input = 0;                         \
-    }
-
 /* imap/popn defines */
 #define MAX_SHIPS_IN_SURVEY 10
 
@@ -331,7 +306,7 @@
 /* Extern declared in vars.h, initialized in gb.c */
 struct logstruct {
     FILE *fd;
-    char name[BUFSIZ];
+    char name[NORMSIZ];
     int on;
     int redirect;
     int level;
@@ -413,9 +388,9 @@ struct morestruct {
 
 struct statusstruct {
     long last_time;
-    char last_buf[BUFSIZ];
-    char current_buf[BUFSIZ];
-    char format[BUFSIZ];
+    char last_buf[MAXSIZ];
+    char current_buf[MAXSIZ];
+    char format[NORMSIZ];
     char schar[2];
 };
 
@@ -465,7 +440,7 @@ struct sectorinfo {
 typedef struct profilestruct {
     enum PLAYER_TYPE player_type; /* Normal/guest/diety */
     char defscope[SMABUF];
-    char personal[BUFSIZ];
+    char personal[NORMSIZ];
     char sect_pref[SMABUF];
     char racename[SMABUF];
     char govname[SMABUF];
@@ -533,7 +508,7 @@ struct waitforstruct {
 typedef struct sectorstruct {
     int x;
     int y;
-    char setc;
+    char sectc;
     char des;
     int wasted;
     int own;
@@ -698,7 +673,7 @@ typedef struct pmap {
     int deposits;
     int estprod;
 
-    char aliens[BUFSIZ];
+    char aliens[NORMSIZ];
 } Pmap;
 
 typedef struct cspsendval_struct {

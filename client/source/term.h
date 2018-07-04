@@ -68,9 +68,12 @@ void get_screen_size(void);
 void term_mode_on(void);
 void term_mode_off(void);
 
+extern int last_output_row;
 extern int output_row;
 extern int num_columns;
 extern int num_rows;
+extern int (*term_clear_to_eol)();
+extern int (*term_scroll)();
 
 #define NAMESIZE 18
 #define SCALE 100.0

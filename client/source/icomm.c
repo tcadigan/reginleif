@@ -86,21 +86,21 @@ int start_command(int val, int flag)
     char buf[1024];
 
     /* Cheap way to pass dispatch number (using flag) */
-    if(val == C_DISPATCH) {
+    if (val == C_DISPATCH) {
         disp = flag;
         flag = 0;
     }
 
     /* Don't add if already on the list */
-    for(indx = 0; indx < icomm.num; ++indx) {
-        if((icomm.list[indx].comm == val) && (icomm.list[indx].flag == flag)) {
+    for (indx = 0; indx < icomm.num; ++indx) {
+        if ((icomm.list[indx].comm == val) && (icomm.list[indx].flag == flag)) {
             return false;
         }
     }
 
     indx = icomm.num;
 
-    if((icomm.num + 1) > MAX_ICOMMANDS) {
+    if ((icomm.num + 1) > MAX_ICOMMANDS) {
         msg("-- Icommands buffer full, could not issue command.");
 
         return false;
@@ -113,7 +113,7 @@ int start_command(int val, int flag)
     icomm.list[indx].csp_start = 0;
     icomm.list[indx].csp_end = 0;
 
-    switch(val) {
+    switch (val) {
     case C_DONEINIT:
     case C_DONEPROC:
         icomm.list[indx].prompt = INTERNAL_PROMPT;
@@ -130,10 +130,9 @@ int start_command(int val, int flag)
 
         break;
     case C_DISPATCH:
-        if(disp > 0) {
+        if (disp > 0) {
             sprintf(buf, "read dispatches %d", disp);
-        }
-        else {
+        } else {
             strcpy(buf, "read dispatches");
         }
 
@@ -148,12 +147,11 @@ int start_command(int val, int flag)
         break;
 #ifdef SMART_CLIENT
     case C_RWHO:
-        if(rwho.on) {
+        if (rwho.on) {
             icomm_issue_command("who", 0);
             icomm.list[indx].prompt = LEVEL_PROMPT;
             start_rwho();
-        }
-        else {
+        } else {
             return true;
         }
 
@@ -180,7 +178,7 @@ int start_command(int val, int flag)
 #endif
     default:
 #ifdef CLIENT_DEVEL
-        if(client_devel) {
+        if (client_devel) {
             msg(":: Unknown icomm: %d", val);
         }
 #endif
@@ -197,13 +195,13 @@ void icomm_command_done(char ch)
 {
     int i;
 
-    switch(icomm.list[0].comm) {
+    switch (icomm.list[0].comm) {
     case C_DONEINIT:
-        if(client_stats == L_INTERNALINIT) {
+        if (client_stats == L_INTERNALINIT) {
 #ifdef SMART_CLIENT
             msg("-- Welcome to GB II client. I am fully initialized.");
 
-            if(csp_server_vers) {
+            if (csp_server_vers) {
                 msg("-- Server recognizes CSP Version %d.", csp_server_vers);
             }
 
@@ -218,8 +216,7 @@ void icomm_command_done(char ch)
 #endif
 
             msg("");
-        }
-        else if(client_stats == L_REINIT) {
+        } else if (client_stats == L_REINIT) {
             msg("-- I am reinitialized from the %s.",
                 icomm.list[0].flag == 1 ? "update" :
                 icomm.list[0].flag == 2 ? "segment" :
@@ -270,12 +267,12 @@ void icomm_command_done(char ch)
 
     --icomm.num;
 
-    if(icomm.num) {
-        for(i = 1; i < icomm.num; ++i) {
+    if (icomm.num) {
+        for (i = 1; i < icomm.num; ++i) {
             icomm.list[i - 1] = icomm.list[i];
         }
 
-        if(icomm.list[0].comm < C_NONE) {
+        if (icomm.list[0].comm < C_NONE) {
             icomm_command_done('\0');
         }
     }
@@ -289,7 +286,7 @@ int icomm_valid_csp(int num)
           icomm.list[0].csp_end,
           num);
 
-    if((icomm.list[0].csp_start <= num) && (icomm.list[0].csp_end >= num)) {
+    if ((icomm.list[0].csp_start <= num) && (icomm.list[0].csp_end >= num)) {
         return true;
     }
 
@@ -298,73 +295,68 @@ int icomm_valid_csp(int num)
 
 int icomm_valid_csp_end(int num)
 {
-    if(icomm.list[0].csp_end == num) {
+    if (icomm.list[0].csp_end == num) {
         return true;
-    }
-    else {
+    } else {
         return false;
     }
 }
 
 void icomm_handling_command(char *s)
 {
-    if(!s || !*s) {
+    if (!s || !*s) {
         return;
     }
 
     debug(4, "icomm handle: %s", s);
 
-    switch(icomm.list[0].comm) {
+    switch (icomm.list[0].comm) {
     case C_DONEPROC:
     case C_DONEINIT:
 
         break;
     case C_RNEWS:
-        if(icomm.list[0].state == S_WAIT) {
+        if (icomm.list[0].state == S_WAIT) {
             check_news(s);
-        }
-        else {
+        } else {
             add_news(s);
         }
 
         break;
     case C_TELEGRAM:
-        if(icomm.list[0].state == S_WAIT) {
+        if (icomm.list[0].state == S_WAIT) {
             if (!strncmp(s, "Telegrams:", strlen("Telegrams:"))) {
                 icomm.list[0].state = S_PROC;
                 icomm.list[0].ignore = false;
                 msg_type = MSG_TELEGRAMS;
             }
-        }
-        else {
+        } else {
             /* Nothing right now */
             msg_type = MSG_TELEGRAMS;
         }
 
         break;
     case C_DISPATCH:
-        if(icomm.list[0].state == S_WAIT) {
+        if (icomm.list[0].state == S_WAIT) {
             if (!strncmp(s, "Dispatch", strlen("Dispatch"))) {
                 icomm.list[0].state = S_PROC;
                 icomm.list[0].ignore = false;
                 msg_type = MSG_TELEGRAMS;
             }
-        }
-        else {
+        } else {
             /* nothing right now */
             msg_type = MSG_TELEGRAMS;
         }
 
         break;
     case C_READ:
-        if(icomm.list[0].state == S_WAIT) {
+        if (icomm.list[0].state == S_WAIT) {
             if (!strncmp(s, "Read what?", strlen("Read what?"))) {
                 icomm.list[0].state = S_PROC;
                 icomm.list[0].ignore = false;
                 msg_type = MSG_TELEGRAMS;
             }
-        }
-        else {
+        } else {
             /* Nothing right now */
             msg_type = MSG_TELEGRAMS;
         }
@@ -401,7 +393,7 @@ void icomm_issue_command(char *command, int flag)
 {
     send_gb(command, strlen(command));
 
-    if(flag) {
+    if (flag) {
         ++hide_msg;
     }
 }
@@ -410,10 +402,10 @@ void icomm_issue_command(char *command, int flag)
 #ifdef SMART_CLIENT
 void icomm_profile(char *s)
 {
-    if(ICOMM_STATE == S_WAIT) {
+    if (icomm.list[0].state == S_WAIT) {
         if (!strncmp(s, "--==** Racial profile for ", strlen("--==** Racial profile for "))) {
-            ICOMM_STATE = S_PROC;
-            ICOMM_IGNORE = true;
+            icomm.list[0].state = S_PROC;
+            icomm.list[0].ignore = true;
             profile.player_type = 0;
             profile.capitol = 0;
         }
@@ -431,61 +423,46 @@ void icomm_profile(char *s)
         sscanf(s,
                "NO DESIGNATED CAPITOL!!\t\t\tRanges:     guns:   %d",
                &profile.ranges.guns);
-    }
-    else if(sscanf(s, "Designated Capitol: #%d\t\t\tRanges:     guns:   %d", &profile.capitol, &profile.ranges.guns) == 2) {
-    }
-    else if(sscanf(s, "Morale: %6d\t\t\t\t\t    space:  %d", &profile.raceinfo.morale, &profile.ranges.space) == 2) {
-    }
-    else if(sscanf(s, "Updates active: %d\t\t\t\t    ground: %d", &profile.updates_active, &profile.ranges.ground) == 2) {
-    }
-    else if(sscanf(s, "Up%*s active: %d\t\t\t\t    ground: %d", &profile.updates_active, &profile.ranges.ground) == 2) {
+    } else if (sscanf(s, "Designated Capitol: #%d\t\t\tRanges:     guns:   %d", &profile.capitol, &profile.ranges.guns) == 2) {
+    } else if (sscanf(s, "Morale: %6d\t\t\t\t\t    space:  %d", &profile.raceinfo.morale, &profile.ranges.space) == 2) {
+    } else if (sscanf(s, "Updates active: %d\t\t\t\t    ground: %d", &profile.updates_active, &profile.ranges.ground) == 2) {
+    } else if (sscanf(s, "Up%*s active: %d\t\t\t\t    ground: %d", &profile.updates_active, &profile.ranges.ground) == 2) {
     } else if (!strncmp(s, "Mesomorphic Race", strlen("Mesomorphic Race"))
                || !strncmp(s, "Biomorph Race", strlen("Biomorph Race"))
                || !strncmp(s, "Metamorphic Race", strlen("Metamorphic Race"))) {
         profile.raceinfo.racetype = RACE_MESO;
     } else if (!strncmp(s, "Normal Race", strlen("Normal Race"))) {
         profile.raceinfo.racetype = RACE_NORM;
-    }
-    else if(sscanf(s, "\t\t\t  Temp:\t%d", &profile.planet.temp) == 1) {
-    }
-    else if(sscanf(s, "Fert: %d%%", &profile.raceinfo.fert) == 1) {
-    }
-    else if(sscanf(s, "Rate:   %lf\t\t  methane  %5d%%\t    ocean    . %d%%", &profile.raceinfo.birthrate, &profile.planet.methane, &profile.sector.ocean) == 3) {
+    } else if (sscanf(s, "\t\t\t  Temp:\t%d", &profile.planet.temp) == 1) {
+    } else if (sscanf(s, "Fert: %d%%", &profile.raceinfo.fert) == 1) {
+    } else if (sscanf(s, "Rate:   %lf\t\t  methane  %5d%%\t    ocean    . %d%%", &profile.raceinfo.birthrate, &profile.planet.methane, &profile.sector.ocean) == 3) {
         sector_type[SECTOR_OCEAN].sectc = '.';
         sector_type[SECTOR_OCEAN].compat = profile.sector.ocean;
-    }
-    else if(sscanf(s, "Mass:   %lf\t\t  oxygen   %5d%%\t      gaseous  ~ %d%%", &profile.raceinfo.mass, &profile.planet.oxygen, &profile.sector.gas) == 3) {
+    } else if (sscanf(s, "Mass:   %lf\t\t  oxygen   %5d%%\t      gaseous  ~ %d%%", &profile.raceinfo.mass, &profile.planet.oxygen, &profile.sector.gas) == 3) {
         sector_type[SECTOR_GAS].sectc = '~';
         sector_type[SECTOR_GAS].compat = profile.sector.gas;
-    }
-    else if(sscanf(s, "Fight:   %d\t\t  helium   %5d%%\t      ice     # %d%%", &profile.raceinfo.fight, &profile.planet.helium, &profile.sector.ice) == 3) {
+    } else if (sscanf(s, "Fight:   %d\t\t  helium   %5d%%\t      ice     # %d%%", &profile.raceinfo.fight, &profile.planet.helium, &profile.sector.ice) == 3) {
         sector_type[SECTOR_ICE].sectc = '#';
         sector_type[SECTOR_ICE].compat = profile.sector.ice;
-    }
-    else if(sscanf(s, "Metab:   %lf\t\t  nitrogen   %5d%%\t      mountain ^ %d%%", &profile.raceinfo.metab, &profile.planet.nitrogen, &profile.sector.mtn) == 3) {
+    } else if (sscanf(s, "Metab:   %lf\t\t  nitrogen   %5d%%\t      mountain ^ %d%%", &profile.raceinfo.metab, &profile.planet.nitrogen, &profile.sector.mtn) == 3) {
         sector_type[SECTOR_MTN].sectc = '^';
         sector_type[SECTOR_MTN].compat = profile.sector.mtn;
-    }
-    else if(sscanf(s, "Sexes:   %d\t\t  CO2        %5d%%\t      land     * %d%%", &profile.raceinfo.sexes, &profile.planet.co2, &profile.sector.land) == 3) {
+    } else if (sscanf(s, "Sexes:   %d\t\t  CO2        %5d%%\t      land     * %d%%", &profile.raceinfo.sexes, &profile.planet.co2, &profile.sector.land) == 3) {
         sector_type[SECTOR_LAND].sectc = '*';
         sector_type[SECTOR_LAND].compat = profile.sector.land;
-    }
-    else if(sscanf(s, "Explore: %d %%\t\t  hydrogen   %5d%%\t      desert   - %d%%", &profile.raceinfo.explore, &profile.planet.hydrogen, &profile.sector.desert) == 3) {
+    } else if (sscanf(s, "Explore: %d %%\t\t  hydrogen   %5d%%\t      desert   - %d%%", &profile.raceinfo.explore, &profile.planet.hydrogen, &profile.sector.desert) == 3) {
         sector_type[SECTOR_DESERT].sectc = '-';
         sector_type[SECTOR_DESERT].compat = profile.sector.desert;
-    }
-    else if(sscanf(s, "Avg Int: %lf\t\t  sulfur     %5d%%\t      forest   \" %d%%", &profile.raceinfo.iq, &profile.planet.sulfur, &profile.sector.forest) == 3) {
+    } else if (sscanf(s, "Avg Int: %lf\t\t  sulfur     %5d%%\t      forest   \" %d%%", &profile.raceinfo.iq, &profile.planet.sulfur, &profile.sector.forest) == 3) {
         sector_type[SECTOR_FOREST].sectc = '"';
         sector_type[SECTOR_FOREST].compat = profile.sector.forest;
-    }
-    else if(sscanf(s, "Tech:    %lf\t\t  other      %5d%%\t      plated   o %d%%", &profile.raceinfo.tech, &profile.planet.other, &profile.sector.plated) == 3) {
+    } else if (sscanf(s, "Tech:    %lf\t\t  other      %5d%%\t      plated   o %d%%", &profile.raceinfo.tech, &profile.planet.other, &profile.sector.plated) == 3) {
         sector_type[SECTOR_PLATED].sectc = 'o';
         sector_type[SECTOR_PLATED].compat = profile.sector.plated;
     } else if (!strncmp(s, "Personal: ", strlen("Personal: "))
                || !strncmp(s, "Discoveries:", strlen("Discoveries:"))) {
         return;
-    }
-    else {
+    } else {
         msg("-- craziness in profile: %s", s);
     }
 } /* End handle_profile */
@@ -502,10 +479,10 @@ void icomm_relation(char *s)
     char theirs[20];
     char *p;
 
-    if(ICOMM_STATE == S_WAIT) {
+    if (icomm.list[0].state == S_WAIT) {
         if (!strncmp(s, "             Racial Relations Report for ", strlen("             Racial Relations Report for "))) {
-            ICOMM_STATE = S_PROC;
-            ICOMM_IGNORE = true;
+            icomm.list[0].state = S_PROC;
+            icomm.list[0].ignore = true;
         }
 
         return;
@@ -515,21 +492,17 @@ void icomm_relation(char *s)
         return;
     }
 
-    if(sscanf(s, "%d  Morph (%3d%%)%[^:]: %s %s", &id, &know, name, yours, theirs) == 5
+    if (sscanf(s, "%d  Morph (%3d%%)%[^:]: %s %s", &id, &know, name, yours, theirs) == 5
        || sscanf(s, "%2d Biom (%3d%%)%[^:]: %s %s", &id, &know, name, yours, theirs) == 5) {
         meso = RACE_MESO;
-    }
-    else if(sscanf(s, "%2d  Unknown (%3d%%)%[^:]: %s %s", &id, &know, name, yours, theirs) == 5) {
+    } else if (sscanf(s, "%2d  Unknown (%3d%%)%[^:]: %s %s", &id, &know, name, yours, theirs) == 5) {
         meso = RACE_UNKNOWN;
-    }
-    else if(sscanf(s, "%2d  Normal (%3d%%)%[^:]: %s %s", &id, &know, name, yours, theirs) == 5) {
+    } else if (sscanf(s, "%2d  Normal (%3d%%)%[^:]: %s %s", &id, &know, name, yours, theirs) == 5) {
         meso = RACE_NORM;
-    }
-    else if(sscanf(s, "%2d       (%3d%%)%[^:]: %s %s", &id, &know, name, yours, theirs) == 5) {
+    } else if (sscanf(s, "%2d       (%3d%%)%[^:]: %s %s", &id, &know, name, yours, theirs) == 5) {
         /* Old format */
         meso = RACE_NORM;
-    }
-    else {
+    } else {
         msg("-- craziness in relation: %s", s);
 
         return;
@@ -546,11 +519,11 @@ void icomm_relation(char *s)
 
 void icomm_done_relation(void)
 {
-    if(profile.raceid > cur_game.maxplayers) {
+    if (profile.raceid > cur_game.maxplayers) {
         cur_game.maxplayers = profile.raceid;
     }
 
-    if(cur_game.maxplayers > MAX_NUM_PLAYERS) {
+    if (cur_game.maxplayers > MAX_NUM_PLAYERS) {
         msg("-- WARNING: This game has more players (%d) than the client (%d) is compiled to handle. Adjusting to client amount.", cur_game.maxplayers, MAX_NUM_PLAYERS);
         cur_game.maxplayers = MAX_NUM_PLAYERS;
     }
@@ -572,10 +545,10 @@ int type_relation(char *s)
 /* Process incoming lines */
 void icomm_status(char *s)
 {
-    if(ICOMM_STATE == S_WAIT) {
+    if (icomm.list[0].state == S_WAIT) {
         if (!strncmp(s, "            ========== Technology Report ==========", strlen( "            ========== Technology Report =========="))) {
-            ICOMM_STATE = S_PROC;
-            ICOMM_IGNORE = true;
+            icomm.list[0].state= S_PROC;
+            icomm.list[0].ignore = true;
         }
 
         return;
@@ -587,14 +560,14 @@ void icomm_status(char *s)
         return;
     }
 
-    if(sscanf(s,
+    if (sscanf(s,
               "%79s %ld %ld %lf %lf",
               opt.planets[opt.number].name,
               &opt.planets[opt.number].pop,
               &opt.planets[opt.number].c_inv,
               &opt.planets[opt.number].c_gain,
               &opt.planets[opt.number].a_gain) == 5) {
-        if(opt.planets[opt.number].name[strlen(opt.planets[opt.number].name) - 1] == '*') {
+        if (opt.planets[opt.number].name[strlen(opt.planets[opt.number].name) - 1] == '*') {
             opt.planets[opt.number].name[strlen(opt.planets[opt.number].name) - 1] = '\0';
         }
 
@@ -633,19 +606,21 @@ void icomm_done_status(void)
     long j;
     long maxnum;
     long maxpop = 0;
-    char out[BUFSIZ];
+    char out[NORMSIZ];
 
 #ifdef OPTTECH
     /* Initiate first derivatives */
-    for(i = 0; i < opt.number; ++i) {
+    for (i = 0; i < opt.number; ++i) {
         opt.planets[i].der = find_derivative(opt.planets[i].pop, 1);
     }
 
     i = 1;
 
-    while(i < opt.number) {
-        for(j = i; j < opt.number; ++j) {
-            if(opt.planets[j].pop > maxpop) {
+    while (i < opt.number) {
+        maxnum = i;
+
+        for (j = i; j < opt.number; ++j) {
+            if (opt.planets[j].pop > maxpop) {
                 maxpop = opt.planets[j].pop;
                 maxnum = j;
             }
@@ -656,11 +631,10 @@ void icomm_done_status(void)
         ++i;
     }
 
-    for(opt.invleft = opt.invest; opt.invleft > 0; opt.invleft -= opt.techgive) {
-        if((opt.invleft / opt.number) > 1) {
+    for (opt.invleft = opt.invest; opt.invleft > 0; opt.invleft -= opt.techgive) {
+        if ((opt.invleft / opt.number) > 1) {
             opt.techgive = opt.invleft / opt.number;
-        }
-        else {
+        } else {
             opt.techgive = 1;
         }
 
@@ -668,7 +642,7 @@ void icomm_done_status(void)
         opt.planets[0].der = find_derivative(opt.planets[0].pop, opt.planets[0].n_inv);
         j = 0;
 
-        while(opt.planets[j].der < opt.planets[j + 1].der) {
+        while (opt.planets[j].der < opt.planets[j + 1].der) {
             switch_planets(j, j + 1);
             ++j;
         }
@@ -676,32 +650,28 @@ void icomm_done_status(void)
 
     msg("-- opttech report (%d planets):", opt.number);
 
-    for(i = 0; i < opt.number; ++i) {
-        if(!opt.planets[i].pop) {
-            if(!opt.display_only) {
+    for (i = 0; i < opt.number; ++i) {
+        if (!opt.planets[i].pop) {
+            if (!opt.display_only) {
                 msg(" [%d] /%s - no popn. ignoring", i, opt.planets[i].name);
             }
-        }
-        else if(opt.planets[i].n_inv < opt.thresh) {
-            if(!opt.display_only) {
+        } else if (opt.planets[i].n_inv < opt.thresh) {
+            if (!opt.display_only) {
                 msg("  [%d] /%s - below threshold", i, opt.planets[i].name);
             }
-        }
-        else if(opt.planets[i].n_inv != opt.planets[i].c_inv) {
-            if(!opt.display_only) {
+        } else if (opt.planets[i].n_inv != opt.planets[i].c_inv) {
+            if (!opt.display_only) {
                 msg("  [%d] /%s - %ld", i, opt.planets[i].name, opt.planets[i].n_inv);
                 sprintf(out, "cs /%s\ntech %ld\n", opt.planets[i].name, opt.planets[i].n_inv);
                 send_gb(out, strlen(out));
                 end_msg += 2;
             }
-        }
-        else if(!opt.planets[i].n_inv) {
-            if(!opt.display_only) {
+        } else if (!opt.planets[i].n_inv) {
+            if (!opt.display_only) {
                 msg("  [%d] /%s - no investment", i, opt.planets[i].name);
             }
-        }
-        else {
-            if(!opt.display_only) {
+        } else {
+            if (!opt.display_only) {
                 msg("  /%s - no change", opt.planets[i].name);
             }
         }
@@ -710,15 +680,15 @@ void icomm_done_status(void)
     opt.technew = 0;
     opt.techold = 0;
 
-    for(i = 0; i < opt.number; ++i) {
-        if(opt.planets[i].n_inv > opt.thresh) {
+    for (i = 0; i < opt.number; ++i) {
+        if (opt.planets[i].n_inv > opt.thresh) {
             opt.technew = (double)(opt.technew + (SCALE * log10(((double)opt.planets[i].pop * ((double)opt.planets[i].n_inv / 10000.0)) + 1.0)));
         }
 
         opt.techold = (double)(opt.techold + (SCALE * log10(((double)opt.planets[i].pop * ((double)opt.planets[i].c_inv / 10000.0)) + 1.0)));
     }
 
-    if(end_msg) {
+    if (end_msg) {
         --end_msg;
     }
 
@@ -735,13 +705,13 @@ void cmd_opttech(char *s)
 {
     char fbuf[SMABUF];
     char rbuf[SMABUF];
-    char temp[BUFSIZ];
+    char temp[SMABUF];
     int i;
 
 #ifdef SMART_CLIENT
     split(s, fbuf, rbuf);
 
-    if(!*fbuf) {
+    if (!*fbuf) {
         msg("-- Usage: opttech [-t[otal]] investment [threshold]");
 
         return;
@@ -751,15 +721,14 @@ void cmd_opttech(char *s)
         || !strncmp(fbuf, "-t", strlen("-t"))) {
         opt.display_only = true;
         strcpy(temp, rbuf);
-        split(temp,fbuf, rbuf);
-    }
-    else {
+        split(temp, fbuf, rbuf);
+    } else {
         opt.display_only = false;
     }
 
     opt.invest = atol(fbuf);
 
-    if(opt.invest < 0) {
+    if (opt.invest < 0) {
         msg("-- opttech: a positive investment might be useful");
 
         return;
@@ -772,23 +741,23 @@ void cmd_opttech(char *s)
     opt.technew = 0;
     opt.techold = 0;
 
-    if(*rbuf) {
+    if (*rbuf) {
         opt.thresh = atol(rbuf);
 
-        if(opt.thresh < 0) {
+        if (opt.thresh < 0) {
             opt.thresh = 0;
         }
     }
 
     opt.planets = (Optplanet *)malloc(sizeof(Optplanet) * MAX_NUM_PLANETS);
 
-    if(opt.planets == (Optplanet *)NULL) {
+    if (opt.planets == (Optplanet *)NULL) {
         msg("-- opttech: Could not allocate memory needed. Abort.");
 
         return;
     }
 
-    for(i = 0; i < MAX_NUM_PLANETS; ++i) {
+    for (i = 0; i < MAX_NUM_PLANETS; ++i) {
         opt.planets[i].pop = 0;
         opt.planets[i].c_inv = 0;
         opt.planets[i].n_inv = 0;

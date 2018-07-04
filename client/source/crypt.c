@@ -41,7 +41,7 @@ Crypt *find_crypt(char *id)
 
     p = crypt_list;
 
-    while(p && strcmp(id, p->nick)) {
+    while (p && strcmp(id, p->nick)) {
         p = p->next;
     }
 
@@ -56,17 +56,17 @@ Crypt *find_crypt(char *id)
 void cmd_crypt(char *args)
 {
     Crypt *p;
-    char nick[BUFSIZ];
-    char key[BUFSIZ];
+    char nick[NORMSIZ];
+    char key[NORMSIZ];
 
-    if(!*args) {
+    if (!*args) {
         cmd_listcrypt();
 
         return;
     }
 
     /* If a - flag, then remove the crypt from the list */
-    if(*args == '-') {
+    if (*args == '-') {
         cmd_uncrypt(args + 1);
 
         return;
@@ -74,7 +74,7 @@ void cmd_crypt(char *args)
 
     split(args, nick, key);
 
-    if(!*nick || !*key) {
+    if (!*nick || !*key) {
         msg("-- Usage: crypt <pattern> <key>");
 
         return;
@@ -82,15 +82,14 @@ void cmd_crypt(char *args)
 
     p = find_crypt(nick);
 
-    if(!p) {
+    if (!p) {
         p = (Crypt *)malloc(sizeof(Crypt));
 
-        if(!crypt_list) {
+        if (!crypt_list) {
             crypt_list = p;
             p->next = NULL;
             p->prev = NULL;
-        }
-        else {
+        } else {
             p->next = crypt_list;
             crypt_list->prev = p;
             p->prev = NULL;
@@ -99,8 +98,7 @@ void cmd_crypt(char *args)
 
         p->key = NULL;
         p->nick = string(nick);
-    }
-    else {
+    } else {
         free(p->key);
     }
 
@@ -114,19 +112,18 @@ void cmd_uncrypt(char *nick)
     Crypt *p;
     int val = 0;
 
-    if(*nick == '#') {
+    if (*nick == '#') {
         val = atoi(nick + 1);
         p = crypt_list;
 
-        while(p && p->indx != val) {
+        while (p && p->indx != val) {
             p = p->next;
         }
-    }
-    else {
+    } else {
         p = find_crypt(nick);
     }
 
-    if(!p) {
+    if (!p) {
         msg("-- No such crypt %s defined.", nick);
 
         return;
@@ -134,19 +131,16 @@ void cmd_uncrypt(char *nick)
 
     msg("-- Removed crypt: %s", nick);
 
-    if(!p->prev) {
-        if(p->next) {
+    if (!p->prev) {
+        if (p->next) {
             crypt_list = p->next;
             crypt_list->prev = NULL;
-        }
-        else {
+        } else {
             crypt_list = NULL;
         }
-    }
-    else if(!p->next) {
+    } else if (!p->next) {
         p->prev->next = NULL;
-    }
-    else {
+    } else {
         p->prev->next = p->next;
         p->next->prev = p->prev;
     }
@@ -163,7 +157,7 @@ void cmd_listcrypt(void)
     Crypt *p;
     int i = 1;
 
-    if(!crypt_list) {
+    if (!crypt_list) {
         msg("-- No crypts defined.");
 
         return;
@@ -171,7 +165,7 @@ void cmd_listcrypt(void)
 
     msg("-- Crypts:");
 
-    for(p = crypt_list; p; p = p->next) {
+    for (p = crypt_list; p; p = p->next) {
         p->indx = i;
         msg("%3d) %s <%s>", i, p->nick, p->key);
         ++i;
@@ -185,11 +179,11 @@ void crypt_update_index(void)
     Crypt *p;
     int i = 1;
 
-    if(!crypt_list) {
+    if (!crypt_list) {
         return;
     }
 
-    for(p = crypt_list; p; p = p->next) {
+    for (p = crypt_list; p; p = p->next) {
         p->indx = i;
         ++i;
     }
@@ -203,10 +197,10 @@ char *is_crypted(char *nick)
 {
     Crypt *p;
 
-    if(crypt_list) {
+    if (crypt_list) {
         p = find_crypt(nick);
 
-        if(p) {
+        if (p) {
             return p->key;
         }
     }
@@ -228,7 +222,7 @@ char *check_crypt(char *message, int type)
     char *p;
     char *header = "CRYPT";
 
-    if(strncmp(message, header, strlen(header))) {
+    if (strncmp(message, header, strlen(header))) {
         debug(4, "NO crypt header. Returning null");
 
         return NULL;
@@ -236,7 +230,7 @@ char *check_crypt(char *message, int type)
 
     p = strchr(message, '|');
 
-    if(!p || !*p) {
+    if (!p || !*p) {
         return NULL;
     }
 
@@ -250,7 +244,7 @@ char *check_crypt(char *message, int type)
     debug(4, "pattern: \'%s\'", pat);
     debug(4, "buffer:  \'%s\'", buf);
 
-    switch(type) {
+    switch (type) {
     case NORM_BROADCAST:
     case GB_BROADCAST:
     case HAP_BROADCAST:
@@ -283,7 +277,7 @@ char *check_crypt(char *message, int type)
 
     key = is_crypted(pat);
 
-    if(!key) {
+    if (!key) {
         debug(3, "Crypt: no key for message");
 
 
@@ -317,8 +311,8 @@ void cmd_cr(char *args)
     char *key;
     char buf[MAXSIZ];
 
-    if(*args == '-') {
-        switch(*(args + 1)) {
+    if (*args == '-') {
+        switch (*(args + 1)) {
         case 'a':
             type = NORM_ANNOUNCE;
 
@@ -343,17 +337,16 @@ void cmd_cr(char *args)
 
         p = rest(args);
 
-        if(p) {
+        if (p) {
             strcpy(args, p);
         }
     }
 
     p = first(args);
 
-    if(p) {
+    if (p) {
         strcpy(pat, p);
-    }
-    else {
+    } else {
         msg("-- Usage: cr <pat> <message>");
 
         return;
@@ -361,10 +354,9 @@ void cmd_cr(char *args)
 
     p = rest(args);
 
-    if(p) {
+    if (p) {
         strcpy(args, p);
-    }
-    else {
+    } else {
         msg("-- Usage: cr <pat> <message>");
 
         return;
@@ -372,7 +364,7 @@ void cmd_cr(char *args)
 
     key = is_crypted(pat);
 
-    if(!key) {
+    if (!key) {
         msg("-- Pattern %s does not have a key.", pat);
 
         return;
@@ -405,7 +397,7 @@ void init_crypt(void)
     int i;
     int j = 127;
 
-    for(i = 0; i < 96; ++i) {
+    for (i = 0; i < 96; ++i) {
         --j;
         crypt_values[i] = j;
     }
@@ -421,19 +413,19 @@ void encode(char *str, char *key)
     int klen;
     int slen;
 
-    if(!str || !*str) {
+    if (!str || !*str) {
         return;
     }
 
     klen = strlen(key) - 1;
     slen = strlen(str) - 1;
 
-    while(*str) {
+    while (*str) {
         *str = crypt_values[(int)((*str - 32) + (int)((*kptr + ((klen + key[klen] + slen) % 95)) % 95)) % 95];
         ++str;
         ++kptr;
 
-        if(!*kptr) {
+        if (!*kptr) {
             kptr = key;
         }
     }
@@ -447,36 +439,34 @@ void save_crypts(FILE *fd)
 {
     Crypt *p;
 
-    if(!crypt_list) {
+    if (!crypt_list) {
         return;
     }
 
     fprintf(fd, "\n#\n# Crypt keys\n#\n");
 
-    for(p = crypt_list; p; p = p->next) {
+    for (p = crypt_list; p; p = p->next) {
         fprintf(fd, "crypt %s %s\n", p->nick, p->key);
     }
 }
 
 int do_crypt_recall(char *str)
 {
-    if(cryptrecall) {
-        if(!cryptcur) {
+    if (cryptrecall) {
+        if (!cryptcur) {
             cryptcur = cryptrecall;
         }
 
         sprintf(str, "cr %s ", cryptcur->key);
 
-        if(cryptcur->next) {
+        if (cryptcur->next) {
             cryptcur = cryptcur->next;
-        }
-        else {
+        } else {
             cryptcur = cryptrecall;
         }
 
         return true;
-    }
-    else {
+    } else {
         return false;
     }
 }
@@ -493,25 +483,24 @@ void add_crypt_recall(char *key)
     }
 
     /* Key already exists */
-    if(new) {
+    if (new) {
         /* Found 1st node, leave alone */
-        if(new == cryptrecall) {
+        if (new == cryptrecall) {
             return;
         }
 
-        if(new->next) {
+        if (new->next) {
             new->next->prev = new->prev;
         }
 
-        if(new->prev) {
+        if (new->prev) {
             new->prev->next = new->next;
         }
-    }
-    else {
+    } else {
         /* Does not exist, create */
         new = (CryptRecall *)malloc(sizeof(CryptRecall));
 
-        if(!new) {
+        if (!new) {
             msg("-- cryptrecall: could not malloc memory needed.");
 
             return;
@@ -522,7 +511,7 @@ void add_crypt_recall(char *key)
 
     new->next = cryptrecall;
 
-    if(cryptrecall) {
+    if (cryptrecall) {
         cryptrecall->prev = new;
     }
 
@@ -534,7 +523,7 @@ void crypt_test(void)
 {
     int i;
 
-    for(i = 0; i < 96; ++i) {
+    for (i = 0; i < 96; ++i) {
         msg("%c = %c", i, crypt_values[i]);
     }
 }

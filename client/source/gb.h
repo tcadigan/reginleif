@@ -10,6 +10,8 @@
 #ifndef GB_H_
 #define GB_H_
 
+#include "ansi.h"
+
 /*
  * The VERSION is used to track differences between client versions. This should
  * only be changed if you make a mod, and should reflect your changes. For
@@ -99,7 +101,7 @@
 #define MAIL_DELIMITER_LEN 5
 
 /* Use for current sector in Imap */
-#define DEFAULT_CURSOR_SECTOR "$"
+#define DEFAULT_CURSOR_SECTOR '$'
 
 #define DEFAULT_SHELL "/usr/bin/bash"
 
@@ -120,6 +122,13 @@ extern int client_devel;
 #ifdef RWHO
 struct rwhostruct rwho;
 #endif
+
+extern struct morestruct more_val;
+extern struct profilestruct profile;
+extern int game_type;
+extern struct scopestruct scope;
+extern struct input_modestruct input_mode;
+extern char *race_colors[MAX_RCOLORS];
 
 int main(int, char *argv[]);
 void gbs(void);

@@ -131,8 +131,8 @@ void cmd_proc(char *args)
         p = args + 1;
         args = rest(args);
 
-        while(*p != ' ') {
-            switch(*p++) {
+        while (*p != ' ') {
+            switch (*p++) {
             case 'a':
                 proc.redirect = NORM_ANNOUNCE;
 
@@ -153,7 +153,7 @@ void cmd_proc(char *args)
                 proc.redirect = ENCRYPTED;
                 q = first(p);
 
-                while(*p != ' ') {
+                while (*p != ' ') {
                     ++p;
                 }
 
@@ -166,7 +166,7 @@ void cmd_proc(char *args)
                 proc.redirect = USER_DEFINED;
                 q = first(p);
 
-                while(*p != ' ') {
+                while (*p != ' ') {
                     ++p;
                 }
 
@@ -207,7 +207,7 @@ void cmd_proc(char *args)
 
     proc.pid = fork();
 
-    switch(proc.pid) {
+    switch (proc.pid) {
     case -1:
         msg("-- proc: could not fork process. Sorry.");
         close(pifd[PIPE_READ]);
@@ -453,7 +453,7 @@ char *print_process_string(char *header, char *s)
 
     p = strchr(q, '\n');
 
-    while(p) {
+    while (p) {
         *p = '\0';
         procmsg(header, q);
         q = p + 1;
@@ -506,7 +506,7 @@ void procmsg(char *header, char *args)
     char buf[MAXSIZ];
     char buf2[MAXSIZ];
 
-    switch(proc.redirect) {
+    switch (proc.redirect) {
     case NORM_ANNOUNCE:
         sprintf(buf2, "announce %s", args);
 
