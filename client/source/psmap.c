@@ -71,7 +71,7 @@ void cmd_psmap(char *args)
     while (int1) {
         promptfor("Highlight home planet? (y/n) ", pbuf, PROMPT_CHAR);
 
-        if(YES(*pbuf)) {
+        if ((*pbuf == 'Y') || (*pbuf == 'y')) {
             univ.highlight_home = 1;
             int1 = false;
         }
@@ -528,7 +528,7 @@ void display_psmap(void)
     sprintf(obuf, "Display using %s? (y/n)", PSVIEWER);
     promptfor(obuf, mbuf, PROMPT_CHAR);
 
-    if(!YES(*mbuf)) {
+    if ((*mbuf == 'Y') || (*mbuf == 'y')) {
         return;
     }
 

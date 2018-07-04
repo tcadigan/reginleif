@@ -379,7 +379,12 @@ int main(int argc, char *argv[])
 
                 break;
             case 'l':
-                CLR_BIT(options, DISPLAY_TOP);
+                if (DISPLAY_TOP < 32) {
+                    options[DISPLAY_TOP / 32] &= ~(1 << DISPLAY_TOP);
+                } else {
+                    options[DISPLAY_TOP / 32] &= ~(1 << (DISPLAY_TOP % 32));
+                }
+
                 toggle((int *)"on", DISPLAYING, "display");
                 cmd_listgame();
                 quit_gb(0, "", NULL, NULL);
@@ -398,7 +403,12 @@ int main(int argc, char *argv[])
 
                 break;
             case 'v':
-                CLR_BIT(options, DISPLAY_TOP);
+                if (DISPLAY_TOP < 32) {
+                    options[DISPLAY_TOP / 32] &= ~(1 << DISPLAY_TOP);
+                } else {
+                    options[DISPLAY_TOP / 32] &= ~(1 << (DISPLAY_TOP % 32));
+                }
+
                 toggle((int *)"on", DISPLAYING, "display");
                 cmd_version("");
                 quit_gb(-1, "", NULL, NULL);
@@ -438,7 +448,12 @@ int main(int argc, char *argv[])
             case 'h':
             case '?':
             default:
-                CLR_BIT(options, DISPLAY_TOP);
+                if (DISPLAY_TOP < 32) {
+                    options[DISPLAY_TOP / 32] &= ~(1 << DISPLAY_TOP);
+                } else {
+                    options[DISPLAY_TOP / 32] &= ~(1 << (DISPLAY_TOP % 32));
+                }
+
                 toggle((int *)"on", DISPLAYING, "display");
                 msg("-- Usage: %s [-adehlrsvER?] [-e<filename>] [-i<filename>] [-V<version#>] [host | nick] [port]", progname);
                 msg("  -a      toggles autologin");
@@ -519,7 +534,12 @@ int main(int argc, char *argv[])
                     strfree(cur_game.game.nick);
                     cur_game.game.nick = string(game->nick);
                     add_assign("game_nick", game->nick);
-                    SET_BIT(options, AUTOLOGIN);
+
+                    if (AUTOLOGIN < 32) {
+                        options[AUTOLOGIN / 32] |= (1 << AUTOLOGIN);
+                    } else {
+                        options[AUTOLOGIN / 32] |= (1 << (AUTOLOGIN % 32));
+                    }
                 }
             }
         } else {
@@ -566,21 +586,46 @@ int main(int argc, char *argv[])
             strfree(cur_game.game.nick);
             cur_game.game.nick = string(game->nick);
             add_assign("game_nick", game->nick);
-            SET_BIT(options, AUTOLOGIN);
+
+            if (AUTOLOGIN < 32) {
+                options[AUTOLOGIN / 32] |= (1 << AUTOLOGIN);
+            } else {
+                options[AUTOLOGIN / 32] |= (1 << (AUTOLOGIN % 32));
+            }
         }
     }
 
     /* Set up the duplicate options so as to preserve GBRC info */
-    if (GET_BIT(options, AUTOLOGIN_STARTUP)) {
-        SET_BIT(options, AUTOLOGIN);
+    if (options[AUTOLOGIN_STARTUP / 32] & ((AUTOLOGIN_STARTUP < 32) ?
+                                           (1 << AUTOLOGIN_STARTUP)
+                                           : (1 << (AUTOLOGIN_STARTUP % 32)))) {
+        if (AUTOLOGIN < 32) {
+            options[AUTOLOGIN / 32] |= (1 << AUTOLOGIN);
+        } else {
+            options[AUTOLOGIN / 32] |= (1 << (AUTOLOGIN %32));
+        }
     } else {
-        CLR_BIT(options, AUTOLOGIN);
+        if (AUTOLOGIN < 32) {
+            options[AUTOLOGIN / 32] &= ~(1 << AUTOLOGIN);
+        } else {
+            options[AUTOLOGIN / 32] &= ~(1 << (AUTOLOGIN % 32));
+        }
     }
 
-    if (GET_BIT(options, LOGINSUPPRESS_STARTUP)) {
-        SET_BIT(options, LOGINSUPPRESS);
+    if (options[LOGINSUPPRESS_STARTUP / 32] && ((LOGINSUPPRESS_STARTUP < 32) ?
+                                                (1 << LOGINSUPPRESS_STARTUP)
+                                                : (1 << (LOGINSUPPRESS_STARTUP % 32)))) {
+        if (LOGINSUPPRESS < 32) {
+            options[LOGINSUPPRESS / 32] |= (1 << LOGINSUPPRESS);
+        } else {
+            options[LOGINSUPPRESS / 32] |= (1 << (LOGINSUPPRESS % 32));
+        }
     } else {
-        CLR_BIT(options, LOGINSUPPRESS);
+        if (LOGINSUPPRESS < 32) {
+            options[LOGINSUPPRESS / 32] &= ~(1 << LOGINSUPPRESS);
+        } else {
+            options[LOGINSUPPRESS / 32] &= ~(1 << (LOGINSUPPRESS % 32));
+        }
     }
 
     /* We are initialized and booted, so let's go on! */
@@ -611,7 +656,11 @@ int main(int argc, char *argv[])
 #endif
 
     /* Default to hide encrypted messages (confuses newbies) -mfw */
-    SET_BIT(options, ENCRYPT);
+    if (ENCRYPT < 32) {
+        options[ENCRYPT / 32] |= (1 << ENCRYPT);
+    } else {
+        options[ENCRYPT / 32] |= (1 << (ENCRYPT % 32));
+    }
 
     if (editclient) {
         msg("-- client running in editing mode.");
@@ -714,15 +763,29 @@ void gbs(void)
             if (then == -1) {
                 then = now;
             } else if (!exit_now
-                       && GET_BIT(options, CONNECT)
+                       && (options[CONNECT / 32] & ((CONNECT < 32) ?
+                                                    (1 << CONNECT)
+                                                    : (1 << (CONNECT % 32))))
                        && (now > (then + reconnect_delay))) {
                 if (game_type == GAME_GBDT) {
-                    if (GET_BIT(options, AUTOLOGIN_STARTUP)) {
-                        SET_BIT(options, AUTOLOGIN);
+                    if (options[AUTOLOGIN_STARTUP / 32] & ((AUTOLOGIN_STARTUP < 32) ?
+                                                           (1 << AUTOLOGIN_STARTUP)
+                                                           : (1 << (AUTOLOGIN_STARTUP % 32)))) {
+                        if (AUTOLOGIN < 32) {
+                            options[AUTOLOGIN / 32] |= (1 << AUTOLOGIN);
+                        } else {
+                            options[AUTOLOGIN / 32] |= (1 << (AUTOLOGIN % 32));
+                        }
                     }
 
-                    if (GET_BIT(options, LOGINSUPPRESS_STARTUP)) {
-                        SET_BIT(options, LOGINSUPPRESS);
+                    if (options[LOGINSUPPRESS_STARTUP / 32] & ((LOGINSUPPRESS_STARTUP < 32) ?
+                                                             (1 << LOGINSUPPRESS_STARTUP)
+                                                             : (1 << (LOGINSUPPRESS_STARTUP % 32)))) {
+                        if (LOGINSUPPRESS < 32) {
+                            options[LOGINSUPPRESS / 32] |= (1 << LOGINSUPPRESS);
+                        } else {
+                            options[LOGINSUPPRESS / 32] |= (1 << (LOGINSUPPRESS % 32));
+                        }
                     }
                 }
 

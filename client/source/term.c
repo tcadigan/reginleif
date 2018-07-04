@@ -614,10 +614,11 @@ void term_move_cursor(int x, int y)
 
 void term_clear_screen(void)
 {
-    if(GET_BIT(options, SCROLL_CLR)) {
+    if (options[SCROLL_CLR / 32] & ((SCROLL_CLR < 32) ?
+                                    (1 << SCROLL_CLR)
+                                    : (1 << (SCROLL_CLR % 32)))) {
         term_scroll(0, output_row, output_row + 1);
-    }
-    else {
+    } else {
         term_clear(0, output_row + 1);
     }
 

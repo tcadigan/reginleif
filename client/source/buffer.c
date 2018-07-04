@@ -129,7 +129,9 @@ int have_buffer(BufferInfo *infoptr)
     }
 
     if ((infoptr->tail == infoptr->head) && infoptr->partial) {
-        if (GET_BIT(options, PARTIAL_LINES)) {
+        if (options[PARTIAL_LINES / 32] & ((PARTIAL_LINES < 32) ?
+                                           (1 << PARTIAL_LINES)
+                                           : (1 << (PARTIAL_LINES % 32)))) {
             if (last_check == -1) {
                 last_check = time(0);
             } else if (last_check < (time(0) /* - 1 */)) {

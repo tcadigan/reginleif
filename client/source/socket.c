@@ -200,7 +200,9 @@ void get_scoket(void)
 /* Take the given string and process it as socket output */
 void procesS_gb(char *s)
 {
-    if(GET_BIT(options, RAWMODE)) {
+    if (options[RAWMODE / 32] & ((RAWMODE < 32) ?
+                                 (1 << RAWMODE)
+                                 : (1 << (RAWMODE % 32)))) {
         display_msg(s); /* No more needed here */
 
         return;
@@ -285,7 +287,9 @@ void process_socket(char *s)
     if(end_prompt == PASS_PROMPT) {
         client_stats = L_PASSWORD;
 
-        if(GET_BIT(options, AUTOLOGIN)) {
+        if (options[AUTOLOGIN / 32] & ((AUTOLOGIN < 32) ?
+                                       (1 << AUTOLOGIN)
+                                       : (1 << (AUTOLOGIN % 32)))) {
             if(!password_invalid) {
                 send_password();
             }
@@ -294,7 +298,10 @@ void process_socket(char *s)
         return;
     }
     else {
-        if((client_stats < L_PASSWORD) && GET_BIT(options, LOGINSUPPRESS)) {
+        if ((client_stats < L_PASSWORD)
+            && (options[LOGINSUPPRESS / 32] & ((LOGINSUPPRESS < 32) ?
+                                               (1 << LOGINSUPPRESS)
+                                               : (1 << (LOGINSUPPRESS % 32))))) {
             return;
         }
     }
@@ -415,7 +422,10 @@ void process_socket(char *s)
         command_has_output = true;
     }
 
-    if(GET_BIT(options, BEEP) && !end_prompt) {
+    if ((options[BEEP / 32] & ((BEEP < 32) ?
+                               (1 << BEEP)
+                               : (1 << (BEEP % 32))))
+        && !end_prompt) {
         term_beep(1);
     }
 
@@ -437,7 +447,10 @@ void socket_final_process(char *s, int type)
 
     add_recall(s, type);
 
-    if((type != NONE) && GET_BIT(options, BOLD_COMM)) {
+    if ((type != NONE)
+        && (options[BOLD_COMM / 32] & ((BOLD_COMM < 32) ?
+                                       (1 << BOLD_COMM)
+                                       : (1 << (BOLD_COMM % 32))))) {
         display_bold_communication(s);
     }
     else {
@@ -659,9 +672,16 @@ void oldcheck4_endprompt(char *s)
         end_prompt = PASS_PROMPT;
         game_type = GAME_GBDT;
         add_assign("game_type", "GB+");
-        CLR_BIT(options, LOGINSUPPRESS);
 
-        if(!GET_BIT(options, AUTOLOGIN)) {
+        if (LOGINSUPPRESS < 32) {
+            options[LOGINSUPPRESS / 32] &= ~(1 << LOGINSUPPRESS);
+        } else {
+            options[LOGINSUPPRESS / 32] &= ~(1 << (LOGINSUPPRESS % 32));
+        }
+
+        if (!(options[AUTOLOGIN / 32] & ((AUTOLOGIN < 32) ?
+                                         (1 << AUTOLOGIN)
+                                         : (1 << (AUTOLOGIN % 32))))) {
             msg("%s", s);
             hide_input = true;
             promptfor("Password> ", dummybuf, PROMPT_STRING);
@@ -676,9 +696,23 @@ void oldcheck4_endprompt(char *s)
         password_invalid = true;
 
         if (game_type == GAME_GBDT) {
-            CLR_BIT(options, LOGINSUPPRESS);
-            CLR_BIT(options, AUTOLOGIN);
-            CLR_BIT(options, CONNECT);
+            if (LOGINSUPPRESS < 32) {
+                options[LOGINSUPPRESS / 32] &= ~(1 << LOGINSUPPRESS);
+            } else {
+                options[LOGINSUPPRESS / 32] &= ~(1 << (LOGINSUPPRESS % 32));
+            }
+
+            if (AUTOLOGIN < 32) {
+                options[AUTOLOGIN / 32] &= ~(1 << AUTOLOGIN);
+            } else {
+                options[AUTOLOGIN / 32] &= ~(1 << (AUTOLOGIN % 32));
+            }
+
+            if (CONNECT < 32) {
+                options[CONNECT / 32] &= ~(1 << CONNECT);
+            } else {
+                options[CONNECT / 32] &= ~(1 << (CONNECT % 32));
+            }
         }
 
         msg("%s", s);
@@ -698,9 +732,25 @@ void oldcheck4_endprompt(char *s)
         racegen = true;
         msg("-- Client is in RACEGEN mode.");
         strcpy(last_prompt, "[ GB Racegen ]");
-        STR_BIT(options, PARTIAL_LINES);
-        CLR_BIT(options, AUTOLOGIN);
-        CLR_BIT(options, LOGINSUPPRESS);
+
+        if (PARTIAL_LINES < 32) {
+            options[PARTIAL_LINES / 32] |= (1 << PARTIAL_LINES);
+        } else {
+            options[PARTIAL_LINES / 32] |= (1 << (PARTIAL_LINES % 32));
+        }
+
+        if (AUTOLOGIN < 32) {
+            options[AUTOLOGIN / 32] &= ~(1 << AUTOLOGIN);
+        } else {
+            options[AUTOLOGIN / 32] &= ~(1 << (AUTOLOGIN % 32));
+        }
+
+        if (LOGINSUPPRESS < 32) {
+            options[LOGINSUPPRESS / 32] &= ~(1 << LOGINSUPPRESS);
+        } else {
+            options[LOGINSUPPRESS / 32] &= ~(1 << (LOGINSUPPRESS % 32));
+        }
+
         force_update_status();
     }
     else {
@@ -724,9 +774,16 @@ void connect_prompts(char *s)
         end_prompt = PASS_PROMPT;
         game_type = GAME_GDBT;
         add_assign("game_type", "GB+");
-        CLR_BIT(options, LOGINSUPPRESS);
 
-        if(!GET_BIT(options, AUTOLOGIN)) {
+        if (LOGINSUPPRESS < 32) {
+            options[LOGINSUPPRESS / 32] &= ~(1 << LOGINSUPPRESS);
+        } else {
+            options[LOGINSUPPRESS / 32] &= ~(1 << (LOGINSUPPRESS % 32));
+        }
+
+        if (!(options[AUTOLOGIN / 32] & ((AUTOLOGIN < 32) ?
+                                         (1 << AUTOLOGIN)
+                                         : (1 << (AUTOLOGIN % 32))))) {
             msg("%s", s);
             hide_input = true;
             promptfor("PASSWORD> ", buf, PROMPT_STRING);
@@ -753,9 +810,23 @@ void connect_prompts(char *s)
         password_invalid = true;
 
         if (game_type == GAME_GBDT) {
-            CLR_BIT(options, LOGINSUPPRESS);
-            CLR_BIT(options, AUTOLOGIN);
-            CLR_BIT(options, CONNECT);
+            if (LOGINSUPPRESS < 32) {
+                options[LOGINSUPPRESS / 32] &= ~(1 << LOGINSUPPRESS);
+            } else {
+                options[LOGINSUPPRESS / 32] &= ~(1 << (LOGINSUPPRESS % 32));
+            }
+
+            if (AUTOLOGIN < 32) {
+                options[AUTOLOGIN / 32] &= ~(1 << AUTOLOGIN);
+            } else {
+                options[AUTOLOGIN / 32] &= ~(1 << (AUTOLOGIN % 32));
+            }
+
+            if (CONNECT < 32) {
+                options[CONNECT / 32] &= ~(1 << CONNECT);
+            } else {
+                options[CONNECT / 32] &= ~(1 << (CONNECT % 32));
+            }
         }
 
         msg("%s", s);
@@ -780,7 +851,9 @@ void connect_prompts(char *s)
         game_type = GAME_GBDT;
         add_assign("game_type", "GB+");
 
-        if(GET_BIT(options, AUTOLOGIN)) {
+        if (options[AUTOLOGIN / 32] & ((AUTOLOGIN < 32) ?
+                                       (1 << AUTOLOGIN)
+                                       : (1 << (AUTOLOGIN % 32)))) {
             if (!strcmp(cur_game.game.type, "chap")) {
                 strcpy(race_name, cur_game.game.racename);
                 strcpy(govn_name, cur_game.game_govname);
@@ -802,9 +875,23 @@ void connect_prompts(char *s)
         msg("-- CHAP login failed, try again or 'ctrl-c' to quit.");
 
         if (game_type == GAME_GBDT) {
-            CLR_BIT(options, LOGINSUPPRESS);
-            CLR_BIT(options, AUTOLOGIN);
-            CLR_BIT(options, CONNECT);
+            if (LOGINSUPPRESS < 32) {
+                options[LOGINSUPPRESS / 32] &= ~(1 << LOGINSUPPRESS);
+            } else {
+                options[LOGINSUPPRESS / 32] &= ~(1 << (LOGINSUPPRESS % 32));
+            }
+
+            if (AUTOLOGIN < 32) {
+                options[AUTOLOGIN / 32] &= ~(1 << AUTOLOGIN);
+            } else {
+                options[AUTOLOGIN / 32] &= ~(1 << (AUTOLOGIN % 32));
+            }
+
+            if (CONNECT < 32) {
+                options[CONNECT / 32] &= ~(1 << CONNECT);
+            } else {
+                options[CONNECT / 32] &= ~(1 << (CONNECT % 32));
+            }
         }
     } else if (!strcmp(s, "CHAP SUCCESS")) {
         strcpy(s, ""); /* To blank out the message -mfw */
@@ -813,9 +900,25 @@ void connect_prompts(char *s)
         racegen = true;
         msg("-- Client is in RACEGEN mode.");
         strcpy(last_prompt, "[ GB Racegen ]");
-        SET_BIT(options, PARTIAL_LINES);
-        CLR_BIT(options, AUTOLOGIN);
-        CLR_BIT(options, LOGINSUPPRESS);
+
+        if (PARTIAL_LINES < 32) {
+            options[PARTIAL_LINES / 32] |= (1 << PARTIAL_LINES);
+        } else {
+            options[PARTIAL_LINES / 32] |= (1 << (PARTIAL_LINES % 32));
+        }
+
+        if (AUTOLOGIN < 32) {
+            options[AUTOLOGIN / 32] &= ~(1 << AUTOLOGIN);
+        } else {
+            options[AUTOLOGIN / 32] &= ~(1 << (AUTOLOGIN % 32));
+        }
+
+        if (LOGINSUPPRESS < 32) {
+            options[LOGINSUPPRESS / 32] &= ~(1 << LOGINSUPPRESS);
+        } else {
+            options[LOGINSUPPRESS / 32] &= ~(1 << (LOGINSUPPRESS % 32));
+        }
+
         force_update_status();
     }
     else {
@@ -839,7 +942,9 @@ void send_gb(char *s, int len)
 
     if((!queue_sending && have_queue())
        || ((client_stats != L_ACTIVE)
-           && !(GET_BIT(options, PARTIAL_LINES))
+           && !(options[PARTIAL_LINES / 32] & ((PARTIAL_LINES < 32) ?
+                                               (1 << PARTIAL_LINES)
+                                               : (1 << (PARTIAL_LINES % 32))))
            && !((client_stats == L_PASSWORD)
                 || (client_stats == L_INTERNALINIT)
                 || (client_stats == L_REINIT)))) {
@@ -848,7 +953,9 @@ void send_gb(char *s, int len)
         return;
     }
 
-    if(GET_BIT(options, NO_LOGOUT)) {
+    if (options[NO_LOGOUT / 32] & ((NO_LOGOUT < 32) ?
+                                   (1 << NO_LOGOUT)
+                                   : (1 << (NO_LOGOUT % 32)))) {
         set_no_logout();
     }
 
@@ -919,7 +1026,9 @@ int sendgb(char *buf, int len)
 
 void cursor_output_window(void)
 {
-    if(GET_BIT(options, DISPLAY_TOP)) {
+    if (options[DISPLAY_TOP / 32] & ((DISPLAY_TOP < 32) ?
+                                     (1 << DISPLAY_TOP)
+                                     : (1 << (DISPLAY_TOP % 32)))) {
         term_move_cursor(0, last_output_row);
     }
     else {
@@ -931,7 +1040,10 @@ void cursor_output_window(void)
 
 void scroll_output_window(void)
 {
-    if((last_output_row >= output_row) || !GET_BIT(options, DISPLAY_TOP)) {
+    if ((last_output_row >= output_row)
+        || !(options[DISPLAY_TOP / 32] & ((DISPLAY_TOP < 32) ?
+                                          (1 << DISPLAY_TOP)
+                                          : (1 << (DISPLAY_TOP % 32))))) {
         term_scroll(0, output_row, 1);
         crusor_display_false;
 
@@ -1044,12 +1156,24 @@ void cmd_connect(char *s)
         add_assign("govname", cur_game.game.govname);
         add_assign("secpassword", cur_game.game.secpassword);
 
-        if(GET_BIT(options, AUTOLOGIN_STARTUP)) {
-            SET_BIT(options, AUTOLOGIN);
+        if (options[AUTOLOGIN_STARTUP / 32] & ((AUTOLOGIN_STARTUP < 32) ?
+                                               (1 << AUTOLOGIN_STARTUP)
+                                               : (1 << (AUTOLOGIN_STARTUP % 32)))) {
+            if (AUTOLOGIN < 32) {
+                options[AUTOLOGIN / 32] |= (1 << AUTOLOGIN);
+            } else {
+                options[AUTOLOGIN / 32] |= (1 << (AUTOLOGIN % 32));
+            }
         }
 
-        if(GET_BIT(options, LOGINSUPPRESS_STARTUP)) {
-            SET_BIT(options, LOGINSUPPRESS);
+        if (options[LOGINSUPPRESS_STARTUP / 32] & ((LOGINSUPPRESS_STARTUP < 32) ?
+                                                   (1 << LOGINSUPPRESS_STARTUP)
+                                                   : (1 << (LOGINSUPPRESS_STARTUP % 32)))) {
+            if (LOGINSUPPRESS < 32) {
+                options[LOGINSUPPRESS / 32] |= (1 << LOGINSUPPRESS);
+            } else {
+                options[LOGINSUPPRESS / 32] |= (1 << (LOGINSUPPRESS % 32));
+            }
         }
 
         msg("-- Connected to new host.");
@@ -1083,7 +1207,9 @@ void check_no_logout(void)
     long now;
     char tbuf[NORMSIZ];
 
-    if(!GET_BIT(options, NO_LOGOUT)) {
+    if (!(options[NO_LOGOUT / 32] & ((NO_LOGOUT < 32) ?
+                                     (1 << NO_LOGOUT)
+                                     : (1 << (NO_LOGOUT % 32))))) {
         return;
     }
 
@@ -1332,16 +1458,34 @@ void loggedin(void)
         check4_endprompt = oldcheck4_endprompt;
     }
 
-    if(GET_BIT(options, CONNECT_STARTUP)) {
-        SET_BIT(options, CONNECT);
+    if (options[CONNECT_STARTUP / 32] & ((CONNECT_STARTUP < 32) ?
+                                         (1 << CONNECT_STARTUP)
+                                         : (1 << (CONNECT_STARTUP % 32)))) {
+        if (CONNECT < 32) {
+            options[CONNECT / 32] |= (1 << CONNECT);
+        } else {
+            options[CONNECT / 32] |= (1 << (CONNECT %32));
+        }
     }
 
-    if(GET_BIT(options, AUTOLOGIN_STARTUP)) {
-        SET_BIT(options, AUTOLOGIN);
+    if (options[AUTOLOGIN_STARTUP / 32] & ((AUTOLOGIN_STARTUP < 32) ?
+                                           (1 << AUTOLOGIN_STARTUP)
+                                           : (1 << (AUTOLOGIN_STARTUP % 32)))) {
+        if (AUTOLOGIN < 32) {
+            options[AUTOLOGIN / 32] |= (1 << AUTOLOGIN);
+        } else {
+            options[AUTOLOGIN / 32] |= (1 << (AUTOLOGIN % 32));
+        }
     }
 
-    if(GET_BIT(options, LOGINSUPPRESS_STARTUP)) {
-        SET_BIT(options, LOGINSUPPRESS);
+    if (options[LOGINSUPPRESS_STARTUP / 32] & ((LOGINSUPPRESS_STARTUP < 32) ?
+                                               (1 << LOGINSUPPRESS_STARTUP)
+                                               : (1 << (LOGINSUPPRESS_STARTUP % 32)))) {
+        if (LOGINSUPPRESS < 32) {
+            options[LOGINSUPPRESS / 32] |= (1 << LOGINSUPPRESS);
+        } else {
+            options[LOGINSUPPRESS / 32] |= (1 << (LOGINSUPPRESS % 32));
+        }
     }
 
     init_start_commands(0); /* Set client_stats below */
@@ -1421,7 +1565,10 @@ int on_endprompt(int eprompt)
     do_queue = true; /* Special case...must be socket */
 
     if(eprompt == LEVE_PROMPT) {
-        if((client_stats = L_PASSWORD) && !GET_BIT(options, PARTIAL_LINES)) {
+        if ((client_stats == L_PASSWORD)
+            && !(options[PARTIAL_LINES / 32] & ((PARTIAL_LINES < 32) ?
+                                                (1 << PARTIAL_LINES)
+                                                : (1 << (PARTIAL_LINES % 32))))) {
             msg("-- WARNING: The client does NOT know your race id number.");
 
             while ((client_stats != L_LOGGEDIN) && (client_stats >= L_PASSWORD)) {
@@ -1479,7 +1626,10 @@ int on_endprompt(int eprompt)
         }
     }
 
-    if((eprompt >= NODIS_PROMPT) && GET_BIT(options, HIDE_END_PROMPT)) {
+    if ((eprompt >= NODIS_PROMPT)
+        && (options[HIDE_END_PROMPT / 32] & ((HIDE_END_PROMPT < 32) ?
+                                             (1 << HIDE_END_PROMPT)
+                                             : (1 << (HIDE_END_PROMPT % 32))))) {
         cursor_to_window();
 
         return true:
@@ -1539,7 +1689,12 @@ void chap_response(char *line)
        || !race_pass[0]
        || !govn_pass[0]
        || password_failed) {
-        CLR_BIT(options, LOGINSUPPRESS);
+        if (LOGINSUPPRESS < 32) {
+            options[LOGINSUPPRESS / 32] &= ~(1 << LOGINSUPPRESS);
+        } else {
+            options[LOGINSUPPRESS / 32] &= ~(1 << (LOGINSUPPRESS % 32));
+        }
+
         get_pass_info();
     }
 
@@ -1569,7 +1724,7 @@ void chap_abort(void)
     sendgb(abort, 10);
     promptfor("Quit client (y/n)? ", &c, PROMPT_CHAR);
 
-    if(YES(c)) {
+    if ((c == 'Y') || (c == 'y')) {
         quit_all = true;
     }
     else {

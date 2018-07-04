@@ -245,7 +245,7 @@ void cmd_info(char *args)
     if (strcmp(args, "total")) {
         promptfor("Are you sure? (y/n) ", buf, PROMPT_CHAR);
 
-        if (!YES(*buf)) {
+        if ((*buf != 'Y') && (*buf != 'y')) {
             return;
         }
 
@@ -640,7 +640,7 @@ void cmd_savef(char *args)
         sprintf(askbuf, "Really save to %s (y/n)? ", gbrc_path);
         promptfor(askbuf, str, PROMPT_STRING);
 
-        if (!YES(*str)) {
+        if ((*str != 'Y') && (*str != 'y')) {
             return;
         }
 
@@ -775,14 +775,22 @@ void cmd_quit(char *args)
 
         gb_close_socket = 1;
         send_gb("quit", 4);
-        CLR_BIT(options, CONNECT);
 
-        if (GET_BIT(options, QUIT_ALL) || !strcmp(args, "all")) {
+        if (CONNECT < 32) {
+            options[CONNECT / 32] &= ~(1 << CONNECT);
+        } else {
+            options[CONNECT / 32] &= ~(1 << (CONNECT % 32));
+        }
+
+        if ((options[QUIT_ALL / 32] & ((QUIT_ALL < 32) ?
+                                       (1 << QUIT_ALL)
+                                       : (1 << (QUIT_ALL % 32))))
+            || !strcmp(args, "all")) {
             quit_all = true;
         } else {
             promptfor("Quit client (y/n)? ", &c, PROMPT_CHAR);
 
-            if (YES(c)) {
+            if ((c == 'Y') || (c == 'y')) {
                 quit_all = true;
             } else {
                 update_input_prompt(input_prompt);

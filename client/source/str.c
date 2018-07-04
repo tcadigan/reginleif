@@ -358,7 +358,9 @@ int wrap(char *line)
         return 0;
     }
 
-    if(GET_BIT(options, BRACKETS)) {
+    if (options[BRACKETS / 32] & ((BRACKETS < 32) ?
+                                  (1 << BRACKETS)
+                                  : (1 << (BRACKETS % 32)))) {
         for (p = s; *p; ++p) {
             switch (*p) {
             case '[':
@@ -639,7 +641,10 @@ void msg(char *fmt, ...)
     char buf[MAXSIZ];
     char *p;
 
-    if(!GET_BIT(options, DISPLAYING) || paused) {
+    if (!(options[DISPLAYING / 32] & ((DISPLAYING < 32) ?
+                                      (1 << DISPLAYING)
+                                      : (1 << (DISPLAYING % 32))))
+        || paused) {
         return;
     }
 
@@ -675,7 +680,10 @@ void display_msg(char *s)
 {
     char store[MAXSIZ];
 
-    if(!GET_BIT(options, DISPLAYING) || paused) {
+    if (!(options[DISPLAYING / 32] & ((DISPLAYING < 32) ?
+                                      (1 << DISPLAYING)
+                                      : (1 << (DISPLAYING % 32))))
+        || paused) {
         return;
     }
 
@@ -743,7 +751,10 @@ void msg_error(char *fmt, ...)
     va_list vargs;
     char buf[MAXSIZ];
 
-    if(!GET_BIT(options, DISPLAYING) || paused) {
+    if (!(options[DISPLAYING / 32] & ((DISPLAYING < 32)
+                                      (1 << DISPLAYING)
+                                      : (1 << (DISPLAYING % 32))))
+        || paused) {
         return;
     }
 
@@ -943,7 +954,9 @@ char *strfree(char *ptr)
 
 void place_string_on_output_window(char *str, int len)
 {
-    if(GET_BIT(options, FULLSCREEN)) {
+    if (options[FULLSCREEN / 32] & ((FULLSCREEN < 32) ?
+                                    (1 << FULLSCREEN)
+                                    : (1 << (FULLSCREEN % 32)))) {
         scroll_output_window();
     }
 
@@ -951,7 +964,9 @@ void place_string_on_output_window(char *str, int len)
     write_string(str, len);
     ++last_output_row;
 
-    if(!GET_BIT(options, FULLSCREEN)) {
+    if (!(options[FULLSCREEN / 32] & ((FULLSCREEN < 32) ?
+                                      (1 << FULLSCREEN)
+                                      : (1 << (FULLSCREEN % 32))))) {
         scroll_output_window();
     }
 
@@ -966,7 +981,9 @@ void write_string(char *s, int cnt)
     for (i = 0, p = s; i <= cnt; ++i) {
         switch (*p) {
         case BELL_CHAR:
-            if(GET_BIT(options, DO_BELLS)) {
+            if (options[DO_BELLS / 32] & ((DO_BELLS < 32) ?
+                                          (1 << DO_BELLS)
+                                          : (1 << (DO_BELLS % 32)))) {
                 term_beep(1);
             }
             else {

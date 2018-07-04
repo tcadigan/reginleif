@@ -17,15 +17,6 @@
 
 #include <stdio.h>
 
-/* A yes macro from promptfor() */
-#define YES(A) (((A) == 'Y') || ((A) == 'y'))
-
-/* Bit functions for the user options */
-#define SET_BIT(A, I) ((A)[(I) / 32] |= ((I) < 32 ? (1 << (I)) : (1 << ((I) % 32))))
-#define CLR_BIT(A, I) ((A)[(I) / 32] &= ~((I) < 32 ? (1 << (I)) : (1 << ((I) % 32))))
-#define GET_BIT(A, I) ((A)[(I) / 32] & ((I) < 32 ? (1 << (I)) : (1 << ((I) % 32))))
-#define GET_BITx(A, I) ((A) & (1 << (I)))
-
 /* Various defines to make my life easier */
 #define REPEAT_SLEEP_TIME 60 /* Time to sleep if doing repeats */
 #define MORE_DELAY        15 /* In secs, time to trigger more */

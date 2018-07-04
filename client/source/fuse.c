@@ -71,11 +71,11 @@ void cmd_fuse(char *args)
 #ifndef RESTRICTED_ACCESS
     promptfor("Do you want a plot (y/n) ", pbuf, PROMPT_CHAR);
 
-    if (YES(*pbuf)) {
+    if ((*pbuf == 'Y') || (*pbuf == 'y')) {
         fuse.plot = true;
         promptfor("Use xterm for display (y/n) ", pbuf, PROMPT_CHAR);
 
-        if (YES(*pbuf)) {
+        if ((*pbuf == 'Y') || (*pbuf == 'y')) {
             fuse.xterm = true;
         } else {
             fuse.xterm = false;

@@ -263,7 +263,9 @@ void cspr_map(int cnum, char *line)
         p = get_map_info_buf(NEXT, &map);
         csp_msg("%-40s%s", outbuf1, p);
 
-        if (GET_BIT(options, MAP_SPACE)) {
+        if (options[MAP_SPACE / 32] & ((MAP_SPACE < 32) ?
+                                       (1 << MAP_SPACE)
+                                       : (1 << (MAP_SPACE % 32)))) {
             p = get_map_info_buf(NEXT, &map);
             csp_msg("%-40s%s", "", p);
         }
@@ -421,8 +423,19 @@ void cspr_map(int cnum, char *line)
                 "%s%s%s%s",
                 nums,
                 outbuf1,
-                (GET_BIT(options, MAP_DOUBLE) && GET_BIT(options, MAP_SPACE) ? " " : ""),
-                (GET_BIT(options, MAP_DOUBLE) ? nums : ""));
+                ((options[MAP_DOUBLE / 32] & ((MAP_DOUBLE < 32) ?
+                                              (1 << MAP_DOUBLE)
+                                              : (1 << (MAP_DOUBLE % 32))))
+                 && (options[MAP_SPACE / 32] & ((MAP_SPACE < 32) ?
+                                                (1 << MAP_SPACE)
+                                                : (1 << (MAP_SPACE % 32))))) ?
+                " "
+                : "",
+                (options[MAP_DOUBLE / 32] & ((MAP_DOUBLE < 32) ?
+                                             (1 << MAP_DOUBLE)
+                                             : (1 << (MAP_DOUBLE % 32)))) ?
+                nums
+                : "");
 
         p = get_map_info_buf(NEXT, &map);
 
@@ -441,8 +454,12 @@ void cspr_map(int cnum, char *line)
         }
 #endif
 
-        if (GET_BIT(options, MAP_DOUBLE)) {
-            if (GET_BIT(options, MAP_SPACE)) {
+        if (options[MAP_DOUBLE / 32] & ((MAP_DOUBLE < 32) ?
+                                        (1 << MAP_DOUBLE)
+                                        : (1 << (MAP_DOUBLE % 32)))) {
+            if (options[MAP_SPACE / 32] & ((MAP_SPACE < 32) ?
+                                           (1 << MAP_SPACE)
+                                           : (1 << (MAP_SPACE % 32)))) {
                 p = get_map_info_buf(NEXT, &map);
 
                 if (p) {
@@ -1774,7 +1791,9 @@ void plot_orbit_object(void)
     char colbuf[SMABUF];
     char ptype[] = "@oO#~.\"-0(";
 
-    want_color = GET_BIT(options, DISP_ANSI);
+    want_color = (options[DISP_ANSI / 32] & ((DISP_ANSI < 32) ?
+                                             (1 << DISP_ANSI)
+                                             : (1 << (DISP_ANSI % 32))));
 
     if ((orbit.type == TYPE_STAR) && (orbit.scope == LEVEL_UNIV)) {
         x = (int)(orbit.scale + ((orbit.scale * (orbit.star.x - orbit.lastx)) / (orbit.univsize * orbit.zoom)));

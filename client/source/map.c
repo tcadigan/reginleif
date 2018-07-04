@@ -49,7 +49,9 @@ void plot_surface(char *t)
     }
 #endif
 
-    want_color = GET_BIT(options, DISP_ANSI);
+    want_color = (options[DISP_ANSI / 32] & ((DISP_ANSI < 32) ?
+                                             (1 << DISP_ANSI)
+                                             : (1 << (DISP_ANSI % 32))));
 
     /* Skip the marking char $ */
     u = t + 1;
@@ -124,10 +126,16 @@ void plot_surface(char *t)
 
         inverse = 0;
 
-        if(GET_BIT(options, MAP_DOUBLE)) {
+        if (options[MAP_DOUBLE / 32] & ((MAP_DOUBLE < 32) ?
+                                        (1 << MAP_DOUBLE)
+                                        : (1 << (MAP_DOUBLE % 32)))) {
             sprintf(temp,
                     "%s%c%c",
-                    (GET_BIT(options, MAP_SPACE) ? " " : ""),
+                    (options[MAP_SPACE / 32] & ((MAP_SPACE < 32) ?
+                                                (1 << MAP_SPACE)
+                                                : (1 << (MAP_SPACE % 32)))) ?
+                    " "
+                    : "",
                     (y / 10) + '0',
                     (y % 10) + '0');
 
@@ -138,8 +146,12 @@ void plot_surface(char *t)
         add_recall(maplog, 0);
     }
 
-    if(GET_BIT(options, MAP_DOUBLE)) {
-        if(GET_BIT(options, MAP_SPACE)) {
+    if (options[MAP_DOUBLE / 32] & ((MAP_DOUBLE < 32) ?
+                                    (1 << MAP_DOUBLE)
+                                    : (1 << (MAP_DOUBLE % 32)))) {
+        if (options[MAP_SPACE / 32] & ((MAP_SPACE < 32) ?
+                                       (1 << MAP_SPACE)
+                                       : (1 << (MAP_SPACE % 32)))) {
             msg("");
         }
 
@@ -172,7 +184,9 @@ void print_X(int Maxx)
 
     msg(buf);
 
-    if(GET_BIT(options, MAP_SPACE)) {
+    if (options[MAP_SPACE / 32] & ((MAP_SPACE < 32) ?
+                                   (1 << MAP_SPACE)
+                                   : (1 << (MAP_SPACE % 32)))) {
         msg("");
     }
 }
@@ -204,7 +218,9 @@ void plot_orbit(char *t)
     }
 #endif
 
-    want_color = GET_BIT(options, DISP_ANSI);
+    want_color = (options[DISP_ANSI / 32] & ((DISP_ANSI < 32) ?
+                                             (1 << DISP_ANSI)
+                                             : (1 << (DISP_ANSI % 32))));
     term_clear_screen();
     q = t + 1;
 

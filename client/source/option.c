@@ -125,38 +125,62 @@ void display_set(void)
     msg("-- set:");
     sprintf(dsbuf,
             "actions: %s",
-            (GET_BIT(options, ACTIONS) ? "on " : "off"));
+            (options[ACTIONS / 32] & ((ACTIONS < 32) ?
+                                      (1 << ACTIONS)
+                                      : (1 << (ACTIONS % 32)))) ?
+            "on "
+            : "off");
 
     do_column_maker(dsbuf);
 
     sprintf(dsbuf,
             "ansi: %s",
-            (GET_BIT(options, DISP_ANSI) ? "on " : "off"));
+            (options[DISP_ANSI / 32] & ((DISP_ANSI < 32) ?
+                                        (1 << DISP_ANSI)
+                                        : (1 << (DISP_ANSI % 32)))) ?
+            "on "
+            : "off");
 
     do_column_maker(dsbuf);
     sprintf(dsbuf, "more_delay: %d secs", more_val.delay);
 
     sprintf(dsbuf,
             "autologin: %s",
-            (GET_BIT(options, AUTOLOGIN_STARTUP) ? "on " : "off"));
+            (options[AUTOLOGIN_STARTUP / 32] & ((AUTOLOGIN_STARTUP < 32) ?
+                                                (1 << AUTOLOGIN_STARTUP)
+                                                : (1 << (AUTOLOGIN_STARTUP % 32)))) ?
+            "on "
+            : "off");
 
     do_column_maker(dsbuf);
 
     sprintf(dsbuf,
             "beep: %s",
-            (GET_BIT(options, BEEP) ? "on " : "off"));
+            (options[BEEP / 32] & ((BEEP < 32) ?
+                                   (1 << BEEP)
+                                   : (1 << (BEEP % 32)))) ?
+            "on "
+            : "off");
 
     do_column_maker(dsbuf);
 
     sprintf(dsbuf,
             "bell: %s",
-            (GET_BIT(options, DO_BELLS) ? "on " : "off"));
+            (options[DO_BELLS / 32] & ((DO_BELLS < 32) ?
+                                       (1 << DO_BELLS)
+                                       : (1 << (DO_BELLS % 32)))) ?
+            "on "
+            : "off");
 
     do_column_maker(dsbuf);
 
     sprintf(dsbuf,
             "bold_communcation: %s",
-            (GET_BIT(options, BOLD_COMM) ? "on " : "off"));
+            (options[BOLD_COMM / 32] & ((BOLD_COMM < 32) ?
+                                        (1 << BOLD_COMM)
+                                        : (1 << (BOLD_COMM % 32)))) ?
+            "on "
+            : "off");
 
     do_column_maker(dsbuf);
     sprintf(dsbuf, "client_prompt: \'%s\'", client_prompt);
@@ -171,7 +195,11 @@ void display_set(void)
 
     sprintf(dsbuf,
             "display_from_top: %s",
-            (GET_BIT(options, DISPLAY_TOP) ? "on " : "off"));
+            (options[DISPLAY_TOP / 32] & ((DISPLAY_TOP < 32) ?
+                                          (1 << DISPLAY_TOP)
+                                          : (1 << (DISPLAY_TOP % 32)))) ?
+            "on "
+            : "off");
 
     do_column_maker(dsbuf);
 
@@ -183,7 +211,11 @@ void display_set(void)
 
     sprintf(dsbuf,
             "encrypt: %s messages",
-            (GET_BIT(options, ENCRYPT) ? "hidden" : "shown"));
+            (options[ENCRYPT / 32] & ((ENCRYPT < 32) ?
+                                      (1 << ENCRYPT)
+                                      : (1 << (ENCRYPT % 32)))) ?
+            "hidden"
+            : "shown");
 
     do_column_maker(dsbuf);
 
@@ -201,7 +233,11 @@ void display_set(void)
 
     sprintf(dsbuf,
             "full_screen: %s",
-            (GET_BIT(options, FULLSCREEN) ? "on " : "off"));
+            (options[FULLSCREEN / 32] & ((FULLSCREEN < 32) ?
+                                         (1 << FULLSCREEN)
+                                         : (1 << (FULLSCREEN % 32)))) ?
+            "on "
+            : "off");
 
     do_column_maker(dsbuf);
     sprintf(dsbuf, "help: %s", help_client);
@@ -209,7 +245,11 @@ void display_set(void)
 
     sprintf(dsbuf,
             "hide_end_prompt: %s",
-            (GET_BIT(options, HIDE_END_PROMPT) ? "on " : "off"));
+            (options[HIDE_END_PROMPT/ 32] & ((HIDE_END_PROMPT < 32) ?
+                                             (1 << HIDE_END_PROMPT)
+                                             : (1 << (HIDE_END_PROMPT % 32)))) ?
+            "on "
+            : "off");
 
     do_column_maker(dsbuf);
     sprintf(dsbuf, "history: %d lines", max_history);
@@ -221,19 +261,31 @@ void display_set(void)
 
     sprintf(dsbuf,
             "login_suppress: %s",
-            (GET_BIT(options, LOGINSUPPRESS_STARTUP) ? "on " : "off"));
+            (options[LOGINSUPPRESS_STARTUP / 32] & ((LOGINSUPPRESS_STARTUP < 32) ?
+                                                    (1 << LOGINSUPPRESS_STARTUP)
+                                                    : (1 << (LOGINSUPPRESS_STARTUP % 32)))) ?
+            "on "
+            : "off");
 
     do_column_maker(dsbuf);
 
     sprintf(dsbuf,
             "map double: %s",
-            (GET_BIT(options, MAP_DOUBLE) ? "on " : "off"));
+            (options[MAP_DOUBLE / 32] & ((MAP_DOUBLE < 32) ?
+                                         (1 << MAP_DOUBLE)
+                                         : (1 << (MAP_DOUBLE % 32)))) ?
+            "on "
+            : "off");
 
     do_column_maker(dsbuf);
 
     sprintf(dsbuf,
             "map space: %s",
-            (GET_BIT(options, MAP_SPACE) ? "on " : "off"));
+            (options[MAP_SPACE / 32] & ((MAP_SPACE < 32) ?
+                                        (1 << MAP_SPACE)
+                                        : (1 << (MAP_SPACE % 32)))) ?
+            "on "
+            : "off");
 
     do_column_maker(dsbuf);
     sprintf(dsbuf, "more: %s", more_val.on ? "on " : "off");
@@ -243,13 +295,21 @@ void display_set(void)
 
     sprintf(dsbuf,
             "no_logout: %s",
-            (GET_BIT(options, NO_LOGOUT) ? "on " : "off"));
+            (options[NO_LOGOUT / 32] & ((NO_LOGOUT < 32) ?
+                                        (1 << NO_LOGOUT)
+                                        : (1 << (NO_LOGOUT % 32)))) ?
+            "on "
+            : "off");
 
     do_column_maker(dsbuf);
 
     sprintf(dsbuf,
             "noclobber: %s",
-            (GET_BIT(options, NOCLOBBER) ? "on " : "off"));
+            (options[NOCLOBBER / 32] & ((NOCLOBBER < 32) ?
+                                        (1 << NOCLOBBER)
+                                        : (1 << (NOCLOBBER % 32)))) ?
+            "on "
+            : "off");
 
     do_column_maker(dsbuf);
 
@@ -269,7 +329,11 @@ void display_set(void)
 
     sprintf(dsbuf,
             "quit_all: %s",
-            (GET_BIT(options, QUIT_ALL) ? "on " : "off"));
+            (options[QUIT_ALL / 32] & ((QUIT_ALL < 32) ?
+                                       (1 << QUIT_ALL)
+                                       : (1 << (QUIT_ALL % 32)))) ?
+            "on "
+            : "off");
 
     do_column_maker(dsbuf);
     sprintf(dsbuf, "recall: %d lines", max_recall);
@@ -277,19 +341,31 @@ void display_set(void)
 
     sprintf(dsbuf,
             "repeat_connect: %s",
-            (GET_BIT(options, CONNECT_STARTUP) ? "on " : "off"));
+            (options[CONNECT_STARTUP / 32] & ((CONNECT_STARTUP < 32) ?
+                                              (1 << CONNECT_STARTUP)
+                                              : (1 << (CONNECT_STARTUP % 32)))) ?
+            "on "
+            : "off");
 
     do_column_maker(dsbuf);
 
     sprintf(dsbuf,
             "scroll: %s",
-            (GET_BIT(options, SCROLL) ? "on " : "off"));
+            (options[SCROLL / 32] & ((SCROLL < 32) ?
+                                     (1 << SCROLL)
+                                     : (1 << (SCROLL % 32)))) ?
+            "on "
+            : "off");
 
     do_column_maker(dsbuf);
 
     sprintf(dsbuf,
             "scroll_clear: %s",
-            (GET_BIT(options, SCROLL_CLR) ? "on " : "off"));
+            (options[SCROLL_CLR / 32] & ((SCROLL_CLR < 32) ?
+                                         (1 << SCROLL_CLR)
+                                         : (1 << (SCROLL_CLR % 32)))) ?
+            "on "
+            : "off");
 
     do_column_maker(dsbuf);
     sprintf(dsbuf, "server_version: %s", servinfo.version);
@@ -297,29 +373,47 @@ void display_set(void)
 
     sprintf(dsbuf,
             "show_actions: %s",
-            (GET_BIT(options, SHOW_ACTIONS) ? "on " : "off"));
+            (options[SHOW_ACTIONS / 32] & ((SHOW_ACTIONS < 32) ?
+                                           (1 << SHOW_ACTIONS)
+                                           : (1 << (SHOW_ACTIONS % 32)))) ?
+            "on "
+            : "off");
 
     do_column_maker(dsbuf);
 
     sprintf(dsbuf,
             "show_mail: %s",
-            (GET_BIT(options, SHOW_MAIL) ? "on " : "off"));
+            (options[SHOW_MAIL / 32] & ((SHOW_MAIL < 32) ?
+                                        (1 << SHOW_MAIL)
+                                        : (1 << (SHOW_MAIL % 32)))) ?
+            "on "
+            : "off");
 
     do_column_maker(dsbuf);
 
     sprintf(dsbuf,
             "show_clock: %s",
-            (GET_BIT(options, SHOW_CLOCK) ? "on " : "off"));
+            (options[SHOW_CLOCK / 32] & ((SHOW_CLOCK < 32) ?
+                                         (1 << SHOW_CLOCK)
+                                         : (1 << (SHOW_CLOCK % 32)))) ?
+            "on "
+            : "off");
 
     do_column_maker(dsbuf);
 
     sprintf(dsbuf,
             "slash_commands: %s",
-            (GET_BIT(options, SLASH_COMMANDS) ? "on " : "off"));
+            (options[SLASH_COMMANDS / 32] & ((SLASH_COMMANDS < 32) ?
+                                             (1 << SLASH_COMMANDS)
+                                             : (1 << (SLASH_COMMANDS % 32)))) ?
+            "on "
+            : "off");
 
     do_column_maker(dsbuf);
 
-    if(GET_BIT(options, BRACKETS)) {
+    if (options[BRACKETS / 32] & ((BRACKETS < 32) ?
+                                  (1 << BRACKETS)
+                                  : (1 << (BRACKETS % 32)))) {
         do_column_maker("brackets: on");
     }
 
@@ -330,7 +424,9 @@ void display_set(void)
         msg("DEBUG ON -- Level: %s", debug_level);
     }
 
-    if(GET_BIT(options, RAWMODE)) {
+    if (options[RAWMODE / 32] & ((RAWMODE < 32) ?
+                                 (1 << RAWMODE)
+                                 : (1 << (RAWMODE)))) {
         msg("RAWMODE ON.");
     }
 
@@ -348,27 +444,44 @@ void toggle(int *args, int type, char *name)
             msg("-- %s: on", name);
         }
 
-        SET_BIT(options, type);
+        if (type < 32) {
+            options[type / 32] |= (1 << type);
+        } else {
+            options[type / 32] |= (1 << (type % 32));
+        }
     } else if (*args && !strcmp(args, "off")) {
         if(*name) {
             msg("-- %s: off", name);
         }
 
-        CLR_BIT(options, type);
-    }
-    else if(GET_BIT(options, type)) {
+        if (type < 32) {
+            options[type / 32] &= ~(1 << type);
+        } else {
+            options[type / 32] &= ~(1 << (type % 32));
+        }
+    } else if (options[type / 32] & ((type < 32) ?
+                                     (1 << type)
+                                     : (1 << (type % 32)))) {
         if(*name) {
             msg("-- %s: off", name);
         }
 
-        CLR_BIT(options, type);
+        if (type < 32) {
+            options[type / 32] &= ~(1 << type);
+        } else {
+            options[type / 32] &= ~(1 << (type % 32));
+        }
     }
     else {
         if(*name) {
             msg("-- %s: on", name);
         }
 
-        SET_BIT(options, type);
+        if (type < 32) {
+            options[type / 32] |= (1 << type);
+        } else {
+            options[type / 32] |= (1 << (type % 32));
+        }
     }
 }
 
@@ -516,10 +629,20 @@ void set_debug(char *args)
 void set_encrypt(char *args)
 {
     if (!strcmp(args, "on") || !strncmp(args, "hide", strlen(args))) {
-        SET_BIT(options, ENCRYPT);
+        if (ENCRYPT < 32) {
+            options[ENCRYPT / 32] |= (1 << ENCRYPT);
+        } else {
+            options[ENCRYPT / 32] |= (1 << (ENCRYPT % 32));
+        }
+
         msg("-- encrypt: hidden.");
     } else if (!strcmp(args, "off") || !strncmp(args, "shown", strlen(args))) {
-        CLR_BIT(optoins, ENCRYPT);
+        if (ENCRYPT < 32) {
+            options[ENCRYPT / 32] &= ~(1 << ENCRYPT);
+        } else {
+            options[ENCRYPT / 32] &= ~(1 << (ENCRYPT % 32));
+        }
+
         msg("-- encrypt: shown.");
     }
     else {
@@ -650,21 +773,45 @@ void set_macro_char(char *args)
 void set_map_opts(char *args)
 {
     if (!strncmp(args, "double", strlen(args))) {
-        if(GET_BIT(options, MAP_DOUBLE)) {
-            CLR_BIT(options, MAP_DOUBLE);
+        if (options[MAP_DOUBLE / 32] & ((MAP_DOUBLE < 32) ?
+                                        (1 << MAP_DOUBLE)
+                                        : (1 << (MAP_DOUBLE % 32)))) {
+            if (MAP_DOUBLE < 32) {
+                options[MAP_DOUBLE / 32] &= ~(1 << MAP_DOUBLE);
+            } else {
+                options[MAP_DOUBLE / 32] &= ~(1 << (MAP_DOUBLE % 32));
+            }
+
             msg("-- map: double numbers turned off.");
         }
         else {
-            SET_BIT(options, MAP_DOUBLE);
+            if (MAP_DOUBLE < 32) {
+                options[MAP_DOUBLE / 32] |= (1 << MAP_DOUBLE);
+            } else {
+                options[MAP_DOUBLE / 32] |= (1 << (MAP_DOUBLE % 32));
+            }
+
             msg("-- map: double numbers turned on.");
         }
     } else if (!strncmp(args, "space", strlen(args))) {
-        if(GET_BIT(options, MAP_SPACE)) {
-            CLR_BIT(options, MAP_SPACE);
+        if (options[MAP_SPACE / 32] & ((MAP_SPACE < 32) ?
+                                       (1 << MAP_SPACE)
+                                       : (1 << (MAP_SPACE % 32)))) {
+            if (MAP_SPACE < 32) {
+                options[MAP_SPACE / 32] &= ~(1 << MAP_SPACE);
+            } else {
+                options[MAP_SPACE / 32] &= ~(1 << (MAP_SPACE % 32));
+            }
+
             msg("-- map: spacing disabled.");
         }
         else {
-            SET_BIT(options, MAP_SPACE);
+            if (MAP_SPACE < 32) {
+                options[MAP_SPACE / 32] |= (1 << MAP_SPACE);
+            } else {
+                options[MAP_SPACE / 32] |= (1 << (MAP_SPACE % 32));
+            }
+
             msg("-- map options: spacing enabled.");
         }
     }
@@ -878,31 +1025,45 @@ void save_settings(FILE *fd)
 {
     fprintf(fd, "\n#\n# Settings (set <option> <args>)\n#\n");
 
-    if(GET_BIT(options, ACTIONS)) {
+    if (options[ACTIONS / 32] & ((ACTIONS < 32) ?
+                                 (1 << ACTIONS)
+                                 : (1 << (ACTIONS % 32)))) {
         fprintf(fd, "set actions on\n");
     }
 
-    if(GET_BIT(options, DISP_ANSI)) {
+    if (options[DISP_ANSI / 32] & ((DISP_ANSI < 32) ?
+                                   (1 << DISP_ANSI)
+                                   : (1 << (DISP_ANSI % 32)))) {
         fprintf(fd, "set ansi on\n");
     }
 
-    if(GET_BIT(options, AUTOLOGIN_STARTUP)) {
+    if (options[AUTOLOGIN_STARTUP / 32] & ((AUTOLOGIN_STARTUP < 32) ?
+                                           (1 << AUTOLOGIN_STARTUP)
+                                           : (1 << (AUTOLOGIN_STARTUP % 32)))) {
         fprintf(fd, "set autologin\n");
     }
 
-    if(GET_BIT(options, BEEP)) {
+    if (options[BEEP / 32] & ((BEEP < 32) ?
+                              (1 << BEEP)
+                              : (1 << (BEEP % 32)))) {
         fprintf(fd, "set beep on\n");
     }
 
-    if(GET_BIT(options, DO_BELLS)) {
+    if (options[DO_BELLS / 32] & ((DO_BELLS < 32) ?
+                                  (1 << DO_BELLS)
+                                  : (1 << (DO_BELLS % 32)))) {
         fprintf(fd, "set bell on\n");
     }
 
-    if(GET_BIT(options, BOLD_COMM)) {
+    if (options[BOLD_COMM / 32] & ((BOLD_COMM < 32) ?
+                                   (1 << BOLD_COMM)
+                                   : (1 << (BOLD_COMM % 32)))) {
         fprintf(fd, "set bold_communication on\n");
     }
 
-    if(GET_BIT(options, BRACKETS)) {
+    if (options[BRACKETS / 32] & ((BRACKETS < 32) ?
+                                  (1 << BRACKETS)
+                                  : (1 << (BRACKETS % 32)))) {
         fprintf(fd, "set brackets on\n");
     }
 
@@ -910,7 +1071,9 @@ void save_settings(FILE *fd)
         fprintf(fd, "set client_prompt \"%s\"\n", client_prompt);
     }
 
-    if(GET_BIT(options, CONNECT_STARTUP)) {
+    if (options[CONNECT_STARTUP / 32] & ((CONNECT_STARTUP < 32) ?
+                                         (1 << CONNECT_STARTUP)
+                                         : (1 << (CONNECT_STARTUP)))) {
         fprintf(fd, "set connect on\n");
     }
 
@@ -924,11 +1087,15 @@ void save_settings(FILE *fd)
     }
 #endif
 
-    if(GET_BIT(options, DISPLAY_TOP)) {
+    if (options[DISPLAY_TOP / 32] & ((DISPLAY_TOP < 32) ?
+                                     (1 << DISPLAY_TOP)
+                                     : (1 << (DISPLAY_TOP % 32)))) {
         fprintf(fd, "set display_from_top on\n");
     }
 
-    if(GET_BIT(options, ENCRYPT)) {
+    if (options[ENCRYPT / 32] & ((ENCRYPT < 32) ?
+                                 (1 << ENCRYPT)
+                                 : (1 << (ENCRYPT % 32)))) {
         fprintf(fd, "set encrypt on\n");
     }
 
@@ -940,7 +1107,9 @@ void save_settings(FILE *fd)
         fprintf(fd, "set exit_quote %s\n", fstring(exit_quote));
     }
 
-    if(GET_BIT(options, FULLSCREEN)) {
+    if (options[FULLSCREEN / 32] & ((FULLSCREEN < 32) ?
+                                    (1 << FULLSCREEN)
+                                    : (1 << (FULLSCREEN % 32)))) {
         fprintf(fd, "set full_screen on\n");
     }
 
@@ -948,7 +1117,9 @@ void save_settings(FILE *fd)
         fprintf(fd, "set help %s\n", help_client);
     }
 
-    if(GET_BIT(options, HIDE_END_PROMPT)) {
+    if (options[HIDE_END_PROMPT / 32] & ((HIDE_END_PROMPT < 32) ?
+                                         (1 << HIDE_END_PROMPT)
+                                         : (1 << (HIDE_END_PROMPT % 32)))) {
         fprintf(fd, "set hide_end_prompt on\n");
     }
 
@@ -960,15 +1131,21 @@ void save_settings(FILE *fd)
         fprintf(fd, "set input_prompt \"%s\"\n", input_prompt);
     }
 
-    if(GET_BIT(options, LOGINSUPPRESS_STARTUP)) {
+    if (options[LOGINSUPPRESS_STARTUP / 32] & ((LOGINSUPPRESS_STARTUP < 32) ?
+                                               (1 << LOGINSUPPRESS_STARTUP)
+                                               : (1 << (LOGINSUPPRESS_STARTUP % 32)))) {
         fprintf(fd, "set login_suppress on\n");
     }
 
-    if(GET_BIT(options, MAP_DOUBLE)) {
+    if (options[MAP_DOUBLE / 32] & ((MAP_DOUBLE < 32) ?
+                                    (1 << MAP_DOUBLE)
+                                    : (1 << (MAP_DOUBLE % 32)))) {
         fprintf(fd, "set map double on\n");
     }
 
-    if(GET_BIT(options, MAP_SPACE)) {
+    if (options[MAP_SPACE / 32] & ((MAP_SPACE < 32) ?
+                                   (1 << MAP_SPACE)
+                                   : (1 << (MAP_SPACE % 32)))) {
         fprintf(fd, "set map space on\n");
     }
 
@@ -978,11 +1155,15 @@ void save_settings(FILE *fd)
         fprintf(fd, "set more_delay %d\n", more_val.delay);
     }
 
-    if(GET_BIT(options, LOGOUT)) {
+    if (options[LOGOUT / 32] & ((LOGOUT < 32) ?
+                                (1 << LOGOUT)
+                                : (1 << (LOGOUT % 32)))) {
         fprintf(fd, "set no_logout on\n");
     }
 
-    if(GET_BIT(options, NOCLOBBER)) {
+    if (options[NOCLOBBER / 32] & ((NOCLOBBER < 32) ?
+                                   (1 << NOCLOBBER)
+                                   : (1 << (NOCLOBBER % 32)))) {
         fprintf(fd, "set noclobber on\n");
     }
 
@@ -1002,11 +1183,15 @@ void save_settings(FILE *fd)
         fprintf(fd, "set overwrite_edit_mode\n");
     }
 
-    if(GET_BIT(options, PARTIAL_LINES)) {
+    if (options[PARTIAL_LINES / 32] & ((PARTIAL_LINES < 32) ?
+                                       (1 << PARTIAL_LINES)
+                                       : (1 << (PARTIAL_LINES % 32)))) {
         fprintf(fd, "#set partial_lines on\n");
     }
 
-    if(GET_BIT(options, QUIT_ALL)) {
+    if (options[QUIT_ALL / 32] & ((QUIT_ALL < 32) ?
+                                  (1 << QUIT_ALL)
+                                  : (1 << (QUIT_ALL % 32)))) {
         fprintf(fd, "set quit_all on\n");
     }
 
@@ -1014,23 +1199,33 @@ void save_settings(FILE *fd)
         fprintf(fd, "set recall %d\n", max_recall);
     }
 
-    if(GET_BIT(options, SCROLL)) {
+    if (options[SCROLL / 32] & ((SCROLL < 32) ?
+                                (1 << SCROLL)
+                                : (1 << (SCROLL % 32)))) {
         fprintf(fd, "set scroll on\n");
     }
 
-    if(GET_BIT(options, SCROLL_CLR)) {
+    if (options[SCROLL_CLR / 32] & ((SCROLL_CLR < 32) ?
+                                    (1 << SCROLL_CLR)
+                                    : (1 << (SCROLL_CLR % 32)))) {
         fprintf(fd, "set scroll_clear on\n");
     }
 
-    if(GET_BIT(options, SHOW_ACTIONS)) {
+    if (options[SHOW_ACTIONS / 32] & ((SHOW_ACTIONS < 32) ?
+                                      (1 << SHOW_ACTIONS)
+                                      : (1 << (SHOW_ACTIONS % 32)))) {
         fprintf(fd, "set show_actions on\n");
     }
 
-    if(GET_BIT(options, SHOW_CLOCK)) {
+    if (options[SHOW_CLOCK / 32] & ((SHOW_CLOCK < 32) ?
+                                    (1 << SHOW_CLOCK)
+                                    : (1 << (SHOW_CLOCK % 32)))) {
         fprintf(fd, "set show_clock on\n");
     }
 
-    if(GET_BIT(options, SHOW_MAIL)) {
+    if (options[SHOW_MAIL / 32] & ((SHOW_MAIL < 32) ?
+                                   (1 << SHOW_MAIL)
+                                   : (1 << (SHOW_MAIL % 32)))) {
         fprintf(fd, "set show_mail on\n");
     }
 

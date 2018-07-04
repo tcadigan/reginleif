@@ -448,7 +448,11 @@ void log_file(char *args)
 
     strcpy(logfile.name, args);
 
-    if(GET_BIT(options, NOCLOBBER) && (*mode == 'w') && (stat(logfile.name, &statbuf) == 0)) {
+    if ((options[NOCLOBBER / 32] & ((NOCLOBBER < 32) ?
+                                    (1 << NOCLOBBER)
+                                    : (1 << (NOCLOBBER % 32))))
+        && (*mode == 'w')
+        && (stat(logfile.name, &statbuf) == 0)) {
         logfile.on = false;
         msg("-- Log: noclobber is set and file \'%s\' exists. Not writing.", logfile.name);
         *logfile.name = '\0';

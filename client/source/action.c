@@ -228,7 +228,11 @@ void cmd_listaction(char *args)
     }
 
     msg("-- Actions (Globbaly %s):",
-        (GET_BIT(options, ACTIONS) ? "ACTIVE" : "INACTIVE"));
+        (options[ACTIONS / 32] & ((ACTIONS < 32) ?
+                                  (1 << ACTIONS)
+                                  : (1 << (ACTIONS % 32)))) ?
+        "ACTIVE"
+        : "INACTIVE");
 
     for (p = action_head; p; p = p->next) {
         p->indx = i;
@@ -339,7 +343,9 @@ int handle_action_matches(char *s)
     int i;
     int outval = false;
 
-    if (!GET_BIT(options, ACTIONS)) {
+    if (!(options[ACTIONS / 32] & ((ACTIONS < 32) ?
+                                   (1 << ACTIONS)
+                                   : (1 << (ACTIONS % 32))))) {
         return false;
     }
 
@@ -372,7 +378,10 @@ int handle_action_matches(char *s)
                 display_msg(temp);
             }
 
-            if (GET_BIT(options, SHOW_ACTIONS) || ptr->notify) {
+            if ((options[SHOW_ACTIONS / 32] & ((SHOW_ACTIONS < 32) ?
+                                               (1 << SHOW_ACTIONS)
+                                               : (1 << (SHOW_ACTIONS % 32))))
+                || ptr->notify) {
                 process_key(p, true);
             } else {
                 process_key(p, false);
