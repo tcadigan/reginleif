@@ -132,6 +132,7 @@ extern struct input_modestruct input_mode;
 extern struct racestruct races[MAX_NUM_PLAYERS];
 extern struct logstruct logfile;
 extern struct sector_typestruct sector_type[SECTOR_MAX];
+extern struct statusstruct status;
 extern Info info;
 extern ServInfo servinfo;
 extern CurGame cur_game;
@@ -159,6 +160,7 @@ extern char *PlanetTypes[];
 extern char *Relation[];
 extern char *help_client;
 extern char *shell_flags;
+extern char *shell;
 extern char **refresh_line;
 
 int main(int, char *argv[]);

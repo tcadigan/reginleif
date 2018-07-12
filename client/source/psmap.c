@@ -11,13 +11,13 @@
 
 #include "csp.h"
 #include "gb.h"
-#include "types.h"
-#include "vars.h"
+#include "key.h"
+#include "load.h"
+#include "proc.h"
+#include "str.h"
+#include "socket.h"
 
-#include <stdbool.h>
-#include <stdio.h>
 #include <string.h>
-#include <sys/types.h>
 #include <time.h>
 
 extern char pbuf[];
@@ -42,7 +42,7 @@ static struct univ {
     int nstars;
     int starptr; /* Pointer to current star */
     int max_dist;
-    int ring_spaces;
+    int ring_spacing;
     int highlight_home;
     int highlighted_star; /* Star that will be highlighted */
     int nrings; /* Number of distance rings around the highlighted star */
@@ -58,6 +58,7 @@ double myround(double value);
 
 void cmd_psmap(char *args)
 {
+#ifndef RESTRICTED_ACCESS
     char str[MAXSIZ];
     int int1 = true;
 
@@ -236,7 +237,7 @@ int produce_postscript(void)
     double nscale;
     char fname[NORMSIZ];
     FILE *fd;
-    time_t now;
+    time_t *now = NULL;
     struct tm *today;
     char datestr[80];
 
@@ -467,11 +468,11 @@ int produce_postscript(void)
         fprintf(fd, "%%\n");
         fprintf(fd, "StarFontB setfont\n");
 
-        draw_star(fd, univ.starts + univ.highlighted_star, min_x, min_y, scale);
+        draw_star(fd, univ.stars + univ.highlighted_star, min_x, min_y, scale);
 
         fprintf(fd, "\n%%\n");
         fprintf(fd, "%% Draw the distance rings\n");
-        frptinf(fd, "%%\n");
+        fprintf(fd, "%%\n");
 
         for (i = 1; i <= univ.nrings; ++i) {
             fprintf(fd,
@@ -520,7 +521,7 @@ int draw_star(FILE *fd, struct star *star, int min_x, int min_y, double scale)
 
 void display_psmap(void)
 {
-    char mbuf[SMABUF];
+    char mbuf[MAXSIZ];
     char obuf[SMABUF];
     char fname[NORMSIZ];
 

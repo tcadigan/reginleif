@@ -10,19 +10,14 @@
 #include "option.h"
 
 #include "args.h"
-#include "gb.h"
+#include "bind.h"
+#include "key.h"
+#include "socket.h"
+#include "status.h"
 #include "str.h"
-#include "term.h"
-#include "types.h"
-#include "vars.h"
 
 #include <ctype.h>
 #include <string.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <sys/types.h>
-
-#define _OPTION_
 
 extern int end_msg;
 extern int max_history;
@@ -186,7 +181,7 @@ void display_set(void)
     sprintf(dsbuf, "client_prompt: \'%s\'", client_prompt);
     do_column_maker(dsbuf);
     sprintf(dsbuf, "connect_delay: %3d secs", reconnect_delay);
-    do_colum_maker(dsbuf);
+    do_column_maker(dsbuf);
 
 #ifdef IMAP
     sprintf(dsbuf, "cursor_sector: %c", cursor_sector);
@@ -368,7 +363,7 @@ void display_set(void)
             : "off");
 
     do_column_maker(dsbuf);
-    sprintf(dsbuf, "server_version: %s", servinfo.version);
+    sprintf(dsbuf, "server_version: %d", servinfo.version);
     do_column_maker(dsbuf);
 
     sprintf(dsbuf,
@@ -420,7 +415,7 @@ void display_set(void)
     flush_column_maker();
     msg("shell: \'%s\'", (shell ? shell : "NONE SET"));
 
-    if(debug_level) {
+    if (debug_level) {
         msg("DEBUG ON -- Level: %s", debug_level);
     }
 
@@ -439,8 +434,8 @@ void display_set(void)
  */
 void toggle(int *args, int type, char *name)
 {
-    if (*args && !strcmp(args, "on")) {
-        if(*name) {
+    if (*args && !strcmp((char *)args, "on")) {
+        if (*name) {
             msg("-- %s: on", name);
         }
 
@@ -449,8 +444,8 @@ void toggle(int *args, int type, char *name)
         } else {
             options[type / 32] |= (1 << (type % 32));
         }
-    } else if (*args && !strcmp(args, "off")) {
-        if(*name) {
+    } else if (*args && !strcmp((char *)args, "off")) {
+        if (*name) {
             msg("-- %s: off", name);
         }
 
@@ -462,7 +457,7 @@ void toggle(int *args, int type, char *name)
     } else if (options[type / 32] & ((type < 32) ?
                                      (1 << type)
                                      : (1 << (type % 32)))) {
-        if(*name) {
+        if (*name) {
             msg("-- %s: off", name);
         }
 
@@ -473,7 +468,7 @@ void toggle(int *args, int type, char *name)
         }
     }
     else {
-        if(*name) {
+        if (*name) {
             msg("-- %s: on", name);
         }
 
@@ -485,17 +480,17 @@ void toggle(int *args, int type, char *name)
     }
 }
 
-ovid doubletoggle(int *args, int type, char *name)
+void doubletoggle(int *args, int type, char *name)
 {
     toggle(args, type, name);
-    toggle, args, type - 1, "");
+    toggle(args, type - 1, "");
 }
 
 void cmd_set(char *s)
 {
     CommandSet *handler;
     char cmd[MAXSIZ];
-    char args[BUFSIz];
+    char args[BUFSIZ];
     char *c;
 
     memset(args, '\0', sizeof(args));
@@ -503,10 +498,9 @@ void cmd_set(char *s)
 
     c = first(s);
 
-    if(c && *c) {
+    if (c && *c) {
         strcpy(cmd, c);
-    }
-    else {
+    } else {
         display_set();
 
         return;
@@ -514,16 +508,15 @@ void cmd_set(char *s)
 
     c = rest(s);
 
-    if(c) {
+    if (c) {
         strcpy(args, c);
-    }
-    else {
+    } else {
         *args = '\0';
     }
 
     handler = binary_set_search(cmd);
 
-    if(handler == NULL) {
+    if (handler == NULL) {
         msg("-- set: no such option %s.", cmd);
 
         return;
@@ -536,7 +529,7 @@ void cmd_set(char *s)
 CommandSet *binary_set_search(char *cmd)
 {
     int bottom = 0;
-    int top = (sizeof(commandset_table) / sizeof(CommandSet)) - 1
+    int top = (sizeof(commandset_table) / sizeof(CommandSet)) - 1;
     int mid;
     int value;
 
@@ -546,11 +539,9 @@ CommandSet *binary_set_search(char *cmd)
 
         if(value == 0) {
             return &commandset_table[mid];
-        }
-        else if(value < 0) {
+        } else if (value < 0) {
             top = mid - 1;
-        }
-        else {
+        } else {
             bottom = mid - 1;
         }
     }
@@ -568,13 +559,11 @@ void set_client_prompt(char *args)
     if (!strcmp(p, "default")) {
         strfree(client_prompt);
         client_prompt = string(DEFAULT_CLIENT_PROMPT);
-        strfee(p);
-    }
-    else if(*p) {
+        strfree(p);
+    } else if (*p) {
         strfree(client_prompt);
         client_prompt = p;
-    }
-    else {
+    } else {
         *client_prompt = '\0';
         strfree(p);
     }
@@ -584,11 +573,10 @@ void set_client_prompt(char *args)
 
 void set_connect_delay(char *args)
 {
-    if(isdigit(*args)) {
+    if (isdigit(*args)) {
         reconnect_delay = atoi(args);
         msg("-- reconnect delay set at %d", atoi(args));
-    }
-    else {
+    } else {
         msg("-- reconnect delay must be an integer.");
     }
 }
@@ -596,11 +584,10 @@ void set_connect_delay(char *args)
 #ifdef IMAP
 void set_cursor_sector(char *args, int val)
 {
-    if(*args) {
+    if (*args) {
         cursor_sector = *args;
         msg("-- cursor_sector set to: %c", *args);
-    }
-    else {
+    } else {
         msg("-- you must specify a character.");
     }
 }
@@ -610,18 +597,16 @@ void set_debug(char *args)
 {
     int i;
 
-    if(isdigit(*args)) {
+    if (isdigit(*args)) {
         i = atoi(args);
 
-        if(i < 0) {
+        if (i < 0) {
             msg("-- debug: level must be positive");
-        }
-        else {
+        } else {
             debug_level = i;
             msg("-- debug level: %d", debug_level);
         }
-    }
-    else {
+    } else {
         msg("-- debug: value must be a positive integer.");
     }
 }
@@ -644,8 +629,7 @@ void set_encrypt(char *args)
         }
 
         msg("-- encrypt: shown.");
-    }
-    else {
+    } else {
         msg("-- encrypt options: on | off.");
     }
 }
@@ -656,8 +640,7 @@ void set_entry_quote(char *args)
         strfree(entry_quote);
         entry_quote = (char *)NULL;
         msg("-- entry_quote: cleared.");
-    }
-    else {
+    } else {
         strfree(entry_quote);
         entry_quote = string(args);
         msg("-- entry_quote: %s", entry_quote);
@@ -670,8 +653,7 @@ void set_exit_quote(char *args)
         strfree(exit_quote);
         exit_quote = (char *)NULL;
         msg("-- exit_quote: cleared.");
-    }
-    else {
+    } else {
         strfree(exit_quote);
         exit_quote = string(args);
         msg("-- exit_quote: %s", exit_quote);
@@ -686,7 +668,7 @@ void set_full_screen(char *args)
 
 void set_help(char *args)
 {
-    if(*args) {
+    if (*args) {
         strfree(help_client);
 
         if (!strcmp(args, "default")) {
@@ -697,25 +679,22 @@ void set_help(char *args)
 
             help_client = string("./Help");
 #endif
-        }
-        else {
+        } else {
             help_client = string(args);
         }
 
         msg("-- help: %s", help_client);
-    }
-    else {
+    } else {
         msg("-- help is currently found at: %s", help_client);
     }
 }
 
 void set_history(char *args)
 {
-    if(isdigit(*args)) {
+    if (isdigit(*args)) {
         max_history = atoi(args);
         msg("-- history set at %d", atoi(args));
-    }
-    else {
+    } else {
         msg("-- history value must be an integer.");
     }
 }
@@ -730,18 +709,16 @@ void set_input_prompt(char *args)
         strfree(input_prompt);
         input_prompt = string(DEFAULT_INPUT_PROMPT);
         strfree(p);
-    }
-    else if(*p) {
+    } else if (*p) {
         strfree(input_prompt);
         input_prompt = p;
-    }
-    else {
+    } else {
         *input_prompt = '\0';
         strfree(p);
     }
 
     update_input_prompt(input_prompt);
-    cancel_input();
+    cancel_input('\0');
     msg("-- input_prompt is: \'%s\'", input_prompt);
 }
 
@@ -762,8 +739,7 @@ void set_macro_char(char *args)
 
         macro_char = '/';
 #endif
-    }
-    else {
+    } else {
         macro_char = *args;
     }
 
@@ -783,8 +759,7 @@ void set_map_opts(char *args)
             }
 
             msg("-- map: double numbers turned off.");
-        }
-        else {
+        } else {
             if (MAP_DOUBLE < 32) {
                 options[MAP_DOUBLE / 32] |= (1 << MAP_DOUBLE);
             } else {
@@ -804,8 +779,7 @@ void set_map_opts(char *args)
             }
 
             msg("-- map: spacing disabled.");
-        }
-        else {
+        } else {
             if (MAP_SPACE < 32) {
                 options[MAP_SPACE / 32] |= (1 << MAP_SPACE);
             } else {
@@ -814,8 +788,7 @@ void set_map_opts(char *args)
 
             msg("-- map options: spacing enabled.");
         }
-    }
-    else {
+    } else {
         msg("-- map options: double | space");
     }
 }
@@ -826,8 +799,7 @@ void set_more(char *args)
         more_val.on = true;
     } else if (*args && !strcmp(args, "off")) {
         more_val.on = false;
-    }
-    else {
+    } else {
         more_val.on = (more_val.on + 1) % 2;
     }
 
@@ -836,22 +808,20 @@ void set_more(char *args)
 
 void set_more_delay(char *args)
 {
-    if(isdigit(*args)) {
+    if (isdigit(*args)) {
         more_val.delay = atol(args);
         msg("-- more_delay set at %d", atoi(args));
-    }
-    else {
+    } else {
         msg("-- more_delay must be an integer.");
     }
 }
 
 void set_more_rows(char *args)
 {
-    if(isdigit(*args)) {
+    if (isdigit(*args)) {
         more_val.num_rows = atoi(args);
         msg("-- more_rows set at %d", atoi(args));
-    }
-    else {
+    } else {
         msg("-- more_rows must be an integer.");
     }
 }
@@ -859,13 +829,13 @@ void set_more_rows(char *args)
 void set_notify(char *args)
 {
     if (((notify > 0) || !strcmp(args, "off")) && strcmp(args, "on")) {
-        if(notify > 0) {
+        if (notify > 0) {
             notify = 0 - notify;
         }
 
         msg("-- notify: off");
     } else if ((notify < 0) || !strcmp(args, "on")) {
-        if(notify < 0) {
+        if (notify < 0) {
             notify = 0 - notify;
         }
 
@@ -875,17 +845,15 @@ void set_notify(char *args)
 
 void set_notify_beeps(char *args)
 {
-    if(isdigit(*args) && (atoi(args) > 0)) {
-        if(notify < 0) {
+    if (isdigit(*args) && (atoi(args) > 0)) {
+        if (notify < 0) {
             notify = 0 - atoi(args);
-        }
-        else {
+        } else {
             notify = atoi(args);
         }
 
         msg("-- notify_beeps set at %d", atoi(args));
-    }
-    else {
+    } else {
         msg("-- notify_beeps must be a positive integer.");
     }
 }
@@ -908,8 +876,7 @@ void set_output_prompt(char *args)
 #endif
 
         strfree(p);
-    }
-    else if(*p) {
+    } else if (*p) {
         strfree(output_prompt);
         output_prompt = p;
     }
@@ -937,11 +904,10 @@ void set_primary_password(char *args)
 
 void set_recall(char *args)
 {
-    if(isdigit(*args)) {
+    if (isdigit(*args)) {
         max_recall = atoi(args);
         msg("-- recall set at %d", atoi(args));
-    }
-    else {
+    } else {
         msg("-- recall value must be an integer.");
     }
 }
@@ -965,7 +931,7 @@ void set_show_clock(char *args, int val, char *name)
     force_update_status();
 }
 
-void set_show_mail(char *args, int val, char *names)
+void set_show_mail(char *args, int val, char *name)
 {
     toggle((int *)args, val, name);
     force_update_status();
@@ -981,8 +947,7 @@ void set_status_bar(char *args)
 
         strcpy(status.format, "-");
 #endif
-    }
-    else {
+    } else {
         strncpy(status.format, args, SMABUF);
     }
 
@@ -992,11 +957,10 @@ void set_status_bar(char *args)
 
 void set_status_bar_char(char *args)
 {
-    if(*args) {
+    if (*args) {
         status.schar[0] = *args;
         force_update_status();
-    }
-    else {
+    } else {
         msg("-- set status_bar_char: Specify a character.");
     }
 }
@@ -1077,12 +1041,12 @@ void save_settings(FILE *fd)
         fprintf(fd, "set connect on\n");
     }
 
-    if(reconnect_delay) {
+    if (reconnect_delay) {
         fprintf(fd, "set connect_delay %d\n", reconnect_delay);
     }
 
 #ifdef IMAP
-    if(cursor_sector != DEFAULT_CURSOR_SECTOR) {
+    if (cursor_sector != DEFAULT_CURSOR_SECTOR) {
         fprintf(fd, "set cursor_sector %c\n", cursor_sector);
     }
 #endif
@@ -1099,11 +1063,11 @@ void save_settings(FILE *fd)
         fprintf(fd, "set encrypt on\n");
     }
 
-    if(entry_quote) {
+    if (entry_quote) {
         fprintf(fd, "set entry_quote %s\n", fstring(entry_quote));
     }
 
-    if(exit_quote) {
+    if (exit_quote) {
         fprintf(fd, "set exit_quote %s\n", fstring(exit_quote));
     }
 
@@ -1123,7 +1087,7 @@ void save_settings(FILE *fd)
         fprintf(fd, "set hide_end_prompt on\n");
     }
 
-    if(max_history) {
+    if (max_history) {
         fprintf(fd, "set history %d\n", max_history);
     }
 
@@ -1151,13 +1115,13 @@ void save_settings(FILE *fd)
 
     fprintf(fd, "set more %s\n", (more_val.on ? "on" : "off"));
 
-    if(more_val.delay) {
+    if (more_val.delay) {
         fprintf(fd, "set more_delay %d\n", more_val.delay);
     }
 
-    if (options[LOGOUT / 32] & ((LOGOUT < 32) ?
-                                (1 << LOGOUT)
-                                : (1 << (LOGOUT % 32)))) {
+    if (options[NO_LOGOUT / 32] & ((NO_LOGOUT < 32) ?
+                                   (1 << NO_LOGOUT)
+                                   : (1 << (NO_LOGOUT % 32)))) {
         fprintf(fd, "set no_logout on\n");
     }
 
@@ -1167,19 +1131,19 @@ void save_settings(FILE *fd)
         fprintf(fd, "set noclobber on\n");
     }
 
-    if(notify > 0) {
+    if (notify > 0) {
         fprintf(fd, "set notify on\n");
     }
 
-    if(notify) {
+    if (notify) {
         fprintf(fd, "set notify_beeps %d\n", (notify > 0 ? notify : -notify));
     }
 
     if (strcmp(output_prompt, DEFAULT_OUTPUT_PROMPT)) {
-        fprintf(fd, "set output_prompt \"%d\"\n", output_prompt);
+        fprintf(fd, "set output_prompt \"%s\"\n", output_prompt);
     }
 
-    if(input_mode.edit != EDIT_INSERT) {
+    if (input_mode.edit != EDIT_INSERT) {
         fprintf(fd, "set overwrite_edit_mode\n");
     }
 
@@ -1195,7 +1159,7 @@ void save_settings(FILE *fd)
         fprintf(fd, "set quit_all on\n");
     }
 
-    if(max_recall != DEFAULT_RECALL) {
+    if (max_recall != DEFAULT_RECALL) {
         fprintf(fd, "set recall %d\n", max_recall);
     }
 
@@ -1233,7 +1197,7 @@ void save_settings(FILE *fd)
         fprintf(fd, "set status_bar %s\n", status.format);
     }
 
-    if (strcmp(status.char, DEFAULT_STATUS_BAR_CHAR)) {
+    if (strcmp(status.schar, DEFAULT_STATUS_BAR_CHAR)) {
         fprintf(fd, "set status_bar_char %c\n", status.schar[0]);
     }
 }

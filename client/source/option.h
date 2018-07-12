@@ -10,6 +10,7 @@
 #ifndef OPTION_H_
 #define OPTION_H_
 
+#include "gb.h"
 #include "term.h"
 #include "types.h"
 

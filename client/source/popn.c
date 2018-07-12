@@ -9,27 +9,15 @@
  */
 #include "popn.h"
 
-#include "csp.h"
-#include "gb.h"
 #include "str.h"
-#include "term.h"
 #include "types.h"
-#include "vars.h"
-
-#include <ctype.h>
-#include <malloc.h>
-#include <math.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/types.h>
 
 /* Defines for popn movement */
 #define IGNORE 0
 #define EMPTY 1
 #define MY_SECT 2
 
-Map pop_map = { 0, 0, "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, true, false, false, (Sector *)NULL };
+Map popn_map = { 0, 0, "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, true, false, false, (Sector *)NULL };
 
 struct popn_infostruct {
     int doing;
@@ -59,14 +47,14 @@ void popn_input(int comm_num, char *procbuf)
 {
     switch (comm_num) {
     case CSP_SURVEY_INTRO:
-        if(popn_map.ptr) {
+        if (popn_map.ptr) {
             free(popn_map.ptr);
         }
 
         process_client_survey(comm_num, procbuf, &popn_map);
-        pop_map.ptr = (Sector *)malloc(sizeof(Sector) * popn_map.maxx * popn_map.maxy);
+        popn_map.ptr = (Sector *)malloc(sizeof(Sector) * popn_map.maxx * popn_map.maxy);
 
-        if(popn_map.ptr == (Sector *)NULL) {
+        if (popn_map.ptr == (Sector *)NULL) {
             msg("-- Popn: could not malloc map space. Aborting.");
             popn_info.doing = false;
 
@@ -75,7 +63,7 @@ void popn_input(int comm_num, char *procbuf)
 
         break;
     case CSP_SURVEY_SECTOR:
-        if(!popn_map.ptr) {
+        if (!popn_map.ptr) {
             return;
         }
 
@@ -83,7 +71,7 @@ void popn_input(int comm_num, char *procbuf)
 
         break;
     case CSP_SURVEY_END:
-        if(popn_info.doing) {
+        if (popn_info.doing) {
             handle_popn();
         }
 
@@ -112,112 +100,104 @@ void cmd_popn(char *args)
     int int2;
     char ch;
 
-    if(scope.level != LEVEL_PLANET) {
+    if (scope.level != LEVEL_PLANET) {
         msg("-- Popn: You are NOT at planet scope.");
 
         return;
     }
 
-    if(profile.raceinfo.sexes <= 0) {
+    if (profile.raceinfo.sexes <= 0) {
         msg("-- WARNING: Client does not know number of sexes. Please input it now.");
         int1 = true;
 
         while (int1) {
             promptfor("# of sexes? ", pbuf, PROMPT_STRING);
 
-            if(isdigit(*pbuf)) {
+            if (isdigit(*pbuf)) {
                 profile.raceinfo.sexes = atoi(pbuf);
 
-                if(profile.raceinfo.sexes > 0) {
+                if (profile.raceinfo.sexes > 0) {
                     int1 = false;
                 }
             }
         }
     }
 
-    if(profile.raceinfo.sexes == 1) {
+    if (profile.raceinfo.sexes == 1) {
         popn_info.apcost = 1;
-    }
-    else if(profile.raceinfo.sexes > 6) {
+    } else if (profile.raceinfo.sexes > 6) {
         popn_info.apcost = 3;
-    }
-    else { /* Sexes is in range 2 - 6 */
+    } else { /* Sexes is in range 2 - 6 */
         popn_info.apcost = 2;
     }
 
-    if(scope.aps < popn_info.apcost) {
+    if (scope.aps < popn_info.apcost) {
         msg("-- Popn: You do not have enough APs.");
 
         return;
     }
 
     /* No ars, do whole planet */
-    if(!*args) {
+    if (!*args) {
         popn_info.ymin = 0;
         popn_info.ymax = 10000;
         popn_info.xmin = 0;
         popn_info.xmax = 10000;
         popn_info.aps_spend = scope.aps;
-    }
-    else {
+    } else {
         split(args, intc, rest);
         popn_info.aps_spend = atoi(intc);
 
-        if(!*rest) {
+        if (!*rest) {
             popn_info.ymin = 0;
             popn_info.ymax = 10000;
             popn_info.xmin = 0;
             popn_info.xmax = 10000;
-        }
-        else {
+        } else {
             split(rest, intc, extra);
 
-            if(sscanf(intc, "%d,%d", &int1, &int2) == 2) {
+            if (sscanf(intc, "%d,%d", &int1, &int2) == 2) {
                 popn_info.xmin = int1;
                 popn_info.xmax = int2;
-            }
-            else if(sscanf(intc, "%d", &int1) == 1) {
+            } else if (sscanf(intc, "%d", &int1) == 1) {
                 popn_info.xmin = int1;
                 popn_info.xmax = 10000;
-            }
-            else {
+            } else {
                 popn_info.xmin = 0;
                 popn_info.xmax = 10000;
             }
         }
 
         /* No negative ranges */
-        if(popn_info.xmin < 0) {
+        if (popn_info.xmin < 0) {
             popn_info.xmin = 0;
         }
 
-        if(popn_info.xmax < 0) {
+        if (popn_info.xmax < 0) {
             popn_info.xmax = 10000;
         }
 
-        if(*extra) {
+        if (*extra) {
             split(extra, intc, rest);
 
-            if(sscanf(intc, "%d,%d", &int1, &int2) == 2) {
+            if (sscanf(intc, "%d,%d", &int1, &int2) == 2) {
                 popn_info.ymin = int1;
                 popn_info.ymax = int2;
-            }
-            else if(sscanf(intc, "%d", &int1) == 1) {
+            } else if (sscanf(intc, "%d", &int1) == 1) {
                 popn_info.ymin = int1;
                 popn_info.ymax = 10000;
-            }
-            else {
+            } else {
                 popn_info.ymin = 0;
                 popn_info.ymax = 10000;
             }
         }
 
         /* No negative ranges */
-        if(popn_info.ymin < 0) {
+        if (popn_info.ymin < 0) {
             popn_info.ymin = 0;
         }
 
-        if(popn_info.ymax < 0) {
+        if (popn_info.ymax < 0) {
             popn_info.ymax = 10000;
         }
     }
@@ -225,17 +205,15 @@ void cmd_popn(char *args)
     msg("-- Popn: Avoid incompatible sectors (y/n)?");
     promptfor("(y/n)? ", &ch, PROMPT_CHAR);
 
-    if((ch == 'y') || (ch == 'Y')) {
+    if ((ch == 'y') || (ch == 'Y')) {
         popn_info.do_use_compat = true;
-    }
-    else {
+    } else {
         popn_info.do_use_compat = false;
     }
 
     if (game_type == GAME_GBDT) {
         csp_send_request(CSP_SURVEY_COMMAND, "-");
-    }
-    else {
+    } else {
         send_gb("client_survey -\n", 16);
     }
 
@@ -263,7 +241,7 @@ void handle_popn(void)
     int empty_secs;
     int xtra_civs;
     int moving_civs;
-    int emtpy_adj_sects = 0;
+    int empty_adj_sects = 0;
     int max_move;
     int changes_made = true;
     char movebuf[NORMSIZ];
@@ -274,11 +252,11 @@ void handle_popn(void)
         1, 2, 3, /* sw, s, se */
     };
 
-    if(popn_info.xmax > popn_max.maxx) {
+    if (popn_info.xmax > popn_max.maxx) {
         pop_info.xmax = popn_map.maxx - 1;
     }
 
-    if(popn_info.ymax > popn_map.maxy) {
+    if (popn_info.ymax > popn_map.maxy) {
         popn_info.ymax = popn_map.maxy - 1;
     }
 
@@ -298,16 +276,13 @@ void handle_popn(void)
         for (x = 0; x < popn_map.maxx; ++x) {
             p = popn_map.ptr + x + (y * popn_map.maxx);
 
-            if(p->own == profile.raceid) {
+            if (p->own == profile.raceid) {
                 p->sect_status = MY_SECT;
-            }
-            else if(p->own && (p->civ || p->mil)) {
+            } else if (p->own && (p->civ || p->mil)) {
                 p->sect_status = IGNORE;
-            }
-            else if(!p->own) {
+            } else if (!p->own) {
                 p->sect_status = EMPTY;
-            }
-            else { /* Should never get here */
+            } else { /* Should never get here */
                 p->sect_status = IGNORE;
             }
 
@@ -316,9 +291,9 @@ void handle_popn(void)
              * sector, check if we are, and make to ignore the sector
              * if we are not compat with it.
              */
-            if((p->sect_status == EMPTY) && popn_info.do_use_compat) {
+            if ((p->sect_status == EMPTY) && popn_info.do_use_compat) {
                 for (i = 0; i < SECTOR_MAX; ++i) {
-                    if((p->sectc == sector_type[i].sectc) && !sector_type[i].compat) {
+                    if ((p->sectc == sector_type[i].sectc) && !sector_type[i].compat) {
                         p->sect_status = IGNORE;
                     }
                 }
@@ -338,29 +313,27 @@ void handle_popn(void)
             for (y = popn_info.ymin; y < popn_map.maxy; ++y) {
                 p = popn_map.ptr + x + (y * popn_map.maxx);
 
-                if(p->sect_status != EMPTY) {
+                if (p->sect_status != EMPTY) {
                     continue;
                 }
 
                 for (x2 = (x - 1); x2 < (x + 2); ++x2) {
                     for (y2 = (y - 1); y2 < (y + 2); ++y2) {
-                        if((y2 < popn_info.ymin) || (y2 > popn_info.ymax)) {
+                        if ((y2 < popn_info.ymin) || (y2 > popn_info.ymax)) {
                             continue;
                         }
 
-                        if(x2 < popn_info.xmin) {
+                        if (x2 < popn_info.xmin) {
                             dx = popn_info.xmax;
-                        }
-                        else if(x2 > popn_info.xmax) {
+                        } else if (x2 > popn_info.xmax) {
                             dx = popn_info.xmin;
-                        }
-                        else {
+                        } else {
                             dx = x2;
                         }
 
                         q = popn_map.ptr + dx + (y2 * popn_map.maxx);
 
-                        if(q->sect_status == MY_SECT) {
+                        if (q->sect_status == MY_SECT) {
                             ++empty_adj_sects;
                             x2 = x + 2;
                             y2 = y + 2;
@@ -376,12 +349,12 @@ void handle_popn(void)
                 p = popn_map.ptr + x + (y * popn_map.maxx);
 
                 /* If we don't own the sector, skip it */
-                if(p->sect_status != MY_SECT) {
+                if (p->sect_status != MY_SECT) {
                     continue;
                 }
 
                 /* Not enough civs in this sector to move? */
-                if(p->civ < (profile.raceinfo.sexes * 2)) {
+                if (p->civ < (profile.raceinfo.sexes * 2)) {
                     continue;
                 }
 
@@ -391,11 +364,10 @@ void handle_popn(void)
                  * cive to them first, else move as many as we can up
                  * to 6
                  */
-                if((profile.raceinfo.sexes == 1)
-                   && (empty_adj_sects >= popn_info.aps_spend)) {
+                if ((profile.raceinfo.sexes == 1)
+                    && (empty_adj_sects >= popn_info.aps_spend)) {
                     max_move = 1;
-                }
-                else {
+                } else {
                     max_move = 6;
                 }
 
@@ -408,23 +380,21 @@ void handle_popn(void)
                  */
                 for (x2 = (x - 1); x2 < (x + 2); ++x2) {
                     for (y2 = (y - 1); y2 < (y + 2); ++y2) {
-                        if((y2 < popn_info.ymin) || (y2 > popn_info.ymax)) {
+                        if ((y2 < popn_info.ymin) || (y2 > popn_info.ymax)) {
                             continue;
                         }
 
-                        if(x2 < 0) {
+                        if (x2 < 0) {
                             dx = popn_info.xmax;
-                        }
-                        else if(x2 > popn_info.xamx) {
+                        } else if(x2 > popn_info.xamx) {
                             dx = 0;
-                        }
-                        else {
+                        } else {
                             dx = x2;
                         }
 
                         q = popn_map.ptr + dx + (y2 * popn_map.maxx);
 
-                        if(q->sect_status == EMPTY) {
+                        if (q->sect_status == EMPTY) {
                             ++empty_secs;
                         }
                     } /* For y2 */
@@ -442,56 +412,51 @@ void handle_popn(void)
                  * surrounding empty sectors, then we don't have an
                  * xtra civs
                  */
-                if(xtra_civs < 0) {
+                if (xtra_civs < 0) {
                     xtra_civs = 0;
                 }
 
                 for (x2 = (x - 1); x2 < (x + 2); ++x2) {
                     for (y2 = (y - 1); y2 < (y + 2); ++y2) {
-                        if((y2 < popn_info.ymin) || (y2 > popn_info.ymax)) {
+                        if ((y2 < popn_info.ymin) || (y2 > popn_info.ymax)) {
                             continue;
                         }
 
-                        if(x2 < 0) {
+                        if (x2 < 0) {
                             dx = popn_info.xmax;
-                        }
-                        else if(x2 > popn_info.xmax) {
+                        } else if (x2 > popn_info.xmax) {
                             dx = 0;
-                        }
-                        else {
+                        } else {
                             dx = x2;
                         }
 
                         q = popn_map.ptr + dx + (y2 * popn_map.maxx);
 
-                        if(q->sect_status != EMPTY) {
+                        if (q->sect_status != EMPTY) {
                             continue;
                         }
 
-                        if((xtra_civs + profile.raceinfo.sexes) >= max_move) {
+                        if ((xtra_civs + profile.raceinfo.sexes) >= max_move) {
                             moving_civs = max_move;
                             xtra_civs -= (max_move - profile.raceinfo.sexes);
-                        }
-                        else {
-                            if(p->civ >= (2 * profile.raceinfo.sexes)) {
+                        } else {
+                            if (p->civ >= (2 * profile.raceinfo.sexes)) {
                                 moving_civs = xtra_civs + profile.raceinfo.sexes;
                                 xtra_civs = 0;
-                            }
-                            else {
+                            } else {
                                 moving_civs = 0;
                             }
                         }
 
-                        if((moving_civs > 0) && ((p->civ - moving_civs) >= profile.raceinfo.sexes)) {
+                        if ((moving_civs > 0) && ((p->civ - moving_civs) >= profile.raceinfo.sexes)) {
                             changes_made = true;
-                        }
-                        else {
+                        } else {
                             continue;
                         }
 
                         dir = movement_direction_table[(3 * (y2 - y + 1)) + x2 - x + 1];
 
-                        if(!dir) {
+                        if (!dir) {
                             continue;
                         }
 
@@ -510,19 +475,18 @@ void handle_popn(void)
                         p->civ -= moving_civs;
                         q->sect_status = MY_SECT;
 
-                        if(moving_civs == 1) {
+                        if (moving_civs == 1) {
                             popn_info.aps_spend -= 1;
-                        }
-                        else {
+                        } else {
                             popn_info.aps_spend -= 2;
                         }
 
                         --empty_adj_sects;
 
-                        if(popn_info.aps_spend <= popn_info.apcost) {
+                        if (popn_info.aps_spend <= popn_info.apcost) {
                             --end_msg;
 
-                            if(!hide_msg) {
+                            if (!hide_msg) {
                                 kill_socket_output = false;
                                 end_msg = false;
                             }
@@ -540,7 +504,7 @@ void handle_popn(void)
 
     --end_msg;
 
-    if(!hide_msg) {
+    if (!hide_msg) {
         kill_socket_output = false;
         end_msg = false;
     }

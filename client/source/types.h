@@ -261,7 +261,7 @@ enum settable_options {
     MAP_SPACE,
     PARTIAL_LINES,
     RAWMODE,
-    SCROLL_CHR,
+    SCROLL_CLR,
     SHOW_MAIL,
     SHOW_CLOCK,
     SLASH_COMMANDS,

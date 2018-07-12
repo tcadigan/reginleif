@@ -44,7 +44,6 @@ extern int exit_now;
 extern int hide_msg;
 extern int kill_socket_output;
 extern int max_recall;
-extern int pipe_running;
 extern int server_help;
 extern int robo;
 

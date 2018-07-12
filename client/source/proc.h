@@ -19,4 +19,6 @@ void signal_pipe(int a);
 void procmsg(char *header, char *args);
 void internal_pipe_off(void);
 
+extern int pipe_running;
+
 #endif // PROC_H_

@@ -65,7 +65,7 @@ void MD5Init(MD5_CTX *);
 void MD5Update(MD5_CTX *, unsigned char *, unsigned int);
 void MD5Final(unsigned char[16], MD5_CTX *);
 
-static void MD5Transform(UINT[4], unsigned char[64]);
+static void MD5Transform(UINT4[4], unsigned char[64]);
 static void Encode(unsigned char *, UINT4 *, unsigned int);
 static void Decode(UINT4 *, unsigned char *, unsigned int);
 static void MD5_memcpy(POINTER, POINTER, unsigned int);
@@ -73,7 +73,7 @@ static void MD5_memset(POINTER, int, unsigned int);
 
 static unsigned char PADDING[64] = {
     0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-       0, 0, 0, 0, 0, 0, 0, 0. 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
@@ -124,12 +124,12 @@ void MD5String(char *string, char *hexdigest)
     char hextmp[4];
 
     MD5Init(&context);
-    MD5Update(&context, string, len);
+    MD5Update(&context, (unsigned char *)string, len);
     MD5Final(digest, &context);
 
     /* Converts to hexadecimal. */
     for (i = 0; i < 16; ++i) {
-        sprintf(hextemp, "%02x", digest[i]);
+        sprintf(hextmp, "%02x", digest[i]);
         strcat(hexdigest, hextmp);
     }
 
@@ -166,15 +166,15 @@ void MD5Update(MD5_CTX *context, unsigned char *input, unsigned int inputLen)
     /* Update number of bits */
     context->count[0] += ((UINT4)inputLen << 3);
 
-    if(context->count[0] < ((UINT4)inputLen << 3)) {
+    if (context->count[0] < ((UINT4)inputLen << 3)) {
         ++context->count[1];
     }
 
-    context->count[1] += ((UINT)inputLen >> 29);
+    context->count[1] += ((UINT4)inputLen >> 29);
     partLen = 64 - index;
 
     /* Transform as many times as possible. */
-    if(inputLen >= partLen) {
+    if (inputLen >= partLen) {
         MD5_memcpy((POINTER)&context->buffer[index], (POINTER)input, partLen);
         MD5Transform(context->state, context->buffer);
 
@@ -183,8 +183,7 @@ void MD5Update(MD5_CTX *context, unsigned char *input, unsigned int inputLen)
         }
 
         index = 0;
-    }
-    else {
+    } else {
         i = 0;
     }
 
@@ -208,10 +207,9 @@ void MD5Final(unsigned char digest[16], MD5_CTX *context)
     /* Pad out to 56 mod 64 */
     index = (unsigned int)((context->count[0] >> 3) & 0x3f);
 
-    if(index < 56) {
+    if (index < 56) {
         padLen = 56 - index;
-    }
-    else {
+    } else {
         padLen = 120 - index;
     }
 
@@ -280,7 +278,7 @@ static void MD5Transform(UINT4 state[4], unsigned char block[64])
     HH(c, d, a, b, x[11], S33, 0x6d9d6122); /* 35 */
     HH(b, c, d, a, x[14], S34, 0xfde5380c); /* 36 */
     HH(a, b, c, d, x[ 1], S31, 0xa4beea44); /* 37 */
-    HH(d, a, b, c, x[ 4], S32, 0x4bdexfa9); /* 38 */
+    HH(d, a, b, c, x[ 4], S32, 0x4bdecfa9); /* 38 */
     HH(c, d, a, b, x[ 7], S33, 0xf6bb4b60); /* 39 */
     HH(b, c, d, a, x[10], S34, 0xbebfbc70); /* 40 */
     HH(a, b, c, d, x[13], S31, 0x289b7ec6); /* 41 */

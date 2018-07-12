@@ -13,6 +13,7 @@
 #include "args.h"
 #include "csp.h"
 #include "gb.h"
+#include "proc.h"
 #include "str.h"
 #include "term.h"
 #include "types.h"
@@ -62,7 +63,6 @@ extern int cursor_display;
 extern int do_queue; /* For queue */
 extern int exit_now;
 extern int kill_client_output;
-extern int pipe_running;
 extern int queue_sending;
 
 BufferInfo gbsobuf; /* Socket buffer list ptrs */

@@ -34,14 +34,12 @@ extern struct rwhostruct rwho;
 #endif
 
 extern int detached;
-extern struct statusstruct status;
 extern int hide_prompt;
 extern int racegen;
 extern long boot_time;
 extern long connect_time;
 extern char gbrc_path[];
 extern char *progname;
-extern char *shell;
 extern char race_name[];
 extern char govn_name[];
 extern char race_pass[];
