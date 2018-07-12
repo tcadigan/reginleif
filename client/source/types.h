@@ -16,6 +16,7 @@
 #include "csp_types.h"
 
 #include <stdio.h>
+#include <stdbool.h>
 
 /* Various defines to make my life easier */
 #define REPEAT_SLEEP_TIME 60 /* Time to sleep if doing repeats */
@@ -241,38 +242,40 @@
 #define FORMAT_HELP    2 /* Server help format */
 
 /* Defines for the setable options */
-#define OP_NONE                0
-#define AUTOLOGIN              1
-#define AUTOLOGIN_STARTUP      2
-#define BEEP                   3
-#define BRACKETS               4
-#define CONNECT                5
-#define CONNECT_STARTUP        6
-#define DISPLAYING             7
-#define DISPLAY_TOP            8
-#define ENCRYPT                9
-#define HIDE_END_PROMPT       10
-#define LOGINSUPPRESS         11
-#define LOGINSUPPRESS_STARTUP 12
-#define NO_LOGOUT             13
-#define MAP_DOUBLE            14
-#define MAP_SPACE             15
-#define PARTIAL_LINES         16
-#define RAWMODE               17
-#define SCROLL_CLR            18
-#define SHOW_MAIL             19
-#define SHOW_CLOCK            20
-#define SLASH_COMMANDS        21
-#define DO_BELLS              22
-#define SHOW_ACTIONS          23
-#define NOCLOBBER             24
-#define BOLD_COMM             25
-#define FULLSCREEN            26
-#define SCROLL                27
-#define QUIT_ALL              28
-#define ACTIONS               29
-#define NUM_BITOPTIONS        30
-#define DISP_ANSI             31 /* Display ansi colors -mfw */
+enum settable_options {
+    OP_NONE = 0,
+    AUTOLOGIN,
+    AUTOLOGIN_STARTUP,
+    BEEP,
+    BRACKETS,
+    CONNECT,
+    CONNECT_STARTUP,
+    DISPLAYING,
+    DISPLAY_TOP,
+    ENCRYPT,
+    HIDE_END_PROMPT,
+    LOGINSUPPRESS,
+    LOGINSUPPRESS_STARTUP,
+    NO_LOGOUT,
+    MAP_DOUBLE,
+    MAP_SPACE,
+    PARTIAL_LINES,
+    RAWMODE,
+    SCROLL_CHR,
+    SHOW_MAIL,
+    SHOW_CLOCK,
+    SLASH_COMMANDS,
+    DO_BELLS,
+    SHOW_ACTIONS,
+    NOCLOBBER,
+    BOLD_COMM,
+    FULLSCREEN,
+    SCROLL,
+    QUIT_ALL,
+    ACTIONS,
+    NUM_BITOPTIONS,
+    DISP_ANSI
+};
 
 /* Object types for CSP orbit -mfw */
 #define TYPE_UNKNOWN 0
@@ -284,6 +287,9 @@
 /* imap/popn defines */
 #define MAX_SHIPS_IN_SURVEY 10
 
+/* Maximum amount of arguments in parsing line arguments */
+#define MAX_NUM_ARGS 20
+
 /*
  * For time tags. The strlen of these plus the strlen of a unix
  * timestamp should be greater than what is returned by ctime (or
@@ -293,6 +299,66 @@
 #define CLOSE_TIME_TAG "<T<T<T<T<"
 
 /* Structs and other variable declarations */
+typedef struct actionstruct {
+    char *pattern;
+    char *action;
+    int indx;
+    int nooutput; /* Don't print output */
+    int quiet; /* No activation message */
+    int notify; /* Print command responses */
+    int active; /* Active or not */
+    struct actionstruct *next;
+    struct actionstruct *prev;
+} Action;
+
+typedef struct ptarraystruct {
+    char arr[MAX_NUM_ARGS][SMABUF];
+    int arg_cnt;
+} ArrStruct;
+
+typedef struct assignstruct {
+    char *name;
+    char *str;
+    int mode;
+    struct assignstruct *prev;
+    struct assignstruct *next;
+} Assign;
+
+typedef struct gags {
+    char *name;
+    int indx;
+    struct gags *next;
+    struct gags *prev;
+} Gag;
+
+typedef struct macro {
+    char *name;
+    char *action;
+    int flag;
+    int indx;
+    struct macro *next;
+    struct macro *prev;
+} Macro;
+
+typedef struct rnode {
+    char *line;
+    char *date;
+    int count;
+    char ftime[10];
+    char ltime[10];
+    struct rnode *next;
+    struct rnode *prev;
+} RNode;
+
+/* For binary search */
+typedef struct command_struct {
+    char *name;
+    void (*func)();
+    bool parse_var;
+    bool echo_command;
+    bool send_to_socket;
+    int cnt;
+} Command;
 
 /* Extern declared in vars.h, initialized in gb.c */
 struct logstruct {

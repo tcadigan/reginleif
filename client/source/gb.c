@@ -35,9 +35,10 @@
 #include <errno.h>
 #include <ctype.h>
 #include <pwd.h>
+#include <setjmp.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <setjmp.h>
+#include <string.h>
 
 #define REFRESH_TIME_IMAP 30000 /* When in imap */
 #define REFRESH_TIME_NORM 80000
@@ -612,9 +613,9 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (options[LOGINSUPPRESS_STARTUP / 32] && ((LOGINSUPPRESS_STARTUP < 32) ?
-                                                (1 << LOGINSUPPRESS_STARTUP)
-                                                : (1 << (LOGINSUPPRESS_STARTUP % 32)))) {
+    if (options[LOGINSUPPRESS_STARTUP / 32] & ((LOGINSUPPRESS_STARTUP < 32) ?
+                                               (1 << LOGINSUPPRESS_STARTUP)
+                                               : (1 << (LOGINSUPPRESS_STARTUP % 32)))) {
         if (LOGINSUPPRESS < 32) {
             options[LOGINSUPPRESS / 32] |= (1 << LOGINSUPPRESS);
         } else {

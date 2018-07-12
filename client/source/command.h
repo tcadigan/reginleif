@@ -10,7 +10,7 @@
 #ifndef COMMAND_H_
 #define COMMAND_H_
 
-#include "vars.h"
+#include "types.h"
 
 void cmd_cd(char *args);
 void cmd_clear(char *args);

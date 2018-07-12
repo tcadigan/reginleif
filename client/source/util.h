@@ -2,9 +2,6 @@
 #define UTIL_H_
 
 #include "types.h"
-#include "vars.h"
-
-#include <stdio.h>
 
 int match_gag(char *pat);
 void cmd_gag(char *args);

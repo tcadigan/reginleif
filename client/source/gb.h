@@ -11,6 +11,7 @@
 #define GB_H_
 
 #include "ansi.h"
+#include "types.h"
 
 /*
  * The VERSION is used to track differences between client versions. This should
@@ -125,11 +126,40 @@ struct rwhostruct rwho;
 
 extern struct morestruct more_val;
 extern struct profilestruct profile;
-extern int game_type;
-extern int hide_input;
+extern struct waitforstruct wait_csp;
 extern struct scopestruct scope;
 extern struct input_modestruct input_mode;
+extern struct racestruct races[MAX_NUM_PLAYERS];
+extern struct logstruct logfile;
+extern struct sector_typestruct sector_type[SECTOR_MAX];
+extern Info info;
+extern ServInfo servinfo;
+extern CurGame cur_game;
+extern Icomm icomm;
+extern int gb_close_socket;
+extern int quit_all;
+extern int wait_status;
+extern int game_type;
+extern int hide_input;
+extern int action_match_suppress;
+extern int client_stats;
+extern int paused;
+extern int csp_server_vers;
+extern int end_prompt;
+extern int msg_type;
+extern int input_file;
+extern char macro_char;
+extern char SectorTypesChar[];
+extern char *Discoveries[];
+extern char *RaceType[];
+extern char *RaceTypePad[];
 extern char *race_colors[MAX_RCOLORS];
+extern char *SectorTypes[];
+extern char *PlanetTypes[];
+extern char *Relation[];
+extern char *help_client;
+extern char *shell_flags;
+extern char **refresh_line;
 
 int main(int, char *argv[]);
 void gbs(void);

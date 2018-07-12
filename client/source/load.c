@@ -13,14 +13,19 @@
  */
 #include "load.h"
 
-#include "csp.h"
 #include "gb.h"
+#include "key.h"
+#include "option.h"
 #include "str.h"
-#include "term.h"
 #include "types.h"
-#include "vars.h"
+#include "util.h"
 
+#include <ctype.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <time.h>
 
 #define GBRC_SAVE_LINE "# Put your stuff below here -- Keep this line here\n"
 
@@ -43,35 +48,34 @@ void log_file(char *args);
  */
 void cmd_loadf(char *args)
 {
+#ifndef RESTRICTED_ACCESS
+
     int type = SCREEN_ONLY;
     int show = 1;
     int hidden = 0;
     char *c;
     char *p = args;
-    char buf[MAXSIZ];
+    char buf[NORMSIZ];
     char buf2[MAXSIZ];
     FILE *fd;
     extern char gbrc_path[];
 
-    #ifndef RESTRICTED_ACCESS
     /* No args...ask to loadf GBRC */
-    if(*args == '\0') {
+    if (*args == '\0') {
         expand_file(gbrc_path);
         sprintf(buf, "Really load %s (y/n)? ", gbrc_path);
         promptfor(buf, buf2, PROMPT_STRING);
 
-        if((*buf2 == 'Y') || (*buf2 == 'y')) {
+        if ((*buf2 == 'Y') || (*buf2 == 'y')) {
             load_predefined(gbrc_path);
-        }
-        else {
+        } else {
             msg("-- Ussage: loadf [-a|b|c|d|e|h|q|s|t|D] [-p<hrase>] filename");
             msg("           loadf without any arguments will prompt you to load your specified GBRC.");
             msg("           Your GBRC file is: \'%s\'", gbrc_path);
         }
 
         return;
-    }
-    else if(*args == '-') {
+    } else if (*args == '-') {
         c = args + 1;
         args = rest(args);
 
@@ -139,14 +143,14 @@ void cmd_loadf(char *args)
 
     fd = fopen(args, "r");
 
-    if(fd == NULL) {
+    if (fd == NULL) {
         msg("-- Error. Could not open %s for reading.", args);
 
         return;
     }
 
     while (fgets(buf, MAXSIZ, fd)) {
-        if((*buf == ';') || (*buf == '#')) {
+        if ((*buf == ';') || (*buf == '#')) {
             if ((type == SCREEN_ONLY)
                 && !strcmp(buf, "# Galactic Bloodshed Client II Initialization File\n")) {
                 msg("-- loadf Loading GB II Init File: \'%s\'", args);
@@ -160,7 +164,7 @@ void cmd_loadf(char *args)
 
         c = strchr(buf, '\n');
 
-        if(c) {
+        if (c) {
             *c = '\0';
         }
 
@@ -201,28 +205,28 @@ void cmd_loadf(char *args)
             break;
         }
 
-        if((type != SCREEN_ONLY) || (type != DO_SCREEN_ONLY)) {
+        if ((type != SCREEN_ONLY) || (type != DO_SCREEN_ONLY)) {
             ++end_msg;
             add_queue(buf2, 0);
 
-            if(hidden) {
+            if (hidden) {
                 ++hide_msg;
                 kill_socket_output = true;
             }
         }
 
-        if(show) {
+        if (show) {
             strcpy(buf, "echo ");
             strcat(buf, buf2);
             add_queue(buf, 0);
         }
     }
 
-    if((type != SCREEN_ONLY) || (type != DO_SCREEN_ONLY)) {
+    if ((type != SCREEN_ONLY) || (type != DO_SCREEN_ONLY)) {
         --end_msg;
     }
 
-    if(hidden) {
+    if (hidden) {
         --hide_msg;
     }
 
@@ -240,40 +244,38 @@ void cmd_loadf(char *args)
  */
 void shell_out(char *args)
 {
+#ifndef RESTRICTED_ACCESS
     char buf[MAXSIZ];
     char fname[NORMSIZ];
     int flag = 0;
 
-#ifndef RESTRICTED_ACCESS
     strcpy(fname, "~/.gbtemp");
     expand_file(fname);
 
-    if(*args == '-') {
+    if (*args == '-') {
         sprintf(buf, "%s > %s", rest(args), fname);
         system(buf);
 
-        if(*(args + 1) == 'a') {
+        if (*(args + 1) == 'a') {
             sprintf(buf, "-a %s", fname);
             cmd_loadf(buf);
             ++flag;
-        }
-        else if(*(args + 1) == 'b') {
-            sprintf(buf, "-b %s", fnam);
+        } else if (*(args + 1) == 'b') {
+            sprintf(buf, "-b %s", fname);
             cmd_loadf(buf);
             ++flag;
         }
-    }
-    else {
-        sprintf(buf, "%s > %s", args, fnam);
+    } else {
+        sprintf(buf, "%s > %s", args, fname);
         system(buf);
-        cmd_loadf(fnam);
+        cmd_loadf(fname);
         ++flag;
     }
 
-    sprintf(buf, "rm -f %s", fnam);
+    sprintf(buf, "rm -f %s", fname);
     system(buf);
 
-    if(!flag) {
+    if (!flag) {
         msg("-- shell done.");
     }
 
@@ -293,7 +295,7 @@ void load_predefined(char *fname)
     expand_file(buf);
     fd = fopen(buf, "r");
 
-    if(fd == NULL) {
+    if (fd == NULL) {
         return;
     }
 
@@ -308,13 +310,13 @@ void load_init_file(FILE *fd)
     while (fgets(buf, NORMSIZ, fd)) {
         p = strchr(buf, '\n');
 
-        if(!p) {
+        if (!p) {
             continue;
         }
 
         *p = '\0';
 
-        if(*buf == '#') {
+        if (*buf == '#') {
             continue;
         }
 
@@ -357,16 +359,15 @@ void cmd_log(char *args)
 /* If no filename is given, then gb.log in $HOME is used. */
 void log_file(char *args)
 {
-    long clk;
-    char mode[SMABUF];
-    struct stat statbuf;
-
 #ifdef RESTRICTED_ACCESS
     msg("-- Restricted Access: Logging not available.");
 
     return;
 
 #else
+    long clk;
+    char mode[SMABUF];
+    struct stat statbuf;
 
     strcpy(mode, "a+");
 
@@ -374,7 +375,7 @@ void log_file(char *args)
     if (!strcmp(args, "off")
         || (*args == '\0')
         || !strcmp(args, "off no msg")) {
-        if(logfile.on) {
+        if (logfile.on) {
             fclose(logfile.fd);
         }
 
@@ -382,13 +383,12 @@ void log_file(char *args)
         logfile.redirect = false;
         logfile.level = LOG_OFF;
 
-        /* noclobber sets name ot null is error */
-        if(*logfile.name == '\0') {
+        /* noclobber sets name to null is error */
+        if (*logfile.name == '\0') {
             if (strcmp(args, "off not msg")) {
                 msg("-- Logging turned off.");
             }
-        }
-        else {
+        } else {
             msg("-- Log file %s closed.", logfile.name);
         }
 
@@ -407,7 +407,7 @@ void log_file(char *args)
         while (!isspace(*args)) {
             debug(1, "log !space: %c", *args);
 
-            switch(*args++) {
+            switch (*args++) {
                 case 'a':
                     strcpy(mode, "a+");
 
@@ -432,7 +432,7 @@ void log_file(char *args)
     }
 
     /* Else we have a new log file about to be opened, so close the old one */
-    if(logfile.on && *logfile.name) {
+    if (logfile.on && *logfile.name) {
         msg("-- Log file %s closed.", logfile.name);
         fclose(logfile.fd);
     }
@@ -441,8 +441,7 @@ void log_file(char *args)
     if (!strcmp(args, "on")) {
         strcpy(args, "~/gb.log");
         expand_file(args);
-    }
-    else {
+    } else {
         expand_file(args);
     }
 
@@ -462,7 +461,7 @@ void log_file(char *args)
 
     logfile.fd = fopen(logfile.name, mode);
 
-    if(logfile == NULL) {
+    if (logfile.fd == NULL) {
         msg("-- Log: Could not open \'%s\' for writing (%s)", logfile.name, mode);
         logfile.on = false;
 
@@ -485,18 +484,17 @@ void expand_file(char *fname)
     char *env;
     char temp[NORMSIZ];
 
-    if(fname[0] != '~') {
+    if (fname[0] != '~') {
         return;
     }
 
-    if(fname[1] == '/') {
+    if (fname[1] == '/') {
         env = getenv("HOME");
 
-        if(env == NULL) {
-            tmp[0] = '\0';
-        }
-        else {
-            strcpy(tmp, env);
+        if (env == NULL) {
+            temp[0] = '\0';
+        } else {
+            strcpy(temp, env);
             strcat(temp, fname + 1);
             strcpy(fname, temp);
         }

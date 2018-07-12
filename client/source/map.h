@@ -1,6 +1,8 @@
 #ifndef MAP_H_
 #define MAP_H_
 
+#include "gb.h"
+
 void plot_surface(char *t);
 void print_X(int Maxx);
 void plot_orbit(char *t);

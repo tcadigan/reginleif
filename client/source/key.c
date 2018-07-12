@@ -18,6 +18,7 @@
 #include "crypt.h"
 #include "gb.h"
 #include "imap.h"
+#include "option.h"
 #include "proc.h"
 #include "socket.h"
 #include "status.h"
@@ -25,11 +26,11 @@
 #include "term.h"
 #include "types.h"
 #include "util.h"
-#include "vars.h"
 
 #include <errno.h>
 #include <signal.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #define UPDATE_CHAR 1
@@ -1002,9 +1003,9 @@ void do_key(char *buf, int interactive)
             return;
         }
     } else if (*holdbuf == macro_char) {
-        if ((options[SLASH_COMMANDS / 32] && ((SLASH_COMMANDS < 32) ?
-                                              (1 << SLASH_COMMANDS)
-                                              : (1 << (SLASH_COMMANDS % 32))))
+        if ((options[SLASH_COMMANDS / 32] & ((SLASH_COMMANDS < 32) ?
+                                             (1 << SLASH_COMMANDS)
+                                             : (1 << (SLASH_COMMANDS % 32))))
             && client_command(holdbuf + 1, interactive)) {
             set_values_on_end_prompt();
             cursor_to_window();

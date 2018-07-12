@@ -17,10 +17,10 @@
 #include "str.h"
 #include "types.h"
 #include "util.h"
-#include "vars.h"
 
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define SCALE 0.01
 

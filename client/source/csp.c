@@ -18,12 +18,12 @@
 #include "imap.h"
 #include "key.h"
 #include "map.h"
+#include "option.h"
 #include "popn.h"
 #include "socket.h"
 #include "status.h"
 #include "str.h"
 #include "term.h"
-#include "vars.h"
 
 #ifdef XMAP
 #include "xmap.h"
@@ -33,6 +33,7 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 
 #ifdef XMAP
 char xstring[NORMSIZ];
@@ -1866,9 +1867,6 @@ void plot_orbit_object(void)
 
     if ((x >= 0) && (y >= 1) && (x <= S_X) && (y <= S_Y)) {
 #ifdef ARRAY
-        extern char *Novae[16][5];
-        extern char *Mirror[8][5];
-
         if ((orbit.type == TYPE_STAR)
            && (orbit.scope == LEVEL_STAR)
            && (orbit.star.novastage > 0)

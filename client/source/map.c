@@ -12,14 +12,14 @@
 #include "ansi.h"
 #include "arrays.h"
 #include "gb.h"
+#include "key.h"
+#include "option.h"
 #include "str.h"
-#include "term.h"
 #include "types.h"
-#include "vars.h"
+#include "util.h"
 
-#include <memory.h>
-#include <stdio.h>
-#include <sys/types.h>
+#include <stdlib.h>
+#include <string.h>
 
 char maplog[MAXSIZ];
 
@@ -29,7 +29,6 @@ void plot_surface(char *t)
 {
     int x;
     int y;
-    int show;
     int Maxx;
     int Maxy;
     char *u;
@@ -44,7 +43,7 @@ void plot_surface(char *t)
     int colored = -1;
 
 #ifdef CLIENT_DEVEL
-    if(client_devel) {
+    if (client_devel) {
         msg(":: plot_surface()");
     }
 #endif
@@ -81,7 +80,6 @@ void plot_surface(char *t)
     u = v + 1;
     v = strchr(u, ';');
     *v = '\0';
-    show = atoi(u);
 
     print_X(Maxx);
 
@@ -94,23 +92,20 @@ void plot_surface(char *t)
         for (x = 0; x < Maxx; ++x) {
             c = *u++;
 
-            if(c == '1') {
-                if(!inverse) {
+            if (c == '1') {
+                if (!inverse) {
                     /* For testing -mfw */
                     strcat(maplog, INVERSE_CHAR_STR);
                     inverse = 1;
                 }
-            }
-            else if((c > '?') && want_color) {
+            } else if ((c > '?') && want_color) {
                 colored = c % MAX_RCOLORS;
                 strcat(maplog, race_colors[colored]);
                 strcat(maplog, ANSI_FOR_BLACK);
-            }
-            else if(inverse) {
+            } else if (inverse) {
                 strcat(maplog, INVERSE_CHAR_STR);
                 inverse = 0;
-            }
-            else if(colored > -1) {
+            } else if (colored > -1) {
                 colored = -1;
                 strcat(maplog, ANSI_NORMAL);
             }
@@ -119,7 +114,7 @@ void plot_surface(char *t)
             ++u;
         }
 
-        if(inverse) {
+        if (inverse) {
             /* strcat(maplog, INVERSE_CHAR_STR); */
             strcat(maplog, ANSI_NORMAL);
         }
@@ -196,7 +191,7 @@ void plot_orbit(char *t)
     char *p;
     char *q;
     char name[SMABUF];
-    char colbuf[SMABUF];
+    char colbuf[NORMSIZ];
     char symbol;
 
     /* -mfw */
@@ -213,7 +208,7 @@ void plot_orbit(char *t)
     int y;
 
 #ifdef CLIENT_DEVEL
-    if(client_devel) {
+    if (client_devel) {
         msg(":: plot_orbit()");
     }
 #endif
@@ -243,25 +238,24 @@ void plot_orbit(char *t)
         x = (int)x * Midx;
         y = (int)y * Midy;
 
-        if((x <= S_X) && (y <= S_Y)) {
+        if ((x <= S_X) && (y <= S_Y)) {
 #ifdef ARRAY
-            if((symbol == 'M') && (array > 0) && (array <= 8)) {
+            if ((symbol == 'M') && (array > 0) && (array <= 8)) {
                 /* Space mirror */
                 DispArray(x, y, 9, 5, Mirror[array - 1], 1.0);
-            }
-            else if((symbol == '*') && (array > 0) && (array <= 16)) {
+            } else if ((symbol == '*') && (array > 0) && (array <= 16)) {
                 /* Nova */
                 DispArray(x, y, 11, 7, Novae[array - 1], 1.0);
             }
 #endif
 
             /* DEBUG in here somewhere, too sleepy, going to bed. -mfw */
-            if((stand1 > '?') && want_color) {
+            if ((stand1 > '?') && want_color) {
                 /* Do color here -mfw */
                 colored = stand1 % MAX_RCOLORS;
 
                 sprintf(colbuf,
-                        "%s%c%c%s",
+                        "%s%s%c%s",
                         race_colors[colored],
                         ANSI_FOR_BLACK,
                         symbol,
@@ -269,26 +263,24 @@ void plot_orbit(char *t)
 
                 term_move_cursor(x, y);
                 term_puts(colbuf, strlen(colbuf));
-            }
-            else if(stand1 == '1') {
+            } else if (stand1 == '1') {
                 term_standout_on();
                 term_move_cursor(x, y);
                 term_putchar(symbol);
-            }
-            else {
+            } else {
                 term_move_cursor(x, y);
                 term_putchar(symbol);
             }
 
-            if(stand1 == '1') {
+            if (stand1 == '1') {
                 term_standout_off();
             }
 
             term_puts(" ", 1);
 
-            if((stand2 > '?') && want_color) {
+            if ((stand2 > '?') && want_color) {
                 /* Do color here -mfw */
-                colored = stand2 % RCOLORS;
+                colored = stand2 % MAX_RCOLORS;
 
                 sprintf(colbuf,
                         "%s%s%s%s",
@@ -298,16 +290,14 @@ void plot_orbit(char *t)
                         ANSI_NORMAL);
 
                 term_puts(colbuf, strlen(colbuf));
-            }
-            else if(stand2 == '1') {
+            } else if (stand2 == '1') {
                 term_standout_on();
                 term_puts(name, strlen(name));
-            }
-            else {
+            } else {
                 term_puts(name, strlen(name));
             }
 
-            if(stand2 == '1') {
+            if (stand2 == '1') {
                 term_standout_off();
             }
         }
@@ -331,18 +321,18 @@ void DispArray(int x, int y, int maxx, int maxy, char *array[], float mag)
     int cury;
 
 #ifdef CLIENT_DEVEL
-    if(client_devel) {
+    if (client_devel) {
         msg(":: DispArray()");
     }
 #endif
 
     for (cury = y - (maxy / 2), y2 = 0; y2 < maxy; ++cury) {
-        if((cury >= 0) && (cury <= S_Y)) {
+        if ((cury >= 0) && (cury <= S_Y)) {
             curx = x - (maxx / 2);
             term_move_cursor(curx, cury);
 
             for (x2 = 0; x2 < maxx; ++curx) {
-                if((curx >= 0) && (curx <= S_X)) {
+                if ((curx >= 0) && (curx <= S_X)) {
                     /* One to right */
                     term_putchar(array[y2][x2]);
                 }

@@ -11,6 +11,7 @@
 #define OPTION_H_
 
 #include "term.h"
+#include "types.h"
 
 #include <stdio.h>
 
@@ -65,6 +66,6 @@ void save_settings(FILE *fd);
 /* For binary search */
 CommandSet *binary_set_search(char *cmd);
 
-int options[2];
+extern int options[2];
 
 #endif // OPTION_H_

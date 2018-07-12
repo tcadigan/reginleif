@@ -10,8 +10,9 @@
 #include "args.h"
 
 #include "gb.h"
+#include "option.h"
 #include "str.h"
-#include "vars.h"
+#include "types.h"
 
 #include <ctype.h>
 #include <stdio.h>

@@ -13,8 +13,8 @@
  */
 #include "crypt.h"
 
+#include "option.h"
 #include "str.h"
-#include "vars.h"
 
 #include <stdbool.h>
 #include <stdlib.h>

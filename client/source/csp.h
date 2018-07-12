@@ -56,6 +56,8 @@ void cspr_orbit(int cnum, char *line);
 void plot_orbit_object(void);
 void orbit_info_box(void);
 
+extern Orbit orbit;
+
 /*---- Server responses ----*/
 
 /* VERSION */
