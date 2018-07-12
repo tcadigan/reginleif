@@ -6,7 +6,7 @@ void quit_gb(int exitstatus, char *s, char *a1, char *a2);
 void signal_int(int sig);
 void signal_tstp(int sig);
 void signal_usr1(int sig);
-void signal_watch(int sig);
+void signal_winch(int sig);
 void reset_key(void);
 void cursor_to_window(void);
 void cursor_to_input(void);

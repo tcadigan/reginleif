@@ -19,5 +19,6 @@ char *parse_sec_args(char *fmt, char *list);
 void argify(char *list);
 char *get_args(int lo, int hi);
 bool parse_for_loops(char *s);
+void free_assign(void);
 
 #endif // ARGS_H_

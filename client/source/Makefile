@@ -1,6 +1,6 @@
 PROG = gbII_client
 CFLAGS = -O -g -Wall
-LDFLAGS = -ltermcap -lm
+LDFLAGS = -ltermcap -lm -lcurses
 
 SRCS = action.c args.c bind.c buffer.c command.c crypt.c csp.c gb.c fuse.c \
        help.c icomm.c imap.c key.c load.c map.c md5.c option.c popn.c psmap.c \
@@ -35,7 +35,7 @@ fuse.o: fuse.h csp.h gb.h key.h socket.h str.h types.h
 help.o: help.h str.h types.h
 icomm.o: icomm.h csp.h gb.h str.h types.h vars.h
 imap.o: imap.h ansi.h csp.h gb.h key.h str.h socket.h status.h term.h
-key.o: key.h args.h crypt.h gb.h str.h term.h types.h vars.h
+key.o: key.h args.h bind.h command.h crypt.h gb.h imap.h proc.h socket.h status.h str.h term.h types.h util.h vars.h
 load.o: load.h csp.h gb.h str.h term.h types.h vars.h
 map.o: map.h ansi.h arrays.h gb.h str.h term.h types.h vars.h
 option.o: option.h args.h gb.h str.h term.h types.h vars.h

@@ -13,37 +13,25 @@
 #include "key.h"
 
 #include "args.h"
+#include "bind.h"
+#include "command.h"
 #include "crypt.h"
 #include "gb.h"
+#include "imap.h"
+#include "proc.h"
+#include "socket.h"
+#include "status.h"
 #include "str.h"
 #include "term.h"
 #include "types.h"
+#include "util.h"
 #include "vars.h"
 
-#include <fcntl.h>
+#include <errno.h>
 #include <signal.h>
-#include <stdbool.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <sys/errno.h>
-#include <sys/types.h>
+#include <unistd.h>
 
-#ifndef SYSV
-#include <sgtty.h>
-#include <sys/ioctl.h>
-
-#else
-
-#include <termio.h>
-#endif
-
-/* Need this for the termcap stuff */
-#ifndef CYGWIN
-#include <curses.h>
-#endif
-
-#define SIGWINCH
 #define UPDATE_CHAR 1
 #define UPDATE_CURSOR_END 2
 #define UPDATE_LOWER_MARK 3
@@ -59,8 +47,10 @@ extern int prompt_return;
 extern int queue_clear;
 extern long map_time;
 static char gbch;
-static char key_buf[MAXSIZ + 1];
-static char key_store[MAXSIZ + 1];
+static char key_buf[NORMSIZ + 1];
+static char key_store[NORMSIZ + 1];
+
+void do_key(char *buf, int interactive);
 
 char pbuf[MAXSIZ + 1];
 int cursor_display = false;
@@ -78,7 +68,7 @@ struct posstruct {
 
 struct posstruct pos = {0, 0, 0, (char *)NULL, (char *)NULL, 0 };
 
-struct marskstruct {
+struct markstruct {
     int upper;
     int lower;
     int old_lower;
@@ -116,11 +106,11 @@ void quit_gb(int exitstatus, char *s, char *a1, char *a2)
 {
     sprintf(pbuf, s, a1, a2);
 
-    if(*pbuf) {
+    if (*pbuf) {
         msg(pbuf);
     }
 
-    if(logfile.on) {
+    if (logfile.on) {
         fclose(logfile.fd);
     }
 
@@ -154,7 +144,7 @@ void quit_gb(int exitstatus, char *s, char *a1, char *a2)
 
 void signal_int(int sig)
 {
-    stop_things();
+    stop_things('\0');
 }
 
 void signal_tstp(int sig)
@@ -164,11 +154,11 @@ void signal_tstp(int sig)
     term_move_cursor(0, num_rows - 1);
     term_mode_on();
     kill(getpid(), SIGSTOP);
-    term_mode_of();
+    term_mode_off();
     term_scroll(0, num_rows - 1, 2);
-    refresh_screen();
+    refresh_screen('\0');
     put_status();
-    refresh_input(NULL);
+    refresh_input('\0');
 #endif
 }
 
@@ -177,24 +167,24 @@ void signal_usr1(int sig)
     msg("-- I shall exit now sir");
 }
 
-void signal_watch(int sig)
+void signal_winch(int sig)
 {
 #ifdef SIGWINCH
-    ing diff;
+    int diff;
 
     diff = num_rows - output_row;
-    crear_refresh_line();
-    clear_refresh_line_node();
+    clear_refresh_line();
+    clear_refresh_line_mode();
     signal(SIGWINCH, SIG_IGN);
     get_screen_size();
 
     /* Reset */
-    signal(SIGWINCH, signal_which);
+    signal(SIGWINCH, signal_winch);
 
     output_row = num_rows - diff;
 
 #ifdef IMAP
-    if(input_mode.map && invalid_map_screen_sizes()) {
+    if (input_mode.map && invalid_map_screen_sizes()) {
         handle_map_mode(1);
     }
 #endif
@@ -211,7 +201,7 @@ void signal_watch(int sig)
         num_columns,
         num_rows);
 
-    if((num_columns < 80) || (num_rows < 24)) {
+    if ((num_columns < 80) || (num_rows < 24)) {
         msg("-- Recommended window size is at leat 80x24.");
     }
 
@@ -236,12 +226,11 @@ void reset_key(void)
 
 void cursor_to_window(void)
 {
-    if(!cursor_display) {
+    if (!cursor_display) {
 #ifdef IMAP
-        if(!input_mode.promptfor && input_mode.map && !input_mode.say) {
+        if (!input_mode.promptfor && input_mode.map && !input_mode.say) {
             cursor_to_map();
-        }
-        else {
+        } else {
             cursor_to_input();
         }
 
@@ -285,49 +274,47 @@ void add_key_buf(char ch)
 {
     char sbuf[MAXSIZ];
 
-    if(input_mode.promptfor == PROMPT_CHAR) {
+    if (input_mode.promptfor == PROMPT_CHAR) {
         prompt_return = true;
 
         return;
     }
 
-    if(pos.key >= (MAXSIZ - 1)) {
+    if (pos.key >= (MAXSIZ - 1)) {
         term_beep(1);
 
         return;
     }
 
-    if(input_mode.post) {
-        if((strlen(post_buf) + pos.key + 1) >= MAX_POST_LEN) {
-            if(input_mode.post == true) {
+    if (input_mode.post) {
+        if ((strlen(post_buf) + pos.key + 1) >= MAX_POST_LEN) {
+            if (input_mode.post == true) {
                 ++input_mode.post;
                 msg("-- Post: The maximum post size has been reached.");
             }
 
-            if(pos.key != 0) {
+            if (pos.key != 0) {
                 return;
             }
         }
     }
 
-    if((input_mode.edit == EDIT_OVERWRITE) || (pos.cur == pos.key)) {
+    if ((input_mode.edit == EDIT_OVERWRITE) || (pos.cur == pos.key)) {
         key_buf[pos.cur] = ch;
 
-        if(pos.cur == pos.key) {
+        if (pos.cur == pos.key) {
             key_buf[pos.cur + 1] = '\0';
         }
 
         ++pos.cur;
         set_marks();
 
-        if(mark.old_lower < mark.lower) {
+        if (mark.old_lower < mark.lower) {
             update_key(UPDATE_LOWER_MARK);
-        }
-        else {
+        } else {
             update_key(UPDATE_CHAR);
         }
-    }
-    else {
+    } else {
         strncpy(sbuf, key_buf, pos.cur);
         sbuf[pos.cur] = ch;
         sbuf[pos.cur + 1] = '\0';
@@ -336,10 +323,9 @@ void add_key_buf(char ch)
         ++pos.cur;
         set_marks();
 
-        if(mark.old_lower < mark.lower) {
+        if (mark.old_lower < mark.lower) {
             update_key(UPDATE_LOWER_MARK);
-        }
-        else {
+        } else {
             --pos.cur;
             update_key(UPDATE_CURSOR_END);
             ++pos.cur;
@@ -361,13 +347,13 @@ void erase_space_left(void)
 {
     char temp[MAXSIZ];
 
-    if(!pos.cur) {
+    if (!pos.cur) {
         return;
     }
 
     *(key_buf + pos.cur - 1) = '\0';
 
-    if(pos.cur != pos.key) {
+    if (pos.cur != pos.key) {
         sprintf(temp, "%s%s", key_buf, key_buf + pos.cur);
         strcpy(key_buf, temp);
     }
@@ -379,15 +365,15 @@ void erase_space_left(void)
 
 void erase_space_right(void)
 {
-    char temp[MAXSIZE];
+    char temp[MAXSIZ];
 
-    if(pos.cur == pos.key) {
+    if (pos.cur == pos.key) {
         return;
     }
 
     *(key_buf + pos.cur) = '\0';
 
-    if(pos.cur != pos.key) {
+    if (pos.cur != pos.key) {
         sprintf(temp, "%s%s", key_buf, key_buf + pos.cur + 1);
         strcpy(key_buf, temp);
     }
@@ -403,7 +389,7 @@ void erase_input(int position)
 
 void delete_under_cursor(char ch)
 {
-    if(pos.cur == pos.key) {
+    if (pos.cur == pos.key) {
 #ifdef KEY_DEBUG
         term_beep(1);
 #endif
@@ -427,10 +413,9 @@ void delete_word_left(char ch)
 
     set_marks();
 
-    if(mark.old_lower != mark.lower) {
+    if (mark.old_lower != mark.lower) {
         update_key(UPDATE_LOWER_MARK);
-    }
-    else {
+    } else {
         erase_input(pos.scr);
         update_key(UPDATE_CURSOR_END);
     }
@@ -452,7 +437,7 @@ void delete_word_right(char ch)
 
 void backspace(char ch)
 {
-    if(!pos.cur) {
+    if (!pos.cur) {
 #ifdef KEY_DEBUG
         term_beep(1);
 #endif
@@ -463,11 +448,10 @@ void backspace(char ch)
     erase_space_left();
     set_marks();
 
-    if(mark.old_lower != mark.lower) {
+    if (mark.old_lower != mark.lower) {
         update_key(UPDATE_LOWER_MARK);
-    }
-    else {
-        erase_input(pos.src);
+    } else {
+        erase_input(pos.scr);
         update_key(UPDATE_CURSOR_END);
     }
 }
@@ -485,10 +469,9 @@ void set_marks(void)
 
     pos.key = strlen(key_buf);
 
-    if(mark.lower) {
+    if (mark.lower) {
         pos.scr = pos.cur - mark.lower;
-    }
-    else {
+    } else {
         pos.scr = pos.cur + pos.plen;
     }
 }
@@ -504,18 +487,16 @@ void update_key(int mode)
     int len;
     int i;
 
-    if(hide_input) {
-        if(mode == UPDATE_CHAR) {
+    if (hide_input) {
+        if (mode == UPDATE_CHAR) {
             term_puts("*", 1);
-        }
-        else if(mode == UPDATE_LOWER_MARK) {
+        } else if (mode == UPDATE_LOWER_MARK) {
             term_move_cursor(0, num_rows - 1);
             put_input_prompt();
 
-            if(pos.key < mark.upp) {
+            if (pos.key < mark.upper) {
                 len = pos.key - mark.lower;
-            }
-            else {
+            } else {
                 len = num_columns;
             }
 
@@ -525,15 +506,13 @@ void update_key(int mode)
 
             term_clear_to_eol();
             term_move_cursor(pos.scr, num_rows - 1);
-        }
-        else if(mode == UPDATE_CURSOR_END) {
-            if(pos.key < mark.upper) {
+        } else if (mode == UPDATE_CURSOR_END) {
+            if (pos.key < mark.upper) {
                 len = pos.key - mark.lower;
-            }
-            else {
+            } else {
                 len = num_columns;
 
-                if(pos.cur < num_columns) {
+                if (pos.cur < num_columns) {
                     len -= pos.plen;
                 }
             }
@@ -541,18 +520,16 @@ void update_key(int mode)
             for (i = 0; i < len; ++i) {
                 term_puts("*", 1);
             }
-        }
-        else {
+        } else {
             msg("-- UNKNOWN update_type, please report");
         }
 
         return;
     }
 
-    if(mode == UPDATE_CHAR) {
+    if (mode == UPDATE_CHAR) {
         term_puts(key_buf + pos.cur - 1, 1);
-    }
-    else if(mode == UPDATE_LOWER_MARK) {
+    } else if (mode == UPDATE_LOWER_MARK) {
         term_move_cursor(0, num_rows - 1);
         put_input_prompt();
 
@@ -565,13 +542,12 @@ void update_key(int mode)
          * }
          */
 
-        if(pos.key < mark.upper) {
+        if (pos.key < mark.upper) {
             len = pos.key - mark.lower;
-        }
-        else {
+        } else {
             len = num_columns;
 
-            if(pos.cur < num_columns) {
+            if (pos.cur < num_columns) {
                 len -= pos.plen;
             }
         }
@@ -579,23 +555,20 @@ void update_key(int mode)
         term_puts(key_buf + mark.lower, len);
         term_clear_to_eol();
         term_move_cursor(pos.scr, num_rows - 1);
-    }
-    else if(mode == UPDATE_CURSOR_END) {
-        if(pos.key < mark.upper) {
+    } else if (mode == UPDATE_CURSOR_END) {
+        if (pos.key < mark.upper) {
             len = pos.key - (pos.cur - mark.lower);
-        }
-        else {
+        } else {
             len = num_columns - pos.scr;
         }
-    }
-    else {
+    } else {
         msg("-- UNKNOWN update_key type, please report");
     }
 }
 
 void cursor_forward(char ch)
 {
-    if(pos.cur == pos.key) {
+    if (pos.cur == pos.key) {
 #ifdef KEY_DEBUG
         term_beep(1);
 #endif
@@ -606,17 +579,16 @@ void cursor_forward(char ch)
     ++pos.cur;
     set_marks();
 
-    if(mark.old_lower == mark.lower) {
+    if (mark.old_lower == mark.lower) {
         term_cursor_right();
-    }
-    else {
+    } else {
         update_key(UPDATE_LOWER_MARK);
     }
 }
 
 void cursor_backward(char ch)
 {
-    if(pos.cur == 0) {
+    if (pos.cur == 0) {
 #ifdef KEY_DEBUG
         term_beep(1);
 #endif
@@ -627,10 +599,9 @@ void cursor_backward(char ch)
     --pos.cur;
     set_marks();
 
-    if(mark.low_lower == mark.lower) {
+    if (mark.old_lower == mark.lower) {
         term_cursor_left();
-    }
-    else {
+    } else {
         update_key(UPDATE_LOWER_MARK);
     }
 }
@@ -647,38 +618,35 @@ void set_edit_buffer(char *s)
 {
     strcpy(key_buf, s);
     pos.cur = strlen(key_buf);
-    refresh_input(NULL);
+    refresh_input('\0');
 }
 
 void do_recallf(char ch)
 {
-    if(recallf(key_buf)) {
+    if (recallf(key_buf)) {
         pos.cur = strlen(key_buf);
-        refresh_input(NULL);
-    }
-    else {
+        refresh_input('\0');
+    } else {
         term_beep(1);
     }
 }
 
 void do_recallb(char ch)
 {
-    if(recallb(key_buf)) {
+    if (recallb(key_buf)) {
         pos.cur = strlen(key_buf);
-        refresh_input(NULL);
-    }
-    else {
+        refresh_input('\0');
+    } else {
         term_beep(1);
     }
 }
 
 void recall_crypts(char ch)
 {
-    if(do_crypt_recall(key_buf)) {
+    if (do_crypt_recall(key_buf)) {
         pos.cur = strlen(key_buf);
-        refresh_input(NULL);
-    }
-    else {
+        refresh_input('\0');
+    } else {
         term_beep(1);
     }
 }
@@ -695,8 +663,7 @@ void refresh_screen(char ch)
                                      (1 << DISPLAY_TOP)
                                      : (1 << (DISPLAY_TOP % 32)))) {
         cnt = 0;
-    }
-    else {
+    } else {
         /*
          * Where on screen do we start
          * from output row, back up # of lines in buffer
@@ -712,7 +679,7 @@ void refresh_screen(char ch)
     while (cnt <= output_row) {
         term_move_cursor(0, cnt);
 
-        if(refresh_line[i] != NULL) {
+        if (refresh_line[i] != NULL) {
             write_string(refresh_line[i], strlen(refresh_line[i]));
             term_normal_mode();
         }
@@ -724,14 +691,14 @@ void refresh_screen(char ch)
     }
 
 #ifdef IMAP
-    if(input_mode.map) {
+    if (input_mode.map) {
         refresh_map();
     }
 #endif
 
     force_update_status();
     erase_input(0);
-    refresh_input(NULL);
+    refresh_input('\0');
 }
 
 void clear_screen(char ch)
@@ -742,7 +709,7 @@ void clear_screen(char ch)
     term_puts(last_update_buf, num_columns);
 
 #ifdef IMAP
-    if(input_mode.map) {
+    if (input_mode.map) {
         refresh_map();
     }
 #endif
@@ -752,17 +719,15 @@ void clear_screen(char ch)
 
 void do_edit_mode(char ch)
 {
-    if(input_mode.edit == EDIT_OVERWRITE) {
+    if (input_mode.edit == EDIT_OVERWRITE) {
         input_mode.edit = EDIT_INSERT;
-    }
-    else {
-        input_mode.edit = ENDIT_OVERWRITE;
+    } else {
+        input_mode.edit = EDIT_OVERWRITE;
     }
 
-    if(input_mode.edit == EDIT_OVERWRITE) {
+    if (input_mode.edit == EDIT_OVERWRITE) {
         msg("-- Edit mode is overwrite");
-    }
-    else {
+    } else {
         msg("-- Edit mode is insert");
     }
 
@@ -839,32 +804,30 @@ void print_key_string(int parse)
     char outbuf[MAXSIZ];
     char cmdbuf[NORMSIZ];
 
-    if(parse) {
+    if (parse) {
         parse_variables(key_store);
     }
 
     sprintf(outbuf, "%s%s", output_prompt, key_store);
     q = first(key_store);
 
-    if(q) {
+    if (q) {
         strcpy(cmdbuf, q);
-    }
-    else {
+    } else {
         *cmdbuf = '\0';
     }
 
-    if((*key_store == '\'')
-       || (*key_store == '\"')
-       || (*key_store == ';')
-       || (*key_store == ':')
-       || (strncmp(key_store, "broadcast", 2 < strlen(cmdbuf) ? strlen(cmdbuf) : 2) == 0)
-       || (strncmp(key_store, "announce", 2 < strlen(cmdbuf) ? strlen(cmdbuf) : 2) == 0)
-       || (strncmp(key_store, "think", 2 < strlen(cmdbuf) ? strlen(cmdbuf) : 2) == 0)
-       || !strcmp(cmdbuf, "cr")) {
+    if ((*key_store == '\'')
+        || (*key_store == '\"')
+        || (*key_store == ';')
+        || (*key_store == ':')
+        || (strncmp(key_store, "broadcast", 2 < strlen(cmdbuf) ? strlen(cmdbuf) : 2) == 0)
+        || (strncmp(key_store, "announce", 2 < strlen(cmdbuf) ? strlen(cmdbuf) : 2) == 0)
+        || (strncmp(key_store, "think", 2 < strlen(cmdbuf) ? strlen(cmdbuf) : 2) == 0)
+        || !strcmp(cmdbuf, "cr")) {
         add_recall(outbuf, 1);
         msg_type = MSG_COMMUNICATION;
-    }
-    else {
+    } else {
         add_recall(outbuf, 0);
         msg_type = MSG_ALL;
     }
@@ -878,7 +841,7 @@ void handle_key_buf(char ch)
 {
     char kbuf[MAXSIZ];
 
-    if(input_mode.promptfor) {
+    if (input_mode.promptfor) {
         prompt_return = true;
 
         return;
@@ -891,11 +854,11 @@ void handle_key_buf(char ch)
     /* Must be here to prevent prompt */
     add_history(kbuf);
 
-    if(pos.talk) {
+    if (pos.talk) {
         if (!strcmp(kbuf, "talk off")
             || !strcmp(kbuf, "talk .")
             || !strcmp(kbuf, ".")) {
-            cmd_talk_off(NULL);
+            cmd_talk_off('\0');
 
             return;
         }
@@ -906,9 +869,9 @@ void handle_key_buf(char ch)
     term_move_cursor(0, num_rows - 1);
     put_input_prompt();
     *key_buf = '\0';
-    refresh_input(NULL);
+    refresh_input('\0');
 
-    if(input_file) {
+    if (input_file) {
         add_queue(kbuf, 0);
     }
 
@@ -925,9 +888,9 @@ void process_key(char *s, int interactive)
     char *p = s;
     char *q = s;
     int slashes = 0;
-    char quotes = '\0';
+    char quoted = '\0';
 
-    if(!p) {
+    if (!p) {
         debug(1, "NULL pointer received in process_key");
 
         return;
@@ -940,7 +903,7 @@ void process_key(char *s, int interactive)
         strcpy(p, "\n");
     }
 
-    if(*p == '-') {
+    if (*p == '-') {
         add_queue("set display off", 0);
         add_queue(p + 1, 0);
         add_queue("set display on", 0);
@@ -952,11 +915,10 @@ void process_key(char *s, int interactive)
         switch (*p) {
         case '\'':
         case '\"':
-            if(quoted == *p) {
+            if (quoted == *p) {
                 /* We match, end quoting */
                 quoted = '\0';
-            }
-            else if(quoted == '\0') {
+            } else if (quoted == '\0') {
                 /* We have found a quote */
                 quoted = *p;
             }
@@ -965,7 +927,7 @@ void process_key(char *s, int interactive)
 
             break;
         case '\\':
-            if(quoted != '\0') {
+            if (quoted != '\0') {
                 ++p;
 
                 break;
@@ -980,13 +942,12 @@ void process_key(char *s, int interactive)
             }
 
             /* It's a newline */
-            if((*p == 'n') && (slashes % 2)) {
+            if ((*p == 'n') && (slashes % 2)) {
                 *--p = '\0';
                 do_key(q, interactive);
                 q = p + 2;
                 p = q;
-            }
-            else {
+            } else {
                 ++p;
             }
 
@@ -1002,7 +963,7 @@ void process_key(char *s, int interactive)
 
     *p = '\0';
 
-    if(q != p) {
+    if (q != p) {
         do_key(q, interactive);
     }
 }
@@ -1019,47 +980,45 @@ void do_key(char *buf, int interactive)
     remove_space_at_end(buf);
 
     /* Store this to print it later */
-    strcp(key_store, start);
+    strcpy(key_store, start);
 
     /* If a pipe/redirect, it gets added onto the queue again */
-    if(handle_pipes_and_redirects(start)) {
+    if (handle_pipes_and_redirects(start)) {
         debug(4, "pipe/redirect is true");
 
         return;
     }
 
     q = parse_given_string(start, PARSE_SLASH);
-    strcpy(hodlbuf, q);
+    strcpy(holdbuf, q);
     debug(2, "do_key after: '%s'", holdbuf);
 
-    if(*holdbuf == '\0') {
+    if (*holdbuf == '\0') {
         if (options[PARTIAL_LINES / 32] & ((PARTIAL_LINES < 32) ?
                                            (1 << PARTIAL_LINES)
                                            : (1 << (PARTIAL_LINES % 32)))) {
             send_gb("", 0);
-        }
-        else {
+        } else {
             return;
         }
-    }
-    else if(*holdbuf == macro_char) {
+    } else if (*holdbuf == macro_char) {
         if ((options[SLASH_COMMANDS / 32] && ((SLASH_COMMANDS < 32) ?
                                               (1 << SLASH_COMMANDS)
                                               : (1 << (SLASH_COMMANDS % 32))))
-            && client_commands(holdbuf + 1, interactive)) {
+            && client_command(holdbuf + 1, interactive)) {
             set_values_on_end_prompt();
             cursor_to_window();
 
             return;
         }
 
-        if(interactive) {
+        if (interactive) {
             print_key_string(true);
         }
 
         parse_variables(holdbuf);
 
-        if(parse_for_loops(holdbuf)) {
+        if (parse_for_loops(holdbuf)) {
             add_queue(holdbuf, 0);
 
             return;
@@ -1068,13 +1027,12 @@ void do_key(char *buf, int interactive)
         /* Argify for $0 and stuff */
         argify(holdbuf);
 
-        if(!do_macro(holdbuf + 1)) {
+        if (!do_macro(holdbuf + 1)) {
             if (options[SLASH_COMMANDS / 32] & ((SLASH_COMMANDS < 32) ?
                                                 (1 << SLASH_COMMANDS)
                                                 : (1 << (SLASH_COMMANDS % 32)))) {
                 msg("-- No such command macro defined.");
-            }
-            else {
+            } else {
                 msg("-- No such macro defined.");
             }
         }
@@ -1083,14 +1041,13 @@ void do_key(char *buf, int interactive)
                                                  : (1 << (SLASH_COMMANDS % 32))))
                && client_command(holdbuf, interactive)) {
         /* Argify is called in client_command after variables parsing */
-        if(interactive) {
+        if (interactive) {
             set_values_on_end_prompt();
         }
 
         cursor_to_window();
-    }
-    else {
-        if(parse_for_loops(holdbuf)) {
+    } else {
+        if (parse_for_loops(holdbuf)) {
             add_queue(holdbuf, 0);
 
             return;
@@ -1106,7 +1063,7 @@ void do_key(char *buf, int interactive)
         send_gb(p, strlen(p));
 
         /* Things to do interactive - print it out */
-        if(interactive) {
+        if (interactive) {
             print_key_string(true);
         }
     }
@@ -1124,17 +1081,16 @@ void get_key(void)
     char *p;
     char *t;
 
-    if(wait_status && (wait_status != client_stats)) {
+    if (wait_status && (wait_status != client_stats)) {
         return;
     }
 
     count = read(0, getkey, SMABUF);
 
-    if(count == -1) {
-        if(errno == EWOULDBLOCK) {
+    if (count == -1) {
+        if (errno == EWOULDBLOCK) {
             return;
-        }
-        else {
+        } else {
             quit_gb(-1, "Error reading from standard in (stdin)", NULL, NULL);
         }
     }
@@ -1143,42 +1099,39 @@ void get_key(void)
     p = getkey;
 
     while (*p) {
-        gbch = *p++;
+        ++p;
+        gbch = *p;
 
-        if(quoted_char) {
+        if (quoted_char) {
             quoted_char = false;
             input_ch_into_buf(gbch);
-        }
-        else if(escape) {
+        } else if (escape) {
             escape = false;
 
             /* Code change to allow binding of arrow and function keys -mfw */
-            if((gbch == '[') || (gbch == 'O')) {
+            if ((gbch == '[') || (gbch == 'O')) {
                 t = p;
-                ch = *t++;
+                ++t;
+                ch = *t;
 
-                if(ch && (ch >= 'A') && (ch <= 'D')) {
+                if (ch && (ch >= 'A') && (ch <= 'D')) {
                     /* We have an arrow key */
                     bind_translate_char(ch, BIND_ARROW);
-                    *p++;
-                }
-                else if(ch &&
-                        (((ch >= 'S') && (ch <= 'W'))
-                         || ((ch >= 'P') && (ch <= 'R'))
-                         || (ch == 'X'))) {
+                    ++p;
+                } else if (ch &&
+                           (((ch >= 'S') && (ch <= 'W'))
+                            || ((ch >= 'P') && (ch <= 'R'))
+                            || (ch == 'X'))) {
                     /* We have a function key */
                     bind_translate_char(ch, BIND_FUNC);
-                    *p++;
-                }
-                else {
+                    ++p;
+                } else {
                     bind_translate_char(gbch, BIND_ESC);
                 }
-            }
-            else {
+            } else {
                 bind_translate_char(gbch, BIND_ESC);
             }
-        }
-        else if(input_mode.promptfor) {
+        } else if (input_mode.promptfor) {
             cursor_to_window();
             bind_translate_char(gbch, BIND_NORM);
             cursor_to_window();
@@ -1195,7 +1148,7 @@ void get_key(void)
             cursor_to_window();
         }
 
-        if(prompt_return) {
+        if (prompt_return) {
             return;
         }
     }
@@ -1214,20 +1167,17 @@ void stop_things(char ch)
 
     term_scroll(0, num_rows - 1, 0);
 
-    if(process_running()) {
+    if (process_running()) {
         strcpy(prbuf, "Kill running process (y/n)? ");
         type = 1;
-    }
-    else if(have_queue()) {
+    } else if (have_queue()) {
         strcpy(prbuf, "Clear the command queue (y/n)? ");
         type = 2;
         queue_clear = true;
-    }
-    else if(input_mode.post) {
+    } else if (input_mode.post) {
         strcpy(prbuf, "Cancel posting (y/n)? ");
         type = 3;
-    }
-    else {
+    } else {
         strcpy(prbuf, "Really exit (y/n)? ");
         type = 4;
     }
@@ -1246,7 +1196,7 @@ void stop_things(char ch)
             break;
         case 3:
             cancel_post();
-            cancel_input();
+            cancel_input('\0');
 
             break;
         case 4:
@@ -1267,7 +1217,7 @@ void promptfor(char *prompt, char *s, int mode)
     free(pos.prompt);
     pos.prompt = string(prompt);
     pos.plen = strlen(prompt);
-    cancel_input();
+    cancel_input('\0');
 
     set_marks();
     cursor_to_input();
@@ -1275,13 +1225,11 @@ void promptfor(char *prompt, char *s, int mode)
     pos.prompt = strfree(pos.prompt);
     update_input_prompt(input_prompt);
 
-    if(mode == PROMPT_STRING) {
+    if (mode == PROMPT_STRING) {
         strcpy(s, key_buf);
-    }
-    else if(mode == PROMPT_CHAR) {
+    } else if (mode == PROMPT_CHAR) {
         *s = gbch;
-    }
-    else {
+    } else {
         msg("-- Error in promptfo, unknown type mode %s", mode);
     }
 
@@ -1289,7 +1237,7 @@ void promptfor(char *prompt, char *s, int mode)
     strcpy(key_buf, storebuf);
     pos.cur = strlen(key_buf);
     set_marks();
-    refresh_input(NULL);
+    refresh_input('\0');
     input_mode.promptfor = PROMPT_OFF;
     prompt_return = false;
 }
@@ -1303,39 +1251,39 @@ void update_input_prompt(char *str)
 
 void put_input_prompt(void)
 {
-    if(pos.plen && (mark.lower == 0)) {
+    if (pos.plen && (mark.lower == 0)) {
         term_puts(pos.prompt, pos.plen);
     }
 }
 
 void cmd_talk(char *args)
 {
-    char bud[SMABUF];
+    char buf[SMABUF];
 
     strfree(pos.talk);
-    pos.talk = string(Args);
+    pos.talk = string(args);
     msg("-- talk: \'%s\'", pos.talk);
     force_update_status();
     sprintf(buf, "talk (%s)> ", pos.talk);
     update_input_prompt(buf);
-    refresh_input(NULL);
+    refresh_input('\0');
 }
 
 void cmd_talk_off(char ch)
 {
-    if(pos.talk) {
+    if (pos.talk) {
         strfree(pos.talk);
         pos.talk = NULL;
         msg("-- talk: off");
         force_update_status();
         update_input_prompt(input_prompt);
-        cancel_input();
+        cancel_input('\0');
     }
 }
 
-int in_talk_mode(void);
+int in_talk_mode(void)
 {
-    if(pos.talk) {
+    if (pos.talk) {
         return true;
     }
 

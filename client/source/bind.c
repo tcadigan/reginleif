@@ -34,8 +34,6 @@ typedef struct bindname {
 } BindName;
 
 char convert_string(char *s, int *mode);
-char *display_char(char c, int mode);
-void bind_translate_char(signed char c , int mode);
 void list_binding(int listkey, int mode);
 void more_quit(char ch);
 void more_clear(char ch);

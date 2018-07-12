@@ -126,6 +126,7 @@ struct rwhostruct rwho;
 extern struct morestruct more_val;
 extern struct profilestruct profile;
 extern int game_type;
+extern int hide_input;
 extern struct scopestruct scope;
 extern struct input_modestruct input_mode;
 extern char *race_colors[MAX_RCOLORS];

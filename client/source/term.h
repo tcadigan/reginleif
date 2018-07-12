@@ -32,6 +32,7 @@ extern char *LE;
 extern char *BL;
 extern int SG;
 
+void get_termcap(void);
 void term_test(void);
 void term_termcap(void);
 int term_null(void *n);
@@ -74,6 +75,8 @@ extern int num_columns;
 extern int num_rows;
 extern int (*term_clear_to_eol)();
 extern int (*term_scroll)();
+extern int (*term_cursor_right)();
+extern int (*term_cursor_left)();
 
 #define NAMESIZE 18
 #define SCALE 100.0
