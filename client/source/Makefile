@@ -12,8 +12,8 @@ OBJS = action.o args.o arrays.o bind.o buffer.o command.o crypt.o csp.o gb.o \
 
 HDRS = action.h ansi.h args.h arrays.h bind.h buffer.h command.h crypt.h \
        csparr.h csp.h csp_types.h fuse.h gb.h help.h icomm.h imap.h key.h \
-       load.h map.h option.h popn.h proc.h psmap.h socket.h status.h stmt.h \
-       str.h term.h types.h vars.h widget.h xmap.h
+       load.h map.h md5.h option.h popn.h proc.h psmap.h socket.h status.h \
+       stmt.h str.h term.h types.h widget.h xmap.h
 
 all: ${PROG}
 
@@ -28,7 +28,7 @@ args.o: args.h gb.h option.h str.h types.h
 arrays.o: arrays.h
 bind.o: bind.h gb.h icomm.h imap.h key.h str.h
 buffer.o: buffer.h gb.h option.h str.h
-command.o: command.h action.h args.h bind.h crypt.h csp.h fuse.h gb.h help.h icomm.h key.h load.h option.h popn.h proc.h psmap.h socket.h status.h stmt.h str.h str.h util.h xmap.h
+command.o: command.h action.h args.h bind.h crypt.h csp.h fuse.h gb.h help.h icomm.h key.h load.h option.h popn.h proc.h psmap.h socket.h status.h stmt.h str.h util.h xmap.h
 crypt.o: crypt.h str.h
 csp.o: csp.h ansi.h args.h arrays.h csparr.h gb.h icomm.h imap.h key.h map.h option.h popn.h socket.h status.h str.h term.h types.h xmap.h
 gb.o: gb.h args.h bind.h command.h crypt.h csp.h icomm.h imap.h key.h load.h option.h proc.h socket.h status.h stmt.h str.h types.h util.h xmap.h
@@ -39,17 +39,18 @@ imap.o: imap.h ansi.h csp.h gb.h key.h str.h socket.h status.h term.h
 key.o: key.h args.h bind.h command.h crypt.h gb.h imap.h option.h proc.h socket.h status.h str.h term.h types.h util.h
 load.o: load.h gb.h key.h option.h str.h types.h util.h
 map.o: map.h ansi.h arrays.h gb.h key.h option.h str.h types.h util.h
+md5.o: md5.h
 option.o: option.h args.h bind.h key.h socket.h status.h str.h
 popn.o: popn.h str.h types.h
 proc.o: proc.h crypt.h gb.h str.h types.h util.h
 psmap.o: psmap.h csp.h gb.h key.h load.h proc.h str.h socket.h
-socket.o: socket.h action.h args.h csp.h gb.h str.h term.h types.h vars.h xmap.h
-status.o: status.h csp_types.h gb.h str.h term.h types.h vars.h
-stmt.o: stmt.h args.h gb.h str.h types.h vars.h
-str.o: str.h action.h ansi.h gb.h term.h types.h vars.h
-term.o: term.h gb.h str.h types.h vars.h
-util.o: util.h args.h gb.h str.h types.h vars.h
-xmap.o: xmap.h arrays.h csp.h gb.h types.h vars.h widget.h
+socket.o: socket.h action.h args.h buffer.h command.h crypt.h csp.h gb.h icomm.h imap.h key.h map.h proc.h option.h status.h str.h types.h util.h
+status.o: status.h gb.h key.h option.h str.h term.h types.h
+stmt.o: stmt.h args.h gb.h key.h str.h util.h
+str.o: str.h action.h bind.h gb.h key.h option.h proc.h socket.h types.h
+term.o: term.h bind.h gb.h option.h str.h types.h
+util.o: util.h args.h gb.h key.h socket.h str.h types.h
+xmap.o: xmap.h arrays.h csp.h gb.h types.h widget.h
 
 arrays.h: gb.h
 buffer.h: types.h
@@ -64,5 +65,4 @@ option.h: gb.h term.h types.h
 stmt.h: types.h
 types.h: csp_types.h
 util.h: types.h
-vars.h: types.h
 xmap.h: widget.h

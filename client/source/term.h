@@ -12,26 +12,6 @@
 
 #include <sys/termios.h>
 
-/* The termcap variables */
-extern char *CM;
-extern char *CE;
-extern char *CR;
-extern char *NL;
-extern char *AL;
-extern char *DL;
-extern char *CS;
-extern char *DC;
-extern char *IC;
-extern char *IM;
-extern char *EI;
-extern char *SO;
-extern char *SE;
-extern char *SF;
-extern char *ND;
-extern char *LE;
-extern char *BL;
-extern int SG;
-
 void get_termcap(void);
 void term_test(void);
 void term_termcap(void);

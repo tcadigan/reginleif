@@ -7,28 +7,22 @@
  *
  * See the COPYRIGHT file.
  */
+#include "term.h"
 
+#include "bind.h"
 #include "gb.h"
+#include "option.h"
 #include "str.h"
 #include "types.h"
-#include "vars.h"
 
+#include <curses.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <term.h>
+#include <unistd.h>
 #include <sys/ioctl.h>
-#include <sys/types.h>
-
-#ifdef SYSV
-#include <termio.h>
-
-#else
-
-#include <sgtty.h>
-#endif
-
-#define term_move(c, r) (term_put_termstring(tgoto(CM, (c), (r))))
 
 extern int cursor_display;
 
@@ -36,7 +30,7 @@ int num_rows = -1;
 int output_row;
 int last_output_row = 0;
 int num_columns = -1;
-show ospeed;
+short int ospeed;
 
 /* The termcap variables */
 static char *CM;
@@ -80,18 +74,6 @@ static struct tchars oldtchars;
 static struct tchars save_tchars;
 #endif
 
-extern char *getenv(const char *);
-extern char *strcat(char *, const char *);
-extern char *tgetstr(char *, char **);
-extern char *tgoto(char *, int, int);
-/* extern into ioctl(int, int, ...); */
-extern int printf(const char *, ...);
-extern int tgetent(char *, char *);
-extern int tgetflag(char *);
-extern int tgetnum(char *);
-extern int tputs(char *, int, int(*)(char));
-extern int write(int, const void *, unsigned int);
-
 int (*term_clear_to_eol)();
 int (*term_cursor_left)();
 int (*term_cursor_right)();
@@ -111,7 +93,6 @@ void term_move_cursor(int x, int y);
 int term_null(void *);
 int term_param_ALDL_scroll(int l1, int l2, int n);
 void term_put_termstring(char *c);
-int term_putchar(char c);
 void term_boldface_off(void);
 void term_boldface_on(void);
 void term_standout_off(void);
@@ -136,7 +117,7 @@ void term_test(void)
     *buf = '\0';
 
     for (q = buf, p = MD; *p; ++p) {
-        r = dislay_char(*p, 0);
+        r = display_char(*p, 0);
         strcat(q, r);
         q += strlen(r);
     }
@@ -167,7 +148,7 @@ void get_termcap(void)
 
     term_name = getenv("TERM");
 
-    if(term_name == NULL) {
+    if (term_name == NULL) {
         printf("%s: No TERM variable set!\n", progname);
 
         exit(1);
@@ -175,12 +156,11 @@ void get_termcap(void)
 
     state = tgetent(tinfo, term_name);
 
-    if(state == 0) {
+    if (state == 0) {
         printf("%s: No termcap entry for %s.\n", progname, term_name);
 
         exit(1);
-    }
-    else if(state < 0) {
+    } else if (state < 0) {
         printf("%s: Could not find the terminfo database.\n", progname);
 
         exit(1);
@@ -191,7 +171,7 @@ void get_termcap(void)
 
     CM = tgetstr("cm", &ptr);
 
-    if(CM == NULL) {
+    if (CM == NULL) {
         printf("%s: can't run on this terminal! NO cursor movement ability.\n", progname);
 
         exit(1);
@@ -199,72 +179,65 @@ void get_termcap(void)
 
     CR = tgetstr("cr", &ptr);
 
-    if(CR == NULL) {
+    if (CR == NULL) {
         CR = "\r";
     }
 
     NL = tgetstr("nl", &ptr);
 
-    if(NL == NULL) {
+    if (NL == NULL) {
         NL = "\n";
     }
 
     CE = tgetstr("ce", &ptr);
 
-    if(CE) {
+    if (CE) {
         term_clear_to_eol = term_CE_clear_to_eol;
-    }
-    else {
+    } else {
         term_clear_to_eol = term_SPACE_clear_to_eol;
     }
 
     ND = tgetstr("nd", &ptr);
 
-    if(ND) {
+    if (ND) {
         term_cursor_right = term_ND_cursor_right;
-    }
-    else {
+    } else {
         term_cursor_right = term_null;
     }
 
     LE = tgetstr("le", &ptr);
 
-    if(LE) {
+    if (LE) {
         term_cursor_left = term_LE_cursor_left;
-    }
-    else if(tgetflag("bs")) {
+    } else if (tgetflag("bs")) {
         term_cursor_left = term_BS_cursor_left;
-    }
-    else {
+    } else {
         term_cursor_left = term_null;
     }
 
     SF = tgetstr("sf", &ptr);
 
-    if(SF == NULL) {
+    if (SF == NULL) {
         SF = NULL;
     }
 
     CS = tgetstr("cs", &ptr);
 
-    if(CS) {
+    if (CS) {
         term_scroll = term_CS_scroll;
-    }
-    else {
+    } else {
         AL = tgetstr("AL", &ptr);
         DL = tgetstr("DL", &ptr);
 
-        if(AL && DL) {
-            term_scroll = term_param_ALLD_scroll;
-        }
-        else {
+        if (AL && DL) {
+            term_scroll = term_param_ALDL_scroll;
+        } else {
             AL = tgetstr("al", &ptr);
             DL = tgetstr("dl", &ptr);
 
-            if(AL && DL) {
+            if (AL && DL) {
                 term_scroll = term_ALDL_scroll;
-            }
-            else {
+            } else {
                 term_scroll = term_null;
 
                 printf("%s: requires the ability to set a scroll region (termcap ability: cs) OR the ability to add and delete lines (termcap ability: AL and DL, or al and dl).", progname);
@@ -277,23 +250,20 @@ void get_termcap(void)
 #if 0
     IC = tgetstr("ic", &ptr);
 
-    if(IC) {
+    if (IC) {
         term_insert = term_IC_insert;
-    }
-    else {
+    } else {
         IM = tgetstr("im", &ptr);
 
-        if(IM) {
+        if (IM) {
             EI = tgetstr("ei", &ptr);
 
-            if(IM && EI) {
+            if (IM && EI) {
                 term_insert = term_IMEI_insert;
-            }
-            else {
+            } else {
                 term_insert = term_null;
             }
-        }
-        else {
+        } else {
             term_insert = term_null;
         }
     }
@@ -301,10 +271,9 @@ void get_termcap(void)
 
     DC = tgetstr("dc", &ptr);
 
-    if(DC) {
+    if (DC) {
         term_delete = term_DC_delete;
-    }
-    else {
+    } else {
         term_delete = term_null;
     }
 
@@ -313,7 +282,7 @@ void get_termcap(void)
     SO = tgetstr("so", &ptr);
     SE = tgetstr("se", &ptr);
 
-    if((SO == NULL) || (SE == NULL)) {
+    if ((SO == NULL) || (SE == NULL)) {
         SO = "";
         SE = "";
     }
@@ -321,7 +290,7 @@ void get_termcap(void)
     US = tgetstr("us", &ptr);
     UE = tgetstr("ue", &ptr);
 
-    if((US == NULL) || (UE == NULL)) {
+    if ((US == NULL) || (UE == NULL)) {
         US = "";
         UE = "";
     }
@@ -329,7 +298,7 @@ void get_termcap(void)
     MD = tgetstr("md", &ptr);
     ME = tgetstr("me", &ptr);
 
-    if((MD == NULL) || (ME == NULL)) {
+    if ((MD == NULL) || (ME == NULL)) {
         MD = "";
         ME = "";
     }
@@ -360,7 +329,7 @@ int term_SPACE_clear_to_eol(int x, int y)
         ++i;
     }
 
-    term_move_cursor(x, y);
+    term_put_termstring(tgoto(CM, x, y));
 
     return 0;
 }
@@ -372,20 +341,19 @@ int term_CS_scroll(int l1, int l2, int n)
     static int oldl1 = -1;
     static int oldl2 = -1;
 
-    if(SF) {
+    if (SF) {
         thing = SF;
-    }
-    else {
+    } else {
         thing = "\n";
     }
 
-    if((oldl1 != l1) || (oldl2 != l2)) {
-        term_put_term_string(tgoto(CS, l2, l1));
+    if ((oldl1 != l1) || (oldl2 != l2)) {
+        term_put_termstring(tgoto(CS, l2, l1));
         oldl1 = l1;
         oldl2 = l2;
     }
 
-    term_move_cursor(0, l2);
+    term_put_termstring(tgoto(CM, 0, l2));
 
     for (i = 0; i < n; ++i) {
         term_put_termstring(thing);
@@ -398,13 +366,13 @@ int term_ALDL_scroll(int l1, int l2, int n)
 {
     int i;
 
-    term_move_cursor(0, l1);
+    term_put_termstring(tgoto(CM, 0, l1));
 
     for (i = 0; i < n; ++i) {
         term_put_termstring(DL);
     }
 
-    term_move_cursor(0, l2 - n + 1);
+    term_put_termstring(tgoto(CM, 0, l2 - n + 1));
 
     for (i = 0; i < n; ++i) {
         term_put_termstring(AL);
@@ -415,9 +383,9 @@ int term_ALDL_scroll(int l1, int l2, int n)
 
 int term_param_ALDL_scroll(int l1, int l2, int n)
 {
-    term_move_cursor(0, l1);
+    term_put_termstring(tgoto(CM, 0, l1));
     term_put_termstring(tgoto(DL, n, n));
-    term_move_cursor(0, l2 - n + 1);
+    term_put_termstring(tgoto(CM, 0, l2 - n + 1));
     term_put_termstring(tgoto(AL, n, n));
 
     return 0;
@@ -490,12 +458,11 @@ void term_puts(char *str, int len)
          * Allow for escape character below -mfw
          * if((*str < 32) && (*str != '\t')) {
          */
-        if((*str < 32) && (*str != '\t') && (*str != 27)) {
+        if ((*str < 32) && (*str != '\t') && (*str != 27)) {
             term_standout_on();
             term_putchar(*str + 64);
             term_standout_off();
-        }
-        else {
+        } else {
             term_putchar(*str);
         }
     }
@@ -503,25 +470,24 @@ void term_puts(char *str, int len)
 
 void term_normal_mode(void)
 {
-    if(inverse) {
+    if (inverse) {
         term_standout_off();
     }
 
-    if(underline) {
+    if (underline) {
         term_underline_off();
     }
 
-    if(boldface) {
+    if (boldface) {
         term_boldface_off();
     }
 }
 
 void term_toggle_standout(void)
 {
-    if(inverse) {
+    if (inverse) {
         term_standout_off();
-    }
-    else {
+    } else {
         term_standout_on();
     }
 }
@@ -545,10 +511,9 @@ int term_standout_status(void)
 
 void term_toggle_underline(void)
 {
-    if(underline) {
+    if (underline) {
         term_underline_off();
-    }
-    else {
+    } else {
         term_underline_on();
     }
 }
@@ -567,10 +532,9 @@ void term_underline_off(void)
 
 void term_toggle_boldface(void)
 {
-    if(boldface) {
+    if (boldface) {
         term_boldface_off();
-    }
-    else {
+    } else {
         term_boldface_on();
     }
 }
@@ -585,11 +549,11 @@ void term_boldface_off(void)
 {
     term_put_termstring(ME);
 
-    if(inverse) {
+    if (inverse) {
         term_standout_on();
     }
 
-    if(underline) {
+    if (underline) {
         term_underline_on();
     }
 
@@ -599,17 +563,17 @@ void term_boldface_off(void)
 void term_put_termstring(char *c)
 {
     /* Bug somewhere */
-    if(*c == '\0') {
+    if (*c == '\0') {
         return;
     }
 
-    tputs(c, 1, term_putchar);
+    tputs(c, 1, putchar);
 }
 
 void term_move_cursor(int x, int y)
 {
     cursor_display = false;
-    term_move(x, y);
+    term_put_termstring(tgoto(CM, x, y));
 }
 
 void term_clear_screen(void)
@@ -630,7 +594,7 @@ void term_clear(int l1, int l2)
     int i = l1;
 
     while (i < l2) {
-        term_move_cursor(0, i);
+        term_put_termstring(tgoto(CM, 0, i));
         term_clear_to_eol();
         ++i;
     }
@@ -649,16 +613,15 @@ void get_screen_size(void)
 #ifdef TIOCGWINSZ
     struct winsize wsize;
 
-    if(ioctl(0, TIOCGWINSZ, &wsize) >= 0) {
-        if(wsize.ws_row != 0) {
+    if (ioctl(0, TIOCGWINSZ, &wsize) >= 0) {
+        if (wsize.ws_row != 0) {
             num_rows = wsize.ws_row;
         }
 
-        if(wsize.ws_col != 0) {
+        if (wsize.ws_col != 0) {
             num_columns = wsize.ws_col;
         }
-    }
-    else {
+    } else {
         num_columns = tgetnum("co");
         num_rows = tgetnum("li");
     }
@@ -674,28 +637,28 @@ void get_screen_size(void)
      * entry. Technically, this is a terminfo-ism, but I think the
      * vast majority of user will find it pretty handy.
      */
-    if(getenv("COLUMNS") != NULL) {
+    if (getenv("COLUMNS") != NULL) {
         num_columns = atoi(getenv("COLUMNS"));
     }
 
-    if(getenv("LINES") != NULL) {
+    if (getenv("LINES") != NULL) {
         num_rows = atoi(getenv("LINES"));
     }
 
-    if(num_columns <= 0) {
+    if (num_columns <= 0) {
         num_columns = 80;
     }
 
-    if(num_rows <= 0) {
+    if (num_rows <= 0) {
         num_rows = 24;
     }
 
     /* Very minimum size allowed */
-    if(num_columns < 40) {
+    if (num_columns < 40) {
         num_columns = 40;
     }
 
-    if(num_rows < 12) {
+    if (num_rows < 12) {
         num_rows = 12;
     }
 }
@@ -746,7 +709,7 @@ void term_mode_off(void)
 
     ioctl(0, TIOCSETP, &s);
 
-    if(ioctl(0, TIOCGLTC, *oldltchars) != -1) {
+    if (ioctl(0, TIOCGLTC, *oldltchars) != -1) {
         save_ltchars = oldltchars;
         k_word = oldltchars.t_werasc;
         oldltchars.t_werasc = -1;
@@ -759,7 +722,7 @@ void term_mode_off(void)
         ioctl(0, TIOCSLTC, &oldltchars);
     }
 
-    if(ioctl(0, TIOCGETC, &oldltchars) != -1) {
+    if (ioctl(0, TIOCGETC, &oldltchars) != -1) {
         save_tchars = oldtchars;
     }
 #endif

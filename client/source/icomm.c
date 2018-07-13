@@ -51,9 +51,6 @@ struct optstruct {
 
 struct optstruct opt = { 0, 0, 0, 0, 0, 0, 0.0, 0.0, (Optplanet *)NULL };
 
-extern int sscanf(const char *, const char *, ...);
-extern int strncmp(const char *, const char *, size_t);
-extern long int atol(const char *);
 void icomm_done_relation(void);
 void icomm_done_status(void);
 void icomm_issue_command(char *command, int flag);

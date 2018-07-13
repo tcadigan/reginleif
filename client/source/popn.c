@@ -38,13 +38,11 @@ extern int end_msg;
 extern int hide_msg;
 extern int kill_socket_output;
 
-extern int atoi(const char *);
-extern int sscanf(const char *, const char *, ...);
 void handle_popn(void);
 
-#ifdef POPN
 void popn_input(int comm_num, char *procbuf)
 {
+#ifdef POPN
     switch (comm_num) {
     case CSP_SURVEY_INTRO:
         if (popn_map.ptr) {
@@ -81,14 +79,18 @@ void popn_input(int comm_num, char *procbuf)
 
         break;
     }
+#endif
 }
 
 int doing_popn_command(void)
 {
+#ifdef POPN
     return popn_info.doing;
+#else
+    return false;
+#endif
 }
 
-#endif
 
 void cmd_popn(char *args)
 {

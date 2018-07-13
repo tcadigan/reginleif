@@ -27,10 +27,7 @@
 #include "str.h"
 #include "types.h"
 #include "util.h"
-
-#ifdef XMAP
 #include "xmap.h"
-#endif
 
 #include <errno.h>
 #include <ctype.h>
@@ -39,6 +36,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+#include <unistd.h>
 
 #define REFRESH_TIME_IMAP 30000 /* When in imap */
 #define REFRESH_TIME_NORM 80000
@@ -176,23 +175,10 @@ int client_devel = false;
 #ifdef XMAP
 int xmap_active = false;
 
-extern void mwin_event_loop();
-extern void makw_mwin();
-
 extern mwin *win;
 extern Display *mdpy;
 extern widget *trv;
 #endif
-
-extern char *getenv(const char *);
-extern char *getlogin(void);
-extern char *string();
-extern Game *find_game();
-extern uid_t getuid(void);
-extern int atoi(const char *);
-extern time_t time(time_t *);
-extern int getdtablesize(void);
-extern int fflush(FILE *);
 
 /* Variables used with CHAP */
 char race_name[32];

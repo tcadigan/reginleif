@@ -661,7 +661,7 @@ void imap_test(char ch)
 void handle_map_mode(int nomsgs)
 {
     if (!input_mode.map) {
-        if (scope.level != LEVEL_PLANET) {
+        if (scope.level != CSPD_PLAN) {
             msg("-- You must be at plaent scope for interactive map.");
 
             return;
@@ -1209,7 +1209,7 @@ void imap_land_ship(char ch)
 
 void ping_current_sector(void)
 {
-    if (scope.level != LEVEL_PLANET) {
+    if (scope.level != CSPD_PLAN) {
         return;
     }
 
@@ -1221,7 +1221,7 @@ void ping_sector(int x, int y)
 {
     char pingbuf[25];
 
-    if (scope.level != LEVEL_PLANET) {
+    if (scope.level != CSPD_PLAN) {
         return;
     }
 
@@ -1404,7 +1404,7 @@ void imap_toggle_ansi(char ch)
 
 void imap_force_redraw(char ch)
 {
-    if (scope.level != LEVEL_PLANET) {
+    if (scope.level != CSPD_PLAN) {
         msg("-- You are NOT at planet scope.");
 
         return;

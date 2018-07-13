@@ -14,15 +14,13 @@
 
 #include "args.h"
 #include "gb.h"
+#include "key.h"
+#include "socket.h"
 #include "str.h"
 #include "types.h"
-#include "vars.h"
 
-#include <malloc.h>
-#include <stdbool.h>
-#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
 
 extern int do_queue;
 extern char builtship[];
@@ -35,13 +33,14 @@ static Gag *gag_tail = NULL;
 Gag *find_gag(char *);
 
 /* Variables for history and recall */
-int max_history = DEFAUT_HISTORY;
+int max_history = DEFAULT_HISTORY;
 static int num_hist = 0; /* Num of history kept */
 static Node *hist_head = NULL; /* Head of history list */
 static Node *hist_cur = NULL; /* Tail of history list */
 static Node *hist_recall = NULL; /* Current location of recall in history list */
 
 int max_recall = 0; /* Num of recall kept */
+static int num_recall = 0; /* Num of recall kept */
 static Node *recall_head = NULL; /* Head of recall list */
 static Node *recall_cur = NULL; /* current location in recall list */
 
@@ -64,22 +63,14 @@ int queue_sending = false; /* Flag to send through send_gb in socket code */
 int queue_clear = false; /* Clear queue upon return */
 
 /* Variables for news */
-extern RNode *find_news(char *date, char *line);
-
 RNode *rhead;
-Rnode *rlast;
+RNode *rlast;
 int bulletin;
 
 /* Variables for aliases */
 Macro *alias_head;
 
 /* Gag routines */
-extern char *strncpy(char *c, const char *, size_t);
-extern int taoi(const char *);
-extern int fprintf(FILE *, const char *, ...);
-extern int sscand(const char *, const char *, ...);
-extern int strncmp(const char *, const char *, size_t);
-
 void add_game(char *nick, char *host, char *port, char *type, char *racename, char *pripasswd, char *govname, char *secpasswd);
 void add_queue(char *args, int wait);
 void cmd_listdef(char *args);
@@ -111,48 +102,47 @@ void cmd_gag(char *args)
     Gag *p;
     char temp[SMABUF];
 
-    if(!*args) {
+    if (!*args) {
         cmd_listgag(NULL);
 
         return;
     }
 
     /* -gag_pattern will remove the gag */
-    if(*args == '-') {
+    if (*args == '-') {
         cmd_ungag(args + 1);
 
         return;
     }
 
-    if(find_gag(args)) {
+    if (find_gag(args)) {
         return;
     }
 
     p = (Gag *)malloc(sizeof(Gag));
 
-    if(!p) {
+    if (!p) {
         msg("-- Could not allocate memory for gag.");
 
         return;
     }
 
-    if(!gag_head) {
+    if (!gag_head) {
         gag_head = p;
         gag_tail = p;
         p->next = NULL;
         p->prev = NULL;
-    }
-    else {
+    } else {
         gag_tail->next = p;
         p->prev = gag_tail;
-        p->next (Gag *)NULL;
+        p->next = (Gag *)NULL;
         gag_tail = p;
     }
 
     p->name = string(args);
     gag_update_index();
     msg("-- Gag(#%D): added \'%s\'.", p->indx, p->name);
-    sprintf(tmp, "#%d", p->indx);
+    sprintf(temp, "#%d", p->indx);
     add_assign("pid", temp);
 }
 
@@ -162,41 +152,37 @@ void cmd_ungag(char *name)
     Gag *p;
     int val = 0;
 
-    if(*name == '#') {
+    if (*name == '#') {
         val = atoi(name + 1);
         p = gag_head;
 
         while (p && (p->indx != val)) {
             p = p->next;
         }
-    }
-    else {
+    } else {
         p = find_gag(name);
     }
 
-    if(!p) {
+    if (!p) {
         msg("-- Gag %s was not defined.", name);
 
         return;
     }
 
     /* Head of list ? */
-    if(!p->prev) {
+    if (!p->prev) {
         /* Not sole node */
-        if(p->next) {
+        if (p->next) {
             gag_head = p->next;
             gag_head->prev = (Gag *)NULL;
-        }
-        else {
+        } else {
             gag_head = (Gag *)NULL;
             gag_tail = (Gag *)NULL;
         }
-    }
-    else if(!p->next) { /* End of list */
+    } else if (!p->next) { /* End of list */
         gag_tail = p->prev;
         p->prev->next = (Gag *)NULL;
-    }
-    else { /* Middle of list */
+    } else { /* Middle of list */
         p->prev->next = p->next;
         p->next->prev = p->prev;
     }
@@ -213,7 +199,7 @@ void cmd_listgag(char *args)
     Gag *p;
     int i = 1;
 
-    if(!gag_head) {
+    if (!gag_head) {
         msg("-- No gags defined.");
 
         return;
@@ -234,12 +220,12 @@ void gag_update_index(void)
     Gag *p;
     int i = 1;
 
-    if(!gag_head) {
+    if (!gag_head) {
         return;
     }
 
     for (p = gag_head; p; p = p->next) {
-        p->index = i++;
+        p->indx = i++;
     }
 }
 
@@ -247,7 +233,7 @@ void save_gags(FILE *fd)
 {
     Gag *p;
 
-    if(!gag_head) {
+    if (!gag_head) {
         return;
     }
 
@@ -291,17 +277,16 @@ Gag *find_gag(char *name)
 /* Adds one line of len to the history list. Removing a node if necessary */
 void add_history(char *line)
 {
-    if(*line == '\0') {
+    if (*line == '\0') {
         return;
     }
 
-    if(!hist_head) {
+    if (!hist_head) {
         hist_head = (Node *)malloc(sizeof(Node));
         hist_cur = hist_head;
         hist_cur->next = NULL;
         hist_cur->prev = NULL;
-    }
-    else {
+    } else {
         hist_cur->next = (Node *)malloc(sizeof(Node));
         hist_cur->next->prev = hist_cur;
         hist_cur = hist_cur->next;
@@ -316,7 +301,7 @@ void add_history(char *line)
         temp = hist_head;
         hist_head = hist_head->next;
 
-        if(hist_head != NULL) {
+        if (hist_head != NULL) {
             hist_head->prev = NULL;
         }
 
@@ -335,8 +320,8 @@ void free_history(void)
         temp = hist_head;
         hist_head = hist_head->next;
 
-        if(hist_head != NULL) {
-            hist_head_prev = NULL;
+        if (hist_head != NULL) {
+            hist_head->prev = NULL;
         }
 
         free(temp->line);
@@ -348,7 +333,7 @@ void free_history(void)
 /* Recall one line forward in the history list. ctrl-n is the usual key */
 int recallf(char *line)
 {
-    if(!hist_head || !hist_recall || !hist_recall->next) {
+    if (!hist_head || !hist_recall || !hist_recall->next) {
         return false;
     }
 
@@ -361,15 +346,14 @@ int recallf(char *line)
 /* Recall one line back in the history list. ctrl-p is the usual key */
 int recallb(char *line)
 {
-    if(!hist_head) {
+    if (!hist_head) {
         return false;
     }
 
-    if(!hist_recall) {
+    if (!hist_recall) {
         hist_recall = hist_cur;
-    }
-    else {
-        if(!hist_recall->prev) {
+    } else {
+        if (!hist_recall->prev) {
             return false;
         }
 
@@ -391,27 +375,25 @@ void recall(int n, int type)
     --n;
 
     for (temp = recall_cur; temp && n; temp = temp->prev) {
-        if(type) {
-            if(temp->type) {
+        if (type) {
+            if (temp->type) {
                 --n;
             }
-        }
-        else {
+        } else {
             --n;
         }
     }
 
-    if(!temp) {
+    if (!temp) {
         temp = recall_head;
     }
 
     while (temp) {
-        if(type) {
-            if(temp->type) {
+        if (type) {
+            if (temp->type) {
                 msg("%s", temp->line);
             }
-        }
-        else {
+        } else {
             msg("%s", temp->line);
         }
 
@@ -429,35 +411,34 @@ void recall_n_m(int n, int m, int type)
 
     dist = m - n;
 
-    if(dist <= 0) {
+    if (dist <= 0) {
         msg("-- recall must be non-zero.");
 
         return;
     }
-    if((n < 0) || (m < 0)) {
+
+    if ((n < 0) || (m < 0)) {
         msg("-- recall arguments must be positive.");
 
         return;
     }
 
-    for (p = recall_head; p && n; p->next) {
-        if(type) {
-            if(p->type) {
+    for (p = recall_head; p && n; p = p->next) {
+        if (type) {
+            if (p->type) {
                 --n;
             }
-        }
-        else {
+        } else {
             --n;
         }
     }
 
     while (p && dist) {
-        if(type) {
-            if(p->type) {
+        if (type) {
+            if (p->type) {
                 msg("%s", p->line);
             }
-        }
-        else {
+        } else {
             msg("%s", p->line);
         }
 
@@ -472,17 +453,16 @@ void recall_n_m(int n, int m, int type)
 void add_recall(char *line, int type)
 {
     /* 0 is normal, 1/2 is broadcast/annouce */
-    if((*line == '\n') || (*line == '\0') || !max_recall) {
+    if ((*line == '\n') || (*line == '\0') || !max_recall) {
         return;
     }
 
-    if(!recall_head) {
+    if (!recall_head) {
         recall_head = (Node *)malloc(sizeof(Node));
         recall_cur = recall_head;
         recall_cur->next = NULL;
         recall_cur->prev = NULL;
-    }
-    else {
+    } else {
         recall_cur->next = (Node *)malloc(sizeof(Node));
         recall_cur->next->prev = recall_cur;
         recall_cur = recall_cur->next;
@@ -499,7 +479,7 @@ void add_recall(char *line, int type)
         recall_head = recall_head->next;
         recall_head->prev = NULL;
 
-        if(temp->line /* && *temp->line */) {
+        if (temp->line /* && *temp->line */) {
             free(temp->line);
         }
 
@@ -515,11 +495,11 @@ void free_recall(void)
         temp = recall_head;
         recall_head = recall_head->next;
 
-        if(recall_head != NULL) {
+        if (recall_head != NULL) {
             recall_head->prev = NULL;
         }
 
-        if(temp->line) {
+        if (temp->line) {
             free(temp->line);
         }
 
@@ -537,7 +517,7 @@ void recall_match(char *args, int type)
     Node *p;
 
     for (p = recall_head; p; p = p->next) {
-        if(type && !p->type) {
+        if (type && !p->type) {
             continue;
         }
 
@@ -561,7 +541,7 @@ void history_sub(char *args)
 
     p = strchr(args, '^');
 
-    if(!p) {
+    if (!p) {
         msg("-- No specified modifier.");
 
         return;
@@ -570,15 +550,14 @@ void history_sub(char *args)
     *p = '\0';
     sprintf(pat, "*%s*", args);
 
-    if (!pattern_match(hist_cur->prev_line, pat, pattern)) {
+    if (!pattern_match(hist_cur->prev->line, pat, pattern)) {
         msg("-- Modifier failed.");
 
         return;
-    }
-    else {
+    } else {
         sprintf(buf, "%s%s%s", pattern1, p + 1, pattern2);
         msg("%s", buf);
-        procesS_key(buf, false);
+        process_key(buf, false);
         add_history(buf);
     }
 }
@@ -594,22 +573,20 @@ Macro *find_macro(char *name)
     Macro *p;
     int val;
 
-    if(*name == '#') {
+    if (*name == '#') {
         val = atoi(name + 1);
         p = macro_head;
 
         while (p && (p->indx != val)) {
             p = p->next;
         }
-    }
-    else {
+    } else {
         for (p = macro_head; p; p = p->next) {
             val = strcmp(name, p->name);
 
-            if(!val) {
+            if (!val) {
                 return p;
-            }
-            else if(val < 0) {
+            } else if (val < 0) {
                 return NULL;
             }
         }
@@ -640,7 +617,7 @@ void cmd_def(char *args)
 
     name = get_args(carg, 0);
 
-    if(!*name) {
+    if (!*name) {
         cmd_listdef(NULL);
 
         return;
@@ -651,21 +628,18 @@ void cmd_def(char *args)
         strfree(name);
 
         return;
-    }
-    else if(*name == '#') {
+    } else if (*name == '#') {
         msg("-- alias: macros may not start with %c due to their use in indexes.", *name);
         strfree(name);
 
         return;
-    }
-    else if(*name == '-') { /* -macro will delete the macro from the list */
+    } else if (*name == '-') { /* -macro will delete the macro from the list */
         if (!strcmp(name + 1, "edit")) {
             ++carg;
             edit = true;
             strfree(name);
             name = get_args(carg, 0);
-        }
-        else {
+        } else {
             cmd_undef(name + 1);
             strfree(name);
 
@@ -676,12 +650,11 @@ void cmd_def(char *args)
     action = get_args(carg + 1, 100);
     p = find_macro(name);
 
-    if(edit) {
-        if(p) {
+    if (edit) {
+        if (p) {
             sprintf(fmtact, "def %s %s", p->name, p->action);
             set_edit_buffer(fmtact);
-        }
-        else {
+        } else {
             msg("-- Alias: \'%s\' not found.", name);
         }
 
@@ -691,11 +664,10 @@ void cmd_def(char *args)
         return;
     }
 
-    if(!*action) {
-        if(p == NULL) {
+    if (!*action) {
+        if (p == NULL) {
             msg("-- Macros need a corresponding action.");
-        }
-        else {
+        } else {
             msg("-- def: %sd) %s = %s", p->indx, p->name, p->action);
         }
 
@@ -705,25 +677,24 @@ void cmd_def(char *args)
         return;
     }
 
-    if(p) {
+    if (p) {
         remove_macro(name);
         p = NULL;
     }
 
     new = (Macro *)malloc(sizeof(Macro));
 
-    if(!new) {
+    if (!new) {
         msg("-- Could not allocat memory for macro.");
 
         return;
     }
 
-    if(!macro_head) {
+    if (!macro_head) {
         macro_head = new;
         new->next = NULL;
         new->prev = NULL;
-    }
-    else {
+    } else {
         /* Add in, in strcmp order */
         p = macro_head;
 
@@ -732,22 +703,21 @@ void cmd_def(char *args)
         }
 
         /* Goes on end */
-        if(!p->next && (strcmp(name, p->name) > 0)) {
+        if (!p->next && (strcmp(name, p->name) > 0)) {
             p->next = new;
             new->prev = p;
             new->next = (Macro *)NULL;
-        }
-        else { /* Goes in front of p */
+        } else { /* Goes in front of p */
             new->next = p;
             new->prev = p->prev;
 
-            if(p->prev && p->prev->next) {
+            if (p->prev && p->prev->next) {
                 p->prev->next = new;
             }
 
             p->prev = new;
 
-            if(macro_head == p) {
+            if (macro_head == p) {
                 macro_head = new;
             }
         }
@@ -755,18 +725,17 @@ void cmd_def(char *args)
 
     /* Put spaces around semi-colons to prevent arg problems later */
     for (r = fmtact, q = action; *q; ++q) {
-        if(*q == ';') {
-            if(*(q - 1) != ' ') {
+        if (*q == ';') {
+            if (*(q - 1) != ' ') {
                 *r++ = ' ';
             }
 
             *r++ = ';';
 
-            if(*(q + 1) != ' ') {
+            if (*(q + 1) != ' ') {
                 *r++ = ' ';
             }
-        }
-        else {
+        } else {
             *r++ = *q;
         }
     }
@@ -789,10 +758,9 @@ void cmd_undef(char *name)
 
     p = find_macro(name);
 
-    if(p == NULL) {
+    if (p == NULL) {
         msg("-- No such macro (%s) defined.", name);
-    }
-    else {
+    } else {
         msg("-- Removed macro: %s", name);
         remove_macro(p->name);
     }
@@ -805,25 +773,22 @@ void remove_macro(char *name)
 
     p = find_macro(name);
 
-    if(!p) {
+    if (!p) {
         msg("-- Macro %s was not defined.", name);
 
         return;
     }
 
-    if(!p->prev) {
-        if(p->next) {
+    if (!p->prev) {
+        if (p->next) {
             macro_head = p->next;
             macro_head->prev = NULL;
-        }
-        else {
+        } else {
             macro_head = NULL;
         }
-    }
-    else if(!p->next) {
+    } else if (!p->next) {
         p->prev->next = NULL;
-    }
-    else {
+    } else {
         p->prev->next = p->next;
         p->next->prev = p->prev;
     }
@@ -849,21 +814,21 @@ int do_macro(char *str)
     split(str, named, args);
 
     /* Silent macro */
-    if(*name == '-') {
+    if (*name == '-') {
         silent = true;
         ++name;
     }
 
     macro_ptr = find_macro(name);
 
-    if(!macro) {
+    if (!macro_ptr) {
         return false;
     }
 
     r = parse_macro_args(macro_ptr->action, args);
     d = r;
 
-    if(silent) {
+    if (silent) {
         add_queue("set display off", 1);
     }
 
@@ -878,7 +843,7 @@ int do_macro(char *str)
 
     add_queue(d, 1);
 
-    if(silent) {
+    if (silent) {
         add_queue("set display on", 1);
     }
 
@@ -893,7 +858,7 @@ void cmd_listdef(char *args)
     Macro *p;
     int i = 1;
 
-    if(!macro_head) {
+    if (!macro_head) {
         msg("-- No aliases defined.");
 
         return;
@@ -914,7 +879,7 @@ void def_update_index(void)
     Macro *p;
     int i = 1;
 
-    if(!macro_head) {
+    if (!macro_head) {
         return;
     }
 
@@ -927,7 +892,7 @@ void save_defs(FILE *fd)
 {
     Macro *p;
 
-    if(!macro_head) {
+    if (!macro_head) {
         return;
     }
 
@@ -976,13 +941,13 @@ void cmd_game(char *args)
     memset(sub3, '\0', sizeof(sub3));
     memset(sub4, '\0', sizeof(sub4));
 
-    if(!*args) {
+    if (!*args) {
         cmd_listgame();
 
         return;
     }
 
-    cnd = sscanf(args,
+    cnt = sscanf(args,
                  "%s %s %s %s %s %s %s %s",
                  nick,
                  host,
@@ -993,7 +958,7 @@ void cmd_game(char *args)
                  sub3,
                  sub4);
 
-    if(cnt > 3) {
+    if (cnt > 3) {
         if (!strcmp(type, "plain")) {
             switch (cnt) {
             case 5:
@@ -1001,8 +966,8 @@ void cmd_game(char *args)
             case 6:
                 *sub3 = '\0';
                 *sub4 = '\0';
-                /* args: nick , host, prot, type, racename, passwd, govname, passwd */
-                add_game(nick, host, prot, type, sub3, sub1, sub4, sub2);
+                /* args: nick , host, port, type, racename, passwd, govname, passwd */
+                add_game(nick, host, port, type, sub3, sub1, sub4, sub2);
 
                 break;
             default:
@@ -1013,22 +978,19 @@ void cmd_game(char *args)
 
             return;
         } else if (!strcmp(type, "chap")) {
-            if(cnt == 8) {
+            if (cnt == 8) {
                 add_game(nick, host, port, type, sub1, sub2, sub3, sub4);
-            }
-            else {
-                msg("-- Error in add_gam, chap auth.");
+            } else {
+                msg("-- Error in add_game, chap auth.");
             }
 
-            break;
-        }
-        else {
+            return;
+        } else {
             msg("-- Error in game line %s: login type should be \'plain\' or \'chap\'.", nick);
         }
 
         return;
-    }
-    else if(cnt == 3) {
+    } else if(cnt == 3) {
         strcpy(type, "none"); /* No authentication -mfw */
         add_game(nick, host, port, type, sub1, sub2, sub3, sub4);
 
@@ -1052,16 +1014,15 @@ void add_game(char *nick,
 
     p = find_game(nick);
 
-    if(!p) {
+    if (!p) {
         p = game_head;
 
-        if(!game_head) {
+        if (!game_head) {
             game_head = (Game *)malloc(sizeof(Game));
             game_head->next = NULL;
             game_head->prev = NULL;
             p = game_head;
-        }
-        else {
+        } else {
             while (p->next) {
                 p = p->next;
             }
@@ -1071,14 +1032,13 @@ void add_game(char *nick,
             p = p->next;
             p->next = NULL;
         }
-    }
-    else {
+    } else {
         p->nick = strfree(p->nick);
         p->host = strfree(p->host);
         p->port = strfree(p->port);
         p->type = strfree(p->type);
         p->racename = strfree(p->racename);
-        p->pripasswod = strfree(p->prepassword);
+        p->pripassword = strfree(p->pripassword);
         p->govname = strfree(p->govname);
         p->secpassword = strfree(p->secpassword);
     }
@@ -1127,7 +1087,7 @@ void free_game(void)
         temp = game_head;
         game_head = game_head->next;
 
-        if(game_head != NULL) {
+        if (game_head != NULL) {
             game_head->prev = NULL;
         }
 
@@ -1149,25 +1109,22 @@ void cmd_ungame(char *args)
 
     p = find_game(args);
 
-    if(!p) {
+    if (!p) {
         msg("-- No such game nick %s found.", args);
 
         return;
     }
 
-    if(!p->prev) {
-        if(p->next) {
+    if (!p->prev) {
+        if (p->next) {
             game_head = p->next;
             game_head->prev = NULL;
-        }
-        else {
+        } else {
             game_head = NULL;
         }
-    }
-    else if(!p->next) {
+    } else if (!p->next) {
         p->prev->next = NULL;
-    }
-    else {
+    } else {
         p->prev->next = p->next;
         p->next->prev = p->prev;
     }
@@ -1207,7 +1164,7 @@ void cmd_listgame(void)
     Game *p = game_head;
     int i = 1;
 
-    if(!game_head) {
+    if (!game_head) {
         msg("-- No games defined.");
 
         return;
@@ -1237,7 +1194,7 @@ void game_update_index(void)
     Game *p;
     int i = 1;
 
-    if(!game_head) {
+    if (!game_head) {
         return;
     }
 
@@ -1252,9 +1209,9 @@ void game_update_index(void)
  */
 void save_games(FILE *fd)
 {
-    Game *g = game_head;
+    Game *p = game_head;
 
-    if(!game_head) {
+    if (!game_head) {
         return;
     }
 
@@ -1276,7 +1233,7 @@ void save_games(FILE *fd)
 /* Send the primary and secondary passwords as needed */
 void send_password(void)
 {
-    char pass[NORMSIZE];
+    char pass[NORMSIZ];
 
     debug(1, "send_password() type: %s", cur_game.game.type);
 
@@ -1288,9 +1245,8 @@ void send_password(void)
 
         send_gb(pass, strlen(pass));
     } else if (!strcmp(cur_game.game.type, "chap")) {
-        /* Do nothing, handled in connect_promps() -mfw */
-    }
-    else {
+        /* Do nothing, handled in connect_prompts() -mfw */
+    } else {
         msg("-- Error in send_password");
     }
 }
@@ -1308,17 +1264,16 @@ void add_queue(char *args, int wait)
 
     p = (Node *)malloc(sizeof(Node));
 
-    if(!p) {
+    if (!p) {
         quit_gb(-2, "-- Fatal. Could not allocate memory for queue.", NULL, NULL);
     }
 
-    if(!queue_head) {
+    if (!queue_head) {
         queue_head = p;
         queue_tail = p;
         p->next = NULL;
         p->prev = NULL;
-    }
-    else {
+    } else {
         p->next = queue_head;
         queue_head->prev = p;
         p->prev = NULL;
@@ -1335,23 +1290,22 @@ void remove_queue(char *args)
 {
     Node *p = queue_tail;
 
-    if(!queue_head) {
+    if (!queue_head) {
         *args = '\0';
 
         return;
     }
 
-    if(p->prev) {
+    if (p->prev) {
         p->prev->next = NULL;
     }
 
     /* No more on queue, lock queue for ctrl-c. It gets reset in process_queue() */
-    if(queue_tail == queue_head) {
+    if (queue_tail == queue_head) {
         debug(2, "remove_queue: secondary queue is empty");
         queue_head = NULL;
         queue_tail = queue_head;
-    }
-    else {
+    } else {
         queue_tail = p->prev;
     }
 
@@ -1373,17 +1327,17 @@ void process_queue(char *s)
     queue_sending = false;
 
     /* Old queue exists, place back in line, q is front of old */
-    if(sec_queue_tail) {
+    if (sec_queue_tail) {
         sec_queue_tail->next = queue_head;
     }
 
     /* New queue exists, link back to fron of old queue */
-    if(queue_head) {
+    if (queue_head) {
         queue_head->prev = sec_queue_tail;
     }
 
     /* p is back of old. It exists and therefore is end of total queue */
-    if(sec_queue_head) {
+    if (sec_queue_head) {
         queue_head = sec_queue_head;
     }
 }
@@ -1395,10 +1349,8 @@ void process_queue(char *s)
  */
 int check_queue(void)
 {
-    extern int is_connected();
-
     /* No queue */
-    if(!queue_head) {
+    if (!queue_head) {
         return false;
     }
 
@@ -1417,7 +1369,7 @@ int check_queue(void)
 
 int have_queue(void)
 {
-    if(queue_head || sec_queue_head) {
+    if (queue_head || sec_queue_head) {
         return true;
     }
 
@@ -1426,7 +1378,7 @@ int have_queue(void)
 
 int do_clear_queue(void)
 {
-    if(queue_head && queue_clear) {
+    if (queue_head && queue_clear) {
         return true;
     }
 
@@ -1455,8 +1407,7 @@ void check_news(char *s)
     if (!strcmp(s, "The Galactic News")) {
         icomm.list[0].state = S_PROC;
         icomm.list[0].ignore = true;
-    }
-    else if(*s == '-') {
+    } else if (*s == '-') {
         icomm.list[0].state = S_PROC;
         icomm.list[0].ignore = true;
     } else if (!strcmp(s, "<Output Flushed>")) {
@@ -1489,7 +1440,7 @@ int add_news(char *s)
     *date = '\0';
     *time = '\0';
 
-    if(*s == '\0') {
+    if (*s == '\0') {
         return 1;
     }
 
@@ -1497,17 +1448,15 @@ int add_news(char *s)
         return 0;
     }
 
-    if(*s == '-') {
+    if (*s == '-') {
         strcpy(date, "-");
         strncpy(line, s, MAXSIZ);
         ++bulletin;
-    }
-    else {
-        if(sscanf(s, "%2d/ %d %2d:%2d:%2d %*s", &idummy, &idummy, &idummy, &idummy, &idummy) < 5) {
+    } else {
+        if (sscanf(s, "%2d/ %d %2d:%2d:%2d %*s", &idummy, &idummy, &idummy, &idummy, &idummy) < 5) {
             *date = 'c';
             strncpy(line, s, MAXSIZ);
-        }
-        else {
+        } else {
             strncpy(date, s, 5); /* 5 because "MM/DD") */
             date[5] = '\0'; /* Just in case */
             strncpy(time, s + 6, 5);
@@ -1532,7 +1481,7 @@ int add_news(char *s)
 
     rlast->next = (RNode *)malloc(sizeof(RNode));
 
-    if(!rlast->next) {
+    if (!rlast->next) {
         msg("-- malloc error in read news. Aborting.");
 
         return 0;
@@ -1569,20 +1518,18 @@ void print_news(void)
     char buf[NORMSIZ];
 
     for (p = rhead; p; p = p->next) {
-        if(*p->date == '-') {
+        if (*p->date == '-') {
             sprintf(buf, "%s", p->line);
             msg_type = MSG_NEWS;
             process_socket(buf);
             msg_type = MSG_NEWS;
             process_socket("");
-        }
-        else if(*p->date == 'c') {
+        } else if (*p->date == 'c') {
             check_for_special_formatting(buf, FORMAT_NORMAL);
             msg_type = MSG_NEWS;
             process_socket(p->line);
-        }
-        else {
-            if(p->count > 1) {
+        } else {
+            if (p->count > 1) {
                 sprintf(buf,
                         "%s (%s-%s) %s [%d times]",
                         p->date,
@@ -1590,13 +1537,12 @@ void print_news(void)
                         p->ltime,
                         p->line,
                         p->count);
-            }
-            else {
+            } else {
                 sprintf(buf, "%s (%s      ) %s", p->date, p->ftime, p->line);
             }
 
             check_for_special_formatting(buf, FORMAT_NORMAL);
-            msg_type = MSG_NEWS:
+            msg_type = MSG_NEWS;
             process_socket(buf);
         }
 

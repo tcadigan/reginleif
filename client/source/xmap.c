@@ -17,7 +17,6 @@
 #include "csp.h"
 #include "gb.h"
 #include "types.h"
-#include "vars.h"
 #include "widget.h"
 
 #ifdef ARRAY
@@ -125,18 +124,6 @@ static xMap xcur_map = {
     999999, 999999, 999999, 999999, 999999, 999999, 999999,
     0, 0, 0, 0, (xSector *)NULL
 };
-
-extern char *build_scope();
-extern int atoi(const char *);
-extern int csp_send_request(int, char *);
-extern int fprintf(FILE *, const char *, ...);
-extern int sscanf(const char *, const char *, ...);
-extern void add_history(char *);
-extern void add_recall(char *, int);
-extern void add_recall(char *, int);
-extern void msg(char *, ...);
-extern void plot_orbit(char *);
-extern void plot_surface(char *);
 
 char xmap_get_graph(int x, int y);
 int set_zoom(int x1, int y1, int x2, int y2);

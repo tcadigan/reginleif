@@ -11,21 +11,27 @@
 #include "str.h"
 
 #include "action.h"
-#include "ansi.h"
+#include "bind.h"
 #include "gb.h"
-#include "term.h"
+#include "key.h"
+#include "option.h"
+#include "proc.h"
+#include "socket.h"
 #include "types.h"
-#include "vars.h"
 
+#include <ctype.h>
+#include <errno.h>
+#include <stdarg.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
-extern int errno;
 /* Using strerror() now -mfw */
 /* extern int sys_nerr; */
 /* extern char *sys_errlist[]; */
 extern int kill_socket_output;
 extern int pipe_output;
-extern int pipe_running;
 
 int kill_client_output = false;
 int refresh_next = 0;
@@ -72,7 +78,6 @@ void add_refresh_line(char *s, int cnt);
 void display_msg(char *s);
 int more(void);
 void place_string_on_output_window(char *str, int len);
-void set_column_maker(int width);
 void write_string(char *s, int cnt);
 void debug(int level, char *fmt, ...);
 void msg(char *fmt, ...);
@@ -85,21 +90,20 @@ char *first(char *str)
     static char buf[MAXSIZ];
     char *s = buf;
 
-    if(!str) {
+    if (!str) {
         return NULL;
     }
 
     str = skip_space(str);
 
-    if(*str == '\"') {
+    if (*str == '\"') {
         /* Copy from " to " */
         ++str;
 
         while (*str && (*str != '\"')) {
             *s++ = *str++;
         }
-    }
-    else {
+    } else {
         /* Copy from here to first whitspace */
         while (*str && !isspace(*str)) {
             *s++ = *str++;
@@ -115,17 +119,17 @@ char *first(char *str)
 /* Returns the rest of a sting. I.e. skips over the first word. */
 char *rest(char *str)
 {
-    if(!str) {
+    if (!str) {
         return NULL;
     }
 
     str = skip_space(str);
 
-    if(!*str) {
+    if (!*str) {
         return NULL;
     }
 
-    if(*str == '\"') {
+    if (*str == '\"') {
         /* Copy from " to " */
         ++str;
 
@@ -134,8 +138,7 @@ char *rest(char *str)
         }
 
         ++str;
-    }
-    else {
+    } else {
         /* Copy from here to first whitespace */
         while (*str && !isspace(*str)) {
             ++str;
@@ -144,7 +147,7 @@ char *rest(char *str)
 
     str = skip_space(str);
 
-    if(!*str) {
+    if (!*str) {
         return NULL;
     }
 
@@ -162,19 +165,17 @@ void split(char *s, char *fbuf, char *rbuf)
 
     p = first(s);
 
-    if(p) {
+    if (p) {
         strcpy(fbuf, p);
-    }
-    else {
+    } else {
         *fbuf = '\0';
     }
 
     p = rest(s);
 
-    if(p) {
+    if (p) {
         strcpy(rbuf, p);
-    }
-    else {
+    } else {
         *rbuf = '\0';
     }
 }
@@ -184,7 +185,7 @@ char *skip_space(char *s)
 {
     char *str = s;
 
-    if(!str) {
+    if (!str) {
         return NULL;
     }
 
@@ -208,7 +209,7 @@ char *fstring(char *str)
     char *q;
 
     for (p = str, q = buf; *p; *q++ = *p++) {
-        if(*p == '\\') {
+        if (*p == '\\') {
             *q = '\\';
         }
     }
@@ -232,25 +233,24 @@ int pattern_match(char *string1, char *string2, char **pattern)
     int nres = 0;
 
     while (1) {
-        if(*string2 == '*') {
+        if (*string2 == '*') {
             star = ++string2; /* Pattern after * */
             starend = string1; /* Data after * match */
             resp = pattern[nres++]; /* Result string */
             *resp = '\0'; /* Initially NULL */
-        }
-        else if(*string1 == *string2) { /* Characters match */
-            if(*string2 == '\0') { /* Pattern match */
+        } else if (*string1 == *string2) { /* Characters match */
+            if (*string2 == '\0') { /* Pattern match */
                 return 1;
             }
 
             ++string2; /* Try next position */
             ++string1;
-        }
-        else {
-            if(*string1 == '\0') { /* Pattern fails - */
+        } else {
+            if (*string1 == '\0') { /* Pattern fails - */
                 return 0; /* No more string1 */
             }
-            if(star == 0) { /* Pattern fails - no * */
+
+            if (star == 0) { /* Pattern fails - no * */
                 return 0; /* To adjust */
             }
 
@@ -266,17 +266,16 @@ int pattern_match(char *string1, char *string2, char **pattern)
  * Converts the given string to upper case, returning a pointer to the
  * static buffer. It leaves the original string unchanged.
  */
-char strtou(char *str)
+char *strtou(char *str)
 {
     static char upper[MAXSIZ];
     char *p = str;
     char *q = upper;
 
     while (*p) {
-        if(islower(*p)) {
+        if (islower(*p)) {
             *q++ = toupper(*p);
-        }
-        else {
+        } else {
             *q++ = *p;
         }
 
@@ -295,12 +294,11 @@ char *string(char *str)
 
     s = (char *)malloc(strlen(str) + 1);
 
-    if(s) {
+    if (s) {
         strcpy(s, str);
 
         return s;
-    }
-    else {
+    } else {
         quit_gb(-2, "-- Could not malloc memory in makestring.", NULL, NULL);
     }
 
@@ -316,12 +314,11 @@ char *maxstring(char *str)
     len = (strlen(str) % MAXSIZ) + 1;
     s = (char *)malloc(len + 1);
 
-    if(s) {
+    if (s) {
         strcpy(s, str);
 
         return s;
-    }
-    else {
+    } else {
         quit_gb(-2, "-- Could not mallow memory in maxstring.", NULL, NULL);
     }
 
@@ -344,13 +341,13 @@ int wrap(char *line)
     int len;
     int flag = 0;
 
-    if(detached) {
+    if (detached) {
         return 0;
     }
 
     strcpy(s, line);
 
-    if(*s == '\n') {
+    if (*s == '\n') {
         cursor_output_window();
         scroll_output_window();
         add_refresh_line("", 1);
@@ -380,8 +377,8 @@ int wrap(char *line)
         }
     }
 
-    if((strlen(s) <= num_columns) || has_esc_codes(s)) {
-        if(more()) {
+    if ((strlen(s) <= num_columns) || has_esc_codes(s)) {
+        if (more()) {
             return 0;
         }
 
@@ -402,25 +399,24 @@ int wrap(char *line)
         --place;
     }
 
-    if(place == temp) {
+    if (place == temp) {
         place = NULL;
     }
 
     /* Can't do it, give up */
-    if(place == NULL) {
+    if (place == NULL) {
         p = s;
         i = strlen(p);
 
         while (i > (num_columns - 1)) {
-            if(more()) {
+            if (more()) {
                 return 0;
             }
 
-            if(!first_line) {
+            if (!first_line) {
                 *out = '+';
                 strncpy(out + 1, p, num_columns - 1);
-            }
-            else {
+            } else {
                 first_line = false;
                 strncpy(out, p, num_columns);
             }
@@ -432,9 +428,8 @@ int wrap(char *line)
 
         strcpy(s, p);
         flag = 1;
-    }
-    else {
-        if(more()) {
+    } else {
+        if (more()) {
             return 0;
         }
 
@@ -443,12 +438,11 @@ int wrap(char *line)
         p = place + 1;
         len = strlen(temp);
 
-        if(!first_line) {
+        if (!first_line) {
             *out = '+';
             strncpy(out + 1, temp, len);
             ++len;
-        }
-        else {
+        } else {
             first_line = false;
             strncpy(out, temp, len);
         }
@@ -472,25 +466,24 @@ int wrap(char *line)
             --place;
         }
 
-        if(place == temp) {
+        if (place == temp) {
             place = NULL;
         }
 
         /* Can't do it, give up */
-        if(place == NULL) {
+        if (place == NULL) {
             p = s;
             i = strlen(p);
 
             while (i > (num_columns - 1)) {
-                if(more()) {
+                if (more()) {
                     return 0;
                 }
 
-                if(!first_line) {
+                if (!first_line) {
                     *out = '+';
                     strncpy(out + 1, p, num_columns - 1);
-                }
-                else {
+                } else {
                     first_line = false;
                     strncpy(out, p, num_columns);
                 }
@@ -503,23 +496,21 @@ int wrap(char *line)
             strcpy(s, p);
 
             flag = 1;
-        }
-        else {
-            if(more()) {
+        } else {
+            if (more()) {
                 return 0;
             }
 
             *p = ch;
             *place = '\0';
-            p + place + 1;
+            p = place + 1;
             len = strlen(temp);
 
-            if(!first_line) {
+            if (!first_line) {
                 *out = '+';
                 strncpy(out + 1, temp, len);
                 ++len;
-            }
-            else {
+            } else {
                 first_line = false;
                 strncpy(out, temp, len);
             }
@@ -535,17 +526,16 @@ int wrap(char *line)
 
     len = strlen(s);
 
-    if(len != 0) {
-        if(more()) {
+    if (len != 0) {
+        if (more()) {
             return 0;
         }
 
-        if(!first_line) {
+        if (!first_line) {
             *out = '+';
             strncpy(out + 1, s, len);
             ++len;
-        }
-        else {
+        } else {
             first_line = false;
             strncpy(out, s, len);
         }
@@ -566,32 +556,31 @@ int more(void)
     static char more_buf[] = "-- more --";
     char c;
 
-    if(!more_val.on
-       || !more_val.delay
-       || more_val.non_stop
-       || kill_client_output
-       || kill_socket_output
-       || (client_stats < L_BOOTED)) {
+    if (!more_val.on
+        || !more_val.delay
+        || more_val.non_stop
+        || kill_client_output
+        || kill_socket_output
+        || (client_stats < L_BOOTED)) {
         return 0;
     }
 
     /* If we are doing a forward then skip if need be */
-    if(more_val.forward) {
-        if(more_val.forward < (more_val.num_rows - 1)) {
+    if (more_val.forward) {
+        if (more_val.forward < (more_val.num_rows - 1)) {
             ++more_val.forward;
 
             return 1;
-        }
-        else {
+        } else {
             more_val.forward = false;
             more_val.num_lines_scrolled = 0;
         }
     }
 
     /* Too many lines in specified time? If not continue */
-    preset_time = time(0);
+    present_time = time(0);
 
-    if(present_time > (more_val.last_line_time + more_val.delay)) {
+    if (present_time > (more_val.last_line_time + more_val.delay)) {
         more_val.num_lines_scrolled = 1;
         more_val.last_line_time = present_time;
 
@@ -601,7 +590,7 @@ int more(void)
     /* Not too many lines yet...so print out the line */
     ++more_val.num_lines_scrolled;
 
-    if(more_val.num_lines_scrolled < more_val.num_rows) {
+    if (more_val.num_lines_scrolled < more_val.num_rows) {
         return 0;
     }
 
@@ -610,7 +599,7 @@ int more(void)
     promptfor(more_buf, &c, PROMPT_CHAR);
     paused = false;
 
-    if(c == more_val.k_quit) {
+    if (c == more_val.k_quit) {
         /* Prevent problems if prompt triggers */
         ++kill_client_output;
         ++kill_socket_output;
@@ -620,16 +609,16 @@ int more(void)
         more_val.forward = true;
 
         return 1;
-    } else if (c == more_val.k_clear) {
+    } else if ((c == more_val.k_clear)
                || (c == more_val.k_cancel)
                || (c == more_val.k_nonstop)
                || (c == more_val.k_oneline)) {
-        bind_translate_char(c, MORE_MODE);
+        bind_translate_char(c, BIND_MORE);
     } else {
         more_val.num_lines_scrolled = 0;
     }
 
-    refresh_input();
+    refresh_input('\0');
     more_val.last_line_time = time(0);
 
     return 0;
@@ -652,21 +641,21 @@ void msg(char *fmt, ...)
     vsprintf(buf, fmt, vargs);
     va_end(vargs);
 
-    if(!action_match_suppress) {
+    if (!action_match_suppress) {
         p = buf;
 
         /* So '-- A' and 'A' don't match twice */
-        if(!strncmp(buf, "-- ", 3)) {
+        if (!strncmp(buf, "-- ", 3)) {
             p += 3;
         }
 
-        if(handle_action_matches(p)) {
+        if (handle_action_matches(p)) {
             return;
         }
     }
 
-    if(kill_client_output) {
-        if(logfile.redirect && logfile.on) {
+    if (kill_client_output) {
+        if (logfile.redirect && logfile.on) {
             fprintf(logfile.fd, "%s\n", buf);
         }
 
@@ -687,18 +676,18 @@ void display_msg(char *s)
         return;
     }
 
-    if(pipe_running && !pipe_output) {
-        strcpy(str, s);
+    if (pipe_running && !pipe_output) {
+        strcpy(store, s);
     }
 
-    if(logfile.on && (logfile.level >= msg_type)) {
+    if (logfile.on && (logfile.level >= msg_type)) {
         fprintf(logfile.fd, "%s\n", s);
     }
 
     wrap(s);
     term_normal_mode();
 
-    if(pipe_running && !pipe_output) {
+    if (pipe_running && !pipe_output) {
         send_process(store);
     }
 }
@@ -709,39 +698,35 @@ void display_bold_communication(char *s)
     char ch;
     char temp[MAXSIZ];
 
-    if(strchr(s, '>')) {
+    if (strchr(s, '>')) {
         p = strchr(s, '>');
         ch = *p;
         --p;
         *p = '\0';
-        sprintf(temp, "%c%s%c %c%s", BOLDCHAR, s, BOLDCHAR, ch, p + 2);
+        sprintf(temp, "%c%s%c %c%s", BOLD_CHAR, s, BOLD_CHAR, ch, p + 2);
         display_msg(temp);
-    }
-    else if(strchr(s, ':')) {
+    } else if (strchr(s, ':')) {
         p = strchr(s, ':');
         ch = *p;
         --p;
         *p = '\0';
-        sprintf(temp, "%c%s%c %c%s", BOLDCHAR, s, BOLDCHAR, ch, p + 2);
+        sprintf(temp, "%c%s%c %c%s", BOLD_CHAR, s, BOLD_CHAR, ch, p + 2);
         display_msg(temp);
-    }
-    else if(strchr(s, '=')) {
+    } else if (strchr(s, '=')) {
         p = strchr(s, '=');
         ch = *p;
         --p;
         *p = '\0';
-        sprintf(temp, "%c%s%c %c%s", BOLDCHAR, s, BOLDCHAR, ch, p + 2);
+        sprintf(temp, "%c%s%c %c%s", BOLD_CHAR, s, BOLD_CHAR, ch, p + 2);
         display_msg(temp);
-    }
-    else if(strchr(s, '!')) {
+    } else if (strchr(s, '!')) {
         p = strchr(s, '!');
         ch = *p;
         --p;
         *p = '\0';
-        sprintf(temp, "%c%s%c %c%s", BOLDCHAR, s, BOLDCHAR, ch, p + 2);
+        sprintf(temp, "%c%s%c %c%s", BOLD_CHAR, s, BOLD_CHAR, ch, p + 2);
         display_msg(temp);
-    }
-    else {
+    } else {
         display_msg(s);
     }
 }
@@ -751,7 +736,7 @@ void msg_error(char *fmt, ...)
     va_list vargs;
     char buf[MAXSIZ];
 
-    if (!(options[DISPLAYING / 32] & ((DISPLAYING < 32)
+    if (!(options[DISPLAYING / 32] & ((DISPLAYING < 32) ?
                                       (1 << DISPLAYING)
                                       : (1 << (DISPLAYING % 32))))
         || paused) {
@@ -776,7 +761,7 @@ void msg_error(char *fmt, ...)
 
 /*
  * Debugging function
- * If the current debug level is equal to or greater than the level of the 
+ * If the current debug level is equal to or greater than the level of the
  * given debug statement, then display it else do nothing.
  *
  * Current debug levels are:
@@ -790,7 +775,7 @@ void debug(int level, char *fmt, ...)
     va_list vargs;
     char buf[MAXSIZ];
 
-    if(debug_level && (debug_level >= level)) {
+    if (debug_level && (debug_level >= level)) {
         va_start(vargs, fmt);
         vsprintf(buf, fmt, vargs);
         wrap(buf);
@@ -805,7 +790,7 @@ void do_column_maker(char *s)
 
     len = strlen(s);
 
-    if((len + column_maker_pos + 1) > num_columns) {
+    if ((len + column_maker_pos + 1) > num_columns) {
         column_maker_buf[num_columns] = '\0';
         msg(column_maker_buf);
         set_column_maker(column_maker_width);
@@ -816,7 +801,7 @@ void do_column_maker(char *s)
     column_maker_pos += (column_maker_width * ((len / column_maker_width) + 1));
 }
 
-void set_colum_maker(int width)
+void set_column_maker(int width)
 {
     int i;
 
@@ -830,13 +815,13 @@ void set_colum_maker(int width)
 
 void flush_column_maker(void)
 {
-    if(column_maker_pos) {
+    if (column_maker_pos) {
         msg(column_maker_buf);
     }
 }
 
 #define OCT1989 623303940
-#define SECOND  1
+#define SECOND  1L
 #define MINUTES (60 * SECOND)
 #define HOURS   (60 * MINUTES)
 #define DAYS    (24 * HOURS)
@@ -845,13 +830,13 @@ char *time_dur(long int dur)
 {
     long cnt = dur;
     long yr = 0;
-    char *units = seconds;
+    char *units = "seconds";
     char *s;
-    char ybuf[200];
-    char dbuf[200];
-    static char tdbuf[400];
+    char ybuf[SMABUF];
+    char dbuf[SMABUF];
+    static char tdbuf[NORMSIZ];
 
-    if(dur < OCT1989) {
+    if (dur < OCT1989) {
         strcpy(tdbuf, "a long time");
         s = tdbuf;
 
@@ -860,60 +845,50 @@ char *time_dur(long int dur)
 
     dur = time(0) - dur;
 
-    if(dur > (365 * DAYS * 20952)) {
+    if (dur > (365 * DAYS * 20952)) {
         yr = dur / ((365 * DAYS) + 20952); /* Years */
         dur -= (yr * ((365 * DAYS) + 20952)); /* Portion of a year */
     }
 
-    if(cur < 101) {
+    if (dur < 101) {
         cnt = dur;
         units = "second";
-    }
-    else if(dur < 6001) {
-        cnd = dur / MINUTES;
-        unit = "minute";
-    }
-    else if(dur < 120000) {
+    } else if (dur < 6001) {
+        cnt = dur / MINUTES;
+        units = "minute";
+    } else if (dur < 120000) {
         cnt = dur / HOURS;
         units = "hour";
-    }
-    else if(dur < 1200000) {
+    } else if (dur < 1200000) {
         cnt = dur / DAYS;
-        unit = "day";
-    }
-    else if(dur < 13000000) {
+        units = "day";
+    } else if (dur < 13000000) {
         cnt = dur / (7 * DAYS);
         units = "week";
-    }
-    else {
+    } else {
         cnt = dur / ((365 / 12) * DAYS);
         units = "month";
     }
 
-    if(yr == 0) {
+    if (yr == 0) {
         strcpy(ybuf, "");
-    }
-    else {
+    } else {
         sprintf(ybuf, "%ld year%s", yr, (yr == 1) ? "" : "s");
     }
 
-    if(cnt == 0) {
+    if (cnt == 0) {
         strcpy(dbuf, "");
-    }
-    else {
+    } else {
         sprintf(dbuf, "%ld %s%s", cnt, units, (cnt == 1) ? "" : "s");
     }
 
-    if((yr == 0) && (cnt == 0)) {
+    if ((yr == 0) && (cnt == 0)) {
         sprintf(tdbuf, "an instant");
-    }
-    else if((yr > 0) && (cnt > 0)) {
+    } else if ((yr > 0) && (cnt > 0)) {
         sprintf(tdbuf, "%s and %s", ybuf, dbuf);
-    }
-    else if(yr > 0) {
+    } else if (yr > 0) {
         strcpy(tdbuf, ybuf);
-    }
-    else {
+    } else {
         strcpy(tdbuf, dbuf);
     }
 
@@ -924,9 +899,9 @@ char *time_dur(long int dur)
 
 void remove_space_at_end(char *s)
 {
-    char *s;
+    char *p = s;
 
-    if(strlen(s) == 1) {
+    if (strlen(s) == 1) {
         return;
     }
 
@@ -945,7 +920,7 @@ void remove_space_at_end(char *s)
  */
 char *strfree(char *ptr)
 {
-    if(ptr) {
+    if (ptr) {
         free(ptr);
     }
 
@@ -985,14 +960,12 @@ void write_string(char *s, int cnt)
                                           (1 << DO_BELLS)
                                           : (1 << (DO_BELLS % 32)))) {
                 term_beep(1);
-            }
-            else {
-                if(!term_standout_status()) {
+            } else {
+                if (!term_standout_status()) {
                     term_standout_on();
                     term_putchar(*p + 'A' - 1);
                     term_standout_off();
-                }
-                else {
+                } else {
                     term_putchar(*p + 'A' - 1);
                 }
             }
@@ -1054,7 +1027,7 @@ void add_refresh_line(char *s, int cnt)
     strncpy(cbuf, s, cnt);
     cbuf[cnt] = '\0';
 
-    if(refresh_next && (refresh_line[refresh_next] != NULL)) {
+    if (refresh_next && (refresh_line[refresh_next] != NULL)) {
         free(refresh_line[refresh_next]);
     }
 
@@ -1070,20 +1043,19 @@ int start_refresh_line_index(int *start_pos)
     while (!refresh_line[i]) {
         ++i;
 
-        if(i > output_row) {
+        if (i > output_row) {
             i = 0;
         }
 
-        if(i == oldrn) {
+        if (i == oldrn) {
             break;
         }
     }
 
     /* Don't have a full table yet */
-    if(i == refresh_next) {
+    if (i == refresh_next) {
         *start_pos = output_row;
-    }
-    else {
+    } else {
         *start_pos = refresh_next - 1;
     }
 
@@ -1096,7 +1068,7 @@ void clear_refresh_line(void)
     int i;
 
     for (i = 0; i < (output_row + 1); ++i) {
-        if(refresh_line[i] != NULL) {
+        if (refresh_line[i] != NULL) {
             refresh_line[i] = strfree(refresh_line[i]);
         }
     }
@@ -1108,9 +1080,9 @@ void clear_refresh_line(void)
  * Delete the refresh table. Lines need to be freed via
  * clear_refresh_line(). Reset via init_refresh_lines()
  */
-void clear_refresh_line_node(void)
+void clear_refresh_line_mode(void)
 {
-    if(refresh_line != NULL) {
+    if (refresh_line != NULL) {
         free(refresh_line);
     }
 
@@ -1119,12 +1091,14 @@ void clear_refresh_line_node(void)
 
 int has_esc_codes(char *str)
 {
-    char *p;
+    char *p = str;
 
-    for (p = str; *p; *p++) {
-        if(*p == ESC_CHAR) {
+    while (*p) {
+        if (*p == ESC_CHAR) {
             return 1;
         }
+
+        ++p;
     }
 
     return 0;

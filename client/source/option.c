@@ -17,6 +17,7 @@
 #include "str.h"
 
 #include <ctype.h>
+#include <stdlib.h>
 #include <string.h>
 
 extern int end_msg;
@@ -41,12 +42,8 @@ extern int client_devel;
 
 char *entry_quote;
 char *exit_quote;
+int options[2] = { 0, 0 };
 
-extern char *strncpy(char *, const char *, size_t);
-extern int atoi(const char *);
-extern int fprintf(FILE *, const char *, ...);
-extern int strncmp(const char *, const char *, size_t);
-extern long int atol(const char *);
 void display_set(void);
 
 static CommandSet commandset_table[] = {

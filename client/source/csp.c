@@ -24,10 +24,7 @@
 #include "status.h"
 #include "str.h"
 #include "term.h"
-
-#ifdef XMAP
 #include "xmap.h"
-#endif
 
 #include <math.h>
 #include <stdarg.h>
@@ -117,8 +114,6 @@ int csps_qsort_cmp(const void *a, const void *b)
 
 void init_csp(void)
 {
-    extern void qsort(void *, size_t, size_t, int(*)(const void *, const void *));
-
     qsort(csp_send_table, NUM_SEND_COMMANDS, sizeof(CSPSendVal), csps_qsort_cmp);
     qsort(csp_receive_table, NUM_RECEIVE_COMMANDS, sizeof(CSPReceiveVal), cspr_qsort_cmp);
 }
@@ -131,7 +126,7 @@ void cspr_backup_end(int cnum, char *line)
     csp_msg("BACKUP DONE... %s", line);
 }
 
-void cpsr_update_end(int cnum, char *line)
+void cspr_update_end(int cnum, char *line)
 {
     if (notify > 0) {
         term_beep(notify);
@@ -1587,12 +1582,13 @@ void cspr_orbit(int cnum, char *line)
     double dx;
     double dy;
     double dt;
+    char scope;
 
     switch (cnum) {
     case CSP_ORBIT_OUTPUT_INTRO:
         sscanf(line,
-               "%d %d %d %d %d %f %f %f %d %d %d %d %d %d %s %s",
-               &orbit.scope,
+               "%c %d %d %d %d %f %f %f %d %d %d %d %d %d %s %s",
+               &scope,
                &orbit.univsize,
                &orbit.syssize,
                &orbit.plorbsize,
@@ -1608,6 +1604,25 @@ void cspr_orbit(int cnum, char *line)
                &orbit.stars,
                orbit.gltype,
                orbit.glname);
+
+        switch (scope) {
+        case '0':
+            orbit.scope = CSPD_UNIV;
+
+            break;
+        case '1':
+            orbit.scope = CSPD_STAR;
+
+            break;
+        case '2':
+            orbit.scope = CSPD_PLAN;
+
+            break;
+        default:
+            orbit.scope = CSPD_LOCATION_UNKNOWN;
+
+            break;
+        }
 
         // Do we care about this?
         orbit.bcnt = 0;
@@ -1632,7 +1647,7 @@ void cspr_orbit(int cnum, char *line)
         sprintf(colbuf, "+-------------------");
         term_puts(colbuf, strlen(colbuf));
 
-        if (orbit.scope == LEVEL_UNIV) {
+        if (orbit.scope == CSPD_UNIV) {
             orbit_info_box();
         }
 
@@ -1661,7 +1676,7 @@ void cspr_orbit(int cnum, char *line)
 
         plot_orbit_object();
 
-        if (orbit.scope == LEVEL_STAR) {
+        if (orbit.scope == CSPD_STAR) {
             orbit_info_box();
         }
 
@@ -1685,7 +1700,7 @@ void cspr_orbit(int cnum, char *line)
 
         plot_orbit_object();
 
-        if (orbit.scope == LEVEL_STAR) {
+        if (orbit.scope == CSPD_STAR) {
             dx = pow(orbit.planet.x - orbit.star.y, 2);
             dy = pow(orbit.planet.y - orbit.star.y, 2);
             dt = sqrt(dx + dy);
@@ -1719,7 +1734,7 @@ void cspr_orbit(int cnum, char *line)
 
         plot_orbit_object();
 
-        if (orbit.scope == LEVEL_STAR) {
+        if (orbit.scope == CSPD_STAR) {
             dx = pow(orbit.planet.x - orbit.star.x, 2);
             dy = pow(orbit.planet.y - orbit.star.y, 2);
             dt = sqrt(dx + dy);
@@ -1796,25 +1811,25 @@ void plot_orbit_object(void)
                                              (1 << DISP_ANSI)
                                              : (1 << (DISP_ANSI % 32))));
 
-    if ((orbit.type == TYPE_STAR) && (orbit.scope == LEVEL_UNIV)) {
+    if ((orbit.type == TYPE_STAR) && (orbit.scope == CSPD_UNIV)) {
         x = (int)(orbit.scale + ((orbit.scale * (orbit.star.x - orbit.lastx)) / (orbit.univsize * orbit.zoom)));
         y = (int)(orbit.scale + ((orbit.scale * (orbit.star.y - orbit.lasty)) / (orbit.univsize * orbit.zoom)));
-    } else if ((orbit.type == TYPE_STAR) && (orbit.scope == LEVEL_STAR)) {
+    } else if ((orbit.type == TYPE_STAR) && (orbit.scope == CSPD_STAR)) {
         x = (int)(orbit.scale + ((orbit.scale * -orbit.lastx) / (orbit.syssize * orbit.zoom)));
         y = (int)(orbit.scale + ((orbit.scale * -orbit.lasty) / (orbit.syssize * orbit.zoom)));
-    } else if ((orbit.type == TYPE_PLANET) && (orbit.scope == LEVEL_STAR)) {
+    } else if ((orbit.type == TYPE_PLANET) && (orbit.scope == CSPD_STAR)) {
         x = (int)(orbit.scale + ((orbit.scale * (orbit.planet.x - orbit.lastx)) / (orbit.syssize * orbit.zoom)));
         y = (int)(orbit.scale + ((orbit.scale * (orbit.planet.y - orbit.lasty)) / (orbit.syssize * orbit.zoom)));
-    } else if ((orbit.type == TYPE_PLANET) && (orbit.scope == LEVEL_PLANET)) {
+    } else if ((orbit.type == TYPE_PLANET) && (orbit.scope == CSPD_PLAN)) {
         x = (int)(orbit.scale + ((orbit.scale * -orbit.lastx) / (orbit.plorbsize * orbit.zoom)));
         y = (int)(orbit.scale + ((orbit.scale * -orbit.lasty) / (orbit.plorbsize * orbit.zoom)));
-    } else if ((orbit.type == TYPE_SHIP) && (orbit.scope == LEVEL_UNIV)) {
+    } else if ((orbit.type == TYPE_SHIP) && (orbit.scope == CSPD_UNIV)) {
         x = (int)(orbit.scale + ((orbit.scale * (orbit.ship.x - orbit.lastx)) / (orbit.univsize * orbit.zoom)));
         y = (int)(orbit.scale + ((orbit.scale * (orbit.ship.y - orbit.lasty)) / (orbit.univsize * orbit.zoom)));
-    } else if ((orbit.type == TYPE_SHIP) && (orbit.scope == LEVEL_STAR)) {
+    } else if ((orbit.type == TYPE_SHIP) && (orbit.scope == CSPD_STAR)) {
         x = (int)(orbit.scale + ((orbit.scale * (orbit.ship.x - orbit.star.x - orbit.lastx)) / (orbit.syssize * orbit.zoom)));
         y = (int)(orbit.scale + ((orbit.scale * (orbit.ship.y - orbit.star.y - orbit.lasty)) / (orbit.syssize * orbit.zoom)));
-    } else if ((orbit.type == TYPE_SHIP) && (orbit.scope == LEVEL_PLANET)) {
+    } else if ((orbit.type == TYPE_SHIP) && (orbit.scope == CSPD_PLAN)) {
         x = (int)(orbit.scale + ((orbit.scale * (orbit.ship.x - orbit.planet.x - orbit.lastx)) / (orbit.plorbsize * orbit.zoom)));
         y = (int)(orbit.scale + ((orbit.scale * (orbit.ship.y - orbit.planet.y - orbit.lasty)) / (orbit.plorbsize * orbit.zoom)));
     } else {
@@ -1868,7 +1883,7 @@ void plot_orbit_object(void)
     if ((x >= 0) && (y >= 1) && (x <= S_X) && (y <= S_Y)) {
 #ifdef ARRAY
         if ((orbit.type == TYPE_STAR)
-           && (orbit.scope == LEVEL_STAR)
+           && (orbit.scope == CSPD_STAR)
            && (orbit.star.novastage > 0)
            && (orbit.star.novastage <= 16)) {
             /* Nova */
@@ -1880,7 +1895,7 @@ void plot_orbit_object(void)
          * work. -mfw
          */
         if ((orbit.type == TYPE_SHIP)
-           && (orbit.scope == LEVEL_PLANET)
+           && (orbit.scope == CSPD_PLAN)
            && (orbit.ship.type == 'M')
            && (orbit.ship.array <= 8)
            && (orbit.ship.array > 0)) {
@@ -1960,7 +1975,7 @@ void orbit_info_box(void)
 {
     char colbuf[SMABUF];
 
-    if (orbit.scope == LEVEL_UNIV) {
+    if (orbit.scope == CSPD_UNIV) {
         term_move_cursor(num_columns - 20, orbit.position++);
         sprintf(colbuf, "| Galaxy %.10s", orbit.glname);
         term_puts(colbuf, strlen(colbuf));
@@ -1976,7 +1991,7 @@ void orbit_info_box(void)
         term_move_cursor(num_columns - 20, orbit.position++);
         sprintf(colbuf, "| Stars: %d", orbit.stars);
         term_puts(colbuf, strlen(colbuf));
-    } else if (orbit.scope == LEVEL_STAR) {
+    } else if (orbit.scope == CSPD_STAR) {
         term_move_cursor(num_columns - 20, orbit.position++);
         sprintf(colbuf, "| Star: %.10s", orbit.star.name);
         term_puts(colbuf, strlen(colbuf));
@@ -2014,7 +2029,7 @@ void orbit_info_box(void)
         term_move_cursor(num_columns - 20, orbit.position++);
         sprintf(colbuf, "| %d Planets --", orbit.star.numplan);
         term_puts(colbuf, strlen(colbuf));
-    } else if (orbit.scope == LEVEL_PLANET) {
+    } else if (orbit.scope == CSPD_PLAN) {
         term_move_cursor(num_columns - 20, orbit.position++);
         sprintf(colbuf, "| Planet: %.10s", orbit.planet.name);
         term_puts(colbuf, strlen(colbuf));

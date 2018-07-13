@@ -9,52 +9,23 @@
  */
 #include "status.h"
 
-#include "csp_types.h"
 #include "gb.h"
+#include "key.h"
+#include "option.h"
 #include "str.h"
 #include "term.h"
 #include "types.h"
-#include "vars.h"
 
-#include <ctype.h>
 #include <pwd.h>
-#include <stdio.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <time.h>
-
-/*
- * #ifdef SYSV
- * #include <time.h>
- *
- * #else
- *
- * #include <sys/time.h>
- * #endif
- */
+#include <unistd.h>
 
 extern int gb;
 extern char pbuf[];
 extern char last_prompt[];
 extern long map_time;
 extern char post_buf[];
-
-#ifdef AIX
-struct tm {
-    int tm_sec;
-    int tm_min;
-    int tm_hour;
-    int tm_mday;
-    int tm_mon;
-    int tm_year;
-    int tm_wday;
-    int tm_yday;
-    int tm_isdst;
-    char *tm_zone;
-    long tm_gmtoff;
-};
-#endif
 
 /* Set it way high so new mail notification does not occur at login */
 int mcnt = 9999999;
@@ -66,7 +37,7 @@ void update_status(void)
 
     present = time(0);
 
-    if((status.last_time + 60) > presenT) {
+    if ((status.last_time + 60) > present) {
         return;
     }
 
@@ -78,11 +49,11 @@ void force_update_status(void)
     char *getbuf;
     char *build_status(void);
 
-    if(detached || (client_stats == L_NOTHING)) {
+    if (detached || (client_stats == L_NOTHING)) {
         return;
     }
 
-    if(gb < 0) {
+    if (gb < 0) {
         strcpy(last_prompt, "Not Connected");
     }
 
@@ -117,10 +88,10 @@ int check_mail(void)
      * uname is static so this check is only made once instead of
      * everytime through here
      */
-    if(!uname) {
+    if (!uname) {
         uname = getlogin();
 
-        if(uname == NULL) {
+        if (uname == NULL) {
             pwname = getpwuid(getuid());
             uname = pwname->pw_name;
         }
@@ -129,21 +100,21 @@ int check_mail(void)
     sprintf(mpath, "%s/%s", MAILPATH, uname);
     fmail = fopen(mpath, "r");
 
-    if(fmail == NULL) {
+    if (fmail == NULL) {
         return -2;
     }
 
     cnt = 0;
 
     while (fgets(pbuf, NORMSIZ, fmail)) {
-        if(strncmp(pbuf, MAIL_DELIMITER, MAIL_DELIMITER_LEN) == 0) {
+        if (strncmp(pbuf, MAIL_DELIMITER, MAIL_DELIMITER_LEN) == 0) {
             ++cnt;
         }
     }
 
     fclose(fmail);
 
-    if((cnt > oldmcnt) && (client_stats > L_NOTHING)) {
+    if ((cnt > oldmcnt) && (client_stats > L_NOTHING)) {
         msg("-- You have new mail.");
     }
 
@@ -160,22 +131,22 @@ char *print_time(long ptime)
     static char temp[6];
     struct tm *present_time;
 
-    if(ptime == -1) {
+    if (ptime == -1) {
         return "--:--";
     }
 
     present_time = localtime(&ptime);
     sprintf(temp, "%2d:%2d", present_time->tm_hour, present_time->tm_min);
 
-    if(present_time->tm_hour < 10) {
+    if (present_time->tm_hour < 10) {
         temp[0] = '0';
     }
 
-    if(present_time->tm_min < 10) {
+    if (present_time->tm_min < 10) {
         temp[3] = '0';
     }
 
-    tmp[5] = '\0';
+    temp[5] = '\0';
 
     return temp;
 }
@@ -193,10 +164,10 @@ char *build_status(void)
 
     present = time(0);
     status.last_time = present;
-    *end_ubf = '\0';
+    *end_buf = '\0';
 
     while (*p) {
-        if(*p == '$') {
+        if (*p == '$') {
             switch (*++p) {
             case 'B':
                 strcpy(q, print_time(boot_time));
@@ -218,7 +189,7 @@ char *build_status(void)
 
                 break;
             case 'H':
-                if(*cur_game.game.host) {
+                if (*cur_game.game.host) {
                     strcpy(q, cur_game.game.host);
                     q += strlen(cur_game.game.host);
                 }
@@ -231,7 +202,7 @@ char *build_status(void)
 
                 break;
             case 'M':
-                if(input_mode.map) {
+                if (input_mode.map) {
                     sprintf(temp,
                             "(%c)",
                             (input_mode.say ? 'S' : 'M'));
@@ -247,8 +218,8 @@ char *build_status(void)
 
                 break;
             case 'P':
-                if(input_mode.post) {
-                    sprintf(temp, "(%d)", MAX_POST_LEN - strlen(post_buf) - 1);
+                if (input_mode.post) {
+                    sprintf(temp, "(%ld)", MAX_POST_LEN - strlen(post_buf) - 1);
                     strcpy(q, temp);
                     q += strlen(temp);
                 }
@@ -290,7 +261,7 @@ char *build_status(void)
 
                 break;
             case 'g':
-                if(cur_game.game.nick && *cur_game.game.nick) {
+                if (cur_game.game.nick && *cur_game.game.nick) {
                     strcpy(q, cur_game.game.nick);
                     q += strlen(cur_game.game.nick);
                 }
@@ -308,7 +279,7 @@ char *build_status(void)
                                                : (1 << (SHOW_MAIL % 32)))) {
                     mcnt = check_mail();
 
-                    if(mcnt > 0) {
+                    if (mcnt > 0) {
                         sprintf(temp, "Mail: %d", mcnt);
                         strcpy(q, temp);
                         q += strlen(temp);
@@ -322,13 +293,13 @@ char *build_status(void)
 
                 break;
             case 't':
-                if(in_talk_mode()) {
+                if (in_talk_mode()) {
                     strcpy(q, "(T)");
                     q += 3;
                 }
 
                 break;
-            case default:
+            default:
                 *q++ = '$';
                 *q++ = *p;
 
@@ -366,29 +337,14 @@ char *build_scope_prompt(void)
 
     *shipbuf = '\0';
 
-    /* Old stype scope */
-    if(scope.numships == -1) {
-        switch (scope.level) {
-        case LEVEL_USSHIP:
-        case LEVEL_SSSHIP:
-        case LEVEL_PSSHIP:
-            scope.level = CSPD_PLAN;
-            sprintf(shipbuf, "/../#%s", scope.shipc);
-
-            break;
-        case LEVEL_USHIP:
-        case LEVEL_SSHIP:
-        case LEVEL_PSHIP:
-            scope.level = CSPD_PLAN;
-            sprintf(shipbuf, "/#%s", scope.shipc);
-
-            break;
-        default:
-
-            break;
-        }
-    }
-    else if(scope.numships) {
+    /* Old type scope */
+    if (scope.numships == -1) {
+        scope.level = CSPD_PLAN;
+        sprintf(shipbuf, "/../#%s", scope.shipc);
+    } else if (scope.numships == -2) {
+        scope.level = CSPD_PLAN;
+        sprintf(shipbuf, "/#%s", scope.shipc);
+    } else if (scope.numships) {
         for (s = scope.motherlist, i = 1; i < scope.numships; s = s->next, ++i) {
             sprintf(temp, "/#%d", s->shipno);
             strcat(shipbuf, temp);

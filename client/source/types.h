@@ -78,23 +78,6 @@
 #define S_PROC  2 /* Processing */
 #define S_DONE  3 /* Done, waiting to cleanup/shutdown */
 
-/* Levels for scope */
-#define LEVEL_ERROR       -2
-#define LEVEL_NONE        -1
-#define LEVEL_UNIV        0
-#define LEVEL_STAR        1
-#define LEVEL_PLANET      2
-#define LEVEL_SHIP        3 /* Use this for if x > LEVEL_SHIP */
-#define LEVEL_MOON        4
-
-#define LEVEL_USHIP       5
-#define LEVEL_SSHIP       6
-#define LEVEL_PSHIP       7
-#define LEVEL_MOTHERSHIP  8 /* Use for if x > LEVEL_MOTHERSHIP */
-#define LEVEL_USSHIP      9 /* Ship on ship on ship...at univ */
-#define LEVEL_SSSHIP     10 /* Ship on ship on ship...at star */
-#define LEVEL_PSSHIP     11 /* Ship on ship on ship...at planet */
-
 /* Buffer sizes */
 #define SMABUF   200
 #define NORMSIZ 1024
@@ -349,6 +332,14 @@ typedef struct rnode {
     struct rnode *next;
     struct rnode *prev;
 } RNode;
+
+typedef struct node {
+    char *line;
+    int type; /* For queueing. Do we wait for prompt */
+    int indx;
+    struct node *next;
+    struct node *prev;
+} Node;
 
 /* For binary search */
 typedef struct command_struct {
@@ -666,7 +657,7 @@ typedef struct orbship {
 } OrbShip;
 
 typedef struct orbit {
-    int scope;
+    enum LOCATION scope;
     int univsize;
     int syssize;
     int plorbsize;

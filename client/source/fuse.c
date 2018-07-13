@@ -248,7 +248,7 @@ void cspr_fuse(int cnum, char *line)
     }
 }
 
-void proc_fuel(void)
+void proc_fuse(void)
 {
     double fused;
 

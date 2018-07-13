@@ -22,6 +22,7 @@
  * These notices must be retained in any copies of any part of this
  * documentation and/or software.
  */
+#include "md5.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -60,7 +61,6 @@ typedef struct {
 #define S43 15
 #define S44 21
 
-void MD5String(char *, char *);
 void MD5Init(MD5_CTX *);
 void MD5Update(MD5_CTX *, unsigned char *, unsigned int);
 void MD5Final(unsigned char[16], MD5_CTX *);
