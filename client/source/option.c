@@ -876,8 +876,7 @@ void set_output_prompt(char *args)
     } else if (*p) {
         strfree(output_prompt);
         output_prompt = p;
-    }
-    else {
+    } else {
         *output_prompt = '\0';
         strfree(p);
     }

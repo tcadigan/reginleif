@@ -291,7 +291,7 @@ Mar 22 15:56:21 MST 1991 (2.1.7)
     speed up just a bit.
 
 Apr  2 15:50:44 MST 1991 (2.1.8) Food, Folks, and Fun!
-    Add get_key a set of it-else instead of the switch.
+    Add get_key a set of if-else instead of the switch.
     Made a few commands more concise.
     Added the convo command and supporting structure.
 

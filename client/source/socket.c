@@ -284,8 +284,7 @@ void process_socket(char *s)
         }
 
         return;
-    }
-    else {
+    } else {
         if ((client_stats < L_PASSWORD)
             && (options[LOGINSUPPRESS / 32] & ((LOGINSUPPRESS < 32) ?
                                                (1 << LOGINSUPPRESS)
