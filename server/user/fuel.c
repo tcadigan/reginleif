@@ -34,9 +34,7 @@
 #include <string.h>
 #include <time.h>
 
-#include "GB_copyright.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ranks.h"
 #include "ships.h"
@@ -131,7 +129,7 @@ void proj_fuel(int playernum, int governor, int apcount)
         return;
     }
 
-    if (!speed_rating(ship) || (ship->type == OTYPE_FACTORY)) {
+    if (!ship->max_speed || (ship->type == OTYPE_FACTORY)) {
         notify(playernum,
                governor,
                "That ship does not have a speed rating...\n");

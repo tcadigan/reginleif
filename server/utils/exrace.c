@@ -30,7 +30,6 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <stdlib.h>
-#include <strings.h>
 #include <sys/file.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -40,7 +39,6 @@
 #include "races.h"
 #include "vars.h"
 
-#define EXTERN extern
 #define DATAFILE DATA(race)
 
 /*

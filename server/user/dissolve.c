@@ -32,12 +32,10 @@
 #include <math.h>
 #include <stdlib.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "config.h"
 #include "doturn.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ranks.h"
 #include "ships.h"

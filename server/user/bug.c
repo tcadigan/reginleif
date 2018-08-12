@@ -41,16 +41,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-/* #include <strings.h> */
 #include <time.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "config.h"
 #include "files.h"
 #include "game_info.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ships.h"
 #include "vars.h"

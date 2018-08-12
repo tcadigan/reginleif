@@ -34,12 +34,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "csp.h"
 #include "csp_types.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ranks.h"
 #include "ships.h"
@@ -608,7 +606,7 @@ void csp_ship_report(int playernum,
                         s->damage,
                         s->rad,
                         s->governor,
-                        has_switch(s),
+                        Shipdata[s->type][ABIL_HASSWITCH],
                         s->build_type,
                         s->name);
             } else {
@@ -622,7 +620,7 @@ void csp_ship_report(int playernum,
                         s->damage,
                         s->rad,
                         s->governor,
-                        has_switch(s),
+                        Shipdata[s->type][ABIL_HASSWITCH],
                         s->build_type,
                         s->class,
                         s->name);
@@ -661,7 +659,7 @@ void csp_ship_report(int playernum,
                         s->mount,
                         s->mounted,
                         s->special.pod.temperature,
-                        Armor(s),
+                        (s->armor * (100 - s->damage)) / 100,
                         s->tech,
                         Max_speed(s),
                         Cost(s),
@@ -676,7 +674,9 @@ void csp_ship_report(int playernum,
                         s->hyper_drive.has,
                         s->mount,
                         s->mounted,
-                        Armor(s),
+                        s->type == OTYPE_FACTORY ?
+                        Shipdata[s->type][ABIL_ARMOR]
+                        : (s->armor * (100 - s->damage)) / 100,
                         s->tech,
                         Max_speed(s),
                         Cost(s),
@@ -752,11 +752,11 @@ void csp_ship_report(int playernum,
 
             notify(playernum, governor, buf);
 
-#ifdef THRESHLOADING
+#ifdef THRESHOLDING
             sprintf(buf, "%c %d %d ", CSP_CLIENT, CSP_SHIPDUMP_THRESH, shipno);
 
             if (i = 0; i <= TH_CRYSTALS; ++i) {
-                sprintf(buf2, "%d %d ", i, s->threshload[i]);
+                sprintf(buf2, "%d %d ", i, s->threshold[i]);
                 strcat(buf, buf2);
             }
 

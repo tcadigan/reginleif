@@ -28,16 +28,15 @@
  *
  * static char *ver = "@(#)        $RCSfile: doplanet.c,v $ $Revision: 1.6 $";
  */
+#include "doplanet.h"
 
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "doturn.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ships.h"
 #include "tweakables.h"
@@ -1106,8 +1105,8 @@ int doplanet(int starnum, planettype *planet, int planetnum)
         planet->conditions[TOXIC] = 0;
     }
 
-#ifdef THRESHLOADING
-    /* CWL Threshloading done here! */
+#ifdef THRESHOLDING
+    /* CWL Thresholding done here! */
     shipno = planet->ships;
 
     while (shipno) {
@@ -1124,16 +1123,17 @@ int doplanet(int starnum, planettype *planet, int planetnum)
             && !ship->rad
             && (ship->whatdest == LEVEL_PLAN)
             && landed(ship)
-            && ((has_switch(ship) && ship_on) || !has_ship(ship))) {
+            && ((Shipdata[ship->type][ABIL_HASSWITCH] && ship_on)
+                || !has_ship(ship))) {
             unsigned int amti;
 
-            /* Merrill mod, to fix threshload */
-            if ((ship->resource < ship->threshload[TH_RESOURCE])
-                && ship->threshload[TH_RESOURCE]) {
-                if ((ship->threshload[TH_RESOURCE] - ship->resource) > planet->info[ship->owner - 1].resource) {
+            /* Merrill mod, to fix threshold */
+            if ((ship->resource < ship->threshold[TH_RESOURCE])
+                && ship->threshold[TH_RESOURCE]) {
+                if ((ship->threshold[TH_RESOURCE] - ship->resource) > planet->info[ship->owner - 1].resource) {
                     amti = planet->info[ship->owner - 1].resource;
                 } else {
-                    amti = ship->threshload[TH_RESOURCE] - ship->resource;
+                    amti = ship->threshold[TH_RESOURCE] - ship->resource;
                 }
 
                 planet->info[ship->owner - 1].resource -= amti;
@@ -1141,7 +1141,7 @@ int doplanet(int starnum, planettype *planet, int planetnum)
 
                 /*
                  * sprintf(buf,
-                 *         "%s: %c%d %s threshloaded %dr.",
+                 *         "%s: %c%d %s thresholded %dr.",
                  *         prin_ship_orbits(ship),
                  *         Shipltrs[ship->type],
                  *         shipno,
@@ -1157,12 +1157,12 @@ int doplanet(int starnum, planettype *planet, int planetnum)
                  */
             }
 
-            if ((ship->destruct < ship->threshload[TH_DESTRUCT])
-                && ship->threshload[TH_DESTRUCT]) {
-                if ((ship->threshload[TH_DESTRUCT] - ship->destruct) > planet->info[ship->owner - 1].destruct) {
+            if ((ship->destruct < ship->threshold[TH_DESTRUCT])
+                && ship->threshold[TH_DESTRUCT]) {
+                if ((ship->threshold[TH_DESTRUCT] - ship->destruct) > planet->info[ship->owner - 1].destruct) {
                     amti = planet->info[ship-owner - 1].destruct;
                 } else {
-                    amti = ship->threshload[TH_DESTRUCT] - ship->destruct;
+                    amti = ship->threshold[TH_DESTRUCT] - ship->destruct;
                 }
 
                 planet->info[ship->owner - 1].destruct -= amit;
@@ -1170,7 +1170,7 @@ int doplanet(int starnum, planettype *planet, int planetnum)
 
                 /*
                  * sprintf(buf,
-                 *         "%s: %c%d %s threshloaded %dd.",
+                 *         "%s: %c%d %s thresholded %dd.",
                  *         prin_ship_orbits(ship),
                  *         Shipltrs[ship->type],
                  *         shipno,
@@ -1186,12 +1186,12 @@ int doplanet(int starnum, planettype *planet, int planetnum)
                  */
             }
 
-            if ((ship->fuel < ship->threshload[TH_FUEL])
-                && ship->threshload[TH_FUEL]) {
-                if ((ship->threshload[TH_FUEL] - ship->fuel) > planet->info[ship->owner - 1].fuel) {
+            if ((ship->fuel < ship->threshold[TH_FUEL])
+                && ship->threshold[TH_FUEL]) {
+                if ((ship->threshold[TH_FUEL] - ship->fuel) > planet->info[ship->owner - 1].fuel) {
                     amti = (int)planet->info[ship->owner - 1].fuel;
                 } else {
-                    amti = (int)(ship->threshload[TH_FUEL] - ship->fuel);
+                    amti = (int)(ship->threshold[TH_FUEL] - ship->fuel);
                 }
 
                 planet->info[ship->owner - 1].fuel -= amti;
@@ -1199,7 +1199,7 @@ int doplanet(int starnum, planettype *planet, int planetnum)
 
                 /*
                  * sprintf(buf,
-                 *         "%s: %c%d %s threshload %df.",
+                 *         "%s: %c%d %s thresholded %df.",
                  *         prin_ship_orbits(ship),
                  *         Shipltrs[ship->type],
                  *         shipno,
@@ -1215,12 +1215,12 @@ int doplanet(int starnum, planettype *planet, int planetnum)
                  */
             }
 
-            if ((ship->crystals < ship->threshload[TH_CRYSTALS])
-                && ship->threshload[TH_CRYSTALS]) {
-                if ((ship->threshload[TH_CRYSTALS] - ship->crystals) > planet->info[ship->owner - 1].crystals) {
+            if ((ship->crystals < ship->threshold[TH_CRYSTALS])
+                && ship->threshold[TH_CRYSTALS]) {
+                if ((ship->threshold[TH_CRYSTALS] - ship->crystals) > planet->info[ship->owner - 1].crystals) {
                     amti = planet->info[ship->owner - 1].crystals;
                 } else {
-                    amti = ship->threshload[TH_CRYSTALS] - ship->crystals;
+                    amti = ship->threshold[TH_CRYSTALS] - ship->crystals;
                 }
 
                 planet->info[ship->owner - 1].crystals -= amti;
@@ -1228,7 +1228,7 @@ int doplanet(int starnum, planettype *planet, int planetnum)
 
                 /*
                  * sprintf(buf,
-                 *         "%s: %c%d %s threshloaded %dx.",
+                 *         "%s: %c%d %s thresholded %dx.",
                  *         prin_ship_orbits(ship),
                  *         Shipltrs[ship->type],
                  *         shipno,
@@ -1243,12 +1243,12 @@ int doplanet(int starnum, planettype *planet, int planetnum)
                  *              TELEGRAM);
                  */
             }
-        } /* End threshloading */
+        } /* End thresholding */
 
         shipno = nextship(ship);
     } /* End while shipno */
 
-    /* End threshloading */
+    /* End thresholding */
 #endif
 
     for (i = 1; i <= Num_races; ++i) {

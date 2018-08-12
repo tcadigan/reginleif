@@ -29,15 +29,15 @@
  *
  * static char *ver = "@(#)  $RCSfile: moveship.c,v $ $Revision: 1.3 $";
  */
+#include "moveship.h"
+
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "doturn.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ships.h"
 #include "vars.h"
@@ -423,7 +423,7 @@ void Moveship(shiptype *s, int mode, int send_messages, int checking_fuel)
                 }
             }
 
-            if (SISAPOD(s)) {
+            if (s->type) {
                 /* Lock this pod into its destination -mfw */
                 s->special.pod.navlock = 1;
             }
@@ -497,7 +497,7 @@ void Moveship(shiptype *s, int mode, int send_messages, int checking_fuel)
                                 prin_ship_orbits(s));
 
                         /* -mfw */
-                        if (SISAPOD(s)) {
+                        if (s->type) {
                             s->special.pod.navlock = 0;
                         }
 

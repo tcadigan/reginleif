@@ -31,10 +31,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ranks.h"
 #include "ships.h"
@@ -64,6 +62,7 @@ void capture(int playernum, int governor, int apcount)
     int i;
     int snum;
     int pnum;
+    int armor;
     int casualties = 0;
     int casualties1 = 0;
     int casualties2 = 0;
@@ -242,7 +241,23 @@ void capture(int playernum, int governor, int apcount)
                     astrength = 1.0 * 0.01 * race->tech * (Race->likes[sect->condition] + 0.01) * ((double)Defensedata[sect->condition] + 1.0) * morale_factor((double)(race->morale - alien->morale));
                 }
 
-                dstrength = (vn_ghosts + (double)ship->popn + ((double)ship->troops * 10.0 * (double)alien->fighters)) * 0.01 * alien->tech * ((double)Armor(ship) + 0.01) * (100 - ((double)ship->damage * morale_factor((double)(alien->morale - race->morale))));
+                if (ship->type == OTYPE_FACTORY) {
+                    armor = Shipdata[ship->type][ABIL_ARMOR];
+                } else {
+                    armor = (ship->armor * (100 - ship->damage)) / 100;
+                }
+
+                dstrength = (vn_ghosts
+                             + (double)ship->popn
+                             + ((double)ship->troops
+                                * 10.0
+                                * (double)alien->fighters))
+                    * 0.01
+                    * alien->tech
+                    * ((double)armor + 0.01)
+                    * 0.01
+                    * (100.0 - (double)ship->damage)
+                    * morale_factor((double)(alien->morale - race->morale));
 
                 sprintf(buf,
                         "Attack strength: %.2f     Defense strength: %.2f\n",
@@ -303,7 +318,22 @@ void capture(int playernum, int governor, int apcount)
                     astrength = (double)boarders * 1.0 * 0.01 * race->tech * (race->likes[sect->condition] + 0.01) * ((double)Defensedata[sect->condition] + 1.0) * morale_factor((double)(race->morale - alien->morale));
                 }
 
-                dstrength = ((double)ship->popn + ((double)ship->troops * 10.0 * (double)alien->fighters)) * 0.01 * alien->tech * ((double)Armor(ship) + 0.01) * 0.01 * (100.0 - (double)ship->damage) * morale_factor((double)(alien->morale - race->morale));
+                if (ship->type == OTYPE_FACTORY) {
+                    armor = Shipdata[ship->type][ABIL_ARMOR];
+                } else {
+                    armor = (ship->armor * (100 - ship->damage)) / 100;
+                }
+
+                dstrength = ((double)ship->popn
+                             + ((double)ship->troops
+                                * 10.0
+                                * (double)alien->fighters))
+                    * 0.01
+                    * alien->tech
+                    * ((double)armor + 0.01)
+                    * 0.01
+                    * (100.0 - (double)ship->damage)
+                    * morale_factor((double)(alien->morale - race->morale));
 
                 sprintf(buf,
                         "Attack strength: %.2f     Defense strength: %.2f\n",
@@ -365,7 +395,7 @@ void capture(int playernum, int governor, int apcount)
 #ifdef USE_VN
             if (!(ship->popn + ship->troops)
                 && ship->alive
-                && !SISAPOD(ship)
+                && !ship->type
                 && (ship->type != OTYPE_VN)
                 && (ship->type != OTYPE_BERS)) {
                 /* We got them */
@@ -375,7 +405,15 @@ void capture(int playernum, int governor, int apcount)
                 ship->governor = governor;
 
                 if (what == CIV) {
-                    ship->popn = MIN(boarders, Max_crew(ship));
+                    if (ship->type == OTYPE_FACTORY) {
+                        ship->popn = MIN(boarders,
+                                         Shipdata[ship->type][ABIL_MAXCREW]
+                                         - ship->troops);
+                    } else {
+                        ship->popn = MIN(boarders,
+                                         ship->max_crew - ship->popn);
+                    }
+
                     sect->popn += (boarders - ship->popn);
                     ship->mass += (ship->popn * race->mass);
                 } else if (what == MIL) {
@@ -398,7 +436,7 @@ void capture(int playernum, int governor, int apcount)
             }
 
 #else
-            if (!(ship->popn + ship->troops) && ship->alive && !SISAPOD(ship)) {
+            if (!(ship->popn + ship->troops) && ship->alive && !ship->type) {
                 /* We got them. */
                 /* Remove the ship from any fleet -mfw */
                 remove_sh_fleet(ship->owner, ship->governor, ship);
@@ -406,7 +444,15 @@ void capture(int playernum, int governor, int apcount)
                 ship->governor = governor;
 
                 if (what == CIV) {
-                    ship->popn = MIN(boarders, Max_crew(ship));
+                    if (ship->type == OTYPE_FACTORY) {
+                        ship->popn = MIN(boarders,
+                                         Shipdata[ship->type][ABIL_MAXCREW]
+                                         - ship->troops);
+                    } else {
+                        ship->popn = MIN(boarders,
+                                         ship->max_crew - ship->popn);
+                    }
+
                     sect->popn += (boarders - ship->popn);
                     ship->mass += (ship->popn - race->mass);
                 } else if (what == MIL) {
@@ -556,7 +602,7 @@ void capture(int playernum, int governor, int apcount)
                             "Oh no! They killed your party to the last man!\n");
 
                     notify(playernum, governor, buf);
-                } else if (SISAPOD(ship) && ((ship->popn + ship->troops) == 0)) {
+                } else if (ship->type && ((ship->popn + ship->troops) == 0)) {
                     sprintf(buf, "Boarders are unable to control the pod.\n");
                     notify(playernum, governor, buf);
                 }

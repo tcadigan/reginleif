@@ -32,6 +32,7 @@
  * here it is. (see misc/schedule.cfg)
  * *****************************************************************************
  */
+#include "schedule.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -39,10 +40,8 @@
 #include <string.h>
 #include <time.h>
 
-#include "GB_copyright.h"
 #include "files.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ships.h"
 #include "vars.h"

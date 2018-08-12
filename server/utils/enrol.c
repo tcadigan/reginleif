@@ -29,22 +29,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-/*
- * #include <strings.h>
- */
 #include <unistd.h>
 
 #include "buffers.h"
-#include "GB_copyright.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ranks.h"
 #include "shipdata.h"
 #include "ships.h"
 #include "vars.h"
 
-#define EXTERN
 #define RACIAL_TYPES 10
 
 extern int errno;
@@ -97,14 +91,6 @@ int Max_Sexes[RACIAL_TYPES] = {
 double db_Metabolism[RACIAL_TYPES] = {
     3.0, 2.7, 2.4, 1.0, 1.15, 1.30, 1.45, 1.6, 1.75, 1.9
 };
-
-#define RMass(x) (db_Mass[(x)] + (0.001 * (double)int_rand(-25, 25)))
-#define Birthrate(x) (db_Birthrate[(x)] + (0.01 * (double)int_rand(-10, 10)))
-#define Fighters(x) (db_Fighters[(x)] + int_rand(-1, 1))
-#define Intelligence(x) (db_Inteligence[(x)] + int_rand(-10, 10))
-#define Adventurism(x) (db_Adventurism[(x)] + (0.01 * (double)int_rand(-10, 10)))
-#define Sexes(x) (int_rand(Min_Sexes[(x)], int_rand(Min_Sexes[(x)], Max_Sexes[(x)])))
-#define Metabolism(x) (db_Metabolism[(x)] + (0.01 * (double)int_rand(-15, 15)))
 
 /*
  * Compatibility schematic for sectors. Note that plated sectors are compatible
@@ -555,9 +541,9 @@ int main(int argc, char *argv[])
     Race->atwar[1] = 0;
     Race->atwar[0] = Race->atwar[1];
 
-    Race->mass = RMass(idx);
-    Race->birthrate = Birthrate(idx);
-    Race->fighters = Fighters(idx);
+    Race->mass = db_Mass[idx] + (0.001 * (double)int_rand(-25, 25));
+    Race->birthrate = db_Birthrate[idx] + (0.01 * (double)int_rand(-10, 10));
+    Race->fighters = db_Fighters[idx] + int_rand(-1, 1);
 
     if (Thing[idx]) {
         Race->IQ = 0;
@@ -566,16 +552,16 @@ int main(int argc, char *argv[])
         Race->absorb = Race->collective_iq;
         Race->Metamorph = Race->absorb;
     } else {
-        Race->IQ = Intelligence(idx);
+        Race->IQ = db_Intelligence[idx] + int_rand(-10, 10);
         Race->pods = 0;
         Race->collective_iq = Race->pods;
         Race->absorb = Race->collective_iq;
         Race->Metatamorph = Race->absorb;
     }
 
-    Race->adventurism = Adventurism(idx);
-    Race->number_sexes = Sexes(idx);
-    Race->metabolism = Metabolism(idx);
+    Race->adventurism = db_Adventurism[idx] + (0.01 * (double)int_rand(-10, 10));
+    Race->number_sexes = int_rand(Min_Sexes[idx], int_rand(Min_Sexes[idx], Max_Sexes[idx]));
+    Race->metabolism = db_Metabolism[idx] + (0.01 * (double)int_rand(-15, 15));
 
     if (Race->Metamorph) {
         printf("METAMORPHIC\n");
@@ -602,9 +588,9 @@ int main(int argc, char *argv[])
     }
 
     while (str[0] != 'y') {
-        Race-mass = RMass(idx);
-        Race->birthrate = Birthrate(idx);
-        Race->fighters = Fighters(idx);
+        Race->mass = db_Mass[idx] + (0.001 * (double)int_rand(-25, 25));
+        Race->birthrate = db_Birthrate[idx] + (0.01 * (double)int_rand(-10, 10));
+        Race->fighters = db_Fighters[idx] + int_rand(-1, 1);
 
         if (Thing[idx]) {
             Race->IQ = 0;
@@ -613,16 +599,16 @@ int main(int argc, char *argv[])
             Race->absorb = Race->collective_iq;
             Race->Metamorph = Race->absorb;
         } else {
-            Race->IQ = Intelligence(idx);
+            Race->IQ = db_Intelligence[idx] + int_rand(-10, 10);
             Race->pods = 0;
             Race->collective_iq = Race->pods;
             Race->absorb = Race->collective_iq;
             Race->Metamorph = Race->absorb;
         }
 
-        Race->adventurism = Adventurism(idx);
-        Race->number_sexes = Sexes(idx);
-        Race->metabolism = Metabolism(idx);
+        Race->adventurism = db_Adventurism[idx] + (0.01 * (double)int_rand(-10, 10));
+        Race->number_sexes = int_rand(Min_Sexes[idx], int_rand(Min_Sexes[idx], Max_Sexes[idx]));
+        Race->metabolism = db_Metabolism[idx] + (0.01 * (double)int_rand(-15, 15));
 
         if (race->Metamorph) {
             printf("METAMORPHIC\n");

@@ -42,7 +42,7 @@ unsigned long segments; /* Number of movement segments (global variable) */
 /* Shipping routes - DON'T change this unless you know what you are doing */
 #define MAX_ROUTES 4
 
-#define TH_REASOURCE 0 /* THRESHLOADING STUFF */
+#define TH_REASOURCE 0 /* THRESHOLDING STUFF */
 #define TH_DESTRUCT 1
 #define TH_FUEL 2
 #define TH_CRYSTALS 3
@@ -112,37 +112,6 @@ unsigned long segments; /* Number of movement segments (global variable) */
 typedef char hugestr[HUGESTRLEN];
 
 #define CHAP_KEYSIZE 12
-
-#ifdef hpux
-/*
- * Removed (kse)
- *
- * #define srandom(bar) {                         \
- *         unsigned short int seed16v[3] = {      \
- *             (unsigned short int)bar,           \
- *             (unsigned short int)(bar << 16),   \
- *             0                                  \
- *         };                                     \
- *         seed48(seed16v);                       \
- *     }
- */
-
-#define random lrand48()
-
-#include <unistd.h>
-/*
- * Removed (kse)
- * #define getdtablesize() sysconf(_SC_OPEN_MAX)
- */
-
-#else
-
-/*
- * Removed (kse)
- * long random();
- */
-
-#endif
 
 unsigned int CombatUpdate; /* Global */
 
@@ -327,7 +296,7 @@ struct stardata {
     unsigned long dummy[2];
 };
 
-EXTERN struct stardata Sdata;
+extern struct stardata Sdata;
 
 struct directory {
     unsigned char level; /* What directory level */
@@ -428,95 +397,74 @@ struct mdb_entry {
 
 typedef struct mdb_entry mdbtype;
 
-EXTERN struct descrip des[MAXDESCRIPTORS + 1];
-EXTERN struct dtable actives[MAXPLAY_GOV + 1];
+extern struct descrip des[MAXDESCRIPTORS + 1];
+extern struct dtable actives[MAXPLAY_GOV + 1];
 
-EXTERN struct descriptor_data *descriptor_list;
+extern struct descriptor_data *descriptor_list;
 
-EXTERN struct directory Dir[MAXPLAYERS][MAXGOVERNORS + 1];
+extern struct directory Dir[MAXPLAYERS][MAXGOVERNORS + 1];
 
-EXTERN sectortype Smap[((MAX_X + 1) * (MAX_Y + 1)) + 1];
+extern sectortype Smap[((MAX_X + 1) * (MAX_Y + 1)) + 1];
 
-/*
- * Removed (kse)
- *
- * #ifdef AIX
- * extern void *malloc();
- *
- * #else
- *
- * extern char *malloc();
- * #endif
- */
+extern startype *star_arena;
+extern planettype *planet_arena;
 
-#ifdef oldsun /* Changed from sun to oldsun -mfw */
-long random(void);
-int srandom(unsigned);
-char *initstate(unsigned, char *, int);
-char *setstate(char *);
-int getdtablesize(void);
-#endif
+extern unsigned char Nuked[MAXPLAYERS];
+extern unsigned long StarsInhab[NUMSTARS];
+extern unsigned long StarsExpl[NUMSTARS];
+extern startype *Stars[NUMSTARS];
+extern unsigned short Sdatanumships[MAXPLAYERS];
+extern unsigned long Sdatapopns[MAXPLAYERS];
+extern unsigned short starnumships[NUMSTARS][MAXPLAYERS];
+extern unsigned long starpopns[NUMSTARS][MAXPLAYERS];
 
-EXTERN startype *star_arena;
-EXTERN planettype *planet_arena;
+extern unsigned long tot_resdep;
+extern unsigned long prod_eff;
+extern unsigned long prod_res[MAXPLAYERS};
+extern unsigned long prod_fuel[MAXPLAYERS];
+extern unsigned long prod_destruct[MAXPLAYERS];
+extern unsigned long prod_crystals[MAXPLAYERS];
+extern unsigned long prod_money[MAXPLAYERS];
+extern unsigned long tot_captures;
+extern unsigned long prod_mob;
+extern unsigned long avg_mob[MAXPLAYERS];
+extern unsigned char sects_gained[MAXPLAYERS];
+extern unsigned char sects_lost[MAXPLAYERS];
+extern unsigned char Claims;
+extern unsigned char adr;
+extern char junk[2][256];
 
-EXTERN unsigned char Nuked[MAXPLAYERS];
-EXTERN unsigned long StarsInhab[NUMSTARS];
-EXTERN unsigned long StarsExpl[NUMSTARS];
-EXTERN startype *Stars[NUMSTARS];
-EXTERN unsigned short Sdatanumships[MAXPLAYERS];
-EXTERN unsigned long Sdatapopns[MAXPLAYERS];
-EXTERN unsigned short starnumships[NUMSTARS][MAXPLAYERS];
-EXTERN unsigned long starpopns[NUMSTARS][MAXPLAYERS];
+extern planettype *planets[NUMSTARS][MAXPLANETS];
+extern unsigned char ground_assaults[MAXPLAYERS][MAXPLAYERS][NUMSTARS];
+extern unsigned long inhabited[NUMSTARS][2];
+extern double Compat[MAXPLAYERS];
+extern unsigned long Num_races;
+extern unsigned long Num_ships;
+extern unsigned long Num_commods;
+extern unsigned long Planet_count;
+extern unsigned long newslength[4];
+extern char args[MAXARGS][COMMANDSIZE];
+extern int argn;
+extern unsigned short opts[MAXOPTS];
+extern int optn;
 
-EXTERN unsigned long tot_resdep;
-EXTERN unsigned long prod_eff;
-EXTERN unsigned long prod_res[MAXPLAYERS};
-EXTERN unsigned long prod_fuel[MAXPLAYERS];
-EXTERN unsigned long prod_destruct[MAXPLAYERS];
-EXTERN unsigned long prod_crystals[MAXPLAYERS];
-EXTERN unsigned long prod_money[MAXPLAYERS];
-EXTERN unsigned long tot_captures;
-EXTERN unsigned long prod_mob;
-EXTERN unsigned long avg_mob[MAXPLAYERS];
-EXTERN unsigned char sects_gained[MAXPLAYERS];
-EXTERN unsigned char sects_lost[MAXPLAYERS];
-EXTERN unsigned char Claims;
-EXTERN unsigned char adr;
-EXTERN char junk[2][256];
+extern time_t next_update_time; /* When will next update... */
+extern time_t next_segment_time; /* When will next segment be... */
+extern time_t next_backup_time; /* When will next backup be... */
+extern time_t next_shutdown_time; /* When will next shutdown be... */
+extern time_t next_close_time; /* When will next closure be... */
+extern time_t next_open_time; /* When will next opening be... */
+extern time_t last_update_time;
+extern time_t last_segment_time;
+extern time_t last_backup_time; /* -mfw */
+extern int update_time; /* Interval between updates */
+extern int backup_time; /* Interval between backups -mfw */
+extern int game_closed; /* Is the game currently closed? */
 
-EXTERN planettype *planets[NUMSTARS][MAXPLANETS];
-EXTERN unsigned char ground_assaults[MAXPLAYERS][MAXPLAYERS][NUMSTARS];
-EXTERN unsigned long inhabited[NUMSTARS][2];
-EXTERN double Compat[MAXPLAYERS];
-EXTERN unsigned long Num_races;
-EXTERN unsigned long Num_ships;
-EXTERN unsigned long Num_commods;
-EXTERN unsigned long Planet_count;
-EXTERN unsigned long newslength[4];
-EXTERN char args[MAXARGS][COMMANDSIZE];
-EXTERN int argn;
-EXTERN unsigned short opts[MAXOPTS];
-EXTERN int optn;
+extern int nsegments_done; /* How many movements have we done so far? */
+extern int nupdates_done; /* Number of updates so far */
 
-EXTERN time_t next_update_time; /* When will next update... */
-EXTERN time_t next_segment_time; /* When will next segment be... */
-EXTERN time_t next_backup_time; /* When will next backup be... */
-EXTERN time_t next_shutdown_time; /* When will next shutdown be... */
-EXTERN time_t next_close_time; /* When will next closure be... */
-EXTERN time_t next_open_time /* When will next opening be... */
-EXTERN time_t last_update_time;
-EXTERN time_t last_segment_time;
-EXTERN time_t last_backup_time; /* -mfw */
-EXTERN int update_time; /* Interval between updates */
-EXTERN int backup_time; /* Interval between backups -mfw */
-EXTERN int game_closed; /* Is the game currently closed? */
-
-EXTERN int nsegments_done; /* How many movements have we done so far? */
-EXTERN int nupdates_done; /* Number of updates so far */
-
-/* EXTERN long clk; */
-EXTERN int suspended; /* Prevent updates/segments flag */
+extern int suspended; /* Prevent updates/segments flag */
 
 #define ORBIT_SCALE 100
 

@@ -22,38 +22,18 @@
  */
 
 #ifndef BIGBUFF
-EXTERN char buf[2047];
-EXTERN char long_buf[1024];
-EXTERN char short_buf[256];
-EXTERN char telegram_buf[AUTO_TELEG_SIZE];
-EXTERN char temp[128];
+extern char buf[2047];
+extern char long_buf[1024];
+extern char short_buf[256];
+extern char telegram_buf[AUTO_TELEG_SIZE];
+extern char temp[128];
 
 #else
 
-EXTERN char buf[4096];
-EXTERN char long_buf[4096];
-EXTERN char short_buf[1024];
-EXTERN char telegram_buf[4096];
-EXTERN char temp[2048];
+extern char buf[4096];
+extern char long_buf[4096];
+extern char short_buf[1024];
+extern char telegram_buf[4096];
+extern char temp[2048];
 
 #endif
-
-/*
- * Macro to make set string easier to use
- */
-#define SET(astr, bstr) do {                    \
-        char **__a;                             \
-        char *__b;                              \
-        __a = &(astr);                          \
-        __b = (bstr);                           \
-                                                \
-        if (*__a) {                             \
-            free(*__a);                         \
-        }                                       \
-                                                \
-        if (!__b || !*__b) {                    \
-            *__a = NULL;                        \
-        } else {                                \
-            *__a = malloc(strlen(__b) + 1);     \
-        }                                       \
-    } while(0)

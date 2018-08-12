@@ -27,23 +27,13 @@
  */
 
 #include <string.h>
-/*
- * #include <strings.h>
- */
 
 #include "racegen.h"
 
 #define DEFAULT_ENROLLMENT_FILENAME "enroll.saves"
 #define DEFAULT_ENROLLMENT_FAILURE_FILENAME "failures.saves"
 
-#ifdef __STDC__
 extern int enroll_valid_race(void);
-
-#else
-
-extern int enroll_valid_race();
-
-#endif
 
 int critique_to_file(FILE *, int, int);
 int Dialogue(char const *, ...);

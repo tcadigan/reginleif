@@ -27,14 +27,9 @@
 
 #include <math.h>
 #include <string.h>
-/*
- * #include <strings.h>
- */
 
-#include "GB_copyright.h"
 #include "vars.h"
 
-#define EXTERN extern
 #define PLANET_DIST_MAX 1900.0
 #define PLANET_DIST_MIN 100.0
 

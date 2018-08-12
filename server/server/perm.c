@@ -28,9 +28,9 @@
  *
  * static char *ver = "@(#)       $RCSfile: perm.c,v $ $Revision: 1.3 $";
  */
-#include "GB_copyright.h"
+#include "perm.h"
+
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ships.h"
 #include "vars.h"

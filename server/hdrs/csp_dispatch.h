@@ -27,8 +27,6 @@
  * #ident "@(#)csp_dispatch.h 1.3 12/1/93 "
  */
 
-#include "proto.h"
-
 extern void voidpoint(void);
 
 /* For binary search */

@@ -532,7 +532,7 @@ them follows:
     2039  CSP_SHIPDUMP_PTACT_INFO   - For a ship from a planet
     2040  CSP_SHIPDUMP_STACT_INFO   - For a ship from a ship
     2041  CSP_SHIPDUMP_ORDERS       - Ship orders
-    2042  CSP_SHIPDUMP_THRESH       - Ship threshloading
+    2042  CSP_SHIPDUMP_THRESH       - Ship thresholding
     2043  CSP_SHIPDUMP_SPECIAL      - Ship specials
     2044  CSP_SHIPDUMP_HYPER        - Hyper drive usage
     2055  CSP_SHIPDUMP_END          - End of command (EOC)

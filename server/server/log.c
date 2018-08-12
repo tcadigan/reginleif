@@ -39,13 +39,13 @@
  *
  * static char *ver = "@(#)        $RCSfile: log.c,v $ $Revision: 1.4 $";
  */
+#include "log.h"
 
 #include <errno.h>
 #include <fcntl.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
-#include <strings.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
@@ -55,7 +55,6 @@
 #include "config.h"
 #include "files.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ranks.h"
 #include "ships.h"

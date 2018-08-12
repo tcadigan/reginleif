@@ -29,10 +29,8 @@
 
 #include <stdlib.h> /* Added for atoi() and free() (kse) */
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ranks.h"
 #include "ships.h"
@@ -102,9 +100,17 @@ void capital(int playernum, int governor, int apcount)
         putrace(race);
     }
 
-    sprintf(buf,
-            "Efficiency of governmental center: %.0f%%.\n",
-            ((double)s->popn / (double)Max_crew(s)) * (100 - (double)s->damage));
+    if (s->type == OTYPE_FACTORY) {
+        sprintf(buf,
+                "Efficiency of governmental center: %.0f%%.\n",
+                ((double)s->popn / (Shipdata[s->type][ABIL_MAXCREW] - s->troops)
+                * (100 - (double)s->damage));
+    } else {
+        sprintf(buf,
+                "Efficiency of governmental center: %.0f%%.\n",
+                ((double)s->popn / (s->max_crew - s->popn))
+                * (100 - (doule)s->damage));
+    }
 
     notify(playernum, governor, buf);
     free(s);

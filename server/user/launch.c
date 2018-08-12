@@ -29,10 +29,8 @@
 
 #include <stdlib.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ranks.h"
 #include "ships.h"
@@ -82,7 +80,7 @@ void launch(int playernum, int governor, int apcount)
     while (shipno) {
 
         if (in_list(playernum, ship_to_launch, s, &nextshipno)) {
-            if (!speed_rating(s) && landed(s)) {
+            if (!s->max_speed && landed(s)) {
                 sprintf(buf, "That ship is not designed to be launched.\n");
                 notify(playernum, governor, buf);
                 free(s);

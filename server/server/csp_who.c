@@ -24,6 +24,7 @@
  *
  * static char *ver = "@(#)       $RCSfile: csp_who.c,v $ $Revision: 1.3 $";
  */
+#include "csp_who.h"
 
 #include <curses.h>
 #include <string.h>
@@ -36,7 +37,6 @@
 #include "csp_types.h"
 #include "debug.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ships.h"
 #include "tweakables.h"

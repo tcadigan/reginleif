@@ -215,6 +215,6 @@ struct power_blocks {
 typedef struct race racetype;
 typedef struct block blocktype;
 
-EXTERN struct block Blocks[MAXPLAYERS];
-EXTERN struct power_blocks Power_blocks;
-EXTERN racetype *races[MAXPLAYERS];
+extern struct block Blocks[MAXPLAYERS];
+extern struct power_blocks Power_blocks;
+extern racetype *races[MAXPLAYERS];

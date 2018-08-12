@@ -28,18 +28,16 @@
  *
  * static char *ver = "@{#}        $RCSfile: doship.c,v $ $Revision: 1.6 $";
  */
+#include "doship.h"
 
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
-/* #include <strings.h> */
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "debug.h"
 #include "doturn.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ships.h"
 #include "vars.h"
@@ -74,6 +72,9 @@ void doship(shiptype *ship, int update)
     planettype *planet;
     int aused;
     int setting;
+    int armor;
+    int max_crew;
+    int vn_flag;
     double cloak_fuel;
 
     /* Ship is active */
@@ -86,8 +87,6 @@ void doship(shiptype *ship, int update)
     if (update) {
         ++ship->age;
     }
-
-    int vn_flag;
 
 #ifdef USE_VN
     if ((ship->type != OTYPE_VN) && (ship->type != OTYPE_BERS)) {
@@ -104,7 +103,8 @@ void doship(shiptype *ship, int update)
     /* Ship aging code from HAP -mfw */
     if (update
         && ship->alive
-        && (!has_switch(ship) || (has_switch(ship) && ship->on))
+        && (!Shipdata[ship->type][ABIL_HASSWITCH]
+            || (Shipdata[ship->type][ABIL_HASSWITCH] && ship->on))
         && (ship->owner != 1)
         && (ship->popn || ship->troops)
         && (ship->type != OTYPE_GOV)
@@ -178,7 +178,13 @@ void doship(shiptype *ship, int update)
             ship->active = 1;
         }
 
-        if (!ship->popn && Max_crew(ship) && !ship->docked) {
+        if (ship->type == OTYPE_FACTORY) {
+            max_crew = Shipdata[ship->type][ABIL_MAXCREW] - ship->troops;
+        } else {
+            max_crew = ship->max_crew - ship->popn;
+        }
+
+        if (!ship->popn && max_crew && !ship->docked) {
             ship->whatdest = LEVEL_UNIV;
         }
 
@@ -189,7 +195,14 @@ void doship(shiptype *ship, int update)
              *
              * Maarten: Modified to take into account MOVES_PER_UPDATE
              */
-            ship->damage += ((5 * Stars[storbits]->nova_stage) / ((Armor(ship) + 1) * segments));
+            if (ship->type == OTYPE_FACTORY) {
+                armor = Shipdata[ship->type][ABIL_ARMOR];
+            } else {
+                armor = (ship->armor * (100 - ship->damage)) / 100;
+            }
+
+            ship->damage += ((5 * Stars[storbits]->nova_stage)
+                             / ((armor + 1) * segments));
 
             if (ship->damage >= 100) {
                 kill_ship((int)ship_owner, ship);
@@ -301,7 +314,8 @@ void doship(shiptype *ship, int update)
 #endif
 
             /* Bombard the planet */
-            if (can_bombard(ship)
+            if (((Shipdata[ship->type][ABIL_GUNS] || Shipdata[ship->type][ABIL_LASER])
+                 && (ship->type != STYPE_MINEF))
                 && ship->bombard
                 && (ship->whatorbits == LEVEL_PLAN)
                 && (ship->whatdest == LEVEL_PLAN)
@@ -324,17 +338,32 @@ void doship(shiptype *ship, int update)
              * can repair (robot ships and offline factories can't repair)
              */
 #ifdef USE_VN
-            if (ship->damage
-                && (Repair(ship)
-                    || (ship->type == OTYPE_VN)
-                    || (ship->type == OTYPE_BERS))) {
-                do_repair(ship);
+            if (ship->type == OTYPE_FACTORY) {
+                if (ship->damage
+                    && (ship->on
+                        || (ship->type == OTYPE_VN)
+                        || (ship->type == OTYPE_BERS))) {
+                    do_repair(ship);
+                }
+            } else {
+                if (ship->damage
+                    && (max_crew
+                        || (ship->type == OTYPE_VN)
+                        || (ship->type == OTYPE_BERS))) {
+                    do_repair(ship);
+                }
             }
 
 #else
 
-            if (ship->damage && Repair(ship)) {
-                do_repair(ship);
+            if (ship->type == OTYPE_FACTORY) {
+                if (ship->damage && ship->on) {
+                    do_repair(ship);
+                }
+            } else {
+                if (ship->damage && max_crew) {
+                    do_repair(ship);
+                }
             }
 #endif
 
@@ -367,7 +396,7 @@ void doship(shiptype *ship, int update)
                         use_fuel(ship, cloak_fuel);
                     }
                 } /* If !activate */
-            } else if (can_cloak(ship)) {
+            } else if (Shipdata[ship->type][ABIL_CLOAK] && ship->cloak) {
                 if (ship->cloaking) {
                     if (ship->mounted) {
                         cloak_fuel = (ship->max_fuel * CLOAK_FUEL_CONSUMPTION * TECH_CLOAK) / ship->tech;
@@ -482,7 +511,7 @@ void doship(shiptype *ship, int update)
                 }
             }
 
-            if (SISAPOD(ship)) {
+            if (ship->type) {
                 do_pod(ship);
             }
         }
@@ -1001,7 +1030,7 @@ void do_mine(int shipno, int manual_detonate)
                             while ((ship->destruct != 0) && s->alive) {
                                 use_destruct(ship, 1);
 
-                                if (SISAPOD(s)) {
+                                if (s->type) {
                                     /* Pods have a 1 in 3 chance of hit */
                                     if (int_rand(1, 3) == 1) {
                                         in_radius = shoot_ship_to_ship(ship,
@@ -1473,6 +1502,7 @@ void do_habitat(shiptype *ship)
     int sh;
     int add;
     int rate;
+    int max_crew;
     double fuse;
     unsigned int wruse;
     unsigned int wfuse;
@@ -1529,8 +1559,14 @@ void do_habitat(shiptype *ship)
 
     add = round_rand((double)ship->popn * races[ship->owner - 1]->birthrate);
 
-    if ((ship->popn + add) > Max_crew(ship)) {
-        add = Max_crew(ship) - ship->popn;
+    if (ship->type == OTYPE_FACTORY) {
+        max_crew = Shipdata[ship->type][ABIL_MAX_CREW] - ship->troops;
+    } else {
+        max_crew = ship->max_crew - ship->popn;
+    }
+
+    if ((ship->popn + add) > max_crew) {
+        add = max_crew - ship->popn;
     }
 
     rcv_popn(ship, add, races[ship->owner - 1]->mass);
@@ -2046,7 +2082,7 @@ int kill_ship(int playernum, shiptype *ship)
     /* Remove the ship from it's fleet (if any) -mfw */
     remove_sh_fleet(playernum, 0, ship);
 
-    if (!SISAPOD(ship) && (ship->type != OTYPE_FACTORY)) {
+    if (!ship->type && (ship->type != OTYPE_FACTORY)) {
         /* Pods don't do things to morale, ditto for factories */
         victim = races[ship->owner - 1];
 

@@ -34,12 +34,13 @@
  *
  * static char *ver = "@(#)       $RCSfile: rand.c,v $ $Revision: 1.4 $";
  */
+#include "rand.h"
+
 #include <stdlib.h>
 #include <sys/types.h>
 #include <time.h
 #include <unistd.h>
 
-#include "GB_copyright.h"
 #include "tweakables.h"
 
 double double_rand(void);

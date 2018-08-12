@@ -78,19 +78,9 @@
 #define END_RECORD_STRING "************>"
 #define min(x, y) (((x) < (y)) ? (x) : (y))
 
-#ifdef __STDC__
-
-/* void exit(int); */
 int system(char const *);
-
-#else
-
-#define const
-
 double atof();
 int Dialogue();
-
-#endif
 
 /*
  * Attributes, attribute names, and parameters for attribute costs.

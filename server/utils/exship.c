@@ -36,7 +36,6 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <stdlib.h>
-#include <strings.h>
 #include <sys/file.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -47,7 +46,6 @@
 #include "ships.h"
 #include "vars.h"
 
-#define EXTERN extern
 #define DATAFILE DATA(ship)
 
 /*
@@ -58,16 +56,9 @@ void check_size(void);
 void display_ship(void);
 void summarize_ship(void);
 
-#ifdef __STDC__
-
 void readship(shiptype **, int);
-
-#else
-
 void main();
 void readship();
-
-#endif
 
 /*
  * Global variables

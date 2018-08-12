@@ -30,20 +30,18 @@
  *
  * static char *ver = "@(#)       $RCSfile: files_shl.c,v $ $Revision: 1.4 $";
  */
+#include "files_shl.h"
 
 #include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
 #include <stdlib.h>
-#include <strings.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ships.h"
 #include "vars.h"

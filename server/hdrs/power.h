@@ -38,4 +38,4 @@ struct power {
     unsigned long sum_eff; /* Total efficiency */
 };
 
-EXTERN struct power Power[MAXPLAYERS];
+extern struct power Power[MAXPLAYERS];

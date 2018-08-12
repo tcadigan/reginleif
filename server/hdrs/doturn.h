@@ -32,7 +32,7 @@ struct stinfo {
     unsigned char intimidated; /* Assault platform is here */
 };
 
-EXTERN struct stinfo Stinfo[NUMSTARS][MAXPLANETS];
+extern struct stinfo Stinfo[NUMSTARS][MAXPLANETS];
 
 #ifdef USE_VN
 
@@ -41,7 +41,7 @@ struct vnbrain {
     short most_mad; /* Player most mad at */
 };
 
-EXTERN struct vnbrain VN_brain;
+extern struct vnbrain VN_brain;
 
 struct sectinfo {
     char explored; /* Sector has been explored */
@@ -58,4 +58,4 @@ struct sectinfo {
 
 #endif
 
-EXTERN struct sectinfo Sectinfo[MAX_X][MAX_Y];
+extern struct sectinfo Sectinfo[MAX_X][MAX_Y];

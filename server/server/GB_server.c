@@ -26,6 +26,7 @@
  *
  * static char *ver = "@(#)        $RCSfile: GB_server.c,v $REVISION: 1.5 $";
  */
+#include "GB_server.h"
 
 #include <arpa/inet.h>
 #include <ctype.h>
@@ -39,7 +40,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-/*#include <strings.h> */
 #include <sys/errno.h>
 #include <sys/file.h>
 #include <sys/ioctl.h>
@@ -54,10 +54,6 @@
 #include <time.h>
 #include <unistd.h>
 
-#ifdef AIX
-#include <sys/select.h>
-#endif
-
 /* GB headers */
 #include "buffers.h"
 #include "command.h"
@@ -66,7 +62,6 @@
 #include "debug.h"
 #include "doturn.h"
 #include "game_info.h"
-#include "proto.h"o
 #include "power.h"
 #include "races.h"
 #include "ranks.h"

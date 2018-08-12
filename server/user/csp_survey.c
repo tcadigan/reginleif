@@ -31,15 +31,12 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "csp.h"
 #include "csp_types.h"
 #include "debug.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ranks.h"
 #include "ships.h"

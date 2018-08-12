@@ -35,9 +35,10 @@
  *
  * static char*ver = "@(#)         $RCSfile: client.c,v $Revision: 1.4 $";
  */
+#include "client.h"
+
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
 #include <sys/param.h>
 
 #include "buffers.h"
@@ -46,7 +47,6 @@
 #include "csp_types.h"
 #include "debug.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ships.h"
 #include "vars.h"
@@ -468,15 +468,15 @@ void CSP_client_version(int playernum, int governor)
     strcat(buf, " AUTOSCRAP");
 #endif
 
-#ifdef THRESHLOADING
-    strcat(buf, " THRESHLOADING");
+#ifdef THRESHOLDING
+    strcat(buf, " THRESHOLDING");
 #endif
 
 #ifdef COLLECTIVE_MONEY
     strcat(buf, " COLLECTIVE_MONEY");
 #endif
 
-#ifdef OutPUT_OVERFLOW
+#ifdef OUTPUT_OVERFLOW
     strcat(buf, " OUTPUT_OVERFLOW");
 #endif
 

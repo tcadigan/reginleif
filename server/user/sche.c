@@ -39,13 +39,10 @@
 #include <ctype.h>
 #include <time.h>
 #include <string.h>
-/* #include <strings.h> */
 #include <sys/stat.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ranks.h"
 #include "ships.h"

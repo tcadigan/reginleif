@@ -31,10 +31,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ships.h"
 #include "vars.h"
@@ -104,7 +102,7 @@ int shoot_ship_to_ship(shiptype *from,
         return -1;
     }
 
-    if (has_switch(from) && !from->on) {
+    if (Shipdata[from->type][ABIL_HASSWITCH] && !from->on) {
         return -1;
     }
 
@@ -390,7 +388,7 @@ int shoot_ship_to_planet(shiptype *ship,
         return -1;
     }
 
-    if (has_switch(ship) && !ship->on) {
+    if (Shipdata[ship->type][ABIL_HASSWITCH] && !ship->on) {
         return -1;
     }
 
@@ -594,8 +592,11 @@ int do_radiation(shiptype *ship,
     fac = (2.0 / 3.14159265) * atan((double)((5 * (tech + 1.0)) / (ship->tech + 1.0)));
 
     /* HUT modification (tze): Effect of ship armor is doubled */
-    arm = MAX(0, (2 * Armor(ship)) - (hits / 5));
-    /* arm = MAX(0, Armor(ship) - (hits / 5)); */
+    if (ship->type == OTYPE_FACTORY) {
+        arm = MAX(0, (2 * Shipdata[ship->type][ABIL_ARMOR]) - (hits / 5));
+    } else {
+        arm = MAX(0, (2 * ((ship->armor * (100 - ship->damage)) / 100)) - (hits / 5));
+    }
 
     body = Body(ship);
     penetrate = 0;
@@ -694,8 +695,11 @@ int do_damage(int who,
     penetration_factor = fac;
 
     /* HUT modification (tze) : Effect of ship armor is doubled */
-    arm = MAX(0, (2 * Armor(ship)) + defense - (hits / 5));
-    /* arm = MAX(0, Armor(ship) + defense - (hits / 5); */
+    if (ship->type == OTYPE_FACTORY) {
+        arm = MAX(0, (2 * shipdata[ship->type][ABIL_ARMOR]) + defense - (hits / 5));
+    } else {
+        arm = MAX(0, (2 * ((ship->armor * (100 - ship->damage)) / 100)) + defense - (hits / 5));
+    }
 
     body = sqrt((double)(0.1 * Body(ship)));
 

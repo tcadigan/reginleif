@@ -38,11 +38,9 @@
 #include <string.h>
 #include <time.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "config.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ranks.h"
 #include "ships.h"
@@ -799,7 +797,7 @@ void give(int playernum, int governor, int apcount)
         return;
     }
 
-    if (SISAPOD(ship)) {
+    if (ship->type) {
         notify(playernum,
                governor,
                "You cannot change the ownership of spore pods.\n");

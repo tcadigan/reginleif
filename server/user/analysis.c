@@ -31,10 +31,8 @@
 #include <stdlib.h> /* Added for atoi() and free() (kse) */
 #include <string.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "power.h"
-#include "proto.h"
 #include "ranks.h"
 #include "races.h"
 #include "ships.h"

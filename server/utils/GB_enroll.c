@@ -27,12 +27,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define EXTERN
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "config.h"
 #include "power.h"
-#include "proto.h"
 #include "racegen.h"
 #include "races.h"
 #include "shipdata.h"
@@ -49,17 +46,8 @@ extern int errno;
 racetype *Race;
 int planet_translate[N_HOME_PLANET_TYPES] = { 0, 6, 7, 5, 2, 3, 4 };
 
-#ifdef __STDC__
-/*
- * void srandom(int seed;
- * long random(void);
- */
 int getpid(void);
 void modify_print_loop(int level);
-
-#else
-#define const
-#endif
 
 int notify(int who, int gov, const char *msg)
 {

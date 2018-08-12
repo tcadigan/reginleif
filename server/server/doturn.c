@@ -28,6 +28,7 @@
  *
  * static char *ver = "@(#)  $RCSfile: doturn.c,v $ $Revision: 1.6 $";
  */
+#include "doturn.h"
 
 #include <ctype.h>
 #include <math.h>
@@ -37,11 +38,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "doturn.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ships.h"
 #include "tweakables.h"

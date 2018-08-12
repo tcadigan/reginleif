@@ -49,20 +49,11 @@
 #include <string.h>
 #include <sys/file.h>
 #include <sys.stat.h>
-
-#ifdef SOLARIS
-#include <sys/time.h>
-
-#else
 #include <time.h>
 
-#endif
-
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "files.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ships.h"
 #include "vars.h"

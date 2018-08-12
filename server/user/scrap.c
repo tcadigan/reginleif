@@ -29,10 +29,8 @@
 
 #include <stdlib.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ranks.h"
 #include "ships.h"
@@ -51,6 +49,7 @@ void scrap(int playernum, int governor, int apcount)
     int scrapval = 0;
     int destval = 0;
     int crewval = 0;
+    int max_crew = 0;
     int xtalval = 0;
     int troopval = 0;
     double fuelval = 0.0;
@@ -103,7 +102,7 @@ void scrap(int playernum, int governor, int apcount)
                  * races can clean up their messes. I'm not going to charge APs
                  * at the UNIV scope either. -mfw
                  */
-                if (SISAPOD(s)) {
+                if (s->type) {
                     apcount = 0;
                 } else {
                     notify(playernum,
@@ -286,9 +285,15 @@ void scrap(int playernum, int governor, int apcount)
 
                         crewval = s->popn;
 
+                        if (s2->type == OTYPE_FACTORY) {
+                            max_crew = Shipdata[s2->type][ABIL_MAXCREW] - s2->troops;
+                        } else {
+                            max_crew = s2->max_crew - s2->popn;
+                        }
+
                         if ((s->whatdest == LEVEL_SHIP)
-                            && ((s2->popn + crewval) > Max_crew(s2))) {
-                            crewval = Max_crew(s2) - s2->popn;
+                            && ((s2->popn + crewval) > max_crew)) {
+                            crewval = max_crew - s2->popn;
                             sprintf(buf,
                                     "(There is only room for %d crew.)\n",
                                     crewval);
@@ -320,8 +325,8 @@ void scrap(int playernum, int governor, int apcount)
                         xtalval = s->crystals + s->mounted;
 
                         if ((s->whatdest == LEVEL_SHIP)
-                            && ((s2->crystals + xtalval) > Max_crystals(s2))) {
-                            xtalval = Max_crystals(s2) - s2->crystals;
+                            && ((s2->crystals + xtalval) > 127)) {
+                            xtalval = 127 - s2->crystals;
                             sprintf(buf,
                                     "(There is only room for %d crystals.)\n",
                                     xtalval);

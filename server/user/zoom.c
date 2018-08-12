@@ -39,12 +39,10 @@
 
 #include <stdlib.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "csp.h"
 #include "csp_types.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ranks.h"
 #include "ships.h"

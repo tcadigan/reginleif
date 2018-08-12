@@ -29,16 +29,12 @@
 
 #include <math.h>
 #include <string.h>
-/*
- * #include <strings.h>
- */
 
 /*
  * For random()
  */
 #include <stdlib.h>
 
-#include "GB_copyright.h"
 #include "vars.h"
 
 /*

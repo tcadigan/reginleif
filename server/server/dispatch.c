@@ -40,17 +40,16 @@
  * Written by Michael F. Wilkinson (2005)
  * #############################################################################
  */
+#include "dispatch.h"
 
 #include <ctype.h>
 #include <stdlib.h> /* Added for atoi() and free() (kse) */
 #include <string.h>
 #include <time.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "files.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ranks.h"
 #include "ships.h"

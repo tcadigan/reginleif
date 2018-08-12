@@ -26,12 +26,9 @@
  *
  * static char *ver = "@(#)       $RCSfile: get4args.c,v $ $Revision: 1.3 $";
  */
+#include "get4args.h"
 
 #include <stdio.h>
-
-#include "GB_copyright.h"
-
-void get4args(char *, int *, int *, int *, int *);
 
 void get4args(char *s, int *xl, int *xh, int *yl, int *yh)
 {

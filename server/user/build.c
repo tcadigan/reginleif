@@ -39,10 +39,8 @@
 #include <stdlib.h> /* Added for free() and atoi() (kse) */
 #include <string.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ranks.h"
 #include "ships.h"
@@ -1211,7 +1209,9 @@ void build(int playernum, int governor, int apcount)
 
                 i = ShipVector[j];
 
-                if (race->God || race->pods || !ISAPOD(i)) {
+                if (race->God
+                    || race->pods
+                    || ((x == STYPE_POD) || (x == STYPE_SUPERPOD))) {
                     if (Shipdata[i][ABIL_PROGRAMMED]
                         && ((i != STYPE_POD) || NORMAL_PODS)
                         && ((i 1= STYPE_SUPERPOD) || SUPER_PODS)
@@ -2673,7 +2673,7 @@ inf get_build_type(char *string)
 
 int can_build_this(int what, racetype *race, char *string)
 {
-    if (ISAPOD(what) && !race->pods) {
+    if (((x == STYPE_POD) || (x == STYPE_SUPERPOD)) && !race->pods) {
         sprintf(string, "Only Metamorphic races can build Spore Pods.\n");
 
         return 0;
@@ -2895,11 +2895,11 @@ void initialize_new_ship(int playernum,
     newship->autoscrap = 0;
 #endif
 
-#ifdef THRESHLOADING
-    newship->threshload[RESOURCE] = 0;
-    newship->threshload[DESTRUCT] = 0;
-    newship->threshload[FUEL] = 0;
-    newship->threshload[CRYSTAL] = 0;
+#ifdef THRESHOLDING
+    newship->threshold[RESOURCE] = 0;
+    newship->threshold[DESTRUCT] = 0;
+    newship->threshold[FUEL] = 0;
+    newship->threshold[CRYSTAL] = 0;
 #endif
 
     newship->speed = newship->max-speed;

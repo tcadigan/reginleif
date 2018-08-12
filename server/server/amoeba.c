@@ -62,15 +62,15 @@
  * the damage of the original amoeba. Thus, a player must be sure to *destroy*
  * an amoeba. Wounding an amoeba is not a Good Thing.
  */
+#include "amoeba.h"
+
 #include <stdlib.h>
 #include <string.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "config.h"
 #include "debug.h"
 #include "power.h"
-#include "protoh.h"
 #include "races.h"
 #include "ships.h"
 #include "tweakables.h"

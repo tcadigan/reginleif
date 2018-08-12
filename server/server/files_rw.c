@@ -31,6 +31,7 @@
  *
  * static char *ver = "@(#)       $RCSfile: files_rw.c,v $ $Revision: 1.3 $";
  */
+#include "files_rw.h"
 
 #include <errno.h>
 #include <signal.h>
@@ -39,7 +40,6 @@
 #include <sys/uio.h>
 #include <unistd.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "files.h"
 #include "vars.h"

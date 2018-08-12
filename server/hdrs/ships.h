@@ -100,9 +100,6 @@
 
 #endif
 
-#define ISAPOD ((x == STYPE_POD || (x == STYPE_SUPERPOD)))
-#define SISAPOD ISAPOD((int)s->type)
-
 #define ABIL_TECH 0
 #define ABIL_CARGO 1
 #define ABIL_HANGER 2
@@ -138,7 +135,7 @@
 
 #define SHIP_NAMESIZE 18
 
-#define INT_MAX_TARGETS 20
+#define INF_MAX_TARGETS 20
 #define INF_MAX_ATMO_SETTING 10
 #define INF_NULL 999
 #define INF_MAX 100
@@ -365,7 +362,7 @@ struct ship {
     /* HUTm (kse) */
     unsigned char limit; /* Tells ship (YK) when sector is good enough */
 
-    unsigned short threshload[TH_CRYSTALS + 1]; /* autoload r, d, f, x */
+    unsigned short threshold[TH_CRYSTALS + 1]; /* autoload r, d, f, x */
 
     unsigned char merchant; /* This contains the route number */
     unsigned char guns; /* Current gun system which is active */
@@ -390,68 +387,6 @@ struct place {
     unsigned char err; /* If error */
 };
 
-/* Can takeoff and land, is mobile, etc. */
-#define speed_rating(s) ((s)->max_speed)
-
-/* Has an on/off switch */
-#define has_switch(s) (Shipdata[(s)->type][ABIL_HASSWITCH])
-
-/* Can bombard planets */
-#define can_bombard(s)                                                  \
-    ((Shipdata[(s)->type][ABIL_GUNS] || Shipdata[(s)->type][ABIL_LASER]) \
-     && ((s)->type != STYPE_MINEF))
-
-/* Can cloak */
-#define can_cloak(s) (ShipData[(s)->type][ABIL_CLOAK] && ((s)->cloak))
-
-/* Can navigate */
-#ifdef USE_VN
-#define can_navigate(s)                                                 \
-    ((Shipdata[(s)->type][ABIL_SPEED] > 0) && ((s)->type != OTYPE_TERRA) \
-     && ((s)->type != OTYPE_VN))
-
-#else
-
-#define can_navigate(s)                                                 \
-    ((Shipdata[(s)->type][ABIL_SPEED] > 0) && ((s)->type != OTYPE_TERRA))
-
-#endif
-
-/* Can aim at things */
-#define can_aim(s)                                                      \
-    ((((s)->type >= STYPE_MIRROR) && ((s)->type <= OTYPE_TRACT))        \
-     || ((s)->type == OTYPE_OMCL))
-
-/*
- * This was in Treehouse code, what's the deal here? These don't seem like
- * aiming types, except for the TRACT. Look at the "Tim Brown" comment in
- * order.c. He says all ships that can fly can aim? Why? ...actually it looks
- * like he didn't code anything for it, so I changed it back -mfw
- *
- * #define can_aim(s)                                                   \
- *     (((((s)->type >= STYPE_SHUTTLE) && ((s)->type <= OTYPE_TRACT))   \
- *       || ((s)->type == OTYPE_PROBE) || ((s)->type >= STYPE_LANDER))  \
- *      && ((s)->type <= STYPE_SUPERPOD))
- */
-
-/* Macros to get ship stats */
-#define Armor(s)                                                \
-    (((s)->type == OTYPE_FACTORY) ?                             \
-     Shipdata[(s)->type][ABIL_ARMOR]                            \
-     : ((s)->armor * (100 - (s)->damage)) / 100)
-
-#define Guns(s)                                 \
-    (((s)->guns == NONE) ?                      \
-     0                                          \
-     : ((s)->guns == PRIMARY ?                  \
-        (s)->primary                            \
-        : (s)->secondary))
-
-#define Max_crew(s)                                     \
-    (((s)->type == OTYPE_FACTORY) ?                     \
-     Shipdata[(s)->type][ABIL_MAXCREW] - (s)->troops    \
-     : (s)->max_crew - (s)->popn)
-
 #define Max_mil(s)                                      \
     (((s)->type == OTYPE_FACTORY) ?                     \
      Shipdata[(s)->type][ABIL_MAXCREW] - (s)->popn      \
@@ -461,8 +396,6 @@ struct place {
     (((s)->type == OTYPE_FACTORY) ?             \
      Shipdata[(s)->type][ABIL_CARGO]            \
      : (s)->max_resource)
-
-#define Max_crystals(s) (127)
 
 #define Max_fuel(s)                             \
     (((s)->type == OTYPE_FACTORY) ?             \
@@ -490,10 +423,9 @@ struct place {
 #define Size(s) ((s)->size)
 #define Body(s) ((s)->size - (s)->max_hanger)
 #define Hanger(s) ((s)->max_hanger - (s)->hanger)
-#define Repair(s) (((s)->type == OTYPE_FACTORY) ? (s)->on : Max_crew(s))
 
 extern long Shipdata[NUMSTYPES][NUMABILS];
 extern char Shipltrs[];
 extern char const *Shipnames[];
 
-EXTERN shiptype **ships;
+extern shiptype **ships;

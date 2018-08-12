@@ -29,11 +29,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
-/*
- * #include <strings.h>
- */
 
-#include "GB_copyright.h"
 /*
  * (for power)
  */
@@ -49,14 +45,8 @@ G.O.D[1] > ammonia melts at -78C
 G.O.D[1] > boils at -33
 #endif
 
-#define EXTERN
 #define PLANET_DIST_MAX 1900.0
 #define PLANET_DIST_MIN 100.0
-#define ALLOCATE(type) ((type *)malloc(sizeof(type))
-
-#undef malloc
-#undef realloc
-#undef free
 
 /*
  * Just in case
@@ -439,7 +429,7 @@ startype *Makestar(FILE *planetdata, FILE *sectordata, FILE *outputtxt)
     /*
      * Get names, positions of stars first
      */
-    Star = ALLOCATE(startype);
+    Star = malloc(sizeof(startype));
     memset(Star, 0, sizeof(startype));
 
     Star->gravity = int_rand(0, int_rand(0, 300))

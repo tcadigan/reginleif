@@ -31,6 +31,7 @@
  *
  * static char *ver = "@(#)       $RCSfile: misc.c,v $ $Revision: 1.3 $";
  */
+#include "misc.h"
 
 #include <errno.h>
 #include <math.h>
@@ -38,18 +39,15 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "debug.h"
 #include "files.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ships.h"
 #include "vars.h"

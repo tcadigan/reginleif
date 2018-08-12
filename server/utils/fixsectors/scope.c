@@ -13,13 +13,11 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <strings.h>
 #include <sys/file.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-#define EXTERN extern
 #include "vars.h"
 #include "files.h"
 

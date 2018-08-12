@@ -30,10 +30,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ranks.h"
 #include "vars.h"
@@ -86,6 +84,7 @@ void load(int playernum, governor, int apcount, int mode)
     int uplim;
     int amt;
     int transfercrew;
+    int crew;
     shiptype *s;
     shiptype *s2;
     planettype *p;
@@ -261,15 +260,12 @@ void load(int playernum, governor, int apcount, int mode)
                         uplim = diff;
                         lolim = 0;
                     } else {
-                        uplim = MIN(s2->crystals,
-                                    Max_crystals(s) - s->crystals);
-
-                        lolim = -MIN(s->crystals,
-                                     Max_crystals(s2) - s2->crystals);
+                        uplim = MIN(s2->crystals, 127 - s->crystals);
+                        lolim = -MIN(s->crystals, 127 - s2->crystals);
                     }
                 } else {
                     uplim = MIN(p->info[playernum - 1].crystals,
-                                Max_crystals(s) - s->crystals);
+                                127 - s->crystals);
 
                     /* lolim = -s->crystals; -mfw */
                     lolim = -MIN(s->crystals,
@@ -283,11 +279,34 @@ void load(int playernum, governor, int apcount, int mode)
                         uplim = 0;
                         lolim = 0;
                     } else {
-                        uplim = MIN(s2->popn, Max_crew(s) - s->popn);
-                        lolim = -MIN(s->popn, Max_crew(s2) - s2->popn);
+                        if (s->type == OTYPE_FACTORY) {
+                            uplim = MIN(s2->popn,
+                                        Shipdata[s->type][ABIL_MAXCREW]
+                                        - s->troops
+                                        - s->popn);
+                        } else {
+                            uplim = MIN(s2->popn, s->max_crew - (2 * s->popn));
+                        }
+
+                        if (s2->type == OTYPE_FACTORY) {
+                            lolim = MIN(s->popn,
+                                        Shipdata[s2->type][ABIL_MAXCREW]
+                                        - s2->troops
+                                        - s2->popn);
+                        } else {
+                            lolim = MIN(s->popn, s2->max_crew - (2 * s2->popn));
+                        }
                     }
                 } else {
-                    uplim = MIN(sect->popn, Max_crew(s) - s->popn);
+                    if (s->type == OTYPE_FACTORY) {
+                        uplim = MIN(sect->popn,
+                                    Shipdata[s->type][ABIL_MAXCREW]
+                                    - s->troops
+                                    - s->popn);
+                    } else {
+                        uplim = MIN(sect->popn, s->max_crew - (2 * s->popn));
+                    }
+
                     /* lolim = -s->popn; -mfw */
                     lolim = -MIN(s->popn,
                                  USHRT_MAX - p->info[playernum - 1].popn);
@@ -662,7 +681,13 @@ void load(int playernum, governor, int apcount, int mode)
                 sprintf(buf, "%d destruct transferred.\n", amt);
                 notify(playernum, governor, buf);
 
-                if (!Max_crew(s)) {
+                if (s->type == OTYPE_FACTORY) {
+                    crew = Shipdata[s->type][ABIL_MAXCREW] - s->troops;
+                } else {
+                    crew = s->max_crew - s->popn;
+                }
+
+                if (!crew) {
                     sprintf(buf, "\n%s", Ship(s));
                     notify(playernum, governor, buf);
 
@@ -1499,7 +1524,7 @@ void _mount(int playernum, int governor, int apcount, int mnt)
                 --ship->crystals;
                 notify(playernum, governor, "Mounted.\n");
             } else if (ship->mounted && !mnt) {
-                if (ship->crystals == Max_crystals(ship)) {
+                if (ship->crystals == 127) {
                     notify(playernum,
                            governor,
                            "You can't dismount the crystal. Max allowed already on board.\n");

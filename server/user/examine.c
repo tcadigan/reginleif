@@ -30,10 +30,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ranks.h"
 #include "ships.h"
@@ -133,7 +131,7 @@ void examine(int playernum, int governor, int apcount)
         putship(ship);
     }
 
-    if (has_switch(ship)) {
+    if (Shipdata[ship->type][ABIL_HASSWITCH]) {
         sprintf(buf,
                 "This device has an on/off switch that can be set with order.\n");
 

@@ -37,22 +37,13 @@
  */
 
 #include <dirent.h>
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 
-#ifdef sun
-#include <errno.h>
-
-#else
-
-#include <sys/errno.h>
-#endif
-
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "idx.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ranks.h"
 #include "ships.h"

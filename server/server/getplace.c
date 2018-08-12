@@ -30,16 +30,14 @@
  *
  * static char *ver = "@(#)       $RCSfile: getplace.c,v $ $Revision: 1.3 $";
  */
+#include "getplace.h"
 
 #include <ctype.h>
 #include <stdlib.h>
-#include <strings.h>
 #include <string.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ships.h"
 #include "vars.h"

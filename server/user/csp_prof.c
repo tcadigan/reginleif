@@ -37,7 +37,6 @@
 #include "csp_types.h"
 #include "debug.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ranks.h"
 #include "ships.h"

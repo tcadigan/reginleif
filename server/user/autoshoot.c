@@ -34,7 +34,7 @@
 #include "buffers.h"
 #include "doturn.h"
 #include "power.h"
-#include "power.proto.h"
+#include "power.h"
 #include "races.h"
 #include "ships.h"
 #include "vars.h"

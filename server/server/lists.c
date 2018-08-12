@@ -26,13 +26,12 @@
  *
  * static char *ver = "@(#)       $RCSfile: lists.c,v $ $Revision: 1.4 $";
  */
+#include "lists.h"
 
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
-/* #include <strings.h> */
 
-#include "proto.h"
 #include "power.h"
 #include "races.h"
 #include "shipdata.h"

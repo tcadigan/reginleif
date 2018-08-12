@@ -28,12 +28,12 @@
  *
  * static char *ver = "@(#)       $RCSfile: moveplanet.c,v $ $Revision: 1.3 $";
  */
+#include "moveplanet.h"
+
 #include <math.h>
 
-#include "GB_copyright.h"
 #include "doturn.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ships.h"
 #include "vars.h"

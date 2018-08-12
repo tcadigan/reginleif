@@ -31,15 +31,13 @@
  *
  * static char *ver = "@(#)       $RCSfile: max.c,v $ $Revision: 1.3 $";
  */
+#include "max.h"
 
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
-/* #include <strings.h> */
 
-#include "GB_copyright.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ships.h"
 #include "vars.h"

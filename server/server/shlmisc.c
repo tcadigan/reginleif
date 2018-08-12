@@ -28,6 +28,8 @@
  *
  * static char *ver = "@(#)  $RCSfile: shlmisc.c,v $ $Revision: 1.5 $";
  */
+#include "shlmisc.h"
+
 #include <ctype.h>
 #include <curses.h>
 #include <math.h>
@@ -37,10 +39,8 @@
 #include <string.h>
 #include <time.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ranks.h"
 #include "ships.h"

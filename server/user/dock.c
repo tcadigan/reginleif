@@ -31,10 +31,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ranks.h"
 #include "ships.h"
@@ -104,7 +102,7 @@ void dock(int playernum, int governor, int apcount, int assault)
 
                 continue;
             } else {
-                if (assault && SISAPOD(s)) {
+                if (assault && s->type) {
                     notify(playernum,
                            governor,
                            "Sorry. Pods cannot be used to assault.\n");
@@ -487,7 +485,7 @@ void dock(int playernum, int governor, int apcount, int assault)
                     if ((!s2->popn && !s2->troops)
                         && s->alive
                         && s2->alive
-                        && !SISAPOD(s2)) {
+                        && !s2->type) {
                         /* We got them */
                         s->docked = 1;
                         s->whatdest = LEVEL_SHIP;
@@ -629,7 +627,7 @@ void dock(int playernum, int governor, int apcount, int assault)
                     if ((!s2->popn && !s2->troops)
                         && s->alive
                         && s2->alive
-                        && SISAPOD(s2)) {
+                        && s2->type) {
                         sprintf(buf,
                                 "Boarders are unable to control the pod.\n");
 

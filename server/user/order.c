@@ -33,11 +33,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "orders.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ranks.h"
 #include "ships.h"
@@ -507,6 +505,7 @@ void give_orders(int playernum,
 {
     int i = 0;
     int j = 0;
+    int max_crew = 0;
     int x;
     int y;
     placetype where;
@@ -525,11 +524,17 @@ void give_orders(int playernum,
         return;
     }
 
+    if (ship->type == OTYPE_FACTORY) {
+        max_crew = Shipdata[ship->type][ABIL_MAXCREW] - ship->troops;
+    } else {
+        max_crew = ship->max_crew - ship->popn;
+    }
+
 #ifdef USE_AMOEBA
     if ((ship->type != OTYPE_TRANSDEV)
         && (ship->type != OTYPE_AMOEBA)
         && !ship->popn
-        && Max_crew(ship)) {
+        && max_crew) {
         sprintf(buf, "%s has no crew and is not a robotic ship.\n", Ship(ship));
         notify(playernum, governor, buf);
 
@@ -537,7 +542,7 @@ void give_orders(int playernum,
     }
 
 #else
-    if ((ship->type != OTYPE_TRANSDEV) && !ship->popn && Max_crew(ship)) {
+    if ((ship->type != OTYPE_TRANSDEV) && !ship->popn && max_crew) {
         sprintf(buf, "%s has no crew and is not a robotic ship.\n", Ship(ship));
         notify(playernum, governor, buf);
 
@@ -566,7 +571,7 @@ void give_orders(int playernum,
 
         break;
     case ORD_CLOAK:
-        if (can_cloak(ship)) {
+        if (Shipdata[ship->type][ABIL_CLOAK] && ship->cloak) {
             if (!Cloak(races[playernum - 1])) {
                 sprintf(buf, "You need [%d] tech to cloak\n", (int)TECH_CLOAK);
                 notify(playernum, governor, buf);
@@ -600,7 +605,7 @@ void give_orders(int playernum,
 
             notify(playernum, governor, buf);
         } else {
-            if (can_cloak(ship)) {
+            if (Shipdata[ship->type][ABIL_CLOAK] && s->cloak) {
                 sprintf(buf, "Ship has no cloaking device\n");
             } else {
                 sprintf(buf, "This ship cannot cloak\n");
@@ -611,7 +616,8 @@ void give_orders(int playernum,
 
         break;
     case ORD_DEFE:
-        if (can_bombard(ship)) {
+        if ((Shipdata[ship->type][ABIL_GUNS] || Shipdata[ship->type][ABIL_LASER])
+            && (ship->type != STYPE_MINEF)) {
             if (match(args[3], "off")) {
                 ship->protect.planet = 0;
             } else {
@@ -688,7 +694,7 @@ void give_orders(int playernum,
         }
 
         break;
-#ifdef THRESHLOADING
+#ifdef THRESHOLDING
     case ORD_THRE:
         /* CWL threshold loading */
         if (argn == 3) {
@@ -696,10 +702,10 @@ void give_orders(int playernum,
             int i;
 
             for (i = 0 ; i <= TH_CRYSTALS; ++i) {
-                ship->threshload[i] = 0;
+                ship->threshold[i] = 0;
             }
 
-            notify(playernum, governor, "All threshloads cleared.\n");
+            notify(playernum, governor, "All thresholds cleared.\n");
         } else if ((argn == 4) || (argn == 5)) {
             /* Clear one threshold */
             unsigned int amount;
@@ -716,19 +722,19 @@ void give_orders(int playernum,
             while (*c) {
                 switch (*c) {
                 case 'r':
-                    ship->threshload[TH_RESOURCE] = MIN(ship->max_resource, amount);
+                    ship->threshold[TH_RESOURCE] = MIN(ship->max_resource, amount);
 
                     break;
                 case 'd':
-                    ship->threshload[TH_DESTRUCT] = MIN(ship->max_destruct, amount);
+                    ship->threshold[TH_DESTRUCT] = MIN(ship->max_destruct, amount);
 
                     break;
                 case 'f':
-                    ship->threshload[TH_FUEL] = MIN(ship->max_fuel, amount);
+                    ship->threshold[TH_FUEL] = MIN(ship->max_fuel, amount);
 
                     break;
                 case 'x':
-                    ship->threshload[TH_CRYSTALS] = MIN(Max_crystals(s), amount);
+                    ship->threshold[TH_CRYSTALS] = MIN(127, amount);
 
                     break;
                 default:
@@ -775,7 +781,8 @@ void give_orders(int playernum,
         if (j == ship->number) {
             notify(playernum, governor, "You can't do that.\n");
         } else {
-            if (can_bombard(ship)) {
+            if ((Shipdata[ship->type][ABIL_GUNS] || Shipdata[ship->type][ABIL_LASER])
+                && (ship->type != STYPE_MINEF)) {
                 if (!j) {
                     ship->protect.on = 0;
                 } else {
@@ -808,7 +815,7 @@ void give_orders(int playernum,
                    governor,
                    "Use \"on\" to bring factory online.\n");
         } else {
-            if (has_switch(ship)) {
+            if (Shipdata[ship->type][ABIL_HASSWITCH]) {
                 if (ship->whatorbits == LEVEL_SHIP) {
                     notify(playernum,
                            governor,
@@ -863,7 +870,7 @@ void give_orders(int playernum,
 
         break;
     case ORD_DEST:
-        if (speed_rating(ship)) {
+        if (ship->max_speed) {
             if (ship->docked) {
                 notify(playernum,
                        governor,
@@ -911,7 +918,7 @@ void give_orders(int playernum,
                         }
 
                         /* Stop pods from changing destination -mfw */
-                        if (SISAPOD(ship) && ship->special.pod.navlock) {
+                        if (ship->type && ship->special.pod.navlock) {
                             notify(playernum,
                                    governor,
                                    "You cannot change the destination of a pod.\n");
@@ -933,7 +940,7 @@ void give_orders(int playernum,
 
         break;
     case ORD_EVAD:
-        if (Max_crew(ship) && Max_speed(ship)) {
+        if (max_crew && Max_speed(ship)) {
             if (match(args[3], "on")) {
                 ship->protect.evade = 1;
             } else if (match(args[3], "off")) {
@@ -944,7 +951,8 @@ void give_orders(int playernum,
         break;
     case ORD_BOMB:
         if (ship->type != OTYPE_OMCL) {
-            if (can_bombard(ship)) {
+            if ((Shipdata[ship->type][ABIL_GUNS] || Shipdata[ship->type][ABIL_LASER])
+                && (ship->type != STYPE_MINEF)) {
                 if (match(args[3], "off")) {
                     ship->bombard = 0;
                 } else if (match(args[3], "on")) {
@@ -1040,7 +1048,8 @@ void give_orders(int playernum,
         break;
     case ORD_RETA:
         if ((ship->type != OTYPE_OMCL) && (ship->type != STYPE_MINEF)) {
-            if (can_bombard(ship)) {
+            if ((Shipdata[ship->type][ABIL_GUNS] || Shipdata[ship->type][ABIL_LASER])
+                && (ship->type != STYPE_MINEF)) {
                 if (match(args[3], "off")) {
                     ship->protect.self = 0;
                 } else if (match(args[3], "on")) {
@@ -1068,7 +1077,8 @@ void give_orders(int playernum,
         break;
     case ORD_LASE:
         if (ship->laser) {
-            if (can_bombard(ship)) {
+            if ((Shipdata[ship->type][ABIL_GUNS] || Shipdata[ship->type][ABIL_LASER])
+                && (ship->type != STYPE_MINEF)) {
                 if (ship->mounted) {
                     if (match(args[3], "on")) {
                         /*
@@ -1115,14 +1125,14 @@ void give_orders(int playernum,
 
         break;
     case ORD_SPEE:
-        if (speed_rating(ship)) {
+        if (ship->max_speed) {
             j = atoi(args[3]);
 
             if (j < 0) {
                 notify(playernum, governor, "Specify a positive speed.\n");
             } else {
-                if (j > speed_rating(ship)) {
-                    j = speed_rating(ship);
+                if (j > ship->max_speed)) {
+                    j = ship->max_speed;
                 }
 
                 ship->speed = j;
@@ -1135,7 +1145,8 @@ void give_orders(int playernum,
 
         break;
     case ORD_SALV:
-        if (can_bombard(ship)) {
+        if ((Shipdata[ship->type][ABIL_GUNS] || Shipdata[ship->type][ABIL_LASER])
+            && (ship->type != STYPE_MINEF)) {
             j = atoi(args[3]);
 
             if (j < 0) {
@@ -1373,8 +1384,10 @@ void give_orders(int playernum,
     case ORD_AIM:
         /*
          * Any ship that flies can aim no. Time Brown.
-         * There was no point, nothing was coded for it, changed back -mfw */
-        if (can_aim(ship)) {
+         * There was no point, nothing was coded for it, changed back -mfw
+         */
+        if (((ship->type >= STYPE_MIRROR) && (ship->type <= OTYPE_TRACT))
+            || (ship->type == OTYPE_OMCL)) {
             if ((ship->type == OTYPE_GTELE)
                 || (ship->type == OTYPE_TRACT)
                 || (ship->fuel >= FUEL_MANEUVER)) {
@@ -1441,7 +1454,7 @@ void give_orders(int playernum,
 
         break;
     case ORD_ON:
-        if (!has_switch(ship)) {
+        if (!Shipdata[ship->type][ABIL_HASSWITCH]) {
             notify(playernum,
                    governor,
                    "this ship does not have an on/off setting.\n");
@@ -1807,7 +1820,7 @@ void DispOrdersHeader(int playernum, int governor)
 
 void DispOrders(int playernum, int governor, shiptype *ship)
 {
-#ifdef THRESHLOADING
+#ifdef THRESHOLDING
     int i;
 #endif
 
@@ -1978,7 +1991,7 @@ void DispOrders(int playernum, int governor, shiptype *ship)
         AddOrderToString(playernum, governor, temp);
     }
 
-    if (has_switch(ship)) {
+    if (Shipdata[ship->type][ABIL_HASSWITCH]) {
         if (ship->on) {
             sprintf(temp, "/on");
         } else {
@@ -2091,9 +2104,9 @@ void DispOrders(int playernum, int governor, shiptype *ship)
     }
 #endif
 
-#ifdef THRESHLOADING
+#ifdef THRESHOLDING
     for (i = 0; i <= TH_CRYSTALS; ++i) {
-        if (ship->threshload[i]) {
+        if (ship->threshold[i]) {
             char c;
 
             if (i == TH_RESOURCE) {
@@ -2106,7 +2119,7 @@ void DispOrders(int playernum, int governor, shiptype *ship)
                 c = 'x';
             }
 
-            sprintf(temp, "/%c%d", c, ship->threshload[i]);
+            sprintf(temp, "/%c%d", c, ship->threshold[i]);
             AddOrderToString(playernum, governor, temp);
         }
     }
@@ -2595,7 +2608,7 @@ int get_order_type(char *ord)
         return ORD_JUMP;
     }
 
-    if (match(ord, "threshload")) {
+    if (match(ord, "THRESHOLDING")) {
         return ORD_THRE;
     }
 

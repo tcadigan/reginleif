@@ -27,14 +27,10 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
-/*
- * #include <strings.h>
- */
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "GB_copyright.h"
 /*
  * For power
  */
@@ -44,22 +40,12 @@
 #include "vars.h"
 #include "tweakables.h"
 
-#define EXTERN
 #define OUTPUTFILE "universe.txt"
 #define DEFAULT_POSTSCRIPT_MAP_FILENAME "universe.ps"
 #define NRINGS 3
 #define RING_SPACING ((10000 * (UNIVSIZE / 10000)) / NRINGS)
 #define CLUSTER_STAR_MIN -1500
 #define CLUSTER_STAR_MAX 1500
-
-/*
- * Just in case
- */
-/*
- * #undef malloc
- * #undef realloc
- * #undef free
- */
 
 extern int Temperature(double, int);
 extern void PrintStatistics(FILE *);

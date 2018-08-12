@@ -34,10 +34,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "GB_copyright."
 #include "buffers.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ranks.h"
 #include "ships.h"
@@ -603,7 +601,9 @@ void ship_report(int playernum,
                     Caliber[s->primtype],
                     s->secondary,
                     Caliber[s->sectype],
-                    Armor(s),
+                    s->type == OTYPE_FACTORY
+                    ? Shipdata[s->type][ABIL_ARMOR]
+                    : (s->armor * (100 - s->damage)) / 100,
                     s->tech,
                     Max_speed(s),
                     Cost(s),
@@ -613,7 +613,7 @@ void ship_report(int playernum,
 
             notify(playernum, governor, buf);
 
-            if (SISAPOD(s)) {
+            if (s->type) {
                 sprintf(buf, " (%d)", s->special.pod.temperature);
                 notify(playernum, governor, buf);
             }

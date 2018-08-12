@@ -171,7 +171,7 @@
 #define CSP_SHIPDUMP_PTACT_INFO 2039 /* For ship from a planet */
 #define CSP_SHIPDUMP_STACT_INFO 2040 /* for a ship from a ship */
 #define CSP_SHIPDUMP_ORDERS 2041 /* Ship orders */
-#define CSP_SHIPDUMP_THRESH 2042 /* Ship threshloading */
+#define CSP_SHIPDUMP_THRESH 2042 /* Ship thresholding */
 #define CSP_SHIPDUMP_SPECIAL 2043 /* Ship specials */
 #define CSP_SHIPDUMP_HYPER 2044 /* Hyper drive usage */
 #define CSP_SHIPDUMP_END 2055 /* End Of Command (EOC) */

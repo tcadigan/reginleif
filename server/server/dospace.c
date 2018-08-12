@@ -22,18 +22,16 @@
  *
  * #ident  "@(#)dospace.c        1.10 12/1/93
  */
+#include "dospace.h"
 
 #include <ctype.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "doturn.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ships.h"
 #include "tweakables.h"

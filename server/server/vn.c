@@ -42,16 +42,15 @@
  * overrun a game. It's best to leave them out of newbie games
  * *****************************************************************************
  */
+#include "vn.h"
 
 #include <stdlib.h>
 #include <string.h>
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "debug.h"
 #include "doturn.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ships.h"
 #include "vars.h"
@@ -980,7 +979,11 @@ void planet_do_vn(shiptype *ship, planettype *planet)
 
                     debug(LEVEL_GENERAL, buf);
 
-                    if (can_bombard(ship) && ship->bombard && !landed(ship)) {
+                    if (((Shipdata[ship->type][ABIL_GUNS]
+                          || Shipdata[ship->type][ABIL_LASER])
+                         && (ship->type != STYPE_MINEF))
+                        && ship->bombard
+                        && !landed(ship)) {
                         /* Exact revenge */
                         result = auto_bomb(ship,
                                            planet[ship->storbits][ship->pnumorbits],

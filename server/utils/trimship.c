@@ -36,7 +36,6 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <strings.h>
 #include <sys/file.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -47,7 +46,6 @@
 #include "ships.h"
 #include "vars.h"
 
-#define EXTERN extern
 #define DATAFILE DATA(ship)
 
 int file_read(int fd, shiptype *p, unsigned int num, int posn);

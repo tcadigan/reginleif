@@ -26,8 +26,6 @@
  *
  * static char *ver = "@(#)       $RCSfile: files.c,v $ $Revision: 1.3 $";
  */
-
-#include "GB_copyright.h"
 #include "files.h"
 
 char const *Files[] = {

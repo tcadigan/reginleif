@@ -15,7 +15,7 @@ HDRS = action.h ansi.h args.h arrays.h bind.h buffer.h command.h crypt.h \
        load.h map.h md5.h option.h popn.h proc.h psmap.h socket.h status.h \
        stmt.h str.h term.h types.h widget.h xmap.h
 
-all: ${PROG}
+all: $(PROG)
 
 $(PROG): $(OBJS) $(HDRS)
 	$(CC) -o $(PROG) $(OBJS) $(LDFLAGS)

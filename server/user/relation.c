@@ -27,12 +27,10 @@
  * $Header: /var/cvs/gbp/GB+/user/relation.c,v 1.3 2007/07/06 18:09:34 gbp Exp $
  */
 
-#include "GB_copyright.h"
 #include "buffers.h"
 #include "csp.h"
 #include "csp_types.h"
 #include "power.h"
-#include "proto.h"
 #include "races.h"
 #include "ranks.h"
 #include "ships.h"
