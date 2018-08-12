@@ -637,11 +637,17 @@ void csp_ship_report(int playernum,
                     s->hanger,
                     s->max_hanger,
                     s->resource,
-                    Max_resources(s),
+                    s->type == OTYPE_FACTORY
+                    ? Shipdata[s->type][ABIL_CARGO]
+                    : s->max_resource,
                     s->destruct,
-                    Max_destruct(s),
+                    s->type == OTYPE_FACTORY
+                    ? Shipdata[s->type][DESTCAP]
+                    : s->max_destruct,
                     s->fuel,
-                    Max_fuel(s),
+                    s->type == OTYPE_FACTORY
+                    ? shipdata[s->type][ABIL_FUELCAP]
+                    : s->max_fuel,
                     s->popn,
                     s->troops,
                     s->max_crew,
@@ -661,10 +667,10 @@ void csp_ship_report(int playernum,
                         s->special.pod.temperature,
                         (s->armor * (100 - s->damage)) / 100,
                         s->tech,
-                        Max_speed(s),
-                        Cost(s),
-                        Mass(s),
-                        Size(s));
+                        s->max_speed,
+                        s->build_cost,
+                        s->mass,
+                        s->size);
             } else {
                 sprintf(buf,
                         "%c %d %d %d %d %d 0 %ld %f %ld %f %ld %ld %f %d\n",
@@ -674,14 +680,18 @@ void csp_ship_report(int playernum,
                         s->hyper_drive.has,
                         s->mount,
                         s->mounted,
-                        s->type == OTYPE_FACTORY ?
-                        Shipdata[s->type][ABIL_ARMOR]
+                        s->type == OTYPE_FACTORY
+                        ? Shipdata[s->type][ABIL_ARMOR]
                         : (s->armor * (100 - s->damage)) / 100,
                         s->tech,
-                        Max_speed(s),
-                        Cost(s),
-                        Mass(s),
-                        Size(s));
+                        s->type == OTYPE_FACTORY
+                        ? Shipdata[s->type][ABIL_SPEED]
+                        : s->max_speed,
+                        s->type == OTYPE_FACTORY
+                        ? (2 * s->build_cost * s->on) + Shipdata[s->type][ABIL_COST]
+                        : s->build_cost,
+                        s->mass,
+                        s->size);
             }
 
             notify(playernum, governor, buf);
@@ -938,7 +948,7 @@ void csp_ship_report(int playernum,
 
         if (rd[indx].type == PLANET) {
             sight = 1;
-        } else if (Sight(s)) {
+        } else if ((s->type == OTYPE_PROBE) || s->popn) {
             sight = 1;
         }
 
@@ -1003,7 +1013,7 @@ void csp_ship_report(int playernum,
                                     tev = rd[i].s->protect.evade;
                                 }
 
-                                body = Size(rd[i].s);
+                                body = rd[i].s->size;
                                 defense = getdefense(rd[i].s);
                                 prob = hit_odds(Dist,
                                                 &factor,

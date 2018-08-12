@@ -116,18 +116,19 @@ int ship_err(shiptime *, int);
 
 int doplanet(int starnum, planettype *planet, int planetnum)
 {
-    int shipno;
-    int x;
-    int y;
-    int nukx = -1;
-    int nukey = -1;
-    int o = 0;
     char *nukem;
-    int i;
     sectortype *p;
     shiptype *ship;
     double fadd;
+    int shipno;
+    int x;
+    int y;
+    int i;
+    int nukx = -1;
+    int nukey = -1;
+    int o = 0;
     int timer = 20;
+    int max_fuel = 0;
     unsigned char allmod = 0;
     unsigned char allexp = 0;
     float totatmo = 0.0;
@@ -329,24 +330,30 @@ int doplanet(int starnum, planettype *planet, int planetnum)
 #endif
             }
 
+            if (ship->type == OTYPE_FACTORY) {
+                max_fuel = Shipdata[ship->type][ABIL_FUELCAP];
+            } else {
+                max_fuel = ship->max_fuel;
+            }
+
             /* Add fuel for ships orbiting a gas giant */
             if (!landed(ship) && (planet->type == TYPE_GASGIANT)) {
                 switch (ship->type) {
                 case STYPE_TANKER:
-                    fadd = FUEL_GAS_ADD_TANKER;
+                    fadd = (int)(max_fuel / 5);
 
                     break;
                 case STYPE_HABITAT:
-                    fadd = FUEL_GAS_ADD_HABITAT;
+                    fadd = (int)(max_fuel / 5); /* Was 200 -mfw */
 
                     break;
                 default:
-                    fadd = FUEL_GAS_ADD;
+                    fadd = (int)(max_fuel / 8);
 
                     break;
                 }
 
-                fadd = MIN((double)Max_fuel(ship) - ship->fuel, fadd);
+                fadd = MIN((double)max_fuel - ship->fuel, fadd);
                 rcv_fuel(ship, fadd);
             }
         }
@@ -359,6 +366,7 @@ int doplanet(int starnum, planettype *planet, int planetnum)
      *
      * if (!Stinfo[starnum][planetnum].inhab) {
      *     return 0;
+     * }
      */
 
     /*
@@ -1954,8 +1962,13 @@ int autoscrap(shiptype *ship, planettype *planet, sectortype *s)
     s->troops += ship->troops;
     planet->popn += ship->popn;
     planet->troops += ship->troops;
-    planet->info[ship->owner - 1].resource +=
-        (ship->resource + (int)(Cost(ship) / 2));
+
+    if (ship->type == OTYPE_FACTORY) {
+        planet->info[ship->owner - 1].resource +=
+            ((2 * ship->build_code * ship->on) + Shipdata[ship->type][ABIL_COST]);
+    } else {
+        planet->info[ship->owner - 1].resource += s->build_cost;
+    }
 
     planet->info[ship->owner - 1].destruct += ship->destruct;
     planet->info[ship->owner - 1].fuel += (int)ship->fuel;

@@ -225,6 +225,10 @@ void check_ship(int idx)
     int fu = 1;
     int speed = 1;
     int hanger = 1;
+    int max_resource = 0;
+    int max_destruct = 0;
+    int max_fuel = 0;
+    int max_speed = 0;
 
     if ((display->owner == 0)
         && (display->governor == 0)
@@ -270,23 +274,35 @@ void check_ship(int idx)
         }
     }
 
-    if ((display->resource > Max_resource(display))
+    if (display->type == OTYPE_FACTORY) {
+        max_resource = Shipdata[display->type][ABIL_CARGO];
+        max_fuel = Shipdata[display->type][ABIL_FUELCAP];
+        max_destruct = Shipdata[display->type][DESTCAP];
+        max_speed = Shipdata[display->type][ABIL_SPEED];
+    } else {
+        max_resource = display->max_resource;
+        max_fuel = display->max_fuel;
+        max_destruct = display->max_destruct;
+        max_speed = display->max_speed;
+    }
+
+    if ((display->resource > max_resource)
         && (display->type != STYPE_SHUTTLE)) {
         res = 0;
         ship_ok = res;
     }
 
-    if (display->destruct > Max_destruct(display)) {
+    if (display->destruct > max_destruct) {
         des = 0;
         ship_ok = des;
     }
 
-    if ((int)display->fuel > Max_fuel(display)) {
+    if ((int)display->fuel > max_fuel) {
         fu = 0;
         ship_ok = fu;
     }
 
-    if (display->speed > Max_speed(display)) {
+    if (display->speed > max_speed) {
         speed = 0;
         ship_ok = speed;
     }

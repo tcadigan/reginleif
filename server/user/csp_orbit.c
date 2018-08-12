@@ -220,7 +220,8 @@ void csp_orbit(int playernum, int governor, orbitinfo *oi)
                 while (sh && !iq) {
                     getship(&s, sh);
 
-                    if ((s->owner == playernum) && Sight(s)) {
+                    if ((s->owner == playernum)
+                        && ((s->type == OTYPE_PROBE) || s->popn)) {
                         /* You are there to sight, need a crew */
                         iq = 1;
                     }
@@ -316,7 +317,8 @@ void csp_orbit(int playernum, int governor, orbitinfo *oi)
             while (sh && !iq) {
                 getship(&s, sh);
 
-                if ((s->owner == playernum) && Sight(s)) {
+                if ((s->owner == playernum)
+                    && ((s->type == OTYPE_PROBE) || s->popn)) {
                     /* You are there to sight, need a crew */
                     iq = 1;
                 }

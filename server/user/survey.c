@@ -606,14 +606,23 @@ void repair(int playernum, int governor, int apcount)
     int x2;
     int sectors;
     int cost;
+    int allowed;
     sectortype *s;
     planettype *p;
     placetype where;
     racetype *race;
 
     /* General code -- jpd -- */
+    if (governor == 0) {
+        allowed = 1;
+    } else if (races[playernum - 1]->governor[governor].rank <= RANK_REPAIR) {
+        allowed = 1;
+    } else {
+        allowed = 0;
+    }
+
     if (!control(playernum, governor, Stars[Dir[playernum][governor].snum])
-        && !CanDo(playernum, governor, RANK_REPAIR)) {
+        && !allowed) {
         no_permission_thing(playernum, governor, "repair", RANK_REPAIR);
 
         return;

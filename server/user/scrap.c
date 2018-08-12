@@ -52,6 +52,11 @@ void scrap(int playernum, int governor, int apcount)
     int max_crew = 0;
     int xtalval = 0;
     int troopval = 0;
+    int max_resource = 0;
+    int max_mil = 0;
+    int max_fuel = 0;
+    int max_destruct = 0;
+    int cost = 0;
     double fuelval = 0.0;
     racetype *race;
 
@@ -199,10 +204,16 @@ void scrap(int playernum, int governor, int apcount)
                 }
             }
 
-            scrapval = (Cost(s) / 2) + s->resource;
+            if (s->type == OTYPE_FACTORY) {
+                cost = (2 * s->build_code * s->on) + Shipdata[s->type][ABIL_COST];
+            } else {
+                cost = s->build_cost;
+            }
+
+            scrapval = (cost / 2) + s->resource;
 
             if (s->docked) {
-                sprintf(buf, "%s: original cost: %ld\n", Ship(s), Cost(s));
+                sprintf(buf, "%s: original cost: %ld\n", Ship(s), cost);
                 notify(playernum, governor, buf);
 
                 sprintf(buf,
@@ -215,10 +226,20 @@ void scrap(int playernum, int governor, int apcount)
                 /* New code by Kharush. check for STYPE_DHUTTLE added. */
                 /* I've removed it, Dhuttle was silly -mfw */
 
+                if (s2->type == OTYPE_FACTORY) {
+                    max_resource = Shipdata[s2->type][ABIL_CARGO];
+                    max_fuel = Shipdata[s2->type][ABIL_FUELCAP];
+                    max_destruct = Shipdata[s2->type][DESTCAP];
+                } else {
+                    max_resource = s2->max_resource;
+                    max_fuel = s2->max_fuel;
+                    max_destruct = s2->max_destruct;
+                }
+
                 if ((s->whatdest == LEVEL_SHIP)
-                    && ((s2->resource + scrapval) > Max_resource(s2))
+                    && ((s2->resource + scrapval) > max_resource)
                     && (s2->type != STYPE_SHUTTLE)) {
-                    scrapval = Max_resource(s2) - s2->resource;
+                    scrapval = max_resource - s2->resource;
                     sprintf(buf,
                             "(There is only room for %d resources.)\n",
                             scrapval);
@@ -232,8 +253,8 @@ void scrap(int playernum, int governor, int apcount)
                     fuelval = s->fuel;
 
                     if ((s->whatdest == LEVEL_SHIP)
-                        && ((s2->fuel + fuelval) > Max_fuel(s2))) {
-                        fuelval = Max_fuel(s2) - s2->fueld;
+                        && ((s2->fuel + fuelval) > max_fuel)) {
+                        fuelval = max_fuel - s2->fuel;
                         sprintf(buf,
                                 "(There is only room for %.2f fuel.)\n",
                                 fuelval);
@@ -250,8 +271,8 @@ void scrap(int playernum, int governor, int apcount)
                     destval = s->destruct;
 
                     if ((s->whatdest == LEVEL_SHIP)
-                        && ((s2->destruct + destval) > Max_destruct(s2))) {
-                        destval = Max_destruct(s2) - s2->destruct;
+                        && ((s2->destruct + destval) > max_destruct)) {
+                        destval = max_destruct - s2->destruct;
                         sprintf(buf,
                                 "(There is only room for %d destruct.)\n",
                                 destval);
@@ -273,9 +294,15 @@ void scrap(int playernum, int governor, int apcount)
                     } else {
                         troopval = s->troops;
 
+                        if (s2->type == OTYPE_FACTORY) {
+                            max_mil = Shipdata[s2->type][ABIL_MAXCREW] - s->popn;
+                        } else {
+                            max_mil = s2->max_crew - s2->popn;
+                        }
+
                         if ((s->whatdest == LEVEL_SHIP)
-                            && ((s2->troops + troopval) > Max_mil(s2))) {
-                            troopval = Max_mil(s2) - s2->troops;
+                            && ((s2->troops + troopval) > max_mil)) {
+                            troopval = max_mil - s2->troops;
                             sprintf(buf,
                                     "(There is only room for %d troops.)\n",
                                     troopval);
@@ -288,7 +315,7 @@ void scrap(int playernum, int governor, int apcount)
                         if (s2->type == OTYPE_FACTORY) {
                             max_crew = Shipdata[s2->type][ABIL_MAXCREW] - s2->troops;
                         } else {
-                            max_crew = s2->max_crew - s2->popn;
+                            max_crew = s2->max_crew - s2->troops;
                         }
 
                         if ((s->whatdest == LEVEL_SHIP)

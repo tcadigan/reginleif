@@ -598,7 +598,7 @@ int do_radiation(shiptype *ship,
         arm = MAX(0, (2 * ((ship->armor * (100 - ship->damage)) / 100)) - (hits / 5));
     }
 
-    body = Body(ship);
+    body = ship->size - ship->max_hanger;
     penetrate = 0;
     r = 1.0;
 
@@ -701,7 +701,7 @@ int do_damage(int who,
         arm = MAX(0, (2 * ((ship->armor * (100 - ship->damage)) / 100)) + defense - (hits / 5));
     }
 
-    body = sqrt((double)(0.1 * Body(ship)));
+    body = sqrt((double)(0.1 * (ship->body - ship->max_hanger)));
 
     critdam = 0;
     crithits = 0;
@@ -809,7 +809,7 @@ void ship_disposition(shiptype *ship, int *evade, int *speed, int *body)
 {
     *evade = 0;
     *speed = 0;
-    *body = Size(ship);
+    *body = ship->size;
 
     if (ship->active
         && !ship->docked
@@ -1010,7 +1010,7 @@ void do_critical_hits(int penetrate,
         caliber = 1;
     }
 
-    eff_size = MAX(1, Body(ship) / caliber);
+    eff_size = MAX(1, ((ship->size - ship->max_hanger) / caliber));
 
     for (i = 1; i <= penetrate; ++i) {
         if (!int_rand(0, eff_size - 1)) {

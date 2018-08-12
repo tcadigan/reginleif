@@ -285,7 +285,10 @@ void load(int playernum, governor, int apcount, int mode)
                                         - s->troops
                                         - s->popn);
                         } else {
-                            uplim = MIN(s2->popn, s->max_crew - (2 * s->popn));
+                            uplim = MIN(s2->popn,
+                                        s->max_crew
+                                        - s->troops
+                                        - s->popn);
                         }
 
                         if (s2->type == OTYPE_FACTORY) {
@@ -294,7 +297,10 @@ void load(int playernum, governor, int apcount, int mode)
                                         - s2->troops
                                         - s2->popn);
                         } else {
-                            lolim = MIN(s->popn, s2->max_crew - (2 * s2->popn));
+                            lolim = MIN(s->popn,
+                                        s2->max_crew
+                                        - s2->troops
+                                        - s2->popn);
                         }
                     }
                 } else {
@@ -304,7 +310,10 @@ void load(int playernum, governor, int apcount, int mode)
                                     - s->troops
                                     - s->popn);
                     } else {
-                        uplim = MIN(sect->popn, s->max_crew - (2 * s->popn));
+                        uplim = MIN(sect->popn,
+                                    s->max_crew
+                                    - s->troops
+                                    - s->popn);
                     }
 
                     /* lolim = -s->popn; -mfw */
@@ -319,11 +328,37 @@ void load(int playernum, governor, int apcount, int mode)
                         uplim = 0;
                         lolim = 0;
                     } else {
-                        uplim = MIN(s2->troops, Max_mil(s) - s->troops);
-                        lolim = -MIN(s->troops, Max_mil(s2) - s2->troops);
+                        if (s->type == OTYPE_FACTORY) {
+                            uplim = MIN(s2->troops,
+                                        Shipdata[s->type][ABIL_MAXCREW]
+                                        - s->popn
+                                        - s->troops);
+                        } else {
+                            uplim = MIN(s2->troops,
+                                        s->max_crew - s->popn - s->troops);
+                        }
+
+                        if (s2->type == OTYPE_FACTORY) {
+                            lolim = -MIN(s->troops,
+                                         Shipdata[s2->type][ABIL_MAXCREW]
+                                         - s2->popn
+                                         - s2->troops);
+                        } else {
+                            lolim = -MIN(s->troops,
+                                         s2->max_crew - s2->popn - s2->troops);
+                        }
                     }
                 } else {
-                    uplim = MIN(sect->troops, Max_mil(s) - s->troops);
+                    if (s->type == OTYPE_FACTORY) {
+                        uplim = MIN(sect->troops,
+                                    Shipdata[s->type][ABIL_MAXCREW]
+                                    - s->popn
+                                    - s->troops);
+                    } else {
+                        uplim = MIN(sect->troops,
+                                    s->max_crew - s->popn - s->troops);
+                    }
+
                     /* lolim = -s->troops; -mfw */
                     lolim = -MIN(s->troops,
                                  USHRT_MAX - p->info[playernum - 1].troops);
@@ -334,15 +369,29 @@ void load(int playernum, governor, int apcount, int mode)
                 if (sh) {
                     if (diff) {
                         uplim = 0;
+                    } else if (s->type == OTYPE_FACTORY) {
+                        uplim = MIN(s2->destruct,
+                                    Shipdata[s->type][DESTCAP] - s->destruct);
                     } else {
                         uplim = MIN(s2->destruct,
-                                    Max_destruct(s) - s->destruct);
+                                    s->max_destruct - s->destruct);
                     }
 
-                    lolim = -MIN(s->destruct, Max_destruct(s2) - s2->destruct);
+                    if (s2->type == OTYPE_FACTORY) {
+                        lolim = -MIN(s->destruct,
+                                     Shipdata[s->type][DESTCAP] - s2->destruct);
+                    } else {
+                        lolim = -MIN(s->destruct,
+                                     s2->max_destruct - s2->destruct);
+                    }
                 } else {
-                    uplim = MIN(p->info[playernum - 1].destruct,
-                                Max_destruct(s) - s->destruct);
+                    if (s->type == OTYPE_FACTORY) {
+                        uplim = MIN(p->info[playernum - 1].destruct,
+                                    Shipdata[s->type][DESTCAP] - s->destruct);
+                    } else {
+                        uplim = MIN(p->info[playernum - 1].destruct,
+                                    s->max_destruct - s->destruct);
+                    }
 
                     /* New code by Kharush. */
                     lolim = -MIN(s->destruct,
@@ -354,16 +403,32 @@ void load(int playernum, governor, int apcount, int mode)
                 if (sh) {
                     if (diff) {
                         uplim = 0;
+                    } else if (s->type == OTYPE_FACTORY) {
+                        uplim = MIN((int)s2->fuel,
+                                    (int)Shipdata[s->type][ABIL_FUELCAP]
+                                    - (int)s->fuel);
                     } else {
                         uplim = MIN((int)s2->fuel,
-                                    (int)Max_fuel(s) - (int)s->fuel);
+                                    (int)s->max_fuel - (int)s->fuel);
                     }
 
-                    lolim = -MIN((int)s->fuel,
-                                 (int)Max_fuel(s2) - (int)s2->fuel);
+                    if (s2->type == OTYPE_FACTORY) {
+                        lolim = -MIN((int)s->fuel,
+                                     (int)Shipdata[s2->type][ABIL_FUELCAP]
+                                     - (int)s2->fuel);
+                    } else {
+                        lolim = -MIN((int)s->fuel,
+                                     (int)s2->max_fuel - (int)s2->fuel);
+                    }
                 } else {
-                    uplim = MIN((int)p->info[playernum - 1].fuel,
-                                (int)Max_fuel(s) - (int)s->fuel);
+                    if (s->type == OTYPE_FACTORY) {
+                        uplim = MIN((int)p->info[playernum - 1].fuel,
+                                    (int)Shipdata[s->type][ABIL_FUELCAP]
+                                    - (int)s->fuel);
+                    } else {
+                        uplim = MIN((int)p->info[playernum - 1].fuel,
+                                    (int)s->max_fuel - (int)s->fuel);
+                    }
 
                     /*
                      * New code by Kharush. Should not need that +1, but to be
@@ -402,8 +467,14 @@ void load(int playernum, governor, int apcount, int mode)
                         if (diff) {
                             uplim = 0;
                         } else {
-                            uplim = MIN(s2->resource,
-                                        Max_resource(s) - s->resource);
+                            if (s->type == OTYPE_FACTORY) {
+                                uplim = MIN(s2->resource,
+                                            Shipdata[s->type][ABIL_CARGO]
+                                            - s->resource);
+                            } else {
+                                uplim = MIN(s2->resource,
+                                            s->max_resource - s->resource);
+                            }
                         }
                     }
 
@@ -411,12 +482,24 @@ void load(int playernum, governor, int apcount, int mode)
                         && (s->whatorbits != LEVEL_SHIP)) {
                         lolim = -s->resource;
                     } else {
-                        lolim = -MIN(s->resource,
-                                     Max_resource(s2) - s2->resource);
+                        if (s2->type == OTYPE_FACTORY) {
+                            lolim = -MIN(s->resource,
+                                         Shipdata[s2->type][ABIL_CARGO]
+                                         - s2->resource);
+                        } else {
+                            lolim = -MIN(s->resource,
+                                         s2->max_resource - s2->resource);
+                        }
                     }
                 } else {
-                    uplim = MIN(p->info[playernum - 1].resource,
-                                Max_resource(s) - s->resource);
+                    if (s->type == OTYPE_FACTORY) {
+                        uplim = MIN(p->info[playernum - 1].resource,
+                                    Shipdata[s->type][ABIL_CARGO]
+                                    - s->resource);
+                    } else {
+                        uplim = MIN(p->info[playernum - 1].resource,
+                                    s->max_resource - s->resource);
+                    }
 
                     /* New code by Kharush. */
                     lolim = -MIN(s->resource,

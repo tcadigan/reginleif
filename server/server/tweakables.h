@@ -257,18 +257,6 @@
 #define LAUNCH_GRAV_MASS_FACTOR 0.18 /* Fuel use modifier for taking off */
 #define LANDDD_GRAV_MASS_FACTOR 0.0145
 
-/* Amt of fuel to add to each ship's tanks */
-#define FUEL_GAS_ADD ((int)(Max_fuel(ship) / 8))
-
-/*
- * New code by Kharush. Idea is to eliminate the need of hundred(thousand)+
- * tankers by setting tanker's fuel scooping to one fifth of each tanker's
- * maximum fuel capacity.
- */
-#define FUEL_GAS_ADD_TANKER ((int)(Max_fuel(ship) / 5))
-#define FUEL_GAS_ADD_HABITAT ((int)(Max_fuel(ship) / 5)) /* Was 200 -mfw */
-#define FUEL_GAS_ADD_STATION ((int)(Max_fuel(ship) / 5)) /* Was 100 -mfw */
-
 #define FUEL_USE 0.02 /* Fuel use per ship mass pt. per speed factor */
 #define HABITAT_PROD_RATE 0.05
 #define HABITAT_POP_RATE 0.20
@@ -352,10 +340,6 @@
 #define putchr(c) fputc((c), stdout)
 
 /* Assorted macros */
-/* sign, abs val of number */
-#ifndef    sgn
-#define sgn(x) (((x) >= 0) ? 1: -1)
-#endif
 
 #ifndef abs
 #define abs(x) (((x) < 0) ? (-x) : (x))
@@ -365,9 +349,6 @@
 #define MIN(x, y) (((x) > (y)) ? (y) : (x))
 #define MAX(x, y) (((x) < (y)) ? (y) : (x))
 #endif
-
-/* Positive modulus */
-#define mod(a, b, dum) ((dum) = (a) % (b); abs(dum))
 
 /* Swap two variable */
 #define swap(a, b) ((a) ^= (b); (b) ^= (a); (a) ^= (b))

@@ -118,7 +118,7 @@ void CSP_process_command2(int playernum, int governor)
 CSP_Commands *CSP_server_search(int cnum)
 {
     int bottom = 0;
-    int top = NUM_SCOMMANDS - 1;
+    int top = (sizeof(csp_server_commands) / sizeof(CSP_commands)) - 1;
     int mid;
     int value;
 
@@ -141,7 +141,7 @@ CSP_Commands *CSP_server_search(int cnum)
 CSP_Commands * CSP_client_search(int cnum)
 {
     int bottom = 0;
-    int top = NUM_CCOMMANDS - 1;
+    int top = (sizeof(csp_client_commands) / sizeof(CSP_commands)) - 1;
     int mid;
     int value;
 
@@ -163,16 +163,18 @@ CSP_Commands * CSP_client_search(int cnum)
 
 void CSP_server_qsort()
 {
-    /* int qsort_csp(); */
-
-    qsort(csp_server_commands, NUM_SCOMMANDS, sizeof(CSP_Commands), qsort_csp);
+    qsort(csp_server_commands,
+          sizeof(csp_server_commands) / sizeof(CSP_commands),
+          sizeof(CSP_Commands),
+          qsort_csp);
 }
 
 void CSP_client_qsort()
 {
-    /* int qsort_csp(); */
-
-    qsort(csp_client_commands, NUM_CCOMMANDS, sizeof(CSP_Commands), qsort_csp);
+    qsort(csp_client_commands,
+          sizeof(csp_client_commands) / sizeof(CSP_commands),
+          sizeof(CSP_Commands),
+          qsort_csp);
 }
 
 int qsort_csp(void const *a, void const *b)
@@ -188,7 +190,7 @@ void CSP_send_knowledge(int playernum, int governor)
 
     sprintf(buf, "%c %d ", CSP_CLIENT, CSP_KNOWLEDGE);
 
-    for (i = 0; i < NUM_CCOMMANDS; ++i) {
+    for (i = 0; i < (sizeof(csp_client_commands) / sizeof(CSP_commands)); ++i) {
         sprintf(num, "%d ", csp_client_commands[i].command);
         strcat(buf, num);
     }

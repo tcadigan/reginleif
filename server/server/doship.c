@@ -181,7 +181,7 @@ void doship(shiptype *ship, int update)
         if (ship->type == OTYPE_FACTORY) {
             max_crew = Shipdata[ship->type][ABIL_MAXCREW] - ship->troops;
         } else {
-            max_crew = ship->max_crew - ship->popn;
+            max_crew = ship->max_crew - ship->troops;
         }
 
         if (!ship->popn && max_crew && !ship->docked) {
@@ -345,13 +345,11 @@ void doship(shiptype *ship, int update)
                         || (ship->type == OTYPE_BERS))) {
                     do_repair(ship);
                 }
-            } else {
-                if (ship->damage
-                    && (max_crew
-                        || (ship->type == OTYPE_VN)
-                        || (ship->type == OTYPE_BERS))) {
-                    do_repair(ship);
-                }
+            } else if (ship->damage
+                       && (max_crew
+                           || (ship->type == OTYPE_VN)
+                           || (ship->type == OTYPE_BERS))) {
+                do_repair(ship);
             }
 
 #else
@@ -360,10 +358,8 @@ void doship(shiptype *ship, int update)
                 if (ship->damage && ship->on) {
                     do_repair(ship);
                 }
-            } else {
-                if (ship->damage && max_crew) {
-                    do_repair(ship);
-                }
+            } else if (ship->damage && max_crew) {
+                do_repair(ship);
             }
 #endif
 
@@ -1428,11 +1424,23 @@ void do_repair(shiptype *ship)
                 }
 
                 /* -mfw */
-                /* cost = (int)(0.005 * maxrep * Cost(ship)); */
-                if (ship->whatorbits == LEVEL_UNIV) {
-                    cost = (int)(0.005 * maxrep * Cost(ship)) + 1;
+                if (s->type == OTYPE_FACTORY) {
+                    cost = (int)(0.005
+                                 * maxrep
+                                 * ((2
+                                     * ship->build_cost
+                                     * ship->on)
+                                    + Shipdata[ship->type][ABIL_COST]));
+
+                    if (ship->whatorbits == LEVEL_UNIV) {
+                        cost += 1;
+                    }
                 } else {
-                    cost = (int)(0.005 * maxrep * Cost(ship));
+                    cost = (int)(0.005 * maxrep * ship->build_cost);
+
+                    if (ship->whatorbits == LEVEL_UNIV) {
+                        cost += 1;
+                    }
                 }
             }
         }
@@ -1562,7 +1570,7 @@ void do_habitat(shiptype *ship)
     if (ship->type == OTYPE_FACTORY) {
         max_crew = Shipdata[ship->type][ABIL_MAX_CREW] - ship->troops;
     } else {
-        max_crew = ship->max_crew - ship->popn;
+        max_crew = ship->max_crew - ship->troops;
     }
 
     if ((ship->popn + add) > max_crew) {
@@ -1655,7 +1663,11 @@ void do_mirror(shiptype *ship)
 
             s = ships[ship->special.aimed_at.shipno];
             range = sqrt(Distsq(ship->xpos, ship->ypos, s->xpos, x->ypos));
-            i = int_rand(0, round_rand(2.0 / (((double)Body(s) * (double)ship->special.aimed_at.intensity) / ((range / PLORBITSIZE) + 1.0))));
+            i = int_rand(0,
+                         round_rand(2.0
+                                    / (((double)(s->size - s->max_hanger)
+                                        * (double)ship->special.aimed_at.intensity)
+                                       / ((range / PLORBITSIZE) + 1.0))));
 
             sprintf(telegram_buf, "%s aimed at %s\n", Ship(ship), Ship(s));
             s->damage += i;
@@ -1733,9 +1745,15 @@ void do_god(shiptype *ship)
      * assaults, then mop up the crew. Maarten
      */
     if (races[ship->owner - 1]->God) {
-        ship->fuel = Max_fuel(ship);
-        ship->destruct = Max_destruct(ship);
-        ship->resource = Max_resource(ship);
+        if (ship->type == OTYPE_FACTORY) {
+            ship->fuel = Shipdata[ship->type][ABIL_FUELCAP];
+            ship->destruct = Shipdata[ship->type][DESTCAP];
+            ship->resource = Shipdata[ship->type][ABIL_CARGO];
+        } else {
+            ship->fuel = ship->max_fuel;
+            ship->destruct = ship->max_destruct;
+            ship->resource = ship->max_resource;
+        }
     }
 }
 

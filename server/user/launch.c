@@ -51,11 +51,11 @@ void launch(int playernum, int governor, int apcount)
     int shipno;
     int i;
     int nextshipno;
-    double fuel;
     int roll = 0;
+    int max_resource = 0;
+    double fuel;
     char *ship_to_launch;
     char tmp[10];
-    /* int warned = 0; */
 
     /*
      * Added LEVEL_SHIP check below, if player is at ship scope they should just
@@ -102,7 +102,13 @@ void launch(int playernum, int governor, int apcount)
                 apcount = 0;
             }
 
-            if (landed(s) && (s->resource -> Max_resource(s))) {
+            if (s->type == OTYPE_FACTORY) {
+                max_resource = Shipdata[s->type][ABIL_CARGO];
+            } else {
+                max_resource = s->max_resource;
+            }
+
+            if (landed(s) && (s->resource > max_resource)) {
                 sprintf(buf, "%s is too overloaded to launch.\n", Ship(s));
                 notify(playernum, governor, buf);
                 free(s);
@@ -149,10 +155,10 @@ void launch(int playernum, int governor, int apcount)
                         s2->mass = s2->mass - s->mass;
                     }
 
-                    if ((unsigned short)Size(s) > s2->hanger) {
+                    if ((unsigned short)s->size > s2->hanger) {
                         s2->hanger = 0;
                     } else {
-                        s2->hanger = s2->hanger - (unsigned short)Size(s);
+                        s2->hanger = s2->hanger - (unsigned short)s->size;
                     }
 
                     sprintf(buf,
@@ -196,10 +202,10 @@ void launch(int playernum, int governor, int apcount)
                         s2->mass = s2->mass - s->mass;
                     }
 
-                    if ((unsigned short)Size(s) > s2->hanger) {
+                    if ((unsigned short)s->size > s2->hanger) {
                         s2->hanger = 0;
                     } else {
-                        s2->hanger = s2->hanger - (unsigned short)Size(s);
+                        s2->hanger = s2->hanger - (unsigned short)s->size;
                     }
 
                     getplanet(&p, (int)s2->storbits, (int)s2->pnumorbits);
@@ -249,10 +255,10 @@ void launch(int playernum, int governor, int apcount)
                         s2->mass = s2->mass - s->mass;
                     }
 
-                    if ((unsigned short)Size(s) > s2->hanger) {
+                    if ((unsigned short)s->size > s2->hanger) {
                         s2->hanger = 0;
                     } else {
-                        s2->hanger = s2->hanger - (unsigned short)Size(s);
+                        s2->hanger = s2->hanger - (unsigned short)s->size;
                     }
 
                     getstar(&Stars[s2->storbits], (int)s2->storbits);
@@ -295,10 +301,10 @@ void launch(int playernum, int governor, int apcount)
                         s2->mass = s2->mass - s->mass;
                     }
 
-                    if ((unsigned short)Size(s) > s2->hanger) {
+                    if ((unsigned short)s->size > s2->hanger) {
                         s2->hanger = 0;
                     } else {
-                        s2->hanger = s2->hanger - (unsigned short)Size(s);
+                        s2->hanger = s2->hanger - (unsigned short)s->size;
                     }
 
                     getsdata(&Sdata);

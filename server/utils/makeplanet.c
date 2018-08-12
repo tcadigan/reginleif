@@ -1237,8 +1237,8 @@ int num_niehgbors(planettype *p, int x, int y, int type)
     int d;
     int count = 0;
 
-    count = (Sector(*p, mod(x - 1, p->Maxx, d), y).type == type);
-    count += (Sector(*p, mod(x + 1, p->Maxx, d), y).type == type);
+    count = (Sector(*p, abs((x - 1) % p->Maxx), y).type == type);
+    count += (Sector(*p, abs((x + 1) % p->Maxx), y).type == type);
 
     if (y == 0) {
         count += 0;

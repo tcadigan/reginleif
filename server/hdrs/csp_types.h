@@ -1,6 +1,6 @@
 /*
  * Galactic Bloodshed, A multi-player 4X game of space conquest
- * Copyright (c) 1989-90 by Robert P. Chasky, et al.
+ * Copyright (c) 1989-90 by Robert P. Chansky, et al.
  * See GB_copyright.h for additional authors and details.
  *
  * This program is free software; you can redistributed it and/or modify it

@@ -482,15 +482,6 @@ struct OrbitInfo {
 
 typedef struct OrbitInfo orbitinto;
 
-#define CanDo(P, G, L)                                  \
-    (((G) == 0) ?                                       \
-     1                                                  \
-     : (races[(P) - 1]->governor[(G)].rank <= (L)) ?    \
-     1                                                  \
-     0)
-
-#define SetLevel(P, G, L) (races[(P)]->governor[(G)].level = (L))
-
 /* Bit routines stolen from UNIX <sys/param.h> */
 #ifdef setbit
 #undef setbit

@@ -70,6 +70,7 @@ void do_vn(shiptype *ship)
     int i;
     int f;
     int prod = 0;
+    int max_fuel = 0;
     int nums[MAXPLAYERS + 1];
 
     debug(LEVEL_GENERAL, "do_vn(): In functions\n");
@@ -260,9 +261,15 @@ void do_vn(shiptype *ship)
                     }
                 } else {
                     /* No fuel to steal convert resources */
-                    if ((ship->fuel < Max_fuel(ship)) && ship->resources) {
-                        use_resource(ship, MIN(ship->resource, Max_fuel(ship)));
-                        rcv_fuel(ship, MIN(ship->resource, Max_fuel(ship)));
+                    if (ship->type == OTYPE_FACTORY) {
+                        max_fuel = Shipdata[ship->type][ABIL_FUELCAP];
+                    } else {
+                        max_fuel = s->max_fuel;
+                    }
+
+                    if ((ship->fuel < max_fuel) && ship->resources) {
+                        use_resource(ship, MIN(ship->resource, max_fuel));
+                        rcv_fuel(ship, MIN(ship->resource, max_fuel));
                     }
                 }
             }
@@ -860,7 +867,6 @@ void planet_do_vn(shiptype *ship, planettype *planet)
                 sectortype *s;
                 int xa;
                 int ya;
-                int dum;
                 int prod;
                 float take;
 
@@ -881,9 +887,7 @@ void planet_do_vn(shiptype *ship, planettype *planet)
 
                     /* No more resources here, move to another sector */
                     xa = int_rand(-1, 1);
-                    ship->land_x = mod((int)(ship->land_x) + xa,
-                                       planet->Maxx,
-                                       dum);
+                    ship->land_x = abs((int)(ship->land_x) + xa) % plant->Maxx);
 
                     if (ship->land_y == 0) {
                         ya = 1;

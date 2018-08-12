@@ -46,9 +46,6 @@ typedef struct command_struct {
  * } CSP_Commands;
  */
 
-#define NUM_COMMANDS (sizeof(csp_client_commands) / sizeof(CSP_commands))
-#define NUM_SCOMMANDS (sizeof(csp_server_commands) / sizeof(CSP_commands))
-
 /* These are commands the server will RECEIVE from the client */
 static CSP_commands csp_client_commands[] = {
     {       CSP_KNOWLEDGE,      CSP_knowledge, 0}, /* ok */

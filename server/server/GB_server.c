@@ -1168,6 +1168,7 @@ int process_fd(int which)
     int player = 0;
     int governor = 0;
     int happy = FALSE;
+    int allowed = FALSE;
     char *string = NULL;
     char *ptr;
     char *message;
@@ -1536,7 +1537,15 @@ int process_fd(int which)
                     break;
                 }
 
-                if (!CanDo(des[which].Playernum, des[which].Governor, handler->Rank)) {
+                if (des[which].Governor == 0) {
+                    allowed = TRUE;
+                } else if (races[des[which].Playernum - 1]->governor[des[which].Governor].rank <= handler->Rank) {
+                    allowed = TRUE;
+                } else {
+                    allowed = FALSE;
+                }
+
+                if (!allowed) {
                     switch (handler->Rank) {
                     case LEADER:
                         strcpy(rank, "leader");

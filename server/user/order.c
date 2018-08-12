@@ -506,6 +506,7 @@ void give_orders(int playernum,
     int i = 0;
     int j = 0;
     int max_crew = 0;
+    int max_speed = 0;
     int x;
     int y;
     placetype where;
@@ -527,7 +528,7 @@ void give_orders(int playernum,
     if (ship->type == OTYPE_FACTORY) {
         max_crew = Shipdata[ship->type][ABIL_MAXCREW] - ship->troops;
     } else {
-        max_crew = ship->max_crew - ship->popn;
+        max_crew = ship->max_crew - ship->troops;
     }
 
 #ifdef USE_AMOEBA
@@ -940,7 +941,13 @@ void give_orders(int playernum,
 
         break;
     case ORD_EVAD:
-        if (max_crew && Max_speed(ship)) {
+        if (ship->type == OTYPE_FACTORY) {
+            max_speed = Shipdata[ship->type][ABIL_SPEED];
+        } else {
+            max_speed = shpi->max_speed;
+        }
+
+        if (max_crew && max_speed) {
             if (match(args[3], "on")) {
                 ship->protect.evade = 1;
             } else if (match(args[3], "off")) {

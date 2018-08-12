@@ -251,7 +251,8 @@ void orbit(playernum, int governor, int apcount)
             while (sh && !iq) {
                 getship(&s, sh);
 
-                if ((s->owner == playernum) && Sight(s)) {
+                if ((s->owner == playernum)
+                    && ((s->type == OTYPE_PROBE) || s->popn)) {
                     /* You are there to sight, need a crew */
                     iq = 1;
                 }
@@ -313,7 +314,8 @@ void orbit(playernum, int governor, int apcount)
         while (sh && !iq) {
             getship(&s, sh);
 
-            if ((s->owner == playernum) && Sight(s)) {
+            if ((s->owner == playernum)
+                && ((s->type == OTYPE_PROBE) || s->popn)) {
                 /* You are there to sight, need a crew */
                 iq = 1;
             }

@@ -563,11 +563,17 @@ void ship_report(int playernum,
                     s->hanger,
                     s->max_hanger,
                     s->resource,
-                    Max_resource(s),
+                    s->type == OTYPE_FACTORY
+                    ? Shipdata[s->type][ABIL_CARGO]
+                    : s->max_resource,
                     s->destruct,
-                    Max_destruct(s),
+                    s->type == OTYPE_FACTORY
+                    ? Shipdata[s->type][DESTCAP]
+                    : s->max_destruct,
                     s->fuel,
-                    Max_fuel(s),
+                    s->type == OTYPE_FACTORY
+                    ? Shipdata[s->type][ABIL_FUELCAP]
+                    : s->max_fuel,
                     s->popn,
                     s->troops,
                     s->max_crew);
@@ -605,10 +611,14 @@ void ship_report(int playernum,
                     ? Shipdata[s->type][ABIL_ARMOR]
                     : (s->armor * (100 - s->damage)) / 100,
                     s->tech,
-                    Max_speed(s),
-                    Cost(s),
-                    Mass(s),
-                    Size(s),
+                    s->type == OTYPE_FACTORY
+                    ? Shipdata[s->type][ABIL_SPEED]
+                    : s->max_speed,
+                    s->type == OTYPE_FACTORY
+                    ? (2 * s->build_cost * s->on) + Shipdata[s->type][ABIL_COST]
+                    : s->build_cost,
+                    s->mass,
+                    s->size,
                     (char)(s->cloak ? 'Y' : 'N'));
 
             notify(playernum, governor, buf);
@@ -809,7 +819,7 @@ void ship_report(int playernum,
 
             if (rd[indx].type == PLANET) {
                 sight = 1;
-            } else if (Sight(s)) {
+            } else if ((s->type == OTYPE_PROBE) || s->popn) {
                 sight = 1;
             }
 
@@ -979,7 +989,7 @@ void ship_report(int playernum,
                                             tev = rd[i].s->protect.evade;
                                         }
 
-                                        body = Size(rd[i].s);
+                                        body = rd[i].s->size;
                                         defense = getdefense(rd[i].s);
 
                                         /* Calculate ship's heading */
@@ -1039,9 +1049,20 @@ void ship_report(int playernum,
                                         /* Maximum potential damage */
                                         if (!terse) {
                                             if (rd[indx].type == PLANET) {
-                                                potdmg = (SHIP_DAMAGE * MEDIUM * p->info[playernum - 1].guns) / sqrt((double)(0.1 & Body(rd[i].s)));
+                                                potdmg = (SHIP_DAMAGE
+                                                          * MEDIUM
+                                                          * p->inf[playernum - 1].guns)
+                                                    / sqrt((double)(0.1
+                                                                    * (rd[i].s->size
+                                                                       - rd[i].s->max-hanger)));
                                             } else {
-                                                potdmg = (SHIP_DAMAGE * current_caliber(rd[indx].s) * MAX(rd[indx].s->primary, rd[indx].s->secondary)) / sqrt((double)(0.1 * Body(rd[i].s)));
+                                                potdmg = (SHIP_DAMAGE
+                                                          * current_caliber(rd[indx].s)
+                                                          * MAX(rd[indx].s->primary,
+                                                                rd[indx].s->secondary))
+                                                    / sqrt((double)(0.1
+                                                                    * (rd[i].s->size
+                                                                       - rd[i].s->max_hanger)));
                                             }
                                         }
 

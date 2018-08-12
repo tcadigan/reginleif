@@ -411,13 +411,21 @@ void capture(int playernum, int governor, int apcount)
                                          - ship->troops);
                     } else {
                         ship->popn = MIN(boarders,
-                                         ship->max_crew - ship->popn);
+                                         ship->max_crew - ship->troops);
                     }
 
                     sect->popn += (boarders - ship->popn);
                     ship->mass += (ship->popn * race->mass);
                 } else if (what == MIL) {
-                    ship->troops = MIN(boarders, Max_mil(ship));
+                    if (ship->type == OTYPE_FACTORY) {
+                        ship->troops = MIN(boarders,
+                                           Shipdata[ship->type][ABIL_MAX_CREW]
+                                           - ship->popn);
+                    } else {
+                        ship->troops = MIN(boarders,
+                                           ship->max_crew - ship->popn);
+                    }
+
                     sect->troops += (boarders - ship->troops);
                     ship->mass += (ship->troops * race->mass);
                 }
@@ -450,13 +458,20 @@ void capture(int playernum, int governor, int apcount)
                                          - ship->troops);
                     } else {
                         ship->popn = MIN(boarders,
-                                         ship->max_crew - ship->popn);
+                                         ship->max_crew - ship->troops);
                     }
 
                     sect->popn += (boarders - ship->popn);
                     ship->mass += (ship->popn - race->mass);
                 } else if (what == MIL) {
-                    ship->troops = MIN(boarders, Max_mil(ship));
+                    if (ship->type == OTYPE_FACTORY) {
+                        ship->troops = MIN(boarders,
+                                           Shipdata[ship->type][ABIL_MAXCREW]
+                                           - ship->popn);
+                    } else {
+                        ship->troops = MIN(boarders,
+                                           ship->max_crew - ship->popn);
+                    }
                     sect->troops += (boarders - ship->troops);
                     ship->mass += (ship->troops * race->mass);
                 }

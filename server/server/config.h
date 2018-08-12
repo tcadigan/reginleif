@@ -171,7 +171,7 @@
  *   Chance of spore survival. (Was in tweakables.h before)
  */
 #define SPORE_SUCCESS_RATE $spore_success_rate
-#define NORMAL_SUCCESS_RATE $normal_succesS_rate
+#define NORMAL_SUCCESS_RATE $normal_success_rate
 
 /*
  * USE_VN:

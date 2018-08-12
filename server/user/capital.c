@@ -108,7 +108,7 @@ void capital(int playernum, int governor, int apcount)
     } else {
         sprintf(buf,
                 "Efficiency of governmental center: %.0f%%.\n",
-                ((double)s->popn / (s->max_crew - s->popn))
+                ((double)s->popn / (s->max_crew - s->troops))
                 * (100 - (doule)s->damage));
     }
 

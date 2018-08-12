@@ -218,10 +218,10 @@ void land(int playernum, int governor, int apcount)
                         continue;
                     }
 
-                    if (Size(s) > Hanger(s2)) {
+                    if (s->size > (s2->max_hanger - s2->hanger)) {
                         sprintf(buf,
                                 "Mothership does not have %d hanger space available to load ship.\n",
-                                Size(s));
+                                s->size);
 
                         notify(playernum, governor, buf);
                         free(s);
@@ -245,7 +245,7 @@ void land(int playernum, int governor, int apcount)
 
                     /* Increase mass of mothership */
                     s2->mass += s->mass;
-                    s2->hanger += (unsigned short)Size(s);
+                    s2->hanger += (unsigned short)s->size;
                     fuel = 0.0;
 
                     sprintf(buf,
@@ -315,10 +315,10 @@ void land(int playernum, int governor, int apcount)
                         continue;
                     }
 
-                    if (Size(s) > Hanger(s2)) {
+                    if (s->size > (s2->max_hanger - s2->hanger)) {
                         sprintf(buf,
                                 "Mothership does not have %d hanger space available to load ship.\n",
-                                Size(s));
+                                s->size);
 
                         notify(playernum, governor, buf);
                         free(s);
@@ -358,7 +358,7 @@ void land(int playernum, int governor, int apcount)
 
                     /* Increases mass of mothership */
                     s2->mass += s->mass;
-                    s2->hanger += (unsigned short)Size(s);
+                    s2->hanger += (unsigned short)s->size;
 
                     sprintf(buf,
                             "%s landed on %s using %.1f fuel.\n",
@@ -771,15 +771,29 @@ int docked(shiptype *s)
 
 int overloaded(shiptype *s)
 {
+    int max_resource = 0;
+    int max_fuel = 0;
+    int max_destruct;
+
     /*
      * HUT modification (tze): Ship is considered overloaded if there's more
      * than 1 fuel over capacity
      */
 
-    return ((s->resource > Max_resource(s))
-            || (s->fuel > (Max_fuel(s) + 1))
+    if (s->type == OTYPE_FACTORY) {
+        max_resource = Shipdata[s->type][ABIL_CARGO];
+        max_fuel = Shipdata[s->type][ABIL_FUELCAP];
+        max_destruct = Shipdata[s->type][DESTCAP];
+    } else {
+        max_resource = s->max_resource;
+        max_fuel = s->max_fuel;
+        max_destruct = s->max_destruct;
+    }
+
+    return ((s->resource > max_resource)
+            || (s->fuel > (max_fuel + 1))
             || ((s->popn + s->troops) > s->max_crew)
-            || (s->destruct > Max_destruct(s)));
+            || (s->destruct > max_destruct));
 }
 
 int wormhole_damage(int here, int there)

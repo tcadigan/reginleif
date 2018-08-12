@@ -387,43 +387,6 @@ struct place {
     unsigned char err; /* If error */
 };
 
-#define Max_mil(s)                                      \
-    (((s)->type == OTYPE_FACTORY) ?                     \
-     Shipdata[(s)->type][ABIL_MAXCREW] - (s)->popn      \
-     : (s)->max_crew - (s)->popn)
-
-#define Max_resources(s)                        \
-    (((s)->type == OTYPE_FACTORY) ?             \
-     Shipdata[(s)->type][ABIL_CARGO]            \
-     : (s)->max_resource)
-
-#define Max_fuel(s)                             \
-    (((s)->type == OTYPE_FACTORY) ?             \
-     Shipdata[(s)->type][ABIL_FUELCAP]          \
-     : (s)->max_fuel)
-
-#define Max_destruct(s)                         \
-    (((s)->type == OTYPE_FACTORY) ?             \
-     Shipdata[(s)->type][DESTCAP]               \
-     : (s)->max_destruct)
-
-#define Max_speed(s)                            \
-    (((s)->type == OTYPE_FACTORY) ?             \
-     Shipdata[(s)->type][ABIL_SPEED]            \
-     : (s)->max_speed)
-
-#define Cost(s)                                                         \
-    (((s)->type == OTYPE_FACTORY)                                       \
-     (2 * (s)->build_cost * (s)->on) + Shipdata[(s)->type][ABIL_COST]   \
-     : (s)->build_cost)
-
-#define Mass(s) ((s)->mass)
-#define Sight(s) (((s)->type == OTYPE_PROBE) || (s)->popn)
-#define Retaliate(s) ((s)->retaliate)
-#define Size(s) ((s)->size)
-#define Body(s) ((s)->size - (s)->max_hanger)
-#define Hanger(s) ((s)->max_hanger - (s)->hanger)
-
 extern long Shipdata[NUMSTYPES][NUMABILS];
 extern char Shipltrs[];
 extern char const *Shipnames[];
