@@ -14,7 +14,8 @@
 
 #include <cstdio>
 #include <cstdarg>
-#include <SDL_opengl.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
 
 void console(char const *message, ...)
 {
@@ -25,6 +26,7 @@ void console(char const *message, ...)
     vsprintf(msg_text, message, marker);
     va_end(marker);
 
+    SDL_Log("%s", msg_text);
     // Now the message is store in msg_text, you should probably display
     // it or something...
 }

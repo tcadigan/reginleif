@@ -7,7 +7,7 @@
 
 #include "win.hpp"
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 #include "mouse-pointer.hpp"
 
@@ -22,29 +22,45 @@ win::~win()
 
 GLboolean win::init()
 {
+    SDL_LogVerbose(SDL_LOG_CATEGORY_VIDEO, "%s", "Entering win::init");
+
     mouse_movement_ = ini_mgr_.get_float("Settings", "mouse movement");
 
     if(SDL_Init(SDL_INIT_VIDEO) != 0) {
         return false;
     }
 
+    SDL_LogVerbose(SDL_LOG_CATEGORY_VIDEO, "%s", "Initialized SDL video");
+
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-    surface_ = SDL_SetVideoMode(/* width */ 544,
+    window_ = SDL_CreateWindow("Terrain",
+                               SDL_WINDOWPOS_UNDEFINED,
+                               SDL_WINDOWPOS_UNDEFINED,
+                               /* width */ 544,
                                /* height */ 640,
-                               /* bpp */ 32,
-                               SDL_OPENGL | SDL_RESIZABLE);
+                               SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
 
     if(surface_ == NULL) {
         return false;
     }
+
+    SDL_LogVerbose(SDL_LOG_CATEGORY_VIDEO, "%s", "Created window");
+
+    surface_ = SDL_GetWindowSurface(window_);
+    // SDL_LogVerbose(SDL_LOG_CATEGORY_VIDEO, "%s", "Acquired surface");
+
+    // SDL_FillRect(surface_, NULL, SDL_MapRGB(surface_->format, 0xFF, 0xFF, 0xFF));
+    // SDL_UpdateWindowSurface(window_);
+
+    // SDL_Delay(10000);
 
     return true;
 }
 
 void win::term()
 {
-    SDL_FreeSurface(surface_);
+    SDL_DestroyWindow(window_);
 }
 
 SDL_Surface *win::handle()

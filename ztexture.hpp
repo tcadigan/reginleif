@@ -1,7 +1,7 @@
 #ifndef ZTEXTURE_HPP_
 #define ZTEXTURE_HPP_
 
-#include <SDL_opengl.h>
+#include <SDL2/SDL_opengl.h>
 
 class ztexture {
 public:

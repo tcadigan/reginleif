@@ -5,7 +5,7 @@
 
 #include "entity-item.hpp"
 
-#include <SDL_opengl.h>
+#include <SDL2/SDL_opengl.h>
 
 #include "camera-fwd.hpp"
 #include "entity-manager.hpp"
@@ -26,7 +26,7 @@ public:
 
     void init();
     void term();
-    
+
     GLfloat get_fade() const;
     gl_rgba get_fog_color() const;
     gl_rgba get_ambient_color() const;
@@ -45,7 +45,7 @@ private:
     terrain_texture *terrain_texture_;
     terrain_entity *terrain_entity_;
     sun *sun_;
-    
+
     gl_rgba ambient_color_;
     gl_rgba fog_color_;
     GLfloat fade_;

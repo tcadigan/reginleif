@@ -1,7 +1,7 @@
 #ifndef TEXTURE_ITEM_HPP_
 #define TEXTURE_ITEM_HPP_
 
-#include <SDL_opengl.h>
+#include <SDL2/SDL_opengl.h>
 #include <string>
 
 class texture_item {

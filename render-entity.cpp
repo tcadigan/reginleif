@@ -128,9 +128,20 @@ void render_entity::resize()
     glViewport(left, top, render_width_, render_height_);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(45.0f, render_aspect_, 0.1f, render_distance_);
+    perspectiveGL(45.0f, render_aspect_, 0.1f, render_distance_);
     glMatrixMode(GL_MODELVIEW);
     // buffer = new unsigned char[(WinWidth() * WinHeight()) * 4];
+}
+
+void render_entity::perspectiveGL(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar)
+{
+    const GLdouble pi = 3.1415926535897932384626433832795;
+    GLdouble fW, fH;
+
+    fH = tan(fovY / 360 * pi) * zNear;
+    fW = fH * aspect;
+
+    glFrustum(-fW, fW, -fH, fH, zNear, zFar);
 }
 
 void render_entity::update()

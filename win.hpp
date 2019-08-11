@@ -1,9 +1,8 @@
 #ifndef WIN_HPP_
 #define WIN_HPP_
 
-
-#include <SDL.h>
-#include <SDL_opengl.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
 
 #include "ini-manager.hpp"
 #include "point.hpp"
@@ -28,6 +27,7 @@ private:
     ini_manager const &ini_mgr_;
 
     // static HWND hwnd;
+    SDL_Window *window_;
     SDL_Surface *surface_;
     // static HINSTANCE module;
     // bool lmb;

@@ -7,8 +7,11 @@
 
 #include "app.hpp"
 
-#include <SDL_opengl.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
 
+#include "ini-manager.hpp"
+#include "win.hpp"
 // #include "camera.hpp"
 // #include "console.hpp"
 // #include "entity.hpp"
@@ -18,7 +21,7 @@
 // #include "texture.hpp"
 // #include "win.hpp"
 // #include "world.hpp"
- 
+
 static GLboolean quit;
 // static HINSTANCE instance;
 
@@ -34,6 +37,14 @@ void app_quit()
 
 int main(int argc, char *argv[])
 {
+    SDL_LogSetAllPriority(SDL_LOG_PRIORITY_VERBOSE);
+    ini_manager *ini = new ini_manager();
+    SDL_LogVerbose(SDL_LOG_CATEGORY_VIDEO, "%s", "Created ini manager");
+    win *window = new win(*ini);
+    SDL_LogVerbose(SDL_LOG_CATEGORY_VIDEO, "%s", "Created window");
+    window->init();
+
+    window->term();
     return 0;
 }
 

@@ -3,7 +3,7 @@
 
 #include "entity-item.hpp"
 
-#include <SDL_opengl.h>
+#include <SDL2/SDL_opengl.h>
 
 #include "camera.hpp"
 #include "ini-manager.hpp"
@@ -21,11 +21,12 @@ public:
               ini_manager const &ini_mgr);
     void term();
 
-    virtual void update(); 
+    virtual void update();
     virtual void render();
 
 private:
     void resize();
+    void perspectiveGL(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 
     world const &world_;
 

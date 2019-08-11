@@ -7,7 +7,7 @@
 
 #include "sky.hpp"
 
-#include <SDL_opengl.h>
+#include <SDL2/SDL_opengl.h>
 
 #include "math.hpp"
 #include "world.hpp"

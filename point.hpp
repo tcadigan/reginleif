@@ -1,7 +1,7 @@
 #ifndef POINT_HPP_
 #define POINT_HPP_
 
-#include <SDL_opengl.h>
+#include <SDL2/SDL_opengl.h>
 
 class point {
 public:

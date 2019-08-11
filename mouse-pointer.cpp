@@ -13,8 +13,9 @@
  */
 
 #include "mouse-pointer.hpp"
- 
-#include <SDL.h>
+
+#include <GL/glu.h>
+#include <SDL2/SDL.h>
 #include <cmath>
 #include <cstring>
 
@@ -72,7 +73,7 @@ void mouse_pointer::update()
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-    
+
     // This creates a matrix that will zoom up to a small portion
     // of the screen
     gluPickMatrix((GLdouble)p.get_x(),
@@ -176,7 +177,7 @@ point mouse_pointer::draw_grid()
     GLint y;
     GLint block;
     GLint hits;
-    
+
     // Set up a selection buffer
     GLuint buffer[512];
     gl_vector3 v1;

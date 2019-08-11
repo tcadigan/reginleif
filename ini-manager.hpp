@@ -16,31 +16,31 @@ public:
     void term();
 
     void set_int(std::string const &section,
-                 std::string const &entry, 
+                 std::string const &entry,
                  GLint value);
 
-    void set_float(std::string const &section, 
+    void set_float(std::string const &section,
                    std::string const &entry,
                    GLfloat value);
 
-    void set_string(std::string const &section, 
+    void set_string(std::string const &section,
                     std::string const &entry,
                     std::string const &value);
 
-    void set_vector(std::string const &section, 
+    void set_vector(std::string const &section,
                     std::string const &entry,
                     gl_vector3 const &value);
 
     GLint get_int(std::string const &section, std::string const &entry) const;
-    GLfloat get_float(std::string const &section, 
+    GLfloat get_float(std::string const &section,
                       std::string const &entry) const;
 
-    std::string get_string(std::string const &section, 
+    std::string get_string(std::string const &section,
                            std::string const &entry) const;
 
-    gl_vector3 get_vector(std::string const &section, 
+    gl_vector3 get_vector(std::string const &section,
                           std::string const &entry) const;
-    
+
 private:
     std::string inner_get_string(std::string const &section,
                                  std::string const &entry,

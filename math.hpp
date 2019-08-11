@@ -1,7 +1,7 @@
 #ifndef MATH_HPP_
 #define MATH_HPP_
 
-#include <SDL_opengl.h>
+#include <SDL2/SDL_opengl.h>
 
 GLfloat math_angle(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
 GLfloat math_angle_difference(GLfloat a1, GLfloat a2);
