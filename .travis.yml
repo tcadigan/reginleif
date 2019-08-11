@@ -14,7 +14,7 @@ env:
 addons:
   apt:
     packages:
-      - libsdl1.2-dev
+      - libsdl2-dev
       - libglu1-mesa-dev
       - mesa-common-dev
   coverity_scan:
