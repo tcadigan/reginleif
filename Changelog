@@ -1,0 +1,30 @@
+ChangeLog
+
+0.97 - 0.98
+	Zardus: joysticks fixed in Windows
+	Zardus: The crash that resulted in the fix for the accumulating leak has
+	        been worked around. It leaks just a bit, but not as much as it
+	        used to.
+	Zardus: Made openscen a bit less annoying to use
+
+0.95 - 0.97
+	Zardus: Evil accumulating memory leak plugged. Some segfaults fixed.
+	Zardus: Full screen seems to work in Windows now. It might have worked
+	        before, just not for me, but it should work for people now.
+	Zardus: Improved file finding.
+	Odo says hi.
+
+0.90 - 0.95:
+	Zardus: Game now has much better file finding, memory fixes, implemented
+	        Erik's and Mikes' fading code.
+	Sean: Implemented sai2x and eagle rendering, memory fixes
+	Kari: Game is now autoconfed, command line parsing
+
+0.1 - 0.90:
+	08/16/2002:
+		Zardus: Joysticks work!
+		Buffers: Sound works w00t
+	08/09/2002:
+		Zardus: Replaced finish in intro.cpp with proper code
+	Prior to 08/09/2002:
+		Zardus and Odo: Got lots and lots of crap working

@@ -1,0 +1,29 @@
+The following people have contributed to the existance of this game:
+
+FSGames (http://fsgames.com) - Wrote original game
+
+Zardus - zardus@users.sourceforge.net
+  * Programmer and porter
+
+Sean Ford <aglswapbuffers> - wmd@isroot.com
+  * Programmer and porter
+
+Jonathan Dearborn <grimfang4/Jimmy D> - grimfang4@gmail.com
+  * Programmer
+
+Contributions:
+
+Michael Bonfils <mom32@murlock.org>
+  * Created Visual C++ Makefile
+
+Erik Hermansen <erikh2000@yahoo.com> and Mike Rimer
+  * Fading code
+
+Kari Pahula <kaolpa@utu.fi>
+  * Autoconf and optimization work, new config file handling
+
+Niall O'Higgens
+  * Autgen script, cross platform work
+
+David Storey
+  * Cross platform work
