@@ -20,58 +20,60 @@
 
 // Definition of SCREEN class
 
+#include "screen-fwd.hpp"
+
 #include <map>
 #include <set>
 #include <string>
 
-#include "base.hpp"
-#include "gloader.hpp"
+#include "gloader-fwd.hpp"
 #include "level_data.hpp"
 #include "obmap.hpp"
 #include "save_data.hpp"
-#include "smooth.h"
+#include "smooth.hpp"
+#include "soundob.hpp"
 #include "text.hpp"
 #include "video.hpp"
 
-class screen : public video
+class Screen : public Video
 {
 public:
     // Called with '1' for numviews
-    screen();
-    screen(Sint16 howmany);
-    virtual ~screen();
+    Screen();
+    Screen(Sint16 howmany);
+    virtual ~Screen();
 
     void reset(Sint16 howmany);
     void ready_for_battle(Sint16 howmany);
     void initialize_views();
     void cleanup(Sint16 howmany);
     void clear();
-    video *get_video_ob();
-    bool query_passable(float x, float y, walker *ob);
-    bool query_object_passable(float x, float y, walker *ob);
-    bool query_grid_passable(float x, float y, walker *ob);
+    Video *get_video_ob();
+    bool query_passable(float x, float y, Walker *ob);
+    bool query_object_passable(float x, float y, Walker *ob);
+    bool query_grid_passable(float x, float y, Walker *ob);
     Sint16 redraw();
     void refresh();
-    walker *first_of(Uint8 whatorder, Uint8 whatfamily, int team_num=1);
-    Sint16 input(SDL_event const &event);
+    Walker *first_of(Uint8 whatorder, Uint8 whatfamily, Sint32 team_num=1);
+    Sint16 input(SDL_Event const &event);
     Sint16 continuous_input();
     Sint16 act();
 
     Sint16 endgame(Sint16 ending);
     Sint16 endgame(Sint16 ending, Sint16 nextlevel); // What level next?
     void draw_panels(Sint16 howmany);
-    walker *find_near_foe(walker *ob);
-    walker *find_foe_far(walker *ob);
-    walker *find_nearest_blood(walker *who);
-    walker *find_nearest_player(walker *ob);
-    std::list<walker *> find_in_range(std::list<walker *> &somelist, Sint32 range, Sint16 *howmany, walker *ob);
-    std::list<walker *> find_foes_in_range(std::list<walker *> &somelist, Sint32 range, Sint16 *howmany, walker *ob);
-    std::list<walker *> find_foe_weapons_in_range(std::list< walker *> &somelist, Sint32 range, Sint16 *howmany, walker *ob);
+    Walker *find_near_foe(Walker *ob);
+    Walker *find_foe_far(Walker *ob);
+    Walker *find_nearest_blood(Walker *who);
+    Walker *find_nearest_player(Walker *ob);
+    std::list<Walker *> find_in_range(std::list<Walker *> &somelist, Sint32 range, Sint16 *howmany, Walker *ob);
+    std::list<Walker *> find_foes_in_range(std::list<Walker *> &somelist, Sint32 range, Sint16 *howmany, Walker *ob);
+    std::list<Walker *> find_foe_weapons_in_range(std::list<Walker *> &somelist, Sint32 range, Sint16 *howmany, Walker *ob);
     Uint8 damage_tile(Sint16 xloc, Sint16 yloc); // Damage the specified tile
-    void do_notify(Uint8 const *message, walker *who); // Printing text
+    void do_notify(Uint8 const *message, Walker *who); // Printing text
     void report_mem();
-    walker *set_walker(walker *ob, Uint8 order, Uint8 family);
-    Uint8 const *get_scen_title(Uint8 const *filename, screen *master);
+    Walker *set_walker(Walker *ob, Uint8 order, Uint8 family);
+    Uint8 const *get_scen_title(Uint8 const *filename, Screen *master);
     void add_level_completed(std::string const &campaign, Sint32 level_index);
 
     Sint32 get_num_levels_completed(std::string const &campaign) const;
@@ -82,7 +84,7 @@ public:
     Sint16 palmode;
 
     // Level data
-    Leveldata level_data;
+    LevelData level_data;
 
     // Save data
     SaveData save_data;
@@ -104,9 +106,9 @@ public:
     // Stops enemies from acting
     Uint8 enemy_freeze;
 
-    oundob *soundp;
+    SoundObject *soundp;
     Uint16 redrawme;
-    viewscreen *viewob[5];
+    ViewScreen *viewob[5];
     Uint16 numviews;
     Uint32 timerstart;
     Uint32 framecount;

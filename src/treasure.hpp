@@ -20,20 +20,19 @@
 
 // Definition of TREASURE class
 
-#include "base.hpp"
-#include "walker.hpp"
+#include "walker-fwd.hpp"
 
-class treasure : public walker
+class Treasure : public Walker
 {
 public:
-    treasure(Pixiedata const &data);
-    virtual ~treasure();
+    Treasure(PixieData const &data);
+    virtual ~Treasure();
 
     Sint16 act();
     // Called upon destruction
     // Sint16 death();
-    Sint16 eat_me(walker *eater);
-    walker *find_teleport_target();
+    Sint16 eat_me(Walker *eater);
+    Walker *find_teleport_target();
     void set_direct_frame(Sint16 whatframe);
 
     Uint8 query_order()

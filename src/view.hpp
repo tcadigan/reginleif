@@ -20,69 +20,74 @@
 
 // Definition of VIEWSCREEN class
 
-#include "base.hpp"
+#include "view-fwd.hpp"
+
 #include "level_data.hpp"
+#include "options.hpp"
+#include "radar.hpp"
 
 // Max of 5 lines, currently
 #define MAX_MESSAGES 5
 
 // Viewscreen related defines
-#define PREF_LIFE static_cast<Uint8>(0)
-#define PREF_LIFE_TEXT static_cast<Uint8>(0)
-#define PREF_LIFE_BARS static_cast<Uint8>(1)
-#define PREF_LIFE_BOTH static_cast<Uint8>(2)
-#define PREF_LIFE_SMALL static_cast<Uint8>(3)
-#define PREF_LIFE_OFF static_cast<Uint8>(4)
-#define PREF_SCORE static_cast<Uint8>(1)
-#define PREF_SCORE_OFF static_cast<Uint8>(0)
-#define PREF_SCORE_ON static_cast<Uint8>(1)
-#define PREF_VIEW static_cast<Uint8>(2)
-#define PREF_VIEW_FULL static_cast<Uint8>(0)
-#define PREF_VIEW_PANELS static_cast<Uint8>(1)
-#define PREF_VIEW_1 static_cast<Uint8>(2)
-#define PREF_VIEW_2 static_cast<Uint8>(3)
-#define PREF_VIEW_3 static_cast<Uint8>(4)
-#define PREF_JOY static_cast<Uint8>(3)
-#define PREF_NO_JOY static_cast<Uint8>(0)
-#define PREF_USE_JOY static_cast<Uint8>(1)
-#define PREF_RADAR static_cast<Uint8>(4)
-#define PREF_RADAR_OFF static_cast<Uint8>(0)
-#define PREF_RADAR_ON static_cast<Uint8>(1)
-#define PREF_FOES static_cast<Uint8>(5)
-#define PREF_FOES_OFF static_cast<Uint8>(0)
-#define PREF_FOES_ON static_cast<Uint8>(1)
-#define PREF_GAMMA static_cast<Uint8>(6)
-#define PREF_OVERLAY static_cast<Uint8>(7)
-#define PREF_OVERLAY_OFF static_cast<Uint8>(0)
-#define PREF_OVERLAY_ON static_cast<Uint8>(1)
-
-#define PREF_MAX 8 // == 1 + highest pref...
-
-class viewscreen;
-
-/*
- * This is a child object of all viewscreens. It is use to save and load all
- * prefs because each player has their own prefs. WE ASSUME 4 PLAYERS ALWAYS.
- */
-class options
-{
-public:
-    options();
-    ~options();
-
-    Sint16 load(viewscreen *viewp);
-    Sint16 save(viewscreen *viewp);
-
-protected:
-    Uint8 prefs[4][10];
-    Uint8 keys[4][16];
+enum PrefOptionsEnum : Uint8 {
+    PREF_LIFE = 0,
+    PREF_SCORE = 1,
+    PREF_VIEW = 2,
+    PREF_JOY = 3,
+    PREF_RADAR = 4,
+    PREF_FOES = 5,
+    PREF_GAMMA = 6,
+    PREF_OVERLAY = 7,
+    PREF_MAX = 8 // == 1 + highest pref...
 };
 
-class viewscreen
+enum PrefLifeEnum : Uint8 {
+    PREF_LIFE_TEXT = 0,
+    PREF_LIFE_BARS = 1,
+    PREF_LIFE_BOTH = 2,
+    PREF_LIFE_SMALL = 3,
+    PREF_LIFE_OFF = 4
+};
+
+enum PrefScoreEnum : Uint8 {
+    PREF_SCORE_OFF = 0,
+    PREF_SCORE_ON = 1
+};
+
+enum PrefViewEnum : Uint8 {
+    PREF_VIEW_FULL = 0,
+    PREF_VIEW_PANELS = 1,
+    PREF_VIEW_1 = 2,
+    PREF_VIEW_2 = 3,
+    PREF_VIEW_3 = 4
+};
+
+enum PrefJoystickEnum: Uint8 {
+    PREF_NO_JOY = 0,
+    PREF_USE_JOY = 1
+};
+
+enum PrefRadarEnum: Uint8 {
+    PREF_RADAR_OFF = 0,
+    PREF_RADAR_ON = 1
+};
+
+enum PrefFoesEnum : Uint8 {
+    PREF_FOES_OFF = 0,
+    PREF_FOES_ON = 1
+};
+
+enum PrefOverlayEnum : Uint8 {
+    PREF_OVERLAY_OFF = 0,
+    PREF_OVERLAY_ON = 1
+};
+
+class ViewScreen
 {
 public:
-    viewscreen(Sint16 x, Sint16 y, Sint16 length, Sint16 height, Sint16 whatnum);
-    ~viewscreen();
+    ViewScreen(Sint16 x, Sint16 y, Sint16 length, Sint16 height, Sint16 whatnum);
+    ~ViewScreen();
 
     void clear();
     Sint16 draw();
@@ -113,10 +118,10 @@ public:
     Sint32 change_speed(Sint32 whichway);
     Sint32 change_gamma(Sint32 whichway);
 
-    friend class pixieN;
-    friend class pixie;
-    friend class text;
-    friend class walker;
+    friend class PixieN;
+    friend class Pixie;
+    friend class Text;
+    friend class Walker;
 
     // For gamma correction
     Sint32 gamma;
@@ -135,7 +140,7 @@ public:
     // Holds the keyboard mapping
     Sint32 *mykeys;
     // The user
-    walker *control;
+    Walker *control;
     Sint16 xpos;
     Sint16 ypos;
     Sint16 topx;
@@ -148,12 +153,12 @@ public:
     Sint16 endy;
     // User preferences...
     Uint8 prefs[10];
-    radar *myradar;
+    Radar *myradar;
     // Has the radar been started yet?
     Sint16 radatastart;
 
 protected:
-    options *prefsob;
+    Options *prefsob;
     Sint16 size;
     Sint16 xview;
     Sint16 yview;
@@ -161,4 +166,4 @@ protected:
     Uint8 *oldbmp;
 };
 
-#endif;
+#endif

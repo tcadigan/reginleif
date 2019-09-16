@@ -20,14 +20,13 @@
 
 // Defintion of WEAP class
 
-#include "base.hpp"
-#include "walker.hpp"
+#include "walker-fwd.hpp"
 
-class weap : public walker
+class Weap : public Walker
 {
 public:
-    weap(PixieData const &data);
-    virtual ~weap();
+    Weap(PixieData const &data);
+    virtual ~Weap();
 
     Sint16 act();
     Sint16 animate();

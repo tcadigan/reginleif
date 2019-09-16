@@ -18,14 +18,20 @@
 
 #include <cstring>
 #include <ctime>
+// Z's script: #include <process.h>
 #include <string>
 
+#include "base.hpp"
 #include "colors.hpp"
 #include "graph.hpp"
 #include "gparser.hpp"
-// Z's script: #include <process.h>
+#include "guy.hpp"
+#include "input.hpp"
+#include "options.hpp"
 #include "results_screen.hpp"
+#include "screen.hpp"
 #include "util.hpp"
+#include "view.hpp"
 #include "version.hpp"
 
 #ifdef OUYA
@@ -40,33 +46,33 @@
 #define OVERSCAN_PADDING 0
 #endif
 
-screen *screen;
+Screen *screen;
 
 extern bool debug_draw_paths;
 extern bool debug_draw_obmap;
 
 // Zardus: FIX: From view.cpp. We need this here so that it doesn't try to
 // create it before the main and go nuts trying to load it
-extern options *theprefs;
+extern Options *theprefs;
 
-bool yes_or_no_prompt(char const *title, char const *message, bool default_value);
-void popup_dialog(char const *title, char const *message);
+bool yes_or_no_prompt(Uint8 const *title, Uint8 const *message, bool default_value);
+void popup_dialog(Uint8 const *title, Uint8 const *message);
 void picker_main(Sint32 argc, Uint8 *argv[]);
 void intro_main(Sint32 argc, Uint8 argv[]);
-Sint16 remaining_foes(screen *myscreen, walker *myguy);
-Sint16 remaining_team(screen *myscreen, Uint8 myteam);
-Sint16 score_panel(screen *myscreen);
-Sint16 score_panel(screen *myscreen, Sint16 do_it);
-Sint16 new_score_panel(screen *myscreen, Sint16 do_it);
-void draw_value_bar(Sint16 left, Sint16 top, walker *control, Sint16 mode, screen *myscreen);
-void new_draw_value_bar(Sint16 left, Sint16 top, walker *control, Sint16 mode, screen *myscreen);
-void draw_percentage_bar(Sint16 left, Sint16 top, Uint8 somecolor, Sint16 somelength, screen *myscreen);
+Sint16 remaining_foes(Screen *myscreen, Walker *myguy);
+Sint16 remaining_team(Screen *myscreen, Uint8 myteam);
+Sint16 score_panel(Screen *myscreen);
+Sint16 score_panel(Screen *myscreen, Sint16 do_it);
+Sint16 new_score_panel(Screen *myscreen, Sint16 do_it);
+void draw_value_bar(Sint16 left, Sint16 top, Walker *control, Sint16 mode, Screen *myscreen);
+void new_draw_value_bar(Sint16 left, Sint16 top, Walker *control, Sint16 mode, Screen *myscreen);
+void draw_percentage_bar(Sint16 left, Sint16 top, Uint8 somecolor, Sint16 somelength, Screen *myscreen);
 void init_input();
-void draw_radar_gems(screen *myscreen);
-void draw_gem(Sint16 x, Sint16 y, Sint16 color, screen *myscreen);
+void draw_radar_gems(Screen *myscreen);
+void draw_gem(Sint16 x, Sint16 y, Sint16 color, Screen *myscreen);
 Uint8 *radarpic;
-pixie *radarpix;
-void glad_main(screen *myscreen, Sint32 playermode);
+Pixie *radarpix;
+void glad_main(Screen *myscreen, Sint32 playermode);
 bool float_eq(float a, float b);
 
 int main(int argc, char *argv[])
@@ -77,8 +83,8 @@ int main(int argc, char *argv[])
     cfg.save_settings();
     cfg.commandline(argc, argv);
 
-    theprefs = new options;
-    myscreen = new screen(1);
+    theprefs = new Options;
+    myscreen = new Screen(1);
 
 #ifdef OUYA
     OuyaControllerManager::init();
@@ -98,16 +104,16 @@ int main(int argc, char *argv[])
 
 void glad_main(Sint32 playermode)
 {
-    // char soundpath[80];
-    // short cyclemode = 1; // Color cycling on or offset
+    // Uint8 soundpath[80];
+    // Sint16 cyclemode = 1; // Color cycling on or offset
 
     // Sint32 longtemp;
-    // char message[50];
+    // Uint8 message[50];
 
     Sint16 currentcycle = 0;
     Sint16 cycletime = 3;
 
-    // screen *myscreen;
+    // Screen *myscreen;
 
     // Get sound path
     // if (!get_cfg_item("directories", "sound")) {
@@ -152,7 +158,7 @@ void glad_main(Sint32 playermode)
 
     while (!done) {
         // Reset the time count to zero...
-        reset_time();
+        reset_timer();
 
         if (myscreen->redrawme) {
             myscreen->draw_panels(myscreen->numviews);
@@ -196,7 +202,7 @@ void glad_main(Sint32 playermode)
                 if (event.key.keysym.sym == SDLK_F11) {
                     debug_draw_paths = !debug_draw_paths;
                 } else if (event.key.keysym.sym == SDLK_F12) {
-                    debug_draw_onmap = !debug_draw_obmap;
+                    debug_draw_obmap = !debug_draw_obmap;
                 } else if (event.key.keysym.sym == SDLK_ESCAPE) {
                     bool result = yes_or_no_prompt("Abort Mission", "Quit this mission?", false);
                     myscreen->redrawme = 1;
@@ -260,14 +266,14 @@ void glad_main(Sint32 playermode)
 }
 
 // Remaining foes returns # of livings left not on control's team
-Sint16 remaining_foes(screen *myscren, walker *myguy)
+Sint16 remaining_foes(Screen *myscren, Walker *myguy)
 {
     Sint16 myfoes = 0;
 
-    std::list<walker *> const &foelist = myscreen->level_data.oblist;
+    std::list<Walker *> const &foelist = myscreen->level_data.oblist;
 
     for (auto itr = foelist.begin(); itr != foelist.end(); itr++) {
-        walker *w = *itr;
+        Walker *w = *itr;
 
         if (w && !w->dead && (w->query_order() == ORDER_LIVING) && !myguy->is_friendly(w)) {
             ++myfoes;
@@ -278,14 +284,14 @@ Sint16 remaining_foes(screen *myscren, walker *myguy)
 }
 
 // Remaining team returns # of livings left on team myteam
-Sint16 remaining_team(screen *myscreen, Uint8 myteam)
+Sint16 remaining_team(Screen *myscreen, Uint8 myteam)
 {
     Sint16 myfoes = 0;
 
-    std::list<walker *> const &foelist = myscreen->level_data.oblist;
+    std::list<Walker *> const &foelist = myscreen->level_data.oblist;
 
     for (auto itr=foelist.begin(); itr != foelist.end(); ++itr) {
-        walker *w = *itr;
+        Walker *w = *itr;
 
         if (w && !w->dead && (w->query_order() == ORDER_LIVING) && (myteam == w->team_num)) {
             ++myfoes;
@@ -295,17 +301,17 @@ Sint16 remaining_team(screen *myscreen, Uint8 myteam)
     return myfoes;
 }
 
-Sint16 score_panel(screen *myscreen)
+Sint16 score_panel(Screen *myscreen)
 {
     return score_panel(myscreen, 0);
 }
 
-Sint16 score_panel(screen *myscreen, Sint16 do_it)
+Sint16 score_panel(Screen *myscreen, Sint16 do_it)
 {
     return new_score_panel(myscreen, 1);
 }
 
-void draw_radar_gems(screen *myscreen)
+void draw_radar_gems(Screen *myscreen)
 {
     Sint16 upper_left_x = 246;
     Sint16 upper_left_y = 140;
@@ -333,7 +339,7 @@ void draw_radar_gems(screen *myscreen)
     draw_gem(lower_right_x, lower_right_y, team_light, myscreen);
 }
 
-void draw_gem(Sint16 x, Sint16 y, Sint16 color, screen *myscreen)
+void draw_gem(Sint16 x, Sint16 y, Sint16 color, Screen *myscreen)
 {
     Sint16 light = color;
     Sint16 med = light + 2;
@@ -353,12 +359,12 @@ void draw_gem(Sint16 x, Sint16 y, Sint16 color, screen *myscreen)
     myscreen->point(x, y + 4, darkest);
 }
 
-void draw_value_bar(Sint16 left, Sint16 top, walker *control, Sint16 mode, screen *myscreen)
+void draw_value_bar(Sint16 left, Sint16 top, Walker *control, Sint16 mode, Screen *myscreen)
 {
     float points;
     Sint16 totallength = 60;
     Sint16 bar_length = 0;
-    Sint16 bar_reminder = totallength - bar_length;
+    Sint16 bar_remainder = totallength - bar_length;
     Sint16 i;
     Sint16 j;
     Uint8 whatcolor;
@@ -458,7 +464,7 @@ void draw_value_bar(Sint16 left, Sint16 top, walker *control, Sint16 mode, scree
             bar_length = ceilf((points * 60) / control->stats->max_magicpoints);
         }
 
-        bar_remainer = 60 - bar_length;
+        bar_remainder = 60 - bar_length;
 
         myscreen->draw_box(left, top, left + 61, top + 6, BOX_COLOR, 0);
 
@@ -475,7 +481,7 @@ void draw_value_bar(Sint16 left, Sint16 top, walker *control, Sint16 mode, scree
             myscreen->fastbox(left + 1, top + 1, bar_length, 5, whatcolor);
         }
 
-        myscreen->fastbox((left + bar_length) + 1, top + 1, bar_remainer, 5, BAR_BLACK_COLOR);
+        myscreen->fastbox((left + bar_length) + 1, top + 1, bar_remainder, 5, BAR_BACK_COLOR);
 
         // This part rounds the corners (via 4 masks)
         for (i = 0; i < 4; ++i) {
@@ -510,12 +516,12 @@ void draw_value_bar(Sint16 left, Sint16 top, walker *control, Sint16 mode, scree
     } // End of sp stuff
 } // End of drawing routine...
 
-void new_draw_value_bar(Sint16 left, Sint16 top, walker *control, Sint16 mode, screen *myscreen)
+void new_draw_value_bar(Sint16 left, Sint16 top, Walker *control, Sint16 mode, Screen *myscreen)
 {
     float points;
     // Sint16 totallength = 60;
     short bar_length = 0;
-    Sint16 bar_remainder = totallength - bar_length;
+    // Sint16 bar_remainder = totallength - bar_length;
     Uint8 whatcolor;
 
     // Hitpoint bar
@@ -578,7 +584,7 @@ void new_draw_value_bar(Sint16 left, Sint16 top, walker *control, Sint16 mode, s
     } // End of sp stuff
 } // End of drawing routine...
 
-Sint16 new_score_panel(screen *myscreen, Sint16 do_it)
+Sint16 new_score_panel(Screen *myscreen, Sint16 do_it)
 {
     Uint8 message[50];
     // static
@@ -586,14 +592,14 @@ Sint16 new_score_panel(screen *myscreen, Sint16 do_it)
     Sint16 tempfoes = 0;
     Sint16 players;
     Sint16 tempallies = 0;
-    text &mytext = myscreen->text_normal;
+    Text &mytext = myscreen->text_normal;
 
 #if 0
     static Uint32 family[5] = {-1, -1, -1, -1, -1};
     static Uint32 act[5] = {-1, -1, -1, -1, -1};
 #endif
 
-    walker *control;
+    Walker *control;
     Sint16 lm; // Left margin
     Sint16 tm; // Top margin
     Sint16 rm; // Right margin
@@ -654,7 +660,7 @@ Sint16 new_score_panel(screen *myscreen, Sint16 do_it)
             tempfoes = remaining_foes(myscreen, control);
 
             // Get current number of team members
-            tempallies = remaining_foes(myscreen, control->team_num);
+            tempallies = remaining_team(myscreen, control->team_num);
 
             // Draw the pretty gems
             // draw_radar_gems(myscreen);
@@ -735,11 +741,11 @@ Sint16 new_score_panel(screen *myscreen, Sint16 do_it)
 
             if (myscreen->viewob[players]->prefs[PREF_SCORE] == PREF_SCORE_ON) {
                 // Score, bottom left corner
-                int special_offset = -24;
+                Sint32 special_offset = -24;
 
 #ifdef USE_TOUCH_INPUT
                 // Upper left instead
-                int bm = tm + 54;
+                Sint32 bm = tm + 54;
                 special_offset = 0;
 #endif
 
@@ -772,7 +778,7 @@ Sint16 new_score_panel(screen *myscreen, Sint16 do_it)
 
                 // Above should count up the score towards the current amount
 
-                int special_y = bm + special_offset;
+                Sint32 special_y = bm + special_offset;
 
                 // Don't show score and XP (clutter) when in a small viewport
                 if ((myscreen->numviews > 2) && ((myscreen->numviews != 3) || (players != 0))) {
@@ -881,7 +887,7 @@ Sint16 new_score_panel(screen *myscreen, Sint16 do_it)
     return 1;
 }
 
-void draw_percentage_bar(Sint16 left, Sint16 top, Uint8 somecolor, Sint16 somelength, screen *myscreen)
+void draw_percentage_bar(Sint16 left, Sint16 top, Uint8 somecolor, Sint16 somelength, Screen *myscreen)
 {
     Sint16 i;
     Sint16 j;

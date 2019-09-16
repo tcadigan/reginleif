@@ -20,22 +20,21 @@
 
 // Definition of LIVING class
 
-#include "base.hpp"
-#include "walker.hpp"
+#include "walker-fwd.hpp"
 
-class living : public walker
+class Living : public Walker
 {
 public:
-    living(PixieData const &data);
-    virtual ~living();
+    Living(PixieData const &data);
+    virtual ~Living();
     Sint16 act();
     Sint16 check_special(); // Determine if we should do special...
-    Sint16 collide(walker *ob);
+    Sint16 collide(Walker *ob);
     Sint16 do_action(); // Perform orverriding action
-    walker *do_summon(Uint8 whatfamily, Uint16 lifetime);
+    Walker *do_summon(Uint8 whatfamily, Uint16 lifetime);
     Sint16 facing(Sint16 x, Sint16 y);
     void set_difficulty(Uint32 whatlevel);
-    Sint16 shove(walker *target, Sint16 x, Sint16 y);
+    Sint16 shove(Walker *target, Sint16 x, Sint16 y);
 
     Uint8 query_order()
     {

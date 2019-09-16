@@ -20,14 +20,14 @@
 
 // Definition of RADAR class
 
-#include "base.hpp"
 #include "level_data.hpp"
+#include "view-fwd.hpp"
 
-class radar
+class Radar
 {
 public:
-    radar(viewscreen *myview, screen *myscreen, Sint16 whatnum);
-    ~radar();
+    Radar(ViewScreen *myview, Screen *myscreen, Sint16 whatnum);
+    ~Radar();
     Sint16 draw();
     Sint16 draw(LevelData *data);
     Sint16 on_screen();
@@ -55,8 +55,8 @@ public:
     Sint16 radarx;
     Sint16 radary;
 
-    screen *screenp;
-    viewscreen *viewscreen;
+    Screen *screenp;
+    ViewScreen *viewscreen;
     Uint8 *bmp;
     Uint8 *oldbmp;
     bool force_lower_position;

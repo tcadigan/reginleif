@@ -26,33 +26,49 @@
 
 #include <list>
 
+#include <SDL2/SDL.h>
+
 #include "base.hpp"
+#include "walker-fwd.hpp"
 
 // These are for the bit flags
-#define BIT_FLYING static_cast<Sint32>(1) // Fly over water, trees
-#define BIT_SWIMMING static_cast<Sint32>(2) // Move over water
-#define BIT_ANIMATE static_cast<Sint32>(4) // Animate even when not moving
-#define BIT_INVINCIBLE static_cast<Sint32>(8) // Can't be harmed
-#define BIT_NO_RANGED static_cast<Sint32>(16) // No ranged attack
-#define BIT_IMMORTAL static_cast<Sint32>(32) // For weapons that don't die when they hit
-#define BIT_NO_COLLIDE static_cast<Sint32>(64) // Fly through walkers
-#define BIT_PHANTOM static_cast<Sint32>(128) // Use phantomputbuffer instead of walkerputbuffer
-#define BIT_NAMED static_cast<Sint32>(256) // Has a name (will have outline)
-#define BIT_FORESTWALK static_cast<Sint32>(512) // Can walk through forests
-#define BIT_MAGICAL static_cast<Sint32>(1024) // Generally for magical weapons
-#define BIT_FIRE static_cast<Sint32>(2048) // For any flame weapons
-#define BIT_ETHEREAL static_cast<Sint32>(4096) // Fly "through" walls
-#define BIT_LAST static_cast<Sint32>(8192)
+enum BitFlagEnum : Sint32 {
+    BIT_FLYING = 1, // Fly over water, trees
+    BIT_SWIMMING = 2, // Move over water
+    BIT_ANIMATE = 4, // Animate even when not moving
+    BIT_INVINCIBLE = 8, // Can't be harmed
+    BIT_NO_RANGED = 16, // No ranged attack
+    BIT_IMMORTAL = 32, // For weapons that don't die when they hit
+    BIT_NO_COLLIDE = 64, // Fly through walkers
+    BIT_PHANTOM = 128, // Use phantomputbuffer instead of walkerputbuffer
+    BIT_NAMED = 256, // Has a name (will have outline,
+    BIT_FORESTWALK = 512, // Can walk through forests
+    BIT_MAGICAL = 1024, // Generally for magical weapons
+    BIT_FIRE = 2048, // For any flame weapons
+    BIT_ETHEREAL = 4096, // Fly "through" walls
+    BIT_LAST = 8192
+};
 
 // Other special effects, etc.
 #define FAERIE_FREEZE_TIME 40
 
-// Class statistics, for (guess what?) controlling stats, etc....
-class statistics
+class Command
 {
 public:
-    statistics(walker *);
-    ~statistics();
+    Command();
+
+    Sint16 commandtype;
+    Sint16 commandcount;
+    Sint16 com1;
+    Sint16 com2;
+};
+
+// Class statistics, for (guess what?) controlling stats, etc....
+class Statistics
+{
+public:
+    Statistics(Walker *);
+    ~Statistics();
 
     Sint16 try_command(Sint16 whatcommand, Sint16 iterations, Sint16 info1, Sint16 info2);
     Sint16 try_command(Sint16 whatcommand, Sint16 iterations);
@@ -63,9 +79,9 @@ public:
     bool has_commands();
     void clear_command();
     Sint16 do_command();
-    void hit_response(walker *who);
+    void hit_response(Walker *who);
     // Yell and run away
-    void yell_for_help(walker *foe);
+    void yell_for_help(Walker *foe);
     Sint16 query_bit_flags(Sint32 myvalue);
     void clear_bit_flags();
     // Sets a single flag
@@ -97,7 +113,7 @@ public:
     float hitpoints;
     float max_hitpoints;
     float magicpoints;
-    float max_magic_points;
+    float max_magicpoints;
 
     Sint32 max_heal_delay;
     Sint32 current_heal_delay;
@@ -117,8 +133,8 @@ public:
     Uint16 special_cost[NUM_SPECIALS];
     // Cost of our weapon
     Sint16 weapon_cost;
-    walker *controller;
-    std::list<command> commands;
+    Walker *controller;
+    std::list<Command> commands;
 
 private:
     // Parameters to command
@@ -126,17 +142,6 @@ private:
     // Sint16 com2;
     // Number of rounds we've spent right walking
     Sint32 walkrounds;
-};
-
-class command
-{
-public:
-    command();
-
-    Sint16 commandtype;
-    Sint16 commandcount;
-    Sint16 com1;
-    Sint16 com2;
 };
 
 #endif

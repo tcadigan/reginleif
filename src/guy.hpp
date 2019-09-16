@@ -17,29 +17,31 @@
  */
 #ifndef __GUY_HPP__
 #define __GUY_HPP__
+#include "guy-fwd.hpp"
 
-#include "base.hpp"
+#include "screen-fwd.hpp"
 #include "stats.hpp"
+#include "walker-fwd.hpp"
 
 // Holds attributes for characters.
 // Used to store character data in SaveData's team_list.
 // Used as walker::myguy in game for various attribute dependent effects for
 // walkers who are on the player team.
 
-class guy
+class Guy
 {
 public:
-    guy();
-    guy(Sint32 whatfamily);
-    guy(guy const &copy);
-    ~guy();
+    Guy();
+    Guy(Sint32 whatfamily);
+    Guy(Guy const &copy);
+    ~Guy();
 
     Sint32 query_heart_value(); // How much are we worth?
-    walker *create_walker(screen *myscreen);
-    walker *create_and_add_walker(screen *myscreen);
+    Walker *create_walker(Screen *myscreen);
+    Walker *create_and_add_walker(Screen *myscreen);
     void upgrade_to_level(Sint16 level, bool set_xp=true);
     void set_level_number(Sint16 level);
-    void update_derived_stats(walker *w);
+    void update_derived_stats(Walker *w);
 
     Sint16 get_level() const;
     float get_hp_bonus() const;
@@ -77,7 +79,7 @@ public:
 
     // An ID for comparing old guys with their duplicated counterparts
     // after battle
-    int id;
+    Sint32 id;
 
 protected:
     Sint16 level;

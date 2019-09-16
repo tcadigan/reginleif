@@ -16,19 +16,22 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "campagin_picker.hpp"
+#include "campaign_picker.hpp"
 #include "graph.hpp"
+#include "guy.hpp"
+#include "screen.hpp"
 #include "smooth.hpp"
 #include "util.hpp"
+#include "view.hpp"
 
-void popup_dialog(char const *title, char const *message);
+void popup_dialog(Uint8 const *title, Uint8 const *message);
 
-Sint16 load_saved_game(char const *filename, screen *myscreen)
+Sint16 load_saved_game(Uint8 const *filename, Screen *myscreen)
 {
     Uint8 scenfile[20];
-    guy *temp_guy;
-    walker *temp_walker;
-    walker *replace_walker;
+    Guy *temp_guy;
+    Walker *temp_walker;
+    Walker *replace_walker;
     Sint16 myord;
     Sint16 myfam;
     Sint32 multi_team = 0;
@@ -54,7 +57,7 @@ Sint16 load_saved_game(char const *filename, screen *myscreen)
         myscreen->level_data.id = 1;
 
         if (!myscreen->level_data.load()) {
-            char buf[200];
+            Uint8 buf[200];
             snprintf(buf, 200, "Fallback loading failed (%d).\nCould not load \"%s\"\nPlease report this problem to the developer!\n", old_scen, scenfile);
             popup_dialog("ERROR", buf);
 
@@ -62,10 +65,10 @@ Sint16 load_saved_game(char const *filename, screen *myscreen)
         }
     }
 
-    std::list<walker *> foelist = myscreen->level_data.oblist;
+    std::list<Walker *> foelist = myscreen->level_data.oblist;
 
     for (auto itr = foelist.begin(); itr != foelist.end(); itr++) {
-        walker *w = *itr;
+        Walker *w = *itr;
 
         if (w) {
             w->set_difficulty(static_cast<Uint32>(w->stats->level));
@@ -77,7 +80,7 @@ Sint16 load_saved_game(char const *filename, screen *myscreen)
         temp_guy = myscreen->save_data.team_list[i];
         temp_walker = temp_guy->create_and_add_walker(myscreen);
         // Clear the new guy's battle data
-        temp_walker->myguy->scen_datam = 0;
+        temp_walker->myguy->scen_damage = 0;
         temp_walker->myguy->scen_kills = 0;
         temp_walker->myguy->scen_damage_taken = 0;
         temp_walker->myguy->scen_min_hp = 5000000;
@@ -125,7 +128,7 @@ Sint16 load_saved_game(char const *filename, screen *myscreen)
         foelist = myscreen->level_data.oblist;
 
         for (auto itr = foelist.begin(); itr != foelist.end(); itr++) {
-            walker *w = *itr;
+            Walker *w = *itr;
 
             if (w) {
                 // Kill everything except for our team, exits, and teleporters
@@ -146,7 +149,7 @@ Sint16 load_saved_game(char const *filename, screen *myscreen)
         foelist = myscreen->level_data.weaplist;
 
         for (auto itr = foelist.begin(); itr != foelist.end(); itr++) {
-            walker *w = *itr;
+            Walker *w = *itr;
 
             if (w) {
                 myfam = w->query_family();
@@ -166,10 +169,10 @@ Sint16 load_saved_game(char const *filename, screen *myscreen)
         foelist = myscreen->level_data.fxlist;
 
         for (auto itr = foelist.begin(); itr != foelist.end(); itr++) {
-            walker *w = *itr;
+            Walker *w = *itr;
 
             if (w) {
-                myfam = w->qury_family();
+                myfam = w->query_family();
                 myord = w->query_order();
 
                 if (((w->team_num == 0) && (myord == ORDER_LIVING)) // Living team members

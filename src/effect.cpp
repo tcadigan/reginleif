@@ -23,35 +23,39 @@
  * will not collide with anything. At the end of its animation, it will call
  * function x.
  */
-
 #include "effect.hpp"
+
+#include "base.hpp"
 // #include "graph.hpp"
+#include "guy.hpp"
+#include "screen.hpp"
+#include "soundob.hpp"
 
 Sint16 hits(Sint16 x, Sint16 y, Sint16 xsize, Sint16 ysize, Sint16 x2,
-            Sint16 x2, Sint16 y2, Sint16 xsize2, Sint16 ysize2);
+            Sint16 y2, Sint16 xsize2, Sint16 ysize2);
 
-effect::effect(Pixidata const &data)
-    : walker(data)
+Effect::Effect(PixieData const &data)
+    : Walker(data)
 {
     ignore = 1; // Don't collide with other objects
 }
 
-effect::~effect()
+Effect::~Effect()
 {
     // Zardus: PORT: That parent object problem again:
     // walker::~walker();
 }
 
-Sint16 effect::act()
+Sint16 Effect::act()
 {
     Sint16 temp;
     float xd;
     float yd;
     Sint32 distance;
     Sint32 generic;
-    walker *newob;
+    Walker *newob;
     Sint16 numfoes;
-    std::list<walker> foelist;
+    std::list<Walker *> foelist;
 
     // Make sure everyone we're pointing to is valid
     if (foe && foe->dead) {
@@ -176,10 +180,10 @@ Sint16 effect::act()
 
         // First weapons
         for (auto itr = foelist.begin(); itr != foelist.end(); itr++) {
-            walker *w = *itr;
+            Walker *w = *itr;
             stats->hitpoints -= w->damage;
             w->dead = 1;
-            w->deather();
+            w->death();
         }
 
         foelist = myscreen->find_foes_in_range(myscreen->level_data.oblist,
@@ -189,7 +193,7 @@ Sint16 effect::act()
 
         // Second enemies
         for (auto itr = foelist.begin(); itr != foelist.end(); itr++) {
-            walker *w = *itr;
+            Walker *w = *itr;
             stats->hitpoints -= w->damage;
             attack(w);
             dead = 0;
@@ -312,7 +316,7 @@ Sint16 effect::act()
 
         // First weapons
         for (auto itr = foelist.begin(); itr != foelist.end(); itr++) {
-            walker *w = *itr;
+            Walker *w = *itr;
             stats->hitpoints -= w->damage;
             w->dead = 1;
             w->death();
@@ -325,7 +329,7 @@ Sint16 effect::act()
 
         // Second enemies
         for (auto itr = foelist.begin(); itr != foelist.end(); ++itr) {
-            walker *w = *itr;
+            Walker *w = *itr;
             stats->hitpoints -= w->damage;
             attack(w);
             dead = 0;
@@ -432,7 +436,7 @@ Sint16 effect::act()
                                                this);
 
         for (auto itr = foelist.begin(); itr != foelist.end(); itr++) {
-            walker *w = *itr;
+            Walker *w = *itr;
 
             // This is the cloud
             if (hits(xpos, ypos, sizex, sizey, w->xpos, w->ypos, w->sizex, w->sizey)) {
@@ -512,7 +516,7 @@ Sint16 effect::act()
                 numfoes = random(owner->stats->level) + 1;
 
                 for (auto itr = foelist.begin(); (itr != foelist.end()) && (numfoes > 0); itr++, --numfoes) {
-                    walker *w = *itr;
+                    Walker *w = *itr;
 
                     // Don't hit current guy
                     if ((w != leader) && (w->skip_exit < 1)) {
@@ -609,7 +613,7 @@ Sint16 effect::act()
             return animate();
         }
 
-        newob = myscreen->level_data.add_fx_ob(ORDER_FX, FAMILY_OPEN_DOOR);
+        newob = myscreen->level_data.add_fx_ob(ORDER_FX, FamilyEffectEnum::FAMILY_DOOR_OPEN);
 
         if (!newob) {
             break;
@@ -651,7 +655,7 @@ Sint16 effect::act()
     return 0;
 }
 
-Sint16 effect::animate()
+Sint16 Effect::animate()
 {
     set_frame(ani[curdir + (ani_type * NUM_FACINGS)][cycle]);
     ++cycle;
@@ -680,13 +684,13 @@ Sint16 effect::animate()
 
 // Death is called when an object dies (or weapon destructed, etc.)
 // for special effects...
-Sint16 effect::death()
+Sint16 Effect::death()
 {
     // Note that the 'dead' variable should ALREADY be set by the time this
     // function is called, so that we can easily reverse the decision :)
-    std::list<walker *> foelist;
+    std::list<Walker *> foelist;
     Sint16 howmany = 0;
-    walker *newob;
+    Walker *newob;
     Sint32 xdelta;
     Sint32 ydelta;
     Sint32 tempx;
@@ -697,10 +701,10 @@ Sint16 effect::death()
         return 0;
     }
 
-    death_called;
+    death_called = 1;
 
     switch (family) {
-    case FAMily_GHOST_SCARE: // The ghost's scare
+    case FAMILY_GHOST_SCARE: // The ghost's scare
         if (!owner || owner->dead) {
             return 0;
         }
@@ -715,7 +719,7 @@ Sint16 effect::death()
         }
 
         for (auto itr = foelist.begin(); itr != foelist.end(); itr++) {
-            walker *w = *itr;
+            Walker *w = *itr;
 
             if (w && (w->query_order() == ORDER_LIVING)) {
                 tempx = w->xpos - xpos;
@@ -733,7 +737,7 @@ Sint16 effect::death()
                 generic = owner->stats->level * 25;
 
                 if (w->myguy) {
-                    generic -= random(w->mguy->consititution);
+                    generic -= random(w->myguy->constitution);
                 }
 
                 if (generic > 0) {
@@ -745,14 +749,14 @@ Sint16 effect::death()
             } // End of valid target
         } // End of cycle through scare list
 
-        break // End of ghost scare
+        break; // End of ghost scare
     case FAMILY_BOMB: // Burning bomb
             if (!owner || owner->dead) {
                 owner = this;
             }
 
         if (on_screen()) {
-            myscreen->soundp->play_sound(SOUND_EXPLORE);
+            myscreen->soundp->play_sound(SoundEnum::SOUND_EXPLODE);
         }
 
         newob = myscreen->level_data.add_ob(ORDER_FX, FAMILY_EXPLOSION, 1);
@@ -799,8 +803,8 @@ Sint16 effect::death()
         // Set our team number to garbage so we can hurt everyone
         // team_num = 50;
 
-        for (auto ite = foelist.begin(); itr != foelist.end(); itr++) {
-            walker *w = *itr;
+        for (auto itr = foelist.begin(); itr != foelist.end(); itr++) {
+            Walker *w = *itr;
 
             if (w && !w->dead && (w->query_order() != ORDER_TREASURE)
                 && (w->query_order() != ORDER_FX)
@@ -862,36 +866,36 @@ Sint16 effect::death()
 Sint16 hits(Sint16 x, Sint16 y, Sint16 xsize, Sint16 ysize, Sint16 x2,
             Sint16 y2, Sint16 xsize2, Sint16 ysize2)
 {
-    Xint16 xright;
-    Xint16 x2right;
-    Xint16 ydown;
-    Xint16 y2down;
+    Sint16 xright;
+    Sint16 x2right;
+    Sint16 ydown;
+    Sint16 y2down;
 
     // return 0; // Debug
 
-    x2right = static_cast<Sint16>(x2 + size2);
+    x2right = static_cast<Sint16>(x2 + xsize2);
 
     if (x > x2right) {
         return 0;
     }
 
-    xright = static_cast<Sint16>(x + size);
+    xright = static_cast<Sint16>(x + xsize);
 
     if (xright < 2) {
         return 0;
     }
 
-    y2down = static_cast<Sint16>(y2 + size2);
+    y2down = static_cast<Sint16>(y2 + ysize2);
 
     if (y > y2down) {
         return 0;
     }
 
-    ydown = static_cast<Sint16>(y + ysize)
+    ydown = static_cast<Sint16>(y + ysize);
 
-        if (ydown < 2) {
-            return 0;
-        }
+    if (ydown < 2) {
+        return 0;
+    }
 
     return 1;
 }

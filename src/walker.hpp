@@ -20,7 +20,11 @@
 
 // Definition of WALKER class
 
-#include "base.hpp"
+#include <vector>
+
+#include "walker-fwd.hpp"
+
+#include "guy-fwd.hpp"
 #include "obmap.hpp"
 #include "pixien.hpp"
 
@@ -31,7 +35,7 @@ class DamageNumber
 public:
     DamageNumber(float x, float y, float value, Uint8 color);
 
-    void draw(viewscreen *view_buf);
+    void draw(ViewScreen *view_buf);
 
     float x;
     float y;
@@ -40,11 +44,11 @@ public:
     Uint8 color;
 };
 
-class walker : public pixieN
+class Walker : public PixieN
 {
 public:
-    walker(PixieData const &data);
-    virtual ~walker();
+    Walker(PixieData const &data);
+    virtual ~Walker();
 
     Sint16 reset(void);
     Sint16 move(Sint16 x, Sint16 y);
@@ -52,23 +56,23 @@ public:
     void setworldxy(float x, float y);
     bool walk();
     bool walkstep(float x, float y);
-    Sint16 draw(viewscreen *view_buf);
-    Sint16 draw_tile(viewscreen *view_buf);
-    void draw_path(viewscreen *view_buf);
+    Sint16 draw(ViewScreen *view_buf);
+    Sint16 draw_tile(ViewScreen *view_buf);
+    void draw_path(ViewScreen *view_buf);
     void find_path_to_foe();
     void follow_path_to_foe();
     Sint16 init_file();
     Sint16 init_file(Sint16 xdir, Sint16 ydir);
-    void set_weapon_heading(walker *weapon);
-    walker *fire();
+    void set_weapon_heading(Walker *weapon);
+    Walker *fire();
     Sint16 set_act_type(Sint16 num);
     Sint16 restore_act_type();
     Sint16 query_act_type();
     Sint16 set_old_act_type(Sint16 num);
     Sint16 query_old_act_type();
-    Sint16 attack(walker *target);
+    Sint16 attack(Walker *target);
     Sint16 set_order_family(Uint8 order, Uint8 family);
-    walker *create_weapon();
+    Walker *create_weapon();
     Sint16 fire_check(Sint16 xdelta, Sint16 ydelta);
     Sint16 query_next_to();
     Sint16 special();
@@ -79,22 +83,22 @@ public:
     // How many (of 8) spaces around us are clear
     Sint16 spaces_clear();
     // Transfer values to new walker
-    void transfer_stats(walker *newob);
+    void transfer_stats(Walker *newob);
     // Change picture, etc.
     void transform_to(Uint8 whatorder, Uint8 whatfamily);
     // Make a permanent stain...
     void generate_bloodspot();
     // Center us on target
-    void center_on(walker *target);
-    Sint32 distance_to_ob(walker *target);
-    Sint32 distance_to_ob_center(walker *target);
+    void center_on(Walker *target);
+    Sint32 distance_to_ob(Walker *target);
+    Sint32 distance_to_ob_center(Walker *target);
     Uint8 query_team_color();
-    Sint32 is_friendly(walker *target);
+    Sint32 is_friendly(Walker *target);
     Sint32 is_friendly_to_team(Uint8 team);
     float get_current_angle();
-    void do_heal_effects(walker *healer, walker *target, Sint16 amount);
-    void do_hit_effects(walker *attacker, walker *target, Sint16 tempdamage);
-    void do_combat_damage(walker *attacker, walker *target, Sint16 tempdamage);
+    void do_heal_effects(Walker *healer, Walker *target, Sint16 amount);
+    void do_hit_effects(Walker *attacker, Walker *target, Sint16 tempdamage);
+    void do_combat_damage(Walker *attacker, Walker *target, Sint16 tempdamage);
 
     Uint8 query_family()
     {
@@ -110,13 +114,13 @@ public:
     virtual Sint16 death();
     virtual Sint16 facing(Sint16 x, Sint16 y);
     virtual void set_difficulty(Uint32 whatlevel);
-    virtual walker *do_summon(Uint8 whatfamily, Uint16 lifetime);
+    virtual Walker *do_summon(Uint8 whatfamily, Uint16 lifetime);
     virtual Sint16 check_special();
-    virtual Sint16 shove(walker *target, Sint16 x, Sint16 y);
-    virtual Sint16 eat_me(walker *eater);
+    virtual Sint16 shove(Walker *target, Sint16 x, Sint16 y);
+    virtual Sint16 eat_me(Walker *eater);
     virtual void set_direct_frame(Sint16 whichframe);
     virtual Sint16 animate();
-    virtual Sint16 collide(walker *ob);
+    virtual Sint16 collide(Walker *ob);
     virtual short act();
     virtual bool walk(float x, float y);
     virtual Sint16 setxy(Sint16 x, Sint16 y);
@@ -163,15 +167,15 @@ public:
     float damage;
     float fire_frequency;
     float busy;
-    statistics *stats;
-    walker *collide_ob;
-    walker *foe;
-    walker *leader;
+    Statistics *stats;
+    Walker *collide_ob;
+    Walker *foe;
+    Walker *leader;
     // For weapons
-    walker *owner;
-    walker *myself;
+    Walker *owner;
+    Walker *myself;
     // Our special stats...
-    guy *myguy;
+    Guy *myguy;
     // Safety check
     Sint16 dead;
     // For non-colliding objects
@@ -201,7 +205,7 @@ public:
 
     // Zardus: ADD: in_act should be set wile in action
     bool in_act;
-    obmap *myobmap;
+    ObjectMap *myobmap;
     Sint32 path_check_counter;
     // Result from pathfinding
     std::vector<void *> path_to_foe;

@@ -18,22 +18,21 @@
 #ifndef __GRAPH_HPP__
 #define __GRAPH_HPP__
 
-#include "base.hpp"
 #include "effect.hpp"
-#include "gloader.hpp"
-#include "guy.hpp"
+#include "gloader-fwd.hpp"
+#include "guy-fwd.hpp"
 #include "living.hpp"
 #include "obmap.hpp"
-#include "pixie.hpp"
+#include "pixie-fwd.hpp"
 #include "pixien.hpp"
 #include "radar.hpp"
-#include "screen.hpp"
+#include "screen-fwd.hpp"
 #include "stats.hpp"
 #include "text.hpp"
 #include "treasure.hpp"
-#include "video.hpp"
-#include "view.hpp"
-#include "walker.hpp"
+#include "video-fwd.hpp"
+#include "view-fwd.hpp"
+#include "walker-fwd.hpp"
 #include "weap.hpp"
 
 #endif

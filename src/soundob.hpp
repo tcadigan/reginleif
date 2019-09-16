@@ -28,31 +28,32 @@
 // buffers: PORT: Don't need this anymore
 // #include "smix.hpp"
 
-#define SOUND_BOW 0
-#define SOUND_CLANG 1
-#define SOUND_DIE1 2
-#define SOUND_BLAST 3
-#define SOUND_SPARKLE 4
-#define SOUND_TELEPORT 5
-#define SOUND_YO 6
-#define SOUND_BOLT 7
-#define SOUND_HEAL 8
-#define SOUND_CHARGE 9
-#define SOUND_FWIP 10
-#define SOUND_EXPLODE 11
-#define SOUND_DIE2 12 // Registered only
-#define SOUND_ROAR 13 // Orc, reg
-#define SOUND_MONEY 14 // reg
-#define SOUND_EAT 15 // reg
+enum SoundEnum : Uint8 {
+    SOUND_BOW = 0,
+    SOUND_CLANG = 1,
+    SOUND_DIE1 = 2,
+    SOUND_BLAST = 3,
+    SOUND_SPARKLE = 4,
+    SOUND_TELEPORT = 5,
+    SOUND_YO = 6,
+    SOUND_BOLT = 7,
+    SOUND_HEAL = 8,
+    SOUND_CHARGE = 9,
+    SOUND_FWIP = 10,
+    SOUND_EXPLODE = 11,
+    SOUND_DIE2 = 12, // Registered only
+    SOUND_ROAR = 13, // Orc, reg
+    SOUND_MONEY = 14, // reg
+    SOUND_EAT = 15, // reg
+    NUMSOUNDS = 16 // For now, let's use ALL sounds, regardless
+};
 
-#define NUMSOUNDS 16 // For now, let's use ALL sounds, regardless
-
-class soundob
+class SoundObject
 {
 public:
-    soundob();
-    soundob(bool silent);
-    ~soundob();
+    SoundObject();
+    SoundObject(bool silent);
+    ~SoundObject();
 
     Sint32 init();
     void shutdown();

@@ -15,27 +15,27 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#ifndef __GPARSER_HPP__
-#define __GPARSER_HPP__
+#ifndef __OPTIONS_HPP__
+#define __OPTIONS_HPP__
 
-#include <string>
-#include <map>
+#include "view-fwd.hpp"
 
-#include <SDL2/SDL.h>
-
-class ConfigStore
+/*
+ * This is a child object of all viewscreens. It is use to save and load all
+ * prefs because each player has their own prefs. WE ASSUME 4 PLAYERS ALWAYS.
+ */
+class Options
 {
 public:
-    bool load_settings();
-    void commandline(Sint32 argc, Uint8 *argv[]);
-    bool save_settings();
+    Options();
+    ~Options();
 
-    void apply_setting(std::string const &category, std::string const &setting, std::string const &value);
-    std::string get_setting(std::string const &category, std::string const &setting);
-    bool is_on(std::string const &category, std::string const &setting);
-    std::map<std::string, std::map<std::string, std::string>> data;
+    Sint16 load(ViewScreen *viewp);
+    Sint16 save(ViewScreen *viewp);
+
+protected:
+    Uint8 prefs[4][10];
+    Uint8 keys[4][16];
 };
-
-extern ConfigStore cfg;
 
 #endif

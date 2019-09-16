@@ -18,25 +18,24 @@
 #ifndef __EFFECT_HPP__
 #define __EFFECT_HPP__
 
-// Definition of Effect class
+// Definition of EFFECT class
 
-#include "base.hpp"
+#include "guy-fwd.hpp"
 #include "obmap.hpp"
-#include "screen.hpp"
+#include "screen-fwd.hpp"
 #include "stats.hpp"
 #include "walker.hpp"
-#include "guy.hpp"
 
-class effect : public walker
+class Effect : public Walker
 {
 public:
-    effect(PixiData const &data);
-    virtual ~effect();
+    Effect(PixieData const &data);
+    virtual ~Effect();
     Sint16 act();
     Sint16 animate();
-    Sint16 death(); // Called on desctruction
+    Sint16 death(); // Called on destruction
 
-    Sint16 query_order()
+    Uint8 query_order()
     {
         return ORDER_FX;
     }

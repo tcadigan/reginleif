@@ -25,8 +25,8 @@
 
 #include <SDL2/SDL.h>
 
-class guy;
-class walker;
+#include "guy-fwd.hpp"
+#include "walker-fwd.hpp"
 
 // Max number of guys on a team
 #define MAX_TEAM_SIZE 24
@@ -40,7 +40,7 @@ public:
     void reset();
 
     // Copy team from the guys in an oblist
-    void update_guys(std::list<walker *> &oblist);
+    void update_guys(std::list<Walker *> &oblist);
     bool load(std::string const &filename);
     bool save(std::string const &filename);
 
@@ -65,7 +65,7 @@ public:
 
     // Guys used for training and stuff. After a mission, the team is picked
     // from the LevelData's oblist for saving.
-    guy *team_list[MAX_TEAM_SIZE];
+    Guy *team_list[MAX_TEAM_SIZE];
     Uint8 team_size;
     // numviews
     Uint8 numplayers;

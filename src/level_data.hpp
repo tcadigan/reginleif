@@ -23,17 +23,17 @@
 
 #include <SDL2/SDL.h>
 
+#include "base.hpp"
+#include "gloader-fwd.hpp"
 #include "pixdefs.hpp"
+#include "obmap.hpp"
+#include "pixie-fwd.hpp"
 #include "pixie_data.hpp"
+#include "pixien.hpp"
+#include "screen-fwd.hpp"
 #include "smooth.hpp"
-
-class screen;
-class pixie;
-class pixieN;
-class loader;
-class walker;
-class statistics;
-class obmap;
+#include "stats.hpp"
+#include "walker-fwd.hpp"
 
 class CampaignData
 {
@@ -60,7 +60,7 @@ public:
     Sint32 num_levels;
 
     PixieData icondata;
-    pixie *icon;
+    Pixie *icon;
 };
 
 class LevelData
@@ -72,10 +72,10 @@ public:
     bool load();
     bool save();
 
-    walker *add_ob(Uint8 order, Uint8 family, bool atstart=false);
-    walker *add_fx_ob(Uint8 order, Uint8 family);
-    walker *adD_weap_ob(Uint8 order, Uint8 family);
-    Sint16 remove_ob(walker *ob);
+    Walker *add_ob(Uint8 order, Uint8 family, bool atstart=false);
+    Walker *add_fx_ob(Uint8 order, Uint8 family);
+    Walker *add_weap_ob(Uint8 order, Uint8 family);
+    Sint16 remove_ob(Walker *ob);
 
     void create_new_grid();
     void resize_grid(Sint32 width, Sint32 height);
@@ -85,7 +85,7 @@ public:
 
     void set_draw_pos(Sint32 topx, Sint32 topy);
     void add_draw_pos(Sint32 topx, Sint32 topy);
-    void draw(screen *myscreen);
+    void draw(Screen *myscreen);
 
     std::string get_description_line(Sint32 i);
 
@@ -105,23 +105,23 @@ public:
     Sint32 pixmaxx;
     Sint32 pixmaxy;
 
-    smoother mysmoother;
-    loader *myloader;
-    int numobs;
+    Smoother mysmoother;
+    Loader *myloader;
+    Sint32 numobs;
 
-    std::list<walker *> oblist;
-    std::list<walker *> fxlist; // fx -- explosions, etc.
-    std::list<walker *> weaplist; // Weapons
+    std::list<Walker *> oblist;
+    std::list<Walker *> fxlist; // fx -- explosions, etc.
+    std::list<Walker *> weaplist; // Weapons
 
     // Keep a list of dead guys so weapons can still have valid owners
-    std::list<walker *> dead_list;
+    std::list<Walker *> dead_list;
 
-    obmap *myobmap;
+    ObjectMap *myobmap;
     std::list<std::string> description;
 
     // Drawing details
     PixieData pixdata[PIX_MAX];
-    pixieN *back[PIX_MAX];
+    PixieN *back[PIX_MAX];
     Sint32 topx;
     Sint32 topy;
 };

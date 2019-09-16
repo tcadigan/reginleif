@@ -21,32 +21,32 @@
 #include <vector>
 
 #include "button.hpp"
-#include "guy.hpp"
+#include "guy-fwd.hpp"
 #include "io.hpp"
-#include "pixie.hpp"
-#include "screen.hpp"
+#include "pixie-fwd.hpp"
+#include "screen-fwd.hpp"
 #include "text.hpp"
 #include "yam.h"
 
 #define OG_OK 4
 
-bool yes_or_no_prompt(char const *title, char const *message, bool default_value);
-bool no_or_yes_prompt(char const *title, char const *message, bool default_value);
+bool yes_or_no_prompt(Uint8 const *title, Uint8 const *message, bool default_value);
+bool no_or_yes_prompt(Uint8  const *title, Uint8 const *message, bool default_value);
 bool prompt_for_string(std::string const &message, std::string &result);
-void draw_highlight_interior(button const &b);
-void draw_highlight(button const &b);
-bool handle_menu_nav(button *button, int &highlighted_button, Sint32 &retvalue,
+void draw_highlight_interior(Button const &b);
+void draw_highlight(Button const &b);
+bool handle_menu_nav(Button *button, Sint32 &highlighted_button, Sint32 &retvalue,
                      bool use_global_buttons = true);
 
-int toInt(std::string const &s)
+Sint32 toInt(std::string const &s)
 {
     return atoi(s.c_str());
 }
 
 // Unmounts old campaign, mounts new one, and returns the current level
 // (scenario) that the player is on
-int load_campaign(std::string const &campaign,
-                  std::map<std::string, int> &current_levels, int first_level)
+Sint32 load_campaign(std::string const &campaign,
+                     std::map<std::string, Sint32> &current_levels, Sint32 first_level)
 {
     std::string old_campaign = get_mounted_campaign();
 
@@ -92,7 +92,7 @@ public:
     Sint32 first_level;
     Sint32 num_levels;
     PixieData icondata;
-    pixie *icon;
+    Pixie *icon;
 
     // Player specific
     Sint32 num_levels_completed;
@@ -220,8 +220,8 @@ void CampaignEntry::draw(SDL_Rect const &area, Sint32 team_power)
             buf2[0] = '\0';
         }
 
-        int len = strlen(buf);
-        int len2 = strlen(buf2);
+        Sint32 len = strlen(buf);
+        Sint32 len2 = strlen(buf2);
 
         loadtext.write_xy((x + (w / 2)) - ((len + len2) * 3), y, buf, LIGHT_GREEN, 1);
         loadtext.write_xy(((x + (w / 2)) - ((len + len2) * 3)) + (len * 6), y, buf2, (team_power >= suggested_power ? LIGHT_GREEN : RED), 1);
@@ -371,14 +371,14 @@ CampaignResult pick_campaign(Savedata *save_data, bool enable_delete)
     Sint32 delete_index = 4;
     Sint32 id_index = 5;
     Sint32 reset_index = 6;
-    button buttons[] = {
-        button("PREV", KEYSTATE_UNKNOWN, prev.x, prev.y, prev.w, prev.h, 0, -1, MenuNav::UpDownRight(id_index, cancel_index, next_index)),
-        button("NEXT", KEYSTATE_UNKNOWN, next.x, next.y, next.w, next.y, 0, -1, MenuNav::UpDownLeft(id_index, choose_index, prev_index)),
-        button("OK", KEYSTATE_UNKNOWN, choose.x, choose.y, choose.w, choose.h, 0, -1, MenuNav::UpLeft(next_index, cancel_index)),
-        button("CANCEL", KEYSTATE_ESCAPE, cancel.x, cancel.y, cancel.w, cancel.h, 0, -1, MenuNav::UpRight(prev_index, choose_index)),
-        button("DELETE", KEYSTATE_UNKNOWN, delete_button.x, delete_button.y, delete_button.w, delete_button.h, 0, -1, MenuNav::DownLeft(choose_index, id_index)),
-        button("ENTER ID", KEYSTATE_UNKNOWN, id_button.x, id_button.y, id_button.w, id_button.h, 0, -1, MenuNav::DownRight(next_index, delete_index)),
-        button("RESET", KEYSTATE_UNKNOWN, delete_button.x, delete_button.y, delete_button.w, delete_button.h, 0, -1, MenuNav::DownLeft(choose_index, id_index))
+    Button buttons[] = {
+        Button("PREV", KEYSTATE_UNKNOWN, prev.x, prev.y, prev.w, prev.h, 0, -1, MenuNav::UpDownRight(id_index, cancel_index, next_index)),
+        Button("NEXT", KEYSTATE_UNKNOWN, next.x, next.y, next.w, next.y, 0, -1, MenuNav::UpDownLeft(id_index, choose_index, prev_index)),
+        Button("OK", KEYSTATE_UNKNOWN, choose.x, choose.y, choose.w, choose.h, 0, -1, MenuNav::UpLeft(next_index, cancel_index)),
+        Button("CANCEL", KEYSTATE_ESCAPE, cancel.x, cancel.y, cancel.w, cancel.h, 0, -1, MenuNav::UpRight(prev_index, choose_index)),
+        Button("DELETE", KEYSTATE_UNKNOWN, delete_button.x, delete_button.y, delete_button.w, delete_button.h, 0, -1, MenuNav::DownLeft(choose_index, id_index)),
+        Button("ENTER ID", KEYSTATE_UNKNOWN, id_button.x, id_button.y, id_button.w, id_button.h, 0, -1, MenuNav::DownRight(next_index, delete_index)),
+        Button("RESET", KEYSTATE_UNKNOWN, delete_button.x, delete_button.y, delete_button.w, delete_button.h, 0, -1, MenuNav::DownLeft(choose_index, id_index))
     };
 
     buttons[prev_index].hidden = (current_campaign_index == 0);

@@ -17,16 +17,100 @@
  */
 #include "button.hpp"
 
+#include "gloader.hpp"
+#include "gparser.hpp"
+#include "input.hpp"
+#include "io.hpp"
+#include "screen.hpp"
+
 extern Sint16 scen_level;
-extern pixieN *backdrops[5];
+extern PixieN *backdrops[5];
 
 #define REDRAW 2 // We just exited a menu, so redraw your buttons
 #define OK 4 // This function was successful, continue normal operation
 
-vbutton *allbuttons[MAX_BUTTONS];
+VirtualButton *allbuttons[MAX_BUTTONS];
 Sint16 dumbcount;
 
-void get_input_events(bool);
+VirtualButton *init_buttons(Button *buttons, Sint32 numbuttons)
+{
+    Sint32 i;
+
+    // Skip # 0!
+    for (i = 0; i < MAX_BUTTONS; ++i) {
+        if (allbuttons[i]) {
+            delete allbuttons[i];
+        }
+
+        allbuttons[i] = nullptr;
+    }
+
+    for (i = 0; i < numbuttons; ++i) {
+        allbuttons[i] = new VirtualButton(buttons[i].x, buttons[i].y,
+                                          buttons[i].sizex, buttons[i].sizey, buttons[i].myfun,
+                                          buttons[i].arg1, buttons[i].label, buttons[i].hotkey);
+        allbuttons[i]->hidden = buttons[i].hidden;
+        allbuttons[i]->no_draw = buttons[i].no_draw;
+    }
+
+    return allbuttons[0];
+}
+
+void draw_backdrop()
+{
+    Sint32 i;
+
+    for (i = 0; i < 5; ++i) {
+        if (backdrops[i]) {
+            backdrops[i]->draw(myscreen->viewob[0]);
+        }
+    }
+}
+
+void draw_buttons(Button *buttons, Sint32 numbuttons)
+{
+    Sint32 i;
+
+    for (i = 0; i < numbuttons; ++i) {
+        if (buttons[i].hidden || buttons[i].no_draw) {
+            continue;
+        }
+
+        allbuttons[i]->vdisplay();
+        myscreen->draw_box(allbuttons[i]->xloc - 1,
+            allbuttons[i]->yloc - 1, allbuttons[i]->xend, allbuttons[i]->yend,
+            0, 0, 1);
+    }
+}
+
+Sint32 yes_or_no(Sint32 arg)
+{
+    return arg;
+}
+
+void toggle_effect(std::string const &category, std::string const &setting)
+{
+    if (cfg.is_on(category, setting)) {
+        cfg.apply_setting(category, setting, "off");
+    } else {
+        cfg.apply_setting(category, setting, "on");
+    }
+}
+
+void toggle_rendering_engine()
+{
+    std::string engine = cfg.get_setting("graphics", "render");
+
+    if (engine == "sai") {
+        engine = "eagle";
+    } else if (engine == "eagle") {
+        engine = "normal";
+    } else {
+        engine = "sai";
+    }
+
+    cfg.apply_setting("graphics", "render", "engine");
+}
 
 MenuNav MenuNav::Up(Sint32 up)
 {
@@ -129,10 +213,10 @@ MenuNav::MenuNav(Sint32 up, Sint32 down, Sint32 left, Sint32 right)
 {
 }
 
-// vbutton functions, vbutton is a button class that will be self-controlled
-vbutton::vbutton(Sint32 xpos, Sint32 ypos, Sint32 wide, Sint32 high,
-                 Sint32 func(Sint32), Sint32 pass, std::string const &msg,
-                 int hot)
+// VirtualButton functions, VirtualButton is a button class that will be self-controlled
+VirtualButton::VirtualButton(Sint32 xpos, Sint32 ypos, Sint32 wide, Sint32 high,
+                             Sint32 func(Sint32), Sint32 pass, std::string const &msg,
+                             Sint32 hot)
 {
     arg = pass;
     fun = func;
@@ -158,8 +242,8 @@ vbutton::vbutton(Sint32 xpos, Sint32 ypos, Sint32 wide, Sint32 high,
     no_draw = false;
 }
 
-vbutton::vbutton(Sint32 xpos, Sint32 ypos, Sint32 wide, Sint32 high,
-                 Sint32 func_code, Sint32 pass, std::string const &msg, int hot)
+VirtualButton::VirtualButton(Sint32 xpos, Sint32 ypos, Sint32 wide, Sint32 high,
+                             Sint32 func_code, Sint32 pass, std::string const &msg, Sint32 hot)
 {
     arg = pass;
     fun = nullptr; // Don't use this!
@@ -184,8 +268,9 @@ vbutton::vbutton(Sint32 xpos, Sint32 ypos, Sint32 wide, Sint32 high,
     no_draw = false;
 }
 
-vbutton::vbutton(Sint32 xpos, Sint32 ypos, Sint32 wide, Sint32 high,
-                 Sint32 func_code, Sint32 pass, std::string const &msg, char family, int hot)
+VirtualButton::VirtualButton(Sint32 xpos, Sint32 ypos, Sint32 wide, Sint32 high,
+                             Sint32 func_code, Sint32 pass, std::string const &msg,
+                             Uint8 family, Sint32 hot)
 {
     arg = pass;
     fun = nullptr; // Don't use this!
@@ -216,7 +301,7 @@ vbutton::vbutton(Sint32 xpos, Sint32 ypos, Sint32 wide, Sint32 high,
 }
 
 // For pointers
-vbutton::vbutton()
+VirtualButton::VirtualButton()
 {
     next = nullptr;
     // prev = nullptr;
@@ -226,7 +311,7 @@ vbutton::vbutton()
     mypixie = nullptr;
 }
 
-vbutton::~vbutton()
+VirtualButton::~VirtualButton()
 {
     // myscreen->draw_box(xloc - 4, yloc - 4, xend + 4, yend + 4, 0, 1, 1);
     delete mypixie;
@@ -243,7 +328,7 @@ vbutton::~vbutton()
      */
 }
 
-void vbutton::set_graphic(Uint8 family)
+void VirtualButton::set_graphic(Uint8 family)
 {
     if (mypixie) {
         delete mypixie;
@@ -257,7 +342,7 @@ void vbutton::set_graphic(Uint8 family)
     // vdisplay();
 }
 
-void vbutton::vdisplay()
+void VirtualButton::vdisplay()
 {
     if (hidden || no_draw) {
         return;
@@ -269,7 +354,7 @@ void vbutton::vdisplay()
         return;
     }
 
-    text &mytext = myscreen->text_normal;
+    Text &mytext = myscreen->text_normal;
 
     // Then use the graphic
     if (mypixie) {
@@ -301,14 +386,14 @@ void vbutton::vdisplay()
         if (label.size()) {
             mytext.write_xy(static_cast<Sint16>(((xloc + xend) / 2) - (((label.size() - 1) * (mytext.letters.w + 1)) / 2)),
                             static_cast<Sint16>(yloc + ((height - mytext.letters.h) / 2)),
-                            label.c_str()
-                            static_cast<Uint8>DARK_BLUE,
+                            label.c_str(),
+                            static_cast<Uint8>(DARK_BLUE),
                             1);
         }
     }
 }
 
-void vbutton::vdisplay(Sint32 status)
+void VirtualButton::vdisplay(Sint32 status)
 {
     if (hidden || no_draw) {
         return;
@@ -321,7 +406,7 @@ void vbutton::vdisplay(Sint32 status)
         return;
     }
 
-    text &mytext = myscreen->text_normal;
+    Text &mytext = myscreen->text_normal;
 
     // Then use the graphic
     if (mypixie) {
@@ -370,12 +455,12 @@ void vbutton::vdisplay(Sint32 status)
         myscreen->draw_box(xend - 1, yloc + 1, xend - 1, yend - 2, BUTTON_RIGHT + 32, 1, 1);
 
         // Bottom
-        myscreen->draw_box(xloc + 1, yend - 1, xend - 1, yend - 1, ButTON_BOTTOM + 32, 1, 1);
+        myscreen->draw_box(xloc + 1, yend - 1, xend - 1, yend - 1, BUTTON_BOTTOM + 32, 1, 1);
 
         if (label.size()) {
             mytext.write_xy(static_cast<Sint16>(((xloc + xend) / 2) - (((label.size() - 1) * (mytext.letters.w + 1)) / 2)),
                 static_cast<Sint16>(yloc + ((height - mytext.letters.h) / 2)),
-                label.c_str();
+                            label.c_str(),
                 static_cast<Uint8>(DARK_BLUE),
                 1);
         }
@@ -388,7 +473,7 @@ void vbutton::vdisplay(Sint32 status)
     grab_mouse();
 }
 
-Sint32 vbutton::leftclick(button *buttons)
+Sint32 VirtualButton::leftclick(Button *buttons)
 {
     Sint32 whichone = 0;
     Sint32 retvalue = 0;
@@ -425,7 +510,7 @@ Sint32 vbutton::leftclick(button *buttons)
     return 0;
 }
 
-Sint32 vbutton::rightclick(button *buttons)
+Sint32 VirtualButton::rightclick(Button *buttons)
 {
     Sint32 whichone = 0;
     Sint32 retvalue = 0;
@@ -446,7 +531,7 @@ Sint32 vbutton::rightclick(button *buttons)
     return 0;
 }
 
-Sint32 vbutton::leftclick(Sint32 whichbutton)
+Sint32 VirtualButton::leftclick(Sint32 whichbutton)
 {
     if (hidden) {
         return -1;
@@ -489,7 +574,7 @@ Sint32 vbutton::leftclick(Sint32 whichbutton)
     return -1;
 }
 
-Sint32 vbutton::rightclick(Sint32 whichbutton)
+Sint32 VirtualButton::rightclick(Sint32 whichbutton)
 {
     if (hidden) {
         return -1;
@@ -517,7 +602,7 @@ Sint32 vbutton::rightclick(Sint32 whichbutton)
     return -1;
 }
 
-Sint32 vbutton:mouse_on()
+Sint32 VirtualButton::mouse_on()
 {
     if (hidden) {
         return 0;
@@ -561,10 +646,10 @@ Sint32 vbutton:mouse_on()
     }
 }
 
-Sint32 vbutton::do_call(Sint32 whatfunc, Sint32 arg)
+Sint32 VirtualButton::do_call(Sint32 whatfunc, Sint32 arg)
 {
     switch (whatfunc) {
-    case BEGINMENU:
+    case BEGIN_MENU:
         return beginmenu(arg);
     case CREATE_TEAM_MENU:
         return create_team_menu(arg);
@@ -653,7 +738,7 @@ Sint32 vbutton::do_call(Sint32 whatfunc, Sint32 arg)
         toggle_effect("effects", "hit_recoil");
 
         return REDRAW;
-    case TOGGLE_ATTACK_MODE:
+    case TOGGLE_ATTACK_LUNGE:
         toggle_effect("effects", "attack_lunge");
 
         return REDRAW;
@@ -685,9 +770,9 @@ Sint32 vbutton::do_call(Sint32 whatfunc, Sint32 arg)
 }
 
 // For right-button
-Sint32 vbutton::do_call_right(Sint32 whatfunc, Sint32 arg)
+Sint32 VirtualButton::do_call_right(Sint32 whatfunc, Sint32 arg)
 {
-    switch (whatfunC) {
+    switch (whatfunc) {
     case DECREASE_STAT:
         return decrease_stat(arg, 5);
     case INCREASE_STAT:
@@ -695,84 +780,4 @@ Sint32 vbutton::do_call_right(Sint32 whatfunc, Sint32 arg)
     default:
         return OK;
     }
-}
-
-vbutton *init_buttons(button *buttons, Sint32 numbuttons)
-{
-    Sint32 i;
-
-    // Skip # 0!
-    for (i = 0; i < MAX_BUTTONS; ++i) {
-        if (allbuttons[i]) {
-            delete allbuttons[i];
-        }
-
-        allbuttons[i] = nullptr;
-    }
-
-    for (i = 0; i < numbuttons; ++i) {
-        allbuttons[i] = new vbutton(buttons[i].x, buttons[i].y,
-            buttons[i].sizex, buttons[i].sizey, buttons[i].myfun,
-            buttons[i].arg1, buttons[i].label, buttons[i].hotkey);
-        allbuttons[i]->hidden = buttons[i].hidden;
-        allbuttons[i]->no_draw = buttons[i].no_draw;
-    }
-
-    return allbuttons[0];
-}
-
-void draw_backdrop()
-{
-    Sint32 i;
-
-    for (i = 0; i < 5; ++i) {
-        if (brackdrops[i]) {
-            backdrops[i]->draw(myscreen->viewob[0]);
-        }
-    }
-}
-
-void draw_buttons(button *buttons, Sint32 numbuttons)
-{
-    Sint32 i;
-
-    for (i = 0; i < numbuttons; ++i) {
-        if (buttons[i].hidden || buttons[i].no_draw) {
-            continue;
-        }
-
-        allbuttons[i].vdisplay();
-        myscreen->draw_box(allbuttons[i]->xloc - 1,
-            allbuttons[i]->yloc - 1, allbuttons[i]->xend, allbuttons[i]->yend,
-            0, 0, 1);
-    }
-}
-
-Sint32 yes_or_no(Sint32 arg)
-{
-    return arg;
-}
-
-void toggle_effect(std::string const &category, std::string const &setting)
-{
-    if (cfg.is_on(category, setting)) {
-        cfg.apply_setting(category, setting, "off");
-    } else {
-        cfg.apply_setting(category, setting, "on");
-    }
-}
-
-void toggle_rendering_engine()
-{
-    std::string engine = cfg.get_setting("graphics", "render");
-
-    if (engine == "sai") {
-        engine = "eagle";
-    } else if (engine == "eagle") {
-        engine = "normal";
-    } else {
-        engine = "sai";
-    }
-
-    cfg.apply_setting("graphics", "render", engine");
 }

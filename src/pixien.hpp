@@ -20,15 +20,14 @@
 
 // Definition of PIXIEN class
 
-#include "base.hpp"
 #include "pixie.hpp"
 
-class pixieN : public pixie
+class PixieN : public Pixie
 {
 public:
-    pixieN(PixieData const &data);
-    pixieN(PixieData const &data, Sint32 doaccel);
-    virtual ~pixieN();
+    PixieN(PixieData const &data);
+    PixieN(PixieData const &data, Sint32 doaccel);
+    virtual ~PixieN();
 
     Sint16 set_frame(Sint16 framenum);
     Sint16 query_frame();

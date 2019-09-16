@@ -161,7 +161,7 @@ float OuyaController::getNormalizedAxisValue(AxisEnum axis) const
      * A joystick deadzone is angled in the direction of the stick, so we need
      * to calculate the amount of deadzone in that direction
      */
-    fload dzone = DEADZONE;
+    float dzone = DEADZONE;
 
     switch(axis) {
     case AXIS_LS_X:
@@ -325,7 +325,7 @@ OuyaControllerManager::OuyaControllerManager()
     init();
 }
 
-void OuyaControllerMnager::init()
+void OuyaControllerManager::init()
 {
     if (inited) {
         return;

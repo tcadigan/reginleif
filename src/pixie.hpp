@@ -20,27 +20,32 @@
 
 // Definition of PIXIE class
 
-#include "base.hpp"
+#include "pixie-fwd.hpp"
 
-class pixie
+#include "pixie_data.hpp"
+#include "view-fwd.hpp"
+
+class Pixie
 {
 public:
-    pixie(PixieData const &data);
-    pixie(PixieData const &data, Sint32 doaccel);
-    virtual ~pixie();
-    virtual Sint16 move(Sint16 x, Sint16 y);
+    Pixie(PixieData const &data);
+    Pixie(PixieData const &data, Sint32 doaccel);
+    virtual ~Pixie();
+
     Sint16 setxy(Sint16 x, Sint16 y);
-    Sint16 draw(viewscreen *view_buf);
-    Sint16 draw(Sint16 x, Sint16 y, viewscreen *view_buf);
-    Sint16 drawMix(viewscreen *view_buf);
-    Sint16 drawMix(Sint16 x, Sint16 y, viewscreen *view_buf);
+    Sint16 draw(ViewScreen *view_buf);
+    Sint16 draw(Sint16 x, Sint16 y, ViewScreen *view_buf);
+    Sint16 drawMix(ViewScreen *view_buf);
+    Sint16 drawMix(Sint16 x, Sint16 y, ViewScreen *view_buf);
     Sint16 put_screen(Sint16 x, Sint16 y);
     void init_sdl_surface(void);
     void set_accel(Sint32 a);
     void set_data(PixieData const &data);
     Sint16 on_screen();
     // On a specific viewscreen?
-    Sint16 on_screen(viewscreen *viewp);
+    Sint16 on_screen(ViewScreen *viewp);
+
+    virtual Sint16 move(Sint16 x, Sint16 y);
 
     Sint16 sizex;
     Sint16 sizey;

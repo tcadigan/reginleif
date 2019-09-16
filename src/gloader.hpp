@@ -20,17 +20,22 @@
 
 // Definition of LOADER class
 
-#include "base.hpp"
+#include "gloader-fwd.hpp"
 
-class loader
+#include "pixien.hpp"
+#include "pixie_data.hpp"
+#include "screen-fwd.hpp"
+#include "walker-fwd.hpp"
+
+class Loader
 {
 public:
-    loader();
-    virtual ~loader(void);
-    walker *create_walker(Uint8 order, Uint8 family, screen *screenp, bool cache_weapon = true);
-    void set_derived_stats(walker *w, Uint8 order, Uint8 family);
-    pixieN *create_pixieN(Uint8 order, Uint8 family);
-    walker *set_walker(walker *ob, Uint8 order, Uint8 family);
+    Loader();
+    virtual ~Loader(void);
+    Walker *create_walker(Uint8 order, Uint8 family, Screen *screenp, bool cache_weapon = true);
+    void set_derived_stats(Walker *w, Uint8 order, Uint8 family);
+    PixieN *create_pixieN(Uint8 order, Uint8 family);
+    Walker *set_walker(Walker *ob, Uint8 order, Uint8 family);
     PixieData *graphics;
     Uint8 ***animations;
     float *stepsize;

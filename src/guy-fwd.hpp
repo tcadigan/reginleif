@@ -15,27 +15,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#ifndef __GPARSER_HPP__
-#define __GPARSER_HPP__
+#ifndef __GUY_FWD_HPP__
+#define __GUY_FWD_HPP__
 
-#include <string>
-#include <map>
-
-#include <SDL2/SDL.h>
-
-class ConfigStore
-{
-public:
-    bool load_settings();
-    void commandline(Sint32 argc, Uint8 *argv[]);
-    bool save_settings();
-
-    void apply_setting(std::string const &category, std::string const &setting, std::string const &value);
-    std::string get_setting(std::string const &category, std::string const &setting);
-    bool is_on(std::string const &category, std::string const &setting);
-    std::map<std::string, std::map<std::string, std::string>> data;
-};
-
-extern ConfigStore cfg;
+class Guy;
 
 #endif

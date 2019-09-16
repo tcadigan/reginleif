@@ -27,29 +27,33 @@
 #include "pixie_data.hpp"
 
 // Used for deciding cases
-#define TO_UP 1
-#define TO_RIGHT 2
-#define TO_DOWN 4
-#define TO_LEFT 8
-#define TO_AROUND 15
+enum ToDecideEnum : Uint8 {
+    TO_UP = 1,
+    TO_RIGHT = 2,
+    TO_DOWN = 4,
+    TO_LEFT = 8,
+    TO_AROUND = 15
+};
 
 // These are the "genre" defines...
-#define TYPE_GRASS 1
-#define TYPE_WATER 2
-#define TYPE_TREES 3
-#define TYPE_DIRT 4
-#define TYPE_COBBLE 5
-#define TYPE_GRASS_DARK 6
-#define TYPE_DIRT_DARK 7
-#define TYPE_WALL 8
-#define TYPE_CARPET 9
-#define TYPE_GRASS_LIGHT 10
-#define TYPE_UNKNOWN 50
+enum TypeGenreEnum : Uint8 {
+ TYPE_GRASS = 1,
+ TYPE_WATER = 2,
+ TYPE_TREES = 3,
+ TYPE_DIRT = 4,
+ TYPE_COBBLE = 5,
+ TYPE_GRASS_DARK = 6,
+ TYPE_DIRT_DARK = 7,
+ TYPE_WALL = 8,
+ TYPE_CARPET = 9,
+ TYPE_GRASS_LIGHT = 10,
+ TYPE_UNKNOWN = 50
+};
 
-class smoother
+class Smoother
 {
 public:
-    smoother();
+    Smoother();
 
     void reset();
 

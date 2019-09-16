@@ -29,7 +29,8 @@
 
 #include <SDL2/SDL.h>
 
-#include "video.hpp"
+#include "screen-fwd.hpp"
+#include "video-fwd.hpp"
 
 #define SDLKey SDL_Keycode
 
@@ -273,9 +274,7 @@ Uint8 convert_to_ascii(Sint32 scancode);
 void update_overscan_setting();
 
 #ifdef USE_TOUCH_INPUT
-class screen;
-
-void draw_touch_controller(screen *vob);
+void draw_touch_controller(Screen *vob);
 
 #define CONTINUE_ACTION_STRING "TAP"
 
@@ -290,7 +289,7 @@ void draw_touch_controller(screen *vob);
 #endif
 #endif
 
-extern Uint8 const *keystate;
+extern Uint8 const *keystates;
 
 // In window coords
 extern float viewport_offset_x;

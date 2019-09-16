@@ -20,14 +20,15 @@
 
 // The definition of the VIDEO class
 
-#include "base.hpp"
+#include "video-fwd.hpp"
+
 #include "text.hpp"
 
-class video
+class Video
 {
 public:
-    video();
-    virtual ~video();
+    Video();
+    virtual ~Video();
 
     void set_fullscreen(bool fullscreen);
     void clearbuffer();
@@ -64,6 +65,7 @@ public:
     void walkputbuffer_flash(Sint32 walkerstartx, Sint32 walkerstarty, Sint32 walkerwidth, Sint32 walkerheight, Sint32 portstartx, Sint32 portstarty, Sint32 portendx, Sint32 portendy, Uint8 *sourceptr, Uint8 teamcolor);
     void walkputbuffertext(Sint32 walkerstartx, Sint32 walkerstarty, Sint32 walkerwidth, Sint32 walkerheight, Sint32 portstartx, Sint32 portstarty, Sint32 portendx, Sint32 portendy, Uint8 *sourceptr, Uint8 teamcolor);
     void walkputbuffertext_alpha(Sint32 walkerstartx, Sint32 walkerstarty, Sint32 walkerwidth, Sint32 walkerheight, Sint32 portstartx, Sint32 portstarty, Sint32 portendx, Sint32 portendy, Uint8 *sourceptr, Uint8 teamcolor, Uint8 alpha);
+    void buffer_to_screen(Sint32 viewstartx, Sint32 viewstarty, Sint32 viewwidth, Sint32 viewheight);
     void draw_box(Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2, Uint8 color, Sint32 filled);
     void draw_box(Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2, Uint8 color, Sint32 filled, Sint32 tobuffer);
     void draw_rect_filled(Sint32 x, Sint32 y, Uint32 w, Uint32 h, Uint8 color, Uint8 alpha);
@@ -110,8 +112,8 @@ public:
     Sint32 fullscreen;
     Sint32 pdouble;
 
-    text text_normal;
-    text text_big;
+    Text text_normal;
+    Text text_big;
 };
 
 #endif

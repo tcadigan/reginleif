@@ -20,10 +20,10 @@
 
 #include <map>
 
-#include "guy.hpp"
+#include "guy-fwd.hpp"
 
 // When no change to the guys has happened
 bool results_screen(Sint32 ending, Sint32 nextlevel);
-bool results_screen(Sint32 ending, Sint32 nextlevel, std::map<Sint32, guy *> &before, std::map<Sint32, walker *> &after);
+bool results_screen(Sint32 ending, Sint32 nextlevel, std::map<Sint32, Guy *> &before, std::map<Sint32, Walker *> &after);
 
 #endif

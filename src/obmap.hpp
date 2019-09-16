@@ -23,25 +23,27 @@
 #include <list>
 #include <map>
 
-#include "base.hpp"
+#include <SDL2/SDL.h>
 
-class obmap
+#include "walker-fwd.hpp"
+
+class ObjectMap
 {
 public:
-    obmap();
-    ~obmap();
-    Sint16 query_list(walker *ob, Sint16 x, Sint16 y);
-    Sint16 remove(walker *ob); // this goes in walker's destructor
-    Sint16 add(walker *ob, Sint16 x, Sint16 y); // This goes in walker's constructor
-    Sint16 move(walker *ob, Sint16 x, Sint16 y); // This goes in walker's setxy
-    std::list<walker *> &obmap_get_list(Sint16 x, Sint16 y); // Returns the list at x,y for fnf
+    ObjectMap();
+    ~ObjectMap();
+    Sint16 query_list(Walker *ob, Sint16 x, Sint16 y);
+    Sint16 remove(Walker *ob); // this goes in walker's destructor
+    Sint16 add(Walker *ob, Sint16 x, Sint16 y); // This goes in walker's constructor
+    Sint16 move(Walker *ob, Sint16 x, Sint16 y); // This goes in walker's setxy
+    std::list<Walker *> &obmap_get_list(Sint16 x, Sint16 y); // Returns the list at x,y for fnf
 
     size_t size() const;
     void draw();
 
     Sint16 obmapres;
-    std::map<std::pair<Sint16, Sint16>, std::list<walker *>> pos_to_walker;
-    std::map<walker *, std::list<std::pair<Sint16, Sint16>>> walker_to_pos;
+    std::map<std::pair<Sint16, Sint16>, std::list<Walker *>> pos_to_walker;
+    std::map<Walker *, std::list<std::pair<Sint16, Sint16>>> walker_to_pos;
 
 private:
     Sint16 hash(Sint16 y);

@@ -21,7 +21,10 @@
 #include <map>
 #include <string>
 
-#include "screen.hpp"
+#include <SDL2/SDL.h>
+
+#include "save_data.hpp"
+#include "screen-fwd.hpp"
 
 class CampaignResult
 {
