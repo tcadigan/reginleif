@@ -100,7 +100,7 @@ public:
     bool direct_walk();
 
     // For NPCs normally...
-    Uint8 name[12];
+    std::string name; // Must be 12 characters or less
     Uint8 old_order;
     Uint8 old_family;
     Uint32 last_distance;
@@ -117,7 +117,7 @@ public:
 
     Sint32 max_heal_delay;
     Sint32 current_heal_delay;
-    Sint32 max_magic_display;
+    Sint32 max_magic_delay;
     Sint32 current_magic_delay;
     // Magic points we regain each round
     Sint32 magic_per_round;

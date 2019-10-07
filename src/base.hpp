@@ -350,19 +350,12 @@ extern Screen *myscreen; // Global, available to anyone
 SDL_Color palette[256];
 
 Uint32 random(Uint32 x);
-Sint16 fill_help_array(Uint8 somearray[HELP_WIDTH][MAX_LINES], SDL_RWops *infile);
-Sint16 read_campaign_intro(Screen *myscreen);
-Sint16 read_scenario(Screen *myscreen);
-Uint8 *read_one_line(SDL_RWops *infiles, Sint16 length);
 
 // Most of these are graphlib and are being ported to video
-void load_map_data(PixieData *whereto);
 Uint8 *get_cfg_item(Uint8 *section, Uint8 *item);
 
 // functions in game.cpp
 Sint16 load_saved_game(Uint8 const *filename, Screen *myscreen);
-
-PixieData read_pixie_file(Uint8 const *filename);
 
 // void set_vga_palette(palette p);
 SDL_Color set_rgb(Uint8 r, Uint8 g, Uint8 b);

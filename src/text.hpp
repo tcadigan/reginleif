@@ -20,6 +20,8 @@
 
 // Defintion of TEXT class
 
+#include <string>
+
 #include "pixie_data.hpp"
 #include "screen-fwd.hpp"
 #include "view-fwd.hpp"
@@ -38,7 +40,7 @@ public:
     Sint16 write_xy_center(Sint16 x, Sint16 y, Uint8 color, Uint8 const *formatted_string, ...);
     Sint16 write_xy_center_shadow(Sint16 x, Sint16 y, Uint8 color, Uint8 const *formatted_string, ...);
     Sint16 write_xy(Sint16 x, Sint16 y, Uint8 const *string, Sint16 to_buffer);
-    Sint16 write_xy(Sint16 x, Sint16 y, Uint8 const *string, Uint8 color, Sint16 to_buffer);
+    Sint16 write_xy(Sint16 x, Sint16 y, std::string const &string, Uint8 color, Sint16 to_buffer);
     Sint16 write_xy(Sint16 x, Sint16 y, Uint8 const *string, ViewScreen *whereto);
     Sint16 write_xy(Sint16 x, Sint16 y, Uint8 const *string, Uint8 color, ViewScreen *whereto);
     Sint16 write_y(Sint16 y, Uint8 const *string);

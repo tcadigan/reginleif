@@ -26,7 +26,6 @@
 #include "effect.hpp"
 
 #include "base.hpp"
-// #include "graph.hpp"
 #include "guy.hpp"
 #include "screen.hpp"
 #include "soundob.hpp"

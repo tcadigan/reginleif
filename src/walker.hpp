@@ -27,6 +27,7 @@
 #include "guy-fwd.hpp"
 #include "obmap.hpp"
 #include "pixien.hpp"
+#include "stats.hpp"
 
 // TODO: Move this to screen class so it doesn't get overlapped
 //       by other walkers drawing
@@ -148,14 +149,14 @@ public:
     // Current direction facing
     Uint8 curdir;
     Uint8 cycle;
-    Uint8 **ani;
+    Sint8 **ani;
     Uint8 action;
 
     // Zardus: FIX: Let's make these unsigned so that real_team_num doesn't
     //              wrap around from 255 to -1 :)
     Uint8 team_num;
     // For "Charm", etc.
-    Uint8 ream_team_num;
+    Uint8 real_team_num;
     Uint8 ani_type;
     // Floating point buffer for movement
     float worldx;

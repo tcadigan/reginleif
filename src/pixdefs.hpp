@@ -57,7 +57,7 @@ enum PixEnum : Uint8 {
     PIX_WALLSIDE1 = 22,
     PIX_WALLSIDE_L = 23,
     PIX_WALLSIDE_R = 24,
-    PIX_WALLSIZE_C = 25,
+    PIX_WALLSIDE_C = 25,
 
     PIX_WALL_LL = 26,
 
@@ -107,7 +107,7 @@ enum PixEnum : Uint8 {
     PIX_TREE_T1 = 57,
     PIX_TREE_ML = 58, // Left of center
 
-    PIX_DIRT1 = 59,
+    PIX_DIRT_1 = 59,
 
     PIX_DIRTGRASS_UL1 = 60,
     PIX_DIRTGRASS_UR1 = 61,
@@ -173,6 +173,7 @@ enum PixEnum : Uint8 {
 
     PIX_GRASS_LIGHT_1 = 104, // Lighter grass
     PIX_GRASS_LIGHT_TOP = 105,
+    PIX_GRASS_LIGHT_RIGHT_TOP = 106,
     PIX_GRASS_LIGHT_RIGHT = 107,
     PIX_GRASS_LIGHT_RIGHT_BOTTOM = 108,
     PIX_GRASS_LIGHT_BOTTOM = 109,
@@ -196,7 +197,7 @@ enum PixEnum : Uint8 {
     PIX_JAGGED_GROUND_1 = 123,
     PIX_JAGGED_GROUND_2 = 124,
     PIX_JAGGED_GROUND_3 = 125,
-    PIX_HAGGED_GROUND_4 = 126,
+    PIX_JAGGED_GROUND_4 = 126,
 
 // The "small" carpet pieces
     PIX_CARPET_SMALL_HOR = 127,

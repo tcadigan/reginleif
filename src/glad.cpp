@@ -23,16 +23,19 @@
 
 #include "base.hpp"
 #include "colors.hpp"
-#include "graph.hpp"
 #include "gparser.hpp"
 #include "guy.hpp"
 #include "input.hpp"
+#include "intro.hpp"
+#include "io.hpp"
 #include "options.hpp"
+#include "pal32.hpp"
 #include "results_screen.hpp"
 #include "screen.hpp"
 #include "util.hpp"
 #include "view.hpp"
 #include "version.hpp"
+#include "walker.hpp"
 
 #ifdef OUYA
 #include "OuyaController.hpp"
@@ -58,7 +61,6 @@ extern Options *theprefs;
 bool yes_or_no_prompt(Uint8 const *title, Uint8 const *message, bool default_value);
 void popup_dialog(Uint8 const *title, Uint8 const *message);
 void picker_main(Sint32 argc, Uint8 *argv[]);
-void intro_main(Sint32 argc, Uint8 argv[]);
 Sint16 remaining_foes(Screen *myscreen, Walker *myguy);
 Sint16 remaining_team(Screen *myscreen, Uint8 myteam);
 Sint16 score_panel(Screen *myscreen);
@@ -77,7 +79,7 @@ bool float_eq(float a, float b);
 
 int main(int argc, char *argv[])
 {
-    io_init(argc, argv);
+    io_init(std::string(argv[0]));
 
     cfg.load_settings();
     cfg.save_settings();
@@ -94,7 +96,7 @@ int main(int argc, char *argv[])
     srand(time(nullptr));
 
     init_input();
-    intro_main(argc, argv);
+    intro_main();
     picker_main(argc, argv);
 
     io_exit();
@@ -266,7 +268,7 @@ void glad_main(Sint32 playermode)
 }
 
 // Remaining foes returns # of livings left not on control's team
-Sint16 remaining_foes(Screen *myscren, Walker *myguy)
+Sint16 remaining_foes(Screen *myscreen, Walker *myguy)
 {
     Sint16 myfoes = 0;
 

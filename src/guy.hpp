@@ -33,8 +33,6 @@ class Guy
 public:
     Guy();
     Guy(Sint32 whatfamily);
-    Guy(Guy const &copy);
-    ~Guy();
 
     Sint32 query_heart_value(); // How much are we worth?
     Walker *create_walker(Screen *myscreen);
@@ -51,7 +49,7 @@ public:
     float get_speed_bonus() const;
     float get_fire_frequency_bonus() const;
 
-    Uint8 name[12];
+    std::string name; // Must be 12 characters or less
     Uint8 family; // Our family
     Sint16 strength;
     Sint16 dexterity;

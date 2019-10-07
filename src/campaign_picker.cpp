@@ -21,6 +21,7 @@
 #include <vector>
 
 #include "button.hpp"
+#include "graphlib.hpp"
 #include "guy-fwd.hpp"
 #include "io.hpp"
 #include "pixie-fwd.hpp"
@@ -149,8 +150,7 @@ CampaignEntry::CampaignEntry(std::string const &id, Sint32 num_levels_completed)
         // TODO: Get raiting from website
         rating = 0.0f;
 
-        std::string icon_file = "icon.pix";
-        icondata = read_pixie_file(icon_file.c_str());
+        icondata = read_pixie_file(std:string("icon.pix"));
 
         if (icondata.valid()) {
             icon = new pixie(icondata);
@@ -438,7 +438,7 @@ CampaignResult pick_campaign(Savedata *save_data, bool enable_delete)
                 --current_campaign_index;
             }
         } else if (do_next) { // Next
-            if ((current_campagin_index + 1) < entries.size()) {
+            if ((current_campaign_index + 1) < entries.size()) {
                 ++current_campaign_index;
             }
         } else if (do_choose) { // Choose
@@ -457,7 +457,7 @@ CampaignResult pick_campaign(Savedata *save_data, bool enable_delete)
 
             break;
         } else if (do_delete) { // Delete
-            if (yes_or_no_prompt("Delete campagin", "Delete this campaign permanently?", false)
+            if (yes_or_no_prompt("Delete campaign", "Delete this campaign permanently?", false)
                 && no_or_yes_prompt("Delete campaign", "Are you really sure?", false)) {
                 delete_campaign(entries[current_campaign_index]->id);
 
@@ -474,7 +474,7 @@ CampaignResult pick_campaign(Savedata *save_data, bool enable_delete)
 
                 campaign_ids = list_campaigns();
 
-                for(std::list<std::string>::iterator itr = campagin_ids.begin(); itr != campaign_ids.end(); ++itr) {
+                for(std::list<std::string>::iterator itr = campaign_ids.begin(); itr != campaign_ids.end(); ++itr) {
                     Sint32 num_completed = -1;
 
                     if (save_data != nullptr) {

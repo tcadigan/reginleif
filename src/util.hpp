@@ -24,37 +24,27 @@
 // Misc. helper functions and time
 //
 
-#include <ctype.h>
 #include <string>
 
 #include <SDL2/SDL.h>
 
-#include "io.hpp"
+void Log(char const *format, ...);
 
-void Log(Uint8 const *format, ...);
-
-void change_time(Uint32 new_count);
-
-void grab_timer();
-void release_timer();
 void reset_timer();
 Sint32 query_timer();
 Sint32 query_timer_control();
 void time_delay(Sint32 delay);
 
 // Zardus: add: Lowercase func
-void lowercase(Uint8 *c);
+void lowercase(char *c);
 
 // kari: lowercase for std::strings
 void lowercase(std::string &s);
 
 // buffers: add: uppercase func
-void uppercase(Uint8 *c);
+void uppercase(char *c);
 
 // kari: uppercase for std::strings
 void uppercase(std::string &s);
-
-// Zardus: add: set_mult func
-void set_mult(Sint32 m);
 
 #endif

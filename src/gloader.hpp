@@ -37,8 +37,8 @@ public:
     PixieN *create_pixieN(Uint8 order, Uint8 family);
     Walker *set_walker(Walker *ob, Uint8 order, Uint8 family);
     PixieData *graphics;
-    Uint8 ***animations;
-    float *stepsize;
+    Sint8 ***animations;
+    float *stepsizes;
     Sint32 *lineofsight;
 
     float hitpoints[200]; // Hack for now

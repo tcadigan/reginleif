@@ -151,7 +151,7 @@ public:
 
     void setKeyFromEvent(Sint32 key_enum, SDL_Event const &event);
 
-    bool getstate(Sint32 key_enum) const;
+    bool getState(Sint32 key_enum) const;
     bool getPress(Sint32 key_enum, SDL_Event const &event) const;
     bool getRelease(Sint32 key_enum, SDL_Event const &event) const;
     bool hasButtonSet(Sint32 key_enum) const;
@@ -244,7 +244,7 @@ void clear_keyboard();
 void wait_for_key(Sint32 somekey);
 
 // query_ & clear_key_press_event
-Sint16 query_press_event();
+Sint16 query_key_press_event();
 
 // Detect a key press :)
 void clear_key_press_event();

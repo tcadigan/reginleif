@@ -363,7 +363,7 @@ void VirtualButton::vdisplay()
         if (label.size()) {
             mytext.write_xy(static_cast<Sint16>(((xloc + xend) / 2) - (((label.size() - 1) * (mytext.letters.w + 1)) / 2)),
                             static_cast<Sint16>(yloc + ((height - mytext.letters.h) / 2)),
-                            label.c_str(),
+                            label,
                             static_cast<Uint8>(DARK_BLUE),
                             1);
         }
@@ -438,6 +438,7 @@ void VirtualButton::vdisplay(Sint32 status)
         if (label.size()) {
             mytext.write_xy(static_cast<Sint16>(((xloc + xend) / 2) - (((label.size() - 1) * (mytext.letters.w + 1)) / 2)),
                             static_cast<Sint16>(yloc + ((height - mytext.letters.h) / 2)),
+                            label,
                             static_cast<Uint8>(DARK_BLUE),
                             1);
         }

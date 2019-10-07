@@ -15,33 +15,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#ifndef __WEAP_HPP__
-#define __WEAP_HPP__
+#ifndef __INTRO_HPP__
+#define __INTRO_HPP__
 
-// Defintion of WEAP class
-
-#include "walker.hpp"
-
-class Weap : public Walker
-{
-public:
-    Weap(PixieData const &data);
-    virtual ~Weap();
-
-    Sint16 act();
-    Sint16 animate();
-    // Called on destruction
-    Sint16 death();
-    Sint16 setxy(Sint16 x, Sint16 y);
-
-    Uint8 query_order()
-    {
-        return ORDER_WEAPON;
-    }
-
-    // Weapons only related variables; use with care
-    // Do we bounce?
-    Sint32 do_bounce;
-};
+void intro_main();
 
 #endif

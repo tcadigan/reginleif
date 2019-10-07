@@ -24,16 +24,16 @@
 
 #include <SDL2/SDL.h>
 
-void io_init(Sint32 argc, Uint8 *argv[]);
+void io_init(std::string path);
 void io_exit();
 
 std::string get_user_path();
 bool create_dir(std::string const &dirname);
 
-SDL_RWops *open_read_file(Uint8 const *file);
-SDL_RWops *open_read_file(Uint8 const *path, Uint8 const *file);
-SDL_RWops *open_write_file(Uint8 const *file);
-SDL_RWops *open_write_file(Uint8 const *path, Uint8 const *file);
+SDL_RWops *open_read_file(std::string const &file);
+SDL_RWops *open_read_file(std::string const &path, std::string const &file);
+SDL_RWops *open_write_file(std::string const &file);
+SDL_RWops *open_write_file(std::string const &path, std::string const &file);
 
 std::list<std::string> list_files(std::string const &dirname);
 std::list<std::string> explode(std::string const &str, Uint8 delimiter='\n');
@@ -70,16 +70,5 @@ bool create_new_map_pix(std::string const &filename, Sint32 w, Sint32 h);
 bool create_new_pix(std::string const &filename, Sint32 w, Sint32 h, Uint8 fill_color=0);
 bool create_new_campaign_descriptor(std::string const &filename);
 bool create_new_scen_file(std::string const &scenfile, std::string const &gridname);
-
-// Some version of GCC have broken template type deduction, so std::fine doesn't work
-template<typename iterT, typename T>
-iterT list_find(iterT begin, iterT end, T const &value)
-{
-    while ((*begin != value) && (begin != end)) {
-        ++begin;
-    }
-
-    return begin;
-}
 
 #endif
