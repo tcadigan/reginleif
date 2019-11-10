@@ -23,8 +23,8 @@
 #include "screen.hpp"
 
 Sint16 fill_help_array(Uint8 somearray[HELP_WIDTH][MAX_LINES], SDL_RWops *infile);
-Sint16 read_campaign_intro(Screen *myscreen);
-Sint16 read_scenario(Screen *myscreen);
+Sint16 read_campaign_intro(VideoScreen *myscreen);
+Sint16 read_scenario(VideoScreen *myscreen);
 Uint8 *read_one_line(SDL_RWops *infiles, Sint16 length);
 
 #endif

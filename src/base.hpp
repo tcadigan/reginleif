@@ -345,7 +345,7 @@ enum CommandEnum : Uint8 {
 
 #define DONT_DELETE 1
 
-extern Screen *myscreen; // Global, available to anyone
+extern VideoScreen *myscreen; // Global, available to anyone
 
 SDL_Color palette[256];
 
@@ -355,7 +355,7 @@ Uint32 random(Uint32 x);
 Uint8 *get_cfg_item(Uint8 *section, Uint8 *item);
 
 // functions in game.cpp
-Sint16 load_saved_game(Uint8 const *filename, Screen *myscreen);
+Sint16 load_saved_game(Uint8 const *filename, VideoScreen *myscreen);
 
 // void set_vga_palette(palette p);
 SDL_Color set_rgb(Uint8 r, Uint8 g, Uint8 b);

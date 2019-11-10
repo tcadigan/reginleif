@@ -20,6 +20,6 @@
 
 #include "screen-fwd.hpp"
 
-Sint32 pick_level(Screen *screenp, Sint32 default_level, bool enable_delete=false);
+Sint32 pick_level(VideoScreen *screenp, Sint32 default_level, bool enable_delete=false);
 
 #endif

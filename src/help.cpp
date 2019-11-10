@@ -52,7 +52,7 @@ std::string read_one_line(std::ifstream &input, Sint16 length)
 
 // Note: This code has been redone to work in "scanlines", so that the
 //       text scrolls by pixels rather than lines.
-Sint16 read_scenario(Screen *myscreen)
+Sint16 read_scenario(VideoScreen *myscreen)
 {
     Sint32 screenlines = myscreen->level_data.description.size() * 8;
     Sint32 numlines = screenlines;
@@ -175,7 +175,7 @@ Sint16 read_scenario(Screen *myscreen)
     return static_cast<Sint16>(numlines);
 }
 
-Sint16 read_campaign_intro(Screen *myscreen)
+Sint16 read_campaign_intro(VideoScreen *myscreen)
 {
     CampaignData data(myscreen->save_data.current_campaign);
 

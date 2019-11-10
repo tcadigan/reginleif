@@ -283,7 +283,7 @@ bool unmount_campaign_package(std::string const &id)
 
 bool remount_campaign_package()
 {
-    std::string id(get_mounted_campaign);
+    std::string id(get_mounted_campaign());
 
     if (!unmount_campaign_package(id)) {
         return false;
@@ -673,12 +673,8 @@ bool zip_contents(std::string const &indirectory, std::string const &outfile)
  * From http://niallohiggins.com/2009/0108/mkpath-mkdir-p-alike-in-c-for-unix/
  * Function with behavior liek `mkdir -p`
  */
-Sint32 mkpath(Uint8 const *s, mode_t mode)
+Sint32 mkpath(std::string const &s, mode_t mode)
 {
-    Uint8 *q;
-    Uint8 *parent = nullptr;
-    Uint8 *path = nullptr;
-    Uint8 *up = nullptr;
     Sint32 rv;
 
     rv = -1;
@@ -687,45 +683,18 @@ Sint32 mkpath(Uint8 const *s, mode_t mode)
         return 0;
     }
 
-    path = strdup(s);
-
-    if (path == nullptr) {
+    if (s.empty()) {
         exit(1);
     }
 
-    q = strdup(s);
+    std::string path(s);
+    std::string parent(dirname(s));
 
-    if (q == nullptr) {
-        exit(1);
-    }
-
-    parent = dirname(q);
-
-    if (parent == nullptr) {
-        if (up != nullptr) {
-            free(up);
-        }
-
-        free(q);
-        free(path);
-
+    if (parent == ".") {
         return rv;
     }
 
-    up = strdup(parent);
-
-    if (up == nullptr) {
-        exit(1);
-    }
-
-    if ((mkpath(path, mode) == -1) && (errno != EEXIST)) {
-        if (up != nullptr) {
-            free(up);
-        }
-
-        free(q);
-        free(path);
-
+    if ((mkpath(parent, mode) == -1) && (errno != EEXIST)) {
         return rv;
     }
 
@@ -734,13 +703,6 @@ Sint32 mkpath(Uint8 const *s, mode_t mode)
     } else {
         rv = 0;
     }
-
-    if (up != nullptr) {
-        free(up);
-    }
-
-    free(q);
-    free(path);
 
     return rv;
 }

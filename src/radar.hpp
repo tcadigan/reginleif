@@ -26,7 +26,7 @@
 class Radar
 {
 public:
-    Radar(ViewScreen *myview, Screen *myscreen, Sint16 whatnum);
+    Radar(ViewScreen *myview, VideoScreen *myscreen, Sint16 whatnum);
     ~Radar();
     Sint16 draw();
     Sint16 draw(LevelData *data);
@@ -55,7 +55,7 @@ public:
     Sint16 radarx;
     Sint16 radary;
 
-    Screen *screenp;
+    VideoScreen *screenp;
     ViewScreen *viewscreen;
     Uint8 *bmp;
     Uint8 *oldbmp;

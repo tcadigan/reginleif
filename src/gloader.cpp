@@ -817,7 +817,7 @@ void Loader::set_derived_stats(Walker *w, Uint8 order, Uint8 family)
     w->fire_frequency = fire_frequency[PIX(order, family)];
 }
 
-Walker *Loader::create_walker(Uint8 order, Uint8 family, Screen *myscreen, bool cache_weapons)
+Walker *Loader::create_walker(Uint8 order, Uint8 family, VideoScreen *myscreen, bool cache_weapons)
 {
     Walker *ob;
 

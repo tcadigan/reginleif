@@ -217,7 +217,7 @@ void sendFakeKeyUpEvent(Sint32 keycode);
 Sint32 query_key();
 
 // Return last text input
-Uint8 *query_text_input();
+std::string query_text_input();
 
 bool query_input_continue();
 Sint16 get_and_reset_scroll_amount();
@@ -274,7 +274,7 @@ Uint8 convert_to_ascii(Sint32 scancode);
 void update_overscan_setting();
 
 #ifdef USE_TOUCH_INPUT
-void draw_touch_controller(Screen *vob);
+void draw_touch_controller(VideoScreen *vob);
 
 #define CONTINUE_ACTION_STRING "TAP"
 

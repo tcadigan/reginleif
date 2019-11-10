@@ -35,8 +35,8 @@ public:
     Guy(Sint32 whatfamily);
 
     Sint32 query_heart_value(); // How much are we worth?
-    Walker *create_walker(Screen *myscreen);
-    Walker *create_and_add_walker(Screen *myscreen);
+    Walker *create_walker(VideoScreen *myscreen);
+    Walker *create_and_add_walker(VideoScreen *myscreen);
     void upgrade_to_level(Sint16 level, bool set_xp=true);
     void set_level_number(Sint16 level);
     void update_derived_stats(Walker *w);

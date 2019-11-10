@@ -81,7 +81,7 @@
 void quit(Sint32 arg1);
 
 Sint32 raw_key;
-Uint8 *raw_text_input = nullptr;
+std::string raw_text_input;
 Sint16 key_press_event = 0; // Used to signal key-press
 Sint16 text_input_event = 0; // Used to signal text input
 Sint16 scroll_amount = 0; // For scrolling up and down text popups
@@ -333,7 +333,7 @@ void get_input_events(bool type)
 
 #ifdef USE_TOUCH_INPUT
 
-void draw_touch_controller(Screen *vob)
+void draw_touch_controller(VideoScreen *vob)
 {
     Walker *control = vob->viewob[0]->control;
 
@@ -470,8 +470,7 @@ void handle_key_event(SDL_Event const &event)
 
 void handle_text_event(SDL_Event const &event)
 {
-    free(raw_text_input);
-    raw_text_input = strdup(event.text.text);
+    raw_text_input = std::string(event.text.text);
     text_input_event = 1;
 }
 
@@ -821,7 +820,7 @@ Sint32 query_key()
     return raw_key;
 }
 
-Uint8 *query_text_input()
+std::string query_text_input()
 {
     return raw_text_input;
 }
@@ -937,8 +936,7 @@ void clear_keyboard()
     raw_key = 0;
 
     text_input_event = 0;
-    free(raw_text_input);
-    raw_text_input = nullptr;
+    raw_text_input.clear();
 
     input_continue = false;
 
@@ -1604,8 +1602,7 @@ Sint16 query_text_input_event()
 void clear_text_input_event()
 {
     text_input_event = 0;
-    free(raw_text_input);
-    raw_text_input = nullptr;
+    raw_text_input.clear();
 }
 
 // Mouse routines

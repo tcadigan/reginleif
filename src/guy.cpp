@@ -475,7 +475,7 @@ void Guy::update_derived_stats(Walker *w)
     w->stats->max_magic_delay = std::max(w->stats->max_magic_delay, 2);
 }
 
-Walker *Guy::create_walker(Screen *myscreen)
+Walker *Guy::create_walker(VideoScreen *myscreen)
 {
     Walker *temp_walker = myscreen->level_data.myloader->create_walker(ORDER_LIVING, this->family, nullptr);
     *temp_walker->myguy = *this;
@@ -490,7 +490,7 @@ Walker *Guy::create_walker(Screen *myscreen)
     return temp_walker;
 }
 
-Walker *Guy::create_and_add_walker(Screen *myscreen)
+Walker *Guy::create_and_add_walker(VideoScreen *myscreen)
 {
     Walker *temp_walker = myscreen->level_data.add_ob(ORDER_LIVING, this->family);
     *temp_walker->myguy = *this;

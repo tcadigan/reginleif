@@ -32,7 +32,7 @@ class Loader
 public:
     Loader();
     virtual ~Loader(void);
-    Walker *create_walker(Uint8 order, Uint8 family, Screen *screenp, bool cache_weapon = true);
+    Walker *create_walker(Uint8 order, Uint8 family, VideoScreen *screenp, bool cache_weapon = true);
     void set_derived_stats(Walker *w, Uint8 order, Uint8 family);
     PixieN *create_pixieN(Uint8 order, Uint8 family);
     Walker *set_walker(Walker *ob, Uint8 order, Uint8 family);

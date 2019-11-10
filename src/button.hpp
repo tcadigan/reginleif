@@ -175,7 +175,7 @@ public:
     bool no_draw; // Does not draw but still accept clicks
 };
 
-extern Screen *myscreen;
+extern VideoScreen *myscreen;
 extern VirtualButton *allbuttons[MAX_BUTTONS];
 
 VirtualButton *init_buttons(Button *buttons, Sint32 numbuttons);
@@ -183,7 +183,7 @@ void draw_backdrop();
 void draw_buttons(Button *buttons, Sint32 numbuttons);
 
 // These are for picker...
-Sint32 score_panel(Screen *myscreen);
+Sint32 score_panel(VideoScreen *myscreen);
 Sint32 mainmenu(Sint32 arg1);
 Sint32 beginmenu(Sint32 arg1);
 void quit(Sint32 arg1);

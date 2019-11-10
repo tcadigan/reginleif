@@ -28,7 +28,7 @@
 
 void popup_dialog(Uint8 const *title, Uint8 const *message);
 
-Sint16 load_saved_game(Uint8 const *filename, Screen *myscreen)
+Sint16 load_saved_game(Uint8 const *filename, VideoScreen *myscreen)
 {
     std::stringstream buf;
     std::string scenfile;

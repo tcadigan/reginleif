@@ -85,7 +85,7 @@ public:
 
     void set_draw_pos(Sint32 topx, Sint32 topy);
     void add_draw_pos(Sint32 topx, Sint32 topy);
-    void draw(Screen *myscreen);
+    void draw(VideoScreen *myscreen);
 
     std::string get_description_line(Sint32 i);
 

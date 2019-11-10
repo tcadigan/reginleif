@@ -35,13 +35,13 @@
 #include "text.hpp"
 #include "video.hpp"
 
-class Screen : public Video
+class VideoScreen : public Video
 {
 public:
     // Called with '1' for numviews
-    Screen();
-    Screen(Sint16 howmany);
-    virtual ~Screen();
+    VideoScreen();
+    VideoScreen(Sint16 howmany);
+    virtual ~VideoScreen();
 
     void reset(Sint16 howmany);
     void ready_for_battle(Sint16 howmany);
@@ -73,7 +73,7 @@ public:
     void do_notify(Uint8 const *message, Walker *who); // Printing text
     void report_mem();
     Walker *set_walker(Walker *ob, Uint8 order, Uint8 family);
-    Uint8 const *get_scen_title(Uint8 const *filename, Screen *master);
+    Uint8 const *get_scen_title(Uint8 const *filename, VideoScreen *master);
     void add_level_completed(std::string const &campaign, Sint32 level_index);
 
     Sint32 get_num_levels_completed(std::string const &campaign) const;

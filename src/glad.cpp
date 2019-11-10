@@ -19,12 +19,14 @@
 #include <cstring>
 #include <ctime>
 // Z's script: #include <process.h>
+#include <sstream>
 #include <string>
 
 #include "base.hpp"
 #include "colors.hpp"
 #include "gparser.hpp"
 #include "guy.hpp"
+#include "help.hpp"
 #include "input.hpp"
 #include "intro.hpp"
 #include "io.hpp"
@@ -49,7 +51,7 @@
 #define OVERSCAN_PADDING 0
 #endif
 
-Screen *screen;
+VideoScreen *screen;
 
 extern bool debug_draw_paths;
 extern bool debug_draw_obmap;
@@ -61,20 +63,20 @@ extern Options *theprefs;
 bool yes_or_no_prompt(Uint8 const *title, Uint8 const *message, bool default_value);
 void popup_dialog(Uint8 const *title, Uint8 const *message);
 void picker_main(Sint32 argc, Uint8 *argv[]);
-Sint16 remaining_foes(Screen *myscreen, Walker *myguy);
-Sint16 remaining_team(Screen *myscreen, Uint8 myteam);
-Sint16 score_panel(Screen *myscreen);
-Sint16 score_panel(Screen *myscreen, Sint16 do_it);
-Sint16 new_score_panel(Screen *myscreen, Sint16 do_it);
-void draw_value_bar(Sint16 left, Sint16 top, Walker *control, Sint16 mode, Screen *myscreen);
-void new_draw_value_bar(Sint16 left, Sint16 top, Walker *control, Sint16 mode, Screen *myscreen);
-void draw_percentage_bar(Sint16 left, Sint16 top, Uint8 somecolor, Sint16 somelength, Screen *myscreen);
+Sint16 remaining_foes(VideoScreen *myscreen, Walker *myguy);
+Sint16 remaining_team(VideoScreen *myscreen, Uint8 myteam);
+Sint16 score_panel(VideoScreen *myscreen);
+Sint16 score_panel(VideoScreen *myscreen, Sint16 do_it);
+Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it);
+void draw_value_bar(Sint16 left, Sint16 top, Walker *control, Sint16 mode, VideoScreen *myscreen);
+void new_draw_value_bar(Sint16 left, Sint16 top, Walker *control, Sint16 mode, VideoScreen *myscreen);
+void draw_percentage_bar(Sint16 left, Sint16 top, Uint8 somecolor, Sint16 somelength, VideoScreen *myscreen);
 void init_input();
-void draw_radar_gems(Screen *myscreen);
-void draw_gem(Sint16 x, Sint16 y, Sint16 color, Screen *myscreen);
+void draw_radar_gems(VideoScreen *myscreen);
+void draw_gem(Sint16 x, Sint16 y, Sint16 color, VideoScreen *myscreen);
 Uint8 *radarpic;
 Pixie *radarpix;
-void glad_main(Screen *myscreen, Sint32 playermode);
+void glad_main(VideoScreen *myscreen, Sint32 playermode);
 bool float_eq(float a, float b);
 
 int main(int argc, char *argv[])
@@ -86,7 +88,7 @@ int main(int argc, char *argv[])
     cfg.commandline(argc, argv);
 
     theprefs = new Options;
-    myscreen = new Screen(1);
+    myscreen = new VideoScreen(1);
 
 #ifdef OUYA
     OuyaControllerManager::init();
@@ -115,7 +117,7 @@ void glad_main(Sint32 playermode)
     Sint16 currentcycle = 0;
     Sint16 cycletime = 3;
 
-    // Screen *myscreen;
+    // VideoScreen *myscreen;
 
     // Get sound path
     // if (!get_cfg_item("directories", "sound")) {
@@ -268,7 +270,7 @@ void glad_main(Sint32 playermode)
 }
 
 // Remaining foes returns # of livings left not on control's team
-Sint16 remaining_foes(Screen *myscreen, Walker *myguy)
+Sint16 remaining_foes(VideoScreen *myscreen, Walker *myguy)
 {
     Sint16 myfoes = 0;
 
@@ -286,7 +288,7 @@ Sint16 remaining_foes(Screen *myscreen, Walker *myguy)
 }
 
 // Remaining team returns # of livings left on team myteam
-Sint16 remaining_team(Screen *myscreen, Uint8 myteam)
+Sint16 remaining_team(VideoScreen *myscreen, Uint8 myteam)
 {
     Sint16 myfoes = 0;
 
@@ -303,17 +305,17 @@ Sint16 remaining_team(Screen *myscreen, Uint8 myteam)
     return myfoes;
 }
 
-Sint16 score_panel(Screen *myscreen)
+Sint16 score_panel(VideoScreen *myscreen)
 {
     return score_panel(myscreen, 0);
 }
 
-Sint16 score_panel(Screen *myscreen, Sint16 do_it)
+Sint16 score_panel(VideoScreen *myscreen, Sint16 do_it)
 {
     return new_score_panel(myscreen, 1);
 }
 
-void draw_radar_gems(Screen *myscreen)
+void draw_radar_gems(VideoScreen *myscreen)
 {
     Sint16 upper_left_x = 246;
     Sint16 upper_left_y = 140;
@@ -341,7 +343,7 @@ void draw_radar_gems(Screen *myscreen)
     draw_gem(lower_right_x, lower_right_y, team_light, myscreen);
 }
 
-void draw_gem(Sint16 x, Sint16 y, Sint16 color, Screen *myscreen)
+void draw_gem(Sint16 x, Sint16 y, Sint16 color, VideoScreen *myscreen)
 {
     Sint16 light = color;
     Sint16 med = light + 2;
@@ -361,7 +363,7 @@ void draw_gem(Sint16 x, Sint16 y, Sint16 color, Screen *myscreen)
     myscreen->point(x, y + 4, darkest);
 }
 
-void draw_value_bar(Sint16 left, Sint16 top, Walker *control, Sint16 mode, Screen *myscreen)
+void draw_value_bar(Sint16 left, Sint16 top, Walker *control, Sint16 mode, VideoScreen *myscreen)
 {
     float points;
     Sint16 totallength = 60;
@@ -518,7 +520,7 @@ void draw_value_bar(Sint16 left, Sint16 top, Walker *control, Sint16 mode, Scree
     } // End of sp stuff
 } // End of drawing routine...
 
-void new_draw_value_bar(Sint16 left, Sint16 top, Walker *control, Sint16 mode, Screen *myscreen)
+void new_draw_value_bar(Sint16 left, Sint16 top, Walker *control, Sint16 mode, VideoScreen *myscreen)
 {
     float points;
     // Sint16 totallength = 60;
@@ -586,11 +588,11 @@ void new_draw_value_bar(Sint16 left, Sint16 top, Walker *control, Sint16 mode, S
     } // End of sp stuff
 } // End of drawing routine...
 
-Sint16 new_score_panel(Screen *myscreen, Sint16 do_it)
+Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
 {
-    Uint8 message[50];
-    // static
-    Uint8 tempname[20];
+    std::string message;
+    std::string tempname;
+    std::stringstream buf;
     Sint16 tempfoes = 0;
     Sint16 players;
     Sint16 tempallies = 0;
@@ -610,28 +612,28 @@ Sint16 new_score_panel(Screen *myscreen, Sint16 do_it)
     Uint8 text_color;
     Uint32 myscore;
 
-    static Uint8 namelist[NUM_FAMILIES][20] = {
-        "SOLDIER",
-        "ELF",
-        "ARCHER",
-        "MAGE",
-        "SKELETON",
-        "CLERIC",
-        "ELEMENTAL",
-        "FAERIE",
-        "SLIME",
-        "SLIME",
-        "SLIME",
-        "THIEF",
-        "GHOST",
-        "DRUID",
-        "ORC",
-        "ORC CAPTAIN",
-        "BARBARIAN",
-        "ARCHMAGE",
-        "GOLEM",
-        "GIANT SKEL",
-        "TOWER"
+    static std::string namelist[NUM_FAMILIES] = {
+        std::string("SOLDIER"),
+        std::string("ELF"),
+        std::string("ARCHER"),
+        std::string("MAGE"),
+        std::string("SKELETON"),
+        std::string("CLERIC"),
+        std::string("ELEMENTAL"),
+        std::string("FAERIE"),
+        std::string("SLIME"),
+        std::string("SLIME"),
+        std::string("SLIME"),
+        std::string("THIEF"),
+        std::string("GHOST"),
+        std::string("DRUID"),
+        std::string("ORC"),
+        std::string("ORC CAPTAIN"),
+        std::string("BARBARIAN"),
+        std::string("ARCHMAGE"),
+        std::string("GOLEM"),
+        std::string("GIANT SKEL"),
+        std::string("TOWER")
     };
 
     static Uint32 scorecountup[4] = {
@@ -669,19 +671,21 @@ Sint16 new_score_panel(Screen *myscreen, Sint16 do_it)
 
             // Display name or type, upper left
             if (control->myguy) {
-                strcpy(tempname, control->myguy->name);
-            } else if (strlen(control->stats->name)) {
-                strcpy(tempname, control->stats->name);
+                tempname = control->myguy->name;
+            } else if (strlen(control->stats->name.c_str())) {
+                tempname = control->stats->name;
             } else {
-                strcpy(tempname, namelist[static_cast<int>(control->query_family())]);
+                tempname = namelist[static_cast<int>(control->query_family())];
             }
+
+            tempname.resize(20);
 
             // buffers: The name[] var doesn't seem to be used other than here
             //          so I just commented it.
             // strcpy(name[players], tempname);
 
-            // buffers: this strcpy actually copies the name to be displayed
-            strcpy(message, tempname);
+            // buffers: This strcpy actually copies the name to be displayed
+            message = tempname;
 
             if (draw_button) {
                 myscreen->draw_button(lm + 1, tm + 2, lm + 63, tm + 9, 1, 1);
@@ -696,12 +700,26 @@ Sint16 new_score_panel(Screen *myscreen, Sint16 do_it)
                     myscreen->draw_button(lm + 1, tm + 10, lm + 63, tm + 26, 1, 1);
                 }
 
-                sprintf(message, "HP: %.0f", ceilf(control->stats->hitpoints));
+                buf << "HP: ";
+                if (ceilf(control->stats->hitpoints) != 0) {
+                    buf << ceilf(control->stats->hitpoints);
+                }
+
+                message = buf.str();
+                buf.clear();
+                message.resize(50);
 
                 // To buffer
                 mytext.write_xy(lm + 5, tm + 12, message, text_color, static_cast<Sint16>(1));
 
-                sprintf(message, "MP: %0.f", ceilf(control->stats->magicpoints));
+                buf << "MP: ";
+                if (ceilf(control->stats->magicpoints) != 0) {
+                    buf << ceilf(control->stats->magicpoints);
+                }
+
+                message = buf.str();
+                buf.clear();
+                message.resize(50);
                 mytext.write_xy(lm + 5, tm + 20, message, text_color, static_cast<Sint16>(1));
 
                 break; // end of 'text' case
@@ -727,7 +745,15 @@ Sint16 new_score_panel(Screen *myscreen, Sint16 do_it)
                 // }
 
                 new_draw_value_bar(lm + 2, tm + 10, control, 0, myscreen);
-                sprintf(message, "HP: %.0f", ceilf(control->stats->hitpoints));
+
+                buf << "HP: ";
+                if (ceilf(control->stats->hitpoints) != 0) {
+                    buf << ceilf(control->stats->hitpoints);
+                }
+
+                message = buf.str();
+                buf.clear();
+                message.resize(50);
 
                 // To buffer
                 mytext.write_xy(lm + 5, tm + 11, message, static_cast<Uint8>(BLACK), static_cast<Sint16>(1));
@@ -735,7 +761,16 @@ Sint16 new_score_panel(Screen *myscreen, Sint16 do_it)
                 // SP BAR
                 // SP_COLORs are defined in graph.hpp
                 new_draw_value_bar(lm + 2, tm + 18, control, 1, myscreen);
-                sprintf(message, "MP: %.0f", ceilf(control->stats->magicpoints));
+
+                buf << "MP: ";
+                if (ceilf(control->stats->magicpoints) != 0) {
+                    buf << ceilf(control->stats->magicpoints);
+                }
+
+                message = buf.str();
+                buf.clear();
+                message.resize(50);
+
                 mytext.write_xy(lm + 5, tm + 19, message, static_cast<Uint8>(BLACK), static_cast<Sint16>(1));
 
                 break; // End of 'both' case
@@ -786,30 +821,37 @@ Sint16 new_score_panel(Screen *myscreen, Sint16 do_it)
                 if ((myscreen->numviews > 2) && ((myscreen->numviews != 3) || (players != 0))) {
                     special_y = bm - 8;
                 } else {
-                    sprintf(message, "SC: %u", scorecountup[control->team_num]);
+                    buf << "SC: " << scorecountup[control->team_num];
+                    message = buf.str();
+                    buf.clear();
+                    message.resize(50);
                     mytext.write_xy(lm + 2, bm - 8, message, text_color, static_cast<Sint16>(1));
 
                     // Level or exp, 2nd bottom left
                     if (control->myguy) {
-                        sprintf(message, "XP: %u", control->myguy->exp);
+                        buf << "XP: " << control->myguy->exp;
                     } else {
-                        sprintf(message, "LEVEL: %i", control->stats->level);
+                        buf << "LEVEL: " << control->stats->level;
                     }
 
+                    message = buf.str();
+                    buf.clear();
+                    message.resize(50);
                     mytext.write_xy(lm + 2, bm - 16, message, text_color, static_cast<Sint16>(1));
                 }
 
                 // Currently select special
+                buf << "SPC: ";
                 if (control->shifter_down
-                    && strcmp(myscreen->alternate_name[static_cast<Sint32>(control->query_family())][static_cast<Sint32>(control_current_special)], "NONE")) {
-                    sprintf(message,
-                            "SPC: %s",
-                            myscreen->alternate_name[static_cast<Sint32>(control->query_family())][static_cast<Sint32>(control->current_special)]);
+                    && strcmp(myscreen->alternate_name[static_cast<Sint32>(control->query_family())][static_cast<Sint32>(control->current_special)], "NONE")) {
+                    buf << myscreen->alternate_name[static_cast<Sint32>(control->query_family())][static_cast<Sint32>(control->current_special)];
                 } else {
-                    sprintf(message,
-                            "SPC: %s",
-                            myscreen->special_name[static_cast<Sint32>(control->query_family())][static_cast<Sint32>(control_current_special)]);
+                    buf << myscreen->special_name[static_cast<Sint32>(control->query_family())][static_cast<Sint32>(control->current_special)];
                 }
+
+                message = buf.str();
+                buf.clear();
+                message.resize(50);
 
                 if (control->stats->magicpoints >= control->stats->special_cost[static_cast<Sint32>(control->current_special)]) {
                     mytext.write_xy(lm + 2, special_y, message, text_color, static_cast<Sint16>(1));
@@ -820,9 +862,11 @@ Sint16 new_score_panel(Screen *myscreen, Sint16 do_it)
 #ifdef USE_TOUCH_INPUT
                 // Alternate special name (if not "NONE")
                 if (strcmp(myscreen->alternate_name[static_cast<Sint32>(control->query_family())][static_cast<Sint32>(control->current_special)], "NONE")) {
-                    sprintf(message,
-                            "ALT: %s",
-                            myscreen->alternate_name[static_cast<Sint32>(control->query_family())][static_cast<Sint32>(control->current_special)]);
+                    buf << "ALT: " << myscreen->alternate_name[static_cast<Sint32>(control->query_family())][static_cast<Sint32>(control->current_special)];
+
+                    message = buf.str();
+                    buf.clear();
+                    message.resize(50);
 
                     if (control->stats->magicpoints >= control->stats->special_cost[static_cast<Sint32>(control->current_special)]) {
                         mytext.write_xy(lm + 2, (bm + special_offset) + 8, message, text_color, static_cast<Sint16>(1));
@@ -861,7 +905,10 @@ Sint16 new_score_panel(Screen *myscreen, Sint16 do_it)
                     myscreen->draw_button(rm - 57, tm + 1, rm - 2, tm + 16, 1, 1);
                 }
 
-                sprintf(message, "TEAM: %d", tempallies);
+                buf << "TEAM: " << tempallies;
+                message = buf.str();
+                buf.clear();
+                message.resize(50);
 
 #ifdef USE_TOUCH_INPUT
                 mytext.write_xy(rm - 55, tm + 54, message, text_color, static_cast<Sint16>(1));
@@ -870,7 +917,10 @@ Sint16 new_score_panel(Screen *myscreen, Sint16 do_it)
 #endif
 
                 // Number of foes, 2nd upper right
-                sprintf(message, "FOES: %d", tempfoes);
+                buf << "FOES: " << tempfoes;
+                message = buf.str();
+                buf.clear();
+                message.resize(50);
 
 #ifdef USE_TOUCH_INPUT
                 mytext.write_xy(rm - 55, tm + 62, message, text_color, static_cast<Sint16>(1));
@@ -889,11 +939,11 @@ Sint16 new_score_panel(Screen *myscreen, Sint16 do_it)
     return 1;
 }
 
-void draw_percentage_bar(Sint16 left, Sint16 top, Uint8 somecolor, Sint16 somelength, Screen *myscreen)
+void draw_percentage_bar(Sint16 left, Sint16 top, Uint8 somecolor, Sint16 somelength, VideoScreen *myscreen)
 {
     Sint16 i;
     Sint16 j;
-    Uint8 tempcolor;
+    // Uint8 tempcolor;
 
     // Draw the black border...
     myscreen->fastbox(left + 2, top, somelength - 4, 1, 0, 1);

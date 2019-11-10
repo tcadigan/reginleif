@@ -18,5 +18,5 @@
 #ifndef __SCREEN_FWD_HPP__
 #define __SCREEN_FWD_HPP__
 
-class Screen;
+class VideoScreen;
 #endif

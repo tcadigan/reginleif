@@ -61,8 +61,11 @@ Sint32 rwops_write_handler(void *data, Uint8 *buffer, size_t size);
 bool zip_contents(std::string const &indirectory, std::string const &outfile);
 bool unzip_into(std::string const &infile, std::string const &outdirectory);
 
+std::string get_mounted_campaign();
+bool create_new_campaign(std::string const &campaign_id);
 bool unpack_campaign(std::string const &campaign_id);
 bool repack_campaign(std::string const &campaign_id);
+bool remount_campaign_package();
 
 void cleanup_unpacked_campaign();
 
