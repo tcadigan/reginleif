@@ -15,19 +15,39 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#ifndef __LEVEL_PICKER_HPP__
-#define __LEVEL_PICKER_HPP__
+#ifndef __CAMPAIGN_ENTRY_HPP__
+#define __CAMPAIGN_ENTRY_HPP__
+
+#include "pixie-fwd.hpp"
+#include "pixie_data.hpp"
 
 #include <SDL2/SDL.h>
 
-#include "level_data.hpp"
-#include "screen-fwd.hpp"
+#include <string>
 
-#include <list>
+class CampaignEntry
+{
+public:
+    CampaignEntry(std::string const &id, Sint32 num_levels_completed);
+    ~CampaignEntry();
 
-Sint32 pick_level(VideoScreen *screenp, Sint32 default_level, bool enable_delete=false);
-void getLevelStats(LevelData &level_data, Sint32 *max_enemy_level,
-                   float *average_enemy_level, Sint32 *num_enemies,
-                   float *difficulty, std::list<Sint32> &exits);
+    void draw(SDL_Rect const &area, Sint32 team_power);
+
+    std::string id;
+    std::string title;
+    float rating;
+    std::string version;
+    std::string authors;
+    std::string contributors;
+    std::string description;
+    Sint32 suggested_power;
+    Sint32 first_level;
+    Sint32 num_levels;
+    PixieData icondata;
+    Pixie *icon;
+
+    // Player specific
+    Sint32 num_levels_completed;
+};
 
 #endif

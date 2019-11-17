@@ -15,19 +15,28 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#ifndef __LEVEL_PICKER_HPP__
-#define __LEVEL_PICKER_HPP__
+#include "rect.hpp"
 
-#include <SDL2/SDL.h>
+Rect::Rect()
+    : x(0)
+    , y(0)
+    , w(0)
+    , h(0)
+{
+}
 
-#include "level_data.hpp"
-#include "screen-fwd.hpp"
+Rect::Rect(Sint32 x, Sint32 y, Uint32 w, Uint32 h)
+    : x(x)
+    , y(y)
+    , w(w)
+    , h(h)
+{
+}
 
-#include <list>
-
-Sint32 pick_level(VideoScreen *screenp, Sint32 default_level, bool enable_delete=false);
-void getLevelStats(LevelData &level_data, Sint32 *max_enemy_level,
-                   float *average_enemy_level, Sint32 *num_enemies,
-                   float *difficulty, std::list<Sint32> &exits);
-
-#endif
+bool Rect::contains(Sint32 x, Sint32 y) const
+{
+    return ((this->x <= x)
+            && (x < static_cast<Sint32>(this->x + w))
+            && (this->y <= y)
+            && (y < static_cast<Sint32>(this->y + h)));
+}

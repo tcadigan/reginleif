@@ -15,19 +15,35 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#ifndef __LEVEL_PICKER_HPP__
-#define __LEVEL_PICKER_HPP__
+#ifndef __SELECTION_INFO_HPP__
+#define __SELECTION_INFO_HPP__
+
+#include "level_data.hpp"
+#include "walker-fwd.hpp"
 
 #include <SDL2/SDL.h>
 
-#include "level_data.hpp"
-#include "screen-fwd.hpp"
+#include <string>
 
-#include <list>
+class SelectionInfo
+{
+public:
+    bool valid;
+    std::string name;
+    Sint16 x;
+    Sint16 y;
+    Uint16 w;
+    Uint16 h;
+    Uint8 order;
+    Uint8 family;
+    Uint16 level;
+    Walker *target;
 
-Sint32 pick_level(VideoScreen *screenp, Sint32 default_level, bool enable_delete=false);
-void getLevelStats(LevelData &level_data, Sint32 *max_enemy_level,
-                   float *average_enemy_level, Sint32 *num_enemies,
-                   float *difficulty, std::list<Sint32> &exits);
+    SelectionInfo();
+    SelectionInfo(Walker *target);
+    void clear();
+    void set(Walker *target);
+    Walker *get_object(LevelData *level);
+};
 
 #endif

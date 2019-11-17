@@ -15,19 +15,38 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#ifndef __LEVEL_PICKER_HPP__
-#define __LEVEL_PICKER_HPP__
+#ifndef __SIMPLE_BUTTON_HPP__
+#define __SIMPLE_BUTTON_HPP__
+
+#include "screen-fwd.hpp"
 
 #include <SDL2/SDL.h>
 
-#include "level_data.hpp"
-#include "screen-fwd.hpp"
+#include <string>
 
-#include <list>
+class SimpleButton
+{
+public:
+    SDL_Rect area;
+    std::string label;
+    bool remove_border;
+    bool draw_top_separator;
+    Sint32 base_color;
+    Sint32 high_color;
+    Sint32 shadow_color;
+    Sint32 text_color;
+    bool centered;
 
-Sint32 pick_level(VideoScreen *screenp, Sint32 default_level, bool enable_delete=false);
-void getLevelStats(LevelData &level_data, Sint32 *max_enemy_level,
-                   float *average_enemy_level, Sint32 *num_enemies,
-                   float *difficulty, std::list<Sint32> &exits);
+    SimpleButton(std::string const &label, Sint32 x, Sint32 y, Uint32 w, Uint32 h, bool remove_border=false, bool draw_top_separator=false);
+
+    void draw(VideoScreen *myscreen);
+    bool contains(Sint32 x, Sint32 y) const;
+
+    void set_colors_normal();
+    void set_colors_enabled();
+    void set_colors_disabled();
+    void set_colors_active();
+};
+
 
 #endif

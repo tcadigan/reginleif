@@ -18,6 +18,7 @@
 #include "level_data.hpp"
 
 #include <algorithm>
+#include <string>
 
 #include "yam.h"
 
@@ -30,8 +31,6 @@
 #include "walker.hpp"
 
 #define VERSION_NUM (char)9 // Save scenario type info
-
-Sint32 toInt(std::string const &s);
 
 CampaignData::CampaignData(std::string const &id)
     : id(id)
@@ -79,9 +78,9 @@ bool CampaignData::load()
                     std::string desc(yam.event.value);
                     description = explode(desc, '\n');
                 } else if (strcmp(yam.event.scalar, "suggested_power") == 0) {
-                    suggested_power = toInt(yam.event.value);
+                    suggested_power = std::stoi(yam.event.value);
                 } else if (strcmp(yam.event.scalar, "first_level") == 0) {
-                    first_level = toInt(yam.event.value);
+                    first_level = std::stoi(yam.event.value);
                 }
 
                 break;

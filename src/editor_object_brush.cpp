@@ -15,19 +15,31 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#ifndef __LEVEL_PICKER_HPP__
-#define __LEVEL_PICKER_HPP__
+#include "editor_object_brush.hpp"
 
-#include <SDL2/SDL.h>
+#include "walker.hpp"
 
-#include "level_data.hpp"
-#include "screen-fwd.hpp"
+EditorObjectBrush::EditorObjectBrush()
+    : snap_to_grid(true)
+    , order(ORDER_LIVING)
+    , family(0)
+    , team(1)
+    , level(1)
+    , picking(false)
+{
+}
 
-#include <list>
-
-Sint32 pick_level(VideoScreen *screenp, Sint32 default_level, bool enable_delete=false);
-void getLevelStats(LevelData &level_data, Sint32 *max_enemy_level,
-                   float *average_enemy_level, Sint32 *num_enemies,
-                   float *difficulty, std::list<Sint32> &exits);
-
-#endif
+void EditorObjectBrush::set(Walker *target)
+{
+    if (target == nullptr) {
+        order = ORDER_LIVING;
+        family = 0;
+        team = 1;
+        level = 1;
+    } else {
+        order = target->query_order();
+        family = target->query_family();
+        team = target->team_num;
+        level = target->stats->level;
+    }
+}

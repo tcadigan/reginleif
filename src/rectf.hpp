@@ -15,19 +15,21 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#ifndef __LEVEL_PICKER_HPP__
-#define __LEVEL_PICKER_HPP__
+#ifndef __RECTF_HPP__
+#define __RECTF_HPP__
 
-#include <SDL2/SDL.h>
+class Rectf
+{
+public:
+    float x;
+    float y;
+    float w;
+    float h;
 
-#include "level_data.hpp"
-#include "screen-fwd.hpp"
+    Rectf();
+    Rectf(float x, float y, float w, float h);
 
-#include <list>
-
-Sint32 pick_level(VideoScreen *screenp, Sint32 default_level, bool enable_delete=false);
-void getLevelStats(LevelData &level_data, Sint32 *max_enemy_level,
-                   float *average_enemy_level, Sint32 *num_enemies,
-                   float *difficulty, std::list<Sint32> &exits);
+    bool contains(float x, float y) const;
+};
 
 #endif

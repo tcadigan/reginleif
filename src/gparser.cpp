@@ -29,8 +29,6 @@
 #include "version.hpp"
 #include "yam.h"
 
-Sint32 toInt(std::string const &s);
-
 cfg_store cfg;
 
 void ConfigStore::apply_setting(std::string const &category,
@@ -135,7 +133,7 @@ bool ConfigStore::load_settings()
     SDL_Rwclose(rwops);
 
     // Update game stuff from these settings
-    overscan_percentage = toInt(get_setting("graphics", "overscan_percentage")) / 100.0f;
+    overscan_percentage = std::stoi(get_setting("graphics", "overscan_percentage")) / 100.0f;
     update_overscan_setting();
 
     return true;
