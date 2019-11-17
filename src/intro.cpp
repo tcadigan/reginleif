@@ -213,31 +213,31 @@ void intro_main()
     ll = nullptr;
 
     std::stringstream message("Additional Artwork By:");
-    mytext.write_xy(310 - mytext.query_width(message.str().c_str()), 30,
-                        message, 230, myscreen->viewob[0]);
+    mytext.write_xy(310 - mytext.query_width(message.str()), 30,
+                    message.str(), 230, myscreen->viewob[0]);
     message.clear();
     message << "Doug Ricket";
-    mytext.write_xy(310 - mytext.query_width(message.str().c_str()), 50,
-                    message, 230, myscreen->viewob[0]);
+    mytext.write_xy(310 - mytext.query_width(message.str()), 50,
+                    message.str(), 230, myscreen->viewob[0]);
     message.clear();
     message << "Stefan Scandizzo";
-    mytext.write_xy(310 - mytext.query_width(message.str().c_str()), 60,
-                    message, 230, myscreen->viewob[0]);
+    mytext.write_xy(310 - mytext.query_width(message.str()), 60,
+                    message.str(), 230, myscreen->viewob[0]);
     message.clear();
     message << "Special Thanks to:";
-    mytext.write_xy(2, 130, message.str().c_str(), 230, myscreen->viewob[0]);
+    mytext.write_xy(2, 130, message.str(), 230, myscreen->viewob[0]);
     message.clear();
     message << "Kim Kelly  Lara Kirkendall";
-    mytext.write_xy(2, 150, message.str().c_str(), 230, myscreen->viewob[0]);
+    mytext.write_xy(2, 150, message.str(), 230, myscreen->viewob[0]);
     message.clear();
     message << "Lee Martin  Karyn McCreary";
-    mytext.write_xy(2, 160, message.str().c_str(), 230, myscreen->viewob[0]);
+    mytext.write_xy(2, 160, message.str(), 230, myscreen->viewob[0]);
     message.clear();
     message << "Loki, Ishara, & Mootz";
-    mytext.write_xy(2, 170, message.str().c_str(), 230, myscreen->viewob[0]);
+    mytext.write_xy(2, 170, message.str(), 230, myscreen->viewob[0]);
     message.clear();
     message << "and many others!";
-    mytext.write_xy(2, 180, message.str().c_str(), 230, myscreen->viewob[0]);
+    mytext.write_xy(2, 180, message.str(), 230, myscreen->viewob[0]);
 
     // myscreen->refresh();
 

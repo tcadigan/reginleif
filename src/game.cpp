@@ -26,7 +26,7 @@
 #include "view.hpp"
 #include "walker.hpp"
 
-void popup_dialog(Uint8 const *title, Uint8 const *message);
+void popup_dialog(std::string const &title, std::string const &message);
 
 Sint16 load_saved_game(Uint8 const *filename, VideoScreen *myscreen)
 {

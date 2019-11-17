@@ -62,8 +62,8 @@ public:
     void draw_path(ViewScreen *view_buf);
     void find_path_to_foe();
     void follow_path_to_foe();
-    Sint16 init_file();
-    Sint16 init_file(Sint16 xdir, Sint16 ydir);
+    Sint16 init_fire();
+    Sint16 init_fire(Sint16 xdir, Sint16 ydir);
     void set_weapon_heading(Walker *weapon);
     Walker *fire();
     Sint16 set_act_type(Sint16 num);

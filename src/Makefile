@@ -4,12 +4,12 @@ LDFLAGS = `sdl2-config --libs`
 
 CPPFILES = button.cpp campaign_picker.cpp effect.cpp game.cpp glad.cpp \
            gloader.cpp gparser.cpp graphlib.cpp guy.cpp help.cpp input.cpp \
-           intro.cpp io.cpp level_data.cpp level_editor.cpp \
-           ouya_controller.cpp util.cpp \
+           intro.cpp io.cpp level_data.cpp level_editor.cpp level_picker.cpp \
+           living.cpp obmap.cpp ouya_controller.cpp util.cpp \
 
 OBJS = button.o campaign_picker.o effect.o game.o glad.o gloader.o \
        gparser.o graphlib.o guy.o help.o input.o intro.o io.o level_data.o \
-       level_editor.o ouya_controller.o util.o \
+       level_editor.o level_picker.o living.o obmap.o ouya_controller.o util.o \
 
 HDRS = base.hpp button.hpp campaign_picker.hpp colors.hpp effect.hpp \
        gloader-fwd.hpp gloader.hpp gparser.hpp graph.hpp graphlib.hpp \

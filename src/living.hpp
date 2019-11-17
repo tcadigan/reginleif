@@ -20,7 +20,9 @@
 
 // Definition of LIVING class
 
-#include "walker-fwd.hpp"
+#include "walker.hpp"
+
+#include "pixie_data.hpp"
 
 class Living : public Walker
 {

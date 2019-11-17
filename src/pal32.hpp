@@ -28,10 +28,10 @@
 #include <SDL2/SDL.h>
 
 // Load/set palette from disk
-Sint16 load_and_set_palette(Uint8 const *filename, Uint8 const *newpalette);
+Sint16 load_and_set_palette(std::string const &filename, Uint8 const *newpalette);
 
 // Load palette from disk
-Sint16 load_palette(Uint8 const *filename, Uint8 *newpalette);
+Sint16 load_palette(std::string const &filename, Uint8 *newpalette);
 
 // Set palette
 Sint16 set_palette(Uint8 *newpalette);

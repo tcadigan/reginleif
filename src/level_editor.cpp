@@ -92,9 +92,9 @@
 
 void quit(Sint32 arg1);
 Sint32 toInt(std::string const &s);
-bool yes_or_no_prompt(Uint8 *const title, Uint8 const *message, bool default_value);
-void popup_dialog(Uint8 const *title, Uint8 const *message);
-void timed_dialog(Uint8 const *message, float delay_seconds = 3.0f);
+bool yes_or_no_prompt(std::string const &title, std::string const &message, bool default_value);
+void popup_dialog(std::string const &title, std::string const &message);
+void timed_dialog(std::string const &message, float delay_seconds = 3.0f);
 void set_screen_pos(VideoScreen *myscreen, Sint32 x, Sint32 y);
 bool some_hit(Sint32 x, Sint32 y, Walker *ob, LevelData *data);
 Uint8 get_random_matching_tile(Sint32 whatback);
@@ -1062,7 +1062,7 @@ void LevelEditorData::activate_mode_button(SimpleButton *button)
             Walker *obj = selection.front().get_object(level);
 
             if (obj != nullptr) {
-                std::string name = obj->stats->name;
+                std::string name(obj->stats->name);
 
                 if (prompt_for_string("Rename", name)) {
                     name.resize(11);
@@ -1993,7 +1993,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
 
             if (!cancel) {
                 // Ask for campaign ID
-                std::string campaign = "com.example.new_campaign";
+                std::string campaign("com.example.new_campaign");
 
                 if (prompt_for_string("New Campaign", campaign)) {
                     // TODO: Check if campaign already exists and prompt the user to overwrite
@@ -2233,7 +2233,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
             };
             current_menu.push_back(std::make_pair(&campaignProfileButton, s));
         } else if (activate_menu_choice(mx, my, *this, campaignProfileTitleButton)) {
-            std::string title = campaign->title;
+            std::string title(campaign->title);
 
             if (prompt_for_string("Campaign Title", title)) {
                 campaign->title = title;
@@ -2251,14 +2251,14 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
         } else if (activate_menu_choice(mx, my, *this, campaignProfileIconButton)) {
             popup_dialog("Edit Icon", "Not yet implemented.");
         } else if(activate_menu_choice(mx, my, *this, campaignProfileAuthorsButton)) {
-            std::string authors = campaign->authors;
+            std::string authors(campaign->authors);
 
             if (prompt_for_string("Campaign Authors", authors)) {
                 campaign->authors = authors;
                 campaignchanged = 1;
             }
         } else if (activate_menu_choice(mx, my, *this, campaignProfileContributorsButton)) {
-            std::string contributors = campaign->contributors;
+            std::string contributors(campaign->contributors);
 
             if (prompt_for_string("Campaign Contributors", contributors)) {
                 campaign->contributors = contributors;
@@ -2273,7 +2273,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
             };
             current_menu.push_back(std::make_pair(&campaignDetailsButton, s));
         } else if (activate_menu_choice(mx, my, *this, campaignDetailsVersionButton)) {
-            std::string version = campaign->version;
+            std::string version(campaign->version);
 
             if (prompt_for_string("Campaign Version", version)) {
                 campaign->version = version;
@@ -2316,9 +2316,9 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
 
             for (auto const &e : levels) {
                 if (connected.find(*e) == connected.end()) {
-                    std::stringstream buf;
+                    std::stringstream buf("Level ");
 
-                    buf << "Level " << *e << " is not connected.";
+                    buf << *e << " is not connected.";
 
                     std::string problem(buf.str());
                     buf.clear();
@@ -2392,7 +2392,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
             buf.clear();
             info.resize(512);
 
-            popup_dialog("Level Info", buf);
+            popup_dialog("Level Info", info);
         } else if (activate_sub_menu_button(mx, my, current_menu, levelProfileButton)) {
             // Profile >
             std::set<SimpleButton *> s = {
@@ -2401,7 +2401,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
             };
             current_menu.push_back(std::make_pair(&levelProfileButton, s));
         } else if (activate_menu_choice(mx, my, *this, levelProfileTitleButton)) {
-            std::string title = level->title;
+            std::string title(level->title);
 
             if (prompt_for_string("Level Title", title)) {
                 level->title = title;
@@ -2479,7 +2479,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                         buf.clear();
                         msg.resize(200);
 
-                        popup_dialog("Resize Map", buf);
+                        popup_dialog("Resize Map", msg);
                     } else {
                         if (((w >= level->grid.w) && (h >= level->grid.h))
                             || !are_objects_ouside_area(level, 0, 0, w, h)
@@ -2499,7 +2499,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                             buf.clear();
                             msg.resize(30);
 
-                            timed_dialog(buf);
+                            timed_dialog(msg);
                             redraw = 1;
                             levelchanged = 1;
                         } else {
@@ -2661,7 +2661,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                     newob->setxy(windowx, windowy);
 
                     if (some_hit(windowx, windowy, newob, level)) {
-                        std::string name = newob->collide_ob->stats->name;
+                        std::string name(newob->collide_ob->stats->name);
 
                         if (prompt_for_string("Rename", name)) {
                             name.resize(11);
@@ -3083,7 +3083,7 @@ bool prompt_for_string_block(std::string const &message, std::list<std::string> 
 
                 break;
 #else
-                std::string rest_of_line = s->substr(cursor_pos);
+                std::string rest_of_line(s->substr(cursor_pos));
                 s->erase(cursor_pos);
                 ++s;
                 s = result.insert(s, rest_of_line);
@@ -3098,7 +3098,7 @@ bool prompt_for_string_block(std::string const &message, std::list<std::string> 
                     if (!result.empty() && (current_line > 0)) {
                         // Then move up into the previous line, copying the old line
                         --current_line;
-                        std::string old_line = *s;
+                        std::string old_line(*s);
                         s = result.erase(s);
                         --s;
                         cursor_pos = s->size();
@@ -3122,7 +3122,7 @@ bool prompt_for_string_block(std::string const &message, std::list<std::string> 
             }
 #if defined(USE_TOUCH_INPUT) || defined(USE_CONTROLLER_INPUT)
             else if (mymouse.in(newline_button)) {
-                std::string rest_of_line = s->substr(cursor_pos);
+                std::string rest_of_line(s->substr(cursor_pos));
                 s->erase(cursor_pos);
                 ++s;
                 s = result.insert(s, rest_of_line);
@@ -3263,11 +3263,11 @@ bool prompt_for_string_block(std::string const &message, std::list<std::string> 
         }
 
         if (query_text_input_event()) {
-            Uint8 *temptext = query_text_input();
+            std::string temptext(query_text_input());
 
-            if (temptext != nullptr) {
+            if (!temptext.empty()) {
                 s->insert(cursor_pos, temptext);
-                cursor_pos += strlen(temptext);
+                cursor_pos += temptext.size();
             }
         }
 
@@ -3340,7 +3340,7 @@ bool prompt_for_string_block(std::string const &message, std::list<std::string> 
             Sint32 ypos = (y + (j * 10)) - offset;
 
             if ((y <= ypos) && (ypos <= (y + h))) {
-                mytext.write_xy(x, ypos, e->c_str(), forecolor, 1);
+                mytext.write_xy(x, ypos, e, forecolor, 1);
             }
 
             ++j;
@@ -3374,9 +3374,9 @@ bool prompt_for_string(std::string const &message, std::string &result)
 
     myscreen->draw_button(x - 5, y - 20, (x + w) + 10, (y + h) + 10, 1);
 
-    Uint8 *str = myscreen->text_normal.input_string_ex(x, y, max_chars, message.c_str(), result.c_str());
+    std::string str(myscreen->text_normal.input_string_ex(x, y, max_chars, message.c_str(), result.c_str()));
 
-    if (str == nullptr) {
+    if (str.empty()) {
         return false;
     }
 
@@ -3954,7 +3954,7 @@ Sint32 level_editor()
                         mode = SELECT;
                         data.modeButton.label = "Edit (Select)";
                     } else {
-                        mode == TERRAIN;
+                        mode = TERRAIN;
                         data.modeButton.label = "Edit (Terrain)";
                     }
 
@@ -4263,7 +4263,7 @@ Sint32 level_editor()
                     if (data.level->topx >= PAN_LIMIT_LEFT) {
                         data.level->add_draw_pos(-SCROLLSIZE, 0);
                     }
-                } else if (data.panLeftButton.contains(mx, my) && (data.level->topx >= PAN_LEFT_LIMIT)) {
+                } else if (data.panLeftButton.contains(mx, my) && (data.level->topx >= PAN_LIMIT_LEFT)) {
                     // Scroll left
                     redraw = 1;
                     data.level->add_draw_pos(-SCROLLSIZE, 0);

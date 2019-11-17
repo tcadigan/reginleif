@@ -60,8 +60,8 @@ extern bool debug_draw_obmap;
 // create it before the main and go nuts trying to load it
 extern Options *theprefs;
 
-bool yes_or_no_prompt(Uint8 const *title, Uint8 const *message, bool default_value);
-void popup_dialog(Uint8 const *title, Uint8 const *message);
+bool yes_or_no_prompt(std::string const &title, std::string const &message, bool default_value);
+void popup_dialog(std::string const &title, std::string const &message);
 void picker_main(Sint32 argc, Uint8 *argv[]);
 Sint16 remaining_foes(VideoScreen *myscreen, Walker *myguy);
 Sint16 remaining_team(VideoScreen *myscreen, Uint8 myteam);
@@ -843,7 +843,7 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
                 // Currently select special
                 buf << "SPC: ";
                 if (control->shifter_down
-                    && strcmp(myscreen->alternate_name[static_cast<Sint32>(control->query_family())][static_cast<Sint32>(control->current_special)], "NONE")) {
+                    && (myscreen->alternate_name[static_cast<Sint32>(control->query_family())][static_cast<Sint32>(control->current_special)] == "NONE")) {
                     buf << myscreen->alternate_name[static_cast<Sint32>(control->query_family())][static_cast<Sint32>(control->current_special)];
                 } else {
                     buf << myscreen->special_name[static_cast<Sint32>(control->query_family())][static_cast<Sint32>(control->current_special)];

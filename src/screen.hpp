@@ -63,14 +63,15 @@ public:
     Sint16 endgame(Sint16 ending, Sint16 nextlevel); // What level next?
     void draw_panels(Sint16 howmany);
     Walker *find_near_foe(Walker *ob);
-    Walker *find_foe_far(Walker *ob);
+    Walker *find_far_foe(Walker *ob);
     Walker *find_nearest_blood(Walker *who);
     Walker *find_nearest_player(Walker *ob);
     std::list<Walker *> find_in_range(std::list<Walker *> &somelist, Sint32 range, Sint16 *howmany, Walker *ob);
     std::list<Walker *> find_foes_in_range(std::list<Walker *> &somelist, Sint32 range, Sint16 *howmany, Walker *ob);
+    std::list<Walker *> find_friends_in_range(std::list<Walker *> &somelis, Sint32 range, Sint16 *howmany, Walker *ob);
     std::list<Walker *> find_foe_weapons_in_range(std::list<Walker *> &somelist, Sint32 range, Sint16 *howmany, Walker *ob);
     Uint8 damage_tile(Sint16 xloc, Sint16 yloc); // Damage the specified tile
-    void do_notify(Uint8 const *message, Walker *who); // Printing text
+    void do_notify(std::string const &message, Walker *who); // Printing text
     void report_mem();
     Walker *set_walker(Walker *ob, Uint8 order, Uint8 family);
     Uint8 const *get_scen_title(Uint8 const *filename, VideoScreen *master);
@@ -100,8 +101,8 @@ public:
     // We should reset the level and go again
     bool retry;
 
-    Uint8 special_name[NUM_FAMILIES][NUM_SPECIALS][20];
-    Uint8 alternate_name[NUM_FAMILIES][NUM_SPECIALS][20];
+    std::string special_name[NUM_FAMILIES][NUM_SPECIALS];
+    std::string alternate_name[NUM_FAMILIES][NUM_SPECIALS];
 
     // Stops enemies from acting
     Uint8 enemy_freeze;

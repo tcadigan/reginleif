@@ -30,7 +30,7 @@
 #include "walker.hpp"
 #include "weap.hpp"
 
-void popup_dialog(Uint8 const &title, Uint8 const *message);
+void popup_dialog(std::string const &title, std::string const &message);
 
 #define SIZE_ORDERS 7 // See graph.hpp
 #define SIZE_FAMILIES 21 // See also NUM_FAMILIES in graph.hpp

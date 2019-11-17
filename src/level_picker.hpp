@@ -18,6 +18,8 @@
 #ifndef __LEVEL_PICKER_HPP__
 #define __LEVEL_PICKER_HPP__
 
+#include <SDL2/SDL.h>
+
 #include "screen-fwd.hpp"
 
 Sint32 pick_level(VideoScreen *screenp, Sint32 default_level, bool enable_delete=false);

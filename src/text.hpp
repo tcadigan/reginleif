@@ -29,26 +29,26 @@
 class Text
 {
 public:
-    Text(Uint8 const *filename);
+    Text(std::string const &filename);
     ~Text();
     // Returns width, in pixels
-    Sint16 query_width(Uint8 const *string);
-    Sint16 write_xy(Sint16 x, Sint16 y, Uint8 const *string);
-    Sint16 write_xy(Sint16 x, Sint16 y, Uint8 const *string, Uint8 color);
-    Sint16 write_xy(Sint16 x, Sint16 y, Uint8 color, Uint8 const *formatted_string, ...);
-    Sint16 write_xy_shadow(Sint16 x, Sint16 y, Uint8 color, Uint8 const *formatted_string, ...);
-    Sint16 write_xy_center(Sint16 x, Sint16 y, Uint8 color, Uint8 const *formatted_string, ...);
-    Sint16 write_xy_center_shadow(Sint16 x, Sint16 y, Uint8 color, Uint8 const *formatted_string, ...);
-    Sint16 write_xy(Sint16 x, Sint16 y, Uint8 const *string, Sint16 to_buffer);
+    Sint16 query_width(std::string const &string);
+    Sint16 write_xy(Sint16 x, Sint16 y, std::string const &string);
+    Sint16 write_xy(Sint16 x, Sint16 y, std::string const &string, Uint8 color);
+    Sint16 write_xy(Sint16 x, Sint16 y, Uint8 color, std::string const &formatted_string, ...);
+    Sint16 write_xy_shadow(Sint16 x, Sint16 y, Uint8 color, std::string const &formatted_string, ...);
+    Sint16 write_xy_center(Sint16 x, Sint16 y, Uint8 color, std::string const &formatted_string, ...);
+    Sint16 write_xy_center_shadow(Sint16 x, Sint16 y, Uint8 color, std::string const &formatted_string, ...);
+    Sint16 write_xy(Sint16 x, Sint16 y, std::string const &string, Sint16 to_buffer);
     Sint16 write_xy(Sint16 x, Sint16 y, std::string const &string, Uint8 color, Sint16 to_buffer);
-    Sint16 write_xy(Sint16 x, Sint16 y, Uint8 const *string, ViewScreen *whereto);
-    Sint16 write_xy(Sint16 x, Sint16 y, Uint8 const *string, Uint8 color, ViewScreen *whereto);
-    Sint16 write_y(Sint16 y, Uint8 const *string);
-    Sint16 write_y(Sint16 y, Uint8 const *string, Uint8 color);
-    Sint16 write_y(Sint16 y, Uint8 const *string, Sint16 to_buffer);
-    Sint16 write_y(Sint16 y, Uint8 const *string, Uint8 color, Sint16 to_buffer);
-    Sint16 write_y(Sint16 y, Uint8 const *string, ViewScreen *whereto);
-    Sint16 write_y(Sint16 y, Uint8 const *string, Uint8 color, ViewScreen *whereto);
+    Sint16 write_xy(Sint16 x, Sint16 y, std::string const &string, ViewScreen *whereto);
+    Sint16 write_xy(Sint16 x, Sint16 y, std::string const &string, Uint8 color, ViewScreen *whereto);
+    Sint16 write_y(Sint16 y, std::string const &string);
+    Sint16 write_y(Sint16 y, std::string const &string, Uint8 color);
+    Sint16 write_y(Sint16 y, std::string const &string, Sint16 to_buffer);
+    Sint16 write_y(Sint16 y, std::string const &string, Uint8 color, Sint16 to_buffer);
+    Sint16 write_y(Sint16 y, std::string const &string, ViewScreen *whereto);
+    Sint16 write_y(Sint16 y, std::string const &string, Uint8 color, ViewScreen *whereto);
     Sint16 write_char_xy(Sint16 x, Sint16 y, Uint8 letter);
     Sint16 write_char_xy(Sint16 x, Sint16 y, Uint8 letter, Uint8 color);
     Sint16 write_char_xy_alpha(Sint16 x, Sint16 y, Uint8 letter, Uint8 color, Uint8 alpha);
@@ -56,10 +56,10 @@ public:
     Sint16 write_char_xy(Sint16 x, Sint16 y, Uint8 letter, Uint8 color, Sint16 to_buffer);
     Sint16 write_char_xy(Sint16 x, Sint16 y, Uint8 letter, ViewScreen *whereto);
     Sint16 write_char_xy(Sint16 x, Sint16 y, Uint8 letter, Uint8 color, ViewScreen *whereto);
-    Uint8 *input_string(Sint16 x, Sint16 y, Sint16 maxlength, Uint8 const *begin);
-    Uint8 *input_string(Sint16 x, Sint16 y, Sint16 maxlength, Uint8 const *begin, Uint8 forecolor, Uint8 backcolor);
-    Uint8 *input_string_ex(Sint16 x, Sint16 y, Sint16 maxlength, Uint8 const *message, Uint8 const *begin);
-    Uint8 *input_string_ex(Sint16 x, Sint16 y, Sint16 maxlength, Uint8 const *message, Uint8 const *begin, Uint8 forecolor, Uint8 backcolor);
+    std::string input_string(Sint16 x, Sint16 y, Sint16 maxlength, std::string const &begin);
+    std::string input_string(Sint16 x, Sint16 y, Sint16 maxlength, std::string const &begin, Uint8 forecolor, Uint8 backcolor);
+    std::string input_string_ex(Sint16 x, Sint16 y, Sint16 maxlength, std::string const &message, std::string const &begin);
+    std::string input_string_ex(Sint16 x, Sint16 y, Sint16 maxlength, std::string const &message, std::string const &begin, Uint8 forecolor, Uint8 backcolor);
 
     friend class VirtualButton;
 
