@@ -712,9 +712,9 @@ void handle_mouse_event(SDL_Event const &event)
 void handle_joy_event(SDL_Event const &event)
 {
     std::stringstream buf;
-    buf << "Joysitck event!" << std::endl;
+    buf << "Joystick event!" << std::endl;
 
-    Log("%s", buf.str());
+    Log("%s", buf.str().c_str());
     switch (event.type) {
     case SDL_JOYAXISMOTION:
         if (event.jaxis.value > 8000) {

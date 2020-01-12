@@ -75,7 +75,7 @@ public:
     void draw_button(Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2, Sint32 border);
     void draw_button(Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2, Sint32 border, Sint32 tobuffer);
     void draw_button_colored(Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2, bool use_border, Sint32 base_color, Sint32 high_color=15, Sint32 shadow_color=11);
-    Sint32 draw_dialog(Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2, Uint8 const *header);
+    Sint32 draw_dialog(Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2, std::string const &header);
     void draw_text_bar(Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2);
     void darken_screen();
     void swap(void);

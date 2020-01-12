@@ -18,8 +18,9 @@
 #ifndef __GPARSER_HPP__
 #define __GPARSER_HPP__
 
-#include <string>
 #include <map>
+#include <string>
+#include <vector>
 
 #include <SDL2/SDL.h>
 
@@ -27,7 +28,7 @@ class ConfigStore
 {
 public:
     bool load_settings();
-    void commandline(Sint32 argc, Uint8 *argv[]);
+    void commandline(Sint32 argc, std::vector<std::string> const &args);
     bool save_settings();
 
     void apply_setting(std::string const &category, std::string const &setting, std::string const &value);

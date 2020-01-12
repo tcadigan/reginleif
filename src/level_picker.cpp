@@ -22,6 +22,7 @@
 #include "guy.hpp"
 #include "io.hpp"
 #include "level_data.hpp"
+#include "picker.hpp"
 #include "radar.hpp"
 #include "screen.hpp"
 #include "stats.hpp"
@@ -41,7 +42,6 @@
 #define MAX_TEAM_SIZE 24 // Max number of guys on a team
 #define OK 4
 
-bool yes_or_no_prompt(std::string const &title, std::string const &message, bool default_value);
 bool prompt_for_string(std::string const &message, std::string &result);
 void draw_highlight_interior(Button const &b);
 void draw_highlight(Button const &b);

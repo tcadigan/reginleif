@@ -1032,7 +1032,7 @@ Sint16 Living::do_action()
     }
 }
 
-bool walkerIsAutoAttackable(Walker *ob)
+bool Living::walkerIsAutoAttackable(Walker *ob)
 {
     return ((ob->query_order() == ORDER_LIVING)
         || (ob->query_family() == FAMILY_TENT)

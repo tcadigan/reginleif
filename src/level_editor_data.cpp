@@ -23,6 +23,7 @@
 #include "io.hpp"
 #include "level_editor.hpp"
 #include "level_picker.hpp"
+#include "picker.hpp"
 #include "rect.hpp"
 #include "screen.hpp"
 #include "util.hpp"
@@ -45,10 +46,6 @@
 #else
 #define OVERSCAN_PADDING 0
 #endif
-
-bool yes_or_no_prompt(std::string const &title, std::string const &message, bool default_value);
-void timed_dialog(std::string const &message, float delay_seconds = 3.0f);
-void popup_dialog(std::string const &title, std::string const &message);
 
 // buffers: PORT: changed start_time to start_time_s to avoid conflict with input.cpp
 Sint32 start_time_s; // For timer ops
@@ -1433,7 +1430,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
 
                 if (prompt_for_string("New Campaign", campaign)) {
                     // TODO: Check if campaign already exists and prompt the user to overwrite
-                    if (does_campaign_exist(campaign) && !yes_or_no_prompt("Overwrite?", "Overwrite existing cmapaign with that ID?", false)) {
+                    if (does_campaign_exist(campaign) && !yes_or_no_prompt("Overwrite?", "Overwrite existing campaign with that ID?", false)) {
                         cancel = true;
                     }
 

@@ -58,7 +58,7 @@ public:
     Uint32 score;
     Uint32 m_score[4];
     Uint32 totalcash;
-    Uint32 m_totalcast[4];
+    Uint32 m_totalcash[4];
     Uint32 totalscore;
     Uint32 m_totalscore[4];
     Uint16 my_team;

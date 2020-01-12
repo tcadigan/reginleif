@@ -47,6 +47,9 @@ public:
 protected:
 
     Sint16 act_random();
+
+private:
+    bool walkerIsAutoAttackable(Walker *ob);
 };
 
 #endif

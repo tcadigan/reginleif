@@ -20,13 +20,12 @@
 
 #include "campaign_picker.hpp"
 #include "guy.hpp"
+#include "picker.hpp"
 #include "screen.hpp"
 #include "smooth.hpp"
 #include "util.hpp"
 #include "view.hpp"
 #include "walker.hpp"
-
-void popup_dialog(std::string const &title, std::string const &message);
 
 Sint16 load_saved_game(Uint8 const *filename, VideoScreen *myscreen)
 {

@@ -27,6 +27,7 @@
 #include "object_type.hpp"
 #include "options.hpp"
 #include "pal32.hpp"
+#include "picker.hpp"
 #include "screen.hpp"
 #include "text.hpp"
 #include "util.hpp"
@@ -64,9 +65,6 @@
 #define PAN_LIMIT_RIGHT (((GRID_SIZE * data.level->grid.w) - 320) + 80)
 
 void quit(Sint32 arg1);
-bool yes_or_no_prompt(std::string const &title, std::string const &message, bool default_value);
-void popup_dialog(std::string const &title, std::string const &message);
-void timed_dialog(std::string const &message, float delay_seconds = 3.0f);
 void set_screen_pos(VideoScreen *myscreen, Sint32 x, Sint32 y);
 bool some_hit(Sint32 x, Sint32 y, Walker *ob, LevelData *data);
 Uint8 get_random_matching_tile(Sint32 whatback);

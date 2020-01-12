@@ -184,7 +184,7 @@ bool ConfigStore::save_settings()
     }
 }
 
-void ConfigStore::commandline(int &argc, char **&argv)
+void ConfigStore::commandline(int &argc, std::vector<std::string> const &args)
 {
     std::stringstream buf;
     buf << "Usage: openglad [-d -f ...]" << std::endl

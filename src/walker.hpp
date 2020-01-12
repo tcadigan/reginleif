@@ -184,7 +184,7 @@ public:
     Uint8 default_weapon;
     Uint8 current_weapon;
     // Are we being used by anyone?
-    Uint8 user;
+    Sint8 user;
     // For bonus flight...
     Sint16 flight_left;
     Sint16 invulnerable_left;

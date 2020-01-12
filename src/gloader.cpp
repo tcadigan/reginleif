@@ -24,13 +24,12 @@
 #include "graphlib.hpp"
 #include "gparser.hpp"
 #include "living.hpp"
+#include "picker.hpp"
 #include "stats.hpp"
 #include "treasure.hpp"
 #include "util.hpp"
 #include "walker.hpp"
 #include "weap.hpp"
-
-void popup_dialog(std::string const &title, std::string const &message);
 
 #define SIZE_ORDERS 7 // See graph.hpp
 #define SIZE_FAMILIES 21 // See also NUM_FAMILIES in graph.hpp

@@ -25,6 +25,7 @@
 #include "graphlib.hpp"
 #include "guy-fwd.hpp"
 #include "io.hpp"
+#include "picker.hpp"
 #include "pixie-fwd.hpp"
 #include "screen.hpp"
 #include "text.hpp"
@@ -32,7 +33,6 @@
 
 #define OG_OK 4
 
-bool yes_or_no_prompt(std::string const &title, std::string const &message, bool default_value);
 bool no_or_yes_prompt(std::string const &title, std::string const &message, bool default_value);
 bool prompt_for_string(std::string const &message, std::string &result);
 void draw_highlight_interior(Button const &b);

@@ -15,12 +15,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+#include "glad.hpp"
 
 #include <cstring>
 #include <ctime>
 // Z's script: #include <process.h>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "base.hpp"
 #include "colors.hpp"
@@ -32,6 +34,7 @@
 #include "io.hpp"
 #include "options.hpp"
 #include "pal32.hpp"
+#include "picker.hpp"
 #include "results_screen.hpp"
 #include "screen.hpp"
 #include "util.hpp"
@@ -60,9 +63,6 @@ extern bool debug_draw_obmap;
 // create it before the main and go nuts trying to load it
 extern Options *theprefs;
 
-bool yes_or_no_prompt(std::string const &title, std::string const &message, bool default_value);
-void popup_dialog(std::string const &title, std::string const &message);
-void picker_main(Sint32 argc, Uint8 *argv[]);
 Sint16 remaining_foes(VideoScreen *myscreen, Walker *myguy);
 Sint16 remaining_team(VideoScreen *myscreen, Uint8 myteam);
 Sint16 score_panel(VideoScreen *myscreen);
@@ -71,21 +71,26 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it);
 void draw_value_bar(Sint16 left, Sint16 top, Walker *control, Sint16 mode, VideoScreen *myscreen);
 void new_draw_value_bar(Sint16 left, Sint16 top, Walker *control, Sint16 mode, VideoScreen *myscreen);
 void draw_percentage_bar(Sint16 left, Sint16 top, Uint8 somecolor, Sint16 somelength, VideoScreen *myscreen);
-void init_input();
 void draw_radar_gems(VideoScreen *myscreen);
 void draw_gem(Sint16 x, Sint16 y, Sint16 color, VideoScreen *myscreen);
+bool float_eq(float a, float b);
+
 Uint8 *radarpic;
 Pixie *radarpix;
-void glad_main(VideoScreen *myscreen, Sint32 playermode);
-bool float_eq(float a, float b);
 
 int main(int argc, char *argv[])
 {
+    Sint32 arg_count = argc;
+    std::vector<std::string> args;
+    for (Sint32 i = arg_count; i <= argc; ++i) {
+        args.push_back(argv[i]);
+    }
+
     io_init(std::string(argv[0]));
 
     cfg.load_settings();
     cfg.save_settings();
-    cfg.commandline(argc, argv);
+    cfg.commandline(arg_count, args);
 
     theprefs = new Options;
     myscreen = new VideoScreen(1);
@@ -99,7 +104,7 @@ int main(int argc, char *argv[])
 
     init_input();
     intro_main();
-    picker_main(argc, argv);
+    picker_main();
 
     io_exit();
 
@@ -972,7 +977,7 @@ void draw_percentage_bar(Sint16 left, Sint16 top, Uint8 somecolor, Sint16 somele
         // }
 
         for (i = 0; i < ((somelength - 4) / 2); ++i) {
-            for (j = 0; j < 3; ++i) {
+            for (j = 0; j < 3; ++j) {
                 myscreen->fastbox(((left + (somelength / 2)) - i) - 1, (top + 3) - j, 1, 1, somecolor + ((i + j) % 16), 1);
                 myscreen->fastbox(((left + (somelength / 2)) - i) - 1, (top + 3) + j, 1, 1, somecolor + ((i + j) % 16), 1);
                 myscreen->fastbox((left + (somelength / 2)) + i, (top + 3) - j, 1, 1, somecolor + ((i + j) % 16), 1);
