@@ -15,18 +15,40 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#ifndef __RESULTS_SCREEN_HPP__
-#define __RESULTS_SCREEN_HPP__
+#include "pixie_data.hpp"
 
-#include <SDL2/SDL.h>
+PixieData::PixieData()
+    : frames(0)
+    , w(0)
+    , h(0)
+    , data(nullptr)
+{}
 
-#include <map>
+PixieData::PixieData(Uint8 frames, Uint8 w, Uint8 h, Uint8 *data)
+    : frames(frames)
+    , w(w)
+    , h(h)
+    , data(data)
+{}
 
-#include "guy-fwd.hpp"
-#include "walker-fwd.hpp"
+bool PixieData::valid() const
+{
+    return ((data != nullptr) && (frames != 0) && (w != 0) && (h != 0));
+}
 
-// When no change to the guys has happened
-bool results_screen(Sint32 ending, Sint32 nextlevel);
-bool results_screen(Sint32 ending, Sint32 nextlevel, std::map<Sint32, Guy *> &before, std::map<Sint32, Walker *> &after);
+void PixieData::clear()
+{
+    frames = 0;
+    w = 0;
+    h = 0;
+    data = nullptr;
+}
 
-#endif
+void PixieData::free()
+{
+    frames = 0;
+    w = 0;
+    h = 0;
+    delete[] data;
+    data = nullptr;
+}

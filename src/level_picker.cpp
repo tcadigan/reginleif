@@ -45,8 +45,6 @@
 bool prompt_for_string(std::string const &message, std::string &result);
 void draw_highlight_interior(Button const &b);
 void draw_highlight(Button const &b);
-bool handle_menu_nav(Button *buttons, Sint32 &highlighted_button,
-                     Sint32 &retvalue, bool use_global_vbuttons=true);
 
 void getLevelStats(LevelData &level_data, Sint32 *max_enemy_level,
                    float *average_enemy_level, Sint32 *num_enemies,

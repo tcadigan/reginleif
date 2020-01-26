@@ -32,20 +32,20 @@ public:
     Pixie(PixieData const &data, Sint32 doaccel);
     virtual ~Pixie();
 
-    Sint16 setxy(Sint16 x, Sint16 y);
-    Sint16 draw(ViewScreen *view_buf);
-    Sint16 draw(Sint16 x, Sint16 y, ViewScreen *view_buf);
-    Sint16 drawMix(ViewScreen *view_buf);
-    Sint16 drawMix(Sint16 x, Sint16 y, ViewScreen *view_buf);
-    Sint16 put_screen(Sint16 x, Sint16 y);
+    bool setxy(Sint16 x, Sint16 y);
+    bool draw(ViewScreen *view_buf);
+    bool draw(Sint16 x, Sint16 y, ViewScreen *view_buf);
+    bool drawMix(ViewScreen *view_buf);
+    bool drawMix(Sint16 x, Sint16 y, ViewScreen *view_buf);
+    bool put_screen(Sint16 x, Sint16 y);
     void init_sdl_surface(void);
     void set_accel(Sint32 a);
     void set_data(PixieData const &data);
-    Sint16 on_screen();
+    bool on_screen();
     // On a specific viewscreen?
-    Sint16 on_screen(ViewScreen *viewp);
+    bool on_screen(ViewScreen *viewp);
 
-    virtual Sint16 move(Sint16 x, Sint16 y);
+    virtual bool move(Sint16 x, Sint16 y);
 
     Sint16 sizex;
     Sint16 sizey;

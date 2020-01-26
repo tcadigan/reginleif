@@ -15,18 +15,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#ifndef __RESULTS_SCREEN_HPP__
-#define __RESULTS_SCREEN_HPP__
+#ifndef __BUTTON_FWD_HPP__
+#define __BUTTON_FWD_HPP__
 
-#include <SDL2/SDL.h>
-
-#include <map>
-
-#include "guy-fwd.hpp"
-#include "walker-fwd.hpp"
-
-// When no change to the guys has happened
-bool results_screen(Sint32 ending, Sint32 nextlevel);
-bool results_screen(Sint32 ending, Sint32 nextlevel, std::map<Sint32, Guy *> &before, std::map<Sint32, Walker *> &after);
+class Button;
 
 #endif

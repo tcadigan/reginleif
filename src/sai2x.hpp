@@ -20,6 +20,8 @@
 
 #include <SDL2/SDL.h>
 
+#include <string>
+
 typedef enum {
     NoZoom = 0x01,
     SAI = 0x02,
@@ -33,7 +35,7 @@ public:
     Screen(RenderEngine engine, Sint32 width, Sint32 height, Sint32 fullscreen);
     ~Screen();
 
-    void SaveBmp(SDL_Surface *screen, Uint8 *filename);
+    void SaveBMP(SDL_Surface *screen, std::string const &filename);
 
     void clear();
     void clear(Sint32 x, Sint32 y, Sint32 w, Sint32 h);

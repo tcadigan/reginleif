@@ -101,7 +101,7 @@ public:
         Sint32 w, Sint32 h, Sint32 callback_ID, Sint32 callback_arg,
         MenuNav const &nav, bool hidden=false)
         : label(label)
-    , hotkey(hotkey)
+        , hotkey(hotkey)
         , x(x)
         , y(y)
         , sizex(w)
@@ -116,7 +116,7 @@ public:
     Button(Sint32 x, Sint32 y, Sint32 w, Sint32 h, Sint32 callback_ID,
         Sint32 callback_arg, MenuNav const &nav, bool hidden=false,
         bool no_draw=false)
-    : hotkey(KEYSTATE_UNKNOWN)
+        : hotkey(KEYSTATE_UNKNOWN)
         , x(x)
         , y(y)
         , sizex(w)
@@ -181,51 +181,6 @@ extern VirtualButton *allbuttons[MAX_BUTTONS];
 VirtualButton *init_buttons(Button *buttons, Sint32 numbuttons);
 void draw_backdrop();
 void draw_buttons(Button *buttons, Sint32 numbuttons);
-
-// These are for picker...
-Sint32 score_panel(VideoScreen *myscreen);
-Sint32 mainmenu(Sint32 arg1);
-Sint32 beginmenu(Sint32 arg1);
-void quit(Sint32 arg1);
-Sint32 load1(Sint32 arg1); // Begin a preset scenario...
-Sint32 load2(Sint32 arg1);
-Sint32 load3(Sint32 arg1);
-Sint32 create_team_menu(Sint32 arg1); // Create/modify team members
-Sint32 create_detail_menu(Guy *arg1); // Detailed character information
-Sint32 create_view_menu(Sint32 arg1); // View team members
-Sint32 create_hire_menu(Sint32 arg1); // Purchase new team members
-Sint32 create_train_menu(Sint32 arg1); // Edit or sell team members
-Sint32 create_load_menu(Sint32 arg1); // Load a team
-Sint32 create_save_menu(Sint32 arg1); // Save a team
-Sint32 go_menu(Sint32 arg1); // Run glad...
-Sint32 increase_stat(Sint32 arg1, Sint32 howmuch=1); // Increase a guy's stats
-Sint32 decrease_stat(Sint32 arg1, Sint32 howmuch=1); // Decrease a guy's stats
-Uint32 calculate_hire_cost();
-Uint32 calculate_train_cost(Guy *oldguy);
-Sint32 cycle_guy(Sint32 whichway);
-Sint32 cycle_team_guy(Sint32 whichway);
-Sint32 add_guy(Sint32 ignoreme);
-Sint32 edit_guy(Sint32 arg1); // Transfer stats...hardcoded
-Sint32 do_save(Sint32 arg1); // Dummy function for saving team list
-Sint32 do_load(Sint32 arg1); // Dummy function for loading team list
-Sint32 delete_all(); // Delete entire team
-Sint32 delete_first(); // Delete first guy on team list
-Sint32 how_many(Sint32 whatfamily); // How many guys of family X on the team?
-void statscopy(Guy *dest, Guy *source); // Copy stats from source => dest
-Sint32 set_player_mode(Sint32 howmany);
-Sint32 calculate_level(Uint32 temp_exp);
-Uint32 calculate_exp(Sint32 level);
-Sint32 return_menu(Sint32 arg);
-Sint32 name_guy(Sint32 arg); // Name the current guy
-Sint32 do_set_scen_level(Sint32 arg1);
-Sint32 do_pick_campaign(Sint32 arg1);
-Sint32 set_difficulty();
-Sint32 change_teamnum(Sint32 arg);
-Sint32 change_hire_teamnum(Sint32 arg);
-Sint32 change_allied();
-Sint32 level_editor();
-Sint32 main_options();
-Sint32 overscan_adjust(Sint32 arg);
 
 // Function definitions...
 enum FunctionDefinitionEnum : Uint8 {

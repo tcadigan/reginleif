@@ -155,7 +155,7 @@ public:
     Uint8 prefs[10];
     Radar *myradar;
     // Has the radar been started yet?
-    Sint16 radatastart;
+    Sint16 radarstart;
 
 protected:
     Options *prefsob;

@@ -28,11 +28,11 @@ class Radar
 public:
     Radar(ViewScreen *myview, VideoScreen *myscreen, Sint16 whatnum);
     ~Radar();
-    Sint16 draw();
-    Sint16 draw(LevelData *data);
-    Sint16 on_screen();
-    Sint16 on_screen(Sint16 whatx, Sint16 whaty, Sint16 hor, Sint16 ver);
-    Sint16 refresh();
+    bool draw();
+    bool draw(LevelData *data);
+    bool on_screen();
+    bool on_screen(Sint16 whatx, Sint16 whaty, Sint16 hor, Sint16 ver);
+    bool refresh();
 
     // Slow function to update radar/map info
     void update();
@@ -56,7 +56,7 @@ public:
     Sint16 radary;
 
     VideoScreen *screenp;
-    ViewScreen *viewscreen;
+    ViewScreen *viewscreenp;
     Uint8 *bmp;
     Uint8 *oldbmp;
     bool force_lower_position;

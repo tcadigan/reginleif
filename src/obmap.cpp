@@ -330,7 +330,7 @@ Sint16 ob_pass_check(Sint16 x, Sint16 y, Walker *ob, std::list<Walker *> const &
                             // End of unlocked door
                         } else {
                             // Do we notify?
-                            if (!ob->skip_exit && (ob->user != static_cast<Uint8>(-1))) {
+                            if (!ob->skip_exit && (ob->user != static_cast<Sint8>(-1))) {
                                 std::stringstream buf("Key ");
                                 buf << w->stats->level << " needed!";
                                 std::string temp(buf.str());

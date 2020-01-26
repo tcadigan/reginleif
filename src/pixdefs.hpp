@@ -35,7 +35,7 @@ enum PixEnum : Uint8 {
     PIX_WALL3 = 5,
     PIX_FLOOR1 = 6,
     PIX_WALL4 = 7,
-    PXI_WALL5 = 8,
+    PIX_WALL5 = 8,
     PIX_CARPET_LL = 9,
     PIX_CARPET_L = 10,
     PIX_CARPET_B = 11,

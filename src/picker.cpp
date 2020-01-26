@@ -25,6 +25,7 @@
 #include "gparser.hpp"
 #include "graph.hpp"
 #include "graphlib.hpp"
+#include "guy.hpp"
 #include "help.hpp"
 // buffers: Using input.hpp instead #include "int32.h"
 #include "input.hpp"
@@ -109,7 +110,10 @@ std::string get_saved_name(std::string const &filename);
 Sint32 do_set_scen_level(Sint32 arg1);
 Sint32 leftmouse(Button *buttons);
 void family_name_copy(Uint8 *name, Sint16 family);
-bool handle_menu_nav(Button *buttons, Sint32 &highlighted_button, Sint32 &retvalue, bool use_global_vbuttons=true);
+Sint32 mainmenu(Sint32 arg1);
+Uint32 calculate_hire_cost();
+Uint32 calculate_train_cost(Guy *oldguy);
+void statscopy(Guy *dest, Guy *source); // Copy stats from source => dest
 
 // Zardus: PORT: Put in backpics var here so we can free the pixie files themselves
 PixieData backpics[5];
@@ -226,7 +230,7 @@ Button createmenu_buttons[] = {
     Button("GO", KEYSTATE_UNKNOWN, 210, 100, 80, 15, GO_MENU, -1, MenuNav::UpDownLeft(2, 7, 4)),
     Button("BACK", KEYSTATE_ESCAPE, 30, 140, 60, 30, RETURN_MENU, EXIT, MenuNav::UpRight(3, 7)),
     Button("SET LEVEL", KEYSTATE_UNKNOWN, 210, 140, 80, 20, DO_SET_SCEN_LEVEL, EXIT, MenuNav::UpDownLeft(5, 8, 6)),
-    Button("SET CMAPAIGN", KEYSTATE_UNKNOWN, 210, 170, 80, 20, DO_PICK_CAMPAIGN, EXIT, MenuNav::UpLeft(7, 6))
+    Button("SET CAMPAIGN", KEYSTATE_UNKNOWN, 210, 170, 80, 20, DO_PICK_CAMPAIGN, EXIT, MenuNav::UpLeft(7, 6))
 };
 
 Button viewteam_buttons[] = {

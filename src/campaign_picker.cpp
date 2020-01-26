@@ -37,8 +37,6 @@ bool no_or_yes_prompt(std::string const &title, std::string const &message, bool
 bool prompt_for_string(std::string const &message, std::string &result);
 void draw_highlight_interior(Button const &b);
 void draw_highlight(Button const &b);
-bool handle_menu_nav(Button *button, Sint32 &highlighted_button, Sint32 &retvalue,
-                     bool use_global_buttons = true);
 
 // Unmounts old campaign, mounts new one, and returns the current level
 // (scenario) that the player is on

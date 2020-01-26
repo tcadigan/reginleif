@@ -21,6 +21,7 @@
 #include "gparser.hpp"
 #include "input.hpp"
 #include "io.hpp"
+#include "picker.hpp"
 #include "screen.hpp"
 
 extern Sint16 scen_level;

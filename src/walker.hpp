@@ -52,7 +52,7 @@ public:
     virtual ~Walker();
 
     Sint16 reset(void);
-    Sint16 move(Sint16 x, Sint16 y);
+    bool move(Sint16 x, Sint16 y);
     void worldmove(float x, float y);
     void setworldxy(float x, float y);
     bool walk();
