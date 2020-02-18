@@ -29,7 +29,7 @@
 #define T_LEFT_THREE_FOUR 0
 #define T_UP_THREE 101
 
-#define LEFT_FOUR 161
+#define T_LEFT_FOUR 161
 #define T_UP_FOUR 101
 
 #define T_WIDTH 320

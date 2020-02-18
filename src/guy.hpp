@@ -33,6 +33,8 @@ class Guy
 public:
     Guy();
     Guy(Sint32 whatfamily);
+    Guy(Guy const &copy);
+    ~Guy();
 
     Sint32 query_heart_value(); // How much are we worth?
     Walker *create_walker(VideoScreen *myscreen);

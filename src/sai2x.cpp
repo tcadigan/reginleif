@@ -596,6 +596,8 @@ void Super2xSaI_ex(Uint8 *src, Uint32 src_pitch, Uint8 *unused, Uint8 *dest, Uin
                 if (r > 0) {
                     product1b = color[6];
                 } else if (r < 0) {
+                    product1b = color[5];
+                } else {
                     product1b = INTERPOLATE(color[5], color[6]);
                 }
 

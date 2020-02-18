@@ -1,6 +1,6 @@
 NAME = openglad
 CXXFLAGS = -Wall `sdl2-config --cflags`
-LDFLAGS = `sdl2-config --libs`
+LDFLAGS = `sdl2-config --libs` -lSDL_mixer
 
 CPPFILES = browser_entry.cpp button.cpp campaign_entry.cpp campaign_picker.cpp \
            editor_object_brush.cpp editor_terrain_brush.cpp effect.cpp \
@@ -9,7 +9,8 @@ CPPFILES = browser_entry.cpp button.cpp campaign_entry.cpp campaign_picker.cpp \
            level_editor_data.cpp level_picker.cpp living.cpp object_type.cpp \
            obmap.cpp ouya_controller.cpp pal32.cpp picker.cpp pixie.cpp \
            pixie_data.cpp pixien.cpp radar.cpp rect.cpp rectf.cpp \
-           results_screen.cpp sai2x.cpp selection_info.cpp simple_button.cpp \
+           results_screen.cpp sai2x.cpp save_data.cpp screen.cpp \
+           selection_info.cpp simple_button.cpp smooth.cpp sound.cpp \
            troop_result.cpp util.cpp \
 
 OBJS = browser_entry.o button.o campaign_entry.o campaign_picker.o \
@@ -18,7 +19,8 @@ OBJS = browser_entry.o button.o campaign_entry.o campaign_picker.o \
        level_data.o level_editor.o level_editor_data.o level_picker.o living.o \
        object_type.o obmap.o ouya_controller.o pal32.o picker.o pixie.o \
        pixie_data.o pixien.o radar.o rect.o rectf.o results_screen.o sai2x.o \
-       selection_info.o simple_button.o troop_result.o util.o \
+       save_data.o screen.o selection_info.o simple_button.o smooth.o sound.o \
+       troop_result.o util.o \
 
 HDRS = base.hpp browser_entry.hpp button.hpp button-fwd.hpp campaign_entry.hpp \
        campaign_picker.hpp colors.hpp editor_object_brush.hpp \

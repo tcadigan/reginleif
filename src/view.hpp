@@ -96,7 +96,7 @@ public:
     Sint16 refresh();
     Sint16 input(SDL_Event const &event);
     Sint16 continuous_input();
-    void set_display_text(Uint8 const *newtext, Sint16 numcycles);
+    void set_display_text(std::string const &newtext, Sint16 numcycles);
     // Put the text to the buffer, if there
     void display_text();
     // Cycle text upward

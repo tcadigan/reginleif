@@ -198,6 +198,36 @@ Guy::Guy(Sint32 whatfamily)
     ++guy_id_counter;
 }
 
+Guy::Guy(Guy const &copy)
+    : family(copy.family)
+    , strength(copy.strength)
+    , dexterity(copy.dexterity)
+    , constitution(copy.constitution)
+    , intelligence(copy.intelligence)
+    , armor(copy.armor)
+    , exp(copy.exp)
+    , kills(copy.kills)
+    , level_kills(copy.level_kills)
+    , total_damage(copy.total_damage)
+    , total_hits(copy.total_hits)
+    , total_shots(copy.total_shots)
+    , teamnum(copy.teamnum)
+    , scen_damage(copy.scen_damage)
+    , scen_kills(copy.scen_kills)
+    , scen_damage_taken(copy.scen_damage_taken)
+    , scen_min_hp(copy.scen_min_hp)
+    , scen_shots(copy.scen_shots)
+    , scen_hits(copy.scen_hits)
+    , id(copy.id)
+    , level(copy.level)
+{
+    name = copy.name;
+}
+
+Guy::~Guy()
+{
+}
+
 // How much are we worth?
 Sint32 Guy::query_heart_value()
 {

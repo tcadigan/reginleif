@@ -28,5 +28,6 @@
 // When no change to the guys has happened
 bool results_screen(Sint32 ending, Sint32 nextlevel);
 bool results_screen(Sint32 ending, Sint32 nextlevel, std::map<Sint32, Guy *> &before, std::map<Sint32, Walker *> &after);
+Uint32 get_time_bonus(Sint32 playernum);
 
 #endif

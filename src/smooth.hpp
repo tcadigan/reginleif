@@ -61,10 +61,10 @@ public:
     void set_target(PixieData const &data);
 
     // Smoothes entire target grid
-    Sint32 smooth();
+    bool smooth();
 
     // Smooth at x, y; returns changed or note
-    Sint32 smooth(Sint32 x, Sint32 y);
+    bool smooth(Sint32 x, Sint32 y);
 
     // Return target type, i.e. PIX_GRASS1
     Sint32 query_x_y(Sint32 x, Sint32 y);

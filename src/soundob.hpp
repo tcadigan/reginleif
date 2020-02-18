@@ -22,6 +22,8 @@
 
 #include <SDL2/SDL_mixer.h>
 
+#include <string>
+
 // buffers: PORT: Don't need this anymore
 // #include "detect.hpp"
 
@@ -55,11 +57,11 @@ public:
     SoundObject(bool silent);
     ~SoundObject();
 
-    Sint32 init();
+    bool init();
     void shutdown();
     void play_sound(Sint16 whichsound);
     void set_sound_volume(Sint32);
-    void load_sound(Mix_Chunk **audio, Uint8 *file);
+    void load_sound(Mix_Chunk **audio, std::string const &file);
     void free_sound(Mix_Chunk **sound);
 
     Uint8 query_volume();
@@ -70,7 +72,7 @@ public:
     Uint8 set_volume(Uint8 volumelevel);
 
     // Our list of sounds
-    Uint8 soundlist[NUMSOUNDS][40];
+    std::string soundlist[NUMSOUNDS];
 
     // AudioSpec for loading sounds
     Mix_Chunk *sound[NUMSOUNDS];

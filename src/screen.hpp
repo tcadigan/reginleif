@@ -52,15 +52,15 @@ public:
     bool query_passable(float x, float y, Walker *ob);
     bool query_object_passable(float x, float y, Walker *ob);
     bool query_grid_passable(float x, float y, Walker *ob);
-    Sint16 redraw();
+    bool redraw();
     void refresh();
     Walker *first_of(Uint8 whatorder, Uint8 whatfamily, Sint32 team_num=1);
-    Sint16 input(SDL_Event const &event);
-    Sint16 continuous_input();
-    Sint16 act();
+    bool input(SDL_Event const &event);
+    bool continuous_input();
+    bool act();
 
-    Sint16 endgame(Sint16 ending);
-    Sint16 endgame(Sint16 ending, Sint16 nextlevel); // What level next?
+    bool endgame(Sint16 ending);
+    bool endgame(Sint16 ending, Sint16 nextlevel); // What level next?
     void draw_panels(Sint16 howmany);
     Walker *find_near_foe(Walker *ob);
     Walker *find_far_foe(Walker *ob);
@@ -74,7 +74,7 @@ public:
     void do_notify(std::string const &message, Walker *who); // Printing text
     void report_mem();
     Walker *set_walker(Walker *ob, Uint8 order, Uint8 family);
-    Uint8 const *get_scen_title(Uint8 const *filename, VideoScreen *master);
+    std::string get_scen_title(std::string const &filename, VideoScreen *master);
     void add_level_completed(std::string const &campaign, Sint32 level_index);
 
     Sint32 get_num_levels_completed(std::string const &campaign) const;
