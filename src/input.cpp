@@ -80,7 +80,7 @@
 
 void quit(Sint32 arg1);
 
-Sint32 raw_key;
+SDL_Keycode raw_key;
 std::string raw_text_input;
 Sint16 key_press_event = 0; // Used to signal key-press
 Sint16 text_input_event = 0; // Used to signal text input
@@ -815,7 +815,7 @@ void handle_events(SDL_Event const &event)
 
 // Keyboard routines
 
-Sint32 query_key()
+SDL_Keycode query_key()
 {
     return raw_key;
 }

@@ -214,7 +214,7 @@ void sendFakeEkyDownEvent(Sint32 keycode);
 void sendFakeKeyUpEvent(Sint32 keycode);
 
 // Return last keypress
-Sint32 query_key();
+SDL_Keycode query_key();
 
 // Return last text input
 std::string query_text_input();

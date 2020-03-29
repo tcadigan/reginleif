@@ -59,13 +59,16 @@ void ObjectMap::draw()
     Text &t = myscreen->text_normal;
     Sint16 offsetx = myscreen->viewob[0]->topx;
     Sint16 offsety = myscreen->viewob[0]->topy;
+    std::stringstream buf;
 
     // Draw the number of objects in each pile
     for (auto const &e : pos_to_walker) {
         Sint16 cx = (unhash(e.first.first) - offsetx) + (OBRES / 2);
         Sint16 cy = (unhash(e.first.second) - offsety) + (OBRES / 2);
         myscreen->draw_box(cx - (OBRES / 2), cy - (OBRES / 2), cx + (OBRES / 2), cy + (OBRES / 2), YELLOW, false);
-        t.write_xy(cx, cy, YELLOW, "%d", e.second.size());
+        buf << e.second.size();
+        t.write_xy(cx, cy, YELLOW, buf);
+        buf.clear();
     }
 
     // Draw a box for each walker

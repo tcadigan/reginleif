@@ -313,8 +313,8 @@ Sint16 Living::act()
     }
 
     // Are we frozen?
-    if (stats->froze_delay) {
-        --stats->froze_delay;
+    if (stats->frozen_delay) {
+        --stats->frozen_delay;
 
         return 1;
     }

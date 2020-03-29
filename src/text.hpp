@@ -20,6 +20,7 @@
 
 // Defintion of TEXT class
 
+#include <sstream>
 #include <string>
 
 #include "pixie_data.hpp"
@@ -33,29 +34,30 @@ public:
     ~Text();
     // Returns width, in pixels
     Sint16 query_width(std::string const &string);
-    Sint16 write_xy(Sint16 x, Sint16 y, std::string const &string);
-    Sint16 write_xy(Sint16 x, Sint16 y, std::string const &string, Uint8 color);
-    Sint16 write_xy(Sint16 x, Sint16 y, Uint8 color, std::string const &formatted_string, ...);
-    Sint16 write_xy_shadow(Sint16 x, Sint16 y, Uint8 color, std::string const &formatted_string, ...);
-    Sint16 write_xy_center(Sint16 x, Sint16 y, Uint8 color, std::string const &formatted_string, ...);
-    Sint16 write_xy_center_shadow(Sint16 x, Sint16 y, Uint8 color, std::string const &formatted_string, ...);
-    Sint16 write_xy(Sint16 x, Sint16 y, std::string const &string, Sint16 to_buffer);
+    bool write_xy(Sint16 x, Sint16 y, std::string const &string);
+    bool write_xy(Sint16 x, Sint16 y, Uint8 color, std::string const &string);
+    Sint16 write_xy(Sint16 x, Sint16 y, Uint8 color, std::stringstream const &stream);
+    Sint16 write_xy_shadow(Sint16 x, Sint16 y, Uint8 color, std::stringstream const &stream);
+    bool write_xy_center(Sint16 x, Sint16 y, Uint8 color, std::stringstream const &stream);
+    bool write_xy_center_alpha(Sint16, Sint16, Uint8 color, Uint8 alpha, std::stringstream const &stream);
+    bool write_xy_center_shadow(Sint16 x, Sint16 y, Uint8 color, std::stringstream const &stream);
+    bool write_xy(Sint16 x, Sint16 y, std::string const &string, Sint16 to_buffer);
     Sint16 write_xy(Sint16 x, Sint16 y, std::string const &string, Uint8 color, Sint16 to_buffer);
-    Sint16 write_xy(Sint16 x, Sint16 y, std::string const &string, ViewScreen *whereto);
-    Sint16 write_xy(Sint16 x, Sint16 y, std::string const &string, Uint8 color, ViewScreen *whereto);
+    bool write_xy(Sint16 x, Sint16 y, std::string const &string, ViewScreen *whereto);
+    bool write_xy(Sint16 x, Sint16 y, std::string const &string, Uint8 color, ViewScreen *whereto);
     Sint16 write_y(Sint16 y, std::string const &string);
     Sint16 write_y(Sint16 y, std::string const &string, Uint8 color);
     Sint16 write_y(Sint16 y, std::string const &string, Sint16 to_buffer);
     Sint16 write_y(Sint16 y, std::string const &string, Uint8 color, Sint16 to_buffer);
     Sint16 write_y(Sint16 y, std::string const &string, ViewScreen *whereto);
     Sint16 write_y(Sint16 y, std::string const &string, Uint8 color, ViewScreen *whereto);
-    Sint16 write_char_xy(Sint16 x, Sint16 y, Uint8 letter);
-    Sint16 write_char_xy(Sint16 x, Sint16 y, Uint8 letter, Uint8 color);
-    Sint16 write_char_xy_alpha(Sint16 x, Sint16 y, Uint8 letter, Uint8 color, Uint8 alpha);
-    Sint16 write_char_xy(Sint16 x, Sint16 y, Uint8 letter, Sint16 to_buffer);
-    Sint16 write_char_xy(Sint16 x, Sint16 y, Uint8 letter, Uint8 color, Sint16 to_buffer);
-    Sint16 write_char_xy(Sint16 x, Sint16 y, Uint8 letter, ViewScreen *whereto);
-    Sint16 write_char_xy(Sint16 x, Sint16 y, Uint8 letter, Uint8 color, ViewScreen *whereto);
+    bool write_char_xy(Sint16 x, Sint16 y, Uint8 letter);
+    bool write_char_xy(Sint16 x, Sint16 y, Uint8 letter, Uint8 color);
+    bool write_char_xy_alpha(Sint16 x, Sint16 y, Uint8 letter, Uint8 color, Uint8 alpha);
+    bool write_char_xy(Sint16 x, Sint16 y, Uint8 letter, Sint16 to_buffer);
+    bool write_char_xy(Sint16 x, Sint16 y, Uint8 letter, Uint8 color, Sint16 to_buffer);
+    bool write_char_xy(Sint16 x, Sint16 y, Uint8 letter, ViewScreen *whereto);
+    bool write_char_xy(Sint16 x, Sint16 y, Uint8 letter, Uint8 color, ViewScreen *whereto);
     std::string input_string(Sint16 x, Sint16 y, Sint16 maxlength, std::string const &begin);
     std::string input_string(Sint16 x, Sint16 y, Sint16 maxlength, std::string const &begin, Uint8 forecolor, Uint8 backcolor);
     std::string input_string_ex(Sint16 x, Sint16 y, Sint16 maxlength, std::string const &message, std::string const &begin);

@@ -28,10 +28,6 @@
 #include "io.hpp"
 #include "util.hpp"
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-
 // #define SOUND_DB 0 // Define for debugging messages
 
 SoundObject::SoundObject()

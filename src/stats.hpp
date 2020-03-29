@@ -29,6 +29,7 @@
 #include <SDL2/SDL.h>
 
 #include "base.hpp"
+#include "command.hpp"
 #include "walker-fwd.hpp"
 
 // These are for the bit flags
@@ -51,17 +52,6 @@ enum BitFlagEnum : Sint32 {
 
 // Other special effects, etc.
 #define FAERIE_FREEZE_TIME 40
-
-class Command
-{
-public:
-    Command();
-
-    Sint16 commandtype;
-    Sint16 commandcount;
-    Sint16 com1;
-    Sint16 com2;
-};
 
 // Class statistics, for (guess what?) controlling stats, etc....
 class Statistics
@@ -98,6 +88,8 @@ public:
     bool right_walk();
     // Walk in a line toward foe...
     bool direct_walk();
+    // Try to walk intelligently towards foe
+    bool walk_to_foe();
 
     // For NPCs normally...
     std::string name; // Must be 12 characters or less
@@ -128,7 +120,7 @@ public:
 
     Uint16 level;
     // Use for paralyzing...
-    Sint16 froze_delay;
+    Sint16 frozen_delay;
     // Cost of our special ability
     Uint16 special_cost[NUM_SPECIALS];
     // Cost of our weapon

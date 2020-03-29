@@ -398,7 +398,9 @@ bool results_screen(Sint32 ending, Sint32 nextlevel, std::map<Sint32, Guy *> &be
         // Draw
         myscreen->draw_button(area.x, area.y, (area.x + area.w) - 1, (area.y + area.h) - 1, 1, 1);
         myscreen->draw_button_inverted(area_inner.x, area_inner.y, area_inner.w, area_inner.h);
-        bigtext.write_xy_center(area.x + (area.w / 2), area.y + 4, RED, "RESULTS");
+        buf << "RESULTS";
+        bigtext.write_xy_center(area.x + (area.w / 2), area.y + 4, RED, buf);
+        buf.clear();
 
         int y = 0;
 
@@ -411,19 +413,18 @@ bool results_screen(Sint32 ending, Sint32 nextlevel, std::map<Sint32, Guy *> &be
                 // TODO: Show total possible gold collected? Hos is this factored into allscore
                 if ((area_inner.y < y) && ((y + 10) < (area_inner.y + area_inner.h))) {
                     buf << allscore * 2 << " Gold       ";
-                    std::string msg(buf.str());
+                    mytext.write_xy_center_shadow(area.x + (area.w / 2), y, YELLOW, buf);
                     buf.clear();
-
-                    mytext.write_xy_center_shadow(area.x + (area.w / 2), y, YELLOW, msg);
                     buf << allscore * 2 << "      Gained";
-                    msg = buf.str();
+                    mytext.write_xy_center(area.x + (area.w / 2), y, DARK_BLUE, buf);
                     buf.clear();
-                    mytext.write_xy_center(area.x + (area.w / 2), y, DARK_BLUE, msg);
                 }
 
                 if ((area_inner.y < y) && ((y + 10) < (area_inner.y + area_inner.h))) {
                     if (allbonuscash > 0) {
-                        mytext.write_xy_center_shadow(area.x + (area.w / 2), y + 9, YELLOW, "+ %d time Bonus", allbonuscash);
+                        buf << "+ " << allbonuscash << " Time Bonus";
+                        mytext.write_xy_center_shadow(area.x + (area.w / 2), y + 9, YELLOW, buf);
+                        buf.clear();
                     }
                 }
 
@@ -433,30 +434,22 @@ bool results_screen(Sint32 ending, Sint32 nextlevel, std::map<Sint32, Guy *> &be
             if ((area_inner.y < y) && ((y + 10) < (area_inner.y + area_inner.h))) {
                 if (ending == 0) {
                     buf << num_foes_total - num_foes_left << " Foes         ";
-                    std::string msg(buf.str());
+                    mytext.write_xy_center_shadow(area.x + (area.w / 2), y, PURE_WHITE, buf);
                     buf.clear();
-
-                    mytext.write_xy_center_shadow(area.x + (area.w / 2), y, PURE_WHITE, msg);
 
                     buf << num_foes_total - num_foes_left << "      Defeated";
-                    msg = buf.str();
+                    mytext.write_xy_center(area.x + (area.w / 2), y, DARK_BLUE, buf);
                     buf.clear();
-
-                    mytext.write_xy_center(area.x + (area.w / 2), y, DARK_BLUE, msg);
                 } else {
                     buf << num_foes_total - num_foes_left << " of "
                         << num_foes_total << " Foes         ";
-                    std::string msg(buf.str());
+                    mytext.write_xy_center_shadow(area.x + (area.w / 2), y, PURE_WHITE, buf);
                     buf.clear();
-
-                    mytext.write_xy_center_shadow(area.x + (area.w / 2), y, PURE_WHITE, msg);
 
                     buf << num_foes_total - num_foes_left << "    "
                         << num_foes_total << "      Defeated";
-                    msg = buf.str();
+                    mytext.write_xy_center(area.x + (area.w / 2), y, DARK_BLUE, buf);
                     buf.clear();
-
-                    mytext.write_xy_center(area.x + (area.w / 2), y, DARK_BLUE, msg);
                 }
             }
 
@@ -466,16 +459,25 @@ bool results_screen(Sint32 ending, Sint32 nextlevel, std::map<Sint32, Guy *> &be
                 if ((area_inner.y < y) && ((y + 10) < (area_inner.y + area_inner.h))) {
                     buf << "MVP: " << mvp->myguy->name << " the "
                         << get_family_string(mvp->myguy->family);
-                    mytext.write_xy_center(area.x + (area.w / 2), y, DARK_BLUE, buf.str());
+                    mytext.write_xy_center(area.x + (area.w / 2), y, DARK_BLUE, buf);
                     buf.clear();
-                    mytext.write_xy_center(area.x + (area.w / 2), y + 8, DARK_BLUE, "(%.0f pts)", mvp_points);
+
+                    buf << "(";
+                    if (mvp_points != 0) {
+                        buf << mvp_points;
+                    }
+                    buf << " pts)";
+                    mytext.write_xy_center(area.x + (area.w / 2), y + 8, DARK_BLUE, buf);
+                    buf.clear();
                     y += 22;
                 }
             }
 
             if ((ending == 0) && (recruits.size() > 0)) {
                 if ((area_inner.y < y) && ((y + 10) < (area_inner.y + area_inner.h))) {
-                    mytext.write_xy(x, y, DARK_BLUE, "%d Recruits:", recruits.size());
+                    buf << recruits.size() << " Recruits:";
+                    mytext.write_xy(x, y, DARK_BLUE, buf);
+                    buf.clear();
                 }
 
                 y += 22;
@@ -486,7 +488,7 @@ bool results_screen(Sint32 ending, Sint32 nextlevel, std::map<Sint32, Guy *> &be
                             << troops[e].get_class_name() << " LVL "
                             << troops[e].get_level();
 
-                        mytext.write_xy(x, y, DARK_BLUE, buf.str());
+                        mytext.write_xy(x, y, DARK_BLUE, buf);
                         buf.clear();
                     }
 
@@ -499,7 +501,9 @@ bool results_screen(Sint32 ending, Sint32 nextlevel, std::map<Sint32, Guy *> &be
             // Won or lost due to NPC
             if ((ending != 1) && (losses.size() > 0)) {
                 if ((area_inner.y < y) && ((y + 10) < (area_inner.y + area_inner.h))) {
-                    mytext.write_xy(x, y, DARK_BLUE, "%d Losses:", losses.size());
+                    buf << losses.size() << " Losses:";
+                    mytext.write_xy(x, y, DARK_BLUE, buf);
+                    buf.clear();
                 }
 
                 y += 22;
@@ -510,7 +514,7 @@ bool results_screen(Sint32 ending, Sint32 nextlevel, std::map<Sint32, Guy *> &be
                             << troops[e].get_class_name() << " LVL "
                             << troops[e].get_level();
 
-                        mytext.write_xy(x, y, DARK_BLUE, buf.str());
+                        mytext.write_xy(x, y, DARK_BLUE, buf);
                         buf.clear();
                     }
 
@@ -532,20 +536,20 @@ bool results_screen(Sint32 ending, Sint32 nextlevel, std::map<Sint32, Guy *> &be
                 if ((area_inner.y < y) && ((y + 10) < (area_inner.y + area_inner.h))) {
                     Sint32 name_w = mytext.write_xy(x, y, PURE_BLACK, troops[i].get_name());
                     buf << " the " << troops[i].get_class_name();
-                    name_w += mytext.write_xy(x + name_w, y, PURE_BLACK + 2, buf.str());
+                    name_w += mytext.write_xy(x + name_w, y, PURE_BLACK + 2, buf);
                     buf.clear();
 
                     if (troops[i].gained_level()) {
                         buf << " LVL UP " << troops[i].get_level();
-                        mytext.write_xy(x + name_w, y, YELLOW, buf.str());
+                        mytext.write_xy(x + name_w, y, YELLOW, buf);
                         buf.clear();
                     } else if (troops[i].lost_level()) {
                         buf << " LVL DOWN " << troops[i].get_level();
-                        mytext.write_xy(x + name_w, y, RED, buf.str());
+                        mytext.write_xy(x + name_w, y, RED, buf);
                         buf.clear();
                     } else {
                         buf << " LVL " << troops[i].get_level();
-                        mytext.write_xy(x + name_w, y, DARK_GREEN, buf.str());
+                        mytext.write_xy(x + name_w, y, DARK_GREEN, buf);
                         buf.clear();
                     }
                 }
@@ -601,7 +605,7 @@ bool results_screen(Sint32 ending, Sint32 nextlevel, std::map<Sint32, Guy *> &be
                             buf << "ies";
                         }
 
-                        mytext.write_xy(area.x + 20, y, DARK_GREEN, buf.str());
+                        mytext.write_xy(area.x + 20, y, DARK_GREEN, buf);
                         buf.clear();
                     }
                 }
@@ -619,7 +623,7 @@ bool results_screen(Sint32 ending, Sint32 nextlevel, std::map<Sint32, Guy *> &be
                                 buf << "s";
                             }
 
-                            mytext.write_xy(area.x + 20, y, DARK_BLUE, buf.str());
+                            mytext.write_xy(area.x + 20, y, DARK_BLUE, buf);
                             buf.clear();
                         }
 

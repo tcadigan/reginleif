@@ -130,8 +130,8 @@ public:
         return order;
     }
 
-    friend class statistics;
-    friend class command;
+    friend class Statistics;
+    friend class Command;
 
     // Used to open doors
     Uint32 keys;
@@ -146,6 +146,8 @@ public:
     // For fighter's blades
     Sint16 weapons_left;
     Sint16 yo_delay;
+    float lastx;
+    float lasty;
     // Current direction facing
     Uint8 curdir;
     Uint8 cycle;

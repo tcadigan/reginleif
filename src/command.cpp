@@ -15,30 +15,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#ifndef __TREASURE_HPP__
-#define __TREASURE_HPP__
+#include "command.hpp"
 
-// Definition of TREASURE class
-
-#include "walker.hpp"
-
-class Treasure : public Walker
+Command::Command()
+    : commandtype(0)
+    , commandcount(0)
+    , com1(0)
+    , com2(0)
 {
-public:
-    Treasure(PixieData const &data);
-    virtual ~Treasure();
-
-    Sint16 act();
-    // Called upon destruction
-    // Sint16 death();
-    Sint16 eat_me(Walker *eater);
-    Walker *find_teleport_target();
-    void set_direct_frame(Sint16 whatframe);
-
-    Uint8 query_order()
-    {
-        return ORDER_TREASURE;
-    }
-};
-
-#endif
+}
