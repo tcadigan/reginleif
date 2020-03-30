@@ -28,14 +28,14 @@ public:
     Treasure(PixieData const &data);
     virtual ~Treasure();
 
-    Sint16 act();
+    Sint16 act() override;
     // Called upon destruction
-    // Sint16 death();
-    Sint16 eat_me(Walker *eater);
+    // Sint16 death() override;
+    Sint16 eat_me(Walker *eater) override;
+    void set_direct_frame(Sint16 whatframe) override;
     Walker *find_teleport_target();
-    void set_direct_frame(Sint16 whatframe);
 
-    Uint8 query_order()
+    Uint8 query_order() override
     {
         return ORDER_TREASURE;
     }

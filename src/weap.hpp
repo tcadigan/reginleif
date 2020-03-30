@@ -28,13 +28,13 @@ public:
     Weap(PixieData const &data);
     virtual ~Weap();
 
-    Sint16 act();
-    Sint16 animate();
+    Sint16 act() override;
+    Sint16 animate() override;
     // Called on destruction
-    Sint16 death();
-    Sint16 setxy(Sint16 x, Sint16 y);
+    Sint16 death() override;
+    Sint16 setxy(Sint16 x, Sint16 y) override;
 
-    Uint8 query_order()
+    Uint8 query_order() override
     {
         return ORDER_WEAPON;
     }

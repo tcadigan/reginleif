@@ -37,7 +37,7 @@ public:
     Uint8 *getbuffer();
     void putblack(Sint32 startx, Sint32 starty, Sint32 xsize, Sint32 ysize);
     void fastbox(Sint32 startx, Sint32 starty, Sint32 xsize, Sint32 ysize, Uint8 color);
-    void fastbox(Sint32 startx, Sint32 starty, Sint32 xsize, Sint32 ysize, Uint8 color, Uint8 flag);
+    void fastbox(Sint32 startx, Sint32 starty, Sint32 xsize, Sint32 ysize, Uint8 color, bool flag);
     void fastbox_outline(Sint32 startx, Sint32 starty, Sint32 xsize, Sint32 ysize, Uint8 color);
     void point(Sint32 x, Sint32 y, Uint8 color);
     // buffers: PORT: Added below prototype
@@ -46,10 +46,10 @@ public:
     void pointb(Sint32 offset, Uint8 color);
     void pointb(Sint32 x, Sint32 y, Sint32 r, Sint32 g, Sint32 b);
     void hor_line(Sint32 x, Sint32 y, Sint32 length, Uint8 color);
-    void hor_line(Sint32 x, Sint32 y, Sint32 length, Uint8 color, Sint32 tobuffer);
+    void hor_line(Sint32 x, Sint32 y, Sint32 length, Uint8 color, bool tobuffer);
     void hor_line_alpha(Sint32 x, Sint32 y, Sint32 length, Uint8 color, Uint8 alpha);
     void ver_line(Sint32 x, Sint32 y, Sint32 length, Uint8 color);
-    void ver_line(Sint32 x, Sint32 y, Sint32 length, Uint8 color, Sint32 tobuffer);
+    void ver_line(Sint32 x, Sint32 y, Sint32 length, Uint8 color, bool tobuffer);
     void draw_line(Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2, Uint8 color);
     void do_cycle(Sint32 curmode, Sint32 maxmode);
     void putdata(Sint32 startx, Sint32 starty, Sint32 xsize, Sint32 ysize, Uint8 *sourcedata);
@@ -66,15 +66,15 @@ public:
     void walkputbuffertext(Sint32 walkerstartx, Sint32 walkerstarty, Sint32 walkerwidth, Sint32 walkerheight, Sint32 portstartx, Sint32 portstarty, Sint32 portendx, Sint32 portendy, Uint8 *sourceptr, Uint8 teamcolor);
     void walkputbuffertext_alpha(Sint32 walkerstartx, Sint32 walkerstarty, Sint32 walkerwidth, Sint32 walkerheight, Sint32 portstartx, Sint32 portstarty, Sint32 portendx, Sint32 portendy, Uint8 *sourceptr, Uint8 teamcolor, Uint8 alpha);
     void buffer_to_screen(Sint32 viewstartx, Sint32 viewstarty, Sint32 viewwidth, Sint32 viewheight);
-    void draw_box(Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2, Uint8 color, Sint32 filled);
-    void draw_box(Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2, Uint8 color, Sint32 filled, Sint32 tobuffer);
+    void draw_box(Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2, Uint8 color, bool filled);
+    void draw_box(Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2, Uint8 color, bool filled, bool tobuffer);
     void draw_rect_filled(Sint32 x, Sint32 y, Uint32 w, Uint32 h, Uint8 color, Uint8 alpha);
     void draw_button(SDL_Rect const &rect, Sint32 border);
     void draw_button_inverted(SDL_Rect const &rec);
     void draw_button_inverted(Sint32 x, Sint32 y, Uint32 w, Uint32 h);
-    void draw_button(Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2, Sint32 border);
-    void draw_button(Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2, Sint32 border, Sint32 tobuffer);
-    void draw_button_colored(Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2, bool use_border, Sint32 base_color, Sint32 high_color=15, Sint32 shadow_color=11);
+    void draw_button(Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2, bool border);
+    void draw_button(Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2, bool border, bool tobuffer);
+    void draw_button_colored(Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2, bool use_border, Uint8 base_color, Uint8 high_color=15, Uint8 shadow_color=11);
     Sint32 draw_dialog(Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2, std::string const &header);
     void draw_text_bar(Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2);
     void darken_screen();
@@ -97,7 +97,7 @@ public:
     // For "faded" backgrounds during menus
     Uint8 redpalette[768];
     // For special effects like time freeze
-    Uint8 blupalette[768];
+    Uint8 bluepalette[768];
     // Store the dos palette so we can restore it later
     Uint8 dospalette[768];
     // Our new unified video buffer
