@@ -31,7 +31,6 @@
 
 #include "gloader.hpp"
 #include "gparser.hpp"
-#include "graph.hpp"
 #include "guy.hpp"
 #include "input.hpp"
 #include "io.hpp"
@@ -41,6 +40,7 @@
 #include "util.hpp"
 #include "view.hpp"
 #include "view_sizes.hpp"
+#include "walker.hpp"
 
 #include <cstring>
 #include <sstream>

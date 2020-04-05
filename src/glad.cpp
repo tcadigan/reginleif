@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
     cfg.save_settings();
     cfg.commandline(arg_count, args);
 
-    theprefs = new Options;
+    theprefs = new Options();
     myscreen = new VideoScreen(1);
 
 #ifdef OUYA

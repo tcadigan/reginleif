@@ -26,62 +26,10 @@
 #include "options.hpp"
 #include "radar.hpp"
 
+#include <string>
+
 // Max of 5 lines, currently
 #define MAX_MESSAGES 5
-
-// Viewscreen related defines
-enum PrefOptionsEnum : Uint8 {
-    PREF_LIFE = 0,
-    PREF_SCORE = 1,
-    PREF_VIEW = 2,
-    PREF_JOY = 3,
-    PREF_RADAR = 4,
-    PREF_FOES = 5,
-    PREF_GAMMA = 6,
-    PREF_OVERLAY = 7,
-    PREF_MAX = 8 // == 1 + highest pref...
-};
-
-enum PrefLifeEnum : Uint8 {
-    PREF_LIFE_TEXT = 0,
-    PREF_LIFE_BARS = 1,
-    PREF_LIFE_BOTH = 2,
-    PREF_LIFE_SMALL = 3,
-    PREF_LIFE_OFF = 4
-};
-
-enum PrefScoreEnum : Uint8 {
-    PREF_SCORE_OFF = 0,
-    PREF_SCORE_ON = 1
-};
-
-enum PrefViewEnum : Uint8 {
-    PREF_VIEW_FULL = 0,
-    PREF_VIEW_PANELS = 1,
-    PREF_VIEW_1 = 2,
-    PREF_VIEW_2 = 3,
-    PREF_VIEW_3 = 4
-};
-
-enum PrefJoystickEnum: Uint8 {
-    PREF_NO_JOY = 0,
-    PREF_USE_JOY = 1
-};
-
-enum PrefRadarEnum: Uint8 {
-    PREF_RADAR_OFF = 0,
-    PREF_RADAR_ON = 1
-};
-
-enum PrefFoesEnum : Uint8 {
-    PREF_FOES_OFF = 0,
-    PREF_FOES_ON = 1
-};
-
-enum PrefOverlayEnum : Uint8 {
-    PREF_OVERLAY_OFF = 0,
-    PREF_OVERLAY_ON = 1
-};
 
 class ViewScreen
 {
@@ -91,11 +39,11 @@ public:
 
     void clear();
     Sint16 draw();
-    Sint16 redraw();
-    Sint16 redraw(LevelData *data, bool draw_radar=true);
-    Sint16 refresh();
-    Sint16 input(SDL_Event const &event);
-    Sint16 continuous_input();
+    bool redraw();
+    bool redraw(LevelData *data, bool draw_radar=true);
+    bool refresh();
+    bool input(SDL_Event const &event);
+    bool continuous_input();
     void set_display_text(std::string const &newtext, Sint16 numcycles);
     // Put the text to the buffer, if there
     void display_text();
@@ -114,7 +62,7 @@ public:
     // Display the options menu
     void options_menu();
     // Get player keyboard info
-    Sint32 set_key_prefs();
+    bool set_key_prefs();
     Sint32 change_speed(Sint32 whichway);
     Sint32 change_gamma(Sint32 whichway);
 
@@ -127,7 +75,7 @@ public:
     Sint32 gamma;
 
     // Max of 80 wide
-    Uint8 textlist[MAX_MESSAGES][80];
+    std::string textlist[MAX_MESSAGES];
     // Cycles to display screen text
     Sint16 textcycles[MAX_MESSAGES];
 

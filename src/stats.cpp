@@ -19,12 +19,12 @@
 
 #include "stats.hpp" // For bit flags, etc.
 
-#include "graph.hpp"
 #include "guy.hpp"
 #include "input.hpp"
 #include "screen.hpp"
 #include "util.hpp"
 #include "view.hpp"
+#include "walker.hpp"
 
 #include <cmath>
 #include <sstream>

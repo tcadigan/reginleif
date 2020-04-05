@@ -23,7 +23,6 @@
 #include "glad.hpp"
 #include "gloader.hpp"
 #include "gparser.hpp"
-#include "graph.hpp"
 #include "graphlib.hpp"
 #include "guy.hpp"
 #include "help.hpp"
@@ -38,6 +37,7 @@
 #include "util.hpp"
 #include "version.hpp"
 #include "view.hpp"
+#include "walker.hpp"
 
 #include <cstring>
 #include <iomanip>

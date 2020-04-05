@@ -7,21 +7,22 @@ CPPFILES = browser_entry.cpp button.cpp campaign_entry.cpp campaign_picker.cpp \
            effect.cpp game.cpp glad.cpp gloader.cpp gparser.cpp graphlib.cpp \
            guy.cpp help.cpp input.cpp intro.cpp io.cpp level_data.cpp \
            level_editor.cpp level_editor_data.cpp level_picker.cpp living.cpp \
-           object_type.cpp obmap.cpp ouya_controller.cpp pal32.cpp picker.cpp \
-           pixie.cpp pixie_data.cpp pixien.cpp radar.cpp rect.cpp rectf.cpp \
-           results_screen.cpp sai2x.cpp save_data.cpp screen.cpp \
+           object_type.cpp obmap.cpp options.cpp ouya_controller.cpp pal32.cpp \
+           picker.cpp pixie.cpp pixie_data.cpp pixien.cpp radar.cpp rect.cpp \
+           rectf.cpp results_screen.cpp sai2x.cpp save_data.cpp screen.cpp \
            selection_info.cpp simple_button.cpp smooth.cpp sound.cpp \
            stats.cpp text.cpp treasure.cpp troop_result.cpp util.cpp video.cpp \
-           weap.cpp \
+           view.cpp weap.cpp \
 
 OBJS = browser_entry.o button.o campaign_entry.o campaign_picker.o command.o \
        editor_object_brush.o editor_terrain_brush.o effect.o game.o glad.o \
        gloader.o gparser.o graphlib.o guy.o help.o input.o intro.o io.o \
        level_data.o level_editor.o level_editor_data.o level_picker.o living.o \
-       object_type.o obmap.o ouya_controller.o pal32.o picker.o pixie.o \
-       pixie_data.o pixien.o radar.o rect.o rectf.o results_screen.o sai2x.o \
-       save_data.o screen.o selection_info.o simple_button.o smooth.o sound.o \
-       stats.o text.o treasure.o troop_result.o util.o video.o weap.o \
+       object_type.o obmap.o options.o ouya_controller.o pal32.o picker.o \
+       pixie.o pixie_data.o pixien.o radar.o rect.o rectf.o results_screen.o \
+       sai2x.o save_data.o screen.o selection_info.o simple_button.o smooth.o \
+       sound.o stats.o text.o treasure.o troop_result.o util.o video.o view.o \
+       weap.o \
 
 HDRS = base.hpp browser_entry.hpp button.hpp button-fwd.hpp campaign_entry.hpp \
        campaign_picker.hpp colors.hpp command.hpp editor_object_brush.hpp \

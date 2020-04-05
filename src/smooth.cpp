@@ -20,7 +20,7 @@
 #include "smooth.hpp"
 
 #include "base.hpp"
-#include "graph.hpp"
+#include "pixdefs.hpp"
 
 Smoother::Smoother()
     : mygrid(nullptr)

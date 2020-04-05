@@ -22,7 +22,6 @@
 #include "living.hpp"
 
 #include "gparser.hpp"
-#include "graph.hpp"
 #include "guy.hpp"
 #include "screen.hpp"
 #include "smooth.hpp"
