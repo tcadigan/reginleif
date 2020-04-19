@@ -15,15 +15,39 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#ifndef __GLAD_HPP__
-#define __GLAD_HPP__
+#include "damage_number.hpp"
 
 #include "screen.hpp"
-#include "walker-fwd.hpp"
+#include "view.hpp"
 
-#include <SDL2/SDL.h>
+#include <sstream>
 
-void glad_main(Sint32 playermode);
-Sint16 remaining_foes(VideoScreen *myscreen, Walker *myguy);
+DamageNumber::DamageNumber(float x, float y, float value, Uint8 color)
+    : x(x)
+    , y(y)
+    , t(1.0f)
+    , value(value)
+    , color(color)
+{
+}
 
-#endif
+void DamageNumber::draw(ViewScreen *view_buf)
+{
+    Sint32 xscreen = static_cast<Sint32>((x - view_buf->topx) + view_buf->xloc);
+    Sint32 yscreen = static_cast<Sint32>((y - view_buf->topy) + view_buf->yloc);
+
+    Uint8 alpha = 0;
+
+    if (t >= 255) {
+        alpha = 255;
+    } else if (t >= 0) {
+        alpha = t * 255;
+    }
+
+    std::stringstream buf;
+    if (value != 0) {
+        buf << value;
+    }
+
+    myscreen->text_normal.write_xy_center_alpha(xscreen, yscreen, color, alpha, buf);
+}

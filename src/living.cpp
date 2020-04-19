@@ -719,7 +719,7 @@ Sint16 Living::check_special()
 
         break; // End of fighter case
     case FAMILY_SLIME:
-        if (myscreen->level_data.numobs < MAXOBJS) {
+        if (myscreen->level_data.numobs < MAXOBS) {
             return 1;
         } else {
             return 0;

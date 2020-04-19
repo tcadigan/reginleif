@@ -15,15 +15,27 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#ifndef __GLAD_HPP__
-#define __GLAD_HPP__
-
-#include "screen.hpp"
-#include "walker-fwd.hpp"
+#ifndef __DAMAGE_NUMBER_HPP__
+#define __DAMAGE_NUMBER_HPP__
 
 #include <SDL2/SDL.h>
 
-void glad_main(Sint32 playermode);
-Sint16 remaining_foes(VideoScreen *myscreen, Walker *myguy);
+#include "view-fwd.hpp"
+
+// TODO: Move this to screen class so it doesn't get overlapped
+//       by other walkers drawing
+class DamageNumber
+{
+public:
+    DamageNumber(float x, float y, float value, Uint8 color);
+
+    void draw(ViewScreen *view_buf);
+
+    float x;
+    float y;
+    float t;
+    float value;
+    Uint8 color;
+};
 
 #endif

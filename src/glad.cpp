@@ -63,7 +63,6 @@ extern bool debug_draw_obmap;
 // create it before the main and go nuts trying to load it
 extern Options *theprefs;
 
-Sint16 remaining_foes(VideoScreen *myscreen, Walker *myguy);
 Sint16 remaining_team(VideoScreen *myscreen, Uint8 myteam);
 Sint16 score_panel(VideoScreen *myscreen);
 Sint16 score_panel(VideoScreen *myscreen, Sint16 do_it);

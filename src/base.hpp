@@ -114,7 +114,7 @@ enum ScenTypeEnum : Uint8 {
 #define MAX_MP_COLOR 64 // When mp is over max :)
 
 // Generators are limited by this number
-#define MAXOBJS 150
+#define MAXOBS 150
 
 // For walkputbuffer mode type
 enum ModeEnum : Uint8 {

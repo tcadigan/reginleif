@@ -20,29 +20,28 @@
 
 // Definition of WALKER class
 
-#include <vector>
-
 #include "walker-fwd.hpp"
 
+#include "damage_number.hpp"
 #include "guy-fwd.hpp"
 #include "obmap.hpp"
 #include "pixien.hpp"
 #include "stats.hpp"
 
-// TODO: Move this to screen class so it doesn't get overlapped
-//       by other walkers drawing
-class DamageNumber
-{
-public:
-    DamageNumber(float x, float y, float value, Uint8 color);
+#include <list>
+#include <vector>
 
-    void draw(ViewScreen *view_buf);
-
-    float x;
-    float y;
-    float t;
-    float value;
-    Uint8 color;
+enum ExpActionEnum {
+    EXP_ATTACK,
+    EXP_KILL,
+    EXP_HEAL,
+    EXP_TURN_UNDEAD,
+    EXP_RAISE_SKELETON,
+    EXP_RAISE_GHOST,
+    EXP_RESURRECT,
+    EXP_RESURRECT_PENALTY,
+    EXP_PROTECTION,
+    EXP_EAT_CORPSE
 };
 
 class Walker : public PixieN
@@ -51,7 +50,7 @@ public:
     Walker(PixieData const &data);
     virtual ~Walker();
 
-    Sint16 reset(void);
+    bool reset(void);
     bool move(Sint16 x, Sint16 y);
     void worldmove(float x, float y);
     void setworldxy(float x, float y);
@@ -62,8 +61,8 @@ public:
     void draw_path(ViewScreen *view_buf);
     void find_path_to_foe();
     void follow_path_to_foe();
-    Sint16 init_fire();
-    Sint16 init_fire(Sint16 xdir, Sint16 ydir);
+    bool init_fire();
+    bool init_fire(Sint16 xdir, Sint16 ydir);
     void set_weapon_heading(Walker *weapon);
     Walker *fire();
     Sint16 set_act_type(Sint16 num);
@@ -75,10 +74,10 @@ public:
     Sint16 set_order_family(Uint8 order, Uint8 family);
     Walker *create_weapon();
     Sint16 fire_check(Sint16 xdelta, Sint16 ydelta);
-    Sint16 query_next_to();
+    bool query_next_to();
     Sint16 special();
-    Sint16 teleport();
-    Sint16 teleport_ranged(Sint32 range);
+    bool teleport();
+    bool teleport_ranged(Sint32 range);
     Sint32 turn_undead(Sint32 range, Sint32 power);
     bool turn(Sint16 targetdir);
     // How many (of 8) spaces around us are clear
@@ -94,8 +93,8 @@ public:
     Sint32 distance_to_ob(Walker *target);
     Sint32 distance_to_ob_center(Walker *target);
     Uint8 query_team_color();
-    Sint32 is_friendly(Walker *target);
-    Sint32 is_friendly_to_team(Uint8 team);
+    bool is_friendly(Walker *target);
+    bool is_friendly_to_team(Uint8 team);
     float get_current_angle();
     void do_heal_effects(Walker *healer, Walker *target, Sint16 amount);
     void do_hit_effects(Walker *attacker, Walker *target, Sint16 tempdamage);
@@ -224,9 +223,9 @@ public:
     float last_hitpoints;
 
 protected:
-    Sint16 act_generate();
-    Sint16 act_fire();
-    Sint16 act_guard();
+    bool act_generate();
+    bool act_fire();
+    bool act_guard();
 
     virtual Sint16 act_random();
 

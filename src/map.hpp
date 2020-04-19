@@ -15,15 +15,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#ifndef __GLAD_HPP__
-#define __GLAD_HPP__
+#ifndef __MAP_HPP__
+#define __MAP_HPP__
 
-#include "screen.hpp"
-#include "walker-fwd.hpp"
+#include "micropather.hpp"
 
-#include <SDL2/SDL.h>
+#include <vector>
 
-void glad_main(Sint32 playermode);
-Sint16 remaining_foes(VideoScreen *myscreen, Walker *myguy);
+class Map : public Graph
+{
+public:
+    virtual float LeastCostEstimate(void *stateStart, void *stateEnd);
+    virtual void AdjacentCost(void *state, std::vector<StateCost> *adjacent);
+    virtual void PrintStateInfo(void *state);
+};
 
 #endif
