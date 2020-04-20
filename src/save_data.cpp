@@ -26,10 +26,6 @@
 
 #include <cstring>
 
-#ifdef USE_TOUCH_INPUT
-#define DISABLE_MULTIPLAYER
-#endif
-
 SaveData::SaveData()
     : current_campaign("org.openglad.gladiator")
     , scen_num(1)
@@ -280,9 +276,7 @@ bool SaveData::load(std::string const &filename)
     // Read the # of players
     SDL_RWread(infile, &temp_numplayers, 1, 1);
 
-#ifdef DISABLE_MULTIPLAYER
     temp_numplayers = 1;
-#endif
 
     numplayers = temp_numplayers;
 

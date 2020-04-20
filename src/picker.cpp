@@ -93,15 +93,7 @@
 #define STAT_DISABLED BLACK // Color for disabled stat text
 #define STAT_DERIVED (DARK_BLUE + 3)
 
-#ifdef USE_TOUCH_INPUT
-#define DISABLE_MULTIPLAYER
-#endif
-
-#ifdef USE_CONTROLLER_INPUT
-#define MENU_NAV_DEFAULT tru
-#else
 #define MENU_NAV_DEFAULT false
-#endif
 
 // int matherr(struct exception *);
 // Shows the current guy...
@@ -1565,9 +1557,7 @@ Sint32 create_hire_menu(Sint32 arg1)
         delete localbuttons;
     }
 
-#ifdef DISABLE_MULTIPLAYER
-    hiremenu_buttons[2].hiddern = true;
-#endif
+    hiremenu_buttons[2].hidden = true;
 
     Button *buttons = hiremenu_buttons;
     Sint32 num_buttons = 5;
@@ -1943,9 +1933,7 @@ Sint32 create_train_menu(Sint32 arg1)
         delete localbuttons;
     }
 
-#ifdef DISABLE_MULTIPLAYER
     trainmenu_buttons[18].hidden = true;
-#endif
 
     Button *buttons = trainmenu_buttons;
     Sint32 num_buttons = 20;
@@ -3837,7 +3825,7 @@ Sint32 main_options()
         delete localbuttons;
     }
 
-#if defined(OUYA) || defined(ANDROID)
+#if defined(ANDROID)
     main_options_buttons[3].no_draw = true;
     main_options_buttons[3].hidden = true;
     main_options_buttons[2].nav.right = -1;

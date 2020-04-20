@@ -36,47 +36,10 @@
 #include <sstream>
 #include <string>
 
-#ifdef OUYA
-#include "ouya_controller.hpp"
-#endif
-
-#ifdef USE_TOUCH_INPUT
-
-#include "base.hpp"
-#include "obmap.hpp"
-#include "screen.hpp"
-#include "stats.hpp"
-#include "util.hpp"
-#include "view.hpp"
-#include "walker.hpp"
-
-#endif
-
 #define JOY_DEAD_ZONE 8000
 // Just in case there are joysticks attached that are no useable
 // (e.g. accelerometer)
 #define MAX_NUM_JOYSTICKS 10
-
-#ifdef USE_TOUCH_INPUT
-
-#define MOVE_AREA_DIM 60
-#define MOVE_DEAD_ZONE 10
-
-#define FIRE_BUTTON_X 245
-#define FIRE_BUTTON_Y 165
-#define SPECIAL_BUTTON_X 285
-#define SPECIAL_BUTTON_Y 165
-#define YO_BUTTON_X 160
-#define YO_BUTTON_Y 100
-#define SWITCH_CHARACTER_BUTTON_X 0
-#define SWITCH_CHARACTER_BUTTON_Y 0
-#define NEXT_SPECIAL_BUTTON_X 245
-#define NEXT_SPECIAL_BUTTON_Y 125
-#define ALTERNATE_SPECIAL_BUTTON_X 285
-#define ALTERNATE_SPECIAL_BUTTON_Y 125
-#define BUTTON_DIM 30
-
-#endif
 
 void quit(Sint32 arg1);
 
@@ -181,101 +144,6 @@ Sint32 player_keys[4][NUM_KEYS] = {
     }
 };
 
-#ifdef USE_TOUCH_INPUT
-
-bool tapping = false;
-Sint32 start_tap_x = 0;
-Sint32 start_tap_y = 0;
-bool moving = false;
-Sint32 moving_touch_x = 0;
-Sint32 moving_touch_y = 0;
-Sint32 moving_touch_target_x = 0;
-Sint32 moving_touch_target_y = 0;
-SDL_FingerID movingTouch = 0;
-bool firing = false;
-SDL_FingerID firingTouch = 0;
-
-bool touch_keystate[4][NUM_KEYS] = {
-    {
-        // Movements
-        false, false, false, false
-        false, false, false, false,
-        // Fire and special
-        false, false,
-        // Switch guys
-        false,
-        // Change special
-        false,
-        // Yell
-        false,
-        // Shifter
-        false,
-        // Options menu
-        false,
-        // Cheat key
-        false
-    },
-    {
-        // Movements
-        false, false, false, false
-        false, false, false, false,
-        // Fire and special
-        false, false,
-        // Switch guys
-        false,
-        // Change special
-        false,
-        // Yell
-        false,
-        // Shifter
-        false,
-        // Options menu
-        false,
-        // Cheat key
-        false
-    },
-    {
-        // Movements
-        false, false, false, false
-        false, false, false, false,
-        // Fire and special
-        false, false,
-        // Switch guys
-        false,
-        // Change special
-        false,
-        // Yell
-        false,
-        // Shifter
-        false,
-        // Options menu
-        false,
-        // Cheat key
-        false
-    },
-    {
-        // Movements
-        false, false, false, false
-        false, false, false, false,
-        // Fire and special
-        false, false,
-        // Switch guys
-        false,
-        // Change special
-        false,
-        // Yell
-        false,
-        // Shifter
-        false,
-        // Options menu
-        false,
-        // Cheat key
-        false
-    }
-};
-
-#endif
-
 void update_overscan_setting()
 {
     overscan_percentage = std::max(overscan_percentage, 0.0f);
@@ -331,52 +199,6 @@ void get_input_events(bool type)
     }
 }
 
-#ifdef USE_TOUCH_INPUT
-
-void draw_touch_controller(VideoScreen *vob)
-{
-    Walker *control = vob->viewob[0]->control;
-
-    if ((controll == nullptr) || control->dead) {
-        return;
-    }
-
-    if (moving) {
-        // Touch movement feedback
-        // line(moving_touch_x, moving_touch_y, mouse_state[MOUSE_X], mouse_state[MOUSE_Y]);
-        vob->fastbox(moving_touch_x - (MOVE_AREA_DIM / 2),
-                     moving_touch_y - (MOVE_AREA_DIM / 2),
-                     MOVE_AREA_DIM, MOVE_AREA_DIM, 17);
-        vob->fastbox(moving_touch_x - 4, moving_touch_y - 4, 8, 8, 16);
-        vob->fastbox(moving_touch_target_x - 1, moving_touch_target_y - 2, 4, 4, 15);
-    }
-
-    // Touch buttons
-    vob-fastbox(FIRE_BUTTON_X, FIRE_BUTTON_Y, BUTTON_DIM, BUTTON_DIM, 25);
-
-    // if(has_special)
-    if (strcmp(vob->special_name[static_cast<Sint32>(control->query_family())][static_cast<Sint32>(control->current_special)], "NONE")) {
-        vob->fastbox(SPECIAL_BUTTON_X, SPECIAL_BUTTON_Y, BUTTON_DIM, BUTTON_DIM, 26);
-    }
-
-    // if(has_multiple_special)
-    if ((control->current_special != 1)
-        || (((control->current_special + 1) <= NUM_SPECIALS)
-            && (((control->current_special * 3) + 1) <= control->stats->level)
-            && strcmp(vob->special_name[static_cast<Sint32>(control->query_family())][static_cast<Sint32>(control->current_special) + 1], "NONE"))) {
-        vob->fastbox(NEXT_SPECIAL_BUTTON_X, NEXT_SPECIAL_BUTTON_Y, BUTTON_DIM, BUTTON_DIM, 27);
-    }
-
-    // if(has_alternate)
-    if (strcmp(vob->alternate_name[static_cast<Sint32>(control->query_family())][static_cast<Sint32>(control->current_special)], "NONE")) {
-        vob->fastbox(ALTERNATE_SPECIAL_BUTTON_X,
-                     ALTERNATE_SPECIAL_BUTTON_Y,
-                     BUTTON_DIM, BUTTON_DIM, 28);
-    }
-}
-
-#endif
-
 void setFakeKeyDownEvent(Sint32 keycode)
 {
     SDL_Event event;
@@ -429,15 +251,6 @@ void handle_key_event(SDL_Event const &event)
 {
     switch (event.type) {
     case SDL_KEYDOWN:
-#ifdef USE_TOUCH_INPUT
-        // Back button faking Escape key
-        if (event.key.keysym.scancode == SDL_SCANDOE_AC_BACK) {
-            sendFakeKeyDownEvent(SDLK_ESCAPE);
-
-            break;
-        }
-#endif
-
         raw_key = event.key.keysym.sym;
 
         if (raw_key == SDLK_ESCAPE) {
@@ -455,15 +268,6 @@ void handle_key_event(SDL_Event const &event)
 
         break;
     case SDL_KEYUP:
-#ifdef USE_TOUCH_INPUT
-        // Back button faking Escape key
-        if (event.key.keysym.scancode == SDL_SCANCODE_AC_BACK) {
-            sendFakeKeyUpEvent(SDLK_ESCAPE);
-
-            break;
-        }
-#endif
-
         break;
     }
 }
@@ -482,7 +286,6 @@ void handle_mouse_event(SDL_Event const &event)
         key_press_event = 1;
 
         break;
-#ifndef USE_TOUCH_INPUT // Mouse events
     case SDL_MOUSEMOTION:
         mouse_state.x = (event.motion.x - viewport_offset_x) * (320 / viewport_w);
         mouse_state.y = (event.motion.y - viewport_offset_y) * (200 / viewport_h);
@@ -514,198 +317,6 @@ void handle_mouse_event(SDL_Event const &event)
         mouse_state.y = (event.button.y - viewport_offset_y) * (200 / viewport_h);
 
         break;
-#else
-#ifdef FAKE_TOUCH_EVENTS // Convert SDL mouse events to fake SDL touch events
-    case SDL_MOUSEMOTION:
-    {
-        SDL_event e;
-        e.type = SDL_FINGERMOTION;
-        e.tfinger.x = event.motion.x / window_w;
-        e.tfigner.y = event.motion.y / window_h;
-        e.tfinger.dx = event.motion.xrel / window_w;
-        e.tfinger.dy = event.motion.yrel / window_h;
-        e.tfinger.touchId = 1;
-        e.tfinger.fingerId = 1;
-        SDL_PushEvent(&e);
-
-        break;
-    }
-    case SDL_MOUSEBUTTONUP:
-    {
-        SDL_event e;
-        e.type = SDL_FINGERUP;
-        e.tfinger.x = event.button.x / window_w;
-        e.tfinger.y = event.button.y / window_h;
-        e.tfinger.touchId = 1;
-        e.tfinger.fingerId = 1;
-        SDL_PushEvent(&e);
-
-        break;
-    }
-    case SDL_MOUSEBUTTONDOWN:
-    {
-        SDL_event e;
-        e.type = SDL_FINGERDOWN;
-        e.tfinger.x = event.button.x / window_w;
-        e.tfinger.y = event.button.y / window_h;
-        e.tfinger.touchId = 1;
-        e.tfinger.fingerId = 1;
-        SDL_PushEvent(&e);
-
-        break;
-    }
-#endif // Mouse event
-    case SDL_FINGERMOTION:
-    {
-        Sint32 x = ((event.tfinger.x * window_w) - viewport_offset_x) - (320 / viewport_w);
-        Sint32 y = ((event.tfinger.y * window_h) - viewport_offset_y) - (200 / viewport_h);
-
-        scroll_amount = y - mouse.state.y;
-
-        mouse_state.x = x;
-        mouse_state.y = y;
-
-        if (moving && (event.tfinger.fingerId == movingTouch)) {
-            moving_touch_target_x = x;
-            moving_touch_target_y = y;
-
-            touch_keystate[0][KEY_UP] = false;
-            touch_keystate[0][KEY_UP_RIGHT] = false;
-            touch_keystate[0][KEY_RIGHT] = false;
-            touch_keystate[0][KEY_DOWN_RIGHT] = false;
-            touch_keystate[0][KEY_DOWN] = false;
-            touch_keystate[0][KEY_DOWN_LEFT] = false;
-            touch_keystate[0][KEY_LEFT] = false;
-            touch_keystate[0][KEY_UP_LEFT] = false;
-
-            if ((abs(x - moving_touch_x) > MOVE_DEAD_ZONE) || (abs(y - moving_touch_y) > MOVE_DEAD_ZONE)) {
-                float offset = -M_PI + (M_PI / 8);
-                float interval = M_PI / 4;
-                float angle = atan2(y - moving_touch_y, x - moving_touch_x);
-
-                if ((angle < (-M_PI + (M_PI / 8))) || (angle >= (M_PI - (M_PI / 8)))) {
-                    touch_keystate[0][KEY_LEFT] = true;
-                } else if ((angle >= offset) && (angle < (offset + interval))) {
-                    touch_keystate[0][KEY_UP_LEFT] = true;
-                } else if ((angle >= (offset + interval)) && (angle < (offset + (2 * interval)))) {
-                    touch_keystate[0][KEY_UP] = true;
-                } else if ((angle >= (offset + (2 * interval))) && (angle < (offset + (3 * interval)))) {
-                    touch_keystate[0][KEY_UP_RIGHT] = true;
-                } else if ((angle >= (offset + (3 * interval))) && (angle < (offset + (4 * interval)))) {
-                    touch_keystate[0][KEY_RIGHT] = true;
-                } else if ((angle >= (offset + (4 * interval))) && (angle < (offset + (5 * interval)))) {
-                    touch_keystate[0][KEY_DOWN_RIGHT] = true;
-                } else if ((angle >= (offset + (5 * interval))) && (angle < (offset + (6 * interval)))) {
-                    touch_keystate[0][KEY_DOWN] = true;
-                } else if ((angle >= (offset + (6 * interval))) && (angle < (offset + (7 * interval)))) {
-                    touch_keystate[0][KEY_DOWN_LEFT] = true;
-                }
-            }
-        }
-
-        break;
-    }
-    case SDL_FINGERUP:
-    {
-        Sint32 x = ((event.tfinger.x * window_w) - viewport_offset_x) * (320 / viewport_w);
-        Sint32 y = ((event.tfinger.y * window_h) - viewport_offset_y) * (200 / viewport_h);
-
-        if (tapping) {
-            tapping = false;
-
-            if ((abs(x - start_tap_x) < 2) && (abs(y - start_tap_y) < 2)) {
-                input_continue = true;
-            } else {
-                input_continue = false;
-            }
-
-            start_tap_x = x;
-            start_type_y = y;
-        }
-
-        if (moving && (event.tfinger.fingerId == movingTouch)) {
-            moving = false;
-
-            touch_keystate[0][KEY_UP] = false;
-            touch_keystate[0][KEY_UP_RIGHT] = false;
-            touch_keystate[0][KEY_RIGHT] = false;
-            touch_keystate[0][KEY_DOWN_RIGHT] = false;
-            touch_keystate[0][KEY_DOWN] = false;
-            touch_keystate[0][KEY_DOWN_LEFT] = false;
-            touch_keystate[0][KEY_LEFT] = false;
-            touch_keystate[0][KEY_UP_LEFT] = false;
-        }
-
-        if (firing && (event.tfinger.fingerId == firingTouch)) {
-            firing = false;
-            touch_keystate[0][KEY_FIRE] = false;
-        }
-
-        mouse_state.left = 0;
-
-        break;
-    }
-    case SDL_FINGERDOWN:
-    {
-        tapping = false;
-
-        Sint32 x = ((event.tfinger.x * window_w) - viewport_offset_x) * (320 / viewport_w);
-        Sint32 y = ((event.tfinger.y * window_y) - viewport_offset_y) * (200 / viewport_h);
-
-        start_tap_x = x;
-        start_tap_y = y;
-        input_continue = false;
-
-        if (!firing && (FIRE_BUTTON_X <= x) && (x <= (FIRE_BUTTON_X + BUTTON_DIM))
-            && (FIRE_BUTTON_Y <= x) && (y <= (FIRE_BUTTON_Y + BUTTON_DIM))) {
-            firing = true;
-            sendFakeKeyDownEvent(player_keys[0][KEY_FIRE]);
-            touch_keystate[0][KEY_FIRE] = true;
-            firingTouch = event.tfinger.fingerId;
-        } else if ((SPECIAL_BUTTON_X <= x) && (x <= (SPECIAL_BUTTON_X + BUTTON_DIM))
-                   && (SPECIAL_BUTTON_Y <= y) && (y <= (SPECIAL_BUTTON_Y + BUTTON_DIM))) {
-            sendFakeKeyDownEvent(player_keys[0][KEY_SPECIAL]);
-        } else if (((YO_BUTTON_X - (BUTTON_DIM / 2)) <= x) && (x <= (YO_BUTTON + (BUTTON_DIM / 2)))
-                   && ((YO_BUTTON_Y - (BUTTON_DIM / 2)) <= y) && (y <= (YO_BUTTON_Y + (BUTTON_DIM / 2)))) {
-            sendFakeKeyDownEvent(player_keys[0][KEY_YELL]);
-        } else if ((SWITCH_CHARACTER_BUTTON_X <= x) && (x <= (SWITCH_CHARACTER_BUTTON_X + (BUTTON_DIM * 2)))
-                   && (SWITCH_CHARACTER_BUTTON_Y <= y) && (y <= (SWITCH_CHARACTER_BUTTON_Y + (BUTTON_DIM * 2)))) {
-            sendFakeKeyDownEvent(player_keys[0][KEY_SWITCH]);
-        } else if ((NEXT_SPECIAL_BUTTON_X <= x) && (x <= (NEXT_SPECIAL_BUTTON_X + BUTTON_DIM))
-                   && (NEXT_SPECIAL_BUTTON_Y <= y) && (y <= (NEXT_SPECIAL_BUTTON_Y + BUTTON_DIM))) {
-            sendFakeKeyDownEvent(player_keys[0][KEY_SPECIAL_SWITCH]);
-        } else if ((ALTERNATE_SPECIAL_BUTTON_X <= x) && (x <= (ALTERNATE_SPECIAL_BUTTON_X + BUTTON_DIM))
-                   && (ALTERNATE_SPECIAL_BUTTON_Y <= y) && (y <= (ALTERNATE_SPECIAL_BUTTON_Y + BUTTON_DIM))) {
-            // Treat KEY_SHIFTER as an action instead of a modifier
-            // if(has_alternate)
-            if (strcmp(myscreen->alternate_name[static_cast<Sint32>(myscreen->viewob[0]->control->query_family())][static_cast<Sint32>(myscreen->viewob[0]->controll->current_special)], "NONE")) {
-                sendfakeKeyDownEvent(player_keys[0][KEY_SHIFTER]);
-            }
-        } else if (!moving && (x < (160 - (BUTTON_DIM / 2))) && (y > (BUTTON_DIM * 2))) {
-            // Only move with the lower left corner of the screen (and offset
-            // for other buttons
-            moving_touch_x = x;
-            moving_touch_y = y;
-            moving_touch_target_x = x;
-            moving_touch_target_y = y;
-
-            moving_touch_x = std::max(moving_touch_x, (MOVE_AREA_DIM / 2) + 1);
-
-            moving_touch_y = std::max(moving_touch_y, (MOVE_AREA_DIM / 2) + 1);
-            moving_touch_y = std::min(moving_touch_y, 200 - ((MOVE_AREA_DIM / 2) + 1));
-
-            moving = true;
-            movingTouch = event.tfinger.fingerId;
-        }
-
-        key_press_event = 1;
-        mouse_state.left = 1;
-        mouse_state.x = event.tfinger.x * 320;
-        mouse_state.y = event.tfinger.y * 200;
-
-        break;
-    }
-#endif
     }
 }
 
@@ -783,32 +394,6 @@ void handle_events(SDL_Event const &event)
 
         break;
     default:
-#ifdef OUYA
-        if (event.type == OuyaControllerManager::BUTTON_DOWN_EVENT) {
-            if (OuyaController::ButtonEnum(static_cast<Sint32>(event.user.data1)) == OuyaController::BUTTON_O) {
-                input_continue = true;
-            } else if (OuyaController::ButtonEnum(static_cast<Sint32>(event.user.data1)) == OuyaController::BUTTON_DPAD_UP) {
-                scroll_amount = 5;
-            } else if (OuyaController::ButtonEnum(static_cast<Sint32>(event.user.data1)) == OuyaController::BUTTON_DPAD_DOWN) {
-                scroll_amount = -5;
-            } else if (OuyaController::ButtonEnum(static_cast<Sint32>(event.user.data1)) == OuyaController::BUTTON_MENU) {
-                sendFakeKeyDownEvent(SDLK_ESCAPE);
-            }
-
-            key_press_event = 1;
-        } else if (event.type == OuyaControllerManager::AXIS_EVENT) {
-            OuyaController const &c = OuyaControllerManager::getController(event.user.code);
-
-            // This should bot be in an event or else it's jerky.
-            float v = c.getAxisValue(OuyaController:AXIS_LS_Y) + c.getAxisValue(OuyaController::AXIS_RS_Y);
-
-            if (fabs(v) > OuyaController::DEADZONE) {
-                scroll_amount = -5 * v;
-            }
-        }
-    }
-#endif
-
         break;
     }
 }
@@ -939,10 +524,6 @@ void clear_keyboard()
     raw_text_input.clear();
 
     input_continue = false;
-
-#ifdef USE_TOUCH_INPUT
-    tapping = false;
-#endif
 }
 
 bool query_input_continue()
@@ -1329,176 +910,19 @@ void resetJoystick(Sint32 player_num)
     player_joy[player_num] = JoyData(player_num);
 }
 
-#ifdef OUYA
-bool ouyaJoystickInDirection(Sint32 player, Sint32 key_enum)
-{
-    OuyaController const &c = OuraControllerManager::getController(player);
-
-    if (!c.isStickBeyondDeadzone(OuyaController::AXIS_LS_X)) {
-        return false;
-    }
-
-    switch (key_enum) {
-    case KEY_UP:
-
-        return ((c.getAxisValue(OuyaController::AXIS_LS_Y) < -OuyaController::DEADZONE) && !c.isStickInNegativeCone(OuyaController::AXIS_LS_X) && !c.isStickInPositiveCone(OuyaController::AXIS_LS_X));
-    case KEY_UP_RIGHT:
-
-        return ((c.getAxisValue(OuyaController::AXIS_LS_Y) < -OuyaController::DEADZONE) && (c.getAxisValue(OuyaController::AXIS_LS_X) > OuyaController::DEADZONE));
-    case KEY_RIGHT:
-
-        return ((c.getAxisValue(OuyaController::AXIS_LS_X) > OuyaController::DEADZONE) && !c.isStickInNegativeCone(OuyaController::AXIS_LS_Y) && !c.isStickInPositiveCone(OuyaController::AXIS_LS_Y));
-    case KEY_DOWN_RIGHT:
-
-        return ((c.getAxisValue(OuyaController::AXIS_LS_Y) > OuyaController::DEADZONE) && (c.getAxisValue(OuyaController::AXIS_LS_X) > OuyaController::DEADZONE));
-    case KEY_DOWN:
-
-        return ((c.getAxisValue(OuyaController::AXIS_LS_Y) > OuyaController::DEADZONE) && !c.isStickInNegativeCone(OuyaController::AXIS_LS_X) && !c.isStickInPositiveCone(OuyaController::AXIS_LS_X));
-    case KEY_DOWN_LEFT:
-
-        return ((c.getAxisValue(OuyaController::AXIS_LS_Y) > OuyaController::DEADZONE) && (c.getAxisValue(OuyaController::AXIS_LS_X) < -OuyaController::DEADZONE));
-    case KEY_LEFT:
-
-        return ((c.getAxisValue(OuyaController::AXIS_LS_X) < -OuyaController::DEADZONE) && !c.isStickInNegativeCone(OuyaController::AXIS_LS_Y) && !c.isStickInPositiveCone(OuyaController::AXIS_LS_Y));
-    case KEY_UP_LEFT:
-
-        return ((c.getAxisValue(OuyaController::AXIS_LS_Y) < -OuyaController::DEADZONE) && (c.getAxisValue(OuyaController::AXIS_LS_X) < -OuyaController::DEADZONE));
-    }
-
-    return false;
-}
-#endif
-
 bool isPlayerHoldingKey(Sint32 player_index, Sint32 key_enum)
 {
-#ifdef OUYA
-    OuyaController const &c = OuyaControllerManager::getController(player_index);
-
-    switch (key_enum) {
-    case KEY_UP:
-
-        return ((c.getButtonValue(OuyaController::BUTTON_DPAD_UP) && !c.getButtonValue(OuyaController::BUTTON_DPAD_LEFT) && !c.getButtonValue(OuyaController::BUTTON_DPAD_RIGHT)) || ouyaJoystickInDirection(player_index, key_enum));
-    case KEY_UP_RIGHT:
-
-        return ((c.getButtonValue(OuyaController::BUTTON_DPAD_UP) && c.getButtonValue(OuyaController::BUTTON_DPAD_RIGHT)) || ouyaJoystickInDirection(player_index, key_enum));
-    case KEY_RIGHT:
-
-        return ((c.getButtonValue(OuyaController::BUTTON_DPAD_RIGHT) && !c.getButtonValue(OuyaController::BUTTON_DPAD_UP) && !c.getButtonValue(OuyaController::BUTTON_DPAD_DOWN)) || ouyaJoystickInDirection(player_index, key_enum));
-    case KEY_DOWN_RIGHT:
-
-        return ((c.getButtonValue(OuyaController::BUTTON_DPAD_DOWN) && c.getButtonValue(OuyaController::BUTTON_DPAD_RIGHT)) || ouyaJoystickInDirection(player_index, key_enum));
-    case KEY_DOWN:
-
-        return ((c.getButtonValue(OuyaController::BUTTON_DPAD_DOWN) && !c.getButtonValue(OuyaController::BUTTON_DPAD_LEFT) && !c.getButtonValue(OuyaController::BUTTON_DPAD_RIGHT)) || ouyaJoystickInDirection(player_index, key_enum));
-    case KEY_DOWN_LEFT:
-
-        return ((c.getButtonValue(OuyaController::BUTTON_DPAD_DOWN) && c.getButtonValue(OuyaController:BUTTON_DPAD_LEFT)) || ouyaJoystickInDirection(player_index, key_enum));
-    case KEY_LEFT:
-
-        return ((c.getButtonValue(OuyaController::BUTTON_DPAD_LEFT) && !c.getButtonValue(OuyaController::BUTTON_DPAD_UP) && !c.getButtonValue(OuyaController::BUTTON_DPAD_DOWN)) || ouyaJoystickInDirection(player_index, key_enum));
-    case KEY_UP_LEFT:
-
-        return ((c.getButtonValue(OuyaController::BUTTON_DPAD_UP) && c.getButtonValue(OuyaController::BUTTON_DPAD_LEFT)) || ouyaJoystickInDirection(player_index, key_enum));
-    case KEY_FIRE:
-
-        return c.getButtonValue(OuyaController::BUTTON_O);
-    case KEY_SPECIAL:
-
-        return c.getButtonValue(OuyaController::BUTTON_A);
-    case KEY_SWITCH:
-
-        return c.getButtonValue(OuyaController::BUTTON_L1);
-    case KEY_SPECIAL_SWITCH:
-
-        return c.getButtonValue(OuyaController::BUTTON_U);
-    case KEY_YELL:
-
-        return c.getButtonValue(OuyaController::BUTTON_Y);
-    case KEY_SHIFTER:
-
-        return c.getButtonValue(OuyaController::BUTTON_R1);
-    case KEY_PREFS:
-    case KEY_CHEAT:
-
-        return false;
-    }
-#endif
-
     // FIXME: Enable gamepads for Android/iOS, but be careful not to use
     //        accelerometer...
-#ifdef USE_TOUCH_INPUT
-    return touch_keystate[player_index][key_enum];
-#else
     if (player_joy[player_index].hasButtonSet(key_enum)) {
         return player_joy[player_index].getState(key_enum);
     } else {
         return keystates[SDL_GetScancodeFromKey(player_keys[player_index][key_enum])];
     }
-#endif
 }
 
 bool didPlayerPressKey(Sint32 player_index, Sint32 key_enum, SDL_Event const &event)
 {
-#ifdef OUYA
-    OuyaController const &c = OuyaControllerManager::getController(player_index);
-
-    if (event.user.code != player_index) {
-        return false;
-    }
-
-    if (event.type == OuyaControllerManaged::BUTTON_DOWN_EVENT) {
-        OuyaController::ButtonEnum button = OuyaController::ButtonEnum(static_cast<Sint32>(event.user.data1));
-
-        switch (key_enum) {
-        case KEY_UP:
-
-            return (button == OuyaController::BUTTON_DPAD_UP);
-        case KEY_RIGHT:
-
-            return (button == OuyaController::BUTTON_DPAD_RIGHT);
-        case KEY_DOWN:
-
-            return (button == OuyaController::BUTTON_DPAD_DOWN);
-        case KEY_LEFT:
-
-            return (button == OuyaController::BUTTON_DPAD_LEFT);
-        case KEY_FIRE:
-
-            return (button == OuyaController::BUTTON_O);
-        case KEY_SPECIAL:
-
-            return (button == OuyaController::BUTTON_A);
-        case KEY_SWITCH:
-
-            return (button == OuyaController::BUTTON_L1);
-        case KEY_SPECIAL_SWITCH:
-
-            return (button == OuyaController::BUTTON_U);
-        case KEY_YELL:
-
-            return (button == OuyaController::BUTTON_Y);
-        case KEY_SHIFTER:
-
-            return (button == OuyaController::BUTTON_R1);
-        default:
-
-            return false;
-        }
-    } else if (event.type == OuyaControllerManager::AXIS_EVENT) {
-        switch (key_enum) {
-        case KEY_UP:
-        case KEY_RIGHT:
-        case KEY_DOWN:
-        case KEY_LEFT:
-
-            return ouyaJoystickInDirection(player_index, key_enum);
-        default:
-
-            return false;
-        }
-    }
-#endif
-
     if (player_joy[player_index].hasButtonSet(key_enum)) {
         // This key is on the joystick, so check it.
         return player_joy[player_index].getPress(key_enum, event);
@@ -1520,56 +944,6 @@ bool didPlayerPressKey(Sint32 player_index, Sint32 key_enum, SDL_Event const &ev
 
 bool didPlayerReleaseKey(Sint32 player_index, Sint32 key_enum, SDL_Event const &event)
 {
-#ifdef OUYA
-    OuyaController const &c = OuyaControllerManager::getController(player_index);
-
-    if (event.type != OuyaControllerManage::BUTTON_UP_EVENT) {
-        return false;
-    }
-
-    if (event.user.code != player_index) {
-        return false;
-    }
-
-    OuyaController::ButtonEnum button = OuyaController::ButtonEnum(static_cast<Sint32>(event.user.data1));
-
-    switch (key_enum) {
-    case KEY_UP:
-
-        return (button == OuyaController::BUTTON_DPAD_UP);
-    case KEY_RIGHT:
-
-        return (button == OuyaController::BUTTON_DPAD_RIGHT);
-    case KEY_DOWN:
-
-        return (button == OuyaController::BUTTON_DPAD_DOWN);
-    case KEY_LEFT:
-
-        return (button == OuyaController::BUTTON_DPAD_LEFT);
-    case KEY_FIRE:
-
-        return (button == OuyaController::BUTTON_O);
-    case KEY_SPECIAL:
-
-        return (button == OuyaController::BUTTON_A);
-    case KEY_SWITCH:
-
-        return (button == OuyaController::BUTTON_L1);
-    case KEY_SPECIAL_SWITCH:
-
-        return (button == OuyaController::BUTTON_U);
-    case KEY_YELL:
-
-        return (button == OuyaController::BUTTON_Y);
-    case KEY_SHIFTER:
-
-        return (button == OuyaController::BUTTON_R1);
-    default:
-
-        return false;
-    }
-#endif
-
     if (player_joy[player_index].hasButtonSet(key_enum)) {
         // This key is on the joystick, so check it.
         return player_joy[player_index].getRelease(key_enum, event);

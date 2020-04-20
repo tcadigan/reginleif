@@ -42,10 +42,6 @@
 #include "version.hpp"
 #include "walker.hpp"
 
-#ifdef OUYA
-#include "OuyaController.hpp"
-#endif
-
 #define L_D(x) x * 8
 
 #ifdef REDUCE_OVERSCAN
@@ -93,10 +89,6 @@ int main(int argc, char *argv[])
 
     theprefs = new Options();
     myscreen = new VideoScreen(1);
-
-#ifdef OUYA
-    OuyaControllerManager::init();
-#endif
 
     // buffers: Setting the seed
     srand(time(nullptr));
@@ -192,10 +184,6 @@ void glad_main(Sint32 playermode)
         if (debug_draw_obmap) {
             myscreen->level_data.myobmap->draw(); // Debug drawing for object collision map
         }
-
-#ifdef USE_TOUCH_INPUT
-        draw_touch_controls(myscreen);
-#endif
 
         score_panel(myscreen);
         myscreen->refresh();
@@ -784,12 +772,6 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
                 // Score, bottom left corner
                 Sint32 special_offset = -24;
 
-#ifdef USE_TOUCH_INPUT
-                // Upper left instead
-                Sint32 bm = tm + 54;
-                special_offset = 0;
-#endif
-
                 // Draw box, if needed
                 if (draw_button) {
                     myscreen->draw_button(lm + 1, bm - 26, lm + 98, bm - 2, 1, 1);
@@ -863,22 +845,6 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
                     mytext.write_xy(lm + 2, special_y, message, static_cast<Uint8>(RED), static_cast<Sint16>(1));
                 }
 
-#ifdef USE_TOUCH_INPUT
-                // Alternate special name (if not "NONE")
-                if (strcmp(myscreen->alternate_name[static_cast<Sint32>(control->query_family())][static_cast<Sint32>(control->current_special)], "NONE")) {
-                    buf << "ALT: " << myscreen->alternate_name[static_cast<Sint32>(control->query_family())][static_cast<Sint32>(control->current_special)];
-
-                    message = buf.str();
-                    buf.clear();
-                    message.resize(50);
-
-                    if (control->stats->magicpoints >= control->stats->special_cost[static_cast<Sint32>(control->current_special)]) {
-                        mytext.write_xy(lm + 2, (bm + special_offset) + 8, message, text_color, static_cast<Sint16>(1));
-                    } else {
-                        mytext.write_xy(lm + 2, (bm + special_offset) + 8, message, static_cast<Uint8>(RED), static_cast<Sint16>(1));
-                    }
-                }
-#endif
             } // End of score/exp display
 
             // Skip act type for now
@@ -914,11 +880,7 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
                 buf.clear();
                 message.resize(50);
 
-#ifdef USE_TOUCH_INPUT
-                mytext.write_xy(rm - 55, tm + 54, message, text_color, static_cast<Sint16>(1));
-#else
                 mytext.write_xy(rm - 55, tm + 2, message, text_color, static_cast<Sint16>(1));
-#endif
 
                 // Number of foes, 2nd upper right
                 buf << "FOES: " << tempfoes;
@@ -926,11 +888,7 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
                 buf.clear();
                 message.resize(50);
 
-#ifdef USE_TOUCH_INPUT
-                mytext.write_xy(rm - 55, tm + 62, message, text_color, static_cast<Sint16>(1));
-#else
                 mytext.write_xy(rm - 55, tm + 2, message, text_color, static_cast<Sint16>(1));
-#endif
             }
 
             // // Redraw radar boarder

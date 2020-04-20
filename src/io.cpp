@@ -40,20 +40,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#ifdef WIN32
-#include "windows.h"
-
-#include <ctime>
-
-#include <direct.h>
-#include <shlobj.h>
-
-#ifndef mkdir
-#define mkdir(path, perms) _mkdir(path)
-#endif
-
-#endif
-
 static std::string mounted_campaign;
 
 /*
@@ -87,69 +73,17 @@ Sint32 rwops_write_handler(void *data, Uint8 *buffer, size_t size)
 
 std::string get_user_path()
 {
-#ifdef ANDROID
-    std::string path(SDL_AndroidGetInternalStoragePath());
-
-    return (path + "/");
-#elif defined(__IPHONEOS__)
-
-    return "../";
-#elif defined(WIN32)
-
-    Uint8 path[MAX_PATH];
-    HRESULT hr = SHGetFolderPath(0, // hwndOwner
-        CSIDL_LOCAL_APPDATA, // nFolder
-        0, // hToken
-        0, // SHGFP_TYPE_CURRENT, dwFlags
-        path); // pszPath
-
-    if (SUCCEEDED(hr)) {
-        std::string s(path);
-
-        // Replace all backslashes
-        size_t pos = 0;
-        pos = s.find_first_of('\\', pos);
-
-        if (pos != std::string::npos) {
-            s[pos] = '/';
-        }
-
-        while (pos != std::string::npos) {
-            pos = s.find_first_of('\\', pos);
-
-            if (pos != std::string::npos) {
-                s[pos] = '/';
-            }
-        }
-
-        return (s + "/.openglad/");
-    }
-
-    return "";
-#else
-
     std::string path = getenv("HOME");
     path += "/.openglad/";
 
     return path;
-#endif
 }
 
 std::string get_asset_path()
 {
-#ifdef ANDROID
-    // RWops will look in the app's assests directory for this path
-
-    return "";
-#elif defined(__IPHONEOS__) || defined(WIN32)
-    // Assuming the cwd is set to the program's installation directory
-
-    return "";
-#else
     // FIXME: This won't typically work for *nix
 
     return "/usr/share/openglad/";
-#endif
 }
 
 SDL_RWops *open_read_file(std::string const &file)
@@ -580,14 +514,7 @@ std::list<std::string> list_paths_recursively(std::string const &dirname)
 
         bool cond;
 
-#ifdef WIN32
-        struct stat status;
-
-        stat((_dirname + entry->d_name).c_str(), &status);
-        cond = ((status.st_mode & S_IFDIR) != 0);
-#else
         cond = (entry->d_type == DT_DIR);
-#endif
 
         if (cond) {
             std::list<std::string> sublist = list_paths_recursively(_dirname + entry->d_name);

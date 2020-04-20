@@ -273,21 +273,7 @@ Uint8 convert_to_ascii(Sint32 scancode);
 
 void update_overscan_setting();
 
-#ifdef USE_TOUCH_INPUT
-void draw_touch_controller(VideoScreen *vob);
-
-#define CONTINUE_ACTION_STRING "TAP"
-
-#else
-
-#ifdef OUYA
-#define CONTINUE_ACTION_STRING "PRESS 'O'"
-
-#else
-
 #define CONTINUE_ACTION_STRING "PRESS 'ESC'"
-#endif
-#endif
 
 extern Uint8 const *keystates;
 

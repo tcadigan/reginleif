@@ -34,10 +34,6 @@
 #include "view.hpp"
 #include "walker.hpp"
 
-#ifdef OUYA
-#include "ouya_controller.hpp"
-#endif
-
 #include <algorithm>
 #include <sstream>
 
@@ -162,7 +158,7 @@ bool prompt_for_string_block(std::string const &message, std::list<std::string> 
     SDL_Rect done_button = { 320 - 52, 0, 50, 14 };
     SDL_Rect cancel_button = { 320 - 104, 0, 50, 14 };
 
-#if defined(USE_TOUCH_INPUT) || defined(USE_CONTROLLER_INPUT)
+#if defined(USE_TOUCH_INPUT)
     SDL_Rect newline_button = { 320 - 75, 16, 50, 14 };
     SDL_Rect up_button = { 14, 0, 14, 14 };
     SDL_Rect down_button = { 14, 14, 14, 14 };
@@ -199,7 +195,7 @@ bool prompt_for_string_block(std::string const &message, std::list<std::string> 
             clear_key_press_event();
 
             if (c == SDLK_RETURN) {
-#if defined(USE_TOUCH_INPUT) || defined(USE_CONTROLLER_INPUT)
+#if defined(USE_TOUCH_INPUT)
                 // Some soft keyboards might disappear anyhow if you press return...
                 done = true;
 
@@ -242,7 +238,7 @@ bool prompt_for_string_block(std::string const &message, std::list<std::string> 
                 result = original_text;
                 done = true;
             }
-#if defined(USE_TOUCH_INPUT) || defined(USE_CONTROLLER_INPUT)
+#if defined(USE_TOUCH_INPUT)
             else if (mymouse.in(newline_button)) {
                 std::string rest_of_line(s->substr(cursor_pos));
                 s->erase(cursor_pos);
@@ -412,7 +408,7 @@ bool prompt_for_string_block(std::string const &message, std::list<std::string> 
                         (cancel_button.y + (cancel_button.h / 2)) - 3,
                         "CANCEL", DARK_BLUE, 1);
 
-#if defined(USE_TOUCH_INPUT) || defined(USE_CONTROLLER_INPUT)
+#if defined(USE_TOUCH_INPUT)
         myscreen->draw_button(newline_button.x, newline_button.y,
                               newline_button.x + newline_button.w,
                               newline_button.y + newline_button.h, 1);
@@ -905,11 +901,6 @@ Sint32 level_editor()
 
     MouseState &mymouse = query_mouse_no_poll();
 
-#ifdef USE_CONTROLLER_INPUT
-    mymouse.x = 160;
-    mymouse.y = 100;
-#endif
-
     mouse_last_x = mymouse.x;
     mouse_last_y = mymouse.y;
 
@@ -933,34 +924,6 @@ Sint32 level_editor()
         }
 
         while (SDL_PollEvent(&event)) {
-#ifdef USE_CONTROLLER_INPUT
-            if (didPlayerPressKey(0, KEY_FIRE, event)) {
-                // Send fake mouse down event
-                SDL_Event event;
-
-                event.type = SDL_MOUSEBUTTONDOWN;
-                event.button.button = SDL_BUTTON_LEFT;
-                event.button.x = (mymouse.x * (viewport_w / 320)) + viewport_offset_x;
-                event.button.y = (mymouse.y * (viewport_h / 200)) + viewport_offset_y;
-                SDL_PushEvent(&event);
-
-                continue;
-            }
-
-            if (didPlayerReleaseKey(0, KEY_FIRE, event)) {
-                // Send fake mouse up event
-                SDL_Event event;
-
-                event.type = SDL_MOUSEBUTTONUP;
-                event.button.button = SDL_BUTTON_LEFT;
-                event.button.x = (mymouse.x * (viewport_w / 320)) + viewport_offset_x;
-                event.button.y = (mymouse.y * (viewport_h / 200)) + viewport_offset_y;
-                SDL_PushEvent(&event);
-
-                continue;
-            }
-#endif
-
             switch (handle_basic_editor_event(event)) {
             case MOUSE_MOTION_EVENT:
                 data.mouse_motion(mymouse.x, mymouse.y, mouse_motion_x, mouse_motion_y);
@@ -1097,116 +1060,6 @@ Sint32 level_editor()
             }
         }
 
-#ifdef USE_CONTROLLER_INPUT
-        Sint32 dx = 0;
-        Sint32 dy = 0;
-        OuyaController &c = OuyaControllerManager::getController(0);
-
-        if (!c.isStickBeyondDeadzone(OuyaController::AXIS_LS_X)) {
-            if (isPlayerHoldingKey(0, KEY_UP)
-                || isPlayerHoldingKey(0, KEY_UP_LEFT)
-                || isPlayerHoldingKey(0, KEY_UP_RIGHT)) {
-                dy = -5;
-            }
-
-            if (isPlayerHoldingKey(0, KEY_DOWN)
-                || isPlayerHoldingKey(0, KEY_DOWN_LEFT)
-                || isPlayerHoldingKey(0, KEY_DOWN_RIGHT)) {
-                dy = 5;
-            }
-
-            if (isPlayerHoldingKey(0, KEY_LEFT)
-                || isPlayerHoldingKey(0, KEY_UP_LEFT)
-                || isPlayerHoldingKey(0, KEY_DOWN_LEFT)) {
-                dx = -5;
-            }
-
-            if (isPlayerHoldingKey(0, KEY_RIGHT)
-                || isPlayerHoldingKey(0, KEY_UP_RIGHT)
-                || isPlayerHoldingKey(0, KEY_DOWN_RIGHT)) {
-                dx = 5;
-            }
-        } else {
-            dx = 5 * c.getAxisValue(OuyaController::AXIS_LS_X);
-            dy = 5 * c.getAxisvalue(OuyaController::AXIS_LS_Y);
-        }
-
-        if ((mymouse.x + dx) < 0) {
-            mymouse.x = 0;
-        }
-
-        if ((mymouse.x + dx) > 320) {
-            mymouse.x = 320;
-        }
-
-        if ((mymouse.y + dy) < 0) {
-            mymouse.y = 0;
-        }
-
-        if ((mymouse.y + dy) > 200) {
-            mymouse.y = 200;
-        }
-
-        if ((dx != 0) || (dy != 0)) {
-            Sint32 x;
-            Sint32 y;
-            SDL_Event event;
-
-            event.type = SDL_MOUSEMOTION;
-            event.motion.type = SDL_MOUSE_MOTION;
-            event.motion.windowID = 0;
-            event.motion.which = 0;
-            event.motion.state = SDL_GetMouseState(&x, &y);
-            event.motion.xrel = dx * (viewport_w / 320);
-            event.motion.yrel = dy * (viewport_h / 200);
-            event.motion.x = ((mymouse.x * (viewport_w / 320)) + viewport_offset_x) + event.motion.xrel;
-            event.motion.y = ((mymouse.y * (viewport_h / 200)) + viewport_offset_y) + event.motion.yrel;
-            SDL_PushEvent(&event);
-        }
-
-#ifdef OUYA
-        Ouyacontroller const &c = OuyaControllerManager::getController(0);
-        float vx = c.getAxisValue(OuyaController::AXIS_RS_X);
-        float vy = c.getAxisValue(OuyaController::AXIS_RS_Y);
-
-        // Scroll the tile selector when over it
-        if (Rect(S_RIGHT, PIX_TOP, 4 * GRID_SIZE, 4 * GRID_SIZE).contains(mymouse.x, mymouse.y)) {
-            if (fabs(vy) > OuyaController::DEADZONE) {
-                scroll_amount = -2 * vy;
-            } else {
-                scroll_amount = 0;
-            }
-        } else {
-            scroll_amount = 0;
-
-            // Panning
-            if (vx < -OuyaController::DEADZONE) {
-                pan_left = true;
-            } else {
-                pan_left = false;
-            }
-
-            if (vx > Ouyacontroller::DEADZONE) {
-                pan_right = true;
-            } else {
-                pan_right = false;
-            }
-
-            if (vy < -OuyaController::DEADZONE) {
-                pan_up = true;
-            } else {
-                pan_up = false;
-            }
-
-            if (vy > OuyaController::DEADZONE) {
-                pan_down = true;
-            } else {
-                pan_down = false;
-            }
-        }
-#endif
-#endif
-
         Sint16 scroll_amount = get_and_reset_scroll_amount();
 
         bool scroll = true;
@@ -1258,7 +1111,6 @@ Sint32 level_editor()
         }
 
         // Scroll the screen (panning)
-#ifndef OUYA
         if (keystates[KEYSTATE_KP_4]
             || keystates[KEYSTATE_KP_7]
             || keystates[KEYSTATE_KP_1]
@@ -1294,7 +1146,6 @@ Sint32 level_editor()
         } else {
             pan_down = false;
         }
-#endif
 
         // Top of the screen
         if (pan_up && (data.level->topy >= PAN_LIMIT_UP)) {
@@ -1467,11 +1318,6 @@ Sint32 level_editor()
         if (redraw) {
             redraw = 0;
             data.draw(myscreen);
-
-#ifdef USE_CONTROLLER_INPUT
-            myscreen->fastbox(mymouse.x - 1, mymouse.y - 1, 4, 4, PURE_WHITE);
-            myscreen->fastbox(mymouse.x, mymouse.y, 2, 2, PURE_BLACK);
-#endif
 
             myscreen->refresh();
         }

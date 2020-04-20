@@ -234,7 +234,7 @@ LevelEditorData::LevelEditorData()
     gridSnapButton.set_colors_enabled();
     terrainSmoothButton.set_colors_enabled();
 
-#if defined(USE_TOUCH_INPUT) || defined(USE_CONTROLLER_INPUT)
+#if defined(USE_TOUCH_INPUT)
     pan_buttons.insert(&panUpButton);
     pan_buttons.insert(&panDownButton);
     pan_buttons.insert(&panLeftButton);
@@ -1877,12 +1877,6 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
             if (prompt_for_string("Map Width", width)) {
                 Sint32 w = std::stoi(width);
                 Sint32 h;
-
-#ifdef ANDROID
-                // The soft keyboard on Android might take a little while to be
-                // ready again, so opening it right away doesn't always work.
-                SDL_Delay(1000);
-#endif
 
                 if (prompt_for_string("Map Height", height)) {
                     h = std::stoi(height);

@@ -878,18 +878,7 @@ bool ViewScreen::input(SDL_Event const &event)
     // Movement, etc.
     // Make sure we're not performing some queued action...
     if (control->stats->commands.empty()) {
-#ifdef USE_TOUCH_INPUT
-        // Treat this as an action, not a modifier
-        if (didPlayerPressKey(mynum, KEY_SHIFTER, event)) {
-            control->shifter_down = 1;
-            control->special();
-            control->shifter_down = 0;
-        }
-
-#else
-
         control->shifter_down = isPlayerHoldingKey(mynum, KEY_SHIFTER);
-#endif
 
         if (didPlayerPressKey(mynum, KEY_SPECIAL, event)) {
             control->special();

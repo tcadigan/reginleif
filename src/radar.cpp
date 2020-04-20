@@ -79,18 +79,6 @@ void Radar::start(LevelData *data)
 
     if (viewscreenp) {
 #ifdef REDUCE_OVERSCAN
-#ifdef USE_TOUCH_INPUT
-        // Used by level editor to place minimap
-        if (force_lower_position) {
-            // At bottom
-            xloc = static_cast<Sint16>((viewscreenp->endx - xview) - 8);
-            yloc = static_cast<Sint16>((viewscreenp->endy - yview) - 8);
-        } else {
-            // At top
-            xloc = static_cast<Sint16>((viewscreenp->endx - xview) - 8);
-            yloc = static_cast<Sint16>(viewscreenp->yloc + 8);
-        }
-#else
         // Used by level editor to place minimap
         if (force_lower_position) {
             // At bottom
@@ -101,7 +89,6 @@ void Radar::start(LevelData *data)
             xloc = static_cast<Sint16>((viewscreenp->endx - xview) - 4);
             yloc = static_cast<Sint16>(viewscreenp->yloc + 4);
         }
-#endif
         // At bottom
         xloc = static_cast<Sint16>((viewscreenp->endx - xview) - 8);
         yloc = static_cast<Sint16>((viewscreenp->endy - yview) - 8);

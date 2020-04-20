@@ -29,10 +29,6 @@
 #include "util.hpp"
 #include "walker.hpp"
 
-#ifdef OUYA
-#include "ouya_controller.hpp"
-#endif
-
 #include <sstream>
 
 #define OG_OK 4
@@ -304,16 +300,7 @@ bool results_screen(Sint32 ending, Sint32 nextlevel, std::map<Sint32, Guy *> &be
         Sint32 mx = mymouse.x;
         Sint32 my = mymouse.y;
 
-#ifdef USE_CONTROLLER_INPUT
-        OuyaController const &c = OuyaControllerManager::getController(0);
-        float v = c.getAxisValue(OuyaController::AXIS_LS_Y) + c.getAxisValue(OuyaController::AXIS_RS_Y);
-
-        if (fabs(v) > OuyaController::DEADZONE) {
-            scroll -= (-5 * v);
-        }
-#else
         scroll -= get_and_reset_scroll_amount();
-#endif
 
         if (scroll < 0.0f) {
             scroll = 0.0f;

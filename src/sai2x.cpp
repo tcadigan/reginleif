@@ -775,26 +775,14 @@ Screen::Screen(RenderEngine engine, Sint32 width, Sint32 height, Sint32 fullscre
     Sint32 w;
     Sint32 h;
 
-#ifdef ANDROID
-    w = 0;
-    h = 0;
-    fullscreen = true;
-
-#else
-
     w = width;
     h = height;
-#endif
 
     Uint32 window_flags = SDL_WINDOW_SHOWN;
 
     if (fullscreen) {
         window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
     }
-
-#ifdef __IPHONEOS__
-    window_flags |= SDL_WINDOW_BORDERLESS;
-#endif
 
     window = SDL_CreateWindow("Gladiator", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, window_flags);
 
