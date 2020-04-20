@@ -110,7 +110,7 @@ bool create_new_campaign(std::string const &campaign_id)
     create_dir(get_user_path() + "temp/scen");
     create_dir(get_user_path() + "temp/sound");
     create_new_pix(get_user_path() + "temp/icon.pix", 32, 32);
-    create_new_campaign_descriptor(get_user_path() + "temp/campaign.yaml");
+    create_new_campaign_descriptor(get_user_path() + "temp/campaign.ini");
     create_new_scen_file(get_user_path() + "temp/scen/scen1.fss", "scen0001");
     // Create the map file (grid)
     create_new_map_pix(get_user_path() + "temp/pix/scen001.pix", 40, 60);

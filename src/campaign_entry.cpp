@@ -36,7 +36,7 @@ CampaignEntry::CampaignEntry(std::string const &id, Sint32 num_levels_completed)
 {
     // Load the campaign data from <user_data>/scen/<id>.glad
     if (mount_campaign_package(id)) {
-        SDL_RWops *rwops = open_read_file("campaign.yaml");
+        SDL_RWops *rwops = open_read_file("campaign.ini");
 
         Yam yam;
         yam.set_input(rwops_read_handler, rwops);
