@@ -17,19 +17,20 @@
  */
 #include "gparser.hpp"
 
+#include "input.hpp" // TODO: Move overscan and toInt() to this file.
+#include "io.hpp"
+#include "util.hpp"
+#include "version.hpp"
+
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <string>
 #include <sstream>
 
-#include "input.hpp" // TODO: Move overscan and toInt() to this file.
-#include "util.hpp"
-#include "version.hpp"
-#include "yam.h"
-
-cfg_store cfg;
+ConfigStore cfg;
 
 void ConfigStore::apply_setting(std::string const &category,
                                 std::string const &setting,
@@ -38,8 +39,8 @@ void ConfigStore::apply_setting(std::string const &category,
     data[category][setting] = value;
 }
 
-std::string ConfigStore::get_settings(std::string const &category,
-                                      std::string const &setting)
+std::string ConfigStore::get_setting(std::string const &category,
+                                     std::string const &setting)
 {
     std::map<std::string, std::map<std::string, std::string>>::iterator a1 = data.find(category);
 
@@ -51,7 +52,7 @@ std::string ConfigStore::get_settings(std::string const &category,
         }
     }
 
-    return String();
+    return std::string();
 }
 
 bool ConfigStore::load_settings()
@@ -76,61 +77,65 @@ bool ConfigStore::load_settings()
     std::stringstream buf;
     buf << "Loading settings" << std::endl;
     Log("%s", buf.str().c_str());
+    buf.clear();
 
-    SDL_RWops *rwops = open_read_file("cfg/openglad.yaml");
+    SDL_RWops *rwops = open_read_file("cfg/openglad.ini");
     if (rwops == nullptr) {
-        buf.clear();
         buf << "Cound not open config file. Using defaults.";
         Log("%s", buf.str().c_str());
+        buf.clear();
 
         return false;
     }
 
-    Yam yam;
-    yam.set_input(rwops_read_handler, rwops);
+    Sint64 size = SDL_RWsize(rwops);
 
-    std::string last_scalar;
+    Sint64 chunk_size = 1024;
+    char str[chunk_size];
+    Sint64 total = 0;
+    Sint64 read = 1;
+
+    while ((total < size) && (read != 0)) {
+        read = SDL_RWread(rwops, str, sizeof(char), std::min(chunk_size, size - total));
+        total += read;
+        std::string inp(str, read);
+        buf << inp;
+    }
+
+    SDL_RWclose(rwops);
+
+    if (total != size) {
+        Log("Unable to read complete file");
+
+        return false;
+    }
+
+    std::string line;
+    std::string key;
+    std::string value;
+    std::string::size_type delim_pos;
     std::string current_category;
 
-    Yam::ParseResultEnum parse_result;
-    parse_result = yam.parse_next();
-
-    while (parse_result == Yam::OK) {
-        switch (yam.event.type) {
-        case Yam::BEGIN_SEQUENCE:
-        case Yam::END_SEQUENCE:
-        case Yam::END_MAPPING:
-        case Yam::ALIAS:
-
-            break;
-        case Yam::BEGIN_MAPPING:
-            current_category = last_scalar;
-
-            break;
-        case Yam::PAIR:
-            apply_setting(current_category, yam.event.scalar, yam.event.value);
-
-            break;
-        case Yam::SCALAR:
-            last_scalar = yam.event.scalar;
-
-            break;
-        default:
-
-            break;
+    while (std::getline(buf, line)) {
+        if (line[0] == '[') {
+            current_category = line.substr(1, line.size() - 1);
+            continue;
         }
 
-        parse_result = yam.parse_next();
+        delim_pos = line.find_first_of("=");
+
+        if (delim_pos == std::string::npos) {
+            Log("Skipping unknown ini line\n");
+
+            continue;
+        }
+
+        key = line.substr(delim_pos);
+        value = line.substr(delim_pos + 1, line.size());
+
+        apply_setting(current_category, key, value);
     }
 
-    if (parse_result == Yam::ERROR) {
-        buf.clear();
-        buf << "Parsing error." << std::endl;
-        Log("%s", buf.str().c_str());
-    }
-
-    yam.close_input();
-    SDL_Rwclose(rwops);
 
     // Update game stuff from these settings
     overscan_percentage = std::stoi(get_setting("graphics", "overscan_percentage")) / 100.0f;
@@ -142,49 +147,45 @@ bool ConfigStore::load_settings()
 bool ConfigStore::save_settings()
 {
     std::stringstream buf;
+    std::streamsize orig_precision = buf.precision();
     buf << std::fixed << std::setprecision(1) << 100 * overscan_percentage;
     apply_setting("graphics", "overscan_percentage", buf.str().c_str());
+    buf << std::setprecision(orig_precision);
 
-    SDL_RWops *outfile = open_write_file("cfg/openglad.yaml");
+    SDL_RWops *outfile = open_write_file("cfg/openglad.ini");
 
-    if (outfile != nullptr)
-    {
+    if (outfile != nullptr) {
         buf.clear();
         buf << "Saving settings" << std::endl;
         Log("%s", buf.str().c_str());
 
-        Yam yam;
-        yam.set_output(rwops_write_handler, outfile);
-
         // Each category is a mapping that holds setting/value pairs
         for (auto const &kv : data) {
-            if (e->first.size() > 0) {
-                yam.emit_scalar(kv->first.c_str());
-                yam.emit_begin_mapping();
+            if (kv.first.size()) {
+                buf << "[" << kv.first << "]" << std::endl;
+                std::string section(buf.str());
+                buf.clear();
+                SDL_RWwrite(outfile, section.c_str(), sizeof(char), section.size());
             }
 
             for (auto const &kv2 : kv.second) {
-                yam.emit_pair(kv2->first.c_str(), kv2->second.c_str());
-            }
-
-            if (kv->first.size() > 0) {
-                yam.emit_end_mapping();
+                buf << kv2.first << "=" << kv2.second << std::endl;
+                std::string content(buf.str());
+                buf.clear();
+                SDL_RWwrite(outfile, content.c_str(), sizeof(char), content.size());
             }
         }
-
-        yam.close_output();
-        SDL_RWclose(outfile);
 
         return true;
     } else {
         buf.clear();
-        buf << "Couldn't open cfg/openglad.yaml for writing." << std::endl;
+        buf << "Couldn't open cfg/openglad.ini for writing." << std::endl;
 
         return false;
     }
 }
 
-void ConfigStore::commandline(int &argc, std::vector<std::string> const &args)
+void ConfigStore::commandline(Sint32 argc, std::vector<std::string> const &args)
 {
     std::stringstream buf;
     buf << "Usage: openglad [-d -f ...]" << std::endl
@@ -205,11 +206,11 @@ void ConfigStore::commandline(int &argc, std::vector<std::string> const &args)
     // Iterate over arguments, ignoring the first (program name).
     for (Sint32 argnum = 1; argnum < argc; ++argnum) {
         // Look for arguments of 2 chars only:
-        if ((argv[argnum][0] == '-') && (strlen(argv[argnum]) == 2)) {
+        if ((args[argnum][0] == '-') && (args[argnum].length() == 2)) {
             // To handle arguments which have additional arguments attached
             // to them, take care of it within the case statement and increment
             // argnum appropriately.
-            switch (argv[argnum][1]) {
+            switch (args[argnum][1]) {
             case 'h':
                 Log("%s", buf.str().c_str());
 
@@ -271,7 +272,7 @@ void ConfigStore::commandline(int &argc, std::vector<std::string> const &args)
                 break;
             default:
                 buf.clear();
-                buf << "Unknown argument " << argv[argnum] << "ignored.";
+                buf << "Unknown argument " << args[argnum] << "ignored.";
                 Log("%s", buf.str().c_str());
 
                 break;

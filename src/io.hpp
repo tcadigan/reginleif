@@ -18,6 +18,7 @@
 #ifndef __IO_HPP__
 #define __IO_HPP__
 
+#include <filesystem>
 #include <list>
 #include <string>
 #include <vector>
@@ -27,7 +28,7 @@
 void io_init(std::string path);
 void io_exit();
 
-std::string get_user_path();
+std::filesystem::path get_user_path();
 bool create_dir(std::string const &dirname);
 
 SDL_RWops *open_read_file(std::string const &file);
@@ -69,9 +70,9 @@ bool remount_campaign_package();
 
 void cleanup_unpacked_campaign();
 
-bool create_new_map_pix(std::string const &filename, Sint32 w, Sint32 h);
-bool create_new_pix(std::string const &filename, Sint32 w, Sint32 h, Uint8 fill_color=0);
+bool create_new_map_pix(std::filesystem::path const &filename, Sint32 w, Sint32 h);
+bool create_new_pix(std::filesystem::path const &filename, Sint32 w, Sint32 h, Uint8 fill_color=0);
 bool create_new_campaign_descriptor(std::string const &filename);
-bool create_new_scen_file(std::string const &scenfile, std::string const &gridname);
+bool create_new_scen_file(std::filesystem::path const &scenfile, std::string const &gridname);
 
 #endif

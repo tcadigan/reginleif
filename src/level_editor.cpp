@@ -35,6 +35,7 @@
 #include "walker.hpp"
 
 #include <algorithm>
+#include <filesystem>
 #include <sstream>
 
 #define OK 4 // This function was successful, continue normal operation
@@ -105,15 +106,15 @@ bool create_new_campaign(std::string const &campaign_id)
     cleanup_unpacked_campaign();
 
     // Create necessities in the temp directory
-    create_dir(get_user_path() + "temp/");
-    create_dir(get_user_path() + "temp/pix");
-    create_dir(get_user_path() + "temp/scen");
-    create_dir(get_user_path() + "temp/sound");
-    create_new_pix(get_user_path() + "temp/icon.pix", 32, 32);
-    create_new_campaign_descriptor(get_user_path() + "temp/campaign.ini");
-    create_new_scen_file(get_user_path() + "temp/scen/scen1.fss", "scen0001");
+    create_dir(get_user_path() / "temp");
+    create_dir(get_user_path() / "temp" / "pix");
+    create_dir(get_user_path() / "temp" / "scen");
+    create_dir(get_user_path() / "temp" / "sound");
+    create_new_pix(get_user_path() / "temp" / "icon.pix", 32, 32);
+    create_new_campaign_descriptor(get_user_path() / "temp" / "campaign.ini");
+    create_new_scen_file(get_user_path() / "temp" / "scen" / "scen1.fss", "scen0001");
     // Create the map file (grid)
-    create_new_map_pix(get_user_path() + "temp/pix/scen001.pix", 40, 60);
+    create_new_map_pix(get_user_path() / "temp" / "pix" / "scen001.pix", 40, 60);
 
     bool result = repack_campaign(campaign_id);
 

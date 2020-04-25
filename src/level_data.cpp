@@ -157,7 +157,7 @@ bool CampaignData::save()
             std::stringstream buf;
             std::string temp;
 
-            buf << "format_version" << "=" << "1" << "\n";
+            buf << "format_version" << "=" << "1" << std::endl;
             temp = buf.str();
             buf.clear();
 
@@ -169,7 +169,7 @@ bool CampaignData::save()
                 return false;
             }
 
-            buf << "title" << "=" << title << "\n";
+            buf << "title" << "=" << title << std::endl;
             temp = buf.str();
             buf.clear();
 
@@ -181,7 +181,7 @@ bool CampaignData::save()
                 return false;
             }
 
-            buf << "version" << "=" << version << "\n";
+            buf << "version" << "=" << version << std::endl;
             temp = buf.str();
             buf.clear();
 
@@ -193,7 +193,7 @@ bool CampaignData::save()
                 return false;
             }
 
-            buf << "first_level" << "=" << first_level << "\n";
+            buf << "first_level" << "=" << first_level << std::endl;
             temp = buf.str();
             buf.clear();
 
@@ -205,7 +205,7 @@ bool CampaignData::save()
                 return false;
             }
 
-            buf << "suggested_power" << "=" << suggested_power << "\n";
+            buf << "suggested_power" << "=" << suggested_power << std::endl;
             temp = buf.str();
             buf.clear();
 
@@ -217,7 +217,7 @@ bool CampaignData::save()
                 return false;
             }
 
-            buf << "authors" << "=" << authors << "\n";
+            buf << "authors" << "=" << authors << std::endl;
             temp = buf.str();
             buf.clear();
 
@@ -229,7 +229,7 @@ bool CampaignData::save()
                 return false;
             }
 
-            buf << "contributors" << "=" << contributors << "\n";
+            buf << "contributors" << "=" << contributors << std::endl;
             temp = buf.str();
             buf.clear();
 
@@ -251,7 +251,7 @@ bool CampaignData::save()
                 buf << *itr;
             }
 
-            buf << "\n";
+            buf << std::endl;
 
             temp = buf.str();
             buf.clear();
@@ -306,7 +306,7 @@ bool CampaignData::save_as(std::string const &new_id)
             std::stringstream buf;
             std::string temp;
 
-            buf << "format_version" << "=" << "1" << "\n";
+            buf << "format_version" << "=" << "1" << std::endl;
             temp = buf.str();
             buf.clear();
 
@@ -318,7 +318,7 @@ bool CampaignData::save_as(std::string const &new_id)
                 return false;
             }
 
-            buf << "title" << "=" << title << "\n";
+            buf << "title" << "=" << title << std::endl;
             temp = buf.str();
             buf.clear();
 
@@ -330,7 +330,7 @@ bool CampaignData::save_as(std::string const &new_id)
                 return false;
             }
 
-            buf << "version" << "=" << version << "\n";
+            buf << "version" << "=" << version << std::endl;
             temp = buf.str();
             buf.clear();
 
@@ -342,7 +342,7 @@ bool CampaignData::save_as(std::string const &new_id)
                 return false;
             }
 
-            buf << "first_level" << "=" << first_level << "\n";
+            buf << "first_level" << "=" << first_level << std::endl;
             temp = buf.str();
             buf.clear();
 
@@ -354,7 +354,7 @@ bool CampaignData::save_as(std::string const &new_id)
                 return false;
             }
 
-            buf << "suggested_power" << "=" << suggested_power << "\n";
+            buf << "suggested_power" << "=" << suggested_power << std::endl;
             temp = buf.str();
             buf.clear();
 
@@ -366,7 +366,7 @@ bool CampaignData::save_as(std::string const &new_id)
                 return false;
             }
 
-            buf << "authors" << "=" << authors << "\n";
+            buf << "authors" << "=" << authors << std::endl;
             temp = buf.str();
             buf.clear();
 
@@ -378,7 +378,7 @@ bool CampaignData::save_as(std::string const &new_id)
                 return false;
             }
 
-            buf << "contributors" << "=" << "\n";
+            buf << "contributors" << "=" << std::endl;
             temp = buf.str();
             buf.clear();
 
@@ -400,7 +400,7 @@ bool CampaignData::save_as(std::string const &new_id)
                 buf << *itr;
             }
 
-            buf << "\n";
+            buf << std::endl;
 
             temp = buf.str();
             buf.clear();
@@ -458,7 +458,7 @@ std::string CampaignData::getDescriptionLine(Sint32 i)
 
 LevelData::LevelData(Sint32 id)
     : id(id)
-    , title("New level")
+    , title("New Level")
     , type(0)
     , par_value(1)
     , time_bonus_limit(4000)

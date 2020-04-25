@@ -1,5 +1,5 @@
 NAME = openglad
-CXXFLAGS = -Wall `sdl2-config --cflags`
+CXXFLAGS = -Wall -std=c++17 `sdl2-config --cflags`
 LDFLAGS = `sdl2-config --libs` -lSDL_mixer
 
 CPPFILES = browser_entry.cpp button.cpp campaign_entry.cpp campaign_picker.cpp \

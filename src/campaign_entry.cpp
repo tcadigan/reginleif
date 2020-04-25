@@ -17,10 +17,16 @@
  */
 #include "campaign_entry.hpp"
 
+#include "base.hpp"
+#include "io.hpp"
+#include "graphlib.hpp"
+#include "pixie.hpp"
+#include "screen.hpp"
 #include "text.hpp"
-#include "yam.h"
+#include "util.hpp"
 
 #include <list>
+#include <sstream>
 
 CampaignEntry::CampaignEntry(std::string const &id, Sint32 num_levels_completed)
     : id(id)
@@ -38,45 +44,72 @@ CampaignEntry::CampaignEntry(std::string const &id, Sint32 num_levels_completed)
     if (mount_campaign_package(id)) {
         SDL_RWops *rwops = open_read_file("campaign.ini");
 
-        Yam yam;
-        yam.set_input(rwops_read_handler, rwops);
+        Sint64 size = SDL_RWsize(rwops);
 
-        while (yam.parse_next() = Yam::OK) {
-            switch (yam.event.type) {
-            case Yam::PAIR:
-                if (strncmp(yam.event.scalar, "title", strlen("title")) == 0) {
-                    title = yam.event.value;
-                } else if (strncmp(yam.event.scalar, "version", strlen("version")) == 0) {
-                    version = yam.event.value;
-                } else if (strncmp(yam.event.scalar, "authors", strlen("authors")) == 0) {
-                    authors = yam.event.value;
-                } else if (strncmp(yam.event.scalar, "contributors", strlen("contributors")) == 0) {
-                    contributors = yam.event.value;
-                } else if (strncmp(yam.event.scalar, "description", strlen("description")) == 0) {
-                    description = yam.event.value;
-                } else if (strncmp(yam.event.scalar, "suggested_power", strlen("suggested_power")) == 0) {
-                    suggested_power = std::stoi(yam.event.value);
-                } else if (strncmp(yam.event.scalar, "first_level", strlen("first_level")) == 0) {
-                    first_level = std::stoi(yam.event.value);
-                }
+        std::stringstream buf;
+        Sint64 chunk_size = 1024;
+        char str[chunk_size];
+        Sint64 total = 0;
+        Sint64 read = 1;
 
-                break;
-            default:
-
-                break;
-            }
+        while ((total < size) && (read != 0)) {
+            read = SDL_RWread(rwops, str, sizeof(char), std::min(chunk_size, size - total));
+            total += read;
+            std::string inp(str, read);
+            buf << inp;
         }
 
-        yam.close_input();
         SDL_RWclose(rwops);
+
+        if (total != size) {
+            Log("Unable to read complete file");
+
+            return;
+        }
+
+        std::string line;
+        std::string key;
+        std::string value;
+        std::string::size_type delim_pos;
+
+        while (std::getline(buf, line)) {
+            delim_pos = line.find_first_of("=");
+
+            if (delim_pos == std::string::npos) {
+                Log("Skipping unknown ini line\n");
+
+                continue;
+            }
+
+            key = line.substr(delim_pos);
+            value = line.substr(delim_pos + 1, line.size());
+
+            if (key == "title") {
+                title = value;
+            } else if (key == "version") {
+                version = value;
+            } else if (key == "authors") {
+                authors = value;
+            } else if (key == "contributors") {
+                contributors = value;
+            } else if (key == "description") {
+                description = value;
+            } else if (key == "suggested_power") {
+                suggested_power = std::stoi(value);
+            } else if (key == "first_level") {
+                first_level = std::stoi(value);
+            } else {
+                Log("Unknown ini key '%s'\n", key.c_str());
+            }
+        }
 
         // TODO: Get raiting from website
         rating = 0.0f;
 
-        icondata = read_pixie_file(std:string("icon.pix"));
+        icondata = read_pixie_file(std::string("icon.pix"));
 
         if (icondata.valid()) {
-            icon = new pixie(icondata);
+            icon = new Pixie(icondata);
         }
 
         // Count the number of levels
@@ -99,12 +132,12 @@ void CampaignEntry::draw(SDL_Rect const &area, Sint32 team_power)
     Sint32 y = area.y;
     Sint32 w = area.w;
     Sint32 h = area.h;
-    text &loadtext = myscreen->text_normal;
+    Text &loadtext = myscreen->text_normal;
+    std::stringstream buf;
 
     // Print title
-    Uint8 buf[60];
-    snprintf(buf, 30, "%s", title.c_str());
-    loadtext.write_xy((x + (w / 2)) - (title.size() * 3), y - 22, buf, WHITE, 1);
+    title.resize(30);
+    loadtext.write_xy((x + (w / 2)) - (title.size() * 3), y - 22, title, WHITE, 1);
 
     // Rating stars
     std::string rating_text;
@@ -113,16 +146,19 @@ void CampaignEntry::draw(SDL_Rect const &area, Sint32 team_power)
         rating_text += '*';
     }
 
-    snprintf(buf, 30, "%s", rating_text.c_str());
-    loadtext.write_xy((x + (w / 2)) - (rating_text.size() * 3), y - 14, buf, WHITE, 1);
+    rating_text.resize(30);
+    loadtext.write_xy((x + (w / 2)) - (rating_text.size() * 3), y - 14, rating_text, WHITE, 1);
 
     // Print version
-    snprintf(buf, 30, "V%s", version.c_str());
+    buf << "V" << version;
+    std::string ver(buf.str());
+    buf.clear();
+    ver.resize(30);
 
     if (rating_text.size() > 0) {
-        loadtext.write_xy(((x + (w / 2)) + (rating_text.size() * 3)) + 6, y - 14, buf, WHITE, 1);
+        loadtext.write_xy(((x + (w / 2)) + (rating_text.size() * 3)) + 6, y - 14, ver, WHITE, 1);
     } else {
-        loadtext.write_xy((x + (w / 2)) + (strlen(buf) * 3), y - 14, buf, WHITE, 1);
+        loadtext.write_xy((x + (w / 2)) + (ver.length() * 3), y - 14, ver, WHITE, 1);
     }
 
     // Draw icon button
@@ -134,71 +170,82 @@ void CampaignEntry::draw(SDL_Rect const &area, Sint32 team_power)
 
     // Print suggested power
     if (team_power >= 0) {
-        char buf2[30];
-        snprintf(buf, 30, "Your Power: %d", team_power);
+        buf << "Your Power: " << team_power;
+        std::string my_power(buf.str());
+        buf.clear();
+        my_power.resize(30);
 
+        std::string s_power;
         if (suggested_power > 0) {
-            snprintf(buf2, 30, ", Suggested Power: %d", suggested_power);
-        } else {
-            buf2[0] = '\0';
+            buf << "Suggested Power: " << suggested_power;
+            s_power = buf.str();
+            buf.clear();
+            s_power.resize(30);
         }
 
-        Sint32 len = strlen(buf);
-        Sint32 len2 = strlen(buf2);
+        Sint32 len = my_power.length();
+        Sint32 len2 = s_power.length();
 
-        loadtext.write_xy((x + (w / 2)) - ((len + len2) * 3), y, buf, LIGHT_GREEN, 1);
-        loadtext.write_xy(((x + (w / 2)) - ((len + len2) * 3)) + (len * 6), y, buf2, (team_power >= suggested_power ? LIGHT_GREEN : RED), 1);
+        loadtext.write_xy((x + (w / 2)) - ((len + len2) * 3), y, my_power, LIGHT_GREEN, 1);
+        loadtext.write_xy(((x + (w / 2)) - ((len + len2) * 3)) + (len * 6), y, s_power, (team_power >= suggested_power ? LIGHT_GREEN : RED), 1);
     } else {
+        std::string s_power;
         if (suggested_power > 0) {
-            snprintf(buf, 30, "Suggested Power: %d", suggested_power);
-        } else {
-            buf[0] = '\0';
+            buf << "Suggested Power: " << suggested_power;
+            s_power = buf.str();
+            buf.clear();
+            s_power.resize(30);
         }
 
-        Sint32 len = strlen(buf);
-        loadtext.write_xy((x + (w / 2)) - (len * 3), y, buf, buf, LIGHT_GREEN, 1);
+        Sint32 len = s_power.length();
+        loadtext.write_xy((x + (w / 2)) - (len * 3), y, s_power, LIGHT_GREEN, 1);
     }
 
     y += 8;
 
     // Print completion progress
     if (num_levels_completed < 0) {
-        snprintf(buf, 30, "%d level%s", num_levels, (num_levels == 1 ? "" : "s"));
+        buf << num_levels << "level" << (num_levels == 1 ? "" : "s");
     } else {
-        snprintf(buf, 30, "%d out of %d completed", num_levels_completed, num_levels);
+        buf << num_levels_completed << " out of " << num_levels << " completed";
     }
 
-    loadtext.write_xy((x + (w / 2)) - (strlen(buf) * 3), y, buf, WHITE, 1);
+    std::string completion(buf.str());
+    buf.clear();
+    completion.resize(30);
+
+    loadtext.write_xy((x + (w / 2)) - (completion.length() * 3), y, completion, WHITE, 1);
     y += 8;
 
     // Print authors
     if (authors.size() > 0) {
-        snprintf(buf, 30, "By %s", authors.c_str());
-        loadtext.write_xy((x + (w / 2)) - (strlen(buf) * 3), y, buf, WHITE, 1);
+        buf << "By " << authors;
+        std::string auths(buf.str());
+        buf.clear();
+        auths.resize(30);
+        loadtext.write_xy((x + (w / 2)) - (auths.length() * 3), y, auths, WHITE, 1);
     }
 
     // Draw description box
-    SDL_Rect descbox(160 - (255 / 2), Sint16((area.y + area.h) + 35), 225, 60);
+    SDL_Rect descbox = {160 - (255 / 2), Sint16((area.y + area.h) + 35), 225, 60};
     myscreen->draw_box(descbox.x, descbox.y, descbox.x + descbox.w, descbox.y + descbox.h, GREY, 1, 1);
 
     // Print description
     std::string desc = description;
-    sint32 j = 10;
+    Sint32 j = 10;
+
+    std::list<std::string> lines = explode(description, '|');
+    std::list<std::string>::iterator itr = lines.begin();
 
     while (desc.size() > 0) {
         if ((j + 10) > descbox.h) {
             break;
         }
 
-        size_t pos = desc.find_first_of('\n');
-        std::string line = desc.substr(0, pos);
-        loadtext.write_xy(descbox.x + 5, descbox.y + j, line.c_str(), BLACK, 1);
-
-        if (pos == std::string::npos) {
-            break;
+        if (itr != lines.end()) {
+            loadtext.write_xy(descbox.x + 5, descbox.y + j, *itr, BLACK, 1);
         }
 
-        desc = desc.substr(pos + 1, std::string::npos);
         j += 10;
     }
 
@@ -206,11 +253,14 @@ void CampaignEntry::draw(SDL_Rect const &area, Sint32 team_power)
 
     // Print contributors
     if (contributors.size() > 0) {
-        snprintf(buf, 60, "Thanks to %s", contributors.c_str());
-        loadtext.write_xy((x + (w / 2)) - (strlen(buf) * 3), y, buf, WHITE, 1);
+        buf << "Thanks to " << contributors;
+        std::string contrib(buf.str());
+        buf.clear();
+        contrib.resize(60);
+        loadtext.write_xy((x + (w / 2)) - (contrib.length() * 3), y, contrib, WHITE, 1);
         y += 10;
     }
 
-    snprintf(buf, 60, "%s", id.c_str());
-    loadtext.write_xy((x + (w / 2)) - (strlen(buf) * 3), y, buf, WHITE, 1);
+    id.resize(60);
+    loadtext.write_xy((x + (w / 2)) - (id.length() * 3), y, id, WHITE, 1);
 }
