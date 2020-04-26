@@ -210,7 +210,7 @@ public:
     ObjectMap *myobmap;
     Sint32 path_check_counter;
     // Result from pathfinding
-    std::vector<void *> path_to_foe;
+    std::vector<Sint32> path_to_foe;
 
     std::list<DamageNumber> damage_numbers;
 

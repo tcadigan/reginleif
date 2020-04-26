@@ -18,16 +18,26 @@
 #ifndef __MAP_HPP__
 #define __MAP_HPP__
 
-#include "micropather.hpp"
+#include "walker-fwd.hpp"
 
+#include <SDL2/SDL.h>
+
+#include <map>
 #include <vector>
 
-class Map : public Graph
+class Map
 {
 public:
-    virtual float LeastCostEstimate(void *stateStart, void *stateEnd);
-    virtual void AdjacentCost(void *state, std::vector<StateCost> *adjacent);
-    virtual void PrintStateInfo(void *state);
+    Map(Walker *path_walker);
+    std::vector<Sint32> solve(Sint32 start, Sint32 goal);
+
+private:
+    float LeastCostEstimate(Sint32 startState, Sint32 endState);
+    float AdjacentCost(Sint32 state, Sint32 adjacent);
+    std::vector<Sint32> Neighbors(Sint32 state);
+    std::vector<Sint32> ReconstructPath(std::map<Sint32, Sint32> camefrom, Sint32 current);
+
+    Walker *path_walker;
 };
 
 #endif

@@ -358,7 +358,7 @@ bool VideoScreen::query_grid_passable(float x, float y, Walker *ob)
     Sint32 xtarg; // The for loop target
     Sint32 ytarg; // The for loop target
     Sint32 dist;
-    // NOTE: We're going to shrink dimensions by on in each...
+    // NOTE: We're going to shrink dimensions by one in each...
     // Sint32 xover = static_cast<Sint32>((x + ob->sizex) - 1);
     // Sint32 yover = static_cast<Sint32>((y + ob->sizey) - 1);
     Sint32 xover = x + ob->sizex;
@@ -390,7 +390,7 @@ bool VideoScreen::query_grid_passable(float x, float y, Walker *ob)
     }
 
     if (yover % GRID_SIZE == 0) {
-        // This housld be the rare case
+        // This should be the rare case
         xtray = 0;
     }
 

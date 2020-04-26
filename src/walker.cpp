@@ -28,8 +28,7 @@
 #include "gloader.hpp"
 #include "gparser.hpp"
 #include "guy.hpp"
-// #include "map.hpp"
-// #include "micropather.h"
+#include "map.hpp"
 #include "pal32.hpp"
 #include "pixie_data.hpp"
 #include "screen.hpp"
@@ -50,10 +49,10 @@
 // Should not really be duplicating this from screen.cpp
 #define GRID_SIZE 16
 
-#define MAKE_STATE(x, y) reinterpret_cast<void *>((((y) / GRID_SIZE) * MAP_WIDTH) + ((x) / GRID_SIZE))
-#define GET_STATE_X(state) (reinterpret_cast<intptr_t>((state)) % MAP_WIDTH) * GRID_SIZE
-#define GET_STATE_Y(state) (reinterpret_cast<intptr_t>((state)) / MAP_WIDTH) * GRID_SIZE
-#define ALIGN_TO_GRID(x) ((x) / GRID_SIZE) * GRID_SIZE
+#define MAKE_STATE(x, y) ((((y) / GRID_SIZE) * MAP_WIDTH) + ((x) / GRID_SIZE))
+#define GET_STATE_X(state) (((state) % MAP_WIDTH) * GRID_SIZE)
+#define GET_STATE_Y(state) (((state) / MAP_WIDTH) * GRID_SIZE)
+#define ALIGN_TO_GRID(x) (((x) / GRID_SIZE) * GRID_SIZE)
 
 /*
  * ****************************************************************************
@@ -68,8 +67,6 @@
 bool debug_draw_paths = false;
 
 Walker *path_walker = nullptr;
-// Map path_map;
-// MicroPather pather(&path_map);
 
 // From picker.cpp
 extern Sint32 calculate_level(Uint32 temp_exp);
@@ -1570,24 +1567,20 @@ Sint16 Walker::draw_tile(ViewScreen *view_buf)
 
 void Walker::find_path_to_foe()
 {
-    // float totalCost = 0.0f;
-    // void *startState = MAKE_STATE(xpos, ypos);
-    // void *endState = MAKE_STATE(foe->xpos, foe->ypos);
-
     path_to_foe.clear();
-    // Assume that the old paths are invalid
-    // pather.Reset();
-    // Set the walker that the path is being generated for
-    path_walker = this;
-    // There's a result returned from this, but we don't need it.
-    // pather.Solve(startState, endState, &path_to_foe, &total_cost);
+    Map map(this);
+
+    Sint32 startState = MAKE_STATE(xpos, ypos);
+    Sint32 endState = MAKE_STATE(foe->xpos, foe->ypos);
+
+    path_to_foe = map.solve(startState, endState);
 }
 
 void Walker::follow_path_to_foe()
 {
     while (path_to_foe.size() > 0) {
-        std::vector<void *>::iterator node = path_to_foe.begin();
-        void *state = *node;
+        std::vector<Sint32>::iterator node = path_to_foe.begin();
+        Sint32 state = *node;
         Sint32 dx = GET_STATE_X(state) - ALIGN_TO_GRID(xpos);
         Sint32 dy = GET_STATE_Y(state) - ALIGN_TO_GRID(ypos);
 
@@ -1624,7 +1617,7 @@ void Walker::draw_path(ViewScreen *view_buf)
     Sint16 offsetx = (view_buf->topx - view_buf->xloc) - 8;
     Sint16 offsety = (view_buf->topy - view_buf->yloc) - 8;
 
-    std::vector<void *>::iterator e = path_to_foe.begin();
+    std::vector<Sint32>::iterator e = path_to_foe.begin();
     Sint32 px = GET_STATE_X(*e) - offsetx;
     Sint32 py = GET_STATE_Y(*e) - offsety;
 

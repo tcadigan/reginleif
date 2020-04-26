@@ -42,7 +42,6 @@
 #include "screen-fwd.hpp"
 
 #define DIFFICULTY_SETTINGS 3
-#define VIDEO_ADDRESS 0xA000
 #define VIDEO_LINEAR ((VIDEO_ADDRESS) << 4)
 #define DPMI_INT 0x31
 #define MAX_LEVELS 500 // Maximum number of scenarios allowed...
