@@ -273,8 +273,6 @@ Uint8 convert_to_ascii(Sint32 scancode);
 
 void update_overscan_setting();
 
-#define CONTINUE_ACTION_STRING "PRESS 'ESC'"
-
 extern Uint8 const *keystates;
 
 // In window coords

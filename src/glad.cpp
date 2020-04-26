@@ -26,6 +26,7 @@
 
 #include "base.hpp"
 #include "colors.hpp"
+#include "game.hpp"
 #include "gparser.hpp"
 #include "guy.hpp"
 #include "help.hpp"
@@ -135,7 +136,7 @@ void glad_main(Sint32 playermode)
     // }
 
     // Load the default saved game...
-    load_saved_game("save0", myscreen);
+    load_saved_game(myscreen);
 
     // This will update the ;control' so the screen centers on our guy
     myscreen->continuous_input();
@@ -790,7 +791,8 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
 
                 if (scorecountup[control->team_num] < myscore) {
                     ++scorecountup[control->team_num];
-                    scorecountup[control->team_num] += static_cast<Uint32>(random((myscore - scorecountup[control->team_num]) / 12));
+                    Sint32 value = (myscore - scorecountup[control->team_num]) / 12;
+                    scorecountup[control->team_num] += getRandomSint32(value);
                 }
 
                 if (scorecountup[control->team_num] > myscore) {

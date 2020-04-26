@@ -64,15 +64,6 @@ Sint16 load_version_4(SDL_RWops *infile, VideoScreen *master); // Version 4 scen
 Sint16 load_version_5(SDL_RWops *infile, VideoScreen *master); // Version 5 scen: + type
 Sint16 load_version_6(SDL_RWops *infile, VideoScreen *master, Sint16 version=6); // Version 6 scen: + title
 
-Uint32 random(Uint32 x)
-{
-    if (x < 1) {
-        return 0;
-    }
-
-    return static_cast<Uint32>(static_cast<Uint32>(rand()) % x);
-}
-
 /*
  **********************************************************
  * SCREEN -- Graphics routines
@@ -104,7 +95,7 @@ VideoScreen::VideoScreen(Sint16 howmany)
     control_hp = 0;
 
     // Load the palette...
-    load_and_set_palette("our.pal", newpalette);
+    load_and_set_palette(newpalette);
 
     // Load the pixie graphics data into memory
     draw_button(60, 50, 260, 110, 2, 1);
@@ -530,7 +521,7 @@ bool VideoScreen::query_grid_passable(float x, float y, Walker *ob)
                     dist += GRID_SIZE;
                 }
 
-                if (random(dist / GRID_SIZE)) {
+                if (getRandomSint32(dist / GRID_SIZE)) {
                     return 0;
                 }
                 // Drop through
@@ -1011,7 +1002,7 @@ Walker *VideoScreen::find_near_foe(Walker *ob)
 
             // Go through the list we received
             for (auto const & w : ls) {
-                if (!w->dead && (ob->is_friendly(w) == 0) && (random(w->invisibility_left / 20) == 0)) {
+                if (!w->dead && (ob->is_friendly(w) == 0) && (getRandomSint32(w->invisibility_left / 20) == 0)) {
                     if ((w->query_order() == ORDER_LIVING) || (w->query_order() == ORDER_GENERATOR)) {
                         // Done separately since they are logically more signficant
                         // This should be a valid foe
@@ -1065,7 +1056,7 @@ Walker *VideoScreen::find_far_foe(Walker *ob)
 
         // Check for valid objects...
         if (ob->is_friendly(foe) == 0) {
-            if (((foe->query_order() == ORDER_LIVING) || (foe->query_order() == ORDER_GENERATOR)) && (random(foe->invisibility_left / 20) == 0)) {
+            if (((foe->query_order() == ORDER_LIVING) || (foe->query_order() == ORDER_GENERATOR)) && (getRandomSint32(foe->invisibility_left / 20) == 0)) {
                 tempdistance = ob->distance_to_ob(foe);
 
                 if (tempdistance < distance) {

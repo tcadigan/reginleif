@@ -27,25 +27,23 @@
 
 #include <SDL2/SDL.h>
 
-#include <string>
-
 // Load/set palette from disk
-Sint16 load_and_set_palette(std::string const &filename, Uint8 *newpalette);
+Sint16 load_and_set_palette(SDL_Color *newpalette);
 
 // Load palette from disk
-Sint16 load_palette(std::string const &filename, Uint8 *newpalette);
+Sint16 load_palette(SDL_Color *newpalette);
 
 // Set palette
-Sint16 set_palette(Uint8 *newpalette);
+Sint16 set_palette(SDL_Color *newpalette);
 
 // Gamma correction??
-void adjust_palette(Uint8 *whichpal, Sint16 amount);
+void adjust_palette(SDL_Color *whichpal, Sint16 amount);
 
 // Color cycling
-void cycle_palette(Uint8 *newpalette, Sint16 start, Sint16 end, Sint16 shift);
+void cycle_palette(SDL_Color *newpalette, Sint16 start, Sint16 end, Sint16 shift);
 
-void query_palette_reg(Uint8 index, Sint32 *red, Sint32 *green, Sint32 *blue);
-void set_palette_reg(Uint8 index, Sint32 red, Sint32 green, Sint32 blue);
+SDL_Color query_palette_reg(Uint8 index);
+void set_palette_reg(Uint8 index, Uint8 red, Uint8 green, Uint8 blue);
 Sint16 save_palette(Uint8 *whatpalette);
 
 #endif

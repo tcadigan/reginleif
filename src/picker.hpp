@@ -26,6 +26,7 @@
 
 void picker_main();
 bool yes_or_no_prompt(std::string const &title, std::string const &message, bool default_value);
+bool no_or_yes_prompt(std::string const &title, std::string const &message, bool default_value);
 void popup_dialog(std::string const &title, std::string const &message);
 void timed_dialog(std::string const &message, float delay_seconds=3.0f);
 void draw_highlight(Button const &b);

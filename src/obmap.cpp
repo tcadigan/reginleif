@@ -300,7 +300,7 @@ Sint16 ob_pass_check(Sint16 x, Sint16 y, Walker *ob, std::list<Walker *> const &
             // Let our own team's weapons pass over us
             if (((targetorder == ORDER_WEAPON) || (myorder == ORDER_WEAPON)) && ob->is_friendly(w)) {
                 continue;
-            } else if ((targetorder == ORDER_WEAPON) && (myorder == ORDER_WEAPON) && (random(10) > 3)) {
+            } else if ((targetorder == ORDER_WEAPON) && (myorder == ORDER_WEAPON) && (getRandomSint32(10) > 3)) {
                 // Allow weapons to sometimes "miss" opposing team's weapons
                 continue;
             } else if ((targetorder == ORDER_TREASURE) && (myorder == ORDER_WEAPON)) {

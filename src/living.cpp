@@ -57,7 +57,7 @@ Sint16 Living::act()
     }
 
     // make sure everyone we're pointing to is valid
-    if (foe && (foe->dead || (random(foe->invisibility_left / 20) > 0))) {
+    if (foe && (foe->dead || (getRandomSint32(foe->invisibility_left / 20) > 0))) {
         foe = nullptr;
     }
 
@@ -377,10 +377,10 @@ Sint16 Living::act()
         // We are randomly walking toward enemy
 
         // 1 in 5 to do our special
-        if (!random(5)) {
+        if (!getRandomSint32(5)) {
             // Should we do our special? Are we full of magic?
             if (stats->magicpoints >= stats->special_cost[1]) {
-                current_special = static_cast<Uint8>(random((stats->level + 2) / 3) + 1);
+                current_special = static_cast<Uint8>(getRandomSint32((stats->level + 2) / 3) + 1);
 
                 if ((current_special > 4) || myscreen->special_name[static_cast<Uint32>(family)][static_cast<Uint32>(current_special)] == "NONE") {
                     current_special = 1;
@@ -395,7 +395,7 @@ Sint16 Living::act()
 
                 return 1;
             }
-        } else if (!random(5)) {
+        } else if (!getRandomSint32(5)) {
             // 1 in 5 to do act_random() function
             act_random();
         } else {
@@ -411,7 +411,7 @@ Sint16 Living::act()
             } // else if (foe) {
             // stats->try_commnad(COMMAND_RIGHT_WALK, 40, 0, 0);
             // }
-            else if (!random(2)) {
+            else if (!getRandomSint32(2)) {
                 foe = myscreen->find_far_foe(this);
             } else {
                 stats->try_command(COMMAND_RANDOM_WALK, 20);
@@ -438,7 +438,7 @@ Sint16 Living::shove(Walker *target, Sint16 x, Sint16 y)
     // We are alive and allied
     if (target && !target->dead && (query_order() == ORDER_LIVING) && is_friendly(target)) {
         // Make sure WE don't get shoved
-        if (random(3) && (target->query_act_type() != ACT_CONTROL)) {
+        if (getRandomSint32(3) && (target->query_act_type() != ACT_CONTROL)) {
             // We have to prevent a build-up of shoves which is
             // caused by a blocked target. We do so for now by clearing
             // all commands
@@ -576,7 +576,7 @@ Sint16 Living::check_special()
     Sint16 howmany;
 
     // On or off, randomly...
-    shifter_down = random(2);
+    shifter_down = getRandomSint32(2);
 
     // Make sure we have enough...
     if (stats->magicpoints < stats->special_cost[static_cast<Sint32>(current_special)]) {
@@ -960,7 +960,7 @@ Sint16 Living::act_random()
     Sint16 ydist;
 
     // Find our foe
-    if (!random(80) || !foe) {
+    if (!getRandomSint32(80) || !foe) {
         foe = myscreen->find_near_foe(this);
     }
 
@@ -975,7 +975,7 @@ Sint16 Living::act_random()
     if ((abs(xdist) < (lineofsight & GRID_SIZE)) && (abs(ydist) < (lineofsight * GRID_SIZE))) {
         if (fire_check(xdist, ydist)) {
             init_fire(xdist, ydist);
-            stats->set_command(COMMAND_FIRE, static_cast<Sint16>(random(24)), xdist, ydist);
+            stats->set_command(COMMAND_FIRE, static_cast<Sint16>(getRandomSint32(24)), xdist, ydist);
 
             return 1;
         } else {

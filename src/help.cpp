@@ -159,7 +159,7 @@ Sint16 read_scenario(VideoScreen *myscreen)
             mytext.write_xy(HELPTEXT_LEFT + 30, HELPTEXT_TOP + 98,
                             "SCENARIO INFORMATION", static_cast<Uint8>(RED), 1);
             mytext.write_xy(HELPTEXT_LEFT + 30, HELPTEXT_TOP + 98,
-                            CONTINUE_ACTION_STRING " TO CONTINUE",
+                            "PRESS 'ESC' TO CONTINUE",
                             static_cast<Uint8>(RED), 1);
 
             myscreen->buffer_to_screen(0, 0, 320, 200);
@@ -290,7 +290,7 @@ Sint16 read_campaign_intro(VideoScreen *myscreen)
                             HELPTEXT_TOP - 7, data.title.c_str(),
                             static_cast<Uint8>(RED), 1);
             mytext.write_xy(HELPTEXT_LEFT + 52, HELPTEXT_TOP + 98,
-                            CONTINUE_ACTION_STRING " TO CONTINUE",
+                            "PRESS 'ESC' TO CONTINUE",
                             static_cast<Uint8>(RED), 1);
             // myscreen->buffer_to_screen(0, 0, 320, 200);
             myscreen->buffer_to_screen(HELPTEXT_LEFT - 4, HELPTEXT_TOP - 12, 244, 119);

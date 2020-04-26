@@ -27,7 +27,7 @@
 #include "view.hpp"
 #include "walker.hpp"
 
-Sint16 load_saved_game(Uint8 const *filename, VideoScreen *myscreen)
+bool load_saved_game(VideoScreen *myscreen)
 {
     std::stringstream buf;
     std::string scenfile;
@@ -202,5 +202,5 @@ Sint16 load_saved_game(Uint8 const *filename, VideoScreen *myscreen)
         }
     }
 
-    return 1;
+    return true;
 }

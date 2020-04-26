@@ -81,7 +81,7 @@ public:
     bool is_level_completed(Sint32 level_index) const;
 
     // General drawing data
-    Uint8 newpalette[768];
+    SDL_Color newpalette[256];
     Sint16 palmode;
 
     // Level data

@@ -240,16 +240,16 @@ Video::Video()
     fadeDuration = 500;
 
     // Load our palettes...
-    load_and_set_palette("our.pal", ourpalette);
-    load_palette("our.pal", redpalette);
+    load_and_set_palette(ourpalette);
+    load_palette(redpalette);
 
     // Create the red-shifted palette
-    for (i = 32; i < 256; ++i) {
-        redpalette[(i * 3) + 1] /= 2;
-        redpalette[(i * 3) + 2] /= 2;
+    for (i = 32; i < 86; ++i) {
+        redpalette[i].g = redpalette[i].r / 2;
+        redpalette[i].b = redpalette[i].g / 2;
     }
 
-    load_palette("our.pal", bluepalette);
+    load_palette(bluepalette);
 
     /*
      * Create the blue-shifted palette
@@ -548,22 +548,18 @@ void Video::fastbox(Sint32 startx, Sint32 starty, Sint32 xsize, Sint32 ysize, Ui
 
 Uint32 get_Uint32_color(Uint8 color)
 {
-    Sint32 r;
-    Sint32 g;
-    Sint32 b;
+    SDL_Color palette_color = query_palette_reg(color);
 
-    query_palette_reg(color, &r, &g, &b);
-
-    return SDL_MapRGB(E_Screen->render->format, r * 4, g * 4, b * 4);
+    return SDL_MapRGB(E_Screen->render->format,
+                      palette_color.r,
+                      palette_color.g,
+                      palette_color.b);
 }
 
 // This is the version which writes to the buffer...
 void Video::fastbox(Sint32 startx, Sint32 starty, Sint32 xsize, Sint32 ysize, Uint8 color, bool flag)
 {
     SDL_Rect rect;
-    Sint32 r;
-    Sint32 g;
-    Sint32 b;
 
     // Zardux: FIX: Small check to make sure we're not trying to put in anitmatter or something
     if ((xsize < 0) || (ysize < 0) || (startx < 0) || (starty < 0)) {
@@ -577,14 +573,17 @@ void Video::fastbox(Sint32 startx, Sint32 starty, Sint32 xsize, Sint32 ysize, Ui
         return;
     }
 
-    // buffers: Create the rect to fill with SDL_FillRext
+    // buffers: Create the rect to fill with SDL_FillRect
     rect.x = startx;
     rect.y = starty;
     rect.w = xsize;
     rect.h = ysize;
 
-    query_palette_reg(color, &r, &g, &b);
-    SDL_FillRect(E_Screen->render, &rect, SDL_MapRGB(E_Screen->render->format, r * 4, g * 4, b * 4));
+    SDL_Color palette_color = query_palette_reg(color);
+    SDL_FillRect(E_Screen->render, &rect, SDL_MapRGB(E_Screen->render->format,
+                                                     palette_color.r,
+                                                     palette_color.g,
+                                                     palette_color.b));
 }
 
 void Video::fastbox_outline(Sint32 startx, Sint32 starty, Sint32 xsize, Sint32 ysize, Uint8 color)
@@ -604,27 +603,24 @@ void Video::point(Sint32 x, Sint32 y, Uint8 color)
 // buffers: PORT: Used for all the funcs that draw stuff in the offscreen buf
 void Video::pointb(Sint32 x, Sint32 y, Uint8 color)
 {
-    Sint32 r;
-    Sint32 g;
-    Sint32 b;
-    Sint32 c;
+    Uint32 c;
 
     // buffers: This does bound checking (just to be safe)
     if ((x < 0) || (x > 319) || (y < 0) || (y > 199)) {
         return;
     }
 
-    query_palette_reg(color, &r, &g, &b);
+    SDL_Color palette_color = query_palette_reg(color);
 
-    c = SDL_MapRGB(E_Screen->render->format, r * 4, g * 4, b * b);
+    c = SDL_MapRGB(E_Screen->render->format,
+                   palette_color.r,
+                   palette_color.g,
+                   palette_color.b);
     putpixel(E_Screen->render, x, y, c);
 }
 
 void Video::pointb(Sint32 x, Sint32 y, Uint8 color, Uint8 alpha)
 {
-    Sint32 r;
-    Sint32 g;
-    Sint32 b;
     Sint32 c;
 
     // buffers: This does bound checking (just to be safe)
@@ -632,14 +628,17 @@ void Video::pointb(Sint32 x, Sint32 y, Uint8 color, Uint8 alpha)
         return;
     }
 
-    query_palette_reg(color, &r, &g, &b);
-    c = SDL_MapRGB(E_Screen->render->format, r * 4, g * 4, b * 4);
+    SDL_Color palette_color = query_palette_reg(color);
+    c = SDL_MapRGB(E_Screen->render->format,
+                   palette_color.r,
+                   palette_color.g,
+                   palette_color.b);
 
     blend_pixel(E_Screen->render, x, y, c, alpha);
 }
 
 // buffers: This sets the color using the raw RGB values. No * 4...
-void Video::pointb(Sint32 x, Sint32 y, Sint32 r, Sint32 g, Sint32 b)
+void Video::pointb(Sint32 x, Sint32 y, Uint8 r, Uint8 g, Uint8 b)
 {
     SDL_Rect rect;
     Sint32 c;
@@ -802,10 +801,7 @@ void Video::draw_line(Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2, Uint8 color)
 // buffers: PORT: Added & to the last 3 args of the query_palette_reg funcs
 void Video::do_cycle(Sint32 curmode, Sint32 maxmode)
 {
-    Sint32 i;
     // buffers: PORT: Changed these two arrays to ints
-    Sint32 tempcol[3];
-    Sint32 curcol[3];
 
     // Avoid over-runs
     curmode %= maxmode;
@@ -814,30 +810,28 @@ void Video::do_cycle(Sint32 curmode, Sint32 maxmode)
     if (!curmode) {
         // For orange:
         // Get first color
-        query_palette_reg(ORANGE_END, &tempcol[0], &tempcol[1], &tempcol[2]);
+        SDL_Color cur_color = query_palette_reg(ORANGE_END);
+        SDL_Color temp_color;
 
-        for (i = ORANGE_END; i > ORANGE_START; --i) {
-            query_palette_reg(static_cast<Uint8>(i - 1), &curcol[0], &curcol[1], &curcol[2]);
-            set_palette_reg(static_cast<Uint8>(i),
-                            static_cast<Uint8>(curcol[0]),
-                            static_cast<Uint8>(curcol[1]),
-                            static_cast<Uint8>(curcol[2]));
+        for (Uint8 i = ORANGE_END; i > ORANGE_START; --i) {
+            temp_color = query_palette_reg(i - 1);
+            set_palette_reg(i, cur_color.r, cur_color.g, cur_color.b);
         }
 
         // Reassign last to first
-        set_palette_reg(ORANGE_START, tempcol[0], tempcol[1], tempcol[2]);
+        set_palette_reg(ORANGE_START, temp_color.r, temp_color.g, temp_color.b);
 
         // For blue:
         // Get first color
-        query_palette_reg(WATER_END, &tempcol[0], &tempcol[1], &tempcol[2]);
+        cur_color = query_palette_reg(WATER_END);
 
-        for (i = WATER_END; i > WATER_START; --i) {
-            query_palette_reg(static_cast<Uint8>(i - 1), &curcol[0], &curcol[1], &curcol[2]);
-            set_palette_reg(static_cast<Uint8>(i), curcol[0], curcol[1], curcol[2]);
+        for (Uint8 i = WATER_END; i > WATER_START; --i) {
+            temp_color = query_palette_reg(i - 1);
+            set_palette_reg(i, cur_color.r, cur_color.g, cur_color.b);
         }
 
         // Reassign last to first
-        set_palette_reg(WATER_START, tempcol[0], tempcol[1], tempcol[2]);
+        set_palette_reg(WATER_START, temp_color.r, temp_color.g, temp_color.b);
     }
 }
 
@@ -904,9 +898,6 @@ void Video::putdatatext(Sint32 startx, Sint32 starty, Sint32 xsize, Sint32 ysize
     Sint32 cury;
     Uint8 curcolor;
     Uint32 num = 0;
-    Sint32 r;
-    Sint32 g;
-    Sint32 b;
     Sint32 color;
     SDL_Rect rect;
 
@@ -921,8 +912,11 @@ void Video::putdatatext(Sint32 startx, Sint32 starty, Sint32 xsize, Sint32 ysize
 
             // buffers: PORT: Draw the point
             // point(curx, cury, curcolor);
-            query_palette_reg(curcolor, &r, &g, &b);
-            color = SDL_MapRGB(E_Screen->render->format, r * 4, g * 4, b * 4);
+            SDL_Color palette_color = query_palette_reg(curcolor);
+            color = SDL_MapRGB(E_Screen->render->format,
+                               palette_color.r,
+                               palette_color.g,
+                               palette_color.b);
 
             rect.x = curx;
             rect.y = cury;
@@ -982,9 +976,6 @@ void Video::putdatatext(Sint32 startx, Sint32 starty, Sint32 xsize, Sint32 ysize
     Sint32 cury;
     Uint8 curcolor;
     Uint32 num = 0;
-    Sint32 r;
-    Sint32 g;
-    Sint32 b;
     Sint32 scolor;
     SDL_Rect rect;
 
@@ -1007,8 +998,11 @@ void Video::putdatatext(Sint32 startx, Sint32 starty, Sint32 xsize, Sint32 ysize
                 curcolor = color;
             }
 
-            query_palette_reg(curcolor, &r, &g, &b);
-            scolor = SDL_MapRGB(E_Screen->render->format, r * 4, g * 4, b * 4);
+            SDL_Color palette_color = query_palette_reg(curcolor);
+            scolor = SDL_MapRGB(E_Screen->render->format,
+                                palette_color.r,
+                                palette_color.g,
+                                palette_color.b);
 
             rect.x = curx;
             rect.y = cury;
@@ -1443,36 +1437,32 @@ void Video::walkputbuffer_flash(Sint32 walkerstartx, Sint32 walkerstarty,
                 curcolor = static_cast<Uint8>(teamcolor + (255 - curcolor));
             }
 
-            Sint32 r;
-            Sint32 g;
-            Sint32 b;
+            SDL_Color palette_color = query_palette_reg(curcolor);
 
-            query_palette_reg(curcolor, &r, &g, &b);
-
-            r *= 4;
-            g *= 4;
-            b *= 4;
-
-            if (r > 155) {
-                r = 255;
+            if (palette_color.r > 155) {
+                palette_color.r = 255;
             } else {
-                r += 100;
+                palette_color.r += 100;
             }
 
-            if (g > 155) {
-                g = 255;
+            if (palette_color.g > 155) {
+                palette_color.g = 255;
             } else {
-                g += 100;
+                palette_color.g += 100;
             }
 
-            if (b > 155) {
-                b = 255;
+            if (palette_color.b > 155) {
+                palette_color.b = 255;
             } else {
-                b += 100;
+                palette_color.b += 100;
             }
 
             // buffers: PORT: videobuffter[buffoff++] = curcolor
-            pointb(walkerstartx + curx, walkerstarty + cury, r, g, b);
+            pointb(walkerstartx + curx,
+                   walkerstarty + cury,
+                   palette_color.r,
+                   palette_color.g,
+                   palette_color.b);
         }
 
         walkoff += walkshift;
@@ -1499,9 +1489,6 @@ void Video::walkputbuffertext(Sint32 walkerstartx, Sint32 walkerstarty,
     Sint32 buffshift = 0;
     Sint32 totrows;
     Sint32 rowsize;
-    Sint32 r;
-    Sint32 g;
-    Sint32 b;
     Sint32 color;
     SDL_Rect rect;
 
@@ -1564,8 +1551,11 @@ void Video::walkputbuffertext(Sint32 walkerstartx, Sint32 walkerstarty,
                 curcolor = static_cast<Uint8>(teamcolor + (255 - curcolor));
             }
 
-            query_palette_reg(curcolor, &r, &g, &b);
-            color = SDL_MapRGB(E_Screen->render->format, r * 4, g * 4, b * 4);
+            SDL_Color palette_color = query_palette_reg(curcolor);
+            color = SDL_MapRGB(E_Screen->render->format,
+                               palette_color.r,
+                               palette_color.g,
+                               palette_color.b);
 
             rect.x = curx + walkerstartx;
             rect.y = cury + walkerstarty;
@@ -1801,7 +1791,7 @@ void Video::walkputbuffer(Sint32 walkerstartx, Sint32 walkerstarty,
                     // End outline
                 }
 
-                if (random(invisibility) > 8) {
+                if (getRandomSint32(invisibility) > 8) {
                     ++xval;
                     // videobuffer[bufoff++] teamcolor + random(7);
                     continue;
@@ -1891,7 +1881,7 @@ void Video::walkputbuffer(Sint32 walkerstartx, Sint32 walkerstarty,
 
             break;
         case SHIFT_RIGHT_RANDOM:
-            shift = static_cast<Sint8>(random(2));
+            shift = static_cast<Sint8>(getRandomSint32(2));
 
             break;
         default:
@@ -1914,7 +1904,7 @@ void Video::walkputbuffer(Sint32 walkerstartx, Sint32 walkerstarty,
                 // buffers: This is a messy optimization. Sorry.
                 if (shifttype == SHIFT_RANDOM) {
                     // pointb(buffoff++, get_pixel(buffoff + random(2)));
-                    tempbuf = buffoff + random(2);
+                    tempbuf = buffoff + getRandomSint32(2);
                     ty = tempbuf / 320;
                     tx = tempbuf - (ty * 320);
                     get_pixel(tx, ty, &r, &g, &b);
@@ -2050,9 +2040,6 @@ Sint32 Video::get_pixel(Sint32 x, Sint32 y, Sint32 *index)
     Uint8 r;
     Uint8 g;
     Uint8 b;
-    Sint32 tr;
-    Sint32 tg;
-    Sint32 tb;
     Sint32 i;
 
     get_pixel(x, y, &r, &g, &b);
@@ -2061,9 +2048,11 @@ Sint32 Video::get_pixel(Sint32 x, Sint32 y, Sint32 *index)
     b /= 4;
 
     for (i = 0; i < 256; ++i) {
-        query_palette_reg(i, &tr, &tg, &tb);
+        SDL_Color palette_color = query_palette_reg(i);
 
-        if ((r == tr) && (g == tg) && (b == tb)) {
+        if ((r == palette_color.r)
+            && (g == palette_color.g)
+            && (b == palette_color.b)) {
             *index = i;
             return i;
         }

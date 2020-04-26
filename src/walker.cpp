@@ -196,7 +196,7 @@ Sint16 exp_from_action(ExpActionEnum action, Walker *w, Walker *target, Sint16 v
     case EXP_HEAL:
         // value == number of hitpoints healed
 
-        return (random(20 * value) / w->stats->level);
+        return (getRandomSint32(20 * value) / w->stats->level);
     case EXP_TURN_UNDEAD:
         // value == number of turned undead
 
@@ -235,7 +235,7 @@ float get_base_damage(Walker *w)
     float d = w->damage;
     float sqrtd = sqrtf(d);
 
-    return ((d - (sqrtd / 2.0f)) + random(floor(sqrtd)));
+    return ((d - (sqrtd / 2.0f)) + getRandomSint32(floor(sqrtd)));
 }
 
 float get_damage_reduction(Walker *w, float damage, Walker *target)
@@ -984,7 +984,7 @@ Walker *Walker::fire()
     // Determine how much the thrown weapon can "waver"
     // Absolute amount...
     waver = static_cast<Sint8>(weapon->stepsize / 2);
-    waver = static_cast<Sint8>(random(waver + 1) - (waver / 2));
+    waver = static_cast<Sint8>(getRandomSint32(waver + 1) - (waver / 2));
 
     switch (facing(lastx, lasty)) {
     case FACE_RIGHT:
@@ -1127,14 +1127,14 @@ Walker *Walker::fire()
                     weapon->ani_type = ANI_TELE_IN;
                 }
 
-                weapon->stats->level = random(stats->level) + 1;
+                weapon->stats->level = getRandomSint32(stats->level) + 1;
                 weapon->set_difficulty(static_cast<Uint32>(weapon->stats->level));
                 weapon->owner = nullptr;
 
                 break;
             default: // Tents, bones, etc.
                 weapon->lifetime = 800 + (stats->level * 11);
-                weapon->stats->level = random(stats->level) + 1;
+                weapon->stats->level = getRandomSint32(stats->level) + 1;
                 weapon->set_difficulty(static_cast<Uint32>(weapon->stats->level));
 
                 break;
@@ -1160,7 +1160,7 @@ void Walker::set_weapon_heading(Walker *weapon)
     // Determine how much the thrown weapon can "waver"
     // Absolute amount...
     waver = static_cast<Sint8>((weapon->stepsize) / 2);
-    waver = static_cast<Sint8>(random(waver + 1) - (waver / 2));
+    waver = static_cast<Sint8>(getRandomSint32(waver + 1) - (waver / 2));
 
     // These are from the "owner"
     switch (facing(lastx, lasty)) {
@@ -1732,11 +1732,11 @@ Sint16 Walker::act()
         return 1;
     case ACT_RANDOM:
         // We are randomly walking toward enemy
-        if (!random(4)) {
+        if (!getRandomSint32(4)) {
             // A 1 in 4 then 1 in 20 chance of random walk
-            if (!random(20)) {
+            if (!getRandomSint32(20)) {
                 if (!special()) {
-                    stats->try_command(COMMAND_WALK, random(30), random(3) - 1, random(3) - 1);
+                    stats->try_command(COMMAND_WALK, getRandomSint32(30), getRandomSint32(3) - 1, getRandomSint32(3) - 1);
                 }
 
                 return 1;
@@ -2064,9 +2064,9 @@ Sint16 Walker::attack(Walker *target)
             // Faerie's fire freezes foes :)
             if (targetorder == ORDER_LIVING) {
                 if (target->myguy) {
-                    target->stats->frozen_delay = random((FAERIE_FREEZE_TIME + (owner->stats->level * 2)) - (target->myguy->constitution / 21));
+                    target->stats->frozen_delay = getRandomSint32((FAERIE_FREEZE_TIME + (owner->stats->level * 2)) - (target->myguy->constitution / 21));
                 } else {
-                    target->stats->frozen_delay = random(FAERIE_FREEZE_TIME + (owner->stats->level * 2));
+                    target->stats->frozen_delay = getRandomSint32(FAERIE_FREEZE_TIME + (owner->stats->level * 2));
                 }
 
                 if (target->stats->frozen_delay < 0) {
@@ -2224,7 +2224,7 @@ Sint16 Walker::attack(Walker *target)
             blood->setxy(target->xpos, target->ypos);
         }
         if (on_screen() && (targetorder == ORDER_LIVING)) {
-            if (random(2)) {
+            if (getRandomSint32(2)) {
                 myscreen->soundp->play_sound(SOUND_DIE1);
             } else {
                 myscreen->soundp->play_sound(SOUND_DIE2);
@@ -2642,7 +2642,7 @@ Sint16 Walker::special()
 
                 for (auto & w : newlist) {
                     if (w) {
-                        if (random(stats->level) >= random(w->stats->level)) {
+                        if (getRandomSint32(stats->level) >= getRandomSint32(w->stats->level)) {
                             w->busy += (6 * ((stats->level - w->stats->level) + 1));
                         }
 
@@ -2690,7 +2690,7 @@ Sint16 Walker::special()
                     for (auto & newob : newlist) {
                         if ((newob->stats->hitpoints < newob->stats->max_hitpoints) && (newob != this)) {
                             // Get the cost first
-                            generic = (stats->magicpoints / 4) + random(stats->magicpoints / 4);
+                            generic = (stats->magicpoints / 4) + getRandomSint32(stats->magicpoints / 4);
                             Sint32 cost = generic / 2;
                             // Add bonus healing
                             generic += (stats->level * 5);
@@ -2862,7 +2862,7 @@ Sint16 Walker::special()
                         }
 
                         alive->team_num = team_num;
-                        alive->stats->level = random(stats->level) + 1;
+                        alive->stats->level = getRandomSint32(stats->level) + 1;
                         alive->set_difficulty(static_cast<Uint32>(alive->stats->level));
                         alive->setxy(newob->xpos, newob->ypos);
                         alive->owner = this;
@@ -2950,7 +2950,7 @@ Sint16 Walker::special()
                             return 0;
                         }
 
-                        alive->stats->level = random(stats->level) + 1;
+                        alive->stats->level = getRandomSint32(stats->level) + 1;
                         alive->set_difficulty(static_cast<Uint32>(alive->stats->level));
                         alive->team_num = team_num;
                         alive->setxy(newob->xpos, newob->ypos);
@@ -3023,7 +3023,7 @@ Sint16 Walker::special()
                         }
 
                         alive->team_num = team_num;
-                        alive->stats->level = random(stats->level) + 1;
+                        alive->stats->level = getRandomSint32(stats->level) + 1;
                         alive->set_difficulty(static_cast<Uint32>(alive->stats->level));
                         alive->owner = this;
                     }
@@ -3598,7 +3598,7 @@ Sint16 Walker::special()
                 if (generic < 100) {
                     person = FAMILY_ELF;
                 } else if (generic < 250) {
-                    switch (random(3)) {
+                    switch (getRandomSint32(3)) {
                     case 0:
                         person = FAMILY_ELF;
 
@@ -3617,7 +3617,7 @@ Sint16 Walker::special()
                         break;
                     }
                 } else if (generic < 500) {
-                    switch (random(5)) {
+                    switch (getRandomSint32(5)) {
                     case 0:
                         person = FAMILY_ELF;
 
@@ -3644,7 +3644,7 @@ Sint16 Walker::special()
                         break;
                     }
                 } else if (generic < 1000) {
-                    switch (random(7)) {
+                    switch (getRandomSint32(7)) {
                     case 0:
                         person = FAMILY_ELF;
 
@@ -3680,7 +3680,7 @@ Sint16 Walker::special()
                     }
                 } else {
                     // Our maximum possible, insert before if needed
-                    switch (random(9)) {
+                    switch (getRandomSint32(9)) {
                     case 0:
                         person = FAMILY_ELF;
 
@@ -3812,16 +3812,16 @@ Sint16 Walker::special()
                         generic = stats->level - ob->stats->level;
 
                         // Trying to control a higher-level
-                        if ((generic < 0) || !random(20)) {
+                        if ((generic < 0) || !getRandomSint32(20)) {
                             ob->real_team_num = ob->team_num;
-                            ob->team_num = random(8);
-                            ob->charm_left = 25 + random(generic * 20);
+                            ob->team_num = getRandomSint32(8);
+                            ob->charm_left = 25 + getRandomSint32(generic * 20);
                         } else {
                             ob->real_team_num = ob->team_num;
                             ob->team_num = team_num;
                             // Allow choice of new foe
                             ob->foe = nullptr;
-                            ob->charm_left = 25 + random(generic * 20);
+                            ob->charm_left = 25 + getRandomSint32(generic * 20);
                         }
 
                         ++didheal;
@@ -3920,7 +3920,7 @@ Sint16 Walker::special()
                 transform_to(ORDER_LIVING, FAMILY_SLIME);
             }
         } else {
-            stats->set_command(COMMAND_WALK, 10, random(3) - 1, random(3) - 1);
+            stats->set_command(COMMAND_WALK, 10, getRandomSint32(3) - 1, getRandomSint32(3) - 1);
 
             return 0;
         }
@@ -3973,8 +3973,8 @@ Sint16 Walker::special()
             }
 
             if (!person) {
-                tempx = random(3) - 1;
-                tempy = random(3) - 1;
+                tempx = getRandomSint32(3) - 1;
+                tempy = getRandomSint32(3) - 1;
 
                 if ((tempx == 0) && (tempy == 0)) {
                     tempx = 1;
@@ -3986,7 +3986,7 @@ Sint16 Walker::special()
             break;
         case 2:
             // Thief cloaking ability, Registered
-            invisibility_left += (20 + (random(20) * stats->level));
+            invisibility_left += (20 + (getRandomSint32(20) * stats->level));
 
             break;
         case 3:
@@ -4000,14 +4000,14 @@ Sint16 Walker::special()
                 std::list<Walker *> newlist = myscreen->find_foes_in_range(myscreen->level_data.oblist, 80 + (4 * stats->level), &howmany, this);
 
                 for (auto & ob : newlist) {
-                    if (ob && (random(stats->level) >= random(ob->stats->level))) {
+                    if (ob && (getRandomSint32(stats->level) >= getRandomSint32(ob->stats->level))) {
                         // Set our enemy's foe to us...
                         ob->foe = this;
                         // A hack, yeah
                         ob->leader = this;
 
                         if (ob->query_act_type() != ACT_CONTROL) {
-                            ob->stats->force_command(COMMAND_FOLLOW, 10 + random(stats->level), 0, 0);
+                            ob->stats->force_command(COMMAND_FOLLOW, 10 + getRandomSint32(stats->level), 0, 0);
                         }
                     }
                 }
@@ -4051,7 +4051,7 @@ Sint16 Walker::special()
                         generic = stats->level - ob->stats->level;
 
                         // Trying to control a higher-level
-                        if ((generic < 0) || !random(20)) {
+                        if ((generic < 0) || !getRandomSint32(20)) {
                             // Enemy gets free attack...
                             ob->foe = this;
                             ob->attack(this);
@@ -4430,7 +4430,7 @@ Sint16 Walker::special()
                             tempx = ob->stats->hitpoints / 30;
                         }
 
-                        tempy = (10 + random(stats->level * 10)) - random(tempx * 10);
+                        tempy = (10 + getRandomSint32(stats->level * 10)) - getRandomSint32(tempx * 10);
 
                         if (tempy < 0) {
                             tempy = 0;
@@ -4640,12 +4640,12 @@ bool Walker::teleport()
         // End of checking for marker (we failed)
     }
 
-    newx = random(myscreen->level_data.grid.w) * GRID_SIZE;
-    newy = random(myscreen->level_data.grid.h) * GRID_SIZE;
+    newx = getRandomSint32(myscreen->level_data.grid.w) * GRID_SIZE;
+    newy = getRandomSint32(myscreen->level_data.grid.h) * GRID_SIZE;
 
     while (!myscreen->query_passable(newx, newy, this)) {
-        newx = random(myscreen->level_data.grid.w) * GRID_SIZE;
-        newy = random(myscreen->level_data.grid.h) * GRID_SIZE;
+        newx = getRandomSint32(myscreen->level_data.grid.w) * GRID_SIZE;
+        newy = getRandomSint32(myscreen->level_data.grid.h) * GRID_SIZE;
     }
 
     setxy(newx, newy);
@@ -4660,12 +4660,12 @@ bool Walker::teleport_ranged(Sint32 range)
     // Maxtries
     Sint16 keep_going = 200;
 
-    newx = (random(2 * range) - range) + xpos;
-    newy = (random(2 * range) - range) + ypos;
+    newx = (getRandomSint32(2 * range) - range) + xpos;
+    newy = (getRandomSint32(2 * range) - range) + ypos;
 
     while (!myscreen->query_passable(newx, newy, this) && keep_going) {
-        newx = (random(2 * range) - range) + xpos;
-        newy = (random(2 * range) - range) + ypos;
+        newx = (getRandomSint32(2 * range) - range) + xpos;
+        newy = (getRandomSint32(2 * range) - range) + ypos;
         --keep_going;
     }
 
@@ -4694,7 +4694,7 @@ Sint32 Walker::turn_undead(Sint32 range, Sint32 power)
 
     for (auto & w : deadlist) {
         if (w && ((w->query_family() == FAMILY_SKELETON) || (w->query_family() == FAMILY_GHOST))) {
-            if (random(range * 40) > random(w->stats->level * 10)) {
+            if (getRandomSint32(range * 40) > getRandomSint32(w->stats->level * 10)) {
                 w->dead = 1;
                 w->stats->hitpoints = 0;
                 // w->death();
@@ -4869,9 +4869,9 @@ Sint16 Walker::fire_check(Sint16 xdelta, Sint16 ydelta)
 bool Walker::act_generate()
 {
     if ((myscreen->level_data.numobs < MAXOBS)
-        && (random(stats->level * 3) > random(300 + (myscreen->level_data.numobs * 8)))) {
-        lastx = 1 - random(3);
-        lasty = 1 - random(3);
+        && (getRandomSint32(stats->level * 3) > getRandomSint32(300 + (myscreen->level_data.numobs * 8)))) {
+        lastx = 1 - getRandomSint32(3);
+        lasty = 1 - getRandomSint32(3);
 
         if (!lastx && !lasty) {
             lastx = 1;
@@ -4926,7 +4926,7 @@ bool Walker::act_guard()
 
     if (foe) {
         curdir = static_cast<Uint8>(facing(foe->xpos - xpos, foe->ypos - ypos));
-        stats->try_command(COMMAND_FIRE, random(30));
+        stats->try_command(COMMAND_FIRE, getRandomSint32(30));
 
         return true;
     }
@@ -4947,7 +4947,7 @@ Sint16 Walker::act_random()
     // }
 
     // Find our foe
-    if (!random(70) || !foe) {
+    if (!getRandomSint32(70) || !foe) {
         foe = myscreen->find_far_foe(this);
     }
 
@@ -4962,7 +4962,7 @@ Sint16 Walker::act_random()
     if ((abs(xdist) < (lineofsight * GRID_SIZE)) && (abs(ydist) < (lineofsight * GRID_SIZE))) {
         if (fire_check(xdist, ydist)) {
             init_fire(xdist, ydist);
-            stats->set_command(COMMAND_FIRE, random(24), xdist, ydist);
+            stats->set_command(COMMAND_FIRE, getRandomSint32(24), xdist, ydist);
 
             return 1;
         } else {
@@ -4995,8 +4995,8 @@ Sint16 Walker::act_random()
     } else {
         while (!newx && !newy) {
             // Walk in some random direction other than 0,0 :)
-            newx = 1 - random(3);
-            newy = 1 - random(3);
+            newx = 1 - getRandomSint32(3);
+            newy = 1 - getRandomSint32(3);
         }
     }
 
@@ -5269,9 +5269,9 @@ Sint16 Walker::death()
             newob->team_num = team_num;
             newob->stats->level = stats->level;
             newob->ani_type = ANI_EXPLODE;
-            newob->setxy((xpos + random(sizex - 8)) + 4, (ypos + 4) + random(sizey - 8));
+            newob->setxy((xpos + getRandomSint32(sizex - 8)) + 4, (ypos + 4) + getRandomSint32(sizey - 8));
             newob->damage = stats->level * 2;
-            newob->set_frame(random(3));
+            newob->set_frame(getRandomSint32(3));
 
             if (on_screen()) {
                 myscreen->soundp->play_sound(SOUND_EXPLODE);
@@ -5322,7 +5322,7 @@ void Walker::generate_bloodspot()
     // check the order and family and reset our picture to a living guy...
     // we need to find a way around this...
     // Has no effect yet...
-    bloodstain->set_frame(random(4));
+    bloodstain->set_frame(getRandomSint32(4));
     bloodstain->ani_type = ANI_WALK;
     // Our image
     // bloodstain->bmp = static_cast<Uint8 *>(data + 3);

@@ -75,7 +75,7 @@ extern VideoScreen *myscreen; // Global for scen?
 // Zardus: Our prefs object from view.cpp
 extern Options *theprefs;
 
-Uint8 scenpalette[768];
+SDL_Color scenpalette[256];
 Sint32 cyclemode = 1; // For color cycling
 
 Sint32 mouse_up_button = 0;
@@ -159,14 +159,6 @@ bool prompt_for_string_block(std::string const &message, std::list<std::string> 
     SDL_Rect done_button = { 320 - 52, 0, 50, 14 };
     SDL_Rect cancel_button = { 320 - 104, 0, 50, 14 };
 
-#if defined(USE_TOUCH_INPUT)
-    SDL_Rect newline_button = { 320 - 75, 16, 50, 14 };
-    SDL_Rect up_button = { 14, 0, 14, 14 };
-    SDL_Rect down_button = { 14, 14, 14, 14 };
-    SDL_Rect left_button = { 0, 14, 14, 14 };
-    SDL_Rect right_button = { 28, 14, 14, 14 };
-#endif
-
     std::list<std::string> original_text = result;
 
     clear_keyboard();
@@ -196,19 +188,12 @@ bool prompt_for_string_block(std::string const &message, std::list<std::string> 
             clear_key_press_event();
 
             if (c == SDLK_RETURN) {
-#if defined(USE_TOUCH_INPUT)
-                // Some soft keyboards might disappear anyhow if you press return...
-                done = true;
-
-                break;
-#else
                 std::string rest_of_line(s->substr(cursor_pos));
                 s->erase(cursor_pos);
                 ++s;
                 s = result.insert(s, rest_of_line);
                 ++current_line;
                 cursor_pos = 0;
-#endif
             } else if (c == SDLK_BACKSPACE) {
                 // At the beginning of the line?
                 if (cursor_pos == 0) {
@@ -239,59 +224,6 @@ bool prompt_for_string_block(std::string const &message, std::list<std::string> 
                 result = original_text;
                 done = true;
             }
-#if defined(USE_TOUCH_INPUT)
-            else if (mymouse.in(newline_button)) {
-                std::string rest_of_line(s->substr(cursor_pos));
-                s->erase(cursor_pos);
-                ++s;
-                s = result.insert(s, rest_of_line);
-                ++current_line;
-                cursor_pos = 0;
-            } else if (mymouse.in(up_button)) {
-                if (current_line > 0) {
-                    --current_line;
-                    --s;
-
-                    if (s->size() < cursor_pos) {
-                        cursor_pos = s->size();
-                    }
-                }
-            } else if (mymouse.in(down_button)) {
-                if ((current_line + 1) < result.size()) {
-                    ++current_line;
-                    ++s;
-                } else {
-                    // At the bottom already
-                    cursor_pos = s->size();
-                }
-
-                if (s->size() < cursor_pos) {
-                    cursor_pos = s->size();
-                }
-            } else if (mymouse.in(left_button)) {
-                if (cursor_pos > 0) {
-                    --cursor_pos;
-                } else if (current_line > 0) {
-                    --current_line;
-                    --s;
-                    cursor_pos = s->size();
-                }
-            } else if (mymouse.in(right_button)) {
-                ++cursor_pos;
-
-                if (cursor_pos > s->size()) {
-                    if ((current_line + 1) < result.size()) {
-                        // Go to next line
-                        ++current_line;
-                        ++s;
-                        cursor_pos = 0;
-                    } else {
-                        // No next line
-                        cursor_pos = s->size();
-                    }
-                }
-            }
-#endif
         }
 
         if (keystates[KEYSTATE_ESCAPE]) {
@@ -408,44 +340,6 @@ bool prompt_for_string_block(std::string const &message, std::list<std::string> 
         mytext.write_xy((cancel_button.x + (cancel_button.w / 2)) - 18,
                         (cancel_button.y + (cancel_button.h / 2)) - 3,
                         "CANCEL", DARK_BLUE, 1);
-
-#if defined(USE_TOUCH_INPUT)
-        myscreen->draw_button(newline_button.x, newline_button.y,
-                              newline_button.x + newline_button.w,
-                              newline_button.y + newline_button.h, 1);
-
-        mytext.write_xy((newline_button.x + (newline_button.w / 2)) - 18,
-                        (newline_button.y + (newline_button.h / 2)) - 3,
-                        "NEWLINE", DARK_BLUE, 1);
-
-        myscreen->draw_button(up_button.x, up_button.y, up_button.x + up_button.w,
-                              up_button.y + up_button.h, 1);
-
-        mytext.write_xy((up_button.x + (up_button.w / 2)) - 6,
-                        (up_button.y + (up_button.h / 2)) - 3,
-                        "UP", DARK_BLUE, 1);
-
-        myscreen->draw_button(left_button.x, left_button.y, left_button.x + left_button.w,
-                              left_button.y + left_button.h, 1);
-
-        mytext.write_xy((left_button.x + (left_button.w / 2)) - 6,
-                        (left_button.y + (left_button.h / 2)) - 3,
-                        "LT", DARK_BLUE, 1);
-
-        myscreen->draw_button(down_button.x, down_button.y, down_button.x + down_button.w,
-                              down_button.y + down_button.h, 1);
-
-        mytext.write_xy((down_button.x + (down_button.w / 2)) - 6,
-                        (down_button.y + (down_button.h / 2)) - 3,
-                        "DN", DARK_BLUE, 1);
-
-        myscreen->draw_button(right_button.x, right_button.y, right_button.x + right_button.w,
-                              right_button.y + right_button.h, 1);
-
-        mytext.write_xy((right_button.x + (right_button.w / 2)) - 6,
-                        (right_button.y + (right_button.h / 2)) - 3,
-                        "RT", DARK_BLUE, 1);
-#endif
 
         Sint32 offset = 0;
 
@@ -848,7 +742,7 @@ Sint32 level_editor()
     Sint32 my;
 
     // Initialize palette for cycling
-    load_and_set_palette("our.pal", scenpalette);
+    load_and_set_palette(scenpalette);
 
     if (data.reloadCampaign()) {
         Log("Loaded campaign data successfully.\n");
@@ -1051,7 +945,7 @@ Sint32 level_editor()
                     levelchanged = 1;
                 } else if (event.key.keysym.sym == SDLK_F9) {
                     // Change to new palette...
-                    load_and_set_palette("our.pal", scenpalette);
+                    load_and_set_palette(scenpalette);
                 }
 
                 break;
@@ -1354,7 +1248,7 @@ Uint8 get_random_matching_tile(Sint32 whatback)
     Sint32 i;
 
     // Max number of types of any particular...
-    i = random(4);
+    i = getRandomSint32(4);
 
     switch (whatback) {
     case PIX_GRASS1:
@@ -1445,7 +1339,7 @@ Uint8 get_random_matching_tile(Sint32 whatback)
 
         break;
     case PIX_PAVEMENT1:
-        switch (random(12)) {
+        switch (getRandomSint32(12)) {
         case 0:
 
             return PIX_PAVEMENT1;
@@ -1462,7 +1356,7 @@ Uint8 get_random_matching_tile(Sint32 whatback)
 
         break;
     case PIX_COBBLE_1:
-        switch (random(i)) {
+        switch (getRandomSint32(i)) {
         case 0:
 
             return PIX_COBBLE_1;
@@ -1482,7 +1376,7 @@ Uint8 get_random_matching_tile(Sint32 whatback)
 
         break;
     case PIX_BOULDER_1:
-        switch (random(i)) {
+        switch (getRandomSint32(i)) {
         case 0:
 
             return PIX_BOULDER_1;

@@ -25,6 +25,7 @@
 #include "graphlib.hpp"
 #include "guy-fwd.hpp"
 #include "io.hpp"
+#include "level_editor.hpp"
 #include "picker.hpp"
 #include "pixie-fwd.hpp"
 #include "screen.hpp"
@@ -32,11 +33,6 @@
 #include "util.hpp"
 
 #define OG_OK 4
-
-bool no_or_yes_prompt(std::string const &title, std::string const &message, bool default_value);
-bool prompt_for_string(std::string const &message, std::string &result);
-void draw_highlight_interior(Button const &b);
-void draw_highlight(Button const &b);
 
 // Unmounts old campaign, mounts new one, and returns the current level
 // (scenario) that the player is on

@@ -26,7 +26,6 @@
 #include "graphlib.hpp"
 #include "guy.hpp"
 #include "help.hpp"
-// buffers: Using input.hpp instead #include "int32.h"
 #include "input.hpp"
 #include "io.hpp"
 #include "level_editor.hpp"

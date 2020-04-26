@@ -47,4 +47,6 @@ void uppercase(char *c);
 // kari: uppercase for std::strings
 void uppercase(std::string &s);
 
+Sint32 getRandomSint32(Sint32 modulus);
+
 #endif

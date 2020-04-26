@@ -29,6 +29,7 @@
 #include "guy.hpp"
 #include "screen.hpp"
 #include "soundob.hpp"
+#include "util.hpp"
 
 Sint16 hits(Sint16 x, Sint16 y, Sint16 xsize, Sint16 ysize, Sint16 x2,
             Sint16 y2, Sint16 xsize2, Sint16 ysize2);
@@ -450,12 +451,12 @@ Sint16 Effect::act()
             yd = 0;
 
             while ((xd == 0) && (yd == 0)) {
-                xd = random(3) - 1;
-                yd = random(3) - 1;
+                xd = getRandomSint32(3) - 1;
+                yd = getRandomSint32(3) - 1;
             }
 
             stats->add_command(COMMAND_WALK,
-                               static_cast<Sint16>(random(20)),
+                               static_cast<Sint16>(getRandomSint32(20)),
                                static_cast<Sint16>(xd),
                                static_cast<Sint16>(yd));
         }
@@ -512,7 +513,7 @@ Sint16 Effect::act()
 
             // More foes to find...
             if (temp && (generic > 20)) {
-                numfoes = random(owner->stats->level) + 1;
+                numfoes = getRandomSint32(owner->stats->level) + 1;
 
                 for (auto itr = foelist.begin(); (itr != foelist.end()) && (numfoes > 0); itr++, --numfoes) {
                     Walker *w = *itr;
@@ -736,8 +737,8 @@ Sint16 Effect::death()
                 generic = owner->stats->level * 25;
 
                 if (w->myguy) {
-                    generic -= random(w->myguy->constitution);
-                }
+                    generic -= getRandomSint32(w->myguy->constitution);
+               }
 
                 if (generic > 0) {
                     w->stats->force_command(COMMAND_WALK,

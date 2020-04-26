@@ -44,7 +44,7 @@ public:
     void pointb(Sint32 x, Sint32 y, Uint8 color);
     void pointb(Sint32 x, Sint32 y, Uint8 color, Uint8 alpha);
     void pointb(Sint32 offset, Uint8 color);
-    void pointb(Sint32 x, Sint32 y, Sint32 r, Sint32 g, Sint32 b);
+    void pointb(Sint32 x, Sint32 y, Uint8 r, Uint8 g, Uint8 b);
     void hor_line(Sint32 x, Sint32 y, Sint32 length, Uint8 color);
     void hor_line(Sint32 x, Sint32 y, Sint32 length, Uint8 color, bool tobuffer);
     void hor_line_alpha(Sint32 x, Sint32 y, Sint32 length, Uint8 color, Uint8 alpha);
@@ -93,13 +93,11 @@ public:
     Sint32 fadeDuration;
 
     // Our standard glad palette
-    Uint8 ourpalette[768];
+    SDL_Color ourpalette[256];
     // For "faded" backgrounds during menus
-    Uint8 redpalette[768];
+    SDL_Color redpalette[256];
     // For special effects like time freeze
-    Uint8 bluepalette[768];
-    // Store the dos palette so we can restore it later
-    Uint8 dospalette[768];
+    SDL_Color bluepalette[256];
     // Our new unified video buffer
     Uint8 videobuffer[64000];
     // Color cycling on or off

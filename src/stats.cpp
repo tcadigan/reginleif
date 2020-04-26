@@ -197,7 +197,7 @@ bool Statistics::has_commands()
 Sint16 Statistics::try_command(Sint16 whatcommand, Sint16 iterations)
 {
     if (whatcommand == COMMAND_RANDOM_WALK) {
-        return try_command(COMMAND_WALK, iterations, static_cast<Sint16>(random(3) - 1), static_cast<Sint16>(random(3) - 1));
+        return try_command(COMMAND_WALK, iterations, static_cast<Sint16>(getRandomSint32(3) - 1), static_cast<Sint16>(getRandomSint32(3) - 1));
     } else {
         return try_command(whatcommand, iterations, 0, 0);
     }
@@ -213,7 +213,7 @@ Sint16 Statistics::try_command(Sint16 whatcommand, Sint16 iterations, Sint16 inf
 void Statistics::set_command(Sint16 whatcommand, Sint16 iterations)
 {
     if (whatcommand == COMMAND_RANDOM_WALK) {
-        set_command(COMMAND_WALK, iterations, static_cast<Sint16>(random(3) - 1), static_cast<Sint16>(random(3) - 1));
+        set_command(COMMAND_WALK, iterations, static_cast<Sint16>(getRandomSint32(3) - 1), static_cast<Sint16>(getRandomSint32(3) - 1));
     } else {
         set_command(whatcommand, iterations, 0, 0);
     }
@@ -467,7 +467,7 @@ Sint16 Statistics::do_command()
         if (!controller->fire_check(deltax, deltay)) {
             controller->walkstep(deltax, deltay);
         } else { // controller->fire_check(deltax, deltay))
-            force_command(COMMAND_FIRE, static_cast<Sint16>(random(5)), deltax, deltay);
+            force_command(COMMAND_FIRE, static_cast<Sint16>(getRandomSint32(5)), deltax, deltay);
             controller->init_fire(deltax, deltay);
         }
 
@@ -608,7 +608,7 @@ void Statistics::hit_response(Walker *who)
             threshold = (3 * max_hitpoints) / 8;
         }
 
-        if ((hitpoints < threshold) && possible_specials[1] && random(3)) {
+        if ((hitpoints < threshold) && possible_specials[1] && getRandomSint32(3)) {
             // Teleport
             // Teleport to safety
             controller->current_special = 1;
@@ -645,7 +645,7 @@ void Statistics::hit_response(Walker *who)
                     // if (howmany < 3)
 
                     // 50/50 now
-                    if (random(2)) {
+                    if (getRandomSint32(2)) {
                         // Lightning
                         controller->shifter_down = 1;
                         controller->current_special = 2;
@@ -714,7 +714,7 @@ void Statistics::hit_response(Walker *who)
     default:
         // Attack our attacker
         // Chance of doing special...
-        if (controller->check_special() && !random(3)) {
+        if (controller->check_special() && !getRandomSint32(3)) {
             controller->special();
         }
 
@@ -1225,7 +1225,7 @@ bool Statistics::direct_walk()
     if (controller->fire_check(xdelta, ydelta)) {
         clear_command();
         controller->turn(controller->facing(xdelta, ydelta));
-        add_command(COMMAND_ATTACK, static_cast<Sint16>(30 + random(25)), 0, 0);
+        add_command(COMMAND_ATTACK, static_cast<Sint16>(30 + getRandomSint32(25)), 0, 0);
 
         return true;
     }
@@ -1311,7 +1311,7 @@ bool Statistics::walk_to_foe()
     Sint16 howmany;
 
     // Random just to be sure this gets reset sometime
-    if (!foe || !random(300)) {
+    if (!foe || !getRandomSint32(300)) {
         current_distance = 15000L;
         last_distance = current_distance;
 
@@ -1340,7 +1340,7 @@ bool Statistics::walk_to_foe()
                 Walker *firstfoe = foelist.front();
                 clear_command();
                 controller->turn(controller->facing(xdelta, ydelta));
-                controller->stats->try_command(COMMAND_ATTACK, static_cast<Sint16>(30 + random(25)), 1, 1);
+                controller->stats->try_command(COMMAND_ATTACK, static_cast<Sint16>(30 + getRandomSint32(25)), 1, 1);
                 myscreen->find_near_foe(controller);
 
                 if (!controller->foe && firstfoe) {

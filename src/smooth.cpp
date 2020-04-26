@@ -21,6 +21,7 @@
 
 #include "base.hpp"
 #include "pixdefs.hpp"
+#include "util.hpp"
 
 Smoother::Smoother()
     : mygrid(nullptr)
@@ -243,7 +244,7 @@ bool Smoother::smooth(Sint32 x, Sint32 y)
         } else if ((upright == TYPE_WATER) && (downright == TYPE_WATER) && (downleft == TYPE_WATER) && (right == TYPE_WATER) && (down == TYPE_WATER)) {
             newvalue = PIX_GRASSWATER_LR;
         } else {
-            switch (random(4)) {
+            switch (getRandomSint32(4)) {
             case 0:
                 newvalue = PIX_GRASS1;
 
@@ -267,7 +268,7 @@ bool Smoother::smooth(Sint32 x, Sint32 y)
     case TYPE_GRASS_DARK: // Shadowed grass
         // All around
         if (around == TO_AROUND) {
-            switch (random(4)) {
+            switch (getRandomSint32(4)) {
             case 0:
                 newvalue = PIX_GRASS_DARK_1;
 
@@ -289,7 +290,7 @@ bool Smoother::smooth(Sint32 x, Sint32 y)
                    && ((down == TYPE_TREES) || (down == TYPE_WALL))
                    && ((upright != TYPE_TREES) && (upright != TYPE_WALL))) {
             // Act as right edge
-            switch (random(2)) {
+            switch (getRandomSint32(2)) {
             case 0:
                 newvalue = PIX_GRASS_DARK_R1;
 
@@ -309,7 +310,7 @@ bool Smoother::smooth(Sint32 x, Sint32 y)
             case TYPE_TREES:
             case TYPE_DIRT:
             case TYPE_COBBLE:
-                switch (random(2)) {
+                switch (getRandomSint32(2)) {
                 case 0:
                     newvalue = PIX_GRASS_DARK_B1;
 
@@ -321,13 +322,13 @@ bool Smoother::smooth(Sint32 x, Sint32 y)
                 }
 
                 // Then place a bit o' rubble
-                if (!random(20)) {
+                if (!getRandomSint32(20)) {
                     newvalue = PIX_GRASS_RUBBLE;
                 }
 
                 break;
             default:
-                switch (random(4)) {
+                switch (getRandomSint32(4)) {
                 case 0:
                     newvalue = PIX_GRASS_DARK_1;
 
@@ -355,7 +356,7 @@ bool Smoother::smooth(Sint32 x, Sint32 y)
         } else if (around == (TO_LEFT | TO_RIGHT | TO_DOWN)) { // == top middle
             // Do nothing
         } else if (around == (TO_UP | TO_DOWN | TO_LEFT)) { // == right middle
-            switch (random(2)) {
+            switch (getRandomSint32(2)) {
             case 0:
                 newvalue = PIX_GRASS_DARK_R1;
 
@@ -372,7 +373,7 @@ bool Smoother::smooth(Sint32 x, Sint32 y)
                 newvalue = PIX_GRASS_DARK_B2;
             }
         } else if (around == (TO_LEFT | TO_RIGHT | TO_UP)) { // == bottom middle
-            switch (random(2)) {
+            switch (getRandomSint32(2)) {
             case 0:
                 newvalue = PIX_GRASS_DARK_B1;
 
@@ -384,11 +385,11 @@ bool Smoother::smooth(Sint32 x, Sint32 y)
             }
 
             // Then place a bit o' rubble
-            if (!random(20)) {
+            if (!getRandomSint32(20)) {
                 newvalue = PIX_GRASS_RUBBLE;
             }
         } else if (around == (TO_LEFT | TO_RIGHT)) { // == middle, thin
-            switch (random(2)) {
+            switch (getRandomSint32(2)) {
             case 0:
                 newvalue = PIX_GRASS_DARK_B1;
 
@@ -400,7 +401,7 @@ bool Smoother::smooth(Sint32 x, Sint32 y)
             }
 
             // Then place a bit o' rubble
-            if (!random(20)) {
+            if (!getRandomSint32(20)) {
                 newvalue = PIX_GRASS_RUBBLE;
             }
         } else if (around == (TO_LEFT | TO_UP)) { // == bottom right
@@ -413,7 +414,7 @@ bool Smoother::smooth(Sint32 x, Sint32 y)
             }
         } else if ((around == (TO_DOWN | TO_RIGHT | TO_UP)) // Left middle
                    || (around == (TO_DOWN | TO_RIGHT))) { // top left
-            switch (random(4)) {
+            switch (getRandomSint32(4)) {
             case 0:
                 newvalue = PIX_GRASS_DARK_1;
 
@@ -432,7 +433,7 @@ bool Smoother::smooth(Sint32 x, Sint32 y)
                 break;
             }
         } else if (around == (TO_DOWN | TO_UP)) { // == center vertical
-            switch (random(2)) {
+            switch (getRandomSint32(2)) {
             case 0:
                 newvalue = PIX_GRASS_DARK_R1;
 
@@ -707,7 +708,7 @@ bool Smoother::smooth(Sint32 x, Sint32 y)
                 break;
             case 11:
                 // We're hte middle base of a wall
-                if (random(10) == 0) {
+                if (getRandomSint32(10) == 0) {
                     newvalue = PIX_WALLSIDE_CRACK_C1;
                 } else {
                     newvalue = PIX_WALLSIDE1;
@@ -759,7 +760,7 @@ bool Smoother::smooth(Sint32 x, Sint32 y)
             || (around == (TO_DOWN | TO_LEFT | TO_RIGHT))
             || (around == (TO_UP | TO_DOWN | TO_LEFT))
             || (around == (TO_UP | TO_DOWN | TO_RIGHT))) {
-            switch (random(3)) {
+            switch (getRandomSint32(3)) {
             case 0:
                 newvalue = PIX_WATER1;
 
@@ -782,7 +783,7 @@ bool Smoother::smooth(Sint32 x, Sint32 y)
         } else if (around == (TO_DOWN | TO_RIGHT)) {
             newvalue = PIX_WATERGRASS_UR;
         } else if (around == TO_UP) {
-            switch (random(2)) {
+            switch (getRandomSint32(2)) {
             case 0:
                 newvalue = PIX_WATERGRASS_LL;
 
@@ -793,7 +794,7 @@ bool Smoother::smooth(Sint32 x, Sint32 y)
                 break;
             }
         } else if (around == TO_DOWN) {
-            switch (random(2)) {
+            switch (getRandomSint32(2)) {
             case 0:
                 newvalue = PIX_WATERGRASS_UL;
 
@@ -804,7 +805,7 @@ bool Smoother::smooth(Sint32 x, Sint32 y)
                 break;
             }
         } else if (around == TO_LEFT) {
-            switch (random(2)) {
+            switch (getRandomSint32(2)) {
             case 0:
                 newvalue = PIX_WATERGRASS_UR;
 
@@ -815,7 +816,7 @@ bool Smoother::smooth(Sint32 x, Sint32 y)
                 break;
             }
         } else if (around == TO_RIGHT) {
-            switch (random(2)) {
+            switch (getRandomSint32(2)) {
             case 0:
                 newvalue = PIX_WATERGRASS_UL;
 
@@ -959,7 +960,7 @@ bool Smoother::smooth(Sint32 x, Sint32 y)
         break;
     case TYPE_COBBLE:
         // Cobblestone
-        switch (random(4)) {
+        switch (getRandomSint32(4)) {
         case 0:
             newvalue = PIX_COBBLE_1;
 

@@ -26,8 +26,8 @@
 #include "base.hpp"
 #include "graphlib.hpp"
 #include "input.hpp"
-#include "pixie.hpp"
 #include "pal32.hpp"
+#include "pixie.hpp"
 #include "screen.hpp"
 #include "util.hpp"
 #include "view.hpp"
@@ -44,8 +44,7 @@ Sint32 show();
 Sint32 show(Sint32 howlong);
 Sint32 cleanup();
 
-int pal[256][3];
-Uint8 mypalette[768];
+SDL_Color mypalette[256];
 
 void intro_main()
 {
@@ -68,12 +67,7 @@ void intro_main()
 
     myscreen->viewob[0]->resize(PREF_VIEW_FULL);
 
-    load_and_set_palette("our.pal", mypalette);
-    // load_scenario("current", myscreen);
-    // buffers: PORT:
-    // for (Sint32 i = 0; i < 256; ++i) {
-    //     set_palette_reg(i, 0, 0, 0);
-    // }
+    load_and_set_palette(mypalette);
 
     myscreen->fadeblack(TO);
 
@@ -247,40 +241,15 @@ void intro_main()
         return;
     }
 
-    // Cleanup
-    /*
-     * for (Sint32 i = 0; i < 256; ++i) {
-     *     red = pal[i][0];
-     *     green = pal[i][1];
-     *     blue = pal[i][2];
-     *     set_palette_reg(i, red, green, blue);
-     * }
-     */
-
     cleanup();
 }
 
 Sint32 cleanup()
 {
-    Sint32 i;
-    // buffers: PORT: Changed to ints
-    Sint32 red;
-    Sint32 green;
-    Sint32 blue;
-
-    // Resets palette to read mode
-    query_palette_reg(static_cast<Uint8>(0), &red, &green, &blue);
     myscreen->clear();
     myscreen->refresh();
 
-    for (i = 0; i < 256; ++i) {
-        red = pal[i][0];
-        green = pal[i][1];
-        blue = pal[i][2];
-        set_palette_reg(i, red, green, blue);
-    }
-
-    load_and_set_palette("our.pal", mypalette);
+    load_and_set_palette(mypalette);
 
     return 1;
 }

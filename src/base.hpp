@@ -342,22 +342,8 @@ enum CommandEnum : Uint8 {
 #define TEXT_1 "text.pix" // Standard text pixie
 #define TEXT_BIG "textbig.pix" // Standard text pixie
 
-#define DONT_DELETE 1
-
 extern VideoScreen *myscreen; // Global, available to anyone
 
 SDL_Color palette[256];
-
-Uint32 random(Uint32 x);
-
-// Most of these are graphlib and are being ported to video
-Uint8 *get_cfg_item(Uint8 *section, Uint8 *item);
-
-// functions in game.cpp
-Sint16 load_saved_game(std::string const &filename, VideoScreen *myscreen);
-
-// void set_vga_palette(palette p);
-SDL_Color set_rgb(Uint8 r, Uint8 g, Uint8 b);
-// Sint16 read_palette(FILE *f, palette p);
 
 #endif

@@ -1015,15 +1015,12 @@ bool ViewScreen::continuous_input()
     // Movement, etc.
     // Make sure we're not performing some queued action...
     if (control->stats->commands.empty()) {
-#ifndef USE_TOUCH_INPUT
         // We will handle this as an action in input() instead
         if (isPlayerHoldingKey(mynum, KEY_SHIFTER)) {
             control->shifter_down = 1;
         } else {
             control->shifter_down = 0;
         }
-
-#endif
 
         /*
          * Danged testing code confused the hell out of me!!
@@ -2117,18 +2114,18 @@ Sint32 ViewScreen::change_gamma(Sint32 whichway)
 {
     if (whichway > 1) {
         // Lighter
-        load_palette("our.pal", myscreen->newpalette);
+        load_palette(myscreen->newpalette);
         ++gamma;
         adjust_palette(myscreen->newpalette, gamma);
     } else if (whichway < -1) {
         // Darker
-        load_palette("our.pal", myscreen->newpalette);
+        load_palette(myscreen->newpalette);
         --gamma;
         adjust_palette(myscreen->newpalette, gamma);
     } else {
         // Set to default
         gamma = 0;
-        load_palette("our.pal", myscreen->newpalette);
+        load_palette(myscreen->newpalette);
     }
 
     // So 0 just means report

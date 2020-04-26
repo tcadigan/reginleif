@@ -215,9 +215,6 @@ bool Pixie::on_screen(ViewScreen *viewp)
 // buffers: This function initializes the bmp_surface
 void Pixie::init_sdl_surface(void)
 {
-    Sint32 r;
-    Sint32 g;
-    Sint32 b;
     Sint32 c;
     Sint32 num;
     SDL_Rect rect;
@@ -231,8 +228,11 @@ void Pixie::init_sdl_surface(void)
     num = 0;
     for (Sint16 i = 0; i < sizey; ++i) {
         for (Sint16 j = 0; j < sizex; ++j) {
-            query_palette_reg(bmp[num], &r, &g, &b);
-            c = SDL_MapRGB(bmp_surface->format, r * 4, g * 4, b * 4);
+            SDL_Color palette_color = query_palette_reg(bmp[num]);
+            c = SDL_MapRGB(bmp_surface->format,
+                           palette_color.r,
+                           palette_color.g,
+                           palette_color.b);
             rect.x = j;
             rect.y = i;
             rect.w = 1;

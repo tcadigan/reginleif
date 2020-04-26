@@ -15,24 +15,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#ifndef __GRAPH_HPP__
-#define __GRAPH_HPP__
+#ifndef __GAME_HPP__
+#define __GAME_HPP__
 
-#include "effect.hpp"
-#include "gloader-fwd.hpp"
-#include "guy-fwd.hpp"
-#include "living.hpp"
-#include "obmap.hpp"
-#include "pixie-fwd.hpp"
-#include "pixien.hpp"
-#include "radar.hpp"
-#include "screen-fwd.hpp"
-#include "stats.hpp"
-#include "text.hpp"
-#include "treasure.hpp"
-#include "video-fwd.hpp"
-#include "view-fwd.hpp"
-#include "walker-fwd.hpp"
-#include "weap.hpp"
+#include "screen.hpp"
+
+bool load_saved_game(VideoScreen *myscreen);
 
 #endif

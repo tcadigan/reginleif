@@ -27,6 +27,7 @@
 #include "picker.hpp"
 #include "pixie_data.hpp"
 #include "screen.hpp"
+#include "util.hpp"
 
 #include <algorithm>
 #include <sstream>
@@ -66,7 +67,7 @@ Sint16 Treasure::eat_me(Walker *eater)
         if (eater->stats->hitpoints >= eater->stats->max_hitpoints) {
             return 1;
         } else {
-            Sint16 amount = (10 * stats->level) + random(10 * stats->level);
+            Sint16 amount = (10 * stats->level) + getRandomSint32(10 * stats->level);
 
             eater->stats->hitpoints = std::min(eater->stats->hitpoints + amount,
                                                eater->stats->max_hitpoints);

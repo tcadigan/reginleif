@@ -219,7 +219,7 @@ bool Radar::draw(LevelData *data)
                     tempcolor = ob->query_team_color();
 
                     if (viewscreenp && (viewscreenp->control == ob)) {
-                        tempcolor = static_cast<Uint8>(random(256));
+                        tempcolor = static_cast<Uint8>(getRandomSint32(256));
 
                         if ((tempx >= ((xloc + xview) - 1)) && (tempy < (yloc + yview))) {
                             myscreen->pointb(tempx - 1, tempy, tempcolor, alpha);
@@ -269,22 +269,22 @@ bool Radar::draw(LevelData *data)
                 if (can_see) {
                     switch (obfamily) {
                     case FAMILY_GOLD_BAR:
-                        do_show = static_cast<Sint16>(YELLOW + random(5));
+                        do_show = static_cast<Sint16>(YELLOW + getRandomSint32(5));
 
                         break;
                     case FAMILY_SILVER_BAR:
-                        do_show = static_cast<Sint16>(GREY + random(5));
+                        do_show = static_cast<Sint16>(GREY + getRandomSint32(5));
 
                         break;
                     case FAMILY_DRUMSTICK:
-                        do_show = static_cast<Sint16>(COLOR_BROWN + random(2));
+                        do_show = static_cast<Sint16>(COLOR_BROWN + getRandomSint32(2));
 
                         break;
                     case FAMILY_MAGIC_POTION:
                     case FAMILY_INVIS_POTION:
                     case FAMILY_INVULNERABLE_POTION:
                     case FAMILY_FLIGHT_POTION:
-                        do_show = static_cast<Sint16>(COLOR_BLUE + random(5));
+                        do_show = static_cast<Sint16>(COLOR_BLUE + getRandomSint32(5));
 
                         break;
                     default:
@@ -295,7 +295,7 @@ bool Radar::draw(LevelData *data)
                 }
 
                 if ((obfamily == FAMILY_EXIT) || (obfamily == FAMILY_TELEPORTER)) {
-                    do_show = static_cast<Sint16>(LIGHT_BLUE + random(7));
+                    do_show = static_cast<Sint16>(LIGHT_BLUE + getRandomSint32(7));
                 }
             }
 
@@ -408,7 +408,7 @@ void Radar::update(LevelData *data)
             case PIX_GRASS_LIGHT_LEFT_BOTTOM:
             case PIX_GRASS_LIGHT_LEFT:
             case PIX_GRASS_LIGHT_LEFT_TOP:
-                temp = static_cast<Sint16>((COLOR_GREEN + random(3)) + 3);
+                temp = static_cast<Sint16>((COLOR_GREEN + getRandomSint32(3)) + 3);
 
                 break;
             case PIX_TREE_M1: // Trees are green
@@ -416,7 +416,7 @@ void Radar::update(LevelData *data)
             case PIX_TREE_T1:
             case PIX_TREE_MR:
             case PIX_TREE_MT:
-                temp = static_cast<Sint16>(COLOR_TREES + random(3));
+                temp = static_cast<Sint16>(COLOR_TREES + getRandomSint32(3));
 
                 break;
             case PIX_TREE_B1: // Trunks are brown

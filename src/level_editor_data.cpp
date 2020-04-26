@@ -234,17 +234,6 @@ LevelEditorData::LevelEditorData()
     gridSnapButton.set_colors_enabled();
     terrainSmoothButton.set_colors_enabled();
 
-#if defined(USE_TOUCH_INPUT)
-    pan_buttons.insert(&panUpButton);
-    pan_buttons.insert(&panDownButton);
-    pan_buttons.insert(&panLeftButton);
-    pan_buttons.insert(&panRightButton);
-    pan_buttons.insert(&panUpRightbutton);
-    pan_buttons.insert(&panUpLeftButton);
-    pan_buttons.insert(&panDownRightButton);
-    pan_buttons.insert(&panDownLeftButton);
-#endif
-
     myradar.force_lower_position = true;
 }
 
@@ -1090,7 +1079,6 @@ Sint32 LevelEditorData::display_panel(VideoScreen *myscreen)
         myscreen->draw_box(S_RIGHT, PIX_TOP, S_RIGHT + (4 * GRID_SIZE),
                            PIX_TOP + (4 * GRID_SIZE), 0, 0, 1);
 
-#ifndef USE_TOUCH_INPUT
         // Draw cursor
         Sint32 mx;
         Sint32 my;
@@ -1118,8 +1106,6 @@ Sint32 LevelEditorData::display_panel(VideoScreen *myscreen)
             Sint32 screeny = gridy - level->topy;
             myscreen->draw_box(screenx, screeny, screenx + GRID_SIZE, screeny + GRID_SIZE, YELLOW, 0, 1);
         }
-
-#endif
     } else if (mode == OBJECT) {
         // Draw current brush
         // Background
@@ -1163,7 +1149,6 @@ Sint32 LevelEditorData::display_panel(VideoScreen *myscreen)
             }
         }
 
-#ifndef USE_TOUCH_INPUT
         // Draw cursor
         Sint32 mx;
         Sint32 my;
@@ -1221,8 +1206,6 @@ Sint32 LevelEditorData::display_panel(VideoScreen *myscreen)
             // Draw current brush near cursor
             newob->draw(myscreen->viewob[0]);
         }
-
-#endif
 
         level->remove_ob(newob);
         delete newob;

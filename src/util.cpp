@@ -26,11 +26,14 @@
 #include <cstdio>
 #include <cstring> // buffers: For strlen
 #include <ctime>
+#include <random>
 #include <string>
 #include <sys/stat.h>
 
 Uint32 start_time = 0;
 Uint32 reset_value = 0;
+
+std::mt19937 twister;
 
 void Log(char const *format, ...)
 {
@@ -101,4 +104,9 @@ void uppercase(std::string &str)
     for (auto&& itr : str) {
         itr = toupper(itr);
     }
+}
+
+Sint32 getRandomSint32(Sint32 modulus)
+{
+    return (twister() % modulus);
 }
