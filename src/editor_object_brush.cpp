@@ -40,6 +40,6 @@ void EditorObjectBrush::set(Walker *target)
         order = target->query_order();
         family = target->query_family();
         team = target->team_num;
-        level = target->stats->level;
+        level = target->stats.level;
     }
 }

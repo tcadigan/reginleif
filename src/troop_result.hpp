@@ -23,8 +23,8 @@
 #include <string>
 #include <vector>
 
-#include "guy-fwd.hpp"
-#include "walker-fwd.hpp"
+#include "guy.hpp"
+#include "walker.hpp"
 
 class TroopResult
 {

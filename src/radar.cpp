@@ -25,9 +25,9 @@
 #include "radar.hpp"
 
 #include "colors.hpp"
+#include "level_data.hpp"
 #include "screen.hpp"
 #include "util.hpp"
-#include "view.hpp"
 #include "walker.hpp"
 
 // These are the dimensions of the radar viewport
@@ -49,25 +49,18 @@
  * as well as its graphics x and y size. In addition, it informs
  * the radar of the screen object it is linked to.
  */
-Radar::Radar(ViewScreen *myview, VideoScreen *myscreen, Sint16 whatnum)
+Radar::Radar(Sint16 whatnum)
 {
-    screenp = myscreen;
-    viewscreenp = myview;
     // What number viewscreen we are, to get control's position
     mynum = whatnum;
     bmp = nullptr;
     force_lower_position = false;
 }
 
-void Radar::start()
+void Radar::start(LevelData const &data, Sint16 viewscreen_endx, Sint16 viewscreen_endy, Sint16 viewscreen_yloc)
 {
-    start(&myscreen->level_data);
-}
-
-void Radar::start(LevelData *data)
-{
-    sizex = static_cast<Uint16>(data->grid.w);
-    sizey = static_cast<Uint16>(data->grid.h);
+    sizex = static_cast<Uint16>(data.grid.w);
+    sizey = static_cast<Uint16>(data.grid.h);
     size = static_cast<Uint16>(static_cast<Uint16>(sizex) * static_cast<Uint16>(sizey));
     xview = RADAR_X;
     yview = RADAR_Y;
@@ -77,26 +70,24 @@ void Radar::start(LevelData *data)
     xview = std::min(xview, sizex);
     yview = std::min(yview, sizey);
 
-    if (viewscreenp) {
 #ifdef REDUCE_OVERSCAN
-        // Used by level editor to place minimap
-        if (force_lower_position) {
-            // At bottom
-            xloc = static_cast<Sint16>((viewscreenp->endx - xview) - 4);
-            yloc = static_cast<Sint16>((viewscreenp->endx - yview) - 4);
-        } else {
-            // At top
-            xloc = static_cast<Sint16>((viewscreenp->endx - xview) - 4);
-            yloc = static_cast<Sint16>(viewscreenp->yloc + 4);
-        }
+    // Used by level editor to place minimap
+    if (force_lower_position) {
         // At bottom
-        xloc = static_cast<Sint16>((viewscreenp->endx - xview) - 8);
-        yloc = static_cast<Sint16>((viewscreenp->endy - yview) - 8);
-#else
-        xloc = static_cast<Sint16>((viewscreenp->endx - xview) - 4);
-        yloc = static_cast<Sint16>((viewscreenp->endy - yview) - 4);
-#endif
+        xloc = static_cast<Sint16>((viewscreen_endx - xview) - 4);
+        yloc = static_cast<Sint16>((viewscreen_endy - yview) - 4);
+    } else {
+        // At top
+        xloc = static_cast<Sint16>((viewscreen_endx - xview) - 4);
+        yloc = static_cast<Sint16>(viewscreen_yloc + 4);
     }
+    // At bottom
+    xloc = static_cast<Sint16>((viewscreen_endx - xview) - 8);
+    yloc = static_cast<Sint16>((viewscreen_endy - yview) - 8);
+#else
+    xloc = static_cast<Sint16>((viewscreen_endx - xview) - 4);
+    yloc = static_cast<Sint16>((viewscreen_endy - yview) - 4);
+#endif
 
     if (bmp != nullptr) {
         delete[] bmp;
@@ -115,12 +106,7 @@ Radar::~Radar()
     }
 }
 
-bool Radar::draw()
-{
-    return draw(&myscreen->level_data);
-}
-
-bool Radar::draw(LevelData *data)
+bool Radar::draw(LevelData const &data, Walker *control)
 {
     Sint32 tempx;
     Sint32 tempy;
@@ -136,23 +122,18 @@ bool Radar::draw(LevelData *data)
     radarx = 0;
     radary = 0;
 
-    if (viewscreenp && !viewscreenp->radarstart) {
-        start(data);
-        viewscreenp->radarstart = 1;
-    }
+    if (control != nullptr) {
+        radarx = static_cast<Sint16>((control->xpos / GRID_SIZE) - (xview / 2));
+        radary = static_cast<Sint16>((control->ypos / GRID_SIZE) - (yview / 2));
 
-    if (viewscreenp && viewscreenp->control) {
-        radarx = static_cast<Sint16>((viewscreenp->control->xpos / GRID_SIZE) - (xview / 2));
-        radary = static_cast<Sint16>((viewscreenp->control->ypos / GRID_SIZE) - (yview / 2));
-
-        if (viewscreenp->control->view_all > 0) {
+        if (control->view_all > 0) {
             can_see = 1;
         }
 
-        obteam = viewscreenp->control->team_num;
+        obteam = control->team_num;
     } else {
-        radarx = static_cast<Sint16>((data->topx / GRID_SIZE) - (xview / 2));
-        radary = static_cast<Sint16>((data->topy / GRID_SIZE) - (yview / 2));
+        radarx = static_cast<Sint16>((data.topx / GRID_SIZE) - (xview / 2));
+        radary = static_cast<Sint16>((data.topy / GRID_SIZE) - (yview / 2));
         obteam = 0;
     }
 
@@ -169,15 +150,15 @@ bool Radar::draw(LevelData *data)
 
     // Now determine what objects are visible on the radar...
     while (listtype <= 1) {
-        std::list<Walker *> *ls;
+        std::list<Walker *> const *ls;
 
         // Do oblist, standard
         if (listtype == 0) {
-            ls = &data->oblist;
+            ls = &data.oblist;
             ++listtype;
         } else if (listtype == 1) {
             // Do weapons
-            ls = &data->weaplist;
+            ls = &data.weaplist;
             ++listtype;
         } else {
             continue;
@@ -218,7 +199,7 @@ bool Radar::draw(LevelData *data)
 
                     tempcolor = ob->query_team_color();
 
-                    if (viewscreenp && (viewscreenp->control == ob)) {
+                    if (control == ob) {
                         tempcolor = static_cast<Uint8>(getRandomSint32(256));
 
                         if ((tempx >= ((xloc + xview) - 1)) && (tempy < (yloc + yview))) {
@@ -257,7 +238,7 @@ bool Radar::draw(LevelData *data)
         }
     } // Go back to new screen lists (weapons, etc.)
 
-    for (auto const &ob : data->fxlist) {
+    for (auto const &ob : data.fxlist) {
         if (ob && !ob->dead) {
             oborder = ob->query_order();
             obfamily = ob->query_family();
@@ -354,21 +335,14 @@ bool Radar::on_screen(Sint16 whatx, Sint16 whaty, Sint16 hor, Sint16 ver)
 
 // This function re-initializes the radar map data. Do not call it often, as it
 // is very slow...
-void Radar::update()
-{
-    update(&myscreen->level_data);
-}
-
-// This function re-initializes the radar map data. Do not call it often, as it
-// is very slow...
-void Radar::update(LevelData *data)
+void Radar::update(LevelData const &data)
 {
     Sint16 temp;
 
     for (Sint16 i = 0; i < sizex; ++i) {
         for (Sint16 j = 0; j < sizey; ++j) {
             // Check if item in background grid
-            switch (static_cast<Uint8>(data->grid.data[i + (sizex * j)])) {
+            switch (static_cast<Uint8>(data.grid.data[i + (sizex * j)])) {
             case PIX_GRASS1: // Grass is green
             case PIX_GRASS_DARK_1:
             case PIX_GRASS_DARK_B1:

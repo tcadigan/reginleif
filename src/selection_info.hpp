@@ -19,7 +19,7 @@
 #define __SELECTION_INFO_HPP__
 
 #include "level_data.hpp"
-#include "walker-fwd.hpp"
+#include "walker.hpp"
 
 #include <SDL2/SDL.h>
 

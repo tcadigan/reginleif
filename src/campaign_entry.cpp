@@ -165,7 +165,10 @@ void CampaignEntry::draw(SDL_Rect const &area, Sint32 team_power)
     myscreen->draw_button(x - 2, y - 2, (x + w) + 2, (y + h) + 2, 1, 1);
 
     // Draw icon
-    icon->drawMix(x, y, myscreen->viewob[0]);
+    icon->setxy(x, y);
+    icon->drawMix(myscreen->viewob[0]->topx, myscreen->viewob[0]->topy,
+                  myscreen->viewob[0]->xloc, myscreen->viewob[0]->yloc,
+                  myscreen->viewob[0]->endx, myscreen->viewob[0]->endy);
     y += (h + 4);
 
     // Print suggested power

@@ -19,8 +19,7 @@
 #define __BROWSER_ENTRY_HPP__
 
 #include "level_data.hpp"
-#include "radar.hpp"
-#include "screen-fwd.hpp"
+#include "screen.hpp"
 
 #include <SDL2/SDL.h>
 
@@ -32,7 +31,6 @@ class BrowserEntry
 public:
     LevelData level_data;
     SDL_Rect mapAreas;
-    Radar myradar;
     std::string level_name;
     Sint32 max_enemy_level;
     float average_enemy_level;
@@ -47,6 +45,17 @@ public:
 
     void updateIndex(Sint32 index);
     void draw(VideoScreen *screenp);
+    Sint16 get_xloc();
+    Sint16 get_yloc();
+    Sint16 get_xview();
+    Sint16 get_yview();
+
+private:
+    void getLevelStats(LevelData &level_data, Sint32 *max_enemy_level,
+                       float *average_enemy_level, Sint32 *num_enemies,
+                       float *difficulty, std::list<Sint32> &exits);
+
+    VideoScreen *screenp;
 };
 
 #endif

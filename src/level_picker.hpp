@@ -20,14 +20,6 @@
 
 #include <SDL2/SDL.h>
 
-#include "level_data.hpp"
-#include "screen-fwd.hpp"
-
-#include <list>
-
-Sint32 pick_level(VideoScreen *screenp, Sint32 default_level, bool enable_delete=false);
-void getLevelStats(LevelData &level_data, Sint32 *max_enemy_level,
-                   float *average_enemy_level, Sint32 *num_enemies,
-                   float *difficulty, std::list<Sint32> &exits);
+Sint32 pick_level(Sint32 default_level, bool enable_delete=false);
 
 #endif

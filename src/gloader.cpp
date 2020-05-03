@@ -20,22 +20,15 @@
 #include <cstring>
 #include <sstream>
 
-#include "effect.hpp"
 #include "graphlib.hpp"
 #include "gparser.hpp"
-#include "living.hpp"
+#include "guy.hpp"
 #include "picker.hpp"
+#include "screen.hpp"
 #include "stats.hpp"
-#include "treasure.hpp"
 #include "util.hpp"
 #include "walker.hpp"
 #include "weap.hpp"
-
-#define SIZE_ORDERS 7 // See graph.hpp
-#define SIZE_FAMILIES 21 // See also NUM_FAMILIES in graph.hpp
-// PIX(a, b) ((SIZE_FAMILIES * a) + b) // Moved to graph.hpp
-
-extern float derived_bonuses[NUM_FAMILIES][8];
 
 // These are for monsters and us
 Sint8 bit1[] = { 1, 5, 1, 9, -1 }; // Up
@@ -354,29 +347,7 @@ PixieData data_copy(PixieData const &d)
 }
 
 Loader::Loader()
-    : graphics(nullptr)
-    , animations(nullptr)
-    , stepsizes(nullptr)
-    , lineofsight(nullptr)
-    , act_types(nullptr)
-    , damage(nullptr)
-    , fire_frequency(nullptr)
 {
-    memset(hitpoints, 0, 200 * sizeof(float));
-
-    // hitpoints = new Sint8[SIZE_ORDERS * SIZE_FAMILIES];
-    graphics = new PixieData[SIZE_ORDERS * SIZE_FAMILIES];
-    stepsizes = new float[SIZE_ORDERS * SIZE_FAMILIES];
-    lineofsight = new Sint32[SIZE_ORDERS * SIZE_FAMILIES];
-    damage = new float[SIZE_ORDERS * SIZE_FAMILIES];
-    fire_frequency = new float[SIZE_ORDERS * SIZE_FAMILIES];
-
-    act_types = new Uint8[SIZE_ORDERS * SIZE_FAMILIES];
-    memset(act_types, ACT_RANDOM, SIZE_ORDERS * SIZE_FAMILIES);
-
-    animations = new Sint8 **[SIZE_ORDERS * SIZE_FAMILIES];
-    memset(animations, 0, SIZE_ORDERS * SIZE_FAMILIES);
-
     // Livings
     graphics[PIX(ORDER_LIVING, FAMILY_SOLDIER)] = read_pixie_file(std::string("footman.pix"));
     graphics[PIX(ORDER_LIVING, FAMILY_ELF)] = read_pixie_file(std::string("elf.pix"));
@@ -794,407 +765,10 @@ Loader::Loader()
 
 Loader::~Loader(void)
 {
-    for (Sint32 i = 0; i < (SIZE_ORDERS * SIZE_FAMILIES); ++i) {
-        graphics[i].free();
+    for (auto & graphic : graphics) {
+        graphic.free();
     }
-
-    delete[] graphics;
-    delete[] animations;
-    delete[] act_types;
-    delete[] stepsizes;
-    delete[] lineofsight;
-    delete[] damage;
-    delete[] fire_frequency;
 };
-
-void Loader::set_derived_stats(Walker *w, Uint8 order, Uint8 family)
-{
-    w->stepsize = stepsizes[PIX(order, family)];
-    w->normal_stepsize = w->stepsize;
-    w->lineofsight = lineofsight[PIX(order, family)];
-    w->damage = damage[PIX(order, family)];
-    w->fire_frequency = fire_frequency[PIX(order, family)];
-}
-
-Walker *Loader::create_walker(Uint8 order, Uint8 family, VideoScreen *myscreen, bool cache_weapons)
-{
-    Walker *ob;
-
-    if ((order == ORDER_LIVING) && (family >= NUM_FAMILIES)) {
-        family = FAMILY_SOLDIER;
-    }
-
-    if (!graphics[PIX(order, family)].valid()) {
-        std::stringstream buf;
-        buf << "No valid graphics for walker!" << std::endl
-            << "Order: " << order << ", Family: " << family << std::endl
-            << "Please report this to the developer!";
-
-        popup_dialog("ERROR", buf.str());
-
-        return nullptr;
-    }
-
-    if (order == ORDER_LIVING) {
-        ob = new Living(graphics[PIX(order, family)]);
-    } else if (order == ORDER_WEAPON) {
-        ob = new Weap(graphics[PIX(order, family)]);
-    } else if (order == ORDER_TREASURE) {
-        ob = new Treasure(graphics[PIX(order, family)]);
-    } else if (order == ORDER_FX) {
-        ob = new Effect(graphics[PIX(order, family)]);
-    } else {
-        ob = new Walker(graphics[PIX(order, family)]);
-    }
-
-    if (ob == nullptr) {
-        return nullptr;
-    }
-
-    ob->stats->hitpoints = hitpoints[PIX(order, family)];
-    ob->stats->max_hitpoints = hitpoints[PIX(order, family)];
-    ob->stats->special_cost[0] = 0; // Shouldn't be used
-    ob->stats->weapon_cost = 1; // Default value
-
-    set_walker(ob, order, family);
-
-    if (order == ORDER_LIVING) {
-        ob->set_frame(ob->ani[ob->curdir][0]);
-    }
-
-    return ob;
-}
-
-Walker *Loader::set_walker(Walker *ob, Uint8 order, Uint8 family)
-{
-    ob->set_order_family(order, family);
-    ob->set_act_type(act_types[PIX(order, family)]);
-    ob->ani = animations[PIX(order, family)];
-
-    set_derived_stats(ob, order, family);
-
-    for (Sint16 i = 0; i < NUM_SPECIALS; ++i) {
-        ob->stats->special_cost[i] = 5000;
-    }
-
-    // For special settings
-    switch (order) {
-    case ORDER_LIVING:
-        switch (family) {
-        case FAMILY_SOLDIER:
-            ob->stats->special_cost[1] = 25; // Charge
-            ob->stats->special_cost[2] = 100; // Boomerang
-            ob->stats->special_cost[3] = 120; // Whirlwind
-            ob->stats->special_cost[4] = 150; // Disarm
-            ob->stats->weapon_cost = 2;
-            ob->default_weapon = FAMILY_KNIFE;
-
-            break;
-        case FAMILY_ELF:
-            ob->stats->special_cost[1] = 10;
-            ob->stats->special_cost[2] = 20;
-            ob->stats->special_cost[3] = 30;
-            ob->stats->special_cost[4] = 40;
-            ob->stats->set_bit_flags(BIT_FORESTWALK, 1);
-            ob->default_weapon = FAMILY_ROCK;
-
-            break;
-        case FAMILY_ARCHER:
-            ob->stats->special_cost[1] = 20; // Fire arrows
-            ob->stats->special_cost[2] = 60; // 3-arrows
-            ob->stats->special_cost[3] = 70; // Exploding bolt
-            ob->default_weapon = FAMILY_ARROW;
-
-            break;
-        case FAMILY_THIEF:
-            ob->stats->special_cost[1] = 35; // Bomb
-            ob->stats->special_cost[2] = 125; // Cloak
-            ob->stats->special_cost[3] = 100; // Taunt
-            ob->stats->special_cost[4] = 150; // Poison cloud
-            ob->default_weapon = FAMILY_KNIFE;
-
-            break;
-        case FAMILY_CLERIC:
-            ob->stats->special_cost[1] = 2; // Heal / mystic mace
-            ob->stats->special_cost[2] = 20; // Skeleton
-            ob->stats->special_cost[3] = 50; // Ghost
-            ob->stats->special_cost[4] = 150; // Raise dead
-            ob->stats->weapon_cost = 8;
-            ob->default_weapon = FAMILY_GLOW; // FAMILY_TREE
-
-            break;
-        case FAMILY_SKELETON:
-            ob->stats->special_cost[1] = 10; // Tunnel
-            ob->stats->weapon_cost = 0; // Free bones
-            ob->ani_type = ANI_SKEL_GROW;
-            ob->default_weapon = FAMILY_BONE;
-        case FAMILY_FAERIE:
-            ob->stats->weapon_cost = 2;
-            ob->stats->set_bit_flags(BIT_FLYING, 1);
-            ob->stats->set_bit_flags(BIT_ANIMATE, 1);
-            ob->default_weapon = FAMILY_SPRINKLE;
-
-            break;
-        case FAMILY_MAGE:
-            ob->stats->special_cost[1] = 15; // Teleport
-            ob->stats->special_cost[2] = 60; // Warp space
-            ob->stats->special_cost[3] = 500; // Freeze time
-            ob->stats->special_cost[4] = 70; // Energy wave
-            ob->stats->special_cost[5] = 100; // Heartburst
-            ob->stats->weapon_cost = 5;
-            ob->default_weapon = FAMILY_FIREBALL;
-
-            break;
-        case FAMILY_ARCHMAGE:
-            ob->stats->special_cost[1] = 10; // Teleport
-            ob->stats->special_cost[2] = 80; // Heartburst
-            ob->stats->special_cost[3] = 500; // Summon elemental
-            ob->stats->special_cost[4] = 150; // Mind-control enemies
-            ob->stats->weapon_cost = 12;
-            ob->default_weapon = FAMILY_FIREBALL;
-
-            break;
-        case FAMILY_FIRE_ELEMENTAL:
-            ob->stats->special_cost[1] = 50; // Fireballs
-            ob->stats->set_bit_flags(BIT_ANIMATE, 1);
-            ob->stats->max_magicpoints = 150;
-            ob->default_weapon = FAMILY_METEOR;
-
-            break;
-        case FAMILY_SLIME:
-        case FAMILY_SMALL_SLIME:
-        case FAMILY_MEDIUM_SLIME:
-            ob->stats->special_cost[1] = 30;
-
-            ob->stats->set_bit_flags(BIT_ANIMATE, 1); // Always wiggle
-
-            if (order == FAMILY_SMALL_SLIME) {
-                ob->stats->set_bit_flags(BIT_NO_RANGED, 1); // No ranged attack
-            }
-
-            ob->stats->max_magicpoints = 50;
-            // ob->stats->magicpoints = 0;
-            ob->stats->weapon_cost = 0; // Free slimeball
-            ob->default_weapon = FAMILY_BLOB;
-
-            break;
-        case FAMILY_GHOST:
-            ob->stats->special_cost[1] = 30; // Scare
-            ob->stats->set_bit_flags(BIT_ANIMATE, 1); // Always move
-            ob->stats->set_bit_flags(BIT_FLYING, 1);
-            ob->stats->set_bit_flags(BIT_ETHEREAL, 1);
-            ob->stats->set_bit_flags(BIT_NO_RANGED, 1);
-            ob->stats->weapon_cost = 0; // Free melee
-            ob->default_weapon = FAMILY_KNIFE;
-
-            break;
-        case FAMILY_DRUID:
-            ob->stats->special_cost[1] = 15; // Grow tree
-            ob->stats->special_cost[2] = 80; // Summon faerie
-            ob->stats->special_cost[3] = 150; // Reveal items
-            ob->stats->special_cost[4] = 200; // Protection shield
-            ob->stats->weapon_cost = 4;
-            ob->default_weapon = FAMILY_LIGHTNING;
-
-            break;
-        case FAMILY_ORC:
-            ob->stats->special_cost[1] = 25; // Howl
-            ob->stats->special_cost[2] = 20; // Eat corpse
-            ob->stats->set_bit_flags(BIT_NO_RANGED, 1);
-            ob->stats->weapon_cost = 2;
-            ob->default_weapon = FAMILY_ROCK;
-
-            break;
-        case FAMILY_BIG_ORC:
-            ob->stats->weapon_cost = 2;
-            ob->default_weapon = FAMILY_KNIFE;
-
-            break;
-        case FAMILY_BARBARIAN:
-            ob->stats->special_cost[1] = 20; // Hurl boulder
-            ob->stats->special_cost[2] = 30; // Exploding boulder
-            ob->stats->weapon_cost = 2;
-            ob->default_weapon = FAMILY_HAMMER;
-
-            break;
-        case FAMILY_GOLEM:
-            ob->stats->weapon_cost = 2;
-            // ob->stats->set_bit_flags(BIT_NO_RANGED, 1);
-            ob->default_weapon = FAMILY_BOULDER; // Default for now
-
-            break;
-        case FAMILY_GIANT_SKELETON:
-            ob->stats->weapon_cost = 2;
-            ob->default_weapon = FAMILY_BOULDER; // Default for now
-
-            break;
-        case FAMILY_TOWER1: // Not *really* a living...
-            // ob->stepsize = 0;
-            // ob->normal_stepsize = 0;
-            ob->stats->weapon_cost = 2;
-            ob->default_weapon = FAMILY_ARROW;
-
-            break;
-        default:
-            ob->transform_to(ORDER_LIVING, FAMILY_SOLDIER);
-
-            return ob;
-        }
-
-        ob->current_weapon = ob->default_weapon;
-
-        break; // End living things
-    case ORDER_WEAPON:
-        switch (family) {
-        case FAMILY_ROCK:
-            ob->stats->set_bit_flags(BIT_FORESTWALK, 1);
-
-            break;
-        case FAMILY_FIREBALL:
-            ob->stats->set_bit_flags(BIT_MAGICAL, 1);
-
-            break;
-        case FAMILY_METEOR:
-            ob->stats->set_bit_flags(BIT_MAGICAL, 1);
-
-            break;
-        case FAMILY_SPRINKLE:
-            ob->stats->set_bit_flags(BIT_FLYING, 1);
-
-            break;
-        case FAMILY_GLOW: // Cleric's shield glad
-            ob->lifetime = 350;
-
-            break;
-        case FAMILY_WAVE:
-            ob->stats->set_bit_flags(BIT_IMMORTAL, 1);
-            ob->stats->set_bit_flags(BIT_NO_COLLIDE, 1);
-            ob->stats->set_bit_flags(BIT_PHANTOM, 1);
-            ob->stats->set_bit_flags(BIT_FLYING, 1);
-            ob->stats->set_bit_flags(BIT_MAGICAL, 1);
-
-            break;
-        case FAMILY_WAVE2:
-            ob->stats->set_bit_flags(BIT_IMMORTAL, 1);
-            ob->stats->set_bit_flags(BIT_NO_COLLIDE, 1);
-            ob->stats->set_bit_flags(BIT_PHANTOM, 1);
-            ob->stats->set_bit_flags(BIT_FLYING, 1);
-            ob->stats->set_bit_flags(BIT_MAGICAL, 1);
-
-            break;
-        case FAMILY_WAVE3:
-            ob->stats->set_bit_flags(BIT_IMMORTAL, 1);
-            ob->stats->set_bit_flags(BIT_NO_COLLIDE, 1);
-            ob->stats->set_bit_flags(BIT_PHANTOM, 1);
-            ob->stats->set_bit_flags(BIT_FLYING, 1);
-            ob->stats->set_bit_flags(BIT_MAGICAL, 1);
-
-            break;
-        case FAMILY_CIRCLE_PROTECTION:
-            ob->stats->set_bit_flags(BIT_IMMORTAL, 1);
-            ob->stats->set_bit_flags(BIT_NO_COLLIDE, 1);
-            ob->stats->set_bit_flags(BIT_PHANTOM, 1);
-            ob->stats->set_bit_flags(BIT_FLYING, 1);
-            ob->ani_type = 5; // Anything non-zero
-
-            break;
-        default:
-
-            break;
-        }
-
-        break; // End of weapons
-    case ORDER_TREASURE:
-        switch (family) {
-        case FAMILY_STAIN: // Permanent bloodstains
-            ob->ignore = 1;
-
-            break;
-        case FAMILY_GOLD_BAR:
-            ob->set_direct_frame(0);
-
-            break;
-        case FAMILY_SILVER_BAR:
-            ob->set_direct_frame(1);
-
-            break;
-        case FAMILY_MAGIC_POTION:
-            ob->set_direct_frame(0);
-
-            break;
-        case FAMILY_INVIS_POTION:
-            ob->set_direct_frame(1);
-
-            break;
-        case FAMILY_INVULNERABLE_POTION:
-            ob->set_direct_frame(2);
-
-            break;
-        case FAMILY_FLIGHT_POTION:
-            ob->set_direct_frame(11);
-
-            break;
-        case FAMILY_SPEED_POTION:
-            ob->set_direct_frame(3);
-
-            break;
-        default:
-
-            break;
-        }
-
-        break; // End of treasures
-    case ORDER_GENERATOR:
-        switch (family) {
-        case FAMILY_TOWER:
-            ob->stats->weapon_cost = 0;
-            ob->default_weapon = FAMILY_MAGE;
-
-            break;
-        case FAMILY_BONES: // Ghost bone pile
-            ob->stats->weapon_cost = 0;
-            ob->default_weapon = FAMILY_GHOST;
-
-            break;
-        case FAMILY_TREEHOUSE: // Elf treehouse
-            ob->stats->weapon_cost = 0;
-            ob->default_weapon = FAMILY_ELF;
-
-            break;
-        default:
-            ob->stats->weapon_cost = 0;
-            ob->default_weapon = FAMILY_SKELETON;
-
-            break;
-        }
-
-        break; // End of generators
-    case ORDER_FX:
-        ob->ani_type = 0;
-
-        switch (family) {
-        case FAMILY_MAGIC_SHIELD:
-            ob->stats->set_bit_flags(BIT_PHANTOM, 1);
-
-            break;
-        case FAMILY_CLOUD: // Poison cloud
-            ob->stats->set_bit_flags(BIT_NO_COLLIDE, 1);
-            ob->stats->set_bit_flags(BIT_FLYING, 1);
-
-            break;
-        default:
-
-            break;
-        }
-
-        break; // End of FX
-    default:
-
-        break; // End of all orders
-    }
-
-    return ob;
-}
 
 // This is used for grabbing a PixieN directly, not through a Walker
 PixieN *Loader::create_pixieN(Uint8 order, Uint8 family)
@@ -1212,4 +786,44 @@ PixieN *Loader::create_pixieN(Uint8 order, Uint8 family)
     newpixie = new PixieN(graphics[PIX(order, family)]);
 
     return newpixie;
+}
+
+PixieData Loader::get_graphics(Uint8 order, Uint8 family)
+{
+    return graphics[PIX(order, family)];
+}
+
+float Loader::get_hitpoints(Uint8 order, Uint8 family)
+{
+    return hitpoints[PIX(order, family)];
+}
+
+float Loader::get_stepsize(Uint8 order, Uint8 family)
+{
+    return stepsizes[PIX(order, family)];
+}
+
+float Loader::get_damage(Uint8 order, Uint8 family)
+{
+    return damage[PIX(order, family)];
+}
+
+float Loader::get_fire_frequency(Uint8 order, Uint8 family)
+{
+    return fire_frequency[PIX(order, family)];
+}
+
+Sint32 Loader::get_lineofsight(Uint8 order, Uint8 family)
+{
+    return lineofsight[PIX(order, family)];
+}
+
+ActEnum Loader::get_act_type(Uint8 order, Uint8 family)
+{
+    return act_types[PIX(order, family)];
+}
+
+Sint8 **Loader::get_animation(Uint8 order, Uint8 family)
+{
+    return animations[PIX(order, family)];
 }

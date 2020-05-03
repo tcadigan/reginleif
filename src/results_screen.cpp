@@ -20,6 +20,7 @@
 #include "base.hpp"
 #include "button.hpp"
 #include "guy.hpp"
+#include "input.hpp"
 #include "level_editor.hpp"
 #include "picker.hpp"
 #include "screen.hpp"

@@ -21,24 +21,25 @@
 // Definition of RADAR class
 
 #include "level_data.hpp"
-#include "view-fwd.hpp"
+#include "walker.hpp"
+
+#include <SDL2/SDL.h>
 
 class Radar
 {
 public:
-    Radar(ViewScreen *myview, VideoScreen *myscreen, Sint16 whatnum);
+    Radar(Sint16 whatnum);
     ~Radar();
-    bool draw();
-    bool draw(LevelData *data);
+    bool draw(LevelData const &data, Walker *control);
     bool on_screen();
     bool on_screen(Sint16 whatx, Sint16 whaty, Sint16 hor, Sint16 ver);
     bool refresh();
 
     // Slow function to update radar/map info
-    void update();
-    void update(LevelData *data);
-    void start();
-    void start(LevelData *data);
+    void update(LevelData const &data);
+    void start(LevelData const &data,
+               Sint16 viewscreen_endx, Sint16 viewscreen_endy,
+               Sint16 viewscreen_yloc);
 
     Sint16 sizex;
     Sint16 sizey;
@@ -55,8 +56,6 @@ public:
     Sint16 radarx;
     Sint16 radary;
 
-    VideoScreen *screenp;
-    ViewScreen *viewscreenp;
     Uint8 *bmp;
     Uint8 *oldbmp;
     bool force_lower_position;

@@ -19,134 +19,23 @@
 
 #include "browser_entry.hpp"
 #include "button.hpp"
-#include "guy.hpp"
+#include "input.hpp"
 #include "io.hpp"
-#include "level_data.hpp"
+#include "level_editor.hpp"
 #include "picker.hpp"
-#include "radar.hpp"
-#include "screen.hpp"
-#include "stats.hpp"
 #include "text.hpp"
 #include "util.hpp"
-#include "walker.hpp"
 
-#include <cstdio>
-#include <cstring>
-#include <dirent.h>
-#include <list>
 #include <sstream>
 #include <string>
-#include <sys/stat.h>
+#include <vector>
 
 #define NUM_BROWSE_RADARS 3
 #define MAX_TEAM_SIZE 24 // Max number of guys on a team
 #define OK 4
 
-bool prompt_for_string(std::string const &message, std::string &result);
-void draw_highlight_interior(Button const &b);
-void draw_highlight(Button const &b);
-
-void getLevelStats(LevelData &level_data, Sint32 *max_enemy_level,
-                   float *average_enemy_level, Sint32 *num_enemies,
-                   float *difficulty, std::list<Sint32> &exits)
-{
-    Sint32 num = 0;
-    Sint32 level_sum = 0;
-    Sint32 difficulty_sum = 0;
-    Sint32 difficulty_sum_friends = 0;
-    Sint32 diff_per_level = 3;
-    Sint32 max_level = 0;
-
-    exits.clear();
-
-    // Go through objects
-    for (auto const &ob : level_data.oblist) {
-        switch (ob->query_order()) {
-        case ORDER_LIVING:
-            if (ob->team_num != 0) {
-                ++num;
-                level_sum = ob->stats->level;
-                difficulty_sum += diff_per_level * ob->stats->level;
-
-                if (ob->stats->level > max_level) {
-                    max_level = ob->stats->level;
-                }
-            } else {
-                difficulty_sum_friends += (diff_per_level * ob->stats->level);
-            }
-
-            break;
-        }
-    }
-
-    // Go through effects
-    for (auto const ob : level_data.fxlist) {
-        switch (ob->query_order()) {
-        case ORDER_TREASURE:
-            if (ob->query_family() == FAMILY_EXIT) {
-                exits.push_back(ob->stats->level);
-            }
-
-            break;
-        }
-    }
-
-    *num_enemies = num;
-    *max_enemy_level = max_level;
-
-    if (num == 0) {
-        *average_enemy_level = 0;
-    } else {
-        *average_enemy_level = level_sum / static_cast<float>(num);
-    }
-
-    exits.sort();
-    exits.unique();
-}
-
-bool isDir(std::string const &filename)
-{
-    struct stat status;
-    stat(filename.c_str(), &status);
-
-    return (status.st_mode & S_IFDIR);
-}
-
-bool sort_scen(std::string const &first, std::string const &second)
-{
-    std::string s1;
-    std::string s1num;
-    std::string s2;
-    std::string s2num;
-
-    bool gotNum = false;
-
-    for (auto const &e : first) {
-        if (!gotNum && isalpha(e)) {
-            s1 += e;
-        } else {
-            s1num += e;
-        }
-    }
-
-    gotNum = false;
-    for (auto const &e : second) {
-        if (!gotNum && isalpha(e)) {
-            s2 += e;
-        } else {
-            s2num += e;
-        }
-    }
-
-    if (s1 == s2) {
-        return (atoi(s1num.c_str()) < atoi(s2num.c_str()));
-    }
-
-    return (first < second);
-}
-
 // Load a scenario...
-Sint32 pick_level(VideoScreen *screenp, Sint32 default_level, bool enable_delete)
+Sint32 pick_level(Sint32 default_level, bool enable_delete)
 {
     Sint32 result = default_level;
     Text &loadtext = myscreen->text_normal;
@@ -484,10 +373,10 @@ Sint32 pick_level(VideoScreen *screenp, Sint32 default_level, bool enable_delete
             // Select
             for (Sint32 i = 0; i < NUM_BROWSE_RADARS; ++i) {
                 if ((i < level_list_length) && (entries[i] != nullptr)) {
-                    Sint32 x = entries[i]->myradar.xloc;
-                    Sint32 y = entries[i]->myradar.yloc;
-                    Sint32 w = entries[i]->myradar.xview;
-                    Sint32 h = entries[i]->myradar.yview;
+                    Sint32 x = entries[i]->get_xloc();
+                    Sint32 y = entries[i]->get_yloc();
+                    Sint32 w = entries[i]->get_xview();
+                    Sint32 h = entries[i]->get_yview();
                     SDL_Rect b = {
                         static_cast<Sint16>(x - 2),
                         static_cast<Sint16>(y - 2),
@@ -564,10 +453,10 @@ Sint32 pick_level(VideoScreen *screenp, Sint32 default_level, bool enable_delete
             Sint32 i = selected_entry;
 
             if ((i < level_list_length) && (entries[i] != nullptr)) {
-                Sint32 x = entries[i]->myradar.xloc - 4;
-                Sint32 y = entries[i]->myradar.yloc - 4;
-                Sint32 w = entries[i]->myradar.xview + 8;
-                Sint32 h = entries[i]->myradar.yview + 8;
+                Sint32 x = entries[i]->get_xloc() - 4;
+                Sint32 y = entries[i]->get_yloc() - 4;
+                Sint32 w = entries[i]->get_xview() + 8;
+                Sint32 h = entries[i]->get_yview() + 8;
                 myscreen->draw_box(x, y, w + x, y + h, DARK_BLUE, 1, 1);
             }
         }

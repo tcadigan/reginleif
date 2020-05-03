@@ -36,7 +36,7 @@
 SDL_Color curpal[256];
 SDL_Color temppal[256]; // For loading, setting, etc.
 
-constexpr SDL_Color const data[256] = {
+static constexpr SDL_Color const data[256] = {
     SDL_Color{0, 0, 0, 255}, SDL_Color{32, 32, 32, 255},
     SDL_Color{64, 64, 64, 255}, SDL_Color{96, 96, 96, 255},
     SDL_Color{128, 128, 128, 255}, SDL_Color{160, 160, 160, 255},

@@ -22,8 +22,8 @@
 
 #include <map>
 
-#include "guy-fwd.hpp"
-#include "walker-fwd.hpp"
+#include "guy.hpp"
+#include "walker.hpp"
 
 // When no change to the guys has happened
 bool results_screen(Sint32 ending, Sint32 nextlevel);

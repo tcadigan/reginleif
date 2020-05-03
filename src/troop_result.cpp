@@ -173,11 +173,11 @@ float TroopResult::get_hp() const
         return 0.0f;
     }
 
-    if (after->myguy->scen_min_hp > after->stats->hitpoints) {
+    if (after->myguy->scen_min_hp > after->stats.hitpoints) {
         return 1.0f;
     }
 
-    return (after->myguy->scen_min_hp / after->stats->max_hitpoints);
+    return (after->myguy->scen_min_hp / after->stats.max_hitpoints);
 }
 
 bool TroopResult::is_dead() const
@@ -222,8 +222,8 @@ void TroopResult::show_guy(Sint32 frames, Guy *myguy, Sint16 centerx, Sint16 cen
 
     newfamily = myguy->family;
 
-    mywalker = myscreen->level_data.myloader->create_walker(ORDER_LIVING, newfamily, myscreen);
-    mywalker->stats->bit_flags = 0;
+    mywalker = create_walker(ORDER_LIVING, newfamily);
+    mywalker->stats.bit_flags = 0;
     mywalker->curdir = FACE_DOWN;
     mywalker->ani_type = ANI_WALK;
 
@@ -237,7 +237,10 @@ void TroopResult::show_guy(Sint32 frames, Guy *myguy, Sint16 centerx, Sint16 cen
     mywalker->setxy(((centerx - (mywalker->sizex / 2)) + view_buf->topx) - view_buf->xloc,
                     ((centery - (mywalker->sizey / 2)) + view_buf->topy) - view_buf->yloc);
 
-    mywalker->draw(view_buf);
+    mywalker->draw(view_buf->topx, view_buf->topy,
+                   view_buf->xloc, view_buf->yloc,
+                   view_buf->endx, view_buf->endy,
+                   view_buf->control);
 
     delete mywalker;
 }

@@ -32,7 +32,6 @@ bool load_saved_game(VideoScreen *myscreen)
     std::stringstream buf;
     std::string scenfile;
     Guy *temp_guy;
-    Walker *temp_walker;
     Walker *replace_walker;
     Sint16 myord;
     Sint16 myfam;
@@ -78,14 +77,23 @@ bool load_saved_game(VideoScreen *myscreen)
 
     for (auto w : foelist) {
         if (w) {
-            w->set_difficulty(static_cast<Uint32>(w->stats->level));
+            w->set_difficulty(static_cast<Uint32>(w->stats.level));
         }
     }
 
     // Cycle through the team list...
     for (Sint32 i = 0; i < myscreen->save_data.team_size; ++i) {
         temp_guy = myscreen->save_data.team_list[i];
-        temp_walker = temp_guy->create_and_add_walker(myscreen);
+
+        Walker *temp_walker = myscreen->level_data.add_ob(ORDER_LIVING, temp_guy->family);
+        *temp_walker->myguy = *temp_guy;
+        temp_walker->stats.level = temp_guy->get_level();
+        temp_walker->update_derived_stats();
+
+        // Set our team number...
+        temp_walker->team_num = temp_guy->teamnum;
+        temp_walker->real_team_num = 255;
+
         // Clear the new guy's battle data
         temp_walker->myguy->scen_damage = 0;
         temp_walker->myguy->scen_kills = 0;

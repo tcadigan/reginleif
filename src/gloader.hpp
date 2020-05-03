@@ -20,31 +20,37 @@
 
 // Definition of LOADER class
 
-#include "gloader-fwd.hpp"
-
+#include "base.hpp"
 #include "pixien.hpp"
 #include "pixie_data.hpp"
-#include "screen-fwd.hpp"
-#include "walker-fwd.hpp"
+
+#define SIZE_ORDERS 7
 
 class Loader
 {
 public:
     Loader();
     virtual ~Loader(void);
-    Walker *create_walker(Uint8 order, Uint8 family, VideoScreen *screenp, bool cache_weapon = true);
-    void set_derived_stats(Walker *w, Uint8 order, Uint8 family);
-    PixieN *create_pixieN(Uint8 order, Uint8 family);
-    Walker *set_walker(Walker *ob, Uint8 order, Uint8 family);
-    PixieData *graphics;
-    Sint8 ***animations;
-    float *stepsizes;
-    Sint32 *lineofsight;
 
-    float hitpoints[200]; // Hack for now
-    Uint8 *act_types;
-    float *damage;
-    float *fire_frequency;
+    PixieN *create_pixieN(Uint8 order, Uint8 family);
+    PixieData get_graphics(Uint8 order, Uint8 family);
+    float get_hitpoints(Uint8 order, Uint8 family);
+    float get_stepsize(Uint8 order, Uint8 family);
+    float get_damage(Uint8 order, Uint8 family);
+    float get_fire_frequency(Uint8 order, Uint8 family);
+    Sint32 get_lineofsight(Uint8 order, Uint8 family);
+    ActEnum get_act_type(Uint8 order, Uint8 family);
+    Sint8 **get_animation(Uint8 order, Uint8 family);
+
+    // Highest PIX element that has hitpoint
+    float hitpoints[(NUM_FAMILIES * ORDER_FX) + FAMILY_BOOMERANG + 1];
+    PixieData graphics[SIZE_ORDERS * NUM_FAMILIES];
+    Sint8 **animations[SIZE_ORDERS * NUM_FAMILIES];
+    float stepsizes[SIZE_ORDERS * NUM_FAMILIES];
+    Sint32 lineofsight[SIZE_ORDERS * NUM_FAMILIES];
+    ActEnum act_types[SIZE_ORDERS * NUM_FAMILIES];
+    float damage[SIZE_ORDERS * NUM_FAMILIES];
+    float fire_frequency[SIZE_ORDERS * NUM_FAMILIES];
 };
 
 #endif

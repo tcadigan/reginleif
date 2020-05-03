@@ -185,6 +185,49 @@ Sint16 ObjectMap::remove(Walker *ob)
     return false;
 }
 
+// This goes in the walker's setxy
+Sint16 ObjectMap::move(Walker *ob, Sint16 x, Sint16 y)
+{
+    // Do we really need to move?
+    if ((x == ob->xpos) && (y == ob->ypos)) {
+        return 1;
+    }
+
+    remove(ob);
+    add(ob, x, y);
+
+    return 1;
+}
+
+std::list<Walker *> &ObjectMap::obmap_get_list(Sint16 x, Sint16 y)
+{
+    return pos_to_walker[std::make_pair(hash(x), hash(y))];
+}
+
+Sint16 ObjectMap::hash(Sint16 y)
+{
+    // For now, this assumes no one is smaller than size 8. Also note that
+    // the hash table never loops.
+    // return (y / 8);
+
+    Sint16 num = static_cast<Sint16>(y / OBRES);
+
+    if (num > 198) {
+        num = 199;
+    }
+
+    if (num < 0) {
+        num = 199;
+    }
+
+    return num;
+}
+
+Sint16 ObjectMap::unhash(Sint16 y)
+{
+    return (y * OBRES);
+}
+
 // This goes in walker's constructor
 Sint16 ObjectMap::add(Walker *ob, Sint16 x, Sint16 y)
 {
@@ -223,48 +266,6 @@ Sint16 ObjectMap::add(Walker *ob, Sint16 x, Sint16 y)
     return 1;
 }
 
-// This goes in the walker's setxy
-Sint16 ObjectMap::move(Walker *ob, Sint16 x, Sint16 y)
-{
-    // Do we really need to move?
-    if ((x == ob->xpos) && (y == ob->ypos)) {
-        return 1;
-    }
-
-    remove(ob);
-    add(ob, x, y);
-
-    return 1;
-}
-
-Sint16 ObjectMap::hash(Sint16 y)
-{
-    // For now, this assumes no one is smaller than size 8. Also note that
-    // the hash table never loops.
-    // return (y / 8);
-
-    Sint16 num = static_cast<Sint16>(y / OBRES);
-
-    if (num > 198) {
-        num = 199;
-    }
-
-    if (num < 0) {
-        num = 199;
-    }
-
-    return num;
-}
-
-Sint16 ObjectMap::unhash(Sint16 y)
-{
-    return (y * OBRES);
-}
-
-std::list<Walker *> &ObjectMap::obmap_get_list(Sint16 x, Sint16 y)
-{
-    return pos_to_walker[std::make_pair(hash(x), hash(y))];
-}
 
 // All pass checking from here down.
 
@@ -317,13 +318,13 @@ Sint16 ob_pass_check(Sint16 x, Sint16 y, Walker *ob, std::list<Walker *> const &
                         w->eat_me(ob);
                     } else if ((targetorder == ORDER_WEAPON) && (w->query_family() == FAMILY_DOOR)) {
                         // Can we unlock this door?
-                        if (ob->keys & static_cast<Sint32>(std::pow(2, w->stats->level))) {
+                        if (ob->keys & static_cast<Sint32>(std::pow(2, w->stats.level))) {
                             // Open the door...
                             w->dead = 1;
                             w->death();
                             ob->collide(w);
 
-                            if (ob->stats->query_bit_flags(BIT_NO_COLLIDE)) {
+                            if (ob->stats.query_bit_flags(BIT_NO_COLLIDE)) {
                                     return 1;
                             }
 
@@ -335,7 +336,7 @@ Sint16 ob_pass_check(Sint16 x, Sint16 y, Walker *ob, std::list<Walker *> const &
                             // Do we notify?
                             if (!ob->skip_exit && (ob->user != static_cast<Sint8>(-1))) {
                                 std::stringstream buf("Key ");
-                                buf << w->stats->level << " needed!";
+                                buf << w->stats.level << " needed!";
                                 std::string temp(buf.str());
                                 buf.clear();
                                 temp.resize(80);
@@ -354,7 +355,7 @@ Sint16 ob_pass_check(Sint16 x, Sint16 y, Walker *ob, std::list<Walker *> const &
                     } else {
                         ob->collide(w);
 
-                        if (ob->stats->query_bit_flags(BIT_NO_COLLIDE)) {
+                        if (ob->stats.query_bit_flags(BIT_NO_COLLIDE)) {
                             return 1;
                         }
 

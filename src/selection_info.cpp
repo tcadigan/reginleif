@@ -65,14 +65,14 @@ void SelectionInfo::set(Walker *target)
         clear();
     } else {
         valid = true;
-        name = target->stats->name;
+        name = target->stats.name;
         x = target->xpos;
         y = target->ypos;
         w = target->sizex;
         h = target->sizey;
         order = target->query_order();
         family = target->query_family();
-        level = target->stats->level;
+        level = target->stats.level;
         this->target = target;
     }
 }

@@ -95,4 +95,6 @@ protected:
     Uint8 keys[4][16];
 };
 
+Options *theprefs;
+
 #endif

@@ -241,8 +241,8 @@ Sint16 Weap::death()
         }
 
         newob->owner = owner;
-        newob->stats->hitpoints = 0;
-        newob->stats->level = owner->stats->level;
+        newob->stats.hitpoints = 0;
+        newob->stats.level = owner->stats.level;
         newob->ani_type = ANI_EXPLODE;
         newob->center_on(this);
         newob->damage = damage * 2;
@@ -253,7 +253,7 @@ Sint16 Weap::death()
         // Grow to wave2
         dead = 0;
         transform_to(ORDER_WEAPON, FAMILY_WAVE2);
-        stats->hitpoints = stats->max_hitpoints;
+        stats.hitpoints = stats.max_hitpoints;
 
         break;
         // End wave -> wave2
@@ -261,7 +261,7 @@ Sint16 Weap::death()
         // Grow to wave3
         dead = 0;
         transform_to(ORDER_WEAPON, FAMILY_WAVE3);
-        stats->hitpoints = stats->max_hitpoints;
+        stats.hitpoints = stats.max_hitpoints;
 
         break;
         // End wave2 -> wave3
@@ -275,7 +275,7 @@ Sint16 Weap::death()
 
         newob->ani_type = ANI_DOOR_OPEN;
         newob->setxy(xpos, ypos);
-        newob->stats->level = stats->level;
+        newob->stats.level = stats.level;
         newob->team_num = team_num;
         // newob->ignore = 1;
 
@@ -329,7 +329,7 @@ Sint16 Weap::animate()
 
         break;
     case FAMILY_CIRCLE_PROTECTION:
-        if (!owner || owner->dead || (stats->hitpoints <= 0)) {
+        if (!owner || owner->dead || (stats.hitpoints <= 0)) {
             dead = 1;
 
             return death();

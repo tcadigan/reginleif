@@ -65,9 +65,6 @@ Sint32 load_key_pregs();
 // Zardus: No longer unsigned
 Sint32 get_keypress();
 
-// ** OUR prefs object! **
-Options *theprefs;
-
 /*
  * *****************************************************************
  * VIEWSCREEN -- It's nothing like viewscreen, it just looks like it
@@ -124,7 +121,7 @@ ViewScreen::ViewScreen(Sint16 x, Sint16 y, Sint16 width, Sint16 height, Sint16 w
     // load_key_prefs();
     prefsob->load(mynum, prefs, mykeys);
 
-    myradar = new Radar(this, myscreen, mynum);
+    myradar = new Radar(mynum);
     // This radar has not yet been started
     radarstart = 0;
 
@@ -197,15 +194,19 @@ bool ViewScreen::redraw()
             if ((i < 0) || (j < 0) || (i >= maxx) || (j >= maxy)) {
                 // Show side of wall
                 if ((j == -1) && (i > -1) && (i < maxx)) {
-                    backp[PIX_WALLSIDE1]->draw(i * GRID_SIZE, j * GRID_SIZE, this);
+                    backp[PIX_WALLSIDE1]->setxy(i * GRID_SIZE, j * GRID_SIZE);
+                    backp[PIX_WALLSIDE1]->draw(topx, topy, xloc, yloc, endx, endy);
                 } else if ((j == -2) && (i > -1) && (i < maxx)) {
                     // Show top side of wall
-                    backp[PIX_H_WALL1]->draw(i * GRID_SIZE, j * GRID_SIZE, this);
+                    backp[PIX_H_WALL1]->setxy(i * GRID_SIZE, j * GRID_SIZE);
+                    backp[PIX_H_WALL1]->draw(topx, topy, xloc, yloc, endx, endy);
                 } else {
-                    backp[PIX_WALLTOP_H]->draw(i * GRID_SIZE, j * GRID_SIZE, this);
+                    backp[PIX_WALLTOP_H]->setxy(i * GRID_SIZE, j * GRID_SIZE);
+                    backp[PIX_WALLTOP_H]->draw(topx, topy, xloc, yloc, endx, endy);
                 }
             } else if (gridp.valid()) {
-                backp[static_cast<Sint32>(gridp.data[i + (maxx * j)])]->draw(i * GRID_SIZE, j * GRID_SIZE, this);
+                backp[gridp.data[i + (maxx * j)]]->setxy(i * GRID_SIZE, j * GRID_SIZE);
+                backp[gridp.data[i + (maxx * j)]]->draw(topx, topy, xloc, yloc, endx, endy);
             }
         }
     }
@@ -214,74 +215,9 @@ bool ViewScreen::redraw()
     draw_obs();
 
     if (control && !control->dead && (control->user == mynum) && (prefs[PREF_RADAR] == PREF_RADAR_ON)) {
-        myradar->draw();
-    }
-
-    display_text();
-
-    return true;
-}
-
-bool ViewScreen::redraw(LevelData *data, bool draw_radar)
-{
-    Sint16 i;
-    Sint16 j;
-    Sint16 xneg = 0;
-    Sint16 yneg = 0;
-    Walker *controlob = control;
-    PixieN **backp = data->back;
-    PixieData &gridp = data->grid;
-    Uint16 maxx = gridp.w;
-    Uint16 maxy = gridp.h;
-
-    // Check if we are partially into a grid square and require extra row
-    if (controlob) {
-        topx = controlob->xpos - ((xview - controlob->sizex) / 2);
-        topy = controlob->ypos - ((yview - controlob->sizey) / 2);
-    } else {
-        // No control object now...
-        topx = data->topx;
-        topy = data->topy;
-    }
-
-    if (topx < 0) {
-        xneg = 1;
-    }
-
-    if (topy < 0) {
-        yneg = 1;
-    }
-
-    // Note: >> 4 is equivalent to /16 but faster, since it doesn't divide
-    // likewise <<4 is equivalent to *16, but faster
-
-    for (j = ((topy / GRID_SIZE) - yneg); j < (((topy + yview) / GRID_SIZE) + 1); ++j) {
-        for (i = ((topx / GRID_SIZE) - xneg); i < (((topx + xview) / GRID_SIZE) + 1); ++i) {
-            // Note: back is a PixieN
-            // Backgorund graphic [grid(x, y)] -> put in buffer
-            if ((i < 0) || (j < 0) || (i >= maxx) || (j >= maxy)) {
-                // Show side if wall
-                if ((j == -1) && (i >= -1) && (i < maxx)) {
-                    backp[PIX_WALLSIDE1]->draw(i * GRID_SIZE, j * GRID_SIZE, this);
-                } else if ((j == -2) && (i > -1) && (i <maxx)) {
-                    // Show top side of wall
-                    backp[PIX_H_WALL1]->draw(i * GRID_SIZE, j * GRID_SIZE, this);
-                } else {
-                    // Show top of wall
-                    backp[PIX_WALLTOP_H]->draw(i * GRID_SIZE, j * GRID_SIZE, this);
-                }
-            } else if (gridp.valid()) {
-                backp[static_cast<Sint32>(gridp.data[i + (maxx * j)])]->draw(i * GRID_SIZE, j * GRID_SIZE, this);
-            }
-        }
-    }
-
-    // Moved here to put the radar on top of obs
-    draw_obs(data);
-
-    if (draw_radar && control && !control->dead
-        && (control->user == mynum) && (prefs[PREF_RADAR] == PREF_RADAR_ON)) {
-        myradar->draw(data);
+        myradar->start(myscreen->level_data, endx, endy, yloc);
+        radarstart = 1;
+        myradar->draw(myscreen->level_data, control);
     }
 
     display_text();
@@ -298,7 +234,8 @@ void ViewScreen::display_text()
         if (textcycles[i] > 0) {
             --textcycles[i];
             myscreen->text_normal.write_xy((xview - (textlist[i].length() *  6)) / 2,
-                                           30 + (i * 6), textlist[i], YELLOW, this);
+                                           30 + (i * 6), textlist[i], YELLOW,
+                                           xloc, yloc, endx, endy);
         }
     }
 
@@ -356,14 +293,14 @@ bool ViewScreen::input(SDL_Event const &event)
     if (control && (control->user == -1)) {
         control->set_act_type(ACT_CONTROL);
         control->user = static_cast<Uint8>(mynum);
-        control->stats->clear_command();
+        control->clear_command();
     }
 
     // TODO: Factor out this code which is duplicated in continuous_input()
     if (!control || control->dead) {
         control = nullptr;
 
-        // First looe for a player character, not already controller
+        // First loop for a player character, not already controller
         for (auto const & w : myscreen->level_data.oblist) {
             if (w
                 && !w->dead
@@ -422,7 +359,7 @@ bool ViewScreen::input(SDL_Event const &event)
         }
 
         control->set_act_type(ACT_CONTROL);
-        myscreen->control_hp = control->stats->hitpoints;
+        myscreen->control_hp = control->stats.hitpoints;
     }
 
     // Do we have extra rounds?
@@ -573,7 +510,7 @@ bool ViewScreen::input(SDL_Event const &event)
             control = oldcontrol;
         }
 
-        myscreen->control_hp = control->stats->hitpoints;
+        myscreen->control_hp = control->stats.hitpoints;
         // control->set_act_type(ACT_CONTROL);
 
         // End of switch guys
@@ -600,7 +537,7 @@ bool ViewScreen::input(SDL_Event const &event)
 
         if ((control->current_special > (NUM_SPECIALS - 1))
             || (myscreen->special_name[static_cast<Sint32>(control->query_family())][static_cast<Sint32>(control->current_special)] != "NONE")
-            || ((((control->current_special - 1) * 3) + 1) > control->stats->level)) {
+            || ((((control->current_special - 1) * 3) + 1) > control->stats.level)) {
             control->current_special = 1;
         }
 
@@ -621,7 +558,7 @@ bool ViewScreen::input(SDL_Event const &event)
                 // Remove any curent foe...
                 w->leader = control;
                 w->foe = nullptr;
-                w->stats->force_command(COMMAND_FOLLOW, 100, 0, 0);
+                w->stats.force_command(COMMAND_FOLLOW, 100, 0, 0);
                 // w->action = ACTION_FOLLOW;
             }
         }
@@ -744,7 +681,7 @@ bool ViewScreen::input(SDL_Event const &event)
                     && (w->query_order() == ORDER_LIVING)
                     // && (w->team_num != control_team_num)
                     && !control->is_friendly(w)) {
-                    w->stats->hitpoints = -1;
+                    w->stats.hitpoints = -1;
                     control->attack(w);
                     w->death();
                     // w->dead = 1;
@@ -754,7 +691,7 @@ bool ViewScreen::input(SDL_Event const &event)
 
         // Up level
         if (query_key_event(SDLK_RIGHTBRACKET, event)) {
-            ++control->stats->level;
+            ++control->stats.level;
             // clear_key_code(SDLK_RIGHTBRACKET);
 
             // End up level
@@ -762,8 +699,8 @@ bool ViewScreen::input(SDL_Event const &event)
 
         // Down level
         if (query_key_event(SDLK_LEFTBRACKET, event)) {
-            if (control->stats->level > 1) {
-                --control->stats->level;
+            if (control->stats.level > 1) {
+                --control->stats.level;
             }
 
             // clear_key_code(SDLK_LEFTBRACKET);
@@ -795,10 +732,10 @@ bool ViewScreen::input(SDL_Event const &event)
 
         // Ability to fly
         if (query_key_event(SDLK_f, event)) {
-            if (control->stats->query_bit_flags(BIT_FLYING)) {
-                control->stats->set_bit_flags(BIT_FLYING, 0);
+            if (control->stats.query_bit_flags(BIT_FLYING)) {
+                control->stats.set_bit_flags(BIT_FLYING, 0);
             } else {
-                control->stats->set_bit_flags(BIT_FLYING, 1);
+                control->stats.set_bit_flags(BIT_FLYING, 1);
             }
 
             // clear_key_code(SDLK_f);
@@ -808,7 +745,7 @@ bool ViewScreen::input(SDL_Event const &event)
 
         // Give controller lots of hitpoints
         if (query_key_event(SDLK_h, event)) {
-            control->stats->hitpoints += 100;
+            control->stats.hitpoints += 100;
             // Why not just reset from the above for sanity's sake?
             myscreen->control_hp += 100;
 
@@ -817,10 +754,10 @@ bool ViewScreen::input(SDL_Event const &event)
 
         // Give invincibility
         if (query_key_event(SDLK_i, event)) {
-            if (control->stats->query_bit_flags(BIT_INVINCIBLE)) {
-                control->stats->set_bit_flags(BIT_INVINCIBLE, 0);
+            if (control->stats.query_bit_flags(BIT_INVINCIBLE)) {
+                control->stats.set_bit_flags(BIT_INVINCIBLE, 0);
             } else {
-                control->stats->set_bit_flags(BIT_INVINCIBLE, 1);
+                control->stats.set_bit_flags(BIT_INVINCIBLE, 1);
             }
 
             // clear_key_code(SLDK_i);
@@ -830,7 +767,7 @@ bool ViewScreen::input(SDL_Event const &event)
 
         // Give controller lots of magicpoints
         if (query_key_event(SDLK_m, event)) {
-            control->stats->magicpoints += 150;
+            control->stats.magicpoints += 150;
 
             // End magic points
         }
@@ -867,17 +804,17 @@ bool ViewScreen::input(SDL_Event const &event)
 
     // If we changed control characters
     if (control != oldcontrol) {
-        control->stats->clear_command();
+        control->clear_command();
     }
 
     // If we're frozen...
-    if (control->dead || control->stats->frozen_delay) {
+    if (control->dead || control->stats.frozen_delay) {
         return true;
     }
 
     // Movement, etc.
     // Make sure we're not performing some queued action...
-    if (control->stats->commands.empty()) {
+    if (control->stats.commands.empty()) {
         control->shifter_down = isPlayerHoldingKey(mynum, KEY_SHIFTER);
 
         if (didPlayerPressKey(mynum, KEY_SPECIAL, event)) {
@@ -905,7 +842,7 @@ bool ViewScreen::continuous_input()
     if (control && (control->user == -1)) {
         control->set_act_type(ACT_CONTROL);
         control->user = static_cast<Uint8>(mynum);
-        control->stats->clear_command();
+        control->clear_command();
     }
 
     if (!control || control->dead) {
@@ -971,7 +908,7 @@ bool ViewScreen::continuous_input()
         }
 
         control->set_act_type(ACT_CONTROL);
-        myscreen->control_hp = control->stats->hitpoints;
+        myscreen->control_hp = control->stats.hitpoints;
     }
 
     // Do we have extra rounds?
@@ -1002,19 +939,19 @@ bool ViewScreen::continuous_input()
 
     // If we changed control characters
     if (control != oldcontrol) {
-        control->stats->clear_command();
+        control->clear_command();
     }
 
     // If we're frozen...
-    if (control->stats->frozen_delay) {
-        --control->stats->frozen_delay;
+    if (control->stats.frozen_delay) {
+        --control->stats.frozen_delay;
 
         return true;
     }
 
     // Movement, etc.
     // Make sure we're not performing some queued action...
-    if (control->stats->commands.empty()) {
+    if (control->stats.commands.empty()) {
         // We will handle this as an action in input() instead
         if (isPlayerHoldingKey(mynum, KEY_SHIFTER)) {
             control->shifter_down = 1;
@@ -1066,7 +1003,7 @@ bool ViewScreen::continuous_input()
 
         if ((walkx != 0) || (walky != 0)) {
             control->walkstep(walkx, walky);
-        } else if (control->stats->query_bit_flags(BIT_ANIMATE)) {
+        } else if (control->stats.query_bit_flags(BIT_ANIMATE)) {
             // Animate regardless...
             ++control->cycle;
 
@@ -1147,29 +1084,25 @@ void ViewScreen::clear_text()
 
 Sint16 ViewScreen::draw_obs()
 {
-    return draw_obs(&myscreen->level_data);
-}
-
-Sint16 ViewScreen::draw_obs(LevelData *data)
-{
+    LevelData *data = &myscreen->level_data;
     // First draw the special effects
     for (auto & w : data->fxlist) {
         if (w && !w->dead) {
-            w->draw(this);
+            w->draw(topx, topy, xloc, yloc, endx, endy, control);
         }
     }
 
     // Now do real objects
     for (auto & w : data->oblist) {
         if (w && !w->dead) {
-            w->draw(this);
+            w->draw(topx, topy, xloc, yloc, endx, endy, control);
         }
     }
 
     // Finally draw the weapons
     for (auto & w : data->weaplist) {
         if (w && !w->dead) {
-            w->draw(this);
+            w->draw(topx, topy, xloc, yloc, endx, endy, control);
         }
     }
 
@@ -1188,7 +1121,7 @@ void ViewScreen::resize(Sint16 x, Sint16 y, Sint16 length, Sint16 height)
     endy = yloc + height;
 
     if (myradar->bmp) {
-        myradar->start();
+        myradar->start(myscreen->level_data, endx, endy, yloc);
     }
 
     myscreen->redrawme = 1;
@@ -1455,7 +1388,7 @@ void ViewScreen::view_team(Sint16 left, Sint16 top, Sint16 right, Sint16 bottom)
             && (w->query_order() == ORDER_LIVING)
             && (w->team_num == teamnum)
             // && (w->owner == nullptr
-            && (!w->stats->name.empty() || w->myguy)) {
+            && (!w->stats.name.empty() || w->myguy)) {
             ls.push_back(w);
         }
     }
@@ -1474,10 +1407,10 @@ void ViewScreen::view_team(Sint16 left, Sint16 top, Sint16 right, Sint16 bottom)
 
             ++numguys;
 
-            hp = w->stats->hitpoints;
-            mp = w->stats->magicpoints;
-            maxhp = w->stats->max_hitpoints;
-            maxmp = w->stats->max_magicpoints;
+            hp = w->stats.hitpoints;
+            mp = w->stats.magicpoints;
+            maxhp = w->stats.max_hitpoints;
+            maxmp = w->stats.max_magicpoints;
 
             if ((hp * 3) < maxhp) {
                 hpcolor = LOW_HP_COLOR;
@@ -1512,7 +1445,7 @@ void ViewScreen::view_team(Sint16 left, Sint16 top, Sint16 right, Sint16 bottom)
             if (w->myguy) {
                 mytext.write_xy(left + 5, text_down, w->myguy->name, static_cast<Uint8>(namecolor));
             } else {
-                mytext.write_xy(left + 5, text_down, w->stats->name, static_cast<Uint8>(namecolor));
+                mytext.write_xy(left + 5, text_down, w->stats.name, static_cast<Uint8>(namecolor));
             }
 
             std::stringstream buf;
@@ -1546,7 +1479,7 @@ void ViewScreen::view_team(Sint16 left, Sint16 top, Sint16 right, Sint16 bottom)
             mytext.write_xy(left + 130, text_down, buf.str(), static_cast<Uint8>(mpcolor));
             buf.clear();
 
-            buf << std::setw(2) << w->stats->level;
+            buf << std::setw(2) << w->stats.level;
             buf.width(orig_width);
             mytext.write_xy(left + 195, text_down, buf.str(), static_cast<Uint8>(BLACK));
             buf.clear();
@@ -2273,6 +2206,16 @@ bool ViewScreen::set_key_prefs()
     // return save_key_prefs();
 
     return true;
+}
+
+Sint16 ViewScreen::top_x()
+{
+    return (topx + xview);
+}
+
+Sint16 ViewScreen::top_y()
+{
+    return (topy + yview);
 }
 
 // Waits for a key to be pressed and then released...return this key.

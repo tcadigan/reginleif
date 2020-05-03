@@ -104,15 +104,7 @@ bool Pixie::move(Sint16 x, Sint16 y)
     return setxy(static_cast<Sint16>(xpos + x), static_cast<Sint16>(ypos + y));
 }
 
-// Allos the pixie to be placed using pixel coord data
-bool Pixie::draw(Sint16 x, Sint16 y, ViewScreen *view_buf)
-{
-    setxy(x, y);
-
-    return draw(view_buf);
-}
-
-bool Pixie::draw(ViewScreen *view_buf)
+bool Pixie::draw(Sint16 topx, Sint16 topy, Sint16 xloc, Sint16 yloc, Sint16 endx, Sint16 endy)
 {
     Sint32 xscreen;
     Sint32 yscreen;
@@ -126,27 +118,19 @@ bool Pixie::draw(ViewScreen *view_buf)
      * will handle it
      */
 
-    xscreen = static_cast<Sint32>((xpos - view_buf->topx) + view_buf->xloc);
-    yscreen = static_cast<Sint32>((ypos - view_buf->topy) + view_buf->yloc);
+    xscreen = static_cast<Sint32>((xpos - topx) + xloc);
+    yscreen = static_cast<Sint32>((ypos - topy) + yloc);
 
     if (accel) {
-        myscreen->putbuffer(xscreen, yscreen, sizex, sizey, view_buf->xloc, view_buf->yloc, view_buf->endx, view_buf->endy, bmp_surface);
+        myscreen->putbuffer(xscreen, yscreen, sizex, sizey, xloc, yloc, endx, endy, bmp_surface);
     } else {
-        myscreen->putbuffer(xscreen, yscreen, sizex, sizey, view_buf->xloc, view_buf->yloc, view_buf->endx, view_buf->endy, bmp);
+        myscreen->putbuffer(xscreen, yscreen, sizex, sizey, xloc, yloc, endx, endy, bmp);
     }
 
     return true;
 }
 
-// Allows the pixie to be placed using pixel coord data
-bool Pixie::drawMix(Sint16 x, Sint16 y, ViewScreen *view_buf)
-{
-    setxy(x, y);
-
-    return drawMix(view_buf);
-}
-
-bool Pixie::drawMix(ViewScreen *view_buf)
+bool Pixie::drawMix(Sint16 topx, Sint16 topy, Sint16 xloc, Sint16 yloc, Sint16 endx, Sint16 endy)
 {
     Sint32 xscreen;
     Sint32 yscreen;
@@ -160,10 +144,10 @@ bool Pixie::drawMix(ViewScreen *view_buf)
      * will handle it
      */
 
-    xscreen = static_cast<Sint32>((xpos - view_buf->topx) + view_buf->xloc);
-    yscreen = static_cast<Sint32>((ypos - view_buf->topy) + view_buf->yloc);
+    xscreen = static_cast<Sint32>((xpos - topx) + xloc);
+    yscreen = static_cast<Sint32>((ypos - topy) + yloc);
 
-    myscreen->walkputbuffer(xscreen, yscreen, sizex, sizey, view_buf->xloc, view_buf->yloc, view_buf->endx, view_buf->endy, bmp, RED);
+    myscreen->walkputbuffer(xscreen, yscreen, sizex, sizey, xloc, yloc, endx, endy, bmp, RED);
 
     return true;
 }
@@ -178,7 +162,8 @@ bool Pixie::put_screen(Sint16 x, Sint16 y)
 bool Pixie::on_screen()
 {
     for (Sint16 i = 0; i < myscreen->numviews; ++i) {
-        if (on_screen(myscreen->viewob[i])) {
+        if (on_screen(myscreen->viewob[i]->topx, myscreen->viewob[i]->topy,
+                      myscreen->viewob[i]->top_x(), myscreen->viewob[i]->top_y())) {
             return true;
         }
     }
@@ -186,25 +171,20 @@ bool Pixie::on_screen()
     return false;
 }
 
-bool Pixie::on_screen(ViewScreen *viewp)
+bool Pixie::on_screen(Sint16 topx, Sint16 topy, Sint16 view_x, Sint16 view_y)
 {
-    Sint16 topx = viewp->topx;
-    Sint16 topy = viewp->topy;
-    Sint16 xview = viewp->xview;
-    Sint16 yview = viewp->yview;
-
     // Return 0 if off viewscreen
     // These measurements are grid coords, not pixels
     if ((xpos + sizex) < topx) {
         // We are to the left of the view
         return false;
-    } else if (xpos > (topx + xview)) {
+    } else if (xpos > view_x) {
         // We are to the right of the view
         return false;
     } else if ((ypos + sizey) < topy) {
         // We are above the view
         return false;
-    } else if (ypos > (topy + yview)) {
+    } else if (ypos > view_y) {
         // We are below the view
         return false;
     }

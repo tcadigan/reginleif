@@ -20,8 +20,6 @@
 
 #include <SDL2/SDL.h>
 
-#include "view-fwd.hpp"
-
 // TODO: Move this to screen class so it doesn't get overlapped
 //       by other walkers drawing
 class DamageNumber
@@ -29,7 +27,7 @@ class DamageNumber
 public:
     DamageNumber(float x, float y, float value, Uint8 color);
 
-    void draw(ViewScreen *view_buf);
+    void draw(Sint16 topx, Sint16 topy, Sint16 xloc, Sint16 yloc);
 
     float x;
     float y;

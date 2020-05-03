@@ -30,8 +30,6 @@
 #include <string>
 #include <sstream>
 
-ConfigStore cfg;
-
 void ConfigStore::apply_setting(std::string const &category,
                                 std::string const &setting,
                                 std::string const &value)
@@ -286,4 +284,28 @@ void ConfigStore::commandline(Sint32 argc, std::vector<std::string> const &args)
 bool ConfigStore::is_on(std::string const &category, std::string const &setting)
 {
     return (get_setting(category, setting) == "on");
+}
+
+void toggle_effect(std::string const &category, std::string const &setting)
+{
+    if (cfg.is_on(category, setting)) {
+        cfg.apply_setting(category, setting, "off");
+    } else {
+        cfg.apply_setting(category, setting, "on");
+    }
+}
+
+void toggle_rendering_engine()
+{
+    std::string engine = cfg.get_setting("graphics", "render");
+
+    if (engine == "sai") {
+        engine = "eagle";
+    } else if (engine == "eagle") {
+        engine = "normal";
+    } else {
+        engine = "sai";
+    }
+
+    cfg.apply_setting("graphics", "render", "engine");
 }

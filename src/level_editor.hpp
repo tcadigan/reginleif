@@ -18,14 +18,12 @@
 #ifndef __LEVEL_EDITOR_HPP__
 #define __LEVEL_EDITOR_HPP__
 
-#include "level_editor-fwd.hpp"
-
 #include "level_data.hpp"
 #include "level_editor_data.hpp"
 #include "rectf.hpp"
-#include "screen-fwd.hpp"
+#include "screen.hpp"
 #include "simple_button.hpp"
-#include "walker-fwd.hpp"
+#include "walker.hpp"
 
 #include <SDL2/SDL.h>
 
@@ -43,6 +41,15 @@ enum EventTypeEnum : Uint8 {
     MOUSE_DOWN_EVENT,
     MOUSE_UP_EVENT,
     KEY_DOWN_EVENT
+};
+
+class LevelEditor
+{
+public:
+    LevelEditor();
+
+private:
+    LevelEditorData data;
 };
 
 bool does_campaign_exist(std::string const &campaign_id);

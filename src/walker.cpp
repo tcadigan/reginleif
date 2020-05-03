@@ -24,15 +24,20 @@
 
 #include "walker.hpp"
 
+#include "effect.hpp"
 #include "glad.hpp"
 #include "gloader.hpp"
 #include "gparser.hpp"
+#include "glad.hpp"
 #include "guy.hpp"
+#include "living.hpp"
 #include "map.hpp"
 #include "pal32.hpp"
+#include "picker.hpp"
 #include "pixie_data.hpp"
 #include "screen.hpp"
 #include "stats.hpp"
+#include "treasure.hpp"
 #include "util.hpp"
 #include "view.hpp"
 #include "weap.hpp"
@@ -48,6 +53,12 @@
 #define MAP_WIDTH 400
 // Should not really be duplicating this from screen.cpp
 #define GRID_SIZE 16
+
+#define CHECK_STEP_SIZE 1 // (controller->stepsize) // was 1
+
+#define PATHING_MIN_DISTANCE 100
+// Note that obmap::size() counts dead things too, which don't do pathfinding
+#define PATHING_SHORT_CIRCUIT_OBJECT_LIMIT 200
 
 #define MAKE_STATE(x, y) ((((y) / GRID_SIZE) * MAP_WIDTH) + ((x) / GRID_SIZE))
 #define GET_STATE_X(state) (((state) % MAP_WIDTH) * GRID_SIZE)
@@ -66,24 +77,13 @@
 
 bool debug_draw_paths = false;
 
-Walker *path_walker = nullptr;
-
-// From picker.cpp
-extern Sint32 calculate_level(Uint32 temp_exp);
-// From glad.cpp
-Sint16 remaining_foes(ViewScreen *myscreen, Walker *myguy);
-
-// From picker.cpp
-extern Sint32 difficulty_level[DIFFICULTY_SETTINGS];
-extern Sint32 current_difficulty;
-
 // To avoid problems with limited precision
 bool float_eq(float a, float b)
 {
     return ((a == b) || (((a - 0.000001f) < b) && ((a + 0.000001f) > b)));
 }
 
-void draw_smallHealthBar(Walker *w, ViewScreen *view_buf)
+void draw_smallHealthBar(Walker *w, Sint16 topx, Sint16 topy, Sint16 xloc, Sint16 yloc, Sint16 endx, Sint16 endy)
 {
     if (!cfg.is_on("effects", "mini_hp_bar")) {
         return;
@@ -93,15 +93,15 @@ void draw_smallHealthBar(Walker *w, ViewScreen *view_buf)
         return;
     }
 
-    Sint32 xscreen = static_cast<Sint32>((w->xpos - view_buf->topx) + view_buf->xloc);
-    Sint32 yscreen = static_cast<Sint32>((w->ypos - view_buf->topy) + view_buf->yloc);
+    Sint32 xscreen = static_cast<Sint32>((w->xpos - topx) + xloc);
+    Sint32 yscreen = static_cast<Sint32>((w->ypos - topy) + yloc);
 
     Sint32 walkerstartx = xscreen;
     Sint32 walkerstarty = yscreen;
-    Sint32 portstartx = view_buf->xloc;
-    Sint32 portstarty = view_buf->yloc;
-    Sint32 portendx = view_buf->endx;
-    Sint32 portendy = view_buf->endy;
+    Sint32 portstartx = xloc;
+    Sint32 portstarty = yloc;
+    Sint32 portendx = endx;
+    Sint32 portendy = endy;
 
     SDL_Rect r = {
         static_cast<Sint16>(walkerstartx),
@@ -116,21 +116,21 @@ void draw_smallHealthBar(Walker *w, ViewScreen *view_buf)
 
     // Last hit's effect
     float last_points = w->last_hitpoints;
-    float last_ratio = static_cast<float>(last_points) / w->stats->max_hitpoints;
+    float last_ratio = static_cast<float>(last_points) / w->stats.max_hitpoints;
 
     // Current HP
-    float points = w->stats->hitpoints;
-    float ratio = static_cast<float>(points) / w->stats->max_hitpoints;
+    float points = w->stats.hitpoints;
+    float ratio = static_cast<float>(points) / w->stats.max_hitpoints;
 
     Uint8 whatcolor;
 
-    if (float_eq(points, w->stats->max_hitpoints)) {
+    if (float_eq(points, w->stats.max_hitpoints)) {
         whatcolor = MAX_HP_COLOR;
-    } else if ((points * 3) < w->stats->max_hitpoints) {
+    } else if ((points * 3) < w->stats.max_hitpoints) {
         whatcolor = LOW_HP_COLOR;
-    } else if (((points * 3) / 2) < w->stats->max_hitpoints) {
+    } else if (((points * 3) / 2) < w->stats.max_hitpoints) {
         whatcolor = MID_HP_COLOR;
-    } else if (points < w->stats->max_hitpoints) {
+    } else if (points < w->stats.max_hitpoints) {
         // HIGH_HP_COLOR;
         whatcolor = LIGHT_GREEN;
     } else {
@@ -141,7 +141,7 @@ void draw_smallHealthBar(Walker *w, ViewScreen *view_buf)
         if (ratio < 0.95f) {
             Uint16 max_w = r.w;
 
-            if ((w->last_hitpoints > w->stats->hitpoints) && (last_ratio <= 1.0f)) {
+            if ((w->last_hitpoints > w->stats.hitpoints) && (last_ratio <= 1.0f)) {
                 myscreen->draw_box(r.x, r.y, r.x + (r.w * last_ratio), r.y + r.h, 53, 1);
             }
 
@@ -154,7 +154,7 @@ void draw_smallHealthBar(Walker *w, ViewScreen *view_buf)
 
 Sint16 get_xp_from_attack(Walker *w, Walker *target, float damage)
 {
-    float x = w->stats->level - target->stats->level;
+    float x = w->stats.level - target->stats.level;
 
     // Whoo-ee! an interpolated (quintic) polynomial to fit ({0, 30}, {1, 25},
     // {2, 15}, {3, 10}, {4, 5}, {5, 2.5}, {6, 1.25}, {7, 0.5}, {8, 0.25},
@@ -196,7 +196,7 @@ Sint16 exp_from_action(ExpActionEnum action, Walker *w, Walker *target, Sint16 v
     case EXP_HEAL:
         // value == number of hitpoints healed
 
-        return (getRandomSint32(20 * value) / w->stats->level);
+        return (getRandomSint32(20 * value) / w->stats.level);
     case EXP_TURN_UNDEAD:
         // value == number of turned undead
 
@@ -216,15 +216,15 @@ Sint16 exp_from_action(ExpActionEnum action, Walker *w, Walker *target, Sint16 v
     case EXP_RESURRECT_PENALTY:
         // target == the revived friend
 
-        return ((target->stats->level * target->stats->level) * 100);
+        return ((target->stats.level * target->stats.level) * 100);
     case EXP_PROTECTION:
         // target == the friend receiving the protection
 
-        return w->stats->level;
+        return w->stats.level;
     case EXP_EAT_CORPSE:
         // target == the remains to be eaten
 
-        return (target->stats->level * 5);
+        return (target->stats.level * 5);
     }
 
     return 0;
@@ -244,7 +244,7 @@ float get_damage_reduction(Walker *w, float damage, Walker *target)
         return 0;
     }
 
-    float result = target->stats->armor / 2.0f;
+    float result = target->stats.armor / 2.0f;
 
     if (result > (damage - 1)) {
         // Always do at least 1 damage
@@ -254,12 +254,395 @@ float get_damage_reduction(Walker *w, float damage, Walker *target)
     return result;
 }
 
+Walker *create_walker(Uint8 order, Uint8 family)
+{
+    Walker *ob;
+
+    if ((order == ORDER_LIVING) && (family >= NUM_FAMILIES)) {
+        family = FAMILY_SOLDIER;
+    }
+
+    PixieData graphic = myscreen->level_data.myloader->get_graphics(order, family);
+    if (!graphic.valid()) {
+        std::stringstream buf;
+        buf << "No valid graphics for walker!" << std::endl
+            << "Order: " << order << ", Family: " << family << std::endl
+            << "Please report this to the developer!";
+
+        popup_dialog("ERROR", buf.str());
+
+        return nullptr;
+    }
+
+    if (order == ORDER_LIVING) {
+        ob = new Living(graphic);
+    } else if (order == ORDER_WEAPON) {
+        ob = new Weap(graphic);
+    } else if (order == ORDER_TREASURE) {
+        ob = new Treasure(graphic);
+    } else if (order == ORDER_FX) {
+        ob = new Effect(graphic);
+    } else {
+        ob = new Walker(graphic);
+    }
+
+    if (ob == nullptr) {
+        return nullptr;
+    }
+
+    ob->stats.hitpoints = myscreen->level_data.myloader->get_hitpoints(order, family);
+    ob->stats.max_hitpoints = myscreen->level_data.myloader->get_hitpoints(order, family);
+    ob->stats.special_cost[0] = 0; // Shouldn't be used
+    ob->stats.weapon_cost = 1; // Default value
+
+    set_walker(ob, order, family);
+
+    if (order == ORDER_LIVING) {
+        ob->set_frame(ob->ani[ob->curdir][0]);
+    }
+
+    return ob;
+}
+
+Walker *set_walker(Walker *ob, Uint8 order, Uint8 family)
+{
+    ob->set_order_family(order, family);
+    ob->set_act_type(myscreen->level_data.myloader->get_act_type(order, family));
+    ob->ani = myscreen->level_data.myloader->get_animation(order, family);
+
+    ob->stepsize = myscreen->level_data.myloader->get_stepsize(order, family);
+    ob->normal_stepsize = myscreen->level_data.myloader->get_stepsize(order, family);
+    ob->lineofsight = myscreen->level_data.myloader->get_lineofsight(order, family);
+    ob->damage = myscreen->level_data.myloader->get_damage(order, family);
+    ob->fire_frequency = myscreen->level_data.myloader->get_fire_frequency(order, family);
+
+    for (Sint16 i = 0; i < NUM_SPECIALS; ++i) {
+        ob->stats.special_cost[i] = 5000;
+    }
+
+    // For special settings
+    switch (order) {
+    case ORDER_LIVING:
+        switch (family) {
+        case FAMILY_SOLDIER:
+            ob->stats.special_cost[1] = 25; // Charge
+            ob->stats.special_cost[2] = 100; // Boomerang
+            ob->stats.special_cost[3] = 120; // Whirlwind
+            ob->stats.special_cost[4] = 150; // Disarm
+            ob->stats.weapon_cost = 2;
+            ob->default_weapon = FAMILY_KNIFE;
+
+            break;
+        case FAMILY_ELF:
+            ob->stats.special_cost[1] = 10;
+            ob->stats.special_cost[2] = 20;
+            ob->stats.special_cost[3] = 30;
+            ob->stats.special_cost[4] = 40;
+            ob->stats.set_bit_flags(BIT_FORESTWALK, 1);
+            ob->default_weapon = FAMILY_ROCK;
+
+            break;
+        case FAMILY_ARCHER:
+            ob->stats.special_cost[1] = 20; // Fire arrows
+            ob->stats.special_cost[2] = 60; // 3-arrows
+            ob->stats.special_cost[3] = 70; // Exploding bolt
+            ob->default_weapon = FAMILY_ARROW;
+
+            break;
+        case FAMILY_THIEF:
+            ob->stats.special_cost[1] = 35; // Bomb
+            ob->stats.special_cost[2] = 125; // Cloak
+            ob->stats.special_cost[3] = 100; // Taunt
+            ob->stats.special_cost[4] = 150; // Poison cloud
+            ob->default_weapon = FAMILY_KNIFE;
+
+            break;
+        case FAMILY_CLERIC:
+            ob->stats.special_cost[1] = 2; // Heal / mystic mace
+            ob->stats.special_cost[2] = 20; // Skeleton
+            ob->stats.special_cost[3] = 50; // Ghost
+            ob->stats.special_cost[4] = 150; // Raise dead
+            ob->stats.weapon_cost = 8;
+            ob->default_weapon = FAMILY_GLOW; // FAMILY_TREE
+
+            break;
+        case FAMILY_SKELETON:
+            ob->stats.special_cost[1] = 10; // Tunnel
+            ob->stats.weapon_cost = 0; // Free bones
+            ob->ani_type = ANI_SKEL_GROW;
+            ob->default_weapon = FAMILY_BONE;
+        case FAMILY_FAERIE:
+            ob->stats.weapon_cost = 2;
+            ob->stats.set_bit_flags(BIT_FLYING, 1);
+            ob->stats.set_bit_flags(BIT_ANIMATE, 1);
+            ob->default_weapon = FAMILY_SPRINKLE;
+
+            break;
+        case FAMILY_MAGE:
+            ob->stats.special_cost[1] = 15; // Teleport
+            ob->stats.special_cost[2] = 60; // Warp space
+            ob->stats.special_cost[3] = 500; // Freeze time
+            ob->stats.special_cost[4] = 70; // Energy wave
+            ob->stats.special_cost[5] = 100; // Heartburst
+            ob->stats.weapon_cost = 5;
+            ob->default_weapon = FAMILY_FIREBALL;
+
+            break;
+        case FAMILY_ARCHMAGE:
+            ob->stats.special_cost[1] = 10; // Teleport
+            ob->stats.special_cost[2] = 80; // Heartburst
+            ob->stats.special_cost[3] = 500; // Summon elemental
+            ob->stats.special_cost[4] = 150; // Mind-control enemies
+            ob->stats.weapon_cost = 12;
+            ob->default_weapon = FAMILY_FIREBALL;
+
+            break;
+        case FAMILY_FIRE_ELEMENTAL:
+            ob->stats.special_cost[1] = 50; // Fireballs
+            ob->stats.set_bit_flags(BIT_ANIMATE, 1);
+            ob->stats.max_magicpoints = 150;
+            ob->default_weapon = FAMILY_METEOR;
+
+            break;
+        case FAMILY_SLIME:
+        case FAMILY_SMALL_SLIME:
+        case FAMILY_MEDIUM_SLIME:
+            ob->stats.special_cost[1] = 30;
+
+            ob->stats.set_bit_flags(BIT_ANIMATE, 1); // Always wiggle
+
+            if (order == FAMILY_SMALL_SLIME) {
+                ob->stats.set_bit_flags(BIT_NO_RANGED, 1); // No ranged attack
+            }
+
+            ob->stats.max_magicpoints = 50;
+            // ob->stats->magicpoints = 0;
+            ob->stats.weapon_cost = 0; // Free slimeball
+            ob->default_weapon = FAMILY_BLOB;
+
+            break;
+        case FAMILY_GHOST:
+            ob->stats.special_cost[1] = 30; // Scare
+            ob->stats.set_bit_flags(BIT_ANIMATE, 1); // Always move
+            ob->stats.set_bit_flags(BIT_FLYING, 1);
+            ob->stats.set_bit_flags(BIT_ETHEREAL, 1);
+            ob->stats.set_bit_flags(BIT_NO_RANGED, 1);
+            ob->stats.weapon_cost = 0; // Free melee
+            ob->default_weapon = FAMILY_KNIFE;
+
+            break;
+        case FAMILY_DRUID:
+            ob->stats.special_cost[1] = 15; // Grow tree
+            ob->stats.special_cost[2] = 80; // Summon faerie
+            ob->stats.special_cost[3] = 150; // Reveal items
+            ob->stats.special_cost[4] = 200; // Protection shield
+            ob->stats.weapon_cost = 4;
+            ob->default_weapon = FAMILY_LIGHTNING;
+
+            break;
+        case FAMILY_ORC:
+            ob->stats.special_cost[1] = 25; // Howl
+            ob->stats.special_cost[2] = 20; // Eat corpse
+            ob->stats.set_bit_flags(BIT_NO_RANGED, 1);
+            ob->stats.weapon_cost = 2;
+            ob->default_weapon = FAMILY_ROCK;
+
+            break;
+        case FAMILY_BIG_ORC:
+            ob->stats.weapon_cost = 2;
+            ob->default_weapon = FAMILY_KNIFE;
+
+            break;
+        case FAMILY_BARBARIAN:
+            ob->stats.special_cost[1] = 20; // Hurl boulder
+            ob->stats.special_cost[2] = 30; // Exploding boulder
+            ob->stats.weapon_cost = 2;
+            ob->default_weapon = FAMILY_HAMMER;
+
+            break;
+        case FAMILY_GOLEM:
+            ob->stats.weapon_cost = 2;
+            // ob->stats->set_bit_flags(BIT_NO_RANGED, 1);
+            ob->default_weapon = FAMILY_BOULDER; // Default for now
+
+            break;
+        case FAMILY_GIANT_SKELETON:
+            ob->stats.weapon_cost = 2;
+            ob->default_weapon = FAMILY_BOULDER; // Default for now
+
+            break;
+        case FAMILY_TOWER1: // Not *really* a living...
+            // ob->stepsize = 0;
+            // ob->normal_stepsize = 0;
+            ob->stats.weapon_cost = 2;
+            ob->default_weapon = FAMILY_ARROW;
+
+            break;
+        default:
+            ob->transform_to(ORDER_LIVING, FAMILY_SOLDIER);
+
+            return ob;
+        }
+
+        ob->current_weapon = ob->default_weapon;
+
+        break; // End living things
+    case ORDER_WEAPON:
+        switch (family) {
+        case FAMILY_ROCK:
+            ob->stats.set_bit_flags(BIT_FORESTWALK, 1);
+
+            break;
+        case FAMILY_FIREBALL:
+            ob->stats.set_bit_flags(BIT_MAGICAL, 1);
+
+            break;
+        case FAMILY_METEOR:
+            ob->stats.set_bit_flags(BIT_MAGICAL, 1);
+
+            break;
+        case FAMILY_SPRINKLE:
+            ob->stats.set_bit_flags(BIT_FLYING, 1);
+
+            break;
+        case FAMILY_GLOW: // Cleric's shield glad
+            ob->lifetime = 350;
+
+            break;
+        case FAMILY_WAVE:
+            ob->stats.set_bit_flags(BIT_IMMORTAL, 1);
+            ob->stats.set_bit_flags(BIT_NO_COLLIDE, 1);
+            ob->stats.set_bit_flags(BIT_PHANTOM, 1);
+            ob->stats.set_bit_flags(BIT_FLYING, 1);
+            ob->stats.set_bit_flags(BIT_MAGICAL, 1);
+
+            break;
+        case FAMILY_WAVE2:
+            ob->stats.set_bit_flags(BIT_IMMORTAL, 1);
+            ob->stats.set_bit_flags(BIT_NO_COLLIDE, 1);
+            ob->stats.set_bit_flags(BIT_PHANTOM, 1);
+            ob->stats.set_bit_flags(BIT_FLYING, 1);
+            ob->stats.set_bit_flags(BIT_MAGICAL, 1);
+
+            break;
+        case FAMILY_WAVE3:
+            ob->stats.set_bit_flags(BIT_IMMORTAL, 1);
+            ob->stats.set_bit_flags(BIT_NO_COLLIDE, 1);
+            ob->stats.set_bit_flags(BIT_PHANTOM, 1);
+            ob->stats.set_bit_flags(BIT_FLYING, 1);
+            ob->stats.set_bit_flags(BIT_MAGICAL, 1);
+
+            break;
+        case FAMILY_CIRCLE_PROTECTION:
+            ob->stats.set_bit_flags(BIT_IMMORTAL, 1);
+            ob->stats.set_bit_flags(BIT_NO_COLLIDE, 1);
+            ob->stats.set_bit_flags(BIT_PHANTOM, 1);
+            ob->stats.set_bit_flags(BIT_FLYING, 1);
+            ob->ani_type = 5; // Anything non-zero
+
+            break;
+        default:
+
+            break;
+        }
+
+        break; // End of weapons
+    case ORDER_TREASURE:
+        switch (family) {
+        case FAMILY_STAIN: // Permanent bloodstains
+            ob->ignore = 1;
+
+            break;
+        case FAMILY_GOLD_BAR:
+            ob->set_direct_frame(0);
+
+            break;
+        case FAMILY_SILVER_BAR:
+            ob->set_direct_frame(1);
+
+            break;
+        case FAMILY_MAGIC_POTION:
+            ob->set_direct_frame(0);
+
+            break;
+        case FAMILY_INVIS_POTION:
+            ob->set_direct_frame(1);
+
+            break;
+        case FAMILY_INVULNERABLE_POTION:
+            ob->set_direct_frame(2);
+
+            break;
+        case FAMILY_FLIGHT_POTION:
+            ob->set_direct_frame(11);
+
+            break;
+        case FAMILY_SPEED_POTION:
+            ob->set_direct_frame(3);
+
+            break;
+        default:
+
+            break;
+        }
+
+        break; // End of treasures
+    case ORDER_GENERATOR:
+        switch (family) {
+        case FAMILY_TOWER:
+            ob->stats.weapon_cost = 0;
+            ob->default_weapon = FAMILY_MAGE;
+
+            break;
+        case FAMILY_BONES: // Ghost bone pile
+            ob->stats.weapon_cost = 0;
+            ob->default_weapon = FAMILY_GHOST;
+
+            break;
+        case FAMILY_TREEHOUSE: // Elf treehouse
+            ob->stats.weapon_cost = 0;
+            ob->default_weapon = FAMILY_ELF;
+
+            break;
+        default:
+            ob->stats.weapon_cost = 0;
+            ob->default_weapon = FAMILY_SKELETON;
+
+            break;
+        }
+
+        break; // End of generators
+    case ORDER_FX:
+        ob->ani_type = 0;
+
+        switch (family) {
+        case FAMILY_MAGIC_SHIELD:
+            ob->stats.set_bit_flags(BIT_PHANTOM, 1);
+
+            break;
+        case FAMILY_CLOUD: // Poison cloud
+            ob->stats.set_bit_flags(BIT_NO_COLLIDE, 1);
+            ob->stats.set_bit_flags(BIT_FLYING, 1);
+
+            break;
+        default:
+
+            break;
+        }
+
+        break; // End of FX
+    default:
+
+        break; // End of all orders
+    }
+
+    return ob;
+}
+
 Walker::Walker(PixieData const &data)
     : PixieN(data)
+    , stats(query_order(), query_family())
 {
-    // Set our stats...
-    stats = new Statistics(this);
-
     // We are facing DOWN
     curdir = FACE_DOWN;
     // We are trying to face DOWN
@@ -317,14 +700,8 @@ Walker::Walker(PixieData const &data)
     xpos = ypos;
     worldy = -1;
     worldx = worldy;
-    // Default, used for fighers
+    // Default, used for fighters
     weapons_left = 1;
-    myobmap = nullptr;
-
-    if (myscreen != nullptr) {
-        // Default obmap (spatial partitioning optimization?) changed when added to a list
-        myobmap = myscreen->level_data.myobmap;
-    }
 
     path_check_counter = (5 + rand()) % 10;
     hurt_flash = false;
@@ -391,9 +768,7 @@ bool Walker::reset(void)
     path_check_counter = (5 + rand()) % 10;
     regen_delay = 0;
 
-    if (stats) {
-        stats->bit_flags = 0;
-    }
+    stats.bit_flags = 0;
 
     hurt_flash = false;
     attack_lunge = 0.0f;
@@ -414,13 +789,8 @@ Walker::~Walker()
     collide_ob = nullptr;
     dead = 1;
 
-    if (myobmap != nullptr) {
-        // Remove ourselves from obmap lists
-        myobmap->remove(this);
-    }
+    myscreen->level_data.myobmap->remove(this);
 
-    delete stats;
-    stats = nullptr;
     bmp = nullptr;
 
     if (myguy) {
@@ -447,10 +817,10 @@ Sint16 Walker::setxy(Sint16 x, Sint16 y)
     worldy = y;
 
     if (!ignore) {
-        myobmap->move(this, x, y);
+        myscreen->level_data.myobmap->move(this, x, y);
     } else {
         // Just remove us, in case :)
-        myobmap->remove(this);
+        myscreen->level_data.myobmap->remove(this);
     }
 
     return Pixie::setxy(x, y);
@@ -462,10 +832,10 @@ void Walker::setworldxy(float x, float y)
     worldy = y;
 
     if (!ignore) {
-        myobmap->move(this, x, y);
+        myscreen->level_data.myobmap->move(this, x, y);
     } else {
         // Just remove us, in case :)
-        myobmap->remove(this);
+        myscreen->level_data.myobmap->remove(this);
     }
 
     Pixie::setxy(x, y);
@@ -777,7 +1147,7 @@ bool Walker::walk(float x, float y)
             // Invalid move?
             // We're not alive
             // Animate regardless...
-            if (stats->query_bit_flags(BIT_ANIMATE)) {
+            if (stats.query_bit_flags(BIT_ANIMATE)) {
                 ++cycle;
 
                 if (ani[curdir][cycle] == -1) {
@@ -969,7 +1339,7 @@ Walker *Walker::fire()
     // Sint16 yp;
 
     // Do we have enough spellpoints for our weapon
-    if (stats->magicpoints < stats->weapon_cost) {
+    if (stats.magicpoints < stats.weapon_cost) {
         return nullptr;
     }
 
@@ -979,7 +1349,7 @@ Walker *Walker::fire()
         return nullptr;
     }
 
-    stats->magicpoints -= stats->weapon_cost;
+    stats.magicpoints -= stats.weapon_cost;
 
     // Determine how much the thrown weapon can "waver"
     // Absolute amount...
@@ -1071,7 +1441,7 @@ Walker *Walker::fire()
         weapon->dead = 1;
 
         return nullptr;
-    } else if (stats->query_bit_flags(BIT_NO_RANGED)) {
+    } else if (stats.query_bit_flags(BIT_NO_RANGED)) {
         weapon->dead = 1;
 
         return nullptr;
@@ -1079,7 +1449,7 @@ Walker *Walker::fire()
         if ((order == ORDER_LIVING) && (family == FAMILY_SOLDIER)) {
             if (weapons_left <= 0) {
                 // Give back the magic it cost, since we didn't throw it
-                stats->magicpoints += stats->weapon_cost;
+                stats.magicpoints += stats.weapon_cost;
                 weapon->dead = 1;
 
                 return nullptr;
@@ -1127,23 +1497,23 @@ Walker *Walker::fire()
                     weapon->ani_type = ANI_TELE_IN;
                 }
 
-                weapon->stats->level = getRandomSint32(stats->level) + 1;
-                weapon->set_difficulty(static_cast<Uint32>(weapon->stats->level));
+                weapon->stats.level = getRandomSint32(stats.level) + 1;
+                weapon->set_difficulty(static_cast<Uint32>(weapon->stats.level));
                 weapon->owner = nullptr;
 
                 break;
             default: // Tents, bones, etc.
-                weapon->lifetime = 800 + (stats->level * 11);
-                weapon->stats->level = getRandomSint32(stats->level) + 1;
-                weapon->set_difficulty(static_cast<Uint32>(weapon->stats->level));
+                weapon->lifetime = 800 + (stats.level * 11);
+                weapon->stats.level = getRandomSint32(stats.level) + 1;
+                weapon->set_difficulty(static_cast<Uint32>(weapon->stats.level));
 
                 break;
             }
         } else if (order == ORDER_LIVING) {
             // Archmage gets 1/20th of "extra" magic for more damage...
             if (family == FAMILY_ARCHMAGE) {
-                float extra = stats->magicpoints / 20;
-                stats->magicpoints -= extra;
+                float extra = stats.magicpoints / 20;
+                stats.magicpoints -= extra;
                 // Get this in damage
                 weapon->damage += extra;
             }
@@ -1215,7 +1585,7 @@ void Walker::set_weapon_heading(Walker *weapon)
     }
 }
 
-Sint16 Walker::draw(ViewScreen *view_buf)
+Sint16 Walker::draw(Sint16 topx, Sint16 topy, Sint16 xloc, Sint16 yloc, Sint16 endx, Sint16 endy, Walker *control)
 {
     // Update the drawing coords from the real position
     xpos = worldx;
@@ -1243,8 +1613,8 @@ Sint16 Walker::draw(ViewScreen *view_buf)
 
     ++drawcycle;
 
-    xscreen = static_cast<Sint32>((xpos - view_buf->topx) + view_buf->xloc);
-    yscreen = static_cast<Sint32>((ypos - view_buf->topy) + view_buf->yloc);
+    xscreen = static_cast<Sint32>((xpos - topx) + xloc);
+    yscreen = static_cast<Sint32>((ypos - topy) + yloc);
 
     if (attack_lunge > 0.0f) {
         xscreen += ((attack_lunge * ATTACK_LUNGE_SIZE) * cos(attack_lunge_angle));
@@ -1256,12 +1626,12 @@ Sint16 Walker::draw(ViewScreen *view_buf)
         yscreen += ((hit_recoil * HIT_RECOIL_SIZE) * sin(hit_recoil_angle));
     }
 
-    if (stats->query_bit_flags(BIT_NAMED) || invisibility_left || flight_left || invulnerable_left) {
+    if (stats.query_bit_flags(BIT_NAMED) || invisibility_left || flight_left || invulnerable_left) {
         if (outline == OUTLINE_INVULNERABLE) {
             if (flight_left) {
                 outline = OUTLINE_FLYING;
-            } else if (view_buf->control) {
-                if (stats->query_bit_flags(BIT_NAMED) && (team_num != view_buf->control->team_num)) {
+            } else if (control) {
+                if (stats.query_bit_flags(BIT_NAMED) && (team_num != control->team_num)) {
                     outline = OUTLINE_NAMED;
                 }
             }
@@ -1280,8 +1650,8 @@ Sint16 Walker::draw(ViewScreen *view_buf)
             //     outline = OUTLINE_INVULNERABLE;
             // }
 
-            if (view_buf->control) {
-                if (stats->query_bit_flags(BIT_NAMED) && (team_num != view_buf->control->team_num)) {
+            if (control) {
+                if (stats.query_bit_flags(BIT_NAMED) && (team_num != control->team_num)) {
                     outline = OUTLINE_NAMED;
                 }
             }
@@ -1306,8 +1676,8 @@ Sint16 Walker::draw(ViewScreen *view_buf)
                 outline = OUTLINE_INVULNERABLE;
             } else if (flight_left) {
                 outline = OUTLINE_FLYING;
-            } else if (view_buf->control) {
-                if (stats->query_bit_flags(BIT_NAMED) && (team_num != view_buf->control->team_num)) {
+            } else if (control) {
+                if (stats.query_bit_flags(BIT_NAMED) && (team_num != control->team_num)) {
                     outline = OUTLINE_NAMED;
                 }
             }
@@ -1318,8 +1688,8 @@ Sint16 Walker::draw(ViewScreen *view_buf)
                 outline = OUTLINE_FLYING;
             } else if (invulnerable_left) {
                 outline = OUTLINE_INVULNERABLE;
-            } else if (view_buf->control) {
-                if (stats->query_bit_flags(BIT_NAMED) && (team_num != view_buf->control->team_num)) {
+            } else if (control) {
+                if (stats.query_bit_flags(BIT_NAMED) && (team_num != control->team_num)) {
                     outline = OUTLINE_NAMED;
                 }
             }
@@ -1328,11 +1698,11 @@ Sint16 Walker::draw(ViewScreen *view_buf)
         outline = 0;
     }
 
-    if (view_buf->control != nullptr) {
+    if (control != nullptr) {
         if ((outline == 0)
             && (user != -1)
-            && (this != view_buf->control)
-            && (this->team_num == view_buf->control->team_num)) {
+            && (this != control)
+            && (this->team_num == control->team_num)) {
             outline = OUTLINE_INVISIBLE;
         }
     }
@@ -1344,21 +1714,21 @@ Sint16 Walker::draw(ViewScreen *view_buf)
     Sint32 phantom_mode = 0;
 
     // WE ARE A PHANTOM
-    if (stats->query_bit_flags(BIT_PHANTOM)) {
+    if (stats.query_bit_flags(BIT_PHANTOM)) {
         fill_mode = PHANTOM_MODE;
         phantom_mode = SHIFT_RANDOM;
         should_draw_hp = false;
-    } else if (invisibility_left && (view_buf->control != nullptr)) {
+    } else if (invisibility_left && (control != nullptr)) {
         // WE ARE INVISIBLE
-        if (this->team_num == view_buf->control->team_num) {
+        if (this->team_num == control->team_num) {
             fill_mode = INVISIBLE_MODE;
             invisibility_amount = invisibility_left + 10;
             outline_style = outline;
             should_draw_hp = false;
         }
-    } else if (stats->query_bit_flags(BIT_FORESTWALK)
+    } else if (stats.query_bit_flags(BIT_FORESTWALK)
                && (myscreen->level_data.mysmoother.query_genre_x_y(xpos / GRID_SIZE, ypos / GRID_SIZE) == TYPE_TREES)
-               && !stats->query_bit_flags(BIT_FLYING)
+               && !stats.query_bit_flags(BIT_FLYING)
                && (flight_left < 1)) {
         fill_mode = INVISIBLE_MODE;
         invisibility_amount = 1000;
@@ -1374,19 +1744,16 @@ Sint16 Walker::draw(ViewScreen *view_buf)
     if (hurt_flash) {
         hurt_flash = false;
         myscreen->walkputbuffer_flash(xscreen, yscreen, sizex, sizey,
-                                      view_buf->xloc, view_buf->yloc,
-                                      view_buf->endx, view_buf->endy,
+                                      xloc, yloc, endx, endy,
                                       bmp, query_team_color());
     } else {
         if ((fill_mode == 0) && (outline_style == 0)) {
             myscreen->walkputbuffer(xscreen, yscreen, sizex, sizey,
-                                    view_buf->xloc, view_buf->yloc,
-                                    view_buf->endx, view_buf->endy,
+                                    xloc, yloc, endx, endy,
                                     bmp, query_team_color());
         } else {
             myscreen->walkputbuffer(xscreen, yscreen, sizex, sizey,
-                                    view_buf->xloc, view_buf->yloc,
-                                    view_buf->endx, view_buf->endy,
+                                    xloc, yloc, endx, endy,
                                     bmp, query_team_color(),
                                     /* mode */ fill_mode,
                                     /* invsibility */ invisibility_amount,
@@ -1396,7 +1763,7 @@ Sint16 Walker::draw(ViewScreen *view_buf)
     }
 
     if (should_draw_hp) {
-        draw_smallHealthBar(this, view_buf);
+        draw_smallHealthBar(this, topx, topy, xloc, yloc, endx, endy);
     }
 
     damage_numbers.erase(std::remove_if(damage_numbers.begin(),
@@ -1408,19 +1775,19 @@ Sint16 Walker::draw(ViewScreen *view_buf)
         e.t -= 0.05f;
         e.y -= 1.5f;
 
-        if (view_buf->control == this) {
-            e.draw(view_buf);
+        if (control == this) {
+            e.draw(topx, topy, xloc, yloc);
         }
     }
 
     if (debug_draw_paths) {
-        draw_path(view_buf);
+        draw_path(topx, topy, xloc, yloc);
     }
 
     return 1;
 }
 
-Sint16 Walker::draw_tile(ViewScreen *view_buf)
+Sint16 Walker::draw_tile(Sint16 topx, Sint16 topy, Sint16 xloc, Sint16 yloc, Sint16 endx, Sint16 endy, Walker *control)
 {
     Sint32 xscreen;
     Sint32 yscreen;
@@ -1446,18 +1813,18 @@ Sint16 Walker::draw_tile(ViewScreen *view_buf)
 
     ++drawcycle;
 
-    xscreen = static_cast<Sint32>((xpos - view_buf->topx) + view_buf->xloc);
-    yscreen = static_cast<Sint32>((ypos - view_buf->topy) + view_buf->yloc);
+    xscreen = static_cast<Sint32>((xpos - topx) + xloc);
+    yscreen = static_cast<Sint32>((ypos - topy) + yloc);
 
-    if (stats->query_bit_flags(BIT_NAMED)
+    if (stats.query_bit_flags(BIT_NAMED)
         || invisibility_left
         || flight_left
         || invulnerable_left) {
         if (outline == OUTLINE_INVULNERABLE) {
             if (flight_left) {
                 outline = OUTLINE_FLYING;
-            } else if (view_buf->control) {
-                if (stats->query_bit_flags(BIT_NAMED) && (team_num != view_buf->control->team_num)) {
+            } else if (control) {
+                if (stats.query_bit_flags(BIT_NAMED) && (team_num != control->team_num)) {
                     outline = OUTLINE_NAMED;
                 }
             }
@@ -1476,8 +1843,8 @@ Sint16 Walker::draw_tile(ViewScreen *view_buf)
             //     outline = OUTLINE_INVULNERABLE;
             // }
 
-            if (view_buf->control) {
-                if (stats->query_bit_flags(BIT_NAMED) && (team_num != view_buf->control->team_num)) {
+            if (control) {
+                if (stats.query_bit_flags(BIT_NAMED) && (team_num != control->team_num)) {
                     outline = OUTLINE_NAMED;
                 }
             }
@@ -1502,8 +1869,8 @@ Sint16 Walker::draw_tile(ViewScreen *view_buf)
                 outline = OUTLINE_INVULNERABLE;
             } else if (flight_left) {
                 outline = OUTLINE_FLYING;
-            } else if (view_buf->control) {
-                if (stats->query_bit_flags(BIT_NAMED) && (team_num != view_buf->control->team_num)) {
+            } else if (control) {
+                if (stats.query_bit_flags(BIT_NAMED) && (team_num != control->team_num)) {
                     outline = OUTLINE_NAMED;
                 }
             }
@@ -1514,8 +1881,8 @@ Sint16 Walker::draw_tile(ViewScreen *view_buf)
                 outline = OUTLINE_FLYING;
             } else if (invulnerable_left) {
                 outline = OUTLINE_INVULNERABLE;
-            } else if (view_buf->control) {
-                if (stats->query_bit_flags(BIT_NAMED) && (team_num != view_buf->control->team_num)) {
+            } else if (control) {
+                if (stats.query_bit_flags(BIT_NAMED) && (team_num != control->team_num)) {
                     outline = OUTLINE_NAMED;
                 }
             }
@@ -1526,15 +1893,15 @@ Sint16 Walker::draw_tile(ViewScreen *view_buf)
 
     if ((outline == 0)
         && (user != -1)
-        && (this != view_buf->control)
-        && (this->team_num == view_buf->control->team_num)) {
+        && (this != control)
+        && (this->team_num == control->team_num)) {
         outline = OUTLINE_INVISIBLE;
     }
 
     // WE ARE A PHANTOM
-    if (stats->query_bit_flags(BIT_PHANTOM)) {
+    if (stats.query_bit_flags(BIT_PHANTOM)) {
         myscreen->walkputbuffer(xscreen, yscreen, sizex, sizey,
-                                view_buf->xloc, view_buf->yloc,
+                                xloc, yloc,
                                 xscreen + GRID_SIZE, yscreen + GRID_SIZE,
                                 bmp, query_team_color(),
                                 /* mode */ PHANTOM_MODE,
@@ -1544,7 +1911,7 @@ Sint16 Walker::draw_tile(ViewScreen *view_buf)
     } else if (invisibility_left) {
         // WE HAVE SOME OUTLINE
         myscreen->walkputbuffer(xscreen, yscreen, sizex, sizey,
-                                view_buf->xloc, view_buf->yloc,
+                                xloc, yloc,
                                 xscreen + GRID_SIZE, yscreen + GRID_SIZE,
                                 bmp, query_team_color(),
                                 /* mode */ OUTLINE_MODE,
@@ -1552,14 +1919,14 @@ Sint16 Walker::draw_tile(ViewScreen *view_buf)
                                 /* outline */ outline,
                                 /* type of phantom */ 0);
 
-        draw_smallHealthBar(this, view_buf);
+        draw_smallHealthBar(this, topx, topy, xloc, yloc, endx, endy);
     } else {
         myscreen->walkputbuffer(xscreen, yscreen, sizex, sizey,
-                                view_buf->xloc, view_buf->yloc,
+                                xloc, yloc,
                                 xscreen + GRID_SIZE, yscreen + GRID_SIZE,
                                 bmp, query_team_color());
 
-        draw_smallHealthBar(this, view_buf);
+        draw_smallHealthBar(this, topx, topy, xloc, yloc, endx, endy);
     }
 
     return 1;
@@ -1605,7 +1972,7 @@ void Walker::follow_path_to_foe()
     }
 }
 
-void Walker::draw_path(ViewScreen *view_buf)
+void Walker::draw_path(Sint16 topx, Sint16 topy, Sint16 xloc, Sint16 yloc)
 {
     if (path_to_foe.size() == 0) {
         return;
@@ -1614,8 +1981,8 @@ void Walker::draw_path(ViewScreen *view_buf)
     // Our pointer is a unique integer...but probably aligned to 4 bytes
     Uint8 mycolor = query_team_color() + (reinterpret_cast<intptr_t>(this) % 5);
 
-    Sint16 offsetx = (view_buf->topx - view_buf->xloc) - 8;
-    Sint16 offsety = (view_buf->topy - view_buf->yloc) - 8;
+    Sint16 offsetx = (topx - xloc) - 8;
+    Sint16 offsety = (topy - yloc) - 8;
 
     std::vector<Sint32>::iterator e = path_to_foe.begin();
     Sint32 px = GET_STATE_X(*e) - offsetx;
@@ -1659,8 +2026,8 @@ Sint16 Walker::act()
     }
 
     // Are we frozen?
-    if (stats->frozen_delay) {
-        --stats->frozen_delay;
+    if (stats.frozen_delay) {
+        --stats.frozen_delay;
 
         return 1;
     }
@@ -1683,8 +2050,8 @@ Sint16 Walker::act()
     // }
 
     // Are we performing some action?
-    if (stats->has_commands()) {
-        temp = stats->do_command();
+    if (stats.has_commands()) {
+        temp = do_command();
 
         if (temp) {
             return 1;
@@ -1736,7 +2103,7 @@ Sint16 Walker::act()
             // A 1 in 4 then 1 in 20 chance of random walk
             if (!getRandomSint32(20)) {
                 if (!special()) {
-                    stats->try_command(COMMAND_WALK, getRandomSint32(30), getRandomSint32(3) - 1, getRandomSint32(3) - 1);
+                    stats.try_command(COMMAND_WALK, getRandomSint32(30), getRandomSint32(3) - 1, getRandomSint32(3) - 1);
                 }
 
                 return 1;
@@ -1752,7 +2119,7 @@ Sint16 Walker::act()
 
             if (foe) {
                 // stats->try_command(COMMAND_SEARCH, 60, 0, 0);
-                stats->try_command(COMMAND_SEARCH, 500, 0, 0);
+                stats.try_command(COMMAND_SEARCH, 500, 0, 0);
             }
 
             return 1;
@@ -1838,8 +2205,8 @@ void Walker::do_hit_effects(Walker *attacker, Walker *target, Sint16 tempdamage)
                                                       target->ypos, tempdamage, RED));
     }
 
-    if (target->stats->hitpoints < 0) {
-        tempdamage += target->stats->hitpoints;
+    if (target->stats.hitpoints < 0) {
+        tempdamage += target->stats.hitpoints;
     }
 
     if (cfg.is_on("effects", "hit_anim")) {
@@ -1850,7 +2217,7 @@ void Walker::do_hit_effects(Walker *attacker, Walker *target, Sint16 tempdamage)
             if (newob) {
                 newob->owner = target;
                 newob->team_num = team_num;
-                newob->stats->level = 1;
+                newob->stats.level = 1;
                 newob->damage = 0;
                 newob->ani_type = (1 + rand()) % 3;
 
@@ -1890,13 +2257,13 @@ void Walker::do_combat_damage(Walker *attacker, Walker *target, Sint16 tempdamag
     }
 
     // Deal the damage
-    target->last_hitpoints = target->stats->hitpoints;
-    target->stats->hitpoints -= tempdamage;
+    target->last_hitpoints = target->stats.hitpoints;
+    target->stats.hitpoints -= tempdamage;
 
     do_hit_effects(attacker, target, tempdamage);
 
-    if (target->stats->hitpoints < 0) {
-        tempdamage += target->stats->hitpoints;
+    if (target->stats.hitpoints < 0) {
+        tempdamage += target->stats.hitpoints;
     }
 
     // Delay HP regeneration
@@ -1907,8 +2274,8 @@ void Walker::do_combat_damage(Walker *attacker, Walker *target, Sint16 tempdamag
     if (target->myguy != nullptr) {
         target->myguy->scen_damage_taken += tempdamage;
 
-        if (target->myguy->scen_min_hp > target->stats->hitpoints) {
-            target->myguy->scen_min_hp = target->stats->hitpoints;
+        if (target->myguy->scen_min_hp > target->stats.hitpoints) {
+            target->myguy->scen_min_hp = target->stats.hitpoints;
         }
     }
 }
@@ -1943,7 +2310,7 @@ Sint16 Walker::attack(Walker *target)
         return 0;
     }
 
-    if (target->stats->query_bit_flags(BIT_INVINCIBLE) || (target->invulnerable_left != 0)) {
+    if (target->stats.query_bit_flags(BIT_INVINCIBLE) || (target->invulnerable_left != 0)) {
         return 0;
     }
 
@@ -1979,7 +2346,7 @@ Sint16 Walker::attack(Walker *target)
         case FAMILY_SLIME:
         case FAMILY_SMALL_SLIME:
         case FAMILY_MEDIUM_SLIME:
-            if (stats->query_bit_flags(BIT_MAGICAL)) {
+            if (stats.query_bit_flags(BIT_MAGICAL)) {
                 // Twice as susceptible to magic.
                 tempdamage *= 2;
             }
@@ -1988,7 +2355,7 @@ Sint16 Walker::attack(Walker *target)
             break;
         case FAMILY_BARBARIAN:
             // Barbarians get LESS damaged by magical attacks
-            if (stats->query_bit_flags(BIT_MAGICAL)) {
+            if (stats.query_bit_flags(BIT_MAGICAL)) {
                 tempdamage /= 2;
             }
 
@@ -2028,30 +2395,30 @@ Sint16 Walker::attack(Walker *target)
     // hit something
     if ((order != ORDER_LIVING) && owner) {
         owner->foe = target;
-        target->stats->hit_response(owner);
+        target->hit_response(owner);
 
         if (headguy->myguy) {
             headguy->myguy->exp += newexp;
         }
     } else {
         // Melee combat, set target to hit_response to us
-        target->stats->hit_response(this);
+        target->hit_response(this);
 
         if (myguy) {
             myguy->exp += newexp;
 
             if (getscore) {
-                myscreen->save_data.m_score[team_num] += (tempdamage + target->stats->level);
+                myscreen->save_data.m_score[team_num] += (tempdamage + target->stats.level);
             }
         }
     }
 
     if (order == ORDER_WEAPON) {
-        stats->hitpoints -= tempdamage;
+        stats.hitpoints -= tempdamage;
         --damage;
 
-        if (stats->hitpoints <= 0) {
-            if (!stats->query_bit_flags(BIT_IMMORTAL)) {
+        if (stats.hitpoints <= 0) {
+            if (!stats.query_bit_flags(BIT_IMMORTAL)) {
                 dead = 1;
             }
 
@@ -2064,13 +2431,13 @@ Sint16 Walker::attack(Walker *target)
             // Faerie's fire freezes foes :)
             if (targetorder == ORDER_LIVING) {
                 if (target->myguy) {
-                    target->stats->frozen_delay = getRandomSint32((FAERIE_FREEZE_TIME + (owner->stats->level * 2)) - (target->myguy->constitution / 21));
+                    target->stats.frozen_delay = getRandomSint32((FAERIE_FREEZE_TIME + (owner->stats.level * 2)) - (target->myguy->constitution / 21));
                 } else {
-                    target->stats->frozen_delay = getRandomSint32(FAERIE_FREEZE_TIME + (owner->stats->level * 2));
+                    target->stats.frozen_delay = getRandomSint32(FAERIE_FREEZE_TIME + (owner->stats.level * 2));
                 }
 
-                if (target->stats->frozen_delay < 0) {
-                    target->stats->frozen_delay = 0;
+                if (target->stats.frozen_delay < 0) {
+                    target->stats.frozen_delay = 0;
                 }
             }
 
@@ -2088,7 +2455,7 @@ Sint16 Walker::attack(Walker *target)
     if (owner && (targetorder != ORDER_WEAPON)) {
         if (playerteam != target->team_num) {
             if (getscore) {
-                myscreen->save_data.m_score[team_num] += (tempdamage + target->stats->level); // / 2;
+                myscreen->save_data.m_score[team_num] += (tempdamage + target->stats.level); // / 2;
             }
 
             if (headguy->myguy) {
@@ -2097,7 +2464,7 @@ Sint16 Walker::attack(Walker *target)
         }
     }
 
-    if (target->stats->hitpoints <= 0) {
+    if (target->stats.hitpoints <= 0) {
         if (targetorder == ORDER_LIVING) {
             if (playerteam > -1) {
                 if (playerteam != target->team_num) {
@@ -2106,7 +2473,7 @@ Sint16 Walker::attack(Walker *target)
                         headguy->myguy->exp += (newexp + exp_from_action(EXP_KILL, this, target, 0));
                         ++headguy->myguy->kills;
                         ++headguy->myguy->scen_kills;
-                        headguy->myguy->level_kills += target->stats->level;
+                        headguy->myguy->level_kills += target->stats.level;
                     } // else if (myguy) {
                     // myguy->exp += (newexp + (8 * target->stats->level));
                     // ++myguy->kills;
@@ -2114,13 +2481,13 @@ Sint16 Walker::attack(Walker *target)
                     // }
 
                     if (getscore) {
-                        myscreen->save_data.m_score[team_num] += (tempdamage + (10 * target->stats->level));
+                        myscreen->save_data.m_score[team_num] += (tempdamage + (10 * target->stats.level));
                     }
 
                     // In named, alert us of the enemy's death
                     // Do we have an NPC name?
-                    if (!target->stats->name.empty() && !target->lifetime && !target->owner) {
-                        buf << "ENEMY DEATH: " << target->stats->name << " DIED!";
+                    if (!target->stats.name.empty() && !target->lifetime && !target->owner) {
+                        buf << "ENEMY DEATH: " << target->stats.name << " DIED!";
                         message = buf.str();
                         buf.clear();
                         message.resize(80);
@@ -2137,11 +2504,11 @@ Sint16 Walker::attack(Walker *target)
                 } else {
                     // Alert us of the death
                     // Summoned? And have name
-                    if ((target->owner || target->lifetime) && !target->stats->name.empty()) {
-                        buf << target->stats->name << " Dispelled!";
-                    } else if (!target->stats->name.empty()) {
+                    if ((target->owner || target->lifetime) && !target->stats.name.empty()) {
+                        buf << target->stats.name << " Dispelled!";
+                    } else if (!target->stats.name.empty()) {
                         // Do we have an NPC name?
-                        buf << target->stats->name << " DIED!";
+                        buf << target->stats.name << " DIED!";
                     } else if (target->myguy && !target->myguy->name.empty()) {
                         buf << target->myguy->name;
                     } else {
@@ -2277,7 +2644,7 @@ Sint16 Walker::animate()
             } else if (family == FAMILY_SKELETON) {
                 ani_type = ANI_TELE_IN;
                 cycle = 0;
-                teleport_ranged(stats->level * 18);
+                teleport_ranged(stats.level * 18);
 
                 return 1;
             } else {
@@ -2306,13 +2673,13 @@ Sint16 Walker::animate()
             // stats->magicpoints -= stats->special_cost[0];
             transfer_stats(newob);
 
-            if (newob->myguy && (newob->myguy->exp < (1000 * stats->level))) {
+            if (newob->myguy && (newob->myguy->exp < (1000 * stats.level))) {
                 // Can't be "sustained" if too low
                 delete newob->myguy;
                 newob->myguy = nullptr;
                 // Generic name
-                newob->stats->name = "SLIME";
-                newob->stats->level = calculate_level(myguy->exp / 2);
+                newob->stats.name = "SLIME";
+                newob->stats.level = calculate_level(myguy->exp / 2);
             } else if (newob->myguy) {
                 // Split our experience
                 Uint32 exp = myguy->exp / 2;
@@ -2320,11 +2687,11 @@ Sint16 Walker::animate()
 
                 // Downgrade us and the copy
                 myguy->upgrade_to_level(newlevel);
-                myguy->update_derived_stats(this);
+                update_derived_stats();
                 myguy->exp = exp;
 
                 newob->myguy->upgrade_to_level(newlevel);
-                newob->myguy->update_derived_stats(newob);
+                newob->update_derived_stats();
                 newob->myguy->exp = exp;
             }
 
@@ -2360,7 +2727,7 @@ Walker *Walker::create_weapon()
         weapon = myscreen->level_data.add_ob(ORDER_LIVING, static_cast<Uint8>(default_weapon));
         weapon->team_num = team_num;
         weapon->owner = this;
-        weapon->set_difficulty(stats->level);
+        weapon->set_difficulty(stats.level);
 
         return weapon;
     }
@@ -2371,17 +2738,17 @@ Walker *Walker::create_weapon()
     weapon = myscreen->level_data.add_ob(ORDER_WEAPON, static_cast<Uint8>(weapon_type));
     weapon->team_num = team_num;
     weapon->owner = this;
-    weapon->set_difficulty(stats->level);
-    weapon->damage = (weapon->damage * (stats->level + 3))/ 4;
+    weapon->set_difficulty(stats.level);
+    weapon->damage = (weapon->damage * (stats.level + 3))/ 4;
 
     if (myguy) {
         weapon->lineofsight += ((myguy->strength / 23) + (myguy->dexterity / 31));
         weapon->damage += (myguy->strength / 7.0f);
     } else {
-        weapon->damage *= stats->level;
+        weapon->damage *= stats.level;
     }
 
-    weapon->lineofsight += (stats->level / 3);
+    weapon->lineofsight += (stats.level / 3);
 
     // Make "circular" ranges
     switch(facing(lastx, lasty)) {
@@ -2405,7 +2772,7 @@ Walker *Walker::create_weapon()
 
     if (query_family() == FAMILY_CLERIC) {
         weapon->ani_type = ANI_GLOWGROW;
-        weapon->lifetime += (stats->level * 110);
+        weapon->lifetime += (stats.level * 110);
     }
 
     // if (query_family() == FAMILY_DRUID) {
@@ -2467,15 +2834,8 @@ Sint16 Walker::special()
         return 0;
     }
 
-    // Do we have a stats object? If not, freak out and exit :)
-    if (!stats) {
-        Log("Special with no stats\n");
-
-        return 0;
-    }
-
     // Do we have enough for our special ability?
-    if (stats->magicpoints < stats->special_cost[static_cast<Sint32>(current_special)]) {
+    if (stats.magicpoints < stats.special_cost[static_cast<Sint32>(current_special)]) {
         return 0;
     }
 
@@ -2493,18 +2853,18 @@ Sint16 Walker::special()
             curdir = -1;
             lastx = 0;
             lasty = 0;
-            stats->magicpoints += (8 * stats->weapon_cost);
-            stats->add_command(COMMAND_SET_WEAPON, 1, FAMILY_FIRE_ARROW, 0);
-            stats->add_command(COMMAND_QUICK_FIRE, 1, 0, -1);
-            stats->add_command(COMMAND_QUICK_FIRE, 1, 1, -1);
-            stats->add_command(COMMAND_QUICK_FIRE, 1, 1, 0);
-            stats->add_command(COMMAND_QUICK_FIRE, 1, 1, 1);
-            stats->add_command(COMMAND_QUICK_FIRE, 1, 0, 1);
-            stats->add_command(COMMAND_QUICK_FIRE, 1, -1, 1);
-            stats->add_command(COMMAND_QUICK_FIRE, 1, -1, 0);
-            stats->add_command(COMMAND_QUICK_FIRE, 1, -1, -1);
+            stats.magicpoints += (8 * stats.weapon_cost);
+            stats.add_command(COMMAND_SET_WEAPON, 1, FAMILY_FIRE_ARROW, 0);
+            stats.add_command(COMMAND_QUICK_FIRE, 1, 0, -1);
+            stats.add_command(COMMAND_QUICK_FIRE, 1, 1, -1);
+            stats.add_command(COMMAND_QUICK_FIRE, 1, 1, 0);
+            stats.add_command(COMMAND_QUICK_FIRE, 1, 1, 1);
+            stats.add_command(COMMAND_QUICK_FIRE, 1, 0, 1);
+            stats.add_command(COMMAND_QUICK_FIRE, 1, -1, 1);
+            stats.add_command(COMMAND_QUICK_FIRE, 1, -1, 0);
+            stats.add_command(COMMAND_QUICK_FIRE, 1, -1, -1);
             // stats->add_command(COMMAND_WALK, 1, tempx / stepsize, tempy / stepsize);
-            stats->add_command(COMMAND_RESET_WEAPON, 1, 0, 0);
+            stats.add_command(COMMAND_RESET_WEAPON, 1, 0, 0);
 
             break;
         case 2:
@@ -2513,7 +2873,7 @@ Sint16 Walker::special()
                 return 0;
             }
 
-            stats->magicpoints += (3 * stats->weapon_cost);
+            stats.magicpoints += (3 * stats.weapon_cost);
             fire();
             fire();
             fire();
@@ -2541,7 +2901,7 @@ Sint16 Walker::special()
             newob->skip_exit = 5000;
 
             // Buffed arrows
-            newob->stats->hitpoints = 500;
+            newob->stats.hitpoints = 500;
             newob->damage *= 2;
 
             break;
@@ -2553,8 +2913,8 @@ Sint16 Walker::special()
         switch (current_special) {
         case 1:
             // Charge enemy
-            if (!stats->forward_blocked()) {
-                stats->add_command(COMMAND_RUSH, 3, lastx / stepsize, lasty / stepsize);
+            if (!forward_blocked()) {
+                stats.add_command(COMMAND_RUSH, 3, lastx / stepsize, lasty / stepsize);
 
                 if (on_screen()) {
                     myscreen->soundp->play_sound(SOUND_CHARGE);
@@ -2571,10 +2931,10 @@ Sint16 Walker::special()
             newob->team_num = team_num;
             // Dummy, non-zero value
             newob->ani_type = 1;
-            newob->lifetime = 30 + (stats->level * 12);
-            newob->stats->hitpoints += (stats->level * 12);
-            newob->stats->max_hitpoints = newob->stats->hitpoints;
-            newob->damage += (stats->level * 4);
+            newob->lifetime = 30 + (stats.level * 12);
+            newob->stats.hitpoints += (stats.level * 12);
+            newob->stats.max_hitpoints = newob->stats.hitpoints;
+            newob->damage += (stats.level * 4);
 
             break;
         case 3:
@@ -2591,17 +2951,17 @@ Sint16 Walker::special()
             lastx = 0;
             lasty = 0;
             // stats->magicpoints += (8 * stats->weapon_cost);
-            stats->add_command(COMMAND_WALK, 1, 0, -1);
-            stats->add_command(COMMAND_WALK, 1, 1, -1);
-            stats->add_command(COMMAND_WALK, 1, 1, 0);
-            stats->add_command(COMMAND_WALK, 1, 1, 1);
-            stats->add_command(COMMAND_WALK, 1, 0, 1);
-            stats->add_command(COMMAND_WALK, 1, -1, 1);
-            stats->add_command(COMMAND_WALK, 1, -1, 0);
-            stats->add_command(COMMAND_WALK, 1, -1, -1);
+            stats.add_command(COMMAND_WALK, 1, 0, -1);
+            stats.add_command(COMMAND_WALK, 1, 1, -1);
+            stats.add_command(COMMAND_WALK, 1, 1, 0);
+            stats.add_command(COMMAND_WALK, 1, 1, 1);
+            stats.add_command(COMMAND_WALK, 1, 0, 1);
+            stats.add_command(COMMAND_WALK, 1, -1, 1);
+            stats.add_command(COMMAND_WALK, 1, -1, 0);
+            stats.add_command(COMMAND_WALK, 1, -1, -1);
 
             {
-                std::list<Walker *> newlist = myscreen->find_foes_in_range(myscreen->level_data.oblist, 32 + (stats->level * 2), &howmany, this);
+                std::list<Walker *> newlist = myscreen->find_foes_in_range(myscreen->level_data.oblist, 32 + (stats.level * 2), &howmany, this);
 
                 for (auto & w : newlist) {
                     if (w) {
@@ -2618,7 +2978,7 @@ Sint16 Walker::special()
                         }
 
                         attack(w);
-                        w->stats->force_command(COMMAND_WALK, 8, tempx, tempy);
+                        w->stats.force_command(COMMAND_WALK, 8, tempx, tempy);
                     }
                 }
             }
@@ -2631,7 +2991,7 @@ Sint16 Walker::special()
                 return 0;
             }
 
-            if (!stats->forward_blocked()) {
+            if (!forward_blocked()) {
                 // Can't do this if no frontal enemy
                 return 0;
             }
@@ -2642,8 +3002,8 @@ Sint16 Walker::special()
 
                 for (auto & w : newlist) {
                     if (w) {
-                        if (getRandomSint32(stats->level) >= getRandomSint32(w->stats->level)) {
-                            w->busy += (6 * ((stats->level - w->stats->level) + 1));
+                        if (getRandomSint32(stats.level) >= getRandomSint32(w->stats.level)) {
+                            w->busy += (6 * ((stats.level - w->stats.level) + 1));
                         }
 
                         // Disarmed at least one guy
@@ -2688,16 +3048,16 @@ Sint16 Walker::special()
                 // Some friends here...
                 if (howmany > 1) {
                     for (auto & newob : newlist) {
-                        if ((newob->stats->hitpoints < newob->stats->max_hitpoints) && (newob != this)) {
+                        if ((newob->stats.hitpoints < newob->stats.max_hitpoints) && (newob != this)) {
                             // Get the cost first
-                            generic = (stats->magicpoints / 4) + getRandomSint32(stats->magicpoints / 4);
+                            generic = (stats.magicpoints / 4) + getRandomSint32(stats.magicpoints / 4);
                             Sint32 cost = generic / 2;
                             // Add bonus healing
-                            generic += (stats->level * 5);
+                            generic += (stats.level * 5);
 
-                            if (stats->magicpoints < cost) {
-                                generic -= stats->magicpoints;
-                                cost -= stats->magicpoints;
+                            if (stats.magicpoints < cost) {
+                                generic -= stats.magicpoints;
+                                cost -= stats.magicpoints;
                             }
 
                             // Didn't heal any for this guy
@@ -2706,8 +3066,8 @@ Sint16 Walker::special()
                             }
 
                             // Do the heal
-                            newob->stats->hitpoints += generic;
-                            stats->magicpoints -= cost;
+                            newob->stats.hitpoints += generic;
+                            stats.magicpoints -= cost;
 
                             if (myguy) {
                                 myguy->exp += exp_from_action(EXP_HEAL, this, newob, generic);
@@ -2787,15 +3147,15 @@ Sint16 Walker::special()
                 // Dummy, non-zero value
                 newob->ani_type = 1;
                 // Specify settings based on our mana...
-                generic = stats->magicpoints - stats->special_cost[static_cast<Uint32>(current_special)];
+                generic = stats.magicpoints - stats.special_cost[static_cast<Uint32>(current_special)];
                 // Get half our excess magic
                 generic /= 2;
                 newob->lifetime = 100 + generic;
-                newob->stats->hitpoints += (generic / 2);
+                newob->stats.hitpoints += (generic / 2);
                 newob->damage += (generic / 4.0f);
 
                 // Remove those excess magic points :>
-                stats->magicpoints -= generic;
+                stats.magicpoints -= generic;
                 busy += 5;
             }
 
@@ -2819,7 +3179,7 @@ Sint16 Walker::special()
                     return 0;
                 }
 
-                generic = turn_undead(4 * stats->level, stats->level);
+                generic = turn_undead(4 * stats.level, stats.level);
 
                 if (generic == -1) {
                     // Failed to turn undead
@@ -2855,15 +3215,15 @@ Sint16 Walker::special()
                     distance = static_cast<Uint32>(distance_to_ob(newob)); // ((targetx - xpos) * (targetx - xpos)) + ((targety - ypos) * (targety - ypos));
 
                     if (myscreen->query_passable(targetx, targety, newob) && (distance < 60)) {
-                        alive = do_summon(FAMILY_SKELETON, 125 + (stats->level * 40));
+                        alive = do_summon(FAMILY_SKELETON, 125 + (stats.level * 40));
 
                         if (!alive) {
                             return 0;
                         }
 
                         alive->team_num = team_num;
-                        alive->stats->level = getRandomSint32(stats->level) + 1;
-                        alive->set_difficulty(static_cast<Uint32>(alive->stats->level));
+                        alive->stats.level = getRandomSint32(stats.level) + 1;
+                        alive->set_difficulty(static_cast<Uint32>(alive->stats.level));
                         alive->setxy(newob->xpos, newob->ypos);
                         alive->owner = this;
                         // myscreen->remove_fx_ob(newob);
@@ -2907,7 +3267,7 @@ Sint16 Walker::special()
                     return 0;
                 }
 
-                generic = turn_undead(4 * stats->level, stats->level);
+                generic = turn_undead(4 * stats.level, stats.level);
 
                 if (generic == -1) {
                     // Failed to turn undead
@@ -2944,14 +3304,14 @@ Sint16 Walker::special()
 
                     if (myscreen->query_passable(targetx, targety, newob) && (distance < 50)) {
                         // alive = myscreen->level_data.add_ob(ORDER_LIVING, FAMILY_SKELETON);
-                        alive = do_summon(FAMILY_GHOST, 150 + (stats->level * 40));
+                        alive = do_summon(FAMILY_GHOST, 150 + (stats.level * 40));
 
                         if (!alive) {
                             return 0;
                         }
 
-                        alive->stats->level = getRandomSint32(stats->level) + 1;
-                        alive->set_difficulty(static_cast<Uint32>(alive->stats->level));
+                        alive->stats.level = getRandomSint32(stats.level) + 1;
+                        alive->set_difficulty(static_cast<Uint32>(alive->stats.level));
                         alive->team_num = team_num;
                         alive->setxy(newob->xpos, newob->ypos);
                         alive->owner = this;
@@ -2990,7 +3350,7 @@ Sint16 Walker::special()
                 if (myscreen->query_passable(targetx, targety, newob) && (distance < 30)) {
                     // Normal resurrection
                     if (is_friendly(newob)) {
-                        alive = myscreen->level_data.add_ob(ORDER_LIVING, newob->stats->old_family);
+                        alive = myscreen->level_data.add_ob(ORDER_LIVING, newob->stats.old_family);
 
                         if (!alive) {
                             // failsafe
@@ -3000,8 +3360,8 @@ Sint16 Walker::special()
                         // Restore our old values...
                         newob->transfer_stats(alive);
 
-                        alive->stats->hitpoints = alive->stats->max_hitpoints / 2;
-                        do_heal_effects(this, alive, alive->stats->max_hitpoints / 2);
+                        alive->stats.hitpoints = alive->stats.max_hitpoints / 2;
+                        do_heal_effects(this, alive, alive->stats.max_hitpoints / 2);
                         alive->team_num = newob->team_num;
 
                         // Take some EXP away as penalty if we're a player
@@ -3023,8 +3383,8 @@ Sint16 Walker::special()
                         }
 
                         alive->team_num = team_num;
-                        alive->stats->level = getRandomSint32(stats->level) + 1;
-                        alive->set_difficulty(static_cast<Uint32>(alive->stats->level));
+                        alive->stats.level = getRandomSint32(stats.level) + 1;
+                        alive->set_difficulty(static_cast<Uint32>(alive->stats.level));
                         alive->owner = this;
                     }
 
@@ -3118,7 +3478,7 @@ Sint16 Walker::special()
                     if (myguy) {
                         newob->lifetime = myguy->intelligence / 33;
                     } else {
-                        newob->lifetime = (stats->level / 4) + 1;
+                        newob->lifetime = (stats.level / 4) + 1;
                     }
 
                     // Non-walking
@@ -3136,10 +3496,10 @@ Sint16 Walker::special()
                     busy += 8;
 
                     // Take an extra cost for placing a marker
-                    generic = stats->magicpoints - stats->special_cost[static_cast<Sint32>(current_special)];
+                    generic = stats.magicpoints - stats.special_cost[static_cast<Sint32>(current_special)];
                     // Reduce our "extra" by half
                     generic /= 2;
-                    stats->magicpoints -= generic;
+                    stats.magicpoints -= generic;
                 }
 
                 // End of put marker
@@ -3158,19 +3518,19 @@ Sint16 Walker::special()
             tempx = lastx;
             tempy = lasty;
             // Do we have extra magic points to spend?
-            generic = stats->magicpoints - stats->special_cost[static_cast<Sint32>(current_special)];
+            generic = stats.magicpoints - stats.special_cost[static_cast<Sint32>(current_special)];
 
             if (generic > 0) {
                 // Take 7% of remaining magic...
                 generic = generic / 15;
                 // An subtract this cost...
-                stats->magicpoints -= generic;
+                stats.magicpoints -= generic;
             } else {
                 generic = 0;
             }
 
             // now face each directon and fire...
-            stats->magicpoints += (8 * stats->weapon_cost);
+            stats.magicpoints += (8 * stats.weapon_cost);
 
             for (i = -1; i < 2; ++i) {
                 for (j = -1; j < 2; ++j) {
@@ -3211,10 +3571,10 @@ Sint16 Walker::special()
             // Freeze time
             // The player's team
             if ((team_num == 0) || myguy) {
-                myscreen->enemy_freeze += (20 + (11 * stats->level));
+                myscreen->enemy_freeze += (20 + (11 * stats.level));
                 set_palette(myscreen->bluepalette);
             } else {
-                generic = 5 + (2 * stats->level);
+                generic = 5 + (2 * stats.level);
 
                 if (generic > 50) {
                     generic = 50;
@@ -3250,7 +3610,7 @@ Sint16 Walker::special()
             alive = myscreen->level_data.add_ob(ORDER_WEAPON, FAMILY_WAVE);
             alive->center_on(newob);
             alive->owner = this;
-            alive->stats->level = stats->level;
+            alive->stats.level = stats.level;
             alive->lastx = newob->lastx;
             alive->lasty = newob->lasty;
             newob->dead = 1;
@@ -3260,14 +3620,14 @@ Sint16 Walker::special()
         default:
         {
             // Burst enemies into flame...
-            std::list<Walker *> newlist = myscreen->find_foes_in_range(myscreen->level_data.oblist, 80 + (2 * stats->level), &howmany, this);
+            std::list<Walker *> newlist = myscreen->find_foes_in_range(myscreen->level_data.oblist, 80 + (2 * stats.level), &howmany, this);
 
             if (!howmany) {
                 // Didn't find any enemies...
                 return 0;
             }
 
-            generic = stats->magicpoints - stats->special_cost[5];
+            generic = stats.magicpoints - stats.special_cost[5];
             generic /= 2;
             // So do half magic, div enemies
             generic /= howmany;
@@ -3290,7 +3650,7 @@ Sint16 Walker::special()
 
                 newob->owner = this;
                 newob->team_num = team_num;
-                newob->stats->level = stats->level;
+                newob->stats.level = stats.level;
                 newob->damage = generic;
                 newob->center_on(ob);
 
@@ -3299,10 +3659,10 @@ Sint16 Walker::special()
                 }
 
                 newob->ani_type = ANI_EXPLODE;
-                newob->stats->set_bit_flags(BIT_MAGICAL, 1);
+                newob->stats.set_bit_flags(BIT_MAGICAL, 1);
                 // Don't hurt caster
                 newob->skip_exit = 100;
-                stats->magicpoints -= generic;
+                stats.magicpoints -= generic;
             }
 
             // End of burst enemies
@@ -3348,7 +3708,7 @@ Sint16 Walker::special()
                         if ((team_num == 0) || myguy) {
                             myscreen->do_notify("(Old Marker Removed)", this);
                         }
-                        
+
                         busy += 8;
                         generic = 1;
 
@@ -3372,7 +3732,7 @@ Sint16 Walker::special()
                 if (myguy) {
                     newob->lifetime = myguy->intelligence / 33;
                 } else {
-                    newob->lifetime = (stats->level / 4) + 1;
+                    newob->lifetime = (stats.level / 4) + 1;
                 }
 
                 // Non-walking
@@ -3390,11 +3750,11 @@ Sint16 Walker::special()
                 busy += 8;
 
                 // Take an extra cost for placing a marker
-                generic = stats->magicpoints - stats->special_cost[static_cast<Sint32>(current_special)];
+                generic = stats.magicpoints - stats.special_cost[static_cast<Sint32>(current_special)];
                 // Reduce our "extra" by half
                 generic /= 2;
 
-                stats->magicpoints -= generic;
+                stats.magicpoints -= generic;
 
                 // End of put a marker (shifter_down)
             } else {
@@ -3419,14 +3779,14 @@ Sint16 Walker::special()
                     // Range to scan for enemies
                     generic = 200 + (myguy->intelligence / 2);
                 } else {
-                    generic = 200 + (stats->level * 5);
+                    generic = 200 + (stats.level * 5);
                 }
             } else {
                 generic = 80;
             }
 
             {
-                std::list<Walker *> newlist = myscreen->find_foes_in_range(myscreen->level_data.oblist, generic + (2 * stats->level), &howmany, this);
+                std::list<Walker *> newlist = myscreen->find_foes_in_range(myscreen->level_data.oblist, generic + (2 * stats.level), &howmany, this);
 
                 if (!howmany) {
                     // Didn't find any enemies...
@@ -3435,7 +3795,7 @@ Sint16 Walker::special()
 
                 // Normal usage
                 if (!shifter_down) {
-                    generic = stats->magicpoints - stats->special_cost[2];
+                    generic = stats.magicpoints - stats.special_cost[2];
                     generic /= 2;
                     // So do half magic, div enemies
                     generic /= howmany;
@@ -3458,8 +3818,8 @@ Sint16 Walker::special()
 
                         newob->owner = this;
                         newob->team_num = team_num;
-                        newob->stats->level = stats->level;
-                        newob->stats->set_bit_flags(BIT_MAGICAL, 1);
+                        newob->stats.level = stats.level;
+                        newob->stats.set_bit_flags(BIT_MAGICAL, 1);
                         newob->damage = generic;
                         newob->center_on(ob);
 
@@ -3468,10 +3828,10 @@ Sint16 Walker::special()
                         }
 
                         newob->ani_type = ANI_EXPLODE;
-                        newob->stats->set_bit_flags(BIT_MAGICAL, 1);
+                        newob->stats.set_bit_flags(BIT_MAGICAL, 1);
                         // Don't hurt casters
                         newob->skip_exit = 100;
-                        stats->magicpoints -= generic;
+                        stats.magicpoints -= generic;
                     }
 
                     // End of heartburst, standard case
@@ -3488,12 +3848,12 @@ Sint16 Walker::special()
                     newob = myscreen->level_data.add_ob(ORDER_FX, FAMILY_CHAIN);
                     newob->center_on(this);
                     newob->owner = this;
-                    newob->stats->level = stats->level;
+                    newob->stats.level = stats.level;
                     newob->team_num = team_num;
                     // Use half our remaining magic...
-                    generic = stats->magicpoints - stats->special_cost[2];
+                    generic = stats.magicpoints - stats.special_cost[2];
                     generic /= 2;
-                    stats->magicpoints -= generic;
+                    stats.magicpoints -= generic;
                     newob->damage = generic;
 
                     // Find closest of our foes in range
@@ -3536,9 +3896,9 @@ Sint16 Walker::special()
                 }
 
                 // Take an extra 50% mana-cost
-                generic = stats->magicpoints - stats->special_cost[3];
+                generic = stats.magicpoints - stats.special_cost[3];
                 generic /= 2;
-                stats->magicpoints -= generic;
+                stats.magicpoints -= generic;
                 // First make the guy we'd summon, at least physically
                 newob = myscreen->level_data.add_ob(ORDER_LIVING, FAMILY_FIRE_ELEMENTAL);
 
@@ -3563,13 +3923,13 @@ Sint16 Walker::special()
                             newob->setxy(xpos + ((newob->sizex + 1) * i),
                                          ypos + ((newob->sizey + 1) * j));
 
-                            newob->stats->level = (stats->level + 1) / 2;
-                            newob->set_difficulty(newob->stats->level);
+                            newob->stats.level = (stats.level + 1) / 2;
+                            newob->set_difficulty(newob->stats.level);
                             // Set to our team
                             newob->team_num = team_num;
                             // We're owned!
                             newob->owner = this;
-                            newob->lifetime = 200 + (60 * stats->level);
+                            newob->lifetime = 200 + (60 * stats.level);
 
                             // End of successfully put summoned created
                         }
@@ -3592,7 +3952,7 @@ Sint16 Walker::special()
             } else {
                 // Standard, illusion-only
                 // Determine what type of thing to summon image of
-                generic = stats->magicpoints - stats->special_cost[3];
+                generic = stats.magicpoints - stats.special_cost[3];
 
                 // Lowest type
                 if (generic < 100) {
@@ -3746,22 +4106,22 @@ Sint16 Walker::special()
                             newob->setxy(xpos + ((newob->sizex + 1) * i),
                                          ypos + ((newob->sizey + 1) * j));
 
-                            newob->stats->level = (stats->level + 2) / 3;
-                            newob->set_difficulty(newob->stats->level);
+                            newob->stats.level = (stats.level + 2) / 3;
+                            newob->set_difficulty(newob->stats.level);
                             // Set to our team
                             newob->team_num = team_num;
                             // We're owned!
                             newob->owner = this;
-                            newob->lifetime = 100 + (20 * stats->level);
+                            newob->lifetime = 100 + (20 * stats.level);
                             // newob->stats->armor = -(newob->stats->max_hitpoints * 10);
-                            newob->stats->max_hitpoints = 1;
-                            newob->stats->hitpoints = 0;
-                            newob->stats->armor = 0;
+                            newob->stats.max_hitpoints = 1;
+                            newob->stats.hitpoints = 0;
+                            newob->stats.armor = 0;
                             // Just to help out...
                             newob->foe = foe;
                             // We're magical
-                            newob->stats->set_bit_flags(BIT_MAGICAL, 1);
-                            newob->stats->name = "Phantom";
+                            newob->stats.set_bit_flags(BIT_MAGICAL, 1);
+                            newob->stats.name = "Phantom";
 
                             // End of successfully put summoned creature-image
                         }
@@ -3792,7 +4152,7 @@ Sint16 Walker::special()
             }
 
             {
-                std::list<Walker *> newlist = myscreen->find_foes_in_range(myscreen->level_data.oblist, 80 + (4 * stats->level), &howmany, this);
+                std::list<Walker *> newlist = myscreen->find_foes_in_range(myscreen->level_data.oblist, 80 + (4 * stats.level), &howmany, this);
 
                 if (howmany < 1) {
                     // No one to influence
@@ -3801,7 +4161,7 @@ Sint16 Walker::special()
 
                 // howmany actually done yet?
                 didheal = 0;
-                generic2 = (stats->magicpoints - stats->special_cost[static_cast<Sint32>(current_special)]) + 10;
+                generic2 = (stats.magicpoints - stats.special_cost[static_cast<Sint32>(current_special)]) + 10;
 
                 for (auto & ob : newlist) {
                     if ((ob->real_team_num == 200) // Never been charmed
@@ -3809,7 +4169,7 @@ Sint16 Walker::special()
                         && /* Not too charmed */ (ob->charm_left <= 10)) {
                         // Count cost for additional guy
                         generic2 -= 10;
-                        generic = stats->level - ob->stats->level;
+                        generic = stats.level - ob->stats.level;
 
                         // Trying to control a higher-level
                         if ((generic < 0) || !getRandomSint32(20)) {
@@ -3836,8 +4196,8 @@ Sint16 Walker::special()
 
             // Notify screen of our action
             // Do we have an NPC name?
-            if (!stats->name.empty()) {
-                buf << stats->name;
+            if (!stats.name.empty()) {
+                buf << stats.name;
             } else  if (myguy && !myguy->name.empty()) {
                 buf << myguy->name;
             } else {
@@ -3849,7 +4209,7 @@ Sint16 Walker::special()
             buf.clear();
             message.resize(80);
             myscreen->do_notify(message, this);
-            generic2 = stats->magicpoints - stats->special_cost[static_cast<Sint32>(current_special)];
+            generic2 = stats.magicpoints - stats.special_cost[static_cast<Sint32>(current_special)];
 
             // Sap our extra based on how many guys
             if (generic2 > 0) {
@@ -3889,7 +4249,7 @@ Sint16 Walker::special()
             tempy = lasty;
 
             // Now face each directio nand fire...
-            stats->magicpoints += (8 * stats->weapon_cost);
+            stats.magicpoints += (8 * stats.weapon_cost);
 
             for (i = -1; i < 2; ++i) {
                 for (j = -1; j < 2; ++j) {
@@ -3920,7 +4280,7 @@ Sint16 Walker::special()
                 transform_to(ORDER_LIVING, FAMILY_SLIME);
             }
         } else {
-            stats->set_command(COMMAND_WALK, 10, getRandomSint32(3) - 1, getRandomSint32(3) - 1);
+            stats.set_command(COMMAND_WALK, 10, getRandomSint32(3) - 1, getRandomSint32(3) - 1);
 
             return 0;
         }
@@ -3940,7 +4300,7 @@ Sint16 Walker::special()
                      (ypos + (sizey / 2)) - (newob->sizey / 2));
 
         newob->owner = this;
-        newob->stats->level = stats->level;
+        newob->stats.level = stats.level;
         // So we scare OTHER teams
         newob->team_num = team_num;
         // Actual scare effect done in scare's "death" in effect
@@ -3958,7 +4318,7 @@ Sint16 Walker::special()
                 ++myguy->scen_shots;
             }
 
-            newob->damage = (stats->level + 1) * 15;
+            newob->damage = (stats.level + 1) * 15;
             newob->setxy((xpos + (sizex / 2)) - (newob->sizex / 2),
                          (ypos + (sizey / 2)) - (newob->sizey / 2));
 
@@ -3980,13 +4340,13 @@ Sint16 Walker::special()
                     tempx = 1;
                 }
 
-                stats->force_command(COMMAND_WALK, 20, tempx, tempy);
+                stats.force_command(COMMAND_WALK, 20, tempx, tempy);
             }
 
             break;
         case 2:
             // Thief cloaking ability, Registered
-            invisibility_left += (20 + (getRandomSint32(20) * stats->level));
+            invisibility_left += (20 + (getRandomSint32(20) * stats.level));
 
             break;
         case 3:
@@ -3997,25 +4357,25 @@ Sint16 Walker::special()
                     return 0;
                 }
 
-                std::list<Walker *> newlist = myscreen->find_foes_in_range(myscreen->level_data.oblist, 80 + (4 * stats->level), &howmany, this);
+                std::list<Walker *> newlist = myscreen->find_foes_in_range(myscreen->level_data.oblist, 80 + (4 * stats.level), &howmany, this);
 
                 for (auto & ob : newlist) {
-                    if (ob && (getRandomSint32(stats->level) >= getRandomSint32(ob->stats->level))) {
+                    if (ob && (getRandomSint32(stats.level) >= getRandomSint32(ob->stats.level))) {
                         // Set our enemy's foe to us...
                         ob->foe = this;
                         // A hack, yeah
                         ob->leader = this;
 
                         if (ob->query_act_type() != ACT_CONTROL) {
-                            ob->stats->force_command(COMMAND_FOLLOW, 10 + getRandomSint32(stats->level), 0, 0);
+                            ob->stats.force_command(COMMAND_FOLLOW, 10 + getRandomSint32(stats.level), 0, 0);
                         }
                     }
                 }
 
                 if (myguy) {
                     buf << myguy->name;
-                } else if (!stats->name.empty()) {
-                    buf << stats->name;
+                } else if (!stats.name.empty()) {
+                    buf << stats.name;
                 } else {
                     buf << "THIEF";
                 }
@@ -4034,7 +4394,7 @@ Sint16 Walker::special()
                     return 0;
                 }
 
-                std::list<Walker *> newlist = myscreen->find_foes_in_range(myscreen->level_data.oblist, 16 + (4 * stats->level), &howmany, this);
+                std::list<Walker *> newlist = myscreen->find_foes_in_range(myscreen->level_data.oblist, 16 + (4 * stats.level), &howmany, this);
 
                 if (howmany < 1) {
                     // no one to influence
@@ -4048,7 +4408,7 @@ Sint16 Walker::special()
                     if ((ob->real_team_num == 255) // Never been charmed
                         && (ob->query_order() == ORDER_LIVING) // Alive
                         && /* Not too charmed */ 1 /* (ob->charm_left <= 10) */) {
-                        generic = stats->level - ob->stats->level;
+                        generic = stats.level - ob->stats.level;
 
                         // Trying to control a higher-level
                         if ((generic < 0) || !getRandomSint32(20)) {
@@ -4084,8 +4444,8 @@ Sint16 Walker::special()
 
                 // Notify screen of our action
                 // Do we have an NPC name?
-                if (!stats->name.empty()) {
-                    buf << stats->name;
+                if (!stats.name.empty()) {
+                    buf << stats.name;
                 } else if (myguy && !myguy->name.empty()) {
                     buf << myguy->name;
                 } else {
@@ -4125,14 +4485,14 @@ Sint16 Walker::special()
 
             busy += 5;
             newob->ignore = 1;
-            newob->lifetime = 40 + (3 * stats->level);
+            newob->lifetime = 40 + (3 * stats.level);
             newob->center_on(this);
             newob->invisibility_left = 10;
             // Non-walking
             newob->ani_type = ANI_SPIN;
             newob->team_num = team_num;
-            newob->stats->level = stats->level;
-            newob->damage = stats->level;
+            newob->stats.level = stats.level;
+            newob->damage = stats.level;
             newob->owner = this;
 
             break;
@@ -4143,7 +4503,7 @@ Sint16 Walker::special()
         switch (current_special) {
         case 1:
             // Some rocks (norma)
-            stats->magicpoints += (2 * stats->weapon_cost);
+            stats.magicpoints += (2 * stats.weapon_cost);
             fireob = static_cast<Weap *>(fire());
 
             if (!fireob) {
@@ -4166,7 +4526,7 @@ Sint16 Walker::special()
             break;
         case 2:
             // More rocks, and bouncing
-            stats->magicpoints += (3 * stats->weapon_cost);
+            stats.magicpoints += (3 * stats.weapon_cost);
 
             for (i = 0; i < 2; ++i) {
                 fireob = static_cast<Weap *>(fire());
@@ -4186,7 +4546,7 @@ Sint16 Walker::special()
 
             break;
         case 3:
-            stats->magicpoints += (4 * stats->weapon_cost);
+            stats.magicpoints += (4 * stats.weapon_cost);
 
             for (i = 0; i < 3; ++i) {
                 fireob = static_cast<Weap *>(fire());
@@ -4206,7 +4566,7 @@ Sint16 Walker::special()
             break;
         case 4:
         default:
-            stats->magicpoints += (5 * stats->weapon_cost);
+            stats.magicpoints += (5 * stats.weapon_cost);
 
             for (i = 0; i < 4; ++i) {
                 fireob = static_cast<Weap *>(fire());
@@ -4236,7 +4596,7 @@ Sint16 Walker::special()
                 return 0;
             }
 
-            stats->magicpoints += stats->weapon_cost;
+            stats.magicpoints += stats.weapon_cost;
             newob = fire();
 
             if (!newob) {
@@ -4258,7 +4618,7 @@ Sint16 Walker::special()
                 return 0;
             }
 
-            stats->magicpoints += stats->weapon_cost;
+            stats.magicpoints += stats.weapon_cost;
             newob = fire();
 
             if (!newob) {
@@ -4269,7 +4629,7 @@ Sint16 Walker::special()
             alive->setxy(newob->xpos, newob->ypos);
             alive->team_num = team_num;
             alive->owner = this;
-            alive->lifetime = 50 + (stats->level * 40);
+            alive->lifetime = 50 + (stats.level * 40);
             newob->dead = 1;
 
             if (!myscreen->query_passable(alive->xpos, alive->ypos, alive)) {
@@ -4287,7 +4647,7 @@ Sint16 Walker::special()
                 return 0;
             }
 
-            view_all += (stats->level * 10);
+            view_all += (stats.level * 10);
             busy += (fire_frequency * 4);
 
             break;
@@ -4335,7 +4695,7 @@ Sint16 Walker::special()
                                 alive->owner = newob;
                                 alive->center_on(newob);
                                 alive->team_num = newob->team_num;
-                                alive->stats->level = newob->stats->level;
+                                alive->stats.level = newob->stats.level;
                                 ++didheal;
 
                                 // End of target wasn't protected
@@ -4347,7 +4707,7 @@ Sint16 Walker::special()
                                     return 0;
                                 }
 
-                                tempwalk->stats->hitpoints += alive->stats->hitpoints;
+                                tempwalk->stats.hitpoints += alive->stats.hitpoints;
                                 alive->dead = 1;
                                 ++didheal;
 
@@ -4420,23 +4780,23 @@ Sint16 Walker::special()
             busy += 2;
 
             {
-                std::list<Walker *> newlist = myscreen->find_foes_in_range(myscreen->level_data.oblist, 160 + (20 * stats->level), &howmany, this);
+                std::list<Walker *> newlist = myscreen->find_foes_in_range(myscreen->level_data.oblist, 160 + (20 * stats.level), &howmany, this);
 
                 for (auto & ob : newlist) {
                     if (ob) {
                         if (ob->myguy) {
                             tempx = ob->myguy->constitution;
                         } else {
-                            tempx = ob->stats->hitpoints / 30;
+                            tempx = ob->stats.hitpoints / 30;
                         }
 
-                        tempy = (10 + getRandomSint32(stats->level * 10)) - getRandomSint32(tempx * 10);
+                        tempy = (10 + getRandomSint32(stats.level * 10)) - getRandomSint32(tempx * 10);
 
                         if (tempy < 0) {
                             tempy = 0;
                         }
 
-                        ob->stats->frozen_delay += tempy;
+                        ob->stats.frozen_delay += tempy;
                     }
                 }
 
@@ -4450,7 +4810,7 @@ Sint16 Walker::special()
         case 3:
         case 4:
         default:
-            if (stats->hitpoints >= stats->max_hitpoints) {
+            if (stats.hitpoints >= stats.max_hitpoints) {
                 // Can't eat if we're "full"
                 return 0;
             }
@@ -4469,15 +4829,15 @@ Sint16 Walker::special()
                 return 0;
             }
 
-            stats->hitpoints += (newob->stats->level * 5);
-            do_heal_effects(nullptr, this, newob->stats->level * 5);
+            stats.hitpoints += (newob->stats.level * 5);
+            do_heal_effects(nullptr, this, newob->stats.level * 5);
 
             // Print the eating notice
             if (myguy) {
                 myguy->exp += exp_from_action(EXP_EAT_CORPSE, this, newob, 0);
                 buf << myguy->name;
-            } else if (!stats->name.empty()) {
-                buf << stats->name;
+            } else if (!stats.name.empty()) {
+                buf << stats.name;
             } else {
                 buf << "Orc";
             }
@@ -4492,8 +4852,8 @@ Sint16 Walker::special()
                 myscreen->do_notify(message, this);
             }
 
-            if (stats->hitpoints > stats->max_hitpoints) {
-                stats->hitpoints = stats->max_hitpoints;
+            if (stats.hitpoints > stats.max_hitpoints) {
+                stats.hitpoints = stats.max_hitpoints;
             }
 
             newob->dead = 1;
@@ -4546,7 +4906,7 @@ Sint16 Walker::special()
             alive = myscreen->level_data.add_ob(ORDER_WEAPON, FAMILY_BOULDER);
             alive->center_on(newob);
             alive->owner = this;
-            alive->stats->level = stats->level;
+            alive->stats.level = stats.level;
             alive->lastx = newob->lastx;
             alive->lasty = newob->lasty;
 
@@ -4555,8 +4915,8 @@ Sint16 Walker::special()
                 alive->stepsize = 1.0f + (myguy->strength / 7);
                 alive->damage += (myguy->strength / 5.0f);
             } else {
-                alive->stepsize = stats->level * 2;
-                alive->damage += stats->level;
+                alive->stepsize = stats.level * 2;
+                alive->damage += stats.level;
             }
 
             alive->stepsize = std::max(alive->stepsize, 1.0f);
@@ -4595,7 +4955,7 @@ Sint16 Walker::special()
         // End of family switch
     }
 
-    stats->magicpoints -= stats->special_cost[static_cast<Sint32>(current_special)];
+    stats.magicpoints -= stats.special_cost[static_cast<Sint32>(current_special)];
 
     return 0;
 }
@@ -4694,9 +5054,9 @@ Sint32 Walker::turn_undead(Sint32 range, Sint32 power)
 
     for (auto & w : deadlist) {
         if (w && ((w->query_family() == FAMILY_SKELETON) || (w->query_family() == FAMILY_GHOST))) {
-            if (getRandomSint32(range * 40) > getRandomSint32(w->stats->level * 10)) {
+            if (getRandomSint32(range * 40) > getRandomSint32(w->stats.level * 10)) {
                 w->dead = 1;
-                w->stats->hitpoints = 0;
+                w->stats.hitpoints = 0;
                 // w->death();
                 // To generate bloodspot, etc.
                 attack(w);
@@ -4753,13 +5113,13 @@ Sint16 Walker::fire_check(Sint16 xdelta, Sint16 ydelta)
         return 0;
     }
 
-    if (stats->query_bit_flags(BIT_NO_RANGED)) {
+    if (stats.query_bit_flags(BIT_NO_RANGED)) {
         weapon->dead = 1;
 
         return 0;
     }
 
-    if (stats->weapon_cost > stats->magicpoints) {
+    if (stats.weapon_cost > stats.magicpoints) {
         weapon->dead = 1;
 
         return 0;
@@ -4869,7 +5229,7 @@ Sint16 Walker::fire_check(Sint16 xdelta, Sint16 ydelta)
 bool Walker::act_generate()
 {
     if ((myscreen->level_data.numobs < MAXOBS)
-        && (getRandomSint32(stats->level * 3) > getRandomSint32(300 + (myscreen->level_data.numobs * 8)))) {
+        && (getRandomSint32(stats.level * 3) > getRandomSint32(300 + (myscreen->level_data.numobs * 8)))) {
         lastx = 1 - getRandomSint32(3);
         lasty = 1 - getRandomSint32(3);
 
@@ -4880,10 +5240,10 @@ bool Walker::act_generate()
         init_fire(lastx, lasty);
         // lastx = 0;
         // lasty = 0;
-        ++stats->hitpoints;
+        ++stats.hitpoints;
 
-        if (stats->hitpoints > stats->max_hitpoints) {
-            --stats->hitpoints;
+        if (stats.hitpoints > stats.max_hitpoints) {
+            --stats.hitpoints;
         }
     }
 
@@ -4898,14 +5258,14 @@ bool Walker::act_fire()
     if (!(lineofsight + 1)) {
         dead = 1;
         death();
-    } else if (!walk() || stats->query_bit_flags(BIT_NO_COLLIDE)) {
+    } else if (!walk() || stats.query_bit_flags(BIT_NO_COLLIDE)) {
 
         // Hit the collide_ob
         if (collide_ob && !collide_ob->dead) {
             attack(collide_ob);
         }
 
-        if (!stats->query_bit_flags(BIT_IMMORTAL)) {
+        if (!stats.query_bit_flags(BIT_IMMORTAL)) {
             dead = 1;
             death();
         }
@@ -4926,7 +5286,7 @@ bool Walker::act_guard()
 
     if (foe) {
         curdir = static_cast<Uint8>(facing(foe->xpos - xpos, foe->ypos - ypos));
-        stats->try_command(COMMAND_FIRE, getRandomSint32(30));
+        stats.try_command(COMMAND_FIRE, getRandomSint32(30));
 
         return true;
     }
@@ -4952,7 +5312,7 @@ Sint16 Walker::act_random()
     }
 
     if (!foe) {
-        return stats->try_command(COMMAND_RANDOM_WALK, 20);
+        return stats.try_command(COMMAND_RANDOM_WALK, 20);
     }
 
     xdist = foe->xpos - xpos;
@@ -4962,7 +5322,7 @@ Sint16 Walker::act_random()
     if ((abs(xdist) < (lineofsight * GRID_SIZE)) && (abs(ydist) < (lineofsight * GRID_SIZE))) {
         if (fire_check(xdist, ydist)) {
             init_fire(xdist, ydist);
-            stats->set_command(COMMAND_FIRE, getRandomSint32(24), xdist, ydist);
+            stats.set_command(COMMAND_FIRE, getRandomSint32(24), xdist, ydist);
 
             return 1;
         } else {
@@ -5036,28 +5396,28 @@ void Walker::transfer_stats(Walker *newob)
     Sint16 i;
 
     // First do the "stats" stuff...
-    newob->stats->hitpoints = stats->hitpoints;
-    newob->stats->max_hitpoints = stats->max_hitpoints;
-    newob->stats->heal_per_round = stats->heal_per_round;
-    newob->stats->max_heal_delay = stats->max_heal_delay;
+    newob->stats.hitpoints = stats.hitpoints;
+    newob->stats.max_hitpoints = stats.max_hitpoints;
+    newob->stats.heal_per_round = stats.heal_per_round;
+    newob->stats.max_heal_delay = stats.max_heal_delay;
 
     // Magic...
-    newob->stats->magicpoints = stats->magicpoints;
-    newob->stats->max_magicpoints = stats->max_magicpoints;
-    newob->stats->magic_per_round = stats->magic_per_round / 2;
-    newob->stats->max_magic_delay = stats->max_magic_delay;
+    newob->stats.magicpoints = stats.magicpoints;
+    newob->stats.max_magicpoints = stats.max_magicpoints;
+    newob->stats.magic_per_round = stats.magic_per_round / 2;
+    newob->stats.max_magic_delay = stats.max_magic_delay;
 
-    newob->stats->level = stats->level;
-    newob->stats->frozen_delay = stats->frozen_delay;
+    newob->stats.level = stats.level;
+    newob->stats.frozen_delay = stats.frozen_delay;
 
     for (i = 0; i < 5; ++i) {
-        newob->stats->special_cost[i] = stats->special_cost[i];
+        newob->stats.special_cost[i] = stats.special_cost[i];
     }
 
-    newob->stats->weapon_cost = stats->weapon_cost;
+    newob->stats.weapon_cost = stats.weapon_cost;
 
-    newob->stats->bit_flags = stats->bit_flags;
-    newob->stats->delete_me = stats->delete_me;
+    newob->stats.bit_flags = stats.bit_flags;
+    newob->stats.delete_me = stats.delete_me;
 
     // Do we have a "guy"?
     if (myguy) {
@@ -5101,7 +5461,7 @@ void Walker::transform_to(Uint8 whatorder, Uint8 whatfamily)
     Sint16 tempact = query_act_type();
 
     // First remove us from the collison table...
-    myobmap->remove(this);
+    myscreen->level_data.myobmap->remove(this);
 
     // Same object type
     if (order == whatorder) {
@@ -5110,11 +5470,11 @@ void Walker::transform_to(Uint8 whatorder, Uint8 whatfamily)
     }
 
     // Reset bit flags
-    stats->clear_bit_flags();
+    stats.clear_bit_flags();
 
     // Do this before restting graphic so illegal family values don't try to
     // set graphics. order and family are only set if legal
-    myscreen->set_walker(this, whatorder, whatfamily);
+    set_walker(this, whatorder, whatfamily);
 
     // Reset the graphics
     data = myscreen->level_data.myloader->graphics[PIX(order, family)];
@@ -5168,9 +5528,9 @@ Sint16 Walker::death()
     // Were we a real character? Then make a heart...
     if (myguy) {
         newob = myscreen->level_data.add_ob(ORDER_TREASURE, FAMILY_LIFE_GEM, 1);
-        newob->stats->hitpoints = myguy->query_heart_value();
+        newob->stats.hitpoints = myguy->query_heart_value();
         // 75%, divided by 2, since socre is doubled at end of level
-        newob->stats->hitpoints *= (0.75 / 2);
+        newob->stats.hitpoints *= (0.75 / 2);
         newob->team_num = team_num;
         newob->center_on(this);
     }
@@ -5179,7 +5539,7 @@ Sint16 Walker::death()
     case ORDER_LIVING:
         if (((team_num == 0) || myguy) // ourteam
             && (myscreen->level_data.type & SCEN_TYPE_SAVE_ALL)
-            && /* We were named */ !stats->name.empty()) {
+            && /* We were named */ !stats.name.empty()) {
 
             // Failed
             return myscreen->endgame(SCEN_TYPE_SAVE_ALL);
@@ -5189,7 +5549,7 @@ Sint16 Walker::death()
         case FAMILY_FIRE_ELEMENTAL:
             // Make us explode
             dead = 0;
-            stats->magicpoints += stats->special_cost[1];
+            stats.magicpoints += stats.special_cost[1];
             special();
             dead = 1;
 
@@ -5200,13 +5560,13 @@ Sint16 Walker::death()
             // transform_to(ORDER_LIVING, FAMILY_MEDIUM_SLIME);
             newob = myscreen->level_data.add_ob(ORDER_LIVING, FAMILY_MEDIUM_SLIME);
             newob->team_num = team_num;
-            newob->stats->level = stats->level;
-            newob->set_difficulty(stats->level);
+            newob->stats.level = stats.level;
+            newob->set_difficulty(stats.level);
             newob->foe = foe;
             newob->leader = leader;
 
-            if (!stats->name.empty()) {
-                stats->name = newob->stats->name;
+            if (!stats.name.empty()) {
+                stats.name = newob->stats.name;
             }
 
             if (myguy) {
@@ -5215,7 +5575,7 @@ Sint16 Walker::death()
             }
 
             newob->center_on(this);
-            stats->hitpoints = stats->max_hitpoints;
+            stats.hitpoints = stats.max_hitpoints;
 
             break;
         case FAMILY_MEDIUM_SLIME:
@@ -5224,13 +5584,13 @@ Sint16 Walker::death()
             // transform_to(ORDER_LIVING, FAMILY_SMALL_SLIME);
             newob = myscreen->level_data.add_ob(ORDER_LIVING, FAMILY_SMALL_SLIME);
             newob->team_num = team_num;
-            newob->stats->level = stats->level;
-            newob->set_difficulty(stats->level);
+            newob->stats.level = stats.level;
+            newob->set_difficulty(stats.level);
             newob->foe = foe;
             newob->leader = leader;
 
-            if (!stats->name.empty()) {
-                stats->name = newob->stats->name;
+            if (!stats.name.empty()) {
+                stats.name = newob->stats.name;
             }
 
             if (myguy) {
@@ -5239,7 +5599,7 @@ Sint16 Walker::death()
             }
 
             newob->center_on(this);
-            stats->hitpoints = stats->max_hitpoints;
+            stats.hitpoints = stats.max_hitpoints;
 
             break;
         case FAMILY_GHOST: // Undead don't leave bloodspots...
@@ -5267,10 +5627,10 @@ Sint16 Walker::death()
             }
 
             newob->team_num = team_num;
-            newob->stats->level = stats->level;
+            newob->stats.level = stats.level;
             newob->ani_type = ANI_EXPLODE;
             newob->setxy((xpos + getRandomSint32(sizex - 8)) + 4, (ypos + 4) + getRandomSint32(sizey - 8));
-            newob->damage = stats->level * 2;
+            newob->damage = stats.level * 2;
             newob->set_frame(getRandomSint32(3));
 
             if (on_screen()) {
@@ -5311,8 +5671,8 @@ void Walker::generate_bloodspot()
 
     bloodstain->order = ORDER_TREASURE;
     bloodstain->family = FAMILY_STAIN;
-    bloodstain->stats->old_order = order;
-    bloodstain->stats->old_family = family;
+    bloodstain->stats.old_order = order;
+    bloodstain->stats.old_family = family;
 
     bloodstain->team_num = team_num;
     bloodstain->dead = 0;
@@ -5391,15 +5751,15 @@ void Walker::set_difficulty(Uint32 whatlevel)
     case ORDER_GENERATOR:
         temp = 100 * whatlevel;
         temp = (temp * dif1) / 100;
-        stats->hitpoints = temp;
+        stats.hitpoints = temp;
 
         break;
     default:
         // Adjust standard settings for the rest...
         // Do all EXCEPT player characters
         if (team_num != 0) {
-            stats->max_hitpoints = (stats->max_hitpoints * dif1) / 100.0f;
-            stats->max_magicpoints = (stats->max_magicpoints * dif1) / 100.0f;
+            stats.max_hitpoints = (stats.max_hitpoints * dif1) / 100.0f;
+            stats.max_magicpoints = (stats.max_magicpoints * dif1) / 100.0f;
             damage = (damage * dif1) / 100.0f;
         }
 
@@ -5560,4 +5920,1262 @@ bool Walker::is_friendly_to_team(Uint8 team)
     // If we're a hired guy in allied mode, then we're friendly with
     // team 0 (red)
     return (has_myguy && (team == 0));
+}
+
+bool Walker::turn_left()
+{
+    enddir = (enddir + 6) % 8;
+    return turn(enddir);
+}
+
+FacingsEnum Walker::face_right()
+{
+    enddir = (enddir + 1) % 8;
+
+    switch (enddir) {
+    case FACE_UP:
+
+        return FACE_UP;
+    case FACE_UP_RIGHT:
+
+        return FACE_UP_RIGHT;
+    case FACE_RIGHT:
+
+        return FACE_RIGHT;
+    case FACE_DOWN_RIGHT:
+
+        return FACE_DOWN_RIGHT;
+    case FACE_DOWN:
+
+        return FACE_DOWN;
+    case FACE_DOWN_LEFT:
+
+        return FACE_DOWN_LEFT;
+    case FACE_LEFT:
+
+        return FACE_LEFT;
+    case FACE_UP_LEFT:
+
+        return FACE_UP_LEFT;
+    default:
+
+        return FACE_UP;
+    }
+}
+
+void Walker::update_derived_stats()
+{
+    stepsize = myscreen->level_data.myloader->get_stepsize(ORDER_LIVING, myguy->family);
+    normal_stepsize = myscreen->level_data.myloader->get_stepsize(ORDER_LIVING, myguy->family);
+    lineofsight = myscreen->level_data.myloader->get_lineofsight(ORDER_LIVING, myguy->family);
+    damage = myscreen->level_data.myloader->get_damage(ORDER_LIVING, myguy->family);
+    fire_frequency = myscreen->level_data.myloader->get_fire_frequency(ORDER_LIVING, myguy->family);
+
+    stats.max_hitpoints += myguy->get_hp_bonus();
+    stats.hitpoints = stats.max_hitpoints;
+
+    // No class base value for MP...
+    stats.max_magicpoints = myguy->get_mp_bonus();
+    stats.magicpoints = stats.max_magicpoints;
+
+    damage += myguy->get_damage_bonus();
+
+    // No class base value for armor...
+    stats.armor = myguy->get_armor_bonus();
+
+    // stepsize makes us run faster, max for a non-weapon is 12
+    stepsize = std::min(stepsize + myguy->get_speed_bonus(), 12.0f);
+
+    normal_stepsize = stepsize;
+
+    // fire_frequency makse us fire faster, min is 1
+    fire_frequency = std::max(fire_frequency - myguy->get_fire_frequency_bonus(), 1.0f);
+
+    // Fighters: limited weapons
+    if (query_family() == FAMILY_SOLDIER) {
+        weapons_left = static_cast<Sint16>((stats.level + 1) / 2);
+    }
+
+    // Set the heal delay...
+    stats.max_heal_delay = REGEN;
+    // For purposes of calculation only
+    stats.current_heal_delay = ((myguy->constitution + (myguy->strength / 6.0f)) + 20) + 1000;
+
+    // This takes care of the integer part, not calculate the fraction
+    while (stats.current_heal_delay > REGEN) {
+        stats.current_heal_delay -= REGEN;
+        ++stats.heal_per_round;
+    }
+
+    if (stats.current_heal_delay > 1) {
+        stats.max_heal_delay /= static_cast<Sint32>(stats.current_heal_delay + 1);
+    }
+
+    // Start off without healing
+    stats.current_heal_delay = 0;
+
+    // Make sure we have at least a 2 wait, otherwise we should have calculated
+    // our heal_per_round as one higher, and the math must have been screwed
+    // up somehow
+    stats.max_heal_delay = std::max(stats.max_heal_delay, 2);
+
+    // Set the magic delay...
+    stats.max_magic_delay = REGEN;
+    stats.current_magic_delay = ((myguy->intelligence * 45) + (myguy->dexterity * 15)) + 200;
+
+    // This takes care of the integer part, now calculate the fraction
+    while (stats.current_magic_delay > REGEN) {
+        stats.current_magic_delay -= REGEN;
+        ++stats.magic_per_round;
+    }
+
+    if (stats.current_magic_delay > 1) {
+        stats.max_magic_delay /= static_cast<Sint32>(stats.current_magic_delay + 1);
+    }
+
+    // Start off without magic regen
+    stats.current_magic_delay = 0;
+
+    // Make sure we have at least a 2 wait, otherwise we should have calculated
+    // our magic_per_round as one higher, and the math must have been screwed
+    // up somehow
+    stats.max_magic_delay = std::max(stats.max_magic_delay, 2);
+}
+
+void Walker::clear_command()
+{
+    stats.commands.clear();
+    // Make sure our weapon type is restored to normal...
+    current_weapon = default_weapon;
+    // Make sure we're back to our real team
+    if (real_team_num != 255) {
+        team_num = real_team_num;
+        real_team_num = 255;
+    }
+
+    leader = nullptr;
+}
+
+// Do the current command
+Sint16 Walker::do_command()
+{
+    Sint16 commandtype;
+    Sint16 com1;
+    Sint16 com2;
+    Sint16 i;
+    Walker *target;
+    Sint16 deltax;
+    Sint16 deltay;
+    Sint32 distance;
+    Sint16 newx = 0;
+    Sint16 newy = 0;
+
+    // Get next command
+    if (stats.commands.empty()) {
+        return 0;
+    }
+
+    commandtype = stats.commands.front().commandtype;
+    com1 = stats.commands.front().com1;
+    com2 = stats.commands.front().com2;
+
+    Sint16 result = 1;
+
+    switch (commandtype) {
+    case COMMAND_WALK:
+        walkstep(com1, com2);
+
+        break;
+    case COMMAND_FIRE:
+        if (query_order() != ORDER_LIVING) {
+            Log("commanding a non-living to fire?");
+
+            break;
+        }
+
+        if (!fire_check(com1, com2)) {
+            stats.commands.front().commandcount = 0;
+            result = 0;
+
+            break;
+        }
+
+        init_fire(com1, com2);
+
+        break;
+    case COMMAND_DIE:
+        // Debugging, not currently used
+        if (!dead) {
+            Log("Trying to make a living ob dead!\n");
+        }
+
+        // Then delete us...
+        if (stats.commands.front().commandcount < 2) {
+            stats.delete_me = 1;
+        }
+
+        break;
+    case COMMAND_FOLLOW:
+        // Follow the leader
+        // If we have foe, don't follow this round
+        if (foe) {
+            stats.commands.front().commandcount = 0;
+            leader = nullptr;
+            result = 0;
+
+            break;
+        }
+
+        if (!leader) {
+            if (myscreen->numviews == 1) {
+                leader = myscreen->viewob[0]->control;
+            } else {
+                if (myscreen->viewob[0]->control->yo_delay) {
+                    leader = myscreen->viewob[0]->control;
+                } else if (myscreen->viewob[1]->control->yo_delay) {
+                    leader = myscreen->viewob[1]->control;
+                } else {
+                    stats.commands.front().commandcount = 0;
+                    leader = nullptr;
+                    result = 0;
+
+                    break;
+                }
+            }
+        }
+
+        // Do we have a leader now?
+        if (leader) {
+            distance = distance_to_ob(leader);
+
+            if (distance < 60) {
+                leader = nullptr;
+                // Don't get too close
+                result = 1;
+
+                break;
+            }
+
+            // Total horizontal distance..
+            newx = static_cast<Sint16>(leader->xpos - xpos);
+            newy = static_cast<Sint16>(leader->ypos - ypos);
+
+            if (abs(newx) > abs(3 * newy)) {
+                newy = 0;
+            }
+
+            if (abs(newy) > abs(3 * newx)) {
+                newx = 0;
+            }
+
+            // If it's not 0, then get the normal of it
+            if (newx) {
+                newx = static_cast<Sint16>(newx / abs(newx));
+            }
+
+            if (newy) {
+                newy = static_cast<Sint16>(newy / abs(newy));
+            }
+        } // end of if we had a foe...
+
+        walkstep(newx, newy);
+
+        if (stats.commands.front().commandcount < 2) {
+            leader = nullptr;
+        }
+
+        break;
+    case COMMAND_QUICK_FIRE:
+        walkstep(com1, com2);
+        fire();
+
+        break;
+    case COMMAND_MULTIDO:
+        // Lets you do <com1> commands in one round
+        for (i = 0; i < com1; ++i) {
+            do_command();
+        }
+
+        break;
+    case COMMAND_RUSH:
+        // Fighter's special
+        if (query_order() == ORDER_LIVING) {
+            walkstep(com1, com2);
+            walkstep(com1, com2);
+            walkstep(com1, com2);
+
+            // We hit someone
+            if (collide_ob) {
+                target = collide_ob;
+                attack(target);
+                target->clear_command();
+                // A violent shove...we can't call shove since we
+                // made shoe unable to shove enemies
+                target->stats.force_command(COMMAND_WALK, 4, com1, com2);
+            }
+        }
+
+        break;
+    case COMMAND_SET_WEAPON:
+        // Set weapon to specified type
+        current_weapon = com1;
+
+        break;
+    case COMMAND_RESET_WEAPON:
+        // Reset weapon to default type
+        current_weapon = default_weapon;
+
+        break;
+    case COMMAND_SEARCH:
+        // Use right-hand rule to find foe
+        if (foe && !foe->dead) {
+            walk_to_foe();
+        } else {
+            // Stop trying to walk to this foe
+            stats.commands.front().commandcount = 0;
+        }
+
+        break;
+    case COMMAND_RIGHT_WALK:
+        // Right-hand walk ONLY
+        if (foe) {
+            distance = distance_to_ob(foe);
+
+            if ((distance > 120) && (distance < 240)) {
+                right_walk();
+            } else {
+                if (direct_walk()) {
+                    right_walk();
+                }
+            }
+        }
+
+        break;
+    case COMMAND_ATTACK:
+        // Attack a nearby, set foe
+        if (!foe || foe->dead) {
+            stats.commands.front().commandcount = 0;
+            result = 1;
+
+            break;
+        }
+
+        // Try to walk toward foe, and/or attack...
+        deltax = static_cast<Sint16>(foe->xpos - xpos);
+        deltay = static_cast<Sint16>(foe->ypos - ypos);
+
+        if (abs(deltax) > abs(3 * deltay)) {
+            deltay = 0;
+        }
+
+        if (abs(deltay) > abs(3 * deltax)) {
+            deltax = 0;
+        }
+
+        if (deltax) {
+            deltax /= abs(deltax);
+        }
+
+        if (deltay) {
+            deltay /= abs(deltay);
+        }
+
+        if (!fire_check(deltax, deltay)) {
+            walkstep(deltax, deltay);
+        } else { // controller->fire_check(deltax, deltay))
+            stats.force_command(COMMAND_FIRE, static_cast<Sint16>(getRandomSint32(5)), deltax, deltay);
+            init_fire(deltax, deltay);
+        }
+
+        break;
+    case COMMAND_UNCHARM:
+        /*
+         * if (commandcount > 1) {
+         *     add_command(COMMAND_UNCHARM, commandcount - 1, 0, 0);
+         *     commandcount = 1;
+         * } else if (controller->real_team_num 1= 255) {
+         *     controller->team_num = controller->real_team_num;
+         *     controller->real_team_num = 255;
+         * }
+         */
+
+        // end of uncharm case
+        break;
+    default:
+
+        break;
+    }
+
+    // NOTE: The first command might be a different command than it was before
+    //       the switch statement. That would make this code decrement the wrong
+    //       command.
+    if (!stats.commands.empty()) {
+        // Reduce number of times left
+        --stats.commands.front().commandcount;
+
+        // Last iteration!
+        if (stats.commands.front().commandcount < 1) {
+            stats.commands.front().commandcount = 0;
+            stats.commands.pop_front();
+        }
+    }
+
+    return result;
+}
+
+void Walker::yell_for_help(Walker *foe)
+{
+    Sint16 howmany;
+    Sint32 deltax;
+    Sint32 deltay;
+
+    yo_delay += 80;
+
+    // Get AI-controller allies to target my foe
+    std::list<Walker *> helplist = myscreen->find_friends_in_range(myscreen->level_data.oblist, 160, &howmany, this);
+
+    for (auto const &w : helplist) {
+        w->leader = this;
+
+        if (foe != w->foe) {
+            w->stats.current_distance = 32000;
+            w->stats.last_distance = w->stats.current_distance;
+        }
+
+        w->foe = foe;
+
+        /*
+         * if (w->query_act_type() != ACT_CONTROL) {
+         *      w->stats->force_command(COMMAND_FOLLOW, 80, 0, 0);
+         * }
+         */
+    }
+
+    // Force run in the opposite direction
+    deltax = -(foe->xpos - xpos);
+
+    if (deltax) {
+        deltax = deltax / abs(deltax);
+    }
+
+    deltay = -(foe->ypos - ypos);
+
+    if (deltay) {
+        deltay = deltay / abs(deltay);
+    }
+
+    // Run away
+    stats.force_command(COMMAND_WALK, 16, deltax, deltay);
+
+    // Notify friends of need...
+    if (myguy && (team_num == 0)) {
+        std::stringstream buf(myguy->name);
+        buf << " yells for help!";
+
+        myscreen->do_notify(buf.str(), this);
+    }
+}
+
+// Determines what to do when we're hit by 'who'
+// 'controller is our parent walker object
+void Walker::hit_response(Walker *who)
+{
+    Sint32 distance;
+    Sint32 i;
+    Sint16 myfamily;
+    Sint32 deltax;
+    Sint32 deltay;
+    // Who is attacking us?
+    Walker *myfoe;
+    Sint32 possible_specials[NUM_SPECIALS];
+    // For hitpoint 'running away'
+    float threshold;
+    short howmany;
+
+    if (!who) {
+        return;
+    }
+
+    if (who->dead || dead) {
+        return;
+    }
+
+    if (query_act_type() == ACT_CONTROL) {
+        return;
+    }
+
+    if (query_order() != ORDER_LIVING) {
+        return;
+    }
+
+    // set quick-reference values...
+    myfamily = query_family();
+
+    if (who->query_order() == ORDER_WEAPON && who->owner) {
+        myfoe = who->owner;
+    } else {
+        myfoe = who;
+    }
+
+    // Determine which specials we can do (by level and sp)...
+    // first initialize to CAN'T
+    for (i = 0; i < NUM_SPECIALS; ++i) {
+        possible_specials[i] = 0;
+    }
+
+    // For all our 'possibles' by level
+    for (i = 0; i <= (stats.level + 2) / 3; ++i) {
+        if ((i < NUM_SPECIALS) && (stats.magicpoints >= stats.special_cost[i])) {
+            // Then we can do it
+            possible_specials[i] = 1;
+        }
+    }
+
+    switch (myfamily) {
+    case FAMILY_MAGE:
+        // Are we a player's character?
+        if (myguy) {
+            // Then flee at 60%
+            threshold = (3 * stats.max_hitpoints) / 5;
+        } else {
+            // We're an enemy, so be braver :>
+            // Flee at 3/8
+            threshold = (3 * stats.max_hitpoints) / 8;
+        }
+
+        if ((stats.hitpoints < threshold) && possible_specials[1]) {
+            // Clear old command...
+            // clear_command();
+            // Teleport
+            // Teleport to safety
+            current_special = 1;
+            // TELEPORT, not other
+            shifter_down = 0;
+            // Force allow us to special
+            busy = 0;
+            special();
+        } else if (foe != myfoe) {
+            // We're hit by a new enemy
+            foe = myfoe;
+            myfoe->foe = this;
+            stats.current_distance = 15000;
+            stats.last_distance = stats.current_distance;
+        }
+
+        break;
+    case FAMILY_ARCHMAGE:
+        // Yes, this is a cheat...
+        busy = 0;
+
+        // Are we a player's character?
+        if (myguy) {
+            // Then flee at 60%
+            threshold = (3 * stats.max_hitpoints) / 5;
+        } else {
+            // We're an enemy, so be braver :>
+            // Flee at 3/8
+            threshold = (3 * stats.max_hitpoints) / 8;
+        }
+
+        if ((stats.hitpoints < threshold) && possible_specials[1] && getRandomSint32(3)) {
+            // Teleport
+            // Teleport to safety
+            current_special = 1;
+            shifter_down = 0;
+            // Force allow us to special
+            busy = 0;
+            special();
+        } else {
+            // Find out how may foes are around us, etc...
+            // We're hit by a new enemy
+            if (foe != myfoe) {
+                foe = myfoe;
+                myfoe->foe = this;
+                stats.current_distance = 15000;
+                stats.last_distance = stats.current_distance;
+            }
+
+            myscreen->find_foes_in_range(myscreen->level_data.oblist, 200, &howmany, this);
+
+            // Foes within range?
+            if (howmany) {
+                // can we summon illusion?
+                if (possible_specials[3]) {
+                    current_special = 3;
+
+                    if (special()) {
+                        return;
+                    }
+                } // End of 3rd special
+
+                // Heartburst, chain lightning, etc.
+                if (possible_specials[2]) {
+                    // 2 or fewer enemies, so lightning...
+                    // if (howmany < 3)
+
+                    // 50/50 now
+                    if (getRandomSint32(2)) {
+                        // Lightning
+                        shifter_down = 1;
+                        current_special = 2;
+
+                        if (special()) {
+                            shifter_down = 0;
+
+                            // Then leave! :)
+                            if (stats.magicpoints >= stats.special_cost[1]) {
+                                busy = 0;
+                                special();
+                            }
+
+                            return;
+                        }
+                    } // End of lightning
+
+                    shifter_down = 0;
+                    current_special = 2;
+
+                    if (special()) {
+                        // Then leave! :)
+                        if (stats.magicpoints >= stats.special_cost[1]) {
+                            busy = 0;
+                            special();
+                        }
+
+                        return;
+                    }
+                } // End of burst or lightning
+            } // End of some foes in range for special attack
+        }
+
+        break;
+    case FAMILY_ARCHER:
+        {    // Stay at range...
+            if (!foe || (foe != myfoe)) {
+                foe = myfoe;
+                clear_command();
+                stats.current_distance = 15000;
+                stats.last_distance = stats.current_distance;
+            }
+
+            distance = distance_to_ob(foe);
+
+            // Too close!
+            if (distance < 64) {
+                deltax = static_cast<Sint16>(xpos - foe->xpos);
+
+                if (deltax) {
+                    deltax = static_cast<Sint16>(deltax / abs(deltax));
+                }
+
+                deltay = static_cast<Sint16>(ypos - foe->ypos);
+
+                if (deltay) {
+                    deltay = static_cast<Sint16>(deltay / abs(deltay));
+                }
+
+                // Run away
+                stats.force_command(COMMAND_WALK, 8, deltax, deltay);
+            } // End of too close check
+        } // End of archer case
+
+        break;
+    default:
+        // Attack our attacker
+        // Chance of doing special...
+        if (check_special() && !getRandomSint32(3)) {
+            special();
+        }
+
+        // Are we a player's character?
+        if (myguy) {
+            // Then flee at 50%
+            threshold = (5 * stats.max_hitpoints) / 10;
+        } else {
+            // We're an enemy, so be braver :>
+            // Flee at 5/16
+            threshold = (5 * stats.max_hitpoints) / 16;
+        }
+
+        // Then yell for help and run...
+        if ((stats.hitpoints < threshold) && !yo_delay) {
+            yell_for_help(myfoe);
+        } // End of yell for help
+
+        // We're attacked by a new enemy
+        if (foe != myfoe) {
+            // Clear old commands...
+            clear_command();
+            // Attack our attacker
+            foe = myfoe;
+            myfoe->foe = this;
+            stats.current_distance = 15000;
+            stats.last_distance = stats.current_distance;
+        }
+
+        break;
+    }
+}
+
+bool Walker::walk_to_foe()
+{
+    float xdest;
+    float ydest;
+    float xdelta;
+    float ydelta;
+    Uint32 tempdistance = 9999999L;
+    Sint16 howmany;
+
+    // Random just to be sure this gets reset sometime
+    if (!foe || !getRandomSint32(300)) {
+        stats.current_distance = 15000L;
+        stats.last_distance = stats.current_distance;
+
+        return false;
+    }
+
+    --path_check_counter;
+    // This makes us only check every few rounds, to save processing time
+    if (path_check_counter <= 0) {
+        path_check_counter = (5 + rand()) % 10;
+        path_to_foe.clear();
+
+        xdest = foe->xpos;
+        ydest = foe->ypos;
+
+        xdelta = xdest - xpos;
+        ydelta = ydest - ypos;
+
+        tempdistance = static_cast<Uint32>(distance_to_ob(foe));
+        // Do simpler pathing if the distance is short or if there are too
+        // many walker (pathfinding is expensive)
+        if ((tempdistance < PATHING_MIN_DISTANCE) || (myscreen->level_data.myobmap->size() > PATHING_SHORT_CIRCUIT_OBJECT_LIMIT)) {
+            std::list<Walker *> foelist = myscreen->find_foes_in_range(myscreen->level_data.oblist, PATHING_MIN_DISTANCE, &howmany, this);
+
+            if (howmany > 0) {
+                Walker *firstfoe = foelist.front();
+                clear_command();
+                turn(facing(xdelta, ydelta));
+                stats.try_command(COMMAND_ATTACK, static_cast<Sint16>(30 + getRandomSint32(25)), 1, 1);
+                myscreen->find_near_foe(this);
+
+                if (!foe && firstfoe) {
+                    foe = firstfoe;
+                    stats.last_distance = distance_to_ob(foe);
+                }
+
+                init_fire();
+
+                return true;
+            } else {
+                // Or foe has moved; we need a new one
+                if (!stats.commands.empty()) {
+                    stats.commands.front().commandcount = 0;
+                }
+            }
+        } else {
+            find_path_to_foe();
+        }
+
+        // End of do_check
+    }
+
+    if (path_to_foe.size() > 0) {
+        follow_path_to_foe();
+        stats.last_distance = static_cast<Uint32>(distance_to_ob(foe));
+    } else if (tempdistance < stats.last_distance) {
+        // Are we closer than we've ever been?
+        // Ten set our checking distance...
+        stats.last_distance = tempdistance;
+
+        // Cane we walk in a direct line to foe?
+        if (!direct_walk()) {
+            // If not, use right-hand walking
+            right_walk();
+        }
+    } else {
+        right_walk();
+    }
+
+    // Are we really really close? Stop searching, then :)
+    if ((tempdistance < 30) && !stats.commands.empty()) {
+        stats.commands.front().commandcount = 0;
+    }
+
+    return true;
+}
+
+bool Walker::direct_walk()
+{
+    float xdest;
+    float ydest;
+    float xdelta;
+    float ydelta;
+    float xdeltastep;
+    float ydeltastep;
+    float controlx = xpos;
+    float controly = ypos;
+    // Sint16 xdistance;
+    // Sint16 ydistance;
+    // Uint32 tempdistance;
+    // Uint8 olddir = controller->curdir;
+    // Sint16 oldlastx = controller->lastx;
+    // Sint16 oldlasty = controller->lasty;
+
+    if (!foe) {
+        return false;
+    }
+
+    xdest = foe->xpos;
+    ydest = foe->ypos;
+
+    xdelta = xdest - xpos;
+    ydelta = ydest - ypos;
+
+    if (abs(xdelta) > abs(3 * ydelta)) {
+        ydelta = 0;
+    }
+
+    if (abs(ydelta) > abs(3 * xdelta)) {
+        xdelta = 0;
+    }
+
+    if (fire_check(xdelta, ydelta)) {
+        clear_command();
+        turn(facing(xdelta, ydelta));
+        stats.add_command(COMMAND_ATTACK, static_cast<Sint16>(30 + getRandomSint32(25)), 0, 0);
+
+        return true;
+    }
+
+    if (xdelta) {
+        xdelta = xdelta / fabs(xdelta);
+    }
+
+    if (ydelta) {
+        ydelta = ydelta / fabs(ydelta);
+    }
+
+    xdeltastep = xdelta * stepsize;
+    ydeltastep = ydelta * stepsize;
+
+    /*
+     * Tom's note on 08/03/97: I think these would work better if replaced by
+     * some sort of single "if forward-blocked()" check, otherwise I'm not
+     * sure if this works regardless of current facing...
+     */
+    if (!myscreen->query_grid_passable(controlx + xdeltastep, controly + ydeltastep, this)) {
+        if (!myscreen->query_grid_passable(controlx + xdeltastep, controly + 0, this)) {
+            if (!myscreen->query_grid_passable(controlx + 0, controly + ydeltastep, this)) {
+                walkrounds = 0;
+
+                return false;
+
+                // We cannot get there by ANY of the straight line moves which
+                // take us directly toward foelist
+            } else {
+                // y ok
+                if (!ydelta) {
+                    walkrounds = 0;
+
+                    return false;
+                }
+
+                walkstep(0, ydelta);
+
+                return true;
+
+                // Walk in the y direction
+            }
+            // End if (xd, 0)
+        } else {
+            // x ok
+            if (!xdelta) {
+                walkrounds = 0;
+
+                return false;
+            }
+
+            walkstep(xdelta, 0);
+
+            return true;
+
+            // Walk in the x direction
+        }
+    } else {
+        // x and y ok
+        if (!xdelta && !ydelta) {
+            walkrounds = 0;
+
+            return false;
+        }
+
+        walkstep(xdelta, ydelta);
+
+        return true;
+
+        // Walk in the x and y direction
+    }
+}
+
+bool Walker::right_walk()
+{
+    float xdelta;
+    float ydelta;
+
+    // if (walkrounds > 60) {
+    //     if (direct_walk()) {
+    //         return -1;
+    //     }
+    // }
+    //
+    // ++walkrounds;
+
+    if (right_blocked() || right_forward_blocked()) {
+        // Walk forward
+        if (!forward_blocked()) {
+            xdelta = lastx;
+            ydelta = lasty;
+
+            if (abs(xdelta) > abs(3 * ydelta)) {
+                ydelta = 0;
+            }
+
+            if (abs(ydelta) > abs(3 * xdelta)) {
+                xdelta = 0;
+            }
+
+            if (xdelta) {
+                xdelta /= abs(xdelta);
+            }
+
+            if (ydelta) {
+                ydelta /= abs(ydelta);
+            }
+
+            // return controller->walk();
+            return walkstep(xdelta, ydelta);
+        } else {
+            // Turn left
+            return turn_left();
+        }
+    } else if (forward_blocked()) {
+        // Turn left
+        return turn_left();
+    } else if (right_back_blocked()) {
+        // Turn right
+
+        switch (face_right()) {
+        case FACE_UP:
+            xdelta = 0;
+            ydelta = -1;
+
+            break;
+        case FACE_UP_RIGHT:
+            xdelta = 1;
+            ydelta = -1;
+
+            break;
+        case FACE_RIGHT:
+            xdelta = 1;
+            ydelta = 0;
+
+            break;
+        case FACE_DOWN_RIGHT:
+            xdelta = 1;
+            ydelta = 1;
+
+            break;
+        case FACE_DOWN:
+            xdelta = 0;
+            ydelta = 1;
+
+            break;
+        case FACE_DOWN_LEFT:
+            xdelta = -1;
+            ydelta = 1;
+
+            break;
+        case FACE_LEFT:
+            xdelta = -1;
+            ydelta = 0;
+
+            break;
+        case FACE_UP_LEFT:
+            xdelta = -1;
+            ydelta = -1;
+
+            break;
+        default:
+            xdelta = 0;
+            ydelta = 0;
+
+            break;
+        }
+
+        stats.add_command(COMMAND_WALK, 1, xdelta, ydelta);
+    } else {
+        // We can't even walk straight to our foe
+        if (!direct_walk()) {
+            switch(curdir) {
+            case FACE_UP:
+                xdelta = 0;
+                ydelta = -1;
+
+                break;
+            case FACE_UP_RIGHT:
+                xdelta = 1;
+                ydelta = -1;
+
+                break;
+            case FACE_RIGHT:
+                xdelta = 1;
+                ydelta = 0;
+
+                break;
+            case FACE_DOWN_RIGHT:
+                xdelta = 1;
+                ydelta = 1;
+
+                break;
+            case FACE_DOWN:
+                xdelta = 0;
+                ydelta = 1;
+
+                break;
+            case FACE_DOWN_LEFT:
+                xdelta = -1;
+                ydelta = 1;
+
+                break;
+            case FACE_LEFT:
+                xdelta = -1;
+                ydelta = 0;
+
+                break;
+            case FACE_UP_LEFT:
+                xdelta = -1;
+                ydelta = -1;
+
+                break;
+            default:
+                xdelta = 0;
+                ydelta = 0;
+
+                break;
+            }
+
+            // if (controller->spaces_clear() > 6)
+            return walkstep(xdelta, ydelta);
+        }
+    }
+
+    return true;
+}
+
+// Returns whether our front is blocked
+bool Walker::forward_blocked()
+{
+    float xdelta;
+    float ydelta;
+    float controlx = xpos;
+    float controly = ypos;
+    float mystep = CHECK_STEP_SIZE;
+
+    switch (curdir) {
+    case FACE_UP:
+        xdelta = 0;
+        ydelta = -mystep;
+
+        break;
+    case FACE_UP_RIGHT:
+        xdelta = mystep;
+        ydelta = -mystep;
+
+        break;
+    case FACE_RIGHT:
+        xdelta = mystep;
+        ydelta = 0;
+
+        break;
+    case FACE_DOWN_RIGHT:
+        xdelta = mystep;
+        ydelta = mystep;
+
+        break;
+    case FACE_DOWN:
+        xdelta = 0;
+        ydelta = mystep;
+
+        break;
+    case FACE_DOWN_LEFT:
+        xdelta = -mystep;
+        ydelta = mystep;
+
+        break;
+    case FACE_LEFT:
+        xdelta = -mystep;
+        ydelta = 0;
+
+        break;
+    case FACE_UP_LEFT:
+        xdelta = -mystep;
+        ydelta = -mystep;
+
+        break;
+    default:
+        xdelta = 0;
+        ydelta = 0;
+
+        break;
+    }
+
+    return !myscreen->query_passable(controlx + xdelta, controly + ydelta, this);
+}
+
+
+// Returns whether our right is blocked
+bool Walker::right_blocked()
+{
+    float xdelta;
+    float ydelta;
+    float controlx = xpos;
+    float controly = ypos;
+    float mystep = stepsize;
+
+    mystep = CHECK_STEP_SIZE;
+
+    switch (curdir) {
+    case FACE_UP:
+        xdelta = mystep;
+        ydelta = 0;
+
+        break;
+    case FACE_UP_RIGHT:
+        xdelta = mystep;
+        ydelta = mystep;
+
+        break;
+    case FACE_RIGHT:
+        xdelta = 0;
+        ydelta = mystep;
+
+        break;
+    case FACE_DOWN_RIGHT:
+        xdelta = -mystep;
+        ydelta = mystep;
+
+        break;
+    case FACE_DOWN:
+        xdelta = -mystep;
+        ydelta = 0;
+
+        break;
+    case FACE_DOWN_LEFT:
+        xdelta = -mystep;
+        ydelta = -mystep;
+
+        break;
+    case FACE_LEFT:
+        xdelta = 0;
+        ydelta = -mystep;
+
+        break;
+    case FACE_UP_LEFT:
+        xdelta = mystep;
+        ydelta = -mystep;
+
+        break;
+    default:
+        xdelta = 0;
+        ydelta = 0;
+
+        break;
+    }
+
+    return !myscreen->query_passable(controlx + xdelta, controly + ydelta, this);
+}
+
+// Retruns whether our right-forward is blocked
+bool Walker::right_forward_blocked()
+{
+    float controlx = xpos;
+    float controly = ypos;
+    float mystep = stepsize;
+
+    mystep = CHECK_STEP_SIZE;
+
+    switch (curdir) {
+    case FACE_UP:
+
+        return !myscreen->query_passable(controlx + mystep, controly - mystep, this);
+    case FACE_UP_RIGHT:
+
+        return !myscreen->query_passable(controlx + mystep, controly, this);
+    case FACE_RIGHT:
+
+        return !myscreen->query_passable(controlx + mystep, controly + mystep, this);
+    case FACE_DOWN_RIGHT:
+
+        return !myscreen->query_passable(controlx, controly + mystep, this);
+    case FACE_DOWN:
+
+        return !myscreen->query_passable(controlx - mystep, controly + mystep, this);
+    case FACE_DOWN_LEFT:
+
+        return !myscreen->query_passable(controlx = mystep, controly, this);
+    case FACE_LEFT:
+
+        return !myscreen->query_passable(controlx - mystep, controly - mystep, this);
+    case FACE_UP_LEFT:
+
+        return !myscreen->query_passable(controlx, controly - mystep, this);
+    default:
+
+        break;
+    }
+
+    return false;
+}
+
+// Returns whether our right-back is blocked
+bool Walker::right_back_blocked()
+{
+    float controlx = xpos;
+    float controly = ypos;
+    float mystep = stepsize;
+
+    mystep = CHECK_STEP_SIZE;
+
+    switch (curdir) {
+    case FACE_UP:
+
+        return !myscreen->query_passable(controlx + mystep, controly + mystep, this);
+    case FACE_UP_RIGHT:
+
+        return !myscreen->query_passable(controlx, controly + mystep, this);
+    case FACE_RIGHT:
+
+        return !myscreen->query_passable(controlx - mystep, controly + mystep, this);
+    case FACE_DOWN_RIGHT:
+
+        return !myscreen->query_passable(controlx - mystep, controly, this);
+    case FACE_DOWN:
+
+        return !myscreen->query_passable(controlx - mystep, controly - mystep, this);
+    case FACE_DOWN_LEFT:
+
+        return !myscreen->query_passable(controlx, controly - mystep, this);
+    case FACE_LEFT:
+
+        return !myscreen->query_passable(controlx + mystep, controly - mystep, this);
+    case FACE_UP_LEFT:
+
+        return !myscreen->query_passable(controlx + mystep, controly, this);
+    default:
+
+        break;
+    }
+
+    return false;
 }

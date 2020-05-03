@@ -53,12 +53,8 @@
 
 VideoScreen *screen;
 
-extern bool debug_draw_paths;
-extern bool debug_draw_obmap;
-
-// Zardus: FIX: From view.cpp. We need this here so that it doesn't try to
-// create it before the main and go nuts trying to load it
-extern Options *theprefs;
+bool debug_draw_paths;
+bool debug_draw_obmap;
 
 Sint16 remaining_team(VideoScreen *myscreen, Uint8 myteam);
 Sint16 score_panel(VideoScreen *myscreen);
@@ -368,24 +364,24 @@ void draw_value_bar(Sint16 left, Sint16 top, Walker *control, Sint16 mode, Video
 
     // Hitpoint bar
     if (mode == 0) {
-        points = control->stats->hitpoints;
+        points = control->stats.hitpoints;
 
-        if (float_eq(points, control->stats->max_hitpoints)) {
+        if (float_eq(points, control->stats.max_hitpoints)) {
             whatcolor = MAX_HP_COLOR;
-        } else if ((points * 3) < control->stats->max_hitpoints) {
+        } else if ((points * 3) < control->stats.max_hitpoints) {
             whatcolor = LOW_HP_COLOR;
-        } else if (((points * 3) / 2) < control->stats->max_hitpoints) {
+        } else if (((points * 3) / 2) < control->stats.max_hitpoints) {
             whatcolor = MID_HP_COLOR;
-        } else if (points < control->stats->max_hitpoints) {
+        } else if (points < control->stats.max_hitpoints) {
             whatcolor = HIGH_HP_COLOR;
         } else {
             whatcolor = ORANGE_START;
         }
 
-        if (points > control->stats->max_hitpoints) {
+        if (points > control->stats.max_hitpoints) {
             bar_length = 60;
         } else {
-            bar_length = ceilf((points * 60) / control->stats->max_hitpoints);
+            bar_length = ceilf((points * 60) / control->stats.max_hitpoints);
         }
 
         bar_remainder = 60 - bar_length;
@@ -393,7 +389,7 @@ void draw_value_bar(Sint16 left, Sint16 top, Walker *control, Sint16 mode, Video
         myscreen->draw_box(left, top, left + 61, top + 6, BOX_COLOR, 0);
         // myscreen->fastbox(left, top, 61, 6, BOX_COLOR, 1);
 
-        if (points > control->stats->max_hitpoints) {
+        if (points > control->stats.max_hitpoints) {
             for (i = 0; i < (bar_length / 2); ++i) {
                 for (j = 0; j < 3; ++j) {
                     myscreen->ver_line((left + (bar_length / 2)) - i, (top + 3) - j, 1, whatcolor + ((i + j) % 16));
@@ -441,31 +437,31 @@ void draw_value_bar(Sint16 left, Sint16 top, Walker *control, Sint16 mode, Video
         // End of doing hp stuff...
     } else if (mode == 1) {
         // sp stuff...
-        points = control->stats->magicpoints;
+        points = control->stats.magicpoints;
 
-        if (float_eq(points, control->stats->max_magicpoints)) {
+        if (float_eq(points, control->stats.max_magicpoints)) {
             whatcolor = MAX_MP_COLOR;
-        } else if ((points * 3) < control->stats->max_magicpoints) {
+        } else if ((points * 3) < control->stats.max_magicpoints) {
             whatcolor = LOW_MP_COLOR;
-        } else if (((points * 3) / 2) < control->stats->max_magicpoints) {
+        } else if (((points * 3) / 2) < control->stats.max_magicpoints) {
             whatcolor = MID_MP_COLOR;
-        } else if (points < control->stats->max_magicpoints) {
+        } else if (points < control->stats.max_magicpoints) {
             whatcolor = HIGH_MP_COLOR;
         } else {
             whatcolor = WATER_START;
         }
 
-        if (points > control->stats->max_magicpoints) {
+        if (points > control->stats.max_magicpoints) {
             bar_length = 60;
         } else {
-            bar_length = ceilf((points * 60) / control->stats->max_magicpoints);
+            bar_length = ceilf((points * 60) / control->stats.max_magicpoints);
         }
 
         bar_remainder = 60 - bar_length;
 
         myscreen->draw_box(left, top, left + 61, top + 6, BOX_COLOR, 0);
 
-        if (points > control->stats->max_magicpoints) {
+        if (points > control->stats.max_magicpoints) {
             for (i = 0; i < (bar_length / 2); ++i) {
                 for (j = 0; j < 3; ++j) {
                     myscreen->ver_line((left + (bar_length / 2)) - i, (top + 3) - j, 1, whatcolor + ((i + j) % 16));
@@ -523,24 +519,24 @@ void new_draw_value_bar(Sint16 left, Sint16 top, Walker *control, Sint16 mode, V
 
     // Hitpoint bar
     if (mode == 0) {
-        points = control->stats->hitpoints;
+        points = control->stats.hitpoints;
 
-        if (float_eq(points, control->stats->max_hitpoints)) {
+        if (float_eq(points, control->stats.max_hitpoints)) {
             whatcolor = MAX_HP_COLOR;
-        } else if ((points * 3) < control->stats->max_hitpoints) {
+        } else if ((points * 3) < control->stats.max_hitpoints) {
             whatcolor = LOW_HP_COLOR;
-        } else if (((points * 3) / 2) < control->stats->max_hitpoints) {
+        } else if (((points * 3) / 2) < control->stats.max_hitpoints) {
             whatcolor = MID_HP_COLOR;
-        } else if (points < control->stats->max_hitpoints) {
+        } else if (points < control->stats.max_hitpoints) {
             whatcolor = HIGH_HP_COLOR;
         } else {
             whatcolor = ORANGE_START;
         }
 
-        if (points > control->stats->max_hitpoints) {
+        if (points > control->stats.max_hitpoints) {
             bar_length = 60;
         } else {
-            bar_length = ceilf((points * 60) / control->stats->max_hitpoints);
+            bar_length = ceilf((points * 60) / control->stats.max_hitpoints);
         }
 
         // bar_remainder = 60 - bar_length;
@@ -550,28 +546,28 @@ void new_draw_value_bar(Sint16 left, Sint16 top, Walker *control, Sint16 mode, V
 
         // End of doing hp stuf...
     } else if (mode == 1) { // sp stuff...
-        points = control->stats->magicpoints;
+        points = control->stats.magicpoints;
 
-        if (float_eq(points, control->stats->max_magicpoints)) {
+        if (float_eq(points, control->stats.max_magicpoints)) {
             whatcolor = MAX_MP_COLOR;
         }
 
-        if (float_eq(points, control->stats->max_magicpoints)) {
+        if (float_eq(points, control->stats.max_magicpoints)) {
             whatcolor = MAX_MP_COLOR;
-        } else if ((points * 3) < control->stats->max_magicpoints) {
+        } else if ((points * 3) < control->stats.max_magicpoints) {
             whatcolor = LOW_MP_COLOR;
-        } else if (((points * 3) / 2) < control->stats->max_magicpoints) {
+        } else if (((points * 3) / 2) < control->stats.max_magicpoints) {
             whatcolor = MID_MP_COLOR;
-        } else if (points < control->stats->max_magicpoints) {
+        } else if (points < control->stats.max_magicpoints) {
             whatcolor = HIGH_MP_COLOR;
         } else {
             whatcolor = WATER_START;
         }
 
-        if (points > control->stats->max_magicpoints) {
+        if (points > control->stats.max_magicpoints) {
             bar_length = 60;
         } else {
-            bar_length = ceilf((points * 60) / control->stats->max_magicpoints);
+            bar_length = ceilf((points * 60) / control->stats.max_magicpoints);
         }
 
         // bar_remainder = 60 - bar_length;
@@ -665,8 +661,8 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
             // Display name or type, upper left
             if (control->myguy) {
                 tempname = control->myguy->name;
-            } else if (strlen(control->stats->name.c_str())) {
-                tempname = control->stats->name;
+            } else if (!control->stats.name.empty()) {
+                tempname = control->stats.name;
             } else {
                 tempname = namelist[static_cast<int>(control->query_family())];
             }
@@ -694,8 +690,8 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
                 }
 
                 buf << "HP: ";
-                if (ceilf(control->stats->hitpoints) != 0) {
-                    buf << ceilf(control->stats->hitpoints);
+                if (ceilf(control->stats.hitpoints) != 0) {
+                    buf << ceilf(control->stats.hitpoints);
                 }
 
                 message = buf.str();
@@ -706,8 +702,8 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
                 mytext.write_xy(lm + 5, tm + 12, message, text_color, static_cast<Sint16>(1));
 
                 buf << "MP: ";
-                if (ceilf(control->stats->magicpoints) != 0) {
-                    buf << ceilf(control->stats->magicpoints);
+                if (ceilf(control->stats.magicpoints) != 0) {
+                    buf << ceilf(control->stats.magicpoints);
                 }
 
                 message = buf.str();
@@ -740,8 +736,8 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
                 new_draw_value_bar(lm + 2, tm + 10, control, 0, myscreen);
 
                 buf << "HP: ";
-                if (ceilf(control->stats->hitpoints) != 0) {
-                    buf << ceilf(control->stats->hitpoints);
+                if (ceilf(control->stats.hitpoints) != 0) {
+                    buf << ceilf(control->stats.hitpoints);
                 }
 
                 message = buf.str();
@@ -756,8 +752,8 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
                 new_draw_value_bar(lm + 2, tm + 18, control, 1, myscreen);
 
                 buf << "MP: ";
-                if (ceilf(control->stats->magicpoints) != 0) {
-                    buf << ceilf(control->stats->magicpoints);
+                if (ceilf(control->stats.magicpoints) != 0) {
+                    buf << ceilf(control->stats.magicpoints);
                 }
 
                 message = buf.str();
@@ -819,7 +815,7 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
                     if (control->myguy) {
                         buf << "XP: " << control->myguy->exp;
                     } else {
-                        buf << "LEVEL: " << control->stats->level;
+                        buf << "LEVEL: " << control->stats.level;
                     }
 
                     message = buf.str();
@@ -841,7 +837,7 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
                 buf.clear();
                 message.resize(50);
 
-                if (control->stats->magicpoints >= control->stats->special_cost[static_cast<Sint32>(control->current_special)]) {
+                if (control->stats.magicpoints >= control->stats.special_cost[static_cast<Sint32>(control->current_special)]) {
                     mytext.write_xy(lm + 2, special_y, message, text_color, static_cast<Sint16>(1));
                 } else {
                     mytext.write_xy(lm + 2, special_y, message, static_cast<Uint8>(RED), static_cast<Sint16>(1));

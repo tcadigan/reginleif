@@ -29,8 +29,8 @@
 
 #include <SDL2/SDL.h>
 
-#include "screen-fwd.hpp"
-#include "video-fwd.hpp"
+#include "screen.hpp"
+#include "video.hpp"
 
 #define SDLKey SDL_Keycode
 
@@ -273,16 +273,17 @@ Uint8 convert_to_ascii(Sint32 scancode);
 
 void update_overscan_setting();
 
-extern Uint8 const *keystates;
+Uint8 const *keystates = nullptr;
 
 // In window coords
-extern float viewport_offset_x;
-extern float viewport_offset_y;
-extern float window_w;
-extern float window_h;
-extern float viewport_w;
-extern float viewport_h;
+float viewport_offset_x = 0;
+float viewport_offset_y = 0;
+float window_w = 320;
+float window_h = 200;
+float viewport_w = 320;
+float viewport_h = 200;
 
-extern float overscan_percentage;
+// Out of 1.0f, percent of total screen dimension that is cut off.
+float overscan_percentage = 0.0f;
 
 #endif

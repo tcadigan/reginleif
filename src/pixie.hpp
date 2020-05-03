@@ -20,10 +20,7 @@
 
 // Definition of PIXIE class
 
-#include "pixie-fwd.hpp"
-
 #include "pixie_data.hpp"
-#include "view-fwd.hpp"
 
 class Pixie
 {
@@ -33,17 +30,13 @@ public:
     virtual ~Pixie();
 
     bool setxy(Sint16 x, Sint16 y);
-    bool draw(ViewScreen *view_buf);
-    bool draw(Sint16 x, Sint16 y, ViewScreen *view_buf);
-    bool drawMix(ViewScreen *view_buf);
-    bool drawMix(Sint16 x, Sint16 y, ViewScreen *view_buf);
+    bool draw(Sint16 topx, Sint16 topy, Sint16 xloc, Sint16 yloc, Sint16 endx, Sint16 endy);
+    bool drawMix(Sint16 topx, Sint16 topy, Sint16 xloc, Sint16 yloc, Sint16 endx, Sint16 endy);
     bool put_screen(Sint16 x, Sint16 y);
     void init_sdl_surface(void);
     void set_accel(Sint32 a);
     void set_data(PixieData const &data);
     bool on_screen();
-    // On a specific viewscreen?
-    bool on_screen(ViewScreen *viewp);
 
     virtual bool move(Sint16 x, Sint16 y);
 
@@ -62,6 +55,9 @@ protected:
 
     // buffers: Same data as bmp in a convenient SDL_Surface
     SDL_Surface *bmp_surface;
+
+    // On a specific viewscreen?
+    bool on_screen(Sint16 topx, Sint16 topy, Sint16 view_x, Sint16 view_y);
 };
 
 #endif

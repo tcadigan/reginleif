@@ -43,4 +43,6 @@ protected:
     Uint8 *facings;
 };
 
+PixieN *backdrops[5];
+
 #endif

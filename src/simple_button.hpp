@@ -18,7 +18,7 @@
 #ifndef __SIMPLE_BUTTON_HPP__
 #define __SIMPLE_BUTTON_HPP__
 
-#include "screen-fwd.hpp"
+#include "screen.hpp"
 
 #include <SDL2/SDL.h>
 

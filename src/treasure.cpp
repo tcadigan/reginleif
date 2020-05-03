@@ -64,13 +64,13 @@ Sint16 Treasure::eat_me(Walker *eater)
 
     switch (family) {
     case FAMILY_DRUMSTICK:
-        if (eater->stats->hitpoints >= eater->stats->max_hitpoints) {
+        if (eater->stats.hitpoints >= eater->stats.max_hitpoints) {
             return 1;
         } else {
-            Sint16 amount = (10 * stats->level) + getRandomSint32(10 * stats->level);
+            Sint16 amount = (10 * stats.level) + getRandomSint32(10 * stats.level);
 
-            eater->stats->hitpoints = std::min(eater->stats->hitpoints + amount,
-                                               eater->stats->max_hitpoints);
+            eater->stats.hitpoints = std::min(eater->stats.hitpoints + amount,
+                                              eater->stats.max_hitpoints);
 
             do_heal_effects(nullptr, eater, amount);
             dead = 1;
@@ -85,7 +85,7 @@ Sint16 Treasure::eat_me(Walker *eater)
         break;
     case FAMILY_GOLD_BAR:
         if ((eater->team_num == 0) || eater->myguy) {
-            myscreen->save_data.m_score[eater->team_num] += (200 * stats->level);
+            myscreen->save_data.m_score[eater->team_num] += (200 * stats.level);
             dead = 1;
 
             if (on_screen()) {
@@ -96,7 +96,7 @@ Sint16 Treasure::eat_me(Walker *eater)
         return 1;
     case FAMILY_SILVER_BAR:
         if ((eater->team_num == 0) || eater->myguy) {
-            myscreen->save_data.m_score[eater->team_num] += (50 * stats->level);
+            myscreen->save_data.m_score[eater->team_num] += (50 * stats.level);
             dead = 1;
 
             if (on_screen()) {
@@ -106,11 +106,11 @@ Sint16 Treasure::eat_me(Walker *eater)
 
         return 1;
     case FAMILY_FLIGHT_POTION:
-        if (!eater->stats->query_bit_flags(BIT_FLYING)) {
-            eater->flight_left += (150 * stats->level);
+        if (!eater->stats.query_bit_flags(BIT_FLYING)) {
+            eater->flight_left += (150 * stats.level);
 
             if (eater->user != -1) {
-                buf << "Potion of Flight(" << stats->level << ")!";
+                buf << "Potion of Flight(" << stats.level << ")!";
                 message = buf.str();
                 buf.clear();
                 myscreen->do_notify(message, eater);
@@ -121,12 +121,12 @@ Sint16 Treasure::eat_me(Walker *eater)
 
         return 1;
     case FAMILY_MAGIC_POTION:
-        eater->stats->magicpoints = std::min(eater->stats->magicpoints + (50 * stats->level),
-                                             eater->stats->magicpoints);
+        eater->stats.magicpoints = std::min(eater->stats.magicpoints + (50 * stats.level),
+                                            eater->stats.magicpoints);
         dead = 1;
 
         if (eater->user != -1) {
-            buf << "Potion of Mana(" << stats->level << ")!";
+            buf << "Potion of Mana(" << stats.level << ")!";
             message = buf.str();
             buf.clear();
             myscreen->do_notify(message, eater);
@@ -134,12 +134,12 @@ Sint16 Treasure::eat_me(Walker *eater)
 
         return 1;
     case FAMILY_INVULNERABLE_POTION:
-        if (!eater->stats->query_bit_flags(BIT_INVINCIBLE)) {
-            eater->invulnerable_left += (150 * stats->level);
+        if (!eater->stats.query_bit_flags(BIT_INVINCIBLE)) {
+            eater->invulnerable_left += (150 * stats.level);
             dead = 1;
 
             if (eater->user != -1) {
-                buf << "Potion of Invulnerability(" << stats->level << ")!";
+                buf << "Potion of Invulnerability(" << stats.level << ")!";
                 message = buf.str();
                 buf.clear();
                 myscreen->do_notify(message, eater);
@@ -148,10 +148,10 @@ Sint16 Treasure::eat_me(Walker *eater)
 
         return 1;
     case FAMILY_INVIS_POTION:
-        eater->invisibility_left += (150 * stats->level);
+        eater->invisibility_left += (150 * stats.level);
 
         if (eater->user != -1) {
-            buf << "Potion of Invisibility(" << stats->level << ")!";
+            buf << "Potion of Invisibility(" << stats.level << ")!";
             message = buf.str();
             buf.clear();
             myscreen->do_notify(message, eater);
@@ -161,11 +161,11 @@ Sint16 Treasure::eat_me(Walker *eater)
 
         return 1;
     case FAMILY_SPEED_POTION:
-        eater->speed_bonus_left += (50 * stats->level);
-        eater->speed_bonus = stats->level;
+        eater->speed_bonus_left += (50 * stats.level);
+        eater->speed_bonus = stats.level;
 
         if (eater->user != -1) {
-            buf << "Potion of Speed(" << stats->level << ")!";
+            buf << "Potion of Speed(" << stats.level << ")!";
             message = buf.str();
             buf.clear();
             myscreen->do_notify(message, eater);
@@ -194,7 +194,7 @@ Sint16 Treasure::eat_me(Walker *eater)
         }
 
         // Get the name of our exit...
-        buf << "scen" << stats->level;
+        buf << "scen" << stats.level;
         message = buf.str();
         buf.clear();
 
@@ -202,7 +202,7 @@ Sint16 Treasure::eat_me(Walker *eater)
 
         // buffers: PORT: Using strcmp instead of stricmp
         if (exitname != "none") {
-            buf << "Level " << stats->level;
+            buf << "Level " << stats.level;
             exitname = buf.str();
             buf.clear();
         }
@@ -215,7 +215,7 @@ Sint16 Treasure::eat_me(Walker *eater)
          * in which case we abort this level, and set our current level to
          * that pointed to by the exit...
          */
-        if (myscreen->save_data.is_level_completed(stats->level)
+        if (myscreen->save_data.is_level_completed(stats.level)
             && !myscreen->save_data.is_level_completed(myscreen->save_data.scen_num)
             && guys_here) {
             // Okay to leave
@@ -247,7 +247,7 @@ Sint16 Treasure::eat_me(Walker *eater)
                 myscreen->save_data.load("save0");
 
                 // Go to the exit's level
-                myscreen->save_data.scen_num = stats->level;
+                myscreen->save_data.scen_num = stats.level;
                 myscreen->end = 1;
 
                 /*
@@ -257,7 +257,7 @@ Sint16 Treasure::eat_me(Walker *eater)
                 myscreen->save_data.save("save0");
 
                 // Retreat
-                return myscreen->endgame(1, stats->level);
+                return myscreen->endgame(1, stats.level);
 
                 // End of accepted withdraw to new level...
             }
@@ -280,7 +280,7 @@ Sint16 Treasure::eat_me(Walker *eater)
             if (result) {
                 clear_keyboard();
 
-                return myscreen->endgame(0, stats->level);
+                return myscreen->endgame(0, stats.level);
             }
 
             clear_keyboard();
@@ -343,7 +343,7 @@ Sint16 Treasure::eat_me(Walker *eater)
             return 1;
         }
 
-        myscreen->save_data.m_score[eater->team_num] += stats->hitpoints;
+        myscreen->save_data.m_score[eater->team_num] += stats.hitpoints;
         flash = myscreen->level_data.add_ob(ORDER_FX, FAMILY_FLASH);
         flash->ani_type = ANI_EXPAND_8;
         flash->center_on(this);
@@ -354,14 +354,14 @@ Sint16 Treasure::eat_me(Walker *eater)
     case FAMILY_KEY:
         // Get the key to this door...
         // Just got it?
-        if (!(eater->keys & static_cast<Sint32>(pow(static_cast<double>(2), stats->level)))) {
+        if (!(eater->keys & static_cast<Sint32>(pow(static_cast<double>(2), stats.level)))) {
             // i.e. 2, 4, 8, 16...
-            eater->keys |= static_cast<Sint32>(pow(static_cast<double>(2), stats->level));
+            eater->keys |= static_cast<Sint32>(pow(static_cast<double>(2), stats.level));
 
             if (eater->myguy) {
-                buf << eater->myguy->name << " picks up key " << stats->level;
+                buf << eater->myguy->name << " picks up key " << stats.level;
             } else {
-                buf << eater->stats->name << " picks up key " << stats->level;
+                buf << eater->stats.name << " picks up key " << stats.level;
             }
 
             message = buf.str();
@@ -416,7 +416,7 @@ Walker * Treasure::find_teleport_target()
         if (w && !w->dead) {
             if ((w->query_order() == ORDER_TREASURE)
                 && (w->query_family() == FAMILY_TELEPORTER)
-                && (w->stats->level == stats->level)) {
+                && (w->stats.level == stats.level)) {
                 // Log(" to target %d\n", number);
                 return w;
             }
@@ -434,7 +434,7 @@ Walker * Treasure::find_teleport_target()
         if (w && !w->dead) {
             if ((w->query_order() == ORDER_TREASURE)
                 && (w->query_family() == FAMILY_TELEPORTER)
-                && (w->stats->level == stats->level)) {
+                && (w->stats.level == stats.level)) {
                 // Log(" to looped target %d\n", number);
                 return w;
             }

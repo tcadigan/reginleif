@@ -29,17 +29,7 @@
  *         * Added math.h, ctype.h
  */
 
-#include <cctype>
-#include <cstdio>
-#include <cstdlib>
-#include <cmath>
-#include <fstream>
-#include <string>
-
 #include <SDL2/SDL.h>
-
-#include "pixie_data.hpp"
-#include "screen-fwd.hpp"
 
 #define DIFFICULTY_SETTINGS 3
 #define VIDEO_LINEAR ((VIDEO_ADDRESS) << 4)
@@ -341,9 +331,5 @@ enum CommandEnum : Uint8 {
 #define STANDARD_TEXT_TIME 75 // How many cycles to display text?
 #define TEXT_1 "text.pix" // Standard text pixie
 #define TEXT_BIG "textbig.pix" // Standard text pixie
-
-extern VideoScreen *myscreen; // Global, available to anyone
-
-SDL_Color palette[256];
 
 #endif

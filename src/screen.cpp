@@ -247,7 +247,7 @@ VideoScreen::~VideoScreen()
 void VideoScreen::initialize_views()
 {
     // Even though it looks okay here, these positions and sizes are overridden
-    // byt ViewScreen::resize() later
+    // by ViewScreen::resize() later
     if (numviews == 1) {
         viewob[0] = new ViewScreen(S_LEFT, S_UP, S_WIDTH, S_HEIGHT, 0);
     } else if (numviews == 2) {
@@ -364,7 +364,7 @@ bool VideoScreen::query_grid_passable(float x, float y, Walker *ob)
     }
 
     // Are we ethereal?
-    if (ob->stats->query_bit_flags(BIT_ETHEREAL)) {
+    if (ob->stats.query_bit_flags(BIT_ETHEREAL)) {
         // Moved up to avoid unneeded calculation
         return 1;
     }
@@ -477,17 +477,17 @@ bool VideoScreen::query_grid_passable(float x, float y, Walker *ob)
             case PIX_TREE_MR:
             case PIX_TREE_MT:
             case PIX_TREE_T1:
-                if (ob->stats->query_bit_flags(BIT_FORESTWALK)) {
+                if (ob->stats.query_bit_flags(BIT_FORESTWALK)) {
                     break;
-                } else if (ob->stats->query_bit_flags(BIT_FLYING) || ob->flight_left) {
+                } else if (ob->stats.query_bit_flags(BIT_FLYING) || ob->flight_left) {
                     break;
                 }
 
                 return 0;
             case PIX_TREE_B1: // Tree bottoms
-                if ((ob->query_order() == ORDER_WEAPON) || ob->stats->query_bit_flags(BIT_FORESTWALK)) {
+                if ((ob->query_order() == ORDER_WEAPON) || ob->stats.query_bit_flags(BIT_FORESTWALK)) {
                     break;
-                } else if (ob->stats->query_bit_flags(BIT_FLYING) || ob->flight_left) {
+                } else if (ob->stats.query_bit_flags(BIT_FLYING) || ob->flight_left) {
                     break;
                 }
 
@@ -553,7 +553,7 @@ bool VideoScreen::query_grid_passable(float x, float y, Walker *ob)
             case PIX_BOULDER_4:
                 if (ob->query_order() == ORDER_WEAPON) {
                     break;
-                } else if (ob->stats->query_bit_flags(BIT_FLYING) || ob->flight_left) {
+                } else if (ob->stats.query_bit_flags(BIT_FLYING) || ob->flight_left) {
                     break;
                 }
 
@@ -1047,7 +1047,7 @@ Walker *VideoScreen::find_far_foe(Walker *ob)
     // Set our "default" foe to nullptr
     endfoe = nullptr;
     distance = 10000;
-    ob->stats->last_distance = 10000;
+    ob->stats.last_distance = 10000;
 
     for (auto const & foe : level_data.oblist) {
         if ((foe == nullptr) || foe->dead) {
@@ -1068,11 +1068,6 @@ Walker *VideoScreen::find_far_foe(Walker *ob)
     }
 
     return endfoe;
-}
-
-Walker *VideoScreen::set_walker(Walker *ob, Uint8 order, Uint8 family)
-{
-    return level_data.myloader->set_walker(ob, order, family);
 }
 
 std::string VideoScreen::get_scen_title(std::string const &filename, VideoScreen *master)

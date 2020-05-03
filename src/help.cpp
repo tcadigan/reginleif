@@ -21,8 +21,8 @@
 #include <fstream>
 #include <string>
 
+#include "campaign_data.hpp"
 #include "input.hpp"
-#include "level_data.hpp"
 #include "util.hpp"
 
 #define HELPTEXT_LEFT 40

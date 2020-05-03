@@ -1291,7 +1291,7 @@ void Video::walkputbuffer(Sint32 walkerstartx, Sint32 walkerstarty,
     Sint32 rowsize;
 
     if ((walkerstartx >= portendx) || (walkerstarty >= portendy)) {
-        // Walker is beolow or to the right of the viewport
+        // Walker is below or to the right of the viewport
         return;
     }
 

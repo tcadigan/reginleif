@@ -20,8 +20,6 @@
 
 // The definition of the VIDEO class
 
-#include "video-fwd.hpp"
-
 #include "text.hpp"
 
 class Video

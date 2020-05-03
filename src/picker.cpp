@@ -35,6 +35,7 @@
 #include "screen.hpp"
 #include "util.hpp"
 #include "version.hpp"
+#include "virtual_button.hpp"
 #include "view.hpp"
 #include "walker.hpp"
 
@@ -96,7 +97,7 @@
 
 // int matherr(struct exception *);
 // Shows the current guy...
-void show_guy(Sint32 frames, Sint32 who, Sint16 centerx = 80, Sint32 centery = 45);
+void picker_show_guy(Sint32 frames, Sint32 who, Sint16 centerx = 80, Sint32 centery = 45);
 std::string get_saved_name(std::string const &filename);
 Sint32 do_set_scen_level(Sint32 arg1);
 Sint32 leftmouse(Button *buttons);
@@ -108,10 +109,6 @@ void statscopy(Guy *dest, Guy *source); // Copy stats from source => dest
 
 // Zardus: PORT: Put in backpics var here so we can free the pixie files themselves
 PixieData backpics[5];
-PixieN *backdrops[5];
-
-// Zardus: FIX: This is from view.cpp, so that we can delete it here
-extern Options *theprefs;
 
 // See guy.cpp
 extern Sint32 costlist[NUM_FAMILIES];
@@ -311,8 +308,6 @@ Button popup_dialog_buttons[] = {
 };
 
 // Difficulty settings...in percent, so 100 == normal
-Sint32 current_difficulty = 1; // Setting "normal"
-Sint32 difficulty_level[DIFFICULTY_SETTINGS] = { 50, 100, 200 };
 std::string difficulty_names[DIFFICULTY_SETTINGS] = { "Skirmish", "Battle", "Slaughter" };
 
 std::string archer_names[] = {
@@ -850,14 +845,25 @@ void redraw_mainmenu()
     std::string message;
 
     main_title_logo_pix->set_frame(0);
-    main_title_logo_pix->drawMix(15, 8, myscreen->viewob[0]);
+    main_title_logo_pix->setxy(15, 8);
+    main_title_logo_pix->drawMix(myscreen->viewob[0]->topx, myscreen->viewob[0]->topy,
+                                 myscreen->viewob[0]->xloc, myscreen->viewob[0]->yloc,
+                                 myscreen->viewob[0]->endx, myscreen->viewob[0]->endy);
     main_title_logo_pix->set_frame(1);
-    main_title_logo_pix->drawMix(151, 8, myscreen->viewob[0]);
-
+    main_title_logo_pix->setxy(151, 8);
+    main_title_logo_pix->drawMix(myscreen->viewob[0]->topx, myscreen->viewob[0]->topy,
+                                 myscreen->viewob[0]->xloc, myscreen->viewob[0]->yloc,
+                                 myscreen->viewob[0]->endx, myscreen->viewob[0]->endy);
     main_columns_pix->set_frame(0);
-    main_columns_pix->drawMix(12, 40, myscreen->viewob[0]);
+    main_columns_pix->setxy(12, 40);
+    main_columns_pix->drawMix(myscreen->viewob[0]->topx, myscreen->viewob[0]->topy,
+                              myscreen->viewob[0]->xloc, myscreen->viewob[0]->yloc,
+                              myscreen->viewob[0]->endx, myscreen->viewob[0]->endy);
     main_columns_pix->set_frame(1);
-    main_columns_pix->drawMix(242, 40, myscreen->viewob[0]);
+    main_columns_pix->setxy(242, 40);
+    main_columns_pix->drawMix(myscreen->viewob[0]->topx, myscreen->viewob[0]->topy,
+                              myscreen->viewob[0]->xloc, myscreen->viewob[0]->yloc,
+                              myscreen->viewob[0]->endx, myscreen->viewob[0]->endy);
     // main_columns_pix->next_frame();
 
 #ifndef DISABLE_MULTIPLAYER
@@ -1616,7 +1622,7 @@ Sint32 create_hire_menu(Sint32 arg1)
         mytext.write_xy((name_box.x + (name_box.w / 2)) - (3 * family_name.size()), name_box.y + 6, family_name, static_cast<Uint8>(DARK_BLUE), 1);
 
         // 0 means current_guy
-        show_guy(query_timer() - start_time, 0, description_box.x + (description_box.w / 2), (name_box.y + name_box.h) + (description_box.y - (name_box.y + name_box.h)) / 2);
+        picker_show_guy(query_timer() - start_time, 0, description_box.x + (description_box.w / 2), (name_box.y + name_box.h) + (description_box.y - (name_box.y + name_box.h)) / 2);
 
         change_hire_teamnum(0);
 
@@ -2009,7 +2015,7 @@ Sint32 create_train_menu(Sint32 arg1)
         draw_buttons(buttons, num_buttons);
 
         // 1 means ourteam[editguy]
-        show_guy(query_timer() - start_time, 1);
+        picker_show_guy(query_timer() - start_time, 1);
 
         linesdown = 0;
 
@@ -3215,7 +3221,7 @@ Sint32 cycle_guy(Sint32 whichway)
     current_guy->name = get_new_name(newfamily);
     current_guy->name.resize(12);
 
-    show_guy(0, 0);
+    picker_show_guy(0, 0);
 
     // myscreen->buffer_to_screen(52, 24, 108, 64);
 
@@ -3225,7 +3231,7 @@ Sint32 cycle_guy(Sint32 whichway)
 }
 
 // Shows the current guy...
-void show_guy(Sint32 frames, Sint32 who, Sint16 centerx, Sint16 centery)
+void picker_show_guy(Sint32 frames, Sint32 who, Sint16 centerx, Sint16 centery)
 {
     Walker *mywalker;
     Sint32 i;
@@ -3246,8 +3252,8 @@ void show_guy(Sint32 frames, Sint32 who, Sint16 centerx, Sint16 centery)
 
     newfamily = current_guy->family;
 
-    mywalker = myscreen->level_data.myloader->create_walker(ORDER_LIVING, newfamily, myscreen);
-    mywalker->stats->bit_flags = 0;
+    mywalker = create_walker(ORDER_LIVING, newfamily);
+    mywalker->stats.bit_flags = 0;
     mywalker->curdir = ((frames / 192) + FACE_DOWN) % 8;
     mywalker->ani_type = ANI_WALK;
 
@@ -3261,7 +3267,12 @@ void show_guy(Sint32 frames, Sint32 who, Sint16 centerx, Sint16 centery)
     mywalker->setxy(centerx - (mywalker->sizex / 2), centery - (mywalker->sizey / 2));
     myscreen->draw_button((centerx - 80) + 54, (centery - 45) + 26, (centerx - 80) + 106, (centery - 45) + 64, 1, 1);
     myscreen->draw_text_bar((centerx - 80) + 56, (centery - 45) + 28, (centerx - 80) + 104, (centery - 45) + 62);
-    mywalker->draw(myscreen->viewob[0]);
+
+    mywalker->draw(myscreen->viewob[0]->topx, myscreen->viewob[0]->topy,
+                   myscreen->viewob[0]->xloc, myscreen->viewob[0]->yloc,
+                   myscreen->viewob[0]->endx, myscreen->viewob[0]->endy,
+                   myscreen->viewob[0]->control);
+
     delete mywalker;
 }
 
@@ -3309,7 +3320,7 @@ Sint32 cycle_team_guy(Sint32 whichway)
     statscopy(current_guy, ourteam[editguy]);
     old_guy = ourteam[editguy];
 
-    show_guy(0, 0);
+    picker_show_guy(0, 0);
 
     current_team_num = current_guy->teamnum;
 
@@ -3958,7 +3969,7 @@ Sint32 create_detail_menu(Guy *arg1)
 
     while (!(retvalue & EXIT)) {
         // 1 means ourteam[editguy]
-        show_guy(query_timer() - start_time, 1);
+        picker_show_guy(query_timer() - start_time, 1);
 
         bool pressed = handle_menu_nav(buttons, highlighted_button, retvalue);
         MouseState &detailmouse = query_mouse();
@@ -4421,7 +4432,7 @@ Sint32 create_detail_menu(Guy *arg1)
             break;
         }
 
-        show_guy(0, 1);
+        picker_show_guy(0, 1);
 
         draw_buttons(buttons, num_buttons);
         draw_highlight_interior(buttons[highlighted_button]);
@@ -4463,7 +4474,7 @@ Sint32 do_pick_campaign(Sint32 arg1)
 Sint32 do_set_scen_level(Sint32 arg1)
 {
     Sint32 templevel = myscreen->save_data.scen_num;
-    templevel = pick_level(myscreen, myscreen->level_data.id);
+    templevel = pick_level(myscreen->level_data.id);
 
     // Have some feedack if the level changed
     if (templevel != myscreen->level_data.id)

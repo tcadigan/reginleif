@@ -20,11 +20,9 @@
 
 // Definition of WALKER class
 
-#include "walker-fwd.hpp"
-
+#include "base.hpp"
 #include "damage_number.hpp"
-#include "guy-fwd.hpp"
-#include "obmap.hpp"
+#include "guy.hpp"
 #include "pixien.hpp"
 #include "stats.hpp"
 
@@ -56,9 +54,9 @@ public:
     void setworldxy(float x, float y);
     bool walk();
     bool walkstep(float x, float y);
-    Sint16 draw(ViewScreen *view_buf);
-    Sint16 draw_tile(ViewScreen *view_buf);
-    void draw_path(ViewScreen *view_buf);
+    Sint16 draw(Sint16 topx, Sint16 topy, Sint16 xloc, Sint16 yloc, Sint16 endx, Sint16 endy, Walker *control);
+    Sint16 draw_tile(Sint16 topx, Sint16 topy, Sint16 xloc, Sint16 yloc, Sint16 endx, Sint16 endy, Walker *control);
+    void draw_path(Sint16 topx, Sint16 topy, Sint16 xloc, Sint16 yloc);
     void find_path_to_foe();
     void follow_path_to_foe();
     bool init_fire();
@@ -110,6 +108,31 @@ public:
         return ((oval == order) && (fval == family));
     }
 
+    bool turn_left();
+    FacingsEnum face_right();
+    void update_derived_stats();
+
+    void clear_command();
+    Sint16 do_command();
+
+    // Yell and run away
+    void yell_for_help(Walker *foe);
+    void hit_response(Walker *who);
+
+    // Try to walk intelligently towards foe
+    bool walk_to_foe();
+
+    // Walk in a line toward foe...
+    bool direct_walk();
+    // Walk using right hand rule
+    bool right_walk();
+
+    // Are we blocked in front?
+    bool forward_blocked();
+    bool right_blocked();
+    bool right_forward_blocked();
+    bool right_back_blocked();
+
     // Called when death/destruction occurs...
     virtual Sint16 death();
     virtual Sint16 facing(Sint16 x, Sint16 y);
@@ -128,9 +151,6 @@ public:
     {
         return order;
     }
-
-    friend class Statistics;
-    friend class Command;
 
     // Used to open doors
     Uint32 keys;
@@ -169,7 +189,7 @@ public:
     float damage;
     float fire_frequency;
     float busy;
-    Statistics *stats;
+    Statistics stats;
     Walker *collide_ob;
     Walker *foe;
     Walker *leader;
@@ -207,7 +227,6 @@ public:
 
     // Zardus: ADD: in_act should be set wile in action
     bool in_act;
-    ObjectMap *myobmap;
     Sint32 path_check_counter;
     // Result from pathfinding
     std::vector<Sint32> path_to_foe;
@@ -235,6 +254,12 @@ protected:
     Uint8 enddir;
     Uint8 order;
     Uint8 family;
+
+private:
+    Sint32 walkrounds;
 };
+
+Walker *create_walker(Uint8 order, Uint8 family);
+Walker *set_walker(Walker *ob, Uint8 order, Uint8 family);
 
 #endif

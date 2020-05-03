@@ -15,9 +15,43 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#ifndef __PIXIE_FWD_HPP__
-#define __PIXIE_FWD_HPP__
+#ifndef __CAMPAIGN_DATA_HPP__
+#define __CAMPAIGN_DATA_HPP__
 
-class Pixie;
+#include "pixie.hpp"
+#include "pixie_data.hpp"
+
+#include <list>
+#include <string>
+
+#include <SDL2/SDL.h>
+
+class CampaignData
+{
+public:
+    CampaignData(std::string const &id);
+    ~CampaignData();
+
+    bool load();
+    bool save();
+    bool save_as(std::string const &new_id);
+
+    std::string getDescriptionLine(Sint32 i);
+
+    std::string id;
+    std::string title;
+    float rating;
+    std::string version;
+    std::string authors;
+    std::string contributors;
+    std::list<std::string> description;
+    Sint32 suggested_power;
+    Sint32 first_level;
+
+    Sint32 num_levels;
+
+    PixieData icondata;
+    Pixie *icon;
+};
 
 #endif

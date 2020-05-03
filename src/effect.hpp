@@ -20,10 +20,7 @@
 
 // Definition of EFFECT class
 
-#include "guy-fwd.hpp"
-#include "obmap.hpp"
-#include "screen-fwd.hpp"
-#include "stats.hpp"
+#include "pixie_data.hpp"
 #include "walker.hpp"
 
 class Effect : public Walker

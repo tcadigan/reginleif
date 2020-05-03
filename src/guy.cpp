@@ -18,23 +18,12 @@
 #include "guy.hpp"
 
 #include <algorithm>
-#include <cmath>
-#include <string>
 
-#include "gloader.hpp"
-#include "screen.hpp"
-#include "walker.hpp"
+#include "picker.hpp"
 
 #define RAISE 1.85 // Please also change in picker.cpp
-#define BASE_GUY_HP 30
 
 static Sint32 guy_id_counter = 0;
-
-// Zardus: PORT, exception doesn't compile (DOS thing?):
-// int matherr(struct exception *ex);
-
-std::string get_family_string(Sint16 family);
-Uint32 calculate_exp(Sint32 level);
 
 Sint32 costlist[NUM_FAMILIES] = {
     250, // Soldier
@@ -79,31 +68,6 @@ Sint32 statlist[NUM_FAMILIES][6] = {
     {    4,   6,   4,  16,     5,     1 } // Archmage
 };
 
-float derived_bonuses[NUM_FAMILIES][8] =
-{
-    //               HP, MP, ATK, RANGED ATK, RANGE, DEF, SPD, ATK SPD (delay)
-    {  BASE_GUY_HP + 90,  0,  20,          0,     0,   0,   4,               6 }, // Soldier
-    {  BASE_GUY_HP + 45,  0,  12,          0,     0,   0,   4,               5 }, // Elf
-    {  BASE_GUY_HP + 60,  0,   8,          0,     0,   0,   4,               5 }, // Archer
-    {  BASE_GUY_HP + 60,  0,   4,          0,     0,   0,   2,               4 }, // Mage
-    {  BASE_GUY_HP + 30,  0,   4,          0,     0,   0,   6,            4.5f }, // Skeleton
-    {  BASE_GUY_HP + 90,  0,  12,          0,     0,   0,   2,            7.5f }, // Cleric
-    {  BASE_GUY_HP + 70,  0,  28,          0,     0,   0,   4,               5 }, // Fire Elemental
-    {  BASE_GUY_HP + 45,  0,   5,          0,     0,   0,   4,               9 }, // Faerie
-    { BASE_GUY_HP + 120,  0,  28,          0,     0,   0,   3,              11 }, // Slime
-    {  BASE_GUY_HP + 50,  0,  12,          0,     0,   0,   2,              12 }, // Small slime
-    {  BASE_GUY_HP + 80,  0,  20,          0,     0,   0,   2,              10 }, // Medium slime
-    {  BASE_GUY_HP + 45,  0,  12,          0,     0,   0,   5,               5 }, // Thief
-    {  BASE_GUY_HP + 20,  0,  12,          0,     0,   0,   4,               7 }, // Ghost
-    {  BASE_GUY_HP + 80,  0,  10,          0,     0,   0,   3,               9 }, // Druid
-    { BASE_GUY_HP + 110,  0,  23,          0,     0,   0,   3,               7 }, // Orc
-    { BASE_GUY_HP + 150,  0,  28,          0,     0,   0,   3,               6 }, // Big orc
-    { BASE_GUY_HP + 120,  0,  25,          0,     0,   0,   3,            5.5f }, // Barbarian
-    { BASE_GUY_HP + 120,  0,   8,          0,     0,   0,   3,               1 }, // Archmage
-    { BASE_GUY_HP + 270,  0,  60,          0,     0,   0,   8,               9 }, // Golem
-    { BASE_GUY_HP + 270,  0,  60,          0,     0,   0,   8,               7 }, // Giant skeleton
-    { BASE_GUY_HP + 100,  0,   0,          0,     0,   0,   0,               5 } // Tower
-};
 
 Sint32 statcosts[NUM_FAMILIES][6] = {
     // STR, DEX, CON, INT, ARMOR, LEVEL
@@ -427,110 +391,4 @@ float Guy::get_speed_bonus() const
 float Guy::get_fire_frequency_bonus() const
 {
     return (dexterity / 47.0f);
-}
-
-void Guy::update_derived_stats(Walker *w)
-{
-    Guy *temp_guy = w->myguy;
-    myscreen->level_data.myloader->set_derived_stats(w, ORDER_LIVING, temp_guy->family);
-
-    w->stats->max_hitpoints += temp_guy->get_hp_bonus();
-    w->stats->hitpoints = w->stats->max_hitpoints;
-
-    // No class base value for MP...
-    w->stats->max_magicpoints = temp_guy->get_mp_bonus();
-    w->stats->magicpoints = w->stats->max_magicpoints;
-
-    w->damage += temp_guy->get_damage_bonus();
-
-    // No class base value for armor...
-    w->stats->armor = temp_guy->get_armor_bonus();
-
-    // stepsize makes us run faster, max for a non-weapon is 12
-    w->stepsize = std::min(w->stepsize + temp_guy->get_speed_bonus(), 12.0f);
-
-    w->normal_stepsize = w->stepsize;
-
-    // fire_frequency makse us fire faster, min is 1
-    w->fire_frequency = std::max(w->fire_frequency - temp_guy->get_fire_frequency_bonus(), 1.0f);
-
-    // Fighters: limited weapons
-    if (w->query_family() == FAMILY_SOLDIER) {
-        w->weapons_left = static_cast<Sint16>((w->stats->level + 1) / 2);
-    }
-
-    // Set the heal delay...
-    w->stats->max_heal_delay = REGEN;
-    // For purposes of calculation only
-    w->stats->current_heal_delay = ((temp_guy->constitution + (temp_guy->strength / 6.0f)) + 20) + 1000;
-
-    // This takes care of the integer part, not calculate the fraction
-    while (w->stats->current_heal_delay > REGEN) {
-        w->stats->current_heal_delay -= REGEN;
-        ++w->stats->heal_per_round;
-    }
-
-    if (w->stats->current_heal_delay > 1) {
-        w->stats->max_heal_delay /= static_cast<Sint32>(w->stats->current_heal_delay + 1);
-    }
-
-    // Start off without healing
-    w->stats->current_heal_delay = 0;
-
-    // Make sure we have at least a 2 wait, otherwise we should have calculated
-    // our heal_per_round as one higher, and the math must have been screwed
-    // up somehow
-    w->stats->max_heal_delay = std::max(w->stats->max_heal_delay, 2);
-
-    // Set the magic delay...
-    w->stats->max_magic_delay = REGEN;
-    w->stats->current_magic_delay = ((temp_guy->intelligence * 45) + (temp_guy->dexterity * 15)) + 200;
-
-    // This takes care of the integer part, now calculate the fraction
-    while (w->stats->current_magic_delay > REGEN) {
-        w->stats->current_magic_delay -= REGEN;
-        ++w->stats->magic_per_round;
-    }
-
-    if (w->stats->current_magic_delay > 1) {
-        w->stats->max_magic_delay /= static_cast<Sint32>(w->stats->current_magic_delay + 1);
-    }
-
-    // Start off without magic regen
-    w->stats->current_magic_delay = 0;
-
-    // Make sure we have at least a 2 wait, otherwise we should have calculated
-    // our magic_per_round as one higher, and the math must have been screwed
-    // up somehow
-    w->stats->max_magic_delay = std::max(w->stats->max_magic_delay, 2);
-}
-
-Walker *Guy::create_walker(VideoScreen *myscreen)
-{
-    Walker *temp_walker = myscreen->level_data.myloader->create_walker(ORDER_LIVING, this->family, nullptr);
-    *temp_walker->myguy = *this;
-    temp_walker->stats->level = this->level;
-
-    update_derived_stats(temp_walker);
-
-    // Set our team number...
-    temp_walker->team_num = this->teamnum;
-    temp_walker->real_team_num = 255;
-
-    return temp_walker;
-}
-
-Walker *Guy::create_and_add_walker(VideoScreen *myscreen)
-{
-    Walker *temp_walker = myscreen->level_data.add_ob(ORDER_LIVING, this->family);
-    *temp_walker->myguy = *this;
-    temp_walker->stats->level = this->level;
-
-    update_derived_stats(temp_walker);
-
-    // Set our team number...
-    temp_walker->team_num = this->teamnum;
-    temp_walker->real_team_num = 255;
-
-    return temp_walker;
 }

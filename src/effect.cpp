@@ -181,7 +181,7 @@ Sint16 Effect::act()
         // First weapons
         for (auto itr = foelist.begin(); itr != foelist.end(); itr++) {
             Walker *w = *itr;
-            stats->hitpoints -= w->damage;
+            stats.hitpoints -= w->damage;
             w->dead = 1;
             w->death();
         }
@@ -194,12 +194,12 @@ Sint16 Effect::act()
         // Second enemies
         for (auto itr = foelist.begin(); itr != foelist.end(); itr++) {
             Walker *w = *itr;
-            stats->hitpoints -= w->damage;
+            stats.hitpoints -= w->damage;
             attack(w);
             dead = 0;
         }
 
-        if ((stats->hitpoints <= 0) || (lifetime-- < 0)) {
+        if ((stats.hitpoints <= 0) || (lifetime-- < 0)) {
             dead = 1;
             death();
         }
@@ -317,7 +317,7 @@ Sint16 Effect::act()
         // First weapons
         for (auto itr = foelist.begin(); itr != foelist.end(); itr++) {
             Walker *w = *itr;
-            stats->hitpoints -= w->damage;
+            stats.hitpoints -= w->damage;
             w->dead = 1;
             w->death();
         }
@@ -330,12 +330,12 @@ Sint16 Effect::act()
         // Second enemies
         for (auto itr = foelist.begin(); itr != foelist.end(); ++itr) {
             Walker *w = *itr;
-            stats->hitpoints -= w->damage;
+            stats.hitpoints -= w->damage;
             attack(w);
             dead = 0;
         }
 
-        if ((stats->hitpoints <= 0) || (lifetime-- < 0)) {
+        if ((stats.hitpoints <= 0) || (lifetime-- < 0)) {
             dead = 1;
             death();
         }
@@ -444,8 +444,8 @@ Sint16 Effect::act()
             } // End of actual hit
         }
 
-        if (stats->has_commands()) {
-            temp = stats->do_command();
+        if (stats.has_commands()) {
+            temp = do_command();
         } else {
             xd = 0;
             yd = 0;
@@ -455,10 +455,10 @@ Sint16 Effect::act()
                 yd = getRandomSint32(3) - 1;
             }
 
-            stats->add_command(COMMAND_WALK,
-                               static_cast<Sint16>(getRandomSint32(20)),
-                               static_cast<Sint16>(xd),
-                               static_cast<Sint16>(yd));
+            stats.add_command(COMMAND_WALK,
+                              static_cast<Sint16>(getRandomSint32(20)),
+                              static_cast<Sint16>(xd),
+                              static_cast<Sint16>(yd));
         }
 
         break; // End of cloud
@@ -485,7 +485,7 @@ Sint16 Effect::act()
 
             newob->owner = owner;
             newob->team_num = team_num;
-            newob->stats->level = stats->level;
+            newob->stats.level = stats.level;
             newob->damage = damage;
             newob->ani_type = ANI_EXPLODE;
             newob->center_on(this);
@@ -506,14 +506,14 @@ Sint16 Effect::act()
                                                        this);
             } else {
                 foelist = myscreen->find_foes_in_range(myscreen->level_data.oblist,
-                                                       240 + (stats->level * 5),
+                                                       240 + (stats.level * 5),
                                                        &temp,
                                                        this);
             }
 
             // More foes to find...
             if (temp && (generic > 20)) {
-                numfoes = getRandomSint32(owner->stats->level) + 1;
+                numfoes = getRandomSint32(owner->stats.level) + 1;
 
                 for (auto itr = foelist.begin(); (itr != foelist.end()) && (numfoes > 0); itr++, --numfoes) {
                     Walker *w = *itr;
@@ -528,8 +528,8 @@ Sint16 Effect::act()
 
                         newob->owner = owner; // Our caster
                         newob->leader = w; // Guy to attack
-                        newob->stats->level = stats->level;
-                        newob->stats->set_bit_flags(BIT_MAGICAL, 1);
+                        newob->stats.level = stats.level;
+                        newob->stats.set_bit_flags(BIT_MAGICAL, 1);
                         newob->damage = generic;
                         newob->team_num = team_num;
                         newob->center_on(this);
@@ -621,7 +621,7 @@ Sint16 Effect::act()
 
         newob->ani_type = ANI_WALK;
         newob->setworldxy(worldx, worldy);
-        newob->stats->level = stats->level;
+        newob->stats.level = stats.level;
         newob->team_num = team_num;
         newob->ignore = 1;
         newob->curdir = curdir;
@@ -710,7 +710,7 @@ Sint16 Effect::death()
         }
 
         foelist = myscreen->find_foes_in_range(myscreen->level_data.oblist,
-                                               50 + (10 * owner->stats->level),
+                                               50 + (10 * owner->stats.level),
                                                &howmany,
                                                owner);
 
@@ -734,17 +734,17 @@ Sint16 Effect::death()
                     tempy /= abs(tempy);
                 }
 
-                generic = owner->stats->level * 25;
+                generic = owner->stats.level * 25;
 
                 if (w->myguy) {
                     generic -= getRandomSint32(w->myguy->constitution);
                }
 
                 if (generic > 0) {
-                    w->stats->force_command(COMMAND_WALK,
-                                            static_cast<Sint16>(generic),
-                                            static_cast<Sint16>(tempx),
-                                            static_cast<Sint16>(tempy));
+                    w->stats.force_command(COMMAND_WALK,
+                                           static_cast<Sint16>(generic),
+                                           static_cast<Sint16>(tempx),
+                                           static_cast<Sint16>(tempy));
                 }
             } // End of valid target
         } // End of cycle through scare list
@@ -761,8 +761,8 @@ Sint16 Effect::death()
 
         newob = myscreen->level_data.add_ob(ORDER_FX, FAMILY_EXPLOSION, 1);
         newob->owner = owner;
-        newob->stats->hitpoints = 0;
-        newob->stats->level = owner->stats->level;
+        newob->stats.hitpoints = 0;
+        newob->stats.level = owner->stats.level;
         newob->ani_type = ANI_EXPLODE;
         // newob->setxy(xpos, ypos);
         newob->center_on(this);
@@ -775,7 +775,7 @@ Sint16 Effect::death()
         }
 
         // Set the max distance for a bomb...
-        generic = 4 * owner->stats->level;
+        generic = 4 * owner->stats.level;
 
         // Set max range to about 6 tiles
         if (generic > 96) {
@@ -826,17 +826,17 @@ Sint16 Effect::death()
                 }
 
                 // Set the distance to 'shove' by explosion
-                generic = 2 + (owner->stats->level / 15);
+                generic = 2 + (owner->stats.level / 15);
 
                 // Max of about 8 steps
                 if (generic > 8) {
                     generic = 8;
                 }
 
-                w->stats->force_command(COMMAND_WALK,
-                                        generic,
-                                        static_cast<Sint16>(xdelta),
-                                        static_cast<Sint16>(ydelta));
+                w->stats.force_command(COMMAND_WALK,
+                                       generic,
+                                       static_cast<Sint16>(xdelta),
+                                       static_cast<Sint16>(ydelta));
 
                 // Damage (attack) the object
                 // Do less damage

@@ -275,26 +275,25 @@ bool Text::write_xy(Sint16 x, Sint16 y, std::string const &string, Sint16 to_buf
     return true;
 }
 
-bool Text::write_xy(Sint16 x, Sint16 y, std::string const &string, Uint8 color, ViewScreen *whereto)
+bool Text::write_xy(Sint16 x, Sint16 y, std::string const &string, Uint8 color,
+                    Sint16 xloc, Sint16 yloc, Sint16 endx, Sint16 endy)
 {
     Uint16 i = 0;
 
     while (string[i]) {
-        if (!whereto) {
-            write_char_xy(static_cast<Sint16>(x + (i * (sizex + 1))), y, string[i], static_cast<Uint8>(color));
-        } else {
-            write_char_xy(static_cast<Sint16>(x + (i * (sizex + 1))), y, string[i], static_cast<Uint8>(color), whereto);
-            }
+        Sint16 xpos = x + (i * sizex + 1);
+
+        myscreen->walkputbuffertext(xpos + xloc, y + yloc,
+                                    sizex, sizey,
+                                    xloc, yloc,
+                                    endx, endy,
+                                    &letters.data[(string[i] * sizex) * sizey],
+                                    color);
 
         ++i;
     }
 
     return true;
-}
-
-bool Text::write_xy(Sint16 x, Sint16 y, std::string const &string, ViewScreen *whereto)
-{
-    return write_xy(x, y, string, static_cast<Uint8>(DEFAULT_TEXT_COLOR), whereto);
 }
 
 Sint16 Text::write_y(Sint16 y, std::string const &string, Uint8 color)
@@ -319,7 +318,7 @@ Sint16 Text::write_y(Sint16 y, std::string const &string, Uint8 color, Sint16 to
     len = static_cast<Uint16>(string.length());
     xstart = static_cast<Uint16>((320 - (len * (sizex + 1))) / 2);
 
-    if (to_buffer != 0) {
+    if (to_buffer == 0) {
         return write_xy(xstart, y, string, static_cast<Uint8>(color));
     } else {
         return write_xy(xstart, y, string, static_cast<Uint8>(color), to_buffer);
@@ -331,30 +330,21 @@ Sint16 Text::write_y(Sint16 y, std::string const &string, Sint16 to_buffer)
     return write_y(y, string, static_cast<Uint8>(DEFAULT_TEXT_COLOR), to_buffer);
 }
 
-Sint16 Text::write_y(Sint16 y, std::string const &string, Uint8 color, ViewScreen *whereto)
+Sint16 Text::write_y(Sint16 y, std::string const &string, Uint8 color, Sint16 xloc, Sint16 yloc, Sint16 endx, Sint16 endy)
 {
     Uint16 len = 0;
     Uint16 xstart;
     len = static_cast<Uint16>(string.length());
     xstart = static_cast<Uint16>((320 - (len * (sizex + 1))) / 2);
 
-    if (whereto != nullptr) {
-        return write_xy(xstart, y, string, static_cast<Uint8>(color));
-    } else {
-        return write_xy(xstart, y, string, static_cast<Uint8>(color), whereto);
-    }
-}
-
-Sint16 Text::write_y(Sint16 y, std::string const &string, ViewScreen *whereto)
-{
-    return write_y(y, string, static_cast<Uint8>(DEFAULT_TEXT_COLOR), whereto);
+    return write_xy(xstart, y, string, static_cast<Uint8>(color), xloc, yloc, endx, endy);
 }
 
 // This version writes to the buffer and then writes the
 // buffer to the screen...(double buffered to eliminate flashing)
 bool Text::write_char_xy(Sint16 x, Sint16 y, Uint8 letter, Uint8 color, Sint16 to_buffer)
 {
-    if (to_buffer != 0) {
+    if (to_buffer == 0) {
         return write_char_xy(x, y, letter, static_cast<Uint8>(color));
     }
 
@@ -388,24 +378,6 @@ bool Text::write_char_xy(Sint16 x, Sint16 y, Uint8 letter)
     myscreen->putdatatext(x, y, sizex, sizey, &letters.data[(letter * sizex) * sizey]);
 
     return true;
-}
-
-bool Text::write_char_xy(Sint16 x, Sint16 y, Uint8 letter, Uint8 color, ViewScreen *whereto)
-{
-    if (whereto != nullptr) {
-        myscreen->putdatatext(x, y, sizex, sizey, &letters.data[(letter * sizex) * sizey], static_cast<Uint8>(color));
-    } else {
-        myscreen->walkputbuffertext(x + whereto->xloc, y + whereto->yloc, sizex, sizey, whereto->xloc, whereto->yloc, whereto->endx, whereto->endy, &letters.data[(letter * sizex) * sizey], static_cast<Uint8>(color));
-    }
-
-    // myscreen->buffer_to_screen(x + whereto->xloc, y + whereto->yloc, (sizex + 4) - (sizex % 4), (sizey + 4) - (sizey % 4));
-
-    return true;
-}
-
-bool Text::write_char_xy(Sint16 x, Sint16 y, Uint8 letter, ViewScreen *whereto)
-{
-    return write_char_xy(x, y, letter, static_cast<Uint8>(DEFAULT_TEXT_COLOR), whereto);
 }
 
 std::string Text::input_string(Sint16 x, Sint16 y, Sint16 maxlength, std::string const &begin)
@@ -588,7 +560,6 @@ std::string Text::input_string_ex(Sint16 x, Sint16 y, Sint16 maxlength, std::str
     while (!string_done) {
         // Wait for a key to be pressed...
         while (!query_key_press_event() && !query_text_input_event()) {
-            // ++dumbcount;
             get_input_events(WAIT);
         }
 

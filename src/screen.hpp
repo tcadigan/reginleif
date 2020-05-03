@@ -20,20 +20,14 @@
 
 // Definition of SCREEN class
 
-#include "screen-fwd.hpp"
+#include <list>
 
-#include <map>
-#include <set>
-#include <string>
-
-#include "gloader-fwd.hpp"
+#include "base.hpp"
 #include "level_data.hpp"
-#include "obmap.hpp"
 #include "save_data.hpp"
-#include "smooth.hpp"
 #include "soundob.hpp"
-#include "text.hpp"
 #include "video.hpp"
+#include "view.hpp"
 
 class VideoScreen : public Video
 {
@@ -73,7 +67,6 @@ public:
     Uint8 damage_tile(Sint16 xloc, Sint16 yloc); // Damage the specified tile
     void do_notify(std::string const &message, Walker *who); // Printing text
     void report_mem();
-    Walker *set_walker(Walker *ob, Uint8 order, Uint8 family);
     std::string get_scen_title(std::string const &filename, VideoScreen *master);
     void add_level_completed(std::string const &campaign, Sint32 level_index);
 
@@ -114,5 +107,7 @@ public:
     Uint32 timerstart;
     Uint32 framecount;
 };
+
+VideoScreen *myscreen;
 
 #endif

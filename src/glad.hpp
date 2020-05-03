@@ -19,7 +19,7 @@
 #define __GLAD_HPP__
 
 #include "screen.hpp"
-#include "walker-fwd.hpp"
+#include "walker.hpp"
 
 #include <SDL2/SDL.h>
 

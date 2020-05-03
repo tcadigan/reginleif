@@ -50,18 +50,8 @@ Sint16 text_input_event = 0; // Used to signal text input
 Sint16 scroll_amount = 0; // For scrolling up and down text popups
 
 bool input_continue = false; // Done with text popups, etc.
-Uint8 const *keystates = nullptr;
 MouseState mouse_state;
 Sint32 mouse_buttons;
-float viewport_offset_x = 0; // In window coords
-float viewport_offset_y = 0;
-float window_w = 320;
-float window_h = 200;
-float viewport_w = 320;
-float viewport_h = 200;
-// Out of 1.0f, percent of total screen dimension that is cut off.
-// 10% (0.10f) is recommended on OUYA.
-float overscan_percentage = 0.0f;
 JoyData player_joy[4];
 SDL_Joystick *joysticks[MAX_NUM_JOYSTICKS];
 

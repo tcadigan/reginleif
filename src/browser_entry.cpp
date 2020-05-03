@@ -17,28 +17,27 @@
  */
 #include "browser_entry.hpp"
 
-#include "level_picker.hpp"
-#include "screen.hpp"
-
 #include <sstream>
 
 BrowserEntry::BrowserEntry(VideoScreen *screenp, Sint32 index, Sint32 scen_num)
     : level_data(scen_num)
-    , myradar(nullptr, myscreen, 0)
+    , screenp(screenp)
 {
     level_data.load();
-    myradar.start(&level_data);
+    screenp->viewob[0]->myradar->start(level_data,
+                                       screenp->viewob[0]->endx, screenp->viewob[0]->endy,
+                                       get_yloc());
 
-    Sint32 w = myradar.xview;
-    Sint32 h = myradar.yview;
+    Sint32 w = get_xview();
+    Sint32 h = get_yview();
 
     mapAreas.w = w;
     mapAreas.h = h;
     mapAreas.x = 10;
     mapAreas.y = 5 + (65 * index);
 
-    myradar.xloc = (mapAreas.x + (mapAreas.w / 2)) - (w / 2);
-    myradar.yloc = mapAreas.y + 10;
+    screenp->viewob[0]->myradar->xloc = (mapAreas.x + (mapAreas.w / 2)) - (w / 2);
+    screenp->viewob[0]->myradar->yloc = mapAreas.y + 10;
 
     getLevelStats(level_data, &max_enemy_level, &average_enemy_level,
                   &num_enemies, &difficulty, exits);
@@ -71,22 +70,22 @@ BrowserEntry::~BrowserEntry()
 
 void BrowserEntry::updateIndex(Sint32 index)
 {
-    Sint32 w = myradar.xview;
+    Sint32 w = get_xview();
     mapAreas.y = 5 + (65 * index);
-    myradar.xloc = (mapAreas.x + (mapAreas.w / 2)) - (w / 3);
-    myradar.yloc = mapAreas.y + 10;
+    screenp->viewob[0]->myradar->xloc = (mapAreas.x + (mapAreas.w / 2)) - (w / 3);
+    screenp->viewob[0]->myradar->yloc = mapAreas.y + 10;
 }
 
 void BrowserEntry::draw(VideoScreen *screenp)
 {
-    Sint32 x = myradar.xloc;
-    Sint32 y = myradar.yloc;
-    Sint32 w = myradar.xview;
-    Sint32 h = myradar.yview;
+    Sint32 x = get_xloc();
+    Sint32 y = get_yloc();
+    Sint32 w = get_xview();
+    Sint32 h = get_yview();
 
     myscreen->draw_button(x - 2, y - 2, (x + w) + 2, (y + h) + 2, 1, 1);
     // Draw radar
-    myradar.draw(&level_data);
+    screenp->viewob[0]->myradar->draw(level_data, nullptr);
 
     Text &loadtext = myscreen->text_normal;
     loadtext.write_xy(mapAreas.x, mapAreas.y, level_name, DARK_BLUE, 1);
@@ -146,4 +145,82 @@ void BrowserEntry::draw(VideoScreen *screenp)
 
         loadtext.write_xy((x + w) + 5, y + 40, temp, WHITE, 1);
     }
+}
+
+void BrowserEntry::getLevelStats(LevelData &level_data, Sint32 *max_enemy_level,
+                                 float *average_enemy_level, Sint32 *num_enemies,
+                                 float *difficulty, std::list<Sint32> &exits)
+{
+    Sint32 num = 0;
+    Sint32 level_sum = 0;
+    Sint32 difficulty_sum = 0;
+    Sint32 difficulty_sum_friends = 0;
+    Sint32 diff_per_level = 3;
+    Sint32 max_level = 0;
+
+    exits.clear();
+
+    // Go through objects
+    for (auto const &ob : level_data.oblist) {
+        switch (ob->query_order()) {
+        case ORDER_LIVING:
+            if (ob->team_num != 0) {
+                ++num;
+                level_sum = ob->stats.level;
+                difficulty_sum += diff_per_level * ob->stats.level;
+
+                if (ob->stats.level > max_level) {
+                    max_level = ob->stats.level;
+                }
+            } else {
+                difficulty_sum_friends += (diff_per_level * ob->stats.level);
+            }
+
+            break;
+        }
+    }
+
+    // Go through effects
+    for (auto const ob : level_data.fxlist) {
+        switch (ob->query_order()) {
+        case ORDER_TREASURE:
+            if (ob->query_family() == FAMILY_EXIT) {
+                exits.push_back(ob->stats.level);
+            }
+
+            break;
+        }
+    }
+
+    *num_enemies = num;
+    *max_enemy_level = max_level;
+
+    if (num == 0) {
+        *average_enemy_level = 0;
+    } else {
+        *average_enemy_level = level_sum / static_cast<float>(num);
+    }
+
+    exits.sort();
+    exits.unique();
+}
+
+Sint16 BrowserEntry::get_xloc()
+{
+    return screenp->viewob[0]->myradar->xloc;
+}
+
+Sint16 BrowserEntry::get_yloc()
+{
+    return screenp->viewob[0]->myradar->yloc;
+}
+
+Sint16 BrowserEntry::get_xview()
+{
+    return screenp->viewob[0]->myradar->xview;
+}
+
+Sint16 BrowserEntry::get_yview()
+{
+    return screenp->viewob[0]->myradar->yview;
 }

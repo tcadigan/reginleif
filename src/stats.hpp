@@ -25,12 +25,12 @@
 //
 
 #include <list>
+#include <string>
 
 #include <SDL2/SDL.h>
 
 #include "base.hpp"
 #include "command.hpp"
-#include "walker-fwd.hpp"
 
 // These are for the bit flags
 enum BitFlagEnum : Sint32 {
@@ -57,7 +57,7 @@ enum BitFlagEnum : Sint32 {
 class Statistics
 {
 public:
-    Statistics(Walker *);
+    Statistics(Sint16 order, Sint16 family);
     ~Statistics();
 
     Sint16 try_command(Sint16 whatcommand, Sint16 iterations, Sint16 info1, Sint16 info2);
@@ -67,29 +67,11 @@ public:
     void add_command(Sint16 whatcommand, Sint16 iterations, Sint16 info1, Sint16 info2);
     void force_command(Sint16 whatcommand, Sint16 iterations, Sint16 info1, Sint16 info2);
     bool has_commands();
-    void clear_command();
-    Sint16 do_command();
-    void hit_response(Walker *who);
-    // Yell and run away
-    void yell_for_help(Walker *foe);
     Sint16 query_bit_flags(Sint32 myvalue);
     void clear_bit_flags();
     // Sets a single flag
     void set_bit_flags(Sint32 someflag, Sint16 newvalue);
     // Is our right blocked?
-    bool right_blocked();
-    bool right_forward_blocked();
-    bool right_back_blocked();
-    // Are we blocked in front?
-    bool forward_blocked();
-    // Not in use???
-    // Sint16 distance_to_foe();
-    // Walk using right hand rule
-    bool right_walk();
-    // Walk in a line toward foe...
-    bool direct_walk();
-    // Try to walk intelligently towards foe
-    bool walk_to_foe();
 
     // For NPCs normally...
     std::string name; // Must be 12 characters or less
@@ -125,7 +107,6 @@ public:
     Uint16 special_cost[NUM_SPECIALS];
     // Cost of our weapon
     Sint16 weapon_cost;
-    Walker *controller;
     std::list<Command> commands;
 
 private:
@@ -133,7 +114,6 @@ private:
     // Sint16 com1;
     // Sint16 com2;
     // Number of rounds we've spent right walking
-    Sint32 walkrounds;
 };
 
 #endif

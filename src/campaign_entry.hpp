@@ -18,7 +18,7 @@
 #ifndef __CAMPAIGN_ENTRY_HPP__
 #define __CAMPAIGN_ENTRY_HPP__
 
-#include "pixie-fwd.hpp"
+#include "pixie.hpp"
 #include "pixie_data.hpp"
 
 #include <SDL2/SDL.h>

@@ -18,7 +18,7 @@
 #ifndef __MAP_HPP__
 #define __MAP_HPP__
 
-#include "walker-fwd.hpp"
+#include "walker.hpp"
 
 #include <SDL2/SDL.h>
 

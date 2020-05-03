@@ -25,7 +25,7 @@
 
 #include <SDL2/SDL.h>
 
-void io_init(std::string path);
+void io_init(std::string const &path);
 void io_exit();
 
 std::filesystem::path get_user_path();
@@ -72,7 +72,7 @@ void cleanup_unpacked_campaign();
 
 bool create_new_map_pix(std::filesystem::path const &filename, Sint32 w, Sint32 h);
 bool create_new_pix(std::filesystem::path const &filename, Sint32 w, Sint32 h, Uint8 fill_color=0);
-bool create_new_campaign_descriptor(std::string const &filename);
+bool create_new_campaign_descriptor(std::filesystem::path const &filename);
 bool create_new_scen_file(std::filesystem::path const &scenfile, std::string const &gridname);
 
 #endif

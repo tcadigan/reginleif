@@ -18,7 +18,7 @@
 #ifndef __EDITOR_OBJECT_BRUSH_HPP__
 #define __EDITOR_OBJECT_BRUSH_HPP__
 
-#include "walker-fwd.hpp"
+#include "walker.hpp"
 
 #include <SDL2/SDL.h>
 

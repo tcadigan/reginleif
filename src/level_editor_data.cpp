@@ -47,6 +47,7 @@
 #define OVERSCAN_PADDING 0
 #endif
 
+
 // buffers: PORT: changed start_time to start_time_s to avoid conflict with input.cpp
 Sint32 start_time_s; // For timer ops
 
@@ -56,7 +57,6 @@ LevelEditorData::LevelEditorData()
     , mode(EditModeEnum::TERRAIN)
     , rect_selecting(false)
     , dragging(false)
-    , myradar(myscreen->viewob[0], myscreen, 0)
     , menu_button_height(DEFAULT_EDITOR_MENU_BUTTON_HEIGHT)
     , fileButton("File", OVERSCAN_PADDING, 0, 30, menu_button_height)
     , fileCampaignButton("Campaign >", OVERSCAN_PADDING, fileButton.area.y + fileButton.area.h,
@@ -234,7 +234,7 @@ LevelEditorData::LevelEditorData()
     gridSnapButton.set_colors_enabled();
     terrainSmoothButton.set_colors_enabled();
 
-    myradar.force_lower_position = true;
+    myscreen->viewob[0]->myradar->force_lower_position = true;
 }
 
 LevelEditorData::~LevelEditorData()
@@ -484,12 +484,12 @@ void LevelEditorData::activate_mode_button(SimpleButton *button)
             Walker *obj = selection.front().get_object(level);
 
             if (obj != nullptr) {
-                std::string name(obj->stats->name);
+                std::string name(obj->stats.name);
 
                 if (prompt_for_string("Rename", name)) {
                     name.resize(11);
-                    obj->stats->name = name;
-                    selection.front().name = obj->stats->name;
+                    obj->stats.name = name;
+                    selection.front().name = obj->stats.name;
                     levelchanged = 1;
                 }
             }
@@ -543,9 +543,9 @@ void LevelEditorData::activate_mode_button(SimpleButton *button)
             Walker *obj = e.get_object(level);
 
             if (obj != nullptr) {
-                if (obj->stats->level > 1) {
-                    --obj->stats->level;
-                    e.level = obj->stats->level;
+                if (obj->stats.level > 1) {
+                    --obj->stats.level;
+                    e.level = obj->stats.level;
                     levelchanged = 1;
                 }
             }
@@ -555,8 +555,8 @@ void LevelEditorData::activate_mode_button(SimpleButton *button)
             Walker *obj = e.get_object(level);
 
             if (obj != nullptr) {
-                ++obj->stats->level;
-                e.level = obj->stats->level;
+                ++obj->stats.level;
+                e.level = obj->stats.level;
                 levelchanged = 1;
             }
         }
@@ -571,7 +571,7 @@ void LevelEditorData::activate_mode_button(SimpleButton *button)
                     e.family = NUM_FAMILIES - 1;
                 }
 
-                level->myloader->set_walker(obj, e.order, e.family);
+                set_walker(obj, e.order, e.family);
                 obj->ani_type = ANI_WALK;
                 obj->transform_to(e.order, e.family);
                 obj->set_frame(obj->ani[obj->curdir][0]);
@@ -592,7 +592,7 @@ void LevelEditorData::activate_mode_button(SimpleButton *button)
                     e.family = 0;
                 }
 
-                level->myloader->set_walker(obj, e.order, e.family);
+                set_walker(obj, e.order, e.family);
                 obj->ani_type = ANI_WALK;
                 obj->transform_to(e.order, e.family);
                 obj->set_frame(obj->ani[obj->curdir][0]);
@@ -665,7 +665,7 @@ bool LevelEditorData::saveLevel()
 void LevelEditorData::draw(VideoScreen *myscreen)
 {
     myscreen->clearbuffer();
-    level->draw(myscreen);
+    myscreen->redraw();
 
     if (rect_selecting) {
         Rectf r((selection_rect.x - level->topx) + myscreen->viewob[0]->xloc,
@@ -716,7 +716,7 @@ Sint32 LevelEditorData::display_panel(VideoScreen *myscreen)
     }
 
     // Draw minimap
-    myradar.draw(level);
+    myscreen->viewob[0]->myradar->draw(*level, nullptr);
 
     // Draw mode-specific buttons
     for (auto const &e : mode_buttons) {
@@ -1087,8 +1087,8 @@ Sint32 LevelEditorData::display_panel(VideoScreen *myscreen)
         my = mymouse.y;
         bool over_radar = false;
 
-        if ((mx > ((myscreen->viewob[0]->endx - myradar.xview) - 4))
-            && (my > ((myscreen->viewob[0]->endy - myradar.yview) - 4))
+        if ((mx > ((myscreen->viewob[0]->endx - myscreen->viewob[0]->myradar->xview) - 4))
+            && (my > ((myscreen->viewob[0]->endy - myscreen->viewob[0]->myradar->yview) - 4))
             && (mx < (myscreen->viewob[0]->endx - 4))
             && (my < (myscreen->viewob[0]->endy - 4))) {
             over_radar = true;
@@ -1119,9 +1119,12 @@ Sint32 LevelEditorData::display_panel(VideoScreen *myscreen)
         Walker *newob = level->add_ob(ORDER_LIVING, FAMILY_ELF);
         newob->setxy((lm + 25) + level->topx, ((PIX_TOP - 16) - 1) + level->topy);
         newob->set_data(level->myloader->graphics[PIX(object_brush.order, object_brush.family)]);
-        level->myloader->set_walker(newob, object_brush.order, object_brush.family);
+        set_walker(newob, object_brush.order, object_brush.family);
         newob->team_num = object_brush.team;
-        newob->draw_tile(myscreen->viewob[0]);
+        newob->draw_tile(myscreen->viewob[0]->topx, myscreen->viewob[0]->topy,
+                         myscreen->viewob[0]->xloc, myscreen->viewob[0]->yloc,
+                         myscreen->viewob[0]->endx, myscreen->viewob[0]->endy,
+                         myscreen->viewob[0]->control);
 
         // Border
         myscreen->draw_box(lm + 25, (PIX_TOP - 16) - 1, (lm + 25) + GRID_SIZE,
@@ -1142,9 +1145,12 @@ Sint32 LevelEditorData::display_panel(VideoScreen *myscreen)
                                  (PIX_TOP + (j * GRID_SIZE)) + level->topy);
                     newob->set_data(level->myloader->graphics[PIX(object_pane[index].order,
                                                                   object_pane[index].family)]);
-                    level->myloader->set_walker(newob, object_pane[index].order, object_pane[index].family);
+                    set_walker(newob, object_pane[index].order, object_pane[index].family);
                     newob->team_num = object_brush.team;
-                    newob->draw_tile(myscreen->viewob[0]);
+                    newob->draw_tile(myscreen->viewob[0]->topx, myscreen->viewob[0]->topy,
+                                     myscreen->viewob[0]->xloc, myscreen->viewob[0]->yloc,
+                                     myscreen->viewob[0]->endx, myscreen->viewob[0]->endy,
+                                     myscreen->viewob[0]->control);
                 }
             }
         }
@@ -1157,8 +1163,8 @@ Sint32 LevelEditorData::display_panel(VideoScreen *myscreen)
         my = mymouse.y;
         bool over_radar = false;
 
-        if((mx > ((myscreen->viewob[0]->endx - myradar.xview) - 4))
-           && (my > ((myscreen->viewob[0]->endy - myradar.yview) - 4))
+        if((mx > ((myscreen->viewob[0]->endx - myscreen->viewob[0]->myradar->xview) - 4))
+           && (my > ((myscreen->viewob[0]->endy - myscreen->viewob[0]->myradar->yview) - 4))
            && (mx < (myscreen->viewob[0]->endx - 4))
            && (my < (myscreen->viewob[0]->endy - 4))) {
             over_radar = true;
@@ -1173,7 +1179,7 @@ Sint32 LevelEditorData::display_panel(VideoScreen *myscreen)
             // Prepare object sprite
             newob->setxy(mx + level->topx, my + level->topy);
             newob->set_data(level->myloader->graphics[PIX(object_brush.order, object_brush.family)]);
-            level->myloader->set_walker(newob, object_brush.order, object_brush.family);
+            set_walker(newob, object_brush.order, object_brush.family);
             newob->team_num = object_brush.team;
 
             // Get size rounded up to nearest GRID_SIZE
@@ -1204,7 +1210,10 @@ Sint32 LevelEditorData::display_panel(VideoScreen *myscreen)
             }
 
             // Draw current brush near cursor
-            newob->draw(myscreen->viewob[0]);
+            newob->draw(myscreen->viewob[0]->topx, myscreen->viewob[0]->topy,
+                        myscreen->viewob[0]->xloc, myscreen->viewob[0]->yloc,
+                        myscreen->viewob[0]->endx, myscreen->viewob[0]->endy,
+                        myscreen->viewob[0]->control);
         }
 
         level->remove_ob(newob);
@@ -1240,7 +1249,7 @@ void LevelEditorData::clear_terrain()
 void LevelEditorData::resmooth_terrain()
 {
     level->mysmoother.smooth();
-    myradar.update(level);
+    myscreen->viewob[0]->myradar->update(*level);
 }
 
 void LevelEditorData::mouse_down(Sint32 mx, Sint32 my)
@@ -1431,7 +1440,11 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                                 if (!levels.empty()) {
                                     loadLevel(levels.front());
                                     // Update minimap
-                                    myradar.start(level);
+                                    myscreen->viewob[0]->myradar->start(
+                                        myscreen->level_data,
+                                        myscreen->viewob[0]->endx,
+                                        myscreen->viewob[0]->endy,
+                                        myscreen->viewob[0]->yloc);
                                     timed_dialog("Campaign created.");
                                     campaignchanged = 0;
                                     levelchanged = 0;
@@ -1487,7 +1500,10 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                             // Load first scenario
                             if (loadLevel(result.first_level)) {
                                 // Update minimap
-                                myradar.start(level);
+                                myscreen->viewob[0]->myradar->start(myscreen->level_data,
+                                                                    myscreen->viewob[0]->endx,
+                                                                    myscreen->viewob[0]->endy,
+                                                                    myscreen->viewob[0]->yloc);
                                 timed_dialog("Campaign loaded.");
                                 levelchanged = 0;
                             } else {
@@ -1547,7 +1563,10 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                 // New level
                 level->clear();
                 level->create_new_grid();
-                myradar.start(level);
+                myscreen->viewob[0]->myradar->start(myscreen->level_data,
+                                                    myscreen->viewob[0]->endx,
+                                                    myscreen->viewob[0]->endy,
+                                                    myscreen->viewob[0]->yloc);
                 levelchanged = 1;
                 redraw = 1;
             }
@@ -1561,7 +1580,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
 
             if (!cancel) {
                 // Browse for the level to load
-                Sint32 id = pick_level(myscreen, level->id, true);
+                Sint32 id = pick_level(level->id, true);
                 // Don't bother loading the level if it is the same, unchanged level
                 if ((id >= 0) && (levelchanged || (id != level->id))) {
                     if (loadLevel(id)) {
@@ -1573,7 +1592,10 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                         redraw = 1;
                     }
 
-                    myradar.start(level);
+                    myscreen->viewob[0]->myradar->start(myscreen->level_data,
+                                                        myscreen->viewob[0]->endx,
+                                                        myscreen->viewob[0]->endy,
+                                                        myscreen->viewob[0]->yloc);
                     redraw = 1;
                 }
             }
@@ -1587,7 +1609,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                 redraw = 1;
             }
         } else if (activate_menu_choice(mx, my , *this, fileLevelSaveAsButton)) {
-            Sint32 id = pick_level(myscreen, level->id, true);
+            Sint32 id = pick_level(level->id, true);
 
             if ((id >= 0) && (id != level->id)) {
                 std::list<Sint32> levels = list_levels();
@@ -1898,7 +1920,10 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                             level->resize_grid(w, h);
 
                             // Reset the minimap
-                            myradar.start(level);
+                            myscreen->viewob[0]->myradar->start(myscreen->level_data,
+                                                                myscreen->viewob[0]->endx,
+                                                                myscreen->viewob[0]->endy,
+                                                                myscreen->viewob[0]->yloc);
 
                             draw(myscreen);
                             myscreen->refresh();
@@ -1983,14 +2008,14 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
         } else if (activate_menu_choice(mx, my, *this, levelDeleteTerrainButton)) {
             if (yes_or_no_prompt("Clear Terrain", "Delete all terrain?", false)) {
                 clear_terrain();
-                myradar.update(level);
+                myscreen->viewob[0]->myradar->update(*level);
                 levelchanged = 1;
             }
             redraw = 1;
         } else if (activate_menu_choice(mx, my, *this, levelDeleteObjectsButton)) {
             if (yes_or_no_prompt("Clear Objects", "Delete all objects?", false)) {
                 level->delete_objects();
-                myradar.update(level);
+                myscreen->viewob[0]->myradar->update(*level);
                 levelchanged = 1;
             }
 
@@ -2037,8 +2062,8 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
         // cliced and released off the menu
         // Zardus: ADD: Can move map by clicking on minimap
         if (((mode != SELECT) || (!rect_selecting && !dragging))
-            && (mx > ((myscreen->viewob[0]->endx - myradar.xview) - 4))
-            && (my > ((myscreen->viewob[0]->endy - myradar.yview) - 4))
+            && (mx > ((myscreen->viewob[0]->endx - myscreen->viewob[0]->myradar->xview) - 4))
+            && (my > ((myscreen->viewob[0]->endy - myscreen->viewob[0]->myradar->yview) - 4))
             && (mx < (myscreen->viewob[0]->endx - 4))
             && (my < (myscreen->viewob[0]->endy - 4))) {
             // Radar clicking is done by holding (in the level_editor function)
@@ -2071,11 +2096,11 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                     newob->setxy(windowx, windowy);
 
                     if (some_hit(windowx, windowy, newob, level)) {
-                        std::string name(newob->collide_ob->stats->name);
+                        std::string name(newob->collide_ob->stats.name);
 
                         if (prompt_for_string("Rename", name)) {
                             name.resize(11);
-                            newob->collide_ob->stats->name = name;
+                            newob->collide_ob->stats.name = name;
                             levelchanged = 1;
                         }
                     }
@@ -2153,7 +2178,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                         newob = level->add_ob(object_brush.order, object_brush.family);
                         newob->setxy(windowx, windowy);
                         newob->team_num = object_brush.team;
-                        newob->stats->level = object_brush.level;
+                        newob->stats.level = object_brush.level;
                         newob->dead = 0; // Just in case
                         newob->collide_ob = 0;
 
@@ -2167,7 +2192,10 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
 
                             // End of failure to put guy
                         } else if (!object_brush.snap_to_grid) {
-                            newob->draw(myscreen->viewob[0]);
+                            newob->draw(myscreen->viewob[0]->topx, myscreen->viewob[0]->topy,
+                                        myscreen->viewob[0]->xloc, myscreen->viewob[0]->yloc,
+                                        myscreen->viewob[0]->endx, myscreen->viewob[0]->endy,
+                                        myscreen->viewob[0]->control);
                             myscreen->buffer_to_screen(0, 0, 320, 200);
                             start_time_s = query_timer();
                             MouseState &mymouse = query_mouse_no_poll();

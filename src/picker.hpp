@@ -18,8 +18,8 @@
 #ifndef __PICKER_HPP__
 #define __PICKER_HPP__
 
-#include "button-fwd.hpp"
-#include "guy-fwd.hpp"
+#include "button.hpp"
+#include "guy.hpp"
 
 #include <SDL2/SDL.h>
 #include <string>
@@ -59,10 +59,12 @@ Sint32 set_difficulty();
 Sint32 change_teamnum(Sint32 arg);
 Sint32 change_hire_teamnum(Sint32 arg);
 Sint32 change_allied();
-Sint32 level_editor();
 Sint32 main_options();
 Sint32 overscan_adjust(Sint32 arg);
 Uint32 calculate_exp(Sint32 level);
 Sint32 calculate_level(Uint32 temp_exp);
+
+Sint32 current_difficulty = 1; // Setting "normal"
+Sint32 difficulty_level[DIFFICULTY_SETTINGS] = { 50, 100, 200 };
 
 #endif

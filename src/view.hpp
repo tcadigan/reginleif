@@ -20,11 +20,9 @@
 
 // Definition of VIEWSCREEN class
 
-#include "view-fwd.hpp"
-
-#include "level_data.hpp"
 #include "options.hpp"
 #include "radar.hpp"
+#include "walker.hpp"
 
 #include <string>
 
@@ -40,7 +38,6 @@ public:
     void clear();
     Sint16 draw();
     bool redraw();
-    bool redraw(LevelData *data, bool draw_radar=true);
     bool refresh();
     bool input(SDL_Event const &event);
     bool continuous_input();
@@ -53,7 +50,6 @@ public:
     void clear_text(void);
     // Moved here to fix radar
     Sint16 draw_obs();
-    Sint16 draw_obs(LevelData *data);
     void resize(Sint16 x, Sint16 y, Sint16 length, Sint16 height);
     // Set according to preferences...
     void resize(Uint8 whatmode);
@@ -65,11 +61,8 @@ public:
     bool set_key_prefs();
     Sint32 change_speed(Sint32 whichway);
     Sint32 change_gamma(Sint32 whichway);
-
-    friend class PixieN;
-    friend class Pixie;
-    friend class Text;
-    friend class Walker;
+    Sint16 top_x();
+    Sint16 top_y();
 
     // For gamma correction
     Sint32 gamma;

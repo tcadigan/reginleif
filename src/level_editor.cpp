@@ -24,6 +24,7 @@
 
 #include "input.hpp"
 #include "io.hpp"
+#include "level_editor_data.hpp"
 #include "object_type.hpp"
 #include "options.hpp"
 #include "pal32.hpp"
@@ -61,19 +62,7 @@
 #define PAN_LIMIT_LEFT -60
 #define PAN_LIMIT_RIGHT (((GRID_SIZE * data.level->grid.w) - 320) + 80)
 
-void quit(Sint32 arg1);
-void set_screen_pos(VideoScreen *myscreen, Sint32 x, Sint32 y);
-bool some_hit(Sint32 x, Sint32 y, Walker *ob, LevelData *data);
-Uint8 get_random_matching_tile(Sint32 whatback);
-void info_box(Walker *target, VideoScreen *myscreen);
-void set_name(Walker *target, VideoScreen *myscreen);
-bool save_level_and_map(VideoScreen *ascreen);
-bool are_objects_outside_area(LevelData *level, Sint32 x, Sint32 y, Sint32 w, Sint32 h);
-
 extern Sint16 scroll_amount; // For scrolling up and down text popups
-extern VideoScreen *myscreen; // Global for scen?
-// Zardus: Our prefs object from view.cpp
-extern Options *theprefs;
 
 SDL_Color scenpalette[256];
 Sint32 cyclemode = 1; // For color cycling
@@ -516,8 +505,8 @@ void get_connected_level_exits(Sint32 current_level, std::list<Sint32> const &le
     std::set<Sint32> exits;
 
     for (auto const &w : d.fxlist) {
-        if ((w->query_order() == ORDER_TREASURE) && (w->query_family() == FAMILY_EXIT) && (w->stats != nullptr)) {
-            exits.insert(w->stats->level);
+        if ((w->query_order() == ORDER_TREASURE) && (w->query_family() == FAMILY_EXIT)) {
+            exits.insert(w->stats.level);
         }
     }
 
@@ -727,13 +716,8 @@ EventTypeEnum handle_basic_editor_event(SDL_Event const &event)
     }
 }
 
-Sint32 level_editor()
+LevelEditor::LevelEditor()
 {
-    static LevelEditorData data;
-    EditorTerrainBrush &terrain_brush = data.terrain_brush;
-    EditorObjectBrush &object_brush = data.object_brush;
-    EditModeEnum &mode = data.mode;
-    Radar &myradar = data.myradar;
     Sint32 i;
     Sint32 j;
     Sint32 windowx;
@@ -790,7 +774,9 @@ Sint32 level_editor()
     object_pane.push_back(ObjectType(ORDER_SPECIAL, FAMILY_RESERVED_TEAM));
 
     // Minimap
-    myradar.start(data.level);
+    myscreen->viewob[0]->myradar->start(*data.level,
+                                        myscreen->viewob[0]->endx, myscreen->viewob[0]->endy,
+                                        myscreen->viewob[0]->yloc);
 
     data.reset_mode_buttons();
 
@@ -857,24 +843,24 @@ Sint32 level_editor()
 
                     // Change teams...
                 } else if (event.key.keysym.sym == SDLK_0) {
-                    object_brush.team = 0;
+                    data.object_brush.team = 0;
                 } else if (event.key.keysym.sym == SDLK_1) {
-                    object_brush.team = 1;
+                    data.object_brush.team = 1;
                 } else if (event.key.keysym.sym == SDLK_2) {
-                    object_brush.team = 2;
+                    data.object_brush.team = 2;
                 } else if (event.key.keysym.sym == SDLK_3) {
-                    object_brush.team = 3;
+                    data.object_brush.team = 3;
                 } else if (event.key.keysym.sym == SDLK_4) {
-                    object_brush.team = 4;
+                    data.object_brush.team = 4;
                 } else if (event.key.keysym.sym == SDLK_5) {
-                    object_brush.team = 5;
+                    data.object_brush.team = 5;
                 } else if (event.key.keysym.sym == SDLK_6) {
-                    object_brush.team = 6;
+                    data.object_brush.team = 6;
                 } else if (event.key.keysym.sym == SDLK_7) {
-                    object_brush.team = 7;
+                    data.object_brush.team = 7;
                 } else if (event.key.keysym.sym == SDLK_g) {
                     // Toggle grid alignment
-                    if ((mode == OBJECT) || (mode == SELECT)) {
+                    if ((data.mode == OBJECT) || (data.mode == SELECT)) {
                         data.activate_mode_button(&data.gridSnapButton);
                     }
                 } else if ((event.key.keysym.sym == SDLK_s) && (event.key.keysym.mod & KMOD_CTRL)) {
@@ -908,33 +894,33 @@ Sint32 level_editor()
                     // End of saving routines
                 } else if (event.key.keysym.sym == SDLK_RIGHTBRACKET) {
                     // Change level of current guy being placed...
-                    if (mode == OBJECT) {
-                        ++object_brush.level;
+                    if (data.mode == OBJECT) {
+                        ++data.object_brush.level;
                     }
                 } else if (event.key.keysym.sym == SDLK_LEFTBRACKET) {
-                    if ((mode == OBJECT) && (object_brush.level > 1)) {
-                        --object_brush.level;
+                    if ((data.mode == OBJECT) && (data.object_brush.level > 1)) {
+                        --data.object_brush.level;
                     }
                 } else if (event.key.keysym.sym == SDLK_DELETE) {
-                    if (mode == SELECT) {
+                    if (data.mode == SELECT) {
                         data.activate_mode_button(&data.deleteButton);
                     }
                 } else if (event.key.keysym.sym == SDLK_o) {
-                    if (mode == OBJECT) {
-                        mode = SELECT;
+                    if (data.mode == OBJECT) {
+                        data.mode = SELECT;
                         data.modeButton.label = "Edit (Select)";
                     } else {
-                        mode = OBJECT;
+                        data.mode = OBJECT;
                         data.modeButton.label = "Edit (Objects)";
                     }
 
                     data.reset_mode_buttons();
                 } else if (event.key.keysym.sym == SDLK_t) {
-                    if (mode == TERRAIN) {
-                        mode = SELECT;
+                    if (data.mode == TERRAIN) {
+                        data.mode = SELECT;
                         data.modeButton.label = "Edit (Select)";
                     } else {
-                        mode = TERRAIN;
+                        data.mode = TERRAIN;
                         data.modeButton.label = "Edit (Terrain)";
                     }
 
@@ -958,18 +944,6 @@ Sint32 level_editor()
         Sint16 scroll_amount = get_and_reset_scroll_amount();
 
         bool scroll = true;
-
-#if defined(USE_TOUCH_PAD)
-        scroll = false;
-
-        // Only scroll the tile selector when touching it and you've already
-        // moved a bi
-        if (mymouse.left
-            && Rect(S_RIGHT, PIX_TOP, 4 * GRID_SIZE, 4 * GRID_SIZE).contains(mymouse.x, mymouse.y)
-            && (fabs(mouse_last_y - mymouse.y) > 4)) {
-            scroll = true;
-        }
-#endif
 
         if (scroll && (keystates[KEYSTATE_DOWN] || (scroll_amount < 0))) {
             ++rowsdown;
@@ -1142,17 +1116,17 @@ Sint32 level_editor()
                 }
             } else if (off_menu) {
                 // Zardus: ADD: Can move map by clicking on minimap
-                if (((mode != SELECT) || (!data.rect_selecting && !data.dragging))
-                    && (mx > ((myscreen->viewob[0]->endx - myradar.xview) - 4))
-                    && (my > ((myscreen->viewob[0]->endy - myradar.yview) - 4))
+                if (((data.mode != SELECT) || (!data.rect_selecting && !data.dragging))
+                    && (mx > ((myscreen->viewob[0]->endx - myscreen->viewob[0]->myradar->xview) - 4))
+                    && (my > ((myscreen->viewob[0]->endy - myscreen->viewob[0]->myradar->yview) - 4))
                     && (mx < (myscreen->viewob[0]->endx - 4))
                     && (my < (myscreen->viewob[0]->endy - 4))) {
-                    mx -= ((myscreen->viewob[0]->endx - myradar.xview) - 4);
-                    my -= ((myscreen->viewob[0]->endy - myradar.yview) - 4);
+                    mx -= ((myscreen->viewob[0]->endx - myscreen->viewob[0]->myradar->xview) - 4);
+                    my -= ((myscreen->viewob[0]->endy - myscreen->viewob[0]->myradar->yview) - 4);
 
                     // Zardus: Above set_screen_pos doesn't take into account
                     // that minimap scrolls too. This one does.
-                    data.level->set_draw_pos(((myradar.radarx * GRID_SIZE) + (mx * GRID_SIZE)) - 160, ((myradar.radary * GRID_SIZE) + (my * GRID_SIZE) - 100));
+                    data.level->set_draw_pos(((myscreen->viewob[0]->myradar->radarx * GRID_SIZE) + (mx * GRID_SIZE)) - 160, ((myscreen->viewob[0]->myradar->radary * GRID_SIZE) + (my * GRID_SIZE) - 100));
                 } else {
                     // In the main window
                     windowx = (mymouse.x + data.level->topx) - myscreen->viewob[0]->xloc; // - S_LEFT
@@ -1160,7 +1134,7 @@ Sint32 level_editor()
                     windowy = (mymouse.y + data.level->topy) - myscreen->viewob[0]->yloc; // - S_UP
                     windowy -= (windowy % GRID_SIZE);
 
-                    if (mode == TERRAIN) {
+                    if (data.mode == TERRAIN) {
                         if ((mx >= S_RIGHT) && (my >= PIX_TOP) && (my <= PIX_BOTTOM)) {
                             // Picking the tile is done in LevelEditorData::mouse_up()
                             // End of the background grid window
@@ -1169,13 +1143,13 @@ Sint32 level_editor()
                             windowx /= GRID_SIZE;
                             windowy /= GRID_SIZE;
 
-                            if (!terrain_brush.picking) {
+                            if (!data.terrain_brush.picking) {
                                 // Set to our current selection (apply brush)
-                                data.set_terrain(windowx, windowy, get_random_matching_tile(terrain_brush.terrain));
+                                data.set_terrain(windowx, windowy, get_random_matching_tile(data.terrain_brush.terrain));
                                 levelchanged = 1;
 
                                 // Smooth a few squares, if not control
-                                if (terrain_brush.use_smoothing) {
+                                if (data.terrain_brush.use_smoothing) {
                                     for (i = (windowx - 1); i <= (windowx + 1); ++i) {
                                         for (j = (windowy - 1); j <= (windowy + 1); ++j) {
                                             if ((i >= 0)
@@ -1188,7 +1162,7 @@ Sint32 level_editor()
                                     }
                                 }
 
-                                myradar.update(data.level);
+                                myscreen->viewob[0]->myradar->update(*data.level);
                             }
                         }
                     } // End of setting grid square
@@ -1225,15 +1199,13 @@ Sint32 level_editor()
 
     // Reset the screen position so it doesn't ruin the main menu
     data.level->set_draw_pos(0, 0);
-    // Update the screen's potion
-    data.level->draw(myscreen);
+    // Update the screen's postion
+    myscreen->redraw();
     // Clear the background
     myscreen->clearbuffer();
 
     unmount_campaign_package(data.campaign->id);
     mount_campaign_package(old_campaign);
-
-    return OK;
 }
 
 void set_screen_pos(VideoScreen *myscreen, Sint32 x, Sint32 y)

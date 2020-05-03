@@ -25,8 +25,8 @@
 
 #include <SDL2/SDL.h>
 
-#include "guy-fwd.hpp"
-#include "walker-fwd.hpp"
+#include "guy.hpp"
+#include "walker.hpp"
 
 // Max number of guys on a team
 #define MAX_TEAM_SIZE 24

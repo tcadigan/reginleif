@@ -23,45 +23,14 @@
 
 #include <SDL2/SDL.h>
 
-#include "base.hpp"
-#include "gloader-fwd.hpp"
-#include "pixdefs.hpp"
+#include "gloader.hpp"
 #include "obmap.hpp"
-#include "pixie-fwd.hpp"
+#include "pixdefs.hpp"
+#include "pixie.hpp"
 #include "pixie_data.hpp"
 #include "pixien.hpp"
-#include "screen-fwd.hpp"
 #include "smooth.hpp"
-#include "stats.hpp"
-#include "walker-fwd.hpp"
-
-class CampaignData
-{
-public:
-    CampaignData(std::string const &id);
-    ~CampaignData();
-
-    bool load();
-    bool save();
-    bool save_as(std::string const &new_id);
-
-    std::string getDescriptionLine(Sint32 i);
-
-    std::string id;
-    std::string title;
-    float rating;
-    std::string version;
-    std::string authors;
-    std::string contributors;
-    std::list<std::string> description;
-    Sint32 suggested_power;
-    Sint32 first_level;
-
-    Sint32 num_levels;
-
-    PixieData icondata;
-    Pixie *icon;
-};
+#include "walker.hpp"
 
 class LevelData
 {
@@ -85,7 +54,6 @@ public:
 
     void set_draw_pos(Sint32 topx, Sint32 topy);
     void add_draw_pos(Sint32 topx, Sint32 topy);
-    void draw(VideoScreen *myscreen);
 
     std::string get_description_line(Sint32 i);
 
