@@ -21,7 +21,7 @@
 #include "guy.hpp"
 #include "picker.hpp"
 #include "results_screen.hpp"
-#include "screen.hpp"
+#include "video_screen.hpp"
 #include "view.hpp"
 #include "walker.hpp"
 

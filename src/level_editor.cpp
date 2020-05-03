@@ -24,12 +24,13 @@
 
 #include "input.hpp"
 #include "io.hpp"
+#include "joy_data.hpp"
 #include "level_editor_data.hpp"
+#include "mouse_state.hpp"
 #include "object_type.hpp"
 #include "options.hpp"
 #include "pal32.hpp"
 #include "picker.hpp"
-#include "screen.hpp"
 #include "text.hpp"
 #include "util.hpp"
 #include "view.hpp"
@@ -695,13 +696,7 @@ EventTypeEnum handle_basic_editor_event(SDL_Event const &event)
 
         return MOUSE_DOWN_EVENT;
     case SDL_JOYAXISMOTION:
-        handle_joy_event(event);
-
-        return HANDLED_EVENT;
     case SDL_JOYBUTTONDOWN:
-        handle_joy_event(event);
-
-        return HANDLED_EVENT;
     case SDL_JOYBUTTONUP:
         handle_joy_event(event);
 

@@ -17,8 +17,6 @@
  */
 #include "simple_button.hpp"
 
-#include "screen.hpp"
-
 SimpleButton::SimpleButton(std::string const &label, Sint32 x, Sint32 y, Uint32 w, Uint32 h, bool remove_border, bool draw_top_separator)
     : label(label)
     , remove_border(remove_border)

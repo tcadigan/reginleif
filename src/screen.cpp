@@ -15,1307 +15,756 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// screen.cpp
-
-/*
- * Changelog:
- *     buffers: 07/31/02:
- *         * Delete some redundant headers.
- *         * load_scenario now looks for all uppercase files in levels.001 if
- *           lowercase file fails
- *     buffers: 08/15/02:
- *         * load_scenario now check for uppercase file names in scen/ in case
- *           lowercase check fails
- */
 #include "screen.hpp"
 
-#include "gloader.hpp"
-#include "gparser.hpp"
-#include "guy.hpp"
 #include "input.hpp"
-#include "io.hpp"
-#include "pal32.hpp"
-#include "results_screen.hpp"
-#include "smooth.hpp"
+// #include "os_depend.hpp"
 #include "util.hpp"
-#include "view.hpp"
-#include "view_sizes.hpp"
-#include "walker.hpp"
 
-#include <cstring>
-#include <sstream>
-#include <string>
+// Private variables for SAI2x
+static Uint32 colorMask = 0xF7DEF7DE;
+static Uint32 lowPixelMask = 0x08210821;
+static Uint32 qcolorMask = 0xE79CE79C;
+static Uint32 qlowpixelMask = 0x18631863;
+static Uint32 redblueMask = 0xF81F;
+static Uint32 greenMask = 0x7E0;
+static Sint32 PixelsPerMask = 2;
+static Sint32 xsai_depth = 0;
+static Uint8 *src_line[4];
+static Uint8 *dst_line[2];
 
-// Screen window boundaries
-#define MAX_VIEWS 5
-#define S_UP 0 // 12 // 0
-#define S_LEFT 0 // 12 // 0
-#define S_DOWN 200 // 188 // 200
-#define S_RIGHT 320 // 228
-#define S_WIDTH (S_RIGHT - S_LEFT)
-#define S_HEIGHT (S_DOWN - S_UP)
-// #define BUF_SIZE static_cast<Uint32>((S_DOWN - S_UP) * (S_RIGHT - S_LEFT))
+#define GET_RESULT(A, B, C, D) ((((A) != (C)) || ((A) != (D))) - (((B) != (C)) || ((B) != (D))))
+#define INTERPOLATE(A, B) (((((A) & colorMask) >> 1) + (((B) & colorMask) >> 1)) + (((A) & (B)) & lowPixelMask))
+#define Q_INTERPOLATE(A, B, C, D)               \
+    (((((((A) & qcolorMask) >> 2)               \
+        + (((B) & qcolorMask) >> 2))            \
+       + (((C) & qcolorMask) >> 2))             \
+      + (((D) & qcolorMask) >> 2))              \
+     + ((((((((A) & qlowpixelMask)              \
+             + ((B) & qlowpixelMask))           \
+            + ((C) & qlowpixelMask))            \
+           + ((D) & qlowpixelMask)))            \
+         >> 2) & qlowpixelMask))
 
-#define MAX_SPREAD 10 // This controls find_near_foe
-
-Sint16 load_version_2(SDL_RWops *infile, VideoScreen *master);
-Sint16 load_version_3(SDL_RWops *infile, VideoScreen *master); // Version 3 scen
-Sint16 load_version_4(SDL_RWops *infile, VideoScreen *master); // Version 4 scen: + names
-Sint16 load_version_5(SDL_RWops *infile, VideoScreen *master); // Version 5 scen: + type
-Sint16 load_version_6(SDL_RWops *infile, VideoScreen *master, Sint16 version=6); // Version 6 scen: + title
-
-/*
- **********************************************************
- * SCREEN -- Graphics routines
- *
- * This object is the video graphics object. All display
- * must pass through this object, and all onscreen objects
- * are found in this object.
- **********************************************************
- */
-VideoScreen::VideoScreen(Sint16 howmany)
-    : Video()
-    , level_data(1)
+// Works only for bpp 32!
+Sint32 Init_2xSaI()
 {
-    // Set the global here so objects we construct here can use it
-    myscreen = this;
-    Sint32 i;
-    Sint32 j;
-    Text &first_text = text_normal;
-    Sint32 left = 66;
+    redblueMask = 0xFF00FF00;
+    greenMask = 0x00FF0000;
+    PixelsPerMask = 1;
 
-    timerstart = query_timer_control();
-    framecount = 0;
-
-    // control = nullptr;
-    // Very important! :)
-    // myradar[1] = nullptr;
-    // myradar[0] = myradar[1];
-
-    control_hp = 0;
-
-    // Load the palette...
-    load_and_set_palette(newpalette);
-
-    // Load the pixie graphics data into memory
-    draw_button(60, 50, 260, 110, 2, 1);
-    // Header field
-    draw_text_bar(64, 54, 256, 62);
-    first_text.write_y(56, "Loading Gladiator...Please Wait", RED, 1);
-    // Draw box for text
-    draw_text_bar(64, 64, 256, 106);
-
-    first_text.write_xy(left, 70, "Loading Graphics...", DARK_BLUE, 1);
-    buffer_to_screen(0, 0, 320, 200);
-    // FIXME: Loader used to be created here...but now it's in level_data.
-    first_text.write_xy(left, 70, "Loading Graphics...Done", DARK_BLUE, 1);
-    first_text.write_xy(left, 78, "Loading Gameplay Info...", DARK_BLUE, 1);
-    buffer_to_screen(0, 0, 320, 200);
-
-    update_overscan_setting();
-
-    palmode = 0;
-    end = 0;
-    // 'moderate' speed setting
-    timer_wait = 6;
-
-    redrawme = 1;
-    // Color cycling on by default
-    cyclemode = 1;
-
-    enemy_freeze = 0;
-    level_done = 0;
-    retry = false;
-
-    // Load map data from a pixie format
-    // FIXME: This was moved into level_data
-    // load_map_data(pixdata);
-    first_text.write_xy(left, 78, "Loading Gameplay Info...Done", DARK_BLUE, 1);
-    first_text.write_xy(left, 78, "Initializing Display...", DARK_BLUE, 1);
-    buffer_to_screen(0, 0, 320, 200);
-
-    // Set up the viewscreen poshorters
-    // # of viewscreens
-    numviews = howmany;
-
-    for (i = 0; i < MAX_VIEWS; ++i) {
-        viewob[i] = nullptr;
-    }
-
-    initialize_views();
-
-    first_text.write_xy(left, 86, "Initializing Display...Done", DARK_BLUE, 1);
-    first_text.write_xy(left, 94, "Initializing Sound...", DARK_BLUE, 1);
-    buffer_to_screen(0, 0, 320, 200);
-
-    // Init the sound data
-    soundp = new SoundObject();
-
-    if (!cfg.is_on("sound", "sound")) {
-        soundp->set_sound(1);
-    }
-
-    first_text.write_xy(left, 94, "Initializing Sound...Done", DARK_BLUE, 1);
-
-    buffer_to_screen(0, 0, 320, 200);
-
-    // Let's set the special names for all walkers...
-    for (i = 0; i < NUM_FAMILIES; ++i) {
-        for (j = 0; j < NUM_SPECIALS; ++j) {
-            special_name[i][j] = "NONE";
-            alternate_name[i][j] = "NONE";
-        }
-    }
-
-    special_name[FAMILY_SOLDIER][1] = "CHARGE";
-    special_name[FAMILY_SOLDIER][2] = "BOOMERANG";
-    special_name[FAMILY_SOLDIER][3] = "WHIRLWIND";
-    special_name[FAMILY_SOLDIER][4] = "DISARM";
-
-    special_name[FAMILY_BARBARIAN][1] = "HURL BOULDER";
-    special_name[FAMILY_BARBARIAN][2] = "EXPLODING BOULDER";
-
-    special_name[FAMILY_ELF][1] = "ROCKS";
-    special_name[FAMILY_ELF][2] = "BOUNCING ROCKS";
-    special_name[FAMILY_ELF][3] = "LOTS OF ROCKS";
-    special_name[FAMILY_ELF][4] = "MEGA ROCKS";
-
-    special_name[FAMILY_ARCHER][1] = "FIRE ARROWS";
-    special_name[FAMILY_ARCHER][2] = "BARRAGE";
-    special_name[FAMILY_ARCHER][3] = "EXPLODING BOLT";
-
-    special_name[FAMILY_MAGE][1] = "TELEPORT";
-    alternate_name[FAMILY_MAGE][1] = "TELEPORT MARKER";
-    special_name[FAMILY_MAGE][2] = "WARP SPACE";
-    special_name[FAMILY_MAGE][3] = "FREEZE TIME";
-    special_name[FAMILY_MAGE][4] = "ENERGY WAVE";
-    special_name[FAMILY_MAGE][5] = "HEARTBURST";
-
-    special_name[FAMILY_ARCHMAGE][1] = "TELEPORT";
-    alternate_name[FAMILY_ARCHMAGE][1] = "TELEPORT_MARKER";
-    special_name[FAMILY_ARCHMAGE][2] = "HEARTBURST";
-    alternate_name[FAMILY_ARCHMAGE][2] = "CHAIN LIGHTNING";
-    special_name[FAMILY_ARCHMAGE][3] = "SUMMON IMAGE";
-    alternate_name[FAMILY_ARCHMAGE][3] = "SUMMON ELEMENTAL";
-    special_name[FAMILY_ARCHMAGE][4] = "MIND CONTROL";
-    alternate_name[FAMILY_ARCHMAGE][4] = "SUMMON ELEMENTAL";
-
-    special_name[FAMILY_CLERIC][1] = "HEAL";
-    alternate_name[FAMILY_CLERIC][1] = "MYSTIC MACE";
-    special_name[FAMILY_CLERIC][2] = "RAISE UNDEAD";
-    alternate_name[FAMILY_CLERIC][2] = "TURN UNDEAD";
-    special_name[FAMILY_CLERIC][3] = "RAISE_GHOST";
-    alternate_name[FAMILY_CLERIC][3] = "TURN UNDEAD";
-    special_name[FAMILY_CLERIC][4] = "RESURRECT";
-
-    special_name[FAMILY_DRUID][1] = "GROW TREE";
-    special_name[FAMILY_DRUID][2] = "SUMMON FAERIE";
-    special_name[FAMILY_DRUID][3] = "REVEAL";
-    special_name[FAMILY_DRUID][4] = "PROTECTION";
-
-    special_name[FAMILY_THIEF][1] = "DROP BOMB";
-    special_name[FAMILY_THIEF][2] = "CLOAK";
-    special_name[FAMILY_THIEF][3] = "TAUNT ENEMY";
-    alternate_name[FAMILY_THIEF][3] = "CHARM OPPONENT";
-    special_name[FAMILY_THIEF][4] = "POISON CLOUD";
-
-    special_name[FAMILY_GHOST][1] = "SCARE";
-
-    special_name[FAMILY_FIRE_ELEMENTAL][1] = "STARBURST";
-
-    special_name[FAMILY_ORC][1] = "HOWL";
-    special_name[FAMILY_ORC][2] = "EAT CORPSE";
-
-    special_name[FAMILY_SMALL_SLIME][1] = "GROW";
-
-    special_name[FAMILY_MEDIUM_SLIME][1] = "GROW";
-
-    special_name[FAMILY_SLIME][1] = "SPLIT";
-
-    special_name[FAMILY_SKELETON][1] = "TUNNEL";
-}
-
-VideoScreen::~VideoScreen()
-{
-    delete soundp;
-
-    soundp = nullptr;
-    // Make sure we've cleaned up
-    cleanup(1);
-}
-
-void VideoScreen::initialize_views()
-{
-    // Even though it looks okay here, these positions and sizes are overridden
-    // by ViewScreen::resize() later
-    if (numviews == 1) {
-        viewob[0] = new ViewScreen(S_LEFT, S_UP, S_WIDTH, S_HEIGHT, 0);
-    } else if (numviews == 2) {
-        viewob[0] = new ViewScreen(T_LEFT_ONE, T_UP_ONE, T_HALF_WIDTH, T_HEIGHT, 0);
-        viewob[1] = new ViewScreen(T_LEFT_TWO, T_UP_TWO, T_HALF_WIDTH, T_HEIGHT, 1);
-    } else if (numviews == 3) {
-        viewob[0] = new ViewScreen(T_LEFT_ONE, T_UP_ONE, T_HALF_WIDTH, T_HALF_HEIGHT, 0);
-        viewob[1] = new ViewScreen(T_LEFT_TWO, T_UP_TWO, T_HALF_WIDTH, T_HALF_HEIGHT, 1);
-        viewob[2] = new ViewScreen(T_LEFT_THREE, T_UP_THREE, T_HALF_WIDTH, T_HALF_HEIGHT, 2);
-    } else if (numviews == 4) {
-        viewob[0] = new ViewScreen(T_LEFT_ONE, T_UP_ONE, T_HALF_WIDTH, T_HALF_HEIGHT, 0);
-        viewob[1] = new ViewScreen(T_LEFT_TWO, T_UP_TWO, T_HALF_WIDTH, T_HALF_HEIGHT, 1);
-        viewob[2] = new ViewScreen(T_LEFT_THREE, T_UP_THREE, T_HALF_WIDTH, T_HALF_HEIGHT, 2);
-        viewob[3] = new ViewScreen(T_LEFT_FOUR, T_UP_FOUR, T_HALF_WIDTH, T_HALF_HEIGHT, 3);
-    } else {
-        Log("Error initializing screen views. numviews is %d\n", numviews);
-    }
-}
-
-void VideoScreen::cleanup(Sint16 howmany)
-{
-    Sint32 i;
-
-    // # of viewscreens
-    numviews = howmany;
-
-    for (i = 0; i < MAX_VIEWS; ++i) {
-        delete viewob[i];
-        viewob[i] = nullptr;
-    }
-}
-
-void VideoScreen::ready_for_battle(Sint16 howmany)
-{
-    // Set up the viewscreen poshorters
-    // # of viewscreens
-    numviews = howmany;
-
-    // Clean stuff up
-    cleanup(howmany);
-
-    initialize_views();
-
-    end = 0;
-    retry = false;
-    redrawme = 1;
-    timerstart = query_timer_control();
-    framecount = 0;
-    enemy_freeze = 0;
-    control_hp = 0;
-    palmode = 0;
-    redrawme = 1;
-}
-
-void VideoScreen::reset(Sint16 howmany)
-{
-    // Set up the viewscreen poshorters
-    // # of viewscreens
-    numviews = howmany;
-
-    // Clean stuff up
-    cleanup(howmany);
-
-    if (numviews == 1) {
-        viewob[0] = new ViewScreen(S_LEFT, S_UP, S_WIDTH, S_HEIGHT, 0);
-    } else if (numviews == 2) {
-        viewob[0] = new ViewScreen(T_LEFT_TWO, T_UP_TWO, T_WIDTH, T_HEIGHT, 0);
-        viewob[1] = new ViewScreen(T_LEFT_ONE, T_UP_ONE, T_WIDTH, T_HEIGHT, 1);
-    } else if (numviews == 3) {
-        viewob[0] = new ViewScreen(T_LEFT_TWO, T_UP_TWO, T_WIDTH, T_HEIGHT, 0);
-        viewob[1] = new ViewScreen(T_LEFT_ONE, T_UP_ONE, T_WIDTH, T_HEIGHT, 1);
-        viewob[2] = new ViewScreen(112, 16, 100, 168, 2);
-    } else if (numviews == 4) {
-        viewob[0] = new ViewScreen(T_LEFT_TWO, T_UP_TWO, T_WIDTH, T_HEIGHT, 0);
-        viewob[1] = new ViewScreen(T_LEFT_ONE, T_UP_ONE, T_WIDTH, T_HEIGHT, 1);
-        viewob[2] = new ViewScreen(112, 16, 100, 168, 2);
-        viewob[3] = new ViewScreen(112, 16, 100, 168, 3);
-    }
-
-    end = 0;
-    redrawme = 1;
-    save_data.reset();
-    level_data.clear();
-    timerstart = query_timer_control();
-    framecount = 0;
-    enemy_freeze = 0;
-    control_hp = 0;
-    palmode = 0;
-    end = 0;
-    redrawme = 1;
-}
-
-bool VideoScreen::query_grid_passable(float x, float y, Walker *ob)
-{
-    Sint32 i;
-    Sint32 j;
-    Sint32 xtrax = 1;
-    Sint32 xtray = 1;
-    Sint32 xtarg; // The for loop target
-    Sint32 ytarg; // The for loop target
-    Sint32 dist;
-    // NOTE: We're going to shrink dimensions by one in each...
-    // Sint32 xover = static_cast<Sint32>((x + ob->sizex) - 1);
-    // Sint32 yover = static_cast<Sint32>((y + ob->sizey) - 1);
-    Sint32 xover = x + ob->sizex;
-    Sint32 yover = y + ob->sizey;
-
-    // Again this is for shrinking...
-    // x += 1;
-    // y += 1;
-
-    if ((x < 0) || (y < 0) || (xover >= level_data.pixmaxx) || (yover >= level_data.pixmaxy)) {
-        return 0;
-    }
-
-    // Are we ethereal?
-    if (ob->stats.query_bit_flags(BIT_ETHEREAL)) {
-        // Moved up to avoid unneeded calculation
-        return 1;
-    }
-
-    // Zardus: PORT: Does the grid exist?
-    if (!level_data.grid.valid()) {
-        return 0;
-    }
-
-    // Check if our butt hangs over into next grid square
-    if (xover % GRID_SIZE == 0) {
-        // This should be the rare case
-        xtrax = 0;
-    }
-
-    if (yover % GRID_SIZE == 0) {
-        // This should be the rare case
-        xtray = 0;
-    }
-
-    // Check grid squares by simulated grid coords.
-    xtarg = (xover / GRID_SIZE) + xtrax;
-    ytarg = (yover / GRID_SIZE) + xtray;
-
-    for (i = (x / GRID_SIZE); i < xtarg; ++i) {
-        for (j = (y / GRID_SIZE); j < ytarg; ++j) {
-            // Check if item in background grid
-            switch (static_cast<Uint8>(level_data.grid.data[i + (level_data.grid.w * j)])) {
-            case PIX_GRASS1: // Grass is pass...
-            case PIX_GRASS2:
-            case PIX_GRASS3:
-            case PIX_GRASS4:
-            case PIX_GRASS_DARK_1:
-            case PIX_GRASS_DARK_2:
-            case PIX_GRASS_DARK_3:
-            case PIX_GRASS_DARK_4:
-            case PIX_GRASS_DARK_LL:
-            case PIX_GRASS_DARK_UR:
-            case PIX_GRASS_DARK_B1: // Shadowed edges
-            case PIX_GRASS_DARK_B2:
-            case PIX_GRASS_DARK_BR:
-            case PIX_GRASS_DARK_R1:
-            case PIX_GRASS_DARK_R2:
-            case PIX_GRASS_RUBBLE:
-            case PIX_GRASS1_DAMAGED:
-            case PIX_GRASS_LIGHT_1: // Lighter grass
-            case PIX_GRASS_LIGHT_TOP:
-            case PIX_GRASS_LIGHT_RIGHT_TOP:
-            case PIX_GRASS_LIGHT_RIGHT:
-            case PIX_GRASS_LIGHT_RIGHT_BOTTOM:
-            case PIX_GRASS_LIGHT_BOTTOM:
-            case PIX_GRASS_LIGHT_LEFT_BOTTOM:
-            case PIX_GRASS_LIGHT_LEFT:
-            case PIX_GRASS_LIGHT_LEFT_TOP:
-            case PIX_GRASSWATER_LL: // Mostly gras
-            case PIX_GRASSWATER_LR:
-            case PIX_GRASSWATER_UL:
-            case PIX_GRASSWATER_UR:
-            case PIX_PAVEMENT1: // Floor ok
-            case PIX_PAVEMENT2:
-            case PIX_PAVEMENT3:
-            case PIX_COBBLE_1: // Cobblestone
-            case PIX_COBBLE_2:
-            case PIX_COBBLE_3:
-            case PIX_COBBLE_4:
-            case PIX_FLOOR_PAVEL: // Wood/Tile ok
-            case PIX_FLOOR_PAVER:
-            case PIX_FLOOR_PAVEU:
-            case PIX_FLOOR_PAVED:
-            case PIX_PAVESTEPS1: // Steps
-            case PIX_PAVESTEPS2:
-            case PIX_PAVESTEPS2L:
-            case PIX_PAVESTEPS2R:
-            case PIX_FLOOR1:
-            case PIX_CARPET_LL: // Carpet ok
-            case PIX_CARPET_B:
-            case PIX_CARPET_LR:
-            case PIX_CARPET_UR:
-            case PIX_CARPET_U:
-            case PIX_CARPET_UL:
-            case PIX_CARPET_L:
-            case PIX_CARPET_M:
-            case PIX_CARPET_M2:
-            case PIX_CARPET_R:
-            case PIX_CARPET_SMALL_HOR:
-            case PIX_CARPET_SMALL_VER:
-            case PIX_CARPET_SMALL_CUP:
-            case PIX_CARPET_SMALL_CAP:
-            case PIX_CARPET_SMALL_LEFT:
-            case PIX_CARPET_SMALL_RIGHT:
-            case PIX_CARPET_SMALL_TINY:
-            case PIX_DIRT_1: // Dirt paths
-            case PIX_DIRTGRASS_UL1:
-            case PIX_DIRTGRASS_UR1:
-            case PIX_DIRTGRASS_LL1:
-            case PIX_DIRTGRASS_LR1:
-            case PIX_DIRT_DARK_1: // Shadowed dirt/grass
-            case PIX_DIRTGRASS_DARK_UL1:
-            case PIX_DIRTGRASS_DARK_UR1:
-            case PIX_DIRTGRASS_DARK_LL1:
-            case PIX_DIRTGRASS_DARK_LR1:
-            case PIX_PATH_1:
-            case PIX_PATH_2:
-            case PIX_PATH_3:
-            case PIX_PATH_4:
-
-                break;
-            case PIX_TREE_M1: // Trees are usually bad, but we can fly over them
-            case PIX_TREE_ML:
-            case PIX_TREE_MR:
-            case PIX_TREE_MT:
-            case PIX_TREE_T1:
-                if (ob->stats.query_bit_flags(BIT_FORESTWALK)) {
-                    break;
-                } else if (ob->stats.query_bit_flags(BIT_FLYING) || ob->flight_left) {
-                    break;
-                }
-
-                return 0;
-            case PIX_TREE_B1: // Tree bottoms
-                if ((ob->query_order() == ORDER_WEAPON) || ob->stats.query_bit_flags(BIT_FORESTWALK)) {
-                    break;
-                } else if (ob->stats.query_bit_flags(BIT_FLYING) || ob->flight_left) {
-                    break;
-                }
-
-                return 0;
-            case PIX_H_WALL1: // Walls bad, but we can "ethereal" through them by default
-            case PIX_WALL2:
-            case PIX_WALL3:
-            case PIX_WALL_LL:
-            case PIX_WALLTOP_H:
-
-                return 0;
-            case PIX_WALL4: // Arrow slits
-            case PIX_WALL5:
-            case PIX_WALL_ARROW_GRASS:
-            case PIX_WALL_ARROW_FLOOR:
-            case PIX_WALL_ARROW_GRASS_DARK:
-                // if (!ob->owner)
-                if (ob->query_order() == ORDER_LIVING) {
-                    return 0;
-                }
-
-                if (abs(ob->xpos - ob->owner->xpos) > abs(ob->ypos - ob->owner->ypos)) {
-                    dist = abs(ob->xpos - ob->owner->xpos);
-                } else {
-                    dist = abs(ob->ypos - ob->owner->ypos);
-                }
-
-                dist -= (GRID_SIZE / 2);
-
-                if (dist < GRID_SIZE) {
-                    dist += GRID_SIZE;
-                }
-
-                if (getRandomSint32(dist / GRID_SIZE)) {
-                    return 0;
-                }
-                // Drop through
-            case PIX_WATER1: // Water
-            case PIX_WATER2:
-            case PIX_WATER3:
-            case PIX_WATERGRASS_LL:
-            case PIX_WATERGRASS_LR:
-            case PIX_WATERGRASS_UL:
-            case PIX_WATERGRASS_UR:
-            case PIX_WATERGRASS_U:
-            case PIX_WATERGRASS_L:
-            case PIX_WATERGRASS_R:
-            case PIX_WATERGRASS_D:
-            case PIX_WALLSIDE_L: // Vertical walls
-            case PIX_WALLSIDE1:
-            case PIX_WALLSIDE_R:
-            case PIX_WALLSIDE_C:
-            case PIX_WALLSIDE_CRACK_C1:
-            case PIX_TORCH1:
-            case PIX_TORCH2:
-            case PIX_TORCH3:
-            case PIX_BRAZIER1: // Brazier
-            case PIX_COLUMN1: // Columns
-            case PIX_COLUMN2:
-            case PIX_BOULDER_1: // Rocks
-            case PIX_BOULDER_2:
-            case PIX_BOULDER_3:
-            case PIX_BOULDER_4:
-                if (ob->query_order() == ORDER_WEAPON) {
-                    break;
-                } else if (ob->stats.query_bit_flags(BIT_FLYING) || ob->flight_left) {
-                    break;
-                }
-
-                return 0;
-            default:
-
-                return 0;
-            }
-        }
-    }
-
-    return 1;
-}
-
-bool VideoScreen::query_object_passable(float x, float y, Walker *ob)
-{
-    if (ob->dead) {
-        return true;
-    }
-
-    return level_data.myobmap->query_list(ob, x, y);
-}
-
-bool VideoScreen::query_passable(float x, float y, Walker *ob)
-{
-    return (query_grid_passable(x, y, ob) && query_object_passable(x, y, ob));
-}
-
-void VideoScreen::clear()
-{
-    Uint16 i;
-
-    // buffers: PORT:
     /*
-     * for (i = 0; i < 64000; ++i) {
-     *     videobuffer[i] = 0;
-     * }
+     * Color Mask:      0xFEFEFE
+     * Low Pixel Mask:  0x10101
+     * QColor Mask:     0xFCFCFC
+     * QLow Pixel Mask: 0x30303
      */
 
-     clearbuffer();
+    colorMask = 0xFEFEFE;
+    lowPixelMask = 0x10101;
+    qcolorMask = 0xFCFCFC;
+    qlowpixelMask = 0x30303;
+    xsai_depth = 32;
 
-     // SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
-
-     for (i = 0; i < numviews; ++i) {
-         viewob[i]->clear();
-     }
+    return 0;
 }
 
-// REDRAW -- This function moves through the data on the grid (map) finding
-//           which grid squares are on screen. For each on screen, it pashorts
-//           the appropriate graphics pixie onto the screen by calling the
-//           function DRAW in PIXIE.
-bool VideoScreen::redraw()
+void Super2xSaI_ex2(Uint8 *src, Sint32 srcx, Sint32 srcy, Sint32 srcw, Sint32 srch,
+                    Sint32 src_pitch, Sint32 src_height, Uint8 *dst, Sint32 dstx,
+                    Sint32 dsty, Sint32 dst_pitch)
 {
-    Sint16 i;
+    Uint8 *srcPtr = src + ((4 * srcx) + (srcy * src_pitch));
+    Uint8 *dstPtr = dst + ((4 * dstx) + (dsty * dst_pitch));
 
-    for (i = 0; i < numviews; ++i) {
-        viewob[i]->redraw();
+    src_pitch = src_pitch / 4;
+    dst_pitch = dst_pitch / 4;
+
+    if ((srcx + srcw) >= src_pitch) {
+        srcw = src_pitch - srcx;
     }
 
-    return true;
-}
+    Sint32 ybeforelast1 = (src_height - 1) - srcy;
+    Sint32 ybeforelast2 = (src_height - 2) - srcy;
+    Sint32 xbeforelast1 = (src_pitch - 1) - srcx;
+    Sint32 xbeforelast2 = (src_pitch - 2) - srcx;
 
-// REFRESH -- Refreshes the viewscreens
-void VideoScreen::refresh()
-{
-    Sint16 i;
+    for (Sint32 y = 0; y < srch; ++y) {
+        Uint32 *bP = reinterpret_cast<Uint32 *>(srcPtr);
+        Uint32 *dP = reinterpret_cast<Uint32 *>(dstPtr);
 
-    for (i = 0; i < numviews; ++i) {
-        viewob[i]->refresh();
-    }
-}
+        for (Sint32 x = 0; x < srcw; ++x) {
+            Uint32 color4;
+            Uint32 color5;
+            Uint32 color6;
+            Uint32 color1;
+            Uint32 color2;
+            Uint32 color3;
+            Uint32 colorA0;
+            Uint32 colorA1;
+            Uint32 colorA2;
+            Uint32 colorA3;
+            Uint32 colorB0;
+            Uint32 colorB1;
+            Uint32 colorB2;
+            Uint32 colorB3;
+            Uint32 colorS1;
+            Uint32 colorS2;
+            Uint32 product1a;
+            Uint32 product1b;
+            Uint32 product2a;
+            Uint32 product2b;
+            Sint32 add1;
+            Sint32 add2;
+            Sint32 sub1;
+            Sint32 nextl1;
+            Sint32 nextl2;
+            Sint32 prevl1;
 
-// *******************
-// Useful stuff again
-// *******************
-
-bool VideoScreen::input(SDL_Event const &event)
-{
-    // static Text mytext;
-    Sint16 i;
-
-    for (i = 0; i < numviews; ++i) {
-        viewob[i]->input(event);
-    }
-
-    return true;
-}
-
-bool VideoScreen::continuous_input()
-{
-    // static Text mytext;
-    Sint16 i;
-
-    for (i = 0; i < numviews; ++i) {
-        viewob[i]->continuous_input();
-    }
-
-    return true;
-}
-
-bool VideoScreen::act()
-{
-    // Have we printed message yet?
-    Sint32 printed_time = 0;
-
-    // static Sint16 debug = 0;
-
-    level_done = 2; // Unless we find valid foes while looping
-
-    if (enemy_freeze) {
-        --enemy_freeze;
-    }
-
-    if (enemy_freeze == 1) {
-        set_palette(ourpalette);
-    }
-
-    for (auto const & ob : level_data.oblist) {
-        // Normal functionality
-        if (!enemy_freeze) {
-            if (ob && !ob->dead) {
-                // Zardus: While acting, in_act is set
-                ob->in_act = 1;
-                ob->act();
-                ob->in_act = 0;
-
-                if (ob && !ob->dead) {
-                    if (!ob->is_friendly_to_team(save_data.my_team) && (ob->query_order() == ORDER_LIVING)) {
-                        level_done = 0;
-                    }
-
-                    // Testing...Trying to FORCE foes :)
-                    if ((ob->foe == nullptr) && (ob->leader == nullptr)) {
-                        ob->foe = myscreen->find_far_foe(ob);
-                    }
-                }
-            }
-        } else {
-            // Enemy livings are frozen
-            if ((enemy_freeze % 10 == 0) && !printed_time) {
-                std::stringstream buf("TIME LEFT: ");
-                buf << enemy_freeze;
-                viewob[0]->set_display_text(buf.str(), 10);
-                printed_time = 1;
+            if (x == 0) {
+                sub1 = 0;
+            } else {
+                sub1 = 0;
             }
 
-            if (ob && !ob->dead
-                && (((ob->query_order() != ORDER_LIVING)
-                        && (ob->query_order() != ORDER_GENERATOR))
-                    || (ob->team_num == 0))) {
-                ob->act();
-
-                if (ob && !ob->dead) {
-                    if (!ob->is_friendly_to_team(save_data.my_team) && (ob->query_order() == ORDER_LIVING)) {
-                        level_done = 0;
-                    }
-                }
-            }
-        }
-    }
-
-    // Let the weapons act...
-    for (auto const & ob : level_data.weaplist) {
-        if (ob && !ob->dead) {
-            ob->act();
-
-            if (ob && !ob->dead) {
-                if (!ob->is_friendly_to_team(save_data.my_team) && (ob->query_order() == ORDER_LIVING)) {
-                    level_done = 0;
-                }
-            }
-        }
-    } // End of weapons acting
-
-    // Quickly check the background for exits, etc.
-    for (auto const & ob : level_data.fxlist) {
-        if (ob && !ob->dead) {
-            if ((ob->query_order() == ORDER_TREASURE)
-                && (ob->query_family() == FAMILY_EXIT)
-                && (level_done != 0)) {
-                // 0 => foes, 1 => no foes but exit, 2 => no foes or exit
-                level_done = 1;
-            }
-        }
-    }
-
-    if (level_done == 2) {
-        // No exit and no enemies: Go to next sequential level
-        return endgame(0, level_data.id + 1);
-    }
-
-    if (end) {
-        return true;
-    }
-
-    // Make sure we're all pointing to legal targets
-    for (auto & ob : level_data.oblist) {
-        if (ob->foe && ob->foe->dead) {
-            ob->foe = nullptr;
-        }
-
-        if (ob->leader && ob->leader->dead) {
-            ob->leader = nullptr;
-        }
-
-        if (ob->owner && ob->owner->dead) {
-            ob->owner = nullptr;
-        }
-
-        if (ob->collide_ob && ob->collide_ob->dead) {
-            ob->collide_ob = nullptr;
-        }
-    }
-
-    for (auto & ob : level_data.weaplist) {
-        if (ob->foe && ob->foe->dead) {
-            ob->foe = nullptr;
-        }
-
-        if (ob->leader && ob->leader->dead) {
-            ob->leader = nullptr;
-        }
-
-        if (ob->owner && ob->owner->dead) {
-            ob->owner = nullptr;
-        }
-
-        if (ob->collide_ob && ob->collide_ob->dead) {
-            ob->collide_ob = nullptr;
-        }
-    }
-
-    // Remove dead objects
-    auto obj = level_data.oblist.begin();
-
-    while (obj != level_data.oblist.end()) {
-        Walker *ob = *obj;
-
-        if (ob && ob->dead && (ob->myguy == nullptr)) {
-            // Delete the dead thing safely
-
-            // Is it a player?
-            if (ob->user != -1) {
-                // Remove it from its viewscreen
-                for (Sint32 i = 0; i < numviews; ++i) {
-                    if (ob == viewob[i]->control) {
-                        viewob[i]->control = nullptr;
-                    }
-                }
+            if (x >= xbeforelast2) {
+                add2 = 0;
+            } else {
+                add2 = 1;
             }
 
-            // Save dead guys to be delete later. Delete everything else right
-            // now. This is so the "owner" of weapons remains valid.
-            level_data.dead_list.push_back(ob);
-
-            // level_data.remove_ob();
-
-            // Remove from the list directory here so we can preserve our iterator
-            if (ob->query_order() == ORDER_LIVING) {
-                --level_data.numobs;
+            if (x >= xbeforelast1) {
+                add1 = 0;
+            } else {
+                add1 = 1;
             }
 
-            obj = level_data.oblist.erase(obj);
-        } else {
-            ++obj;
-        }
-    }
-
-    auto fx = level_data.fxlist.begin();
-
-    while (fx != level_data.fxlist.end()) {
-        Walker *ob = *fx;
-
-        if (ob && ob->dead) {
-            delete ob;
-            fx = level_data.fxlist.erase(fx);
-        } else {
-            ++fx;
-        }
-    }
-
-    auto weap = level_data.weaplist.begin();
-
-    while (weap != level_data.weaplist.end()) {
-        Walker *ob = *weap;
-
-        if (ob && ob->dead) {
-            delete ob;
-            weap = level_data.weaplist.erase(weap);
-        } else {
-            ++weap;
-        }
-    }
-
-    return true;
-}
-
-bool VideoScreen::endgame(Sint16 ending)
-{
-    return endgame(ending, -1);
-}
-
-bool VideoScreen::endgame(Sint16 ending, Sint16 nextlevel)
-{
-    if (end) {
-        return true;
-    }
-
-    std::map<Sint32, Guy *> before;
-    std::map<Sint32, Walker *> after;
-
-    // Get guys from before battle
-    for (Sint32 i = 0; i < save_data.team_size; ++i) {
-        if (save_data.team_list[i] != nullptr) {
-            before.insert(std::make_pair(save_data.team_list[i]->id, save_data.team_list[i]));
-        }
-    }
-
-    // Get guys from the battle
-    for (auto const & ob : level_data.oblist) {
-        if (ob && ob->myguy) {
-            after.insert(std::make_pair(ob->myguy->id, ob));
-        }
-    }
-
-    // Let's show the results!
-    retry = results_screen(ending, nextlevel, before, after);
-
-    if (retry) {
-        // Retry without updating the roster and saving the game
-        end = 1;
-
-        return true;
-    }
-
-    // 1 = lose, for some reason
-    if (ending == 1) {
-        // Generic defeat
-        if (nextlevel == -1) {
-            end = 1;
-        } else {
-            // we're withdrawing to another level
-            end = 1;
-        }
-    } else if (ending == SCEN_TYPE_SAVE_ALL) {
-        // Failed to save a guy
-        end = 1;
-    } else if (ending == 0) {
-        // We won
-        Uint32 bonuscash[4] = { 0, 0, 0, 0 };
-        Uint32 allbonuscash = 0;
-
-        // Update all the money!
-        for (Sint32 i = 0; i < 4; ++i) {
-            save_data.m_totalscore[i] += save_data.m_score[i];
-            save_data.m_totalcash[i] += (save_data.m_score[i] * 2);
-        }
-
-        for (Sint32 i = 0; i < 4; ++i) {
-            bonuscash[i] = get_time_bonus(i);
-            save_data.m_totalcash[i] += bonuscash[i];
-            allbonuscash += bonuscash[i];
-        }
-
-        // Already won, no bonus
-        if (save_data.is_level_completed(save_data.scen_num)) {
-            for (Sint32 i = 0; i < 4; ++i) {
-                bonuscash[i] = 0;
+            if (y == 0) {
+                prevl1 = 0;
+            } else {
+                prevl1 = src_pitch;
             }
 
-            allbonuscash = 0;
-        }
+            if (y >= ybeforelast2) {
+                nextl2 = 0;
+            } else {
+                nextl2 = src_pitch;
+            }
 
-        // Beat that level
-        // This scenario is completed...
-        save_data.add_level_completed(save_data.current_campaign, save_data.scen_num);
+            if (y >= ybeforelast1) {
+                nextl1 = 0;
+            } else {
+                nextl1 = src_pitch;
+            }
 
-        if (nextlevel != -1) {
-            // Fake jumping to next level...
-            save_data.scen_num = nextlevel;
-        }
+            colorB0 = *(bP - prevl1 - sub1);
+            colorB1 = *(bP - prevl1);
+            colorB2 = *(bP - prevl1 + add1);
+            colorB3 = *(bP - prevl1 + add1 + add2);
 
-        // Grab our team out of the level
-        save_data.update_guys(level_data.oblist);
+            color4 = *(bP - sub1);
+            color5 = *(bP);
+            color6 = *(bP + add1);
+            colorS2 = *(bP + add1 + add2);
 
-        // Autosave because we won
-        save_data.save("save0");
+            color1 = *(bP + nextl1 - sub1);
+            color2 = *(bP + nextl1);
+            color3 = *(bP + nextl1 + add1);
+            colorS1 = *(bP + nextl1 + add1 + add2);
 
-        end = 1;
-    }
+            colorA0 = *(bP + nextl1 + nextl2 - sub1);
+            colorA1 = *(bP + nextl1 + nextl2);
+            colorA2 = *(bP + nextl1 + nextl2 + add1);
+            colorA3 = *(bP + nextl1 + nextl2 + add1 + add2);
 
-    return true;
-}
+            /*
+             * B0 B1 B2 B3     0  1  2  3
+             *  4 5*  6 S2 ->  4 5*  6  7
+             *  1  2  3 S1     8  9 10 11
+             * A0 A1 A2 A3    12 13 14 15
+             */
 
-Walker *VideoScreen::find_near_foe(Walker *ob)
-{
-    Sint16 targx;
-    Sint16 targy;
-    Sint16 spread = 1;
-    Sint16 xchange = 0;
-    Sint16 loop = 0;
-    Sint16 resolution = level_data.myobmap->obmapres;
+            if ((color2 == color6) && (color5 != color3)) {
+                product1b = color2;
+                product2b = product1b;
+            } else if ((color5 == color3) && (color2 != color6)) {
+                product1b = color5;
+                product2b = product1b;
+            } else if ((color5 == color3) && (color2 == color6)) {
+                Sint32 r = 0;
+                r += GET_RESULT(color6, color5, color1, colorA1);
+                r += GET_RESULT(color6, color5, color4, colorB1);
+                r += GET_RESULT(color6, color5, colorA2, colorS1);
+                r += GET_RESULT(color6, color5, colorB2, colorS2);
 
-    if (!ob) {
-        Log("No ob in find near foe.\n");
-
-        return nullptr;
-    }
-
-    targx = ob->xpos;
-    targy = ob->ypos;
-    spread = 1;
-
-    while (spread < MAX_SPREAD) {
-        for (loop = 0; loop < spread; ++loop) {
-            if (xchange % 2 == 0) {
-                // changex is 0 or a multiple of 2
-                targx += resolution;
-
-                if (targx <= 0) {
-                    // Left edge of screen
-                    return find_far_foe(ob);
-                }
-
-                if (targx >= level_data.pixmaxx) {
-                    // Right edge of screen
-                    return find_far_foe(ob);
+                if (r > 0) {
+                    product1b = color6;
+                    product2b = product1b;
+                } else if (r < 0) {
+                    product1b = color5;
+                    product2b = product1b;
+                } else {
+                    product1b = INTERPOLATE(color5, color6);
+                    product2b = product1b;
                 }
             } else {
-                // changex is odd
-                targy += resolution;
-
-                if (targy <= 0) {
-                    // Top of screen
-                    return find_far_foe(ob);
+                if ((color6 == color3) && (color3 == colorA1) && (color2 != colorA2) && (color3 != colorA0)) {
+                    product2b = Q_INTERPOLATE(color3, color3, color3, color2);
+                } else if ((color5 == color2) && (color2 == colorA2) && (colorA1 != color3) && (color2 != colorA3)) {
+                    product2b = Q_INTERPOLATE(color2, color2, color2, color3);
+                } else {
+                    product2b = INTERPOLATE(color2, color3);
                 }
 
-                if (targy >= level_data.pixmaxy) {
-                    // Bottom of screen
-                    return find_far_foe(ob);
+                if ((color6 == color3) && (color6 == colorB1) && (color5 != colorB2) && (color6!= colorB0)) {
+                    product1b = Q_INTERPOLATE(color6, color6, color6, color5);
+                } else if ((color5 == color2) && (color5 == colorB2) && (colorB1 != color6) && (color5 != colorB3)) {
+                    product1b = Q_INTERPOLATE(color6, color5, color5, color5);
+                } else {
+                    product1b = INTERPOLATE(color5, color6);
                 }
             }
 
-            std::list<Walker *> &ls = level_data.myobmap->obmap_get_list(targx, targy);
+            if ((color5 == color3) && (color2 != color6) && (color4 == color5) && (color5 != colorA2)) {
+                product2a = INTERPOLATE(color2, color5);
+            } else if ((color5 == color1) && (color6 == color5) && (color4 != color2) && (color5 != colorA0)) {
+                product2a = INTERPOLATE(color2, color5);
+            } else {
+                product2a = color2;
+            }
 
-            // Go through the list we received
-            for (auto const & w : ls) {
-                if (!w->dead && (ob->is_friendly(w) == 0) && (getRandomSint32(w->invisibility_left / 20) == 0)) {
-                    if ((w->query_order() == ORDER_LIVING) || (w->query_order() == ORDER_GENERATOR)) {
-                        // Done separately since they are logically more signficant
-                        // This should be a valid foe
-                        return w;
-                    }
+            if ((color2 == color6) && (color5 != color3) && (color1 == color2) && (color2 != colorB2)) {
+                product1a = INTERPOLATE(color2, color5);
+            } else if ((color4 == color2) && (color3 == color2) && (color1 != color5) && (color2 != colorB0)) {
+                product1a = INTERPOLATE(color2, color5);
+            } else {
+                product1a = color5;
+            }
+
+            *dP = product1a;
+            *(dP + 1) = product1b;
+            *(dP + dst_pitch) = product2a;
+            *(dP + dst_pitch + 1) = product2b;
+
+            bP += 1;
+            dP += 2;
+        }
+
+        srcPtr += (src_pitch * 4);
+        dstPtr += ((2 * dst_pitch) * 4);
+    }
+}
+
+void Scale_SuperEagle(Uint8 *src, Sint32 srcx, Sint32 srcy, Sint32 srcw, Sint32 srch,
+                      Sint32 src_pitch, Sint32 src_height, Uint8 *dst, Sint32 dstx,
+                      Sint32 dsty, Sint32 dst_pitch)
+{
+    /*
+     * We need to ensure that the update is aligned to 4 pixels - Colourless
+     * The idea was to prevent artifacts from appearing, but it doesn't seem
+     * to help
+     *
+     * Sint32 sx = ((srcx - 4) / 4) * 4;
+     * Sint32 ex = (((srcx + srcw) + 7) / 4) * 4;
+     * Sint32 sy = ((srcy - 4) / 4) * 4;
+     * Sint32 ey = (((srcy + srch) + 7) / 4) * 4;
+     *
+     * if (sx < 0) {
+     *     sx = 0;
+     * }
+     *
+     * if (sy < 0) {
+     *     sy = 0;
+     * }
+     *
+     * if (ex > sline_pixels) {
+     *     ex = sline_pixels;
+     * }
+     *
+     * if (ey > sheight) {
+     *     ey = sheight;
+     * }
+     *
+     * srcx = sx;
+     * srcy = sy;
+     * srcw = ex - sx;
+     * srch = ey - sy;
+     */
+
+    Uint8 *srcPtr = src + ((4 * srcx) + (srcy * src_pitch));
+    Uint8 *dstPtr = dst + ((4 * dstx) + (dsty * dst_pitch));
+
+    src_pitch = src_pitch / 4;
+    dst_pitch = dst_pitch / 4;
+
+    if ((srcx + srcw) >= src_pitch) {
+        srcw = src_pitch - srcx;
+    }
+
+    Sint32 ybeforelast1 = (src_height - 1) - srcy;
+    Sint32 ybeforelast2 = (src_height - 2) - srcy;
+    Sint32 xbeforelast1 = (src_pitch - 1) - srcx;
+    Sint32 xbeforelast2 = (src_pitch - 2) - srcx;
+
+    for (Sint32 y = 0; y < srch; ++y) {
+        Uint32 *bP = reinterpret_cast<Uint32 *>(srcPtr);
+        Uint32 *dP = reinterpret_cast<Uint32 *>(dstPtr);
+
+        for (Sint32 x = 0; x < srcw; ++x) {
+            Uint32 color4;
+            Uint32 color5;
+            Uint32 color6;
+            Uint32 color1;
+            Uint32 color2;
+            Uint32 color3;
+            // Uint32 colorA0;
+            // Uint32 colorA3;
+            // Uint32 colorB0;
+            // Uint32 colorB3;
+            Uint32 colorA1;
+            Uint32 colorA2;
+            Uint32 colorB1;
+            Uint32 colorB2;
+            Uint32 colorS1;
+            Uint32 colorS2;
+            Uint32 product1a;
+            Uint32 product1b;
+            Uint32 product2a;
+            Uint32 product2b;
+
+            /*
+             * B0 B1 B2 B3
+             *  4  5  6 S2
+             *  1  2  3 S1
+             * A0 A1 A2 A3
+             */
+            Sint32 add1;
+            Sint32 add2;
+            Sint32 sub1;
+            Sint32 nextl1;
+            Sint32 nextl2;
+            Sint32 prevl1;
+
+            if (x == 0) {
+                sub1 = 0;
+            } else {
+                sub1 = 1;
+            }
+
+            if (x >= xbeforelast2) {
+                add2 = 0;
+            } else {
+                add2 = 1;
+            }
+
+            if (x >= xbeforelast1) {
+                add1 = 0;
+            } else {
+                add1 = 1;
+            }
+
+            if (y == 0) {
+                prevl1 = 0;
+            } else {
+                prevl1 = src_pitch;
+            }
+
+            if (y >= ybeforelast2) {
+                nextl2 = 0;
+            } else {
+                nextl2 = src_pitch;
+            }
+
+            if (y >= ybeforelast1) {
+                nextl1 = 0;
+            } else {
+                nextl1 = src_pitch;
+            }
+
+            // colorB0 = *(bP - prevl1 - sub1);
+            colorB1 = *(bP - prevl1);
+            colorB2 = *(bP - prevl1 + add1);
+            // colorB3 = *(bP - prevl1 + add1 + add2);
+
+            color4 = *(bP - sub1);
+            color5 = *(bP);
+            color6 = *(bP + add1);
+            colorS2 = *(bP + add1 + add2);
+
+            color1 = *(bP + nextl1 - sub1);
+            color2 = *(bP + nextl1);
+            color3 = *(bP + nextl1 + add1);
+            colorS1 = *(bP + nextl1 + add1 + add2);
+
+            // colorA0 = *(bP + nextl1 + nextl2 - sub1);
+            colorA1 = *(bP + nextl1 + nextl2);
+            colorA2 = *(bP + nextl1 + nextl2 + add1);
+            // colorA3 = *(bP + nextl1 + nextl2 + add1 + add2);
+
+            if ((color2 == color6) && (color5 != color3)) {
+                product2a = color2;
+                product1b = product2a;
+                // manip.copy(product2a, color2);
+                // prodcut1b = prodcut2a;
+
+                if ((color1 == color2) || (color6 == colorB2)) {
+                    product1a = INTERPOLATE(color2, color5);
+                    product1a = INTERPOLATE(color2, product1a);
+                    // product1a = QInterpolate_2xSaI<Source_pixel, Dest_pixel, Manip_pixels>(color2, color2, color2, color5, manip);
+                } else {
+                    product1a = INTERPOLATE(color5, color6);
+                    // product1a = Interpolate_2xSaI<Source_pixel, Dest_pixel, Manip_pixels>(color6, color5, manip);
                 }
-            } // End inner while
-        } // End for
 
-        // Change whether we do x or y in each loop
-        ++xchange;
+                if ((color6 == colorS2) || (color2 == colorA1)) {
+                    product2b = INTERPOLATE(color2, color3);
+                    product2b = INTERPOLATE(color2, product2b);
+                    // product2b = QInterpolate_2xSaI<Source_pixel, Dest_pixel, Manip_pixels>(color2, color2, color2, color3, manip);
+                } else {
+                    product2b = INTERPOLATE(color2, color3);
+                    // product2b = Interpolate_2xSaI<Source_pixel, Dest_pixel, Manip_pixels>(color2, color3, manip);
+                }
+            } else if ((color5 == color3) && (color2 != color6)) {
+                product1a = color5;
+                product2b = product1a;
+                // manip.copy(product1a, color5);
+                // product2b = product1a;
 
-        if (xchange % 2 == 0) {
-            // Reverse directrion around the search every other for
-            // Increase the search width every other for
-            ++spread;
+                if ((colorB1 == color5) || (color3 == colorS1)) {
+                    product1b = INTERPOLATE(color5, color6);
+                    product1b = INTERPOLATE(color5, product1b);
+                    // product1b = QInterpolate_2xSaI<Source_pixel, Dest_pixel, Manip_pixels>(color5, color5, color5, color6, manip);
+                } else {
+                    product1b = INTERPOLATE(color5, color6);
+                    // product1b = Interpolate_2xSaI<Source_pixel, Dest_pixel, Manip_pixels>(color5, color6, manip);
+                }
+
+                if ((color3 == colorA2) || (color4 == color5)) {
+                    product2a = INTERPOLATE(color5, color2);
+                    product2a = INTERPOLATE(color5, product2a);
+                    // product2a = QInterpolate_2xSaI<Source_pixel, Dest_pixel, Manip_pixels>(color2, color5, color5, color5, manip);
+                } else {
+                    product2a = INTERPOLATE(color2, color3);
+                    // product2a = Interpolate_2xSaI<Source_pixel, Dest_pixel, Manip_pixels>(color3, color2, manip);
+                }
+            } else if ((color5 == color3) && (color2 == color6)) {
+                Sint32 r = 0;
+
+                r += GET_RESULT(color6, color5, color1, colorA1);
+                r += GET_RESULT(color6, color5, color4, colorB1);
+                r += GET_RESULT(color6, color5, colorA2, colorS1);
+                r += GET_RESULT(color6, color5, colorB2, colorS2);
+                // r += GetResult1<Source_pixel>(color5, color6, color4, colorB1);
+                // r += GetResult2<Source_pixel>(color6, color5, colorA2, colorS1);
+                // r += GetResult2<Source_pixel>(color6, color5, color1, colorA1);
+                // r += GetResult1<Source_pixel>(color5, color6, colorB2, colorS2);
+
+                if (r > 0) {
+                    product2a = color2;
+                    product1b = product2a;
+                    // manip.copy(product2a, color2);
+                    // product1b = product2a;
+                    product2b = INTERPOLATE(color5, color6);
+                    product1a = product2b;
+                    // product2b = Interpolate_2xSaI<Source_pixel, Dest_pixel, Manip_pixels>(color5, color6, manip);
+                    // product1a = product2b;
+                } else if (r < 0) {
+                    product1a = color5;
+                    product2b = product1a;
+                    // manip.copy(product1a, color5);
+                    // product2b = product1a;
+                    product2a = INTERPOLATE(color5, color6);
+                    product1b = product2a;
+                    // product2a = Interpolate_2xSaI<Source_pixel, Dest_Pixel, Mainp_pixels>(color5, color6, manip);
+                    // product1b = product2a;
+                } else {
+                    product1a = color5;
+                    product2b = product1a;
+                    // manip.copy(product1a, color5);
+                    // product2b = product1a;
+                    product2a = color2;
+                    product1b = product2a;
+                    // manip.copy(product2a, color2);
+                    // product1b = product2a;
+                }
+            } else {
+                product1a = INTERPOLATE(color2, color6);
+                product2b = product1a;
+                product2b = Q_INTERPOLATE(color3, color3, color3, product2b);
+                product1a = Q_INTERPOLATE(color5, color5, color5, product1a);
+                // product2b = OInterpolate_2xSaI<Source_pixel, Dest_pixel, Manip_pixels>(color3, color2, color6, manip);
+                // product1a = OInterpolate_2xSaI<Source_pixel, Dest_pixel, Manip_pixels>(color5, color6, color2, manip);
+
+                product1b = INTERPOLATE(color5, color3);
+                product2a = product1b;
+                product2a = Q_INTERPOLATE(color2, color2, color2, product2a);
+                product1b = Q_INTERPOLATE(color6, color6, color6, product1b);
+                // product2a = OInterpolate_2xSaI<Source_pixel, Dest_pixel, Manip_pixels>(color2, color5, color3, manip);
+                // product1b = OInterpolate_2xSaI<Source_pixel, Dest_pixel, Manip_pixels>(color6, color5, color3, manip);
+            }
+
+            *dP = product1a;
+            *(dP + 1) = product1b;
+            *(dP + dst_pitch) = product2a;
+            *(dP + dst_pitch + 1) = product2b;
+
+            bP += 1;
+            dP += 2;
         }
-    } // End while
 
-    // Failure
-    return find_far_foe(ob);
+        srcPtr += (src_pitch * 4);
+        dstPtr += ((2 * dst_pitch) * 4);
+    }
 }
 
-Walker *VideoScreen::find_far_foe(Walker *ob)
+void Super2xSaI_ex(Uint8 *src, Uint32 src_pitch, Uint8 *unused, Uint8 *dest, Uint32 dest_pitch,
+                   Uint32 width, Uint32 height)
 {
-    // Sint16 targx;
-    // Sint16 targy;
-    Sint32 distance;
-    Sint32 tempdistance;
-    Walker *endfoe;
+    // For avoid warning
+    unused = nullptr;
+    // Sint32 j;
+    Uint32 x;
+    Uint32 y;
+    Uint32 color[16];
 
-    if (!ob) {
-        Log("No ob in find far foe.\n");
+    // Point to the first 3 lines.
+    src_line[0] = src;
+    src_line[1] = src;
+    src_line[2] = src + src_pitch;
+    src_line[3] = src + (src_pitch * 2);
 
-        return nullptr;
-    }
+    dst_line[0] = static_cast<Uint8 *>(dest);
+    dst_line[1] = static_cast<Uint8 *>(dest + dest_pitch);
 
-    // Get our current coordinates
-    // targx = ob->xpos;
-    // targy = ob->ypos;
+    x = 0;
+    y = 0;
+    Uint32 *lbp;
+    lbp = reinterpret_cast<Uint32 *>(src_line[0]);
+    color[0] = *lbp;
+    color[1] = color[0];
+    color[2] = color[0];
+    color[3] = color[0];
+    color[4] = color[0];
+    color[5] = color[0];
+    color[6] = *(lbp + 1);
+    color[7] = *(lbp + 2);
 
-    // Set our "default" foe to nullptr
-    endfoe = nullptr;
-    distance = 10000;
-    ob->stats.last_distance = 10000;
+    lbp = reinterpret_cast<Uint32 *>(src_line[2]);
+    color[8] = *lbp;
+    color[9] = color[8];
+    color[10] = *(lbp + 1);
+    color[11] = *(lbp + 2);
 
-    for (auto const & foe : level_data.oblist) {
-        if ((foe == nullptr) || foe->dead) {
-            continue;
-        }
+    lbp = reinterpret_cast<Uint32 *>(src_line[3]);
+    color[12] = *lbp;
+    color[13] = color[12];
+    color[14] = *(lbp + 1);
+    color[15] = *(lbp + 2);
 
-        // Check for valid objects...
-        if (ob->is_friendly(foe) == 0) {
-            if (((foe->query_order() == ORDER_LIVING) || (foe->query_order() == ORDER_GENERATOR)) && (getRandomSint32(foe->invisibility_left / 20) == 0)) {
-                tempdistance = ob->distance_to_ob(foe);
+    for (y = 0; y < height; ++y) {
+        /*
+         * Todo:
+         * x = width - 2;
+         * x = width - 1;
+         */
+        for (x = 0; x < width; ++x) {
+            Uint32 product1a;
+            Uint32 product1b;
+            Uint32 product2a;
+            Uint32 product2b;
 
-                if (tempdistance < distance) {
-                    distance = tempdistance;
-                    endfoe = foe;
+            /*
+             * B0 B1 B2 B3     0  1  2  3
+             *  4 5*  6 S2 ->  4 5*  6  7
+             *  1  2  3 S1     8  9 10 11
+             * A0 A1 A2 A3    12 13 14 15
+             */
+
+            if ((color[9] == color[6]) && (color[5] != color[10])) {
+                product2b = color[9];
+                product1b = product2b;
+            } else if ((color[5] == color[10]) && (color[9] != color[6])) {
+                product2b = color[5];
+                product1b = product2b;
+            } else if ((color[5] == color[10]) && (color[9] == color[6])) {
+                Sint32 r = 0;
+
+                r += GET_RESULT(color[6], color[5], color[8], color[13]);
+                r += GET_RESULT(color[6], color[5], color[4], color[1]);
+                r += GET_RESULT(color[6], color[5], color[14], color[11]);
+                r += GET_RESULT(color[6], color[5], color[2], color[7]);
+
+                if (r > 0) {
+                    product1b = color[6];
+                } else if (r < 0) {
+                    product1b = color[5];
+                } else {
+                    product1b = INTERPOLATE(color[5], color[6]);
+                }
+
+                product2b = product1b;
+            } else {
+                if ((color[6] == color[10]) && (color[10] == color[13]) && (color[9] != color[14]) && (color[10] != color[12])) {
+                    product2b = Q_INTERPOLATE(color[10], color[10], color[10], color[9]);
+                } else if ((color[5] == color[9]) && (color[9] == color[14]) && (color[13] != color[10]) && (color[9] != color[15])) {
+                    product2b = Q_INTERPOLATE(color[9], color[9], color[9], color[10]);
+                } else {
+                    product2b = INTERPOLATE(color[9], color[10]);
+                }
+
+                if ((color[6] == color[10]) && (color[6] == color[1]) && (color[5] != color[2]) && (color[6] != color[0])) {
+                    product1b = Q_INTERPOLATE(color[6], color[6], color[6], color[5]);
+                } else if ((color[5] == color[9]) && (color[5] == color[2]) && (color[1] != color[6]) && (color[5] != color[3])) {
+
+                    product1b = Q_INTERPOLATE(color[6], color[5], color[5], color[5]);
+                } else {
+                    product1b = INTERPOLATE(color[5], color[6]);
                 }
             }
-        }
-    }
 
-    return endfoe;
-}
+            if ((color[5] == color[10]) && (color[9] != color[6]) && (color[4] == color[5]) && (color[5] != color[14])) {
+                product2a = INTERPOLATE(color[9], color[5]);
+            } else if ((color[5] == color[8]) && (color[6] == color[5]) && (color[4] != color[9]) && (color[5] != color[12])) {
+                product2a = INTERPOLATE(color[9], color[5]);
+            } else {
+                product2a = color[9];
+            }
 
-std::string VideoScreen::get_scen_title(std::string const &filename, VideoScreen *master)
-{
-    SDL_RWops *infile = nullptr;
-    char temptext[10] = "XXX";
-    std::string tempfile(filename);
-    tempfile.append(".fss");
-    Uint8 versionnumber = 0;
-    char buffer[30];
+            if ((color[9] == color[6]) && (color[5] != color[10]) && (color[8] == color[9]) && (color[9] != color[2])) {
+                product1a = INTERPOLATE(color[9], color[5]);
+            } else if ((color[4] == color[9]) && (color[10] == color[9]) && (color[8] != color[5]) && (color[9] != color[0])) {
+                product1a = INTERPOLATE(color[9], color[5]);
+            } else {
+                product1a = color[5];
+            }
 
-    // Zardus: First get the file from scen/
-    infile = open_read_file("scen/", tempfile.c_str());
-    if (infile == nullptr) {
-        return "none";
-    }
+            *(reinterpret_cast<Uint32 *>(&dst_line[0][x * 8])) = product1a;
+            *(reinterpret_cast<Uint32 *>(&dst_line[0][(x * 8) + 4])) = product1b;
+            *(reinterpret_cast<Uint32 *>(&dst_line[1][x * 8])) = product2a;
+            *(reinterpret_cast<Uint32 *>(&dst_line[1][(x * 8) + 4])) = product2b;
 
-    // Are we a scenario file?
-    SDL_RWread(infile, temptext, 3, 1);
+            // Move color matrix forward
+            color[0] = color[1];
+            color[4] = color[5];
+            color[8] = color[9];
+            color[12] = color[13];
+            color[1] = color[2];
+            color[5] = color[6];
+            color[9] = color[10];
+            color[13] = color[14];
+            color[2] = color[3];
+            color[6] = color[7];
+            color[10] = color[11];
+            color[14] = color[15];
 
-    if (strcmp(temptext, "FSS")) {
-        return "none";
-    }
-
-    // Check the version number
-    SDL_RWread(infile, &versionnumber, 1, 1);
-
-    if (versionnumber < 6) {
-        return "none";
-    }
-
-    // Discard the grid name...
-    SDL_RWread(infile, buffer, 8, 1);
-
-    // Return the title, 30 bytes
-    SDL_RWread(infile, buffer, 30, 1);
-
-    if (infile) {
-        SDL_RWclose(infile);
-    }
-
-    return std::string(buffer);
-}
-
-// Look for the first non-dead instance of a given walker...
-Walker *VideoScreen::first_of(Uint8 whatorder, Uint8 whatfamily, Sint32 team_num)
-{
-    for (auto const & ob : level_data.oblist) {
-        if (ob && !ob->dead) {
-            if ((ob->query_order() == whatorder) && (ob->query_family() == whatfamily)) {
-                if ((team_num == -1) || (team_num == ob->team_num)) {
-                    return ob;
-                }
+            if (x < (width - 3)) {
+                x += 3;
+                color[3] = *((reinterpret_cast<Uint32 *>(src_line[0])) + x);
+                color[7] = *((reinterpret_cast<Uint32 *>(src_line[1])) + x);
+                color[11] = *((reinterpret_cast<Uint32 *>(src_line[2])) + x);
+                color[15] = *((reinterpret_cast<Uint32 *>(src_line[3])) + x);
+                x -= 3;
             }
         }
-    }
 
-    return nullptr;
-}
+        // We're done with one line, so we shift the source lines up
+        src_line[0] = src_line[1];
+        src_line[1] = src_line[2];
+        src_line[2] = src_line[3];
 
-void VideoScreen::draw_panels(Sint16 howmany)
-{
-    Sint16 i;
+        // Read next line
+        if ((y + 3) >= height) {
+            src_line[3] = src_line[2];
+        } else {
+            src_line[3] = src_line[2] + src_pitch;
+        }
 
-    // Force a memory clear...
-    clearbuffer();
+        // Then shift the color matrix up
+        Uint32 *lbp;
+        lbp = reinterpret_cast<Uint32 *>(src_line[0]);
+        color[0] = *lbp;
+        color[1] = color[0];
+        color[2] = *(lbp + 1);
+        color[3] = *(lbp + 2);
 
-    for (i = 0; i < numviews; ++i) {
-        if ((viewob[i]->prefs[PREF_VIEW] != PREF_VIEW_FULL) && (numviews != 4)) {
-            draw_button(viewob[i]->xloc - 4, viewob[i]->yloc - 3, viewob[i]->endx + 3, viewob[i]->endy + 3, 3, 1);
-            draw_box(viewob[i]->xloc - 1, viewob[i]->yloc - 1, viewob[i]->endx, viewob[i]->endy, 0, 0, 1);
+        lbp = reinterpret_cast<Uint32 *>(src_line[1]);
+        color[4] = *lbp;
+        color[5] = color[4];
+        color[6] = *(lbp + 1);
+        color[7] = *(lbp + 2);
+
+        lbp = reinterpret_cast<Uint32 *>(src_line[2]);
+        color[8] = *lbp;
+        color[9] = color[9];
+        color[10] = *(lbp + 1);
+        color[11] = *(lbp + 2);
+
+        lbp = reinterpret_cast<Uint32 *>(src_line[3]);
+        color[12] = *lbp;
+        color[13] = color[12];
+        color[14] = *(lbp + 1);
+        color[15] = *(lbp + 2);
+
+        if (y < (height - 1)) {
+            dst_line[0] = static_cast<Uint8 *>(dest) + (dest_pitch * ((y * 2) + 2));
+            dst_line[1] = static_cast<Uint8 *>(dest) + (dest_pitch * ((y * 2) + 3));
         }
     }
-
-    // Repaint the screen area...
-    redraw();
-    buffer_to_screen(0, 0, 320, 200);
 }
 
-// This can be slow, so don't call it much
-Walker *VideoScreen::find_nearest_blood(Walker *who)
+void Super2xSaI(SDL_Surface *src, SDL_Surface *dest, Sint32 s_x, Sint32 s_y, Sint32 d_x,
+                Sint32 d_y, Sint32 w, Sint32 h)
 {
-    Sint32 distance;
-    Sint32 newdistance;
-    Walker *returnob = nullptr;
+    Sint32 sbpp;
+    Sint32 dbpp;
 
-    if (!who) {
-        return nullptr;
+    if (!src || !dest) {
+        Log("Error: In Super2xSaI, src or dest are NULL\n");
+
+        return;
     }
 
-    distance = 800;
+    sbpp = src->format->BitsPerPixel;
+    dbpp = dest->format->BitsPerPixel;
 
-    for (auto const & w : level_data.fxlist) {
-        if (w && (w->query_order() == ORDER_TREASURE) && (w->query_family() == FAMILY_STAIN) && !w->dead) {
-            newdistance = static_cast<Uint32>(who->distance_to_ob_center(w));
+    // Must be same color depth
+    if ((sbpp != xsai_depth) || (sbpp != dbpp)) {
+        Log("Error: In Super2xSaI, sbpp or dbpp are not equal to xsai_depth\n");
 
-            if (newdistance < distance) {
-                distance = newdistance;
-                returnob = w;
-            }
-        }
+        return;
     }
 
-    return returnob;
+    sbpp = src->format->BytesPerPixel;
+    dbpp = dest->format->BytesPerPixel;
+
+    if ((w < 4) || (h < 4)) {
+        // Image is too small to 2xSaI'ed
+        Log("Error: Surface to copy is to small, TODO here\n");
+
+        return;
+    }
+
+    Super2xSaI_ex((static_cast<Uint8 *>(src->pixels) + (src->pitch * s_y)) + (s_x * sbpp),
+                  src->pitch,
+                  NULL,
+                  (static_cast<Uint8 *>(dest->pixels) + (dest->pitch * d_y)) + (d_x * dbpp),
+                  dest->pitch,
+                  w,
+                  h);
+
+    return;
 }
 
-std::list<Walker *> VideoScreen::find_in_range(std::list<Walker *> &somelist, Sint32 range, Sint16 *howmany, Walker *ob)
+Screen::Screen(RenderEngine engine, Sint32 width, Sint32 height, Sint32 fullscreen)
 {
-    // Sint16 obx;
-    // Sint16 oby;
-    std::list<Walker *> result;
+    Engine = engine;
 
-    *howmany = 0;
+    switch (Engine) {
+    case SAI:
+        Init_2xSaI();
 
-    if (!ob) {
-        return result;
-    }
-
-    // Center of objects
-    // obx = static_cast<Sint16>(ob->xpos + (ob->sizex / 2));
-    // oby = static_cast<Sint16>(ob->ypos + (ob->sizey / 2));
-
-    for (auto const & w : somelist) {
-        if (w && !w->dead) {
-            if (ob->distance_to_ob(w) <= range) {
-                result.push_back(w);
-                ++(*howmany);
-            }
-        }
-    }
-
-    return result;
-}
-
-Walker *VideoScreen::find_nearest_player(Walker *ob)
-{
-    Walker *returnob = nullptr;
-    Uint32 distance = 32000;
-    Uint32 tempdistance;
-
-    if (!ob) {
-        return nullptr;
-    }
-
-    for (auto const & w : level_data.oblist) {
-        if (w && (w->user != -1)) {
-            tempdistance = ob->distance_to_ob(w);
-
-            if (tempdistance < distance) {
-                distance = tempdistance;
-                returnob = w;
-            }
-        }
-    }
-
-    return returnob;
-}
-
-std::list<Walker *> VideoScreen::find_foes_in_range(std::list<Walker *> &somelist, Sint32 range, Sint16 *howmany, Walker *ob)
-{
-    std::list<Walker *> result;
-    *howmany = 0;
-
-    if (!ob) {
-        return result;
-    }
-
-    for (auto const & w : somelist) {
-        if (w && !w->dead && ((w->query_order() == ORDER_LIVING) || (w->query_order() == ORDER_GENERATOR)) && (ob->is_friendly(w) == 0)) {
-            if (ob->distance_to_ob(w) <= range) {
-                result.push_back(w);
-                ++(*howmany);
-            }
-        }
-    }
-
-    return result;
-}
-
-std::list<Walker *> VideoScreen::find_friends_in_range(std::list<Walker *> & somelist, Sint32 range, Sint16 *howmany, Walker *ob)
-{
-    std::list<Walker *> result;
-    *howmany = 0;
-
-    if (!ob) {
-        return result;
-    }
-
-    for (auto const & w : somelist) {
-        if (w && !w->dead && (w->query_order() == ORDER_LIVING) && ob->is_friendly(w)) {
-            if (ob->distance_to_ob(w) <= range) {
-                result.push_back(w);
-                ++(*howmany);
-            }
-        }
-    }
-
-    return result;
-}
-
-std::list<Walker *> VideoScreen::find_foe_weapons_in_range(std::list<Walker *> & somelist, Sint32 range, Sint16 *howmany, Walker *ob)
-{
-    std::list<Walker *> result;
-    *howmany = 0;
-
-    if (!ob) {
-        return result;
-    }
-
-    for (auto const & w : somelist) {
-        if (w && !w->dead && (w->query_order() == ORDER_WEAPON) && ob->is_friendly(w)) {
-            if (ob->distance_to_ob(w) <= range) {
-                result.push_back(w);
-                ++(*howmany);
-            }
-        }
-    }
-
-    return result;
-}
-
-// Uses pixel coordinates
-// Damage the specified tile
-Uint8 VideoScreen::damage_tile(Sint16 xloc, Sint16 yloc)
-{
-    Sint16 xover;
-    Sint16 yover;
-    Sint16 gridloc;
-
-    xover = static_cast<Sint16>(xloc / GRID_SIZE);
-    yover = static_cast<Sint16>(yloc / GRID_SIZE);
-
-    if ((xover < 0) || (yover < 0)) {
-        return 0;
-    }
-
-    if ((xover >= level_data.grid.w) || (yover >= level_data.grid.h)) {
-        return 0;
-    }
-
-    gridloc = static_cast<Sint16>((yover * level_data.grid.w) + xover);
-
-    switch (static_cast<Uint8>(level_data.grid.data[gridloc])) {
-    case PIX_GRASS1: // Grass
-    case PIX_GRASS2:
-    case PIX_GRASS3:
-    case PIX_GRASS4:
-        level_data.grid.data[gridloc] = PIX_GRASS1_DAMAGED;
+        break;
+    case EAGLE:
+        Init_2xSaI();
 
         break;
     default:
@@ -1323,75 +772,135 @@ Uint8 VideoScreen::damage_tile(Sint16 xloc, Sint16 yloc)
         break;
     }
 
-    return level_data.grid.data[gridloc];
-}
+    Sint32 w;
+    Sint32 h;
 
-void VideoScreen::do_notify(std::string const &message, Walker *who)
-{
-    Sint16 i;
-    bool sent = false;
+    w = width;
+    h = height;
 
-    for (i = 0; i < numviews; ++i) {
-        if (who && (viewob[i]->control == who)) {
-            viewob[i]->set_display_text(message, STANDARD_TEXT_TIME);
-            sent = true;
-        }
+    Uint32 window_flags = SDL_WINDOW_SHOWN;
+
+    if (fullscreen) {
+        window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
     }
 
-    if (!sent) {
-        for (i = 0; i < numviews; ++i) {
-            viewob[i]->set_display_text(message, STANDARD_TEXT_TIME);
-        }
+    window = SDL_CreateWindow("Gladiator", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, window_flags);
+
+    if (window == nullptr) {
+        exit(1);
     }
+
+    SDL_GetWindowSize(window, &w, &h);
+    window_w = w;
+    window_h = h;
+
+    update_overscan_setting();
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
+
+    render = SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 200, 32, 0, 0, 0, 0);
+    render_tex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 320, 200);
+
+    // To be initialized when we actually need it
+    render2 = nullptr;
+    render2_tex = nullptr;
 }
 
-void VideoScreen::report_mem()
+Screen::~Screen()
 {
+    SDL_DestroyTexture(render_tex);
+    SDL_DestroyTexture(render2_tex);
+    SDL_FreeSurface(render);
+    SDL_FreeSurface(render2);
 
-    struct meminfo {
-        Uint32 LargeestblockAvail;
-        Uint32 MaxUnlockedPage;
-        Uint32 LargestLockablePage;
-        Uint32 LinAddrSpace;
-        Uint32 NumFreePagesAvail;
-        Uint32 NumPhysicalPagesFree;
-        Uint32 TotalPhysicalPages;
-        Uint32 FreeLinAddrSpace;
-        Uint32 SizeOfPageFile;
-        Uint32 Reserved[3];
-    } Memory;
+    SDL_DestroyRenderer(renderer);
+    // SDL_DestroyWindow(window);
+}
 
-    Memory.FreeLinAddrSpace = 0;
-    // Zardus: PORT: This is apparently an incomplete type:
-    // union REGS regs;
-    // struct SREGS sregs;
-    std::stringstream memreport;
+void Screen::SaveBMP(SDL_Surface *screen, std::string const &filename)
+{
+    SDL_SaveBMP(screen, filename.c_str());
+}
 
-    // Zardus: PORT: Undeclared because of problems above:
-    // regs.x.eax = 0x00000500;
-    // memset(&sregs, 0, sizeof(sregs));
+void Screen::clear()
+{
+    SDL_FillRect(render, NULL, 0x000000);
+}
 
-    // sregs.es = FP_SEG(&Memory);
-    // regs.x.edi = FP_OFF(&Memory);
+void Screen::clear(Sint32 x, Sint32 y, Sint32 w, Sint32 h)
+{
+    SDL_Rect r = { x, y, w, h };
+    SDL_FillRect(render, &r, 0x000000);
+}
 
-    // int386x(DPMI_INT, &regs, &regs, &sregs);
+void Screen::swap(Sint32 x, Sint32 y, Sint32 w, Sint32 h)
+{
+    SDL_Surface *source_surface = render;
+    SDL_Texture *dest_texture = render_tex;
 
-    // sprintf(memreport, "Largest Block: %lu bytes", MemoryLargestBlockAvail);
-    // viewob[0]->set_display_text(memreport, STANDARD_TEXT_TIME);
+    switch (Engine) {
+    case SAI:
+        if (render2 == nullptr) {
+            render2 = SDL_CreateRGBSurface(SDL_SWSURFACE, 640, 400, 32, 0, 0, 0, 0);
+            render2_tex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 640, 400);
+        }
 
-    memreport << "Free Linear address: " << Memory.FreeLinAddrSpace << " pages";
-    // Log(memreport);
-    // Log("\n");
+        SDL_LockSurface(render2);
+        Super2xSaI_ex2(static_cast<Uint8 *>(render->pixels), x, y, w, h, render->pitch, render->h,
+                       static_cast<Uint8 *>(render2->pixels), 2 * x, 2 * y, render2->pitch);
 
-    viewob[0]->set_display_text(memreport.str(), 25);
+        SDL_UnlockSurface(render2);
+        source_surface = render2;
+        dest_texture = render2_tex;
 
-    // Log("Largest available block (in bytes): %lu\n", MemInfo.LargestBlockAvail);
-    // Log("Maximum unlocked page allocation: %lu\n", MemInfo.MaxUnlockedPage);
-    // Log("Pages that can be allocated and locked: %lu\n", MemInfo.LargestLockablePage);
-    // Log("Total linear address space including allocated pages: %lu\n", MemInfo.LinAddrSpace);
-    // Log("Number of free pages available: %lu\n", MemInfo.NumFreePagesAvail);
-    // Log("Number of physical pages not in use: %lu\n", MemInfo.NumPhysicalPagesFree);
-    // Log("Total pyhsical pages managed by host: %lu\n", MemInfo.TotalPhysicalPages);
-    // Log("Free linear address space (pages): %lu\n", MemInfo.FreeLinAddrSpace);
-    // Log("Size of paging/file partition (pages): %lu\n", MemInfo.SizeOfPageFile);
+        break;
+    case EAGLE:
+
+        if (render2 == nullptr) {
+            render2 = SDL_CreateRGBSurface(SDL_SWSURFACE, 640, 400, 32, 0, 0, 0, 0);
+            render2_tex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 640, 400);
+        }
+
+        SDL_LockSurface(render2);
+        Scale_SuperEagle(static_cast<Uint8 *>(render->pixels), x, y, w, h, render->pitch,
+                         render->h, static_cast<Uint8 *>(render2->pixels), 2 * x, 2 * y,
+                         render2->pitch);
+
+        SDL_UnlockSurface(render2);
+
+        source_surface = render2;
+        dest_texture = render2_tex;
+
+        break;
+    default:
+
+        break;
+    }
+
+    SDL_UpdateTexture(dest_texture, NULL, source_surface->pixels, source_surface->pitch);
+    SDL_Rect dest = {
+        static_cast<Sint32>(viewport_offset_x),
+        static_cast<Sint32>(viewport_offset_y),
+        static_cast<Sint32>(viewport_w),
+        static_cast<Sint32>(viewport_h)
+    };
+
+    SDL_RenderCopy(renderer, dest_texture, NULL, &dest);
+    SDL_RenderPresent(renderer);
+}
+
+void Screen::clear_window()
+{
+    SDL_Surface *source_surface = render;
+    SDL_Texture *dest_texture = render_tex;
+
+    SDL_FillRect(source_surface, NULL, 0x000000);
+    SDL_UpdateTexture(dest_texture, NULL, source_surface->pixels, source_surface->pitch);
+    SDL_Rect dest = {
+        0,
+        0,
+        static_cast<Sint32>(window_w),
+        static_cast<Sint32>(window_h)
+    };
+
+    SDL_RenderCopy(renderer, dest_texture, NULL, &dest);
 }

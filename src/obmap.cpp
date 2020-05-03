@@ -21,9 +21,9 @@
 #include "obmap.hpp"
 
 #include "base.hpp"
-#include "screen.hpp"
 #include "text.hpp"
 #include "util.hpp"
+#include "video_screen.hpp"
 #include "view.hpp"
 #include "walker.hpp"
 

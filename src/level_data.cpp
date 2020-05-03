@@ -19,8 +19,8 @@
 
 #include "graphlib.hpp"
 #include "io.hpp"
-#include "screen.hpp"
 #include "util.hpp"
+#include "video_screen.hpp"
 #include "view.hpp"
 #include "walker.hpp"
 

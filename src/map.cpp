@@ -18,7 +18,7 @@
 #include "map.hpp"
 
 #include "base.hpp"
-#include "screen.hpp"
+#include "video_screen.hpp"
 #include "walker.hpp"
 
 #define POS_INFINITY 1000000

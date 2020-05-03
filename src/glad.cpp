@@ -33,14 +33,15 @@
 #include "input.hpp"
 #include "intro.hpp"
 #include "io.hpp"
+#include "joy_data.hpp"
+#include "mouse_state.hpp"
 #include "options.hpp"
 #include "pal32.hpp"
 #include "picker.hpp"
 #include "results_screen.hpp"
-#include "screen.hpp"
 #include "util.hpp"
-#include "view.hpp"
 #include "version.hpp"
+#include "view.hpp"
 #include "walker.hpp"
 
 #define L_D(x) x * 8
@@ -91,6 +92,7 @@ int main(int argc, char *argv[])
     srand(time(nullptr));
 
     init_input();
+    init_joysticks();
     intro_main();
     picker_main();
 
@@ -189,6 +191,8 @@ void glad_main(Sint32 playermode)
 
         while (SDL_PollEvent(&event)) {
             handle_events(event);
+            handle_joystick_events(event);
+            handle_mouse_events(event);
 
             if (event.type == SDL_KEYDOWN) {
 

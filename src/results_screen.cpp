@@ -22,12 +22,13 @@
 #include "guy.hpp"
 #include "input.hpp"
 #include "level_editor.hpp"
+#include "mouse_state.hpp"
 #include "picker.hpp"
-#include "screen.hpp"
 #include "stats.hpp"
 #include "text.hpp"
 #include "troop_result.hpp"
 #include "util.hpp"
+#include "video_screen.hpp"
 #include "walker.hpp"
 
 #include <sstream>

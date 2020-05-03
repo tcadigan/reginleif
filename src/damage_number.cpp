@@ -17,7 +17,7 @@
  */
 #include "damage_number.hpp"
 
-#include "screen.hpp"
+#include "video_screen.hpp"
 
 #include <sstream>
 

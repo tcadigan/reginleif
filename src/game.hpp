@@ -18,7 +18,7 @@
 #ifndef __GAME_HPP__
 #define __GAME_HPP__
 
-#include "screen.hpp"
+#include "video_screen.hpp"
 
 bool load_saved_game(VideoScreen *myscreen);
 

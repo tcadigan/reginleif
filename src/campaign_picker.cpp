@@ -27,11 +27,12 @@
 #include "input.hpp"
 #include "io.hpp"
 #include "level_editor.hpp"
+#include "mouse_state.hpp"
 #include "picker.hpp"
 #include "pixie.hpp"
-#include "screen.hpp"
 #include "text.hpp"
 #include "util.hpp"
+#include "video_screen.hpp"
 
 #define OG_OK 4
 

@@ -19,7 +19,7 @@
 #define __BROWSER_ENTRY_HPP__
 
 #include "level_data.hpp"
-#include "screen.hpp"
+#include "video_screen.hpp"
 
 #include <SDL2/SDL.h>
 

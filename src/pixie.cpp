@@ -28,8 +28,8 @@
 
 #include "base.hpp"
 #include "pal32.hpp"
-#include "screen.hpp"
 #include "util.hpp"
+#include "video_screen.hpp"
 #include "view.hpp"
 
 /*

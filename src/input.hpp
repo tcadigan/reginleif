@@ -29,9 +29,6 @@
 
 #include <SDL2/SDL.h>
 
-#include "screen.hpp"
-#include "video.hpp"
-
 #define SDLKey SDL_Keycode
 
 #define KEYSTATE_UNKNOWN SDL_SCANCODE_UNKNOWN
@@ -115,85 +112,6 @@
 // Keyboard defines
 #define MAXKEYS 320
 
-// Mouse defines
-#define MOUSE_RESET 0
-#define MOUSE_STATE 3
-#define MSTATE 4
-#define MOUSE_X 0
-#define MOUSE_Y 1
-#define MOUSE_LEFT 2
-#define MOUSE_RIGHT 3
-
-// These are keyboard defines... high level
-#define KEY_UP 0
-#define KEY_UP_RIGHT 1
-#define KEY_RIGHT 2
-#define KEY_DOWN_RIGHT 3
-#define KEY_DOWN 4
-#define KEY_DOWN_LEFT 5
-#define KEY_LEFT 6
-#define KEY_UP_LEFT 7
-#define KEY_FIRE 8
-#define KEY_SPECIAL 9
-#define KEY_SWITCH 10
-#define KEY_SPECIAL_SWITCH 11
-#define KEY_YELL 12
-#define KEY_SHIFTER 13
-#define KEY_PREFS 14
-#define KEY_CHEAT 15
-#define NUM_KEYS 16
-
-class JoyData
-{
-public:
-    JoyData();
-    JoyData(Sint32 index);
-
-    void setKeyFromEvent(Sint32 key_enum, SDL_Event const &event);
-
-    bool getState(Sint32 key_enum) const;
-    bool getPress(Sint32 key_enum, SDL_Event const &event) const;
-    bool getRelease(Sint32 key_enum, SDL_Event const &event) const;
-    bool hasButtonSet(Sint32 key_enum) const;
-
-    Sint32 index;
-    Sint32 numAxes;
-    Sint32 numButtons;
-    Sint32 numHats;
-
-    static Sint32 const NONE = 0;
-    static Sint32 const BUTTON = 1;
-    static Sint32 const POS_AXIS = 2;
-    static Sint32 const NEG_AXIS = 3;
-    static Sint32 const HAT_UP = 4;
-    static Sint32 const HAT_UP_RIGHT = 5;
-    static Sint32 const HAT_RIGHT = 6;
-    static Sint32 const HAT_DOWN_RIGHT = 7;
-    static Sint32 const HAT_DOWN = 8;
-    static Sint32 const HAT_DOWN_LEFT = 9;
-    static Sint32 const HAT_LEFT = 10;
-    static Sint32 const HAT_UP_LEFT = 11;
-
-    Sint32 key_type[NUM_KEYS];
-    Sint32 key_index[NUM_KEYS];
-};
-
-class MouseState
-{
-public:
-    float x;
-    float y;
-    bool left;
-    bool right;
-
-    bool in(SDL_Rect const &r) const {
-        return ((r.x <= x) && (x < (r.x + r.w)) && (r.y < y) && (y < (r.y + r.h)));
-    }
-};
-
-bool playerHasJoystick(Sint32 player_num);
-void disablePlayerJoystick(Sint32 player_num);
-void resetJoystick(Sint32 player_num);
 bool isPlayerHoldingKey(Sint32 player_index, Sint32 key_enum);
 bool didPlayerPressKey(Sint32 player_index, Sint32 key_enum, SDL_Event const &event);
 bool didPlayerReleaseKey(Sint32 player_index, Sint32 key_enum, SDL_Event const &event);
@@ -206,11 +124,9 @@ void handle_events(SDL_Event const &event);
 void handle_window_event(SDL_Event const &event);
 void handle_key_event(SDL_Event const &event);
 void handle_text_event(SDL_Event const &event);
-void handle_mouse_event(SDL_Event const &event);
-void handle_joy_event(SDL_Event const &event);
 
 // Takes SDLK (SDL_Keycode) values
-void sendFakeEkyDownEvent(Sint32 keycode);
+void sendFakeKeyDownEvent(Sint32 keycode);
 void sendFakeKeyUpEvent(Sint32 keycode);
 
 // Return last keypress
@@ -230,7 +146,6 @@ SDL_Event wait_for_key_event();
 void quit_if_quit_event(SDL_Event const &event);
 
 bool isKeyboardEvent(SDL_Event const &event);
-bool isJoystickEvent(SDL_Event const &event);
 
 // Clears the SDL event queue
 void clear_events();
@@ -263,12 +178,6 @@ void enable_keyrepeat();
 void disable_keyrepeat();
 void init_input();
 
-void grab_mouse();
-void release_mouse();
-
-MouseState &query_mouse();
-MouseState &query_mouse_no_poll();
-
 Uint8 convert_to_ascii(Sint32 scancode);
 
 void update_overscan_setting();
@@ -285,5 +194,7 @@ float viewport_h = 200;
 
 // Out of 1.0f, percent of total screen dimension that is cut off.
 float overscan_percentage = 0.0f;
+
+Sint16 scroll_amount = 0; // For scrolling up and down text popups
 
 #endif

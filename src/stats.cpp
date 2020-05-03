@@ -21,10 +21,9 @@
 
 #include "guy.hpp"
 #include "input.hpp"
-#include "screen.hpp"
 #include "util.hpp"
+#include "video_screen.hpp"
 #include "view.hpp"
-#include "walker.hpp"
 
 #include <cmath>
 #include <sstream>

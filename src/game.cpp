@@ -15,13 +15,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+#include "game.hpp"
 
 #include <sstream>
 
 #include "campaign_picker.hpp"
 #include "guy.hpp"
 #include "picker.hpp"
-#include "screen.hpp"
 #include "smooth.hpp"
 #include "util.hpp"
 #include "view.hpp"

@@ -15,16 +15,35 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#ifndef __HELP_HPP__
-#define __HELP_HPP__
+#ifndef __MOUSE_STATE_HPP__
+#define __MOUSE_STATE_HPP__
 
 #include <SDL2/SDL.h>
 
-#include "video_screen.hpp"
+#define MOUSE_LEFT 2
+#define MOUSE_RIGHT 3
 
-Sint16 fill_help_array(Uint8 somearray[HELP_WIDTH][MAX_LINES], SDL_RWops *infile);
-Sint16 read_campaign_intro(VideoScreen *myscreen);
-Sint16 read_scenario(VideoScreen *myscreen);
-Uint8 *read_one_line(SDL_RWops *infiles, Sint16 length);
+class MouseState
+{
+public:
+    float x;
+    float y;
+    bool left;
+    bool right;
+
+    bool in(SDL_Rect const &r) const {
+        return ((r.x <= x) && (x < (r.x + r.w)) && (r.y < y) && (y < (r.y + r.h)));
+    }
+};
+
+MouseState &query_mouse();
+MouseState &query_mouse_no_poll();
+void grab_mouse();
+void release_mouse();
+void handle_mouse_event(SDL_Event const &event);
+void handle_mouse_events(SDL_Event const &event);
+
+Sint16 query_mouse_key_press_event();
+void clear_mouse_key_press_event();
 
 #endif

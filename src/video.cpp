@@ -25,7 +25,7 @@
 #include "input.hpp"
 #include "io.hpp"
 #include "pal32.hpp"
-#include "sai2x.hpp"
+#include "screen.hpp"
 #include "util.hpp"
 
 #ifndef USE_BMP_SCREENSHOT

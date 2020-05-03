@@ -21,8 +21,8 @@
 
 #include "weap.hpp"
 
-#include "screen.hpp"
 #include "util.hpp"
+#include "video_screen.hpp"
 
 #include <sstream>
 

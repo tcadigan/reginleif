@@ -21,9 +21,9 @@
 #include "io.hpp"
 #include "graphlib.hpp"
 #include "pixie.hpp"
-#include "screen.hpp"
 #include "text.hpp"
 #include "util.hpp"
+#include "video_screen.hpp"
 
 #include <list>
 #include <sstream>

@@ -21,9 +21,10 @@
 #include "input.hpp"
 #include "io.hpp"
 #include "level_editor.hpp"
+#include "mouse_state.hpp"
 #include "picker.hpp"
-#include "screen.hpp"
 #include "text.hpp"
+#include "video_screen.hpp"
 
 #define REDRAW 2 // We just exited a menu, so redraw your buttons
 #define OK 4 // This function was successful, continue normal operation

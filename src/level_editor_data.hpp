@@ -26,8 +26,8 @@
 #include "object_type.hpp"
 #include "rectf.hpp"
 #include "selection_info.hpp"
-#include "screen.hpp"
 #include "simple_button.hpp"
+#include "video_screen.hpp"
 #include "walker.hpp"
 
 #include <SDL2/SDL.h>

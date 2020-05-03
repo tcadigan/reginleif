@@ -20,7 +20,7 @@
 #include "base.hpp"
 #include "graphlib.hpp"
 #include "input.hpp"
-#include "screen.hpp"
+#include "video_screen.hpp"
 #include "view.hpp"
 
 #include <cctype>

@@ -30,13 +30,14 @@
 #include "io.hpp"
 #include "level_editor.hpp"
 #include "level_picker.hpp"
+#include "mouse_state.hpp"
 #include "options.hpp"
 #include "pal32.hpp"
-#include "screen.hpp"
 #include "util.hpp"
 #include "version.hpp"
-#include "virtual_button.hpp"
+#include "video_screen.hpp"
 #include "view.hpp"
+#include "virtual_button.hpp"
 #include "walker.hpp"
 
 #include <cstring>

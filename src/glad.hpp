@@ -18,7 +18,7 @@
 #ifndef __GLAD_HPP__
 #define __GLAD_HPP__
 
-#include "screen.hpp"
+#include "video_screen.hpp"
 #include "walker.hpp"
 
 #include <SDL2/SDL.h>

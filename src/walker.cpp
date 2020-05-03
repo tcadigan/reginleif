@@ -35,10 +35,10 @@
 #include "pal32.hpp"
 #include "picker.hpp"
 #include "pixie_data.hpp"
-#include "screen.hpp"
 #include "stats.hpp"
 #include "treasure.hpp"
 #include "util.hpp"
+#include "video_screen.hpp"
 #include "view.hpp"
 #include "weap.hpp"
 

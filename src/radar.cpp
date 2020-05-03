@@ -26,9 +26,9 @@
 
 #include "colors.hpp"
 #include "level_data.hpp"
-#include "screen.hpp"
 #include "util.hpp"
 #include "walker.hpp"
+#include "video_screen.hpp"
 
 // These are the dimensions of the radar viewport
 #define RADAR_X 60

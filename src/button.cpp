@@ -19,6 +19,7 @@
 
 #include "input.hpp"
 #include "pixien.hpp"
+#include "video_screen.hpp"
 #include "virtual_button.hpp"
 
 void draw_backdrop()

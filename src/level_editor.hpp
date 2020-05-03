@@ -21,8 +21,8 @@
 #include "level_data.hpp"
 #include "level_editor_data.hpp"
 #include "rectf.hpp"
-#include "screen.hpp"
 #include "simple_button.hpp"
+#include "video_screen.hpp"
 #include "walker.hpp"
 
 #include <SDL2/SDL.h>

@@ -24,9 +24,9 @@
 #include "gparser.hpp"
 #include "guy.hpp"
 #include "picker.hpp"
-#include "screen.hpp"
 #include "stats.hpp"
 #include "util.hpp"
+#include "video_screen.hpp"
 #include "walker.hpp"
 #include "weap.hpp"
 

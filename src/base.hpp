@@ -332,4 +332,23 @@ enum CommandEnum : Uint8 {
 #define TEXT_1 "text.pix" // Standard text pixie
 #define TEXT_BIG "textbig.pix" // Standard text pixie
 
+// These are keyboard defines... high level
+#define KEY_UP 0
+#define KEY_UP_RIGHT 1
+#define KEY_RIGHT 2
+#define KEY_DOWN_RIGHT 3
+#define KEY_DOWN 4
+#define KEY_DOWN_LEFT 5
+#define KEY_LEFT 6
+#define KEY_UP_LEFT 7
+#define KEY_FIRE 8
+#define KEY_SPECIAL 9
+#define KEY_SWITCH 10
+#define KEY_SPECIAL_SWITCH 11
+#define KEY_YELL 12
+#define KEY_SHIFTER 13
+#define KEY_PREFS 14
+#define KEY_CHEAT 15
+#define NUM_KEYS 16
+
 #endif

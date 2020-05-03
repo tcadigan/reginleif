@@ -18,96 +18,49 @@
 #ifndef __SCREEN_HPP__
 #define __SCREEN_HPP__
 
-// Definition of SCREEN class
+#include <SDL2/SDL.h>
 
-#include <list>
+#include <string>
 
-#include "base.hpp"
-#include "level_data.hpp"
-#include "save_data.hpp"
-#include "soundob.hpp"
-#include "video.hpp"
-#include "view.hpp"
+typedef enum {
+    NoZoom = 0x01,
+    SAI = 0x02,
+    EAGLE = 0x03,
+    DOUBLE = 0x04
+} RenderEngine;
 
-class VideoScreen : public Video
+class Screen
 {
 public:
-    // Called with '1' for numviews
-    VideoScreen();
-    VideoScreen(Sint16 howmany);
-    virtual ~VideoScreen();
+    Screen(RenderEngine engine, Sint32 width, Sint32 height, Sint32 fullscreen);
+    ~Screen();
 
-    void reset(Sint16 howmany);
-    void ready_for_battle(Sint16 howmany);
-    void initialize_views();
-    void cleanup(Sint16 howmany);
+    void SaveBMP(SDL_Surface *screen, std::string const &filename);
+
     void clear();
-    Video *get_video_ob();
-    bool query_passable(float x, float y, Walker *ob);
-    bool query_object_passable(float x, float y, Walker *ob);
-    bool query_grid_passable(float x, float y, Walker *ob);
-    bool redraw();
-    void refresh();
-    Walker *first_of(Uint8 whatorder, Uint8 whatfamily, Sint32 team_num=1);
-    bool input(SDL_Event const &event);
-    bool continuous_input();
-    bool act();
+    void clear(Sint32 x, Sint32 y, Sint32 w, Sint32 h);
+    void swap(Sint32 x, Sint32 y, Sint32 w, Sint32 h);
+    void clear_window();
 
-    bool endgame(Sint16 ending);
-    bool endgame(Sint16 ending, Sint16 nextlevel); // What level next?
-    void draw_panels(Sint16 howmany);
-    Walker *find_near_foe(Walker *ob);
-    Walker *find_far_foe(Walker *ob);
-    Walker *find_nearest_blood(Walker *who);
-    Walker *find_nearest_player(Walker *ob);
-    std::list<Walker *> find_in_range(std::list<Walker *> &somelist, Sint32 range, Sint16 *howmany, Walker *ob);
-    std::list<Walker *> find_foes_in_range(std::list<Walker *> &somelist, Sint32 range, Sint16 *howmany, Walker *ob);
-    std::list<Walker *> find_friends_in_range(std::list<Walker *> &somelis, Sint32 range, Sint16 *howmany, Walker *ob);
-    std::list<Walker *> find_foe_weapons_in_range(std::list<Walker *> &somelist, Sint32 range, Sint16 *howmany, Walker *ob);
-    Uint8 damage_tile(Sint16 xloc, Sint16 yloc); // Damage the specified tile
-    void do_notify(std::string const &message, Walker *who); // Printing text
-    void report_mem();
-    std::string get_scen_title(std::string const &filename, VideoScreen *master);
-    void add_level_completed(std::string const &campaign, Sint32 level_index);
+    // How to render the physical screen
+    RenderEngine Engine;
 
-    Sint32 get_num_levels_completed(std::string const &campaign) const;
-    bool is_level_completed(Sint32 level_index) const;
+    SDL_Window *window;
+    SDL_Renderer *renderer;
 
-    // General drawing data
-    SDL_Color newpalette[256];
-    Sint16 palmode;
+    // The target for all rendering
+    SDL_Surface *render;
 
-    // Level data
-    LevelData level_data;
+    // A texture updated by "render" for normal rendering
+    SDL_Texture *render_tex;
 
-    // Save data
-    SaveData save_data;
+    // A buffer for doubling filters (i.e. Sai or Eagle)
+    SDL_Surface *render2;
 
-    // Game state
-    float control_hp; // Last turn's hitpoints
-    Uint8 end;
-    Uint8 timer_wait;
-
-    // Set true when all our foes are dead
-    Uint16 level_done;
-
-    // We should reset the level and go again
-    bool retry;
-
-    std::string special_name[NUM_FAMILIES][NUM_SPECIALS];
-    std::string alternate_name[NUM_FAMILIES][NUM_SPECIALS];
-
-    // Stops enemies from acting
-    Uint8 enemy_freeze;
-
-    SoundObject *soundp;
-    Uint16 redrawme;
-    ViewScreen *viewob[5];
-    Uint16 numviews;
-    Uint32 timerstart;
-    Uint32 framecount;
+    // A larger texture for the doubled result
+    SDL_Texture *render2_tex;
 };
 
-VideoScreen *myscreen;
+extern Screen *E_Screen;
 
 #endif

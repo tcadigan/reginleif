@@ -27,9 +27,9 @@
 
 #include "base.hpp"
 #include "guy.hpp"
-#include "screen.hpp"
 #include "soundob.hpp"
 #include "util.hpp"
+#include "video_screen.hpp"
 
 Sint16 hits(Sint16 x, Sint16 y, Sint16 xsize, Sint16 ysize, Sint16 x2,
             Sint16 y2, Sint16 xsize2, Sint16 ysize2);
