@@ -19,6 +19,8 @@
 
 #include "io.hpp"
 
+#include <filesystem>
+
 #define SDLK_KP0 SDLK_KP_0
 #define SDLK_KP1 SDLK_KP_1
 #define SDLK_KP2 SDLK_KP_2
@@ -142,7 +144,7 @@ Options::Options()
         prefs[i][PREF_OVERLAY] = PREF_OVERLAY_OFF;
     }
 
-    infile = open_read_file(KEY_FILE);
+    infile = open_read_file(std::filesystem::path(KEY_FILE));
 
     // Failed to read
     if (!infile) {
@@ -193,7 +195,7 @@ bool Options::save(Sint16 mynum, Uint8 *vprefs, Sint32 *mykeys)
     memcpy(&prefs[prefnum], vprefs, 10);
     memcpy(allkeys[prefnum], mykeys, 16 * sizeof(Sint32));
 
-    outfile = open_write_file(KEY_FILE);
+    outfile = open_write_file(std::filesystem::path(KEY_FILE));
 
     // Failed to write
     if (!outfile) {

@@ -30,6 +30,8 @@
 #include "walker.hpp"
 #include "video_screen.hpp"
 
+#include <algorithm>
+
 // These are the dimensions of the radar viewport
 #define RADAR_X 60
 #define RADAR_Y 44
@@ -59,9 +61,9 @@ Radar::Radar(Sint16 whatnum)
 
 void Radar::start(LevelData const &data, Sint16 viewscreen_endx, Sint16 viewscreen_endy, Sint16 viewscreen_yloc)
 {
-    sizex = static_cast<Uint16>(data.grid.w);
-    sizey = static_cast<Uint16>(data.grid.h);
-    size = static_cast<Uint16>(static_cast<Uint16>(sizex) * static_cast<Uint16>(sizey));
+    sizex = data.grid.w;
+    sizey = data.grid.h;
+    size = sizex * sizey;
     xview = RADAR_X;
     yview = RADAR_Y;
     radarx = 0;
@@ -70,24 +72,8 @@ void Radar::start(LevelData const &data, Sint16 viewscreen_endx, Sint16 viewscre
     xview = std::min(xview, sizex);
     yview = std::min(yview, sizey);
 
-#ifdef REDUCE_OVERSCAN
-    // Used by level editor to place minimap
-    if (force_lower_position) {
-        // At bottom
-        xloc = static_cast<Sint16>((viewscreen_endx - xview) - 4);
-        yloc = static_cast<Sint16>((viewscreen_endy - yview) - 4);
-    } else {
-        // At top
-        xloc = static_cast<Sint16>((viewscreen_endx - xview) - 4);
-        yloc = static_cast<Sint16>(viewscreen_yloc + 4);
-    }
-    // At bottom
-    xloc = static_cast<Sint16>((viewscreen_endx - xview) - 8);
-    yloc = static_cast<Sint16>((viewscreen_endy - yview) - 8);
-#else
-    xloc = static_cast<Sint16>((viewscreen_endx - xview) - 4);
-    yloc = static_cast<Sint16>((viewscreen_endy - yview) - 4);
-#endif
+    xloc = (viewscreen_endx - xview) - 4;
+    yloc = (viewscreen_endy - yview) - 4;
 
     if (bmp != nullptr) {
         delete[] bmp;
@@ -123,8 +109,8 @@ bool Radar::draw(LevelData const &data, Walker *control)
     radary = 0;
 
     if (control != nullptr) {
-        radarx = static_cast<Sint16>((control->xpos / GRID_SIZE) - (xview / 2));
-        radary = static_cast<Sint16>((control->ypos / GRID_SIZE) - (yview / 2));
+        radarx = (control->xpos / GRID_SIZE) - (xview / 2);
+        radary = (control->ypos / GRID_SIZE) - (yview / 2);
 
         if (control->view_all > 0) {
             can_see = 1;
@@ -132,13 +118,13 @@ bool Radar::draw(LevelData const &data, Walker *control)
 
         obteam = control->team_num;
     } else {
-        radarx = static_cast<Sint16>((data.topx / GRID_SIZE) - (xview / 2));
-        radary = static_cast<Sint16>((data.topy / GRID_SIZE) - (yview / 2));
+        radarx = (data.topx / GRID_SIZE) - (xview / 2);
+        radary = (data.topy / GRID_SIZE) - (yview / 2);
         obteam = 0;
     }
 
-    radarx = std::max(std::min(radarx, static_cast<Sint16>(sizex - xview)), static_cast<Sint16>(0));
-    radary = std::max(std::min(radary, static_cast<Sint16>(sizey - yview)), static_cast<Sint16>(0));
+    radarx = std::clamp(radarx, static_cast<Sint16>(0), static_cast<Sint16>(sizex - xview));
+    radary = std::clamp(radary, static_cast<Sint16>(0), static_cast<Sint16>(sizey - yview));
 
     Uint8 alpha = 255;
 
@@ -176,7 +162,7 @@ bool Radar::draw(LevelData const &data, Walker *control)
                  || ((oborder == ORDER_TREASURE) && (ob->query_family() == FAMILY_EXIT))
                  || ((oborder == ORDER_GENERATOR) && can_see))
                 && ((obteam == ob->team_num) || (ob->invisibility_left < 1) || can_see)
-                && on_screen(static_cast<Sint16>((ob->xpos + 1) / GRID_SIZE), static_cast<Sint16>((ob->ypos + 1) / GRID_SIZE), radarx, radary)) {
+                && on_screen((ob->xpos + 1) / GRID_SIZE, (ob->ypos + 1) / GRID_SIZE, radarx, radary)) {
                 do_show = 1;
             }
 
@@ -200,7 +186,7 @@ bool Radar::draw(LevelData const &data, Walker *control)
                     tempcolor = ob->query_team_color();
 
                     if (control == ob) {
-                        tempcolor = static_cast<Uint8>(getRandomSint32(256));
+                        tempcolor = getRandomSint32(256);
 
                         if ((tempx >= ((xloc + xview) - 1)) && (tempy < (yloc + yview))) {
                             myscreen->pointb(tempx - 1, tempy, tempcolor, alpha);
@@ -226,7 +212,7 @@ bool Radar::draw(LevelData const &data, Walker *control)
                     } else if (oborder == ORDER_LIVING) {
                         myscreen->pointb(tempx, tempy, tempcolor, alpha);
                     } else if (oborder == ORDER_GENERATOR) {
-                        myscreen->pointb(tempx, tempy, static_cast<Sint16>(tempcolor + 1), alpha);
+                        myscreen->pointb(tempx, tempy, tempcolor + 1, alpha);
                     } else if (oborder == ORDER_TREASURE) {
                         // Currently life gems
                         myscreen->pointb(tempx, tempy, COLOR_FIRE, alpha);
@@ -250,22 +236,22 @@ bool Radar::draw(LevelData const &data, Walker *control)
                 if (can_see) {
                     switch (obfamily) {
                     case FAMILY_GOLD_BAR:
-                        do_show = static_cast<Sint16>(YELLOW + getRandomSint32(5));
+                        do_show = YELLOW + getRandomSint32(5);
 
                         break;
                     case FAMILY_SILVER_BAR:
-                        do_show = static_cast<Sint16>(GREY + getRandomSint32(5));
+                        do_show = GREY + getRandomSint32(5);
 
                         break;
                     case FAMILY_DRUMSTICK:
-                        do_show = static_cast<Sint16>(COLOR_BROWN + getRandomSint32(2));
+                        do_show = COLOR_BROWN + getRandomSint32(2);
 
                         break;
                     case FAMILY_MAGIC_POTION:
                     case FAMILY_INVIS_POTION:
                     case FAMILY_INVULNERABLE_POTION:
                     case FAMILY_FLIGHT_POTION:
-                        do_show = static_cast<Sint16>(COLOR_BLUE + getRandomSint32(5));
+                        do_show = COLOR_BLUE + getRandomSint32(5);
 
                         break;
                     default:
@@ -276,11 +262,11 @@ bool Radar::draw(LevelData const &data, Walker *control)
                 }
 
                 if ((obfamily == FAMILY_EXIT) || (obfamily == FAMILY_TELEPORTER)) {
-                    do_show = static_cast<Sint16>(LIGHT_BLUE + getRandomSint32(7));
+                    do_show = LIGHT_BLUE + getRandomSint32(7);
                 }
             }
 
-            if (!on_screen(static_cast<Sint16>((ob->xpos + 1) / GRID_SIZE), static_cast<Sint16>((ob->ypos + 1) / GRID_SIZE), radarx, radary)) {
+            if (!on_screen((ob->xpos + 1) / GRID_SIZE, (ob->ypos + 1) / GRID_SIZE, radarx, radary)) {
                 do_show = 0;
             }
 
@@ -301,7 +287,7 @@ bool Radar::draw(LevelData const &data, Walker *control)
                         return true;
                     }
 
-                    myscreen->pointb(tempx, tempy, static_cast<Sint8>(do_show), alpha);
+                    myscreen->pointb(tempx, tempy, do_show, alpha);
                 } // Draw the blob onto the radar
             } // End of valid do_show
         } // Endo of if here->ob
@@ -342,7 +328,7 @@ void Radar::update(LevelData const &data)
     for (Sint16 i = 0; i < sizex; ++i) {
         for (Sint16 j = 0; j < sizey; ++j) {
             // Check if item in background grid
-            switch (static_cast<Uint8>(data.grid.data[i + (sizex * j)])) {
+            switch (data.grid.data[i + (sizex * j)]) {
             case PIX_GRASS1: // Grass is green
             case PIX_GRASS_DARK_1:
             case PIX_GRASS_DARK_B1:
@@ -382,7 +368,7 @@ void Radar::update(LevelData const &data)
             case PIX_GRASS_LIGHT_LEFT_BOTTOM:
             case PIX_GRASS_LIGHT_LEFT:
             case PIX_GRASS_LIGHT_LEFT_TOP:
-                temp = static_cast<Sint16>((COLOR_GREEN + getRandomSint32(3)) + 3);
+                temp = (COLOR_GREEN + getRandomSint32(3)) + 3;
 
                 break;
             case PIX_TREE_M1: // Trees are green
@@ -390,7 +376,7 @@ void Radar::update(LevelData const &data)
             case PIX_TREE_T1:
             case PIX_TREE_MR:
             case PIX_TREE_MT:
-                temp = static_cast<Sint16>(COLOR_TREES + getRandomSint32(3));
+                temp = COLOR_TREES + getRandomSint32(3);
 
                 break;
             case PIX_TREE_B1: // Trunks are brown
@@ -524,7 +510,7 @@ void Radar::update(LevelData const &data)
                 temp = 0;
             }
 
-            bmp[i + (sizex * j)] = static_cast<Uint8>(temp);
+            bmp[i + (sizex * j)] = temp;
         }
     }
 }

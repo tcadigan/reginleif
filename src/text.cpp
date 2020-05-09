@@ -94,7 +94,7 @@ bool Text::write_xy(Sint16 x, Sint16 y, Uint8 color, std::string const &string)
     Uint8 i = 0;
 
     while (string[i]) {
-        write_char_xy(static_cast<Sint16>(x + (i * (sizex + 1))), string[i], static_cast<Uint8>(color));
+        write_char_xy(x + (i * (sizex + 1)), string[i], color);
         ++i;
     }
 
@@ -110,7 +110,7 @@ Sint16 Text::write_xy(Sint16 x, Sint16 y, Uint8 color, std::stringstream const &
 
     if (!text_buffer.empty()) {
         while (text_buffer[i]) {
-            write_char_xy(static_cast<Sint16>(x + (i * (sizex + 1))), text_buffer[i], static_cast<Uint8>(color));
+            write_char_xy(x + (i * (sizex + 1)), text_buffer[i], color);
             ++i;
         }
     }
@@ -128,8 +128,8 @@ Sint16 Text::write_xy_shadow(Sint16 x, Sint16 y, Uint8 color, std::stringstream 
     if (!text_buffer.empty()) {
         while (text_buffer[i]) {
             Sint16 xx = x + (i * (sizex + 1));
-            write_char_xy(xx - 1, y + 1, text_buffer[i], static_cast<Uint8>(PURE_BLACK + 2));
-            write_char_xy(xx, y, text_buffer[i], static_cast<Uint8>(color));
+            write_char_xy(xx - 1, y + 1, text_buffer[i], PURE_BLACK + 2);
+            write_char_xy(xx, y, text_buffer[i], color);
             ++i;
         }
     }
@@ -147,7 +147,7 @@ bool Text::write_xy_center(Sint16 x, Sint16 y, Uint8 color, std::stringstream co
 
     if (!text_buffer.empty()) {
         while (text_buffer[i]) {
-            write_char_xy(static_cast<Sint16>((x + (i * (sizex + 1))) - ((len * (sizex + 1)) / 2)), y, text_buffer[i], static_cast<Uint8>(color));
+            write_char_xy((x + (i * (sizex + 1))) - ((len * (sizex + 1)) / 2), y, text_buffer[i], color);
             ++i;
         }
     }
@@ -165,7 +165,7 @@ bool Text::write_xy_center_alpha(Sint16 x, Sint16 y, Uint8 color, Uint8 alpha, s
 
     if (!text_buffer.empty()) {
         while (text_buffer[i]) {
-            write_char_xy_alpha(static_cast<Sint16>((x + (i * (sizex + 1))) - ((len * (sizex + 1)) / 2)), y, text_buffer[i], static_cast<Uint8>(color), alpha);
+            write_char_xy_alpha((x + (i * (sizex + 1))) - ((len * (sizex + 1)) / 2), y, text_buffer[i], color, alpha);
             ++i;
         }
     }
@@ -184,8 +184,8 @@ bool Text::write_xy_center_shadow(Sint16 x, Sint16 y, Uint8 color, std::stringst
     if (!text_buffer.empty()) {
         while (text_buffer[i]) {
             Sint16 xx = (x + (i * (sizex + 1))) - ((len * (sizex + 1)) / 2);
-            write_char_xy(xx - 1, xx - 1, y + 1, text_buffer[i], static_cast<Uint8>(PURE_BLACK + 2));
-            write_char_xy(xx, y, text_buffer[i], static_cast<Uint8>(color));
+            write_char_xy(xx - 1, xx - 1, y + 1, text_buffer[i], PURE_BLACK + 2);
+            write_char_xy(xx, y, text_buffer[i], color);
             ++i;
         }
     }
@@ -198,7 +198,7 @@ bool Text::write_xy(Sint16 x, Sint16 y, std::string const &string)
     Uint16 i = 0;
 
     while (string[i]) {
-        write_char_xy(static_cast<Sint16>(x + (i * (sizex + 1))), y, string[i], static_cast<Uint8>(DEFAULT_TEXT_COLOR));
+        write_char_xy(x + (i * (sizex + 1)), y, string[i], DEFAULT_TEXT_COLOR);
         ++i;
     }
 
@@ -215,9 +215,9 @@ Sint16 Text::write_xy(Sint16 x, Sint16 y, std::string const &string, Uint8 color
     if (sizex < 9) {
         while (string[i]) {
             if (!to_buffer) {
-                write_char_xy(static_cast<Sint16>(x + (i * (sizex + 1))), y, string[i], static_cast<Uint8>(color));
+                write_char_xy(x + (i * (sizex + 1)), y, string[i], color);
             } else {
-                write_char_xy(static_cast<Sint16>(x + (i * (sizex + 1))), y, string[i], static_cast<Uint8>(color), static_cast<Sint16>(1));
+                write_char_xy(x + (i * (sizex + 1)), y, string[i], color, 1);
             }
 
             ++i;
@@ -226,7 +226,7 @@ Sint16 Text::write_xy(Sint16 x, Sint16 y, std::string const &string, Uint8 color
     } else {
         // Larger font, help out the lowercase...
         while (string[i]) {
-            write_char_xy(static_cast<Sint16>(x + over), string[i], static_cast<Uint8>(color), static_cast<Sint16>(1));
+            write_char_xy(x + over, string[i], color, 1);
 
             // Uppercase
             if (std::isupper(string[i])) {
@@ -241,7 +241,7 @@ Sint16 Text::write_xy(Sint16 x, Sint16 y, std::string const &string, Uint8 color
     }
 
     if (to_buffer) {
-        width = static_cast<Uint16>((sizex + 1) * string.length());
+        width = (sizex + 1) * string.length();
         width -= (width % 4);
         width += 4;
         // myscreen->buffer_to_screen(x, y, width, sizey);
@@ -257,16 +257,16 @@ bool Text::write_xy(Sint16 x, Sint16 y, std::string const &string, Sint16 to_buf
 
     while (string[i]) {
         if (!to_buffer) {
-            write_char_xy(static_cast<Sint16>(x + (i * (sizex + 1))), y, string[i], static_cast<Uint8>(DEFAULT_TEXT_COLOR));
+            write_char_xy(x + (i * (sizex + 1)), y, string[i], DEFAULT_TEXT_COLOR);
         } else {
-            write_char_xy(static_cast<Sint16>(x + (i * (sizex + 1))), y, string[i], static_cast<Uint8>(DEFAULT_TEXT_COLOR), static_cast<Sint16>(1));
+            write_char_xy(x + (i * (sizex + 1)), y, string[i], DEFAULT_TEXT_COLOR, 1);
         }
 
         ++i;
     }
 
     if (to_buffer) {
-        width = static_cast<Uint16>((sizex + 1) * string.length());
+        width = (sizex + 1) * string.length();
         width -= (width % 4);
         width += 4;
         // myscreen->buffer_to_screen(x, y, width, sizey);
@@ -296,48 +296,28 @@ bool Text::write_xy(Sint16 x, Sint16 y, std::string const &string, Uint8 color,
     return true;
 }
 
-Sint16 Text::write_y(Sint16 y, std::string const &string, Uint8 color)
-{
-    Uint16 len = 0;
-    Uint16 xstart;
-    len = static_cast<Uint16>(string.length());
-    xstart = static_cast<Uint16>((320 - (len * (sizex + 1))) / 2);
-
-    return write_xy(xstart, y, string, static_cast<Uint8>(color));
-}
-
-Sint16 Text::write_y(Sint16 y, std::string const &string)
-{
-    return write_y(y, string, static_cast<Uint8>(DEFAULT_TEXT_COLOR));
-}
-
 Sint16 Text::write_y(Sint16 y, std::string const &string, Uint8 color, Sint16 to_buffer)
 {
     Uint16 len = 0;
     Uint16 xstart;
-    len = static_cast<Uint16>(string.length());
-    xstart = static_cast<Uint16>((320 - (len * (sizex + 1))) / 2);
+    len = string.length();
+    xstart = (320 - (len * (sizex + 1))) / 2;
 
     if (to_buffer == 0) {
-        return write_xy(xstart, y, string, static_cast<Uint8>(color));
+        return write_xy(xstart, y, string, color);
     } else {
-        return write_xy(xstart, y, string, static_cast<Uint8>(color), to_buffer);
+        return write_xy(xstart, y, string, color, to_buffer);
     }
-}
-
-Sint16 Text::write_y(Sint16 y, std::string const &string, Sint16 to_buffer)
-{
-    return write_y(y, string, static_cast<Uint8>(DEFAULT_TEXT_COLOR), to_buffer);
 }
 
 Sint16 Text::write_y(Sint16 y, std::string const &string, Uint8 color, Sint16 xloc, Sint16 yloc, Sint16 endx, Sint16 endy)
 {
     Uint16 len = 0;
     Uint16 xstart;
-    len = static_cast<Uint16>(string.length());
-    xstart = static_cast<Uint16>((320 - (len * (sizex + 1))) / 2);
+    len = string.length();
+    xstart = (320 - (len * (sizex + 1))) / 2;
 
-    return write_xy(xstart, y, string, static_cast<Uint8>(color), xloc, yloc, endx, endy);
+    return write_xy(xstart, y, string, color, xloc, yloc, endx, endy);
 }
 
 // This version writes to the buffer and then writes the
@@ -345,30 +325,25 @@ Sint16 Text::write_y(Sint16 y, std::string const &string, Uint8 color, Sint16 xl
 bool Text::write_char_xy(Sint16 x, Sint16 y, Uint8 letter, Uint8 color, Sint16 to_buffer)
 {
     if (to_buffer == 0) {
-        return write_char_xy(x, y, letter, static_cast<Uint8>(color));
+        return write_char_xy(x, y, letter, color);
     }
 
-    myscreen->walkputbuffertext(x, y, sizex, sizey, 0, 0, 319, 199, &letters.data[(letter * sizex) * sizey], static_cast<Uint8>(color));
+    myscreen->walkputbuffertext(x, y, sizex, sizey, 0, 0, 319, 199, &letters.data[(letter * sizex) * sizey], color);
     // myscreen->buffer_to_screen(x, y, (sizex + 4) - (sizex % 4), (sizey + 4) - (sizey % 4));
-
-    return true;
-}
-
-bool Text::write_char_xy(Sint16 x, Sint16 y, Uint8 letter, Sint16 to_buffer)
-{
-    return write_char_xy(x, y, letter, static_cast<Uint8>(DEFAULT_TEXT_COLOR), to_buffer);
-}
-
-bool Text::write_char_xy(Sint16 x, Sint16 y, Uint8 letter, Uint8 color)
-{
-    myscreen->putdatatext(x, y, sizex, sizey, &letters.data[(letter * sizex) * sizey], static_cast<Uint8>(color));
 
     return true;
 }
 
 bool Text::write_char_xy_alpha(Sint16 x, Sint16 y, Uint8 letter, Uint8 color, Uint8 alpha)
 {
-    myscreen->walkputbuffertext_alpha(x, y, sizex, sizey, 0, 0, 319, 199, &letters.data[(letter * sizex) * sizey], static_cast<Uint8>(color), alpha);
+    myscreen->walkputbuffertext_alpha(x, y, sizex, sizey, 0, 0, 319, 199, &letters.data[(letter * sizex) * sizey], color, alpha);
+
+    return true;
+}
+
+bool Text::write_char_xy(Sint16 x, Sint16 y, Uint8 letter, Uint8 color)
+{
+    myscreen->putdatatext(x, y, sizex, sizey, &letters.data[(letter * sizex) * sizey], color);
 
     return true;
 }
@@ -378,11 +353,6 @@ bool Text::write_char_xy(Sint16 x, Sint16 y, Uint8 letter)
     myscreen->putdatatext(x, y, sizex, sizey, &letters.data[(letter * sizex) * sizey]);
 
     return true;
-}
-
-std::string Text::input_string(Sint16 x, Sint16 y, Sint16 maxlength, std::string const &begin)
-{
-    return input_string(x, y, maxlength, begin, DARK_BLUE, 13);
 }
 
 /*
@@ -475,7 +445,7 @@ std::string Text::input_string(Sint16 x, Sint16 y, Sint16 maxlength, std::string
             }
 
             editstr = editstring.str();
-            if (!temptext.empty() && (static_cast<Sint16>(editstr.length() + temptext.length()) < maxlength)) {
+            if (!temptext.empty() && (editstr.length() + temptext.length() < maxlength)) {
                 for (auto const & c : temptext) {
                     if (std::isprint(c)) {
                         editstring << c;
@@ -603,7 +573,7 @@ std::string Text::input_string_ex(Sint16 x, Sint16 y, Sint16 maxlength, std::str
             }
 
             editstr = editstring.str();
-            if (!temptext.empty() && (static_cast<Sint16>(editstr.length() + temptext.length()) < maxlength)) {
+            if (!temptext.empty() && (editstr.length() + temptext.length() < maxlength)) {
                 for (auto const & c : temptext) {
                     if (std::isprint(c)) {
                         editstring << c;

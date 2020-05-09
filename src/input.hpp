@@ -180,20 +180,15 @@ void init_input();
 
 Uint8 convert_to_ascii(Sint32 scancode);
 
-void update_overscan_setting();
-
 Uint8 const *keystates = nullptr;
 
 // In window coords
-float viewport_offset_x = 0;
-float viewport_offset_y = 0;
-float window_w = 320;
-float window_h = 200;
-float viewport_w = 320;
-float viewport_h = 200;
-
-// Out of 1.0f, percent of total screen dimension that is cut off.
-float overscan_percentage = 0.0f;
+Sint32 viewport_offset_x = 0;
+Sint32 viewport_offset_y = 0;
+Sint32 window_w = 320;
+Sint32 window_h = 200;
+Sint32 viewport_w = 320;
+Sint32 viewport_h = 200;
 
 Sint16 scroll_amount = 0; // For scrolling up and down text popups
 

@@ -138,7 +138,7 @@ float TroopResult::get_xp_base()
         return 0.0f;
     }
 
-    return ((before->exp - calculate_exp(before->get_level())) / static_cast<float>(calculate_exp(before->get_level() + 1)));
+    return ((before->exp - calculate_exp(before->get_level())) / calculate_exp(before->get_level() + 1));
 }
 
 float TroopResult::get_xp_gain()
@@ -148,14 +148,14 @@ float TroopResult::get_xp_gain()
     }
 
     if (gained_level()) {
-        return ((after->myguy->exp - calculate_exp(before->get_level() + 1)) / static_cast<float>(calculate_exp(before->get_level() + 2)));
+        return ((after->myguy->exp - calculate_exp(before->get_level() + 1)) / calculate_exp(before->get_level() + 2));
     }
 
     if (lost_level()) {
-        return ((after->myguy->exp - before->exp) / static_cast<float>(calculate_exp(before->get_level())));
+        return ((after->myguy->exp - before->exp) / calculate_exp(before->get_level()));
     }
 
-    return ((after->myguy->exp - before->exp) / static_cast<float>(calculate_exp(before->get_level() + 1)));
+    return ((after->myguy->exp - before->exp) / calculate_exp(before->get_level() + 1));
 }
 
 Sint32 TroopResult::get_tallies()

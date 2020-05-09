@@ -354,9 +354,9 @@ Sint16 Treasure::eat_me(Walker *eater)
     case FAMILY_KEY:
         // Get the key to this door...
         // Just got it?
-        if (!(eater->keys & static_cast<Sint32>(pow(static_cast<double>(2), stats.level)))) {
+        if (!(eater->keys & static_cast<Sint32>(pow(2, stats.level)))) {
             // i.e. 2, 4, 8, 16...
-            eater->keys |= static_cast<Sint32>(pow(static_cast<double>(2), stats.level));
+            eater->keys |= static_cast<Sint32>(pow(2, stats.level));
 
             if (eater->myguy) {
                 buf << eater->myguy->name << " picks up key " << stats.level;

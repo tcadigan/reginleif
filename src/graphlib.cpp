@@ -24,6 +24,7 @@
  */
 #include "graphlib.hpp"
 
+#include <filesystem>
 #include <string>
 #include <sstream>
 
@@ -60,9 +61,9 @@ PixieData read_pixie_file(std::string const &filename)
     std::stringstream buf;
 
     // Zardus: Try to fine file using open_read_file
-    infile = open_read_file("pix/", filename);
+    infile = open_read_file(std::filesystem::path("pix/" + filename));
     if (infile == nullptr) {
-        infile = open_read_file(filename);
+        infile = open_read_file(std::filesystem::path(filename));
     }
 
     if (infile == nullptr) {

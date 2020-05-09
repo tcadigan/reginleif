@@ -118,7 +118,7 @@ Uint32 get_time_bonus(Sint32 playernum)
 
     Sint16 par_value = myscreen->level_data.par_value;
     Uint32 score = myscreen->save_data.m_score[playernum];
-    float multiplier = ((1 + (par_value / 10.0f)) * static_cast<float>(time_limit - frames)) / time_limit;
+    float multiplier = ((1 + (par_value / 10.0f)) * (time_limit - frames)) / time_limit;
 
     Log("Time bonus: %.0f\n", score * multiplier);
 
@@ -238,33 +238,10 @@ bool results_screen(Sint32 ending, Sint32 nextlevel, std::map<Sint32, Guy *> &be
     };
 
     // Buttons
-    SDL_Rect ok_rect = {
-        static_cast<Sint16>((area.x + (area.w / 2)) - 45),
-        static_cast<Sint16>((area.y + area.h) - 14),
-        35,
-        10
-    };
-
-    SDL_Rect retry_rect = {
-        static_cast<Sint16>((area.x + (area.w / 2)) - 100),
-        static_cast<Sint16>((area.y + area.h) - 14),
-        35,
-        10
-    };
-
-    SDL_Rect overview_rect = {
-        static_cast<Sint16>((area.x + (area.w / 2)) - 100),
-        static_cast<Sint16>(area.y + 4),
-        50,
-        10
-    };
-
-    SDL_Rect troops_rect = {
-        static_cast<Sint16>((area.x + (area.w / 2)) + 50),
-        static_cast<Sint16>(area.y + 4),
-        50,
-        10
-    };
+    SDL_Rect ok_rect = { (area.x + (area.w / 2)) - 45, (area.y + area.h) - 14, 35, 10 };
+    SDL_Rect retry_rect = { (area.x + (area.w / 2)) - 100, (area.y + area.h) - 14, 35, 10 };
+    SDL_Rect overview_rect = { (area.x + (area.w / 2)) - 100, area.y + 4, 50, 10 };
+    SDL_Rect troops_rect = { (area.x + (area.w / 2)) + 50, area.y + 4, 50, 10 };
 
     // Controller input
     Sint32 retvalue = 0;

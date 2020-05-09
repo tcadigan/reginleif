@@ -24,6 +24,7 @@
 // Misc. helper functions and time
 //
 
+#include <list>
 #include <string>
 
 #include <SDL2/SDL.h>
@@ -48,5 +49,7 @@ void uppercase(char *c);
 void uppercase(std::string &s);
 
 Sint32 getRandomSint32(Sint32 modulus);
+
+std::list<std::string> explode(std::string const &str, Uint8 delimiter='\n');
 
 #endif

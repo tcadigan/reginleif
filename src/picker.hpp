@@ -60,7 +60,6 @@ Sint32 change_teamnum(Sint32 arg);
 Sint32 change_hire_teamnum(Sint32 arg);
 Sint32 change_allied();
 Sint32 main_options();
-Sint32 overscan_adjust(Sint32 arg);
 Uint32 calculate_exp(Sint32 level);
 Sint32 calculate_level(Uint32 temp_exp);
 

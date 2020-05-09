@@ -164,7 +164,7 @@ bool Statistics::has_commands()
 Sint16 Statistics::try_command(Sint16 whatcommand, Sint16 iterations)
 {
     if (whatcommand == COMMAND_RANDOM_WALK) {
-        return try_command(COMMAND_WALK, iterations, static_cast<Sint16>(getRandomSint32(3) - 1), static_cast<Sint16>(getRandomSint32(3) - 1));
+        return try_command(COMMAND_WALK, iterations, getRandomSint32(3) - 1, getRandomSint32(3) - 1);
     } else {
         return try_command(whatcommand, iterations, 0, 0);
     }
@@ -180,7 +180,7 @@ Sint16 Statistics::try_command(Sint16 whatcommand, Sint16 iterations, Sint16 inf
 void Statistics::set_command(Sint16 whatcommand, Sint16 iterations)
 {
     if (whatcommand == COMMAND_RANDOM_WALK) {
-        set_command(COMMAND_WALK, iterations, static_cast<Sint16>(getRandomSint32(3) - 1), static_cast<Sint16>(getRandomSint32(3) - 1));
+        set_command(COMMAND_WALK, iterations, getRandomSint32(3) - 1, getRandomSint32(3) - 1);
     } else {
         set_command(whatcommand, iterations, 0, 0);
     }
@@ -197,7 +197,7 @@ void Statistics::set_command(Sint16 whatcommand, Sint16 iterations, Sint16 info1
 
 Sint16 Statistics::query_bit_flags(Sint32 myvalue)
 {
-    return static_cast<Sint16>(myvalue & bit_flags);
+    return (myvalue & bit_flags);
 }
 
 void Statistics::clear_bit_flags()

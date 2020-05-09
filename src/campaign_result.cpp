@@ -15,33 +15,34 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#include "campaign_picker.hpp"
+#include "campaign_result.hpp"
 
-#include <string>
 #include <vector>
 
 #include "button.hpp"
 #include "campaign_entry.hpp"
-#include "graphlib.hpp"
-#include "guy.hpp"
 #include "input.hpp"
 #include "io.hpp"
 #include "level_editor.hpp"
 #include "mouse_state.hpp"
 #include "picker.hpp"
-#include "pixie.hpp"
 #include "text.hpp"
 #include "util.hpp"
 #include "video_screen.hpp"
 
 #define OG_OK 4
 
+CampaignResult::CampaignResult()
+    : first_level(1)
+{
+}
+
 // Unmounts old campaign, mounts new one, and returns the current level
 // (scenario) that the player is on
-Sint32 load_campaign(std::string const &campaign,
-                     std::map<std::string, Sint32> &current_levels, Sint32 first_level)
+Sint32 load_campaign(std::filesystem::path const &campaign,
+                     std::map<std::filesystem::path, Sint32> &current_levels, Sint32 first_level)
 {
-    std::string old_campaign = get_mounted_campaign();
+    std::filesystem::path old_campaign(get_mounted_campaign());
 
     if (old_campaign != campaign)
     {
@@ -57,7 +58,7 @@ Sint32 load_campaign(std::string const &campaign,
         }
     }
 
-    std::map<std::string, int>::const_iterator g = current_levels.find(campaign);
+    std::map<std::filesystem::path, int>::const_iterator g = current_levels.find(campaign);
 
     if (g != current_levels.end()) {
         return g->second;
@@ -68,7 +69,7 @@ Sint32 load_campaign(std::string const &campaign,
 
 CampaignResult pick_campaign(SaveData *save_data, bool enable_delete)
 {
-    std::string old_campaign_id = get_mounted_campaign();
+    std::filesystem::path old_campaign_id(get_mounted_campaign());
     CampaignEntry *result = nullptr;
     CampaignResult ret_value;
 
@@ -81,7 +82,7 @@ CampaignResult pick_campaign(SaveData *save_data, bool enable_delete)
     Uint32 current_campaign_index = 0;
 
     // Load campaigns
-    std::list<std::string> campaign_ids = list_campaigns();
+    std::list<std::filesystem::path> campaign_ids = list_campaigns();
     Sint32 i = 0;
 
     for (auto const &itr : campaign_ids) {
@@ -123,32 +124,12 @@ CampaignResult pick_campaign(SaveData *save_data, bool enable_delete)
     // Buttons
     Sint16 screenW = 320;
     Sint16 screenH = 200;
-    SDL_Rect prev = {
-        static_cast<Sint16>((area.x - 30) - 20),
-        static_cast<Sint16>(area.y),
-        30,
-        10
-    };
-    SDL_Rect next = {
-        static_cast<Sint16>((area.x + area.w) + 20),
-        static_cast<Sint16>(area.y),
-        30,
-        10
-    };
-    SDL_Rect choose = {
-        static_cast<Sint16>((screenW / 2) + 20),
-        static_cast<Sint16>(screenH - 15),
-        30,
-        10
-    };
-    SDL_Rect cancel = {
-        static_cast<Sint16>(((screenW / 2) - 38) - 20),
-        static_cast<Sint16>(screenH - 15),
-        38,
-        10
-    };
-    SDL_Rect delete_button = { static_cast<Sint16>(screenW - 50), 10, 38, 10 };
-    SDL_Rect id_button = { static_cast<Sint16>((delete_button.x - 52) - 10), 10, 52, 10 };
+    SDL_Rect prev = { (area.x - 30) - 20, area.y, 30, 10 };
+    SDL_Rect next = { (area.x + area.w) + 20, area.y, 30, 10 };
+    SDL_Rect choose = { (screenW / 2) + 20, screenH - 15, 30, 10 };
+    SDL_Rect cancel = { ((screenW / 2) - 38) - 20, screenH - 15, 38, 10 };
+    SDL_Rect delete_button = { screenW - 50, 10, 38, 10 };
+    SDL_Rect id_button = { (delete_button.x - 52) - 10, 10, 52, 10 };
     SDL_Rect reset_button = delete_button;
 
     // Controller input
@@ -264,14 +245,14 @@ CampaignResult pick_campaign(SaveData *save_data, bool enable_delete)
 
                 campaign_ids = list_campaigns();
 
-                for(std::list<std::string>::iterator itr = campaign_ids.begin(); itr != campaign_ids.end(); ++itr) {
+                for (auto const &itr : campaign_ids) {
                     Sint32 num_completed = -1;
 
                     if (save_data != nullptr) {
-                        num_completed = save_data->get_num_levels_completed(*itr);
+                        num_completed = save_data->get_num_levels_completed(itr);
                     }
 
-                    entries.push_back(new CampaignEntry(*itr, num_completed));
+                    entries.push_back(new CampaignEntry(itr, num_completed));
                 }
 
                 current_campaign_index = 0;

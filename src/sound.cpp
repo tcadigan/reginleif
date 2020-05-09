@@ -28,6 +28,8 @@
 #include "io.hpp"
 #include "util.hpp"
 
+#include <filesystem>
+
 // #define SOUND_DB 0 // Define for debugging messages
 
 SoundObject::SoundObject()
@@ -128,7 +130,7 @@ bool SoundObject::init()
 
 void SoundObject::load_sound(Mix_Chunk **audio, std::string const &file)
 {
-    SDL_RWops *rw = open_read_file("sound/", file);
+    SDL_RWops *rw = open_read_file(std::filesystem::path("sound/" + file));
     *audio = Mix_LoadWAV_RW(rw, 0);
 
     if (*audio == nullptr) {

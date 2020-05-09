@@ -80,42 +80,13 @@ Sint32 pick_level(Sint32 default_level, bool enable_delete)
     // Buttons
     Sint16 screenW = 320;
     Sint32 screenH = 200;
-    SDL_Rect prev = { static_cast<Sint16>(screenW - 150), 20, 30, 10 };
-    SDL_Rect next = {
-        static_cast<Sint16>(screenW - 150),
-        static_cast<Sint16>(screenH - 50),
-        30,
-        10
-    };
-
-    SDL_Rect descbox = {
-        static_cast<Sint16>(prev.x - 40),
-        static_cast<Sint16>(prev.y + 15),
-        185,
-        static_cast<Uint16>((next.y - 10) - (prev.y + prev.h))
-    };
-
-    SDL_Rect choose = {
-        static_cast<Sint16>(screenW - 50),
-        static_cast<Sint16>(screenH - 30),
-        30,
-        30
-    };
-
-    SDL_Rect cancel = {
-        static_cast<Sint16>(screenW - 100),
-        static_cast<Sint16>(screenH - 30),
-        38,
-        10
-    };
-
-    SDL_Rect delete_button = { static_cast<Sint16>(screenW - 50), 10, 38, 10 };
-    SDL_Rect id_button = {
-        static_cast<Sint16>((delete_button.x - 52) - 10),
-        10,
-        52,
-        10
-    };
+    SDL_Rect prev = { screenW - 150, 20, 30, 10 };
+    SDL_Rect next = { screenW - 150, screenH - 50, 30, 10 };
+    SDL_Rect descbox = { prev.x - 40, prev.y + 15, 185, (next.y - 10) - (prev.y + prev.h) };
+    SDL_Rect choose = { screenW - 50, screenH - 30, 30, 30 };
+    SDL_Rect cancel = { screenW - 100, screenH - 30, 38, 10 };
+    SDL_Rect delete_button = { screenW - 50, 10, 38, 10 };
+    SDL_Rect id_button = { (delete_button.x - 52) - 10, 10, 52, 10 };
 
     // Controller input
     Sint32 retvalue = 0;
@@ -378,12 +349,7 @@ Sint32 pick_level(Sint32 default_level, bool enable_delete)
                     Sint32 y = entries[i]->get_yloc();
                     Sint32 w = entries[i]->get_xview();
                     Sint32 h = entries[i]->get_yview();
-                    SDL_Rect b = {
-                        static_cast<Sint16>(x - 2),
-                        static_cast<Sint16>(y - 2),
-                        static_cast<Uint16>(w + 2),
-                        static_cast<Uint16>(h + 2)
-                    };
+                    SDL_Rect b = { x - 2, y - 2, w + 2, h + 2 };
 
                     if ((do_click
                             && (b.x <= mx)

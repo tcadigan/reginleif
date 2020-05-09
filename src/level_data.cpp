@@ -25,6 +25,7 @@
 #include "walker.hpp"
 
 #include <algorithm>
+#include <filesystem>
 #include <string>
 
 #define VERSION_NUM (char)9 // Save scenario type info
@@ -1172,7 +1173,7 @@ bool LevelData::load()
     buf.clear();
 
     // Zardus: Much much better this way
-    infile = open_read_file("scen/", thefile.c_str());
+    infile = open_read_file(std::filesystem::path("scen/" + thefile));
 
     if (infile == nullptr) {
         Log("Cannot open level file for reading: %s", thefile.c_str());
@@ -1268,7 +1269,7 @@ bool save_grid_file(std::string const &gridname, PixieData const &grid)
 
     lowercase(fullpath);
 
-    outfile = open_write_file("temp/pix/", fullpath.c_str());
+    outfile = open_write_file(std::filesystem::path("temp/pix/" + fullpath));
 
     if (outfile == nullptr) {
         Log("Failed to save map file: %s%s\n", "temp/pix/", fullpath.c_str());
@@ -1353,7 +1354,7 @@ bool LevelData::save()
     buf.clear();
 
     // Open for write
-    outfile = open_write_file("temp/scen/", temp_filename.c_str());
+    outfile = open_write_file(std::filesystem::path("temp/scen/" + temp_filename));
 
     if (outfile != nullptr) {
         Log("Could not open file for writing: %s%s\n", "temp/scen/", temp_filename.c_str());
@@ -1537,7 +1538,7 @@ void LevelData::add_draw_pos(Sint32 topx, Sint32 topy)
 
 std::string LevelData::get_description_line(Sint32 i)
 {
-    if (i >= static_cast<Sint32>(description.size())) {
+    if (i >= description.size()) {
         return "";
     }
 

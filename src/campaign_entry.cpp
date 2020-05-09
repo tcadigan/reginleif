@@ -17,18 +17,17 @@
  */
 #include "campaign_entry.hpp"
 
-#include "base.hpp"
 #include "io.hpp"
 #include "graphlib.hpp"
-#include "pixie.hpp"
 #include "text.hpp"
 #include "util.hpp"
 #include "video_screen.hpp"
 
+#include <filesystem>
 #include <list>
 #include <sstream>
 
-CampaignEntry::CampaignEntry(std::string const &id, Sint32 num_levels_completed)
+CampaignEntry::CampaignEntry(std::filesystem::path const &id, Sint32 num_levels_completed)
     : id(id)
     , title("Untitled")
     , rating(0.0f)
@@ -42,7 +41,7 @@ CampaignEntry::CampaignEntry(std::string const &id, Sint32 num_levels_completed)
 {
     // Load the campaign data from <user_data>/scen/<id>.glad
     if (mount_campaign_package(id)) {
-        SDL_RWops *rwops = open_read_file("campaign.ini");
+        SDL_RWops *rwops = open_read_file(std::filesystem::path("campaign.ini"));
 
         Sint64 size = SDL_RWsize(rwops);
 
@@ -142,7 +141,7 @@ void CampaignEntry::draw(SDL_Rect const &area, Sint32 team_power)
     // Rating stars
     std::string rating_text;
 
-    for (Sint32 i = 0; i < static_cast<Sint32>(rating); ++i) {
+    for (Sint32 i = 0; i < rating; ++i) {
         rating_text += '*';
     }
 
@@ -264,6 +263,7 @@ void CampaignEntry::draw(SDL_Rect const &area, Sint32 team_power)
         y += 10;
     }
 
-    id.resize(60);
-    loadtext.write_xy((x + (w / 2)) - (id.length() * 3), y, id, WHITE, 1);
+    std::string path_name(id.string());
+    path_name.resize(60);
+    loadtext.write_xy((x + (w / 2)) - (path_name.length() * 3), y, id, WHITE, 1);
 }

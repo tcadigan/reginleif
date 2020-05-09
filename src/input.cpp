@@ -124,17 +124,6 @@ Sint32 player_keys[4][NUM_KEYS] = {
     }
 };
 
-void update_overscan_setting()
-{
-    overscan_percentage = std::max(overscan_percentage, 0.0f);
-    overscan_percentage = std::min(overscan_percentage, 0.25f);
-
-    viewport_offset_x = (window_w * overscan_percentage) / 2;
-    viewport_offset_y = (window_h * overscan_percentage) / 2;
-    viewport_w = window_w * (1.0f - overscan_percentage);
-    viewport_h = window_h * (1.0f - overscan_percentage);
-}
-
 // Input routines (for handling all events and then setting the appropriate
 // vars)
 void init_input()
@@ -202,7 +191,6 @@ void handle_window_event(SDL_Event const &event)
     case SDL_WINDOWEVENT_RESIZED:
         window_w = event.window.data1;
         window_h = event.window.data2;
-        update_overscan_setting();
 
         break;
     }

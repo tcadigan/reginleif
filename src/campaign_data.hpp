@@ -21,6 +21,7 @@
 #include "pixie.hpp"
 #include "pixie_data.hpp"
 
+#include <filesystem>
 #include <list>
 #include <string>
 
@@ -29,16 +30,16 @@
 class CampaignData
 {
 public:
-    CampaignData(std::string const &id);
+    CampaignData(std::filesystem::path const &id);
     ~CampaignData();
 
     bool load();
     bool save();
-    bool save_as(std::string const &new_id);
+    bool save_as(std::filesystem::path const &new_id);
 
     std::string getDescriptionLine(Sint32 i);
 
-    std::string id;
+    std::filesystem::path id;
     std::string title;
     float rating;
     std::string version;

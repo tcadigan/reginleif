@@ -19,7 +19,7 @@
 #define __LEVEL_EDITOR_DATA_HPP__
 
 #include "campaign_data.hpp"
-#include "campaign_picker.hpp"
+#include "campaign_result.hpp"
 #include "editor_object_brush.hpp"
 #include "editor_terrain_brush.hpp"
 #include "level_data.hpp"
@@ -105,7 +105,7 @@ std::vector<ObjectType> object_pane;
 class LevelEditorData
 {
 public:
-    CampaignData *campaign;
+    CampaignData campaign;
     LevelData *level;
     EditModeEnum mode;
     EditorTerrainBrush terrain_brush;
@@ -217,13 +217,13 @@ public:
     LevelEditorData();
     ~LevelEditorData();
 
-    bool loadCampaign(std::string const &id);
+    bool loadCampaign(std::filesystem::path const &id);
     bool reloadCampaign();
 
     bool loadLevel(Sint32 id);
     bool reloadLevel();
 
-    bool saveCampaignAs(std::string const &id);
+    bool saveCampaignAs(std::filesystem::path const &id);
     bool saveCampaign();
 
     bool saveLevelAs(Sint32 id);

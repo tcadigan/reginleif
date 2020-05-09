@@ -25,14 +25,45 @@
  */
 #include "effect.hpp"
 
-#include "base.hpp"
-#include "guy.hpp"
-#include "soundob.hpp"
 #include "util.hpp"
 #include "video_screen.hpp"
 
 Sint16 hits(Sint16 x, Sint16 y, Sint16 xsize, Sint16 ysize, Sint16 x2,
-            Sint16 y2, Sint16 xsize2, Sint16 ysize2);
+            Sint16 y2, Sint16 xsize2, Sint16 ysize2)
+{
+    Sint16 xright;
+    Sint16 x2right;
+    Sint16 ydown;
+    Sint16 y2down;
+
+    // return 0; // Debug
+
+    x2right = x2 + xsize2;
+
+    if (x > x2right) {
+        return 0;
+    }
+
+    xright = x + xsize;
+
+    if (xright < 2) {
+        return 0;
+    }
+
+    y2down = y2 + ysize2;
+
+    if (y > y2down) {
+        return 0;
+    }
+
+    ydown = y + ysize;
+
+    if (ydown < 2) {
+        return 0;
+    }
+
+    return 1;
+}
 
 Effect::Effect(PixieData const &data)
     : Walker(data)
@@ -455,10 +486,7 @@ Sint16 Effect::act()
                 yd = getRandomSint32(3) - 1;
             }
 
-            stats.add_command(COMMAND_WALK,
-                              static_cast<Sint16>(getRandomSint32(20)),
-                              static_cast<Sint16>(xd),
-                              static_cast<Sint16>(yd));
+            stats.add_command(COMMAND_WALK, getRandomSint32(20), xd, yd);
         }
 
         break; // End of cloud
@@ -741,10 +769,7 @@ Sint16 Effect::death()
                }
 
                 if (generic > 0) {
-                    w->stats.force_command(COMMAND_WALK,
-                                           static_cast<Sint16>(generic),
-                                           static_cast<Sint16>(tempx),
-                                           static_cast<Sint16>(tempy));
+                    w->stats.force_command(COMMAND_WALK, generic, tempx, tempy);
                 }
             } // End of valid target
         } // End of cycle through scare list
@@ -793,8 +818,7 @@ Sint16 Effect::death()
                                           this);
 
         // Damage to tile location...
-        myscreen->damage_tile(static_cast<Sint16>(xpos + (sizex / 2)),
-                              static_cast<Sint16>(ypos + (sizey / 2)));
+        myscreen->damage_tile(xpos + (sizex / 2), ypos + (sizey / 2));
 
         if (howmany < 1) {
             return 0;
@@ -833,10 +857,7 @@ Sint16 Effect::death()
                     generic = 8;
                 }
 
-                w->stats.force_command(COMMAND_WALK,
-                                       generic,
-                                       static_cast<Sint16>(xdelta),
-                                       static_cast<Sint16>(ydelta));
+                w->stats.force_command(COMMAND_WALK, generic, xdelta, ydelta);
 
                 // Damage (attack) the object
                 // Do less damage
@@ -858,43 +879,6 @@ Sint16 Effect::death()
     default:
 
         break; // End of switch family for effect objects
-    }
-
-    return 1;
-}
-
-Sint16 hits(Sint16 x, Sint16 y, Sint16 xsize, Sint16 ysize, Sint16 x2,
-            Sint16 y2, Sint16 xsize2, Sint16 ysize2)
-{
-    Sint16 xright;
-    Sint16 x2right;
-    Sint16 ydown;
-    Sint16 y2down;
-
-    // return 0; // Debug
-
-    x2right = static_cast<Sint16>(x2 + xsize2);
-
-    if (x > x2right) {
-        return 0;
-    }
-
-    xright = static_cast<Sint16>(x + xsize);
-
-    if (xright < 2) {
-        return 0;
-    }
-
-    y2down = static_cast<Sint16>(y2 + ysize2);
-
-    if (y > y2down) {
-        return 0;
-    }
-
-    ydown = static_cast<Sint16>(y + ysize);
-
-    if (ydown < 2) {
-        return 0;
     }
 
     return 1;

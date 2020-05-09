@@ -25,25 +25,21 @@
 
 #include <SDL2/SDL.h>
 
-void io_init(std::string const &path);
+void io_init(std::filesystem::path const &path);
 void io_exit();
 
 std::filesystem::path get_user_path();
-bool create_dir(std::string const &dirname);
+bool create_dir(std::filesystem::path const &dirname);
 
-SDL_RWops *open_read_file(std::string const &file);
-SDL_RWops *open_read_file(std::string const &path, std::string const &file);
-SDL_RWops *open_write_file(std::string const &file);
-SDL_RWops *open_write_file(std::string const &path, std::string const &file);
+SDL_RWops *open_read_file(std::filesystem::path const &file);
+SDL_RWops *open_write_file(std::filesystem::path const &file);
 
-std::list<std::string> list_files(std::string const &dirname);
-std::list<std::string> explode(std::string const &str, Uint8 delimiter='\n');
+std::list<std::filesystem::path> list_files(std::filesystem::path const &dirname);
 
-std::string get_mounted_campaign();
-bool mount_campaign_package(std::string const &id);
-bool unmount_campaign_package(std::string const &id);
-bool remount_camaign_package();
-std::list<std::string> list_campaigns();
+std::filesystem::path get_mounted_campaign();
+bool mount_campaign_package(std::filesystem::path const &id);
+bool unmount_campaign_package(std::filesystem::path const &id);
+std::list<std::filesystem::path> list_campaigns();
 std::list<Sint32> list_levels();
 std::vector<Sint32> list_levels_v();
 
@@ -54,18 +50,14 @@ bool save_settings();
 bool load_settings();
 
 void delete_level(Sint32 id);
-void delete_campaign(std::string const &id);
+void delete_campaign(std::filesystem::path const &id);
 
-Sint32 rwops_read_handler(void *data, Uint8 *buffer, size_t size, size_t *size_read);
-Sint32 rwops_write_handler(void *data, Uint8 *buffer, size_t size);
+bool zip_contents(std::filesystem::path const &indirectory, std::filesystem::path const &outfile);
+bool unzip_into(std::filesystem::path const &infile, std::filesystem::path const &outdirectory);
 
-bool zip_contents(std::string const &indirectory, std::string const &outfile);
-bool unzip_into(std::string const &infile, std::string const &outdirectory);
-
-std::string get_mounted_campaign();
-bool create_new_campaign(std::string const &campaign_id);
-bool unpack_campaign(std::string const &campaign_id);
-bool repack_campaign(std::string const &campaign_id);
+bool create_new_campaign(std::filesystem::path const &campaign_id);
+bool unpack_campaign(std::filesystem::path const &campaign_id);
+bool repack_campaign(std::filesystem::path const &campaign_id);
 bool remount_campaign_package();
 
 void cleanup_unpacked_campaign();

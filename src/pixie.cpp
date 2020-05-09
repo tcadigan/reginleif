@@ -86,7 +86,7 @@ void Pixie::set_data(PixieData const &data)
     bmp = data.data;
     sizex = data.w;
     sizey = data.h;
-    size = static_cast<Uint16>(sizex * sizey);
+    size = sizex * sizey;
 }
 
 // Set the pixie's x and y position without drawing
@@ -101,7 +101,7 @@ bool Pixie::setxy(Sint16 x, Sint16 y)
 // Allows the pixie to be moved using pixel coord data
 bool Pixie::move(Sint16 x, Sint16 y)
 {
-    return setxy(static_cast<Sint16>(xpos + x), static_cast<Sint16>(ypos + y));
+    return setxy(xpos + x, ypos + y);
 }
 
 bool Pixie::draw(Sint16 topx, Sint16 topy, Sint16 xloc, Sint16 yloc, Sint16 endx, Sint16 endy)
@@ -118,8 +118,8 @@ bool Pixie::draw(Sint16 topx, Sint16 topy, Sint16 xloc, Sint16 yloc, Sint16 endx
      * will handle it
      */
 
-    xscreen = static_cast<Sint32>((xpos - topx) + xloc);
-    yscreen = static_cast<Sint32>((ypos - topy) + yloc);
+    xscreen = (xpos - topx) + xloc;
+    yscreen = (ypos - topy) + yloc;
 
     if (accel) {
         myscreen->putbuffer(xscreen, yscreen, sizex, sizey, xloc, yloc, endx, endy, bmp_surface);
@@ -144,8 +144,8 @@ bool Pixie::drawMix(Sint16 topx, Sint16 topy, Sint16 xloc, Sint16 yloc, Sint16 e
      * will handle it
      */
 
-    xscreen = static_cast<Sint32>((xpos - topx) + xloc);
-    yscreen = static_cast<Sint32>((ypos - topy) + yloc);
+    xscreen = (xpos - topx) + xloc;
+    yscreen = (ypos - topy) + yloc;
 
     myscreen->walkputbuffer(xscreen, yscreen, sizex, sizey, xloc, yloc, endx, endy, bmp, RED);
 

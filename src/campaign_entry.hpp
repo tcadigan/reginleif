@@ -23,17 +23,18 @@
 
 #include <SDL2/SDL.h>
 
+#include <filesystem>
 #include <string>
 
 class CampaignEntry
 {
 public:
-    CampaignEntry(std::string const &id, Sint32 num_levels_completed);
+    CampaignEntry(std::filesystem::path const &id, Sint32 num_levels_completed);
     ~CampaignEntry();
 
     void draw(SDL_Rect const &area, Sint32 team_power);
 
-    std::string id;
+    std::filesystem::path id;
     std::string title;
     float rating;
     std::string version;

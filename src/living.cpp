@@ -377,9 +377,9 @@ Sint16 Living::act()
         if (!getRandomSint32(5)) {
             // Should we do our special? Are we full of magic?
             if (stats.magicpoints >= stats.special_cost[1]) {
-                current_special = static_cast<Uint8>(getRandomSint32((stats.level + 2) / 3) + 1);
+                current_special = getRandomSint32((stats.level + 2) / 3) + 1;
 
-                if ((current_special > 4) || myscreen->special_name[static_cast<Uint32>(family)][static_cast<Uint32>(current_special)] == "NONE") {
+                if ((current_special > 4) || myscreen->special_name[family][current_special] == "NONE") {
                     current_special = 1;
                 }
 
@@ -401,12 +401,12 @@ Sint16 Living::act()
             }
 
             if (foe) { // && random(2))
-                enddir = static_cast<Uint8>(enddir / 2 * 2);
+                enddir = enddir / 2 * 2;
                 curdir = enddir;
                 // stats->try_command(COMMAND_SEARCH, 40, 0, 0);
                 stats.try_command(COMMAND_SEARCH, 300, 0, 0);
             } // else if (foe) {
-            // stats->try_commnad(COMMAND_RIGHT_WALK, 40, 0, 0);
+            // stats->try_command(COMMAND_RIGHT_WALK, 40, 0, 0);
             // }
             else if (!getRandomSint32(2)) {
                 foe = myscreen->find_far_foe(this);
@@ -525,7 +525,7 @@ bool Living::walk(float x, float y)
         }
     } else {
         // Just changing direction
-        enddir = static_cast<Uint8>(dir);
+        enddir = dir;
 
         // Technically, control gets an EXTRA call to TURN because first we call
         // WALK, then ACT, wheras other walkers call ACT. This whould cause
@@ -576,7 +576,7 @@ Sint16 Living::check_special()
     shifter_down = getRandomSint32(2);
 
     // Make sure we have enough...
-    if (stats.magicpoints < stats.special_cost[static_cast<Sint32>(current_special)]) {
+    if (stats.magicpoints < stats.special_cost[current_special]) {
         // Make us do default...
         current_special = 1;
     }
@@ -586,7 +586,7 @@ Sint16 Living::check_special()
         // Check for foe in range x
         // Already have a foe...
         if (foe) {
-            distance = static_cast<Uint32>(distance_to_ob(foe));
+            distance = distance_to_ob(foe);
             // static_cast<Sint32>(deltax * deltax) + static_cast<Sint32>(deltay * deltay);
 
             // About 3 squares max, 1 square min
@@ -603,7 +603,7 @@ Sint16 Living::check_special()
                 return 0;
             }
 
-            distance = static_cast<Uint32>(distance_to_ob(foe)); // (deltax * deltax) + static_cast<Sint32>(deltay * deltay);
+            distance = distance_to_ob(foe); // (deltax * deltax) + static_cast<Sint32>(deltay * deltay);
 
             // About 3 squares max, 1 min
             if ((distance < 75) && (distance > 20)) {
@@ -621,7 +621,7 @@ Sint16 Living::check_special()
         // Check for for in range x
         // Already have a foe...
         if (foe) {
-            distance = static_cast<Uint32>(distance_to_ob(foe));
+            distance = distance_to_ob(foe);
             // static_cast<Sint32>(deltax * deltax) + static_cast<Sint32>(deltay * deltay);
 
             // About 6 squares
@@ -638,7 +638,7 @@ Sint16 Living::check_special()
                 return 0;
             }
 
-            distance = static_cast<Uint32>(distance_to_ob(foe));
+            distance = distance_to_ob(foe);
             // static_cast<Sint32>(deltax * deltax) + static_cast<Sint32>(deltay * deltay);
 
             // About 6 squares
@@ -655,7 +655,7 @@ Sint16 Living::check_special()
         if (current_special == 1) {
             // Already have a foe...
             if (foe) {
-                distance = static_cast<Uint32>(distance_to_ob(foe));
+                distance = distance_to_ob(foe);
                 // (deltax * deltax) + static_cast<Sint32>(deltay * deltay);
 
                 // About 6 squares max, 2 min
@@ -779,7 +779,7 @@ void Living::set_difficulty(Uint32 whatlevel)
     // Sint32 calcrate;
 
     Uint32 dif1 = difficulty_level[current_difficulty];
-    Uint32 levmult = static_cast<Uint32>(whatlevel) * static_cast<Uint32>(whatlevel);
+    Uint32 levmult = whatlevel * whatlevel;
 
     switch (family) {
     case FAMILY_ARCHER:
@@ -808,7 +808,7 @@ void Living::set_difficulty(Uint32 whatlevel)
         // Default as soldier
         stats.max_hitpoints += (13 * levmult);
         stats.max_magicpoints += (8 * levmult);
-        weapons_left = static_cast<Sint16>((whatlevel + 1) / 2);
+        weapons_left = (whatlevel + 1) / 2;
         damage += (5 * whatlevel);
         stats.armor += (2 * levmult);
 
@@ -830,7 +830,7 @@ void Living::set_difficulty(Uint32 whatlevel)
     default:
         stats.max_hitpoints += (11 * levmult);
         stats.max_magicpoints += (11 * levmult);
-        damage += (static_cast<Sint16>(4 * whatlevel));
+        damage += (4 * whatlevel);
         stats.armor += (2 * levmult);
 
         break;
@@ -858,7 +858,7 @@ void Living::set_difficulty(Uint32 whatlevel)
 
     // Now calculate the fraction
     if (stats.current_heal_delay > 1) {
-        stats.max_heal_delay /= static_cast<Sint32>(stats.current_heal_delay + 1);
+        stats.max_heal_delay /= (stats.current_heal_delay + 1);
     }
 
     // Start off without healing
@@ -871,7 +871,7 @@ void Living::set_difficulty(Uint32 whatlevel)
 
     // Set the magic delay...
     stats.max_magic_delay = REGEN;
-    stats.current_magic_delay = static_cast<Sint32>(levmult * 30); // For calculation only
+    stats.current_magic_delay = levmult * 30; // For calculation only
 
     // This takes care of the integer part
     while (stats.current_magic_delay > REGEN) {
@@ -881,7 +881,7 @@ void Living::set_difficulty(Uint32 whatlevel)
 
     // Now calculate the fraction
     if (stats.current_magic_delay > 1) {
-        stats.max_magic_delay /= static_cast<Sint32>(stats.current_magic_delay + 1);
+        stats.max_magic_delay /= (stats.current_magic_delay + 1);
     }
 
     // Start off without magic regen
@@ -895,7 +895,7 @@ void Living::set_difficulty(Uint32 whatlevel)
 
 Sint16 Living::facing(Sint16 x, Sint16 y)
 {
-    Sint32 bigy = static_cast<Sint32>(y * 1000);
+    Sint32 bigy = y * 1000;
     Sint32 slope;
 
     if (!x) {
@@ -965,14 +965,14 @@ Sint16 Living::act_random()
         return stats.try_command(COMMAND_RANDOM_WALK, 40);
     }
 
-    xdist = static_cast<Sint16>(foe->xpos - xpos);
-    ydist = static_cast<Sint16>(foe->ypos - ypos);
+    xdist = foe->xpos - xpos;
+    ydist = foe->ypos - ypos;
 
     // If foe is in firing range, turn and fire
     if ((abs(xdist) < (lineofsight & GRID_SIZE)) && (abs(ydist) < (lineofsight * GRID_SIZE))) {
         if (fire_check(xdist, ydist)) {
             init_fire(xdist, ydist);
-            stats.set_command(COMMAND_FIRE, static_cast<Sint16>(getRandomSint32(24)), xdist, ydist);
+            stats.set_command(COMMAND_FIRE, getRandomSint32(24), xdist, ydist);
 
             return 1;
         } else {

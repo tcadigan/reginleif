@@ -146,8 +146,8 @@ Sint16 read_scenario(VideoScreen *myscreen)
                 if (!s.empty()) {
                     // To buffer!
                     mytext.write_xy(HELPTEXT_LEFT + 2,
-                                    static_cast<Uint8>((TEXT_DOWN(j) - linesdown) % 8),
-                                    s.c_str(), static_cast<Uint8>(DARK_BLUE), 1);
+                                    (TEXT_DOWN(j) - linesdown) % 8,
+                                    s.c_str(), DARK_BLUE, 1);
                 }
             }
 
@@ -157,10 +157,10 @@ Sint16 read_scenario(VideoScreen *myscreen)
             myscreen->draw_text_bar(HELPTEXT_LEFT, HELPTEXT_TOP + 97,
                                     HELPTEXT_LEFT + 196, HELPTEXT_TOP + 103);
             mytext.write_xy(HELPTEXT_LEFT + 30, HELPTEXT_TOP + 98,
-                            "SCENARIO INFORMATION", static_cast<Uint8>(RED), 1);
+                            "SCENARIO INFORMATION", RED, 1);
             mytext.write_xy(HELPTEXT_LEFT + 30, HELPTEXT_TOP + 98,
                             "PRESS 'ESC' TO CONTINUE",
-                            static_cast<Uint8>(RED), 1);
+                            RED, 1);
 
             myscreen->buffer_to_screen(0, 0, 320, 200);
             changed = false;
@@ -172,7 +172,7 @@ Sint16 read_scenario(VideoScreen *myscreen)
         get_input_events(WAIT);
     }
 
-    return static_cast<Sint16>(numlines);
+    return numlines;
 }
 
 Sint16 read_campaign_intro(VideoScreen *myscreen)
@@ -275,9 +275,9 @@ Sint16 read_campaign_intro(VideoScreen *myscreen)
                 if (!data.getDescriptionLine(j + templines).empty()) {
                     // To buffer!
                     mytext.write_xy(HELPTEXT_LEFT + 2,
-                                    static_cast<Uint16>((TEXT_DOWN(j) - linesdown) % 8),
+                                    (TEXT_DOWN(j) - linesdown) % 8,
                                     data.getDescriptionLine(j + templines).c_str(),
-                                    static_cast<Uint8>(DARK_BLUE), 1);
+                                    DARK_BLUE, 1);
                 }
             }
 
@@ -288,10 +288,10 @@ Sint16 read_campaign_intro(VideoScreen *myscreen)
                                     HELPTEXT_LEFT + 236, HELPTEXT_TOP + 103);
             mytext.write_xy((HELPTEXT_LEFT + 120) - (data.title.size() * 3),
                             HELPTEXT_TOP - 7, data.title.c_str(),
-                            static_cast<Uint8>(RED), 1);
+                            RED, 1);
             mytext.write_xy(HELPTEXT_LEFT + 52, HELPTEXT_TOP + 98,
                             "PRESS 'ESC' TO CONTINUE",
-                            static_cast<Uint8>(RED), 1);
+                            RED, 1);
             // myscreen->buffer_to_screen(0, 0, 320, 200);
             myscreen->buffer_to_screen(HELPTEXT_LEFT - 4, HELPTEXT_TOP - 12, 244, 119);
 
@@ -306,7 +306,7 @@ Sint16 read_campaign_intro(VideoScreen *myscreen)
 
     // delete mytext;
 
-    return static_cast<Sint16>(numlines);
+    return numlines;
 }
 
 /*

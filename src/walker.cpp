@@ -93,8 +93,8 @@ void draw_smallHealthBar(Walker *w, Sint16 topx, Sint16 topy, Sint16 xloc, Sint1
         return;
     }
 
-    Sint32 xscreen = static_cast<Sint32>((w->xpos - topx) + xloc);
-    Sint32 yscreen = static_cast<Sint32>((w->ypos - topy) + yloc);
+    Sint32 xscreen = (w->xpos - topx) + xloc;
+    Sint32 yscreen = (w->ypos - topy) + yloc;
 
     Sint32 walkerstartx = xscreen;
     Sint32 walkerstarty = yscreen;
@@ -103,12 +103,7 @@ void draw_smallHealthBar(Walker *w, Sint16 topx, Sint16 topy, Sint16 xloc, Sint1
     Sint32 portendx = endx;
     Sint32 portendy = endy;
 
-    SDL_Rect r = {
-        static_cast<Sint16>(walkerstartx),
-        static_cast<Sint16>((walkerstarty + w->sizey) + 1),
-        static_cast<Uint16>(w->sizex),
-        1
-    };
+    SDL_Rect r = { walkerstartx, (walkerstarty + w->sizey) + 1, w->sizex, 1 };
 
     if ((r.x < portstartx) || (r.x > portendx) || (r.y < portstarty) || (r.y > portendy)) {
         return;
@@ -116,11 +111,11 @@ void draw_smallHealthBar(Walker *w, Sint16 topx, Sint16 topy, Sint16 xloc, Sint1
 
     // Last hit's effect
     float last_points = w->last_hitpoints;
-    float last_ratio = static_cast<float>(last_points) / w->stats.max_hitpoints;
+    float last_ratio = last_points / w->stats.max_hitpoints;
 
     // Current HP
     float points = w->stats.hitpoints;
-    float ratio = static_cast<float>(points) / w->stats.max_hitpoints;
+    float ratio = points / w->stats.max_hitpoints;
 
     Uint8 whatcolor;
 
@@ -803,7 +798,7 @@ Walker::~Walker()
 
 bool Walker::move(Sint16 x, Sint16 y)
 {
-    return setxy(static_cast<Sint16>(xpos + x), static_cast<Sint16>(ypos + y));
+    return setxy(xpos + x, ypos + y);
 }
 
 void Walker::worldmove(float x, float y)
@@ -1090,7 +1085,7 @@ bool Walker::walkstep(float x, float y)
                 }
             }
 
-            curdir = static_cast<Uint8>(oldcurdir);
+            curdir = oldcurdir;
 
             return (ret1 || ret2);
         }
@@ -1161,7 +1156,7 @@ bool Walker::walk(float x, float y)
         }
     } else {
         // Changed direction
-        curdir = static_cast<Uint8>(dir);
+        curdir = dir;
         cycle = 0;
         set_frame(ani[curdir][cycle]);
         worldmove(0, 0);
@@ -1213,13 +1208,13 @@ bool Walker::turn(Sint16 targetdir)
     // our next facing should be based on our current one
 
     // Find how we have to turn
-    distance = static_cast<Sint16>(curdir - targetdir);
+    distance = curdir - targetdir;
 
     // Figure out if we should turn clockwise or counterclockwise
     if (((distance >= -4) && (distance < 0)) || (distance >= 4)) {
-        curdir = static_cast<Uint8>((curdir + 1) % 8);
+        curdir = (curdir + 1) % 8;
     } else {
-        curdir = static_cast<Uint8>((curdir + 7) % 8);
+        curdir = (curdir + 7) % 8;
     }
 
     // Now we set our lastx and lasty (facing) variables correctly
@@ -1291,7 +1286,7 @@ bool Walker::init_fire(Sint16 xdir, Sint16 ydir)
     // Turn if we want to fire another direction
     // If a non-player fires in a set direction, turn!
     if (facing(xdir, ydir) != curdir) {
-        enddir = static_cast<Uint8>(facing(xdir, ydir));
+        enddir = facing(xdir, ydir);
     }
 
     if ((curdir != enddir) && (query_order() == ORDER_LIVING)) {
@@ -1353,8 +1348,8 @@ Walker *Walker::fire()
 
     // Determine how much the thrown weapon can "waver"
     // Absolute amount...
-    waver = static_cast<Sint8>(weapon->stepsize / 2);
-    waver = static_cast<Sint8>(getRandomSint32(waver + 1) - (waver / 2));
+    waver = weapon->stepsize / 2;
+    waver = getRandomSint32(waver + 1) - (waver / 2);
 
     switch (facing(lastx, lasty)) {
     case FACE_RIGHT:
@@ -1411,7 +1406,7 @@ Walker *Walker::fire()
 
     // Make sure our current direction is wrong so first walk will just
     // be draw (grumble curse)
-    weapon->curdir = static_cast<Uint8>((frame + 1) % 2);
+    weapon->curdir = (frame + 1) % 2;
 
     // xp = weapon->xpos;
     // yp = weapon->ypos;
@@ -1498,14 +1493,14 @@ Walker *Walker::fire()
                 }
 
                 weapon->stats.level = getRandomSint32(stats.level) + 1;
-                weapon->set_difficulty(static_cast<Uint32>(weapon->stats.level));
+                weapon->set_difficulty(weapon->stats.level);
                 weapon->owner = nullptr;
 
                 break;
             default: // Tents, bones, etc.
                 weapon->lifetime = 800 + (stats.level * 11);
                 weapon->stats.level = getRandomSint32(stats.level) + 1;
-                weapon->set_difficulty(static_cast<Uint32>(weapon->stats.level));
+                weapon->set_difficulty(weapon->stats.level);
 
                 break;
             }
@@ -1529,8 +1524,8 @@ void Walker::set_weapon_heading(Walker *weapon)
 
     // Determine how much the thrown weapon can "waver"
     // Absolute amount...
-    waver = static_cast<Sint8>((weapon->stepsize) / 2);
-    waver = static_cast<Sint8>(getRandomSint32(waver + 1) - (waver / 2));
+    waver = (weapon->stepsize) / 2;
+    waver = getRandomSint32(waver + 1) - (waver / 2);
 
     // These are from the "owner"
     switch (facing(lastx, lasty)) {
@@ -1613,8 +1608,8 @@ Sint16 Walker::draw(Sint16 topx, Sint16 topy, Sint16 xloc, Sint16 yloc, Sint16 e
 
     ++drawcycle;
 
-    xscreen = static_cast<Sint32>((xpos - topx) + xloc);
-    yscreen = static_cast<Sint32>((ypos - topy) + yloc);
+    xscreen = (xpos - topx) + xloc;
+    yscreen = (ypos - topy) + yloc;
 
     if (attack_lunge > 0.0f) {
         xscreen += ((attack_lunge * ATTACK_LUNGE_SIZE) * cos(attack_lunge_angle));
@@ -1813,8 +1808,8 @@ Sint16 Walker::draw_tile(Sint16 topx, Sint16 topy, Sint16 xloc, Sint16 yloc, Sin
 
     ++drawcycle;
 
-    xscreen = static_cast<Sint32>((xpos - topx) + xloc);
-    yscreen = static_cast<Sint32>((ypos - topy) + yloc);
+    xscreen = (xpos - topx) + xloc;
+    yscreen = (ypos - topy) + yloc;
 
     if (stats.query_bit_flags(BIT_NAMED)
         || invisibility_left
@@ -2140,7 +2135,7 @@ Sint16 Walker::act()
 Sint16 Walker::set_act_type(Sint16 num)
 {
     old_act_type = act_type;
-    act_type = static_cast<Uint8>(num);
+    act_type = num;
 
     return num;
 }
@@ -2159,7 +2154,7 @@ Sint16 Walker::query_act_type()
 
 Sint16 Walker::set_old_act_type(Sint16 num)
 {
-    old_act_type = static_cast<Uint8>(num);
+    old_act_type = num;
 
     return num;
 }
@@ -2724,7 +2719,7 @@ Walker *Walker::create_weapon()
 
     // Special case for generators
     if (query_order() == ORDER_GENERATOR) {
-        weapon = myscreen->level_data.add_ob(ORDER_LIVING, static_cast<Uint8>(default_weapon));
+        weapon = myscreen->level_data.add_ob(ORDER_LIVING, default_weapon);
         weapon->team_num = team_num;
         weapon->owner = this;
         weapon->set_difficulty(stats.level);
@@ -2735,7 +2730,7 @@ Walker *Walker::create_weapon()
     // Normally, only livings fire
     weapon_type = current_weapon;
 
-    weapon = myscreen->level_data.add_ob(ORDER_WEAPON, static_cast<Uint8>(weapon_type));
+    weapon = myscreen->level_data.add_ob(ORDER_WEAPON, weapon_type);
     weapon->team_num = team_num;
     weapon->owner = this;
     weapon->set_difficulty(stats.level);
@@ -2835,7 +2830,7 @@ Sint16 Walker::special()
     }
 
     // Do we have enough for our special ability?
-    if (stats.magicpoints < stats.special_cost[static_cast<Sint32>(current_special)]) {
+    if (stats.magicpoints < stats.special_cost[current_special]) {
         return 0;
     }
 
@@ -3147,7 +3142,7 @@ Sint16 Walker::special()
                 // Dummy, non-zero value
                 newob->ani_type = 1;
                 // Specify settings based on our mana...
-                generic = stats.magicpoints - stats.special_cost[static_cast<Uint32>(current_special)];
+                generic = stats.magicpoints - stats.special_cost[current_special];
                 // Get half our excess magic
                 generic /= 2;
                 newob->lifetime = 100 + generic;
@@ -3212,7 +3207,7 @@ Sint16 Walker::special()
                 if (newob) {
                     targetx = newob->xpos;
                     targety = newob->ypos;
-                    distance = static_cast<Uint32>(distance_to_ob(newob)); // ((targetx - xpos) * (targetx - xpos)) + ((targety - ypos) * (targety - ypos));
+                    distance = distance_to_ob(newob); // ((targetx - xpos) * (targetx - xpos)) + ((targety - ypos) * (targety - ypos));
 
                     if (myscreen->query_passable(targetx, targety, newob) && (distance < 60)) {
                         alive = do_summon(FAMILY_SKELETON, 125 + (stats.level * 40));
@@ -3223,7 +3218,7 @@ Sint16 Walker::special()
 
                         alive->team_num = team_num;
                         alive->stats.level = getRandomSint32(stats.level) + 1;
-                        alive->set_difficulty(static_cast<Uint32>(alive->stats.level));
+                        alive->set_difficulty(alive->stats.level);
                         alive->setxy(newob->xpos, newob->ypos);
                         alive->owner = this;
                         // myscreen->remove_fx_ob(newob);
@@ -3300,7 +3295,7 @@ Sint16 Walker::special()
                 if (newob) {
                     targetx = newob->xpos;
                     targety = newob->ypos;
-                    distance = static_cast<Uint32>(distance_to_ob(newob)); // ((targetx - xpos) * (targetx - xpos) + ((targety - ypos) * (targety - ypos));
+                    distance = distance_to_ob(newob); // ((targetx - xpos) * (targetx - xpos) + ((targety - ypos) * (targety - ypos));
 
                     if (myscreen->query_passable(targetx, targety, newob) && (distance < 50)) {
                         // alive = myscreen->level_data.add_ob(ORDER_LIVING, FAMILY_SKELETON);
@@ -3311,7 +3306,7 @@ Sint16 Walker::special()
                         }
 
                         alive->stats.level = getRandomSint32(stats.level) + 1;
-                        alive->set_difficulty(static_cast<Uint32>(alive->stats.level));
+                        alive->set_difficulty(alive->stats.level);
                         alive->team_num = team_num;
                         alive->setxy(newob->xpos, newob->ypos);
                         alive->owner = this;
@@ -3384,7 +3379,7 @@ Sint16 Walker::special()
 
                         alive->team_num = team_num;
                         alive->stats.level = getRandomSint32(stats.level) + 1;
-                        alive->set_difficulty(static_cast<Uint32>(alive->stats.level));
+                        alive->set_difficulty(alive->stats.level);
                         alive->owner = this;
                     }
 
@@ -3496,7 +3491,7 @@ Sint16 Walker::special()
                     busy += 8;
 
                     // Take an extra cost for placing a marker
-                    generic = stats.magicpoints - stats.special_cost[static_cast<Sint32>(current_special)];
+                    generic = stats.magicpoints - stats.special_cost[current_special];
                     // Reduce our "extra" by half
                     generic /= 2;
                     stats.magicpoints -= generic;
@@ -3518,7 +3513,7 @@ Sint16 Walker::special()
             tempx = lastx;
             tempy = lasty;
             // Do we have extra magic points to spend?
-            generic = stats.magicpoints - stats.special_cost[static_cast<Sint32>(current_special)];
+            generic = stats.magicpoints - stats.special_cost[current_special];
 
             if (generic > 0) {
                 // Take 7% of remaining magic...
@@ -3750,7 +3745,7 @@ Sint16 Walker::special()
                 busy += 8;
 
                 // Take an extra cost for placing a marker
-                generic = stats.magicpoints - stats.special_cost[static_cast<Sint32>(current_special)];
+                generic = stats.magicpoints - stats.special_cost[current_special];
                 // Reduce our "extra" by half
                 generic /= 2;
 
@@ -4161,7 +4156,7 @@ Sint16 Walker::special()
 
                 // howmany actually done yet?
                 didheal = 0;
-                generic2 = (stats.magicpoints - stats.special_cost[static_cast<Sint32>(current_special)]) + 10;
+                generic2 = (stats.magicpoints - stats.special_cost[current_special]) + 10;
 
                 for (auto & ob : newlist) {
                     if ((ob->real_team_num == 200) // Never been charmed
@@ -4209,7 +4204,7 @@ Sint16 Walker::special()
             buf.clear();
             message.resize(80);
             myscreen->do_notify(message, this);
-            generic2 = stats.magicpoints - stats.special_cost[static_cast<Sint32>(current_special)];
+            generic2 = stats.magicpoints - stats.special_cost[current_special];
 
             // Sap our extra based on how many guys
             if (generic2 > 0) {
@@ -4502,7 +4497,7 @@ Sint16 Walker::special()
     case FAMILY_ELF:
         switch (current_special) {
         case 1:
-            // Some rocks (norma)
+            // Some rocks (normal)
             stats.magicpoints += (2 * stats.weapon_cost);
             fireob = static_cast<Weap *>(fire());
 
@@ -4822,7 +4817,7 @@ Sint16 Walker::special()
                 return 0;
             }
 
-            distance = static_cast<Uint32>(distance_to_ob_center(newob));
+            distance = distance_to_ob_center(newob);
 
             // Must be close enough
             if (distance > 24) {
@@ -4955,7 +4950,7 @@ Sint16 Walker::special()
         // End of family switch
     }
 
-    stats.magicpoints -= stats.special_cost[static_cast<Sint32>(current_special)];
+    stats.magicpoints -= stats.special_cost[current_special];
 
     return 0;
 }
@@ -5126,7 +5121,7 @@ Sint16 Walker::fire_check(Sint16 xdelta, Sint16 ydelta)
     }
 
     distance = distance_to_ob(foe);
-    if (distance > static_cast<Sint32>(static_cast<Sint32>(weapon->stepsize) * static_cast<Sint32>(weapon->lineofsight))) {
+    if (distance > (weapon->stepsize * weapon->lineofsight)) {
         weapon->dead = 1;
 
         return 0;
@@ -5285,7 +5280,7 @@ bool Walker::act_guard()
     foe = myscreen->find_near_foe(this);
 
     if (foe) {
-        curdir = static_cast<Uint8>(facing(foe->xpos - xpos, foe->ypos - ypos));
+        curdir = facing(foe->xpos - xpos, foe->ypos - ypos);
         stats.try_command(COMMAND_FIRE, getRandomSint32(30));
 
         return true;
@@ -5784,17 +5779,17 @@ Sint32 Walker::distance_to_ob_center(Walker *target)
     Sint32 xdelta;
     Sint32 ydelta;
 
-    xdelta = static_cast<Sint32>(target->xpos - xpos) + static_cast<Sint32>((target->sizex - sizex) / 2);
-    ydelta = static_cast<Sint32>(target->ypos - ypos) + static_cast<Sint32>((target->sizey - sizey) / 2);
+    xdelta = (target->xpos - xpos) + ((target->sizex - sizex) / 2);
+    ydelta = (target->ypos - ypos) + ((target->sizey - sizey) / 2);
 
-    return static_cast<Sint32>((xdelta * xdelta) + (ydelta * ydelta));
+    return ((xdelta * xdelta) + (ydelta * ydelta));
 }
 
 Uint8 Walker::query_team_color()
 {
     // Debugging...
     // if (foe && !foe->dead) {
-    return static_cast<Uint8>((team_num * 16) + 40);
+    return ((team_num * 16) + 40);
     // } else {
     //     return static_cast<Uint8>((7 * 16) + 40);
     // }
@@ -5993,7 +5988,7 @@ void Walker::update_derived_stats()
 
     // Fighters: limited weapons
     if (query_family() == FAMILY_SOLDIER) {
-        weapons_left = static_cast<Sint16>((stats.level + 1) / 2);
+        weapons_left = (stats.level + 1) / 2;
     }
 
     // Set the heal delay...
@@ -6008,7 +6003,7 @@ void Walker::update_derived_stats()
     }
 
     if (stats.current_heal_delay > 1) {
-        stats.max_heal_delay /= static_cast<Sint32>(stats.current_heal_delay + 1);
+        stats.max_heal_delay /= (stats.current_heal_delay + 1);
     }
 
     // Start off without healing
@@ -6030,7 +6025,7 @@ void Walker::update_derived_stats()
     }
 
     if (stats.current_magic_delay > 1) {
-        stats.max_magic_delay /= static_cast<Sint32>(stats.current_magic_delay + 1);
+        stats.max_magic_delay /= (stats.current_magic_delay + 1);
     }
 
     // Start off without magic regen
@@ -6157,8 +6152,8 @@ Sint16 Walker::do_command()
             }
 
             // Total horizontal distance..
-            newx = static_cast<Sint16>(leader->xpos - xpos);
-            newy = static_cast<Sint16>(leader->ypos - ypos);
+            newx = leader->xpos - xpos;
+            newy = leader->ypos - ypos;
 
             if (abs(newx) > abs(3 * newy)) {
                 newy = 0;
@@ -6170,11 +6165,11 @@ Sint16 Walker::do_command()
 
             // If it's not 0, then get the normal of it
             if (newx) {
-                newx = static_cast<Sint16>(newx / abs(newx));
+                newx = newx / abs(newx);
             }
 
             if (newy) {
-                newy = static_cast<Sint16>(newy / abs(newy));
+                newy = newy / abs(newy);
             }
         } // end of if we had a foe...
 
@@ -6261,8 +6256,8 @@ Sint16 Walker::do_command()
         }
 
         // Try to walk toward foe, and/or attack...
-        deltax = static_cast<Sint16>(foe->xpos - xpos);
-        deltay = static_cast<Sint16>(foe->ypos - ypos);
+        deltax = foe->xpos - xpos;
+        deltay = foe->ypos - ypos;
 
         if (abs(deltax) > abs(3 * deltay)) {
             deltay = 0;
@@ -6283,7 +6278,7 @@ Sint16 Walker::do_command()
         if (!fire_check(deltax, deltay)) {
             walkstep(deltax, deltay);
         } else { // controller->fire_check(deltax, deltay))
-            stats.force_command(COMMAND_FIRE, static_cast<Sint16>(getRandomSint32(5)), deltax, deltay);
+            stats.force_command(COMMAND_FIRE, getRandomSint32(5), deltax, deltay);
             init_fire(deltax, deltay);
         }
 
@@ -6562,16 +6557,16 @@ void Walker::hit_response(Walker *who)
 
             // Too close!
             if (distance < 64) {
-                deltax = static_cast<Sint16>(xpos - foe->xpos);
+                deltax = xpos - foe->xpos;
 
                 if (deltax) {
-                    deltax = static_cast<Sint16>(deltax / abs(deltax));
+                    deltax = deltax / abs(deltax);
                 }
 
-                deltay = static_cast<Sint16>(ypos - foe->ypos);
+                deltay = ypos - foe->ypos;
 
                 if (deltay) {
-                    deltay = static_cast<Sint16>(deltay / abs(deltay));
+                    deltay = deltay / abs(deltay);
                 }
 
                 // Run away
@@ -6646,7 +6641,7 @@ bool Walker::walk_to_foe()
         xdelta = xdest - xpos;
         ydelta = ydest - ypos;
 
-        tempdistance = static_cast<Uint32>(distance_to_ob(foe));
+        tempdistance = distance_to_ob(foe);
         // Do simpler pathing if the distance is short or if there are too
         // many walker (pathfinding is expensive)
         if ((tempdistance < PATHING_MIN_DISTANCE) || (myscreen->level_data.myobmap->size() > PATHING_SHORT_CIRCUIT_OBJECT_LIMIT)) {
@@ -6656,7 +6651,7 @@ bool Walker::walk_to_foe()
                 Walker *firstfoe = foelist.front();
                 clear_command();
                 turn(facing(xdelta, ydelta));
-                stats.try_command(COMMAND_ATTACK, static_cast<Sint16>(30 + getRandomSint32(25)), 1, 1);
+                stats.try_command(COMMAND_ATTACK, 30 + getRandomSint32(25), 1, 1);
                 myscreen->find_near_foe(this);
 
                 if (!foe && firstfoe) {
@@ -6682,7 +6677,7 @@ bool Walker::walk_to_foe()
 
     if (path_to_foe.size() > 0) {
         follow_path_to_foe();
-        stats.last_distance = static_cast<Uint32>(distance_to_ob(foe));
+        stats.last_distance = distance_to_ob(foe);
     } else if (tempdistance < stats.last_distance) {
         // Are we closer than we've ever been?
         // Ten set our checking distance...
@@ -6743,7 +6738,7 @@ bool Walker::direct_walk()
     if (fire_check(xdelta, ydelta)) {
         clear_command();
         turn(facing(xdelta, ydelta));
-        stats.add_command(COMMAND_ATTACK, static_cast<Sint16>(30 + getRandomSint32(25)), 0, 0);
+        stats.add_command(COMMAND_ATTACK, 30 + getRandomSint32(25), 0, 0);
 
         return true;
     }

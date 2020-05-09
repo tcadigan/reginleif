@@ -29,12 +29,12 @@ class VirtualButton
 public:
     VirtualButton(); // this should only be used for pointers!!
     VirtualButton(Sint32 xpos, Sint32 ypos, Sint32 wide, Sint32 high,
-        Sint32 func(Sint32), Sint32 pass, std::string const &msg, Sint32 hot);
+                  Sint32 func(Sint32), Sint32 pass, std::string const &msg, Sint32 hot);
     VirtualButton(Sint32 xpos, Sint32 ypos, Sint32 wide, Sint32 high,
-        Sint32 func_code, Sint32 pass, std::string const &msg, Sint32 hot);
+                  Sint32 func_code, Sint32 pass, std::string const &msg, Sint32 hot);
     VirtualButton(Sint32 xpos, Sint32 ypos, Sint32 wide, Sint32 high,
-        Sint32 func_code, Sint32 pass, std::string const &msg, Uint8 family,
-        Sint32 hot);
+                  Sint32 func_code, Sint32 pass, std::string const &msg, Uint8 family,
+                  Sint32 hot);
     ~VirtualButton();
 
     void set_graphic(Uint8 family);

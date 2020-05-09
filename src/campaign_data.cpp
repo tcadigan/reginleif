@@ -21,9 +21,10 @@
 #include "io.hpp"
 #include "util.hpp"
 
+#include <filesystem>
 #include <sstream>
 
-CampaignData::CampaignData(std::string const &id)
+CampaignData::CampaignData(std::filesystem::path const &id)
     : id(id)
     , title("New Campaign")
     , rating(0.0f)
@@ -44,12 +45,12 @@ CampaignData::~CampaignData()
 
 bool CampaignData::load()
 {
-    std::string old_campaign(get_mounted_campaign());
+    std::filesystem::path old_campaign(get_mounted_campaign());
     unmount_campaign_package(old_campaign);
 
     // Load the campaign data from <user_data>/scen/<id>.glad
     if (mount_campaign_package(id)) {
-        SDL_RWops *rwops = open_read_file("campaign.ini");
+        SDL_RWops *rwops = open_read_file(std::filesystem::path("campaign.ini"));
 
         Sint64 size = SDL_RWsize(rwops);
 
@@ -141,7 +142,7 @@ bool CampaignData::save()
         // Unmount campaign while it is changed
         // unmount_campaign_package(ascreen->current_campaign);
 
-        SDL_RWops *outfile = open_write_file("temp/campaign.haml");
+        SDL_RWops *outfile = open_write_file(std::filesystem::path("temp/campaign.haml"));
 
         if (outfile != nullptr) {
             std::stringstream buf;
@@ -281,7 +282,7 @@ bool CampaignData::save()
     return result;
 }
 
-bool CampaignData::save_as(std::string const &new_id)
+bool CampaignData::save_as(std::filesystem::path const &new_id)
 {
     cleanup_unpacked_campaign();
 
@@ -290,7 +291,7 @@ bool CampaignData::save_as(std::string const &new_id)
     // Unpack the campaign
     if (unpack_campaign(id)) {
         // Save the descriptor file
-        SDL_RWops *outfile = open_write_file("temp/campaign.ini");
+        SDL_RWops *outfile = open_write_file(std::filesystem::path("temp/campaign.ini"));
 
         if (outfile != nullptr) {
             std::stringstream buf;
@@ -432,7 +433,7 @@ bool CampaignData::save_as(std::string const &new_id)
 
 std::string CampaignData::getDescriptionLine(Sint32 i)
 {
-    if ((i < 0) || (i >= static_cast<Sint32>(description.size()))) {
+    if ((i < 0) || (i >= description.size())) {
         return "";
     }
 

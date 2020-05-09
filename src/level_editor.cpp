@@ -49,7 +49,7 @@
 
 #define SCROLLSIZE 8
 
-#define VERSION_NUM static_cast<Uint8>(8) // Save scenario type info
+#define VERSION_NUM 8 // Save scenario type info
 
 #define PIX_LEFT (S_RIGHT + 18)
 // #define PIX_DOWN ((PIX_MAX / PIX_OVER) + 1)
@@ -81,7 +81,7 @@ bool pan_down = false;
 
 bool does_campaign_exist(std::string const &campaign_id)
 {
-    std::list<std::string> ls = list_campaigns();
+    std::list<std::filesystem::path> ls = list_campaigns();
 
     return std::any_of(ls.begin(),
                        ls.end(),
@@ -106,7 +106,7 @@ bool create_new_campaign(std::string const &campaign_id)
     // Create the map file (grid)
     create_new_map_pix(get_user_path() / "temp" / "pix" / "scen001.pix", 40, 60);
 
-    bool result = repack_campaign(campaign_id);
+    bool result = repack_campaign(std::filesystem::path(campaign_id));
 
     if (!result) {
         return result;
@@ -729,13 +729,13 @@ LevelEditor::LevelEditor()
         Log("Failed to load campaign data.\n");
     }
 
-    std::string old_campaign(get_mounted_campaign());
+    std::filesystem::path old_campaign(get_mounted_campaign());
 
     if (!old_campaign.empty()) {
         unmount_campaign_package(old_campaign);
     }
 
-    mount_campaign_package(data.campaign->id);
+    mount_campaign_package(data.campaign.id);
 
     std::list<Sint32> levels = list_levels();
 
@@ -1199,7 +1199,7 @@ LevelEditor::LevelEditor()
     // Clear the background
     myscreen->clearbuffer();
 
-    unmount_campaign_package(data.campaign->id);
+    unmount_campaign_package(data.campaign.id);
     mount_campaign_package(old_campaign);
 }
 

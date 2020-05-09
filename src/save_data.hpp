@@ -18,6 +18,7 @@
 #ifndef __SAVE_DATA_HPP__
 #define __SAVE_DATA_HPP__
 
+#include <filesystem>
 #include <list>
 #include <map>
 #include <set>
@@ -41,20 +42,20 @@ public:
 
     // Copy team from the guys in an oblist
     void update_guys(std::list<Walker *> &oblist);
-    bool load(std::string const &filename);
-    bool save(std::string const &filename);
+    bool load(std::filesystem::path const &filename);
+    bool save(std::filesystem::path const &filename);
 
     bool is_level_completed(Sint32 level_index) const;
-    Sint32 get_num_levels_completed(std::string const &campaign) const;
+    Sint32 get_num_levels_completed(std::filesystem::path const &campaign) const;
 
-    void add_level_completed(std::string const &campaign, Sint32 level_index);
-    void reset_campaign(std::string const &campaign);
+    void add_level_completed(std::filesystem::path const &campaign, Sint32 level_index);
+    void reset_campaign(std::filesystem::path const &campaign);
 
     std::string save_name;
-    std::string current_campaign;
+    std::filesystem::path current_campaign;
     Sint16 scen_num;
-    std::map<std::string, std::set<Sint32>> completed_levels;
-    std::map<std::string, Sint32> current_levels;
+    std::map<std::filesystem::path, std::set<Sint32>> completed_levels;
+    std::map<std::filesystem::path, Sint32> current_levels;
     Uint32 score;
     Uint32 m_score[4];
     Uint32 totalcash;

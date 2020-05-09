@@ -26,9 +26,6 @@ static Uint32 colorMask = 0xF7DEF7DE;
 static Uint32 lowPixelMask = 0x08210821;
 static Uint32 qcolorMask = 0xE79CE79C;
 static Uint32 qlowpixelMask = 0x18631863;
-static Uint32 redblueMask = 0xF81F;
-static Uint32 greenMask = 0x7E0;
-static Sint32 PixelsPerMask = 2;
 static Sint32 xsai_depth = 0;
 static Uint8 *src_line[4];
 static Uint8 *dst_line[2];
@@ -49,10 +46,6 @@ static Uint8 *dst_line[2];
 // Works only for bpp 32!
 Sint32 Init_2xSaI()
 {
-    redblueMask = 0xFF00FF00;
-    greenMask = 0x00FF0000;
-    PixelsPerMask = 1;
-
     /*
      * Color Mask:      0xFEFEFE
      * Low Pixel Mask:  0x10101
@@ -532,8 +525,8 @@ void Super2xSaI_ex(Uint8 *src, Uint32 src_pitch, Uint8 *unused, Uint8 *dest, Uin
     src_line[2] = src + src_pitch;
     src_line[3] = src + (src_pitch * 2);
 
-    dst_line[0] = static_cast<Uint8 *>(dest);
-    dst_line[1] = static_cast<Uint8 *>(dest + dest_pitch);
+    dst_line[0] = dest;
+    dst_line[1] = dest + dest_pitch;
 
     x = 0;
     y = 0;
@@ -705,8 +698,8 @@ void Super2xSaI_ex(Uint8 *src, Uint32 src_pitch, Uint8 *unused, Uint8 *dest, Uin
         color[15] = *(lbp + 2);
 
         if (y < (height - 1)) {
-            dst_line[0] = static_cast<Uint8 *>(dest) + (dest_pitch * ((y * 2) + 2));
-            dst_line[1] = static_cast<Uint8 *>(dest) + (dest_pitch * ((y * 2) + 3));
+            dst_line[0] = dest + (dest_pitch * ((y * 2) + 2));
+            dst_line[1] = dest + (dest_pitch * ((y * 2) + 3));
         }
     }
 }
@@ -758,18 +751,8 @@ Screen::Screen(RenderEngine engine, Sint32 width, Sint32 height, Sint32 fullscre
 {
     Engine = engine;
 
-    switch (Engine) {
-    case SAI:
+    if ((Engine == SAI) || (Engine == EAGLE)) {
         Init_2xSaI();
-
-        break;
-    case EAGLE:
-        Init_2xSaI();
-
-        break;
-    default:
-
-        break;
     }
 
     Sint32 w;
@@ -778,13 +761,21 @@ Screen::Screen(RenderEngine engine, Sint32 width, Sint32 height, Sint32 fullscre
     w = width;
     h = height;
 
-    Uint32 window_flags = SDL_WINDOW_SHOWN;
-
     if (fullscreen) {
-        window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+        window = SDL_CreateWindow("Gladiator",
+                                  SDL_WINDOWPOS_CENTERED,
+                                  SDL_WINDOWPOS_CENTERED,
+                                  0, 0,
+                                  SDL_WINDOW_FULLSCREEN_DESKTOP);
+    } else {
+        window = SDL_CreateWindow("Gladiator",
+                                  SDL_WINDOWPOS_CENTERED,
+                                  SDL_WINDOWPOS_CENTERED,
+                                  w, h,
+                                  SDL_WINDOW_INPUT_GRABBED);
+
     }
 
-    window = SDL_CreateWindow("Gladiator", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, window_flags);
 
     if (window == nullptr) {
         exit(1);
@@ -794,15 +785,15 @@ Screen::Screen(RenderEngine engine, Sint32 width, Sint32 height, Sint32 fullscre
     window_w = w;
     window_h = h;
 
-    update_overscan_setting();
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
 
-    render = SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 200, 32, 0, 0, 0, 0);
-    render_tex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 320, 200);
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+    SDL_RenderSetLogicalSize(renderer, width, height);
 
-    // To be initialized when we actually need it
-    render2 = nullptr;
-    render2_tex = nullptr;
+    render_tex = SDL_CreateTexture(renderer,
+                                   SDL_PIXELFORMAT_ARGB8888,
+                                   SDL_TEXTUREACCESS_STREAMING,
+                                   width, height);
 }
 
 Screen::~Screen()
@@ -834,57 +825,40 @@ void Screen::clear(Sint32 x, Sint32 y, Sint32 w, Sint32 h)
 
 void Screen::swap(Sint32 x, Sint32 y, Sint32 w, Sint32 h)
 {
-    SDL_Surface *source_surface = render;
-    SDL_Texture *dest_texture = render_tex;
-
-    switch (Engine) {
-    case SAI:
+    if ((Engine == SAI) || (Engine == EAGLE)) {
         if (render2 == nullptr) {
             render2 = SDL_CreateRGBSurface(SDL_SWSURFACE, 640, 400, 32, 0, 0, 0, 0);
-            render2_tex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 640, 400);
+            render2_tex = SDL_CreateTexture(renderer,
+                                            SDL_PIXELFORMAT_ARGB8888,
+                                            SDL_TEXTUREACCESS_STREAMING,
+                                            640, 400);
         }
 
         SDL_LockSurface(render2);
-        Super2xSaI_ex2(static_cast<Uint8 *>(render->pixels), x, y, w, h, render->pitch, render->h,
-                       static_cast<Uint8 *>(render2->pixels), 2 * x, 2 * y, render2->pitch);
 
-        SDL_UnlockSurface(render2);
-        source_surface = render2;
-        dest_texture = render2_tex;
-
-        break;
-    case EAGLE:
-
-        if (render2 == nullptr) {
-            render2 = SDL_CreateRGBSurface(SDL_SWSURFACE, 640, 400, 32, 0, 0, 0, 0);
-            render2_tex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 640, 400);
+        if (Engine == SAI) {
+            Super2xSaI_ex2(static_cast<Uint8 *>(render->pixels), x, y, w, h, render->pitch, render->h,
+                           static_cast<Uint8 *>(render2->pixels), 2 * x, 2 * y, render2->pitch);
+        } else {
+            Scale_SuperEagle(static_cast<Uint8 *>(render->pixels), x, y, w, h, render->pitch,
+                             render->h, static_cast<Uint8 *>(render2->pixels), 2 * x, 2 * y,
+                             render2->pitch);
         }
 
-        SDL_LockSurface(render2);
-        Scale_SuperEagle(static_cast<Uint8 *>(render->pixels), x, y, w, h, render->pitch,
-                         render->h, static_cast<Uint8 *>(render2->pixels), 2 * x, 2 * y,
-                         render2->pitch);
-
         SDL_UnlockSurface(render2);
-
-        source_surface = render2;
-        dest_texture = render2_tex;
-
-        break;
-    default:
-
-        break;
+        render = render2;
+        render_tex = render2_tex;
     }
 
-    SDL_UpdateTexture(dest_texture, NULL, source_surface->pixels, source_surface->pitch);
+    SDL_UpdateTexture(render_tex, NULL, render->pixels, render->pitch);
     SDL_Rect dest = {
-        static_cast<Sint32>(viewport_offset_x),
-        static_cast<Sint32>(viewport_offset_y),
-        static_cast<Sint32>(viewport_w),
-        static_cast<Sint32>(viewport_h)
+        viewport_offset_x,
+        viewport_offset_y,
+        viewport_w,
+        viewport_h
     };
 
-    SDL_RenderCopy(renderer, dest_texture, NULL, &dest);
+    SDL_RenderCopy(renderer, render_tex, NULL, &dest);
     SDL_RenderPresent(renderer);
 }
 
@@ -895,12 +869,7 @@ void Screen::clear_window()
 
     SDL_FillRect(source_surface, NULL, 0x000000);
     SDL_UpdateTexture(dest_texture, NULL, source_surface->pixels, source_surface->pitch);
-    SDL_Rect dest = {
-        0,
-        0,
-        static_cast<Sint32>(window_w),
-        static_cast<Sint32>(window_h)
-    };
+    SDL_Rect dest = { 0, 0, window_w, window_h };
 
     SDL_RenderCopy(renderer, dest_texture, NULL, &dest);
 }

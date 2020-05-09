@@ -122,12 +122,12 @@ void handle_mouse_events(SDL_Event const &event)
     }
 }
 
-Sint16 query_joystick_key_press_event()
+Sint16 query_mouse_key_press_event()
 {
     return key_press_event;
 }
 
-void clear_joystick_key_press_event()
+void clear_mouse_key_press_event()
 {
     key_press_event = 0;
 }

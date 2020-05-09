@@ -43,6 +43,7 @@
 #include "walker.hpp"
 
 #include <cstring>
+#include <filesystem>
 #include <sstream>
 #include <string>
 
@@ -111,8 +112,6 @@ VideoScreen::VideoScreen(Sint16 howmany)
     first_text.write_xy(left, 70, "Loading Graphics...Done", DARK_BLUE, 1);
     first_text.write_xy(left, 78, "Loading Gameplay Info...", DARK_BLUE, 1);
     buffer_to_screen(0, 0, 320, 200);
-
-    update_overscan_setting();
 
     palmode = 0;
     end = 0;
@@ -392,7 +391,7 @@ bool VideoScreen::query_grid_passable(float x, float y, Walker *ob)
     for (i = (x / GRID_SIZE); i < xtarg; ++i) {
         for (j = (y / GRID_SIZE); j < ytarg; ++j) {
             // Check if item in background grid
-            switch (static_cast<Uint8>(level_data.grid.data[i + (level_data.grid.w * j)])) {
+            switch (level_data.grid.data[i + (level_data.grid.w * j)]) {
             case PIX_GRASS1: // Grass is pass...
             case PIX_GRASS2:
             case PIX_GRASS3:
@@ -1080,7 +1079,7 @@ std::string VideoScreen::get_scen_title(std::string const &filename, VideoScreen
     char buffer[30];
 
     // Zardus: First get the file from scen/
-    infile = open_read_file("scen/", tempfile.c_str());
+    infile = open_read_file(std::filesystem::path("scen/" + tempfile));
     if (infile == nullptr) {
         return "none";
     }
@@ -1297,8 +1296,8 @@ Uint8 VideoScreen::damage_tile(Sint16 xloc, Sint16 yloc)
     Sint16 yover;
     Sint16 gridloc;
 
-    xover = static_cast<Sint16>(xloc / GRID_SIZE);
-    yover = static_cast<Sint16>(yloc / GRID_SIZE);
+    xover = xloc / GRID_SIZE;
+    yover = yloc / GRID_SIZE;
 
     if ((xover < 0) || (yover < 0)) {
         return 0;
@@ -1308,9 +1307,9 @@ Uint8 VideoScreen::damage_tile(Sint16 xloc, Sint16 yloc)
         return 0;
     }
 
-    gridloc = static_cast<Sint16>((yover * level_data.grid.w) + xover);
+    gridloc = (yover * level_data.grid.w) + xover;
 
-    switch (static_cast<Uint8>(level_data.grid.data[gridloc])) {
+    switch (level_data.grid.data[gridloc]) {
     case PIX_GRASS1: // Grass
     case PIX_GRASS2:
     case PIX_GRASS3:

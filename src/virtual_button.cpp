@@ -180,11 +180,9 @@ void VirtualButton::vdisplay()
                       myscreen->viewob[0]->endx, myscreen->viewob[0]->endy);
 
         if (label.size()) {
-            mytext.write_xy(static_cast<Sint16>(((xloc + xend) / 2) - (((label.size() - 1) * (mytext.letters.w + 1)) / 2)),
-                            static_cast<Sint16>(yloc + ((height - mytext.letters.h) / 2)),
-                            label,
-                            static_cast<Uint8>(DARK_BLUE),
-                            1);
+            mytext.write_xy(((xloc + xend) / 2) - (((label.size() - 1) * (mytext.letters.w + 1)) / 2),
+                            yloc + ((height - mytext.letters.h) / 2),
+                            label, DARK_BLUE, 1);
         }
     } else {
         // Front
@@ -203,11 +201,9 @@ void VirtualButton::vdisplay()
         myscreen->draw_box(xloc + 1, yend - 1, xend - 1, yend - 1, BUTTON_BOTTOM, 1, 1);
 
         if (label.size()) {
-            mytext.write_xy(static_cast<Sint16>(((xloc + xend) / 2) - (((label.size() - 1) * (mytext.letters.w + 1)) / 2)),
-                            static_cast<Sint16>(yloc + ((height - mytext.letters.h) / 2)),
-                            label.c_str(),
-                            static_cast<Uint8>(DARK_BLUE),
-                            1);
+            mytext.write_xy(((xloc + xend) / 2) - (((label.size() - 1) * (mytext.letters.w + 1)) / 2),
+                            yloc + ((height - mytext.letters.h) / 2),
+                            label.c_str(), DARK_BLUE, 1);
         }
     }
 }
@@ -235,11 +231,9 @@ void VirtualButton::vdisplay(Sint32 status)
                       myscreen->viewob[0]->endx, myscreen->viewob[0]->endy);
 
         if (label.size()) {
-            mytext.write_xy(static_cast<Sint16>(((xloc + xend) / 2) - (((label.size() - 1) * (mytext.letters.w + 1)) / 2)),
-                            static_cast<Sint16>(yloc + ((height - mytext.letters.h) / 2)),
-                            label.c_str(),
-                            static_cast<Uint8>(DARK_BLUE),
-                            1);
+            mytext.write_xy(((xloc + xend) / 2) - (((label.size() - 1) * (mytext.letters.w + 1)) / 2),
+                            yloc + ((height - mytext.letters.h) / 2),
+                            label.c_str(), DARK_BLUE, 1);
         }
     } else if (status == 1) {
         // Front
@@ -258,11 +252,9 @@ void VirtualButton::vdisplay(Sint32 status)
         myscreen->draw_box(xloc + 1, yend - 1, xend - 1, yend - 1, BUTTON_TOP, 1, 1);
 
         if (label.size()) {
-            mytext.write_xy(static_cast<Sint16>(((xloc + xend) / 2) - (((label.size() - 1) * (mytext.letters.w + 1)) / 2)),
-                            static_cast<Sint16>(yloc + ((height - mytext.letters.h) / 2)),
-                            label,
-                            static_cast<Uint8>(DARK_BLUE),
-                            1);
+            mytext.write_xy(((xloc + xend) / 2) - (((label.size() - 1) * (mytext.letters.w + 1)) / 2),
+                            yloc + ((height - mytext.letters.h) / 2),
+                            label, DARK_BLUE, 1);
         }
     } else if (status == 2) { // Special (red) button...
         // Front
@@ -281,11 +273,9 @@ void VirtualButton::vdisplay(Sint32 status)
         myscreen->draw_box(xloc + 1, yend - 1, xend - 1, yend - 1, BUTTON_BOTTOM + 32, 1, 1);
 
         if (label.size()) {
-            mytext.write_xy(static_cast<Sint16>(((xloc + xend) / 2) - (((label.size() - 1) * (mytext.letters.w + 1)) / 2)),
-                static_cast<Sint16>(yloc + ((height - mytext.letters.h) / 2)),
-                            label.c_str(),
-                static_cast<Uint8>(DARK_BLUE),
-                1);
+            mytext.write_xy(((xloc + xend) / 2) - (((label.size() - 1) * (mytext.letters.w + 1)) / 2),
+                            yloc + ((height - mytext.letters.h) / 2),
+                            label.c_str(), DARK_BLUE, 1);
         }
     }
 
@@ -548,8 +538,6 @@ Sint32 VirtualButton::do_call(Sint32 whatfunc, Sint32 arg)
         myscreen->set_fullscreen(cfg.is_on("graphics", "fullscreen"));
 
         return REDRAW;
-    case OVERSCAN_ADJUST:
-        return overscan_adjust(arg);
     case TOGGLE_MINI_HP_BAR:
         toggle_effect("effects", "mini_hp_bar");
 

@@ -61,7 +61,7 @@ Sint32 Smoother::query_x_y(Sint32 x, Sint32 y)
     }
 
     // Else, return our simple grid data...
-    return static_cast<Sint32>(mygrid[x + (y * maxx)]);
+    return mygrid[x + (y * maxx)];
 }
 
 Sint32 Smoother::query_genre_x_y(Sint32 x, Sint32 y)
@@ -1016,5 +1016,5 @@ void Smoother::set_x_y(Sint32 x, Sint32 y, Sint32 whatvalue)
         return;
     }
 
-    mygrid[x + (y * maxx)] = static_cast<Uint8>(whatvalue);
+    mygrid[x + (y * maxx)] = whatvalue;
 }

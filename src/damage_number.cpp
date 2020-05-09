@@ -32,8 +32,8 @@ DamageNumber::DamageNumber(float x, float y, float value, Uint8 color)
 
 void DamageNumber::draw(Sint16 topx, Sint16 topy, Sint16 xloc, Sint16 yloc)
 {
-    Sint32 xscreen = static_cast<Sint32>((x - topx) + xloc);
-    Sint32 yscreen = static_cast<Sint32>((y - topy) + yloc);
+    Sint32 xscreen = (x - topx) + xloc;
+    Sint32 yscreen = (y - topy) + yloc;
 
     Uint8 alpha = 0;
 

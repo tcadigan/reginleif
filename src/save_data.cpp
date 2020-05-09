@@ -17,7 +17,7 @@
  */
 #include "save_data.hpp"
 
-#include "campaign_picker.hpp"
+#include "campaign_result.hpp"
 #include "guy.hpp"
 #include "io.hpp"
 #include "picker.hpp"
@@ -25,9 +25,10 @@
 #include "walker.hpp"
 
 #include <cstring>
+#include <filesystem>
 
 SaveData::SaveData()
-    : current_campaign("org.openglad.gladiator")
+    : current_campaign(std::filesystem::path("org.openglad.gladiator"))
     , scen_num(1)
     , score(0)
     , totalcash(0)
@@ -36,8 +37,8 @@ SaveData::SaveData()
     , numplayers(1)
     , allied_mode(1)
 {
-    completed_levels.insert(std::make_pair("org.openglad.gladiator", std::set<Sint32>()));
-    current_levels.insert(std::make_pair("org.openglad.gladiator", 1));
+    completed_levels.insert(std::make_pair(std::filesystem::path("org.openglad.gladiator"), std::set<Sint32>()));
+    current_levels.insert(std::make_pair(std::filesystem::path("org.openglad.gladiator"), 1));
 
     for (Sint32 i = 0; i < 4; ++i) {
         m_score[i] = 0;
@@ -61,11 +62,11 @@ SaveData::~SaveData()
 
 void SaveData::reset()
 {
-    current_campaign = "org.openglad.gladiator";
+    current_campaign = std::filesystem::path("org.openglad.gladiator");
     completed_levels.clear();
     current_levels.clear();
-    completed_levels.insert(std::make_pair("org.openglad.gladiator", std::set<Sint32>()));
-    current_levels.insert(std::make_pair("org.openglad.gladiator", 1));
+    completed_levels.insert(std::make_pair(std::filesystem::path("org.openglad.gladiator"), std::set<Sint32>()));
+    current_levels.insert(std::make_pair(std::filesystem::path("org.openglad.gladiator"), 1));
 
     totalscore = 0;
     totalcash = totalscore;
@@ -89,12 +90,11 @@ void SaveData::reset()
     // allied_mode = 1;
 }
 
-bool SaveData::load(std::string const &filename)
+bool SaveData::load(std::filesystem::path const &filename)
 {
     // For RESERVED
     char filler[50] = "GTLGTLGTLGTLGTLGTLGTLGTLGTLGTLGTLGTLGTLGTL";
     SDL_RWops *infile;
-    std::string temp_filename(filename);
     char temptext[10] = "GTL";
     char savedgame[40];
     char temp_campaign[42] = "org.openglad.gladiator";
@@ -173,14 +173,15 @@ bool SaveData::load(std::string const &filename)
      * 2-byte level index
      */
 
-    Log("Loading save: %s\n", filename.c_str());
-    // Gladaitor team list
-    temp_filename += ".gtl";
+    std::filesystem::path temp_filename("save" / filename);
+    // Gladiator team list
+    temp_filename.replace_extension(".gtl");
+    Log("Loading save: %s\n", temp_filename.c_str());
 
-    infile = open_read_file("save/", temp_filename);
+    infile = open_read_file(temp_filename);
 
     if (infile == nullptr) {
-        Log("Failed ot open save file: %s\n", filename.c_str());
+        Log("Failed to open save file: %s\n", temp_filename.c_str());
 
         return false;
     }
@@ -200,7 +201,7 @@ bool SaveData::load(std::string const &filename)
 
     if (strcmp(temptext, "GTL")) {
         SDL_RWclose(infile);
-        Log("Error, selected file is not a GTL file: %s\n", filename.c_str());
+        Log("Error, selected file is not a GTL file: %s\n", temp_filename.c_str());
 
         // Not a GTL file
         return false;
@@ -235,9 +236,9 @@ bool SaveData::load(std::string const &filename)
         temp_campaign[40] = '\0';
 
         if (strlen(temp_campaign) > 3) {
-            current_campaign = temp_campaign;
+            current_campaign = std::filesystem::path(temp_campaign);
         } else {
-            current_campaign = "org.openglad.gladiator";
+            current_campaign = std::filesystem::path("org.openglad.gladiator");
         }
     }
 
@@ -361,8 +362,9 @@ bool SaveData::load(std::string const &filename)
     }
 
     // Make sure the default campaign is included
-    completed_levels.insert(std::make_pair("org.openglad.gladiator", std::set<Sint32>()));
-    current_levels.insert(std::make_pair("org.openglad.gladiator", 1));
+    completed_levels.insert(std::make_pair(std::filesystem::path("org.openglad.gladiator"),
+                                           std::set<Sint32>()));
+    current_levels.insert(std::make_pair(std::filesystem::path("org.openglad.gladiator"), 1));
 
     if (temp_version < 8) {
         char levelstatus[MAX_LEVELS];
@@ -452,12 +454,11 @@ void SaveData::update_guys(std::list<Walker *> &oblist)
     }
 }
 
-bool SaveData::save(std::string const &filename)
+bool SaveData::save(std::filesystem::path const &filename)
 {
     // For RESERVED
     char filler[50] = "GTLGTLGTLGTLGTLGTLGTLGTLGTLGTLGTLGTLGTLGTL";
     SDL_RWops *outfile;
-    std::string temp_filename(filename);
     char savedgame[41];
     memset(savedgame, 0, 41);
     char temp_campaign[41];
@@ -541,16 +542,17 @@ bool SaveData::save(std::string const &filename)
      */
 
     // strcpy(temp_filename, scen_directory);
-    Log("Saving save: %s\n", filename.c_str());
+    std::filesystem::path temp_filename("save" / filename);
     // Gladiator team list
-    temp_filename += ".gtl";
+    temp_filename.replace_extension(".gtl");
+    Log("Saving save: %s\n", temp_filename.c_str());
 
     // Open for write
-    outfile = open_write_file("save/", temp_filename);
+    outfile = open_write_file(temp_filename);
 
     if (outfile == nullptr) {
         // gotoxy(1, 22);
-        Log("Error in writing team file %s\n", filename.c_str());
+        Log("Error in writing team file %s\n", temp_filename.c_str());
 
         return false;
     }
@@ -661,7 +663,7 @@ bool SaveData::save(std::string const &filename)
 
     // Write the completed levels
     // Make sure our current level is saved
-    std::map<std::string, Sint32>::iterator cur = current_levels.find(current_campaign);
+    std::map<std::filesystem::path, Sint32>::iterator cur = current_levels.find(current_campaign);
 
     if (cur != current_levels.end()) {
         cur->second = scen_num;
@@ -681,7 +683,7 @@ bool SaveData::save(std::string const &filename)
         SDL_RWwrite(outfile, campaign, 1, 40);
 
         Sint16 index = 1;
-        std::map<std::string, Sint32>::const_iterator g = current_levels.find(e.first);
+        std::map<std::filesystem::path, Sint32>::const_iterator g = current_levels.find(e.first);
 
         if (g != current_levels.end()) {
             index = g->second;
@@ -706,7 +708,7 @@ bool SaveData::save(std::string const &filename)
 
 bool SaveData::is_level_completed(Sint32 level_index) const
 {
-    std::map<std::string, std::set<Sint32>>::const_iterator e = completed_levels.find(current_campaign);
+    std::map<std::filesystem::path, std::set<Sint32>>::const_iterator e = completed_levels.find(current_campaign);
 
     // Campaign not found? Then this level is not done.
     if (e == completed_levels.end()) {
@@ -719,9 +721,9 @@ bool SaveData::is_level_completed(Sint32 level_index) const
     return (f != e->second.end());
 }
 
-Sint32 SaveData::get_num_levels_completed(std::string const &campaign) const
+Sint32 SaveData::get_num_levels_completed(std::filesystem::path const &campaign) const
 {
-    std::map<std::string, std::set<Sint32>>::const_iterator e = completed_levels.find(campaign);
+    std::map<std::filesystem::path, std::set<Sint32>>::const_iterator e = completed_levels.find(campaign);
 
     // Campaign not found?
     if (e == completed_levels.end()) {
@@ -731,9 +733,9 @@ Sint32 SaveData::get_num_levels_completed(std::string const &campaign) const
     return e->second.size();
 }
 
-void SaveData::add_level_completed(std::string const &campaign, Sint32 level_index)
+void SaveData::add_level_completed(std::filesystem::path const &campaign, Sint32 level_index)
 {
-    std::map<std::string, std::set<Sint32>>::iterator e = completed_levels.find(campaign);
+    std::map<std::filesystem::path, std::set<Sint32>>::iterator e = completed_levels.find(campaign);
 
     // Campaign not found? Add it in.
     if (e == completed_levels.end()) {
@@ -744,9 +746,9 @@ void SaveData::add_level_completed(std::string const &campaign, Sint32 level_ind
     e->second.insert(level_index);
 }
 
-void SaveData::reset_campaign(std::string const &campaign)
+void SaveData::reset_campaign(std::filesystem::path const &campaign)
 {
-    std::map<std::string, std::set<Sint32>>::iterator e = completed_levels.find(campaign);
+    std::map<std::filesystem::path, std::set<Sint32>>::iterator e = completed_levels.find(campaign);
 
     if (e != completed_levels.end()) {
         e->second.clear();

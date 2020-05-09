@@ -19,7 +19,7 @@
 
 #include <sstream>
 
-#include "campaign_picker.hpp"
+#include "campaign_result.hpp"
 #include "guy.hpp"
 #include "picker.hpp"
 #include "smooth.hpp"
@@ -77,7 +77,7 @@ bool load_saved_game(VideoScreen *myscreen)
 
     for (auto w : foelist) {
         if (w) {
-            w->set_difficulty(static_cast<Uint32>(w->stats.level));
+            w->set_difficulty(w->stats.level);
         }
     }
 
@@ -113,7 +113,7 @@ bool load_saved_game(VideoScreen *myscreen)
         // First, try to find a marker that's the correct team number...
         replace_walker = myscreen->first_of(ORDER_SPECIAL,
                                             FAMILY_RESERVED_TEAM,
-                                            static_cast<Sint32>(temp_guy->teamnum));
+                                            temp_guy->teamnum);
 
         // If that doesn't work, though, grab any marker we can...
         if (!replace_walker) {

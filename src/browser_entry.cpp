@@ -198,7 +198,7 @@ void BrowserEntry::getLevelStats(LevelData &level_data, Sint32 *max_enemy_level,
     if (num == 0) {
         *average_enemy_level = 0;
     } else {
-        *average_enemy_level = level_sum / static_cast<float>(num);
+        *average_enemy_level = level_sum / num;
     }
 
     exits.sort();

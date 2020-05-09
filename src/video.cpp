@@ -270,24 +270,13 @@ Video::~Video()
 
 void Video::set_fullscreen(bool fullscreen)
 {
-    // FIXME: A bug in my copy of SDL is making
-    //        FULLSCREEN -> WINDOWED -> FULLSCREEN take up a partial portion
-    //         of the screen and ruin the game.
-    /*
-     * if (fullscreen) {
-     *     SDL_SetWindowFullscreen(E_Screen->window, SDL_WINDOW_FuLLSCREEN_DESKTOP);
-     * } else {
-     *     SDL_SetWindowFullScreen(E_Screen->window, 0);
-     *     SDL_SetWindowSize(E_Screen->window, 640, 400);
-     * }
-     *
-     * Sint32 w;
-     * Sint32 h;
-     * SDL_GetWindowSize(E_Screen->window, &w, &h);
-     * window_w = w;
-     * window_h = h;
-     * update_overscan_setting();
-     */
+    if (fullscreen) {
+        SDL_SetWindowFullscreen(E_Screen->window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    } else {
+        SDL_SetWindowSize(E_Screen->window, 320, 200);
+    }
+
+    SDL_GetWindowSize(E_Screen->window, &window_w, &window_h);
 }
 
 Uint8 *Video::getbuffer()
@@ -477,7 +466,7 @@ Sint32 Video::draw_dialog(Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2, std::strin
     // Display a title?
     if (!header.empty()) {
         // Draw header to buffer
-        dialogtext.write_xy(left, y1 + 6, header, static_cast<Uint8>(RED), 1);
+        dialogtext.write_xy(left, y1 + 6, header, RED, 1);
     }
 
     // Draw box for text
@@ -1345,8 +1334,8 @@ void Video::walkputbuffer(Sint32 walkerstartx, Sint32 walkerstarty,
                 continue;
             }
 
-            if (curcolor > static_cast<Uint8>(247)) {
-                curcolor = static_cast<Uint8>(teamcolor + (255 - curcolor));
+            if (curcolor > 247) {
+                curcolor = teamcolor + (255 - curcolor);
             }
 
             // buffers: PORT: videobuffer[buffoff++] = curcolor;
@@ -1433,8 +1422,8 @@ void Video::walkputbuffer_flash(Sint32 walkerstartx, Sint32 walkerstarty,
                 continue;
             }
 
-            if (curcolor > static_cast<Uint8>(247)) {
-                curcolor = static_cast<Uint8>(teamcolor + (255 - curcolor));
+            if (curcolor > 247) {
+                curcolor = teamcolor + (255 - curcolor);
             }
 
             SDL_Color palette_color = query_palette_reg(curcolor);
@@ -1547,8 +1536,8 @@ void Video::walkputbuffertext(Sint32 walkerstartx, Sint32 walkerstarty,
                 continue;
             }
 
-            if (curcolor > static_cast<Uint8>(247)) {
-                curcolor = static_cast<Uint8>(teamcolor + (255 - curcolor));
+            if (curcolor > 247) {
+                curcolor = teamcolor + (255 - curcolor);
             }
 
             SDL_Color palette_color = query_palette_reg(curcolor);
@@ -1645,8 +1634,8 @@ void Video::walkputbuffertext_alpha(Sint32 walkerstartx, Sint32 walkerstarty,
                 continue;
             }
 
-            if (curcolor > static_cast<Uint8>(247)) {
-                curcolor = static_cast<Uint8>(teamcolor + (255 - curcolor));
+            if (curcolor > 247) {
+                curcolor = teamcolor + (255 - curcolor);
             }
 
             pointb(curx + walkerstartx, cury + walkerstarty, teamcolor, alpha);
@@ -1777,8 +1766,8 @@ void Video::walkputbuffer(Sint32 walkerstartx, Sint32 walkerstarty,
                     // End of transparency check
                 }
 
-                if (curcolor > static_cast<Uint8>(247)) {
-                    curcolor = static_cast<Uint8>(teamcolor + (255 - curcolor));
+                if (curcolor > 247) {
+                    curcolor = teamcolor + (255 - curcolor);
                 }
 
                 if (outline) {
@@ -1846,8 +1835,8 @@ void Video::walkputbuffer(Sint32 walkerstartx, Sint32 walkerstarty,
                     // End of transparencey check
                 }
 
-                if (curcolor > static_cast<Uint8>(247)) {
-                    curcolor = static_cast<Uint8>(teamcolor + (255 - curcolor));
+                if (curcolor > 247) {
+                    curcolor = teamcolor + (255 - curcolor);
                 }
 
                 if ((curx == 0) || (cury == 0)
@@ -1881,7 +1870,7 @@ void Video::walkputbuffer(Sint32 walkerstartx, Sint32 walkerstarty,
 
             break;
         case SHIFT_RIGHT_RANDOM:
-            shift = static_cast<Sint8>(getRandomSint32(2));
+            shift = getRandomSint32(2);
 
             break;
         default:
@@ -1912,8 +1901,7 @@ void Video::walkputbuffer(Sint32 walkerstartx, Sint32 walkerstarty,
                     ty = buffoff / 320;
                     tx = buffoff - (ty * 320);
 
-                    pointb(tx,ty, static_cast<Sint32>(r),
-                           static_cast<Sint32>(g), static_cast<Sint32>(b));
+                    pointb(tx,ty, r, g, b);
 
                     ++buffoff;
                 } else if (shifttype == SHIFT_LIGHTER) {
@@ -1973,8 +1961,8 @@ void Video::walkputbuffer(Sint32 walkerstartx, Sint32 walkerstarty,
                     continue;
                 }
 
-                if (curcolor > static_cast<Uint8>(247)) {
-                    curcolor = static_cast<Uint8>(teamcolor + (255 - curcolor));
+                if (curcolor > 247) {
+                    curcolor = teamcolor + (255 - curcolor);
                 }
 
                 videobuffer[buffoff] = curcolor;
@@ -2107,7 +2095,7 @@ bool Video::save_screenshot()
     std::string filename(buf.str());
     buf.clear();
     filename.resize(200);
-    SDL_RWops *rwops = open_write_file(filename);
+    SDL_RWops *rwops = open_write_file(std::filesystem::path(filename));
 
     if (rwops == nullptr) {
         Log("Failed to open file for screenshot.\n");
@@ -2275,7 +2263,7 @@ Sint32 Video::FadeBetween(SDL_Surface *pOldSurface, SDL_Surface *pNewSurface, SD
     }
 
     // Constant-time effect
-    while ((i != -1) && (((static_cast<Sint32>(dwNow) - static_cast<Sint32>(dwFirstPaint)) + 50) < fadeDuration)) {
+    while ((i != -1) && (((dwNow - dwFirstPaint) + 50) < fadeDuration)) {
         // Allow first frame to show some change
         FadeBetween24(DestSurface, colorsf, colorst, (dwNow - dwFirstPaint) + 50);
 
@@ -2322,7 +2310,7 @@ Sint32 Video::fadeblack(bool fade_in)
         // Fade from black
         i = FadeBetween(black, E_Screen->render, E_Screen->render);
     } else {
-        // fade to black
+        // Fade to black
         i = FadeBetween(E_Screen->render, black, E_Screen->render);
     }
 

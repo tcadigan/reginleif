@@ -137,9 +137,9 @@ Sint16 ObjectMap::query_list(Walker *ob, Sint16 x, Sint16 y)
     }
 
     startnumx = hash(x);
-    endnumx = hash(static_cast<Sint16>(x + ob->sizex));
+    endnumx = hash(x + ob->sizex);
     startnumy = hash(y);
-    endnumy = hash(static_cast<Sint16>(y + ob->sizey));
+    endnumy = hash(y + ob->sizey);
 
     // For each y grid row we are in...
     for (numx = startnumx; numx <= endnumx; ++numx) {
@@ -210,7 +210,7 @@ Sint16 ObjectMap::hash(Sint16 y)
     // the hash table never loops.
     // return (y / 8);
 
-    Sint16 num = static_cast<Sint16>(y / OBRES);
+    Sint16 num = y / OBRES;
 
     if (num > 198) {
         num = 199;
@@ -243,9 +243,9 @@ Sint16 ObjectMap::add(Walker *ob, Sint16 x, Sint16 y)
     }
 
     startnumx = hash(x);
-    endnumx = hash(static_cast<Sint16>(x + ob->sizex));
+    endnumx = hash(x + ob->sizex);
     startnumy = hash(y);
-    endnumy = hash(static_cast<Sint16>(y + ob->sizey));
+    endnumy = hash(y + ob->sizey);
 
     // Figure out all of the positions that are occupied
     std::list<std::pair<Sint16, Sint16>> pos;
@@ -318,7 +318,7 @@ Sint16 ob_pass_check(Sint16 x, Sint16 y, Walker *ob, std::list<Walker *> const &
                         w->eat_me(ob);
                     } else if ((targetorder == ORDER_WEAPON) && (w->query_family() == FAMILY_DOOR)) {
                         // Can we unlock this door?
-                        if (ob->keys & static_cast<Sint32>(std::pow(2, w->stats.level))) {
+                        if (ob->keys & (2 << w->stats.level)) {
                             // Open the door...
                             w->dead = 1;
                             w->death();
@@ -334,7 +334,7 @@ Sint16 ob_pass_check(Sint16 x, Sint16 y, Walker *ob, std::list<Walker *> const &
                             // End of unlocked door
                         } else {
                             // Do we notify?
-                            if (!ob->skip_exit && (ob->user != static_cast<Sint8>(-1))) {
+                            if (!ob->skip_exit && (ob->user != -1)) {
                                 std::stringstream buf("Key ");
                                 buf << w->stats.level << " needed!";
                                 std::string temp(buf.str());
@@ -392,25 +392,25 @@ Sint16 collide(Sint16 x, Sint16 y, Sint16 xsize, Sint16 ysize,
     ysize -= 2;
     ysize2 -= 2;
 
-    x2right = static_cast<Sint16>(x2 + xsize2);
+    x2right = x2 + xsize2;
 
     if (x > x2right) {
         return 0;
     }
 
-    xright = static_cast<Sint16>(x + xsize);
+    xright = x + xsize;
 
     if (xright < 2) {
         return 0;
     }
 
-    y2down = static_cast<Sint16>(y2 + ysize2);
+    y2down = y2 + ysize2;
 
     if (y > y2down) {
         return 0;
     }
 
-    ydown = static_cast<Sint16>(y + ysize);
+    ydown = y + ysize;
 
     if (ydown < y2) {
         return 0;

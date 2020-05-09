@@ -19,7 +19,7 @@
 
 #include <cstring>
 #include <ctime>
-// Z's script: #include <process.h>
+#include <filesystem>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -45,12 +45,6 @@
 #include "walker.hpp"
 
 #define L_D(x) x * 8
-
-#ifdef REDUCE_OVERSCAN
-#define OVERSCAN_PADDING 6
-#else
-#define OVERSCAN_PADDING 0
-#endif
 
 VideoScreen *screen;
 
@@ -79,7 +73,7 @@ int main(int argc, char *argv[])
         args.push_back(argv[i]);
     }
 
-    io_init(std::string(argv[0]));
+    io_init(std::filesystem::path(argv[0]));
 
     cfg.load_settings();
     cfg.save_settings();
@@ -638,10 +632,10 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
 
     for (players = 0; players < myscreen->numviews; ++players) {
         control = myscreen->viewob[players]->control;
-        lm = myscreen->viewob[players]->xloc + OVERSCAN_PADDING;
-        tm = myscreen->viewob[players]->yloc + OVERSCAN_PADDING;
-        rm = myscreen->viewob[players]->endx - OVERSCAN_PADDING;
-        bm = myscreen->viewob[players]->endy - OVERSCAN_PADDING;
+        lm = myscreen->viewob[players]->xloc;
+        tm = myscreen->viewob[players]->yloc;
+        rm = myscreen->viewob[players]->endx;
+        bm = myscreen->viewob[players]->endy;
 
         if (control && !control->dead && (control->user == players)) {
             // Get the button drawing info...
@@ -668,7 +662,7 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
             } else if (!control->stats.name.empty()) {
                 tempname = control->stats.name;
             } else {
-                tempname = namelist[static_cast<int>(control->query_family())];
+                tempname = namelist[control->query_family()];
             }
 
             tempname.resize(20);
@@ -703,7 +697,7 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
                 message.resize(50);
 
                 // To buffer
-                mytext.write_xy(lm + 5, tm + 12, message, text_color, static_cast<Sint16>(1));
+                mytext.write_xy(lm + 5, tm + 12, message, text_color, 1);
 
                 buf << "MP: ";
                 if (ceilf(control->stats.magicpoints) != 0) {
@@ -713,7 +707,7 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
                 message = buf.str();
                 buf.clear();
                 message.resize(50);
-                mytext.write_xy(lm + 5, tm + 20, message, text_color, static_cast<Sint16>(1));
+                mytext.write_xy(lm + 5, tm + 20, message, text_color, 1);
 
                 break; // end of 'text' case
             case PREF_LIFE_BARS: // Display graphical bars only
@@ -749,7 +743,7 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
                 message.resize(50);
 
                 // To buffer
-                mytext.write_xy(lm + 5, tm + 11, message, static_cast<Uint8>(BLACK), static_cast<Sint16>(1));
+                mytext.write_xy(lm + 5, tm + 11, message, BLACK, 1);
 
                 // SP BAR
                 // SP_COLORs are defined in graph.hpp
@@ -764,7 +758,7 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
                 buf.clear();
                 message.resize(50);
 
-                mytext.write_xy(lm + 5, tm + 19, message, static_cast<Uint8>(BLACK), static_cast<Sint16>(1));
+                mytext.write_xy(lm + 5, tm + 19, message, BLACK, 1);
 
                 break; // End of 'both' case
             }
@@ -813,7 +807,7 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
                     message = buf.str();
                     buf.clear();
                     message.resize(50);
-                    mytext.write_xy(lm + 2, bm - 8, message, text_color, static_cast<Sint16>(1));
+                    mytext.write_xy(lm + 2, bm - 8, message, text_color, 1);
 
                     // Level or exp, 2nd bottom left
                     if (control->myguy) {
@@ -825,26 +819,26 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
                     message = buf.str();
                     buf.clear();
                     message.resize(50);
-                    mytext.write_xy(lm + 2, bm - 16, message, text_color, static_cast<Sint16>(1));
+                    mytext.write_xy(lm + 2, bm - 16, message, text_color, 1);
                 }
 
                 // Currently select special
                 buf << "SPC: ";
                 if (control->shifter_down
-                    && (myscreen->alternate_name[static_cast<Sint32>(control->query_family())][static_cast<Sint32>(control->current_special)] == "NONE")) {
-                    buf << myscreen->alternate_name[static_cast<Sint32>(control->query_family())][static_cast<Sint32>(control->current_special)];
+                    && (myscreen->alternate_name[control->query_family()][control->current_special] == "NONE")) {
+                    buf << myscreen->alternate_name[control->query_family()][control->current_special];
                 } else {
-                    buf << myscreen->special_name[static_cast<Sint32>(control->query_family())][static_cast<Sint32>(control->current_special)];
+                    buf << myscreen->special_name[control->query_family()][control->current_special];
                 }
 
                 message = buf.str();
                 buf.clear();
                 message.resize(50);
 
-                if (control->stats.magicpoints >= control->stats.special_cost[static_cast<Sint32>(control->current_special)]) {
-                    mytext.write_xy(lm + 2, special_y, message, text_color, static_cast<Sint16>(1));
+                if (control->stats.magicpoints >= control->stats.special_cost[control->current_special]) {
+                    mytext.write_xy(lm + 2, special_y, message, text_color, 1);
                 } else {
-                    mytext.write_xy(lm + 2, special_y, message, static_cast<Uint8>(RED), static_cast<Sint16>(1));
+                    mytext.write_xy(lm + 2, special_y, message, RED, 1);
                 }
 
             } // End of score/exp display
@@ -882,7 +876,7 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
                 buf.clear();
                 message.resize(50);
 
-                mytext.write_xy(rm - 55, tm + 2, message, text_color, static_cast<Sint16>(1));
+                mytext.write_xy(rm - 55, tm + 2, message, text_color, 1);
 
                 // Number of foes, 2nd upper right
                 buf << "FOES: " << tempfoes;
@@ -890,7 +884,7 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
                 buf.clear();
                 message.resize(50);
 
-                mytext.write_xy(rm - 55, tm + 2, message, text_color, static_cast<Sint16>(1));
+                mytext.write_xy(rm - 55, tm + 2, message, text_color, 1);
             }
 
             // // Redraw radar boarder

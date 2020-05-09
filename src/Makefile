@@ -3,7 +3,7 @@ CXXFLAGS = -Wall -std=c++17 `sdl2-config --cflags`
 LDFLAGS = `sdl2-config --libs` -lstdc++fs
 
 CPPFILES = browser_entry.cpp button.cpp campaign_data.cpp campaign_entry.cpp \
-           campaign_picker.cpp command.cpp damage_number.cpp \
+           campaign_result.cpp command.cpp damage_number.cpp \
            editor_object_brush.cpp editor_terrain_brush.cpp effect.cpp \
            game.cpp glad.cpp gloader.cpp gparser.cpp graphlib.cpp guy.cpp \
            help.cpp input.cpp intro.cpp io.cpp joy_data.cpp level_data.cpp \
@@ -17,7 +17,7 @@ CPPFILES = browser_entry.cpp button.cpp campaign_data.cpp campaign_entry.cpp \
            virtual_button.cpp walker.cpp weap.cpp \
 
 OBJS = browser_entry.o button.o campaign_data.o campaign_entry.o \
-       campaign_picker.o command.o damage_number.o editor_object_brush.o \
+       campaign_result.o command.o damage_number.o editor_object_brush.o \
        editor_terrain_brush.o effect.o game.o glad.o gloader.o gparser.o \
        graphlib.o guy.o help.o input.o intro.o io.o joy_data.o level_data.o \
        level_editor.o level_editor_data.o level_picker.o living.o map.o \
@@ -29,7 +29,7 @@ OBJS = browser_entry.o button.o campaign_data.o campaign_entry.o \
        walker.o weap.o \
 
 HDRS = base.hpp browser_entry.hpp button.hpp campaign_data.hpp \
-       campaign_entry.hpp campaign_picker.hpp colors.hpp command.hpp \
+       campaign_entry.hpp campaign_result.hpp colors.hpp command.hpp \
        damage_number.hpp editor_object_brush.hpp editor_terrain_brush.hpp \
        effect.hpp game.hpp glad.hpp gloader.hpp gparser.hpp graphlib.hpp \
        guy.hpp help.hpp input.hpp intro.hpp io.hpp joy_data.hpp level_data.hpp \
@@ -49,7 +49,7 @@ $(NAME): $(HDRS) $(OBJS)
 clean:
 	rm -f $(OBJS) $(NAME) *~
 
-browser_entry.o: browser_entry.hpp video_screen.hpp
+browser_entry.o: browser_entry.hpp
 browser_entry.hpp: level_data.hpp radar.hpp video_screen.hpp
 	touch browser_entry.hpp
 button.o: button.hpp input.hpp pixien.hpp virtual_button.hpp
@@ -58,22 +58,22 @@ button.hpp: menu_nav.hpp
 campaign_data.o: campaign_data.hpp graphlib.hpp io.hpp util.hpp
 campaign_data.hpp: pixie.hpp pixie_data.hpp
 	touch campaign_data.hpp
-campaign_entry.o: campaign_entry.hpp base.hpp io.hpp graphlib.hpp pixie.hpp text.hpp util.hpp video_screen.hpp
+campaign_entry.o: campaign_entry.hpp io.hpp graphlib.hpp text.hpp util.hpp video_screen.hpp
 campaign_entry.hpp: pixie.hpp pixie_data.hpp
 	touch campaign_entry.hpp
-campaign_picker.o: campaign_picker.hpp button.hpp campaign_entry.hpp graphlib.hpp guy.hpp input.hpp io.hpp level_editor.hpp mouse_state.hpp picker.hpp pixie.hpp text.hpp util.hpp video_screen.hpp
-campaign_picker.hpp: save_data.hpp
-	touch campaign_picker.hpp
+campaign_result.o: campaign_result.hpp button.hpp campaign_entry.hpp input.hpp io.hpp level_editor.hpp mouse_state.hpp picker.hpp text.hpp util.hpp video_screen.hpp
+campaign_result.hpp: save_data.hpp
+	touch campaign_result.hpp
 command.o: command.hpp
 damage_number.o: damage_number.hpp video_screen.hpp
-editor_object_brush.o: editor_object_brush.hpp walker.hpp
+editor_object_brush.o: editor_object_brush.hpp
 editor_object_brush.hpp: walker.hpp
 	touch editor_object_brush.hpp
 editor_terrain_brush.o: editor_terrain_brush.hpp pixdefs.hpp
-effect.o: effect.hpp base.hpp guy.hpp soundob.hpp util.hpp video_screen.hpp
+effect.o: effect.hpp util.hpp video_screen.hpp
 effect.hpp: pixie_data.hpp walker.hpp
 	touch effect.hpp
-game.o: game.hpp campaign_picker.hpp guy.hpp picker.hpp  smooth.hpp util.hpp view.hpp walker.hpp
+game.o: game.hpp campaign_result.hpp guy.hpp picker.hpp  smooth.hpp util.hpp view.hpp walker.hpp
 game.hpp: video_screen.hpp
 	touch game.hpp
 glad.o: glad.hpp base.hpp colors.hpp game.hpp gparser.hpp guy.hpp help.hpp input.hpp intro.hpp io.hpp joy_data.hpp mouse_state.hpp options.hpp pal32.hpp picker.hpp results_screen.hpp util.hpp version.hpp view.hpp walker.hpp
@@ -105,7 +105,7 @@ level_editor.o: level_editor.hpp input.hpp io.hpp joy_data.hpp level_editor_data
 level_editor.hpp: level_data.hpp level_editor_data.hpp rectf.hpp simple_button.hpp video_screen.hpp walker.hpp
 	touch level_editor.hpp
 level_editor_data.o: level_editor_data.hpp gloader.hpp gparser.hpp input.hpp io.hpp level_editor.hpp level_picker.hpp mouse_state.hpp picker.hpp rect.hpp util.hpp view.hpp walker.hpp
-level_editor_data.hpp: campaign_data.hpp campaign_picker.hpp editor_object_brush.hpp editor_terrain_brush.hpp level_data.hpp radar.hpp rectf.hpp selection_info.hpp simple_button.hpp video_screen.hpp walker.hpp
+level_editor_data.hpp: campaign_data.hpp campaign_result.hpp editor_object_brush.hpp editor_terrain_brush.hpp level_data.hpp radar.hpp rectf.hpp selection_info.hpp simple_button.hpp video_screen.hpp walker.hpp
 	touch level_editor_data.hpp
 level_picker.o: level_picker.hpp browser_entry.hpp button.hpp input.hpp io.hpp level_editor.hpp mouse_state.hpp picker.hpp text.hpp util.hpp
 living.o: living.hpp gparser.hpp guy.hpp smooth.hpp util.hpp video_screen.hpp
@@ -122,7 +122,7 @@ obmap.hpp: walker.hpp
 	touch obmap.hpp
 options.o: options.hpp io.hpp
 pal32.o: pal32.hpp
-picker.o: picker.hpp button.hpp campaign_picker.hpp glad.hpp gloader.hpp gparser.hpp graphlib.hpp guy.hpp help.hpp input.hpp io.hpp level_editor.hpp level_picker.hpp mouse_state.hpp options.hpp pal32.hpp util.hpp version.hpp video_screen.hpp view.hpp virtual_button.hpp walker.hpp
+picker.o: picker.hpp button.hpp campaign_result.hpp glad.hpp gloader.hpp gparser.hpp graphlib.hpp guy.hpp help.hpp input.hpp io.hpp level_editor.hpp level_picker.hpp mouse_state.hpp options.hpp pal32.hpp util.hpp version.hpp video_screen.hpp view.hpp virtual_button.hpp walker.hpp
 picker.hpp: button.hpp guy.hpp
 	touch picker.hpp
 pixie.o: pixie.hpp base.hpp pal32.hpp util.hpp video_screen.hpp view.hpp
@@ -140,7 +140,7 @@ rectf.o: rectf.hpp
 results_screen.o: results_screen.hpp base.hpp button.hpp guy.hpp input.hpp level_editor.hpp mouse_state.hpp picker.hpp screen.hpp stats.hpp text.hpp troop_result.hpp util.hpp walker.hpp
 results_screen.hpp: guy.hpp walker.hpp
 	touch results_screen.hpp
-save_data.o: save_data.hpp campaign_picker.hpp guy.hpp io.hpp picker.hpp util.hpp walker.hpp
+save_data.o: save_data.hpp campaign_result.hpp guy.hpp io.hpp picker.hpp util.hpp walker.hpp
 save_data.hpp: guy.hpp walker.hpp
 	touch save_data.hpp
 screen.o: screen.hpp input.hpp util.hpp

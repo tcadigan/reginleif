@@ -15,11 +15,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#ifndef __CAMPAIGN_PICKER_HPP__
-#define __CAMPAIGN_PICKER_HPP__
+#ifndef __CAMPAIGN_RESULT_HPP__
+#define __CAMPAIGN_RESULT_HPP__
 
+#include <filesystem>
 #include <map>
-#include <string>
 
 #include <SDL2/SDL.h>
 
@@ -28,18 +28,16 @@
 class CampaignResult
 {
 public:
-    std::string id;
+    std::filesystem::path id;
     Sint32 first_level;
 
-    CampaignResult()
-        : first_level(1)
-        {}
+    CampaignResult();
 };
 
 CampaignResult pick_campaign(SaveData *save_data, bool enable_delete = false);
 
-Sint32 load_campaign(std::string const &campaign,
-                     std::map<std::string, int> &current_levels,
+Sint32 load_campaign(std::filesystem::path const &campaign,
+                     std::map<std::filesystem::path, int> &current_levels,
                      Sint32 first_level = 1);
 
-#endif // __CAMPAIGN_PICKER_HPP__
+#endif // __CAMPAIGN_RESULT_HPP__

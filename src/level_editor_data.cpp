@@ -41,30 +41,24 @@
 
 #define DEFAULT_EDITOR_MENU_BUTTON_HEIGHT 20
 
-#ifdef REDUCE_OVERSCAN
-#define OVERSCAN_PADDING 6
-#else
-#define OVERSCAN_PADDING 0
-#endif
-
 
 // buffers: PORT: changed start_time to start_time_s to avoid conflict with input.cpp
 Sint32 start_time_s; // For timer ops
 
 LevelEditorData::LevelEditorData()
-    : campaign(new CampaignData("org.openglad.gladiator"))
+    : campaign(std::filesystem::path("org.openglad.gladiator"))
     , level(new LevelData(1))
     , mode(EditModeEnum::TERRAIN)
     , rect_selecting(false)
     , dragging(false)
     , menu_button_height(DEFAULT_EDITOR_MENU_BUTTON_HEIGHT)
-    , fileButton("File", OVERSCAN_PADDING, 0, 30, menu_button_height)
-    , fileCampaignButton("Campaign >", OVERSCAN_PADDING, fileButton.area.y + fileButton.area.h,
+    , fileButton("File", 0, 0, 30, menu_button_height)
+    , fileCampaignButton("Campaign >", 0, fileButton.area.y + fileButton.area.h,
                          65, menu_button_height, true)
-    , fileLevelButton("Level >", OVERSCAN_PADDING,
+    , fileLevelButton("Level >", 0,
                       fileCampaignButton.area.y + fileCampaignButton.area.h,
                       65, menu_button_height, true, true)
-    , fileQuitButton("Exit", OVERSCAN_PADDING, fileLevelButton.area.y + fileLevelButton.area.h,
+    , fileQuitButton("Exit", 0, fileLevelButton.area.y + fileLevelButton.area.h,
                      65, menu_button_height, true, true)
     , fileCampaignImportButton("Import...",
                                fileCampaignButton.area.x + fileCampaignButton.area.w,
@@ -176,7 +170,7 @@ LevelEditorData::LevelEditorData()
                                   levelDetailsParValueButton.area.y + levelDetailsParValueButton.area.h,
                                   95, menu_button_height, true, true)
     , levelGoalsEnemiesButton("Defeat enemies: On",
-                              (levelGoalsButton.area.x + levelGoalsButton.area.w) - (2 * OVERSCAN_PADDING),
+                              (levelGoalsButton.area.x + levelGoalsButton.area.w),
                               levelGoalsButton.area.y, 125, menu_button_height, true)
     , levelGoalsGeneratorsButton("Beat generators: Off", levelGoalsEnemiesButton.area.x,
                                  levelGoalsEnemiesButton.area.y + levelGoalsEnemiesButton.area.h,
@@ -194,36 +188,36 @@ LevelEditorData::LevelEditorData()
     , modeSelectButton("Select Mode", modeButton.area.x,
                        modeObjectButton.area.y + modeObjectButton.area.h,
                        75,  menu_button_height, true, true)
-    , pickerButton("Pick", OVERSCAN_PADDING, 20, 27, 15)
+    , pickerButton("Pick", 0, 20, 27, 15)
     , gridSnapButton("Snap", (pickerButton.area.x + pickerButton.area.w) + 2, 20, 27, 15)
     , terrainSmoothButton("Smooth", (pickerButton.area.x + pickerButton.area.w) + 2,
                           20, 39, 15) // Same place as gridSnapButton
-    , setNameButton("Set name", OVERSCAN_PADDING,
+    , setNameButton("Set name", 0,
                     (10 + gridSnapButton.area.y) + gridSnapButton.area.h, 52, 15)
-    , prevTeamButton("< Team", OVERSCAN_PADDING, setNameButton.area.y + setNameButton.area.h,
+    , prevTeamButton("< Team", 0, setNameButton.area.y + setNameButton.area.h,
                      40, 15)
     , nextTeamButton("Team >", prevTeamButton.area.x + prevTeamButton.area.w,
                      prevTeamButton.area.y, 40, 15)
-    , prevLevelButton("< Lvl", OVERSCAN_PADDING, prevTeamButton.area.y + prevTeamButton.area.h,
+    , prevLevelButton("< Lvl", 0, prevTeamButton.area.y + prevTeamButton.area.h,
                       40, 15)
     , nextLevelButton("Lvl >", prevLevelButton.area.x + prevLevelButton.area.w,
                       prevLevelButton.area.y, 40, 15)
-    , prevClassButton("< Class", OVERSCAN_PADDING,
+    , prevClassButton("< Class", 0,
                       prevLevelButton.area.y + prevLevelButton.area.h, 48, 15)
     , nextClassButton("Class >", prevClassButton.area.x + prevClassButton.area.w,
                       prevClassButton.area.y, 48, 15)
-    , facingButton("Facing >", OVERSCAN_PADDING, prevClassButton.area.y + prevClassButton.area.h,
+    , facingButton("Facing >", 0, prevClassButton.area.y + prevClassButton.area.h,
                    52, 15)
-    , deleteButton("Delete", OVERSCAN_PADDING, (10 + facingButton.area.y) + facingButton.area.h,
+    , deleteButton("Delete", 0, (10 + facingButton.area.y) + facingButton.area.h,
                    40, 15)
-    , panUpButton("U", OVERSCAN_PADDING + 18, 200 - 51, 15, 15)
-    , panDownButton("D", OVERSCAN_PADDING + 18, 200 - 21, 15, 15)
-    , panLeftButton("L", OVERSCAN_PADDING + 3, 200 - 36, 15, 15)
-    , panRightButton("R", OVERSCAN_PADDING + 33, 200 - 36, 15, 15)
-    , panUpRightButton("", OVERSCAN_PADDING + 33, 200 - 51, 15, 15)
-    , panUpLeftButton("", OVERSCAN_PADDING + 3, 200 - 51, 15, 15)
-    , panDownRightButton("", OVERSCAN_PADDING + 33, 200 - 21, 15, 15)
-    , panDownLeftButton("", OVERSCAN_PADDING + 3, 200 - 21, 15, 15)
+    , panUpButton("U", 18, 200 - 51, 15, 15)
+    , panDownButton("D", 18, 200 - 21, 15, 15)
+    , panLeftButton("L", 3, 200 - 36, 15, 15)
+    , panRightButton("R", 33, 200 - 36, 15, 15)
+    , panUpRightButton("", 33, 200 - 51, 15, 15)
+    , panUpLeftButton("", 3, 200 - 51, 15, 15)
+    , panDownRightButton("", 33, 200 - 21, 15, 15)
+    , panDownLeftButton("", 3, 200 - 21, 15, 15)
 {
     // Top menu
     menu_buttons.insert(&fileButton);
@@ -239,20 +233,19 @@ LevelEditorData::LevelEditorData()
 
 LevelEditorData::~LevelEditorData()
 {
-    delete campaign;
     delete level;
 }
 
-bool LevelEditorData::loadCampaign(std::string const &id)
+bool LevelEditorData::loadCampaign(std::filesystem::path const &id)
 {
-    campaign->id = id;
+    campaign.id = id;
 
-    return campaign->load();
+    return campaign.load();
 }
 
 bool LevelEditorData::reloadCampaign()
 {
-    return campaign->load();
+    return campaign.load();
 }
 
 bool LevelEditorData::loadLevel(Sint32 id)
@@ -272,9 +265,9 @@ bool LevelEditorData::reloadLevel()
     return result;
 }
 
-bool LevelEditorData::saveCampaignAs(std::string const &id)
+bool LevelEditorData::saveCampaignAs(std::filesystem::path const &id)
 {
-    bool result = campaign->save_as(id);
+    bool result = campaign.save_as(id);
 
     // Remount for consistency in PhysFS
     if (!remount_campaign_package()) {
@@ -288,7 +281,7 @@ bool LevelEditorData::saveCampaignAs(std::string const &id)
 
 bool LevelEditorData::saveCampaign()
 {
-    bool result = campaign->save();
+    bool result = campaign.save();
 
     // Remount for consistency in PhysFS
     if (!remount_campaign_package()) {
@@ -314,7 +307,7 @@ bool LevelEditorData::saveLevelAs(Sint32 id)
 
     level->grid_file = scen;
 
-    std::string old_campaign(get_mounted_campaign());
+    std::filesystem::path old_campaign(get_mounted_campaign());
     unpack_campaign(old_campaign);
     bool result = level->save();
 
@@ -645,7 +638,7 @@ bool LevelEditorData::saveLevel()
 
     level->grid_file = str;
 
-    std::string old_campaign(get_mounted_campaign());
+    std::filesystem::path old_campaign(get_mounted_campaign());
     unpack_campaign(old_campaign);
 
     bool result = level->save();
@@ -1140,7 +1133,7 @@ Sint32 LevelEditorData::display_panel(VideoScreen *myscreen)
             for (j = 0; j < 4; ++j) {
                 Sint32 index = (i + ((j + rowsdown) * PIX_OVER)) % object_pane.size();
 
-                if (index < static_cast<Sint32>(object_pane.size())) {
+                if (index < object_pane.size()) {
                     newob->setxy((S_RIGHT + (i * GRID_SIZE)) + level->topx,
                                  (PIX_TOP + (j * GRID_SIZE)) + level->topy);
                     newob->set_data(level->myloader->graphics[PIX(object_pane[index].order,
@@ -1528,7 +1521,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
             CampaignResult result = pick_campaign(nullptr, true);
 
             if (!result.id.empty()) {
-                std::list<std::string> campaigns = list_campaigns();
+                std::list<std::filesystem::path> campaigns = list_campaigns();
 
                 if ((std::find(campaigns.begin(), campaigns.end(), result.id) == campaigns.end())
                     || yes_or_no_prompt("Overwrite", "Overwrite existing campaign?", false)) {
@@ -1647,13 +1640,13 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
             }
 
             buf << std::endl
-                << "ID: " << campaign->id << std::endl
-                << "Title: " << campaign->title << std::endl
-                << "Version: " << campaign->version << std::endl
-                << "Authors: " << campaign->authors << std::endl
-                << "Contributors: " << campaign->contributors << std::endl
-                << "Sugg. Power: " << campaign->suggested_power << std::endl
-                << "First level: " << campaign->first_level;
+                << "ID: " << campaign.id << std::endl
+                << "Title: " << campaign.title << std::endl
+                << "Version: " << campaign.version << std::endl
+                << "Authors: " << campaign.authors << std::endl
+                << "Contributors: " << campaign.contributors << std::endl
+                << "Sugg. Power: " << campaign.suggested_power << std::endl
+                << "First level: " << campaign.first_level;
 
             std::string str(buf.str());
             buf.clear();
@@ -1671,17 +1664,17 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
             };
             current_menu.push_back(std::make_pair(&campaignProfileButton, s));
         } else if (activate_menu_choice(mx, my, *this, campaignProfileTitleButton)) {
-            std::string title(campaign->title);
+            std::string title(campaign.title);
 
             if (prompt_for_string("Campaign Title", title)) {
-                campaign->title = title;
+                campaign.title = title;
                 campaignchanged = 1;
             }
         } else if (activate_menu_choice(mx, my, *this, campaignProfileDescriptionButton)) {
-            std::list<std::string> desc = campaign->description;
+            std::list<std::string> desc = campaign.description;
 
             if (prompt_for_string_block("Campaign Description", desc)) {
-                campaign->description = desc;
+                campaign.description = desc;
                 campaignchanged = 1;
             }
 
@@ -1689,17 +1682,17 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
         } else if (activate_menu_choice(mx, my, *this, campaignProfileIconButton)) {
             popup_dialog("Edit Icon", "Not yet implemented.");
         } else if(activate_menu_choice(mx, my, *this, campaignProfileAuthorsButton)) {
-            std::string authors(campaign->authors);
+            std::string authors(campaign.authors);
 
             if (prompt_for_string("Campaign Authors", authors)) {
-                campaign->authors = authors;
+                campaign.authors = authors;
                 campaignchanged = 1;
             }
         } else if (activate_menu_choice(mx, my, *this, campaignProfileContributorsButton)) {
-            std::string contributors(campaign->contributors);
+            std::string contributors(campaign.contributors);
 
             if (prompt_for_string("Campaign Contributors", contributors)) {
-                campaign->contributors = contributors;
+                campaign.contributors = contributors;
                 campaignchanged = 1;
             }
         } else if (activate_sub_menu_button(mx, my, current_menu, campaignDetailsButton)) {
@@ -1711,36 +1704,36 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
             };
             current_menu.push_back(std::make_pair(&campaignDetailsButton, s));
         } else if (activate_menu_choice(mx, my, *this, campaignDetailsVersionButton)) {
-            std::string version(campaign->version);
+            std::string version(campaign.version);
 
             if (prompt_for_string("Campaign Version", version)) {
-                campaign->version = version;
+                campaign.version = version;
                 campaignchanged = 1;
             }
         } else if (activate_menu_choice(mx, my, *this, campaignDetailsSuggestedPowerButton)) {
             std::stringstream buf;
 
-            buf << campaign->suggested_power;
+            buf << campaign.suggested_power;
 
             std::string power(buf.str());
             buf.clear();
             power.resize(20);
 
             if (prompt_for_string("Suggested Power", power)) {
-                campaign->suggested_power = std::stoi(power);
+                campaign.suggested_power = std::stoi(power);
                 campaignchanged = 1;
             }
         } else if (activate_menu_choice(mx, my, *this, campaignDetailsFirstLevelButton)) {
             std::stringstream buf;
 
-            buf << campaign->first_level;
+            buf << campaign.first_level;
 
             std::string level(buf.str());
             buf.clear();
             level.resize(20);
 
             if (prompt_for_string("First Level", level)) {
-                campaign->first_level = std::stoi(level);
+                campaign.first_level = std::stoi(level);
                 campaignchanged = 1;
             }
         } else if (activate_menu_choice(mx, my, *this, campaignValidateButton)) {
@@ -1749,7 +1742,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
             std::list<std::string> problems;
 
             // Are the levels all connected to the first level?
-            Sint32 current_level = campaign->first_level;
+            Sint32 current_level = campaign.first_level;
             get_connected_level_exits(current_level, levels, connected, problems);
 
             for (auto const &e : levels) {
@@ -2163,7 +2156,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                     windowy = (my - PIX_TOP) / GRID_SIZE;
                     Sint32 index = (windowx + ((windowy + rowsdown) * PIX_OVER)) % object_pane.size();
 
-                    if (index < static_cast<Sint32>(object_pane.size())) {
+                    if (index < object_pane.size()) {
                         object_brush.order = object_pane[index].order;
                         object_brush.family = object_pane[index].family;
                     }

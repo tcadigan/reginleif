@@ -17,13 +17,14 @@
  */
 #include "gparser.hpp"
 
-#include "input.hpp" // TODO: Move overscan and toInt() to this file.
+#include "input.hpp"
 #include "io.hpp"
 #include "util.hpp"
 #include "version.hpp"
 
 #include <cstdlib>
 #include <cstring>
+#include <filesystem>
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -61,7 +62,6 @@ bool ConfigStore::load_settings()
 
     apply_setting("graphics", "render", "normal");
     apply_setting("graphics", "fullscreen", "off");
-    apply_setting("graphics", "overscan_percentage", "0");
 
     apply_setting("effects", "gore", "on");
     apply_setting("effects", "mini_hp_bar", "on");
@@ -77,7 +77,7 @@ bool ConfigStore::load_settings()
     Log("%s", buf.str().c_str());
     buf.clear();
 
-    SDL_RWops *rwops = open_read_file("cfg/openglad.ini");
+    SDL_RWops *rwops = open_read_file(std::filesystem::path("cfg/openglad.ini"));
     if (rwops == nullptr) {
         buf << "Cound not open config file. Using defaults.";
         Log("%s", buf.str().c_str());
@@ -134,23 +134,14 @@ bool ConfigStore::load_settings()
         apply_setting(current_category, key, value);
     }
 
-
-    // Update game stuff from these settings
-    overscan_percentage = std::stoi(get_setting("graphics", "overscan_percentage")) / 100.0f;
-    update_overscan_setting();
-
     return true;
 }
 
 bool ConfigStore::save_settings()
 {
     std::stringstream buf;
-    std::streamsize orig_precision = buf.precision();
-    buf << std::fixed << std::setprecision(1) << 100 * overscan_percentage;
-    apply_setting("graphics", "overscan_percentage", buf.str().c_str());
-    buf << std::setprecision(orig_precision);
 
-    SDL_RWops *outfile = open_write_file("cfg/openglad.ini");
+    SDL_RWops *outfile = open_write_file(std::filesystem::path("cfg/openglad.ini"));
 
     if (outfile != nullptr) {
         buf.clear();

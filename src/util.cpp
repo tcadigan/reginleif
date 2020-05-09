@@ -57,12 +57,12 @@ Sint32 query_timer()
      *         1193180/16383 = 72.3 ticks per second. This translates into
      *         13.6 milliseconds/tick
      */
-    return static_cast<Sint32>((SDL_GetTicks() - reset_value) / 13.6);
+    return ((SDL_GetTicks() - reset_value) / 13.6);
 }
 
 Sint32 query_timer_control()
 {
-    return static_cast<Sint32>(SDL_GetTicks() / 13.6);
+    return (SDL_GetTicks() / 13.6);
 }
 
 void time_delay(Sint32 delay)
@@ -71,7 +71,7 @@ void time_delay(Sint32 delay)
         return;
     }
 
-    SDL_Delay(static_cast<Uint32>(delay * 13.6));
+    SDL_Delay(delay * 13.6);
 }
 
 void lowercase(char *str)
@@ -109,4 +109,22 @@ void uppercase(std::string &str)
 Sint32 getRandomSint32(Sint32 modulus)
 {
     return (twister() % modulus);
+}
+
+std::list<std::string> explode(std::string const &str, Uint8 delimiter)
+{
+    std::list<std::string> result;
+
+    size_t oldPos = 0;
+    size_t pos = str.find_first_of(delimiter);
+
+    while (pos != std::string::npos) {
+        result.push_back(str.substr(oldPos, pos - oldPos));
+        oldPos = pos + 1;
+        pos = str.find_first_of(delimiter, oldPos);
+    }
+
+    result.push_back(str.substr(oldPos, std::string::npos));
+
+    return result;
 }

@@ -17,8 +17,6 @@
  */
 #include "editor_object_brush.hpp"
 
-#include "walker.hpp"
-
 EditorObjectBrush::EditorObjectBrush()
     : snap_to_grid(true)
     , order(ORDER_LIVING)

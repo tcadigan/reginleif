@@ -226,12 +226,9 @@ void adjust_palette(SDL_Color *whichpal, Sint16 amount)
         tempcol.g = ((tempcol.g * (100 + multiple)) / 100) + amount;
         tempcol.b = ((tempcol.b * (100 + multiple)) / 100) + amount;
 
-        tempcol.r = std::min(static_cast<Uint8>(63),
-                             std::min(static_cast<Uint8>(0), tempcol.r));
-        tempcol.g = std::min(static_cast<Uint8>(63),
-                             std::min(static_cast<Uint8>(0), tempcol.g));
-        tempcol.b = std::min(static_cast<Uint8>(63),
-                             std::min(static_cast<Uint8>(0), tempcol.b));
+        tempcol.r = std::clamp(tempcol.r, static_cast<Uint8>(0), static_cast<Uint8>(63));
+        tempcol.g = std::clamp(tempcol.g, static_cast<Uint8>(0), static_cast<Uint8>(63));
+        tempcol.b = std::clamp(tempcol.b, static_cast<Uint8>(0), static_cast<Uint8>(63));
 
         // Now set the current palette index to modified bit value
         curpal[i] = tempcol;
