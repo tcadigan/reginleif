@@ -43,6 +43,6 @@ protected:
     Uint8 *facings;
 };
 
-PixieN *backdrops[5];
+extern PixieN *backdrops[5];
 
 #endif

@@ -1,15 +1,14 @@
 COLORVIEW = colorview
 PIXCONVERT = pixconvert
 PIXEDIT = pixedit
-CXXFLAGS = `sdl2-config --cflags` -Wall -fexceptions
-LDFLAGS = `sdl2-config --libs`
+CXXFLAGS = `sdl2-config --cflags` -Wall
+LDFLAGS = `sdl2-config --libs` -lSDL2_image
 
 COLORVIEW_OBJS = colorview.o
 COLORVIEW_CPPFILES = colorview.cpp
 
-PIXCONVERT_OBJS = pixconvert.o savepng.o
-PIXCONVERT_HDRS = savepng.hpp
-PIXCONVERT_CPPFILES = pixconvert.cpp savepng.cpp
+PIXCONVERT_OBJS = pixconvert.o
+PIXCONVERT_CPPFILES = pixconvert.cpp
 
 PIXEDIT_OBJS = pixedit.o
 PIXEDIT_CPPFILES = pixedit.cpp

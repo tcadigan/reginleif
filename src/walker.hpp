@@ -42,6 +42,8 @@ enum ExpActionEnum {
     EXP_EAT_CORPSE
 };
 
+extern bool debug_draw_paths;
+
 class Walker : public PixieN
 {
 public:

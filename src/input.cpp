@@ -124,6 +124,15 @@ Sint32 player_keys[4][NUM_KEYS] = {
     }
 };
 
+Uint8 const *keystates;
+Sint16 scroll_amount = 0;
+Sint32 viewport_offset_x = 0;
+Sint32 viewport_offset_y = 0;
+Sint32 window_w = 320;
+Sint32 window_h = 200;
+Sint32 viewport_w = 320;
+Sint32 viewport_h = 200;
+
 // Input routines (for handling all events and then setting the appropriate
 // vars)
 void init_input()

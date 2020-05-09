@@ -118,6 +118,7 @@ Sint32 key4[] = {
 // This only exists so we can use the array constructor for our
 // prefs object (grumble grumble)
 Sint32 *normalkeys[] = { key1, key2, key3, key4 };
+Sint32 allkeys[4][16];
 
 Options::Options()
 {

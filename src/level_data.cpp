@@ -1513,7 +1513,7 @@ void LevelData::add_draw_pos(Sint32 topx, Sint32 topy)
     this->topy += topy;
 }
 
-std::string LevelData::get_description_line(Sint32 i)
+std::string LevelData::get_description_line(Uint32 i)
 {
     if (i >= description.size()) {
         return "";

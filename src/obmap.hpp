@@ -27,6 +27,8 @@
 
 #include "walker.hpp"
 
+extern bool debug_draw_obmap;
+
 class ObjectMap
 {
 public:

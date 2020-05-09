@@ -48,9 +48,6 @@
 
 VideoScreen *screen;
 
-bool debug_draw_paths;
-bool debug_draw_obmap;
-
 Sint16 remaining_team(VideoScreen *myscreen, Uint8 myteam);
 Sint16 score_panel(VideoScreen *myscreen);
 Sint16 score_panel(VideoScreen *myscreen, Sint16 do_it);
@@ -62,8 +59,8 @@ void draw_radar_gems(VideoScreen *myscreen);
 void draw_gem(Sint16 x, Sint16 y, Sint16 color, VideoScreen *myscreen);
 bool float_eq(float a, float b);
 
-Uint8 *radarpic;
-Pixie *radarpix;
+Options *theprefs;
+ConfigStore cfg;
 
 int main(int argc, char *argv[])
 {
@@ -80,6 +77,9 @@ int main(int argc, char *argv[])
     cfg.commandline(arg_count, args);
 
     theprefs = new Options();
+
+    SDL_Init(SDL_INIT_VIDEO);
+
     myscreen = new VideoScreen(1);
 
     // buffers: Setting the seed

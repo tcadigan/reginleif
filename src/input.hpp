@@ -180,16 +180,17 @@ void init_input();
 
 Uint8 convert_to_ascii(Sint32 scancode);
 
-Uint8 const *keystates = nullptr;
+extern Uint8 const *keystates;
 
 // In window coords
-Sint32 viewport_offset_x = 0;
-Sint32 viewport_offset_y = 0;
-Sint32 window_w = 320;
-Sint32 window_h = 200;
-Sint32 viewport_w = 320;
-Sint32 viewport_h = 200;
+extern Sint32 viewport_offset_x;
+extern Sint32 viewport_offset_y;
+extern Sint32 window_w;
+extern Sint32 window_h;
+extern Sint32 viewport_w;
+extern Sint32 viewport_h;
 
-Sint16 scroll_amount = 0; // For scrolling up and down text popups
+extern Sint16 scroll_amount; // For scrolling up and down text popups
+extern Sint16 key_press_event;
 
 #endif

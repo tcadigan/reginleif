@@ -326,6 +326,32 @@ Sint8 *anifood[] = {
     food1, food1, food1, food1, food1, food1, food1, food1
 };
 
+float derived_bonuses[NUM_FAMILIES][8] =
+{
+    //               HP, MP, ATK, RANGED ATK, RANGE, DEF, SPD, ATK SPD (delay)
+    {  BASE_GUY_HP + 90,  0,  20,          0,     0,   0,   4,               6 }, // Soldier
+    {  BASE_GUY_HP + 45,  0,  12,          0,     0,   0,   4,               5 }, // Elf
+    {  BASE_GUY_HP + 60,  0,   8,          0,     0,   0,   4,               5 }, // Archer
+    {  BASE_GUY_HP + 60,  0,   4,          0,     0,   0,   2,               4 }, // Mage
+    {  BASE_GUY_HP + 30,  0,   4,          0,     0,   0,   6,            4.5f }, // Skeleton
+    {  BASE_GUY_HP + 90,  0,  12,          0,     0,   0,   2,            7.5f }, // Cleric
+    {  BASE_GUY_HP + 70,  0,  28,          0,     0,   0,   4,               5 }, // Fire Elemental
+    {  BASE_GUY_HP + 45,  0,   5,          0,     0,   0,   4,               9 }, // Faerie
+    { BASE_GUY_HP + 120,  0,  28,          0,     0,   0,   3,              11 }, // Slime
+    {  BASE_GUY_HP + 50,  0,  12,          0,     0,   0,   2,              12 }, // Small slime
+    {  BASE_GUY_HP + 80,  0,  20,          0,     0,   0,   2,              10 }, // Medium slime
+    {  BASE_GUY_HP + 45,  0,  12,          0,     0,   0,   5,               5 }, // Thief
+    {  BASE_GUY_HP + 20,  0,  12,          0,     0,   0,   4,               7 }, // Ghost
+    {  BASE_GUY_HP + 80,  0,  10,          0,     0,   0,   3,               9 }, // Druid
+    { BASE_GUY_HP + 110,  0,  23,          0,     0,   0,   3,               7 }, // Orc
+    { BASE_GUY_HP + 150,  0,  28,          0,     0,   0,   3,               6 }, // Big orc
+    { BASE_GUY_HP + 120,  0,  25,          0,     0,   0,   3,            5.5f }, // Barbarian
+    { BASE_GUY_HP + 120,  0,   8,          0,     0,   0,   3,               1 }, // Archmage
+    { BASE_GUY_HP + 270,  0,  60,          0,     0,   0,   8,               9 }, // Golem
+    { BASE_GUY_HP + 270,  0,  60,          0,     0,   0,   8,               7 }, // Giant skeleton
+    { BASE_GUY_HP + 100,  0,   0,          0,     0,   0,   0,               5 } // Tower
+};
+
 PixieData data_copy(PixieData const &d)
 {
     PixieData result;

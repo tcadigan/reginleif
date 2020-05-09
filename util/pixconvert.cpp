@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <dirent.h>
+#include <iostream>
 #include <list>
 #include <sstream>
 #include <string>
@@ -15,6 +16,8 @@
 #include <SDL2/SDL_image.h>
 #include <unistd.h>
 #include <vector>
+
+#include <SDL2/SDL.h>
 
 // Color cycling colors indices
 #define WATER_START 208
@@ -308,7 +311,7 @@ void convert_to_pix(char const *filename)
     std::stringstream outname;
     outname << filename << ".pix";
 
-    SDL_RWops outfile;
+    SDL_RWops *outfile;
     outfile = SDL_RWFromFile(outname.str().c_str(), "wb");
     if (outfile == nullptr) {
         std::cout << "Couldn't open \"" << outname.str() << "\" for writing." << std::endl;
@@ -340,11 +343,11 @@ void convert_to_png(char const *filename)
               << "x: " << static_cast<unsigned>(x) << std::endl
               << "y: " << static_cast<unsigned>(y) << std::endl;
 
-    SDL_init(SDL_INIT_VIDEO);
+    SDL_Init(SDL_INIT_VIDEO);
 
     std::cout << "Saving pix frames to png" << std::endl;
 
-    for (frame = 1; fram <= numframes; ++frame) {
+    for (frame = 1; frame <= numframes; ++frame) {
         SDL_Surface *pixie = SDL_CreateRGBSurface(SDL_SWSURFACE, x, y, 32,
                                                   0x00FF0000,
                                                   0x0000FF00,
@@ -382,7 +385,7 @@ void convert_to_png(char const *filename)
         std::stringstream buf;
         buf << filename << frame << ".png";
 
-        SDL_SavePNG(buf.str().c_str());
+        SDL_SaveBMP(pixie, buf.str().c_str());
         std::cout << "Frame saved: " << buf.str() << std::endl;
     }
 
@@ -399,7 +402,7 @@ void concatenate_pix(std::vector<std::string> &files)
     Uint8 h;
     Uint8 *data;
     std::stringstream outname;
-    RW_ops outfile;
+    SDL_RWops *outfile;
     bool first = true;
     size_t i;
 
@@ -442,7 +445,7 @@ void concatenate_pix(std::vector<std::string> &files)
             total_frames += numframes;
         }
 
-        SDL_RWwrite(outfile, data, (numframes * w) * h);
+        SDL_RWwrite(outfile, data, (numframes * w) * h, 1);
         delete[](data);
     }
 
@@ -462,7 +465,7 @@ std::vector<std::string> explodev(std::string const & str, Sint8 delimiter)
 {
     std::vector<std::string> result;
     size_t oldPos = 0;
-    size_t pos = str.find_first_of(delimited);
+    size_t pos = str.find_first_of(delimiter);
 
     while (pos != std::string::npos) {
         result.push_back(str.substr(oldPos, pos - oldPos));
@@ -506,13 +509,7 @@ std::vector<std::string> list_files(std::string const &dirname)
     entry = readdir(dir);
 
     while (entry != nullptr) {
-#ifdef WIN32
-        if (isfile(direname + "/" + entry->d_name)) {
-            fileList.push_back(entry->d_name);
-        }
-
-#else
-        if (entry->d_type 1= DT_DIR) {
+        if (entry->d_type != DT_DIR) {
             fileList.push_back(entry->d_name);
         }
 
@@ -539,7 +536,7 @@ std::string stripToDir(std::string const &filename)
     return filename.substr(0, lastSlash);
 }
 
-void parse_args(Sint32 argc, Sint8 *argv[], Sint32 *mode, std::vector<std::string> &files)
+void parse_args(int argc, char *argv[], Sint32 *mode, std::vector<std::string> &files)
 {
     Sint32 i = 1;
 
@@ -555,7 +552,7 @@ void parse_args(Sint32 argc, Sint8 *argv[], Sint32 *mode, std::vector<std::strin
 
     // Grab the rest of the files
     Sint32 j = 0;
-    while (i < argv) {
+    while (i < argc) {
         std::string arg = argv[i];
         size_t len = arg.size();
 
@@ -591,7 +588,7 @@ void parse_args(Sint32 argc, Sint8 *argv[], Sint32 *mode, std::vector<std::strin
                     buf.clear();
                     buf << parts[0] << i << parts[1];
                     if (std::find(file_list.begin(), file_list.end(), buf.str().c_str()) != file_list.end()) {
-                        files.push_back(buf);
+                        files.push_back(buf.str());
                     } else {
                         ++missed;
 
@@ -644,7 +641,7 @@ int main(int argc, char *argv[])
     {
         size_t i;
         for (i = 0; i < files.size(); ++i) {
-            string const &filesname = files[i];
+            std::string const &filename = files[i];
             bool usingPix = (strcmp(get_filename_ext(filename.c_str()), "pix") == 0);
 
             if (usingPix) {

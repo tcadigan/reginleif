@@ -62,8 +62,8 @@ public:
     Sint32 key_index[NUM_KEYS];
 };
 
-JoyData player_joy[4];
-SDL_Joystick *joysticks[MAX_NUM_JOYSTICKS];
+extern JoyData player_joy[4];
+extern SDL_Joystick *joysticks[MAX_NUM_JOYSTICKS];
 
 void init_joysticks();
 bool isJoystickEvent(SDL_Event const &event);

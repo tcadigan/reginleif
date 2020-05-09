@@ -48,9 +48,8 @@ public:
     bool write_char_xy(Sint16 x, Sint16 y, Uint8 letter, Uint8 color);
     bool write_char_xy_alpha(Sint16 x, Sint16 y, Uint8 letter, Uint8 color, Uint8 alpha);
     bool write_char_xy(Sint16 x, Sint16 y, Uint8 letter, Uint8 color, Sint16 to_buffer);
-    std::string input_string(Sint16 x, Sint16 y, Sint16 maxlength, std::string const &begin, Uint8 forecolor, Uint8 backcolor);
-    std::string input_string_ex(Sint16 x, Sint16 y, Sint16 maxlength, std::string const &message, std::string const &begin);
-    std::string input_string_ex(Sint16 x, Sint16 y, Sint16 maxlength, std::string const &message, std::string const &begin, Uint8 forecolor, Uint8 backcolor);
+    std::string input_string(Sint16 x, Sint16 y, Uint32 maxlength, std::string const &begin, Uint8 forecolor, Uint8 backcolor);
+    std::string input_string_ex(Sint16 x, Sint16 y, Uint32 maxlength, std::string const &message, std::string const &begin, Uint8 forecolor, Uint8 backcolor);
 
     PixieData letters;
     Sint16 sizex;

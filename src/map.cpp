@@ -70,6 +70,11 @@ Sint32 StateScore::getState() const
     return state;
 }
 
+Map::Map(Walker *path_walker)
+    : path_walker(path_walker)
+{
+}
+
 // i.e. taxicab_distance
 float Map::LeastCostEstimate(Sint32 stateStart, Sint32 stateEnd)
 {

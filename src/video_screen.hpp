@@ -108,6 +108,6 @@ public:
     Uint32 framecount;
 };
 
-VideoScreen *myscreen;
+extern VideoScreen *myscreen;
 
 #endif

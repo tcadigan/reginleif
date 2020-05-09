@@ -45,6 +45,56 @@
 // buffers: PORT: changed start_time to start_time_s to avoid conflict with input.cpp
 Sint32 start_time_s; // For timer ops
 
+Sint32 backgrounds[] = {
+    PIX_GRASS1, PIX_GRASS2, PIX_GRASS_DARK_1, PIX_GRASS_DARK_2,
+    // PIX_GRASS_DARK_B1, PIX_GRASS_DARK_BR, PIX_GRASS_DARK_R1, PIX_GRASS_DARK_R2,
+    PIX_BOULDER_1, PIX_GRASS_DARK_LL, PIX_GRASS_DARK_UR, PIX_GRASS_RUBBLE,
+    PIX_GRASS_LIGHT_LEFT_TOP, PIX_GRASS_LIGHT_1,
+    PIX_GRASS_LIGHT_RIGHT_TOP, PIX_WATER1,
+    PIX_WATERGRASS_U, PIX_WATERGRASS_D,
+    PIX_WATERGRASS_L, PIX_WATERGRASS_R,
+    PIX_DIRTGRASS_UR1, PIX_DIRT_1, PIX_DIRT_1, PIX_DIRTGRASS_LL1,
+    PIX_DIRTGRASS_LR1, PIX_DIRT_DARK_1, PIX_DIRT_DARK_1, PIX_DIRTGRASS_UL1,
+    PIX_DIRTGRASS_DARK_UR1, PIX_DIRTGRASS_DARK_LL1,
+    PIX_DIRTGRASS_DARK_LR1, PIX_DIRTGRASS_DARK_UL1,
+    PIX_JAGGED_GROUND_1, PIX_JAGGED_GROUND_2,
+    PIX_JAGGED_GROUND_3, PIX_JAGGED_GROUND_4,
+    PIX_PATH_1, PIX_PATH_2, PIX_PATH_3, PIX_PATH_4,
+    PIX_COBBLE_1, PIX_COBBLE_2, PIX_COBBLE_3, PIX_COBBLE_4,
+    // PIX_WALL2, PIX_WALL3, PIX_WALL4, PIX_WALL5,
+    PIX_WALL4, PIX_WALL_ARROW_GRASS,
+    PIX_WALL_ARROW_FLOOR, PIX_WALL_ARROW_GRASS_DARK,
+    PIX_WALL2, PIX_WALL3, PIX_H_WALL1, PIX_WALL_LL,
+    PIX_WALLSIDE_L, PIX_WALLSIDE_C, PIX_WALLSIDE_R, PIX_WALLSIDE1,
+    PIX_WALLSIDE_CRACK_C1, PIX_WALLSIDE_CRACK_C1,
+    PIX_TORCH1, PIX_VOID1,
+    // PIX_VOID1, PIX_FLOOR1, PIX_VOID1, PIX_VOID1,
+    PIX_CARPET_SMALL_TINY, PIX_CARPET_M2, PIX_PAVEMENT1, PIX_FLOOR1,
+    // PIX_PAVEMENT1, PIX_PAVEMENT2, PIX_PAVEMENT3, PIX_PAVEMENT3,
+    PIX_FLOOR_PAVEL, PIX_FLOOR_PAVEU, PIX_FLOOR_PAVED, PIX_FLOOR_PAVED,
+    PIX_WALL_LL,
+    PIX_WALLTOP_H,
+    PIX_PAVESTEPS1,
+    PIX_BRAZIER1,
+    PIX_PAVESTEPS2L, PIX_PAVESTEPS2, PIX_PAVESTEPS2R, PIX_PAVESTEPS1,
+    // PIX_TORCH1, PIX_TORCH2, PIX_TORCH3, PIX_TORCH3,
+    PIX_COLUMN1, PIX_COLUMN2, PIX_COLUMN2, PIX_COLUMN2,
+    PIX_TREE_T1, PIX_TREE_T1, PIX_TREE_T1, PIX_TREE_T1,
+    PIX_TREE_ML, PIX_TREE_M1, PIX_TREE_MT, PIX_TREE_MR,
+    PIX_TREE_B1, PIX_TREE_B1, PIX_TREE_B1, PIX_TREE_B1,
+    PIX_CLIFF_BACK_L, PIX_CLIFF_BACK_1, PIX_CLIFF_BACK_2, PIX_CLIFF_BACK_R,
+    PIX_CLIFF_LEFT, PIX_CLIFF_BOTTOM, PIX_CLIFF_TOP, PIX_CLIFF_RIGHT,
+    PIX_CLIFF_LEFT, PIX_CLIFF_TOP_L, PIX_CLIFF_TOP_R, PIX_CLIFF_RIGHT
+};
+
+Sint32 maxrows = sizeof(backgrounds) / 16;
+
+bool redraw = true;
+bool levelchanged = false;
+bool campaignchanged = false;
+Sint32 rowsdown = 0;
+std::vector<ObjectType> object_pane;
+
 LevelEditorData::LevelEditorData()
     : campaign(std::filesystem::path("org.openglad.gladiator"))
     , level(new LevelData(1))
@@ -477,7 +527,7 @@ void LevelEditorData::activate_mode_button(SimpleButton *button)
                     name.resize(11);
                     obj->stats.name = name;
                     selection.front().name = obj->stats.name;
-                    levelchanged = 1;
+                    levelchanged = true;
                 }
             }
         }
@@ -493,7 +543,7 @@ void LevelEditorData::activate_mode_button(SimpleButton *button)
                         obj->team_num = MAX_TEAM;
                     }
 
-                    levelchanged = 1;
+                    levelchanged = true;
                 }
             }
         } else if (mode == OBJECT) {
@@ -515,7 +565,7 @@ void LevelEditorData::activate_mode_button(SimpleButton *button)
                         obj->team_num = 0;
                     }
 
-                    levelchanged = 1;
+                    levelchanged = true;
                 }
             }
         } else if (mode == OBJECT) {
@@ -533,7 +583,7 @@ void LevelEditorData::activate_mode_button(SimpleButton *button)
                 if (obj->stats.level > 1) {
                     --obj->stats.level;
                     e.level = obj->stats.level;
-                    levelchanged = 1;
+                    levelchanged = true;
                 }
             }
         }
@@ -544,7 +594,7 @@ void LevelEditorData::activate_mode_button(SimpleButton *button)
             if (obj != nullptr) {
                 ++obj->stats.level;
                 e.level = obj->stats.level;
-                levelchanged = 1;
+                levelchanged = true;
             }
         }
     } else if (button == &prevClassButton) {
@@ -565,7 +615,7 @@ void LevelEditorData::activate_mode_button(SimpleButton *button)
                 obj->setxy(e.x, e.y);
                 e.set(obj);
 
-                levelchanged = 1;
+                levelchanged = true;
             }
         }
     } else if (button == &nextClassButton) {
@@ -586,7 +636,7 @@ void LevelEditorData::activate_mode_button(SimpleButton *button)
                 obj->setxy(e.x, e.y);
                 e.set(obj);
 
-                levelchanged = 1;
+                levelchanged = true;
             }
         }
     } else if (button == &facingButton) {
@@ -602,7 +652,7 @@ void LevelEditorData::activate_mode_button(SimpleButton *button)
 
                 obj->set_frame(obj->ani[obj->curdir][0]);
 
-                levelchanged = 1;
+                levelchanged = true;
             }
         }
     } else if (button == &deleteButton) {
@@ -612,7 +662,7 @@ void LevelEditorData::activate_mode_button(SimpleButton *button)
             if (obj != nullptr) {
                 level->remove_ob(obj);
                 delete obj;
-                levelchanged = 1;
+                levelchanged = true;
             }
         }
 
@@ -670,7 +720,7 @@ void LevelEditorData::draw(VideoScreen *myscreen)
         }
 
         myscreen->draw_box(r.x, r.y, r.x + r.w, r.y + r.h, ORANGE_START, 0, 1);
-        redraw = 1;
+        redraw = true;
     }
 
     display_panel(myscreen);
@@ -830,7 +880,7 @@ Sint32 LevelEditorData::display_panel(VideoScreen *myscreen)
                 break;
             } else if (!e.name.empty() && (e.order == ORDER_LIVING)) {
                 // Show name
-                scentext.write_xy(lm, L_D(curline), ("\"" + e.name + "\"").c_str(), DARK_BLUE, 1);
+                scentext.write_xy(lm, L_D(curline), ("\"" + e.name + "\""), DARK_BLUE, 1);
                 ++curline;
                 showing_name = true;
             } else if (selection.empty()) {
@@ -1120,7 +1170,7 @@ Sint32 LevelEditorData::display_panel(VideoScreen *myscreen)
 
         for (i = 0; i < PIX_OVER; ++i) {
             for (j = 0; j < 4; ++j) {
-                Sint32 index = (i + ((j + rowsdown) * PIX_OVER)) % object_pane.size();
+                Uint32 index = (i + ((j + rowsdown) * PIX_OVER)) % object_pane.size();
 
                 if (index < object_pane.size()) {
                     newob->setxy((S_RIGHT + (i * GRID_SIZE)) + level->topx,
@@ -1244,9 +1294,9 @@ void LevelEditorData::mouse_motion(Sint32 mx, Sint32 my, Sint32 dx, Sint32 dy)
     MouseState &mymouse = query_mouse_no_poll();
 
     if (mymouse.left) {
-        if ((mode == SELECT) && !mouse_on_menus(mouse_last_x, mouse_last_y)) {
-            Sint32 worldx = (mx + level->topx) - myscreen->viewob[0]->xloc; // - S_LEFT
-            Sint32 worldy = (my + level->topy) - myscreen->viewob[0]->yloc; // - S_UP
+        if ((mode == SELECT) && !mouse_on_menus(mymouse.x, mymouse.y)) {
+            Sint32 worldx = (mx + level->topx) - myscreen->viewob[0]->xloc;
+            Sint32 worldy = (my + level->topy) - myscreen->viewob[0]->yloc;
 
             Walker *under_cursor = nullptr;
 
@@ -1358,11 +1408,11 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                 if (yes_or_no_prompt("Share", "Save level first?", false)) {
                     if (saveLevel()) {
                         timed_dialog("Level saved.");
-                        redraw = 1;
-                        levelchanged = 0;
+                        redraw = true;
+                        levelchanged = false;
                     } else {
                         timed_dialog("Save failed.");
-                        redraw = 1;
+                        redraw = true;
 
                         cancel = true;
                     }
@@ -1373,11 +1423,11 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                 if (yes_or_no_prompt("Share", "Save campaign first?", false)) {
                     if (saveCampaign()) {
                         timed_dialog("Campaign saved.");
-                        redraw = 1;
-                        campaignchanged = 0;
+                        redraw = true;
+                        campaignchanged = false;
                     } else {
                         timed_dialog("Save failed.");
-                        redraw = 1;
+                        redraw = true;
 
                         cancel = true;
                     }
@@ -1426,26 +1476,26 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                                         myscreen->viewob[0]->endy,
                                         myscreen->viewob[0]->yloc);
                                     timed_dialog("Campaign created.");
-                                    campaignchanged = 0;
-                                    levelchanged = 0;
+                                    campaignchanged = false;
+                                    levelchanged = false;
                                 } else {
                                     timed_dialog("Campaign has no scenarios!");
-                                    redraw = 1;
+                                    redraw = true;
                                 }
                             } else {
                                 timed_dialog("Failed to load new campaign.");
-                                redraw = 1;
+                                redraw = true;
                             }
                         } else {
                             timed_dialog("Failed to create new campaign.");
-                            redraw = 1;
+                            redraw = true;
                         }
                     }
                 }
             }
         } else if (activate_menu_choice(mx, my, *this, fileCampaignLoadButton)) {
             // Pick a campaign, then load it and load the first level
-            redraw = 1;
+            redraw = true;
             bool cancel = false;
 
             if (campaignchanged) {
@@ -1459,7 +1509,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                     if (loadCampaign(result.id)) {
                         unmount_campaign_package(get_mounted_campaign());
                         mount_campaign_package(result.id);
-                        campaignchanged = 0;
+                        campaignchanged = false;
                     } else {
                         timed_dialog("Failed to load campaign.");
                         cancel = true;
@@ -1485,7 +1535,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                                                                     myscreen->viewob[0]->endy,
                                                                     myscreen->viewob[0]->yloc);
                                 timed_dialog("Campaign loaded.");
-                                levelchanged = 0;
+                                levelchanged = false;
                             } else {
                                 timed_dialog("Failed to load first level.");
                             }
@@ -1498,11 +1548,11 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
         } else if (activate_menu_choice(mx, my, *this, fileCampaignSaveButton)) {
             if (saveCampaign()) {
                 timed_dialog("Campaign saved.");
-                campaignchanged = 0;
-                redraw = 1;
+                campaignchanged = false;
+                redraw = true;
             } else {
                 timed_dialog("Failed to save campaign.");
-                redraw = 1;
+                redraw = true;
             }
         } else if (activate_menu_choice(mx, my, *this, fileCampaignSaveAsButton)) {
             CampaignResult result = pick_campaign(nullptr, true);
@@ -1514,11 +1564,11 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                     || yes_or_no_prompt("Overwrite", "Overwrite existing campaign?", false)) {
                     if (saveCampaignAs(result.id)) {
                         timed_dialog("Campaign saved.");
-                        campaignchanged = 0;
-                        redraw = 1;
+                        campaignchanged = false;
+                        redraw = true;
                     } else {
                         timed_dialog("Failed to save campaign.");
-                        redraw = 1;
+                        redraw = true;
                     }
                 }
             }
@@ -1547,8 +1597,8 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                                                     myscreen->viewob[0]->endx,
                                                     myscreen->viewob[0]->endy,
                                                     myscreen->viewob[0]->yloc);
-                levelchanged = 1;
-                redraw = 1;
+                levelchanged = true;
+                redraw = true;
             }
         } else if (activate_menu_choice(mx, my, *this, fileLevelLoadButton)) {
             // Confirm if unsaved
@@ -1565,28 +1615,28 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                 if ((id >= 0) && (levelchanged || (id != level->id))) {
                     if (loadLevel(id)) {
                         timed_dialog("Level loaded.");
-                        levelchanged = 0;
-                        redraw = 1;
+                        levelchanged = false;
+                        redraw = true;
                     } else {
                         timed_dialog("Failed to load level.");
-                        redraw = 1;
+                        redraw = true;
                     }
 
                     myscreen->viewob[0]->myradar->start(myscreen->level_data,
                                                         myscreen->viewob[0]->endx,
                                                         myscreen->viewob[0]->endy,
                                                         myscreen->viewob[0]->yloc);
-                    redraw = 1;
+                    redraw = true;
                 }
             }
         } else if (activate_menu_choice(mx, my, *this, fileLevelSaveButton)) {
             if (saveLevel()) {
                 timed_dialog("Level saved.");
-                redraw = 1;
-                levelchanged = 0;
+                redraw = true;
+                levelchanged = false;
             } else {
                 timed_dialog("Save failed.");
-                redraw = 1;
+                redraw = true;
             }
         } else if (activate_menu_choice(mx, my , *this, fileLevelSaveAsButton)) {
             Sint32 id = pick_level(level->id, true);
@@ -1598,11 +1648,11 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                     || yes_or_no_prompt("Overwrites", "Overwrite existing level?", false)) {
                     if (saveLevelAs(id)) {
                         timed_dialog("Level saved.");
-                        redraw = 1;
-                        levelchanged = 0;
+                        redraw = true;
+                        levelchanged = false;
                     } else {
                         timed_dialog("Save failed.");
-                        redraw = 1;
+                        redraw = true;
                     }
                 }
             }
@@ -1639,7 +1689,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
             buf.clear();
             str.resize(512);
 
-            popup_dialog("Campaign Info", str.c_str());
+            popup_dialog("Campaign Info", str);
         } else if (activate_sub_menu_button(mx, my, current_menu, campaignProfileButton)) {
             // Profile >
             std::set<SimpleButton *> s = {
@@ -1654,17 +1704,17 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
 
             if (prompt_for_string("Campaign Title", title)) {
                 campaign.title = title;
-                campaignchanged = 1;
+                campaignchanged = true;
             }
         } else if (activate_menu_choice(mx, my, *this, campaignProfileDescriptionButton)) {
             std::list<std::string> desc = campaign.description;
 
             if (prompt_for_string_block("Campaign Description", desc)) {
                 campaign.description = desc;
-                campaignchanged = 1;
+                campaignchanged = true;
             }
 
-            redraw = 1;
+            redraw = true;
         } else if (activate_menu_choice(mx, my, *this, campaignProfileIconButton)) {
             popup_dialog("Edit Icon", "Not yet implemented.");
         } else if(activate_menu_choice(mx, my, *this, campaignProfileAuthorsButton)) {
@@ -1672,14 +1722,14 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
 
             if (prompt_for_string("Campaign Authors", authors)) {
                 campaign.authors = authors;
-                campaignchanged = 1;
+                campaignchanged = true;
             }
         } else if (activate_menu_choice(mx, my, *this, campaignProfileContributorsButton)) {
             std::string contributors(campaign.contributors);
 
             if (prompt_for_string("Campaign Contributors", contributors)) {
                 campaign.contributors = contributors;
-                campaignchanged = 1;
+                campaignchanged = true;
             }
         } else if (activate_sub_menu_button(mx, my, current_menu, campaignDetailsButton)) {
             // Details >
@@ -1694,7 +1744,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
 
             if (prompt_for_string("Campaign Version", version)) {
                 campaign.version = version;
-                campaignchanged = 1;
+                campaignchanged = true;
             }
         } else if (activate_menu_choice(mx, my, *this, campaignDetailsSuggestedPowerButton)) {
             std::stringstream buf;
@@ -1707,7 +1757,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
 
             if (prompt_for_string("Suggested Power", power)) {
                 campaign.suggested_power = std::stoi(power);
-                campaignchanged = 1;
+                campaignchanged = true;
             }
         } else if (activate_menu_choice(mx, my, *this, campaignDetailsFirstLevelButton)) {
             std::stringstream buf;
@@ -1720,7 +1770,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
 
             if (prompt_for_string("First Level", level)) {
                 campaign.first_level = std::stoi(level);
-                campaignchanged = 1;
+                campaignchanged = true;
             }
         } else if (activate_menu_choice(mx, my, *this, campaignValidateButton)) {
             std::list<Sint32> levels = list_levels();
@@ -1822,17 +1872,17 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
 
             if (prompt_for_string("Level Title", title)) {
                 level->title = title;
-                levelchanged = 1;
+                levelchanged = true;
             }
         } else if (activate_menu_choice(mx, my, *this, levelProfileDescriptionButton)) {
             std::list<std::string> desc = level->description;
 
             if (prompt_for_string_block("Level Description", desc)) {
                 level->description = desc;
-                levelchanged = 1;
+                levelchanged = true;
             }
 
-            redraw = 1;
+            redraw = true;
         } else if (activate_sub_menu_button(mx, my, current_menu, levelDetailsButton)) {
             // Details >
             std::set<SimpleButton *> s = {
@@ -1914,20 +1964,20 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                             msg.resize(30);
 
                             timed_dialog(msg);
-                            redraw = 1;
-                            levelchanged = 1;
+                            redraw = true;
+                            levelchanged = true;
                         } else {
                             timed_dialog("Resize canceled.");
-                            redraw = 1;
+                            redraw = true;
                         }
                     }
                 } else {
                     timed_dialog("Resize cancled.");
-                    redraw = 1;
+                    redraw = true;
                 }
             } else {
                 timed_dialog("Resize canceled.");
-                redraw = 1;
+                redraw = true;
             }
         } else if (activate_sub_menu_button(mx, my, current_menu, levelGoalsButton)) {
             // Goals >
@@ -1960,7 +2010,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
 
                 if (v > 0) {
                     level->par_value = v;
-                    levelchanged = 1;
+                    levelchanged = true;
                 }
             }
         } else if (activate_menu_choice(mx, my, *this, levelDetailsTimeLimitButton)) {
@@ -1977,28 +2027,28 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
 
                 if (v > 0) {
                     level->time_bonus_limit = v;
-                    levelchanged = 1;
+                    levelchanged = true;
                 }
             }
         } else if (activate_menu_choice(mx, my, *this, levelResmoothButton)) {
             resmooth_terrain();
-            levelchanged = 1;
-            redraw = 1;
+            levelchanged = true;
+            redraw = true;
         } else if (activate_menu_choice(mx, my, *this, levelDeleteTerrainButton)) {
             if (yes_or_no_prompt("Clear Terrain", "Delete all terrain?", false)) {
                 clear_terrain();
                 myscreen->viewob[0]->myradar->update(*level);
-                levelchanged = 1;
+                levelchanged = true;
             }
-            redraw = 1;
+            redraw = true;
         } else if (activate_menu_choice(mx, my, *this, levelDeleteObjectsButton)) {
             if (yes_or_no_prompt("Clear Objects", "Delete all objects?", false)) {
                 level->delete_objects();
                 myscreen->viewob[0]->myradar->update(*level);
-                levelchanged = 1;
+                levelchanged = true;
             }
 
-            redraw = 1;
+            redraw = true;
         } else if (activate_sub_menu_button(mx, my, current_menu, modeButton, true)) {
             std::set<SimpleButton *> s = {
                 &modeTerrainButton,
@@ -2023,7 +2073,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
             for (auto const &e : mode_buttons) {
                 if (e->contains(mx, my)) {
                     activate_mode_button(e);
-                    redraw = 1;
+                    redraw = true;
 
                     break;
                 }
@@ -2080,7 +2130,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                         if (prompt_for_string("Rename", name)) {
                             name.resize(11);
                             newob->collide_ob->stats.name = name;
-                            levelchanged = 1;
+                            levelchanged = true;
                         }
                     }
 
@@ -2139,7 +2189,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                 if ((mx >= S_RIGHT) && (my >= PIX_TOP) && (my <= PIX_BOTTOM)) {
                     windowx = (mx - S_RIGHT) / GRID_SIZE;
                     windowy = (my - PIX_TOP) / GRID_SIZE;
-                    Sint32 index = (windowx + ((windowy + rowsdown) * PIX_OVER)) % object_pane.size();
+                    Uint32 index = (windowx + ((windowy + rowsdown) * PIX_OVER)) % object_pane.size();
 
                     if (index < object_pane.size()) {
                         object_brush.order = object_pane[index].order;
@@ -2152,7 +2202,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
 
                     if (!object_brush.picking) {
                         // Create new object here (apply brush)
-                        levelchanged = 1;
+                        levelchanged = true;
                         newob = level->add_ob(object_brush.order, object_brush.family);
                         newob->setxy(windowx, windowy);
                         newob->team_num = object_brush.team;
@@ -2182,7 +2232,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                                 mymouse = query_mouse();
                             }
 
-                            levelchanged = 1;
+                            levelchanged = true;
                         }
                     } else {
                         pick_by_mouse(mx, my);

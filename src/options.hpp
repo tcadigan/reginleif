@@ -20,9 +20,6 @@
 
 #include <SDL2/SDL.h>
 
-// Zardus: Keys is a sys var (apparently) so we'll use allkeys
-Sint32 allkeys[4][16];
-
 // Viewscreen related defines
 enum PrefOptionsEnum : Uint8 {
     PREF_LIFE = 0,
@@ -95,6 +92,8 @@ protected:
     Uint8 keys[4][16];
 };
 
-Options *theprefs;
+// Zardus: Keys is a sys var (apparently) so we'll use allkeys
+extern Sint32 allkeys[4][16];
+extern Options *theprefs;
 
 #endif

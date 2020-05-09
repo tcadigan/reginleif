@@ -28,10 +28,6 @@
 #include "screen.hpp"
 #include "util.hpp"
 
-#ifndef USE_BMP_SCREENSHOT
-#include "../util/savepng.hpp"
-#endif
-
 #include <sstream>
 
 #define VIDEO_BUFFER_WIDTH 320
@@ -45,8 +41,7 @@
         return 0;                               \
     }                                           \
 
-Screen *E_screen;
-
+Screen *E_Screen;
 
 void blend_pixel(SDL_Surface *surface, Sint32 x, Sint32 y, Uint32 color, Uint8 alpha)
 {
@@ -604,7 +599,7 @@ void Video::pointb(Sint32 x, Sint32 y, Uint8 r, Uint8 g, Uint8 b)
 {
     SDL_Rect rect;
     Sint32 c;
-    c = SDL_MapRGB(E_screen->render->format, r, g, b);
+    c = SDL_MapRGB(E_Screen->render->format, r, g, b);
 
     rect.x = x;
     rect.y = y;
@@ -1966,12 +1961,7 @@ bool Video::save_screenshot()
     static int i = 1;
     std::stringstream buf;
     buf << "screenshot" << i;
-
-#ifndef USE_BMP_SCREENSHOT
-    buf << ".png";
-#else
     buf << ".bmp";
-#endif
 
     ++i;
 
@@ -1990,23 +1980,9 @@ bool Video::save_screenshot()
 
     bool result = false;
 
-#ifndef USE_BMP_SCREENSHOT
-    // make it safe to save (convert alpha channel)
-    surf = SDL_PNGFormatAlpha(surf);
-
-    // Save it
-    if (SDL_SavePNG_RW(surf, rwops, 1) >= 0) {
-        result = true;
-    }
-
-    SDL_FreeSurface(surf);
-
-#else
-
     if (SDL_SaveBMP_RW(surf, rwops, 1) >= 0) {
         result = true;
     }
-#endif
 
     return result;
 }

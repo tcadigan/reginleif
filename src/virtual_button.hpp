@@ -70,6 +70,6 @@ public:
     bool no_draw; // Does not draw but still accept clicks
 };
 
-VirtualButton *allbuttons[MAX_BUTTONS];
+extern VirtualButton *allbuttons[MAX_BUTTONS];
 
 VirtualButton *init_buttons(Button *buttons, Sint32 numbuttons);

@@ -33,6 +33,7 @@
 #include "mouse_state.hpp"
 #include "options.hpp"
 #include "pal32.hpp"
+#include "pixien.hpp"
 #include "util.hpp"
 #include "version.hpp"
 #include "video_screen.hpp"
@@ -103,11 +104,9 @@ void statscopy(Guy *dest, Guy *source); // Copy stats from source => dest
 
 // Zardus: PORT: Put in backpics var here so we can free the pixie files themselves
 PixieData backpics[5];
-
-// See guy.cpp
-extern Sint32 costlist[NUM_FAMILIES];
-extern Sint32 statlist[NUM_FAMILIES][6];
-extern Sint32 statcosts[NUM_FAMILIES][6];
+PixieN *backdrops[5];
+Sint32 current_difficulty = 1; // Setting "normal"
+Sint32 difficulty_level[DIFFICULTY_SETTINGS] = { 50, 100, 200 };
 
 Guy *current_guy = nullptr;
 Guy *old_guy = nullptr;
@@ -471,6 +470,8 @@ std::string ghost_names[] = {
     "Banshee",
     "Nyx"
 };
+
+VirtualButton *allbuttons[MAX_BUTTONS];
 
 void picker_main()
 {
@@ -2510,7 +2511,7 @@ bool yes_or_no_prompt(std::string const &title, std::string const &message, bool
     std::list<std::string> ls = explode(message, '\n');
 
     // Get the max dimensions needed to display it
-    Sint32 w = title.size() * 9;
+    Uint32 w = title.size() * 9;
     Sint32 h = 30 + (10 * ls.size());
 
     for (auto const &e : ls) {
@@ -2608,7 +2609,7 @@ bool no_or_yes_prompt(std::string const &title, std::string const &message, bool
     std::list<std::string> ls = explode(message, '\n');
 
     // Get the max dimensions needed to display it
-    Sint32 w = title.size() * 9;
+    Uint32 w = title.size() * 9;
     Sint32 h = 30 + (10 * ls.size());
 
     for (auto const &e : ls) {
@@ -2707,7 +2708,7 @@ void popup_dialog(std::string const &title, std::string const &message)
     std::list<std::string> ls = explode(message, '\n');
 
     // Get the max dimensions needed to display it
-    Sint32 w = title.size() * 9;
+    Uint32 w = title.size() * 9;
     Sint32 h = 20 + (10 * ls.size());
 
     for (auto const &e : ls) {

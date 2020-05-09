@@ -10,169 +10,178 @@
 #define ORANGE_START 224
 #define ORANGE_END 231
 
-Sint32 resolution = 39;
-Sint32 columns = 20;
-Sint8 ourcolors[] = {
-     0,  0,  0,  8,  8,  8, 16, 16, 16, 24, 24, 24, 32, 32, 32, 40, 40, 40, 48,
-    48, 48, 56, 56, 56,  1,  1,  1,  9,  9,  9, 17, 17, 17, 25, 25, 25, 33, 33,
-    33, 41, 41, 41, 49, 49, 49, 57, 57, 57,  0,  0,  0, 15, 15, 15, 18, 18, 18,
-    21, 21, 21, 24, 24, 24, 27, 27, 27, 30, 30, 30, 33, 33, 33, 36, 36, 36, 39,
-    39, 39, 42, 42, 42, 45, 45, 45, 48, 48, 48, 51, 51, 51, 54, 54, 54, 57, 57,
-    57, 57, 16, 16, 54, 18, 18, 51, 20, 20, 48, 22, 22, 45, 24, 24, 42, 26, 26,
-    39, 28, 28, 36, 30, 30, 57,  0,  0, 52,  0,  0, 47,  0,  0, 42,  0,  0, 37,
-     0,  0, 32,  0,  0, 27,  0,  0, 22,  0,  0, 16, 57, 16, 18, 54, 18, 20, 51,
-    20, 22, 48, 22, 24, 45, 24, 26, 42, 26, 28, 39, 28, 30, 36, 30,  0, 57,  0,
-     0, 52,  0,  0, 47,  0,  0, 42,  0,  0, 37,  0,  0, 32,  0,  0, 27,  0,  0,
-    22,  0, 16, 16, 57, 18, 18, 54, 20, 20, 51, 22, 22, 48, 24, 24, 45, 26, 26,
-    42, 28, 28, 39, 30, 30, 36,  0,  0, 57,  0,  0, 52,  0,  0, 47,  0,  0, 42,
-     0,  0, 37,  0,  0, 32,  0,  0, 27,  0,  0, 22, 57, 57, 16, 54, 54, 18, 51,
-    51, 20, 48, 48, 22, 45, 45, 24, 42, 42, 26, 39, 39, 28, 36, 36, 30, 57, 57,
-     0, 52, 52,  0, 47, 47,  0, 42, 42,  0, 37, 37,  0, 32, 32,  0, 27, 27,  0,
-    22, 22,  0, 57, 16, 57, 54, 18, 54, 51, 20, 51, 48, 22, 48, 45, 24, 45, 42,
-    26, 42, 39, 28, 39, 36, 30, 36, 57,  0, 57, 52,  0, 52, 47,  0, 47, 42,  0,
-    42, 37,  0, 37, 32,  0, 32, 27,  0, 27, 22,  0, 22, 16, 57, 57, 18, 54, 54,
-    20, 51, 51, 22, 48, 48, 24, 45, 45, 26, 42, 42, 28, 39, 39, 30, 36, 36,  0,
-    57, 57,  0, 52, 52,  0, 47, 47,  0, 42, 42,  0, 37, 37,  0, 32, 32,  0, 27,
-    27,  0, 22, 22, 57, 41, 25, 52, 36, 20, 47, 31, 15, 42, 26, 10, 37, 21,  5,
-    32, 16,  0, 27, 11,  0, 22,  6,  0, 50, 40, 30, 45, 35, 25, 40, 30, 20, 35,
-    25, 15, 30, 20, 10, 25, 15,  5, 20, 10,  0, 15,  5,  0, 57, 25, 41, 52, 20,
-    36, 47, 15, 31, 42, 10, 26, 37,  5, 21, 32,  0, 16, 27,  0, 11, 22,  0,  6,
-    50, 30, 40, 45, 25, 35, 40, 20, 30, 35, 15, 25, 30, 10, 20, 25,  5, 15, 20,
-     0, 10, 15,  0,  5,  0, 18,  6,  0, 16,  6,  0, 13,  5,  0, 11,  5,  0,  8,
-     3,  0,  6,  2,  0,  3,  1,  0,  2,  0, 17, 17, 17, 17, 17, 17, 17, 17, 17,
-    17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17,
-    17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17,
-    17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17,
-    17, 17, 17, 17, 17, 17, 41, 25, 57, 36, 20, 52, 31, 15, 47, 26, 10, 42, 41,
-     5, 37, 16,  0, 32, 11,  0, 27,  6,  0, 22, 40, 30, 50, 35, 25, 45, 30, 20,
-    40, 25, 15, 35, 20, 10, 30, 15,  5, 25, 10,  0, 20,  5,  0, 15, 25, 41, 57,
-    23, 39, 55, 21, 37, 53, 19, 35, 51, 17, 33, 49, 15, 31, 47, 13, 29, 45, 11,
-    27, 43,  9, 25, 41,  7, 23, 39,  5, 21, 37,  3, 19, 35,  1, 17, 33,  0, 15,
-    31,  0, 13, 29,  0, 11, 27, 57, 15,  0, 57, 21,  0, 57, 27,  0, 57, 33,  0,
-    57, 39,  0, 57, 45,  0, 57, 51,  0, 57, 57,  0, 57, 15,  0, 57, 21,  0, 57,
-    27,  0, 57, 33,  0, 57, 39,  0, 57, 45,  0, 57, 51,  0, 57, 57,  0, 57, 37,
-    31, 51, 33, 27, 47, 28, 24, 43, 24, 20, 56, 35, 23, 52, 32, 24, 48, 30, 22,
-    44, 27, 19, 28, 18, 18, 30, 20, 20, 32, 22, 22, 34, 24, 24, 36, 26, 26, 38,
-    28, 28, 40, 30, 30, 42, 32, 32
+Sint32 columns = 16;
+static constexpr SDL_Color const ourcolors[256] = {
+    SDL_Color{0, 0, 0, 255}, SDL_Color{32, 32, 32, 255},
+    SDL_Color{64, 64, 64, 255}, SDL_Color{96, 96, 96, 255},
+    SDL_Color{128, 128, 128, 255}, SDL_Color{160, 160, 160, 255},
+    SDL_Color{192, 192, 192, 255}, SDL_Color{224, 224, 224, 255},
+    SDL_Color{4, 4, 4, 255}, SDL_Color{36, 36, 36, 255},
+    SDL_Color{68, 68, 68, 255}, SDL_Color{100, 100, 100, 255},
+    SDL_Color{132, 132, 132, 255}, SDL_Color{164, 164, 164, 255},
+    SDL_Color{196, 196, 196, 255}, SDL_Color{228, 228, 228, 255},
+    SDL_Color{0, 0, 0, 255}, SDL_Color{60, 60, 60, 255},
+    SDL_Color{72, 72, 72, 255}, SDL_Color{84, 84, 84, 255},
+    SDL_Color{96, 96, 96, 255}, SDL_Color{108, 108, 108, 255},
+    SDL_Color{120, 120, 120, 255}, SDL_Color{132, 132, 132, 255},
+    SDL_Color{144, 144, 144, 255}, SDL_Color{156, 156, 156, 255},
+    SDL_Color{168, 168, 168, 255}, SDL_Color{180, 180, 180, 255},
+    SDL_Color{192, 192, 192, 255}, SDL_Color{204, 204, 204, 255},
+    SDL_Color{216, 216, 216, 255}, SDL_Color{228, 228, 228, 255},
+    SDL_Color{228, 64, 64, 255}, SDL_Color{216, 72, 72, 255},
+    SDL_Color{204, 80, 80, 255}, SDL_Color{192, 88, 88, 255},
+    SDL_Color{180, 96, 96, 255}, SDL_Color{168, 104, 104, 255},
+    SDL_Color{156, 112, 112, 255}, SDL_Color{144, 120, 120, 255},
+    SDL_Color{228, 0, 0, 255}, SDL_Color{208, 0, 0, 255},
+    SDL_Color{188, 0, 0, 255}, SDL_Color{168, 0, 0, 255},
+    SDL_Color{148, 0, 0, 255}, SDL_Color{128, 0, 0, 255},
+    SDL_Color{108, 0, 0, 255}, SDL_Color{88, 0, 0, 255},
+    SDL_Color{64, 228, 64, 255}, SDL_Color{72, 216, 72, 255},
+    SDL_Color{80, 204, 80, 255}, SDL_Color{88, 192, 88, 255},
+    SDL_Color{96, 180, 96, 255}, SDL_Color{104, 168, 104, 255},
+    SDL_Color{112, 156, 112, 255}, SDL_Color{120, 144, 120, 255},
+    SDL_Color{0, 228, 0, 255}, SDL_Color{0, 208, 0, 255},
+    SDL_Color{0, 188, 0, 255}, SDL_Color{0, 168, 0, 255},
+    SDL_Color{0, 148, 0, 255}, SDL_Color{0, 128, 0, 255},
+    SDL_Color{0, 108, 0, 255}, SDL_Color{0, 88, 0, 255},
+    SDL_Color{64, 64, 228, 255}, SDL_Color{72, 72, 216, 255},
+    SDL_Color{80, 80, 204, 255}, SDL_Color{88, 88, 192, 255},
+    SDL_Color{96, 96, 180, 255}, SDL_Color{104, 104, 168, 255},
+    SDL_Color{112, 112, 156, 255}, SDL_Color{120, 120, 144, 255},
+    SDL_Color{0, 0, 228, 255}, SDL_Color{0, 0, 208, 255},
+    SDL_Color{0, 0, 188, 255}, SDL_Color{0, 0, 168, 255},
+    SDL_Color{0, 0, 148, 255}, SDL_Color{0, 0, 128, 255},
+    SDL_Color{0, 0, 108, 255}, SDL_Color{0, 0, 88, 255},
+    SDL_Color{228, 228, 64, 255}, SDL_Color{216, 216, 72, 255},
+    SDL_Color{204, 204, 80, 255}, SDL_Color{192, 192, 88, 255},
+    SDL_Color{180, 180, 96, 255}, SDL_Color{168, 168, 104, 255},
+    SDL_Color{156, 156, 112, 255}, SDL_Color{144, 144, 120, 255},
+    SDL_Color{228, 228, 0, 255}, SDL_Color{208, 208, 0, 255},
+    SDL_Color{188, 188, 0, 255}, SDL_Color{168, 168, 0, 255},
+    SDL_Color{148, 148, 0, 255}, SDL_Color{128, 128, 0, 255},
+    SDL_Color{108, 108, 0, 255}, SDL_Color{88, 88, 0, 255},
+    SDL_Color{228, 64, 228, 255}, SDL_Color{216, 72, 216, 255},
+    SDL_Color{204, 80, 204, 255}, SDL_Color{192, 88, 192, 255},
+    SDL_Color{180, 96, 180, 255}, SDL_Color{168, 104, 168, 255},
+    SDL_Color{156, 112, 156, 255}, SDL_Color{144, 120, 144, 255},
+    SDL_Color{228, 0, 228, 255}, SDL_Color{208, 0, 208, 255},
+    SDL_Color{188, 0, 188, 255}, SDL_Color{168, 0, 168, 255},
+    SDL_Color{148, 0, 148, 255}, SDL_Color{128, 0, 128, 255},
+    SDL_Color{108, 0, 108, 255}, SDL_Color{88, 0, 88, 255},
+    SDL_Color{64, 228, 228, 255}, SDL_Color{72, 216, 216, 255},
+    SDL_Color{80, 204, 204, 255}, SDL_Color{88, 192, 192, 255},
+    SDL_Color{96, 180, 180, 255}, SDL_Color{104, 168, 168, 255},
+    SDL_Color{112, 156, 156, 255}, SDL_Color{120, 144, 144, 255},
+    SDL_Color{0, 228, 228, 255}, SDL_Color{0, 208, 208, 255},
+    SDL_Color{0, 188, 188, 255}, SDL_Color{0, 168, 168, 255},
+    SDL_Color{0, 148, 148, 255}, SDL_Color{0, 128, 128, 255},
+    SDL_Color{0, 108, 108, 255}, SDL_Color{0, 88, 88, 255},
+    SDL_Color{228, 164, 100, 255}, SDL_Color{208, 144, 80, 255},
+    SDL_Color{188, 124, 60, 255}, SDL_Color{168, 104, 40, 255},
+    SDL_Color{148, 84, 20, 255}, SDL_Color{128, 64, 0, 255},
+    SDL_Color{108, 44, 0, 255}, SDL_Color{88, 24, 0, 255},
+    SDL_Color{200, 160, 120, 255}, SDL_Color{180, 140, 100, 255},
+    SDL_Color{160, 120, 80, 255}, SDL_Color{140, 100, 60, 255},
+    SDL_Color{120, 80, 40, 255}, SDL_Color{100, 60, 20, 255},
+    SDL_Color{80, 40, 0, 255}, SDL_Color{60, 20, 0, 255},
+    SDL_Color{228, 100, 164, 255}, SDL_Color{208, 80, 144, 255},
+    SDL_Color{188, 60, 124, 255}, SDL_Color{168, 40, 104, 255},
+    SDL_Color{148, 20, 84, 255}, SDL_Color{128, 0, 64, 255},
+    SDL_Color{108, 0, 44, 255}, SDL_Color{88, 0, 24, 255},
+    SDL_Color{200, 120, 160, 255}, SDL_Color{180, 100, 140, 255},
+    SDL_Color{160, 80, 120, 255}, SDL_Color{140, 60, 100, 255},
+    SDL_Color{120, 40, 80, 255}, SDL_Color{100, 20, 60, 255},
+    SDL_Color{80, 0, 40, 255}, SDL_Color{60, 0, 20, 255},
+    SDL_Color{0, 72, 24, 255}, SDL_Color{0, 64, 24, 255},
+    SDL_Color{0, 52, 20, 255}, SDL_Color{0, 44, 20, 255},
+    SDL_Color{0, 32, 12, 255}, SDL_Color{0, 24, 8, 255},
+    SDL_Color{0, 12, 4, 255}, SDL_Color{0, 8, 0, 255},
+    SDL_Color{68, 68, 68, 255}, SDL_Color{68, 68, 68, 255},
+    SDL_Color{68, 68, 68, 255}, SDL_Color{68, 68, 68, 255},
+    SDL_Color{68, 68, 68, 255}, SDL_Color{68, 68, 68, 255},
+    SDL_Color{68, 68, 68, 255}, SDL_Color{68, 68, 68, 255},
+    SDL_Color{68, 68, 68, 255}, SDL_Color{68, 68, 68, 255},
+    SDL_Color{68, 68, 68, 255}, SDL_Color{68, 68, 68, 255},
+    SDL_Color{68, 68, 68, 255}, SDL_Color{68, 68, 68, 255},
+    SDL_Color{68, 68, 68, 255}, SDL_Color{68, 68, 68, 255},
+    SDL_Color{68, 68, 68, 255}, SDL_Color{68, 68, 68, 255},
+    SDL_Color{68, 68, 68, 255}, SDL_Color{68, 68, 68, 255},
+    SDL_Color{68, 68, 68, 255}, SDL_Color{68, 68, 68, 255},
+    SDL_Color{68, 68, 68, 255}, SDL_Color{68, 68, 68, 255},
+    SDL_Color{68, 100, 228, 255}, SDL_Color{144, 80, 208, 255},
+    SDL_Color{124, 60, 188, 255}, SDL_Color{104, 40, 168, 255},
+    SDL_Color{84, 20, 148, 255}, SDL_Color{64, 0, 128, 255},
+    SDL_Color{44, 0, 108, 255}, SDL_Color{24, 0, 88, 255},
+    SDL_Color{160, 120, 200, 255}, SDL_Color{140, 100, 180, 255},
+    SDL_Color{120, 80, 160, 255}, SDL_Color{100, 60, 140, 255},
+    SDL_Color{80, 40, 120, 255}, SDL_Color{60, 20, 100, 255},
+    SDL_Color{40, 0, 80, 255}, SDL_Color{20, 0, 60, 255},
+    SDL_Color{100, 164, 228, 255}, SDL_Color{92, 156, 220, 255},
+    SDL_Color{84, 148, 212, 255}, SDL_Color{76, 140, 204, 255},
+    SDL_Color{68, 132, 196, 255}, SDL_Color{60, 124, 188, 255},
+    SDL_Color{52, 116, 180, 255}, SDL_Color{44, 108, 172, 255},
+    SDL_Color{36, 100, 164, 255}, SDL_Color{28, 92, 156, 255},
+    SDL_Color{20, 84, 148, 255}, SDL_Color{12, 76, 140, 255},
+    SDL_Color{4, 68, 132, 255}, SDL_Color{0, 60, 124, 255},
+    SDL_Color{0, 52, 116, 255}, SDL_Color{0, 44, 108, 255},
+    SDL_Color{228, 60, 0, 255}, SDL_Color{228, 84, 0, 255},
+    SDL_Color{228, 108, 0, 255}, SDL_Color{228, 132, 0, 255},
+    SDL_Color{228, 156, 0, 255}, SDL_Color{228, 180, 0, 255},
+    SDL_Color{228, 204, 0, 255}, SDL_Color{228, 228, 0, 255},
+    SDL_Color{228, 60, 0, 255}, SDL_Color{228, 84, 0, 255},
+    SDL_Color{228, 108, 0, 255}, SDL_Color{228, 132, 0, 255},
+    SDL_Color{228, 156, 0, 255}, SDL_Color{228, 180, 0, 255},
+    SDL_Color{228, 204, 0, 255}, SDL_Color{228, 228, 0, 255},
+    SDL_Color{228, 148, 124, 255}, SDL_Color{204, 132, 108, 255},
+    SDL_Color{188, 112, 96, 255}, SDL_Color{172, 96, 80, 255},
+    SDL_Color{224, 140, 92, 255}, SDL_Color{208, 128, 96, 255},
+    SDL_Color{192, 120, 88, 255}, SDL_Color{176, 108, 76, 255},
+    SDL_Color{112, 72, 72, 255}, SDL_Color{120, 80, 80, 255},
+    SDL_Color{128, 88, 88, 255}, SDL_Color{136, 96, 96, 255},
+    SDL_Color{144, 104, 104, 255}, SDL_Color{152, 112, 112, 255},
+    SDL_Color{160, 120, 120, 255}, SDL_Color{168, 128, 128, 255},
 };
 
-static Uint32 getPixel(SDL_Surface *surface, int x, int y)
+Sint32 num_rows()
 {
-    Uint8 *bits;
-    Uint32 bpp;
+    Sint32 numcolors = sizeof(ourcolors) / sizeof(SDL_Color);
+    Sint32 numrows = numcolors / columns;
 
-    if ((x < 0) || (x >= surface->w)) {
-        // Best I could do for errors
-        return 0;
+    if ((numrows * columns) < numcolors) {
+        ++numrows;
     }
 
-    bpp = surface->format->BytesPerPixel;
-    bits = ((Uint8 *)surface->pixels) + (y * surface->pitch) + (x * bpp);
-
-    switch (bpp) {
-    case 1:
-        return *((Uint8 *)surface->pixels + (y * surface->pitch) + x);
-    case 2:
-        return *((Uint16 *)surface->pixels + ((y * surface->pitch) / 2) + x);
-    case 3:
-    {
-        // Endian-correct, but slower
-        Uint8 r;
-        Uint8 g;
-        Uint8 b;
-
-        r = *(bits + (surface->format->Rshift / 8));
-        g = *(bits + (surface->format->Gshift / 8));
-        b = *(bits + (surface->format->Bshift / 8));
-
-        return SDL_MapRGB(surface->format, r, g, b);
-    }
-    case 4:
-        return *((Uint32 *)surface->pixels + ((y * surface->pitch) / 4) + x);
-    }
-
-    // FIXME: Handle errors better
-    return 0;
+    return numrows;
 }
 
-Uint8 is_in_range(int value, int target, int range)
+// void draw_palette_to_surface(SDL_Surface *surface)
+void draw_palette_to_surface(SDL_Renderer *renderer)
 {
-    return ((value >= (target - range)) && (value <= (target + range)));
-}
+    Sint32 width;
+    Sint32 height;
+    SDL_GetRendererOutputSize(renderer, &width, &height);
 
-Sint32 get_color_index(Uint8 r, Uint8 g, Uint8 b, Uint8 a)
-{
-    if (a == 0) {
-        return 0;
-    }
+    Sint32 xdelta = width / columns;
+    Sint32 ydelta = height / num_rows();
 
-    Sint32 rr = r / 4;
-    Sint32 gg = g / 4;
-    Sint32 bb = b / 4;
 
-    Sint32 numcolors = sizeof(ourcolors) / sizeof(char);
-
-    Sint32 slop = 0;
-
-    // Look for the nearest color
-    while (1) {
-        Sint32 i;
-
-        // Skip matching transparent black (0, 0, 0)
-        if (is_in_range(0, rr, slop)
-            && is_in_range(0, gg, slop)
-            && is_in_range(0, bb, slop)) {
-            // (1, 1, 1)
-            return 8;
-        }
-
-        for (i = 0; i < numcolors; ++i) {
-            if (is_in_range(ourcolors[i * 3], rr, slop)
-                && is_in_range(ourcolors[(i * 3) + 1], gg, slop)
-                && is_in_range(ourcolors[(i * 3) + 2], bb, slop)) {
-                return i;
-            }
-        }
-
-        // Look again with a wider tolerance...
-        ++slop;
-    }
-
-    return 0;
-}
-
-Sint32 get_index(Sint32 x, Sint32 y)
-{
-    return ((columns * (y / resolution)) + (x / resolution));
-}
-
-void draw_palette_to_surface(SDL_Surface *surface)
-{
     Sint32 x = 0;
     Sint32 y = 0;
     Sint32 index = 0;
 
     while (index < 256) {
-        Uint8 r;
-        Uint8 g;
-        Uint8 b;
+        SDL_Color color = ourcolors[index];
 
-        r = ourcolors[index * 3] * 4;
-        g = ourcolors[(index * 3) + 1] * 4;
-        b = ourcolors[(index * 3) + 2] * 4;
+        SDL_Rect rect = { x, y, xdelta, ydelta };
 
-        SDL_Rect rect = { x, y, resolution, resolution };
-
-        if ((r > 0) || (g > 0) || (b > 0)) {
-            SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, r, g, b));
-        }
+        SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, SDL_ALPHA_OPAQUE);
+        SDL_RenderFillRect(renderer, &rect);
 
         ++index;
-        x += resolution;
-
-        if (x >= (columns * resolution)) {
+        x += xdelta;
+        if (x >= (columns * xdelta)) {
             x = 0;
-            y += resolution;
+            y += ydelta;
         }
     }
 }
@@ -186,33 +195,31 @@ int main(int argc, char *argv[])
     SDL_Window *window;
     SDL_Renderer *renderer;
 
-    if (SDL_CreateWindowAndRenderer(800, 600, SDL_WINDOW_SHOWN, &window, &renderer) < 0) {
+    if (SDL_CreateWindowAndRenderer(0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP, &window, &renderer) < 0) {
         return 2;
     }
 
-    SDL_Surface *surface = SDL_CreateRGBSurface(SDL_SWSURFACE, 800, 600, 32, 0, 0, 0, 0);
-    if (surface == NULL) {
-        return 3;
-    }
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 
-    draw_palette_to_surface(surface);
+    Sint32 width;
+    Sint32 height;
+    SDL_GetRendererOutputSize(renderer, &width, &height);
 
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-    if (texture == NULL) {
-        return 4;
-    }
+    draw_palette_to_surface(renderer);
+    SDL_RenderPresent(renderer);
 
     SDL_Event event;
     bool done = false;
 
     while (!done) {
         while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                done = true;
-            } else if ((event.type == SDL_KEYDOWN) && (event.key.keysym.sym == SDLK_ESCAPE)) {
+            if ((event.type == SDL_QUIT)
+                || ((event.type == SDL_KEYDOWN) && (event.key.keysym.sym == SDLK_ESCAPE))) {
                 done = true;
             } else if (event.type == SDL_MOUSEBUTTONDOWN) {
-                Sint32 index = get_index(event.button.x, event.button.y);
+                Sint32 column_index = event.button.x / (width / columns);
+                Sint32 row_index = event.button.y / (height / num_rows());
+                Sint32 index = (columns * row_index) + column_index;
 
                 if ((index >= 0) && (index < 256)) {
                     std::cout << "Color: " << index;
@@ -229,10 +236,6 @@ int main(int argc, char *argv[])
                 }
             }
         }
-
-        SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, texture, NULL, NULL);
-        SDL_RenderPresent(renderer);
 
         SDL_Delay(10);
     }

@@ -87,7 +87,7 @@ public:
     Sint32 FadeBetween(SDL_Surface *, SDL_Surface *, SDL_Surface *);
     Sint32 fadeblack(bool fade_in);
 
-    Sint32 fadeDuration;
+    Uint32 fadeDuration;
 
     // Our standard glad palette
     SDL_Color ourpalette[256];

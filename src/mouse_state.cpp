@@ -29,8 +29,6 @@
 MouseState mouse_state;
 Sint32 mouse_buttons;
 
-Sint16 key_press_event = 0;
-
 void handle_mouse_event(SDL_Event const &event)
 {
     switch (event.type) {

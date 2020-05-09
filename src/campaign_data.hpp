@@ -37,7 +37,7 @@ public:
     bool save();
     bool save_as(std::filesystem::path const &new_id);
 
-    std::string getDescriptionLine(Sint32 i);
+    std::string getDescriptionLine(Uint32 i);
 
     std::filesystem::path id;
     std::string title;

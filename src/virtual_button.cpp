@@ -183,7 +183,7 @@ void VirtualButton::vdisplay()
         if (label.size()) {
             mytext.write_xy(((xloc + xend) / 2) - (((label.size() - 1) * (mytext.letters.w + 1)) / 2),
                             yloc + ((height - mytext.letters.h) / 2),
-                            label.c_str(), DARK_BLUE, 1);
+                            label, DARK_BLUE, 1);
         }
     }
 }
@@ -213,7 +213,7 @@ void VirtualButton::vdisplay(Sint32 status)
         if (label.size()) {
             mytext.write_xy(((xloc + xend) / 2) - (((label.size() - 1) * (mytext.letters.w + 1)) / 2),
                             yloc + ((height - mytext.letters.h) / 2),
-                            label.c_str(), DARK_BLUE, 1);
+                            label, DARK_BLUE, 1);
         }
     } else if (status == 1) {
         // Front
@@ -255,7 +255,7 @@ void VirtualButton::vdisplay(Sint32 status)
         if (label.size()) {
             mytext.write_xy(((xloc + xend) / 2) - (((label.size() - 1) * (mytext.letters.w + 1)) / 2),
                             yloc + ((height - mytext.letters.h) / 2),
-                            label.c_str(), DARK_BLUE, 1);
+                            label, DARK_BLUE, 1);
         }
     }
 

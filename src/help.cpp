@@ -147,7 +147,7 @@ Sint16 read_scenario(VideoScreen *myscreen)
                     // To buffer!
                     mytext.write_xy(HELPTEXT_LEFT + 2,
                                     (TEXT_DOWN(j) - linesdown) % 8,
-                                    s.c_str(), DARK_BLUE, 1);
+                                    s, DARK_BLUE, 1);
                 }
             }
 
@@ -276,7 +276,7 @@ Sint16 read_campaign_intro(VideoScreen *myscreen)
                     // To buffer!
                     mytext.write_xy(HELPTEXT_LEFT + 2,
                                     (TEXT_DOWN(j) - linesdown) % 8,
-                                    data.getDescriptionLine(j + templines).c_str(),
+                                    data.getDescriptionLine(j + templines),
                                     DARK_BLUE, 1);
                 }
             }
@@ -287,7 +287,7 @@ Sint16 read_campaign_intro(VideoScreen *myscreen)
             myscreen->draw_text_bar(HELPTEXT_LEFT, HELPTEXT_TOP + 97,
                                     HELPTEXT_LEFT + 236, HELPTEXT_TOP + 103);
             mytext.write_xy((HELPTEXT_LEFT + 120) - (data.title.size() * 3),
-                            HELPTEXT_TOP - 7, data.title.c_str(),
+                            HELPTEXT_TOP - 7, data.title,
                             RED, 1);
             mytext.write_xy(HELPTEXT_LEFT + 52, HELPTEXT_TOP + 98,
                             "PRESS 'ESC' TO CONTINUE",

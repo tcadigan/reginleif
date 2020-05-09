@@ -64,6 +64,8 @@ Sint16 load_version_4(SDL_RWops *infile, VideoScreen *master); // Version 4 scen
 Sint16 load_version_5(SDL_RWops *infile, VideoScreen *master); // Version 5 scen: + type
 Sint16 load_version_6(SDL_RWops *infile, VideoScreen *master, Sint16 version=6); // Version 6 scen: + title
 
+VideoScreen *myscreen;
+
 /*
  **********************************************************
  * SCREEN -- Graphics routines

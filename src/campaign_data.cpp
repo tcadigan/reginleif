@@ -431,7 +431,7 @@ bool CampaignData::save_as(std::filesystem::path const &new_id)
     return result;
 }
 
-std::string CampaignData::getDescriptionLine(Sint32 i)
+std::string CampaignData::getDescriptionLine(Uint32 i)
 {
     if ((i < 0) || (i >= description.size())) {
         return "";

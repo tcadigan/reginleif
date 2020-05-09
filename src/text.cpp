@@ -354,7 +354,7 @@ bool Text::write_char_xy(Sint16 x, Sint16 y, Uint8 letter)
  * in 'begin' will automatically be entered at the start. Fore- and backcolor
  * are used for the text foreground and background color
  */
-std::string Text::input_string(Sint16 x, Sint16 y, Sint16 maxlength, std::string const &begin, Uint8 forecolor, Uint8 backcolor)
+std::string Text::input_string(Sint16 x, Sint16 y, Uint32 maxlength, std::string const &begin, Uint8 forecolor, Uint8 backcolor)
 {
     bool string_done = false;
     Sint16 strmax = 100;
@@ -476,13 +476,7 @@ std::string Text::input_string(Sint16 x, Sint16 y, Sint16 maxlength, std::string
     return editstr;
 }
 
-// This version passes DARK_BLUE and a grey color as defaults...
-std::string Text::input_string_ex(Sint16 x, Sint16 y, Sint16 maxlength, std::string const &message, std::string const &begin)
-{
-    return input_string_ex(x, y, maxlength, message, begin, DARK_BLUE, 13);
-}
-
-std::string Text::input_string_ex(Sint16 x, Sint16 y, Sint16 maxlength, std::string const &message, std::string const &begin, Uint8 forecolor, Uint8 backcolor)
+std::string Text::input_string_ex(Sint16 x, Sint16 y, Uint32 maxlength, std::string const &message, std::string const &begin, Uint8 forecolor, Uint8 backcolor)
 {
     bool string_done = false;
     Sint16 strmax = 100;

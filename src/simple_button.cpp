@@ -45,9 +45,9 @@ void SimpleButton::draw(VideoScreen *myscreen)
     if (centered) {
         mytext.write_xy((area.x + (area.w / 2)) - (3 * label.size()),
                         (area.y + (area.h / 2)) - 2,
-                        label.c_str(), text_color, 1);
+                        label, text_color, 1);
     } else {
-        mytext.write_xy(area.x + 2, (area.y + (area.h / 2)) - 2, label.c_str(), text_color, 1);
+        mytext.write_xy(area.x + 2, (area.y + (area.h / 2)) - 2, label, text_color, 1);
     }
 }
 

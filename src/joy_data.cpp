@@ -17,11 +17,13 @@
  */
 #include "joy_data.hpp"
 
+#include "input.hpp"
 #include "util.hpp"
 
 #include <sstream>
 
-Sint16 key_press_event = 0;
+JoyData player_joy[4];
+SDL_Joystick *joysticks[MAX_NUM_JOYSTICKS];
 
 JoyData::JoyData()
     : index(-1)

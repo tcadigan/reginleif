@@ -63,7 +63,7 @@ Sint32 main_options();
 Uint32 calculate_exp(Sint32 level);
 Sint32 calculate_level(Uint32 temp_exp);
 
-Sint32 current_difficulty = 1; // Setting "normal"
-Sint32 difficulty_level[DIFFICULTY_SETTINGS] = { 50, 100, 200 };
+extern Sint32 current_difficulty;
+extern Sint32 difficulty_level[DIFFICULTY_SETTINGS];
 
 #endif

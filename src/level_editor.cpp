@@ -62,8 +62,6 @@
 #define PAN_LIMIT_LEFT -60
 #define PAN_LIMIT_RIGHT (((GRID_SIZE * data.level->grid.w) - 320) + 80)
 
-extern Sint16 scroll_amount; // For scrolling up and down text popups
-
 SDL_Color scenpalette[256];
 Sint32 cyclemode = 1; // For color cycling
 
@@ -313,7 +311,7 @@ bool prompt_for_string_block(std::string const &message, std::list<std::string> 
 
         clear_text_input_event();
         myscreen->draw_button(x - 5, y - 20, (x + w) + 10, (y + h) + 10, 1);
-        mytext.write_xy(x, y - 13, message.c_str(), BLACK, 1);
+        mytext.write_xy(x, y - 13, message, BLACK, 1);
         myscreen->hor_line(x, y - 5, w, BLACK);
 
         myscreen->draw_button(done_button.x, done_button.y, done_button.x + done_button.w,
@@ -376,7 +374,7 @@ bool prompt_for_string(std::string const &message, std::string &result)
 
     myscreen->draw_button(x - 5, y - 20, (x + w) + 10, (y + h) + 10, 1);
 
-    std::string str(myscreen->text_normal.input_string_ex(x, y, max_chars, message.c_str(), result.c_str()));
+    std::string str(myscreen->text_normal.input_string_ex(x, y, max_chars, message.c_str(), result, DARK_BLUE, 13));
 
     if (str.empty()) {
         return false;
@@ -749,7 +747,7 @@ LevelEditor::LevelEditor()
     }
 
     // Redraw right away
-    redraw = 1;
+    redraw = true;
     object_pane.clear();
 
     for (Sint32 i = 0; i < NUM_FAMILIES; ++i) {
@@ -776,8 +774,8 @@ LevelEditor::LevelEditor()
 
     MouseState &mymouse = query_mouse_no_poll();
 
-    mouse_last_x = mymouse.x;
-    mouse_last_y = mymouse.y;
+    Sint32 mouse_last_x = mymouse.x;
+    Sint32 mouse_last_y = mymouse.y;
 
     float cycletimer = 0.0f;
     grab_mouse();
@@ -816,16 +814,16 @@ LevelEditor::LevelEditor()
             case MOUSE_UP_EVENT:
                 if (mouse_up_button == MOUSE_LEFT) {
                     data.mouse_up(mymouse.x, mymouse.y, mouse_last_x, mouse_last_y, done);
-                    redraw = 1;
+                    redraw = true;
                 } else if (mouse_up_button == MOUSE_RIGHT) {
                     // Picking with right mouse button
                     data.pick_by_mouse(mymouse.x, mymouse.y);
-                    redraw = 1;
+                    redraw = true;
                 }
 
                 break;
             case KEY_DOWN_EVENT:
-                redraw = 1;
+                redraw = true;
 
                 if (event.key.keysym.sym == SDLK_ESCAPE) {
                     if ((!levelchanged && !campaignchanged)
@@ -863,7 +861,7 @@ LevelEditor::LevelEditor()
 
                     if (levelchanged) {
                         if (data.saveLevel()) {
-                            levelchanged = 0;
+                            levelchanged = false;
                             saved = true;
                         } else {
                             timed_dialog("Failed to save level.");
@@ -872,7 +870,7 @@ LevelEditor::LevelEditor()
 
                     if (campaignchanged) {
                         if (data.saveCampaign()) {
-                            campaignchanged = 0;
+                            campaignchanged = false;
                             saved = true;
                         } else {
                             timed_dialog("Failed to save campaign.");
@@ -922,7 +920,7 @@ LevelEditor::LevelEditor()
                 } else if (event.key.keysym.sym == SDLK_F5) {
                     // Smooth current map, F5
                     data.resmooth_terrain();
-                    levelchanged = 1;
+                    levelchanged = true;
                 } else if (event.key.keysym.sym == SDLK_F9) {
                     // Change to new palette...
                     load_and_set_palette(scenpalette);
@@ -946,7 +944,7 @@ LevelEditor::LevelEditor()
                 rowsdown -= maxrows;
             }
 
-            redraw = 1;
+            redraw = true;
 
             while (keystates[KEYSTATE_DOWN]) {
                 get_input_events(WAIT);
@@ -966,7 +964,7 @@ LevelEditor::LevelEditor()
                 rowsdown = 0;
             }
 
-            redraw = 1;
+            redraw = true;
 
             while (keystates[KEYSTATE_UP]) {
                 get_input_events(WAIT);
@@ -1012,25 +1010,25 @@ LevelEditor::LevelEditor()
 
         // Top of the screen
         if (pan_up && (data.level->topy >= PAN_LIMIT_UP)) {
-            redraw = 1;
+            redraw = true;
             data.level->add_draw_pos(0, -SCROLLSIZE);
         }
 
         // Scroll down
         if (pan_down && (data.level->topy <= PAN_LIMIT_DOWN)) {
-            redraw = 1;
+            redraw = true;
             data.level->add_draw_pos(0, SCROLLSIZE);
         }
 
         // Scroll left
         if (pan_left && (data.level->topx >= PAN_LIMIT_LEFT)) {
-            redraw = 1;
+            redraw = true;
             data.level->add_draw_pos(-SCROLLSIZE, 0);
         }
 
         // Scroll right
         if (pan_right && (data.level->topx <= PAN_LIMIT_RIGHT)) {
-            redraw = 1;
+            redraw = true;
             data.level->add_draw_pos(SCROLLSIZE, 0);
         }
 
@@ -1039,7 +1037,7 @@ LevelEditor::LevelEditor()
 
         // Put or remove the current guy
         if (mymouse.left) {
-            redraw = 1;
+            redraw = true;
             mx = mymouse.x;
             my = mymouse.y;
 
@@ -1053,10 +1051,10 @@ LevelEditor::LevelEditor()
                 // Panning with mouse (touch)
                 // Top of the screen
                 if (data.panUpButton.contains(mx, my) && (data.level->topy >= PAN_LIMIT_UP)) {
-                    redraw = 1;
+                    redraw = true;
                     data.level->add_draw_pos(0, -SCROLLSIZE);
                 } else if (data.panUpRightButton.contains(mx, my)) {
-                    redraw = 1;
+                    redraw = true;
 
                     if (data.level->topy >= PAN_LIMIT_UP) {
                         data.level->add_draw_pos(0, -SCROLLSIZE);
@@ -1066,7 +1064,7 @@ LevelEditor::LevelEditor()
                         data.level->add_draw_pos(SCROLLSIZE, 0);
                     }
                 } else if (data.panUpLeftButton.contains(mx, my)) {
-                    redraw = 1;
+                    redraw = true;
 
                     if (data.level->topy >= PAN_LIMIT_UP) {
                         data.level->add_draw_pos(0, -SCROLLSIZE);
@@ -1077,10 +1075,10 @@ LevelEditor::LevelEditor()
                     }
                 } else if (data.panDownButton.contains(mx, my) && (data.level->topy <= PAN_LIMIT_DOWN)) {
                     // Scroll down
-                    redraw = 1;
+                    redraw = true;
                     data.level->add_draw_pos(0, SCROLLSIZE);
                 } else if (data.panDownRightButton.contains(mx, my)) {
-                    redraw = 1;
+                    redraw = true;
 
                     if (data.level->topy <= PAN_LIMIT_DOWN) {
                         data.level->add_draw_pos(0, SCROLLSIZE);
@@ -1090,7 +1088,7 @@ LevelEditor::LevelEditor()
                         data.level->add_draw_pos(SCROLLSIZE, 0);
                     }
                 } else if (data.panDownLeftButton.contains(mx, my)) {
-                    redraw = 1;
+                    redraw = true;
 
                     if (data.level->topy <= PAN_LIMIT_DOWN) {
                         data.level->add_draw_pos(0, SCROLLSIZE);
@@ -1101,11 +1099,11 @@ LevelEditor::LevelEditor()
                     }
                 } else if (data.panLeftButton.contains(mx, my) && (data.level->topx >= PAN_LIMIT_LEFT)) {
                     // Scroll left
-                    redraw = 1;
+                    redraw = true;
                     data.level->add_draw_pos(-SCROLLSIZE, 0);
                 } else if (data.panRightButton.contains(mx, my) && (data.level->topx <= PAN_LIMIT_RIGHT)) {
                     // Scroll right
-                    redraw = 1;
+                    redraw = true;
                     data.level->add_draw_pos(SCROLLSIZE, 0);
                 }
             } else if (off_menu) {
@@ -1140,7 +1138,7 @@ LevelEditor::LevelEditor()
                             if (!data.terrain_brush.picking) {
                                 // Set to our current selection (apply brush)
                                 data.set_terrain(windowx, windowy, get_random_matching_tile(data.terrain_brush.terrain));
-                                levelchanged = 1;
+                                levelchanged = true;
 
                                 // Smooth a few squares, if not control
                                 if (data.terrain_brush.use_smoothing) {
@@ -1174,12 +1172,12 @@ LevelEditor::LevelEditor()
                 cycle_palette(scenpalette, ORANGE_START, ORANGE_END, 1);
             }
 
-            redraw = 1;
+            redraw = true;
         }
 
         // Redraw screen
         if (redraw) {
-            redraw = 0;
+            redraw = false;
             data.draw(myscreen);
 
             myscreen->refresh();
@@ -1206,7 +1204,7 @@ void set_screen_pos(VideoScreen *myscreen, Sint32 x, Sint32 y)
 {
     myscreen->level_data.topx = x;
     myscreen->level_data.topy = y;
-    redraw = 1;
+    redraw = true;
 }
 
 Uint8 get_random_matching_tile(Sint32 whatback)

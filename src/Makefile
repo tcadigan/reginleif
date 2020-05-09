@@ -1,6 +1,6 @@
 NAME = openglad
 CXXFLAGS = -Wall -std=c++17 `sdl2-config --cflags`
-LDFLAGS = `sdl2-config --libs` -lstdc++fs
+LDFLAGS = `sdl2-config --libs` -lstdc++fs -lSDL2_mixer -fPIC
 
 CPPFILES = browser_entry.cpp button.cpp campaign_data.cpp campaign_entry.cpp \
            campaign_result.cpp command.cpp damage_number.cpp \
@@ -52,7 +52,7 @@ clean:
 browser_entry.o: browser_entry.hpp
 browser_entry.hpp: level_data.hpp radar.hpp video_screen.hpp
 	touch browser_entry.hpp
-button.o: button.hpp input.hpp pixien.hpp virtual_button.hpp
+button.o: button.hpp input.hpp pixien.hpp video_screen.hpp virtual_button.hpp
 button.hpp: menu_nav.hpp
 	touch button.hpp
 campaign_data.o: campaign_data.hpp graphlib.hpp io.hpp util.hpp
@@ -95,10 +95,10 @@ help.hpp: video_screen.hpp
 input.o: input.hpp gparser.hpp io.hpp joy_data.hpp mouse_state.hpp picker.hpp util.hpp video_screen.hpp
 intro.o: intro.hpp base.hpp graphlib.hpp input.hpp pal32.hpp pixie.hpp util.hpp video_screen.hpp view.hpp
 io.o: io.hpp input.hpp pixdefs.hpp util.hpp
-joy_data.o: joy_data.hpp
-joy_data.hpp: input.hpp
+joy_data.o: joy_data.hpp input.hpp util.hpp
+joy_data.hpp: base.hpp
 	touch joy_data.hpp
-level_data.o: level_data.hpp graphlib.hpp io.hpp screen.hpp util.hpp view.hpp walker.hpp
+level_data.o: level_data.hpp graphlib.hpp io.hpp screen.hpp util.hpp video_screen.hpp view.hpp walker.hpp
 level_data.hpp: gloader.hpp pixdefs.hpp obmap.hpp pixie.hpp pixie_data.hpp pixien.hpp smooth.hpp walker.hpp
 	touch level_data.hpp
 level_editor.o: level_editor.hpp input.hpp io.hpp joy_data.hpp level_editor_data.hpp mouse_state.hpp object_type.hpp options.hpp pal32.hpp picker.hpp text.hpp util.hpp view.hpp walker.hpp
@@ -122,7 +122,7 @@ obmap.hpp: walker.hpp
 	touch obmap.hpp
 options.o: options.hpp io.hpp
 pal32.o: pal32.hpp
-picker.o: picker.hpp button.hpp campaign_result.hpp glad.hpp gloader.hpp gparser.hpp graphlib.hpp guy.hpp help.hpp input.hpp io.hpp level_editor.hpp level_picker.hpp mouse_state.hpp options.hpp pal32.hpp util.hpp version.hpp video_screen.hpp view.hpp virtual_button.hpp walker.hpp
+picker.o: picker.hpp button.hpp campaign_result.hpp glad.hpp gloader.hpp gparser.hpp graphlib.hpp guy.hpp help.hpp input.hpp io.hpp level_editor.hpp level_picker.hpp mouse_state.hpp options.hpp pal32.hpp pixien.hpp util.hpp version.hpp video_screen.hpp view.hpp virtual_button.hpp walker.hpp
 picker.hpp: button.hpp guy.hpp
 	touch picker.hpp
 pixie.o: pixie.hpp base.hpp pal32.hpp util.hpp video_screen.hpp view.hpp

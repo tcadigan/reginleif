@@ -37,7 +37,7 @@ public:
     std::map<std::string, std::map<std::string, std::string>> data;
 };
 
-ConfigStore cfg;
+extern ConfigStore cfg;
 
 void toggle_effect(std::string const &category, std::string const &setting);
 void toggle_rendering_engine();
