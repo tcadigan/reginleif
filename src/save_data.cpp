@@ -86,8 +86,6 @@ void SaveData::reset()
     team_size = 0;
     scen_num = 1;
     my_team = 0;
-    // numplayers = 1;
-    // allied_mode = 1;
 }
 
 bool SaveData::load(std::filesystem::path const &filename)
@@ -551,7 +549,6 @@ bool SaveData::save(std::filesystem::path const &filename)
     outfile = open_write_file(temp_filename);
 
     if (outfile == nullptr) {
-        // gotoxy(1, 22);
         Log("Error in writing team file %s\n", temp_filename.c_str());
 
         return false;
@@ -601,8 +598,6 @@ bool SaveData::save(std::filesystem::path const &filename)
     // Determine size of team list...
     listsize = team_size;
 
-    // gotoxy(1, 22);
-    // Log("Team size: %d", listsize);
     SDL_RWwrite(outfile, &listsize, 2, 1);
 
     SDL_RWwrite(outfile, &numplayers, 1, 1);

@@ -33,7 +33,6 @@ public:
     void clearbuffer(Sint32 x, Sint32 y, Sint32 w, Sint32 h);
     void clear_window();
     Uint8 *getbuffer();
-    void putblack(Sint32 startx, Sint32 starty, Sint32 xsize, Sint32 ysize);
     void fastbox(Sint32 startx, Sint32 starty, Sint32 xsize, Sint32 ysize, Uint8 color);
     void fastbox(Sint32 startx, Sint32 starty, Sint32 xsize, Sint32 ysize, Uint8 color, bool flag);
     void fastbox_outline(Sint32 startx, Sint32 starty, Sint32 xsize, Sint32 ysize, Uint8 color);

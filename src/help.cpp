@@ -304,8 +304,6 @@ Sint16 read_campaign_intro(VideoScreen *myscreen)
         get_input_events(WAIT);
     }
 
-    // delete mytext;
-
     return numlines;
 }
 

@@ -54,7 +54,7 @@ bool Rectf::contains(float x, float y) const
                 && (this->x >= x)
                 && (this->y <= y)
                 && ((this->y + h) >= y));
-    } // else (h < 0.0f) {
+    }
 
     return ((this->x < x)
             && ((this->x + w) >= x)

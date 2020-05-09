@@ -97,36 +97,13 @@ int main(int argc, char *argv[])
 
 void glad_main(Sint32 playermode)
 {
-    // Uint8 soundpath[80];
-    // Sint16 cyclemode = 1; // Color cycling on or offset
-
-    // Sint32 longtemp;
-    // Uint8 message[50];
-
     Sint16 currentcycle = 0;
     Sint16 cycletime = 3;
-
-    // VideoScreen *myscreen;
-
-    // Get sound path
-    // if (!get_cfg_item("directories", "sound")) {
-    //     exit(1);
-    // {
-    //
-    // strcpy(soundpath, get_cfg_item("directories", "sound"));
 
     // Zardus: PORT: fade out
     clear_keyboard();
     myscreen->fadeblack(0);
     myscreen->clearbuffer();
-
-    // Draw rainbow background
-    // for (i = 0; i < 320; ++i) {
-    //     for (j = 0; j < 200; ++j) {
-    //         myscreen->point(i, j, static_cast<Uint8>(i - j)); // Not sure if this is ok
-    //     }
-    // }
-
     // Load the default saved game...
     load_saved_game(myscreen);
 
@@ -157,7 +134,6 @@ void glad_main(Sint32 playermode)
             myscreen->draw_panels(myscreen->numviews);
             score_panel(myscreen, 1);
             myscreen->refresh();
-            // score_panel(myscreen, 1);
             myscreen->redrawme = 0;
         }
 
@@ -224,12 +200,6 @@ void glad_main(Sint32 playermode)
             break;
         }
 
-        // score_panel(myscreen);
-
-        // if (input == SDLK_ESCAPE) {
-        //     break;
-        // }
-
         // Now cycle palette...
         if (myscreen->cyclemode) {
             myscreen->do_cycle(currentcycle, cycletime);
@@ -238,14 +208,6 @@ void glad_main(Sint32 playermode)
 
         // Zardus: PORT: this is the new FPS capacity
         time_delay(myscreen->timer_wait - query_timer());
-
-        // Zarder: PORT: This is the old FPS cap
-        // Now check to see if we're slow enough
-        // if (query_timer() < myscreen->timer_wait) {
-        //     // Do nothing until we are ready to go to next frame
-        //     while (query_timer() < myscreen->timer_wait) {
-        //     }
-        // }
     }
 
     clear_keyboard();
@@ -253,7 +215,6 @@ void glad_main(Sint32 playermode)
     myscreen->level_data.delete_objects();
 
     return; // Return to picker
-    // return 1;
 }
 
 // Remaining foes returns # of livings left not on control's team
@@ -385,7 +346,6 @@ void draw_value_bar(Sint16 left, Sint16 top, Walker *control, Sint16 mode, Video
         bar_remainder = 60 - bar_length;
 
         myscreen->draw_box(left, top, left + 61, top + 6, BOX_COLOR, 0);
-        // myscreen->fastbox(left, top, 61, 6, BOX_COLOR, 1);
 
         if (points > control->stats.max_hitpoints) {
             for (i = 0; i < (bar_length / 2); ++i) {
@@ -510,9 +470,7 @@ void draw_value_bar(Sint16 left, Sint16 top, Walker *control, Sint16 mode, Video
 void new_draw_value_bar(Sint16 left, Sint16 top, Walker *control, Sint16 mode, VideoScreen *myscreen)
 {
     float points;
-    // Sint16 totallength = 60;
     short bar_length = 0;
-    // Sint16 bar_remainder = totallength - bar_length;
     Uint8 whatcolor;
 
     // Hitpoint bar
@@ -536,8 +494,6 @@ void new_draw_value_bar(Sint16 left, Sint16 top, Walker *control, Sint16 mode, V
         } else {
             bar_length = ceilf((points * 60) / control->stats.max_hitpoints);
         }
-
-        // bar_remainder = 60 - bar_length;
 
         draw_percentage_bar(left, top, BAR_BACK_COLOR, 60, myscreen);
         draw_percentage_bar(left, top, whatcolor, bar_length, myscreen);
@@ -567,8 +523,6 @@ void new_draw_value_bar(Sint16 left, Sint16 top, Walker *control, Sint16 mode, V
         } else {
             bar_length = ceilf((points * 60) / control->stats.max_magicpoints);
         }
-
-        // bar_remainder = 60 - bar_length;
 
         draw_percentage_bar(left, top, BAR_BACK_COLOR, 60, myscreen);
         draw_percentage_bar(left, top, whatcolor, bar_length, myscreen);
@@ -653,9 +607,6 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
             // Get current number of team members
             tempallies = remaining_team(myscreen, control->team_num);
 
-            // Draw the pretty gems
-            // draw_radar_gems(myscreen);
-
             // Display name or type, upper left
             if (control->myguy) {
                 tempname = control->myguy->name;
@@ -666,10 +617,6 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
             }
 
             tempname.resize(20);
-
-            // buffers: The name[] var doesn't seem to be used other than here
-            //          so I just commented it.
-            // strcpy(name[players], tempname);
 
             // buffers: This strcpy actually copies the name to be displayed
             message = tempname;
@@ -726,10 +673,6 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
             default:
                 // HP STATUS BAR
                 // HP_COLORs are defined in graph.hpp
-
-                // if (draw_button) {
-                //     myscreen->draw_button(lm + 1, tm + 9, lm + 63, tm + 25, 1, 1);
-                // }
 
                 new_draw_value_bar(lm + 2, tm + 10, control, 0, myscreen);
 
@@ -843,28 +786,6 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
 
             } // End of score/exp display
 
-            // Skip act type for now
-
-            /*
-             * if (do_it || (act[0] 1= myscreen->viewob[0]->control->query_old_act_type())) {
-             *     act[0] = myscreen->viewob[0]->control->query_old_act_type();
-             *     myscreen->fastbox(S_RIGHT + 18, S_UP + 65, 47, 7, 27);
-             *
-             *     switch (myscreen->viewob[0]->control->query_old_act_type()) {
-             *     case ACT_RANDOM:
-             *         strcpy(message, "CHARGE");
-             *
-             *         break;
-             *     case ACT_GUARD:
-             *         strcpy(message, "GUARD");
-             *
-             *         break;
-             *     }
-             *
-             *     mytext.write_xy(S_RIGHT + 18, S_UP + 65, message, text_color, 1);
-             * }
-             */
-
             // Number of allies, upper right
             if (myscreen->viewob[players]->prefs[PREF_FOES] == PREF_FOES_ON) {
                 if (draw_button) {
@@ -886,11 +807,6 @@ Sint16 new_score_panel(VideoScreen *myscreen, Sint16 do_it)
 
                 mytext.write_xy(rm - 55, tm + 2, message, text_color, 1);
             }
-
-            // // Redraw radar boarder
-            // if (do_it && 0) {
-            //     myscreen->putdata(244, 140, radarpic[1], radarpic[2], &radarpic[3]);
-            // }
         }
     } // End of one player mode
 
@@ -920,15 +836,6 @@ void draw_percentage_bar(Sint16 left, Sint16 top, Uint8 somecolor, Sint16 somele
 
     // Rotating colors...do special...
     if ((somecolor == ORANGE_START) || (somecolor == WATER_START)) {
-        // tempcolor = somecolor; // + (i + j) % 16
-
-        // myscreen->fastbox(left + 1, top + 2, 1, top + 4);
-        //
-        // for (j = 2; j < 3; ++j) {
-        //     myscreen->fastbox(left + 1, (top + 3) - j, 1, 1, somecolor + (j % 16), 1);
-        //     myscreen->fastbox(left + 1, (top + 3) + j, 1, 1, somecolor + (j % 16), 1);
-        // }
-
         for (i = 0; i < ((somelength - 4) / 2); ++i) {
             for (j = 0; j < 3; ++j) {
                 myscreen->fastbox(((left + (somelength / 2)) - i) - 1, (top + 3) - j, 1, 1, somecolor + ((i + j) % 16), 1);

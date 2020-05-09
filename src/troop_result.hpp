@@ -39,7 +39,7 @@ public:
     bool lost_level();
     std::vector<std::string> get_gained_specials();
 
-    // Tehse are percentages of what you need for the next level.
+    // These are percentages of what you need for the next level.
     float get_xp_base();
 
     // Could be negative, if a level is lost, it is a percentage of the XP

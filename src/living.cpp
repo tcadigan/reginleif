@@ -132,14 +132,6 @@ Sint16 Living::act()
     // Always start with no collison..
     collide_ob = nullptr;
 
-    /*
-     * if (ignore) {
-     *     Log("Ignoring Living\n");
-     *
-     *     return;
-     * }
-     */
-
     // Regenerate magic
     if ((stats.magicpoints < stats.max_magicpoints) && !myscreen->enemy_freeze && !bonus_rounds) {
         stats.magicpoints += stats.magic_per_round;
@@ -400,15 +392,11 @@ Sint16 Living::act()
                 foe = myscreen->find_near_foe(this);
             }
 
-            if (foe) { // && random(2))
+            if (foe) {
                 enddir = enddir / 2 * 2;
                 curdir = enddir;
-                // stats->try_command(COMMAND_SEARCH, 40, 0, 0);
                 stats.try_command(COMMAND_SEARCH, 300, 0, 0);
-            } // else if (foe) {
-            // stats->try_command(COMMAND_RIGHT_WALK, 40, 0, 0);
-            // }
-            else if (!getRandomSint32(2)) {
+            } else if (!getRandomSint32(2)) {
                 foe = myscreen->find_far_foe(this);
             } else {
                 stats.try_command(COMMAND_RANDOM_WALK, 20);
@@ -459,13 +447,6 @@ Sint16 Living::shove(Walker *target, Sint16 x, Sint16 y)
 bool Living::walk(float x, float y)
 {
     Sint16 dir;
-    // Sint16 newdir;
-    // Sint16 newcurdir;
-    // Sint16 distance; // Distance between current and desired facings
-
-    // Repeat last walk.
-    // lastx = x;
-    // lasty = y;
 
     dir = facing(x, y);
 
@@ -490,10 +471,6 @@ bool Living::walk(float x, float y)
             // Control object does complete redraw anyway
             worldmove(x, y);
             ++cycle;
-
-            // if (!ani || ((curdir * cycle) > sizeof(ani))) {
-            //     Log("WALKER::WALK: Bad ani!\n");
-            // }
 
             if (ani[curdir][cycle] == -1) {
                 cycle = 0;
@@ -543,8 +520,6 @@ Sint16 Living::collide(Walker *ob)
 {
     collide_ob = ob;
 
-    // return 1; // Debug
-
     if (ob && walkerIsAutoAttackable(ob) && (is_friendly(ob) == 0) && !ob->dead && !dead) {
         init_fire();
     }
@@ -560,7 +535,6 @@ Walker *Living::do_summon(Uint8 whatfamily, Uint16 lifetime)
     newob->owner = this;
     newob->lifetime = lifetime;
     newob->transform_to(ORDER_LIVING, whatfamily);
-    // Log("\n\nSummoned %d, life %d\n", whatfamily, lifetime);
 
     return newob;
 }
@@ -587,7 +561,6 @@ Sint16 Living::check_special()
         // Already have a foe...
         if (foe) {
             distance = distance_to_ob(foe);
-            // static_cast<Sint32>(deltax * deltax) + static_cast<Sint32>(deltay * deltay);
 
             // About 3 squares max, 1 square min
             if ((distance < 75) && (distance > 20)) {
@@ -603,7 +576,7 @@ Sint16 Living::check_special()
                 return 0;
             }
 
-            distance = distance_to_ob(foe); // (deltax * deltax) + static_cast<Sint32>(deltay * deltay);
+            distance = distance_to_ob(foe);
 
             // About 3 squares max, 1 min
             if ((distance < 75) && (distance > 20)) {
@@ -622,7 +595,6 @@ Sint16 Living::check_special()
         // Already have a foe...
         if (foe) {
             distance = distance_to_ob(foe);
-            // static_cast<Sint32>(deltax * deltax) + static_cast<Sint32>(deltay * deltay);
 
             // About 6 squares
             if (distance < 130) {
@@ -639,7 +611,6 @@ Sint16 Living::check_special()
             }
 
             distance = distance_to_ob(foe);
-            // static_cast<Sint32>(deltax * deltax) + static_cast<Sint32>(deltay * deltay);
 
             // About 6 squares
             if (distance < 130) {
@@ -656,7 +627,6 @@ Sint16 Living::check_special()
             // Already have a foe...
             if (foe) {
                 distance = distance_to_ob(foe);
-                // (deltax * deltax) + static_cast<Sint32>(deltay * deltay);
 
                 // About 6 squares max, 2 min
                 if ((distance < 130) && (distance > 35)) {
@@ -949,10 +919,6 @@ Sint16 Living::facing(Sint16 x, Sint16 y)
 
 Sint16 Living::act_random()
 {
-    // Apparently not used anymore
-    // Sint16 newx;
-    // Sint16 newy;
-
     Sint16 xdist;
     Sint16 ydist;
 
@@ -982,7 +948,6 @@ Sint16 Living::act_random()
     }
 
     stats.try_command(COMMAND_SEARCH, 200, 0, 0);
-    // stats->try_command(COMMAND_RIGHT_WALK, 50, 0, 0);
 
     return 1;
 }

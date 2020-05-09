@@ -58,10 +58,6 @@ Text::Text(std::string const &filename)
 
 Text::~Text()
 {
-    // TODO: Free letters somewhere better (it's a global leak for now, so no hurry)
-    // Letters is offset by 3 bytes on load
-    // free(letters - 3);
-    // letters = nullptr;
 }
 
 // Returns width, in pixels
@@ -244,7 +240,6 @@ Sint16 Text::write_xy(Sint16 x, Sint16 y, std::string const &string, Uint8 color
         width = (sizex + 1) * string.length();
         width -= (width % 4);
         width += 4;
-        // myscreen->buffer_to_screen(x, y, width, sizey);
     }
 
     return over;
@@ -269,7 +264,6 @@ bool Text::write_xy(Sint16 x, Sint16 y, std::string const &string, Sint16 to_buf
         width = (sizex + 1) * string.length();
         width -= (width % 4);
         width += 4;
-        // myscreen->buffer_to_screen(x, y, width, sizey);
     }
 
     return true;
@@ -329,7 +323,6 @@ bool Text::write_char_xy(Sint16 x, Sint16 y, Uint8 letter, Uint8 color, Sint16 t
     }
 
     myscreen->walkputbuffertext(x, y, sizex, sizey, 0, 0, 319, 199, &letters.data[(letter * sizex) * sizey], color);
-    // myscreen->buffer_to_screen(x, y, (sizex + 4) - (sizex % 4), (sizey + 4) - (sizey % 4));
 
     return true;
 }
@@ -401,7 +394,6 @@ std::string Text::input_string(Sint16 x, Sint16 y, Sint16 maxlength, std::string
     while (!string_done) {
         // Wait for a key to be pressed...
         while (!query_key_press_event() && !query_text_input_event()) {
-            // ++dumbcount;
             get_input_events(WAIT);
         }
 

@@ -68,7 +68,6 @@ Sint16 Weap::act()
         return animate();
     }
 
-    // Log("weap %d is ani %d\n", family, ani_type);
     if (myscreen->level_data.mysmoother.query_genre_x_y(xpos, ypos) == TYPE_TREES) {
         if (lineofsight) {
             --lineofsight;
@@ -84,7 +83,6 @@ Sint16 Weap::act()
     case ACT_SIT:
         // For things like trees
         if ((family != FAMILY_TREE) && (family != FAMILY_BLOOD) && (family != FAMILY_DOOR)) {
-            // Log("weapon sitting\n");
             myscreen->do_notify("Weapon sitting", this);
         }
 
@@ -92,7 +90,6 @@ Sint16 Weap::act()
     case ACT_GENERATE:
         // We are a generator
         Log("Weapon is act_generate?\n");
-        // act_generate();
 
         break;
     case ACT_FIRE:
@@ -118,7 +115,6 @@ Sint16 Weap::act()
 
         return 1;
     default:
-        // Log("No act type set for weapon.\n");
         myscreen->do_notify("No act type set for weapon", this);
 
         return 0;
@@ -277,14 +273,11 @@ Sint16 Weap::death()
         newob->setxy(xpos, ypos);
         newob->stats.level = stats.level;
         newob->team_num = team_num;
-        // newob->ignore = 1;
 
         // What way are we "facing"?
         // A wall above us?
         if (myscreen->level_data.mysmoother.query_genre_x_y(xpos / GRID_SIZE, (ypos / GRID_SIZE) - 1) == TYPE_WALL) {
             newob->curdir= FACE_RIGHT;
-            // And move us "up"
-            // newob->setxy(xpos, ypos - 12);
         } else {
             curdir = FACE_UP;
         }
@@ -301,16 +294,6 @@ Sint16 Weap::death()
 
 Sint16 Weap::animate()
 {
-    // Walker *newob
-
-    // We never use ani_type as far as I can tell; always use 0
-    /*
-     * if (ani_type) {
-     *     Log("weap ani_type = %d\n", ani_type);
-     *     ani_type = 0;
-     * }
-     */
-
     switch (family) {
     case FAMILY_TREE:
     case FAMILY_BLOOD:
@@ -322,7 +305,6 @@ Sint16 Weap::animate()
         ++cycle;
 
         if (ani[curdir + (ani_type * NUM_FACINGS)][cycle] == -1) {
-            // ANI_WALK;
             ani_type = 0;
             cycle = 0;
         }

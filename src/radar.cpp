@@ -296,18 +296,6 @@ bool Radar::draw(LevelData const &data, Walker *control)
     return true;
 }
 
-/*
- * bool Radar::refresh()
- * {
- *     // The first two avalues are screwy... I don't know why
- *     myscreen->buffer_to_screen(xloc, yloc, xview, yview);
- *
- *     return true;
- * }
- *
- * In theory the above function will NOT be required
- */
-
 bool Radar::on_screen(Sint16 whatx, Sint16 whaty, Sint16 hor, Sint16 ver)
 {
     // Return 0 if off radar.

@@ -302,7 +302,6 @@ Sint16 Treasure::eat_me(Walker *eater)
         }
 
         if ((distance < 4) && eater->skip_exit) {
-            // ++eater->skip_exit;
             eater->skip_exit = 8;
 
             return 1;
@@ -398,7 +397,6 @@ void Treasure::set_direct_frame(Sint16 whatframe)
 Walker * Treasure::find_teleport_target()
 {
     auto const &ls = myscreen->level_data.fxlist;
-    // Log(Teleporting from #%d...", number);
 
     // First find where we are in the list...
     auto mine = std::find(ls.begin(), ls.end(), this);
@@ -417,7 +415,6 @@ Walker * Treasure::find_teleport_target()
             if ((w->query_order() == ORDER_TREASURE)
                 && (w->query_family() == FAMILY_TELEPORTER)
                 && (w->stats.level == stats.level)) {
-                // Log(" to target %d\n", number);
                 return w;
             }
         }
@@ -435,7 +432,6 @@ Walker * Treasure::find_teleport_target()
             if ((w->query_order() == ORDER_TREASURE)
                 && (w->query_family() == FAMILY_TELEPORTER)
                 && (w->stats.level == stats.level)) {
-                // Log(" to looped target %d\n", number);
                 return w;
             }
         }

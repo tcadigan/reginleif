@@ -157,20 +157,6 @@ void JoyData::setKeyFromEvent(Sint32 key_enum, SDL_Event const &event)
             key_type[key_enum] = HAT_LEFT;
         } else {
             badHat = true;
-
-            // Diagonals are ignored because they are combinations of the
-            // cardinals
-            /*
-             * else if (event.jhat.value == SDL_HAT_RIGHTUP) {
-             *     key_type[key_enum] = HAT_UP_RIGHT;
-             * } else if (event.jhat.value == SDL_HAT_RIGHTDOWN) {
-             *     key_type[key_enum] = HAT_DOWN_RIGHT;
-             * } else if (event.jhat.value == SDL_HAT_LEFTDOWN) {
-             *     key_type[key_enum] = HAT_DOWN_LEFT;
-             * } else if (event.jhat.value == SDL_HAT_LEFTUP) {
-             *     key_type[key_enum] = HAT_UP_LEFT;
-             * }
-             */
         }
 
         if (!badHat) {
@@ -411,30 +397,16 @@ void handle_joy_event(SDL_Event const &event)
     Log("%s", buf.str().c_str());
     switch (event.type) {
     case SDL_JOYAXISMOTION:
-        if (event.jaxis.value > 8000) {
-            // key_list[joy_startval[event.jaxis.which] + (event.jaxis.axis * 2)] = 1;
-            // key_list[(joy_startval[event.jaxis.which] + (event.jaxis.axis * 2)) + 1 = 0;
+        if ((event.jaxis.value > 8000) || (event.jaxis.value < -800)) {
             key_press_event = 1;
-            // raw_key = joy_startval[event.jaxis.which] + (event.jaxis.axis * 2);
-        } else if (event.jaxis.value < -800) {
-            // key_list[joy.startval[event.jaxis.which] + (event.jaxis.axis * 2)] = 0;
-            // key_list[(joy.startvalue[event.jaxis.which] + (event.jaxis.axis * 2)) + 1] = 1;
-            key_press_event = 1;
-            // raw_key = (joy_startval[event.jaxis.which] + (event.jaxis.axis * 2)) + 1;
-        } else {
-            // key_list[joy_startval[event.jaxis.which] + (event.jaxis.axis * 2)] = 0;
-            // key_list[(joy_startval[event.jaxis.which] + (event.jaxis.axis * 2)) + 1] = 0;
         }
 
         break;
     case SDL_JOYBUTTONDOWN:
-        // key_list[(joy_startval[event.jbutton.which] + (joy_numaxes[event.jbutton.which] * 2)) + event.jbutton.button] = 1;
-        // raw_key = (joy_startval[event.jbutton.which] + (joy_numaxes[event.jbutton.which] * 2)) + event.jbutton.button;
         key_press_event = 1;
 
         break;
     case SDL_JOYBUTTONUP:
-        // keylist[(joy_startval[event.jbutton.which] + (joy_numaxes[event.jbutton.which] * 2)) + event.jbutton.button] = 0;
 
         break;
     }

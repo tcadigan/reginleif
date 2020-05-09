@@ -24,12 +24,6 @@
 
 #include <string>
 
-// buffers: PORT: Don't need this anymore
-// #include "detect.hpp"
-
-// buffers: PORT: Don't need this anymore
-// #include "smix.hpp"
-
 enum SoundEnum : Uint8 {
     SOUND_BOW = 0,
     SOUND_CLANG = 1,

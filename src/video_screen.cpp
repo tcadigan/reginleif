@@ -55,7 +55,6 @@
 #define S_RIGHT 320 // 228
 #define S_WIDTH (S_RIGHT - S_LEFT)
 #define S_HEIGHT (S_DOWN - S_UP)
-// #define BUF_SIZE static_cast<Uint32>((S_DOWN - S_UP) * (S_RIGHT - S_LEFT))
 
 #define MAX_SPREAD 10 // This controls find_near_foe
 
@@ -87,11 +86,6 @@ VideoScreen::VideoScreen(Sint16 howmany)
 
     timerstart = query_timer_control();
     framecount = 0;
-
-    // control = nullptr;
-    // Very important! :)
-    // myradar[1] = nullptr;
-    // myradar[0] = myradar[1];
 
     control_hp = 0;
 
@@ -126,9 +120,6 @@ VideoScreen::VideoScreen(Sint16 howmany)
     level_done = 0;
     retry = false;
 
-    // Load map data from a pixie format
-    // FIXME: This was moved into level_data
-    // load_map_data(pixdata);
     first_text.write_xy(left, 78, "Loading Gameplay Info...Done", DARK_BLUE, 1);
     first_text.write_xy(left, 78, "Initializing Display...", DARK_BLUE, 1);
     buffer_to_screen(0, 0, 320, 200);
@@ -348,15 +339,8 @@ bool VideoScreen::query_grid_passable(float x, float y, Walker *ob)
     Sint32 xtarg; // The for loop target
     Sint32 ytarg; // The for loop target
     Sint32 dist;
-    // NOTE: We're going to shrink dimensions by one in each...
-    // Sint32 xover = static_cast<Sint32>((x + ob->sizex) - 1);
-    // Sint32 yover = static_cast<Sint32>((y + ob->sizey) - 1);
     Sint32 xover = x + ob->sizex;
     Sint32 yover = y + ob->sizey;
-
-    // Again this is for shrinking...
-    // x += 1;
-    // y += 1;
 
     if ((x < 0) || (y < 0) || (xover >= level_data.pixmaxx) || (yover >= level_data.pixmaxy)) {
         return 0;
@@ -503,7 +487,6 @@ bool VideoScreen::query_grid_passable(float x, float y, Walker *ob)
             case PIX_WALL_ARROW_GRASS:
             case PIX_WALL_ARROW_FLOOR:
             case PIX_WALL_ARROW_GRASS_DARK:
-                // if (!ob->owner)
                 if (ob->query_order() == ORDER_LIVING) {
                     return 0;
                 }
@@ -585,16 +568,7 @@ void VideoScreen::clear()
 {
     Uint16 i;
 
-    // buffers: PORT:
-    /*
-     * for (i = 0; i < 64000; ++i) {
-     *     videobuffer[i] = 0;
-     * }
-     */
-
      clearbuffer();
-
-     // SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
 
      for (i = 0; i < numviews; ++i) {
          viewob[i]->clear();
@@ -632,7 +606,6 @@ void VideoScreen::refresh()
 
 bool VideoScreen::input(SDL_Event const &event)
 {
-    // static Text mytext;
     Sint16 i;
 
     for (i = 0; i < numviews; ++i) {
@@ -644,7 +617,6 @@ bool VideoScreen::input(SDL_Event const &event)
 
 bool VideoScreen::continuous_input()
 {
-    // static Text mytext;
     Sint16 i;
 
     for (i = 0; i < numviews; ++i) {
@@ -658,8 +630,6 @@ bool VideoScreen::act()
 {
     // Have we printed message yet?
     Sint32 printed_time = 0;
-
-    // static Sint16 debug = 0;
 
     level_done = 2; // Unless we find valid foes while looping
 
@@ -1027,8 +997,6 @@ Walker *VideoScreen::find_near_foe(Walker *ob)
 
 Walker *VideoScreen::find_far_foe(Walker *ob)
 {
-    // Sint16 targx;
-    // Sint16 targy;
     Sint32 distance;
     Sint32 tempdistance;
     Walker *endfoe;
@@ -1038,10 +1006,6 @@ Walker *VideoScreen::find_far_foe(Walker *ob)
 
         return nullptr;
     }
-
-    // Get our current coordinates
-    // targx = ob->xpos;
-    // targy = ob->ypos;
 
     // Set our "default" foe to nullptr
     endfoe = nullptr;
@@ -1175,8 +1139,6 @@ Walker *VideoScreen::find_nearest_blood(Walker *who)
 
 std::list<Walker *> VideoScreen::find_in_range(std::list<Walker *> &somelist, Sint32 range, Sint16 *howmany, Walker *ob)
 {
-    // Sint16 obx;
-    // Sint16 oby;
     std::list<Walker *> result;
 
     *howmany = 0;
@@ -1184,10 +1146,6 @@ std::list<Walker *> VideoScreen::find_in_range(std::list<Walker *> &somelist, Si
     if (!ob) {
         return result;
     }
-
-    // Center of objects
-    // obx = static_cast<Sint16>(ob->xpos + (ob->sizex / 2));
-    // oby = static_cast<Sint16>(ob->ypos + (ob->sizey / 2));
 
     for (auto const & w : somelist) {
         if (w && !w->dead) {
@@ -1361,36 +1319,9 @@ void VideoScreen::report_mem()
     } Memory;
 
     Memory.FreeLinAddrSpace = 0;
-    // Zardus: PORT: This is apparently an incomplete type:
-    // union REGS regs;
-    // struct SREGS sregs;
     std::stringstream memreport;
 
-    // Zardus: PORT: Undeclared because of problems above:
-    // regs.x.eax = 0x00000500;
-    // memset(&sregs, 0, sizeof(sregs));
-
-    // sregs.es = FP_SEG(&Memory);
-    // regs.x.edi = FP_OFF(&Memory);
-
-    // int386x(DPMI_INT, &regs, &regs, &sregs);
-
-    // sprintf(memreport, "Largest Block: %lu bytes", MemoryLargestBlockAvail);
-    // viewob[0]->set_display_text(memreport, STANDARD_TEXT_TIME);
-
     memreport << "Free Linear address: " << Memory.FreeLinAddrSpace << " pages";
-    // Log(memreport);
-    // Log("\n");
 
     viewob[0]->set_display_text(memreport.str(), 25);
-
-    // Log("Largest available block (in bytes): %lu\n", MemInfo.LargestBlockAvail);
-    // Log("Maximum unlocked page allocation: %lu\n", MemInfo.MaxUnlockedPage);
-    // Log("Pages that can be allocated and locked: %lu\n", MemInfo.LargestLockablePage);
-    // Log("Total linear address space including allocated pages: %lu\n", MemInfo.LinAddrSpace);
-    // Log("Number of free pages available: %lu\n", MemInfo.NumFreePagesAvail);
-    // Log("Number of physical pages not in use: %lu\n", MemInfo.NumPhysicalPagesFree);
-    // Log("Total pyhsical pages managed by host: %lu\n", MemInfo.TotalPhysicalPages);
-    // Log("Free linear address space (pages): %lu\n", MemInfo.FreeLinAddrSpace);
-    // Log("Size of paging/file partition (pages): %lu\n", MemInfo.SizeOfPageFile);
 }

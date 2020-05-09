@@ -139,7 +139,6 @@ bool load_saved_game(VideoScreen *myscreen)
 
     // Have we already done this scenario?
     if (myscreen->save_data.is_level_completed(myscreen->save_data.scen_num)) {
-        // Log("already done level\n");
         foelist = myscreen->level_data.oblist;
 
         for (auto w : foelist) {

@@ -45,7 +45,6 @@
         return 0;                               \
     }                                           \
 
-// Uint8 *videoptr = static_cast<Uint8 *>(VIDEO_LINEAR);
 Screen *E_screen;
 
 
@@ -250,14 +249,6 @@ Video::Video()
     }
 
     load_palette(bluepalette);
-
-    /*
-     * Create the blue-shifted palette
-     * for (i = 32; i < 256; ++i) {
-     *     bluepalette[(i * 3) + 0] /= 2;
-     *     bluepalette[(i * 3) + 1] /= 2;
-     * }
-     */
 
     E_Screen = new Screen(render, 640, 400, fullscreen);
 }
@@ -506,23 +497,6 @@ void Video::darken_screen()
     }
 }
 
-void Video::putblack(Sint32 startx, Sint32 starty, Sint32 xsize, Sint32 ysize)
-{
-    Sint32 curx;
-    Sint32 cury;
-    Sint32 curpoint;
-
-    for (cury = starty; cury < (starty + ysize); ++cury) {
-        for (curx = startx; curx < (startx + xsize); ++curx) {
-            curpoint = curx + (cury * VIDEO_WIDTH);
-
-            if ((curpoint > 0) && (curpoint < VIDEO_SIZE)) {
-                // videoptr[curpoint] = 0;
-            }
-        }
-    }
-}
-
 /*
  * This version of fastbox writes directly to screen memory;
  * The following version, with an extra parameter, writes to
@@ -585,7 +559,6 @@ void Video::fastbox_outline(Sint32 startx, Sint32 starty, Sint32 xsize, Sint32 y
 void Video::point(Sint32 x, Sint32 y, Uint8 color)
 {
     pointb(x, y, color);
-    // buffers: PORT: SDL_UpdateRect(screen, x, y, 1, 1);
 }
 
 // buffers: PORT: This draws a point in the offscreen buffer
@@ -844,15 +817,6 @@ void Video::putdata(Sint32 startx, Sint32 starty, Sint32 xsize, Sint32 ysize, Ui
                 continue;
             }
 
-            /*
-             * buffers: PORT
-             * targ = curx + (cury * VIDEO_WIDTH);
-             *
-             * if ((targ > 0) && (targ < VIDEO_SIZE)) {
-             *     videoptr[targ] = curcolor;
-             * }
-             */
-
             // buffers: PORT: Draw the point
             point(curx, cury, curcolor);
         }
@@ -899,8 +863,6 @@ void Video::putdatatext(Sint32 startx, Sint32 starty, Sint32 xsize, Sint32 ysize
                 continue;
             }
 
-            // buffers: PORT: Draw the point
-            // point(curx, cury, curcolor);
             SDL_Color palette_color = query_palette_reg(curcolor);
             color = SDL_MapRGB(E_Screen->render->format,
                                palette_color.r,
@@ -935,24 +897,9 @@ void Video::putdata(Sint32 startx, Sint32 starty, Sint32 xsize, Sint32 ysize, Ui
                 continue;
             }
 
-            /*
-             * if (curcolor >= 248) {
-             *     curcolor = color + (curcolor - 248);
-             * }
-             */
-
             if (curcolor > 247) {
                 curcolor = color;
             }
-
-            /*
-             * buffers: PORT
-             * targs = curx + (cury * VIDEO_WIDTH);
-             *
-             * if ((targ > 0) && (targ < VIDEO_SIZE)) {
-             *     videoptr[targ] = curcolor;
-             * }
-             */
 
             point(curx, cury, curcolor);
         }
@@ -976,12 +923,6 @@ void Video::putdatatext(Sint32 startx, Sint32 starty, Sint32 xsize, Sint32 ysize
             if (!curcolor) {
                 continue;
             }
-
-            /*
-             * if (curcolor >= 248) {
-             *     curcolor = color + (curcolor - 248);
-             * }
-             */
 
             if (curcolor > 247) {
                 curcolor = color;
@@ -1026,15 +967,9 @@ void Video::putbuffer(Sint32 tilestartx, Sint32 tilestarty,
     Sint32 xmax = tilewidth;
     Sint32 ymin = 0;
     Sint32 ymax = tileheight;
-    // These let you wrap around in the arrays
-    // Uint32 targetshifter;
-    // Uint32 sourceshifter;
     // Number of rows and width of each row in the source
     Sint32 totrows;
     Sint32 rowsize;
-    // Offsets into each array, for clipping and wrap
-    // Uint32 offssource;
-    // Uint32 offstarget;
     Uint8 *sourcebufptr = &sourceptr[0];
 
     if ((tilestartx >= portendx) || (tilestarty >= portendy)) {
@@ -1071,16 +1006,6 @@ void Video::putbuffer(Sint32 tilestartx, Sint32 tilestarty,
         return;
     }
 
-    // This will wrap the target around
-    // targetshifter = VIDEO_BUFFER_WIDTH - rowsize;
-    // This will wrap the source around
-    // sourceshifter = tilewidth - rowsize;
-
-    // Start at u-l position
-    // offstarget = (tilestarty * VIDEO_BUFFER_WIDTH) + tilestartx;
-    // Start at u-l position
-    // offssource = (ymin * tilewidth) + xmin;
-
     // buffers: Draws graphic. Actually uses the above bound checking now (7/18/02)
     num = 0;
 
@@ -1105,15 +1030,9 @@ void Video::putbuffer_alpha(Sint32 tilestartx, Sint32 tilestarty,
     Sint32 xmax = tilewidth;
     Sint32 ymin = 0;
     Sint32 ymax = tileheight;
-    // These let you wrap around in the arrays
-    // Uint32 targetshifter;
-    // Uint32 sourceshifter;
     // Number of rows and width of each row in the source
     Sint32 totrows;
     Sint32 rowsize;
-    // Offsets into each array, for clipping and wrap
-    // Uint32 offssource;
-    // Uint32 offstarget;
     Uint8 *sourcebufptr = &sourceptr[0];
 
     if ((tilestartx >= portendx) || (tilestarty >= portendy)) {
@@ -1150,16 +1069,6 @@ void Video::putbuffer_alpha(Sint32 tilestartx, Sint32 tilestarty,
         return;
     }
 
-    // This will wrap the target around
-    // targetshifter = VIDEO_BUFFER_WIDTH - rowsize;
-    // This will wrap the source around
-    // sourceshifter = tilewidth - rowsize;
-
-    // Start at u-l position
-    // offstarget = (tilestarty * VIDEO_BUFFER_WIDTH) + tilestartx;
-    // Start at u-l position
-    // offssource = (ymin * tilewidth) + xmin;
-
     // buffers: Draws graphic. Actually uses the above bound checking now (7/18/02)
     num = 0;
 
@@ -1184,17 +1093,9 @@ void Video::putbuffer(Sint32 tilestartx, Sint32 tilestarty,
     Sint32 xmax = tilewidth;
     Sint32 ymin = 0;
     Sint32 ymax = tileheight;
-
-    // These let you wrap around in the arrays
-    // Uint32 targetshifter;
-    // Uint32 sourceshifter;
     // Number of rows and width of each row in the source
     Sint32 totrows;
     Sint32 rowsize;
-    // Offsets into each array, for clipping and wrap
-    // Uint32 offssource;
-    // Uint32 offstarget;
-    // buffers: Uint8 *sourcebufptr = &sourceptr[0];
 
     if ((tilestartx >= portendx) || (tilestarty >= portendy)) {
         // Abort, the tile is drawing outside the clipping region
@@ -1229,16 +1130,6 @@ void Video::putbuffer(Sint32 tilestartx, Sint32 tilestarty,
         // This happens on bad args
         return;
     }
-
-    // This will wrap the target around
-    // targetshifter = VIDEO_BUFFER_WIDTH - rowsize;
-    // This will wrap the source around
-    // sourceshifter = tilewidth - rowsize;
-
-    // Start at u-l position
-    // offstarget = (tilestarty * VIDEO_BUFFER_WIDTH) + tilestartx;
-    // Start at u-l position
-    // offssource = (ymin * tilewidth) + xmin;
 
     rect.x = tilestartx;
     rect.y = tilestarty;
@@ -1892,7 +1783,6 @@ void Video::walkputbuffer(Sint32 walkerstartx, Sint32 walkerstarty,
 
                 // buffers: This is a messy optimization. Sorry.
                 if (shifttype == SHIFT_RANDOM) {
-                    // pointb(buffoff++, get_pixel(buffoff + random(2)));
                     tempbuf = buffoff + getRandomSint32(2);
                     ty = tempbuf / 320;
                     tx = tempbuf - (ty * 320);
@@ -1905,36 +1795,29 @@ void Video::walkputbuffer(Sint32 walkerstartx, Sint32 walkerstarty,
 
                     ++buffoff;
                 } else if (shifttype == SHIFT_LIGHTER) {
-                    // buffers: bufcolor = videobuffer[buffoff];
                     bufcolor = get_pixel(buffoff);
 
                     if (((bufcolor %8) != 0) && (bufcolor != 0)) {
                         --bufcolor;
                     }
 
-                    // buffers: video[bufoff++] = bufcolor;
                     pointb(buffoff, bufcolor);
                     ++buffoff;
                 } else if (shifttype == SHIFT_DARKER) {
-                    // buffers: bufcolor = videobuffer[buffoff];
                     bufcolor = get_pixel(buffoff);
 
                     if (((bufcolor % 7) != 0) && (bufcolor < 255)) {
                         ++bufcolor;
                     }
 
-                    // videobuffer[buffoff++] = bufcolor;
                     pointb(buffoff++, bufcolor);
                 } else if (shifttype == SHIFT_BLOCKY) {
                     if (cury % 2) {
-                        // buffers: videobuffer[buffoff++] = videobuffer[buffoff - VIDEO_BUFFER_WIDTH];
                         pointb(buffoff, get_pixel(buffoff - 320));
                     } else if (curx % 2) {
-                        // videobuffer[buffoff++] = videobuffer[buffoff - 1];
                         pointb(buffoff, get_pixel(buffoff - 2));
                     }
                 } else {
-                    // buffers: videobuffer[buffoff++] = videobuffer[buffoff + shift];
                     pointb(buffoff, get_pixel(buffoff + shift));
                     ++buffoff;
                 }
@@ -2170,9 +2053,6 @@ void Video::FadeBetween24(SDL_Surface *pSurface, Uint8 const *fadeFromRGB,
         ++pFrom;
         ++pTo;
     }
-
-    // FIXME! Need to pass in the Screen structure
-    // SDL_UpdateRect(pSurface, 0, 0, 0, 0);
 }
 
 // Fade between two screens.

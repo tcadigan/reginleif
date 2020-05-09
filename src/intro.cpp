@@ -31,7 +31,6 @@
 #include "util.hpp"
 #include "video_screen.hpp"
 #include "view.hpp"
-// Z's script: #include <process.h>
 
 #include <cstring>
 #include <sstream>
@@ -48,8 +47,6 @@ SDL_Color mypalette[256];
 
 void intro_main()
 {
-    // Zardus: PORT: Doesn't seem to be used, and causes a memory leak
-    // Uint8 **args = static_cast<Uint8 **>(new int);
     Text &mytext = myscreen->text_normal;
     Pixie *gladiator;
     Pixie *bigfoot;
@@ -82,7 +79,6 @@ void intro_main()
     mytext.write_y(100, "FORGOTTEN SAGES PRESENTS", 230,
                    myscreen->viewob[0]->xloc, myscreen->viewob[0]->yloc,
                    myscreen->viewob[0]->endx, myscreen->viewob[0]->endy);
-    // myscreen->refresh();
     delete gladiator;
     gladdata.free();
 
@@ -92,7 +88,6 @@ void intro_main()
         return;
     }
 
-    // gladdata = read_pixie_file("glad.pix");
     gladdata = read_pixie_file("glad2.pix");
     gladiator = new Pixie(gladdata);
     bigdata = read_pixie_file("bigfoot.pix");
@@ -102,12 +97,10 @@ void intro_main()
     bigfoot->drawMix(myscreen->viewob[0]->topx, myscreen->viewob[0]->topy,
                      myscreen->viewob[0]->xloc, myscreen->viewob[0]->yloc,
                      myscreen->viewob[0]->endx, myscreen->viewob[0]->endy);
-    // gladiator->drawMix(110, 65, myscreen->viewob[0]);
     bigfoot->setxy(100, 110);
     bigfoot->draw(myscreen->viewob[0]->topx, myscreen->viewob[0]->topy,
                   myscreen->viewob[0]->xloc, myscreen->viewob[0]->yloc,
                   myscreen->viewob[0]->endx, myscreen->viewob[0]->endy);
-    // myscreen->refresh();
 
     gladdata.free();
     delete gladiator;
@@ -124,7 +117,6 @@ void intro_main()
     mytext.write_y(70, "THOSE WHO ARE ABOUT TO DIE SALUTE YOU", 230,
                    myscreen->viewob[0]->xloc, myscreen->viewob[0]->yloc,
                    myscreen->viewob[0]->endx, myscreen->viewob[0]->endy);
-    // myscreen->refresh();
 
     if (show() < 0) {
         cleanup();
@@ -143,9 +135,6 @@ void intro_main()
     mytext.write_y(110, "Tom Ricket  Michael Scnadizzo", 230,
                    myscreen->viewob[0]->xloc, myscreen->viewob[0]->yloc,
                    myscreen->viewob[0]->endx, myscreen->viewob[0]->endy);
-
-
-    // myscreen->refresh();
 
     if (show() < 0) {
         cleanup();
@@ -195,8 +184,6 @@ void intro_main()
     lrdata.free();
     lr = nullptr;
 
-    // myscreen->refresh();
-
     if (show(SHOW_TIME + 30) < 0) {
         cleanup();
 
@@ -213,8 +200,6 @@ void intro_main()
     mytext.write_y(110, "SDL port by Odo and Zardus", 230,
                    myscreen->viewob[0]->xloc, myscreen->viewob[0]->yloc,
                    myscreen->viewob[0]->endx, myscreen->viewob[0]->endy);
-
-    // myscreen->refresh();
 
     if (show() < 0) {
         cleanup();
@@ -293,9 +278,6 @@ void intro_main()
     mytext.write_xy(2, 180, message.str(), 230,
                     myscreen->viewob[0]->xloc, myscreen->viewob[0]->yloc,
                     myscreen->viewob[0]->endx, myscreen->viewob[0]->endy);
-
-
-    // myscreen->refresh();
 
     if (show(SHOW_TIME * 4) < 0) {
         cleanup();

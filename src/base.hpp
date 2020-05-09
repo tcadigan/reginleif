@@ -40,7 +40,6 @@
 #define PROT_MODE 1 // Comment this out when not in protected mode
 #ifdef PROT_MODE
 #define init_sound(x, y, z) while (0)
-// #define play_sound(x) while (0)
 #endif
 
 #ifndef PROT_MODE
@@ -84,7 +83,6 @@ enum ScenTypeEnum : Uint8 {
 #define ORANGE_END 231
 
 // Random defines:
-// #define PROFILING
 #define CHEAT_MODE 1 // Set to 0 for no cheats...
 
 // Picture object class defs
@@ -141,10 +139,6 @@ enum ActEnum : Uint8 {
 };
 
 // Team types
-// #define MY_TEAM 0
-// #define ELF_TEAM 1
-// #define KNIGHT_TEAM 2
-// #define MAX_TEAM 2
 #define MAX_TEAM 7
 
 // Other screen-type things

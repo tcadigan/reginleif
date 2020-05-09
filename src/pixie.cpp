@@ -109,15 +109,6 @@ bool Pixie::draw(Sint16 topx, Sint16 topy, Sint16 xloc, Sint16 yloc, Sint16 endx
     Sint32 xscreen;
     Sint32 yscreen;
 
-    /*
-     * if (!on_screen(view_buf)) {
-     *     return 0;
-     * }
-     *
-     * We actually don't need to waste time on the above since the clipper
-     * will handle it
-     */
-
     xscreen = (xpos - topx) + xloc;
     yscreen = (ypos - topy) + yloc;
 
@@ -134,15 +125,6 @@ bool Pixie::drawMix(Sint16 topx, Sint16 topy, Sint16 xloc, Sint16 yloc, Sint16 e
 {
     Sint32 xscreen;
     Sint32 yscreen;
-
-    /*
-     * if (!on_screen(view_buf)) {
-     *     return 0;
-     * }
-     *
-     * We actually don't nee the waste time on the above since the clipper
-     * will handle it
-     */
 
     xscreen = (xpos - topx) + xloc;
     yscreen = (ypos - topy) + yloc;

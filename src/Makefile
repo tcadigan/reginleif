@@ -38,7 +38,7 @@ HDRS = base.hpp browser_entry.hpp button.hpp campaign_data.hpp \
        options.hpp pal32.hpp picker.hpp pixdefs.hpp pixie_data.hpp pixie.hpp \
        pixien.hpp radar.hpp  rect.hpp rectf.hpp results_screen.hpp \
        save_data.hpp screen.hpp selection_info.hpp simple_button.hpp \
-       smooth.hpp soundob.hpp sounds.hpp stats.hpp text.hpp treasure.hpp \
+       smooth.hpp soundob.hpp stats.hpp text.hpp treasure.hpp \
        troop_result.hpp util.hpp version.hpp video.hpp video_screen.hpp \
        view.hpp view_sizes.hpp virtual_button.hpp walker.hpp walker.hpp \
        weap.hpp \

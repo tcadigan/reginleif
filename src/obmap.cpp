@@ -38,8 +38,6 @@ Sint16 ob_pass_check(Sint16 x, Sint16 y, Walker *ob, std::list<Walker *> const &
 Sint16 collide(Sint16 x, Sint16 y, Sint16 xsize, Sint16 ysize,
                Sint16 x2, Sint16 y2, Sint16 xsize2, Sint16 ysize2);
 
-// #define XRES GRID_SIZE
-// #define YRES GRID_SIZE
 #define OBRES 32 // GRID_SIZE
 
 // These are passed in as PIXEL coordinates now...
@@ -146,7 +144,6 @@ Sint16 ObjectMap::query_list(Walker *ob, Sint16 x, Sint16 y)
         for (numy = startnumy; numy < endnumy; ++numy) {
             // We should be finding the same item over and over
             if (!ob_pass_check(x, y, ob, pos_to_walker[std::make_pair(numx, numy)])) {
-                // && ob->collide_ob ???
                 return 0;
             }
         }
@@ -208,7 +205,6 @@ Sint16 ObjectMap::hash(Sint16 y)
 {
     // For now, this assumes no one is smaller than size 8. Also note that
     // the hash table never loops.
-    // return (y / 8);
 
     Sint16 num = y / OBRES;
 
@@ -277,17 +273,13 @@ Sint16 ob_pass_check(Sint16 x, Sint16 y, Walker *ob, std::list<Walker *> const &
     Sint16 y2;
     Sint16 xsize2;
     Sint16 ysize2;
-    // Sint16 targetteam;
-    // Sint16 targetfamily;
     Sint16 targetorder;
     Sint16 myorder;
-    // Sint16 myteam;
 
     oxsize = ob->sizex;
     oysize = ob->sizey;
 
     myorder = ob->query_order();
-    // myteam = ob->team_num;
 
     if (!ob) {
         return 1;
@@ -362,7 +354,7 @@ Sint16 ob_pass_check(Sint16 x, Sint16 y, Walker *ob, std::list<Walker *> const &
                         return 0;
                     }
                 } else {
-                    // if (ob->collide_ob) // Lets just assume it's safe
+                    // Lets just assume it's safe
                     ob->collide_ob = nullptr;
                 }
             }
@@ -379,8 +371,6 @@ Sint16 collide(Sint16 x, Sint16 y, Sint16 xsize, Sint16 ysize,
     Sint16 x2right;
     Sint16 ydown;
     Sint16 y2down;
-
-    // Return 0; // Debug
 
     // Shrink values:
     x += 1;

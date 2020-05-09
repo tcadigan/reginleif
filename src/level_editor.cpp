@@ -52,7 +52,6 @@
 #define VERSION_NUM 8 // Save scenario type info
 
 #define PIX_LEFT (S_RIGHT + 18)
-// #define PIX_DOWN ((PIX_MAX / PIX_OVER) + 1)
 #define PIX_RIGHT (PIX_LEFT + (PIX_OVER * GRID_SIZE))
 
 #define L_W(x) ((x * 8) + 9)
@@ -1124,9 +1123,9 @@ LevelEditor::LevelEditor()
                     data.level->set_draw_pos(((myscreen->viewob[0]->myradar->radarx * GRID_SIZE) + (mx * GRID_SIZE)) - 160, ((myscreen->viewob[0]->myradar->radary * GRID_SIZE) + (my * GRID_SIZE) - 100));
                 } else {
                     // In the main window
-                    windowx = (mymouse.x + data.level->topx) - myscreen->viewob[0]->xloc; // - S_LEFT
+                    windowx = (mymouse.x + data.level->topx) - myscreen->viewob[0]->xloc;
                     windowx -= (windowx % GRID_SIZE);
-                    windowy = (mymouse.y + data.level->topy) - myscreen->viewob[0]->yloc; // - S_UP
+                    windowy = (mymouse.y + data.level->topy) - myscreen->viewob[0]->yloc;
                     windowy -= (windowy % GRID_SIZE);
 
                     if (data.mode == TERRAIN) {
@@ -1398,19 +1397,16 @@ Sint32 check_collide(Sint32 x, Sint32 y, Sint32 xsize, Sint32 ysize,
                 return 1;
             }
         } else {
-            // y >= y2
             if (((x2 - x) < xsize) && ((y - y2) < ysize2)) {
                 return 1;
             }
         }
     } else {
-        // x >= x2
         if (y < y2) {
             if (((x - x2) < xsize2) && ((y2 - y) < ysize)) {
                 return 1;
             }
         } else {
-            // y >= y2
             if (((x - x2) < xsize2) && ((y - y2) < ysize2)) {
                 return 1;
             }

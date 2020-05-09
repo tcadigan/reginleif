@@ -18,7 +18,6 @@
 #include "screen.hpp"
 
 #include "input.hpp"
-// #include "os_depend.hpp"
 #include "util.hpp"
 
 // Private variables for SAI2x
@@ -251,38 +250,6 @@ void Scale_SuperEagle(Uint8 *src, Sint32 srcx, Sint32 srcy, Sint32 srcw, Sint32 
                       Sint32 src_pitch, Sint32 src_height, Uint8 *dst, Sint32 dstx,
                       Sint32 dsty, Sint32 dst_pitch)
 {
-    /*
-     * We need to ensure that the update is aligned to 4 pixels - Colourless
-     * The idea was to prevent artifacts from appearing, but it doesn't seem
-     * to help
-     *
-     * Sint32 sx = ((srcx - 4) / 4) * 4;
-     * Sint32 ex = (((srcx + srcw) + 7) / 4) * 4;
-     * Sint32 sy = ((srcy - 4) / 4) * 4;
-     * Sint32 ey = (((srcy + srch) + 7) / 4) * 4;
-     *
-     * if (sx < 0) {
-     *     sx = 0;
-     * }
-     *
-     * if (sy < 0) {
-     *     sy = 0;
-     * }
-     *
-     * if (ex > sline_pixels) {
-     *     ex = sline_pixels;
-     * }
-     *
-     * if (ey > sheight) {
-     *     ey = sheight;
-     * }
-     *
-     * srcx = sx;
-     * srcy = sy;
-     * srcw = ex - sx;
-     * srch = ey - sy;
-     */
-
     Uint8 *srcPtr = src + ((4 * srcx) + (srcy * src_pitch));
     Uint8 *dstPtr = dst + ((4 * dstx) + (dsty * dst_pitch));
 
@@ -309,10 +276,6 @@ void Scale_SuperEagle(Uint8 *src, Sint32 srcx, Sint32 srcy, Sint32 srcw, Sint32 
             Uint32 color1;
             Uint32 color2;
             Uint32 color3;
-            // Uint32 colorA0;
-            // Uint32 colorA3;
-            // Uint32 colorB0;
-            // Uint32 colorB3;
             Uint32 colorA1;
             Uint32 colorA2;
             Uint32 colorB1;
@@ -373,10 +336,8 @@ void Scale_SuperEagle(Uint8 *src, Sint32 srcx, Sint32 srcy, Sint32 srcw, Sint32 
                 nextl1 = src_pitch;
             }
 
-            // colorB0 = *(bP - prevl1 - sub1);
             colorB1 = *(bP - prevl1);
             colorB2 = *(bP - prevl1 + add1);
-            // colorB3 = *(bP - prevl1 + add1 + add2);
 
             color4 = *(bP - sub1);
             color5 = *(bP);
@@ -388,56 +349,42 @@ void Scale_SuperEagle(Uint8 *src, Sint32 srcx, Sint32 srcy, Sint32 srcw, Sint32 
             color3 = *(bP + nextl1 + add1);
             colorS1 = *(bP + nextl1 + add1 + add2);
 
-            // colorA0 = *(bP + nextl1 + nextl2 - sub1);
             colorA1 = *(bP + nextl1 + nextl2);
             colorA2 = *(bP + nextl1 + nextl2 + add1);
-            // colorA3 = *(bP + nextl1 + nextl2 + add1 + add2);
 
             if ((color2 == color6) && (color5 != color3)) {
                 product2a = color2;
                 product1b = product2a;
-                // manip.copy(product2a, color2);
-                // prodcut1b = prodcut2a;
 
                 if ((color1 == color2) || (color6 == colorB2)) {
                     product1a = INTERPOLATE(color2, color5);
                     product1a = INTERPOLATE(color2, product1a);
-                    // product1a = QInterpolate_2xSaI<Source_pixel, Dest_pixel, Manip_pixels>(color2, color2, color2, color5, manip);
                 } else {
                     product1a = INTERPOLATE(color5, color6);
-                    // product1a = Interpolate_2xSaI<Source_pixel, Dest_pixel, Manip_pixels>(color6, color5, manip);
                 }
 
                 if ((color6 == colorS2) || (color2 == colorA1)) {
                     product2b = INTERPOLATE(color2, color3);
                     product2b = INTERPOLATE(color2, product2b);
-                    // product2b = QInterpolate_2xSaI<Source_pixel, Dest_pixel, Manip_pixels>(color2, color2, color2, color3, manip);
                 } else {
                     product2b = INTERPOLATE(color2, color3);
-                    // product2b = Interpolate_2xSaI<Source_pixel, Dest_pixel, Manip_pixels>(color2, color3, manip);
                 }
             } else if ((color5 == color3) && (color2 != color6)) {
                 product1a = color5;
                 product2b = product1a;
-                // manip.copy(product1a, color5);
-                // product2b = product1a;
 
                 if ((colorB1 == color5) || (color3 == colorS1)) {
                     product1b = INTERPOLATE(color5, color6);
                     product1b = INTERPOLATE(color5, product1b);
-                    // product1b = QInterpolate_2xSaI<Source_pixel, Dest_pixel, Manip_pixels>(color5, color5, color5, color6, manip);
                 } else {
                     product1b = INTERPOLATE(color5, color6);
-                    // product1b = Interpolate_2xSaI<Source_pixel, Dest_pixel, Manip_pixels>(color5, color6, manip);
                 }
 
                 if ((color3 == colorA2) || (color4 == color5)) {
                     product2a = INTERPOLATE(color5, color2);
                     product2a = INTERPOLATE(color5, product2a);
-                    // product2a = QInterpolate_2xSaI<Source_pixel, Dest_pixel, Manip_pixels>(color2, color5, color5, color5, manip);
                 } else {
                     product2a = INTERPOLATE(color2, color3);
-                    // product2a = Interpolate_2xSaI<Source_pixel, Dest_pixel, Manip_pixels>(color3, color2, manip);
                 }
             } else if ((color5 == color3) && (color2 == color6)) {
                 Sint32 r = 0;
@@ -446,53 +393,33 @@ void Scale_SuperEagle(Uint8 *src, Sint32 srcx, Sint32 srcy, Sint32 srcw, Sint32 
                 r += GET_RESULT(color6, color5, color4, colorB1);
                 r += GET_RESULT(color6, color5, colorA2, colorS1);
                 r += GET_RESULT(color6, color5, colorB2, colorS2);
-                // r += GetResult1<Source_pixel>(color5, color6, color4, colorB1);
-                // r += GetResult2<Source_pixel>(color6, color5, colorA2, colorS1);
-                // r += GetResult2<Source_pixel>(color6, color5, color1, colorA1);
-                // r += GetResult1<Source_pixel>(color5, color6, colorB2, colorS2);
 
                 if (r > 0) {
                     product2a = color2;
                     product1b = product2a;
-                    // manip.copy(product2a, color2);
-                    // product1b = product2a;
                     product2b = INTERPOLATE(color5, color6);
                     product1a = product2b;
-                    // product2b = Interpolate_2xSaI<Source_pixel, Dest_pixel, Manip_pixels>(color5, color6, manip);
-                    // product1a = product2b;
                 } else if (r < 0) {
                     product1a = color5;
                     product2b = product1a;
-                    // manip.copy(product1a, color5);
-                    // product2b = product1a;
                     product2a = INTERPOLATE(color5, color6);
                     product1b = product2a;
-                    // product2a = Interpolate_2xSaI<Source_pixel, Dest_Pixel, Mainp_pixels>(color5, color6, manip);
-                    // product1b = product2a;
                 } else {
                     product1a = color5;
                     product2b = product1a;
-                    // manip.copy(product1a, color5);
-                    // product2b = product1a;
                     product2a = color2;
                     product1b = product2a;
-                    // manip.copy(product2a, color2);
-                    // product1b = product2a;
                 }
             } else {
                 product1a = INTERPOLATE(color2, color6);
                 product2b = product1a;
                 product2b = Q_INTERPOLATE(color3, color3, color3, product2b);
                 product1a = Q_INTERPOLATE(color5, color5, color5, product1a);
-                // product2b = OInterpolate_2xSaI<Source_pixel, Dest_pixel, Manip_pixels>(color3, color2, color6, manip);
-                // product1a = OInterpolate_2xSaI<Source_pixel, Dest_pixel, Manip_pixels>(color5, color6, color2, manip);
 
                 product1b = INTERPOLATE(color5, color3);
                 product2a = product1b;
                 product2a = Q_INTERPOLATE(color2, color2, color2, product2a);
                 product1b = Q_INTERPOLATE(color6, color6, color6, product1b);
-                // product2a = OInterpolate_2xSaI<Source_pixel, Dest_pixel, Manip_pixels>(color2, color5, color3, manip);
-                // product1b = OInterpolate_2xSaI<Source_pixel, Dest_pixel, Manip_pixels>(color6, color5, color3, manip);
             }
 
             *dP = product1a;
@@ -514,7 +441,6 @@ void Super2xSaI_ex(Uint8 *src, Uint32 src_pitch, Uint8 *unused, Uint8 *dest, Uin
 {
     // For avoid warning
     unused = nullptr;
-    // Sint32 j;
     Uint32 x;
     Uint32 y;
     Uint32 color[16];
@@ -804,7 +730,6 @@ Screen::~Screen()
     SDL_FreeSurface(render2);
 
     SDL_DestroyRenderer(renderer);
-    // SDL_DestroyWindow(window);
 }
 
 void Screen::SaveBMP(SDL_Surface *screen, std::string const &filename)

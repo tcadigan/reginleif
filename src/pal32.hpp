@@ -22,9 +22,6 @@
 // H file for palette.cpp
 //
 
-// #include <cstdio>
-// The above is included in palette.cpp now
-
 #include <SDL2/SDL.h>
 
 // Load/set palette from disk

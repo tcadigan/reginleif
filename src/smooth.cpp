@@ -876,10 +876,6 @@ bool Smoother::smooth(Sint32 x, Sint32 y)
             newvalue = PIX_TREE_B1; // Default case
         }
 
-        // if (newvalue == PIX_TREE_T1) {
-        //     LOG("%dx%d = %d\n", x, y, around);
-        // }
-
         break;
     case TYPE_DIRT:
         // All around

@@ -32,8 +32,6 @@
 #include "pixdefs.hpp"
 #include "util.hpp"
 
-// Use this for globally setting th graphics dir, etc.
-// Uint8 pix_directory[80];
 
 // ***********************
 // Other graphics routines

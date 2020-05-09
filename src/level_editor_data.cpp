@@ -66,9 +66,6 @@ LevelEditorData::LevelEditorData()
     , fileCampaignShareButton("Share...", fileCampaignImportButton.area.x,
                               fileCampaignImportButton.area.y + fileCampaignImportButton.area.h,
                               65, menu_button_height, true, true)
-    // , fileCampaignNewButton("New", fileCampaignImportButton.area.x,
-    //                         fileCampaignShareButton.area.y + fileCampaignShareButton.area.h,
-    //                         65, menu_button_height, true, true)
     , fileCampaignNewButton("New",
                             fileCampaignButton.area.x + fileCampaignButton.area.w,
                             fileCampaignButton.area.y, 65, menu_button_height, true)
@@ -114,9 +111,6 @@ LevelEditorData::LevelEditorData()
     , campaignProfileIconButton("Icon...", campaignProfileTitleButton.area.x,
                                 campaignProfileDescriptionButton.area.y + campaignProfileDescriptionButton.area.h,
                                 95, menu_button_height, true, true)
-    // , campaignProfileAuthorsButton("Authors...", campaignProfileTitleButton.area.x,
-    //                                campaignProfileIconButton.area.y + campaignProfileIconButton.area.h,
-    //                                95, menu_button_height, true, true)
     , campaignProfileAuthorsButton("Authors...", campaignProfileTitleButton.area.x,
                                    campaignProfileDescriptionButton.area.y + campaignProfileDescriptionButton.area.h,
                                    95, menu_button_height, true, true)
@@ -733,10 +727,6 @@ Sint32 LevelEditorData::display_panel(VideoScreen *myscreen)
     // For loops
     Sint32 i;
     Sint32 j;
-    // Sint32 static family =-1;
-    // Sint32 hitpoints = -1;
-    // Sint32 score = -1;
-    // Sint32 act = -1;
     Sint32 numobs = myscreen->level_data.numobs;
     Sint32 lm = 245;
     Sint32 curline = 0;
@@ -1040,7 +1030,6 @@ Sint32 LevelEditorData::display_panel(VideoScreen *myscreen)
         }
 
         numobs = myscreen->level_data.numobs;
-        // myscreen->fastbox(lm, L_d(curline), 55, 7, 27, 1);
         buf << "OB: " << numobs;
         message = buf.str();
         buf.clear();
@@ -1341,8 +1330,6 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
         } else if (activate_sub_menu_button(mx, my, current_menu, fileCampaignButton)) {
             // Campaign >
             std::set<SimpleButton *> s = {
-                // &fileCampaignImportButton,
-                // &fileCampaignShareButton,
                 &fileCampaignNewButton,
                 &fileCampaignLoadButton,
                 &fileCampaignSaveButton,
@@ -1658,7 +1645,6 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
             std::set<SimpleButton *> s = {
                 &campaignProfileTitleButton,
                 &campaignProfileDescriptionButton,
-                // &campaignProfileIconButton,
                 &campaignProfileAuthorsButton,
                 &campaignProfileContributorsButton
             };
@@ -2062,8 +2048,8 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
             // Radar clicking is done by holding (in the level_editor function)
         } else {
             // In the main window
-            Sint32 windowx = (mx + level->topx) - myscreen->viewob[0]->xloc; // - S_LEFT
-            Sint32 windowy = (my + level->topy) - myscreen->viewob[0]->yloc; // - S_UP
+            Sint32 windowx = (mx + level->topx) - myscreen->viewob[0]->xloc;
+            Sint32 windowy = (my + level->topy) - myscreen->viewob[0]->yloc;
 
             if (object_brush.snap_to_grid) {
                 windowx -= (windowx % GRID_SIZE);
@@ -2151,7 +2137,6 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                 } // End of info mode
             } else if (mode == OBJECT) {
                 if ((mx >= S_RIGHT) && (my >= PIX_TOP) && (my <= PIX_BOTTOM)) {
-                    // windowx = (mx - PIX_LEFT) / GRID_SIZE;
                     windowx = (mx - S_RIGHT) / GRID_SIZE;
                     windowy = (my - PIX_TOP) / GRID_SIZE;
                     Sint32 index = (windowx + ((windowy + rowsdown) * PIX_OVER)) % object_pane.size();
@@ -2209,7 +2194,6 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                 // End of putting a guy
             } else if (mode == TERRAIN) {
                 if ((mx >= S_RIGHT) && (my >= PIX_TOP) && (my <= PIX_BOTTOM)) {
-                    // windowx = (mx - PIX_LEFT) / GRID_SIZE;
                     windowx = (mx - S_RIGHT) / GRID_SIZE;
                     windowy = (my - PIX_TOP) / GRID_SIZE;
                     terrain_brush.terrain = backgrounds[(windowx + ((windowy + rowsdown) * PIX_OVER)) % (sizeof(backgrounds) / 4)];

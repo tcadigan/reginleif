@@ -67,7 +67,6 @@ SDL_RWops *open_read_file(std::filesystem::path const &file)
 {
     SDL_RWops *rwops = nullptr;
 
-    // Log((std::string("Trying via PHYSFS: ") + file).c_str());
     std::filesystem::path base_file = base_path / file;
 
     rwops = SDL_RWFromFile(base_file.c_str(), "rb");
@@ -77,7 +76,6 @@ SDL_RWops *open_read_file(std::filesystem::path const &file)
     }
 
     // Now try opening in the current directory
-    // LOG((std::string("Trying to open: ") + file).c_str());
     rwops = SDL_RWFromFile(file.c_str(), "rb");
 
     if (rwops != nullptr) {
@@ -86,7 +84,6 @@ SDL_RWops *open_read_file(std::filesystem::path const &file)
 
     // Now try opening in the user directory
     std::filesystem::path user_dir = get_user_path() / file;
-    // Log((std::string("Trying to open: ") + user_dir).c_str());
     rwops = SDL_RWFromFile(user_dir.c_str(), "rb");
 
     if (rwops != nullptr) {
@@ -95,7 +92,6 @@ SDL_RWops *open_read_file(std::filesystem::path const &file)
 
     // Now try opening in the asset directory
     std::string asset_dir = get_asset_path() / file;
-    // Log((std::string("Trying to open: ") + asset_dir).c_str());
     rwops = SDL_RWFromFile(asset_dir.c_str(), "rb");
 
     if (rwops != nullptr) {

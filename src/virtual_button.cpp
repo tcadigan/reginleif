@@ -45,14 +45,12 @@ VirtualButton::VirtualButton(Sint32 xpos, Sint32 ypos, Sint32 wide, Sint32 high,
     yend = yloc + height;
     label = msg;
     next = nullptr;
-    // prev = nullptr;
     had_focus = 0;
     do_outline = 0;
     depressed = 0;
     mypixie = nullptr; // By default, no graphic picture
     hotkey = hot;
 
-    // vdisplay();
     color = BUTTON_FACING;
     hidden = false;
     no_draw = false;
@@ -72,13 +70,11 @@ VirtualButton::VirtualButton(Sint32 xpos, Sint32 ypos, Sint32 wide, Sint32 high,
     yend = yloc + height;
     label = msg;
     next = nullptr;
-    // prev = nullptr;
     had_focus = 0;
     do_outline = 0;
     mypixie = nullptr; // No graphic by default
     hotkey = hot;
 
-    // vdisplay();
     color = BUTTON_FACING;
     hidden = false;
     no_draw = false;
@@ -99,7 +95,6 @@ VirtualButton::VirtualButton(Sint32 xpos, Sint32 ypos, Sint32 wide, Sint32 high,
     yend = yloc + height;
     label = msg;
     next = nullptr;
-    // prev = nullptr;
     had_focus = 0;
     do_outline = 0;
     depressed = 0;
@@ -110,7 +105,6 @@ VirtualButton::VirtualButton(Sint32 xpos, Sint32 ypos, Sint32 wide, Sint32 high,
     xend = xloc + width;
     yend = yloc + height;
 
-    // vdisplay();
     color = BUTTON_FACING;
     hidden = false;
     no_draw = false;
@@ -120,7 +114,6 @@ VirtualButton::VirtualButton(Sint32 xpos, Sint32 ypos, Sint32 wide, Sint32 high,
 VirtualButton::VirtualButton()
 {
     next = nullptr;
-    // prev = nullptr;
     had_focus = 0;
     do_outline = 0;
     depressed = 0;
@@ -129,19 +122,7 @@ VirtualButton::VirtualButton()
 
 VirtualButton::~VirtualButton()
 {
-    // myscreen->draw_box(xloc - 4, yloc - 4, xend + 4, yend + 4, 0, 1, 1);
     delete mypixie;
-
-    /*
-     * release_mouse();
-     * myscreen->buffer_to_screen(xloc - 4, yloc - 4, xend + 4, yend + 4);
-     * grab_mouse();
-     *
-     * if (next != nullptr) {
-     *     delete next;
-     *     next = nullptr;
-     * }
-     */
 }
 
 void VirtualButton::set_graphic(Uint8 family)
@@ -155,7 +136,6 @@ void VirtualButton::set_graphic(Uint8 family)
     height = mypixie->sizey;
     xend = xloc + width;
     yend = yloc + height;
-    // vdisplay();
 }
 
 void VirtualButton::vdisplay()
@@ -280,9 +260,6 @@ void VirtualButton::vdisplay(Sint32 status)
     }
 
     release_mouse();
-    // buffers: myscreen->buffer_to_screen(0, 0, 320, 200);
-    // Zardus: The following isn't really needed and it messes up the fading
-    // myscreen->buffer_to_screen(xloc, yloc, xend - xloc, yend - yloc);
     grab_mouse();
 }
 
@@ -430,7 +407,6 @@ Sint32 VirtualButton::mouse_on()
     if ((mousex > xloc) && (mousex < xend) && (mousey > yloc) && (mousey < yend)) {
         // Just gained focus
         if (!had_focus) {
-            // vdisplay();
             if (mypixie) {
                 myscreen->draw_box(xloc - 1, yloc - 1, xend, yend, 27, 0, 1);
             } else {
@@ -445,7 +421,6 @@ Sint32 VirtualButton::mouse_on()
         return 1;
     } else {
         if (had_focus) {
-            // vdisplay();
             if (mypixie) {
                 myscreen->draw_box(xloc - 1, yloc - 1, xend, yend, 0, 0, 1);
             } else {

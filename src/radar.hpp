@@ -65,7 +65,6 @@ public:
 protected:
     // What is my viewscreen related number?
     Sint16 mynum;
-    // Uint8 *buffer;
     Uint8 size;
 };
 

@@ -46,9 +46,6 @@
 #include <sstream>
 #include <string>
 
-// Z's script: #include <process.h>
-// Z's script: #include <i86.h> // _enable, _disable
-
 #define DOWN(x) (72 + ((x) * 15))
 #define VIEW_DOWN(x) (10 + ((x) * 20))
 #define RAISE 1.85 // Please also change in guy.cpp
@@ -97,7 +94,6 @@
 
 #define MENU_NAV_DEFAULT false
 
-// int matherr(struct exception *);
 // Shows the current guy...
 std::string get_saved_name(std::string const &filename);
 Sint32 mainmenu(Sint32 arg1);
@@ -220,8 +216,6 @@ Button createmenu_buttons[] = {
 };
 
 Button viewteam_buttons[] = {
-    // Button("TRAIN", KEYSTATE_e, 85, 170, 60, 20, CREATE_TRAIN_MENU, -1),
-    // Button("HIRE", KEYSTATE_b, 190, 170, 60, 20, CREATE_HIRE_MENU, -1),
     Button("GO", KEYSTATE_UNKNOWN, 270, 170, 40, 20, GO_MENU, -1, MenuNav::Left(1)),
     Button("BACK", KEYSTATE_ESCAPE, 10, 170, 44, 20, RETURN_MENU, EXIT, MenuNav::Right(0))
 };
@@ -486,9 +480,6 @@ void picker_main()
         allbuttons[i] = nullptr;
     }
 
-    // Get main directory...
-    // strcpy(main_dir, "");
-
     // Set backdrops to NULL
     for (i = 0; i < 5; ++i) {
         backdrops[i] = nullptr;
@@ -512,7 +503,6 @@ void picker_main()
 
     myscreen->clearbuffer();
 
-    // main_title_logo_data = read_pixie_file("glad.pix");
     main_title_logo_data = read_pixie_file("title.pix"); // Marbled gladiator title
     main_title_logo_pix = new PixieN(main_title_logo_data);
 
@@ -598,7 +588,6 @@ void picker_show_guy(Sint32 frames, Sint32 who, Sint16 centerx, Sint16 centery)
         mywalker->animate();
     }
 
-    // mywalker->team_num = ourteam[editguy]->teamnum;
     mywalker->team_num = current_guy->teamnum;
 
     mywalker->setxy(centerx - (mywalker->sizex / 2), centery - (mywalker->sizey / 2));
@@ -908,7 +897,6 @@ void redraw_mainmenu()
     main_columns_pix->drawMix(myscreen->viewob[0]->topx, myscreen->viewob[0]->topy,
                               myscreen->viewob[0]->xloc, myscreen->viewob[0]->yloc,
                               myscreen->viewob[0]->endx, myscreen->viewob[0]->endy);
-    // main_columns_pix->next_frame();
 
 #ifndef DISABLE_MULTIPLAYER
     if (myscreen->save_data.numplayers == 4) {
@@ -1926,7 +1914,6 @@ Sint32 create_hire_menu(Sint32 arg1)
     }
 
     myscreen->clearbuffer();
-    // myscreen->clearscreen();
 
     return REDRAW;
 }
@@ -2048,8 +2035,6 @@ Sint32 create_train_menu(Sint32 arg1)
             current_cost = calculate_train_cost(here);
             retvalue = 0;
         }
-
-        // current_cost = calculate_train_cost(here);
 
         // Draw
         myscreen->clearbuffer();
@@ -2395,7 +2380,6 @@ Sint32 create_train_menu(Sint32 arg1)
     }
 
     myscreen->clearbuffer();
-    // myscreen->clearscreen();
 
     return REDRAW;
 }
@@ -3058,13 +3042,9 @@ Uint32 calculate_hire_cost()
     temp += calculate_exp(ob->get_level());
 
     if (temp < 0) {
-        // guytemp = new Guy(current_guy>family);
-        // delete current_guy;
-        // current_guy = guytemp;
         cycle_guy(0);
 
         // This used to be an error code check by picker.cpp line 2416
-        // temp = -1;
         temp = 0;
     }
 
@@ -3245,10 +3225,7 @@ Sint32 cycle_guy(Sint32 whichway)
         }
 
         newfamily = allowable_guys[current_type];
-        // newfamily = current_guy->family + whichway;
     }
-
-    // newfamily = (newfamily + NUM_FAMILIES) % NUM_FAMILIES;
 
     // Delete the old guy...
     if (current_guy) {
@@ -3263,8 +3240,6 @@ Sint32 cycle_guy(Sint32 whichway)
     current_guy->name.resize(12);
 
     picker_show_guy(0, 0, 80, 45);
-
-    // myscreen->buffer_to_screen(52, 24, 108, 64);
 
     grab_mouse();
 
@@ -3664,16 +3639,6 @@ Sint32 go_menu(Sint32 arg1)
     myscreen->save_data.save("save0");
     release_mouse();
 
-    /*
-     * ***********************
-     * Fade out from MENU loop
-     * ***********************
-     *
-     * Zardus: PORT: Fade out from menu code now in glad.cpp
-     * clear_keyboard();
-     * myscreen->fadeblack(0);
-     */
-
     if (current_guy) {
         delete current_guy;
     }
@@ -3696,20 +3661,6 @@ Sint32 go_menu(Sint32 arg1)
 
     // Zardus: PORT: Doesn't seem to be necessary
     myscreen->clearbuffer();
-
-    /*
-     * Zardus: PORT: They has this in just so that the pallettes got reset to
-     * normal. It actually faded in a black screen, since fading in the menu
-     * would mean messing with a bunch of things. Maybe we'll do the fade in
-     * menu later, but for now we'll keep it like they had
-     *
-     * *****************
-     * Fade in MENU loop
-     * *****************
-     *
-     * Zardus: PORT: new fade code
-     * myscreen->fadeblack(1);
-     */
 
     grab_mouse();
     myscreen->reset(1);
@@ -3912,9 +3863,6 @@ Sint32 set_player_mode(Sint32 howmany)
         ++count;
     }
 
-    // buffers:
-    // myscreen->buffer_to_screen(0, 0, 320, 200);
-
     return OK;
 }
 
@@ -3948,9 +3896,6 @@ Sint32 create_detail_menu(Guy *arg1)
 
     buttons[1].hidden = (((thisguy->family != FAMILY_MAGE) || (thisguy->get_level() < 6)) && ((thisguy->family != FAMILY_ORC) || (thisguy->get_level() < 5)));
     localbuttons = init_buttons(buttons, num_buttons);
-
-    // leftmouse(buttons);
-    // localbuttons->leftclick(buttons);
 
     while (!(retvalue & EXIT)) {
         // 1 means ourteam[editguy]
@@ -4118,7 +4063,6 @@ Sint32 create_detail_menu(Guy *arg1)
             WL(3, "  An archer can spin in a");
             WL(4, "  circle, firing off a   ");
             WL(5, "  ring of flaming bolts. ");
-            // WL(6, "  lets you move in trees.");
 
             // Level 4 things (barrage)
             if (thisguy->get_level() >= 4) {
@@ -4252,7 +4196,6 @@ Sint32 create_detail_menu(Guy *arg1)
             WL(3, "  Heal all teammates who ");
             WL(4, "  are close to you, for  ");
             WL(5, "  as much as you have SP.");
-            // WL(6, "  lets you move in trees.");
 
             // Level 4 things (raise undead)
             if (thisguy->get_level() >= 4) {
@@ -4333,7 +4276,6 @@ Sint32 create_detail_menu(Guy *arg1)
             WL(3, "  Leave a burning bomb to");
             WL(4, "  explode and hurt the   ");
             WL(5, "  unwary, friend or foe! ");
-            // WL(6, "  to pass");
 
             // Level 4 things (cloak of darkness)
             if (thisguy->get_level() >= 4) {
@@ -4349,7 +4291,6 @@ Sint32 create_detail_menu(Guy *arg1)
                 WR(1, "  Beckon your enemies    ");
                 WR(2, "  to you with jeers, and ");
                 WR(3, "  confuse their attack.  ");
-                // WR(4, "  shield of moving air.");
             }
 
             // Level 10 things (poison cloud)
@@ -4373,7 +4314,6 @@ Sint32 create_detail_menu(Guy *arg1)
             WL(3, "  Howl in rage, stunning ");
             WL(4, "  nearby enemies in their");
             WL(5, "  tracks.                ");
-            // WL(6, "  to pass.");
 
             // Level 4 things (devour corpse)
             if (thisguy->get_level() >= 4) {
@@ -4396,19 +4336,11 @@ Sint32 create_detail_menu(Guy *arg1)
             // Level 7 things
             if (thisguy->get_level() >= 7) {
                 WR(0, "              ");
-                // WR(1, "  Beckon your enemies");
-                // WR(2, "  to you with jeers, and");
-                // WR(3, "  confuse their attack.");
-                // WR(4, "  shield of moving air.");
             }
 
             // Level 10 things
             if (thisguy->get_level() >= 10) {
                 WR(5, "              ");
-                // WR(6, "  Release a cloud of");
-                // WR(7, "  poisonous gas to roam");
-                // WR(8, "  at will and sicken");
-                // WR(9, "  your foes.");
             }
 
             break;
@@ -4486,14 +4418,6 @@ Sint32 do_set_scen_level(Sint32 arg1)
     return REDRAW;
 }
 
-/*
- * Sint32 matherr(struct exception *problem)
- * {
- *     // Do nothing
- *     return 0;
- * }
- */
-
 Sint32 set_difficulty()
 {
     std::stringstream buf;
@@ -4512,9 +4436,6 @@ Sint32 set_difficulty()
 
     allbuttons[2]->label = message;
 #endif
-
-    // allbuttons[6]->vdisplay();
-    // myscreen->buffer_to_screen(0, 0, 320, 200);
 
     return OK;
 }
@@ -4547,9 +4468,6 @@ Sint32 change_teamnum(Sint32 arg)
     message.resize(80);
 
     allbuttons[18]->label = message;
-    // allbuttons[18]->do_outline = 1;
-    // allbuttons[18]->vdisplay();
-    // myscreen->buffer_to_screen(0, 0, 320, 200);
 
     return OK;
 }
@@ -4594,9 +4512,6 @@ Sint32 change_allied()
 
     // Update our button display;
     allbuttons[7]->label = message;
-
-    // buffers: allbuttons[7]->vdisplay();
-    // buffers: myscreen->buffer_to_screen(0, 0, 320, 200);
 
     return OK;
 }

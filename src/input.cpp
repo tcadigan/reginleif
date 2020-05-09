@@ -135,8 +135,6 @@ void get_input_events(bool type)
 {
     SDL_Event event;
 
-    // key_press_event = 0;
-
     if (type == POLL) {
         while (SDL_PollEvent(&event)) {
             handle_events(event);
@@ -587,9 +585,6 @@ Uint8 convert_to_ascii(Sint32 scancode)
     case SDLK_SPACE:
 
         return 32;
-    // case SDLK_BACKSPACE:
-
-    //     return 8;
     case SDLK_RETURN:
 
         return 13;

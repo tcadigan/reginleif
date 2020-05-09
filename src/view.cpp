@@ -54,11 +54,6 @@
 #define OPLINES(y) (TOP_OPS + ((y) * (TEXT_HEIGHT + 3)))
 #define PANEL_COLOR 13
 
-// These are the dimensions of the viewscreen
-// #define viewscreen_X 60
-// Viewport
-// #define viewscreen_Y 44
-
 // This is for saving/loading the key preferences
 Sint32 save_key_prefs();
 Sint32 load_key_pregs();
@@ -92,7 +87,6 @@ ViewScreen::ViewScreen(Sint16 x, Sint16 y, Sint16 width, Sint16 height, Sint16 w
     yloc = y;
     endx = xloc + width;
     endy = yloc + height;
-    // buffer = static_cast<Uint8 *>(new Uint[xview * yview]);
     control = nullptr;
     gamma = 0;
     prefsob = theprefs;
@@ -103,23 +97,7 @@ ViewScreen::ViewScreen(Sint16 x, Sint16 y, Sint16 width, Sint16 height, Sint16 w
     // Assign keyboard mappings
     mykeys = allkeys[mynum];
 
-    // Set preferences to default values
-    /*
-     * // Display hp/sp bars and numbers
-     * prefs[PREF_LIFE] = PREF_LIFE_BOTH;
-     * // Display score/exp info
-     * prefs[PREF_SCORE] = PREF_SCORE_ON;
-     * // Start at full screen
-     * prefs[PREF_VIEW] = PREF_VIEW_FULL;
-     * // Default to no joystick
-     * prefs[PREF_JOY] = PREF_NO_JOY;
-     * prefs[PREF_RADAR] = PREF_RADAR_ON;
-     * prefs[PREF_FOES] = PREF_FOES_ON;
-     * prefs[PREF_GAMMA] = 0;
-     */
-
     // Load key prefs, if present
-    // load_key_prefs();
     prefsob->load(mynum, prefs, mykeys);
 
     myradar = new Radar(mynum);
@@ -272,17 +250,12 @@ bool ViewScreen::refresh()
 
 bool ViewScreen::input(SDL_Event const &event)
 {
-    // Sint16 i;
-    // Sint16 step;
     // For switching guys
     static Sint16 changedchar[6] = { 0, 0, 0, 0, 0, 0 };
     // For switching special
     static Sint16 changedspec[6] = { 0, 0, 0, 0, 0, 0 };
     // For switching team
     static Sint16 changedteam[6] = { 0, 0, 0, 0, 0, 0 };
-    // buffers: PORt: this doesn't compile:
-    // union REGS inregs;
-    // union REGS outregs;
     Uint32 totaltime;
     Uint32 totalframes;
     Uint32 framespersec;
@@ -512,7 +485,6 @@ bool ViewScreen::input(SDL_Event const &event)
         }
 
         myscreen->control_hp = control->stats.hitpoints;
-        // control->set_act_type(ACT_CONTROL);
 
         // End of switch guys
     }
@@ -560,7 +532,6 @@ bool ViewScreen::input(SDL_Event const &event)
                 w->leader = control;
                 w->foe = nullptr;
                 w->stats.force_command(COMMAND_FOLLOW, 100, 0, 0);
-                // w->action = ACTION_FOLLOW;
             }
         }
 
@@ -632,7 +603,6 @@ bool ViewScreen::input(SDL_Event const &event)
             changedteam[mynum] = 1;
 
             Walker *result = nullptr;
-            // control = nullptr;
             control->user = -1;
             // Hope this works
             control->set_act_type(ACT_RANDOM);
@@ -680,12 +650,10 @@ bool ViewScreen::input(SDL_Event const &event)
             for (auto & w : myscreen->level_data.oblist) {
                 if (w
                     && (w->query_order() == ORDER_LIVING)
-                    // && (w->team_num != control_team_num)
                     && !control->is_friendly(w)) {
                     w->stats.hitpoints = -1;
                     control->attack(w);
                     w->death();
-                    // w->dead = 1;
                 }
             }
         }
@@ -693,7 +661,6 @@ bool ViewScreen::input(SDL_Event const &event)
         // Up level
         if (query_key_event(SDLK_RIGHTBRACKET, event)) {
             ++control->stats.level;
-            // clear_key_code(SDLK_RIGHTBRACKET);
 
             // End up level
         }
@@ -704,8 +671,6 @@ bool ViewScreen::input(SDL_Event const &event)
                 --control->stats.level;
             }
 
-            // clear_key_code(SDLK_LEFTBRACKET);
-
             // End down level
         }
 
@@ -713,7 +678,6 @@ bool ViewScreen::input(SDL_Event const &event)
         if (query_key_event(SDLK_F1, event)) {
             myscreen->enemy_freeze += 50;
             set_palette(myscreen->bluepalette);
-            // clear_key_code(SDLK_F1);
 
             // End freeze time
         }
@@ -726,7 +690,6 @@ bool ViewScreen::input(SDL_Event const &event)
             // Dummy, non-zero value
             newob->ani_type = 1;
             newob->lifetime = 200;
-            // clear_key_code(SDLK_F2);
 
             // End generate magic shield
         }
@@ -738,8 +701,6 @@ bool ViewScreen::input(SDL_Event const &event)
             } else {
                 control->stats.set_bit_flags(BIT_FLYING, 1);
             }
-
-            // clear_key_code(SDLK_f);
 
             // End flying
         }
@@ -761,8 +722,6 @@ bool ViewScreen::input(SDL_Event const &event)
                 control->stats.set_bit_flags(BIT_INVINCIBLE, 1);
             }
 
-            // clear_key_code(SLDK_i);
-
             // End invincibility
         }
 
@@ -783,7 +742,6 @@ bool ViewScreen::input(SDL_Event const &event)
         if (query_key_event(SDLK_t, event)) {
             Uint8 family = (control->query_family() + 1) % NUM_FAMILIES;
             control->transform_to(control->query_order(), family);
-            // clear_key_code(SDLK_t);
 
             // end transform
         }
@@ -835,8 +793,6 @@ bool ViewScreen::input(SDL_Event const &event)
 
 bool ViewScreen::continuous_input()
 {
-    // Sint16 i;
-    // Sint16 step;
     // So we know if we changed guys
     Walker *oldcontrol = control;
 
@@ -960,25 +916,6 @@ bool ViewScreen::continuous_input()
             control->shifter_down = 0;
         }
 
-        /*
-         * Danged testing code confused the hell out of me!!
-         * (Zardus) Who's idea was to put this in?
-         *
-         * // Testing...
-         * if (inputkeyboard[SDLK_r]) {
-         *     control->stats->right_walk();
-         * }
-         */
-
-        /*
-         * Holding special key for rapid use (I don't think that's really a
-         * good idea - MP drain)
-         *
-         * if (isPlayerHoldingKey(mynum, KEY_SPECIAL) {
-         *     control->special();
-         * }
-         */
-
         Sint32 walkx = 0;
         Sint32 walky = 0;
 
@@ -1022,26 +959,6 @@ bool ViewScreen::continuous_input()
 
         // End of check for queued actions...
     }
-
-    /*
-     * Visal feedback when hit
-     * // We were hurt
-     * if (control && (myscreen->control_hp > control->stats->hitpoints)) {
-     *     myscreen->control_hp = control->stats->hitpoints;
-     *     // Red flash
-     *     draw_box(S_LEFT, S_UP, S_RIGHT - 1, S_DOWN - 1, 44, 1);
-     *     // Make temporary stain
-     *     blood = myscreen->level_data.add_ob(ORDER_WEAPON, FAMILY_BLOOD);
-     *     blood->team_num = control->team_num;
-     *     blood->ani_type = ANI_GROW;
-     *     blood->setxy(control->xpos, control->ypos);
-     *     blood->owner = control;
-     *     // blood->draw(this);
-     *     // redraw();
-     *     // refresh();
-     *     // myscreen->remove_ob(blood);
-     * }
-     */
 
     return true;
 }
@@ -1388,7 +1305,6 @@ void ViewScreen::view_team(Sint16 left, Sint16 top, Sint16 right, Sint16 bottom)
             && !w->dead
             && (w->query_order() == ORDER_LIVING)
             && (w->team_num == teamnum)
-            // && (w->owner == nullptr
             && (!w->stats.name.empty() || w->myguy)) {
             ls.push_back(w);
         }
@@ -1651,7 +1567,6 @@ void ViewScreen::options_menu()
     optiontext.write_xy(LEFT_OPS, OPLINES(10), buf.str(), BLACK, 1);
     buf.clear();
 
-    // if (prefs[PREF_JOY] == PREF_NO_JOY) {
     if (!playerHasJoystick(mynum)) {
         buf << "Joystick Mode (J)      : OFF ";
     } else {
@@ -2066,64 +1981,6 @@ Sint32 ViewScreen::change_gamma(Sint32 whichway)
     return gamma;
 }
 
-/*
- * save_key_prefs saves the state of all the player key preferences
- * to the binary file KEY_FILE (currently keyprefs.dat).
- * Returns success or failure
- * Sint32 save_key_prefs()
- * {
- *     Sint32 i;
- *     Uint8 *keypointer;
- *     FILE *outfile;
- *
- *     outfile = open_misc_file(KEY_FILE, "", "wb");
- *
- *     // Failed to write
- *     if (!outfile) {
- *         return 0;
- *     }
- *
- *    // Write the blobs of data...
- *    for (i = 0; i < 4; ++i) {
- *        keypointer = keys[i];
- *        fwrite(keypointer, 16 * sizeof(Sint32), 1, outfile);
- *     }
- *
- *     fclose(outfile);
- *
- *     return 1;
- * }
- */
-
-/*
- * load_key_prefs loads the state of all the player key preferences
- * from the binary file KEY_FILE (currently keyprefs.dat).
- * Returns success or failure
- * Sint32 load_key_prefs()
- * {
- *     Sint32 i;
- *     Uint8 *keypointer;
- *     FILE *infile;
- *
- *     infile = open_misc_file(KEY_FILE);
- *
- *     // Failed to read
- *     if (!infile) {
- *         return 0;
- *     }
- *
- *     // Read the blobs of data...
- *     for (i = 0; i < 4; ++i) {
- *         keypointer = keys[i];
- *         fread(keypointer, 16 * sizeof(Sint32), 1, infile);
- *     }
- *
- *     fclose(infile);
- *
- *     return 1;
- * }
- */
-
 // set_key_prefs queries the user for key preferences, and places them into
 // the proper key-press array.
 // It returns success or failure.
@@ -2192,9 +2049,6 @@ bool ViewScreen::set_key_prefs()
     keytext.write_xy(LEFT_OPS, OPLINES(6), "Press your 'SWITCHING' key:", RED, 1);
     myscreen->buffer_to_screen(0, 0, 320, 200);
     assignKeyFromWaitEvent(mynum, KEY_SHIFTER);
-
-    // keytext.write_xy(LEFT_OPS, OPLINES(8), "Press your 'MENU (PREFS)' key:", static_cast<Uint8>(RED), 1);
-    // allkeys[mynum][KEY_PREFS] = get_keypress();
 
     // Are cheats enabled?
     if (CHEAT_MODE) {

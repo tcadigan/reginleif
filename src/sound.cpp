@@ -30,8 +30,6 @@
 
 #include <filesystem>
 
-// #define SOUND_DB 0 // Define for debugging messages
-
 SoundObject::SoundObject()
 {
     // Do stuff

@@ -36,8 +36,6 @@ Sint16 hits(Sint16 x, Sint16 y, Sint16 xsize, Sint16 ysize, Sint16 x2,
     Sint16 ydown;
     Sint16 y2down;
 
-    // return 0; // Debug
-
     x2right = x2 + xsize2;
 
     if (x > x2right) {
@@ -73,8 +71,6 @@ Effect::Effect(PixieData const &data)
 
 Effect::~Effect()
 {
-    // Zardus: PORT: That parent object problem again:
-    // walker::~walker();
 }
 
 Sint16 Effect::act()
@@ -425,19 +421,11 @@ Sint16 Effect::act()
             if (!myscreen->query_object_passable(xpos + xd, ypos + yd, newob)) {
                 newob->attack(newob->collide_ob);
                 damage /= 4.0f;
-                // setxy((xpos - (2 * xd)) + random(xd), (ypos - (2 * yd)) + random(yd));
             }
 
             newob->dead = 1;
         } else {
             ++owner->weapons_left;
-
-            /*
-             * if (owner->user != -1) {
-             *     sprintf(message, "Knives now %d", owner->weapons_left);
-             *     myscreen->do_notify(message, owner);
-             * }
-             */
 
             ani_type = ANI_WALK;
             dead = 1;
@@ -614,8 +602,6 @@ Sint16 Effect::act()
 
             // End of big step
         } else {
-            // xd = leader->xpos;
-            // yd = leader->ypos;
             center_on(leader);
 
             return 1;
@@ -789,7 +775,6 @@ Sint16 Effect::death()
         newob->stats.hitpoints = 0;
         newob->stats.level = owner->stats.level;
         newob->ani_type = ANI_EXPLODE;
-        // newob->setxy(xpos, ypos);
         newob->center_on(this);
         newob->damage = damage;
 
@@ -824,18 +809,12 @@ Sint16 Effect::death()
             return 0;
         }
 
-        // Set our team number to garbage so we can hurt everyone
-        // team_num = 50;
-
         for (auto itr = foelist.begin(); itr != foelist.end(); itr++) {
             Walker *w = *itr;
 
             if (w && !w->dead && (w->query_order() != ORDER_TREASURE)
                 && (w->query_order() != ORDER_FX)
-                && (!skip_exit || (w != owner))
-                // && (w->query_order() && ORDER_LIVING)
-                // && (w->team_num != owner-team_num)
-                ) {
+                && (!skip_exit || (w != owner))) {
                 // Shove the target
                 xdelta = w->xpos - xpos;
 

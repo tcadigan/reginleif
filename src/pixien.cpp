@@ -65,7 +65,6 @@ PixieN::~PixieN()
 Sint16 PixieN::set_frame(Sint16 framenum)
 {
     if ((framenum < 0) || (framenum >= frames)) {
-        // Log("Setting frame less than 0.\n");
         return 0;
     }
 

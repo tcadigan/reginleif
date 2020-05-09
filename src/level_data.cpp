@@ -137,9 +137,6 @@ Walker *LevelData::add_fx_ob(Uint8 order, Uint8 family)
 {
     Walker *w = create_walker(order, family);
 
-    // ++numobs;
-    // w->ignore = 1;
-
     fxlist.push_back(w);
 
     return w;
@@ -357,19 +354,6 @@ void LevelData::delete_objects()
     // be empty already
     if (myobmap->walker_to_pos.size() > 0) {
         Log("obmap::walker_to_pos has %d elements left.\n", myobmap->walker_to_pos.size());
-
-        // FIXME: Freeing them here does naughty things!
-        /*
-         * std::vector<Walker *> walkers;
-         * for (auto e = myobmap->walker_to_pos.begin(); e != myobmap->walker_to_pos.end(); e++) {
-         *     Log("Order: %d, Family: %d\n", e->first->query_order(), e->first->query_family());
-         *     walkers.push_back(e->first);
-         * }
-         *
-         * for (auto e = walkers.begin(); e != walkers.end(); e++) {
-         *     delete *e;
-         * }
-         */
     }
 
     // pos_to_walker will have a bunch of 0-size lists in it
@@ -448,7 +432,6 @@ Sint16 load_version_2(SDL_RWops *infile, LevelData *data)
         }
 
         new_guy->setxy(currentx, currenty);
-        // Log("X: %d Y: %d\n", currentx, currenty);
         new_guy->team_num = tempteam;
     }
 
@@ -541,9 +524,6 @@ Sint16 load_version_3(SDL_RWops *infile, LevelData *data)
         SDL_RWread(infile, tempreserved, 10, 1);
 
         if (temporder == ORDER_TREASURE) {
-            // Create new object
-            // new_guy = master->add_fx_ob(temporder, tempfamily);
-
             // Add to top of list
             new_guy = data->add_ob(temporder, tempfamily, 1);
         } else {
@@ -624,7 +604,7 @@ Sint16 load_version_4(SDL_RWops *infile, LevelData *data)
      * 1-byte: Level
      * 12-byte: Name
      * -----
-     * 10 byte reserved
+     * 10 byte: Reserved
      * 1-byte: number of lines of text to load
      * List of N lines of text, each of form:
      * 1-byte: Width of line
@@ -659,7 +639,6 @@ Sint16 load_version_4(SDL_RWops *infile, LevelData *data)
         SDL_RWread(infile, tempreserved, 10, 1);
 
         if (temporder == ORDER_TREASURE) {
-            // new_guy = data->add_ob(temporder, tempfamily, 1); // Add to top of list
             new_guy = data->add_fx_ob(temporder, tempfamily);
         } else {
             new_guy = data->add_ob(temporder, tempfamily); // Create new object
@@ -1450,7 +1429,6 @@ bool LevelData::save()
         tempcommand = ob->query_act_type();
         currentx = ob->xpos;
         currenty = ob->ypos;
-        // templevel = ob->stats->level;
         shortlevel = ob->stats.level;
         tempname = ob->stats.name;
 
@@ -1500,7 +1478,6 @@ bool LevelData::save()
     }
 
     numlines = this->description.size();
-    // printf("Saving %d lines\n", numlines);
 
     SDL_RWwrite(outfile, &numlines, 1, 1);
 
