@@ -42,7 +42,7 @@ public:
     ActEnum get_act_type(Uint8 order, Uint8 family);
     Sint8 **get_animation(Uint8 order, Uint8 family);
 
-    // Highest PIX element that has hitpoint
+    // Highest PIX element that has hitpoints
     float hitpoints[(NUM_FAMILIES * ORDER_FX) + FAMILY_BOOMERANG + 1];
     PixieData graphics[SIZE_ORDERS * NUM_FAMILIES];
     Sint8 **animations[SIZE_ORDERS * NUM_FAMILIES];

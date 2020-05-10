@@ -184,7 +184,7 @@ void Pixie::init_sdl_surface(void)
     bmp_surface = SDL_CreateRGBSurface(SDL_SWSURFACE, sizex, sizey, 32, 0, 0, 0, 0);
 
     if (!bmp_surface) {
-        Log("ERROR: Pixie::init_sdl_surface(): Could not create bmp_surface\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "ERROR: Pixie::init_sdl_surface(): Could not create bmp_surface\n");
     }
 
     num = 0;

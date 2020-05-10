@@ -110,7 +110,7 @@ Uint32 get_time_bonus(Sint32 playernum)
         time_limit = myscreen->level_data.time_bonus_limit;
     }
 
-    Log("Frames used: %d\n", frames);
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Frames used: %d\n", frames);
 
     if (frames >= time_limit) {
         return 0;
@@ -120,7 +120,7 @@ Uint32 get_time_bonus(Sint32 playernum)
     Uint32 score = myscreen->save_data.m_score[playernum];
     float multiplier = ((1 + (par_value / 10.0f)) * (time_limit - frames)) / time_limit;
 
-    Log("Time bonus: %.0f\n", score * multiplier);
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Time bonus: %.0f\n", score * multiplier);
 
     return (score * multiplier);
 }

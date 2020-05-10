@@ -19,7 +19,6 @@
 #define __CAMPAIGN_DATA_HPP__
 
 #include "pixie.hpp"
-#include "pixie_data.hpp"
 
 #include <filesystem>
 #include <list>
@@ -51,7 +50,6 @@ public:
 
     Sint32 num_levels;
 
-    PixieData icondata;
     Pixie *icon;
 };
 

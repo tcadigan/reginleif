@@ -47,7 +47,7 @@ Sint32 load_campaign(std::filesystem::path const &campaign,
     if (old_campaign != campaign)
     {
         if (!unmount_campaign_package(old_campaign)) {
-            Log("Failed to unmount campaign %s, which caused loading %s to fail.\n",
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Failed to unmount campaign %s, which caused loading %s to fail.\n",
                 old_campaign.c_str(), campaign.c_str());
 
             return -3;

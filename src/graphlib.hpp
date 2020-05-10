@@ -22,7 +22,6 @@
 
 #include "pixie_data.hpp"
 
-PixieData read_pixie_file(std::string const &filename);
 void load_map_data(PixieData *whereto);
 
 #endif

@@ -236,7 +236,7 @@ Sint16 Treasure::eat_me(Walker *eater)
                 for (auto const &w : myscreen->level_data.oblist) {
                     if (w && (w->query_order() == ORDER_LIVING)) {
                         w->dead = 1;
-                        myscreen->level_data.myobmap->remove(w);
+                        myscreen->level_data.myobmap.remove(w);
                     }
                 }
 
@@ -386,10 +386,9 @@ Sint16 Treasure::eat_me(Walker *eater)
 
 void Treasure::set_direct_frame(Sint16 whatframe)
 {
-    PixieData data;
     frame = whatframe;
 
-    data = myscreen->level_data.myloader->graphics[PIX(order, family)];
+    PixieData data = myscreen->level_data.myloader.graphics[PIX(order, family)];
     bmp = data.data + (frame * size);
 }
 

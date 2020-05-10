@@ -99,7 +99,7 @@ SDL_RWops *open_read_file(std::filesystem::path const &file)
     }
 
     // Give up
-    Log("Failed to find: %s", file.c_str());
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Failed to find: %s", file.c_str());
 
     return nullptr;
 }
@@ -146,10 +146,10 @@ bool mount_campaign_package(std::filesystem::path const &id)
     std::filesystem::path campaign(get_user_path() / "campaigns" / id);
     campaign.replace_extension(".glad");
 
-    Log("Mounting campaign package: %s", campaign.c_str());
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Mounting campaign package: %s", campaign.c_str());
 
     if (!std::filesystem::exists(campaign)) {
-        Log("Failed to mount campaign %s\n", campaign.c_str());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Failed to mount campaign %s\n", campaign.c_str());
         mounted_campaign.clear();
 
         return false;
@@ -170,7 +170,7 @@ bool unmount_campaign_package(std::filesystem::path const &id)
     campaign.replace_extension(".glad");
 
     if (!std::filesystem::exists(campaign)) {
-        Log("Failed to unmount campaign file %s\n", campaign.c_str());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Failed to unmount campaign file %s\n", campaign.c_str());
 
         return false;
     }
@@ -334,7 +334,7 @@ void io_init(std::filesystem::path const &path)
     write_path = get_user_path();
 
     if (!std::filesystem::exists(write_path)) {
-        Log("Failed to mount user data path.\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Failed to mount user data path.\n");
 
         exit(1);
     }
@@ -354,30 +354,30 @@ void io_init(std::filesystem::path const &path)
      */
 
     // Open up the default campaign
-    Log("Mounting default campaign...");
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Mounting default campaign...");
 
     if (!mount_campaign_package("org.openglad.gladiator")) {
-        Log("Failed to mount default campaign\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Failed to mount default campaign\n");
 
         exit(1);
     }
 
-    Log("Mounted default campaign...");
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Mounted default campaign...");
 
     // Set up paths for default assets
     pix_path = get_asset_path() / "pix";
     if (!std::filesystem::exists(pix_path)) {
-        Log("Failed to mount default pix path.\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Failed to mount default pix path.\n");
     }
 
     sound_path = get_asset_path() / "sound";
     if (!std::filesystem::exists(sound_path)) {
-        Log("Failed to mount default sound path.\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Failed to mount default sound path.\n");
     }
 
     cfg_path = get_asset_path() / "cfg";
     if (!std::filesystem::exists(cfg_path)) {
-        Log("Failed to mount default cfg path.\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Failed to mount default cfg path.\n");
     }
 }
 
@@ -572,7 +572,7 @@ bool create_new_campaign_descriptor(std::filesystem::path const &filename)
     size_t written = SDL_RWwrite(outfile, temp.c_str(), sizeof(char), temp.size());
 
     if (written != temp.size()) {
-        Log("Unable to write '%s': %s\n", "format_version", SDL_GetError());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unable to write '%s': %s\n", "format_version", SDL_GetError());
 
         return false;
     }
@@ -584,7 +584,7 @@ bool create_new_campaign_descriptor(std::filesystem::path const &filename)
     written = SDL_RWwrite(outfile, temp.c_str(), sizeof(char), temp.size());
 
     if (written != temp.size()) {
-        Log("Unable to write '%s': %s\n", "title", SDL_GetError());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unable to write '%s': %s\n", "title", SDL_GetError());
 
         return false;
     }
@@ -596,7 +596,7 @@ bool create_new_campaign_descriptor(std::filesystem::path const &filename)
     written = SDL_RWwrite(outfile, temp.c_str(), sizeof(char), temp.size());
 
     if (written != temp.size()) {
-        Log("Unable to write '%s': %s\n", "version", SDL_GetError());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unable to write '%s': %s\n", "version", SDL_GetError());
 
         return false;
     }
@@ -608,7 +608,7 @@ bool create_new_campaign_descriptor(std::filesystem::path const &filename)
     written = SDL_RWwrite(outfile, temp.c_str(), sizeof(char), temp.size());
 
     if (written != temp.size()) {
-        Log("Unable to write '%s': %s\n", "first_level", SDL_GetError());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unable to write '%s': %s\n", "first_level", SDL_GetError());
 
         return false;
     }
@@ -618,7 +618,7 @@ bool create_new_campaign_descriptor(std::filesystem::path const &filename)
     buf.clear();
 
     if (written != temp.size()) {
-        Log("Unable to write '%s': %s\n", "suggested_power", SDL_GetError);
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unable to write '%s': %s\n", "suggested_power", SDL_GetError());
 
         return false;
     }
@@ -630,7 +630,7 @@ bool create_new_campaign_descriptor(std::filesystem::path const &filename)
     written = SDL_RWwrite(outfile, temp.c_str(), sizeof(char), temp.size());
 
     if (written != temp.size()) {
-        Log("Unable to write '%s': %s\n", "authors", SDL_GetError());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unable to write '%s': %s\n", "authors", SDL_GetError());
 
         return false;
     }
@@ -642,7 +642,7 @@ bool create_new_campaign_descriptor(std::filesystem::path const &filename)
     written = SDL_RWwrite(outfile, temp.c_str(), sizeof(char), temp.size());
 
     if (written != temp.size()) {
-        Log("Unable to write '%s': %s\n", "contributors", SDL_GetError());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unable to write '%s': %s\n", "contributors", SDL_GetError());
 
         return false;
     }
@@ -657,7 +657,7 @@ bool create_new_campaign_descriptor(std::filesystem::path const &filename)
     written = SDL_RWwrite(outfile, temp.c_str(), sizeof(char), temp.size());
 
     if (written != temp.size()) {
-        Log("Unable to write '%s': %s\n", "description", SDL_GetError());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unable to write '%s': %s\n", "description", SDL_GetError());
 
         return false;
     }
@@ -714,7 +714,7 @@ bool create_new_scen_file(std::filesystem::path const &scenfile, std::string con
     SDL_RWops *outfile = open_write_file(scenfile);
 
     if (outfile == nullptr) {
-        Log("Could not open file for writing: %s\n", scenfile.c_str());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Could not open file for writing: %s\n", scenfile.c_str());
 
         return false;
     }

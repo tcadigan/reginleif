@@ -151,7 +151,7 @@ void glad_main(Sint32 playermode)
         myscreen->redraw();
 
         if (debug_draw_obmap) {
-            myscreen->level_data.myobmap->draw(); // Debug drawing for object collision map
+            myscreen->level_data.myobmap.draw(); // Debug drawing for object collision map
         }
 
         score_panel(myscreen);

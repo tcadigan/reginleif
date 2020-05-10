@@ -74,13 +74,13 @@ bool ConfigStore::load_settings()
 
     std::stringstream buf;
     buf << "Loading settings" << std::endl;
-    Log("%s", buf.str().c_str());
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", buf.str().c_str());
     buf.clear();
 
     SDL_RWops *rwops = open_read_file(std::filesystem::path("cfg/openglad.ini"));
     if (rwops == nullptr) {
         buf << "Cound not open config file. Using defaults.";
-        Log("%s", buf.str().c_str());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", buf.str().c_str());
         buf.clear();
 
         return false;
@@ -103,7 +103,7 @@ bool ConfigStore::load_settings()
     SDL_RWclose(rwops);
 
     if (total != size) {
-        Log("Unable to read complete file");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unable to read complete file");
 
         return false;
     }
@@ -123,7 +123,7 @@ bool ConfigStore::load_settings()
         delim_pos = line.find_first_of("=");
 
         if (delim_pos == std::string::npos) {
-            Log("Skipping unknown ini line\n");
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Skipping unknown ini line\n");
 
             continue;
         }
@@ -146,7 +146,7 @@ bool ConfigStore::save_settings()
     if (outfile != nullptr) {
         buf.clear();
         buf << "Saving settings" << std::endl;
-        Log("%s", buf.str().c_str());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", buf.str().c_str());
 
         // Each category is a mapping that holds setting/value pairs
         for (auto const &kv : data) {
@@ -201,68 +201,68 @@ void ConfigStore::commandline(Sint32 argc, std::vector<std::string> const &args)
             // argnum appropriately.
             switch (args[argnum][1]) {
             case 'h':
-                Log("%s", buf.str().c_str());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", buf.str().c_str());
 
                 exit(0);
             case 'v':
                 buf.clear();
                 buf << "openglad version " << OPENGLAD_VERSION_STRING << std::endl;
-                Log("%s", buf.str().c_str());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", buf.str().c_str());
 
                 exit(0);
             case 's':
                 data["sound"]["sound"] = "on";
                 buf.clear();
                 buf << "Sound is on.";
-                Log("%s", buf.str().c_str());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", buf.str().c_str());
 
                 break;
             case 'S':
                 data["sound"]["sound"] = "off";
                 buf.clear();
                 buf << "Sound is off.";
-                Log("%s", buf.str().c_str());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", buf.str().c_str());
 
                 break;
             case 'n':
                 data["graphics"]["render"] = "normal";
                 buf.clear();
                 buf << "Screen resolution set to 300x200.";
-                Log("%s", buf.str().c_str());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", buf.str().c_str());
 
                 break;
             case 'd':
                 data["graphics"]["render"] = "double";
                 buf.clear();
                 buf << "Screen resolution set to 640x400 (basic mode).";
-                Log("%s", buf.str().c_str());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", buf.str().c_str());
 
                 break;
             case 'e':
                 data["graphics"]["render"] = "eagle";
                 buf.clear();
                 buf << "Screen resolution set to 640x400 (eagle mode).";
-                Log("%s", buf.str().c_str());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", buf.str().c_str());
 
                 break;
             case 'x':
                 data["graphics"]["render"] = "sai";
                 buf.clear();
                 buf << "Screen resolution set to 640x400 (sai2x mode).";
-                Log("%s", buf.str().c_str());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", buf.str().c_str());
 
                 break;
             case 'f':
                 data["graphics"]["fullscreen"] = "on";
                 buf.clear();
                 buf << "Running in fullscreen mode.";
-                Log("%s", buf.str().c_str());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", buf.str().c_str());
 
                 break;
             default:
                 buf.clear();
                 buf << "Unknown argument " << args[argnum] << "ignored.";
-                Log("%s", buf.str().c_str());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", buf.str().c_str());
 
                 break;
             }

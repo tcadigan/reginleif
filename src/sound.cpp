@@ -84,7 +84,7 @@ bool SoundObject::init()
     bool stereo = true;
 
     if (Mix_OpenAudio(sample_rate, sample_format, stereo ? 2 : 1, sample_buffer_size) == -1) {
-        Log("ERROR: Mix_OpenAudio: %s\n", Mix_GetError());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "ERROR: Mix_OpenAudio: %s\n", Mix_GetError());
         exit(0);
     }
 
@@ -132,7 +132,7 @@ void SoundObject::load_sound(Mix_Chunk **audio, std::string const &file)
     *audio = Mix_LoadWAV_RW(rw, 0);
 
     if (*audio == nullptr) {
-        Log("ERROR: Mix_LoadWAV: %s\n", Mix_GetError());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "ERROR: Mix_LoadWAV: %s\n", Mix_GetError());
 
         exit(0);
     }

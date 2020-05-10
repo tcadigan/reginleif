@@ -26,13 +26,13 @@
 
 /*
  * *****************************************************
- * PixieN -- N-fram pixie
+ * PixieN -- N-frame pixie
  * It is identical to the PIXIE class except it handles
  * multiple frames and switch frames before a put.
  * *****************************************************
  */
 
-PixieN:: PixieN(PixieData const &data)
+PixieN::PixieN(PixieData const &data)
     : Pixie(data)
 {
     facings = data.data;

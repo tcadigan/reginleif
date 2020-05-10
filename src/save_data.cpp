@@ -174,12 +174,12 @@ bool SaveData::load(std::filesystem::path const &filename)
     std::filesystem::path temp_filename("save" / filename);
     // Gladiator team list
     temp_filename.replace_extension(".gtl");
-    Log("Loading save: %s\n", temp_filename.c_str());
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Loading save: %s\n", temp_filename.c_str());
 
     infile = open_read_file(temp_filename);
 
     if (infile == nullptr) {
-        Log("Failed to open save file: %s\n", temp_filename.c_str());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Failed to open save file: %s\n", temp_filename.c_str());
 
         return false;
     }
@@ -199,7 +199,7 @@ bool SaveData::load(std::filesystem::path const &filename)
 
     if (strcmp(temptext, "GTL")) {
         SDL_RWclose(infile);
-        Log("Error, selected file is not a GTL file: %s\n", temp_filename.c_str());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Error, selected file is not a GTL file: %s\n", temp_filename.c_str());
 
         // Not a GTL file
         return false;
@@ -220,7 +220,7 @@ bool SaveData::load(std::filesystem::path const &filename)
             SDL_RWread(infile, savedgame, 40, 1);
         } else {
             SDL_RWclose(infile);
-            Log("Error, selected files is not version one: %s\n", filename.c_str());
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Error, selected files is not version one: %s\n", filename.c_str());
 
             return false;
         }
@@ -411,12 +411,12 @@ bool SaveData::load(std::filesystem::path const &filename)
         }
     }
 
-    Log("Loading campaign: %s\n", current_campaign.c_str());
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Loading campaign: %s\n", current_campaign.c_str());
     Sint32 current_level = load_campaign(current_campaign, current_levels);
 
     if (current_level >= 0) {
         if (scen_num != current_level) {
-            Log("Error: Loaded scen_num %d, but found current_level %s\n", scen_num, current_level);
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Error: Loaded scen_num %d, but found current_level %d\n", scen_num, current_level);
         }
 
         // scen_num = current_level;
@@ -543,13 +543,13 @@ bool SaveData::save(std::filesystem::path const &filename)
     std::filesystem::path temp_filename("save" / filename);
     // Gladiator team list
     temp_filename.replace_extension(".gtl");
-    Log("Saving save: %s\n", temp_filename.c_str());
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Saving save: %s\n", temp_filename.c_str());
 
     // Open for write
     outfile = open_write_file(temp_filename);
 
     if (outfile == nullptr) {
-        Log("Error in writing team file %s\n", temp_filename.c_str());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Error in writing team file %s\n", temp_filename.c_str());
 
         return false;
     }
@@ -569,7 +569,7 @@ bool SaveData::save(std::filesystem::path const &filename)
     SDL_RWwrite(outfile, savedgame, 40, 1);
 
     // Write current campaign
-    Log("Saving campaign status: %s\n", current_campaign.c_str());
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Saving campaign status: %s\n", current_campaign.c_str());
     strncpy(temp_campaign, current_campaign.c_str(), 40);
     SDL_RWwrite(outfile, temp_campaign, 40, 1);
 

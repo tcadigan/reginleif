@@ -141,9 +141,9 @@ bool ViewScreen::redraw()
     Sint16 yneg = 0;
     Walker *controlob = control;
     PixieN **backp = myscreen->level_data.back;
-    PixieData &gridp = myscreen->level_data.grid;
-    Uint16 maxx = gridp.w;
-    Uint16 maxy = gridp.h;
+    PixieData *gridp = myscreen->level_data.grid;
+    Uint16 maxx = gridp->w;
+    Uint16 maxy = gridp->h;
 
     // Check if we are partially into a grid square and require extra row
     if (controlob) {
@@ -183,9 +183,9 @@ bool ViewScreen::redraw()
                     backp[PIX_WALLTOP_H]->setxy(i * GRID_SIZE, j * GRID_SIZE);
                     backp[PIX_WALLTOP_H]->draw(topx, topy, xloc, yloc, endx, endy);
                 }
-            } else if (gridp.valid()) {
-                backp[gridp.data[i + (maxx * j)]]->setxy(i * GRID_SIZE, j * GRID_SIZE);
-                backp[gridp.data[i + (maxx * j)]]->draw(topx, topy, xloc, yloc, endx, endy);
+            } else if (gridp->valid()) {
+                backp[gridp->data[i + (maxx * j)]]->setxy(i * GRID_SIZE, j * GRID_SIZE);
+                backp[gridp->data[i + (maxx * j)]]->draw(topx, topy, xloc, yloc, endx, endy);
             }
         }
     }
@@ -391,7 +391,7 @@ bool ViewScreen::input(SDL_Event const &event)
             auto mine = std::find(oblist.begin(), oblist.end(), oldcontrol);
 
             if (mine == oblist.end()) {
-                Log("Failed to find self in oblist!\n");
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Failed to find self in oblist!\n");
 
                 return true;
             }
@@ -437,7 +437,7 @@ bool ViewScreen::input(SDL_Event const &event)
             auto mine = std::find(oblist.rbegin(), oblist.rend(), oldcontrol);
 
             if (mine == oblist.rend()) {
-                Log("Failed to find self in oblist!\n");
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Failed to find self in oblist!\n");
 
                 return true;
             }
@@ -1428,7 +1428,7 @@ void ViewScreen::options_menu()
     Sint8 gamma = prefs[PREF_GAMMA];
 
     if (!control) {
-        Log("No control in ViewScreen::options_menu()\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "No control in ViewScreen::options_menu()\n");
 
         // Safety check; Shouldn't happen
         return;

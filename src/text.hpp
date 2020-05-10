@@ -28,7 +28,7 @@
 class Text
 {
 public:
-    Text(std::string const &filename);
+    Text(std::filesystem::path const &filename);
     ~Text();
     // Returns width, in pixels
     Sint16 query_width(std::string const &string);
@@ -54,6 +54,9 @@ public:
     PixieData letters;
     Sint16 sizex;
     Sint16 sizey;
+
+private:
+    PixieData set_letters(std::filesystem::path const &filename);
 };
 
 #endif

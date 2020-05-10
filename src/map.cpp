@@ -136,7 +136,7 @@ float Map::AdjacentCost(Sint32 start, Sint32 adjacent)
     // Any terrain in the way? This checks boundaries too.
     if (!myscreen->query_grid_passable(x1, y1, path_walker)) {
         cost = POS_INFINITY;
-    } else if (myscreen->level_data.myobmap->obmap_get_list(x1, y1).size() > 0) {
+    } else if (myscreen->level_data.myobmap.obmap_get_list(x1, y1).size() > 0) {
         // Any moving object in the way?
         cost = 10;
     } else {

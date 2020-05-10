@@ -315,7 +315,7 @@ bool LevelEditorData::saveCampaignAs(std::filesystem::path const &id)
 
     // Remount for consistency in PhysFS
     if (!remount_campaign_package()) {
-        Log("Failed to remount campaign after saving it.\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Failed to remount campaign after saving it.\n");
 
         return false;
     }
@@ -329,7 +329,7 @@ bool LevelEditorData::saveCampaign()
 
     // Remount for consistency in PhysFS
     if (!remount_campaign_package()) {
-        Log("Failed to remount campaign after saving it.\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Failed to remount campaign after saving it.\n");
 
         return false;
     }
@@ -1150,7 +1150,7 @@ Sint32 LevelEditorData::display_panel(VideoScreen *myscreen)
         // guy
         Walker *newob = level->add_ob(ORDER_LIVING, FAMILY_ELF);
         newob->setxy((lm + 25) + level->topx, ((PIX_TOP - 16) - 1) + level->topy);
-        newob->set_data(level->myloader->graphics[PIX(object_brush.order, object_brush.family)]);
+        newob->set_data(level->myloader.graphics[PIX(object_brush.order, object_brush.family)]);
         set_walker(newob, object_brush.order, object_brush.family);
         newob->team_num = object_brush.team;
         newob->draw_tile(myscreen->viewob[0]->topx, myscreen->viewob[0]->topy,
@@ -1175,8 +1175,8 @@ Sint32 LevelEditorData::display_panel(VideoScreen *myscreen)
                 if (index < object_pane.size()) {
                     newob->setxy((S_RIGHT + (i * GRID_SIZE)) + level->topx,
                                  (PIX_TOP + (j * GRID_SIZE)) + level->topy);
-                    newob->set_data(level->myloader->graphics[PIX(object_pane[index].order,
-                                                                  object_pane[index].family)]);
+                    newob->set_data(level->myloader.graphics[PIX(object_pane[index].order,
+                                                                 object_pane[index].family)]);
                     set_walker(newob, object_pane[index].order, object_pane[index].family);
                     newob->team_num = object_brush.team;
                     newob->draw_tile(myscreen->viewob[0]->topx, myscreen->viewob[0]->topy,
@@ -1210,7 +1210,7 @@ Sint32 LevelEditorData::display_panel(VideoScreen *myscreen)
             && !mouse_on_menus(mx, my)) {
             // Prepare object sprite
             newob->setxy(mx + level->topx, my + level->topy);
-            newob->set_data(level->myloader->graphics[PIX(object_brush.order, object_brush.family)]);
+            newob->set_data(level->myloader.graphics[PIX(object_brush.order, object_brush.family)]);
             set_walker(newob, object_brush.order, object_brush.family);
             newob->team_num = object_brush.team;
 
@@ -1271,10 +1271,10 @@ Sint32 LevelEditorData::display_panel(VideoScreen *myscreen)
 
 void LevelEditorData::clear_terrain()
 {
-    Sint32 w = level->grid.w;
-    Sint32 h = level->grid.h;
+    Sint32 w = level->grid->w;
+    Sint32 h = level->grid->h;
 
-    memset(level->grid.data, 1, w * h);
+    memset(level->grid->data, 1, w * h);
     resmooth_terrain();
 }
 
@@ -1853,7 +1853,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
             buf << std::endl
                 << "ID number: " << level->id << std::endl
                 << "Title: " << level->title << std::endl
-                << "Size: " << level->grid.w << "x" << level->grid.h;
+                << "Size: " << level->grid->w << "x" << level->grid->h;
 
             std::string info(buf.str());
             buf.clear();
@@ -1896,13 +1896,13 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
 
             std::stringstream buf;
 
-            buf << level->grid.w;
+            buf << level->grid->w;
 
             std::string width(buf.str());
             buf.clear();
             width.resize(20);
 
-            buf << level->grid.h;
+            buf << level->grid->h;
 
             std::string height(buf.str());
             buf.clear();
@@ -1942,7 +1942,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
 
                         popup_dialog("Resize Map", msg);
                     } else {
-                        if (((w >= level->grid.w) && (h >= level->grid.h))
+                        if (((w >= level->grid->w) && (h >= level->grid->h))
                             || !are_objects_outside_area(level, 0, 0, w, h)
                             || yes_or_no_prompt("Resize Map", "Delete objects outside of map?", false)) {
                             // Now change it
@@ -1957,7 +1957,7 @@ void LevelEditorData::mouse_up(Sint32 mx, Sint32 my, Sint32 old_mx, Sint32 old_m
                             draw(myscreen);
                             myscreen->refresh();
 
-                            buf << "Resized map to " << level->grid.w << "x" << level->grid.h;
+                            buf << "Resized map to " << level->grid->w << "x" << level->grid->h;
 
                             std::string msg(buf.str());
                             buf.clear();
@@ -2310,7 +2310,7 @@ void LevelEditorData::pick_by_mouse(Sint32 mx, Sint32 my)
 
 bool LevelEditorData::is_in_grid(Sint32 x, Sint32 y)
 {
-    return ((x >= 0) && (y >= 0) && (x < level->grid.w) && (y < level->grid.h));
+    return ((x >= 0) && (y >= 0) && (x < level->grid->w) && (y < level->grid->h));
 }
 
 Uint8 LevelEditorData::get_terrain(Sint32 x, Sint32 y)
@@ -2319,7 +2319,7 @@ Uint8 LevelEditorData::get_terrain(Sint32 x, Sint32 y)
         return 0;
     }
 
-    return level->grid.data[(y * level->grid.w) + x];
+    return level->grid->data[(y * level->grid->w) + x];
 }
 
 void LevelEditorData::set_terrain(Sint32 x, Sint32 y, Uint8 terrain)
@@ -2328,7 +2328,7 @@ void LevelEditorData::set_terrain(Sint32 x, Sint32 y, Uint8 terrain)
         return;
     }
 
-    level->grid.data[(y * level->grid.w) + x] = terrain;
+    level->grid->data[(y * level->grid->w) + x] = terrain;
 }
 
 Walker *LevelEditorData::get_object(Sint32 x, Sint32 y)

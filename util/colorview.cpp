@@ -142,19 +142,22 @@ static constexpr SDL_Color const ourcolors[256] = {
     SDL_Color{160, 120, 120, 255}, SDL_Color{168, 128, 128, 255},
 };
 
+Sint32 num_colors()
+{
+    return (sizeof(ourcolors) / sizeof(SDL_Color));
+}
+
 Sint32 num_rows()
 {
-    Sint32 numcolors = sizeof(ourcolors) / sizeof(SDL_Color);
-    Sint32 numrows = numcolors / columns;
+    Sint32 numrows = num_colors() / columns;
 
-    if ((numrows * columns) < numcolors) {
+    if ((numrows * columns) < num_colors()) {
         ++numrows;
     }
 
     return numrows;
 }
 
-// void draw_palette_to_surface(SDL_Surface *surface)
 void draw_palette_to_surface(SDL_Renderer *renderer)
 {
     Sint32 width;
@@ -164,24 +167,16 @@ void draw_palette_to_surface(SDL_Renderer *renderer)
     Sint32 xdelta = width / columns;
     Sint32 ydelta = height / num_rows();
 
-
-    Sint32 x = 0;
-    Sint32 y = 0;
     Sint32 index = 0;
 
-    while (index < 256) {
-        SDL_Color color = ourcolors[index];
+    for (Sint32 y = 0; y < num_rows(); ++y) {
+        for (Sint32 x = 0; x < columns; ++x) {
+            SDL_Color color = ourcolors[index];
+            SDL_Rect rect = { x * xdelta, y * ydelta, xdelta, ydelta };
+            SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, SDL_ALPHA_OPAQUE);
+            SDL_RenderFillRect(renderer, &rect);
 
-        SDL_Rect rect = { x, y, xdelta, ydelta };
-
-        SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, SDL_ALPHA_OPAQUE);
-        SDL_RenderFillRect(renderer, &rect);
-
-        ++index;
-        x += xdelta;
-        if (x >= (columns * xdelta)) {
-            x = 0;
-            y += ydelta;
+            ++index;
         }
     }
 }

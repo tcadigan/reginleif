@@ -347,11 +347,11 @@ Sint16 Living::act()
 
         return 1;
     case ACT_GENERATE:
-        Log("LIVING Generator?\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "LIVING Generator?\n");
 
         break;
     case ACT_FIRE:
-        Log("Living thinks it's a weapon (act_fire)\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Living thinks it's a weapon (act_fire)\n");
 
         return 1;
     case ACT_GUARD:
@@ -408,7 +408,7 @@ Sint16 Living::act()
         // End RANDOM
         break;
     default:
-        Log("No act type set.\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "No act type set.\n");
 
         return 0;
     } // End switch
@@ -454,9 +454,9 @@ bool Living::walk(float x, float y)
     if (curdir == dir) {
         // Check if off map
         if (((x + xpos) < 0)
-            || ((x + xpos) >= (myscreen->level_data.grid.w * GRID_SIZE))
+            || ((x + xpos) >= (myscreen->level_data.grid->w * GRID_SIZE))
             || ((y + ypos) < 0)
-            || ((y + ypos) >= (myscreen->level_data.grid.h * GRID_SIZE))) {
+            || ((y + ypos) >= (myscreen->level_data.grid->h * GRID_SIZE))) {
             return 0;
         }
 

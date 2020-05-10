@@ -19,7 +19,6 @@
 #define __CAMPAIGN_ENTRY_HPP__
 
 #include "pixie.hpp"
-#include "pixie_data.hpp"
 
 #include <SDL2/SDL.h>
 
@@ -44,7 +43,6 @@ public:
     Sint32 suggested_power;
     Sint32 first_level;
     Sint32 num_levels;
-    PixieData icondata;
     Pixie *icon;
 
     // Player specific

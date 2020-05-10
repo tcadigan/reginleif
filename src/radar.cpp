@@ -61,8 +61,8 @@ Radar::Radar(Sint16 whatnum)
 
 void Radar::start(LevelData const &data, Sint16 viewscreen_endx, Sint16 viewscreen_endy, Sint16 viewscreen_yloc)
 {
-    sizex = data.grid.w;
-    sizey = data.grid.h;
+    sizex = data.grid->w;
+    sizey = data.grid->h;
     size = sizex * sizey;
     xview = RADAR_X;
     yview = RADAR_Y;
@@ -178,7 +178,7 @@ bool Radar::draw(LevelData const &data, Walker *control)
                     tempz = tempx + (tempy * 320);
 
                     if ((tempz > 64000) || (tempz < 0)) {
-                        Log("bad radar, bad\n");
+                        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "bad radar, bad\n");
 
                         return true;
                     }
@@ -282,7 +282,7 @@ bool Radar::draw(LevelData const &data, Walker *control)
                     tempz = tempx + (tempy * 320);
 
                     if ((tempz > 64000) || (tempz < 0)) {
-                        Log("bad radar, bad\n");
+                        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "bad radar, bad\n");
 
                         return true;
                     }
@@ -316,7 +316,7 @@ void Radar::update(LevelData const &data)
     for (Sint16 i = 0; i < sizex; ++i) {
         for (Sint16 j = 0; j < sizey; ++j) {
             // Check if item in background grid
-            switch (data.grid.data[i + (sizex * j)]) {
+            switch (data.grid->data[i + (sizex * j)]) {
             case PIX_GRASS1: // Grass is green
             case PIX_GRASS_DARK_1:
             case PIX_GRASS_DARK_B1:

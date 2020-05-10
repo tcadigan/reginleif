@@ -2,6 +2,7 @@
 // Edits pixie files
 // Based on pixieread by Sean
 
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <SDL2/SDL.h>
@@ -137,31 +138,134 @@ static constexpr SDL_Color const ourcolors[256] = {
     SDL_Color{160, 120, 120, 255}, SDL_Color{168, 128, 128, 255},
 };
 
+Sint32 num_rows(Sint32 columns)
+{
+    Sint32 numcolors = sizeof(ourcolors) / sizeof(SDL_Color);
+    Sint32 numrows = numcolors / columns;
+
+    if ((numrows * columns) < numcolors) {
+        ++numrows;
+    }
+
+    return numrows;
+}
+
+void draw_palette(SDL_Renderer *renderer)
+{
+    Sint32 width;
+    Sint32 height;
+    SDL_RenderGetLogicalSize(renderer, &width, &height);
+
+    Sint32 palette_width = width / 4;
+
+    Sint32 columns = 10;
+    Sint32 xdelta = palette_width / columns;
+    Sint32 ydelta = height / num_rows(columns);
+
+    Sint32 index = 0;
+
+    for (Sint32 y = 0; y < num_rows(columns); ++y) {
+        for (Sint32 x = 0; x < columns; ++x) {
+            SDL_Color color = ourcolors[index];
+            SDL_Rect rect = { (x * xdelta) + (palette_width * 3), y * ydelta, xdelta, ydelta };
+            SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, SDL_ALPHA_OPAQUE);
+            SDL_RenderFillRect(renderer, &rect);
+
+            ++index;
+        }
+    }
+}
+
+void draw_pix(SDL_Renderer *renderer,
+              Uint8 *data, Uint8 frame, Uint8 num_rows, Uint8 num_columns,
+              Uint8 logical_x, Uint8 logical_y, Uint8 zoom,
+              SDL_Color const &bg_color)
+{
+    std::cout << "TC_DEBUG: logical_x: " << static_cast<Uint32>(logical_x)
+              << " logical_y: " << static_cast<Uint32>(logical_y)
+              << " zoom: " << static_cast<Uint32>(zoom) << std::endl;
+    Sint32 width;
+    Sint32 height;
+    SDL_RenderGetLogicalSize(renderer, &width, &height);
+
+    Sint32 pix_width = (width / 4) * 3;
+
+    Sint32 columns = pix_width / 16;
+    Sint32 rows = height / 16;
+
+    Sint32 xdelta = pix_width / columns;
+    Sint32 ydelta = height / rows;
+
+    std::cout << "TC_DEBUG: columns: " << columns << " rows: " << rows << std::endl;
+    std::cout << "TC_DEBUG: xdelta: " << xdelta << " ydelta: " << ydelta << std::endl;
+
+    for (Sint32 y = 0; y < rows; ++y) {
+        for (Sint32 x = 0; x < columns; ++x) {
+            Sint32 d_x = (logical_x + x) / zoom;
+            Sint32 d_y = (logical_y + y) / zoom;
+            std::cout << "TC_DEBUG: d_x: " << d_x << " d_y: " << d_y << std::endl;
+
+            SDL_Color color = bg_color;
+
+            if ((d_x < num_columns) && (d_y < num_rows)) {
+                std::cout << "TC_DEBUG: In pix" << std::endl;
+                Sint32 frame_offset = (frame - 1) * (num_rows * num_columns);
+                Uint8 d = data[frame_offset + ((d_y * num_columns) + d_x)];
+                color = ourcolors[d];
+            }
+
+            SDL_Rect rect = { x * xdelta, y * ydelta, xdelta, ydelta };
+            SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, SDL_ALPHA_OPAQUE);
+            SDL_RenderFillRect(renderer, &rect);
+        }
+    }
+}
+
+void print_pix(Uint8 *data, Uint32 num_frames, Uint32 num_rows, Uint32 num_columns)
+{
+    for (Uint32 f = 0; f < num_frames; ++f) {
+        std::cout << "Frame: " << f << std::endl;
+
+        for (Uint32 i = 0; i < num_rows; ++i) {
+            for (Uint32 j = 0; j < num_columns; ++j) {
+                if (j != 0) {
+                    std::cout << " ";
+                }
+
+                Sint32 val = data[(i * num_columns) + j];
+                std::cout << std::setw(3) << val;
+            }
+
+            std::cout << std::endl;
+        }
+
+        std::cout << std::endl;
+    }
+}
+
 int main(int argc, char *argv[])
 {
     SDL_RWops *file;
-    Uint8 numframes;
-    Uint8 x;
-    Uint8 y;
-    Uint8 curcolor;
+
     Uint8 *data;
-    Sint32 i;
-    Sint32 j;
-    Sint32 sizex;
-    Sint32 sizey;
+    Uint8 num_frames;
+    Uint8 num_rows;
+    Uint8 num_columns;
+
+    Uint8 logical_x = 0;
+    Uint8 logical_y = 0;
+    Uint8 zoom = 1;
+
+    SDL_Color bg_color = { 0, 0, 0, SDL_ALPHA_OPAQUE };
+
+    Uint8 curcolor = 0;
     Sint32 frame = 1;
-    Sint32 mult = 3;
-    SDL_Surface *pixie;
     SDL_Window *window;
     SDL_Renderer *renderer;
-    SDL_Texture *texture;
     SDL_Event event;
     bool done = false;
-    bool redowindow = true;
-    bool redopicture = true;
-    bool refreshpicture = true;
+    bool redraw = true;
     bool leftclick = false;
-    SDL_Color bg_color = { 0, 0, 0, 255 };
 
     if (argc != 2) {
         std::cout << "USAGE: pixedit file.pix" << std::endl;
@@ -178,18 +282,18 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    SDL_RWread(file, &numframes, 1, 1);
-    SDL_RWread(file, &x, 1, 1);
-    SDL_RWread(file, &y, 1, 1);
+    SDL_RWread(file, &num_frames, 1, 1);
+    SDL_RWread(file, &num_columns, 1, 1);
+    SDL_RWread(file, &num_rows, 1, 1);
 
-    data = new Uint8[(numframes * x) * y];
-    SDL_RWread(file, data, 1, (numframes * x) * y);
+    data = new Uint8[(num_rows * num_columns) * num_frames];
+    SDL_RWread(file, data, 1, (num_rows * num_columns) * num_frames);
     SDL_RWclose(file);
 
     std::cout << "=================== " << argv[1] << " ==================="
-              << std::endl << "num of frames: " << static_cast<unsigned>(numframes)
-              << std::endl << "x: " << static_cast<unsigned>(x) << std::endl
-              << "y: " << static_cast<unsigned>(y) << std::endl;
+              << std::endl << "num frames: " << static_cast<Uint32>(num_frames)
+              << std::endl << "num rows: " << static_cast<Uint32>(num_rows)
+              << std::endl << "num columns: " << static_cast<Uint32>(num_columns) << std::endl;
 
     SDL_Init(SDL_INIT_VIDEO);
 
@@ -204,95 +308,27 @@ int main(int argc, char *argv[])
     Sint32 height;
     SDL_RenderGetLogicalSize(renderer, &width, &height);
 
+    // Sint32 pix_width = (width / 4) * 3;
+    // Sint32 pal_width = (width / 4);
+
+    // SDL_Rect pix = { 0, 0, pix_width, height };
+    // SDL_Rect pal = { pix_width, 0, pal_width, height };
+
+    print_pix(data, num_frames, num_rows, num_columns);
+    draw_palette(renderer);
+
     while (!done) {
-        if (redowindow) {
-            sizex = x + 16;
-            sizey = y;
-
-            if (sizey < 64) {
-                sizey = 64;
-            }
-
-            pixie = SDL_CreateRGBSurface(SDL_SWSURFACE, sizex * mult, sizey * mult, 16, 0, 0, 0, 0);
-            if (pixie == NULL) {
-                return 3;
-            }
-
-            SDL_FillRect(pixie,
-                         NULL,
-                         SDL_MapRGB(pixie->format, bg_color.r, bg_color.g, bg_color.b));
-
-            redopicture = true;
-            redowindow = false;
-        }
-
-        if (redopicture) {
+        if (redraw) {
             std::ostringstream buffer;
-            buffer << "Frame " << frame << " at " << mult << "x";
+            buffer << "Frame " << frame << " at " << zoom << "x";
             SDL_SetWindowTitle(window, buffer.str().c_str());
 
-            SDL_FillRect(pixie,
-                         NULL,
-                         SDL_MapRGB(pixie->format, bg_color.r, bg_color.g, bg_color.b));
-
-            // Draw sprite frame
-            // for (i = 0; i < y; ++i) {
-            //     for (j = 0; j < x; ++j) {
-            for (i = y - 1; i >= 0; --i) {
-                for (j = x - 1; j >= 0; --j) {
-                    SDL_Rect rect;
-                    SDL_Color color;
-                    Sint32 c;
-                    Sint32 d;
-
-                    d = data[((((frame - 1) * x) * y) + (i * x)) + j];
-                    color = ourcolors[d];
-
-                    rect.x = j * mult;
-                    rect.y = i * mult;
-                    rect.w = mult;
-                    rect.h = mult;
-
-                    c = SDL_MapRGB(pixie->format, color.r, color.g, color.b);
-                    SDL_FillRect(pixie, &rect, c);
-                }
-            }
-
-            // Draw palette
-            for (i = 0; i < 32; ++i) {
-                for (j = x; j < (x + 8); ++j) {
-                    SDL_Rect rect;
-                    SDL_Color color;
-                    Sint32 c;
-                    Sint32 d;
-
-                    d = ((i * 8) + j) - x;
-                    color = ourcolors[d];
-
-                    rect.x = (x * mult) + (((j - x) * mult) * 2);
-                    rect.y = (i * mult) * 2;
-                    rect.w = mult * 2;
-                    rect.h = mult * 2;
-
-                    c = SDL_MapRGB(pixie->format, color.r, color.g, color.b);
-                    SDL_FillRect(pixie, &rect, c);
-                }
-            }
-
-            texture = SDL_CreateTextureFromSurface(renderer, pixie);
-            if (texture == NULL) {
-                return 4;
-            }
-
-            redopicture = false;
-            refreshpicture = true;
-        }
-
-        if (refreshpicture) {
-            SDL_RenderClear(renderer);
-            SDL_RenderCopy(renderer, texture, NULL, NULL);
+            draw_pix(renderer,
+                     data, frame, num_rows, num_columns,
+                     logical_x, logical_y, zoom,
+                     bg_color);
             SDL_RenderPresent(renderer);
-            refreshpicture = false;
+            redraw = false;
         }
 
         SDL_WaitEvent(&event);
@@ -304,7 +340,6 @@ int main(int argc, char *argv[])
             break;
         case SDL_KEYDOWN:
             switch (event.key.keysym.sym) {
-            case SDLK_q:
             case SDLK_ESCAPE:
                 done = true;
 
@@ -313,51 +348,77 @@ int main(int argc, char *argv[])
                 bg_color.r = rand() % 256;
                 bg_color.g = rand() % 256;
                 bg_color.b = rand() % 256;
-                redopicture = true;
+                redraw = true;
 
                 break;
-            case SDLK_LEFT:
+            case SDLK_a:
                 if (frame > 1) {
                     --frame;
+                    redraw = true;
                 }
 
-                redowindow = true;
-
                 break;
-            case SDLK_RIGHT:
-                if (frame < numframes) {
+            case SDLK_d:
+                if (frame < num_frames) {
                     ++frame;
+                    redraw = true;
                 }
 
-                redowindow = true;
-
                 break;
-            case SDLK_UP:
-                ++mult;
-                redowindow = true;
-
-                break;
-            case SDLK_DOWN:
-                if (mult > 1) {
-                    --mult;
-                }
-
-                redowindow = true;
+            case SDLK_w:
+                ++zoom;
+                redraw = true;
 
                 break;
             case SDLK_s:
-                file = SDL_RWFromFile(argv[1], "w");
-                if (file == NULL) {
-                    std::cout << "error while trying to open " << argv[1] << std::endl;
-
-                    exit(1);
+                if (zoom > 1) {
+                    --zoom;
+                    redraw = true;
                 }
 
-                SDL_RWwrite(file, &numframes, 1, 1);
-                SDL_RWwrite(file, &x, 1, 1);
-                SDL_RWwrite(file, &y, 1, 1);
-                SDL_RWwrite(file, data, 1, (numframes * x) * y);
-                SDL_RWclose(file);
+
+                break;
+            case SDLK_UP:
+                if (logical_y > 1) {
+                    --logical_y;
+                    redraw = true;
+                }
+
+                break;
+            case SDLK_DOWN:
+                if ((logical_y / zoom) < num_rows) {
+                    ++logical_y;
+                    redraw = true;
+                }
+
+                break;
+            case SDLK_LEFT:
+                if (logical_x > 1) {
+                    --logical_x;
+                    redraw = true;
+                }
+
+                break;
+            case SDLK_RIGHT:
+                if ((logical_x / zoom) < num_columns) {
+                    ++logical_x;
+                    redraw = true;
+                }
+
+                break;
+            case SDLK_q:
+                // file = SDL_RWFromFile(argv[1], "w");
+                // if (file == NULL) {
+                //     std::cout << "error while trying to open " << argv[1] << std::endl;
+
+                //     exit(1);
+                // }
+
+                // SDL_RWwrite(file, &numframes, 1, 1);
+                // SDL_RWwrite(file, &x, 1, 1);
+                // SDL_RWwrite(file, &y, 1, 1);
+                // SDL_RWwrite(file, data, 1, (numframes * x) * y);
+                // SDL_RWclose(file);
 
                 break;
             default:
@@ -367,17 +428,45 @@ int main(int argc, char *argv[])
             break;
         case SDL_MOUSEBUTTONDOWN:
         {
-            if (event.button.x >= (x * mult)) {
-                Sint32 mousex = event.button.x;
-                Sint32 mousey = event.button.y;
-                mousex = (mousex - (x * mult)) / 2;
-                mousey = mousey / (mult * 2);
-                curcolor = (mousey * 8) + mousex;
-            } else if (event.button.button > 1) {
-                curcolor = data[(((frame - 1) * x) * y) + ((event.button.y / mult) * x) + (event.button.x / mult)];
-            } else {
-                leftclick = true;
+            Sint32 mousex = event.button.x;
+            Sint32 mousey = event.button.y;
+            std::cout << "TC_DEBUG: mousex: " << mousex << " mousey: " << mousey << std::endl;
+            Sint32 pix_width = (width / 4) * 3;
+            Sint32 columns = pix_width / 16;
+            Sint32 rows = height / 16;
+
+            Sint32 column = mousex / (pix_width / columns);
+            Sint32 row = mousey / (height / rows);
+            std::cout << "TC_DEBUG: column: " << column << " row: " << row << std::endl;
+            Sint32 d_x = (logical_x + column) / zoom;
+            Sint32 d_y = (logical_x + row) / zoom;
+            std::cout << "TC_DEBUG: d_x: " << d_x << " d_y: " << d_y << std::endl;
+
+            SDL_Color curcolor = bg_color;
+
+            if ((d_x < num_columns) && (d_y < num_rows)) {
+                Sint32 frame_offset = (frame - 1) * (num_rows * num_columns);
+                Uint8 d = data[frame_offset + ((d_y * num_columns) + d_x)];
+                curcolor = ourcolors[d];
             }
+
+            // 0 1 2 3 4 5
+            // 0 0 0 1 1 1
+            std::cout << "TC_DEBUG: red: " << static_cast<Uint32>(curcolor.r)
+                      << " green: " << static_cast<Uint32>(curcolor.g)
+                      << " blue: " << static_cast<Uint32>(curcolor.b)
+                      << " alpha: " << static_cast<Uint32>(curcolor.a) << std::endl;
+            // if (event.button.x >= (num_columns * zoom)) {
+            //     Sint32 mousex = event.button.x;
+            //     Sint32 mousey = event.button.y;
+            //     mousex = (mousex - (num_columns * zoom)) / 2;
+            //     mousey = mousey / (zoom * 2);
+            //     curcolor = (mousey * 8) + mousex;
+            // } else if (event.button.button > 1) {
+            //     curcolor = data[(((frame - 1) * num_columns) * num_rows) + ((event.button.y / zoom) * num_columns) + (event.button.x / zoom)];
+            // } else {
+            //     leftclick = true;
+            // }
 
             break;
         }
@@ -391,11 +480,11 @@ int main(int argc, char *argv[])
             break;
         }
 
-        if (leftclick && ((event.button.y / mult) < y) && ((event.button.x / mult) < x)) {
+        if (leftclick && ((event.button.y / zoom) < num_rows) && ((event.button.x / zoom) < num_columns)) {
             int spot;
-            spot = ((event.button.y / mult) * x) + (event.button.x / mult);
-            data[((frame * x) * y) + spot] = curcolor;
-            redopicture = true;
+            spot = ((event.button.y / zoom) * num_columns) + (event.button.x / zoom);
+            data[((frame * num_rows) * num_columns) + spot] = curcolor;
+            redraw = true;
         }
     }
 

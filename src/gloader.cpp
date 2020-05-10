@@ -24,6 +24,7 @@
 #include "gparser.hpp"
 #include "guy.hpp"
 #include "picker.hpp"
+#include "pixie_data.hpp"
 #include "stats.hpp"
 #include "util.hpp"
 #include "video_screen.hpp"
@@ -352,49 +353,30 @@ float derived_bonuses[NUM_FAMILIES][8] =
     { BASE_GUY_HP + 100,  0,   0,          0,     0,   0,   0,               5 } // Tower
 };
 
-PixieData data_copy(PixieData const &d)
-{
-    PixieData result;
-
-    if (!d.valid()) {
-        return result;
-    }
-
-    result.frames = d.frames;
-    result.w = d.w;
-    result.h = d.h;
-
-    Sint32 len = (d.w * d.h) * d.frames;
-    result.data = new Uint8[len];
-    memcpy(result.data, d.data, len);
-
-    return result;
-}
-
 Loader::Loader()
 {
     // Livings
-    graphics[PIX(ORDER_LIVING, FAMILY_SOLDIER)] = read_pixie_file(std::string("footman.pix"));
-    graphics[PIX(ORDER_LIVING, FAMILY_ELF)] = read_pixie_file(std::string("elf.pix"));
-    graphics[PIX(ORDER_LIVING, FAMILY_ARCHER)] = read_pixie_file(std::string("archer.pix"));
-    graphics[PIX(ORDER_LIVING, FAMILY_THIEF)] = read_pixie_file(std::string("thief.pix"));
-    graphics[PIX(ORDER_LIVING, FAMILY_MAGE)] = read_pixie_file(std::string("mage.pix"));
-    graphics[PIX(ORDER_LIVING, FAMILY_SKELETON)] = read_pixie_file(std::string("skeleton.pix"));
-    graphics[PIX(ORDER_LIVING, FAMILY_CLERIC)] = read_pixie_file(std::string("cleric.pix"));
-    graphics[PIX(ORDER_LIVING, FAMILY_FIRE_ELEMENTAL)] = read_pixie_file(std::string("firelem.pix"));
-    graphics[PIX(ORDER_LIVING, FAMILY_FAERIE)] = read_pixie_file(std::string("faerie.pix"));
-    graphics[PIX(ORDER_LIVING, FAMILY_SLIME)] = read_pixie_file(std::string("amoeba3.pix"));
-    graphics[PIX(ORDER_LIVING, FAMILY_SMALL_SLIME)] = read_pixie_file(std::string("s_slime.pix"));
-    graphics[PIX(ORDER_LIVING, FAMILY_MEDIUM_SLIME)] = read_pixie_file(std::string("m_slime.pix"));
-    graphics[PIX(ORDER_LIVING, FAMILY_GHOST)] = read_pixie_file(std::string("ghost.pix"));
-    graphics[PIX(ORDER_LIVING, FAMILY_DRUID)] = read_pixie_file(std::string("druid.pix"));
-    graphics[PIX(ORDER_LIVING, FAMILY_ORC)] = read_pixie_file(std::string("orc.pix"));
-    graphics[PIX(ORDER_LIVING, FAMILY_BIG_ORC)] = read_pixie_file(std::string("orc2.pix"));
-    graphics[PIX(ORDER_LIVING, FAMILY_BARBARIAN)] = read_pixie_file(std::string("barby.pix"));
-    graphics[PIX(ORDER_LIVING, FAMILY_ARCHMAGE)] = read_pixie_file(std::string("archmage.pix"));
-    graphics[PIX(ORDER_LIVING, FAMILY_GOLEM)] = read_pixie_file(std::string("golem1.pix"));
-    graphics[PIX(ORDER_LIVING, FAMILY_GIANT_SKELETON)] = read_pixie_file(std::string("gs1.pix"));
-    graphics[PIX(ORDER_LIVING, FAMILY_TOWER1)] = read_pixie_file(std::string("towersm1.pix"));
+    graphics[PIX(ORDER_LIVING, FAMILY_SOLDIER)] = PixieData(std::filesystem::path("footman.pix"));
+    graphics[PIX(ORDER_LIVING, FAMILY_ELF)] = PixieData(std::filesystem::path("elf.pix"));
+    graphics[PIX(ORDER_LIVING, FAMILY_ARCHER)] = PixieData(std::filesystem::path("archer.pix"));
+    graphics[PIX(ORDER_LIVING, FAMILY_THIEF)] = PixieData(std::filesystem::path("thief.pix"));
+    graphics[PIX(ORDER_LIVING, FAMILY_MAGE)] = PixieData(std::filesystem::path("mage.pix"));
+    graphics[PIX(ORDER_LIVING, FAMILY_SKELETON)] = PixieData(std::filesystem::path("skeleton.pix"));
+    graphics[PIX(ORDER_LIVING, FAMILY_CLERIC)] = PixieData(std::filesystem::path("cleric.pix"));
+    graphics[PIX(ORDER_LIVING, FAMILY_FIRE_ELEMENTAL)] = PixieData(std::filesystem::path("firelem.pix"));
+    graphics[PIX(ORDER_LIVING, FAMILY_FAERIE)] = PixieData(std::filesystem::path("faerie.pix"));
+    graphics[PIX(ORDER_LIVING, FAMILY_SLIME)] = PixieData(std::filesystem::path("amoeba3.pix"));
+    graphics[PIX(ORDER_LIVING, FAMILY_SMALL_SLIME)] = PixieData(std::filesystem::path("s_slime.pix"));
+    graphics[PIX(ORDER_LIVING, FAMILY_MEDIUM_SLIME)] = PixieData(std::filesystem::path("m_slime.pix"));
+    graphics[PIX(ORDER_LIVING, FAMILY_GHOST)] = PixieData(std::filesystem::path("ghost.pix"));
+    graphics[PIX(ORDER_LIVING, FAMILY_DRUID)] = PixieData(std::filesystem::path("druid.pix"));
+    graphics[PIX(ORDER_LIVING, FAMILY_ORC)] = PixieData(std::filesystem::path("orc.pix"));
+    graphics[PIX(ORDER_LIVING, FAMILY_BIG_ORC)] = PixieData(std::filesystem::path("orc2.pix"));
+    graphics[PIX(ORDER_LIVING, FAMILY_BARBARIAN)] = PixieData(std::filesystem::path("barby.pix"));
+    graphics[PIX(ORDER_LIVING, FAMILY_ARCHMAGE)] = PixieData(std::filesystem::path("archmage.pix"));
+    graphics[PIX(ORDER_LIVING, FAMILY_GOLEM)] = PixieData(std::filesystem::path("golem1.pix"));
+    graphics[PIX(ORDER_LIVING, FAMILY_GIANT_SKELETON)] = PixieData(std::filesystem::path("gs1.pix"));
+    graphics[PIX(ORDER_LIVING, FAMILY_TOWER1)] = PixieData(std::filesystem::path("towersm1.pix"));
 
     for (Sint32 i = 0; i < NUM_FAMILIES; ++i) {
         hitpoints[PIX(ORDER_LIVING, i)] = derived_bonuses[i][0];
@@ -472,35 +454,35 @@ Loader::Loader()
     lineofsight[PIX(ORDER_LIVING, FAMILY_TOWER1)] = 10;
 
     // Weapons
-    graphics[PIX(ORDER_WEAPON, FAMILY_KNIFE)] = read_pixie_file(std::string("knife.pix"));
-    graphics[PIX(ORDER_WEAPON, FAMILY_ROCK)] = read_pixie_file(std::string("rock.pix"));
-    graphics[PIX(ORDER_WEAPON, FAMILY_ARROW)] = read_pixie_file(std::string("arrow.pix"));
-    graphics[PIX(ORDER_WEAPON, FAMILY_FIRE_ARROW)] = read_pixie_file(std::string("farrow.pix"));
-    graphics[PIX(ORDER_WEAPON, FAMILY_FIREBALL)] = read_pixie_file(std::string("fire.pix"));
-    graphics[PIX(ORDER_WEAPON, FAMILY_TREE)] = read_pixie_file(std::string("tree.pix"));
-    graphics[PIX(ORDER_WEAPON, FAMILY_METEOR)] = read_pixie_file(std::string("meteor.pix"));
-    graphics[PIX(ORDER_WEAPON, FAMILY_SPRINKLE)] = read_pixie_file(std::string("sparkle.pix"));
+    graphics[PIX(ORDER_WEAPON, FAMILY_KNIFE)] = PixieData(std::filesystem::path("knife.pix"));
+    graphics[PIX(ORDER_WEAPON, FAMILY_ROCK)] = PixieData(std::filesystem::path("rock.pix"));
+    graphics[PIX(ORDER_WEAPON, FAMILY_ARROW)] = PixieData(std::filesystem::path("arrow.pix"));
+    graphics[PIX(ORDER_WEAPON, FAMILY_FIRE_ARROW)] = PixieData(std::filesystem::path("farrow.pix"));
+    graphics[PIX(ORDER_WEAPON, FAMILY_FIREBALL)] = PixieData(std::filesystem::path("fire.pix"));
+    graphics[PIX(ORDER_WEAPON, FAMILY_TREE)] = PixieData(std::filesystem::path("tree.pix"));
+    graphics[PIX(ORDER_WEAPON, FAMILY_METEOR)] = PixieData(std::filesystem::path("meteor.pix"));
+    graphics[PIX(ORDER_WEAPON, FAMILY_SPRINKLE)] = PixieData(std::filesystem::path("sparkle.pix"));
 
     if (cfg.is_on("effects", "gore")) {
-        graphics[PIX(ORDER_WEAPON, FAMILY_BLOOD)] = read_pixie_file(std::string("blood.pix"));
-        graphics[PIX(ORDER_TREASURE, FAMILY_STAIN)] = read_pixie_file(std::string("stain.pix"));
+        graphics[PIX(ORDER_WEAPON, FAMILY_BLOOD)] = PixieData(std::filesystem::path("blood.pix"));
+        graphics[PIX(ORDER_TREASURE, FAMILY_STAIN)] = PixieData(std::filesystem::path("stain.pix"));
     } else {
-        graphics[PIX(ORDER_WEAPON, FAMILY_BLOOD)] = read_pixie_file(std::string("blood_friendly.pix"));
-        graphics[PIX(ORDER_TREASURE, FAMILY_STAIN)] = read_pixie_file(std::string("stain_friendly.pix"));
+        graphics[PIX(ORDER_WEAPON, FAMILY_BLOOD)] = PixieData(std::filesystem::path("blood_friendly.pix"));
+        graphics[PIX(ORDER_TREASURE, FAMILY_STAIN)] = PixieData(std::filesystem::path("stain_friendly.pix"));
     }
 
-    graphics[PIX(ORDER_WEAPON, FAMILY_BONE)] = read_pixie_file(std::string("bone1.pix"));
-    graphics[PIX(ORDER_WEAPON, FAMILY_BLOB)] = read_pixie_file(std::string("sl_ball.pix"));
-    graphics[PIX(ORDER_WEAPON, FAMILY_LIGHTNING)] = read_pixie_file(std::string("lightnin.pix"));
-    graphics[PIX(ORDER_WEAPON, FAMILY_GLOW)] = read_pixie_file(std::string("clerglow.pix"));
-    graphics[PIX(ORDER_WEAPON, FAMILY_WAVE)] = read_pixie_file(std::string("wave.pix"));
-    graphics[PIX(ORDER_WEAPON, FAMILY_WAVE2)] = read_pixie_file(std::string("wave2.pix"));
-    graphics[PIX(ORDER_WEAPON, FAMILY_WAVE3)] = read_pixie_file(std::string("wave3.pix"));
-    graphics[PIX(ORDER_WEAPON, FAMILY_CIRCLE_PROTECTION)] = read_pixie_file(std::string("wave2.pix"));
-    graphics[PIX(ORDER_WEAPON, FAMILY_HAMMER)] = read_pixie_file(std::string("hammer.pix"));
+    graphics[PIX(ORDER_WEAPON, FAMILY_BONE)] = PixieData(std::filesystem::path("bone1.pix"));
+    graphics[PIX(ORDER_WEAPON, FAMILY_BLOB)] = PixieData(std::filesystem::path("sl_ball.pix"));
+    graphics[PIX(ORDER_WEAPON, FAMILY_LIGHTNING)] = PixieData(std::filesystem::path("lightnin.pix"));
+    graphics[PIX(ORDER_WEAPON, FAMILY_GLOW)] = PixieData(std::filesystem::path("clerglow.pix"));
+    graphics[PIX(ORDER_WEAPON, FAMILY_WAVE)] = PixieData(std::filesystem::path("wave.pix"));
+    graphics[PIX(ORDER_WEAPON, FAMILY_WAVE2)] = PixieData(std::filesystem::path("wave2.pix"));
+    graphics[PIX(ORDER_WEAPON, FAMILY_WAVE3)] = PixieData(std::filesystem::path("wave3.pix"));
+    graphics[PIX(ORDER_WEAPON, FAMILY_CIRCLE_PROTECTION)] = PixieData(std::filesystem::path("wave2.pix"));
+    graphics[PIX(ORDER_WEAPON, FAMILY_HAMMER)] = PixieData(std::filesystem::path("hammer.pix"));
 
-    graphics[PIX(ORDER_WEAPON, FAMILY_DOOR)] = read_pixie_file(std::string("door.pix"));
-    graphics[PIX(ORDER_WEAPON, FAMILY_BOULDER)] = read_pixie_file(std::string("boulder1.pix"));
+    graphics[PIX(ORDER_WEAPON, FAMILY_DOOR)] = PixieData(std::filesystem::path("door.pix"));
+    graphics[PIX(ORDER_WEAPON, FAMILY_BOULDER)] = PixieData(std::filesystem::path("boulder1.pix"));
 
     hitpoints[PIX(ORDER_WEAPON, FAMILY_KNIFE)] = 6;
     hitpoints[PIX(ORDER_WEAPON, FAMILY_BONE)] = 5;
@@ -654,18 +636,18 @@ Loader::Loader()
     fire_frequency[PIX(ORDER_WEAPON, FAMILY_BOULDER)] = 0;
 
     // Treasure items (food, etc.)
-    graphics[PIX(ORDER_TREASURE, FAMILY_DRUMSTICK)] = read_pixie_file(std::string("food1.pix"));
-    graphics[PIX(ORDER_TREASURE, FAMILY_GOLD_BAR)] = read_pixie_file(std::string("bar1.pix"));
-    graphics[PIX(ORDER_TREASURE, FAMILY_SILVER_BAR)] = data_copy(graphics[PIX(ORDER_TREASURE, FAMILY_GOLD_BAR)]);
-    graphics[PIX(ORDER_TREASURE, FAMILY_MAGIC_POTION)] = read_pixie_file(std::string("bottle.pix"));
-    graphics[PIX(ORDER_TREASURE, FAMILY_INVIS_POTION)] = data_copy(graphics[PIX(ORDER_TREASURE, FAMILY_MAGIC_POTION)]);
-    graphics[PIX(ORDER_TREASURE, FAMILY_INVULNERABLE_POTION)] = data_copy(graphics[PIX(ORDER_TREASURE, FAMILY_MAGIC_POTION)]);
-    graphics[PIX(ORDER_TREASURE, FAMILY_FLIGHT_POTION)] = data_copy(graphics[PIX(ORDER_TREASURE, FAMILY_MAGIC_POTION)]);
-    graphics[PIX(ORDER_TREASURE, FAMILY_EXIT)] = read_pixie_file(std::string("16exit1.pix"));
-    graphics[PIX(ORDER_TREASURE, FAMILY_TELEPORTER)] = read_pixie_file(std::string("teleport.pix"));
-    graphics[PIX(ORDER_TREASURE, FAMILY_LIFE_GEM)] = read_pixie_file(std::string("lifegem.pix"));
-    graphics[PIX(ORDER_TREASURE, FAMILY_KEY)] = read_pixie_file(std::string("key.pix"));
-    graphics[PIX(ORDER_TREASURE, FAMILY_SPEED_POTION)] = data_copy(graphics[PIX(ORDER_TREASURE, FAMILY_MAGIC_POTION)]);
+    graphics[PIX(ORDER_TREASURE, FAMILY_DRUMSTICK)] = PixieData(std::filesystem::path("food1.pix"));
+    graphics[PIX(ORDER_TREASURE, FAMILY_GOLD_BAR)] = PixieData(std::filesystem::path("bar1.pix"));
+    graphics[PIX(ORDER_TREASURE, FAMILY_SILVER_BAR)] = graphics[PIX(ORDER_TREASURE, FAMILY_GOLD_BAR)];
+    graphics[PIX(ORDER_TREASURE, FAMILY_MAGIC_POTION)] = PixieData(std::filesystem::path("bottle.pix"));
+    graphics[PIX(ORDER_TREASURE, FAMILY_INVIS_POTION)] = graphics[PIX(ORDER_TREASURE, FAMILY_MAGIC_POTION)];
+    graphics[PIX(ORDER_TREASURE, FAMILY_INVULNERABLE_POTION)] = graphics[PIX(ORDER_TREASURE, FAMILY_MAGIC_POTION)];
+    graphics[PIX(ORDER_TREASURE, FAMILY_FLIGHT_POTION)] = graphics[PIX(ORDER_TREASURE, FAMILY_MAGIC_POTION)];
+    graphics[PIX(ORDER_TREASURE, FAMILY_EXIT)] = PixieData(std::filesystem::path("16exit1.pix"));
+    graphics[PIX(ORDER_TREASURE, FAMILY_TELEPORTER)] = PixieData(std::filesystem::path("teleport.pix"));
+    graphics[PIX(ORDER_TREASURE, FAMILY_LIFE_GEM)] = PixieData(std::filesystem::path("lifegem.pix"));
+    graphics[PIX(ORDER_TREASURE, FAMILY_KEY)] = PixieData(std::filesystem::path("key.pix"));
+    graphics[PIX(ORDER_TREASURE, FAMILY_SPEED_POTION)] = graphics[PIX(ORDER_TREASURE, FAMILY_MAGIC_POTION)];
 
     hitpoints[PIX(ORDER_TREASURE, FAMILY_DRUMSTICK)] = 10;
     hitpoints[PIX(ORDER_TREASURE, FAMILY_GOLD_BAR)] = 1000;
@@ -700,10 +682,10 @@ Loader::Loader()
     stepsizes[PIX(ORDER_TREASURE, FAMILY_DRUMSTICK)] = 5;
 
     // Generator
-    graphics[PIX(ORDER_GENERATOR, FAMILY_TENT)] = read_pixie_file(std::string("tent.pix"));
-    graphics[PIX(ORDER_GENERATOR, FAMILY_TOWER)] = read_pixie_file(std::string("tower4.pix"));
-    graphics[PIX(ORDER_GENERATOR, FAMILY_BONES)] = read_pixie_file(std::string("bonepile.pix"));
-    graphics[PIX(ORDER_GENERATOR, FAMILY_TREEHOUSE)] = read_pixie_file(std::string("bigtree.pix"));
+    graphics[PIX(ORDER_GENERATOR, FAMILY_TENT)] = PixieData(std::filesystem::path("tent.pix"));
+    graphics[PIX(ORDER_GENERATOR, FAMILY_TOWER)] = PixieData(std::filesystem::path("tower4.pix"));
+    graphics[PIX(ORDER_GENERATOR, FAMILY_BONES)] = PixieData(std::filesystem::path("bonepile.pix"));
+    graphics[PIX(ORDER_GENERATOR, FAMILY_TREEHOUSE)] = PixieData(std::filesystem::path("bigtree.pix"));
 
     hitpoints[PIX(ORDER_GENERATOR, FAMILY_TENT)] = 100;
 
@@ -738,22 +720,22 @@ Loader::Loader()
     fire_frequency[PIX(ORDER_GENERATOR, FAMILY_TREEHOUSE)] = 0;
 
     // Specials...
-    graphics[PIX(ORDER_SPECIAL, FAMILY_RESERVED_TEAM)] = read_pixie_file(std::string("team.pix"));
+    graphics[PIX(ORDER_SPECIAL, FAMILY_RESERVED_TEAM)] = PixieData(std::filesystem::path("team.pix"));
 
     // Effects...
-    graphics[PIX(ORDER_FX, FAMILY_EXPAND)] = read_pixie_file(std::string("expand8.pix"));
-    graphics[PIX(ORDER_FX, FAMILY_GHOST_SCARE)] = read_pixie_file(std::string("expand8.pix"));
-    graphics[PIX(ORDER_FX, FAMILY_BOMB)] = read_pixie_file(std::string("bomb1.pix"));
-    graphics[PIX(ORDER_FX, FAMILY_EXPLOSION)] = read_pixie_file(std::string("boom1.pix"));
-    graphics[PIX(ORDER_FX, FAMILY_FLASH)] = read_pixie_file(std::string("telflash.pix"));
-    graphics[PIX(ORDER_FX, FAMILY_MAGIC_SHIELD)] = read_pixie_file(std::string("mshield.pix"));
-    graphics[PIX(ORDER_FX, FAMILY_KNIFE_BACK)] = read_pixie_file(std::string("knife.pix"));
-    graphics[PIX(ORDER_FX, FAMILY_CLOUD)] = read_pixie_file(std::string("cloud.pix"));
-    graphics[PIX(ORDER_FX, FAMILY_MARKER)] = read_pixie_file(std::string("marker.pix"));
-    graphics[PIX(ORDER_FX, FAMILY_BOOMERANG)] = read_pixie_file(std::string("boomer.pix"));
-    graphics[PIX(ORDER_FX, FAMILY_CHAIN)] = read_pixie_file(std::string("lightnin.pix"));
-    graphics[PIX(ORDER_FX, FAMILY_DOOR_OPEN)] = read_pixie_file(std::string("door.pix"));
-    graphics[PIX(ORDER_FX, FAMILY_HIT)] = read_pixie_file(std::string("hit.pix"));
+    graphics[PIX(ORDER_FX, FAMILY_EXPAND)] = PixieData(std::filesystem::path("expand8.pix"));
+    graphics[PIX(ORDER_FX, FAMILY_GHOST_SCARE)] = PixieData(std::filesystem::path("expand8.pix"));
+    graphics[PIX(ORDER_FX, FAMILY_BOMB)] = PixieData(std::filesystem::path("bomb1.pix"));
+    graphics[PIX(ORDER_FX, FAMILY_EXPLOSION)] = PixieData(std::filesystem::path("boom1.pix"));
+    graphics[PIX(ORDER_FX, FAMILY_FLASH)] = PixieData(std::filesystem::path("telflash.pix"));
+    graphics[PIX(ORDER_FX, FAMILY_MAGIC_SHIELD)] = PixieData(std::filesystem::path("mshield.pix"));
+    graphics[PIX(ORDER_FX, FAMILY_KNIFE_BACK)] = PixieData(std::filesystem::path("knife.pix"));
+    graphics[PIX(ORDER_FX, FAMILY_CLOUD)] = PixieData(std::filesystem::path("cloud.pix"));
+    graphics[PIX(ORDER_FX, FAMILY_MARKER)] = PixieData(std::filesystem::path("marker.pix"));
+    graphics[PIX(ORDER_FX, FAMILY_BOOMERANG)] = PixieData(std::filesystem::path("boomer.pix"));
+    graphics[PIX(ORDER_FX, FAMILY_CHAIN)] = PixieData(std::filesystem::path("lightnin.pix"));
+    graphics[PIX(ORDER_FX, FAMILY_DOOR_OPEN)] = PixieData(std::filesystem::path("door.pix"));
+    graphics[PIX(ORDER_FX, FAMILY_HIT)] = PixieData(std::filesystem::path("hit.pix"));
 
     animations[PIX(ORDER_FX, FAMILY_EXPAND)] = aniexpand8;
     animations[PIX(ORDER_FX, FAMILY_GHOST_SCARE)] = aniexpand8;
@@ -782,10 +764,10 @@ Loader::Loader()
     damage[PIX(ORDER_FX, FAMILY_CLOUD)] = 20;
 
     // These are button graphics...
-    graphics[PIX(ORDER_BUTTON1, FAMILY_NORMAL1)] = read_pixie_file(std::string("normal1.pix"));
-    graphics[PIX(ORDER_BUTTON1, FAMILY_PLUS)] = read_pixie_file(std::string("butplus.pix"));
-    graphics[PIX(ORDER_BUTTON1, FAMILY_MINUS)] = read_pixie_file(std::string("butminus.pix"));
-    graphics[PIX(ORDER_BUTTON1, FAMILY_WRENCH)] = read_pixie_file(std::string("wrench.pix"));
+    graphics[PIX(ORDER_BUTTON1, FAMILY_NORMAL1)] = PixieData(std::filesystem::path("normal1.pix"));
+    graphics[PIX(ORDER_BUTTON1, FAMILY_PLUS)] = PixieData(std::filesystem::path("butplus.pix"));
+    graphics[PIX(ORDER_BUTTON1, FAMILY_MINUS)] = PixieData(std::filesystem::path("butminus.pix"));
+    graphics[PIX(ORDER_BUTTON1, FAMILY_WRENCH)] = PixieData(std::filesystem::path("wrench.pix"));
 };
 
 Loader::~Loader(void)
@@ -803,7 +785,7 @@ PixieN *Loader::create_pixieN(Uint8 order, Uint8 family)
     if (!graphics[PIX(order, family)].valid()) {
         std::stringstream buf;
         buf << "Alert! No valid graphics for PixieN!" << std::endl;
-        Log("%s", buf.str().c_str());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", buf.str().c_str());
 
         return nullptr;
     }

@@ -55,12 +55,6 @@ void intro_main()
     Pixie *ur = nullptr;
     Pixie *ll = nullptr;
     Pixie *lr = nullptr;
-    PixieData uldata;
-    PixieData urdata;
-    PixieData lldata;
-    PixieData lrdata;
-    PixieData gladdata;
-    PixieData bigdata;
 
     myscreen->viewob[0]->resize(PREF_VIEW_FULL);
 
@@ -70,7 +64,7 @@ void intro_main()
 
     myscreen->clear();
 
-    gladdata = read_pixie_file("3mages2.pix");
+    PixieData gladdata = PixieData(std::filesystem::path("3mages2.pix"));
     gladiator = new Pixie(gladdata);
     gladiator->setxy(120, 55);
     gladiator->drawMix(myscreen->viewob[0]->topx, myscreen->viewob[0]->topy,
@@ -88,9 +82,9 @@ void intro_main()
         return;
     }
 
-    gladdata = read_pixie_file("glad2.pix");
+    gladdata = PixieData(std::filesystem::path("glad2.pix"));
     gladiator = new Pixie(gladdata);
-    bigdata = read_pixie_file("bigfoot.pix");
+    PixieData bigdata = PixieData(std::filesystem::path("bigfoot.pix"));
     bigfoot = new Pixie(bigdata);
     myscreen->clear();
     bigfoot->setxy(120, 50);
@@ -144,7 +138,7 @@ void intro_main()
 
     // First 'interlude' snapshot
     myscreen->clear();
-    uldata = read_pixie_file("game2ul.pix");
+    PixieData uldata = PixieData(std::filesystem::path("game2ul.pix"));
     ul = new Pixie(uldata);
     ul->setxy(41, 12);
     ul->draw(myscreen->viewob[0]->topx, myscreen->viewob[0]->topy,
@@ -154,7 +148,7 @@ void intro_main()
     uldata.free();
     ul = nullptr;
 
-    urdata = read_pixie_file("game2ur.pix");
+    PixieData urdata = PixieData(std::filesystem::path("game2ur.pix"));
     ur = new Pixie(urdata);
     ur->setxy(160, 12);
     ur->draw(myscreen->viewob[0]->topx, myscreen->viewob[0]->topy,
@@ -164,7 +158,7 @@ void intro_main()
     urdata.free();
     ur = nullptr;
 
-    lldata = read_pixie_file("game2ll.pix");
+    PixieData lldata = PixieData(std::filesystem::path("game2ll.pix"));
     ll = new Pixie(lldata);
     ll->setxy(41, 103);
     ll->draw(myscreen->viewob[0]->topx, myscreen->viewob[0]->topy,
@@ -174,7 +168,7 @@ void intro_main()
     lldata.free();
     ll = nullptr;
 
-    lrdata = read_pixie_file("game2lr.pix");
+    PixieData lrdata = PixieData(std::filesystem::path("game2lr.pix"));
     lr = new Pixie(lrdata);
     lr->setxy(160, 103);
     lr->draw(myscreen->viewob[0]->topx, myscreen->viewob[0]->topy,
@@ -209,7 +203,7 @@ void intro_main()
 
     // Second 'interlude' & extra credits
     myscreen->clear();
-    uldata = read_pixie_file("game4.pix");
+    uldata = PixieData(std::filesystem::path("game4.pix"));
     ul = new Pixie(uldata);
     ul->setxy(0, 0);
     ul->draw(myscreen->viewob[0]->topx, myscreen->viewob[0]->topy,
@@ -219,7 +213,7 @@ void intro_main()
     uldata.free();
     ul = nullptr;
 
-    lldata = read_pixie_file("game5.pix");
+    lldata = PixieData(std::filesystem::path("game5.pix"));
     ll = new Pixie(lldata);
     ll->setxy(160, 78);
     ll->draw(myscreen->viewob[0]->topx, myscreen->viewob[0]->topy,

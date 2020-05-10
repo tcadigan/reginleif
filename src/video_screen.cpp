@@ -58,12 +58,6 @@
 
 #define MAX_SPREAD 10 // This controls find_near_foe
 
-Sint16 load_version_2(SDL_RWops *infile, VideoScreen *master);
-Sint16 load_version_3(SDL_RWops *infile, VideoScreen *master); // Version 3 scen
-Sint16 load_version_4(SDL_RWops *infile, VideoScreen *master); // Version 4 scen: + names
-Sint16 load_version_5(SDL_RWops *infile, VideoScreen *master); // Version 5 scen: + type
-Sint16 load_version_6(SDL_RWops *infile, VideoScreen *master, Sint16 version=6); // Version 6 scen: + title
-
 VideoScreen *myscreen;
 
 /*
@@ -255,7 +249,7 @@ void VideoScreen::initialize_views()
         viewob[2] = new ViewScreen(T_LEFT_THREE, T_UP_THREE, T_HALF_WIDTH, T_HALF_HEIGHT, 2);
         viewob[3] = new ViewScreen(T_LEFT_FOUR, T_UP_FOUR, T_HALF_WIDTH, T_HALF_HEIGHT, 3);
     } else {
-        Log("Error initializing screen views. numviews is %d\n", numviews);
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Error initializing screen views. numviews is %d\n", numviews);
     }
 }
 
@@ -344,7 +338,7 @@ bool VideoScreen::query_grid_passable(float x, float y, Walker *ob)
     Sint32 xover = x + ob->sizex;
     Sint32 yover = y + ob->sizey;
 
-    if ((x < 0) || (y < 0) || (xover >= level_data.pixmaxx) || (yover >= level_data.pixmaxy)) {
+    if ((x < 0) || (y < 0) || (xover >= (level_data.grid->w * GRID_SIZE)) || (yover >= (level_data.grid->h * GRID_SIZE))) {
         return 0;
     }
 
@@ -355,7 +349,7 @@ bool VideoScreen::query_grid_passable(float x, float y, Walker *ob)
     }
 
     // Zardus: PORT: Does the grid exist?
-    if (!level_data.grid.valid()) {
+    if (!level_data.grid->valid()) {
         return 0;
     }
 
@@ -377,7 +371,7 @@ bool VideoScreen::query_grid_passable(float x, float y, Walker *ob)
     for (i = (x / GRID_SIZE); i < xtarg; ++i) {
         for (j = (y / GRID_SIZE); j < ytarg; ++j) {
             // Check if item in background grid
-            switch (level_data.grid.data[i + (level_data.grid.w * j)]) {
+            switch (level_data.grid->data[i + (level_data.grid->w * j)]) {
             case PIX_GRASS1: // Grass is pass...
             case PIX_GRASS2:
             case PIX_GRASS3:
@@ -558,7 +552,7 @@ bool VideoScreen::query_object_passable(float x, float y, Walker *ob)
         return true;
     }
 
-    return level_data.myobmap->query_list(ob, x, y);
+    return level_data.myobmap.query_list(ob, x, y);
 }
 
 bool VideoScreen::query_passable(float x, float y, Walker *ob)
@@ -927,10 +921,10 @@ Walker *VideoScreen::find_near_foe(Walker *ob)
     Sint16 spread = 1;
     Sint16 xchange = 0;
     Sint16 loop = 0;
-    Sint16 resolution = level_data.myobmap->obmapres;
+    Sint16 resolution = level_data.myobmap.obmapres;
 
     if (!ob) {
-        Log("No ob in find near foe.\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "No ob in find near foe.\n");
 
         return nullptr;
     }
@@ -950,7 +944,7 @@ Walker *VideoScreen::find_near_foe(Walker *ob)
                     return find_far_foe(ob);
                 }
 
-                if (targx >= level_data.pixmaxx) {
+                if (targx >= (level_data.grid->w * GRID_SIZE)) {
                     // Right edge of screen
                     return find_far_foe(ob);
                 }
@@ -963,13 +957,13 @@ Walker *VideoScreen::find_near_foe(Walker *ob)
                     return find_far_foe(ob);
                 }
 
-                if (targy >= level_data.pixmaxy) {
+                if (targy >= (level_data.grid->h * GRID_SIZE)) {
                     // Bottom of screen
                     return find_far_foe(ob);
                 }
             }
 
-            std::list<Walker *> &ls = level_data.myobmap->obmap_get_list(targx, targy);
+            std::list<Walker *> &ls = level_data.myobmap.obmap_get_list(targx, targy);
 
             // Go through the list we received
             for (auto const & w : ls) {
@@ -1004,7 +998,7 @@ Walker *VideoScreen::find_far_foe(Walker *ob)
     Walker *endfoe;
 
     if (!ob) {
-        Log("No ob in find far foe.\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "No ob in find far foe.\n");
 
         return nullptr;
     }
@@ -1263,18 +1257,18 @@ Uint8 VideoScreen::damage_tile(Sint16 xloc, Sint16 yloc)
         return 0;
     }
 
-    if ((xover >= level_data.grid.w) || (yover >= level_data.grid.h)) {
+    if ((xover >= level_data.grid->w) || (yover >= level_data.grid->h)) {
         return 0;
     }
 
-    gridloc = (yover * level_data.grid.w) + xover;
+    gridloc = (yover * level_data.grid->w) + xover;
 
-    switch (level_data.grid.data[gridloc]) {
+    switch (level_data.grid->data[gridloc]) {
     case PIX_GRASS1: // Grass
     case PIX_GRASS2:
     case PIX_GRASS3:
     case PIX_GRASS4:
-        level_data.grid.data[gridloc] = PIX_GRASS1_DAMAGED;
+        level_data.grid->data[gridloc] = PIX_GRASS1_DAMAGED;
 
         break;
     default:
@@ -1282,7 +1276,7 @@ Uint8 VideoScreen::damage_tile(Sint16 xloc, Sint16 yloc)
         break;
     }
 
-    return level_data.grid.data[gridloc];
+    return level_data.grid->data[gridloc];
 }
 
 void VideoScreen::do_notify(std::string const &message, Walker *who)

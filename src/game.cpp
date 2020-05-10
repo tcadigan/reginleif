@@ -54,7 +54,7 @@ bool load_saved_game(VideoScreen *myscreen)
     if (!myscreen->level_data.load()) {
         buf << "Failed to load \"" << scenfile << "\". Falling back to loading "
             << "scenario 1." << std::endl;
-        Log("%s", buf.str().c_str());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", buf.str().c_str());
         buf.clear();
 
         Sint16 old_scen = myscreen->save_data.scen_num;

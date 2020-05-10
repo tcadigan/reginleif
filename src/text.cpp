@@ -25,39 +25,30 @@
 
 #include <cctype>
 
-static PixieData letters1;
-static PixieData letters_big;
-
-Text::Text(std::string const &filename)
-    : sizex(0)
-    , sizey(0)
+Text::Text(std::filesystem::path const &filename)
+    : letters(set_letters(filename))
+    , sizex(letters.w)
+    , sizey(letters.h)
 {
-    if (!letters1.valid()) {
-        letters1 = read_pixie_file(TEXT_1);
-    }
-
-    if (!letters_big.valid()) {
-        letters_big = read_pixie_file(TEXT_BIG);
-    }
-
-    std::string temp_filename(filename);
-
-    if (temp_filename.empty() || (temp_filename.size() < 2)) {
-        temp_filename = "text.pix";
-    }
-
-    if (temp_filename == TEXT_BIG) {
-        letters = letters_big;
-    } else {
-        letters = letters1;
-    }
-
-    sizex = letters.w;
-    sizey = letters.h;
 }
 
 Text::~Text()
 {
+}
+
+PixieData Text::set_letters(std::filesystem::path const &filename)
+{
+    std::filesystem::path temp_filename(filename);
+
+    if (temp_filename.empty() || (temp_filename.string().size() < 2)) {
+        temp_filename = "text.pix";
+    }
+
+    if (temp_filename == std::filesystem::path(TEXT_BIG)) {
+        return PixieData(std::filesystem::path(TEXT_BIG));
+    } else {
+        return PixieData(std::filesystem::path(TEXT_1));
+    }
 }
 
 // Returns width, in pixels

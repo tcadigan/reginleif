@@ -868,7 +868,7 @@ void Video::putdatatext(Sint32 startx, Sint32 starty, Sint32 xsize, Sint32 ysize
             rect.y = cury;
             rect.w = 1;
             rect.h = 1;
-            Log("test\n");
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "test\n");
             SDL_FillRect(E_Screen->render, &rect, color);
         }
     }
@@ -1924,7 +1924,7 @@ Sint32 Video::get_pixel(Sint32 x, Sint32 y, Sint32 *index)
         }
     }
 
-    Log("DEBUG: Could not find color: %d %d %d\n", r, g, b);
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "DEBUG: Could not find color: %d %d %d\n", r, g, b);
 
     return 0;
 }
@@ -1971,12 +1971,12 @@ bool Video::save_screenshot()
     SDL_RWops *rwops = open_write_file(std::filesystem::path(filename));
 
     if (rwops == nullptr) {
-        Log("Failed to open file for screenshot.\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Failed to open file for screenshot.\n");
 
         return false;
     }
 
-    Log("Saving screensshot: %s\n", filename.c_str());
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Saving screensshot: %s\n", filename.c_str());
 
     bool result = false;
 

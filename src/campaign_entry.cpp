@@ -19,6 +19,7 @@
 
 #include "io.hpp"
 #include "graphlib.hpp"
+#include "pixie_data.hpp"
 #include "text.hpp"
 #include "util.hpp"
 #include "video_screen.hpp"
@@ -61,7 +62,7 @@ CampaignEntry::CampaignEntry(std::filesystem::path const &id, Sint32 num_levels_
         SDL_RWclose(rwops);
 
         if (total != size) {
-            Log("Unable to read complete file");
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unable to read complete file");
 
             return;
         }
@@ -75,7 +76,7 @@ CampaignEntry::CampaignEntry(std::filesystem::path const &id, Sint32 num_levels_
             delim_pos = line.find_first_of("=");
 
             if (delim_pos == std::string::npos) {
-                Log("Skipping unknown ini line\n");
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Skipping unknown ini line\n");
 
                 continue;
             }
@@ -98,14 +99,14 @@ CampaignEntry::CampaignEntry(std::filesystem::path const &id, Sint32 num_levels_
             } else if (key == "first_level") {
                 first_level = std::stoi(value);
             } else {
-                Log("Unknown ini key '%s'\n", key.c_str());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unknown ini key '%s'\n", key.c_str());
             }
         }
 
         // TODO: Get raiting from website
         rating = 0.0f;
 
-        icondata = read_pixie_file(std::string("icon.pix"));
+        PixieData icondata = PixieData(std::filesystem::path("icon.pix"));
 
         if (icondata.valid()) {
             icon = new Pixie(icondata);
@@ -122,7 +123,6 @@ CampaignEntry::CampaignEntry(std::filesystem::path const &id, Sint32 num_levels_
 CampaignEntry::~CampaignEntry()
 {
     delete icon;
-    icondata.free();
 }
 
 void CampaignEntry::draw(SDL_Rect const &area, Sint32 team_power)

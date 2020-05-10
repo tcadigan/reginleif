@@ -58,9 +58,9 @@
 #define L_H(x) (x * 8)
 
 #define PAN_LIMIT_UP -60
-#define PAN_LIMIT_DOWN (((GRID_SIZE * data.level->grid.h) - 200) + 80)
+#define PAN_LIMIT_DOWN (((GRID_SIZE * data.level->grid->h) - 200) + 80)
 #define PAN_LIMIT_LEFT -60
-#define PAN_LIMIT_RIGHT (((GRID_SIZE * data.level->grid.w) - 320) + 80)
+#define PAN_LIMIT_RIGHT (((GRID_SIZE * data.level->grid->w) - 320) + 80)
 
 SDL_Color scenpalette[256];
 Sint32 cyclemode = 1; // For color cycling
@@ -721,9 +721,9 @@ LevelEditor::LevelEditor()
     load_and_set_palette(scenpalette);
 
     if (data.reloadCampaign()) {
-        Log("Loaded campaign data successfully.\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Loaded campaign data successfully.\n");
     } else {
-        Log("Failed to load campaign data.\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Failed to load campaign data.\n");
     }
 
     std::filesystem::path old_campaign(get_mounted_campaign());
@@ -738,12 +738,12 @@ LevelEditor::LevelEditor()
 
     if (!levels.empty()) {
         if (data.loadLevel(levels.front())) {
-            Log("Loaded level data successfully.\n");
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Loaded level data successfully.\n");
         } else {
-            Log("Failed to load level data.\n");
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Failed to load level data.\n");
         }
     } else {
-        Log("Campaign has no valid levels!");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Campaign has no valid levels!");
     }
 
     // Redraw right away
@@ -1145,9 +1145,9 @@ LevelEditor::LevelEditor()
                                     for (i = (windowx - 1); i <= (windowx + 1); ++i) {
                                         for (j = (windowy - 1); j <= (windowy + 1); ++j) {
                                             if ((i >= 0)
-                                                && (i < data.level->grid.w)
+                                                && (i < data.level->grid->w)
                                                 && (j >= 0)
-                                                && (j < data.level->grid.h)) {
+                                                && (j < data.level->grid->h)) {
                                                 data.level->mysmoother.smooth(i, j);
                                             }
                                         }

@@ -98,7 +98,7 @@ VirtualButton::VirtualButton(Sint32 xpos, Sint32 ypos, Sint32 wide, Sint32 high,
     had_focus = 0;
     do_outline = 0;
     depressed = 0;
-    mypixie = myscreen->level_data.myloader->create_pixieN(ORDER_BUTTON1, family);
+    mypixie = myscreen->level_data.myloader.create_pixieN(ORDER_BUTTON1, family);
     hotkey = hot;
     width = mypixie->sizex;
     height = mypixie->sizey;
@@ -131,7 +131,7 @@ void VirtualButton::set_graphic(Uint8 family)
         delete mypixie;
     }
 
-    mypixie = myscreen->level_data.myloader->create_pixieN(ORDER_BUTTON1, family);
+    mypixie = myscreen->level_data.myloader.create_pixieN(ORDER_BUTTON1, family);
     width = mypixie->sizex;
     height = mypixie->sizey;
     xend = xloc + width;

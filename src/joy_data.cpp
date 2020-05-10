@@ -396,7 +396,7 @@ void handle_joy_event(SDL_Event const &event)
     std::stringstream buf;
     buf << "Joystick event!" << std::endl;
 
-    Log("%s", buf.str().c_str());
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", buf.str().c_str());
     switch (event.type) {
     case SDL_JOYAXISMOTION:
         if ((event.jaxis.value > 8000) || (event.jaxis.value < -800)) {

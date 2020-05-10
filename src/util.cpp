@@ -35,14 +35,6 @@ Uint32 reset_value = 0;
 
 std::mt19937 twister;
 
-void Log(char const *format, ...)
-{
-    va_list args;
-    va_start(args, format);
-    SDL_LogMessageV(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_ERROR, format, args);
-    va_end(args);
-}
-
 void reset_timer()
 {
     reset_value = SDL_GetTicks();

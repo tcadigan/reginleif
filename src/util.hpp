@@ -29,8 +29,6 @@
 
 #include <SDL2/SDL.h>
 
-void Log(char const *format, ...);
-
 void reset_timer();
 Sint32 query_timer();
 Sint32 query_timer_control();

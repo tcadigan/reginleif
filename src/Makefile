@@ -55,11 +55,11 @@ browser_entry.hpp: level_data.hpp radar.hpp video_screen.hpp
 button.o: button.hpp input.hpp pixien.hpp video_screen.hpp virtual_button.hpp
 button.hpp: menu_nav.hpp
 	touch button.hpp
-campaign_data.o: campaign_data.hpp graphlib.hpp io.hpp util.hpp
-campaign_data.hpp: pixie.hpp pixie_data.hpp
+campaign_data.o: campaign_data.hpp graphlib.hpp io.hpp pixie_data.hpp util.hpp
+campaign_data.hpp: pixie.hpp
 	touch campaign_data.hpp
-campaign_entry.o: campaign_entry.hpp io.hpp graphlib.hpp text.hpp util.hpp video_screen.hpp
-campaign_entry.hpp: pixie.hpp pixie_data.hpp
+campaign_entry.o: campaign_entry.hpp io.hpp graphlib.hpp pixie_data.hpp text.hpp util.hpp video_screen.hpp
+campaign_entry.hpp: pixie.hpp
 	touch campaign_entry.hpp
 campaign_result.o: campaign_result.hpp button.hpp campaign_entry.hpp input.hpp io.hpp level_editor.hpp mouse_state.hpp picker.hpp text.hpp util.hpp video_screen.hpp
 campaign_result.hpp: save_data.hpp
@@ -79,7 +79,7 @@ game.hpp: video_screen.hpp
 glad.o: glad.hpp base.hpp colors.hpp game.hpp gparser.hpp guy.hpp help.hpp input.hpp intro.hpp io.hpp joy_data.hpp mouse_state.hpp options.hpp pal32.hpp picker.hpp results_screen.hpp util.hpp version.hpp view.hpp walker.hpp
 glad.hpp: video_screen.hpp walker.hpp
 	touch glad.hpp
-gloader.o: gloader.hpp effect.hpp graphlib.hpp gparser.hpp guy.hpp living.hpp picker.hpp stats.hpp treasure.hpp util.hpp video_screen.hpp walker.hpp weap.hpp
+gloader.o: gloader.hpp effect.hpp graphlib.hpp gparser.hpp guy.hpp living.hpp picker.hpp pixie_data.hpp stats.hpp treasure.hpp util.hpp video_screen.hpp walker.hpp weap.hpp
 gloader.hpp: base.hpp pixien.hpp pixie_data.hpp
 	touch gloader.hpp
 gparser.o: gparser.hpp input.hpp io.hpp util.hpp version.hpp
@@ -98,7 +98,7 @@ io.o: io.hpp input.hpp pixdefs.hpp util.hpp
 joy_data.o: joy_data.hpp input.hpp util.hpp
 joy_data.hpp: base.hpp
 	touch joy_data.hpp
-level_data.o: level_data.hpp graphlib.hpp io.hpp screen.hpp util.hpp video_screen.hpp view.hpp walker.hpp
+level_data.o: level_data.hpp graphlib.hpp io.hpp pixie_data.hpp screen.hpp util.hpp video_screen.hpp view.hpp walker.hpp
 level_data.hpp: gloader.hpp pixdefs.hpp obmap.hpp pixie.hpp pixie_data.hpp pixien.hpp smooth.hpp walker.hpp
 	touch level_data.hpp
 level_editor.o: level_editor.hpp input.hpp io.hpp joy_data.hpp level_editor_data.hpp mouse_state.hpp object_type.hpp options.hpp pal32.hpp picker.hpp text.hpp util.hpp view.hpp walker.hpp
@@ -128,7 +128,7 @@ picker.hpp: button.hpp guy.hpp
 pixie.o: pixie.hpp base.hpp pal32.hpp util.hpp video_screen.hpp view.hpp
 pixie.hpp: pixie_data.hpp
 	touch pixie.hpp
-pixie_data.o: pixie_data.hpp
+pixie_data.o: pixie_data.hpp io.hpp util.hpp
 pixien.o: pixien.hpp
 pixien.hpp: pixie.hpp
 	touch pixien.hpp

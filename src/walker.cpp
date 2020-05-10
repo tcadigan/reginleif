@@ -257,7 +257,7 @@ Walker *create_walker(Uint8 order, Uint8 family)
         family = FAMILY_SOLDIER;
     }
 
-    PixieData graphic = myscreen->level_data.myloader->get_graphics(order, family);
+    PixieData graphic = myscreen->level_data.myloader.get_graphics(order, family);
     if (!graphic.valid()) {
         std::stringstream buf;
         buf << "No valid graphics for walker!" << std::endl
@@ -285,8 +285,8 @@ Walker *create_walker(Uint8 order, Uint8 family)
         return nullptr;
     }
 
-    ob->stats.hitpoints = myscreen->level_data.myloader->get_hitpoints(order, family);
-    ob->stats.max_hitpoints = myscreen->level_data.myloader->get_hitpoints(order, family);
+    ob->stats.hitpoints = myscreen->level_data.myloader.get_hitpoints(order, family);
+    ob->stats.max_hitpoints = myscreen->level_data.myloader.get_hitpoints(order, family);
     ob->stats.special_cost[0] = 0; // Shouldn't be used
     ob->stats.weapon_cost = 1; // Default value
 
@@ -302,14 +302,14 @@ Walker *create_walker(Uint8 order, Uint8 family)
 Walker *set_walker(Walker *ob, Uint8 order, Uint8 family)
 {
     ob->set_order_family(order, family);
-    ob->set_act_type(myscreen->level_data.myloader->get_act_type(order, family));
-    ob->ani = myscreen->level_data.myloader->get_animation(order, family);
+    ob->set_act_type(myscreen->level_data.myloader.get_act_type(order, family));
+    ob->ani = myscreen->level_data.myloader.get_animation(order, family);
 
-    ob->stepsize = myscreen->level_data.myloader->get_stepsize(order, family);
-    ob->normal_stepsize = myscreen->level_data.myloader->get_stepsize(order, family);
-    ob->lineofsight = myscreen->level_data.myloader->get_lineofsight(order, family);
-    ob->damage = myscreen->level_data.myloader->get_damage(order, family);
-    ob->fire_frequency = myscreen->level_data.myloader->get_fire_frequency(order, family);
+    ob->stepsize = myscreen->level_data.myloader.get_stepsize(order, family);
+    ob->normal_stepsize = myscreen->level_data.myloader.get_stepsize(order, family);
+    ob->lineofsight = myscreen->level_data.myloader.get_lineofsight(order, family);
+    ob->damage = myscreen->level_data.myloader.get_damage(order, family);
+    ob->fire_frequency = myscreen->level_data.myloader.get_fire_frequency(order, family);
 
     for (Sint16 i = 0; i < NUM_SPECIALS; ++i) {
         ob->stats.special_cost[i] = 5000;
@@ -730,7 +730,7 @@ Walker::~Walker()
     collide_ob = nullptr;
     dead = 1;
 
-    myscreen->level_data.myobmap->remove(this);
+    myscreen->level_data.myobmap.remove(this);
 
     bmp = nullptr;
 
@@ -758,10 +758,10 @@ Sint16 Walker::setxy(Sint16 x, Sint16 y)
     worldy = y;
 
     if (!ignore) {
-        myscreen->level_data.myobmap->move(this, x, y);
+        myscreen->level_data.myobmap.move(this, x, y);
     } else {
         // Just remove us, in case :)
-        myscreen->level_data.myobmap->remove(this);
+        myscreen->level_data.myobmap.remove(this);
     }
 
     return Pixie::setxy(x, y);
@@ -773,10 +773,10 @@ void Walker::setworldxy(float x, float y)
     worldy = y;
 
     if (!ignore) {
-        myscreen->level_data.myobmap->move(this, x, y);
+        myscreen->level_data.myobmap.move(this, x, y);
     } else {
         // Just remove us, in case :)
-        myscreen->level_data.myobmap->remove(this);
+        myscreen->level_data.myobmap.remove(this);
     }
 
     Pixie::setxy(x, y);
@@ -836,7 +836,7 @@ Sint16 Walker::shove(Walker *target, Sint16 x, Sint16 y)
 {
     // This code has been moved to Living, we should only shove livings
     if (x || y || target) {
-        Log("Shoving a non-living. ORDER: %d FAMILY: %d\n", order, family);
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Shoving a non-living. ORDER: %d FAMILY: %d\n", order, family);
     }
 
     return -1;
@@ -1061,9 +1061,9 @@ bool Walker::walk(float x, float y)
     if (curdir == dir) {
         // Check if off map
         if (((x + xpos) < 0)
-            || ((x + xpos) >= myscreen->level_data.grid.w * GRID_SIZE)
+            || ((x + xpos) >= myscreen->level_data.grid->w * GRID_SIZE)
             || ((y + ypos) < 0)
-            || ((y + ypos) >= myscreen->level_data.grid.h * GRID_SIZE)) {
+            || ((y + ypos) >= myscreen->level_data.grid->h * GRID_SIZE)) {
             return false;
         }
 
@@ -1517,7 +1517,7 @@ Sint16 Walker::draw(Sint16 topx, Sint16 topy, Sint16 xloc, Sint16 yloc, Sint16 e
     Sint32 yscreen;
 
     if (dead) {
-        Log("Drawing a dead guy!\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Drawing a dead guy!\n");
 
         return 0;
     }
@@ -1696,7 +1696,7 @@ Sint16 Walker::draw_tile(Sint16 topx, Sint16 topy, Sint16 xloc, Sint16 yloc, Sin
     Sint32 yscreen;
 
     if (dead) {
-        Log("drawing a dead guy!\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "drawing a dead guy!\n");
 
         return 0;
     }
@@ -1997,7 +1997,7 @@ Sint16 Walker::act()
         // END RANDOM
         break;
     default:
-        Log("No act type set.\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "No act type set.\n");
 
         return 0;
     }
@@ -2686,7 +2686,7 @@ Sint16 Walker::special()
 
     // Are we somehow dead already?
     if (dead) {
-        Log("Dead guy doing special!\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Dead guy doing special!\n");
 
         return 0;
     }
@@ -4843,12 +4843,12 @@ bool Walker::teleport()
         // End of checking for marker (we failed)
     }
 
-    newx = getRandomSint32(myscreen->level_data.grid.w) * GRID_SIZE;
-    newy = getRandomSint32(myscreen->level_data.grid.h) * GRID_SIZE;
+    newx = getRandomSint32(myscreen->level_data.grid->w) * GRID_SIZE;
+    newy = getRandomSint32(myscreen->level_data.grid->h) * GRID_SIZE;
 
     while (!myscreen->query_passable(newx, newy, this)) {
-        newx = getRandomSint32(myscreen->level_data.grid.w) * GRID_SIZE;
-        newy = getRandomSint32(myscreen->level_data.grid.h) * GRID_SIZE;
+        newx = getRandomSint32(myscreen->level_data.grid->w) * GRID_SIZE;
+        newy = getRandomSint32(myscreen->level_data.grid->h) * GRID_SIZE;
     }
 
     setxy(newx, newy);
@@ -5253,7 +5253,6 @@ void Walker::transfer_stats(Walker *newob)
 // Change picture, etc. but NOT stats (use transfer_stats for that)
 void Walker::transform_to(Uint8 whatorder, Uint8 whatfamily)
 {
-    PixieData data;
     Sint16 xcenter;
     Sint16 ycenter;
     Sint16 tempxpos;
@@ -5262,7 +5261,7 @@ void Walker::transform_to(Uint8 whatorder, Uint8 whatfamily)
     Sint16 tempact = query_act_type();
 
     // First remove us from the collison table...
-    myscreen->level_data.myobmap->remove(this);
+    myscreen->level_data.myobmap.remove(this);
 
     // Same object type
     if (order == whatorder) {
@@ -5278,7 +5277,7 @@ void Walker::transform_to(Uint8 whatorder, Uint8 whatfamily)
     set_walker(this, whatorder, whatfamily);
 
     // Reset the graphics
-    data = myscreen->level_data.myloader->graphics[PIX(order, family)];
+    PixieData data = myscreen->level_data.myloader.graphics[PIX(order, family)];
     facings = data.data;
     bmp = data.data;
     frames = data.frames;
@@ -5442,7 +5441,7 @@ Sint16 Walker::death()
         break;
     case ORDER_FX:
         // case ORDER_TREASURE:
-        Log("Effect dying in walker?\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Effect dying in walker?\n");
 
         // End of effect object case
         break;
@@ -5490,7 +5489,7 @@ void Walker::generate_bloodspot()
 Sint16 Walker::eat_me(Walker *eater)
 {
     if (eater) {
-        Log("EATING A NON_TREASURE!\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "EATING A NON_TREASURE!\n");
     }
 
     return 0;
@@ -5498,17 +5497,16 @@ Sint16 Walker::eat_me(Walker *eater)
 
 void Walker::set_direct_frame(Sint16 whichframe)
 {
-    PixieData data;
     frame = whichframe;
 
-    data = myscreen->level_data.myloader->graphics[PIX(order, family)];
+    PixieData data = myscreen->level_data.myloader.graphics[PIX(order, family)];
     bmp = data.data + (frame * size);
 }
 
 Walker *Walker::do_summon(Uint8 whatfamily, Uint16 lifetime)
 {
     if (whatfamily || lifetime) {
-        Log("Shoudl not be hitting Walker::do_summon!\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Should not be hitting Walker::do_summon!\n");
     }
 
     return nullptr;
@@ -5516,7 +5514,7 @@ Walker *Walker::do_summon(Uint8 whatfamily, Uint16 lifetime)
 
 Sint16 Walker::check_special()
 {
-    Log("Should not be hitting Walker::check_special\n");
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Should not be hitting Walker::check_special\n");
 
     return 0;
 }
@@ -5742,11 +5740,11 @@ FacingsEnum Walker::face_right()
 
 void Walker::update_derived_stats()
 {
-    stepsize = myscreen->level_data.myloader->get_stepsize(ORDER_LIVING, myguy->family);
-    normal_stepsize = myscreen->level_data.myloader->get_stepsize(ORDER_LIVING, myguy->family);
-    lineofsight = myscreen->level_data.myloader->get_lineofsight(ORDER_LIVING, myguy->family);
-    damage = myscreen->level_data.myloader->get_damage(ORDER_LIVING, myguy->family);
-    fire_frequency = myscreen->level_data.myloader->get_fire_frequency(ORDER_LIVING, myguy->family);
+    stepsize = myscreen->level_data.myloader.get_stepsize(ORDER_LIVING, myguy->family);
+    normal_stepsize = myscreen->level_data.myloader.get_stepsize(ORDER_LIVING, myguy->family);
+    lineofsight = myscreen->level_data.myloader.get_lineofsight(ORDER_LIVING, myguy->family);
+    damage = myscreen->level_data.myloader.get_damage(ORDER_LIVING, myguy->family);
+    fire_frequency = myscreen->level_data.myloader.get_fire_frequency(ORDER_LIVING, myguy->family);
 
     stats.max_hitpoints += myguy->get_hp_bonus();
     stats.hitpoints = stats.max_hitpoints;
@@ -5865,7 +5863,7 @@ Sint16 Walker::do_command()
         break;
     case COMMAND_FIRE:
         if (query_order() != ORDER_LIVING) {
-            Log("commanding a non-living to fire?");
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "commanding a non-living to fire?");
 
             break;
         }
@@ -5883,7 +5881,7 @@ Sint16 Walker::do_command()
     case COMMAND_DIE:
         // Debugging, not currently used
         if (!dead) {
-            Log("Trying to make a living ob dead!\n");
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Trying to make a living ob dead!\n");
         }
 
         // Then delete us...
@@ -6409,7 +6407,7 @@ bool Walker::walk_to_foe()
         tempdistance = distance_to_ob(foe);
         // Do simpler pathing if the distance is short or if there are too
         // many walker (pathfinding is expensive)
-        if ((tempdistance < PATHING_MIN_DISTANCE) || (myscreen->level_data.myobmap->size() > PATHING_SHORT_CIRCUIT_OBJECT_LIMIT)) {
+        if ((tempdistance < PATHING_MIN_DISTANCE) || (myscreen->level_data.myobmap.size() > PATHING_SHORT_CIRCUIT_OBJECT_LIMIT)) {
             std::list<Walker *> foelist = myscreen->find_foes_in_range(myscreen->level_data.oblist, PATHING_MIN_DISTANCE, &howmany, this);
 
             if (howmany > 0) {

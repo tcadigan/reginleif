@@ -19,6 +19,7 @@
 
 #include "graphlib.hpp"
 #include "io.hpp"
+#include "pixie_data.hpp"
 #include "util.hpp"
 #include "video_screen.hpp"
 #include "view.hpp"
@@ -36,20 +37,13 @@ LevelData::LevelData(Sint32 id)
     , type(0)
     , par_value(1)
     , time_bonus_limit(4000)
-    , pixmaxx(0)
-    , pixmaxy(0)
-    , myloader(nullptr)
+    , grid(nullptr)
+    , myloader(Loader())
     , numobs(0)
+    , myobmap(ObjectMap())
     , topx(0)
     , topy(0)
 {
-    for (Sint32 i = 0; i < PIX_MAX; ++i) {
-        back[i] = nullptr;
-    }
-
-    myobmap = new ObjectMap();
-    myloader = new Loader();
-
     // Load map data from a pixie format
     load_map_data(pixdata);
 
@@ -80,27 +74,15 @@ LevelData::LevelData(Sint32 id)
 LevelData::~LevelData()
 {
     delete_objects();
-    delete_grid();
-    delete myloader;
-    delete myobmap;
-
-    for (Sint32 i = 0; i < PIX_MAX; ++i) {
-        pixdata[i].free();
-
-        if (back[i]) {
-            delete back[i];
-            back[i] = nullptr;
-        }
-    }
+    delete grid;
 }
 
 void LevelData::clear()
 {
     delete_objects();
-    delete_grid();
 
-    delete myobmap;
-    myobmap = new ObjectMap();
+    myobmap.pos_to_walker.clear();
+    myobmap.walker_to_pos.clear();
 
     title = "New Level";
     type = 0;
@@ -184,43 +166,35 @@ Sint16 LevelData::remove_ob(Walker *ob)
         return 0;
 }
 
-void LevelData::delete_grid()
-{
-    grid.free();
-    pixmaxx = 0;
-    pixmaxy = 0;
-}
-
 void LevelData::create_new_grid()
 {
-    grid.free();
+    delete grid;
 
-    grid.frames = 1;
-    grid.w = 40;
-    grid.h = 60;
-    pixmaxx = grid.w * GRID_SIZE;
-    pixmaxy = grid.h * GRID_SIZE;
+    grid = new PixieData(grid_file);
+    grid->frames = 1;
+    grid->w = 40;
+    grid->h = 60;
 
-    Sint32 size = grid.w * grid.h;
-    grid.data = new Uint8[size];
+    Sint32 size = grid->w * grid->h;
+    grid->data = new Uint8[size];
 
     for (Sint32 i = 0; i < size; ++i) {
         // Color
         switch (rand() % 4) {
         case 0:
-            grid.data[i] = PIX_GRASS1;
+            grid->data[i] = PIX_GRASS1;
 
             break;
         case 1:
-            grid.data[i] = PIX_GRASS2;
+            grid->data[i] = PIX_GRASS2;
 
             break;
         case 2:
-            grid.data[i] = PIX_GRASS3;
+            grid->data[i] = PIX_GRASS3;
 
             break;
         case 3:
-            grid.data[i] = PIX_GRASS4;
+            grid->data[i] = PIX_GRASS4;
 
             break;
         }
@@ -231,7 +205,7 @@ void LevelData::resize_grid(Sint32 width, Sint32 height)
 {
     // Size is limited to one byte in the file format
     if ((width < 3) || (height < 3) || (width > 255) || (height > 255)) {
-        Log("Can't resize grid to these dimensions: %dx%d\n", width, height);
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Can't resize grid to these dimensions: %dx%d\n", width, height);
 
         return;
     }
@@ -243,8 +217,8 @@ void LevelData::resize_grid(Sint32 width, Sint32 height)
     // Copy the map data
     for (Sint32 i = 0; i < width; ++i) {
         for (Sint32 j = 0; j < height; ++j) {
-            if ((i < grid.w) && (j < grid.h)) {
-                new_grid[(j * width) + i] = grid.data[(j * grid.w) + i];
+            if ((i < grid->w) && (j < grid->h)) {
+                new_grid[(j * width) + i] = grid->data[(j * grid->w) + i];
             } else {
                 switch (rand() % 4) {
                 case 0:
@@ -269,19 +243,16 @@ void LevelData::resize_grid(Sint32 width, Sint32 height)
     }
 
     // Delete the old, use the new
-    grid.free();
-    grid.data = new_grid;
-    grid.frames = 1;
-    grid.w = width;
-    grid.h = height;
-    pixmaxx = grid.w * GRID_SIZE;
-    pixmaxy = grid.h * GRID_SIZE;
+    grid->data = new_grid;
+    grid->frames = 1;
+    grid->w = width;
+    grid->h = height;
 
     // Delete objects that fell off the map
     Sint32 x = 0;
     Sint32 y = 0;
-    Sint32 w = grid.w * GRID_SIZE;
-    Sint32 h = grid.h * GRID_SIZE;
+    Sint32 w = grid->w * GRID_SIZE;
+    Sint32 h = grid->h * GRID_SIZE;
 
     auto itr = oblist.begin();
 
@@ -352,13 +323,13 @@ void LevelData::delete_objects()
     // Clear the obmap references
     // Since the walker destructor removes itself from the obmap, this should
     // be empty already
-    if (myobmap->walker_to_pos.size() > 0) {
-        Log("obmap::walker_to_pos has %d elements left.\n", myobmap->walker_to_pos.size());
+    if (myobmap.walker_to_pos.size() > 0) {
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "obmap::walker_to_pos has %ld elements left.\n", myobmap.walker_to_pos.size());
     }
 
     // pos_to_walker will have a bunch of 0-size lists in it
-    myobmap->pos_to_walker.clear();
-    myobmap->walker_to_pos.clear();
+    myobmap.pos_to_walker.clear();
+    myobmap.walker_to_pos.clear();
 }
 
 Sint16 load_version_2(SDL_RWops *infile, LevelData *data)
@@ -426,7 +397,7 @@ Sint16 load_version_2(SDL_RWops *infile, LevelData *data)
         }
 
         if (!new_guy) {
-            Log("Error creating object!\n");
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Error creating object!\n");
 
             return 0;
         }
@@ -437,12 +408,9 @@ Sint16 load_version_2(SDL_RWops *infile, LevelData *data)
 
     // Now read the grid file to our master screen...
     grid_file.append(".pix");
+    delete data->grid;
 
-    data->delete_grid();
-
-    data->grid = read_pixie_file(grid_file);
-    data->pixmaxx = data->grid.w * GRID_SIZE;
-    data->pixmaxy = data->grid.h * GRID_SIZE;
+    data->grid = new PixieData(grid_file);
 
     return 1;
 }
@@ -532,7 +500,7 @@ Sint16 load_version_3(SDL_RWops *infile, LevelData *data)
         }
 
         if (!new_guy) {
-            Log("Error creating object!\n");
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Error creating object!\n");
 
             return 0;
         }
@@ -555,12 +523,9 @@ Sint16 load_version_3(SDL_RWops *infile, LevelData *data)
 
     // Now read the grid file to our master screen...
     grid_file.append(".pix");
+    delete data->grid;
 
-    data->delete_grid();
-
-    data->grid = read_pixie_file(grid_file);
-    data->pixmaxx = data->grid.w * GRID_SIZE;
-    data->pixmaxy = data->grid.h * GRID_SIZE;
+    data->grid = new PixieData(grid_file);
 
     return 1;
 }
@@ -645,7 +610,7 @@ Sint16 load_version_4(SDL_RWops *infile, LevelData *data)
         }
 
         if (!new_guy) {
-            Log("Error creating object!\n");
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Error creating object!\n");
 
             return 0;
         }
@@ -667,17 +632,16 @@ Sint16 load_version_4(SDL_RWops *infile, LevelData *data)
     for (i = 0; i < numlines; ++i) {
         SDL_RWread(infile, &tempwidth, 1, 1);
         SDL_RWread(infile, oneline, tempwidth, 1);
-        oneline[tempwidth] = 0;
+        oneline[tempwidth] = '\0';
         std::string str(oneline, tempwidth);
         data->description.push_back(str);
     }
 
     // Now read the grid file...
-    strcat(newgrid, ".pix");
+    grid_file.append(".pix");
+    delete data->grid;
 
-    data->delete_grid();
-    data->pixmaxx = data->grid.w * GRID_SIZE;
-    data->pixmaxy = data->grid.h * GRID_SIZE;
+    data->grid = new PixieData(grid_file);
 
     return 1;
 } // end load_version_4
@@ -773,7 +737,7 @@ Sint16 load_version_5(SDL_RWops *infile, LevelData *data)
         }
 
         if (!new_guy) {
-            Log("Error creating object!\n");
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Error creating object!\n");
 
             return 0;
         }
@@ -802,14 +766,11 @@ Sint16 load_version_5(SDL_RWops *infile, LevelData *data)
 
     // Now read the grid file to our master screen...
     grid_file.append(".pix");
+    delete data->grid;
 
-    data->delete_grid();
+    data->grid = new PixieData(grid_file);
 
-    data->grid = read_pixie_file(grid_file);
-    data->pixmaxx = data->grid.w * GRID_SIZE;
-    data->pixmaxy = data->grid.h * GRID_SIZE;
-
-    data->mysmoother.set_target(data->grid);
+    data->mysmoother.set_target(*data->grid);
 
     // Fix up doors, etc.
     for (auto e = data->weaplist.begin(); e != data->weaplist.end(); ++e) {
@@ -888,7 +849,7 @@ Sint16 load_version_6(SDL_RWops *infile, LevelData *data, Sint16 version)
 
     // Get grid file to load
     if (!SDL_RWread(infile, newgrid, 8, 1)) {
-        Log("Read error: %s\n", SDL_GetError());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Read error: %s\n", SDL_GetError());
 
         return 0;
     }
@@ -902,21 +863,21 @@ Sint16 load_version_6(SDL_RWops *infile, LevelData *data, Sint16 version)
 
     // Get scenario title, if it exists
     if (!SDL_RWread(infile, scentitle, 30, 1)) {
-        Log("Read error: %s\n", SDL_GetError());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Read error: %s\n", SDL_GetError());
 
         return 0;
     }
 
     // Get the scenario type information
     if (!SDL_RWread(infile, &new_scen_type, 1, 1)) {
-        Log("Read error: %s\n", SDL_GetError());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Read error: %s\n", SDL_GetError());
 
         return 0;
     }
 
     if (version >= 8) {
         if (!SDL_RWread(infile, &temp_par, 2, 1)) {
-            Log("Read error: %s\n", SDL_GetError());
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Read error: %s\n", SDL_GetError());
 
             return 0;
         }
@@ -925,7 +886,7 @@ Sint16 load_version_6(SDL_RWops *infile, LevelData *data, Sint16 version)
     // Else we're using the value of the level...
     if (version >= 9) {
         if (!SDL_RWread(infile, &temp_time_limit, 2, 1)) {
-            Log("Read error: %s\n", SDL_GetError());
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Read error: %s\n", SDL_GetError());
 
             return 0;
         }
@@ -933,7 +894,7 @@ Sint16 load_version_6(SDL_RWops *infile, LevelData *data, Sint16 version)
 
     // Determine number of objects to load...
     if (!SDL_RWread(infile, &listsize, 2, 1)) {
-        Log("Read error: %s\n", SDL_GetError());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Read error: %s\n", SDL_GetError());
 
         return 0;
     }
@@ -941,69 +902,69 @@ Sint16 load_version_6(SDL_RWops *infile, LevelData *data, Sint16 version)
     // Now read in the objects one at a time
     for (i = 0; i < listsize; ++i) {
         if (!SDL_RWread(infile, &temporder, 1, 1)) {
-            Log("Read error: %s\n", SDL_GetError());
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Read error: %s\n", SDL_GetError());
 
             return 0;
         }
 
         if (!SDL_RWread(infile, &tempfamily, 1, 1)) {
-            Log("Read error: %s\n", SDL_GetError());
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Read error: %s\n", SDL_GetError());
 
             return 0;
         }
 
         if (!SDL_RWread(infile,  &currentx, 2, 1)) {
-            Log("Read error: %s\n", SDL_GetError());
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Read error: %s\n", SDL_GetError());
 
             return 0;
         }
 
         if (!SDL_RWread(infile, &currenty, 2, 1)) {
-            Log("Read error: %s\n", SDL_GetError());
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Read error: %s\n", SDL_GetError());
 
             return 0;
         }
 
         if (!SDL_RWread(infile, &tempteam, 1, 1)) {
-            Log("Read error: %s\n", SDL_GetError());
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Read error: %s\n", SDL_GetError());
 
             return 0;
         }
 
         if (!SDL_RWread(infile, &tempfacing, 1, 1)) {
-            Log("Read error: %s\n", SDL_GetError());
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Read error: %s\n", SDL_GetError());
 
             return 0;
         }
 
         if (!SDL_RWread(infile, &tempcommand, 1, 1)) {
-            Log("Read error: %s\n", SDL_GetError());
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Read error: %s\n", SDL_GetError());
 
             return 0;
         }
 
         if (version >= 7) {
             if (!SDL_RWread(infile, &shortlevel, 2, 1)) {
-                Log("Read error: %s\n", SDL_GetError());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Read error: %s\n", SDL_GetError());
 
                 return 0;
             }
         } else {
             if (!SDL_RWread(infile, &templevel, 1, 1)) {
-                Log("Read error: %s\n", SDL_GetError());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Read error: %s\n", SDL_GetError());
 
                 return 0;
             }
         }
 
         if (!SDL_RWread(infile, tempname, 12, 1)) {
-            Log("Read error: %s\n", SDL_GetError());
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Read error: %s\n", SDL_GetError());
 
             return 0;
         }
 
         if (!SDL_RWread(infile, tempreserved, 10, 1)) {
-            Log("Read error: %s\n", SDL_GetError());
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Read error: %s\n", SDL_GetError());
 
             return 0;
         }
@@ -1015,7 +976,7 @@ Sint16 load_version_6(SDL_RWops *infile, LevelData *data, Sint16 version)
         }
 
         if (!new_guy) {
-            Log("Error creating object when loading.\n");
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Error creating object when loading.\n");
 
             return 0;
         }
@@ -1039,7 +1000,7 @@ Sint16 load_version_6(SDL_RWops *infile, LevelData *data, Sint16 version)
 
     // Now get the lines of text to read...
     if (!SDL_RWread(infile, &numlines, 1, 1)) {
-        Log("Read error: %s\n", SDL_GetError());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Read error: %s\n", SDL_GetError());
 
         return 0;
     }
@@ -1048,14 +1009,14 @@ Sint16 load_version_6(SDL_RWops *infile, LevelData *data, Sint16 version)
 
     for (i = 0; i < numlines; ++i) {
         if (!SDL_RWread(infile, &tempwidth, 1, 1)) {
-            Log("Read error: %s\n", SDL_GetError());
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Read error: %s\n", SDL_GetError());
 
             return 0;
         }
 
         if (tempwidth > 0) {
             if (!SDL_RWread(infile, oneline, tempwidth, 1)) {
-                Log("Read error: %s\n", SDL_GetError());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Read error: %s\n", SDL_GetError());
 
                 return 0;
             }
@@ -1070,10 +1031,9 @@ Sint16 load_version_6(SDL_RWops *infile, LevelData *data, Sint16 version)
 
     // Now read the grid file to our master screen...
     grid_file.append(".pix");
+    delete data->grid;
 
-    data->grid = read_pixie_file(grid_file);
-    data->pixmaxx = data->grid.w * GRID_SIZE;
-    data->pixmaxy = data->grid.h * GRID_SIZE;
+    data->grid = new PixieData(grid_file);
 
     // The collected data so far
     data->title = std::string(scentitle);
@@ -1081,7 +1041,7 @@ Sint16 load_version_6(SDL_RWops *infile, LevelData *data, Sint16 version)
     data->par_value = temp_par;
     data->time_bonus_limit = temp_time_limit;
     data->description = desc_lines;
-    data->mysmoother.set_target(data->grid);
+    data->mysmoother.set_target(*data->grid);
 
     // Fix up doors, etc.
     for (auto e = data->weaplist.begin(); e != data->weaplist.end(); e++) {
@@ -1130,7 +1090,7 @@ Sint16 load_scenario_version(SDL_RWops * infile, LevelData *data, Sint16 version
 
         break;
     default:
-        Log("Scenario %d is version-level %d, and cannot be read.\n", data->id, version);
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Scenario %d is version-level %d, and cannot be read.\n", data->id, version);
 
         break;
     }
@@ -1155,7 +1115,7 @@ bool LevelData::load()
     infile = open_read_file(std::filesystem::path("scen/" + thefile));
 
     if (infile == nullptr) {
-        Log("Cannot open level file for reading: %s", thefile.c_str());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Cannot open level file for reading: %s", thefile.c_str());
 
         return false;
     }
@@ -1164,7 +1124,7 @@ bool LevelData::load()
     SDL_RWread(infile, temptext, 1, 3);
 
     if (strcmp(temptext, "FSS") != 0) {
-        Log("File %s is not a valid scenario!\n", thefile.c_str());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "File %s is not a valid scenario!\n", thefile.c_str());
         SDL_RWclose(infile);
 
         return false;
@@ -1172,11 +1132,7 @@ bool LevelData::load()
 
     // Check the version number
     SDL_RWread(infile, &versionnumber, 1, 1);
-    Log("Loading version %d scenario", versionnumber);
-
-    // reset the loader (which holds graphics for the objects to use
-    delete myloader;
-    myloader = new Loader();
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Loading version %d scenario", versionnumber);
 
     // Do the rest of the loading
     clear();
@@ -1188,15 +1144,6 @@ bool LevelData::load()
     SDL_RWclose(infile);
 
     // Load background tiles
-    // Delete old tiles
-    for (Sint32 i = 0; i < PIX_MAX; ++i) {
-        pixdata[i].free();
-
-        if (back[i]) {
-            delete back[i];
-            back[i] = nullptr;
-        }
-    }
 
     // Load map data from a pixie format
     load_map_data(pixdata);
@@ -1251,7 +1198,7 @@ bool save_grid_file(std::string const &gridname, PixieData const &grid)
     outfile = open_write_file(std::filesystem::path("temp/pix/" + fullpath));
 
     if (outfile == nullptr) {
-        Log("Failed to save map file: %s%s\n", "temp/pix/", fullpath.c_str());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Failed to save map file: %s%s\n", "temp/pix/", fullpath.c_str());
 
         return false;
     }
@@ -1336,7 +1283,7 @@ bool LevelData::save()
     outfile = open_write_file(std::filesystem::path("temp/scen/" + temp_filename));
 
     if (outfile != nullptr) {
-        Log("Could not open file for writing: %s%s\n", "temp/scen/", temp_filename.c_str());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Could not open file for writing: %s%s\n", "temp/scen/", temp_filename.c_str());
 
         return false;
     }
@@ -1382,7 +1329,7 @@ bool LevelData::save()
         Walker *w = *e;
 
         if (w == nullptr) {
-            Log("Unexpected NULL object.\n");
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unexpected NULL object.\n");
             SDL_RWclose(outfile);
 
             return false; // Something wrong! Too few objects...
@@ -1416,7 +1363,7 @@ bool LevelData::save()
         Walker *ob = *e;
 
         if (ob == nullptr) {
-            Log("Unexpected NULL fx object.\n");
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unexpected NULL fx object.\n");
             SDL_RWclose(outfile);
 
             return false; // Something wrong! Too few objects...
@@ -1449,7 +1396,7 @@ bool LevelData::save()
         Walker *ob = *e;
 
         if (ob == nullptr) {
-            Log("Unexpected NULL weap object.\n");
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unexpected NULL weap object.\n");
             SDL_RWclose(outfile);
 
             return false; // Something wrong! too few objects...
@@ -1494,9 +1441,9 @@ bool LevelData::save()
     SDL_RWclose(outfile);
 
     // Save map (grid) file
-    save_grid_file(grid_file, grid);
+    save_grid_file(grid_file, *grid);
 
-    Log("Scenario saved.\n");
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Scenario saved.\n");
 
     return true;
 }

@@ -48,7 +48,6 @@ public:
 
     void create_new_grid();
     void resize_grid(Sint32 width, Sint32 height);
-    void delete_grid();
     void delete_objects();
     void clear();
 
@@ -69,12 +68,10 @@ public:
     std::string grid_file;
     Sint16 par_value;
     Sint16 time_bonus_limit; // Frames until you get no time bonus
-    PixieData grid;
-    Sint32 pixmaxx;
-    Sint32 pixmaxy;
+    PixieData *grid;
 
     Smoother mysmoother;
-    Loader *myloader;
+    Loader myloader;
     Sint32 numobs;
 
     std::list<Walker *> oblist;
@@ -84,7 +81,7 @@ public:
     // Keep a list of dead guys so weapons can still have valid owners
     std::list<Walker *> dead_list;
 
-    ObjectMap *myobmap;
+    ObjectMap myobmap;
     std::list<std::string> description;
 
     // Drawing details

@@ -19,6 +19,7 @@
 
 #include "graphlib.hpp"
 #include "io.hpp"
+#include "pixie_data.hpp"
 #include "util.hpp"
 
 #include <filesystem>
@@ -40,7 +41,6 @@ CampaignData::CampaignData(std::filesystem::path const &id)
 CampaignData::~CampaignData()
 {
     delete icon;
-    icondata.free();
 }
 
 bool CampaignData::load()
@@ -70,7 +70,7 @@ bool CampaignData::load()
         SDL_RWclose(rwops);
 
         if (total != size) {
-            Log("Unable to read complete file");
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unable to read complete file");
 
             return false;
         }
@@ -84,7 +84,7 @@ bool CampaignData::load()
             delim_pos = line.find_first_of("=");
 
             if (delim_pos == std::string::npos) {
-                Log("Skipping unknown ini line\n");
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Skipping unknown ini line\n");
                 continue;
             }
 
@@ -106,15 +106,14 @@ bool CampaignData::load()
             } else if (key == "first_level") {
                 first_level = std::stoi(value);
             } else {
-                Log("Unknown ini key '%s'\n", key.c_str());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unknown ini key '%s'\n", key.c_str());
             }
         }
 
         // TODO: Get rating from website
         rating = 0.0f;
 
-        std::string icon_file("icon.pix");
-        icondata = read_pixie_file(icon_file.c_str());
+        PixieData icondata = PixieData(std::filesystem::path("icon.pix"));
 
         if (icondata.valid()) {
             icon = new Pixie(icondata);
@@ -155,7 +154,7 @@ bool CampaignData::save()
             size_t written = SDL_RWwrite(outfile, temp.c_str(), sizeof(char), temp.size());
 
             if (written != temp.size()) {
-                Log("Unable to write '%s': %s\n", "format_version", SDL_GetError());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unable to write '%s': %s\n", "format_version", SDL_GetError());
 
                 return false;
             }
@@ -167,7 +166,7 @@ bool CampaignData::save()
             written = SDL_RWwrite(outfile, temp.c_str(), sizeof(char), temp.size());
 
             if (written != temp.size()) {
-                Log("Unable to write '%s': %s\n", "title", SDL_GetError());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unable to write '%s': %s\n", "title", SDL_GetError());
 
                 return false;
             }
@@ -179,7 +178,7 @@ bool CampaignData::save()
             written = SDL_RWwrite(outfile, temp.c_str(), sizeof(char), temp.size());
 
             if (written != temp.size()) {
-                Log("Unable to write '%s': %s\n", "version", SDL_GetError());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unable to write '%s': %s\n", "version", SDL_GetError());
 
                 return false;
             }
@@ -191,7 +190,7 @@ bool CampaignData::save()
             written = SDL_RWwrite(outfile, temp.c_str(), sizeof(char), temp.size());
 
             if (written != temp.size()) {
-                Log("Unable to write '%s': %s\n", "first_level", SDL_GetError());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unable to write '%s': %s\n", "first_level", SDL_GetError());
 
                 return false;
             }
@@ -203,7 +202,7 @@ bool CampaignData::save()
             written = SDL_RWwrite(outfile, temp.c_str(), sizeof(char), temp.size());
 
             if (written != temp.size()) {
-                Log("Unable to write '%s': %s\n", "suggested_power", SDL_GetError());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unable to write '%s': %s\n", "suggested_power", SDL_GetError());
 
                 return false;
             }
@@ -215,7 +214,7 @@ bool CampaignData::save()
             written = SDL_RWwrite(outfile, temp.c_str(), sizeof(char), temp.size());
 
             if (written != temp.size()) {
-                Log("Unable to write '%s': %s\n", "authors", SDL_GetError());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unable to write '%s': %s\n", "authors", SDL_GetError());
 
                 return false;
             }
@@ -227,7 +226,7 @@ bool CampaignData::save()
             written = SDL_RWwrite(outfile, temp.c_str(), sizeof(char), temp.size());
 
             if (written != temp.size()) {
-                Log("Unable to write '%s': %s\n", "contributors", SDL_GetError());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unable to write '%s': %s\n", "contributors", SDL_GetError());
 
                 return false;
             }
@@ -250,22 +249,22 @@ bool CampaignData::save()
             written = SDL_RWwrite(outfile, temp.c_str(), sizeof(char), temp.size());
 
             if (written != temp.size()) {
-                Log("Unable to write '%s': %s\n", "description", SDL_GetError());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unable to write '%s': %s\n", "description", SDL_GetError());
 
                 return false;
             }
 
             SDL_RWclose(outfile);
         } else {
-            Log("Couldn't open temp/campaign.ini for writing.\n");
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Couldn't open temp/campaign.ini for writing.\n");
             result = false;
         }
 
         if (result) {
             if (repack_campaign(id)) {
-                Log("Campaign saved.\n");
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Campaign saved.\n");
             } else {
-                Log("Save failed: Could not repack campaign: %s\n", id.c_str());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Save failed: Could not repack campaign: %s\n", id.c_str());
                 result = false;
             }
         }
@@ -273,7 +272,7 @@ bool CampaignData::save()
         // Remount the new campaign package
         // mount_campaign_package(ascreen->current_campaign);
     } else {
-        Log("Save failed: Could not unpack campaign: %s\n", id.c_str());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Save failed: Could not unpack campaign: %s\n", id.c_str());
         result = false;
     }
 
@@ -304,7 +303,7 @@ bool CampaignData::save_as(std::filesystem::path const &new_id)
             size_t written = SDL_RWwrite(outfile, temp.c_str(), sizeof(char), temp.size());
 
             if (written != temp.size()) {
-                Log("Unable to write '%s': %s\n", "format_version", SDL_GetError());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unable to write '%s': %s\n", "format_version", SDL_GetError());
 
                 return false;
             }
@@ -316,7 +315,7 @@ bool CampaignData::save_as(std::filesystem::path const &new_id)
             written = SDL_RWwrite(outfile, temp.c_str(), sizeof(char), temp.size());
 
             if (written != temp.size()) {
-                Log("Unable to write '%s': %s\n", "title", SDL_GetError());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unable to write '%s': %s\n", "title", SDL_GetError());
 
                 return false;
             }
@@ -328,7 +327,7 @@ bool CampaignData::save_as(std::filesystem::path const &new_id)
             written = SDL_RWwrite(outfile, temp.c_str(), sizeof(char), temp.size());
 
             if (written != temp.size()) {
-                Log("Unable to write '%s': %s\n", "version", SDL_GetError());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unable to write '%s': %s\n", "version", SDL_GetError());
 
                 return false;
             }
@@ -340,7 +339,7 @@ bool CampaignData::save_as(std::filesystem::path const &new_id)
             written = SDL_RWwrite(outfile, temp.c_str(), sizeof(char), temp.size());
 
             if (written != temp.size()) {
-                Log("Unable to write '%s': %s\n", "first_level", SDL_GetError());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unable to write '%s': %s\n", "first_level", SDL_GetError());
 
                 return false;
             }
@@ -352,7 +351,7 @@ bool CampaignData::save_as(std::filesystem::path const &new_id)
             written = SDL_RWwrite(outfile, temp.c_str(), sizeof(char), temp.size());
 
             if (written != temp.size()) {
-                Log("Unable to write '%s': %s\n", "suggested_power", SDL_GetError());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unable to write '%s': %s\n", "suggested_power", SDL_GetError());
 
                 return false;
             }
@@ -364,7 +363,7 @@ bool CampaignData::save_as(std::filesystem::path const &new_id)
             written = SDL_RWwrite(outfile, temp.c_str(), sizeof(char), temp.size());
 
             if (written != temp.size()) {
-                Log("Unable to write '%s': %s\n", "authors", SDL_GetError());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unable to write '%s': %s\n", "authors", SDL_GetError());
 
                 return false;
             }
@@ -376,7 +375,7 @@ bool CampaignData::save_as(std::filesystem::path const &new_id)
             written = SDL_RWwrite(outfile, temp.c_str(), sizeof(char), temp.size());
 
             if (written != temp.size()) {
-                Log("Unable to write '%s': %s\n", "contributors", SDL_GetError());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unable to write '%s': %s\n", "contributors", SDL_GetError());
 
                 return false;
             }
@@ -399,14 +398,14 @@ bool CampaignData::save_as(std::filesystem::path const &new_id)
             written = SDL_RWwrite(outfile, temp.c_str(), sizeof(char), temp.size());
 
             if (written != temp.size()) {
-                Log("Unable to write '%s': %s\n", "description", SDL_GetError());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unable to write '%s': %s\n", "description", SDL_GetError());
 
                 return false;
             }
 
             SDL_RWclose(outfile);
         } else {
-            Log("Couldn't open temp/campaign.ini for writing.\n");
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Couldn't open temp/campaign.ini for writing.\n");
             result = false;
         }
 
@@ -415,14 +414,14 @@ bool CampaignData::save_as(std::filesystem::path const &new_id)
             if (repack_campaign(new_id)) {
                 // Success!
                 id = new_id;
-                Log("Campaign saved.\n");
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Campaign saved.\n");
             } else {
-                Log("Save failed: Could not repack campaign: %s\n", id.c_str());
+                SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Save failed: Could not repack campaign: %s\n", id.c_str());
                 result = false;
             }
         }
     } else {
-        Log("Save failed: Could not unpck campaign: %s\n", id.c_str());
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Save failed: Could not unpck campaign: %s\n", id.c_str());
         result = false;
     }
 

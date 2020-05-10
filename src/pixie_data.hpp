@@ -20,11 +20,16 @@
 
 #include <SDL2/SDL.h>
 
+#include <filesystem>
+
 class PixieData
 {
 public:
     PixieData();
-    PixieData(Uint8 frames, Uint8 w, Uint8 h, Uint8 *data);
+    // PixieData(Uint8 frames, Uint8 w, Uint8 h, Uint8 *data);
+    PixieData(std::filesystem::path const &filename);
+    PixieData(PixieData const &other);
+    ~PixieData();
 
     bool valid() const;
 

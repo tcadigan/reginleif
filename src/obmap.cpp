@@ -129,7 +129,7 @@ Sint16 ObjectMap::query_list(Walker *ob, Sint16 x, Sint16 y)
     Sint16 endnumy;
 
     if (!ob || ob->dead) {
-        Log("Bad object to query_list.\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Bad object to query_list.\n");
 
         return 1;
     }

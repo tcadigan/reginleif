@@ -17,19 +17,68 @@
  */
 #include "pixie_data.hpp"
 
-PixieData::PixieData()
-    : frames(0)
-    , w(0)
-    , h(0)
-    , data(nullptr)
-{}
+#include "io.hpp"
+#include "util.hpp"
 
-PixieData::PixieData(Uint8 frames, Uint8 w, Uint8 h, Uint8 *data)
-    : frames(frames)
-    , w(w)
-    , h(h)
-    , data(data)
-{}
+#include <iostream>
+#include <sstream>
+
+PixieData::PixieData()
+{
+}
+
+PixieData::PixieData(std::filesystem::path const &filename)
+{
+    /*
+     * Create a file stream and read the image
+     * File data in form:
+     * <# of frames>  1 byte
+     * <x size>       1 byte
+     * <y size>       1 byte
+     * <pixie data>   x * y * frames bytes
+     */
+
+    // Zardus: Try to find file using open_read_file
+    SDL_RWops *infile = open_read_file(std::filesystem::path("pix" / filename));
+    if (infile == nullptr) {
+        infile = open_read_file(std::filesystem::path(filename));
+    }
+
+    if (infile == nullptr) {
+        std::stringstream buf;
+        buf << "Cannot open pixie file pix/" << filename << "!" << std::endl;
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", buf.str().c_str());
+
+        exit(5);
+    }
+
+    SDL_RWread(infile, &frames, 1, 1);
+    SDL_RWread(infile, &w, 1, 1);
+    SDL_RWread(infile, &h, 1, 1);
+
+    size_t size = (w * h) * frames;
+    data = new Uint8[size];
+
+    // Now read the data in a big chunk
+    SDL_RWread(infile, data, 1, size);
+
+    SDL_RWclose(infile);
+}
+
+PixieData::PixieData(PixieData const &other)
+    : frames(other.frames)
+    , w(other.w)
+    , h(other.h)
+{
+    Sint32 len = (w * h) * frames;
+    data = new Uint8[len];
+    memcpy(data, other.data, len);
+}
+
+PixieData::~PixieData()
+{
+    delete[] data;
+}
 
 bool PixieData::valid() const
 {

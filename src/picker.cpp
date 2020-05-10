@@ -102,8 +102,6 @@ Uint32 calculate_hire_cost();
 Uint32 calculate_train_cost(Guy *oldguy);
 void statscopy(Guy *dest, Guy *source); // Copy stats from source => dest
 
-// Zardus: PORT: Put in backpics var here so we can free the pixie files themselves
-PixieData backpics[5];
 PixieN *backdrops[5];
 Sint32 current_difficulty = 1; // Setting "normal"
 Sint32 difficulty_level[DIFFICULTY_SETTINGS] = { 50, 100, 200 };
@@ -113,8 +111,6 @@ Guy *old_guy = nullptr;
 
 // Global for editing guys...
 Sint32 editguy = 0;
-PixieData main_title_logo_data;
-PixieData main_columns_data;
 PixieN *main_title_logo_pix;
 PixieN *main_columns_pix;
 
@@ -486,10 +482,12 @@ void picker_main()
         backdrops[i] = nullptr;
     }
 
-    backpics[0] = read_pixie_file("mainul.pix");
-    backpics[1] = read_pixie_file("mainur.pix");
-    backpics[2] = read_pixie_file("mainll.pix");
-    backpics[3] = read_pixie_file("mainlr.pix");
+    PixieData backpics[] = {
+        PixieData(std::filesystem::path("mainul.pix")),
+        PixieData(std::filesystem::path("mainur.pix")),
+        PixieData(std::filesystem::path("mainll.pix")),
+        PixieData(std::filesystem::path("mainlr.pix"))
+    };
 
     backdrops[0] = new PixieN(backpics[0]);
     backdrops[0]->setxy(0, 0);
@@ -504,11 +502,10 @@ void picker_main()
 
     myscreen->clearbuffer();
 
-    main_title_logo_data = read_pixie_file("title.pix"); // Marbled gladiator title
+    PixieData main_title_logo_data = PixieData(std::filesystem::path("title.pix")); // Marbled gladiator title
     main_title_logo_pix = new PixieN(main_title_logo_data);
 
-    // main_columns_data = read_pixie_file("mage.pix");
-    main_columns_data = read_pixie_file("columns.pix");
+    PixieData main_columns_data = PixieData(std::filesystem::path("columns.pix"));
     main_columns_pix = new PixieN(main_columns_data);
 
     // Get the mouse, timer, and keyboard...
@@ -530,15 +527,6 @@ void picker_quit()
 {
     Sint32 i;
 
-    for (i = 0; i < 5; ++i) {
-        if (backdrops[i]) {
-            delete backdrops[i];
-            backdrops[i] = nullptr;
-        }
-
-        backpics[i].free();
-    }
-
     for (i = 0; i < MAX_BUTTONS; ++i) {
         if (allbuttons[i]) {
             delete allbuttons[i];
@@ -547,15 +535,7 @@ void picker_quit()
 
     delete myscreen;
     delete main_columns_pix;
-    main_columns_data.free();
     delete main_title_logo_pix;
-    main_title_logo_data.free();
-
-#if 0
-    if (cfgfile) {
-        cfgfile = nullptr;
-    }
-#endif
 }
 
 // Shows the current guy...
@@ -1805,7 +1785,7 @@ Sint32 create_hire_menu(Sint32 arg1)
                         (stat_box_content.y + (linesdown * line_height)) + 4,
                         "HP:", STAT_DERIVED, 1);
 
-        val = ceilf(myscreen->level_data.myloader->hitpoints[PIX(ORDER_LIVING, last_family)]
+        val = ceilf(myscreen->level_data.myloader.hitpoints[PIX(ORDER_LIVING, last_family)]
                     + current_guy->get_hp_bonus());
 
         if (val != 0) {
@@ -1836,7 +1816,7 @@ Sint32 create_hire_menu(Sint32 arg1)
                         (stat_box_content.y + (linesdown * line_height)) + 4,
                         "ATK:", STAT_DERIVED, 1);
 
-        val = myscreen->level_data.myloader->damage[PIX(ORDER_LIVING, last_family)]
+        val = myscreen->level_data.myloader.damage[PIX(ORDER_LIVING, last_family)]
             + current_guy->get_damage_bonus();
         if (val != 0) {
             buf << val;
@@ -1866,7 +1846,7 @@ Sint32 create_hire_menu(Sint32 arg1)
                         (stat_box_content.y + (linesdown * line_height)) + 4,
                         "SPD:", STAT_DERIVED, 1);
 
-        val = myscreen->level_data.myloader->stepsizes[PIX(ORDER_LIVING, last_family)]
+        val = myscreen->level_data.myloader.stepsizes[PIX(ORDER_LIVING, last_family)]
             + current_guy->get_speed_bonus();
         buf << std::setprecision(1) << val;
 
@@ -1885,7 +1865,7 @@ Sint32 create_hire_menu(Sint32 arg1)
         // The 10.0f / fire_frequency is somewhat arbitrary, but it makes for
         // good comparison info.
         float fire_freq =
-            std::max(myscreen->level_data.myloader->fire_frequency[PIX(ORDER_LIVING, last_family)]
+            std::max(myscreen->level_data.myloader.fire_frequency[PIX(ORDER_LIVING, last_family)]
                      - current_guy->get_fire_frequency_bonus(),
                      1.0f);
 
@@ -2242,7 +2222,7 @@ Sint32 create_train_menu(Sint32 arg1)
                         info_box_content.y + (linesdown * line_height),
                         "HP:", STAT_DERIVED, 1);
 
-        val = ceilf(myscreen->level_data.myloader->hitpoints[PIX(ORDER_LIVING, current_guy->family)]
+        val = ceilf(myscreen->level_data.myloader.hitpoints[PIX(ORDER_LIVING, current_guy->family)]
                     + current_guy->get_hp_bonus());
         if (val != 0) {
             buf << val;
@@ -2273,7 +2253,7 @@ Sint32 create_train_menu(Sint32 arg1)
                         info_box_content.y + (linesdown * line_height),
                         "ATK:", STAT_DERIVED, 1);
 
-        val = myscreen->level_data.myloader->damage[PIX(ORDER_LIVING, current_guy->family)]
+        val = myscreen->level_data.myloader.damage[PIX(ORDER_LIVING, current_guy->family)]
             + current_guy->get_damage_bonus();
         if (val != 0) {
             buf << val;
@@ -2304,7 +2284,7 @@ Sint32 create_train_menu(Sint32 arg1)
                         info_box_content.y + (linesdown * line_height),
                         "SPD:", STAT_DERIVED, 1);
 
-        val = myscreen->level_data.myloader->stepsizes[PIX(ORDER_LIVING, current_guy->family)]
+        val = myscreen->level_data.myloader.stepsizes[PIX(ORDER_LIVING, current_guy->family)]
             + current_guy->get_speed_bonus();
         if (val != 0) {
             buf << std::setprecision(1) << val;
@@ -2321,7 +2301,7 @@ Sint32 create_train_menu(Sint32 arg1)
                         info_box_content.y + (linesdown * line_height),
                         "ATK SPD:", STAT_DERIVED, 1);
 
-        float fire_freq = std::max(myscreen->level_data.myloader->fire_frequency[PIX(ORDER_LIVING, current_guy->family)] - current_guy->get_fire_frequency_bonus(), 1.0f);
+        float fire_freq = std::max(myscreen->level_data.myloader.fire_frequency[PIX(ORDER_LIVING, current_guy->family)] - current_guy->get_fire_frequency_bonus(), 1.0f);
 
         // The 10.0f / fire_frequency is somewhat arbitrary, but it makes for
         // good comparison info.
@@ -2464,7 +2444,7 @@ Sint32 create_load_menu(Sint32 arg1)
 
 void timed_dialog(std::string const &message, float delay_seconds)
 {
-    Log("%s\n", message.c_str());
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s\n", message.c_str());
 
     myscreen->darken_screen();
 
@@ -2500,7 +2480,7 @@ void timed_dialog(std::string const &message, float delay_seconds)
 
 bool yes_or_no_prompt(std::string const &title, std::string const &message, bool default_value)
 {
-    Log("%s, %s:\n", title.c_str(), message.c_str());
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s, %s:\n", title.c_str(), message.c_str());
 
     myscreen->darken_screen();
 
@@ -2582,13 +2562,13 @@ bool yes_or_no_prompt(std::string const &title, std::string const &message, bool
     }
 
     if (retvalue == YES) {
-        Log("YES\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "YES\n");
 
         return true;
     }
 
     if (retvalue == NO) {
-        Log("NO\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "NO\n");
 
         return false;
     }
@@ -2598,7 +2578,7 @@ bool yes_or_no_prompt(std::string const &title, std::string const &message, bool
 
 bool no_or_yes_prompt(std::string const &title, std::string const &message, bool default_value)
 {
-    Log("%s, %s:\n", title.c_str(), message.c_str());
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s, %s:\n", title.c_str(), message.c_str());
 
     myscreen->darken_screen();
 
@@ -2681,13 +2661,13 @@ bool no_or_yes_prompt(std::string const &title, std::string const &message, bool
     }
 
     if (retvalue == YES) {
-        Log("YES\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "YES\n");
 
         return true;
     }
 
     if (retvalue == NO) {
-        Log("NO\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "NO\n");
 
         return false;
     }
@@ -2697,7 +2677,7 @@ bool no_or_yes_prompt(std::string const &title, std::string const &message, bool
 
 void popup_dialog(std::string const &title, std::string const &message)
 {
-    Log("%s, %s\n", title.c_str(), message.c_str());
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s, %s\n", title.c_str(), message.c_str());
 
     myscreen->darken_screen();
 
@@ -3747,7 +3727,7 @@ void quit(Sint32 arg1)
     delete theprefs;
     // Deletes the screen objects
     picker_quit();
-    Log("quit(%d)\n", arg1);
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "quit(%d)\n", arg1);
 
     exit(0);
 }
@@ -4412,7 +4392,7 @@ Sint32 do_set_scen_level(Sint32 arg1)
         } else {
             // We're good
             myscreen->save_data.scen_num = templevel;
-            Log("Set level to %d\n", templevel);
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Set level to %d\n", templevel);
         }
     }
 

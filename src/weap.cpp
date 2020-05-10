@@ -77,7 +77,7 @@ Sint16 Weap::act()
     switch (act_type) {
     case ACT_CONTROL:
         // We are the control character
-        Log("Weapon is act_control?\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Weapon is act_control?\n");
 
         return 1;
     case ACT_SIT:
@@ -89,7 +89,7 @@ Sint16 Weap::act()
         return 1;
     case ACT_GENERATE:
         // We are a generator
-        Log("Weapon is act_generate?\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Weapon is act_generate?\n");
 
         break;
     case ACT_FIRE:
@@ -98,7 +98,7 @@ Sint16 Weap::act()
 
         return 1;
     case ACT_GUARD:
-        Log("Weapon on guard mode?\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Weapon on guard mode?\n");
         act_guard();
 
         break;
@@ -109,7 +109,7 @@ Sint16 Weap::act()
     case ACT_RANDOM:
         // We are randomly walking toward enemy
         buf << "Weapon " << family << " doing act random?";
-        Log("Weapon doing act_random?\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Weapon doing act_random?\n");
         myscreen->do_notify(buf.str(), this);
         buf.clear();
 

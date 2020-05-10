@@ -32,228 +32,174 @@
 #include "pixdefs.hpp"
 #include "util.hpp"
 
-
-// ***********************
-// Other graphics routines
-// ***********************
-
-// Have been moved to video
-
-// **** Editor related functions? *****
-
-// Have also been moved to video
-
-PixieData read_pixie_file(std::string const &filename)
-{
-    /*
-     * Create a file stream and read the image
-     * File data in form:
-     * <# of frames>  1 byte
-     * <x size>       1 byte
-     * <y size>       1 byte
-     * <pixie data>   x * y * frames bytes
-     */
-
-    PixieData result;
-    SDL_RWops *infile = nullptr;
-    std::stringstream buf;
-
-    // Zardus: Try to fine file using open_read_file
-    infile = open_read_file(std::filesystem::path("pix/" + filename));
-    if (infile == nullptr) {
-        infile = open_read_file(std::filesystem::path(filename));
-    }
-
-    if (infile == nullptr) {
-        buf << "Cannot open pixie file pix/" << filename << "!" << std::endl;
-        Log("%s", buf.str().c_str());
-
-        exit(5);
-    }
-
-    SDL_RWread(infile, &result.frames, 1, 1);
-    SDL_RWread(infile, &result.w, 1, 1);
-    SDL_RWread(infile, &result.h, 1, 1);
-
-    size_t size = (result.w * result.h) * result.frames;
-    result.data = new Uint8[size];
-
-    // Now read the data in a big chunk
-    SDL_RWread(infile, result.data, 1, size);
-
-    SDL_RWclose(infile);
-
-    return result;
-} // end of image-reading routing
-
 void load_map_data(PixieData *whereto)
 {
     // Load the pixie graphics data into memory
-    whereto[0] = read_pixie_file(std::string("16tile.pix"));
-    whereto[PIX_GRASS1] = read_pixie_file(std::string("16grass1.pix"));
-    whereto[PIX_WATER1] = read_pixie_file(std::string("16water1.pix"));
-    whereto[3] = read_pixie_file(std::string("16space.pix"));
-    whereto[4] = read_pixie_file(std::string("16wall2.pix"));
-    whereto[5] = read_pixie_file(std::string("16wall3.pix"));
-    whereto[6] = read_pixie_file(std::string("16floor.pix"));
-    whereto[7] = read_pixie_file(std::string("16walllo.pix"));
-    whereto[8] = read_pixie_file(std::string("16w2lo.pix"));
+    whereto[0] = PixieData(std::filesystem::path("16tile.pix"));
+    whereto[PIX_GRASS1] = PixieData(std::filesystem::path("16grass1.pix"));
+    whereto[PIX_WATER1] = PixieData(std::filesystem::path("16water1.pix"));
+    whereto[3] = PixieData(std::filesystem::path("16space.pix"));
+    whereto[4] = PixieData(std::filesystem::path("16wall2.pix"));
+    whereto[5] = PixieData(std::filesystem::path("16wall3.pix"));
+    whereto[6] = PixieData(std::filesystem::path("16floor.pix"));
+    whereto[7] = PixieData(std::filesystem::path("16walllo.pix"));
+    whereto[8] = PixieData(std::filesystem::path("16w2lo.pix"));
 
-    whereto[9] = read_pixie_file(std::string("16carpll.pix"));
-    whereto[10] = read_pixie_file(std::string("16carpb.pix"));
-    whereto[11] = read_pixie_file(std::string("16carplr.pix"));
-    whereto[12] = read_pixie_file(std::string("16carpur.pix"));
-    whereto[13] = read_pixie_file(std::string("16carpu.pix"));
-    whereto[14] = read_pixie_file(std::string("16carpul.pix"));
-    whereto[PIX_CARPET_L] = read_pixie_file(std::string("16carpl.pix"));
-    whereto[PIX_CARPET_M] = read_pixie_file(std::string("16carpm.pix"));
-    whereto[PIX_CARPET_M2] = read_pixie_file(std::string("16carpm2.pix"));
-    whereto[PIX_CARPET_R] = read_pixie_file(std::string("16carpr.pix"));
+    whereto[9] = PixieData(std::filesystem::path("16carpll.pix"));
+    whereto[10] = PixieData(std::filesystem::path("16carpb.pix"));
+    whereto[11] = PixieData(std::filesystem::path("16carplr.pix"));
+    whereto[12] = PixieData(std::filesystem::path("16carpur.pix"));
+    whereto[13] = PixieData(std::filesystem::path("16carpu.pix"));
+    whereto[14] = PixieData(std::filesystem::path("16carpul.pix"));
+    whereto[PIX_CARPET_L] = PixieData(std::filesystem::path("16carpl.pix"));
+    whereto[PIX_CARPET_M] = PixieData(std::filesystem::path("16carpm.pix"));
+    whereto[PIX_CARPET_M2] = PixieData(std::filesystem::path("16carpm2.pix"));
+    whereto[PIX_CARPET_R] = PixieData(std::filesystem::path("16carpr.pix"));
 
-    whereto[PIX_CARPET_SMALL_HOR] = read_pixie_file(std::string("16cshor.pix"));
-    whereto[PIX_CARPET_SMALL_VER] = read_pixie_file(std::string("16csver.pix"));
-    whereto[PIX_CARPET_SMALL_CUP] = read_pixie_file(std::string("16cscup.pix"));
-    whereto[PIX_CARPET_SMALL_CAP] = read_pixie_file(std::string("16cscap.pix"));
-    whereto[PIX_CARPET_SMALL_LEFT] = read_pixie_file(std::string("16csleft.pix"));
-    whereto[PIX_CARPET_SMALL_RIGHT] = read_pixie_file(std::string("16csright.pix"));
-    whereto[PIX_CARPET_SMALL_TINY] = read_pixie_file(std::string("16cstiny.pix"));
+    whereto[PIX_CARPET_SMALL_HOR] = PixieData(std::filesystem::path("16cshor.pix"));
+    whereto[PIX_CARPET_SMALL_VER] = PixieData(std::filesystem::path("16csver.pix"));
+    whereto[PIX_CARPET_SMALL_CUP] = PixieData(std::filesystem::path("16cscup.pix"));
+    whereto[PIX_CARPET_SMALL_CAP] = PixieData(std::filesystem::path("16cscap.pix"));
+    whereto[PIX_CARPET_SMALL_LEFT] = PixieData(std::filesystem::path("16csleft.pix"));
+    whereto[PIX_CARPET_SMALL_RIGHT] = PixieData(std::filesystem::path("16csright.pix"));
+    whereto[PIX_CARPET_SMALL_TINY] = PixieData(std::filesystem::path("16cstiny.pix"));
 
-    whereto[PIX_GRASS2] = read_pixie_file(std::string("16grass2.pix"));
-    whereto[PIX_GRASS3] = read_pixie_file(std::string("16grass3.pix"));
-    whereto[PIX_GRASS4] = read_pixie_file(std::string("16grass4.pix"));
+    whereto[PIX_GRASS2] = PixieData(std::filesystem::path("16grass2.pix"));
+    whereto[PIX_GRASS3] = PixieData(std::filesystem::path("16grass3.pix"));
+    whereto[PIX_GRASS4] = PixieData(std::filesystem::path("16grass4.pix"));
 
-    whereto[PIX_GRASS_DARK_1] = read_pixie_file(std::string("16grassd.pix"));
-    whereto[PIX_GRASS_DARK_2] = read_pixie_file(std::string("16grd2.pix"));
-    whereto[PIX_GRASS_DARK_3] = read_pixie_file(std::string("16grd3.pix"));
-    whereto[PIX_GRASS_DARK_4] = read_pixie_file(std::string("16grd4.pix"));
-    whereto[PIX_GRASS_DARK_LL] = read_pixie_file(std::string("16grassi.pix"));
-    whereto[PIX_GRASS_DARK_UR] = read_pixie_file(std::string("16grassh.pix"));
-    whereto[PIX_GRASS_RUBBLE] = read_pixie_file(std::string("16grassr.pix"));
+    whereto[PIX_GRASS_DARK_1] = PixieData(std::filesystem::path("16grassd.pix"));
+    whereto[PIX_GRASS_DARK_2] = PixieData(std::filesystem::path("16grd2.pix"));
+    whereto[PIX_GRASS_DARK_3] = PixieData(std::filesystem::path("16grd3.pix"));
+    whereto[PIX_GRASS_DARK_4] = PixieData(std::filesystem::path("16grd4.pix"));
+    whereto[PIX_GRASS_DARK_LL] = PixieData(std::filesystem::path("16grassi.pix"));
+    whereto[PIX_GRASS_DARK_UR] = PixieData(std::filesystem::path("16grassh.pix"));
+    whereto[PIX_GRASS_RUBBLE] = PixieData(std::filesystem::path("16grassr.pix"));
 
-    whereto[PIX_GRASS_DARK_B1] = read_pixie_file(std::string("16grdb1.pix"));
-    whereto[PIX_GRASS_DARK_B2] = read_pixie_file(std::string("16grdb2.pix"));
-    whereto[PIX_GRASS_DARK_R1] = read_pixie_file(std::string("16grdr1.pix"));
-    whereto[PIX_GRASS_DARK_R2] = read_pixie_file(std::string("16grdr2.pix"));
-    whereto[PIX_GRASS_DARK_BR] = read_pixie_file(std::string("16grdbr.pix"));
+    whereto[PIX_GRASS_DARK_B1] = PixieData(std::filesystem::path("16grdb1.pix"));
+    whereto[PIX_GRASS_DARK_B2] = PixieData(std::filesystem::path("16grdb2.pix"));
+    whereto[PIX_GRASS_DARK_R1] = PixieData(std::filesystem::path("16grdr1.pix"));
+    whereto[PIX_GRASS_DARK_R2] = PixieData(std::filesystem::path("16grdr2.pix"));
+    whereto[PIX_GRASS_DARK_BR] = PixieData(std::filesystem::path("16grdbr.pix"));
 
-    whereto[PIX_GRASS_LIGHT_1] = read_pixie_file(std::string("16grl1.pix"));
-    whereto[PIX_GRASS_LIGHT_TOP] = read_pixie_file(std::string("16grlt.pix"));
-    whereto[PIX_GRASS_LIGHT_RIGHT_TOP] = read_pixie_file(std::string("16grlrt.pix"));
-    whereto[PIX_GRASS_LIGHT_RIGHT] = read_pixie_file(std::string("16grlr.pix"));
-    whereto[PIX_GRASS_LIGHT_RIGHT_BOTTOM] = read_pixie_file(std::string("16grlrb.pix"));
-    whereto[PIX_GRASS_LIGHT_BOTTOM] = read_pixie_file(std::string("16grlb.pix"));
-    whereto[PIX_GRASS_LIGHT_LEFT_BOTTOM] = read_pixie_file(std::string("16grllb.pix"));
-    whereto[PIX_GRASS_LIGHT_LEFT] = read_pixie_file(std::string("16grll.pix"));
-    whereto[PIX_GRASS_LIGHT_LEFT_TOP] = read_pixie_file(std::string("16grllt.pix"));
+    whereto[PIX_GRASS_LIGHT_1] = PixieData(std::filesystem::path("16grl1.pix"));
+    whereto[PIX_GRASS_LIGHT_TOP] = PixieData(std::filesystem::path("16grlt.pix"));
+    whereto[PIX_GRASS_LIGHT_RIGHT_TOP] = PixieData(std::filesystem::path("16grlrt.pix"));
+    whereto[PIX_GRASS_LIGHT_RIGHT] = PixieData(std::filesystem::path("16grlr.pix"));
+    whereto[PIX_GRASS_LIGHT_RIGHT_BOTTOM] = PixieData(std::filesystem::path("16grlrb.pix"));
+    whereto[PIX_GRASS_LIGHT_BOTTOM] = PixieData(std::filesystem::path("16grlb.pix"));
+    whereto[PIX_GRASS_LIGHT_LEFT_BOTTOM] = PixieData(std::filesystem::path("16grllb.pix"));
+    whereto[PIX_GRASS_LIGHT_LEFT] = PixieData(std::filesystem::path("16grll.pix"));
+    whereto[PIX_GRASS_LIGHT_LEFT_TOP] = PixieData(std::filesystem::path("16grllt.pix"));
 
-    whereto[PIX_WATER2] = read_pixie_file(std::string("16water2.pix"));
-    whereto[PIX_WATER3] = read_pixie_file(std::string("16water3.pix"));
+    whereto[PIX_WATER2] = PixieData(std::filesystem::path("16water2.pix"));
+    whereto[PIX_WATER3] = PixieData(std::filesystem::path("16water3.pix"));
 
-    whereto[PIX_WATERGRASS_LL] = read_pixie_file(std::string("16wgll.pix"));
-    whereto[PIX_WATERGRASS_LR] = read_pixie_file(std::string("16wglr.pix"));
-    whereto[PIX_WATERGRASS_UL] = read_pixie_file(std::string("16wgul.pix"));
-    whereto[PIX_WATERGRASS_UR] = read_pixie_file(std::string("16wgur.pix"));
-    whereto[PIX_WATERGRASS_U] = read_pixie_file(std::string("16wgu.pix"));
-    whereto[PIX_WATERGRASS_D] = read_pixie_file(std::string("16wgd.pix"));
-    whereto[PIX_WATERGRASS_L] = read_pixie_file(std::string("16wgl.pix"));
-    whereto[PIX_WATERGRASS_R] = read_pixie_file(std::string("16wgr.pix"));
+    whereto[PIX_WATERGRASS_LL] = PixieData(std::filesystem::path("16wgll.pix"));
+    whereto[PIX_WATERGRASS_LR] = PixieData(std::filesystem::path("16wglr.pix"));
+    whereto[PIX_WATERGRASS_UL] = PixieData(std::filesystem::path("16wgul.pix"));
+    whereto[PIX_WATERGRASS_UR] = PixieData(std::filesystem::path("16wgur.pix"));
+    whereto[PIX_WATERGRASS_U] = PixieData(std::filesystem::path("16wgu.pix"));
+    whereto[PIX_WATERGRASS_D] = PixieData(std::filesystem::path("16wgd.pix"));
+    whereto[PIX_WATERGRASS_L] = PixieData(std::filesystem::path("16wgl.pix"));
+    whereto[PIX_WATERGRASS_R] = PixieData(std::filesystem::path("16wgr.pix"));
 
-    whereto[PIX_GRASSWATER_LL] = read_pixie_file(std::string("16gwll.pix"));
-    whereto[PIX_GRASSWATER_LR] = read_pixie_file(std::string("16gwlr.pix"));
-    whereto[PIX_GRASSWATER_UL] = read_pixie_file(std::string("16gwul.pix"));
-    whereto[PIX_GRASSWATER_UR] = read_pixie_file(std::string("16gwur.pix"));
+    whereto[PIX_GRASSWATER_LL] = PixieData(std::filesystem::path("16gwll.pix"));
+    whereto[PIX_GRASSWATER_LR] = PixieData(std::filesystem::path("16gwlr.pix"));
+    whereto[PIX_GRASSWATER_UL] = PixieData(std::filesystem::path("16gwul.pix"));
+    whereto[PIX_GRASSWATER_UR] = PixieData(std::filesystem::path("16gwur.pix"));
 
-    whereto[PIX_PAVEMENT1] = read_pixie_file(std::string("16pave1.pix"));
-    whereto[PIX_PAVEMENT2] = read_pixie_file(std::string("16pave2.pix"));
-    whereto[PIX_PAVEMENT3] = read_pixie_file(std::string("16pave3.pix"));
+    whereto[PIX_PAVEMENT1] = PixieData(std::filesystem::path("16pave1.pix"));
+    whereto[PIX_PAVEMENT2] = PixieData(std::filesystem::path("16pave2.pix"));
+    whereto[PIX_PAVEMENT3] = PixieData(std::filesystem::path("16pave3.pix"));
 
-    whereto[PIX_PAVESTEPS1] = read_pixie_file(std::string("16pstep.pix"));
-    whereto[PIX_PAVESTEPS2] = read_pixie_file(std::string("16pstest.pix"));
-    whereto[PIX_PAVESTEPS2L] = read_pixie_file(std::string("16ptestl.pix"));
-    whereto[PIX_PAVESTEPS2R] = read_pixie_file(std::string("16ptestr.pix"));
+    whereto[PIX_PAVESTEPS1] = PixieData(std::filesystem::path("16pstep.pix"));
+    whereto[PIX_PAVESTEPS2] = PixieData(std::filesystem::path("16pstest.pix"));
+    whereto[PIX_PAVESTEPS2L] = PixieData(std::filesystem::path("16ptestl.pix"));
+    whereto[PIX_PAVESTEPS2R] = PixieData(std::filesystem::path("16ptestr.pix"));
 
-    whereto[PIX_WALLSIDE1] = read_pixie_file(std::string("16brick1.pix"));
-    whereto[PIX_WALLSIDE_L] = read_pixie_file(std::string("16brickl.pix"));
-    whereto[PIX_WALLSIDE_R] = read_pixie_file(std::string("16brickr.pix"));
-    whereto[PIX_WALLSIDE_C] = read_pixie_file(std::string("16brickc.pix"));
-    whereto[PIX_WALLSIDE_CRACK_C1] = read_pixie_file(std::string("16brick3.pix"));
+    whereto[PIX_WALLSIDE1] = PixieData(std::filesystem::path("16brick1.pix"));
+    whereto[PIX_WALLSIDE_L] = PixieData(std::filesystem::path("16brickl.pix"));
+    whereto[PIX_WALLSIDE_R] = PixieData(std::filesystem::path("16brickr.pix"));
+    whereto[PIX_WALLSIDE_C] = PixieData(std::filesystem::path("16brickc.pix"));
+    whereto[PIX_WALLSIDE_CRACK_C1] = PixieData(std::filesystem::path("16brick3.pix"));
 
-    whereto[PIX_WALL_LL] = read_pixie_file(std::string("16wallll.pix"));
+    whereto[PIX_WALL_LL] = PixieData(std::filesystem::path("16wallll.pix"));
 
-    whereto[PIX_BRAZIER1] = read_pixie_file(std::string("16braz1.pix"));
+    whereto[PIX_BRAZIER1] = PixieData(std::filesystem::path("16braz1.pix"));
 
-    whereto[PIX_WALLTOP_H] = read_pixie_file(std::string("16ttop.pix"));
+    whereto[PIX_WALLTOP_H] = PixieData(std::filesystem::path("16ttop.pix"));
 
-    whereto[PIX_TORCH1] = read_pixie_file(std::string("16torch1.pix"));
-    whereto[PIX_TORCH2] = read_pixie_file(std::string("16torch2.pix"));
-    whereto[PIX_TORCH3] = read_pixie_file(std::string("16torch3.pix"));
+    whereto[PIX_TORCH1] = PixieData(std::filesystem::path("16torch1.pix"));
+    whereto[PIX_TORCH2] = PixieData(std::filesystem::path("16torch2.pix"));
+    whereto[PIX_TORCH3] = PixieData(std::filesystem::path("16torch3.pix"));
 
-    whereto[PIX_FLOOR_PAVEL] = read_pixie_file(std::string("16fpl.pix"));
-    whereto[PIX_FLOOR_PAVER] = read_pixie_file(std::string("16fpr.pix"));
-    whereto[PIX_FLOOR_PAVEU] = read_pixie_file(std::string("16fpu.pix"));
-    whereto[PIX_FLOOR_PAVED] = read_pixie_file(std::string("16fpd.pix"));
+    whereto[PIX_FLOOR_PAVEL] = PixieData(std::filesystem::path("16fpl.pix"));
+    whereto[PIX_FLOOR_PAVER] = PixieData(std::filesystem::path("16fpr.pix"));
+    whereto[PIX_FLOOR_PAVEU] = PixieData(std::filesystem::path("16fpu.pix"));
+    whereto[PIX_FLOOR_PAVED] = PixieData(std::filesystem::path("16fpd.pix"));
 
-    whereto[PIX_COLUMN1] = read_pixie_file(std::string("16clom0.pix"));
-    whereto[PIX_COLUMN2] = read_pixie_file(std::string("16colm1.pix"));
+    whereto[PIX_COLUMN1] = PixieData(std::filesystem::path("16clom0.pix"));
+    whereto[PIX_COLUMN2] = PixieData(std::filesystem::path("16colm1.pix"));
 
     // Tree stuff
-    whereto[PIX_TREE_B1] = read_pixie_file(std::string("16treeb1.pix"));
-    whereto[PIX_TREE_M1] = read_pixie_file(std::string("16treem1.pix"));
-    whereto[PIX_TREE_ML] = read_pixie_file(std::string("16treeml.pix"));
-    whereto[PIX_TREE_MR] = read_pixie_file(std::string("16treemr.pix"));
-    whereto[PIX_TREE_MT] = read_pixie_file(std::string("16treemt.pix"));
-    whereto[PIX_TREE_T1] = read_pixie_file(std::string("16treet1.pix"));
+    whereto[PIX_TREE_B1] = PixieData(std::filesystem::path("16treeb1.pix"));
+    whereto[PIX_TREE_M1] = PixieData(std::filesystem::path("16treem1.pix"));
+    whereto[PIX_TREE_ML] = PixieData(std::filesystem::path("16treeml.pix"));
+    whereto[PIX_TREE_MR] = PixieData(std::filesystem::path("16treemr.pix"));
+    whereto[PIX_TREE_MT] = PixieData(std::filesystem::path("16treemt.pix"));
+    whereto[PIX_TREE_T1] = PixieData(std::filesystem::path("16treet1.pix"));
 
-    whereto[PIX_DIRT_1] = read_pixie_file(std::string("16dirt2.pix"));
-    whereto[PIX_DIRT_DARK_1] = read_pixie_file(std::string("16dirtd1.pix"));
+    whereto[PIX_DIRT_1] = PixieData(std::filesystem::path("16dirt2.pix"));
+    whereto[PIX_DIRT_DARK_1] = PixieData(std::filesystem::path("16dirtd1.pix"));
 
-    whereto[PIX_DIRTGRASS_UL1] = read_pixie_file(std::string("16dgul1.pix"));
-    whereto[PIX_DIRTGRASS_UR1] = read_pixie_file(std::string("16dgur1.pix"));
-    whereto[PIX_DIRTGRASS_LL1] = read_pixie_file(std::string("16dgll1.pix"));
-    whereto[PIX_DIRTGRASS_LR1] = read_pixie_file(std::string("16dglr1.pix"));
+    whereto[PIX_DIRTGRASS_UL1] = PixieData(std::filesystem::path("16dgul1.pix"));
+    whereto[PIX_DIRTGRASS_UR1] = PixieData(std::filesystem::path("16dgur1.pix"));
+    whereto[PIX_DIRTGRASS_LL1] = PixieData(std::filesystem::path("16dgll1.pix"));
+    whereto[PIX_DIRTGRASS_LR1] = PixieData(std::filesystem::path("16dglr1.pix"));
 
-    whereto[PIX_DIRTGRASS_DARK_UL1] = read_pixie_file(std::string("16dguld.pix"));
-    whereto[PIX_DIRTGRASS_DARK_UR1] = read_pixie_file(std::string("16dgurd.pix"));
-    whereto[PIX_DIRTGRASS_DARK_LL1] = read_pixie_file(std::string("16dglld.pix"));
-    whereto[PIX_DIRTGRASS_DARK_LR1] = read_pixie_file(std::string("16dglrd.pix"));
+    whereto[PIX_DIRTGRASS_DARK_UL1] = PixieData(std::filesystem::path("16dguld.pix"));
+    whereto[PIX_DIRTGRASS_DARK_UR1] = PixieData(std::filesystem::path("16dgurd.pix"));
+    whereto[PIX_DIRTGRASS_DARK_LL1] = PixieData(std::filesystem::path("16dglld.pix"));
+    whereto[PIX_DIRTGRASS_DARK_LR1] = PixieData(std::filesystem::path("16dglrd.pix"));
 
-    whereto[PIX_PATH_1] = read_pixie_file(std::string("16path1.pix"));
-    whereto[PIX_PATH_2] = read_pixie_file(std::string("16path2.pix"));
-    whereto[PIX_PATH_3] = read_pixie_file(std::string("16path3.pix"));
-    whereto[PIX_PATH_4] = read_pixie_file(std::string("16path4.pix"));
+    whereto[PIX_PATH_1] = PixieData(std::filesystem::path("16path1.pix"));
+    whereto[PIX_PATH_2] = PixieData(std::filesystem::path("16path2.pix"));
+    whereto[PIX_PATH_3] = PixieData(std::filesystem::path("16path3.pix"));
+    whereto[PIX_PATH_4] = PixieData(std::filesystem::path("16path4.pix"));
 
-    whereto[PIX_BOULDER_1] = read_pixie_file(std::string("16stone1.pix"));
-    whereto[PIX_BOULDER_2] = read_pixie_file(std::string("16stone2.pix"));
-    whereto[PIX_BOULDER_3] = read_pixie_file(std::string("16stone3.pix"));
-    whereto[PIX_BOULDER_4] = read_pixie_file(std::string("16stone4.pix"));
+    whereto[PIX_BOULDER_1] = PixieData(std::filesystem::path("16stone1.pix"));
+    whereto[PIX_BOULDER_2] = PixieData(std::filesystem::path("16stone2.pix"));
+    whereto[PIX_BOULDER_3] = PixieData(std::filesystem::path("16stone3.pix"));
+    whereto[PIX_BOULDER_4] = PixieData(std::filesystem::path("16stone4.pix"));
 
-    whereto[PIX_COBBLE_1] = read_pixie_file(std::string("16cob1.pix"));
-    whereto[PIX_COBBLE_2] = read_pixie_file(std::string("16cob2.pix"));
-    whereto[PIX_COBBLE_3] = read_pixie_file(std::string("16cob3.pix"));
-    whereto[PIX_COBBLE_4] = read_pixie_file(std::string("16cob4.pix"));
+    whereto[PIX_COBBLE_1] = PixieData(std::filesystem::path("16cob1.pix"));
+    whereto[PIX_COBBLE_2] = PixieData(std::filesystem::path("16cob2.pix"));
+    whereto[PIX_COBBLE_3] = PixieData(std::filesystem::path("16cob3.pix"));
+    whereto[PIX_COBBLE_4] = PixieData(std::filesystem::path("16cob4.pix"));
 
-    whereto[PIX_WALL_ARROW_GRASS] = read_pixie_file(std::string("16wallog.pix"));
-    whereto[PIX_WALL_ARROW_FLOOR] = read_pixie_file(std::string("16wallof.pix"));
-    whereto[PIX_WALL_ARROW_GRASS_DARK] = read_pixie_file(std::string("16wallod.pix"));
+    whereto[PIX_WALL_ARROW_GRASS] = PixieData(std::filesystem::path("16wallog.pix"));
+    whereto[PIX_WALL_ARROW_FLOOR] = PixieData(std::filesystem::path("16wallof.pix"));
+    whereto[PIX_WALL_ARROW_GRASS_DARK] = PixieData(std::filesystem::path("16wallod.pix"));
 
     // Cliff tiles
-    whereto[PIX_CLIFF_BOTTOM] = read_pixie_file(std::string("16cliff1.pix"));
-    whereto[PIX_CLIFF_TOP] = read_pixie_file(std::string("16cliff2.pix"));
-    whereto[PIX_CLIFF_LEFT] = read_pixie_file(std::string("16cliff3.pix"));
-    whereto[PIX_CLIFF_RIGHT] = read_pixie_file(std::string("16cliff4.pix"));
-    whereto[PIX_CLIFF_BACK_1] = read_pixie_file(std::string("16clifup.pix"));
-    whereto[PIX_CLIFF_BACK_2] = read_pixie_file(std::string("16clifu2.pix"));
-    whereto[PIX_CLIFF_BACK_L] = read_pixie_file(std::string("16cliful.pix"));
-    whereto[PIX_CLIFF_BACK_R] = read_pixie_file(std::string("16clifur.pix"));
-    whereto[PIX_CLIFF_TOP_L] = read_pixie_file(std::string("16clifdl.pix"));
-    whereto[PIX_CLIFF_TOP_R] = read_pixie_file(std::string("16clifdr.pix"));
+    whereto[PIX_CLIFF_BOTTOM] = PixieData(std::filesystem::path("16cliff1.pix"));
+    whereto[PIX_CLIFF_TOP] = PixieData(std::filesystem::path("16cliff2.pix"));
+    whereto[PIX_CLIFF_LEFT] = PixieData(std::filesystem::path("16cliff3.pix"));
+    whereto[PIX_CLIFF_RIGHT] = PixieData(std::filesystem::path("16cliff4.pix"));
+    whereto[PIX_CLIFF_BACK_1] = PixieData(std::filesystem::path("16clifup.pix"));
+    whereto[PIX_CLIFF_BACK_2] = PixieData(std::filesystem::path("16clifu2.pix"));
+    whereto[PIX_CLIFF_BACK_L] = PixieData(std::filesystem::path("16cliful.pix"));
+    whereto[PIX_CLIFF_BACK_R] = PixieData(std::filesystem::path("16clifur.pix"));
+    whereto[PIX_CLIFF_TOP_L] = PixieData(std::filesystem::path("16clifdl.pix"));
+    whereto[PIX_CLIFF_TOP_R] = PixieData(std::filesystem::path("16clifdr.pix"));
 
     // Damaged tiles...
-    whereto[PIX_GRASS1_DAMAGED] = read_pixie_file(std::string("16grasd1.pix"));
+    whereto[PIX_GRASS1_DAMAGED] = PixieData(std::filesystem::path("16grasd1.pix"));
 
     // Pete's graphics
-    whereto[PIX_JAGGED_GROUND_1] = read_pixie_file(std::string("16jwg1.pix"));
-    whereto[PIX_JAGGED_GROUND_2] = read_pixie_file(std::string("16jwg2.pix"));
-    whereto[PIX_JAGGED_GROUND_3] = read_pixie_file(std::string("16jwg3.pix"));
-    whereto[PIX_JAGGED_GROUND_4] = read_pixie_file(std::string("16jwg1.pix"));
+    whereto[PIX_JAGGED_GROUND_1] = PixieData(std::filesystem::path("16jwg1.pix"));
+    whereto[PIX_JAGGED_GROUND_2] = PixieData(std::filesystem::path("16jwg2.pix"));
+    whereto[PIX_JAGGED_GROUND_3] = PixieData(std::filesystem::path("16jwg3.pix"));
+    whereto[PIX_JAGGED_GROUND_4] = PixieData(std::filesystem::path("16jwg1.pix"));
 }

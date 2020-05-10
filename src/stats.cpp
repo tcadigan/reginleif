@@ -87,7 +87,7 @@ void Statistics::add_command(Sint16 whatcommand, Sint16 iterations, Sint16 info1
     }
 
     if (whatcommand == COMMAND_FOLLOW) {
-        Log("following\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "following\n");
     }
 
     // Add command to end of list
@@ -189,7 +189,7 @@ void Statistics::set_command(Sint16 whatcommand, Sint16 iterations)
 void Statistics::set_command(Sint16 whatcommand, Sint16 iterations, Sint16 info1, Sint16 info2)
 {
     if (whatcommand == COMMAND_DIE) {
-        Log("BLLLLLLLLLLLLLAAAAAAAAAAHHHHHHH!\n");
+        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "BLLLLLLLLLLLLLAAAAAAAAAAHHHHHHH!\n");
     }
 
     force_command(whatcommand, iterations, info1, info2);
