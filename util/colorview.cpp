@@ -158,7 +158,7 @@ Sint32 num_rows()
     return numrows;
 }
 
-void draw_palette_to_surface(SDL_Renderer *renderer)
+void draw_palette(SDL_Renderer *renderer)
 {
     Sint32 width;
     Sint32 height;
@@ -200,7 +200,7 @@ int main(int argc, char *argv[])
     Sint32 height;
     SDL_GetRendererOutputSize(renderer, &width, &height);
 
-    draw_palette_to_surface(renderer);
+    draw_palette(renderer);
     SDL_RenderPresent(renderer);
 
     SDL_Event event;

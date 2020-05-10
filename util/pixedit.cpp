@@ -138,7 +138,7 @@ static constexpr SDL_Color const ourcolors[256] = {
     SDL_Color{160, 120, 120, 255}, SDL_Color{168, 128, 128, 255},
 };
 
-Sint32 num_rows(Sint32 columns)
+Sint32 num_pal_rows(Sint32 columns)
 {
     Sint32 numcolors = sizeof(ourcolors) / sizeof(SDL_Color);
     Sint32 numrows = numcolors / columns;
@@ -150,24 +150,20 @@ Sint32 num_rows(Sint32 columns)
     return numrows;
 }
 
-void draw_palette(SDL_Renderer *renderer)
+void draw_palette(SDL_Renderer *renderer, SDL_Rect const &pane)
 {
-    Sint32 width;
-    Sint32 height;
-    SDL_RenderGetLogicalSize(renderer, &width, &height);
-
-    Sint32 palette_width = width / 4;
-
     Sint32 columns = 10;
-    Sint32 xdelta = palette_width / columns;
-    Sint32 ydelta = height / num_rows(columns);
+    Sint32 rows = num_pal_rows(columns);
+
+    Sint32 xdelta = pane.w / columns;
+    Sint32 ydelta = pane.h / rows;
 
     Sint32 index = 0;
 
-    for (Sint32 y = 0; y < num_rows(columns); ++y) {
+    for (Sint32 y = 0; y < num_pal_rows(columns); ++y) {
         for (Sint32 x = 0; x < columns; ++x) {
             SDL_Color color = ourcolors[index];
-            SDL_Rect rect = { (x * xdelta) + (palette_width * 3), y * ydelta, xdelta, ydelta };
+            SDL_Rect rect = { (x * xdelta) + pane.x, (y * ydelta) + pane.y, xdelta, ydelta };
             SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, SDL_ALPHA_OPAQUE);
             SDL_RenderFillRect(renderer, &rect);
 
@@ -179,42 +175,28 @@ void draw_palette(SDL_Renderer *renderer)
 void draw_pix(SDL_Renderer *renderer,
               Uint8 *data, Uint8 frame, Uint8 num_rows, Uint8 num_columns,
               Uint8 logical_x, Uint8 logical_y, Uint8 zoom,
-              SDL_Color const &bg_color)
+              SDL_Rect const &pane, SDL_Color const &bg_color)
 {
-    std::cout << "TC_DEBUG: logical_x: " << static_cast<Uint32>(logical_x)
-              << " logical_y: " << static_cast<Uint32>(logical_y)
-              << " zoom: " << static_cast<Uint32>(zoom) << std::endl;
-    Sint32 width;
-    Sint32 height;
-    SDL_RenderGetLogicalSize(renderer, &width, &height);
+    Sint32 columns = pane.w / 16;
+    Sint32 rows = pane.h / 16;
 
-    Sint32 pix_width = (width / 4) * 3;
-
-    Sint32 columns = pix_width / 16;
-    Sint32 rows = height / 16;
-
-    Sint32 xdelta = pix_width / columns;
-    Sint32 ydelta = height / rows;
-
-    std::cout << "TC_DEBUG: columns: " << columns << " rows: " << rows << std::endl;
-    std::cout << "TC_DEBUG: xdelta: " << xdelta << " ydelta: " << ydelta << std::endl;
+    Sint32 xdelta = pane.w / columns;
+    Sint32 ydelta = pane.h / rows;
 
     for (Sint32 y = 0; y < rows; ++y) {
         for (Sint32 x = 0; x < columns; ++x) {
             Sint32 d_x = (logical_x + x) / zoom;
             Sint32 d_y = (logical_y + y) / zoom;
-            std::cout << "TC_DEBUG: d_x: " << d_x << " d_y: " << d_y << std::endl;
 
             SDL_Color color = bg_color;
 
             if ((d_x < num_columns) && (d_y < num_rows)) {
-                std::cout << "TC_DEBUG: In pix" << std::endl;
                 Sint32 frame_offset = (frame - 1) * (num_rows * num_columns);
                 Uint8 d = data[frame_offset + ((d_y * num_columns) + d_x)];
                 color = ourcolors[d];
             }
 
-            SDL_Rect rect = { x * xdelta, y * ydelta, xdelta, ydelta };
+            SDL_Rect rect = { (x * xdelta) + pane.x, (y * ydelta) + pane.y, xdelta, ydelta };
             SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, SDL_ALPHA_OPAQUE);
             SDL_RenderFillRect(renderer, &rect);
         }
@@ -254,7 +236,7 @@ int main(int argc, char *argv[])
 
     Uint8 logical_x = 0;
     Uint8 logical_y = 0;
-    Uint8 zoom = 1;
+    Sint8 zoom = 1;
 
     SDL_Color bg_color = { 0, 0, 0, SDL_ALPHA_OPAQUE };
 
@@ -266,6 +248,7 @@ int main(int argc, char *argv[])
     bool done = false;
     bool redraw = true;
     bool leftclick = false;
+    bool rightclick = false;
 
     if (argc != 2) {
         std::cout << "USAGE: pixedit file.pix" << std::endl;
@@ -302,31 +285,30 @@ int main(int argc, char *argv[])
     }
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-    SDL_RenderSetLogicalSize(renderer, 800, 600);
 
     Sint32 width;
     Sint32 height;
-    SDL_RenderGetLogicalSize(renderer, &width, &height);
+    SDL_GetRendererOutputSize(renderer, &width, &height);
 
-    // Sint32 pix_width = (width / 4) * 3;
-    // Sint32 pal_width = (width / 4);
+    Sint32 pix_width = (width / 4) * 3;
+    Sint32 pal_width = (width / 4);
 
-    // SDL_Rect pix = { 0, 0, pix_width, height };
-    // SDL_Rect pal = { pix_width, 0, pal_width, height };
+    SDL_Rect pix_pane = { 0, 0, pix_width, height };
+    SDL_Rect pal_pane = { pix_width, 0, pal_width, height };
 
     print_pix(data, num_frames, num_rows, num_columns);
-    draw_palette(renderer);
+    draw_palette(renderer, pal_pane);
 
     while (!done) {
         if (redraw) {
             std::ostringstream buffer;
-            buffer << "Frame " << frame << " at " << zoom << "x";
+            buffer << "Frame " << static_cast<Uint32>(frame) << " at " << static_cast<Uint32>(zoom) << "x";
             SDL_SetWindowTitle(window, buffer.str().c_str());
 
             draw_pix(renderer,
                      data, frame, num_rows, num_columns,
                      logical_x, logical_y, zoom,
-                     bg_color);
+                     pix_pane, bg_color);
             SDL_RenderPresent(renderer);
             redraw = false;
         }
@@ -351,35 +333,34 @@ int main(int argc, char *argv[])
                 redraw = true;
 
                 break;
-            case SDLK_a:
+            case SDLK_j:
                 if (frame > 1) {
                     --frame;
                     redraw = true;
                 }
 
                 break;
-            case SDLK_d:
+            case SDLK_l:
                 if (frame < num_frames) {
                     ++frame;
                     redraw = true;
                 }
 
                 break;
-            case SDLK_w:
+            case SDLK_i:
                 ++zoom;
                 redraw = true;
 
                 break;
-            case SDLK_s:
+            case SDLK_k:
                 if (zoom > 1) {
                     --zoom;
                     redraw = true;
                 }
 
-
                 break;
             case SDLK_UP:
-                if (logical_y > 1) {
+                if (logical_y > 0) {
                     --logical_y;
                     redraw = true;
                 }
@@ -393,7 +374,7 @@ int main(int argc, char *argv[])
 
                 break;
             case SDLK_LEFT:
-                if (logical_x > 1) {
+                if (logical_x > 0) {
                     --logical_x;
                     redraw = true;
                 }
@@ -406,7 +387,11 @@ int main(int argc, char *argv[])
                 }
 
                 break;
-            case SDLK_q:
+            case SDLK_p:
+                print_pix(data, num_frames, num_rows, num_columns);
+
+                break;
+            case SDLK_s:
                 // file = SDL_RWFromFile(argv[1], "w");
                 // if (file == NULL) {
                 //     std::cout << "error while trying to open " << argv[1] << std::endl;
@@ -427,64 +412,63 @@ int main(int argc, char *argv[])
 
             break;
         case SDL_MOUSEBUTTONDOWN:
-        {
-            Sint32 mousex = event.button.x;
-            Sint32 mousey = event.button.y;
-            std::cout << "TC_DEBUG: mousex: " << mousex << " mousey: " << mousey << std::endl;
-            Sint32 pix_width = (width / 4) * 3;
-            Sint32 columns = pix_width / 16;
-            Sint32 rows = height / 16;
-
-            Sint32 column = mousex / (pix_width / columns);
-            Sint32 row = mousey / (height / rows);
-            std::cout << "TC_DEBUG: column: " << column << " row: " << row << std::endl;
-            Sint32 d_x = (logical_x + column) / zoom;
-            Sint32 d_y = (logical_x + row) / zoom;
-            std::cout << "TC_DEBUG: d_x: " << d_x << " d_y: " << d_y << std::endl;
-
-            SDL_Color curcolor = bg_color;
-
-            if ((d_x < num_columns) && (d_y < num_rows)) {
-                Sint32 frame_offset = (frame - 1) * (num_rows * num_columns);
-                Uint8 d = data[frame_offset + ((d_y * num_columns) + d_x)];
-                curcolor = ourcolors[d];
+            if (event.button.button == SDL_BUTTON_LEFT) {
+                leftclick = true;
+            } else if (event.button.button == SDL_BUTTON_RIGHT) {
+                rightclick = true;
             }
 
-            // 0 1 2 3 4 5
-            // 0 0 0 1 1 1
-            std::cout << "TC_DEBUG: red: " << static_cast<Uint32>(curcolor.r)
-                      << " green: " << static_cast<Uint32>(curcolor.g)
-                      << " blue: " << static_cast<Uint32>(curcolor.b)
-                      << " alpha: " << static_cast<Uint32>(curcolor.a) << std::endl;
-            // if (event.button.x >= (num_columns * zoom)) {
-            //     Sint32 mousex = event.button.x;
-            //     Sint32 mousey = event.button.y;
-            //     mousex = (mousex - (num_columns * zoom)) / 2;
-            //     mousey = mousey / (zoom * 2);
-            //     curcolor = (mousey * 8) + mousex;
-            // } else if (event.button.button > 1) {
-            //     curcolor = data[(((frame - 1) * num_columns) * num_rows) + ((event.button.y / zoom) * num_columns) + (event.button.x / zoom)];
-            // } else {
-            //     leftclick = true;
-            // }
+            break;
+        case SDL_MOUSEBUTTONUP:
+        {
+            SDL_Point point = { event.button.x, event.button.y };
+
+            if (SDL_PointInRect(&point, &pix_pane)) {
+                Sint32 columns = pix_pane.w / 16;
+                Sint32 rows = pix_pane.h / 16;
+
+                Sint32 col = (point.x - pix_pane.x) / (pix_pane.w / columns);
+                Sint32 row = (point.y - pix_pane.y) / (pix_pane.h / rows);
+
+                Sint32 d_x = (logical_x + col) / zoom;
+                Sint32 d_y = (logical_y + row) / zoom;
+
+                if ((d_x < num_columns) && (d_y < num_rows)) {
+                    Sint32 frame_offset = (frame - 1) * (num_rows * num_columns);
+
+                    if (leftclick) {
+                        data[frame_offset + ((d_y * num_columns) + d_x)] = curcolor;
+                        redraw = true;
+                    } else if (rightclick) {
+                        curcolor = data[frame_offset + ((d_y * num_columns) + d_x)];
+                    }
+                }
+            } else if (SDL_PointInRect(&point, &pal_pane)) {
+                Sint32 columns = 10;
+                Sint32 rows = num_pal_rows(columns);
+
+                Sint32 col = (point.x - pal_pane.x) / (pal_pane.w / columns);
+                Sint32 row = (point.y - pal_pane.y) / (pal_pane.h / rows);
+
+                if ((col < columns) && (row < rows)) {
+                    if (leftclick) {
+                        curcolor = (row * columns) + col;
+                    } else if (rightclick) {
+                        curcolor = 0;
+                    }
+                }
+            }
+
+            if (event.button.button == SDL_BUTTON_LEFT) {
+                leftclick = false;
+            } else if (event.button.button == SDL_BUTTON_RIGHT) {
+                rightclick = false;
+            }
 
             break;
         }
-        case SDL_MOUSEBUTTONUP:
-            if (event.button.button == 1) {
-                leftclick = false;
-            }
-
-            break;
         default:
             break;
-        }
-
-        if (leftclick && ((event.button.y / zoom) < num_rows) && ((event.button.x / zoom) < num_columns)) {
-            int spot;
-            spot = ((event.button.y / zoom) * num_columns) + (event.button.x / zoom);
-            data[((frame * num_rows) * num_columns) + spot] = curcolor;
-            redraw = true;
         }
     }
 
