@@ -4,7 +4,9 @@ Once upon a time in a galaxy far far away...
 
 I was into Project Euler (https://projecteuler.net) challenges.
 
-These are old, and likely a sad state of code. I know that some of the solutions were not of the quick type. At the time I wasn't as altruistic, and got online help for a few of them.
+These are old, and likely a sad state of code. I know that some of the solutions
+were not of the quick type. At the time I wasn't as altruistic, and got online
+help for a few of them.
 
 I would certainly get back into doing these, they were awesome fun.
 
@@ -17,9 +19,11 @@ Statistics:
 
 Back in university I was into competitive programming.
 
-For practice we did some of the UVa challenges (http://uva.onlinejudge.org/index.php).
+For practice we did some of the UVa challenges
+(http://uva.onlinejudge.org/index.php).
 
-These as well are quite old. Likely not the best of code quality, but they got the job done. Some of them had really exotic test cases if I remember right.
+These as well are quite old. Likely not the best of code quality, but they got
+the job done. Some of them had really exotic test cases if I remember right.
 
 I would appreciate getting back into these. It keeps the mind sharp.
 
