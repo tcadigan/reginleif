@@ -1,0 +1,25 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Pre-requisites
+      run: sudo apt-get install clang-9 bmake
+    - name: Build Your Own Lisp make
+      run: cd byol; bmake -DDISABLE_BEAR CC=clang-9
+    - name: Snobol III make
+      run: cd ./snobol_III; bmake -DDISABLE_BEAR CC=clang-9
+    - name: Nand2Tetris Frontend Assembler make
+      run: cd ./nand2tetris/frontend/assembler; bmake -DDISABLE_BEAR CC=clang-9
+    - name: Nand2Tetris Frontend Virtual Machine make
+      run: cd ./nand2tetris/frontend/virtual-machine; bmake -DDISABLE_BEAR CC=clang-9
