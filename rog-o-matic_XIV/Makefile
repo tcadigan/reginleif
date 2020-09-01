@@ -52,7 +52,7 @@ explore.o: explore.c explore.h command.h debug.h globals.h io.h monsters.h rooms
 	$(CC) -c $(CFLAGS) explore.c
 findscore.o: findscore.c findscore.h install.h utility.h
 	$(CC) -c $(CFLAGS) findscore.c
-gene.o: gene.c install.h learn.h types.h utility.h 
+gene.o: gene.c install.h learn.h types.h utility.h
 	$(CC) -c $(CFLAGS) gene.c
 gene: gene.o learn.o utility.o stats.o rand.o
 	$(CC) $(CFLAGS) -o gene gene.o learn.o utility.o stats.o rand.o $(LDFLAGS)

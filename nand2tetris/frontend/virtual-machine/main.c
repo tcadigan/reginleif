@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <limits.h>
 
 int main(int argc, char *argv[])
 {
@@ -24,7 +25,7 @@ int main(int argc, char *argv[])
 
         return -1;
     }
-    
+
     if(S_ISDIR(buf.st_mode)) {
         char *full_path = (char *)malloc(PATH_MAX + 1);
 
@@ -52,21 +53,21 @@ int main(int argc, char *argv[])
 
         struct dirent *dirp = readdir(dd);
         int first = 1;
-        
+
         while(dirp) {
             if((strncmp(dirp->d_name, ".", strlen(dirp->d_name)) == 0)
                || (strncmp(dirp->d_name, "..", strlen(dirp->d_name)) == 0)) {
                 dirp = readdir(dd);
-                
+
                 continue;
             }
-            
+
             char *suffix = strrchr(dirp->d_name, '.');
-            
+
             if((suffix != NULL) && (strncmp(suffix, ".vm", strlen(suffix)) == 0)) {
                 if(first) {
                     char *folder = strrchr(full_path, '/');
-                    
+
                     if(folder != NULL) {
                         while((*(folder + 1) == '\0') && (folder != NULL)) {
                             *folder = '\0';
@@ -94,19 +95,19 @@ int main(int argc, char *argv[])
 
                 strncpy(file_path, full_path, strlen(full_path));
                 strncpy(file_path + strlen(full_path), "/", strlen("/"));
-                
+
                 strncpy(file_path + strlen(full_path) + strlen("/"),
                         dirp->d_name,
                         strlen(dirp->d_name));
 
                 file_path[strlen(full_path) + strlen("/") + strlen(dirp->d_name)] = '\0';
-                
+
                 construct_parser(file_path);
-                
+
                 while(parser_has_more_commands()) {
                     advance_parser();
                     enum VM_TYPE type = get_command_type();
-                    
+
                     if((type == C_PUSH) || (type == C_POP)) {
                         write_push_pop(type, get_arg1(), get_arg2());
                     }
@@ -138,12 +139,12 @@ int main(int argc, char *argv[])
         }
     }
     else if(S_ISREG(buf.st_mode)) {
-        construct_parser(argv[1]);        
+        construct_parser(argv[1]);
         construct_code_writer(argv[1]);
 
         while(parser_has_more_commands()) {
             advance_parser();
-            
+
             enum VM_TYPE type = get_command_type();
 
             if((type == C_PUSH) || (type == C_POP)) {
@@ -172,8 +173,8 @@ int main(int argc, char *argv[])
             }
         }
     }
-    
+
     close_code_writer();
-    
+
     return 0;
 }

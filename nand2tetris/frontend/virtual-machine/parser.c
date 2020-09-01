@@ -21,7 +21,7 @@ void construct_parser(char *file)
     if(!fd) {
         fprintf(stderr, "Unable to open file \'%s\'", file);
     }
-    
+
     command = (char *)malloc(257);
 
     if(command == NULL) {
@@ -82,12 +82,12 @@ void advance_parser()
         int full = 0;
         int maybe_comment = 0;
         int leading = 1;
-        
+
         while((c != '\n') && !feof(fd)) {
             if(leading) {
                 if((c == '\t') || (c == '\v') || (c == '\f') || (c == ' ')) {
                     c = fgetc(fd);
-                    
+
                     continue;
                 }
                 else {
@@ -122,7 +122,7 @@ void advance_parser()
         command[i] = '\0';
 
         if(command[i - 1] == '\r') {
-            command[i - 1] == '\0';
+            command[i - 1] = '\0';
         }
 
         while(isspace(command[strlen(command) - 1])) {
@@ -190,7 +190,7 @@ char *get_arg1()
     switch(get_command_type()) {
     case C_ARITHMETIC:
         len = 2;
-        
+
         if(!isspace(*(s + 2))) {
             len = 3;
         }
@@ -218,11 +218,11 @@ char *get_arg1()
 
         if(s != '\0') {
             next = s + 1;
-            
+
             while(!isspace(*next) && (*next != '\0')) {
                 next += 1;
             }
-            
+
             result = (char *)malloc(next - s + 1);
 
             if(result == NULL) {
@@ -230,7 +230,7 @@ char *get_arg1()
 
                 return NULL;
             }
-            
+
             strncpy(result, s, next - s);
             result[next - s] = '\0';
         }
@@ -262,7 +262,7 @@ int get_arg2()
         }
 
         return atoi(s + 1);
-        
+
     default:
         return -1;
     }

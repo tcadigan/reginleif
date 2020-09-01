@@ -68,7 +68,7 @@ struct lval{
     char *err;
     char *sym;
     char *str;
-    
+
     /* Function */
     lbuiltin builtin;
     lenv *env;

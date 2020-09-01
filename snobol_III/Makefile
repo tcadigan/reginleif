@@ -1,33 +1,32 @@
-NAME = sno
-SRCS = sno1.c sno2.c sno3.c sno4.c
-OBJS = sno1.o sno2.o sno3.o sno4.o
-CFLAGS = -Wall -Wextra -Werror \
-		 -fno-builtin \
-		 -std=c89 -pedantic \
-	 	 -Wmissing-prototypes -Wstrict-prototypes
+PROG = sno
+CC = clang90
+BEAR = bear -a
 
-all: ${OBJS}
-	${CC} ${CFLAGS} -o ${NAME} ${OBJS}
+.ifdef DISABLE_BEAR
+BEAR =
+.endif
+
+SRCS = sno1.c sno2.c sno3.c sno4.c
+OBJS = ${SRCS:.c=.o}
+
+all: ${PROG}
+
+${PROG}: ${OBJS}
+	${CC} ${CFLAGS} ${LDFLAGS} ${OBJS} -o ${PROG}
 
 clean:
-	rm -rf ${OBJS} ${NAME} *~
+	rm -rf *~ *.o .depend ${PROG}
 
-sno1.o: sno1.c sno1.h
-	${CC} ${CFLAGS} -c -o $@ sno1.c
+depend: ${SRCS}
+	rm -rf .depend
+	${CC} ${CFLAGS} -MM ${SRCS} > .depend
 
-sno2.o: sno2.c sno2.h
-	${CC} ${CFLAGS} -c -o $@ sno2.c
+-include .depend
 
-sno3.o: sno4.c sno3.h
-	${CC} ${CFLAGS} -c -o $@ sno3.c
+SUFFIXES: .c .o
 
-sno4.o: sno4.c sno4.h
-	${CC} ${CFLAGS} -c -o $@ sno4.c
+.c:
+	${BEAR} ${CC} ${CFLAGS} ${.IMPSRC} -o ${.TARGET}
 
-sno1.h: sno.h
-
-sno2.h: sno.h
-
-sno3.h: sno.h
-
-sno4.h: sno.h
+.c.o:
+	${BEAR} ${CC} ${CFLAGS} -c ${.IMPSRC}

@@ -21,7 +21,7 @@ char *int_to_binary(int val)
     for(i = 0; i < 15; ++i) {
         result[i] = ((val & (1 << (14 - i))) >> (14 - i)) + '0';
     }
-    
+
     result[15] = '\0';
 
     return result;
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
 
         return 1;
     }
-    
+
     memcpy(output_filename, argv[1], strlen(argv[1]) - 3);
     strncpy(output_filename + strlen(argv[1]) - 3, "hack", strlen("hack"));
     output_filename[strlen(argv[1]) + 1] = '\0';

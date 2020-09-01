@@ -1,21 +1,32 @@
-PROG=VM
-SRCS=code-writer.c main.c parser.c
-OBJS=code-writer.o main.o parser.o
-CFLAGS=-O0 -g -Wall
+PROG = VM
+CC = clang90
+BEAR = bear -a
 
-all: $(PROG)
+.ifdef DISABLE_BEAR
+BEAR =
+.endif
 
-$(PROG): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $(PROG)
+SRCS = code-writer.c main.c parser.c
+OBJS = ${SRCS:.c=.o}
 
-code-writer.o: code-writer.c code-writer.h
-	$(CC) -c code-writer.c -o code-writer.o
+all: ${PROG}
 
-main.o: main.c code-writer.h parser.h
-	$(CC) -c main.c -o main.o
-
-parser.o: parser.c parser.h
-	$(CC) -c parser.c -o parser.o
+${PROG}: ${OBJS}
+	${CC} ${CFLAGS} ${LDFLAGS} ${OBJS} -o ${PROG}
 
 clean:
-	rm -rf *.o $(PROG) *~
+	rm -rf *~ *.o .depend ${PROG}
+
+depend: ${SRCS}
+	rm -rf .depend
+	${CC} ${CFLAGS} -MM ${SRCS} > .depend
+
+-include .depend
+
+SUFFIXES: .c .o
+
+.c:
+	${BEAR} ${CC} ${CFLAGS} ${.IMPSRC} -o ${.TARGET}
+
+.c.o:
+	${BEAR} ${CC} ${CFLAGS} -c ${.IMPSRC}

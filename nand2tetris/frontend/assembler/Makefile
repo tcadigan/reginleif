@@ -1,24 +1,32 @@
-PROG=assembler
-SRCS=code.c main.o parser.c symbol-table.o
-OBJS=code.o main.o parser.o symbol-table.c
-CFLAGS=-O0 -g -Wall
+PROG = assembler
+CC = clang90
+BEAR = bear -a
 
-all: $(PROG)
+.ifdef DISABLE_BEAR
+BEAR =
+.endif
 
-$(PROG): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $(PROG)
+SRCS = code.c main.c parser.c symbol-table.c
+OBJS = ${SRCS:.c=.o}
 
-code.o: code.c code.h
-	$(CC) -c code.c -o code.o
+all: ${PROG}
 
-main.o: main.c code.h parser.h symbol-table.h
-	$(CC) -c main.c -o main.o
-
-parser.o: parser.c parser.h
-	$(CC) -c parser.c -o parser.o
-
-symbol-table.o: symbol-table.c symbol-table.h
-	$(CC) -c symbol-table.c -o symbol-table.o
+${PROG}: ${OBJS}
+	${CC} ${CFLAGS} ${LDFLAGS} ${OBJS} -o ${PROG}
 
 clean:
-	rm -rf *.o $(PROG) *~
+	rm -rf *~ *.o .depend ${PROG}
+
+depend: ${SRCS}
+	rm -rf .depend
+	${CC} ${CFLAGS} -MM ${SRCS} > .depend
+
+-include .depend
+
+SUFFIXES: .c .o
+
+.c:
+	${BEAR} ${CC} ${CFLAGS} ${.IMPSRC} -o ${.TARGET}
+
+.c.o:
+	${BEAR} ${CC} ${CFLAGS} -c ${.IMPSRC}

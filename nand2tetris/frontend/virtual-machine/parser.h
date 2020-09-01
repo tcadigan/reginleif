@@ -13,7 +13,7 @@ enum VM_TYPE {
     C_CALL
 };
 
-void constructor_parser(char *file);
+void construct_parser(char *file);
 int parser_has_more_commands();
 void advance_parser();
 enum VM_TYPE get_command_type();
