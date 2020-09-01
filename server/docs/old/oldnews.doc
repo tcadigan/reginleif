@@ -1,0 +1,60 @@
+********************************************************************************
+
+10/24/89 ************************* FIRE --- IMPORTANT **************************
+
+         In case yo uhave been upset with the randomness in the fire routine, I
+         tried to implement a change. I will do this in several stages. For the
+         moment everything is completely deterministic, so look at the damages
+         you do (and get) and see if you like them. Comments are appreciated. I
+         will add the random factors later, I think they are necessary but hard
+         for debugging. To save you a lot of experimenting, here is how it
+         works:
+
+         Ships to ships:
+           effstr = (your strength) * FAC / (1 + (dist / DIST))
+           currently FAC = 2, DIST = 300this
+
+           damage = (effstr - (3 * armor)) / 2
+
+           That's it!! Simple enough??
+
+         Planets on planets:
+           (proposed!). There will be no more firing from planets on planets, if
+           you want to attack a planet you should build ships. This will
+           eliminate the common trick of wasting one sector, landing and letting
+           the planet destroy itself.
+
+         Planets on ships:
+           I think I will increase the planet guns back to 40 (or 60???), a
+           planet should be able to vaporize anything that attacks it. Note that
+           the damage on the ship will be calculated as above. These two
+           changes, for the first time, might make planetary defense logical.
+
+         Ships on planets:
+           Same as before, except, you have to be there to attack. Only ORBITING
+           ships will be able to attack planets. This should disallow somebody
+           entering your system to wipe out your planets instantaneously.
+
+6/29/89 - For those of you who haven't noticed, you can tell 'map' or 'orbit' to
+          omit the names of ships, stars, or planets to get a look at objects
+          that may be overprinting others so you can see them. do 'help map' or
+          'help orbit' to see how to do this.
+
+6/26/89 - When you order ships to go to other systems, do not specify planet
+          designations until your ships arrive at the star.
+
+6/23/89 - Just a reminder, don't build ships/objects with a '*' designation in
+          front of them. They haven't been programmed and will just be a waste
+          of resources.
+
+6/22/89 - You must load fuel and crew onto a atmospheric processor 'A' to get
+          them to work. See help in 'build' for details.
+
+6/22/89 - Cargo ships, shuttle, stations, orbital assault platforms, and
+          habitats can be used to construct other ships.
+
+6/21/89 - Teletransporter devices '[' are now working.
+
+6/9/89 - We have installed the new version of Galactic Bloodshed 1.0(osu). This
+         has superior addressing and whatnot from the previous bug-ridden
+         version. It has several new features. Good luck with this one.

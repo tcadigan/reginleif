@@ -1,0 +1,60 @@
+The code is divided into two parts, GB_server.shar which contains this file, and
+GB_client.shar. Most of the user playing the game will just need the client,
+since the server is run at the game site and managed by the host there. Game
+documentation is in the file GB_docs.shar.
+
+If you wish to host a GB game, you must have GB_server.shar, GB_docs and
+GB_client.shar. After unsharing these files (they should be done in separate
+directories!), you can compile and link them by doing 'make'. The Makefile is
+set up for 4.3 BSD Unix, if you are running on a different operating system, you
+may need to change the Makefile to suit your system.
+
+Assuming all goes well, you should have several programs in the server's
+directory, and one program in the client's director (GB_client). In the server's
+directory:
+  GB_enroll
+  GB_server
+  makeuniv
+
+This version of the server has the update clock built into the server. When
+starting up the server, use the following syntax:
+  GB_server [port] [minutes between update] [movement segments per update] &
+For example:
+  GB_server 2010 720 6 &
+Will run the server using port 2010, 720 minutes (6 hours) between updates, and
+6 evenly spaced movement segments (note that an update is counted as a movement
+segment). The program also supports the update password and segment password as
+used in earlier version of the program. I would like to thank Dan Dickey at Cray
+for his help in putting the framework for this together. It is a good idea to
+make your update times a factor of 24 hours and the movement segment interval a
+factor of the update interval. If you want to force an update/segment just
+telnet to the server and enter the update/segment password.
+
+Updates and segments can be forced by the deity by using the '@@update' and
+'@@segment' commands. A 'fix' routine has also been installed for the deity
+player, but still needs some work (you can customize it in shlmisc.c).
+
+Players cannot enroll themselves in this version. The game's host must do that
+by running 'GB_enroll' and following the instructions. It is a good idea to
+bring the game down for this (log in as a God status player and do
+'@@shutdown'). Always make player #1 (the first one enrolled God status, as many
+game functions default to player 1).
+
+Time allocation can be set using the 'reset' command.
+
+Before starting a game you must create a universe for your users to play in. Do
+'makeuniv' and follow the instructions.
+
+Also, be careful about setting up your default paths correctly. Unshar the
+GB_docs.shar file into a subdirectory 'Docs'.
+
+there have been major improvements in the game and serve stability since this
+readme was last updated, much too numerous to expound upon. However, I am always
+open for suggestions, and take a look at the program yourself to help me find
+errors :)
+
+Good luck,
+
+Garrett Warren van Cleef
+vancleef@pooh.caltech.edu
+7/19/91

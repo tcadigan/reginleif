@@ -1,0 +1,107 @@
+#!/usr/bin/expect -f
+#
+# This is an expect script that uses telnet to log into the server (using
+# the CHAP method) and retreive the power report. This script is intended
+# to be driven from cron and dump the output to an email, webpage, newsgroup,
+# etc. In cron, I use a line like the following:
+#
+# 5 18 * * 1 ~/GB+/misc/powerrep.exp | mail -s "Weekly GB Power Report" gbgrp
+#
+# You can use this script as boilerplate for your own offline commands.
+#
+# -Mike Wilkinson (05/04/05)
+
+# Change the following to the host you'll be connecting to
+set hostname "locahost"
+set port 2010
+
+# You need to change the following four variables to reflect the account
+# you'll be using to log in with.
+set racename "OverLord"
+set racepass "hosehead"
+set govname "Ryan"
+set govpass "homeboy"
+
+# This script requires the md5 package from tcllib
+package require md5
+
+# Build our prompt matching regular expression
+set LParen_ {\(}
+set RParen_ {\)}
+set AP_ "\[.*\]"
+set Scope_ "/.*/.*"
+set Any_ ".*"
+set Prompt_ "$LParen_$Any_$AP_$Any_$Scope_$Any_$RParen_"
+
+# Turn off output
+log_user 0
+
+# Start telnet session to server
+spawn telnet $hostname $port
+
+# Using the CHAP method we should see the challenge from the server
+expect -re "CHAP CHALLENGE (.*)\r"
+
+# Get the challenge string
+set challenge $expect_out(1, string)
+
+# Build our response string
+set catstr "$racepass$govpass$challenge"
+
+# Hash the response string
+set hash [md5:md5 $catstr]
+
+# Build the expected response
+set sendstr "CHAP RESPONSE $racename $govname $hash"
+
+# and send it to the server
+send $sendstr\r
+
+# We expect to either see SUCCESS or FAILURE
+expect {
+    "CHAP FAILURE" {send "CHAP ABORT\r"; expect eof; exit}
+    "CHAP SUCCESS" {send "CSP 1110\r"}
+}
+
+# We expect the GB scope prompt
+expect -re $Prompt_
+
+# Ask for the power report
+send "power\r"
+
+# Again we expect the GB scope prompt
+expect -re $Prompt_
+
+# Grab the power report output
+set report $expect_out(0, string)
+send "\r"
+expect -re $Prompt_
+
+# Quit the server
+send "quit\r"
+
+# Expect to be disconnected
+expect eof
+
+# Find the starting and ending positions of the power report
+set fpos [expr [string first "\n" $report] + 1]
+set lpos [expr [string last "\n" $report [expr [string length $report] - 4]] - 1]
+
+# Trim the report (removing the scope prompts)
+set report [string range $report $fpos $lpos]
+
+# Remove all carriage returns
+regsub -all -lineanchor "\r" $report "" report
+
+# Remove the sent 'power' command
+regsub -all "^power\n" $report "" report
+
+# Get rid of VNhl portion of report
+regsub -all -lineanchor " *\[A-z\]*$" $report "" report
+regsub -all -lineanchor " *\[0-9\]*$" $report "" report
+
+# Display the report
+puts $report
+
+# Exit nicely
+exit 0

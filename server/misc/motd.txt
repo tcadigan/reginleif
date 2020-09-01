@@ -1,0 +1,7 @@
+                                          ________________        _
+  G a l a c t i c   B l o o d s h e d     \__(=======/_=_/____.--'-`--.___
+                                                    \ \   `,--,-.___.----'
+          Message Of The Day                      .--`\\--'../
+            (please read)                        '---._____.|]
+
+This is the message of the day file, you'll find it in misc/motd.txt

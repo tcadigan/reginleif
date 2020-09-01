@@ -1,0 +1,65 @@
+gbII 2.5.3
+
+  Hopefully full ANSI complaint. Any problems, _please_ let me know!
+
+gbII 2.5.4
+
+  Fix some problems and made login cleaner for older servers. Also fixes a
+  problem with scope prompts on older servers.
+
+gbII 2.6.0 (Released: 2005-03-01)
+
+  Started with gbII client version 2.5.4 as a codebase. -mfw
+
+  New Features:
+
+  + Implemented CHAP (Challenge Handshake Authentication Protocol) method, if
+    the server is running CHAP plain-test passwords will not be passed across
+    the network. Passwords are MD5 now.
+  + Applied XMAP patch and added commands to activate and deactivate it.
+  + Added CSP orbit functionality (some CSP format changes for this).
+  + Integrated psmap code, dumps to file and/or displays using ghostview.
+  + Added CSP_PAUSE (pauses display scrolling)
+  + Wrote fuse command, gets data via CSP_SHIPDUMP_STATUS and can plot the
+    results using gnuplot.
+  + Now supports ANSI color (set ansi on).
+  + Changes to 'setup' to handle Linux and ask about XMAP.
+  + added emot type to cr, loadf, and proc commands.
+
+  Bug Fixes:
+
+  + Fixed (I think), multiple login attempts and failures, was dying after 2nd
+    login attempt whether or not the password was correct.
+  + Fixed handling of nova and mirror array.
+  + Appending newline in gbsend() now, no need for extra gb_send("\n")
+  + Changes to handling of racegen connections
+  + Fixed multiple socket descriptor bugs when using 'connect' in .gbrc
+
+gbII 2.6.1 (Released: 2006-09-15)
+
+  New Features:
+
+  + Bundled Kari Seppanen's scripts
+  + Uses UTC tags to convert timestamps from server to local time (time, sched)
+  + Scope prompts are now silently eaten
+  + Arrow and Function keys are now bindable
+  + Setup option for Windows environment (Cygwin)
+  + Supports dispatch messaging
+  + Dynamic memory allocation for cspr_orbit()
+  + Lots of changes to code to be 'gcc -Wall' friendly
+  + Can dynamically adjust to window size changes
+  + Added additional discoveries from GB+ server
+  + Faster cspr_orbit() algorithm
+
+  Bug Fixes:
+
+  + Fixed client_hash memory problem (added memset)
+  + changed psmap, it was croping the left in small galaxies
+  + Fixed stability display in orbit map, now accounts for unknown stability
+  + Correct positioning problems of csp orbit at planetary scope
+  + Map formatting problems
+  + Orbit memory overflow problem
+  + xmap fixed to work with csp orbit
+  + Cleaned up memory issues in code using 'valgrin' tools
+  + Color 'bleed' fixed
+  + Fixed 'orbit -p' and 'orbit -S' segfaults

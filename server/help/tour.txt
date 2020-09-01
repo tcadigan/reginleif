@@ -1,0 +1,486 @@
+& tour
+
+{{SUBJECT}}
+  tour -- Newbie tour
+
+{{DESCRIPTION}}
+  This is a tour for new GB players...short introductions of the most important
+commands. This tour is not perfect nor complete, but it tries to give some help
+for new players who are confused with tons of help files. Do not try to play
+only with this tour...this shows only the basic use of some commands. Read the
+other help files too.
+
+  Keep your eyes open in the game and ask from more experienced players. Pretty
+soon you will find your own way to play.
+
+__First Commands, Communication__ (help tour communication)
+__Then We Inhabit Our Planet__    (help tour planet)
+__How About Other Players?__      (help tour players)
+__We Will Build Our First Ships__ (help tour building)
+__Time To Fight__                 (help tour combat)
+__Money, Money__                  (help tour money)
+__Important Ships__               (help tour ships)
+
+& communication
+
+__{{First Commands, Communication}}__
+
+  First commands youw will need are communication commands __broadcast__,
+__send__, __read__
+
+  When you want to say or ask something type
+    {{broadcast (message)}}
+
+and all players currently logged on can 'hear' you. In this example your
+racename is Aliens and your playername is Rookie. Example: (note short form
+of commands broadcast)
+    {{bro How can I examine my planet?}}
+
+  And everyon receives a message:
+    {{Aliens "Rookie" How can I examine my planet?}}
+
+  When question includes secrets you may use send command. Example: (you
+ask your friend, player 5, Predator)
+    {{send 5 How many resources do you have?}}
+
+  Later when Predator answers your receive message
+    {{'Predator 5,0 has sent you a dispatch'}}
+
+  You can read it simply by typing
+    {{read d}}
+
+  You might get answer like this:
+    Predator "Leader" I have 10 resos. How about you?
+
+  Note, every time you send a dispatch you also give a little bit of information
+of your race to the player you send the telegram. So in early stage of game use
+broadcast always when it is possible.
+
+  Second step communication commands are...__page__, __think__, __announce__,
+__post__
+
+& planet
+
+__{{Then We Inhabit Our Planet}}__
+
+  First step inhabiting commands are __map__, __move__, __allocate__,
+__survey__, __analysis__
+
+  OK, you have a planet. What kind of planet do you have? Take a look by
+typing:
+    {{map}}
+
+  Your map might look something like this:
+     {{'Secundus'}}
+       {{00000}}
+       {{01234}}
+
+    {{00 *###^ 00}}
+    {{01 ^#@#^ 01}}
+    {{02 ###^^ 02}}
+
+       {{00000}}
+       {{01234}}
+
+  That @ sector is inhabited by you. Of course you want to inhabit all
+compatible sectors to you (hopefully you are compatible with all sectors in
+your planet), so you need to move your population around. You can move your
+population by typing:
+    {{move (sector) (compass direction) (number of population)}}
+
+  Example: (you want to move two people north from sector 2,1)
+    {{move 2,1 8 2}}
+
+  Compass direction are same if you have in keyboard numberpad. 1 is south-west,
+2 is south, 3 is south-east and so on. Moving people costs __actionpoints__. The
+more you move the more it costs. But in the start you do not have better use for
+your ap:s so SPEND THEM ALL until whole planet is covered. Use also all global
+ap:s. You can transfer global ap:s with allocate command.
+    {{allocate (number)}}
+
+  Example: (if you try to transfer too much, game will tell you the maximum
+possible amount)
+    {{allocate 15}}
+
+  Now you can spend those 15 global ap:s in your homeplanet. Those 15 ap:s are
+no more global...they are your homesystem's ap:s now. The number of people you
+want to move is usually the number of your race's sexes. So in the next update
+they will multiple and you will get more people to move. But do you have enough
+people in the sector from which you want to move some population? You can check
+the sector by typing:
+    {{survey (sector)}}
+
+  Example: (let us test your first sector 2,1)
+    {{surv 2,1}}
+
+  It might tell you this
+    {{x,y cond/type  owner race eff mob frt res mil popn ^popn xtals}}
+    {{2,1   #   #        0    0   7   4  37 183   0   12    22}}
+
+  popn means number of population in the surveyed sector. In this case 12.
+Analysis is a good command when you want to know the best sectors in the planet.
+Type simply:
+    {{analysis}}
+
+  Important note! You WANT to have population in BOTH your command center, @,
+and in the sector in which your command sector resides WHEN the first update
+happens. Your first sector will produce a lot of new residents to your planet
+and command center will generate ap's to move those newborn civilians.
+
+  Second step inhabiting commands are __colonies__, __production__
+
+& players
+
+__{{How About Other Players?}}__
+
+  Information available in game __name__, __victory__, __profile__,
+__personal__,__power__
+
+  You need a name...quess what command can help you? Yes...'name'. You can name
+your 'playername' or re-name your race.
+    {{name governor (name)}}
+    {{name race (name)}}
+
+  Example:
+    {{name governor Rookie}}
+    {{name race Martians}}
+
+  How is the game going? Who is in the lead? Command 'victory' tells you current
+rankings. But...victory list is generated by very complicate calculations and
+some races might get loads of cheap victorypoints. In the early stage of game
+victory gives you nothing more than just list of players. Somewhere after update
+20 you can pay more attention to the rankings in the victory list. To see that
+list simply type:
+    {{victory}}
+
+  Now you know the names of other players...what else do you know about them?
+Type:
+    {{profile (race number)}}
+
+for more information. The more you know about the race the more the profile
+tells you. In the beginning you do not know anything except one personal line
+that players may add into their profile. You can write personal line into your
+race's profile by typing:
+    {{personal (personal message)}}
+
+  Personal message is usually some kind of motto or email address or anything
+you like. Back to the profile...Information about your race is transferred to
+another race when you do something with them. Sending a telegram gives 2%,
+ground combat and assault etc. gives more, and so on. It is usually wise to stay
+as unknown as you can until you know whether the other race is a friend or an
+enemy.
+
+  More important than a victory list is a power list. It tells more detailed
+information about another race's strength. How much power tells depend again of
+how much you know about another races. If you do not yet know 100% server
+approximates the rest, so the more you know the more valid is the information.
+Syntax is simple:
+    {{power}}
+
+  In some spot it becomes important to make visible alliances and begin wars.
+
+  The following comands are needed then. __relation__, __declare__
+
+& building
+
+__{{Soon We Will Build Our First Ships}}__
+
+  Important commands in ship building are __build__, __make__, __modify__
+
+  Q: Now I have 50 resources. What shall I do?
+  A: Build ships.
+    {{build (ship) (sector)}}
+
+  Ship is the ship-type you want. Usually the first one is a factory. Sector
+is the sector onto which you want that ship. Example:
+    {{build F 2,1}}
+
+  Now you have a factory...congratulations. OK...lets say you factory's number
+is #357. What is this factory good for? Nothing yet, but let us make it useful.
+First change scope inside your factory. Because your factory's number is #357,
+say:
+    {{cs #357}}
+
+  Now you have to choose the ship-type you want your factory to make. The best
+choice for the first ship is a shuttle. Say:
+    {{make s}}
+
+(s indicates shuttles). The default mode shuttle is not necessarily the best
+possible model. You can change blueprints of the shuttle with modify command.
+But before we do that let use take a look at current blueprints. Say:
+    {{factory}}
+
+and you see lines like these:
+{{#    Cost Tech Mass Sz A Crw Ful Crg Hng Dst Sp Weapons Lsr CEWs Range Dmg}}
+{{357s   8   5.0  1.4  1 0  10  20  10   0   1  3  1L/---  no ---- ----- 48%*}}
+
+  Modifying the blueprints happesn with modify command, for example:
+    {{modify speed 4}}
+
+if you would like your shuttle to move faster. Hint: You want your shuttle to
+move faster.
+
+  As you see the factory has 48% damage, so it will take a few segments before
+it is ready to produce shuttles. You need to load crew into the factory and
+order it on before it begins to repair itself. So what you need to do is this:
+    {{load #357 crew}}
+    {{order #357 on}}
+
+  When your factory is ready cs in it again and give a command
+    {{build (number)}}
+
+where number is the number of shuttles you want to build. Take a look at
+hyperdrive too...
+
+  Important ships (see also __help ships__)"
+    Spore Pod - This is what you build first if you have the capability
+    Toxic Waste Container - When your planet's toxicity rises too much
+    Factory - The first ship the normal races build
+    Weapons Plant - To produce destruction
+    Governmental Center - No need to build more if your original still exists
+    Ground Telescope - To see what kind of planets exist in your system
+    Space Plow - This will raise your population, build a few and some domes
+    Shuttle - The first step inhabiting craft
+    Dome - When all shuttles are on their way build a lot of these
+    Explorer - The second step inhabiting craft, these can even shoot
+    Missile - One of the main weapons when tech is not very high
+    Terraforming Device - The favorite ship of everyone
+    Atmosphere Processor - Build one on every colony except your home planet
+    Anti-Ballistic Missile Battery - Basic planetary defence equipment
+    Tanker - You will need more fuel than you believe, take advantage of these
+
+  Second step ship construction commands are...__upgrade__, __scrap__
+
+& combat
+
+__{{Time To Fight}}__
+
+  First step combact commands are __tactical__, __fire__, __assault__,
+__capture__
+
+  You see an enemy's ship. If you are in a situation that you want it dead, then
+you can shoot it. First examing the situation. If your destroyer (or whatever
+ship that can shoot) is near the enemy's ship, you can take a tactical report.
+Type
+    {{tactical #357}}
+
+  In this example #357 is your ship's number. You can also use ship-type marker
+like this:
+    {{tactical d}}
+
+where d means all destroyers. OK...if enemy is near enough and you have
+destruction, you can shoot it.
+    {{first #357 #911}}
+
+where #911 is the number of the enemy's ship. Maybe you do not hit or destroy it
+and in that case just fire again.
+
+  If you do not want to shoot enemy's ship you can try assualt. First steer your
+ship next to enemy
+    {{order #357 dest #911}}
+
+This movement takes one or more segments. (you had better have faster ship than
+the pursued one.) But when ships are next to each others...
+    {{assualt #357 #911 (number) (what)}}
+
+(what) is mil or civ, and depends from what you have on board. (number) is the
+number of attackers. Note: the target ship gets one free shot when you
+assault...so your assault might stop sooner than you hope. If enemy ship is
+landed on your sector you can try to capture it. Type
+    {{capture #911 (number) [(what)]}}
+
+(what) is mil or civ, mil being default, so if you try to capture the ship with
+mil, you do not have to specify it. (number) is the number of attackers.
+
+  Second step combat commands are __bombard__, __defend__, __deploy__
+
+& money
+
+__{{Money, Money}}__
+
+  First step commands concerning money are: __tax__, __technology__,
+__treasury__
+
+  You need money. How to get money? Ever heard about taxes? So, tax your
+population. Taxing has few disadvantages. Your production on taxed planets
+suffers and taxed planets become more vulnerable to civil revolts financied by
+your enemy. The more population you have on a planet the more money that planet
+will produce. So do not tax too small colonies or use too high taxrate. Example:
+    {{tax 20}}
+
+  Now your colony's tax rate closes to 20% with speed of 5%/update. How can you
+use your money? The most important use is the tech investment. Give money to
+your colonies so that they gain technology for your race. You notice quite soon
+that one colony can not produce much technology, so spread and get many
+colonies. And how much money can you use? Type:
+    {{treasury}}
+
+and you see how much money you have, how much you gained and how much you spent
+last update. Most ships and all troops requires some maintenance money and rest
+of expenses are tech investments. Just figure out how much you can afford into
+tech investments and then split and invest it on your empire like this:
+    {{cd /System/Planet}}
+    {{tech (amount of money}}
+
+  Also figure out how opttech works.
+
+  Second step commands concerning money are...__pay__, __transfer__, __sell__
+
+& ships
+
+__{{Important Ships}}__
+
+  These are the ships you need to be familiar with first.
+
+__Spore Pod__ (This is what races with pods build first)
+
+  This is a small seed pod grown by a mesomorphic race and is used primarily to
+colonize other planets. A Pod can be landed like a normal ship upon reaching a
+destination. however, a Pod can also be warmed by a star, causing it to explode,
+possibly seeding a random planet in that start system. Deterioration builds up
+in a Pod and will eventually cause it to decay. Pods usually last around four
+updates.
+
+__Toxic Waste Container__ (When planet's toxicity rises too much)
+
+  This is a sealed container used to store environmental poisons. When toxicity
+of a planet becomes too high, constructing one of these containers will reduce
+the poison level by 20%. If the contains is breached, however, the toxic waste
+inside it will escape.
+
+__Factory__ (The first ship that normal races build)
+
+  A Factory is built to produce other ships. To see a list of ships which must
+be built in a Factory, see the help topic 'build'. After being built, descend to
+the ship's scope and specify the ship type this Factory will be able to produce
+with the 'make' command. The stats of the ship to be produced can then be
+modified by using the 'modify' command. Finally, the Factory must be ordered
+online with the 'order' command. Once activated it cannot be turned off, nor can
+the specification of the ships it is to manufacture be altered in any way.
+
+  A Factory is built with 75% damage. This represents the time it will take to
+start up production. Damage will repair itself during movement segments
+automatically. To begin repairing however the ship must first be ordered 'on'.
+
+  See '__help build__' for more information regarding factories.
+
+__Weapons Plant__ (To produce destruction)
+
+  This installation produces destruct. Players feed the plant resources and
+fuel, and these are converted into destruct during each update. Each destruct
+produced costs one fuel and one resource point. The maximum amount of destruct
+a fully manned and undamaged plant can produce in one update is given by the
+owner's current technology divided by two. This ship is built with 75% damage.
+Construction must be completed manually.
+
+__Governmental Center__ (No need to build more if original still exist)
+
+  This represents the seat of government of an entire civilization. Although
+superficially a ship, it is not designed to be moved; if your capitol is not
+landed on a planet, it produces no action points. However it can be launched
+and landed like any other ship should an emergency arise. If a capitol is
+destroyed another one must be designated with the 'captiol' command. Note that
+it is possible to maintain more than one government center; this has no benefit
+beyond serving as a backup in the case of destruction of the current captiol.
+This ship is built with 75% damage. construction must be completed manually.
+
+__Ground Telescope__ (To see what kind of planets exists in the system)
+
+  This is a ground based astronomical facility. It is able to survey the nearest
+planets for mapping purposes. The tech level of a race determines the
+telescope's range at build time. Ranges for telescopes built before the next
+update are listed in a race's profile.
+
+  Usage: order i aim (target planet)
+
+__Space Plow__ (This will rise your population. Build a few of these along with
+                domes when all shuttles are on their way)
+
+  This type of ship allows you to increase the fertility of sectors. Once
+activated and given a move command (see the command 'order' for more help), a
+fully manned and undamaged plow will increase the fertility of each sector
+traveres by 10%. If it reaches the north or south of the planet map, it will
+bounce off and continue. There is also a jump option to move Plow automatically
+into own low fertility sector. The Space Plow uses two fuel per update. Plowing
+can increase the toxicity level on a planet.
+
+__Shuttle__ (The first step inhabiting craft)
+
+  This is a small, short-range spacecraft, intended for exploration and for
+shuttling things between ground and orbit. This ship is also useful for
+assembling other ships in space, as resources can be transferred from another
+ship using the load command until it is carrying more than the maximum cargo.
+The Shuttle, however, cannot take off or land with this extra cargo. Shutles are
+one of the few classes of ships that can construct other ships.
+
+__Dome__ (When all shuttles are on their way build a lot of these, except if you
+          are a jovian)
+
+  This ship can be used to increase sector efficiencies. At maximum crew the
+efficieny an undamaged Dome can increase the efficiency by 5% per update. A Dome
+must be switched on to be effective. If a Dome is set to autoscrap (with the
+'order' command), the Dome will be automatically scrapped upon reaching a sector
+efficiency of 100%. There is a jump option for Dome to make it automatically
+jump into own low efficiency sector. A dome uses one resource per update.
+
+__Explorer__ (The second step inhabiting craft after shuttles. These can even
+              shoot :))
+
+  This is a small and fast exploration craft with some armor. It has increased
+range over shuttle and it's the smallest shiptype capable to jump. It is more
+heavily armed than a shuttle. This is not a ship to tangle warships, although it
+is rather ideal for armed recon.
+
+__Missile__ (One of the main weapons when tech is not yet very high. The larger
+             group, the better effectivity)
+
+  This weapon can be used to attack enemy planets or ships. In order to attack
+with a missile, they must be launched and then given a destination. If the
+destination is a ship it will detonate upon reaching the enemy ship. If the
+destination is a planet, the missile will impact on the desginated sector. See
+help on 'order' for designating missile impact coordinates. A missile may be
+designated to impact a specific sector, or may be allowed to randomly hit the
+planet. A missile aimed for a planet will automatically switch its target to any
+Planetary Defense Networks protecting the planet. The only automatic defense
+against missiles is the ABM battery.
+
+__Terraforming Device__ (The favourite ship of everyone)
+
+  This device alters the surface of a planet to better suit its owner. Once
+activated and given a move command (see the command 'order' for more help), the
+Terraforming Device moves each update to a new position, altering sectors as it
+goes. It will move first, then terraform, so that it will not destroy the sector
+on which it was built. And sector terraformed will have its efficiency and
+mobilization count reduced to 0. 'Gas' sectors can not be terraformed to any
+other type of sector, but not vice versa. Terraforming requires three fuel per
+update. Terraforming can increase the toxicity level of a planet.
+
+__Atmosphere Processor__ (Build one on every colony except on your home planet)
+
+  This is a large machine (of the type in {{Aliens}}) that sucks in the
+atmosphere of a planet, converting it to the type of air preferred by its owner.
+You must load crew into these objects for them to operate. The device also must
+be activated with the order command. Larger planets take longer to convert than
+smaller planets. The Processor uses three fuel units per turn.
+
+__Anit-Ballistic Missile Battery__ (Basic planetary device equipment along
+                                    with G)
+
+  This unit represent a battery of guns which can be used to attempt to down
+incoming aline missiles. If activated, each battery will fire at the
+predesignated salvo strength at each missile in orbit around the planet it is
+based upon during each update. The defensive fire is evaluated after missile
+movement, but before impact is evaluated. ABMs represent a last line of defense
+against missile attackes and are executed automatically. The more batteries a
+planet has the more change of intercepting and incoming missile. This ship is
+built with 50% damage. Construction must be completed manually.
+
+__Tanker__ (You will need more fuel than you believe, take advantage of these)
+
+  This ship can carry large amonuts of fuel and moderate amounts of other
+commodities. In addition, it can also collect fuel at a high rate, which is
+one fifth of tanker's fuel capacity, by orbiting a gas giant. They have very
+small gunnery strengths and light armor, but since they are relatively huge they
+have a lot of staminal strength against attacks.
+
+  Take a look at all other ships too. __ships__

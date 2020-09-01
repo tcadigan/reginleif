@@ -1,0 +1,109 @@
+FIRE                    Galactic Bloodshed                      FIRE
+
+NAME
+  [1] fire -- Shoot at an enemy planet or ship
+
+SYNOPSYS
+  fire
+
+DESCRIPTION
+  Fire attempts to use stockpiled destructive capacity from one place, to give
+damage to another.
+
+  Fire will prompt the user for both. The damage given is proportional to the
+amount of destructive capacity used, and inversely proportional to the distance
+between them and the armor class (if the defender is a ship) of the victim ship.
+
+  If the object being fired upon is a planet fire will prompt for a sector at
+which to aim; If the object being fired from is a planet, fire will ask for a
+sector from which to fire (this must be a sector owned by the player, for the
+target will attempt to fire back if it can). The player will be informed how
+badly damaged the target is (if this is a planet, the number of sectors
+destroyed). Badly damaged sectors can be rendered uninhabitable for some
+time. The blast radius on the target planet is inversely proportional to the
+strength of the shot and the distance between the attacker and target. Sectors
+that are mobilized will be damaged to a lesser extend; a 100% mobilized sector
+will be damaged 1/2 as much as a 0% mobilized sector.
+
+  At this point the target will attempt to fire back at the originating area
+(ship or sector) with twice the strength of the attacking player, if it can. If
+more than one player inhabits a planet, each player that was affected by the
+attack, and does not belong to the attacking player, will attempt to return fire
+at twice the attacking strength.
+
+SEE ALSO
+  tactical, mobilize
+
+> From VANCLEEF@MPS.OHIO-STATE.EDU Sun Nov 12 14:26:40 1989
+Received: from ohstyp.mps.ohio-state.edu bu ucscb.UCSC.EDU (5.61/1.34)
+        id AA12847; Sun, 12 Nov 89 14:26:24 - 0800
+Message-Id: <8911122226.AA12847@ucscb.UCSC.EDU>
+Date: Sun, 12 Nov 89 17:25 EST
+From: VANCLEEF@MPS.OHIO_STATE.EDU
+Subject: fire description
+To: smq@ucscb.UCSC.EDU
+X-Vms-To: In%"smq@ucscb.ucsc.edu"
+Status: RO
+
+
+please send me the original files and not the shar file.
+it makes it much more difficult to incorporate these changes
+for me. we will still converge on the same results either
+way.
+
+i have the new fire routine which has been tested and works quite well.
+
+here is how is works.
+
+a player fires N guns at another ship. basically, each gun is
+evaluated whether it has hit or missed. after this damage is evaluated.
+
+here is how i calculate the number of hits (N being the maximum).
+
+there are several factors which are taken into consideration:
+
+1: the size of the target, bigger targets are easier to hit
+   (represented by body = ShipData[type][ABIL_TARGET])
+
+2: the speed of the target and the speed of the firing ship
+
+3: whether or not evasive maneuvers have been ordered by either
+   ship (these represent erratic motions of the ships
+   ordered to make the ship harder to hit)
+
+4: the range to the target, the farther the away it is the harder it
+   is to land a hit.
+
+basically a ship at 0 range should get hit by everything and a ship
+infinitely away gets 0 hits.
+
+the hit probability/shot goes like this
+
+hit prob = 100 / (1 + (r / factor)^2)
+
+as r->0 hit prob = 100 and as r->infty hit prob = 0.
+
+the square factor is a normal field of view dispersion ("radiation law")
+
+what is factor? factor is the range where the hit prob = 50%
+
+that is what we calculate with the other factors involved.
+
+factor = 20 * body / (1 + firing ship evades) / (1 + target evades)
+         / (1 + target speed + firing speed).
+
+motion by either ship affects the hit probability adversely
+(including evasiove actions which is 1 (yes) or 0.
+
+a hit percentage is evaluated and each ship and the number of hits is computed.
+
+the damage to the ship is then evaluated
+
+damage = 30 * (hits - armor) / body.
+
+the armor factor (Shipdata[type][ABIL_ARMOR]) represent how many
+hits a ship can take per salvo without suffering any damage.
+if hits > armor, the ships take damage.
+
+the amount of % damage a ship takes depends on the size of the
+vessel. a bigger ship gets less percentage damage than a small ship.
