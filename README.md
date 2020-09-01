@@ -1,3 +1,5 @@
+![build](https://github.com/tcadigan/challenges/workflows/.github/workflows/build.yml/badge.svg)
+
 # Project Euler
 
 Once upon a time in a galaxy far far away...
