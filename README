@@ -1,0 +1,147 @@
+Larn is a dungeon type game program. Larn is an adventure/action game similar
+in concept to rogue or hack, but with a much different feel.
+Try it, you'll like it!
+
+You will have to edit the Maefile to reflect your configuration. Define
+LARNHOME as the place where the Larn auxiliary files will reside, and BINDIR as
+the place where the Larn executable should be placed. Type "make" to compile,
+or "make all" to compile and install ("make install" does just the install).
+
+Here's a list of what is in each of the various source files:
+
+Fixed.Bugs        This is a list of the things that were changed since version
+                  11.0
+Makefile          Makefile script to compile the program
+Make.lint         Makefile script to run Larn sources through lint
+README            This is what you are now reading
+bill.c            Code for the letters of praise if player wins
+config.c          Data definitions for the installation dependent data --
+                  savefilenames, where the scorefiles are, etc.
+create.c          Code to create the dungeon and all objects
+data.c            Data definitions for the game -- no code here
+diag.c            code to produce diagnostic data for wizards, and savegame
+                  stuff
+display.c         Code to update the display on the screen
+fortune.c         Code for the fortune cookies
+global.c          Code for globally used functions that are specific to Larn
+header.h          Constant and structure definitions
+help.c            Code for the help screens in the game of Larn
+.holidays         Data file which lists upcoming holidays
+io.c              Code to handle file and terminal i/o
+.larn.help.uue    Larn help file (UUENCODED)
+.larnmaze         Data file for pre-made mazes
+.larnopts         A sample .larnopts option data file
+.lfortune         Data file which contains the hints
+main.c            Code for the main command control and parsing
+monster.c         Code to handle attack and defense modes with monsters
+moreobj.c         Code for the fountains, altars, thrones
+movem.c           Code to move the monsters around the dungeon
+nap.c             Code to sleep for less than a second
+object.c          Code to handle objects in the dungeon
+regen.c           Code to regenerate the player and advance game time
+savelev.c         Code to get/put a level from level storage int working level
+                  memory
+scores.c          Code to process and manager the scoreboard
+signal.c          Code to handle UNIX signals that are trapped
+store.c           Code for the Larn thrift shoppe, bank, trading post, lrs
+tok.c             Code for the input front end and options file processing
+
+To find out how to play the game, run it and type in a '?' to get the help
+screens. By the way, the wizard's password is 'pvnert(x)" and to become wizard
+type in an underscore, you are then prompted for the password. Wizards are
+non-scoring characters that get enlightenment, everlasting expanded awareness,
+and one of every object in the game. They help the author to debug the game.
+
+Note regarding the wizard id: If you areusing userid's, then WIZID must be set
+to the userid of the person who can become wizard. If yo uare using player
+id's, WIZID must be set to the playerid (edit file .playerids if needed) of the
+player who can become wizard.
+
+You may want to clear out the scoreboard. The command "larn -c" will make a new
+scoreboard. It will prompt you for the wizard's password.
+
+BUGS & FIXES:
+
+James McNamara has volunteered to maintain the latest sources, and provide
+latest bug fixes to anyone who asks. Both James and I will field requests for
+sources, for those who ask.
+
+                     ___    Prince of Gems (alias Noah Morgan)
+                    /.  \   USENET: panda!condor!noah
+                    \   /   at GenRad Inc. Bolton MA
+                     \ /
+                      v
+
+Below is some additional info about the installaion of Larn:
+
+Install: Notes on the game Larn installation.
+Larn is copyrighted 1986 by Noah Morgan.
+this file (below) originally by James D. McNamara, last update 7/27/86 by nm
+
+THIS DISTRIBUTION:
+
+     You should receive six (6) shar files, which are:
+
+     larn.part-1
+     larn.part-2
+     larn.part-3
+     larn.part-4
+     larn.part-5
+     larn.part-6
+
+I.   Use /bin/sh (or your system equivalent) to "unravel" shar files
+     larn.part-1, ..., larn.part-6. I suggest you do this directly
+     into $LARNHOME (See Section III.). Notable files:
+
+     README   -    The author's how-to.
+     MANIFEST -    Files your should have.
+
+III. Edit a copy of "Makefile" and leave the edited version of $LARNHOME.
+
+     All the "configuration" options are tidily near the top of the "Makefile."
+     Here are the ones you probably will want to edit:
+
+     LARNHOME    I specified (literally) the directory, with path from root, 
+                 where "larn" will reside. This included where I put the *.c
+		 files, it is where the *.o files ended up, as well as all data
+		 and *.h files. I suspect the *.c and 
+ 		 installation-documentation files can be moved off, but the
+		 data and bits must all remain here for execution.
+
+     BINDIR      I specified (literally) the directory, with path from root,
+                 where the executable "larn" will reside. The "Makefile" will
+		 dump the "a.out", named "larn", in this director. My BINDIR
+		 was not my LARNHOME, so $BINDIR/larn was the ONLY file
+		 dumped here. You'll probably have to chmod it for public
+		 execute, etc.
+
+     OPTIONS     This is how *I* specified them... they are documented in-line:
+                 OPTIONS = -DWIZARD -DWIZID=157 -DEXTRA -DBSD -DSAVEINHOME
+
+IV.  Compile the bugger. Read "README" before you do. You have a couple of
+     options here:
+
+     make         -    Will not install, suspect good for updates.
+     make all     -    Compile (and) install
+     make install -    Just install
+
+     I did "make" and then "make install" -- seems to work "ok", but "make all"
+     probably safer, if I had known. Note that "Makefile" is the default file
+     for "make".
+
+V.   Execute and have fun. If wizard code "ok", larn -c will refresh the 
+     scoreboard. Play and iwn (or get killed) to put somebody on the
+     scoreboard.
+
+VI.  BUGS and FIXES.
+
+     Please forward any bug-fixes in these regards to me (or Noah), so I may
+     compile a fix-list for other installers. Thanks.
+
+Regards,
+===============================================================================
+James D. McNamara                  CSNET:     jim@bu-cs
+                                   ARPANET:   jim%bu-cs@csnet-relay
+				   UUCP:      ...harvard!bu-cs!jim
+                                   BITNET:    jim%bu-cs%csnet-relay.arpa@wiscvm
+===============================================================================
