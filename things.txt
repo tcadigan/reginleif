@@ -1,0 +1,107 @@
+Here are some message you may get (and their meanings) when playing the game:
+
+your hands begin to glow red -
+    Scroll of confuse monster
+the [room hallway] is light (by a shimmering blue light) -
+    Scroll of light
+your [armor] glows faintly for a moment -
+    Scroll of enchant armor
+you fall asleep -
+    Scroll of sleep
+you hear a faint cry of anguish in the distance -
+    Scroll of create monster (which has failed to create a monster)
+    *** A scroll of create monster has a randomized chance of succeeding ***
+    *** If no monster is created, you get this message                   ***
+identify what --more-- -
+    Scroll of identify
+oh now this scroll has a map on it -
+    Scroll of magic mapping
+you begin to feel greedy and you sense gold -
+    Scroll of gold detection
+you feel a pull downward -
+    Scroll of gold detection, but no gold on current level
+your [weapon] glows blue for a moment -
+    Scroll of enchant weapon
+you feel a strange sense of loss -
+    Scroll of enchant [weapon or armor] but you aren't [wearing any or
+    wielding one]
+you hear a maniacal laughter in the distance -
+    You read a scroll of scare monster which invalidates the scroll
+as you pick up the scroll it turns to dust -
+    You tried to retrieve a scroll of scare monster
+you feel as if someone is watching over you -
+    Scroll of remove curses
+you hear a high pitched humming noise -
+    Scroll of aggravate monster
+this scroll seems to be blank -
+    You read a NOP scroll
+you have been granted the boon of genocide -
+    Lucky you!
+wait, what's going on there... -
+    Potion of confusion
+you feel very sick -
+    Potion of poison
+you feel momentarily sick -
+    Potion of poison, but you're wearing a ring of retain strength
+you feel better -
+    Potion of healing (also restores sight if blind)
+you begin to sense the presence of monsters -
+    Potion of monster detection
+you sense the presence of magic on this level -
+    Potion of magic detection
+you have a strange feeling for a moment, then it passes -
+    Potion of [monster or magic] detection, but none remaining on this level
+you can't move -
+    Potion of paralysis
+this potion tastes like [fruit] juice -
+    Potion of see invisible
+you suddenly feel much more skillful -
+    Potion of raise skill (experience)
+you begin to feel much better -
+    Potion of extra healing
+you feel yourself moving much faster -
+    Potion of haste self
+hey, this tastes great... -
+    Potion of restore strength
+a cloak of darkness falls around you -
+    Potion of blindness (uh-oh)
+this potions tastes extremely dull -
+    NOP potion
+what a bizzare schtick -
+    You just zapped with a do nothing stick
+you have a tingling feeling -
+    You just zapped a staff of drain life, but there were no monsters to
+    drain life from
+you are too weak to use it -
+    You tried to zap with a staff of drain life but you don't have enough
+    hit points left (you must have 2 or more)
+    *** A staff of drain life works by reducing YOUR hit points in half, and ***
+    *** taking the same amount, divided evenly, from all the monsters in the ***
+    *** room. So it's best to use drain life staff in a room with only one   ***
+    *** monster, or better yet, in a hallway, to get most effectiveness.     ***
+
+When zapping with an unknown stick (generic term for staff, wand, rod), you
+may get any of the following responses:
+
+nothing happens -
+    Your stick is all used up
+" " (no response) -
+    Any of the following my be true:
+    staff of haste monster
+    staff of slow monster
+    staff of polymorph (but a monster will change to another monster)
+    staff of teleport away (but the monster disappears, temporarily)
+    staff of teleport to (but now you're next to the monster(!))
+    staff of cancellation (This removes a monster's ability to do an of its
+                           evil magic on you. The following monsters are
+                           thusly affected:
+
+                           Rust Monsters  cannot ruin your armor
+                           Floating Eyes  cannot transfix you
+                           Giant Ants     cannot sting you
+                           Wraiths        cannot drain your energy
+                           Violet Fungi   cannot hold you
+                           Leprechauns    cannot steal your gold
+                           Nymphs         cannot steal your magic items
+
+                           But apparently Umber Hulks can still confuse you)
