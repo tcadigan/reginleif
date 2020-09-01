@@ -4,7 +4,7 @@
 GAME = hack
 CAPGAME = HACK
 GAMEDIR = ../tmp
-CFLAGS = -O -g -Wall 
+CFLAGS = -O -g -Wall
 LDFLAGS = -lcurses -ltermcap -lc -lm
 CSOURCES = alloc.c hack.apply.c hack.bones.c hack.c hack.cmdlist.c hack.Decl.c \
            hack.do.c hack.dog.c hack.do_name.c hack.do_wear.c hack.eat.c \
@@ -82,7 +82,7 @@ mklv.o_init.o: hack.o_init.c def.objects.h hack.onames.h
 	$(CC) -c $(CFLAGS) -DMKLEV mklv.o_init.c
 	rm -f mklv.o_init.c
 
-mklv.savelev.o: savelev.c 
+mklv.savelev.o: savelev.c
 	rm -rf mklv.savelev.o
 	ln savelev.c mklv.savelev.c
 	$(CC) -c $(CFLAGS) -DMKLEV mklv.savelev.c
@@ -138,10 +138,10 @@ distribution: Makefile
 install:
 	rm -f /usr/games/$(CAPGAME)
 	cp $(GAME) /usr/games/$(CAPGAME)
-	# chmod 0710 /usr/games/$(CAPGAME)
+        # chmod 0710 /usr/games/$(CAPGAME)
 	chmod 7411 /usr/games/$(CAPGAME)
 	rm -f $(GAMEDIR)/mklev
-	# chmod 0750 $(GAMEDIR)/mklev
+        # chmod 0750 $(GAMEDIR)/mklev
 	chmod 0751 $(GAMEDIR)/mklev
 	rm -f $(GAMEDIR)/bones*
 

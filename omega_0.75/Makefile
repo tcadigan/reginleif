@@ -7,7 +7,7 @@ SRCS = oabyss.c oaux1.c oaux2.c oaux3.c o.c ochar.c ocity.c ocom1.c ocom2.c \
        ofile.c ogen1.c ogen2.c oguild1.c oguild2.c ohouse.c oinv.c oitem.c \
        oitemf1.c oitemf2.c oitemf3.c olev.c ommelee.c ommove.c omon.c omove.c \
        omovef.c omspec.c omstrike.c omtalk.c opriest.c osave.c oscr.c osite1.c \
-       osite2.c ospell.c otime.c otrap.c outil.c ovillage.c 
+       osite2.c ospell.c otime.c otrap.c outil.c ovillage.c
 
 OBJS = oabyss.o oaux1.o oaux2.o oaux3.o o.o ochar.o ocity.o ocom1.o ocom2.o \
        ocom3.o ocountry.o oeffect1.o oeffect2.o oeffect3.o oenv.o oetc.o \
