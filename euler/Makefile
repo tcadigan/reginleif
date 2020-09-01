@@ -14,7 +14,7 @@ EULER = euler_1 euler_2 euler_3 euler_4 euler_5 euler_6 euler_7 euler_8 \
         euler_94 euler_95 euler_96 euler_97 euler_98 euler_99 euler_100 \
         euler_101 euler_102 euler_145 euler_206
 
-CXX = clang++80
+CXX = clang++90
 
 SRCS = ${EULER:=.cpp}
 OBJS = ${SRCS:.cpp=.o}
