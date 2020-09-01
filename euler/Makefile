@@ -15,24 +15,18 @@ EULER = euler_1 euler_2 euler_3 euler_4 euler_5 euler_6 euler_7 euler_8 \
         euler_101 euler_102 euler_145 euler_206
 
 CXX = clang++90
-BEAR = bear -a
 
-.ifdef DISABLE_BEAR
-BEAR =
+.ifndef DISABLE_BEAR
+BEAR = bear -a
 .endif
 
-SRCS = ${EULER:=.cpp}
-OBJS = ${SRCS:.cpp=.o}
+all: ${EULER}
 
-all: ${OBJS}
+${EULER}: ${.TARGET:=.o}
+	${CXX} ${CXXFLAGS} ${.TARGET:=.o} -o ${.TARGET:=}
 
 clean:
 	rm -rf *~ *.o ${EULER}
 
-SUFFIXES: .cpp .o
-
-.cpp:
-	${BEAR} ${CXX} ${CXXFLAGS} ${.IMPSRC} -o ${.TARGET}
-
 .cpp.o:
-	${BEAR} ${CXX} ${CXXFLAGS} -c ${.IMPSRC}
+	${BEAR} ${CXX} ${STATIC_CXXFLAGS} ${CXXFLAGS} -c ${.IMPSRC} -o ${.TARGET}

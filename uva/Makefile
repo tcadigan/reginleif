@@ -8,25 +8,18 @@ UVA = uva_100 uva_101 uva_102 uva_108 uva_111 uva_112 uva_113 uva_120 uva_123 \
       uva_10633 uva_10783 uva_10785 uva_10815 uva_10878
 
 CXX = clang++90
-BEAR = bear -a
 
-.ifdef DISABLE_BEAR
-BEAR =
+.ifndef DISABLE_BEAR
+BEAR = bear -a
 .endif
 
-SRCS = ${UVA:=.cpp}
-OBJS = ${SRCS:.cpp=.o}
+all: ${UVA}
 
-
-all: ${OBJS}
+${UVA}: ${.TARGET:=.o}
+	${CXX} ${CXXFLAGS} ${.TARGET:=.o} -o ${.TARGET:=}
 
 clean:
 	rm -rf *~ *.o ${UVA}
 
-SUFFIXES: .cpp .o
-
-.cpp:
-	${BEAR} ${CXX} ${CXXFLAGS} ${.IMPSRC} -o ${.TARGET}
-
 .cpp.o:
-	${BEAR} ${CXX} ${CXXFLAGS} -c ${.IMPSRC}
+	${BEAR} ${CXX} ${STATIC_CXXFLAGS} ${CXXFLAGS} -c ${.IMPSRC} -o ${.TARGET}
