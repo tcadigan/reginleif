@@ -27,7 +27,7 @@ clean:
 SUFFIXES: .cpp .o
 
 .cpp:
-	bear ${CXX} ${CXXFLAGS} ${.IMPSRC} -o ${.TARGET}
+	bear -a ${CXX} ${CXXFLAGS} ${.IMPSRC} -o ${.TARGET}
 
 .cpp.o:
-	bear ${CXX} ${CXXFLAGS} -c ${.IMPSRC}
+	bear -a ${CXX} ${CXXFLAGS} -c ${.IMPSRC}
