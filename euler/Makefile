@@ -15,10 +15,10 @@ EULER = euler_1 euler_2 euler_3 euler_4 euler_5 euler_6 euler_7 euler_8 \
         euler_101 euler_102 euler_145 euler_206
 
 CXX = clang++90
-BEAR=bear -a
+BEAR = bear -a
 
 .ifdef DISABLE_BEAR
-BEAR=
+BEAR =
 .endif
 
 SRCS = ${EULER:=.cpp}

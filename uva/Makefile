@@ -8,10 +8,10 @@ UVA = uva_100 uva_101 uva_102 uva_108 uva_111 uva_112 uva_113 uva_120 uva_123 \
       uva_10633 uva_10783 uva_10785 uva_10815 uva_10878
 
 CXX = clang++90
-BEAR=bear -a
+BEAR = bear -a
 
 .ifdef DISABLE_BEAR
-BEAR=
+BEAR =
 .endif
 
 SRCS = ${UVA:=.cpp}
