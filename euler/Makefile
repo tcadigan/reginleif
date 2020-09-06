@@ -15,6 +15,11 @@ EULER = euler_1 euler_2 euler_3 euler_4 euler_5 euler_6 euler_7 euler_8 \
         euler_101 euler_102 euler_145 euler_206
 
 CXX = clang++90
+BEAR=bear -a
+
+.ifdef DISABLE_BEAR
+BEAR=
+.endif
 
 SRCS = ${EULER:=.cpp}
 OBJS = ${SRCS:.cpp=.o}
@@ -27,7 +32,7 @@ clean:
 SUFFIXES: .cpp .o
 
 .cpp:
-	bear -a ${CXX} ${CXXFLAGS} ${.IMPSRC} -o ${.TARGET}
+	${BEAR} ${CXX} ${CXXFLAGS} ${.IMPSRC} -o ${.TARGET}
 
 .cpp.o:
-	bear -a ${CXX} ${CXXFLAGS} -c ${.IMPSRC}
+	${BEAR} ${CXX} ${CXXFLAGS} -c ${.IMPSRC}

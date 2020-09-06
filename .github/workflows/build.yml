@@ -1,0 +1,21 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Pre-requisites
+      run: sudo apt-get install clang-9 bmake
+    - name: UVa make
+      run: cd uva; bmake -DDISABLE_BEAR CXX=clang++-9
+    - name: Project Euler make
+      run: cd ./euler; bmake -DDISABLE_BEAR CXX=clang++-9
