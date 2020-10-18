@@ -20,25 +20,7 @@ private:
   void dumpRegisters();
   void dumpMemory();
   void setRegister(unsigned short a, unsigned short val);
-  unsigned short getRegister(unsigned short reg);
-  void add(unsigned short a, unsigned short b, unsigned short c);
-  void multiply(unsigned short a, unsigned short b, unsigned short c);
-  void mod(unsigned short a, unsigned short b, unsigned short c);
-  void out(unsigned short val);
-  void set(unsigned short a, unsigned short b);
-  void read(unsigned short a, unsigned short b);
-  void write(unsigned short a, unsigned short b);
-  void equal(unsigned short a, unsigned short b, unsigned short c);
-  void greater(unsigned short a, unsigned short b, unsigned short c);
-  void bitwiseAnd(unsigned short a, unsigned short b, unsigned short c);
-  void bitwiseOr(unsigned short a, unsigned short b, unsigned short c);
-  void bitwiseNot(unsigned short a, unsigned short b);
-  void push(unsigned short a);
-  void pop(unsigned short a);
-  void call(unsigned short a, unsigned short next);
-  void jump(unsigned short val);
-  void jumpTrue(unsigned short a, unsigned short b, unsigned short next);
-  void jumpFalse(unsigned short a, unsigned short b, unsigned short next);
+  unsigned short translateAddress(unsigned short address);
 
   bool disassemble;
   short ip;
@@ -53,7 +35,6 @@ private:
   std::vector<unsigned short> memory;
   std::stack<unsigned short> stack;
   std::stringstream internal_buf;
-  std::vector<std::pair<int, int>> exclude_ranges;
   std::vector<unsigned short> breakpoints;
 };
 
@@ -121,7 +102,7 @@ void VirtualMachine::execute()
 		  << decodeLocation(memory[ip + 1]) << " "
 		  << decodeLocation(memory[ip + 2]) << std::endl;
       } else {
-	set(memory[ip + 1], memory[ip + 2]);
+	setRegister(memory[ip + 1], translateAddress(memory[ip + 2]));
       }
 
       ip += 3;
@@ -132,7 +113,7 @@ void VirtualMachine::execute()
 	std::cerr << ip << ":\tPUSH "
 		  << decodeLocation(memory[ip + 1]) << std::endl;
       } else {
-	push(memory[ip + 1]);
+	stack.push(translateAddress(memory[ip + 1]));
       }
 
       ip += 2;
@@ -143,7 +124,14 @@ void VirtualMachine::execute()
 	std::cerr << ip << ":\tPOP "
 		  << decodeLocation(memory[ip + 1]) << std::endl;
       } else {
-	pop(memory[ip + 1]);
+	if (stack.empty()) {
+	  std::cout << "EMPTY STACK!" << std::endl;
+
+	  exit(1);
+	}
+
+	setRegister(memory[ip + 1], stack.top());
+	stack.pop();
       }
 
       ip += 2;
@@ -156,7 +144,11 @@ void VirtualMachine::execute()
 		  << decodeLocation(memory[ip + 2]) << " "
 		  << decodeLocation(memory[ip + 3]) << std::endl;
       } else {
-	equal(memory[ip + 1], memory[ip + 2], memory[ip + 3]);
+	if (translateAddress(memory[ip + 2]) == translateAddress(memory[ip + 3])) {
+	  setRegister(memory[ip + 1], 1);
+	} else {
+	  setRegister(memory[ip + 1], 0);
+	}
       }
 
       ip += 4;
@@ -169,7 +161,11 @@ void VirtualMachine::execute()
 		  << decodeLocation(memory[ip + 2]) << " "
 		  << decodeLocation(memory[ip + 3]) << std::endl;
       } else {
-	greater(memory[ip + 1], memory[ip + 2], memory[ip + 3]);
+	if (translateAddress(memory[ip + 2]) > translateAddress(memory[ip + 3])) {
+	  setRegister(memory[ip + 1], 1);
+	} else {
+	  setRegister(memory[ip + 1], 0);
+	}
       }
 
       ip += 4;
@@ -182,7 +178,7 @@ void VirtualMachine::execute()
 
 	ip += 2;
       } else {
-	jump(memory[ip + 1]);
+	ip = translateAddress(memory[ip + 1]);
       }
 
       break;
@@ -194,7 +190,11 @@ void VirtualMachine::execute()
 
 	ip += 3;
       } else {
-	jumpTrue(memory[ip + 1], memory[ip + 2], ip + 3);
+	if (translateAddress(memory[ip + 1]) != 0) {
+	  ip = translateAddress(memory[ip + 2]);
+	} else {
+	  ip = ip + 3;
+	}
       }
 
       break;
@@ -205,7 +205,11 @@ void VirtualMachine::execute()
 		  << decodeLocation(memory[ip + 2]) << std::endl;
 	ip += 3;
       } else {
-	jumpFalse(memory[ip + 1], memory[ip + 2], ip + 3);
+	if (translateAddress(memory[ip + 1]) == 0) {
+	  ip = translateAddress(memory[ip + 2]);
+	} else {
+	  ip = ip + 3;
+	}
       }
 
       break;
@@ -216,7 +220,9 @@ void VirtualMachine::execute()
 		  << decodeLocation(memory[ip + 2]) << " "
 		  << decodeLocation(memory[ip + 3]) << std::endl;
       } else {
-	add(memory[ip + 1], memory[ip + 2], memory[ip + 3]);
+	setRegister(memory[ip + 1],
+		    (translateAddress(memory[ip + 2])
+		     + translateAddress(memory[ip + 3])) % 32768);
       }
 
       ip += 4;
@@ -229,7 +235,9 @@ void VirtualMachine::execute()
 		  << decodeLocation(memory[ip + 2]) << " "
 		  << decodeLocation(memory[ip + 3]) << std::endl;
       } else {
-	multiply(memory[ip + 1], memory[ip + 2], memory[ip + 3]);
+	setRegister(memory[ip + 1],
+		    (translateAddress(memory[ip + 2])
+		     * translateAddress(memory[ip + 3])) % 32768);
       }
 
       ip += 4;
@@ -242,7 +250,9 @@ void VirtualMachine::execute()
 		  << decodeLocation(memory[ip + 2]) << " "
 		  << decodeLocation(memory[ip + 3]) << std::endl;
       } else {
-	mod(memory[ip + 1], memory[ip + 2], memory[ip + 3]);
+	setRegister(memory[ip + 1],
+		    (translateAddress(memory[ip + 2])
+		     % translateAddress(memory[ip + 3])));
       }
 
       ip += 4;
@@ -255,7 +265,9 @@ void VirtualMachine::execute()
 		  << decodeLocation(memory[ip + 2]) << " "
 		  << decodeLocation(memory[ip + 3]) << std::endl;
       } else {
-	bitwiseAnd(memory[ip + 1], memory[ip + 2], memory[ip + 3]);
+	setRegister(memory[ip + 1],
+		    (translateAddress(memory[ip + 2])
+		     & translateAddress(memory[ip + 3])));
       }
 
       ip += 4;
@@ -268,7 +280,9 @@ void VirtualMachine::execute()
 		  << decodeLocation(memory[ip + 2]) << " "
 		  << decodeLocation(memory[ip + 2]) << std::endl;
       } else {
-	bitwiseOr(memory[ip + 1], memory[ip + 2], memory[ip + 3]);
+	setRegister(memory[ip + 1],
+		    (translateAddress(memory[ip + 2])
+		     | translateAddress(memory[ip + 3])));
       }
 
       ip += 4;
@@ -280,7 +294,8 @@ void VirtualMachine::execute()
 		  << decodeLocation(memory[ip + 1]) << " "
 		  << decodeLocation(memory[ip + 2]) << std::endl;
       } else {
-	bitwiseNot(memory[ip + 1], memory[ip + 2]);
+	setRegister(memory[ip + 1],
+		    ~translateAddress(memory[ip + 2]) & 0x7FFF);
       }
 
       ip += 3;
@@ -292,7 +307,8 @@ void VirtualMachine::execute()
 		  << decodeLocation(memory[ip + 1]) << " "
 		  << decodeLocation(memory[ip + 2]) << std::endl;
       } else {
-	read(memory[ip + 1], memory[ip + 2]);
+	setRegister(memory[ip + 1],
+		    memory[translateAddress(memory[ip + 2])]);
       }
 
       ip += 3;
@@ -304,7 +320,7 @@ void VirtualMachine::execute()
 		  << decodeLocation(memory[ip + 1]) << " "
 		  << decodeLocation(memory[ip + 2]) << std::endl;
       } else {
-	write(memory[ip + 1], memory[ip + 2]);
+	memory[translateAddress(memory[ip + 1])] = translateAddress(memory[ip + 2]);
       }
 
       ip += 3;
@@ -317,7 +333,8 @@ void VirtualMachine::execute()
 
       	ip += 2;
       } else {
-	call(memory[ip + 1], ip + 2);
+	stack.push(ip + 2);
+	ip = translateAddress(memory[ip + 1]);
       }
 
       break;
@@ -343,7 +360,7 @@ void VirtualMachine::execute()
 	std::cerr << ip << ":\tOUT "
 		  << decodeLocation(memory[ip + 1]) << std::endl;
       } else {
-	out(memory[ip + 1]);
+	std::cout << static_cast<char>(translateAddress(memory[ip + 1]));
       }
 
       ip += 2;
@@ -467,7 +484,7 @@ void VirtualMachine::dumpRegisters()
   std::cout << "===== DEBUG =====" << std::endl;
 
   for (unsigned short i = 32768; i <= 32775; ++i) {
-    std::cout << decodeLocation(i) << ": " << getRegister(i) << std::endl;
+    std::cout << decodeLocation(i) << ": " << translateAddress(i) << std::endl;
   }
 
   std::cout << "=================" << std::endl;
@@ -514,7 +531,7 @@ void VirtualMachine::debugDumpBinary()
   output.write(reinterpret_cast<char *>(&ip), sizeof ip);
 
   for (unsigned short i = 32768; i <= 32775; ++i) {
-    unsigned short val = getRegister(i);
+    unsigned short val = translateAddress(i);
     output.write(reinterpret_cast<char *>(&val), sizeof val);
   }
 
@@ -620,9 +637,13 @@ void VirtualMachine::setRegister(unsigned short a, unsigned short val)
   }
 }
 
-unsigned short VirtualMachine::getRegister(unsigned short reg)
+unsigned short VirtualMachine::translateAddress(unsigned short address)
 {
-  switch(reg - 32768) {
+  if (address < 32768) {
+    return address;
+  }
+
+  switch(address - 32768) {
   case 0:
 
     return reg0;
@@ -648,235 +669,9 @@ unsigned short VirtualMachine::getRegister(unsigned short reg)
 
     return reg7;
   default:
-    std::cout << "UNKNOWN REGISTER: " << (reg - 32768) << std::endl;
+    std::cout << "UNKNOWN REGISTER: " << (address - 32768) << std::endl;
 
     exit(1);
-  }
-}
-
-void VirtualMachine::add(unsigned short a, unsigned short b, unsigned short c)
-{
-  if (b >= 32768) {
-    b = getRegister(b);
-  }
-
-  if (c >= 32768) {
-    c = getRegister(c);
-  }
-
-  unsigned short result = (b + c) % 32768;
-
-  setRegister(a, result);
-}
-
-void VirtualMachine::multiply(unsigned short a, unsigned short b, unsigned short c)
-{
-  if (b >= 32768) {
-    b = getRegister(b);
-  }
-
-  if (c >= 32768) {
-    c = getRegister(c);
-  }
-
-  unsigned short result = (b * c) % 32768;
-
-  setRegister(a, result);
-}
-
-void VirtualMachine::mod(unsigned short a, unsigned short b, unsigned short c)
-{
-  if (b >= 32768) {
-    b = getRegister(b);
-  }
-
-  if (c >= 32768) {
-    c = getRegister(c);
-  }
-
-  setRegister(a, b % c);
-}
-
-void VirtualMachine::out(unsigned short val)
-{
-  if (val >= 32768) {
-    val = getRegister(val);
-  }
-
-  std::cout << static_cast<char>(val);
-}
-
-void VirtualMachine::set(unsigned short a, unsigned short b)
-{
-  if (b >= 32768) {
-    b = getRegister(b);
-  }
-
-  setRegister(a, b);
-}
-
-void VirtualMachine::read(unsigned short a, unsigned short b)
-{
-  if (b >= 32768) {
-    b = getRegister(b);
-  }
-
-  setRegister(a, memory[b]);
-}
-
-void VirtualMachine::write(unsigned short a, unsigned short b)
-{
-  if (b >= 32768) {
-    b = getRegister(b);
-  }
-
-  if (a >= 32768) {
-    a = getRegister(a);
-  }
-
-  memory[a] = b;
-}
-
-void VirtualMachine::equal(unsigned short a, unsigned short b, unsigned short c)
-{
-  if (b >= 32768) {
-    b = getRegister(b);
-  }
-
-  if (c >= 32768) {
-    c = getRegister(c);
-  }
-
-  if (b == c) {
-    setRegister(a, 1);
-  } else {
-    setRegister(a, 0);
-  }
-}
-
-void VirtualMachine::greater(unsigned short a, unsigned short b, unsigned short c)
-{
-  if (b >= 32768) {
-    b = getRegister(b);
-  }
-
-  if (c >= 32768) {
-    c = getRegister(c);
-  }
-
-  if (b > c) {
-    setRegister(a, 1);
-  } else {
-    setRegister(a, 0);
-  }
-}
-
-void VirtualMachine::push(unsigned short a)
-{
-  if (a >= 32768) {
-    a = getRegister(a);
-  }
-
-  stack.push(a);
-}
-
-void VirtualMachine::pop(unsigned short a)
-{
-  if (stack.empty()) {
-    std::cout << "EMPTY STACK!" << std::endl;
-
-    exit(1);
-  }
-
-  setRegister(a, stack.top());
-  stack.pop();
-}
-
-void VirtualMachine::bitwiseAnd(unsigned short a, unsigned short b, unsigned short c)
-{
-  if (b >= 32768) {
-    b = getRegister(b);
-  }
-
-  if (c >= 32768) {
-    c = getRegister(c);
-  }
-
-  setRegister(a, b & c);
-}
-
-void VirtualMachine::bitwiseOr(unsigned short a, unsigned short b, unsigned short c)
-{
-  if (b >= 32768) {
-    b = getRegister(b);
-  }
-
-  if (c >= 32768) {
-    c = getRegister(c);
-  }
-
-  setRegister(a, b | c);
-}
-
-void VirtualMachine::bitwiseNot(unsigned short a, unsigned short b)
-{
-  if (b >= 32768) {
-    b = getRegister(b);
-  }
-
-  setRegister(a, ~b & 0x7FFF);
-}
-
-void VirtualMachine::call(unsigned short a, unsigned short next)
-{
-  if (a >= 32768) {
-    a = getRegister(a);
-  }
-
-  stack.push(next);
-
-  ip = a;
-}
-
-void VirtualMachine::jump(unsigned short val) {
-  if (val >= 32768) {
-    val = getRegister(val);
-  }
-
-  ip = val;
-}
-
-void VirtualMachine::jumpTrue(unsigned short a, unsigned short b, unsigned short next)
-{
-  if (a >= 32768) {
-    a = getRegister(a);
-  }
-
-  if (b >= 32768) {
-    b = getRegister(b);
-  }
-
-  if (a != 0) {
-    ip = b;
-  } else {
-    ip = next;
-  }
-}
-
-void VirtualMachine::jumpFalse(unsigned short a, unsigned short b, unsigned short next)
-{
-  if (a >= 32768) {
-    a = getRegister(a);
-  }
-
-  if (b >= 32768) {
-    b = getRegister(b);
-  }
-
-  if (a == 0) {
-    ip = b;
-  } else {
-    ip = next;
   }
 }
 
