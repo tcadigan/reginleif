@@ -19,7 +19,7 @@ CPPFILES = buildingBox.cpp build.cpp camera.cpp car.cpp decoration.cpp \
 	       gl-vector2.cpp gl-vertex.cpp \
 
 ${NAME}: $(HDRS) $(OBJS)
-	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME) $(LDFLAGS) 
+	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME) $(LDFLAGS)
 
 clean:
 	rm -rf $(OBJS) $(NAME)
