@@ -1,4 +1,7 @@
 .*~
-compile_commands.json
 .ccls-cache
 .clang-format
+.jekyll-metadata
+.sass-cache
+_site
+compile_commands.json
