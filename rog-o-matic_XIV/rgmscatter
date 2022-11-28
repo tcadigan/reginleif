@@ -1,0 +1,11 @@
+#!/bin/sh
+
+#
+# rplot: Rog-O-Matic XIV (CMU) Tue Fev 5 13:52:48 1985 - mlm
+# Copyright (C) 2015 by A. Appel, G. Jacobson, L. Hamey, and M. Mauldin
+#
+./.rogomatic/bin/rogomatic -s | \
+    colrm 48 | \
+    ./.rogomatic/bin/datesub | \
+    sort -u +2n -0n +1n +4n +5 | \
+    ./.rogomatic/bin/rgmplot $*

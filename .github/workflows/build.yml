@@ -19,3 +19,11 @@ jobs:
       run: cd uva; bmake -DDISABLE_BEAR CXX=clang++-9
     - name: Project Euler make
       run: cd ./euler; bmake -DDISABLE_BEAR CXX=clang++-9
+    - name: Build Your Own Lisp make
+      run: cd byol; bmake -DDISABLE_BEAR CC=clang-9
+    - name: Snobol III make
+      run: cd ./snobol_III; bmake -DDISABLE_BEAR CC=clang-9
+    - name: Nand2Tetris Frontend Assembler make
+      run: cd ./nand2tetris/frontend/assembler; bmake -DDISABLE_BEAR CC=clang-9
+    - name: Nand2Tetris Frontend Virtual Machine make
+      run: cd ./nand2tetris/frontend/virtual-machine; bmake -DDISABLE_BEAR CC=clang-9
