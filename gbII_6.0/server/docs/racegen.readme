@@ -1,0 +1,14 @@
+Racegen is a program to construct races for Galactic Bloodshed. It is available
+at pooh.caltech.edu in the /src/games/gb director as racegen.shar. (For detail
+on how to get and compile racegen, see racegen.novice-info. If you do not have
+this file, ask your game host for it)
+
+The easiest way to learn how to use racegen is to use it. Start it up. Type,
+"help" to see more info on the available commands. The main command you will use
+is "modify". Try modifying a few things: "modify fight 6", "modify name Demons",
+"modify pass whatnot". You can save races ("save") and work on them later
+("load"); you can also print what the screen shows to files. When you are done
+with you race, typing "send" will dispatch it to whatever address is found in
+game_info.h as TO.
+
+For more information on what racial attributes mean, see races.doc.

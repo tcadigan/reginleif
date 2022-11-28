@@ -1,0 +1,204 @@
+GB+ 6.0a (Released: 03/01/05)
+
+ Started with GB+ server version HUT-5.1.1 as a codebase. -mfw
+
+ New features:
+
+ + Implemented CHAP (Challenge Handshake Authentication Protocol) so plain-text
+   passwords are not passed across the network. Passwords are MD5 now.
+ + Added Von Neumann machines from original GB (with changes and bug fixes).
+ + Implemented 'fleets', an idea from HAP. However, this implementation is
+   accomplished in a difference manner.
+ + Wrote guardian program to launch GB server and keep it running in case of
+   crash. Manages core files and emails GB admin.
+ + Wormholes from the Treehouse code (with some changes and bug fixes).
+ + Added the 'garbled communication' feature from HAP (almost identically). Uses
+   words from Klingon dictionary for fun.
+ + SETI ship from HAP, will this be useful? (testing)
+ + Changed cloak algorithm so cloaking only occurs during segments/updates
+ + Frigates and Gunboats (renamed Corvettes) from HAP
+ + Many changes to csp_orbit to work with gbII changes.
+ + Finished coding the channel command left unfinished from original GB.
+ + Added smashup algorithm to makeplanet from orginal GB. However, this really
+   is not needed. I've left it available as an option to makeuniv.
+ + Added MOTD page and CSP_PAUSE command.
+ + Created @last to show the last IP and time for a Race/Gov connection.
+ + Added additional provisions for color characters on map and orbit.
+ + Wrote help pages for each God command and CSP: help admin
+ + Added 'First Combat' feature from Jekyl & Hyde.
+ + Fixed the 'bug' command. Also formatting changes to bugrep.txt output. User
+   may also display the bug report with the 'bug report' now.
+ + Daemons will create PID files in the Log directory now.
+ + Wrote gbctl script to control starting/stopping/status of all daemons.
+ + AP cost for Race, Gov, Planet, and Star (if allowed) name changes.
+ + Ship aging routines from HAP (some ships now require periodic upgrades).
+ + Added HAP's refinery, but probably should be part of Infrastructure now.
+ + Population may revolt due to too-high taxes.
+ + Added the Dreaded Space Amoeba from original GB (needs more testing).
+ + Updated the exam.dat file. Whew!
+ + Help pages for shout, exship, and psmap.
+ + Added smart guns from HAP (needs more testing, see 'order' command).
+ + The exship command now shows the Vns mind attributes.
+ + Planets start with 0 popn, gov ship must be unloaded to populate planet.
+ + The makeuniv program now outputs to universe.txt by default.
+ + Automated backup scheduling (added this because I'm lazy).
+
+ Bug fixes:
+
+ + pod.c: Meso propagation bug fix, could have ended up X+1.
+ + exploration() now gives error if no argument is given.
+ + Got rid of Dhuttle, it was an inside joke for HUT games.
+ + Fix to can_aim(), see code comments.
+ + Left MAXMOONS alone, not bug, just unused code.
+ + Launch command now works without arg at ship level scope.
+ + Added remove_sh_fleet() to kill_ship() to prevent 'ghost' ships.
+ + Fixed update suspension using 'nogo' file; notifies players now.
+ + Fixed memory problem with command_bits, configure script now detects char and
+   int sizes and allocates command_bits appropriately.
+ + changed appoint command to require gov name (for CHAP reasons).
+ + Fixed gcc compaints about deprecated functions; updated to new functions.
+ + Changed several fprintfs on stderr to debug() output instead.
+ + Moved help pages from Doc to Help (for organizing reasons).
+ + Fixed garble code chat_static to work appropriately.
+ + Changed GB_racegen's help to reflect the mode it is running in. It won't show
+   help for options not available in the current mode.
+ + Fixed '\c' problems in Makefile. GNU make choked on these.
+ + Renamed executables GB -> GB_server; racegen -> GB_racegen; guardian ->
+   GB_guardian. This is just for 'ps -aef | grep GB' convenience.
+ + 'already logged in' message now works. Added cleardes() and shutdown_socket().
+ + 'fixed @boot command to boot the correct descriptor (augmenting 'which').
+ + We want core dumps on Linux, ulimit -c set in gbctl, configure updated.
+ + Changes to Makefile.SH to clean forgotten .o files.
+ + Changes to Makefile.SH to make linking of .a files more Linux-friendly.
+ + Fixed configure script to remember some missing options (like port number).
+ + Fixed backup.sh script to not backup full paths.
+ + 'toggle client' now gives feedback output.
+ + Fixed nova display code in orbit.c and doplanet.c
+ + Wormhole name display problem with orbit command, fixed.
+ + 'center' command now gives feedback output.
+ + Fixed GB_racegen PID spawn problem, now updates PID file for each instance.
+ + Now preventing duplicate or close-to-duplicate names when renaming planets
+   and/or stars (if allowed).
+ + Fixed memory size problems in 'special' portion of ships array.
+ + Problem with cloacking logic in doship.c, fixed.
+ + Many bug fixes with VN behavior.
+ + Fixed 'no applicable ship pal' message, now displays as required.
+ + Fixed login abort (quit) bug where server would shutdown.
+
+GB+ 6.0b (Released: 09/15/06)
+
+ New features:
+
+ + Added @freeships command for maintenance of free ships list.
+ + Cloaking device may be selected at factories now.
+ + Added game closed/open feature to allow for maintenance windows.
+ + Improved command-line argument handling (using getopt).
+ + New schedule handler, look at misc/schedule.cfg'.
+ + The combat update is settable via 'configure' now.
+ + Created an offline 'gbwho' command.
+ + 'fuel' command now also shows damage per segment from deep space.
+ + Player is given notice when morale suffers from lack of funds.
+ + Added 'cs next' and 'cs prev' for hopping to the next colony scope.
+ + Damaged ships may explode upon launch.
+ + Deity has unrestricted used of the 'distance' command.
+ + Atmospheric Processors can give reports.
+ + Jovian races may terraform water sectors on jovian planets to gas.
+ + Water races may terraform gast sectors on jovian planets to water. (Yeah,
+   this is weird, but it forces jovian races into the fight)
+ + In the racegen, jovian races may now set a preference on water sectors.
+ + Jovian races may not terraform anything on a non-jovian planet.
+ + 'tactical' behavior and formatting changes.
+ + VNs leave if planetary resources are exhausted.
+ + VNs die if they get stuck (no res, not fuel) and can't recover.
+ + Fancy new message dispatch system 'read dispatches'.
+ + Nomad defined added (2 popn can always survive on a sector), off by default.
+ + Access control list feature added (like tcp_wrappers).
+ + autopurge toggle added for telegrams and dispatches.
+ + Bugs are now reported via dispatches.
+ + Atmosphere change rates take the size of planet into account.
+ + Added the @vnbrain admin command.
+
+ Bug fixes:
+
+ + Numerous documentation corrections (typos and updates).
+ + GB_racegen no longer charges for 1 sex when choosing metamorphs (they're
+   locked into it, not fair to charge them for something they can't change).
+ + The faq command is no longer a restricted command. Oops! :)
+ + fixed memory free bug with new VNs, also cleaned up VN creation code.
+ + Updated the Amoeba creation code to the VN's algorithm.
+ + Scrap bug fixed where ship was removed before commodities recovered.
+ + Move 'chat level' after 'current players' to not confuse gbII's watch4.
+ + Fixed planet and star number consistency issues.
+ + 'fuel' now rounds finer, this fixes incorrect optimal value for small fuel.
+ + Exit wormhole is not set as explored and set as destination.
+ + Changed debug() function to use va_list correct; output works now.
+ + Removed 2nd (redundant) TAX_PROTEST check.
+ + Fixed memory error with 'cs //'.
+ + Fixed bug with INF consuming more resources than planet stockpile has.
+ + command_bits overflow problem fixed in client.c.
+ + orbit() no longer uses globals to pass settings/flags.
+ + Potential overflow with 'actives' fixed.
+ + @emulate logout/blocking bug fixed.
+ + strcat bug fixed in infrastructure report, also changed format.
+ + Pods may pass seeds through wormholes now (instead of populating them).
+ + Fixed error in planetpopulation @fix command.
+ + Fixed uncleared buffer problem in send_telegram.
+ + Fixed planet explored bit in wormhole traversal.
+ + changed ship crashing code in 'land' to be more sane.
+ + Straightened out core in remove_sh_fleet, shouldn't core now.
+ + Bug fixed in memory free() associated with landing ships in other ships.
+ + shipno range problem in rst() fixed.
+ + Atmospheric technology now discovered properly.
+ + Overflow file routines fixed to work with mkstemp.
+ + Scrap no longer costs morale, unless crew is destroyed.
+ + Infinite loop problem fixed in moveplanet().
+ + Infrastructure doing too many or too few sectors has been fixed.
+ + Double free on planet fixed in land() routine.
+ + Numerous memory leaks fixed with the help of the valgrind utility.
+ + nextship sanity checking routine added.
+ + Automatic toxic waste container creation repaired.
+ + Added 'fix star' utility to the @fix command, updated help.
+ + Fuel use bug in usep_fuel() fixed.
+ + Fixed diety lurking on 'who' list.
+ + Bug in valid_ship could core dump if durn had not happened, fixed.
+ + initialize_ship wasn't called in some cases, fixed.
+ + Population tally after ship to planet attack fixed.
+ + Wrong message being sent to attacked for missile impact.
+ + Fixed habitat problem where only habitats could build habitats.
+ + Aging messages made to be more clear on intent.
+ + Combined Bombard() and bombard() into bombard() and auto_bom() getting rid of
+   the redundancies of the first two.
+
+GB+ 6.0c (Work In Progress)
+
+  Placed under GNU Public License with Robert Chansky's permission (07/20/05)
+
+  New features:
+
+  + Deity may use order command for any ship.
+  + Added @uptime command for admin use.
+  + Guest races are mostly protected from attack now.
+  + A minimum bid can be set when adding items to the market.
+  + Guardian changes to come down with the @shutdown command.
+  + Revamped entire help system to use indexed files.
+  + Changes to berserkers to balance their power more evenly with players.
+  + 'build ? <lowtech>:<hightech>' gives a tech range for ships.
+  + Added options parser under command handler; commands may have flags now.
+  + Tactical command has many different options available, updated help too.
+  + Guest race is protected from attacks.
+  + GU_guardian won't run as a priv user, gbctl will su to a non-priv user.
+
+  Bug fixes:
+
+  + In vn.c planet pointer may not be assigned in some cases. Fixed.
+  + Crew size of battleship fixed to allow max guns.
+  + Fixed atmos ending up more than 100% (sanity check and formula change).
+  + Hangars must be empty before scrapping a ship.
+  + Tax protesting is not so aggressive or random.
+  + Waste container initialization handled properly.
+  + getsector() success/failure return condition.
+  + PDNs retaliate from Berserker attacks.
+  + Segfaulting on 'register' storage class in client.c, removed class.
+  + Updated discoveries in profile sections.
+  + Fixed bug where @fix command would read in wrong sector.
+  + To prevent lots res scrap can't be done at ship scope.

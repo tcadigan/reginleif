@@ -1,0 +1,26 @@
+Sometimes that database file will bload, this is because more records are
+written out to the db than actually exist. I first noticed this in the 'ships'
+db, however, I think I nailed this bug. Now, however, I'll see the occasional
+bloated 'sector' db file. I've modified the C programs I originally wrote to fix
+the 'ships' db to work with the 'sector' db. The following is some instructions
+on how to fix a bloated sector file should you see this bug. -Mike W.
+
+--
+
+1. Compile and run the 'scope' command; record where the bad sector was found.
+2. Copy the 'sector' file to the working directory (this directory).
+3. Adjust the position in the repair.c file, compile and run.
+4. Put the fixed sector back under Data.
+
+--
+
+To fix the sectormappos of a planet:
+
+1. Put the x,y sizes of each planet into sect.txt with the 'x' replaced with '*'
+2. Find your planet's x,y size in question.
+3. Delete it and everything after it in sect.txt
+4. Run 'sectit.sh > sect.tot'
+5. Run 'tally.sh'
+6. Multiple this value by 20 (the size of a sectortype) to get the position
+7. Start gbII and cs to the planet in question
+8. @fix planet sectormappos <position>

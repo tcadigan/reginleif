@@ -1,0 +1,29 @@
+********************************************************************************
+
+Here is how the new repair of ships works:
+
+In order to repair x% damage on your ship you need:
+  0.005 * x * (cost of ship)
+resources on it. If you have those a maximum of 50% of damage will be repaired
+in one turn. If you have less, the damage repairs will be proportionally
+decreased. After having calculated how much repair you can afford, the program
+checks how much crew you have to do it. Again, a fully populated ship will
+repair at a maximum rate, with proportional decreases when you have fewer
+people.
+
+In order to make this feasible, the cargo capacity of the ships has been
+increased by 1/2 the cost of the ship. This means you can repair 100% of the
+damage (of course you can't repair a destroyed ship) before reloading.
+
+Sometime in the future, I will set the repair such that a random percentage of
+damage is inflicted automatically each turn (0-5%). This damage is due to normal
+wear and tear. You will have to stockpile your ships sufficiently in order to
+keep them in shape and you will have to resupply them when you send them half
+across the galaxy. Right now this would be tedious, so I will implement a
+'reful' command, which will 'beam' resources, destruct and fuel between two
+ships within 500 distance units. It will automatically load 100% of resources,
+100% of fuel and 100% of dest from one ship to the other. Wait for news on this
+it is not operational yet.
+
+Good luck.
+********************************************************************************

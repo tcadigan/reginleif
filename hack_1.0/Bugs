@@ -1,0 +1,6 @@
+- The locking system is ridiculous
+- The acces of record should be locked
+- Record should be encrypted
+- The level files and the save file should be encrypted and stores in the
+  user's directory
+- For vaxen: mklev should be incorporated in Hack

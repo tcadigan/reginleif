@@ -1,0 +1,36 @@
+These are some ideas expressed by players during the course of a game or
+two. I've written them down here as possible future projects.  -Mike
+<mike@towerravens.com>
+
++ Add blackholes to galaxy scope as a galactic obstacle. They're added like
+  stars, however, invisible, they suck up a ship when it gets within an
+  EVENT_HORIZON radius.
+
++ Superpod conversion to pod swarm/carrier/cluster; pods are bundled together
+  and break into individual pods upon reaching a solar system.
+
++ Items won on the market should be picked up. 'trader ships'?
+
++ What's involved in doing an 'order protect fleet'?
+
++ Read this for some older ideas:
+  http://www.niksula.cs.hut.fi/~jkoi/gb/games/aldan.post.html
+
++ Infrastructure machines need serious reworking. For example, we should
+  reinstate the atmospheric processor at the very least, and implement some
+  limitations on either the number of atoms, or the setting on the atmo (perhaps
+  based on the number of sectors a planet has). An idea here is that infs use AP to
+  operate instead of resources, and they somehow make planet management easier
+  (coordinate atmos, domes, plows, etc.).
+  NOTE: This is my current focus (Mike, 09/15/06)
+
++ Moons. Orbit around planet, no sectors, however a ship can land on it (much
+  like landing in a hanger). Obviously we need a LEVEL_MOON, and this is a big
+  addition. But what purpose could a moon serve? It should have some value and
+  unique properties to make them desireable and interesting, not just a curiosity.
+
++ Division of game into four phases Exploration, Expansion, Exploitation, and
+  Extermination. These phases have no effect on gameplay, they are simple marker
+  points to help players judge the process of the game and how far along they are
+  in it. For example, the initial phase is Exploration and it moves into
+  Expansion once say 80% of the stars or planets have their explored bit set.

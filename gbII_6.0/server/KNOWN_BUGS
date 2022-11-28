@@ -1,0 +1,17 @@
+This version contains the following known bugs. Please don't report them. You
+are, however, welcome to submit patches. Please report any other bugs you may
+find. When submitting a bug please provide a copy of your Data directory and
+instructions how to replicate its behavior.
+-Mike <mike@towerravens.com>
+
++ Extinct races should be marked as such and nothing should happen anymore.
+
++ Berserkers, they're not kill all PDNs before bombarding.
+
++ Player 1 getting double messages for Berserker attacks on PDNs.
+
++ Mines aren't losing destruct after detonation.
+
++ Look at Nova, sectors aren't getting wasted, last stage didn't display array.
+
++ 'order bombard' needs to be finished in doship, and in Help/order

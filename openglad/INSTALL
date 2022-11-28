@@ -1,0 +1,11 @@
+These are the installation instructions for Openglad.
+
+INSTALL
+=======
+
+1. Unpack the tarball into some directory
+2. In the openflag directory, run "make"
+
+=======
+
+openglad is the game binary, openscen is the scenario editor.

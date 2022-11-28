@@ -1,0 +1,352 @@
+GALATIC BLOODSHED INTRODUCTION
+by Maury Markowitz, 2000.
+
+History
+
+    Released on: 1989
+    Comments: Almost the ultimate 4X game.
+    Authors: (many...)
+      SERVER -
+      GB: Robert P. Chansky, Garret Van Cleef, Brian Scearce
+      HAP: Clay W. Luther
+      GB+: John Paul Deragon, Jonathan Roy, Chris Brougham, Mike Varney,
+           Dan Dickey
+      HUT: Jari Koivikko, Kari Seppaenen, Tommi Zetterman, Tapio Ranta-aho
+      MarVin: Ralf Zessin
+      Balanced Treehouse: Greg Merrill
+      Jekyll and Hyde: Tim Brown
+      Vengeance of Solkan: Michael F. Wilkinson
+      (... and probably more)
+      CLIENT -
+      gbII: Evan Koffler
+      gbpc: Chris Fodor
+      tklmegb: Mathew Anderson
+
+    Today you can hardly avoid the "open source" love fest. It's such a
+    hot new topic that it's made it's way into the popular press and become a
+    new geek credo complete with it's own t-shirts. But before the concept
+    became a political movement, many programs in the Unix world were open
+    source without anyone giving it a second though. Galactic Bloodshed
+    is one such example.
+
+    Galactic Bloodshed first started in the late 1980's, invented by a
+    bunch of Unix hacks in the Us. Unix was primarily a university
+    phenomena at the time, and this was the root of the biggest problems
+    with the development of GB: eventually all the key developers move
+    onto a real job, and development sort of peters out.
+
+    The first versions were typically played by small "in groups",
+    typically in the US. This may have been a blessing in disguise, as the
+    code was terribly buggy. Admins were advised to reset the program
+    every few days to stop it from eating up all the memory on the
+    machine, and even then other bugs tended to mangle the database before
+    the end of the game - ending the game. There's still some listings of
+    the games that did make it, there's maybe 10 or so per server.
+
+    The GB+ effort started to address the problems in the original, as
+    well as take it in some new directions. Once again the principle
+    developers moved on about when the game was half completed, leaving it
+    about where it started in terms of the number of bugs. There might be
+    a lesson in software development there, if you have two goals,
+    pick one to start with.
+
+    Another version, HAP is mentioned in several online docs, but
+    information on the version is basically non-existent.
+
+    The last, and best, version of GB is the HUT. The HUT was started by a
+    group of Finnish players (there's a surprising number of them) who got
+    tired of the dying servers and decided to write their own version.
+
+      At the time there were a bunch of GB-mad Finns who happened to study
+      at the Helsinki Univ. of Tech. For a few years we just played in
+      games hosted by other people, mainly in USA or Central Europe.
+      Those games were prone to die sooner or later because of database
+      corrpution. A couple of years ago all of the experienced deities
+      [sysops] had quit (graduated or got a real job) and there were no
+      (playable) games running. So we decided to start hosting our own
+      games.
+
+      The problem at the beginning was that we found only very old
+      sources for GB and those versions lacked features and had lots of
+      bugs. So we decided to iron out all critical bugs and to implement
+      lacking features and also to add some new ones (that's features not
+      bugs...). I think it took about one year to fix and play test the
+      game. Anyhow, I believe it was most stable and advanced version of
+      GB at the time. The sad thing was that after that year all of us
+      had lost interest in developing the game further.
+
+      - Kari Seppaenen
+
+   So after a time "the curse of GB" struck down even the mighty HUT, and
+   the game is no longer active on the 'net.
+
+The Game
+
+   Type: Empire-building
+   Viewpoint: God-view
+   Time: Effort based
+   Synopsis: Take over the galaxy in a race to outproduce your
+             neighbors. Combine the good points of your race with those of
+             another to produce a team that can't be beat.
+
+
+   GB is unlike most games of its ilk in a number of ways. The high-level
+   picture is the same - take over planets and win - but the specifics
+   are different in almost every way you can think of.
+
+   Consider getting the game set up. First off one person has to be the
+   referee for the game, the deity. They get to set up the game - select
+   a map and initial conditions, set up the players on their home
+   planets, and keep the game running. The sad thing is that means the
+   person who takes the time to set up the game can't even play it - they
+   have too much insider info.
+
+   I consider this to be the game's single most serious flaw. If you're
+   interested in the game neough to put up a server, aren't you going to
+   want to play the game? And if you want to play the game, doesn't that
+   mean you don't want to run it? Games shouldn't be this hostile to
+   their biggest fans!
+
+   The basic engine is meant to be played with a telnet terminal - all
+   they had in the late 80's - but it's designed allowed clients to be
+   built for it that made everything a lot easier. The major client was
+   GBII, hardly an improvement over Telnet UI-wise, but there was also an
+   effort to produce a Java client.
+
+   As a result of having to work from a terminal, the game ends up being
+   incredibly modal. Many of the commands have to be "prefixed" by
+   moving to the correct location first. For instance, you might have a
+   bunch of planets, so in order to give orders to one particular planet
+   the game makes you change scope to the one you were interested in.
+   This is an important part of the UI, and the same basic system is then
+   used to control practically everything in the game, ships, planets,
+   event as far down as factories on the planets.
+
+   Race design is incredibly complex, at least as complex as the system
+   in MOO:II, although in different ways. Like MOO it uses a point system
+   to limit the abilities of the race and attempt to create a level
+   playing field, but this isn't always easy.
+
+   To start off there are two major classes of races: 'normal' like us,
+   and 'mesomorph' who can take over other living bodies in Invasion of
+   the Body Snatchers fashion. The former pays less for IQ and various
+   "learning" scores, while the latter have the advantage of being able to
+   more easily bump up the combat and production skills. Now add to this
+   distinction the full range of attributes:
+
+   Metabolism
+       Metabolism is basically how fast your race works. Higher met
+       means that any given population will produce more resources
+       from a given 'sector' per 'update', and it also means they will
+       increase the 'efficiency' of a sector more quickly.
+
+   IQ
+       The growth rate of a race's technology is governed by the
+       race's IQ, every update you'll gain IQ/100 in 'tech levels'.
+
+   Mass
+       The weight of the average member of your race. Higher masses
+       cost more to move.
+
+   Planet Type
+       The planet type determines your home sector type and the costs
+       of settling other sector types.
+
+   List of Sector Types with %
+       This is your ability to live on sectors of that type, as well
+       as a direct multiplier (percent) of your chance to gain
+       efficiency in sectors of that type you are living in each
+       update.
+
+   Fight
+       The combat strength of your race.
+
+   # of Sexes
+       This is the minimum number of people you need in a sector in
+       order to reproduce. Having 1 sex makes setting up colonies a
+       little easier.
+
+   Birth Rate
+       How quickly the population in a sector will converge on the max
+       pop for that sector type. Perhaps oddly named.
+
+   Fertility
+       The chance that the fertility in a sector will raise by 1 each
+       update. The maximum population in a sector is based on your
+       birth rate, the efficiency of the sector (1-100), the fertility
+       of the sector (1-100), the planetary compatibility
+       (temp/atmosphere), and your % compatibility with the sector
+       type.
+
+    Adventurism
+       How much your people tend to spill out of sectors as they fill
+       up with population. Higher values mean that your race will fill
+       up multi-sector planets on their own.
+
+    Pods
+       Turning on pods makes your race a meso. Pods are small ships
+       that can be built directly from a planet's surface (no factories
+       needed) and sent off to 'infect' other planets. When a pod
+       enters a solar system it has a chance each update to burst and
+       send a seed shooting toward one of the planets in the system
+       (about 1 in 4 succeed).
+
+    Absorb
+       The ability to absorb your enemy's population as your fight
+       them. Your birth rate effects how much of the killed population
+       is added to your own. Another meso-only ability
+
+    Collective IQ
+       If you provide a number here, your race has a hive-mind and
+       it's IQ is based on it's total population. The number is the
+       maximum IQ you cant get. Any race can use Collective IQ, but
+       when you start the game you have low population and thus low
+       IQ's. As a result normals are typically in big trouble if they
+       choose this option, because they need to get some tech before
+       they can move onto other planets - mesos have no such problems
+       because of their pods, and often use this option.
+
+    Race setup is so complex that it wasn't really possible to use a
+    telnet based form. Instead you design your race "on paper" and mail
+    the resulting description in a file back to the deity. As a result the
+    program racegen was created to allow you to play "what if" with your
+    race before choosing the final design for the game. the combination of
+    various types and attributes made race design rather subtle, and one
+    of the traps for the newbies was to get aggressive here and end up with
+    a race that was too weak for some reason that wasn't at all clear when
+    setting it up.
+
+    Planets come in a number of basic flavours, and each one was divided
+    into a number of sectors - the larger the planet, the more sectors.
+    I've only seen this simple (and realisitic) concept in one other game,
+    Pax Imperia.
+
+    The sector types were land, water, ice, mountain, desert, forest and
+    "gas", which was found only on gas giants. Each sector type has
+    different advantages and disadvantages, seemingly at random though.
+    For instance land sectors have good resources, which makes sense, but
+    for some odd reason they also have low fertility. Gas sectors have low
+    resources (which makes sense again) but high fertility (???).
+
+    The planets come in generalized types (eight in all), they weren't
+    just a random collection of sectors. For instance "class-m" planets
+    (Earth like) would be a mix of land and water, desert were mostly
+    desert with a few mountain and land sectors, and gass giants were
+    completely gas.
+
+    Each planet type had a different chance of appearing in the game, the
+    class-m's were rare for instance, but asteroids were common. Since
+    each planet type had a different number of sectors, some sector types
+    were much more common than others. As you might imagine, gas sectors
+    were very common becuase even a single gas giant would have a whole
+    bunch of them.
+
+    Here's where the table of sector types was important. By selecting a
+    number of sector types that your race could live on, you could tune
+    they system to allow you to take over the entire surface of your target
+    planet. For instance, choosing class-m as your basic planet wouldn't
+    seem obvious becuase they're rare, but a little tuning of the sector
+    types to add desert and mountain, and your race is able to settle
+    anything even remotely Earth-like in size.
+
+    We're talking about a lot of complexity here. Scroll back and look at
+    how long this description is!
+
+    Once everyone has sent in their race files, the deity generates a map
+    and picks homeworlds for everyone - the game doesn't have any logic
+    for picking "good" ones. then the game starts on the first "turn".
+    Here too GB is a little different, as it breaks down turns into two
+    types - most games have only one.
+
+    The first type, the update, runs everything in the engine. Ships move,
+    pods explode, population grows etc. The other type is the movement,
+    in which the only thing that happens is that ships move.
+
+    By tuning the number of updates to moves you can make a server have
+    seemingly real-time play with ships moving all the time, but still
+    keep the expensive calculations down to a minimum, perhaps once a day.
+    Now your game has "days" and "years" defined by the movements and
+    updates respectively. This strikes me as quite clever, and I'd
+    recommend something similar for future game authors.
+
+    Another difference in GB is that the players are limited in their
+    actions by Action Points, or AP's. Each star system generates AP's
+    based on the population in that system and the number of ships, and as
+    well there's an empire-wide pool of extra points. Pretty much
+    everything you do takes up some of these points, and as a result each
+    system can do only so much.
+
+    Unlike the turns system, AP's seem a bit artificial. Although they are
+    supposed to represent the amount of orders you can give due to
+    government issues, by the time the game is really going you have
+    tonnes to spend anyway. As a system to keep down the amount of
+    commands being entered it doesn't seem to help much, it allows more
+    commands when you don't want it - when the game is more complex. I
+    would prefer a more natural system for this sort of thing.
+
+    When the game starts players need to use their AP's to start
+    developing their homeworld. One of the first things to do is take over
+    other areas of your planet, which you do with the move command. Since
+    this is the first move and there's pretty much nothing else to spend
+    it on, it's a good idea to spend all of your AP's (including the
+    empire stockpile) and cover as much of the planet as possible.
+
+    As a result of spreading out the population you'll also start
+    collecting resources and increasing the efficiency of the sectors.
+    After a few turns you'll have enough resources and tech to start being
+    able to build ships. Here's where GB gets a little weird.
+
+    To build a ship, you do a build shiptype sector - simple right? The
+    weird part is that the first ship you build is a factory - factories
+    are ships. And here's where it gets weirder, in order to use that
+    factory you need to "change scope" into the factory, kinda like
+    zooming in. To do this you do a cs factorynumber and then tell it to
+    make something with make type.
+
+    But you can't actually do that yet. Factories start out "damaged" (to
+    represent their building time) so in order to get them built and
+    running you first have to fill it with people and tell them to work.
+    So in all you have to build the factory, then load it, then order it
+    on, then cs into it after it's fixed up and tell it to make some type
+    of ship and then finally build n of them.
+
+    Gah!
+
+    There were a few redeeming features in the ship engine. For one thing
+    the ships were desinged using a blueprint system, and they could be
+    modified after building. So if you wanted your shuttles to go faster,
+    you could modify speed 4 and now all shuttles built from then on go a
+    little faster. You could also use the upgrade command to do this to
+    individual ships, but you can imagine that with a lot of ships out
+    there this would get tedious (of course, considering the complexity of
+    actually building a ship, maybe this wasn't considered a problem).
+
+    Overall the concept here is good, you build a factory, set it up to
+    build some sort of ship by sedning it the blueprints, and then getting
+    it to build some number of them on order. However the interface to
+    actually doing that is way too complex and time consuming. This
+    portion of the game could use a lot of work, greatly simplifying this
+    system would cut down the tedium without changing the actual detail in
+    the game at all. Of course, being from the Unix world, I'm sure the
+    authors consider this complexity to be a feature!
+
+    Once the ships are built you move people into them and send them off
+    to take over other planets. Mesos also have the ability to build pods
+    right away, so they typically start by growing some and shipping them
+    off. As a result mesos usually get their empires up and running
+    quicker, but as a result of their being hive-minds (almost always)
+    their tech development is slower.
+
+    Taking over a planet is simple, just land and offload your troops. The
+    relative numbers of people and their fight will determine the outcome
+    from that point. And for meso's, you just have to show up, the pods
+    will take care of the rest, especially if you have a high absorb.
+
+    Ship combat is simplified and based entirely around a single
+    consumable called destruct or just dest, run out of dest and your
+    battleship is a sitting duck.
+
+Conclusions
+
+    Galactic Bloodshed bushed the bounds of detail in the 4X genre,
+    perhaps too far.

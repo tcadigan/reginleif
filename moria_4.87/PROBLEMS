@@ -1,0 +1,38 @@
+Fix save files to include obj description, then only need on random number
+    generator which can use table program
+Replace magic numbers with constants
+Name objects if use did not identify them
+Add a pull-back map command like the PC version, display entire map on screen
+    only showing important features, like stairs
+
+Very hard things to add:
+Recenter character on screen?
+Can't look in any direction, only in the 8 directions
+Can't case in any direction
+
+Long term stuff, enhancement suggestions:
+Give player something to do with money, i.e. 1 Milltion gp for a HA +10 +10 sword
+'Flavor' the levels, dragons on one level, undead on another, etc.
+What's been discovered list
+Use environment variables to specify rogue-like/original keys
+Use environment variables for default save filename
+Commands not close enough to rogue style
+Fixed item lettering in inventory, in-line/cmd-line options?
+Scoreboard to have all scores, not top twenty
+Command line option to print out times open
+Can't drop, identify, pick up, or throw items in equipment list
+Y destroy command, allow destroy from equipment list
+Let o, c, D commands automatically pick direction when they can
+Give rogue's a chance to steal, e.g. let monsters carry items that they pick up
+Give magic users a change an pre-identifying scrolls
+Could use a help system, like VMS version
+Make scroll of identify more common, to help non-MU character classes
+
+Features:
+Hero/Superhero do not subtract hitpoints when effect wears off
+WOR scroll can save you with minus hitpoints!!
+Detect monster does not detect invisible mosters (normally)
+Can hit monsters in walls, but can not cast at them
+Can not enchant something with negative numbers (i.e. cursed items)
+How does armor protect against breath/gas? It doesn't!!!
+Run stops one character before room lights, because it is supposed to

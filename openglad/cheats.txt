@@ -1,0 +1,27 @@
+To use a cheat code while playing Gladiator, hold down the "cheat key" for your
+player, and press an associated key.
+
+The following standard cheat codes are currently supported:
+
+Cheat key for player 1 is F5 (2 is F6, 3 is F7, and 4 is F8); these may by
+changed by using the "key preferences" option from the options menu (press *).
+
+Cheat key +:
+     F: Gain flight
+     H: Gain hitpoints
+     M: Gain magic points
+     S: Gain temporary movement speed increase
+     T: Transform to another character type
+     V: Gain invisibility
+   [,]: (left and right brackets) Temporarily lower or raise your level
+   F12: Kill all LIVING enemies on the level
+switch: (character switch) Switch to a character on an opposing team, if
+        available
+
+Thus, to give yourself, as player 1, more hitpoints, you would hold down F5 and
+press the H key.
+
+To cheat while in the character picker, go to the "Hire Team". Then hold down
+the Control key and press the "+" key on the numeric keypad; this will increase
+your available money quite quickly. You can also lower your money by pressing
+the minus ("-") key instead.

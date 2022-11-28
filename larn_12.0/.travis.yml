@@ -1,0 +1,27 @@
+sudo: false
+
+language: c
+compiler:
+  - gcc
+  - clang
+
+env:
+  global:
+    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+    #   via the "travis encrypt" command using the project repo's public key
+    - secure: "Fdn7ilJRvrkwzVDadHOucPltPTqd4GZKiVcrx9o8C/cac4xbuFZ8/+YRwbRvHd/G26yt+eACQOo3NaiJb52vOfhRd4e/nIgPF+NJrJiZhoBYeHCkv6NvtOSDifawsLjTeSwlInRCWILdjVBtBoaLkZiGhmGQEUutlJliXp+6N+BdVwQj+VNPq6UoRwLIVg7+yefanY4sZGFb0KNJ7beeNlV2Orjw4XzHLcztOvyeTmqvHQGAAsTF3aJR8pL4MEy8wc05+eGx3fsw1Yyy60Nnd2GUIty2WvadRgyOgxD+tuPRiugF7aOSNon+5bXoGVhv2HjsXsrbKOaEkF7w1TkBrJFXxQVhgNVmbelL162+vErc/j+QKxIG7i8g9Kc20GnYlGajZgY7P5bR1U66615XqTh95ArxaIvxmQfTm10e3Y6M7SAK3vkMuimsnc0e8h/SAoHRSwq+CTrtxC/Uw/I1dSmNkUI0/euOcRr0kNz2EZppAN+UPGTSlAkMKb35m1bgkkE0HdIq13XVtSJX/f9iOUQ03rpFv8/zKuGqK52D+1iwoBNeKl02N9GaeiFGFZ4mDLffCiLuOBSsYlyVZB5n1g5G8XB8EU0+45mSCQ6oXW8FYqYOFdxlIwx/7pTrFM1Yi7Ncl2yaZ2l7PwG8YKYgE2ouMh1sqW+HTVaG3QrWGzI="
+
+addons:
+  apt:
+    packages:
+      -libncurses5-dev
+  coverity_scan:
+    project:
+      name: "tcadigan/larn_12.0"
+      description: "My take on Larn 12.0"
+    notification_email: tylercadigan@gmail.com
+    build_command_prepend: "make clean"
+    build_command: "make"
+    branch_pattern: master
+    
+script: make

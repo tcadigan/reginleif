@@ -1,0 +1,131 @@
+5   Welcome to the game of Larn. At this moment, yo uface a great problem. Your
+daughter has contracted a strange disease, and none of your home remedies seem
+to have any effect. You sense that she is in mortal danger, and you must try to
+save her. Time ago you heard of a land of great danager and
+opportunity. Perhaps here is the solution you need.
+
+    It has been said that there once was a great magician who called himself
+Polinneaus. Many years ago, after having many miraculous successes, Polinneaus
+retired to the caverns of Larn, where he devoted most of his time to the
+creation of magic. Rumors have it that one day Polinneaus set out to dispel an
+attacking army in a forest some distance to the north. It is believed that here
+he met his demise.
+
+    The caverns of Larn, it is thought, must be magnificent in design, and
+contain much magic and treasure. One option you have is to undertake a journey
+into these caverns.
+
+    Good Luck! You're going to need it!
+
+
+
+              ^[[4mHelp File for the The caverns of Larn^[[m
+	    
+h  Move to the left       H  Run left                  .  Stay here
+j  Move down              J  Run down                  Z  Teleport yourself
+k  Move up                K  Run up                    c  Cast a spell
+l  Move to the right      L  Run right                 r  Read a scroll
+y  Move northwest         Y  Run northwest             q  Quaff a potion
+u  Move northeast         U  Run northeast             W  Wear armor
+b  Move southwest         B  Run southwest             T  Take off armor
+n  Move southeast         N  Run southeast             w  Wield a weapon
+^  Identify a trap        g  Give present pack weight  P  Give tax status
+d  Drop an item           i  Inventory your pockets    Q  Quit the game
+v  Print porgram version  S  Save the game             D  List all items found
+?  This help screen       A  Create diagnostic file    e  Eat something
+                             (wizards only)
+
+larn ++    Restore checkpointed game
+larn -s    List the scoreboard
+larn -i    List scores with inventories
+larn -n    Suppress welcome message when beginning a game
+larn -h    Print out all the command line options
+larn -<number>       Specify difficulty of the game (may be used with -n)
+larn -o<optsfile>    Specify the .larnopts file to be used
+larn -c    Create new scoreboards -- prompts for a password
+
+
+
+              ^[[[7mSpecial Notes^[[m
+When ^[[7mdropping gold^[[m, if you type '*' as your amount, all your gold gets
+dropped. In general, typing in '*' means all of what you are interested
+in. This is true when visiting the bank, or when contributing at altars.
+
+Larn may need a ^[[7mVT100^[[m to operate. A check is made of the environment
+variable ^[[7m"TERM"^[[m and it must be equal to ^[[7m"vt100"^[[m. This only
+applies if the game has been compiled with "VT100" defined in the Makefile. If
+compiled to use ^[[7mtermcap^[[m, there are no terminal restrictions, save
+needing cm, ce, and cl termcap entries.
+
+When in the store, trading post, school, or home, an ^[[7m<escape>^[[m will get
+you out.
+
+larn -l         print out the larn log file
+
+When casting a spell, if you need a list of spells yo ucan cast, type
+'^[[7mD^[[m' as the first letter of your spell. The available list of spells
+will be shown, after which you may enter the spell code. This only works on the
+first letter of the spell you are casting.
+
+The Author of Larn is Noah Morgan (1982-3), Copying for Profit is Prohibited
+Copyright 1986 by Noah Morgan, All Rights Reserved.
+
+               ^[[7mBackground Information for Larn^[[m
+
+    Welcome to the game of Larn. At this moment, you face a great problem. Your
+daughter has contracted a strange disease, and none of your home remedies seem
+to have any effect. You sense that she is in mortal danger, and you must try to
+save her. Time ago you heard of a land of great danger and opportunity. Perhaps
+here is the solution you need.
+
+    It has been said that there once was a great magician who called himself
+Polinneaus. Many years ago, after having many miraculous successes Polinneaus
+retired to the caverns of Larn, where he devoted most of his time to the
+creation of magic. Rumors have it that one day Polinneaus set out to dispel an
+attacking army in a forest some distance to the north. It is believed that here
+he met his desmise.
+
+    The caverns of Larn, it is thought, must be magnificent in design, and
+contain much magic and treasure. One option you have is to undertake a journey
+into these caverns.
+
+    Good Luck! You're going to need it!
+
+
+
+               ^[[7mHow to use the .larnopts option file^[[m
+
+The file ".larnopts", if useds, should be in your home director (see -o). A
+sequence of words terminated by whitespace is used to specify options.
+
+        Word
+
+    bold-object                   Select bold display of objects
+    inverse-objects               Select inverse video display of objects
+    no-introduction               Do not display intro message
+    no-beep                       Disable beeping of the terminal
+    male                          Choose your sex to be a man
+    female                        Choose your sex to be a woman
+    name: "your name"             Choose your playing name
+    monster: "monst name"         Choose a name for a monster
+    savefile: "save-file-name"    Defined what the savegame filename will be
+
+Your name and monster names must be encolsed in double quotation marks and may
+be up to 34 characters long. Longer names are truncated. Anything enclosed in
+quotation marks is considered one word, and must be separated from other words
+by whitespace.
+
+               ^[[7mExplanation of the Larn scoreboard facility^[[m
+
+    Larn supports TWO scoreboards, one for winners, and one for deceased
+characters. Each player (by userid or playerid, see UIDSCORE in Makefile) is
+allowed one slot on each scoreboard, if the score is in the top ten for that
+scoreboard. This helps insure that frequent players of Larn do not hog the
+scoreboard, and gives more players a chance for glory. Level of difficulty is
+also noted on the scoreboards, and this takes precedence over score for
+determining what entry is on the scoreboard. For example: if "Yar, the Bug
+Slayer" has a score of 128003 on the scoreboard at diff 0, then his game at
+diff 1 and a score of 4112 would replace his previous entry on the
+scoreboard. Note that when a player dies, his inventory is stored in the
+scoreboard so that everyone can see what items the player had at the time of
+his death.
