@@ -1,0 +1,27 @@
+name: Base Build (C/C++)
+inputs:
+  path:
+    required: true
+    type: string
+  language:
+    required: true
+    type: string
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v3
+    - name: Pre-requisites
+      run: |
+        sudo apt-get update
+        sudo apt-get install bmake
+      shell: bash
+    - if: ${{ inputs.language == 'C++' }}
+      run: |
+        cd ${{ inputs.path }}
+        bmake -DDISABLE_BEAR CXX=clang++
+      shell: bash
+    - if: ${{ inputs.language == 'C' }}
+      run: |
+        cd ${{ inputs.path }}
+        bmake -DDISABLE_BEAR CC=clang
+      shell: bash

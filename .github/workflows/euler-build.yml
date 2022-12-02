@@ -1,0 +1,17 @@
+name: Project Euler build
+
+on:
+  push:
+    paths:
+    - 'challenges/euler/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: A build job
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/general-build
+        with:
+          path: challenges/euler
+          language: C++

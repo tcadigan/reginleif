@@ -7,7 +7,7 @@ UVA = uva_100 uva_101 uva_102 uva_108 uva_111 uva_112 uva_113 uva_120 uva_123 \
       uva_10194 uva_10300 uva_10361 uva_10370 uva_10420 uva_10474 uva_10494 \
       uva_10633 uva_10783 uva_10785 uva_10815 uva_10878
 
-CXX = clang++90
+CXX = clang++
 
 .ifndef DISABLE_BEAR
 BEAR = bear -a

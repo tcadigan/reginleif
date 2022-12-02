@@ -1,0 +1,17 @@
+name: Snobol III build
+
+on:
+  push:
+    paths:
+    - 'projects/snobol_III/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: A build job
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/general-build
+        with:
+          path: projects/snobol_III
+          language: C
