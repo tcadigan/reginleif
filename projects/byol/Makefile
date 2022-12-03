@@ -2,7 +2,7 @@ PROG = lispy
 CC = clang
 CFLAGS = -Wall
 
-.ifdef DISABLE_BEAR
+.ifndef DISABLE_BEAR
 BEAR = bear --append --
 .endif
 
