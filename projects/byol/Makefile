@@ -11,11 +11,17 @@ OBJS = ${SRCS:.c=.o}
 
 all: ${PROG}
 
-${PROG}: ${OBJS}
-	${CC} ${CFLAGS} ${LDFLAGS} ${OBJS} -o ${.TARGET:=}
+${PROG}: depend ${OBJS}
+	${CC} ${CFLAGS} ${LDFLAGS} ${OBJS} -o ${.TARGET}
 
 clean:
-	rm -rf *~ *.o ${PROG}
+	rm -rf *~ *.o .depend ${PROG}
 
-.c.o:
+depend: ${SRCS}
+	rm -rf .depend
+	${CC} ${CFLAGS} -MM ${SRCS} > .depend
+
+-include .depend
+
+%.o: %.c
 	${BEAR} ${CC} ${CFLAGS} -c ${.IMPSRC} -o ${.TARGET}
