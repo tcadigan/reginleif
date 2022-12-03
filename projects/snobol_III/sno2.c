@@ -15,7 +15,7 @@ struct node *compon(void)
     static int next;
 
     if(next == 0) {
-	schar = sno_getc(); 
+	schar = sno_getc();
     }
     else {
 	next = 0;

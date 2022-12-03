@@ -9,7 +9,21 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+int freesize = 0;
+struct node *lookf = NULL;
+struct node *looks = NULL;
+struct node *lookend = NULL;
+struct node *lookstart = NULL;
+struct node *lookdef = NULL;
+struct node *lookret = NULL;
+struct node *lookfret = NULL;
+int cfail = 0;
+int rfail = 0;
 struct node *freelist = NULL;
+struct node *namelist = NULL;
+int lc = 0;
+struct node *schar = NULL;
+
 int fin = 0;
 int fout = 0;
 
@@ -19,7 +33,7 @@ void mes(char *s)
     sysput(sno_strstr(s));
 }
 
-/* 
+/*
  * Initialize a string into the namelist
  * with a given type
  */
@@ -27,7 +41,7 @@ struct node *init(char *s, int t)
 {
     struct node *new_node;
     struct node *namelist_node;
-    
+
     /* Create the new node */
     new_node = sno_strstr(s);
 
@@ -47,7 +61,7 @@ int main(int argc, char *argv[])
 
     if(argc > 1) {
 	fin = open(argv[1], O_RDONLY);
-	
+
 	if(fin < 0) {
 	    mes("Cannot open input");
 
@@ -93,8 +107,8 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-/* 
- * Read a line from the input. Caution last line 
+/*
+ * Read a line from the input. Caution last line
  * should be an empty line it will be deleted
  */
 struct node *syspit(void)
@@ -105,7 +119,7 @@ struct node *syspit(void)
     int character;
 
     character = getchar();
-    
+
     if(character == '\n') {
 	return NULL;
     }
@@ -123,7 +137,7 @@ struct node *syspit(void)
 	/* Special case end of input, drop last line */
 	while(1) {
 	    current->ch = character;
-	    
+
 	    if(character == EOF) {
 		if(fin) {
 		    close(fin);
@@ -148,7 +162,7 @@ struct node *syspit(void)
     }
 
     sentinel->p2 = current;
-    
+
     if(rfail) {
 	delete(sentinel);
 	sentinel = NULL;
@@ -212,7 +226,7 @@ struct node *alloc(void)
     /* There is no freespace at all */
     if(freelist == NULL) {
 	freelist = (struct node *)malloc(sizeof(struct node));
-	
+
 	if(freelist == NULL) {
 	    fflush(stdout);
 	    write(fout, "Out of free space\n", strlen("Out of free space\n"));
@@ -226,14 +240,14 @@ struct node *alloc(void)
 	freespace_position = freelist;
 	for(i = 0; i < expand_amount; ++i) {
 	    freespace_position->p1 = (struct node *)malloc(sizeof(struct node));
-	    
+
 	    if(freespace_position->p1 == NULL) {
 		fflush(stdout);
 		write(fout, "Out of free space\n", strlen("Out of free space\n"));
 
 		exit(1);
 	    }
-	    
+
 	    freespace_position->p1->p2 = freespace_position;
 	    freespace_position = freespace_position->p1;
 	}
@@ -245,14 +259,14 @@ struct node *alloc(void)
     freelist->p2 = NULL;
 
     result->p1 = NULL;
-    
+
     return result;
 }
 
-/* 
+/*
  * Destroy a single node, return to freelist
  * does not update links from connecting nodes
- * */
+ */
 void sno_free(struct node *pointer)
 {
     pointer->p1 = freelist;
@@ -299,7 +313,7 @@ struct node *look(struct node *string)
 
     while(current_name) {
 	new_name = current_name->p1;
-	
+
 	if(equal(new_name->p1, string) == 0) {
 	    return new_name;
 	}
@@ -327,7 +341,7 @@ struct node *look(struct node *string)
     return new_name;
 }
 
-/* 
+/*
  * Copy a string into a new one,
  * character by character
  */
@@ -390,7 +404,7 @@ int equal(struct node *string1, struct node *string2)
 	first_value = first_pos->ch;
 	second_pos = second_pos->p1;
 	second_value = second_pos->ch;
-	
+
 	/* Compare character values */
 	if(first_value > second_value) {
 	    return 1;
@@ -404,10 +418,10 @@ int equal(struct node *string1, struct node *string2)
 		if(second_pos == second_end) {
 		    return 0;
 		}
-		
+
 		return -1;
 	    }
-	    
+
 	    /* First is longer than the second */
 	    if(second_pos == second_end) {
 		return 1;
@@ -431,7 +445,7 @@ int strbin(struct node *string)
 
     sentinel = string;
     result = 0;
-    
+
     if(sentinel == NULL) {
 	return 0;
     }
@@ -542,7 +556,7 @@ struct node *sno_div(struct node *string1, struct node *string2)
     return binstr(strbin(string1) / strbin(string2));
 }
 
-struct node *cat(struct node *string1, struct node *string2) 
+struct node *cat(struct node *string1, struct node *string2)
 {
     struct node *a;
     struct node *b;
@@ -561,7 +575,6 @@ struct node *cat(struct node *string1, struct node *string2)
     return(a);
 }
 
- 
 /* Destructive concatenation */
 struct node *dcat(struct node *a, struct node *b)
 {

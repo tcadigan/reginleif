@@ -18,6 +18,7 @@ struct node *and(struct node *ptr)
 	case0:
 	case 0:
 	    a->typ = 1;
+            // fallthrough
 	case 1:
 	    a = copy(a->p2);
 	    return a;
