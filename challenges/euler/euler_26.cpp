@@ -8,18 +8,13 @@ int main(){
     int max = 0;
 
     for(int i = 2; i < 1000; i++){
-    
         int num = i;
-        int alpha = 0;
         while(num % 2 == 0){
             num /= 2;
-            alpha++;
         }
 
-        int beta = 0;
         while(num % 5 == 0){
             num /= 5;
-            beta++;
         }
 
         int x = 0;

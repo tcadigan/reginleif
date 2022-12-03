@@ -9,8 +9,8 @@ int main(){
     for(int size = 1817; size < 1819; ++size){
 
         set<pair<int, pair<int, int> > >seen;
-        pair<int, int> inner, inner2;
-        pair<int, pair<int,int> > outer, outer2;
+        pair<int, int> inner;
+        pair<int, pair<int,int> > outer;
 
         int total = 0;
 
@@ -37,7 +37,7 @@ int main(){
                         inner = make_pair(hei,wid);
                         outer = make_pair(len,inner);
                         seen.insert(outer);
-	  
+
                         cout << len << " " << wid << " " << hei << " " << result << " " << result2 << " " << result3 << endl;
 
                         total++;
@@ -54,7 +54,7 @@ int main(){
                         inner = make_pair(hei,len);
                         outer = make_pair(wid,inner);
                         seen.insert(outer);
-	  
+
                         //cout << len << " " << wid << " " << hei << " " << result << " " << result2 << " " << result3 << endl;
                         total++;
                     }
@@ -70,7 +70,7 @@ int main(){
                         inner = make_pair(len,wid);
                         outer = make_pair(hei,inner);
                         seen.insert(outer);
-	  
+
                         //cout << len << " " << wid << " " << hei << " " << result << " " << result2 << " " << result3 << endl;
                         total++;
                     }
@@ -88,4 +88,3 @@ int main(){
 
     return 0;
 }
-	  

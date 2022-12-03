@@ -35,7 +35,7 @@ struct triplet compute(struct triplet trip, int s)
 
 int main(int argc, char *argv[])
 {
-    int odd;
+    int odd = 0;
 
     for(int i = 2; i < 10000; ++i) {
         if(floor(sqrt(i)) == ceil(sqrt(i))) {
@@ -43,22 +43,22 @@ int main(int argc, char *argv[])
         }
 
         set<struct triplet, tripletCompare> triplets;
-        
+
         struct triplet trip;
         trip.m = 0;
         trip.d = 1;
         trip.a = floor(sqrt(i));
-        
+
         triplets.insert(trip);
-        
+
         struct triplet result;
         int iterations = 0;
         bool first = true;
 
         cout << "sqrt(" << i << ")=[" << trip.a << ";(";
-        while(true) {            
+        while(true) {
             result = compute(trip, i);
-            
+
             if(triplets.find(result) == triplets.end()) {
                 triplets.insert(result);
             trip = result;
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
                 break;
             }
             ++iterations;
-            
+
             if(!first) {
                 cout << ",";
             }
@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 
             cout << trip.a;
         }
-        
+
         cout <<")], period=" << iterations << endl;
 
         if(iterations % 2 == 1) {
