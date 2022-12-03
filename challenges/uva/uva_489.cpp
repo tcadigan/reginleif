@@ -1,18 +1,16 @@
 #include <stdio.h>
 
-using namespace std;
-
 int main(){
     int round, i, j, misses, flag, result;
     char guess;
-  
+
     while(1){
         scanf("%d\n", &round);
-    
+
         if(round == -1){
             break;
         }
-    
+
         printf("Round %d\n", round);
 
         char solution[128];

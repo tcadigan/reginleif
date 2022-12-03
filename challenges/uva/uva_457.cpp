@@ -1,7 +1,5 @@
 #include <stdio.h>
 
-using namespace std;
-
 int lookup(char a){
     if(a == '.'){
         return 1;
@@ -30,7 +28,7 @@ char translate(int a){
 
 int main(){
     int cases;
-  
+
     scanf("%d", &cases);
 
     while(cases > 0){
@@ -64,7 +62,7 @@ int main(){
                 printf("%c", nextday[i]);
             }
 
-            nextday[39] = translate(program[lookup(dishes[38]) + lookup(dishes[39])]);     
+            nextday[39] = translate(program[lookup(dishes[38]) + lookup(dishes[39])]);
             printf("%c\n", nextday[39]);
 
             for(i = 0; i < 40; i++){

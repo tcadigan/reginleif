@@ -31,19 +31,17 @@ int main(){
         long long number;
         cin >> number;
 
-        long result = 0;
         int iterations = 0;
         for(int i = 1; i < 1001; ++i){
             //cout << number << endl;
-      
+
             number = number + reverse(number);
             if(number == reverse(number)){
-                result = number;
                 iterations = i;
                 break;
             }
         }
-    
+
         cout << iterations << " " << number << endl;
     }
 

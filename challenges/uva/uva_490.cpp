@@ -2,11 +2,17 @@
 
 int main(){
     char letter;
-    char matrix[100][100] = {0};
+    char matrix[100][100];
+
+    for (int i = 0; i <= 99; ++i) {
+        for (int j = 0; j <= 99; ++j) {
+            matrix[i][j] = 0;
+        }
+    }
 
     int i = 99;
     int j = 99;
-  
+
     int max = 0;
     int count = 0;
     int sent_num = 0;

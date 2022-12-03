@@ -1,7 +1,5 @@
 #include <stdio.h>
 
-using namespace std;
-
 int main(){
     int cases, farmers;
     int size_farm, num_animals, friends;

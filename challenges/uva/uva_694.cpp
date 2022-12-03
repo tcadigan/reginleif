@@ -1,7 +1,5 @@
 #include <stdio.h>
 
-using namespace std;
-
 int main(){
     unsigned int init, limit;
     int num = 0;
@@ -17,8 +15,7 @@ int main(){
         printf("Case %d: A = %d, limit = %d, number of terms = ", num, init, limit);
 
         int terms = 0;
-        int counter = 0;
-    
+
         while(init <= limit){
             if(init == 1){
                 terms += 1;
@@ -31,7 +28,6 @@ int main(){
                 init = 3 * init + 1;
             }
             terms++;
-            counter++;
         }
         printf("%d\n", terms);
     }

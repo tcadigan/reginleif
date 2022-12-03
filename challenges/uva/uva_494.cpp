@@ -1,12 +1,10 @@
 #include <stdio.h>
 
-using namespace std;
-
 int main(){
     char character;
     int prev = 0;
     int wordcount = 0;
-  
+
     while(scanf("%c", &character) == 1){
         if(character == '\n'){
             if(prev){

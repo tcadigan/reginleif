@@ -1,13 +1,11 @@
 #include <stdio.h>
 #include <ctype.h>
 
-using namespace std;
-
 int main(){
     int cases, i, j, k, rows, columns, num_words;
     char matrix[50][50];
     char word[50];
-  
+
     scanf("%d\n\n", &cases);
 
     while(cases > 0){
@@ -17,20 +15,19 @@ int main(){
                 matrix[i][j] = 0;
             }
         }
-    
+
         scanf("%d %d\n", &rows, &columns);
-    
-    
-        for(i = 0; i < rows; i++){ 
+
+        for(i = 0; i < rows; i++){
             for(j = 0; j < columns; j++){
                 scanf("%c", &matrix[i][j]);
                 matrix[i][j] = tolower(matrix[i][j]);
             }
-            scanf("\n"); 
+            scanf("\n");
         }
-    
+
         scanf("%d", &num_words);
-    
+
         while(num_words > 0){
 
             for(i = 0 ; i < 50; i++){
@@ -38,11 +35,11 @@ int main(){
             }
 
             scanf("%s\n", word);
-      
+
             for(i = 0; i < 49; i++){
                 word[i] = tolower(word[i]);
             }
-      
+
             int end_pos=0;
             for(i = 49; i >= 0; i--){
                 if(word[i] != 0 && word[i] != '\0'){
