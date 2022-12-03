@@ -1,20 +1,20 @@
-PROG = vm
-CXX = clang++90
-CXXFLAGS = -Wall -std=c++17
+PROG = vm eq-solver
+CXX = clang++
+CXXFLAGS = -Wall --std=c++17
 
-.ifndef DISABLE_BEAR
-BEAR = bear -a
+.ifdef DISABLE_BEAR
+BEAR =
+.else
+BEAR = bear --append --
 .endif
-
-SRCS = vm.cpp
 
 all: ${PROG}
 
-${PROG}: ${SRCS:.cpp=.o}
-	${CXX} ${CXXFLAGS} ${SRCS:.cpp=.o} -o ${.TARGET}
+${PROG}: ${.TARGET:=.o}
+	${CXX} ${CXXFLAGS} ${LDFLAGS} ${.TARGET:=.o} -o ${.TARGET}
 
 clean:
-	rm -rf *~ *.o ${PROG}
+	rm -rf *~ *.o ${PROG} eqsolver
 
 .cpp.o:
-	${BEAR} ${CXX} ${STATIC_CXXFLAGS} ${CXXFLAGS} -c ${.IMPSRC} -o ${.TARGET}
+	${BEAR} ${CXX} ${CXXFLAGS} -c ${.IMPSRC} -o ${.TARGET}
