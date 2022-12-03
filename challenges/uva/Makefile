@@ -17,10 +17,10 @@ BEAR = bear --append --
 all: ${UVA}
 
 ${UVA}: ${.TARGET:=.o}
-	${CXX} ${CXXFLAGS} ${.TARGET:=.o} -o ${.TARGET:=}
+	${CXX} ${CXXFLAGS} ${.TARGET:=.o} -o ${.TARGET}
 
 clean:
 	rm -rf *~ *.o ${UVA}
 
-.cpp.o:
+%.o: %.cpp
 	${BEAR} ${CXX} ${CXXFLAGS} -c ${.IMPSRC} -o ${.TARGET}

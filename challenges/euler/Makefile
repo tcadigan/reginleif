@@ -24,10 +24,10 @@ BEAR = bear --append --
 all: ${EULER}
 
 ${EULER}: ${.TARGET:=.o}
-	${CXX} ${CXXFLAGS} ${.TARGET:=.o} -o ${.TARGET:=}
+	${CXX} ${CXXFLAGS} ${.TARGET:=.o} -o ${.TARGET}
 
 clean:
 	rm -rf *~ *.o ${EULER}
 
-.cpp.o:
+%.o: %.cpp
 	${BEAR} ${CXX} ${CXXFLAGS} -c ${.IMPSRC} -o ${.TARGET}
