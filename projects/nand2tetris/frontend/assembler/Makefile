@@ -1,9 +1,10 @@
 PROG = assembler
-CC = clang90
-BEAR = bear -a
+CC = clang
+CFLAGS = -Wall
+BEAR = bear --append --
 
 .ifdef DISABLE_BEAR
-BEAR =
+BEAR = asdf
 .endif
 
 SRCS = code.c main.c parser.c symbol-table.c
@@ -11,8 +12,8 @@ OBJS = ${SRCS:.c=.o}
 
 all: ${PROG}
 
-${PROG}: ${OBJS}
-	${CC} ${CFLAGS} ${LDFLAGS} ${OBJS} -o ${PROG}
+${PROG}: depend ${OBJS}
+	${CC} ${CFLAGS} ${LDFLAGS} ${OBJS} -o ${.TARGET}
 
 clean:
 	rm -rf *~ *.o .depend ${PROG}
@@ -23,10 +24,5 @@ depend: ${SRCS}
 
 -include .depend
 
-SUFFIXES: .c .o
-
-.c:
-	${BEAR} ${CC} ${CFLAGS} ${.IMPSRC} -o ${.TARGET}
-
 .c.o:
-	${BEAR} ${CC} ${CFLAGS} -c ${.IMPSRC}
+	${BEAR} ${CC} ${CFLAGS} -c ${.IMPSRC} -o ${.TARGET}

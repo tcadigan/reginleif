@@ -22,5 +22,5 @@ ${UVA}: ${.TARGET:=.o}
 clean:
 	rm -rf *~ *.o ${UVA}
 
-%.o: %.cpp
+.cpp.o:
 	${BEAR} ${CXX} ${CXXFLAGS} -c ${.IMPSRC} -o ${.TARGET}

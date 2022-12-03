@@ -29,5 +29,5 @@ ${EULER}: ${.TARGET:=.o}
 clean:
 	rm -rf *~ *.o ${EULER}
 
-%.o: %.cpp
+.cpp.o:
 	${BEAR} ${CXX} ${CXXFLAGS} -c ${.IMPSRC} -o ${.TARGET}

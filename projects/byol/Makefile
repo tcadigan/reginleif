@@ -23,5 +23,5 @@ depend: ${SRCS}
 
 -include .depend
 
-%.o: %.c
+.c.o:
 	${BEAR} ${CC} ${CFLAGS} -c ${.IMPSRC} -o ${.TARGET}
