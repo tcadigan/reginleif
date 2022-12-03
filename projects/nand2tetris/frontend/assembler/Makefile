@@ -1,10 +1,11 @@
 PROG = assembler
 CC = clang
 CFLAGS = -Wall
-BEAR = bear --append --
 
 .ifdef DISABLE_BEAR
-BEAR = asdf
+BEAR =
+.else
+BEAR = bear --append --
 .endif
 
 SRCS = code.c main.c parser.c symbol-table.c

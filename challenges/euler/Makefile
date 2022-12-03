@@ -17,7 +17,9 @@ EULER = euler_1 euler_2 euler_3 euler_4 euler_5 euler_6 euler_7 euler_8 \
 CXX = clang++
 CXXFLAGS= -Wall
 
-.ifndef DISABLE_BEAR
+.ifdef DISABLE_BEAR
+BEAR =
+.else
 BEAR = bear --append --
 .endif
 

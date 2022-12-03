@@ -1,10 +1,11 @@
 PROG = VM
 CC = clang
 CFLAGS = -Wall
-BEAR = bear --append --
 
 .ifdef DISABLE_BEAR
 BEAR =
+.else
+BEAR = bear --append --
 .endif
 
 SRCS = code-writer.c main.c parser.c
