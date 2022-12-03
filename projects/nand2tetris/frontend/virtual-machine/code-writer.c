@@ -19,19 +19,17 @@ void construct_code_writer(char *file)
     if(suffix != NULL) {
         *suffix = '\0';
     }
-    
+
     filename = (char *)malloc(strlen(file) + 5);
-    
+
     if(filename == NULL) {
         fprintf(stderr, "Unable to allocate output file");
     }
 
-    strncpy(filename, file, strlen(file));
-    strncpy(filename + strlen(file), ".asm", strlen(".asm"));
-    filename[strlen(file) + 4] = '\0';
-    
+    snprintf(filename, strlen(file) + 4, "%s.asm", file);
+
     output_fd = fopen(filename, "w");
-    
+
     if(!output_fd) {
         fprintf(stderr, "Unable to open file \'%s\'", file);
     }
@@ -70,15 +68,15 @@ void set_filename(char *fileName)
     }
     else {
         filename = (char *)malloc(strlen(fileName) + 1);
-        
+
         if(filename == NULL) {
             fprintf(stderr, "Unable to allocate filename");
         }
-        
+
         strncpy(filename, fileName, strlen(fileName));
         filename[strlen(fileName)] = '\0';
     }
-    
+
     ctr = 0;
     return_ctr = 0;
 }
@@ -93,7 +91,7 @@ void write_arithmetic(char *string)
        || (strncmp(string, "sub", strlen("sub")) == 0)
        || (strncmp(string, "and", strlen("and")) == 0)
        || (strncmp(string, "or", strlen("or")) == 0)) {
-        
+
         fprintf(output_fd,
                 "@SP\n"
                 "AM=M-1\n"
@@ -120,7 +118,7 @@ void write_arithmetic(char *string)
     }
     else if((strncmp(string, "neg", strlen("neg")) == 0)
             || (strncmp(string, "not", strlen("not")) == 0)) {
-        
+
         fprintf(output_fd,
                 "@SP\n"
                 "AM=M-1\n"
@@ -132,7 +130,7 @@ void write_arithmetic(char *string)
         else {
             fprintf(output_fd, "M=!D\n");
         }
-        
+
         fprintf(output_fd,
                 "@SP\n"
                 "M=M+1\n");
@@ -158,7 +156,7 @@ void write_arithmetic(char *string)
         else {
             fprintf(output_fd, "D;JGE\n");
         }
-        
+
         fprintf(output_fd,
                 "D=-1\n"
                 "@SP\n"
@@ -229,7 +227,7 @@ void write_push_pop(enum VM_TYPE command, char *segment, int index)
             else {
                 fprintf(output_fd, "@THAT\n");
             }
-            
+
             fprintf(output_fd,
                     "A=M\n"
                     "A=D+A\n"
@@ -237,7 +235,7 @@ void write_push_pop(enum VM_TYPE command, char *segment, int index)
         }
         else if((strncmp(segment, "temp", strlen("temp")) == 0)
                 || (strncmp(segment, "pointer", strlen("pointer")) == 0)) {
-            
+
             fprintf(output_fd,
                     "@%d\n"
                     "D=A\n",
@@ -249,7 +247,7 @@ void write_push_pop(enum VM_TYPE command, char *segment, int index)
             else {
                 fprintf(output_fd, "@R3\n");
             }
-            
+
             fprintf(output_fd,
                     "A=D+A\n"
                     "D=M\n");
@@ -267,7 +265,7 @@ void write_push_pop(enum VM_TYPE command, char *segment, int index)
         fprintf(output_fd,
                 "@SP\n"
                 "MD=M-1\n");
-        
+
         if(strncmp(segment, "static", strlen("static")) == 0) {
             fprintf(output_fd,
                     "A=D\n"
@@ -281,7 +279,7 @@ void write_push_pop(enum VM_TYPE command, char *segment, int index)
                 || (strncmp(segment, "argument", strlen("argument")) == 0)
                 || (strncmp(segment, "this", strlen("this")) == 0)
                 || (strncmp(segment, "that", strlen("that")) == 0)) {
-            
+
             fprintf(output_fd,
                     "@%d\n"
                     "D=A\n",
@@ -299,7 +297,7 @@ void write_push_pop(enum VM_TYPE command, char *segment, int index)
             else {
                 fprintf(output_fd, "@THAT\n");
             }
-            
+
             fprintf(output_fd,
                     "A=M\n"
                     "D=D+A\n"
@@ -316,7 +314,7 @@ void write_push_pop(enum VM_TYPE command, char *segment, int index)
         }
         else if((strncmp(segment, "temp", strlen("temp")) == 0)
                 || (strncmp(segment, "pointer", strlen("pointer")) == 0)) {
-            
+
             fprintf(output_fd,
                     "@%d\n"
                     "D=A\n",
@@ -328,7 +326,7 @@ void write_push_pop(enum VM_TYPE command, char *segment, int index)
             else {
                 fprintf(output_fd, "@R3\n");
             }
-                
+
             fprintf(output_fd,
                     "D=D+A\n"
                     "@R13\n"
@@ -390,7 +388,7 @@ void write_goto(char *label)
                 "@%s\n"
                 "0;JMP\n",
                 label);
-    }   
+    }
 }
 
 /*
@@ -572,7 +570,7 @@ void write_function(char *function_name, int num_locals)
     if(in_function_name == NULL) {
         fprintf(stderr, "Unable to allocation function name\n");
     }
-    
+
     strncpy(in_function_name, function_name, strlen(function_name));
     in_function_name[strlen(function_name)] = '\0';
 

@@ -216,7 +216,7 @@ char *get_arg1()
             s += 1;
         }
 
-        if(s != '\0') {
+        if(*s != '\0') {
             next = s + 1;
 
             while(!isspace(*next) && (*next != '\0')) {
