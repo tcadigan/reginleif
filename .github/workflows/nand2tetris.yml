@@ -6,15 +6,16 @@ on:
     - 'projects/nand2tetris/**'
 
 jobs:
-  runs-on: ubuntu-latest
-  name: A build job
-  steps:
-    - uses: actions/checkout@v3
-    - uses: ./.github/actions/general-build
-      with:
-        path: projects/nand2tetris/frontend/assembler
-        language: C++
-    - uses: ./.github/actions/general-build
-      with:
-        path: projects/nand2tetris/frontend/virtual-machine
-        language: C++
+  build:
+    runs-on: ubuntu-latest
+    name: A build job
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/general-build
+        with:
+          path: projects/nand2tetris/frontend/assembler
+          language: C++
+      - uses: ./.github/actions/general-build
+        with:
+          path: projects/nand2tetris/frontend/virtual-machine
+          language: C++
