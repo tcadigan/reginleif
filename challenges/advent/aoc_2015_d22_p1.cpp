@@ -21,10 +21,10 @@ public:
 
 private:
   std::string name;
+  int turns;
   int dmg;
   int def;
   int mana;
-  int turns;
 };
 
 class Person {

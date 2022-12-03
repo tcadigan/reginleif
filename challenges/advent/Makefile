@@ -4,10 +4,13 @@
        aoc_2015_d17 aoc_2015_d18 aoc_2015_d19 aoc_2015_d20 aoc_2015_d21 \
        aoc_2015_d22 aoc_2015_d23 aoc_2015_d24 aoc_2015_d25
 
-CXX = clang++90
+CXX = clang
+CXXFLAGS = -Wall
 
-.ifndef DISABLE_BEAR
-BEAR = bear -a
+.ifdef DISABLE_BEAR
+BEAR =
+.else
+BEAR = bear --append --
 .endif
 
 PROGS = ${2015:=_p1} ${2015:=_p2}
@@ -15,10 +18,10 @@ PROGS = ${2015:=_p1} ${2015:=_p2}
 all: ${PROGS}
 
 ${PROGS}: ${.TARGET:=.o}
-	${CXX} ${CXXFLAGS} ${.TARGET:=.o} -o ${.TARGET:=}
+	${CXX} ${CXXFLAGS} ${.TARGET:=.o} -o ${.TARGET}
 
 clean:
 	rm -rf *~ *.o ${PROGS}
 
 .cpp.o:
-	${BEAR} ${CXX} ${STATIC_CXXFLAGS} ${CXXFLAGS} -c ${.IMPSRC} -o ${.TARGET}
+	${BEAR} ${CXX} ${CXXFLAGS} -c ${.IMPSRC} -o ${.TARGET}

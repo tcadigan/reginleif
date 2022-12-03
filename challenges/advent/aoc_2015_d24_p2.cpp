@@ -14,7 +14,7 @@ void add_bit(std::vector<int> &bits)
 }
 
 int count_ones(std::vector<int> const &bits) {
-  int count;
+  int count = 0;
   for (unsigned int i = 0; i < bits.size(); ++i) {
     if (bits[i] == 1) {
       ++count;

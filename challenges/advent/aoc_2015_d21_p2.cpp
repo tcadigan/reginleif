@@ -52,13 +52,13 @@ private:
 };
 
 bool fight(Person player, Person enemy) {
-  int round = 0;
+  // int round = 0;
   // std::cout << "Round " << round << ":"
   // 	    << " player hp: " << player.getHealth()
   // 	    << " enemy hp: " << enemy.getHealth() << std::endl;
 
   while ((player.getHealth() > 0) && (enemy.getHealth() > 0)) {
-    ++round;
+    // ++round;
     enemy.hit(player.getAttack());
 
     if (enemy.getHealth() > 0) {

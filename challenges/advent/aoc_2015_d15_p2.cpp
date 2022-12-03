@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
   }
 
   int iterations = 1;
-  for (auto const &a : amounts) {
+  for (unsigned int i = 0; i < amounts.size(); ++i) {
     iterations *= 101;
   }
 
