@@ -2,7 +2,7 @@
  * light.cpp
  *
  * 2006 Shamus Young
- * 
+ *
  * This tracks and renders the light sources. (Note that they do not really
  * CAST light in the OpenGL sense of the world, these are just simple panels.)
  * These are NOT subclassed to entities because these are dynamic. Some lights
@@ -13,7 +13,7 @@
 
 #include "light.hpp"
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <cmath>
 
 #include "camera.hpp"
@@ -25,7 +25,7 @@
 #include "render.hpp"
 #include "texture.hpp"
 #include "visible.hpp"
-#include "win.hpp" 
+#include "win.hpp"
 
 #define MAX_SIZE 5
 
@@ -81,7 +81,7 @@ void LightRender()
     for(l = head; l; l = l->next_) {
         l->Render();
     }
-    
+
     glEnd();
     glDepthMask(true);
 }
@@ -107,7 +107,7 @@ void Light::Blink()
 
     // We don't want blinkers to by in sync, so have them blink at
     // slightly different rates. (Milliseconds)
-    blink_interval_ = 1500 + RandomVal(500);
+    blink_interval_ = 1500 + randomVal(500);
 }
 
 void Light::Render()
@@ -124,7 +124,7 @@ void Light::Render()
 
     camera = camera_angle();
     camera_pos = camera_position();
-    
+
     if(fabs(camera_pos.get_x() - position_.get_x()) > RenderFogDistance()) {
         return;
     }
@@ -139,24 +139,24 @@ void Light::Render()
     offset = angles[size_][angle];
     pos = position_;
     glColor4fv(color_.get_data());
-    
+
     glTexCoord2f(0, 0);
     glVertex3f(pos.get_x() + offset.get_x(),
                pos.get_y() - vert_size_,
                pos.get_z() + offset.get_y());
-    
+
     glTexCoord2f(0, 1);
-    glVertex3f(pos.get_x() - offset.get_x(), 
+    glVertex3f(pos.get_x() - offset.get_x(),
                pos.get_y() - vert_size_,
                pos.get_z() - offset.get_y());
-    
+
     glTexCoord2f(1, 1);
     glVertex3f(pos.get_x() - offset.get_x(),
                pos.get_y() + vert_size_,
                pos.get_z() - offset.get_y());
 
     glTexCoord2f(1, 0);
-    glVertex3f(pos.get_x() + offset.get_x(), 
-               pos.get_y() + vert_size_, 
+    glVertex3f(pos.get_x() + offset.get_x(),
+               pos.get_y() + vert_size_,
                pos.get_z() + offset.get_y());
 }

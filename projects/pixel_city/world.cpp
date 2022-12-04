@@ -3,7 +3,7 @@
  *
  * 2009 Shamus Young
  *
- * This holds a bunch of variables used by other modules. It has the 
+ * This holds a bunch of variables used by other modules. It has the
  * claim system, which tracks all of the "porperty" that is being
  * used: As roads, buildings, etc.
  *
@@ -11,7 +11,7 @@
 
 #include "world.hpp"
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 #include <cmath>
 #include <cstring>
@@ -110,7 +110,7 @@ static gl_rgba get_light_color(float sat, float lum)
 {
     int index;
 
-    index = RandomVal(LIGHT_COLOR_COUNT);
+    index = randomVal(LIGHT_COLOR_COUNT);
     gl_rgba temp;
     return temp.from_hsl(light_colors[index].hue, sat, lum);
 }
@@ -220,7 +220,7 @@ static plot find_plot(int x, int z)
     // no idea how big it is. Find the boundary.
     x2 = x;
     x1 = x;
-    
+
     while(!claimed(x1 - 1, z, 1, 1) && (x1 > 0)) {
         x1--;
     }
@@ -231,7 +231,7 @@ static plot find_plot(int x, int z)
 
     z2 = z;
     z1 = z;
-    
+
     while(!claimed(x, z1 - 1, 1, 1) && (z1 > 0)) {
         z1--;
     }
@@ -241,17 +241,17 @@ static plot find_plot(int x, int z)
     }
 
     p.width = x2 - x1;
-    p.depth = z2 - z1;   
+    p.depth = z2 - z1;
     p.x = x1;
     p.z = z1;
-    
+
     return p;
 }
 
 static plot make_plot(int x, int z, int width, int depth)
 {
     plot p = {x, z, width, depth};
-    
+
     return p;
 }
 
@@ -266,8 +266,8 @@ void do_building(plot p)
 
     // Now we know how bit the rectangle plot is.
     area = p.width * p.depth;
-    color = WorldLightColor(RandomVal());
-    seed = RandomVal();
+    color = WorldLightColor(randomVal());
+    seed = randomVal();
 
     // Make sure the plot is big enough for a building
     if((p.width < 10) || (p.depth < 10)) {
@@ -313,10 +313,10 @@ void do_building(plot p)
 
     // The roundy mod buildings look best on square plots.
     if(square && (p.width > 20)) {
-        height = 45 + RandomVal(10);
+        height = 45 + randomVal(10);
         modern_count++;
         skyscrapers++;
-        new Building(BUILDING_MODERN, 
+        new Building(BUILDING_MODERN,
                      p.x,
                      p.z,
                      height,
@@ -330,9 +330,9 @@ void do_building(plot p)
 
     // // Rectangular plots are a good place for Blocky style buildings
     // // to sprawl blockily
-    // if((p.width > (p.depth * 2)) 
+    // if((p.width > (p.depth * 2))
     //    || ((p.depth > (p.width * 2)) && (area > 800))) {
-    //     height = 20 + RandomVal(10);
+    //     height = 20 + randomVal(10);
     //     blocky_count++;
     //     skyscrapers++;
     //     new CBuilding(BUILDING_BLOCKY,
@@ -364,7 +364,7 @@ void do_building(plot p)
         modern_count++;
     }
 
-    height = 45 + RandomVal(10);
+    height = 45 + randomVal(10);
 
     new Building(type, p.x, p.z, height, p.width, p.depth, seed, color);
     skyscrapers++;
@@ -408,7 +408,7 @@ static int build_light_strip(int x1, int z1, int direction)
     }
 
     // So we know we're on the corner of an intersection
-    // look in the given until we reach the end of 
+    // look in the given until we reach the end of
     // the sidewalk
     x2 = x1;
     z2 = z1;
@@ -489,7 +489,7 @@ static void do_reset(void)
 
     // Re-init Random to make the same city each time.
     // Helpful when running tests.
-    RandomInit(6);
+    randomInit(6);
     reset_needed = false;
     broadway_done = false;
     skyscrapers = 0;
@@ -505,23 +505,23 @@ static void do_reset(void)
     TextureReset();
 
     // Pink a tint for the bloom
-    bloom_color = get_light_color(0.5f + ((float)RandomVal(10) / 20.0f), 0.75f);
+    bloom_color = get_light_color(0.5f + ((float)randomVal(10) / 20.0f), 0.75f);
     gl_rgba temp;
     light_color = temp.from_hsl(0.11f, 1.0f, 0.65f);
     memset(world, '0', WORLD_SIZE * WORLD_SIZE);
     y = WORLD_EDGE;
-    for(/* empty */; y < (WORLD_SIZE - WORLD_EDGE); y += RandomVal(25) + 25) {
+    for(/* empty */; y < (WORLD_SIZE - WORLD_EDGE); y += randomVal(25) + 25) {
         if(!broadway_done && (y > (WORLD_HALF - 20))) {
             build_road(0, y, WORLD_SIZE, 19);
             y += 20;
             broadway_done = true;
         }
         else {
-            depth = 6 + RandomVal(6);
+            depth = 6 + randomVal(6);
             if(y < (WORLD_HALF / 2)) {
                 north_street = (float)(y + (depth / 2));
             }
-            
+
             if(y < (WORLD_SIZE - (WORLD_HALF / 2))) {
                 south_street = (float)(y + (depth / 2));
             }
@@ -532,14 +532,14 @@ static void do_reset(void)
 
     broadway_done = false;
     x = WORLD_EDGE;
-    for(/* empty */; x < (WORLD_SIZE - WORLD_EDGE); x += RandomVal(25) + 25) {
+    for(/* empty */; x < (WORLD_SIZE - WORLD_EDGE); x += randomVal(25) + 25) {
         if(!broadway_done && (x > (WORLD_HALF - 20))) {
             build_road(x, 0, 19, WORLD_SIZE);
             x += 20;
             broadway_done = true;
         }
         else {
-            width = 6 + RandomVal(6);
+            width = 6 + randomVal(6);
             if(x <= (WORLD_HALF / 2)) {
                 west_street = (float)(x + (width / 2));
             }
@@ -552,7 +552,7 @@ static void do_reset(void)
     }
 
     // We kept track of the positions of streets that will outline the
-    // high-detail hot zone in the middle of the world. Save this in a 
+    // high-detail hot zone in the middle of the world. Save this in a
     // bounding box so that late we can have the camera fly around without
     // clipping through buildings.
     hot_zone.contain_point(gl_vector3(west_street, 0.0f, north_street));
@@ -575,7 +575,7 @@ static void do_reset(void)
 
             road_left = ((world[x + 1][y] & CLAIM_ROAD) != 0);
             road_right = ((world[x - 1][y] & CLAIM_ROAD) != 0);
-            
+
             // If the cells to our east and west are not road,
             // then we're not on a corner.
             if(!road_left && !road_right) {
@@ -624,12 +624,12 @@ static void do_reset(void)
             x += build_light_strip(x, y, road_right ? EAST : WEST);
         }
     }
-        
+
     // Scan over the center area of the map and place the big buildings
     attempts = 0;
     while((skyscrapers < 50) && (attempts < 350)) {
-        x = (WORLD_HALF / 2) + (RandomVal() % WORLD_HALF);
-        y = (WORLD_HALF / 2) + (RandomVal() % WORLD_HALF);
+        x = (WORLD_HALF / 2) + (randomVal() % WORLD_HALF);
+        y = (WORLD_HALF / 2) + (randomVal() % WORLD_HALF);
         if(!claimed(x, y, 1, 1)) {
             do_building(find_plot(x, y));
             skyscrapers++;
@@ -645,31 +645,31 @@ static void do_reset(void)
                 continue;
             }
 
-            width = 12 + RandomVal(20);
-            depth = 12 + RandomVal(20);
+            width = 12 + randomVal(20);
+            depth = 12 + randomVal(20);
             height = MIN(width, depth);
 
             if((x < 30)
                || (y < 30)
                || (x > (WORLD_SIZE - 30))
                || (y > (WORLD_SIZE - 30))) {
-                height = RandomVal(15 + 20);
+                height = randomVal(15 + 20);
             }
             else if(x < (WORLD_HALF / 2)) {
                 height /= 2;
             }
-            
+
             while((width > 8) && (depth > 8)) {
                 if(!claimed(x, y, width, depth)) {
                     claim(x, y, width, depth, CLAIM_BUILDING);
-                    building_color = WorldLightColor(RandomVal());
+                    building_color = WorldLightColor(randomVal());
 
                     // If we're out of the host zone use simple builings
                     if((x < hot_zone.get_min().get_x())
                        || (x > hot_zone.get_max().get_x())
                        || (y < hot_zone.get_min().get_z())
                        || (y > hot_zone.get_max().get_z())) {
-                        height = 5 + RandomVal(height) + RandomVal(height);
+                        height = 5 + randomVal(height) + randomVal(height);
 
                         new Building(BUILDING_SIMPLE,
                                      x + 1,
@@ -677,12 +677,12 @@ static void do_reset(void)
                                      height,
                                      width - 2,
                                      depth - 2,
-                                     RandomVal(),
+                                     randomVal(),
                                      building_color);
                     }
                     else {
                         // Use fancy buildings.
-                        height = 15 + RandomVal(15);
+                        height = 15 + randomVal(15);
                         width -= 2;
                         depth -= 2;
                         if(COIN_FLIP) {
@@ -692,7 +692,7 @@ static void do_reset(void)
                                          height,
                                          width,
                                          depth,
-                                         RandomVal(),
+                                         randomVal(),
                                          building_color);
                         }
                         else {
@@ -702,11 +702,11 @@ static void do_reset(void)
                                          height,
                                          width - 2,
                                          depth - 2,
-                                         RandomVal(),
+                                         randomVal(),
                                          building_color);
                         }
                     }
-                    
+
                     break;
                 }
 
@@ -714,7 +714,7 @@ static void do_reset(void)
                 depth--;
             }
 
-            // Leave big gaps near the edge of the map, 
+            // Leave big gaps near the edge of the map,
             // no need to pack detail there.
             if((y < WORLD_EDGE) || (y > (WORLD_SIZE - WORLD_EDGE))) {
                 y += 32;
@@ -800,13 +800,13 @@ void WorldRender()
 
     glTexCoord2f(0, 0);
     glVertex3f(0, 0, 0);
-    
+
     glTexCoord2f(0, 1);
     glVertex3f(0, 0, 1024);
 
     glTexCoord2f(1, 1);
     glVertex3f(1024, 0, 1024);
-    
+
     glTexCoord2f(1, 0);
     glVertex3f(1024, 0, 0);
 
@@ -853,16 +853,16 @@ void WorldUpdate(void)
         // Now we've faded out the scene, rebuild it
         do_reset();
     }
-    
+
     if(fade_state != FADE_IDLE) {
         if((fade_state == FADE_WAIT) && TextureReady() && EntityReady()) {
             fade_state = FADE_IN;
             fade_start = now;
             fade_current = 1.0f;
         }
-        
+
         fade_delta = now - fade_start;
-        
+
         // See if we're done fading in or out
         if((fade_delta > FADE_TIME) && (fade_state != FADE_WAIT)) {
             if(fade_state == FADE_OUT) {

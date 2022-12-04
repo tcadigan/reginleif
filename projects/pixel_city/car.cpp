@@ -9,7 +9,7 @@
 
 #include "car.hpp"
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <cmath>
 
 #include "building.hpp"
@@ -55,7 +55,7 @@ int CarCount()
 void CarClear()
 {
     Car *c;
-    
+
     for(c = head; c; c = c->next_) {
         c->Park();
     }
@@ -98,13 +98,13 @@ void CarUpdate()
     }
 
     now = SDL_GetTicks();
-    
+
     if(next_update > now) {
         return;
     }
 
     next_update = now + UPDATE_INTERVAL;
-    
+
     for(c = head; c; c = c->next_) {
         c->Update();
     }
@@ -144,8 +144,8 @@ void Car::Update(void)
     camera = camera_position();
     if(!ready_) {
         // If the car isn't ready, we need to place it somewhere on the map
-        row_ = DEAD_ZONE + RandomVal(WORLD_SIZE - (DEAD_ZONE * 2));
-        col_ = DEAD_ZONE + RandomVal(WORLD_SIZE - (DEAD_ZONE * 2));
+        row_ = DEAD_ZONE + randomVal(WORLD_SIZE - (DEAD_ZONE * 2));
+        col_ = DEAD_ZONE + randomVal(WORLD_SIZE - (DEAD_ZONE * 2));
 
         // If there is already a car here, forget it.
         if(carmap[row_][col_] > 0) {
@@ -180,7 +180,7 @@ void Car::Update(void)
         }
 
         drive_angle_ = dangles[direction_];
-        max_speed_ = (float)(4 + RandomVal(6)) / 10.0f;
+        max_speed_ = (float)(4 + randomVal(6)) / 10.0f;
         speed_ = 0.0f;
         change_ = 3;
         stuck_ = 0;
@@ -194,12 +194,12 @@ void Car::Update(void)
     speed_ += max_speed_ * 0.05f;
     speed_ =  MIN(speed_, max_speed_);
     position_ += direction[direction_] * MOVEMENT_SPEED * speed_;
-    
+
     // If the car has moved out of view, there's no need to keep simulating it
     if(!Visible(gl_vector3((float)row_, 0.0f, (float)col_))) {
         ready_ = false;
     }
-    
+
     // If the car is far away, remove it. We use Manhattan units because
     // buildings almost always block views of cars on the diagonal.
     float x_dist = fabs(camera.get_x() - position_.get_x());
@@ -221,7 +221,7 @@ void Car::Update(void)
     if(stuck_ >= STUCK_TIME) {
         ready_ = false;
     }
-    
+
     if(!ready_) {
         return;
     }
@@ -289,7 +289,7 @@ void Car::Render()
     }
 
     glBegin(GL_QUADS);
-    
+
     angle = dangles[direction_];
     pos = drive_position_;
     angle = 360 - (int)MathAngle(position_.get_x(),
@@ -303,7 +303,7 @@ void Car::Render()
     pos += gl_vector3(0.5f, 0.0f, 0.5f);
 
     glTexCoord2f(0, 0);
-    glVertex3f(pos.get_x() + angles[angle].get_x(), 
+    glVertex3f(pos.get_x() + angles[angle].get_x(),
                -CAR_SIZE,
                pos.get_z() + angles[angle].get_y());
 

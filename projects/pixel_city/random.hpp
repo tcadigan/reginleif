@@ -1,10 +1,10 @@
 #ifndef RANDOM_HPP_
 #define RANDOM_HPP_
 
-#define COIN_FLIP (RandomVal(2) == 0)
+#define COIN_FLIP (randomVal(2) == 0)
 
-unsigned long RandomVal(int range);
-unsigned long RandomVal(void);
-void RandomInit(unsigned long seed);
+unsigned long randomVal(int range);
+unsigned long randomVal(void);
+void randomInit(unsigned long seed);
 
 #endif /* RANDOM_HPP_ */

@@ -1,0 +1,17 @@
+name: PixelCity build
+
+on:
+  push:
+    paths:
+    - 'projects/pixel_city/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: A build job
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/general-build
+        with:
+          path: projects/pixel_city
+          language: C++

@@ -1,7 +1,7 @@
 #ifndef GL_VECTOR2_HPP_
 #define GL_VECTOR2_HPP_
 
-#include <SDL_opengl.h>
+#include <SDL2/SDL_opengl.h>
 
 class gl_vector2 {
 public:

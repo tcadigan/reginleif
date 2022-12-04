@@ -1,6 +1,8 @@
 #ifndef WIN_HPP_
 #define WIN_HPP_
 
+#include <SDL2/SDL.h>
+
 // Versioning info
 #define APP_TITLE "PixelCity"
 #define APP "pixelcity"
@@ -54,8 +56,10 @@ enum {
 void WinPopup(char *message, ...);
 void WinTerm(void);
 bool WinInit(void);
-int WinWidth(void);
-int WinHeight(void);
+int winWidth(SDL_Window *window);
+int winHeight(SDL_Window *window);
 void WinMousePosition(int *x, int *y);
+
+extern SDL_Window *window;
 
 #endif /* WIN_HPP_ */

@@ -1,7 +1,7 @@
 #ifndef CAMERA_HPP_
 #define CAMERA_HPP_
 
-#include <SDL_opengl.h>
+#include <SDL2/SDL_opengl.h>
 
 #include "gl-vector3.hpp"
 

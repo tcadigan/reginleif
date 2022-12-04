@@ -1,6 +1,6 @@
 /*
  * entity.cpp
- * 
+ *
  * Copyright (c) 2005 Shamus Young
  * All Rights Reserved
  *
@@ -13,7 +13,7 @@
 
 #include "entity.hpp"
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <cmath>
 #include <cstdlib>
 
@@ -72,12 +72,12 @@ static int do_compare(const void *arg1, const void *arg2)
 
 void add(Entity *b)
 {
-    entity_list = (entity *)realloc(entity_list, 
+    entity_list = (entity *)realloc(entity_list,
                                     sizeof(entity) * (entity_count + 1));
-    
+
     entity_list[entity_count].object = b;
     entity_count++;
-    
+
     polycount = 0;
 }
 
@@ -86,7 +86,7 @@ static void do_compile()
     int i;
     int x;
     int y;
-    
+
     if(compiled) {
         return;
     }
@@ -107,8 +107,8 @@ static void do_compile()
     }
 
     glNewList(cell_list[x][y].list_textured, GL_COMPILE);
-    cell_list[x][y].pos = gl_vector3(GRID_TO_WORLD(x), 
-                                     0.0f, 
+    cell_list[x][y].pos = gl_vector3(GRID_TO_WORLD(x),
+                                     0.0f,
                                      (float)y * GRID_RESOLUTION);
 
     for(i = 0; i < entity_count; ++i) {
@@ -130,7 +130,7 @@ static void do_compile()
     glNewList(cell_list[x][y].list_flat, GL_COMPILE);
     glEnable(GL_CULL_FACE);
     cell_list[x][y].pos = gl_vector3(GRID_TO_WORLD(x),
-                                     0.0f, 
+                                     0.0f,
                                      (float)y * GRID_RESOLUTION);
 
     for(i = 0; i < entity_count; ++i) {
@@ -142,7 +142,7 @@ static void do_compile()
         }
     }
     glEndList();
-    
+
     // Now a list of flat-colored stuff that will be wireframe friendly
     if(!cell_list[x][y].list_flat_wireframe) {
         cell_list[x][y].list_flat_wireframe = glGenLists(1);
@@ -153,7 +153,7 @@ static void do_compile()
     cell_list[x][y].pos = gl_vector3(GRID_TO_WORLD(x),
                                      0.0f,
                                      (float)y * GRID_RESOLUTION);
-    
+
     for(i = 0; i < entity_count; ++i) {
         gl_vector3 pos = entity_list[i].object->center();
         if((WORLD_TO_GRID(pos.get_x()) == x)
@@ -168,7 +168,7 @@ static void do_compile()
     if(!cell_list[x][y].list_alpha) {
         cell_list[x][y].list_alpha = glGenLists(1);
     }
-    
+
     glNewList(cell_list[x][y].list_alpha, GL_COMPILE);
     cell_list[x][y].pos = gl_vector3(GRID_TO_WORLD(x),
                                      0.0f,
@@ -221,7 +221,7 @@ void EntityUpdate()
         sorted = false;
         return;
     }
-    
+
     if(!sorted) {
         qsort(entity_list, entity_count, sizeof(struct entity), do_compare);
         sorted = true;
@@ -242,7 +242,7 @@ void EntityUpdate()
         do_compile();
     }
 }
-    
+
 void EntityRender()
 {
     int polymode[2];
@@ -354,7 +354,7 @@ int EntityPolyCount(void)
     if(!sorted) {
         return 0;
     }
-    
+
     if(polycount) {
         return polycount;
     }

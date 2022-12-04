@@ -224,7 +224,7 @@ void Decoration::CreateLightStrip(float x,
     }
     else {
         v = 1.0f;
-        v = (float)((int)(width / depth));
+        u = (float)((int)(width / depth));
     }
 
     texture_ = TextureId(TEXTURE_LIGHT);

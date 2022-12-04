@@ -1,8 +1,8 @@
 /*
  * render.cpp
- * 
+ *
  * 2009 Shamus Young
- * 
+ *
  * This is the core of the gl rendering functions. This contains the main
  * rendering function RenderUpdate(), which initiates the various other
  * renders in the other modules.
@@ -11,7 +11,8 @@
 
 #include "render.hpp"
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
+#include <GL/glu.h>
 #include <cmath>
 #include <cstdarg>
 #include <cstdio>
@@ -191,7 +192,7 @@ static void do_effects(int type)
     glDisable(GL_DEPTH_TEST);
     glDepthMask(false);
     glBindTexture(GL_TEXTURE_2D, TextureId(TEXTURE_BLOOM));
-    
+
     switch(type) {
     case EFFECT_DEBUG:
         glBindTexture(GL_TEXTURE_2D, TextureId(TEXTURE_LOGOS));
@@ -207,22 +208,22 @@ static void do_effects(int type)
 
         glTexCoord2f(1, 1);
         glVertex2i(render_width / 4, 0);
-        
+
         glTexCoord2f(1, 0);
         glVertex2i(render_width / 4, render_height / 4);
 
         glTexCoord2f(0, 0);
         glVertex2i(0, 512);
-        
+
         glTexCoord2f(0, 1);
         glVertex2i(0, 0);
-        
+
         glTexCoord2f(1, 1);
         glVertex2i(512, 0);
 
-        glTexCoord2f(1, 0); 
+        glTexCoord2f(1, 0);
         glVertex2i(512, 512);
-        
+
         glEnd();
         break;
     case EFFECT_BLOOM_RADIAL:
@@ -237,10 +238,10 @@ static void do_effects(int type)
 
             glTexCoord2f(0, 1);
             glVertex2i(-i, -i);
-            
+
             glTexCoord2f(1, 1);
             glVertex2i(i + render_width, -i);
-            
+
             glTexCoord2f(1, 0);
             glVertex2i(i + render_width, i + render_width);
         }
@@ -251,39 +252,39 @@ static void do_effects(int type)
         {
             // Oooh. Pretty colors. Tint the scene according to the screenspace
             hue1 = (float)(SDL_GetTicks() % COLOR_CYCLE_TIME) / COLOR_CYCLE_TIME;
-            
+
             float offset = SDL_GetTicks() + COLOR_CYCLE;
             hue2 = fmod(offset, (float)COLOR_CYCLE_TIME) / COLOR_CYCLE_TIME;
             hue3 = fmod(offset * 2, (float)COLOR_CYCLE_TIME) / COLOR_CYCLE_TIME;
             hue4 = fmod(offset * 3, (float)COLOR_CYCLE_TIME) / COLOR_CYCLE_TIME;
-            
+
             glBindTexture(GL_TEXTURE_2D, 0);
             glEnable(GL_BLEND);
             glBlendFunc(GL_ONE, GL_ONE);
             glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
             glBegin(GL_QUADS);
-            
+
             gl_rgba temp;
             color = temp.from_hsl(hue1, 1.0f, 0.6f);
             glColor3fv(color.get_data());
             glTexCoord2f(0, 0);
             glVertex2i(0, render_height);
-            
+
             color = temp.from_hsl(hue2, 1.0f, 0.6f);
             glColor3fv(color.get_data());
             glTexCoord2f(0, 1);
             glVertex2i(0, 0);
-            
+
             color = temp.from_hsl(hue3, 1.0f, 0.6f);
             glColor3fv(color.get_data());
             glTexCoord2f(1, 1);
             glVertex2i(render_width, 0);
-            
+
             color = temp.from_hsl(hue4, 1.0f, 0.6f);
             glColor3fv(color.get_data());
             glTexCoord2f(1, 0);
             glVertex2i(render_width, render_height);
-            
+
             glEnd();
         }
 
@@ -302,13 +303,13 @@ static void do_effects(int type)
 
                 glTexCoord2f(0, 0);
                 glVertex2i(x, y + render_height);
-                
+
                 glTexCoord2f(0, 1);
                 glVertex2i(x, y);
 
                 glTexCoord2f(1, 1);
                 glVertex2i(x + render_width, y);
-                
+
                 glTexCoord2f(1, 0);
                 glVertex2i(x + render_width, y + render_height);
             }
@@ -320,7 +321,7 @@ static void do_effects(int type)
         // This will punish that uppity GPU. Good for testing
         // low frame rate behavior.
         glBegin(GL_QUADS);
-        
+
         color = WorldBloomColor() * 0.01f;
         glColor3fv(color.get_data());
         for(x = -50; x <= 50; x += 5) {
@@ -330,7 +331,7 @@ static void do_effects(int type)
 
                 glTexCoord2f(0, 1);
                 glVertex2i(x, y);
-                
+
                 glTexCoord2f(1, 1);
                 glVertex2i(x + render_width, y);
 
@@ -388,14 +389,14 @@ static void do_effects(int type)
     glMatrixMode(GL_MODELVIEW);
     glEnable(GL_DEPTH_TEST);
 }
-  
+
 int RenderMaxTextureSize()
 {
     int mts;
 
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &mts);
     mts = MIN(mts, render_width);
-    
+
     return (MIN(mts, render_height));
 }
 
@@ -405,7 +406,7 @@ void RenderPrint(int x, int y, int font, gl_rgba color, const char *fmt, ...)
     va_list ap;
 
     text[0] = 0;
-    
+
     if(fmt == NULL) {
         return;
     }
@@ -416,7 +417,7 @@ void RenderPrint(int x, int y, int font, gl_rgba color, const char *fmt, ...)
 
     char curier_new[] = { 'C', 'o', 'u', 'r', 'i', 'e', 'r', ' ', 'N', 'e', 'w', '\0' };
     char arial[] = { 'A', 'r', 'i', 'a', 'l', '\0' };
-    char times_new_roman[] = 
+    char times_new_roman[] =
         { 'T', 'i', 'm', 'e', 's', ' ', 'N', 'e', 'w', ' ', 'R', 'o', 'm', 'a', 'n', '\0' };
 
     char arial_black[] = { 'A', 'r', 'i', 'a', 'l', ' ', 'B', 'l', 'a', 'c', 'k', '\0' };
@@ -513,8 +514,7 @@ void RenderResize(void)
 {
     float fovy = 60.0f;
 
-    render_width = WinWidth();
-    render_height = WinHeight();
+    SDL_GetWindowSize(window, &render_width, &render_height);
     if(letterbox) {
         letterbox_offset = render_height / 6;
         render_height = render_height - (letterbox_offset * 2);
@@ -559,10 +559,13 @@ void RenderInit(void)
 
     // Clear the viewport so the user isn't looking at trash
     // while the program starts
-    glViewport(0, 0, WinWidth(), WinHeight());
+    int width;
+    int height;
+    SDL_GetWindowSize(window, &width, &height);
+    glViewport(0, 0, width, height);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    SDL_GL_SwapBuffers();
+    SDL_GL_SwapWindow(window);
     RenderResize();
 }
 
@@ -661,8 +664,11 @@ void RenderUpdate(void)
 
     frames++;
     do_fps();
-    
-    glViewport(0, 0, WinWidth(), WinHeight());
+
+    int width;
+    int height;
+    SDL_GetWindowSize(window, &width, &height);
+    glViewport(0, 0, width, height);
     glDepthMask(true);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
@@ -674,7 +680,7 @@ void RenderUpdate(void)
 
     if(LOADING_SCREEN && TextureReady() && !EntityReady()) {
         do_effects(EFFECT_NONE);
-        SDL_GL_SwapBuffers();
+        SDL_GL_SwapWindow(window);
 
         return;
     }
@@ -712,9 +718,9 @@ void RenderUpdate(void)
         color = gl_rgba(0.0f);
         glFogfv(GL_FOG_COLOR, color.get_data());
     }
-    
+
     WorldRender();
-    
+
     if(effect == EFFECT_GLASS_CITY) {
         glDisable(GL_CULL_FACE);
         glEnable(GL_BLEND);
@@ -729,9 +735,9 @@ void RenderUpdate(void)
         glEnable(GL_CULL_FACE);
         glDisable(GL_BLEND);
     }
-    
+
     EntityRender();
-    
+
     if(!LOADING_SCREEN) {
         elapsed = 3000 - WorldSceneElapsed();
 
@@ -749,7 +755,7 @@ void RenderUpdate(void)
     }
 
     CarRender();
-    
+
     if(show_wireframe) {
         glDisable(GL_TEXTURE_2D);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -772,6 +778,5 @@ void RenderUpdate(void)
         do_help();
     }
 
-    SDL_GL_SwapBuffers();
+    SDL_GL_SwapWindow(window);
 }
-        

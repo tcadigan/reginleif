@@ -15,7 +15,7 @@ public:
     void CreateLogo(gl_vector2 start,
                     gl_vector2 end,
                     float base,
-                    int seed, 
+                    int seed,
                     gl_rgba color);
 
     void CreateLightStrip(float x,
@@ -41,7 +41,6 @@ public:
 private:
     gl_rgba color_;
     Mesh *mesh_;
-    int type_;
     unsigned texture_;
     bool use_alpha_;
 };

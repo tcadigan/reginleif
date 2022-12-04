@@ -36,23 +36,23 @@ static gl_vector3 vector_buffer[MAX_VBUFFER];
 /*
  * This is the constructor for out building constructor.
  */
-Building::Building(GLint type,
-                   GLint x,
-                   GLint y,
-                   GLint height,
-                   GLint width,
-                   GLint depth,
-                   GLint seed,
+Building::Building(int type,
+                   int x,
+                   int y,
+                   int height,
+                   int width,
+                   int depth,
+                   int seed,
                    gl_rgba color)
 {
     x_ = x;
     y_ = y;
     width_ = width;
     height_ = height;
-    center_ = 
-        gl_vector3((GLfloat)(x_ + (width / 2)), 0.0f, (GLfloat)(y_ + (depth / 2)));
+    center_ =
+        gl_vector3((float)(x_ + (width / 2)), 0.0f, (float)(y_ + (depth / 2)));
     seed_ = seed;
-    texture_type_ = RandomVal();
+    texture_type_ = randomVal();
     color_ = color;
     color_.set_alpha(0.1f);
     have_lights_ = false;
@@ -62,7 +62,7 @@ Building::Building(GLint type,
     trim_color_ = WorldLightColor(seed); // Pick a color for logos & roof lights
     mesh_ = new Mesh; // The main textured mesh for the building
     mesh_flat_ = new Mesh; // Flat-color mesh for untextured detail items
-    
+
     switch(type) {
     case BUILDING_SIMPLE:
         create_simple();
@@ -94,7 +94,7 @@ GLuint Building::texture()
     return TextureRandomBuilding(texture_type_);
 }
 
-GLint Building::poly_count()
+int Building::poly_count()
 {
     return(mesh_->PolyCount() + mesh_flat_->PolyCount());
 }
@@ -105,7 +105,7 @@ void Building::render()
     mesh_->Render();
 }
 
-void Building::render_flat(GLboolean colored)
+void Building::render_flat(bool colored)
 {
     if(colored) {
         glColor3fv(color_.get_data());
@@ -114,74 +114,74 @@ void Building::render_flat(GLboolean colored)
     mesh_flat_->Render();
 }
 
-void Building::construct_cube(GLint left,
-                              GLint right,
-                              GLint front,
-                              GLint back,
-                              GLint bottom,
-                              GLint top)
+void Building::construct_cube(int left,
+                              int right,
+                              int front,
+                              int back,
+                              int bottom,
+                              int top)
 {
     gl_vertex p[10];
-    GLfloat x1;
-    GLfloat x2;
-    GLfloat z1;
-    GLfloat z2;
-    GLfloat y1;
-    GLfloat y2;
-    GLint i;
+    float x1;
+    float x2;
+    float z1;
+    float z2;
+    float y1;
+    float y2;
+    int i;
     cube c;
-    GLfloat u;
-    GLfloat v1;
-    GLfloat v2;
-    GLfloat mapping;
-    GLint base_index;
+    float u;
+    float v1;
+    float v2;
+    float mapping;
+    int base_index;
 
-    x1 = (GLfloat)left;
-    x2 = (GLfloat)right;
-    y1 = (GLfloat)bottom;
-    y2 = (GLfloat)top;
-    z1 = (GLfloat)front;
-    z2 = (GLfloat)back;
+    x1 = (float)left;
+    x2 = (float)right;
+    y1 = (float)bottom;
+    y2 = (float)top;
+    z1 = (float)front;
+    z2 = (float)back;
     base_index = mesh_->VertexCount();
 
-    mapping = (GLfloat)SEGMENTS_PER_TEXTURE;
-    u = (GLfloat)(RandomVal() % SEGMENTS_PER_TEXTURE) / (GLfloat)mapping;
-    v1 = (GLfloat)bottom / (GLfloat)mapping;
-    v2 = (GLfloat)top / (GLfloat)mapping;
+    mapping = (float)SEGMENTS_PER_TEXTURE;
+    u = (float)(randomVal() % SEGMENTS_PER_TEXTURE) / (float)mapping;
+    v1 = (float)bottom / (float)mapping;
+    v2 = (float)top / (float)mapping;
 
     p[0].set_position(gl_vector3(x1, y1, z1));
     p[0].set_uv(gl_vector2(u, v1));
     p[1].set_position(gl_vector3(x1, y2, z1));
     p[1].set_uv(gl_vector2(u, v2));
 
-    u += (GLfloat)width_ / mapping;
+    u += (float)width_ / mapping;
     p[2].set_position(gl_vector3(x2, y1, z1));
     p[2].set_uv(gl_vector2(u, v1));
     p[3].set_position(gl_vector3(x2, y2, z1));
     p[3].set_uv(gl_vector2(u, v2));
 
-    u += (GLfloat)depth_ / mapping;
+    u += (float)depth_ / mapping;
     p[4].set_position(gl_vector3(x2, y1, z2));
     p[4].set_uv(gl_vector2(u, v1));
     p[5].set_position(gl_vector3(x2, y2, z2));
     p[5].set_uv(gl_vector2(u, v2));
 
-    u += (GLfloat)width_ / mapping;
+    u += (float)width_ / mapping;
     p[6].set_position(gl_vector3(x1, y1, z2));
     p[6].set_uv(gl_vector2(u, v1));
     p[7].set_position(gl_vector3(x1, y2, z2));
     p[7].set_uv(gl_vector2(u, v2));
 
-    u += (GLfloat)width_ / mapping;
+    u += (float)width_ / mapping;
     p[8].set_position(gl_vector3(x1, y1, z1));
     p[8].set_uv(gl_vector2(u, v1));
     p[9].set_position(gl_vector3(x1, y2, z1));
     p[9].set_uv(gl_vector2(u, v2));
 
     for(i = 0; i < 10; ++i) {
-        GLfloat pos_x = p[i].get_position().get_x();
-        GLfloat pos_z = p[i].get_position().get_z();
-        p[i].get_uv().set_x((pos_x + pos_z) / (GLfloat)mapping);
+        float pos_x = p[i].get_position().get_x();
+        float pos_z = p[i].get_position().get_z();
+        p[i].get_uv().set_x((pos_x + pos_z) / (float)mapping);
         mesh_->VertexAdd(p[i]);
         c.index_list.push_back(base_index + i);
     }
@@ -189,23 +189,23 @@ void Building::construct_cube(GLint left,
     mesh_->CubeAdd(c);
 }
 
-void Building::construct_cube(GLfloat left,
-                              GLfloat right,
-                              GLfloat front,
-                              GLfloat back,
-                              GLfloat bottom,
-                              GLfloat top)
+void Building::construct_cube(float left,
+                              float right,
+                              float front,
+                              float back,
+                              float bottom,
+                              float top)
 {
     gl_vertex p[10];
-    GLfloat x1;
-    GLfloat x2;
-    GLfloat z1;
-    GLfloat z2;
-    GLfloat y1;
-    GLfloat y2;
-    GLint i;
+    float x1;
+    float x2;
+    float z1;
+    float z2;
+    float y1;
+    float y2;
+    int i;
     cube c;
-    GLint base_index;
+    int base_index;
 
     x1 = left;
     x2 = right;
@@ -246,9 +246,9 @@ void Building::construct_cube(GLfloat left,
     p[9].set_uv(gl_vector2(0.0f, 0.0f));
 
     for(i = 0; i < 10; ++i) {
-        GLfloat pos_x = p[i].get_position().get_x();
-        GLfloat pos_z = p[i].get_position().get_z();
-        p[i].get_uv().set_x((pos_x + pos_z) / (GLfloat)SEGMENTS_PER_TEXTURE);
+        float pos_x = p[i].get_position().get_x();
+        float pos_z = p[i].get_position().get_z();
+        p[i].get_uv().set_x((pos_x + pos_z) / (float)SEGMENTS_PER_TEXTURE);
 
         mesh_flat_->VertexAdd(p[i]);
         c.index_list.push_back(base_index + i);
@@ -261,49 +261,49 @@ void Building::construct_cube(GLfloat left,
  * This will take the given area and populate it with rooftop stuff like
  * air conditioners or light towers.
  */
-void Building::construct_roof(GLfloat left,
-                              GLfloat right,
-                              GLfloat front,
-                              GLfloat back,
-                              GLfloat bottom)
+void Building::construct_roof(float left,
+                              float right,
+                              float front,
+                              float back,
+                              float bottom)
 {
-    GLint air_conditioners;
-    GLint i;
-    GLint width;
-    GLint depth;
-    GLint height;
-    GLint face;
-    GLint addon;
-    GLint max_tiers;
-    GLfloat ac_x;
-    GLfloat ac_y;
-    GLfloat ac_base;
-    GLfloat ac_size;
-    GLfloat ac_height;
-    GLfloat logo_offset;
+    int air_conditioners;
+    int i;
+    int width;
+    int depth;
+    int height;
+    int face;
+    int addon = ADDON_NONE;
+    int max_tiers;
+    float ac_x;
+    float ac_y;
+    float ac_base;
+    float ac_size;
+    float ac_height;
+    float logo_offset;
     Decoration *d;
     gl_vector2 start;
     gl_vector2 end;
 
     roof_tiers_++;
     max_tiers = height_ / 10;
-    width = (GLint)(right - left);
-    depth = (GLint)(back - front);
+    width = (int)(right - left);
+    depth = (int)(back - front);
     height = 5 - roof_tiers_;
     logo_offset = 0.2f;
 
     // See if this build is special and worth of fancy roof decorations.
     if(bottom > 35.0f) {
-        addon = RandomVal(ADDON_COUNT);
+        addon = randomVal(ADDON_COUNT);
     }
 
     // Build the roof slab
-    construct_cube(left, right, front, back, bottom, bottom + (GLfloat)height);
+    construct_cube(left, right, front, back, bottom, bottom + (float)height);
 
     // Consider putting a logo on the root, if it's tall enough
     if((addon == ADDON_LOGO) && !have_logo_) {
         d = new Decoration;
-        
+
         if(width > depth) {
             if(COIN_FLIP) {
                 face = NORTH;
@@ -323,21 +323,21 @@ void Building::construct_roof(GLfloat left,
 
         switch(face) {
         case NORTH:
-            start = gl_vector2((GLfloat)left, (GLfloat)back + logo_offset);
-            end = gl_vector2((GLfloat)right, (GLfloat)back + logo_offset);
+            start = gl_vector2((float)left, (float)back + logo_offset);
+            end = gl_vector2((float)right, (float)back + logo_offset);
             break;
         case SOUTH:
-            start = gl_vector2((GLfloat) right, (GLfloat)front - logo_offset);
-            end = gl_vector2((GLfloat)right, (GLfloat)front - logo_offset);
+            start = gl_vector2((float) right, (float)front - logo_offset);
+            end = gl_vector2((float)right, (float)front - logo_offset);
             break;
         case EAST:
-            start = gl_vector2((GLfloat)right + logo_offset, (GLfloat)back);
-            end = gl_vector2((GLfloat)right + logo_offset, (GLfloat)front);
+            start = gl_vector2((float)right + logo_offset, (float)back);
+            end = gl_vector2((float)right + logo_offset, (float)front);
             break;
         case WEST:
         default:
-            start = gl_vector2((GLfloat)left - logo_offset, (GLfloat)front);
-            end = gl_vector2((GLfloat)left - logo_offset, (GLfloat)back);
+            start = gl_vector2((float)left - logo_offset, (float)front);
+            end = gl_vector2((float)left - logo_offset, (float)back);
             break;
         }
 
@@ -354,19 +354,19 @@ void Building::construct_roof(GLfloat left,
 
         d->CreateLightTrim(vector_buffer,
                            4,
-                           (GLfloat)RandomVal(2) + 1.0f,
+                           (float)randomVal(2) + 1.0f,
                            seed_,
                            trim_color_);
     }
     else if((addon == ADDON_LIGHTS) && !have_lights_) {
-        new Light(gl_vector3(left, (GLfloat)(bottom + 2), front), trim_color_, 2);
-        new Light(gl_vector3(right, (GLfloat)(bottom + 2), front), trim_color_, 2);
-        new Light(gl_vector3(right, (GLfloat)(bottom + 2), back), trim_color_, 2);
-        new Light(gl_vector3(left, (GLfloat)(bottom + 2), back), trim_color_, 2);
+        new Light(gl_vector3(left, (float)(bottom + 2), front), trim_color_, 2);
+        new Light(gl_vector3(right, (float)(bottom + 2), front), trim_color_, 2);
+        new Light(gl_vector3(right, (float)(bottom + 2), back), trim_color_, 2);
+        new Light(gl_vector3(left, (float)(bottom + 2), back), trim_color_, 2);
         have_lights_ = true;
     }
 
-    bottom += (GLfloat)height;
+    bottom += (float)height;
 
     // If the roof is big enough, consider making another layer
     if((width > 7) && (depth > 7) && (roof_tiers_ < max_tiers)) {
@@ -377,23 +377,23 @@ void Building::construct_roof(GLfloat left,
     // 1 air conditioner block for every 15 floors sounds reasonable
     air_conditioners = height_ / 15;
     for(i = 0; i < air_conditioners; ++i) {
-        ac_size = (GLfloat)(10 + RandomVal(30)) / 10;
-        ac_height = ((GLfloat)RandomVal(20) / 10) + 1.0f;
-        ac_x = left + (GLfloat)RandomVal(width);
-        ac_y = front + (GLfloat)RandomVal(depth);
+        ac_size = (float)(10 + randomVal(30)) / 10;
+        ac_height = ((float)randomVal(20) / 10) + 1.0f;
+        ac_x = left + (float)randomVal(width);
+        ac_y = front + (float)randomVal(depth);
 
         // Make sure the unit doesn't hang off the right edge of the building
-        if((ac_x + ac_size) > (GLfloat)right) {
-            ac_x = (GLfloat)right - ac_size;
+        if((ac_x + ac_size) > (float)right) {
+            ac_x = (float)right - ac_size;
         }
-        
+
 
         // Make sure the unit doesn't hang off the back edge of the building
-        if((ac_y + ac_size) > (GLfloat)back) {
-            ac_y = (GLfloat)back - ac_size;
+        if((ac_y + ac_size) > (float)back) {
+            ac_y = (float)back - ac_size;
         }
 
-        ac_base = (GLfloat)bottom;
+        ac_base = (float)bottom;
 
         // Make sure it doesn't hang off the edge
         construct_cube(ac_x,
@@ -406,23 +406,23 @@ void Building::construct_roof(GLfloat left,
 
     if(height_ > 45) {
         d = new Decoration;
-        d->CreateRadioTower(gl_vector3((GLfloat)(left + right) / 2.0f,
-                                       (GLfloat)bottom,
-                                       (GLfloat)(front + back) / 2.0f),
+        d->CreateRadioTower(gl_vector3((float)(left + right) / 2.0f,
+                                       (float)bottom,
+                                       (float)(front + back) / 2.0f),
                             15.0f);
     }
 }
 
-void Building::construct_spike(GLint left, 
-                               GLint right, 
-                               GLint front,
-                               GLint back,
-                               GLint bottom,
-                               GLint top)
+void Building::construct_spike(int left,
+                               int right,
+                               int front,
+                               int back,
+                               int bottom,
+                               int top)
 {
     gl_vertex p;
     fan f;
-    GLint i;
+    int i;
     gl_vector3 center;
 
     for(i = 0; i < 5; ++i) {
@@ -431,21 +431,21 @@ void Building::construct_spike(GLint left,
 
     f.index_list.push_back(f.index_list[1]);
     p.set_uv(gl_vector2(0.0f, 0.0f));
-    center.set_x(((GLfloat)left + (GLfloat)right) / 2.0f);
-    center.set_z(((GLfloat)front + (GLfloat)back) / 2.0f);
-    p.set_position(gl_vector3(center.get_x(), (GLfloat)top, center.get_z()));
+    center.set_x(((float)left + (float)right) / 2.0f);
+    center.set_z(((float)front + (float)back) / 2.0f);
+    p.set_position(gl_vector3(center.get_x(), (float)top, center.get_z()));
     mesh_flat_->VertexAdd(p);
 
-    p.set_position(gl_vector3((GLfloat)left, (GLfloat)bottom, (GLfloat)back));
+    p.set_position(gl_vector3((float)left, (float)bottom, (float)back));
     mesh_flat_->VertexAdd(p);
 
-    p.set_position(gl_vector3((GLfloat)right, (GLfloat)bottom, (GLfloat)back));
+    p.set_position(gl_vector3((float)right, (float)bottom, (float)back));
     mesh_flat_->VertexAdd(p);
 
-    p.set_position(gl_vector3((GLfloat)right, (GLfloat)bottom, (GLfloat)front));
+    p.set_position(gl_vector3((float)right, (float)bottom, (float)front));
     mesh_flat_->VertexAdd(p);
 
-    p.set_position(gl_vector3((GLfloat)left, (GLfloat)bottom, (GLfloat)front));
+    p.set_position(gl_vector3((float)left, (float)bottom, (float)front));
     mesh_flat_->VertexAdd(p);
 
     mesh_flat_->FanAdd(f);
@@ -457,28 +457,28 @@ void Building::construct_spike(GLint left,
  * between windowed and windowless, and it always makes sure the wall
  * is symmetrical. window_groups tells it how many windows to place in a row.
  */
-GLfloat Building::construct_wall(GLint start_x,
-                                 GLint start_y,
-                                 GLint start_z,
-                                 GLint direction,
-                                 GLint length,
-                                 GLint height,
-                                 GLint window_groups,
-                                 GLfloat uv_start,
-                                 GLboolean blank_corners)
+float Building::construct_wall(int start_x,
+                                 int start_y,
+                                 int start_z,
+                                 int direction,
+                                 int length,
+                                 int height,
+                                 int window_groups,
+                                 float uv_start,
+                                 bool blank_corners)
 {
-    GLint x;
-    GLint z;
-    GLint step_x;
-    GLint step_z;
-    GLint i;
+    int x;
+    int z;
+    int step_x;
+    int step_z;
+    int i;
     quad_strip qs;
-    GLint column;
-    GLint mid;
-    GLint odd;
+    int column;
+    int mid;
+    int odd;
     gl_vertex v;
-    GLboolean blank;
-    GLboolean last_blank;
+    bool blank;
+    bool last_blank;
 
     qs.index_list.reserve(100);
 
@@ -509,11 +509,11 @@ GLfloat Building::construct_wall(GLint start_x,
         mid++;
     }
     // mid = (length / 2);
-    v.get_uv().set_x((GLfloat)(x + z) / SEGMENTS_PER_TEXTURE);
+    v.get_uv().set_x((float)(x + z) / SEGMENTS_PER_TEXTURE);
     v.get_uv().set_x(uv_start);
     blank = false;
     for(i = 0; i <= length; ++i) {
-        // Column counts up to the mid point, then back down, 
+        // Column counts up to the mid point, then back down,
         // to make it symmetrical
         if(i <= mid) {
             column = i - odd;
@@ -530,12 +530,12 @@ GLfloat Building::construct_wall(GLint start_x,
             blank = true;
         }
         if((last_blank != blank) || (i == 0) || (i == length)) {
-            v.set_position(gl_vector3((GLfloat)x, (GLfloat)start_y, (GLfloat)z));
-            v.get_uv().set_y((GLfloat)start_y / SEGMENTS_PER_TEXTURE);
+            v.set_position(gl_vector3((float)x, (float)start_y, (float)z));
+            v.get_uv().set_y((float)start_y / SEGMENTS_PER_TEXTURE);
             mesh_->VertexAdd(v);
             qs.index_list.push_back(mesh_->VertexCount() - 1);
-            v.get_position().set_y((GLfloat)(start_y + height));
-            v.get_uv().set_y((GLfloat)(start_y + height) / SEGMENTS_PER_TEXTURE);
+            v.get_position().set_y((float)(start_y + height));
+            v.get_uv().set_y((float)(start_y + height) / SEGMENTS_PER_TEXTURE);
             mesh_->VertexAdd(v);
             qs.index_list.push_back(mesh_->VertexCount() - 1);
         }
@@ -559,39 +559,39 @@ GLfloat Building::construct_wall(GLint start_x,
  */
 void Building::create_blocky()
 {
-    GLint min_height;
-    GLint left;
-    GLint right;
-    GLint front;
-    GLint back;
-    GLint max_left;
-    GLint max_right;
-    GLint max_front;
-    GLint max_back;
-    GLint height;
-    GLint mid_x;
-    GLint mid_z;
-    GLint half_depth;
-    GLint half_width;
-    GLint tiers;
-    GLint max_tiers;
-    GLint grouping;
-    GLfloat lid_height;
-    GLfloat uv_start;
-    GLboolean skip;
-    GLboolean blank_corners;
+    int min_height;
+    int left;
+    int right;
+    int front;
+    int back;
+    int max_left;
+    int max_right;
+    int max_front;
+    int max_back;
+    int height;
+    int mid_x;
+    int mid_z;
+    int half_depth;
+    int half_width;
+    int tiers;
+    int max_tiers;
+    int grouping;
+    float lid_height;
+    float uv_start;
+    bool skip;
+    bool blank_corners;
 
     // Choose if the corners of the building are to be windowless
     blank_corners = COIN_FLIP;
 
     // Choose a random color on our texture
-    uv_start = (GLfloat)RandomVal(SEGMENTS_PER_TEXTURE) / SEGMENTS_PER_TEXTURE;
-    
+    uv_start = (float)randomVal(SEGMENTS_PER_TEXTURE) / SEGMENTS_PER_TEXTURE;
+
     // Choose how the windows are grouped
-    grouping = 2 + RandomVal(4);
-    
+    grouping = 2 + randomVal(4);
+
     // Choose how tall the lid should be on top or each section
-    lid_height = (GLfloat)(RandomVal(3) + 1);
+    lid_height = (float)(randomVal(3) + 1);
 
     // Find the center of the building
     mid_x = x_ + (width_ / 2);
@@ -631,23 +631,23 @@ void Building::create_blocky()
         if(height < min_height) {
             break;
         }
-        
+
         if(tiers >= max_tiers) {
             break;
         }
 
         // Pick new locations for our four outer walls
-        left = (RandomVal() % half_width) + 1;
-        right = (RandomVal() % half_width) + 1;
-        front = (RandomVal() % half_depth) + 1;
-        back = (RandomVal() % half_depth) + 1;
+        left = (randomVal() % half_width) + 1;
+        right = (randomVal() % half_width) + 1;
+        front = (randomVal() % half_depth) + 1;
+        back = (randomVal() % half_depth) + 1;
         skip = false;
 
         // At least ONE of the walls must reach out beyond a previous maximum
         // Otherwise, this tier would be completely hidden within a previous
         // one.
         if((left <= max_left)
-           && (right <= max_right) 
+           && (right <= max_right)
            && (front <= max_front)
            && (back <= max_back)) {
             skip = true;
@@ -709,23 +709,23 @@ void Building::create_blocky()
                                       blank_corners) - ONE_SEGMENT;
 
             if(!tiers) {
-                construct_roof((GLfloat)(mid_x - left),
-                               (GLfloat)(mid_x + right),
-                               (GLfloat)(mid_z - front),
-                               (GLfloat)(mid_z + back),
-                               (GLfloat)height);
+                construct_roof((float)(mid_x - left),
+                               (float)(mid_x + right),
+                               (float)(mid_z - front),
+                               (float)(mid_z + back),
+                               (float)height);
             }
             else {
                 // Add a flat-color lid onto this section
-                construct_cube((GLfloat)(mid_x - left),
-                               (GLfloat)(mid_x + right),
-                               (GLfloat)(mid_z - front),
-                               (GLfloat)(mid_z + back),
-                               (GLfloat)height,
-                               (GLfloat)height + lid_height);
+                construct_cube((float)(mid_x - left),
+                               (float)(mid_x + right),
+                               (float)(mid_z - front),
+                               (float)(mid_z + back),
+                               (float)height,
+                               (float)height + lid_height);
             }
 
-            height -= ((RandomVal() % 10) + 1);
+            height -= ((randomVal() % 10) + 1);
             tiers++;
         }
 
@@ -750,39 +750,39 @@ void Building::create_blocky()
 void Building::create_simple()
 {
     gl_vertex p;
-    GLfloat x1;
-    GLfloat x2;
-    GLfloat z1;
-    GLfloat z2;
-    GLfloat y1;
-    GLfloat y2;
+    float x1;
+    float x2;
+    float z1;
+    float z2;
+    float y1;
+    float y2;
     quad_strip qs;
-    GLfloat u;
-    GLfloat v1;
-    GLfloat v2;
-    GLfloat cap_height;
-    GLfloat ledge;
+    float u;
+    float v1;
+    float v2;
+    float cap_height;
+    float ledge;
 
-    for(GLint i = 0; i <= 10; ++i) {
+    for(int i = 0; i <= 10; ++i) {
         qs.index_list.push_back(i);
     }
 
     // How tall the flat-color roof is
-    cap_height = (GLfloat)(1 + RandomVal(4));
+    cap_height = (float)(1 + randomVal(4));
 
     // How much the ledge sticks out
-    ledge = (GLfloat)RandomVal(10) / 30.0f;
+    ledge = (float)randomVal(10) / 30.0f;
 
-    x1 = (GLfloat)x_;
-    x2 = (GLfloat)(x_ + width_);
-    y1 = (GLfloat)0.0f;
-    y2 = (GLfloat)height_;
-    z2 = (GLfloat)y_;
-    z1 = (GLfloat)(y_ + depth_);
+    x1 = (float)x_;
+    x2 = (float)(x_ + width_);
+    y1 = (float)0.0f;
+    y2 = (float)height_;
+    z2 = (float)y_;
+    z1 = (float)(y_ + depth_);
 
-    u = (GLfloat)(RandomVal(SEGMENTS_PER_TEXTURE)) / SEGMENTS_PER_TEXTURE;
-    v1 = (GLfloat)(RandomVal(SEGMENTS_PER_TEXTURE)) / SEGMENTS_PER_TEXTURE;
-    v2 = v1 + ((GLfloat)height_ * ONE_SEGMENT);
+    u = (float)(randomVal(SEGMENTS_PER_TEXTURE)) / SEGMENTS_PER_TEXTURE;
+    v1 = (float)(randomVal(SEGMENTS_PER_TEXTURE)) / SEGMENTS_PER_TEXTURE;
+    v2 = v1 + ((float)height_ * ONE_SEGMENT);
 
     p.set_position(gl_vector3(x1, y1, z1));
     p.set_uv(gl_vector2(u, v1));
@@ -791,7 +791,7 @@ void Building::create_simple()
     p.set_uv(gl_vector2(u, v2));
     mesh_->VertexAdd(p);
 
-    u += ((GLfloat)depth_ / SEGMENTS_PER_TEXTURE);
+    u += ((float)depth_ / SEGMENTS_PER_TEXTURE);
     p.set_position(gl_vector3(x1, y1, z2));
     p.set_uv(gl_vector2(u, v1));
     mesh_->VertexAdd(p);
@@ -799,7 +799,7 @@ void Building::create_simple()
     p.set_uv(gl_vector2(u, v2));
     mesh_->VertexAdd(p);
 
-    u += ((GLfloat)width_ / SEGMENTS_PER_TEXTURE);
+    u += ((float)width_ / SEGMENTS_PER_TEXTURE);
     p.set_position(gl_vector3(x2, y1, z2));
     p.set_uv(gl_vector2(u, v1));
     mesh_->VertexAdd(p);
@@ -807,15 +807,15 @@ void Building::create_simple()
     p.set_uv(gl_vector2(u, v2));
     mesh_->VertexAdd(p);
 
-    u += ((GLfloat)depth_ / SEGMENTS_PER_TEXTURE);
+    u += ((float)depth_ / SEGMENTS_PER_TEXTURE);
     p.set_position(gl_vector3(x2, y1, z1));
     p.set_uv(gl_vector2(u, v1));
     mesh_->VertexAdd(p);
     p.set_position(gl_vector3(x2, y2, z1));
     p.set_uv(gl_vector2(u, v2));
     mesh_->VertexAdd(p);
-    
-    u += ((GLfloat)depth_ / SEGMENTS_PER_TEXTURE);
+
+    u += ((float)depth_ / SEGMENTS_PER_TEXTURE);
     p.set_position(gl_vector3(x1, y1, z1));
     p.set_uv(gl_vector2(u, v1));
     mesh_->VertexAdd(p);
@@ -828,8 +828,8 @@ void Building::create_simple()
                    x2 + ledge,
                    z2 - ledge,
                    z1 + ledge,
-                   (GLfloat)height_,
-                   (GLfloat)height_ + cap_height);
+                   (float)height_,
+                   (float)height_ + cap_height);
     mesh_->Compile();
 }
 
@@ -844,36 +844,36 @@ void Building::create_modern()
     gl_vector2 radius;
     gl_vector2 start;
     gl_vector2 end;
-    GLint angle;
-    GLint windows;
-    GLint cap_height;
-    GLint half_depth;
-    GLint half_width;
-    GLfloat length;
+    int angle;
+    int windows;
+    int cap_height;
+    int half_depth;
+    int half_width;
+    float length;
     quad_strip qs;
     fan f;
-    GLint points;
-    GLint skip_interval;
-    GLint skip_counter;
-    GLint skip_delta;
-    GLint i;
-    GLboolean logo_done;
-    GLboolean do_trim;
+    int points;
+    int skip_interval;
+    int skip_counter;
+    int skip_delta;
+    int i;
+    bool logo_done;
+    bool do_trim;
     Decoration *d;
-    
+
     logo_done = false;
-    
+
     // How tall the windowless section on top will be.
-    cap_height = 1 + RandomVal(5);
+    cap_height = 1 + randomVal(5);
 
     // How many 10-degree segments to build before the next skip
-    skip_interval = 1 + RandomVal(8);
+    skip_interval = 1 + randomVal(8);
 
     // When a skip happens, how many degree should be skipped
-    skip_delta = (1 + RandomVal(2)) * 30; // 30, 60, or 90
-    
+    skip_delta = (1 + randomVal(2)) * 30; // 30, 60, or 90
+
     // See if this is eligible for fancy lighting trim on top
-    if((height_ > 48) && (RandomVal(3) == 0)) {
+    if((height_ > 48) && (randomVal(3) == 0)) {
         do_trim = true;
     }
     else {
@@ -883,8 +883,8 @@ void Building::create_modern()
     // Get the center and radius of the circle
     half_depth = depth_ / 2;
     half_width = width_ / 2;
-    center = gl_vector3((GLfloat)(x_ + half_width), 0.0f, (GLfloat)(y_ + half_depth));
-    radius = gl_vector2((GLfloat)half_width, (GLfloat)half_depth);
+    center = gl_vector3((float)(x_ + half_width), 0.0f, (float)(y_ + half_depth));
+    radius = gl_vector2((float)half_width, (float)half_depth);
     windows = 0;
     p.get_uv().set_x(0.0f);
     points = 0;
@@ -895,16 +895,16 @@ void Building::create_modern()
             skip_counter = 0;
         }
 
-        pos.set_x(center.get_x() - sinf((GLfloat)angle * DEGREES_TO_RADIANS) * radius.get_x());
-        pos.set_z(center.get_z() + cosf((GLfloat)angle * DEGREES_TO_RADIANS) * radius.get_y());
-        
+        pos.set_x(center.get_x() - sinf((float)angle * DEGREES_TO_RADIANS) * radius.get_x());
+        pos.set_z(center.get_z() + cosf((float)angle * DEGREES_TO_RADIANS) * radius.get_y());
+
         if((angle > 0) && (skip_counter == 0)) {
             length = MathDistance(p.get_position().get_x(),
                                   p.get_position().get_z(),
                                   pos.get_x(),
                                   pos.get_z());
 
-            windows += (GLint)length;
+            windows += (int)length;
             if((length > 10) && !logo_done) {
                 logo_done = true;
                 start = gl_vector2(pos.get_x(), pos.get_z());
@@ -913,11 +913,11 @@ void Building::create_modern()
 
                 d = new Decoration;
                 gl_rgba random_color;
-                d->CreateLogo(start, 
+                d->CreateLogo(start,
                               end,
-                              (GLfloat)height_,
+                              (float)height_,
                               WorldLogoIndex(),
-                              random_color.from_hsl((GLfloat)RandomVal(255) / 255,
+                              random_color.from_hsl((float)randomVal(255) / 255,
                                                     1.0f,
                                                     1.0f));
             }
@@ -927,21 +927,21 @@ void Building::create_modern()
         }
 
         p.set_position(pos);
-        p.get_uv().set_x((GLfloat)windows / (GLfloat)SEGMENTS_PER_TEXTURE);
+        p.get_uv().set_x((float)windows / (float)SEGMENTS_PER_TEXTURE);
         p.get_uv().set_y(0.0f);
         p.get_position().set_y(0.0f);
         mesh_->VertexAdd(p);
 
-        p.get_position().set_y((GLfloat)height_);
-        p.get_uv().set_y((GLfloat)height_ / (GLfloat)SEGMENTS_PER_TEXTURE);
+        p.get_position().set_y((float)height_);
+        p.get_uv().set_y((float)height_ / (float)SEGMENTS_PER_TEXTURE);
         mesh_->VertexAdd(p);
         mesh_flat_->VertexAdd(p);
 
-        p.get_position().set_y(p.get_position().get_y() + (GLfloat)cap_height);
+        p.get_position().set_y(p.get_position().get_y() + (float)cap_height);
         mesh_flat_->VertexAdd(p);
 
         vector_buffer[points / 2] = p.get_position();
-        vector_buffer[points / 2].set_y((GLfloat)height_ + (cap_height / 4));
+        vector_buffer[points / 2].set_y((float)height_ + (cap_height / 4));
         points += 2;
         skip_counter++;
     }
@@ -953,9 +953,9 @@ void Building::create_modern()
         gl_rgba random_color;
         d->CreateLightTrim(vector_buffer,
                            (points / 2) - 2,
-                           (GLfloat)cap_height / 2,
+                           (float)cap_height / 2,
                            seed_,
-                           random_color.from_hsl((GLfloat)RandomVal(255) / 255,
+                           random_color.from_hsl((float)randomVal(255) / 255,
                                                  1.0f,
                                                  1.0f));
     }
@@ -983,10 +983,10 @@ void Building::create_modern()
 
     radius /= 2.0f;
 
-    // ConstructRoof((GLint)(center_.x - radius),
-    //               (GLint)(center_.x + radius),
-    //               (GLint)(center_.z - radius),
-    //               (GLint)(center_.z + radius),
+    // ConstructRoof((int)(center_.x - radius),
+    //               (int)(center_.x + radius),
+    //               (int)(center_.z - radius),
+    //               (int)(center_.z + radius),
     //               height_ + cap_height);
 
     mesh_->Compile();
@@ -995,45 +995,45 @@ void Building::create_modern()
 
 void Building::create_tower()
 {
-    GLint left;
-    GLint right;
-    GLint front;
-    GLint back;
-    GLint bottom;
-    GLint section_height;
-    GLint section_width;
-    GLint section_depth;
-    GLint remaining_height;
-    GLint ledge_height;
-    GLint tier_fraction;
-    GLint grouping;
-    GLint foundation;
-    GLint narrowing_interval;
-    GLint tiers;
-    GLfloat ledge;
-    GLfloat uv_start;
-    GLboolean blank_corners;
+    int left;
+    int right;
+    int front;
+    int back;
+    int bottom;
+    int section_height;
+    int section_width;
+    int section_depth;
+    int remaining_height;
+    int ledge_height;
+    int tier_fraction;
+    int grouping;
+    int foundation;
+    int narrowing_interval;
+    int tiers;
+    float ledge;
+    float uv_start;
+    bool blank_corners;
 
     // How much ledges protrude from the building
-    ledge = (GLfloat)RandomVal(3) * 0.25f;
-    
+    ledge = (float)randomVal(3) * 0.25f;
+
     // How tall the ledges are, in stories
-    ledge_height = RandomVal(4) + 1;
+    ledge_height = randomVal(4) + 1;
 
     // If the corner of the building have no windows
-    blank_corners = RandomVal(4) > 0;
-    
+    blank_corners = randomVal(4) > 0;
+
     // How the windows are grouped
-    grouping = RandomVal(3) + 2;
+    grouping = randomVal(3) + 2;
 
     // What fraction of the remaining height should be given to each tier
-    tier_fraction = 2 + RandomVal(4);
+    tier_fraction = 2 + randomVal(4);
 
     // How often (in tiers) does the building get narrower?
-    narrowing_interval = 1 + RandomVal(10);
+    narrowing_interval = 1 + randomVal(10);
 
     // The height of the windowless slab at the bottom
-    foundation = 2 + RandomVal(3);
+    foundation = 2 + randomVal(3);
 
     // Set our initial parameters
     left = x_;
@@ -1044,12 +1044,12 @@ void Building::create_tower()
     tiers = 0;
 
     // Build the foundations
-    construct_cube((GLfloat)left - ledge,
-                   (GLfloat)right + ledge,
-                   (GLfloat)front - ledge,
-                   (GLfloat)back + ledge,
-                   (GLfloat)bottom,
-                   (GLfloat)foundation);
+    construct_cube((float)left - ledge,
+                   (float)right + ledge,
+                   (float)front - ledge,
+                   (float)back + ledge,
+                   (float)bottom,
+                   (float)foundation);
 
     bottom += foundation;
 
@@ -1064,8 +1064,8 @@ void Building::create_tower()
         }
 
         // Build the four walls
-        uv_start = 
-            (GLfloat)RandomVal(SEGMENTS_PER_TEXTURE) / SEGMENTS_PER_TEXTURE;
+        uv_start =
+            (float)randomVal(SEGMENTS_PER_TEXTURE) / SEGMENTS_PER_TEXTURE;
 
         uv_start = construct_wall(left,
                                   bottom,
@@ -1111,18 +1111,18 @@ void Building::create_tower()
             break;
         }
 
-        construct_cube((GLfloat)left - ledge,
-                       (GLfloat)right + ledge,
-                       (GLfloat)front - ledge,
-                       (GLfloat)back + ledge,
-                       (GLfloat)bottom,
-                       (GLfloat)(bottom + ledge_height));
+        construct_cube((float)left - ledge,
+                       (float)right + ledge,
+                       (float)front - ledge,
+                       (float)back + ledge,
+                       (float)bottom,
+                       (float)(bottom + ledge_height));
 
         bottom += ledge_height;
         if(bottom > height_) {
             break;
         }
-        
+
         tiers++;
         if((tiers % narrowing_interval) == 0) {
             if(section_width > 7) {
@@ -1136,11 +1136,11 @@ void Building::create_tower()
         }
     }
 
-    construct_roof((GLfloat)left, 
-                   (GLfloat)right, 
-                   (GLfloat)front,
-                   (GLfloat)back,
-                   (GLfloat)bottom);
+    construct_roof((float)left,
+                   (float)right,
+                   (float)front,
+                   (float)back,
+                   (float)bottom);
 
     mesh_->Compile();
     mesh_flat_->Compile();

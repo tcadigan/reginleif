@@ -14,7 +14,8 @@
 
 #include "texture.hpp"
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
+#include <GL/glu.h>
 
 #include <cmath>
 #include <cstdio>
@@ -32,9 +33,9 @@
 #include "win.hpp"
 #include "world.hpp"
 
-#define RANDOM_COLOR_SHIFT ((float)(RandomVal(10)) / 50.0f)
-#define RANDOM_COLOR_VAL ((float)(RandomVal(256)) / 256.0f)
-#define RANDOM_COLOR_LIGHT ((float)(200 + RandomVal(56)) / 256.0f)
+#define RANDOM_COLOR_SHIFT ((float)(randomVal(10)) / 50.0f)
+#define RANDOM_COLOR_VAL ((float)(randomVal(256)) / 256.0f)
+#define RANDOM_COLOR_LIGHT ((float)(200 + randomVal(56)) / 256.0f)
 #define SKY_BANDS (sizeof(sky_pos) / sizeof(int))
 #define PREFIX_COUNT (sizeof(prefix) / sizeof(char *))
 #define SUFFIX_COUNT (sizeof(suffix) / sizeof(char *))
@@ -235,19 +236,19 @@ void drawrect(int left, int top, int right, int bottom, gl_rgba color)
             glBegin(GL_POINTS);
             for(i = left + 1; i < right - 1; ++i) {
                 for(j = top + 1; j < bottom - 1; ++j) {
-                    glColor4i(255, 0, RandomVal(potential), 255);
+                    glColor4i(255, 0, randomVal(potential), 255);
                     hue = 0.2f
-                        + ((float)RandomVal(100) / 300.0f)
-                        + ((float)RandomVal(100) / 300.0f)
-                        + ((float)RandomVal(100) / 300.0f);
+                        + ((float)randomVal(100) / 300.0f)
+                        + ((float)randomVal(100) / 300.0f)
+                        + ((float)randomVal(100) / 300.0f);
 
                     gl_rgba temp;
                     color_noise = temp.from_hsl(hue, 0.3f, 0.5f);
-                    color_noise.set_alpha((float)RandomVal(potential) / 144.0f);
+                    color_noise.set_alpha((float)randomVal(potential) / 144.0f);
                     glColor4f(RANDOM_COLOR_VAL,
                               RANDOM_COLOR_VAL,
                               RANDOM_COLOR_VAL,
-                              (float)RandomVal(potential)/144.0f);
+                              (float)randomVal(potential)/144.0f);
 
                     glColor4fv(color_noise.get_data());
                     glVertex2i(i, j);
@@ -256,22 +257,22 @@ void drawrect(int left, int top, int right, int bottom, gl_rgba color)
             glEnd();
         }
 
-        height = (bottom - top) + (RandomVal(3) - 1) + (RandomVal(3) - 1);
+        height = (bottom - top) + (randomVal(3) - 1) + (randomVal(3) - 1);
 
         for(i = left; i < right; ++i) {
-            if(RandomVal(6) == 0) {
+            if(randomVal(6) == 0) {
                 height = bottom - top;
-                height = RandomVal(height);
-                height = RandomVal(height);
-                height = RandomVal(height);
+                height = randomVal(height);
+                height = randomVal(height);
+                height = randomVal(height);
                 height = ((bottom - top) + height) / 2;
             }
 
             for(j = 0; j < 1; ++j) {
                 glBegin(GL_LINES);
-                glColor4f(0, 0, 0, (float)RandomVal(256) / 256.0f);
+                glColor4f(0, 0, 0, (float)randomVal(256) / 256.0f);
                 glVertex2i(i, bottom - height);
-                glColor4f(0, 0, 0, (float)RandomVal(256) / 256.0f);
+                glColor4f(0, 0, 0, (float)randomVal(256) / 256.0f);
                 glVertex2i(i, bottom);
                 glEnd();
             }
@@ -279,7 +280,7 @@ void drawrect(int left, int top, int right, int bottom, gl_rgba color)
     }
 }
 
-static void window(int x, int y, int size, int id, gl_rgba color)
+static void buildingWindow(int x, int y, int size, int id, gl_rgba color)
 {
     int margin;
     int half;
@@ -287,7 +288,7 @@ static void window(int x, int y, int size, int id, gl_rgba color)
 
     margin = size / 3;
     half = size / 2;
-    
+
     switch(id) {
     case TEXTURE_BUILDING1:
         // Filled, 1-pixel frame
@@ -305,14 +306,14 @@ static void window(int x, int y, int size, int id, gl_rgba color)
     case TEXTURE_BUILDING4:
         // Windows with blinds
         drawrect(x + 1, y + 1, x + size - 1, y + size - 1, color);
-        i = RandomVal(size - 2);
+        i = randomVal(size - 2);
         drawrect(x + 1, y + 1, x + size - 1, y + i + 1, color * 0.3f);
         break;
     case TEXTURE_BUILDING5:
         // Vert stripes
         drawrect(x + 1, y + 1, x + size - 1, y + size - 1, color);
         drawrect(x + margin, y + 1, x + margin, y + size - 1, color * 0.7f);
-        drawrect(x + size - margin - 1, 
+        drawrect(x + size - margin - 1,
                  y + 1,
                  x + size - margin - 1,
                  y + size - 1,
@@ -402,39 +403,39 @@ void CTexture::DrawWindows()
         // Every few floors we change the behavior
         if(!(y % 8)) {
             run = 0;
-            run_length = RandomVal(9) + 2;
-            lit_density = 2 + RandomVal(2) + RandomVal(2);
+            run_length = randomVal(9) + 2;
+            lit_density = 2 + randomVal(2) + randomVal(2);
             lit = false;
         }
-        
+
         for(x = 0; x < SEGMENTS_PER_TEXTURE; ++x) {
             // If this run is over reroll lit and start a new one
             if(run < 1) {
-                run = RandomVal(run_length);
-                lit = (RandomVal(lit_density) == 0);
+                run = randomVal(run_length);
+                lit = (randomVal(lit_density) == 0);
                 // if(lit) {
-                //     color = glRgba(0.5f + (float)(RandomVal() % 128) / 256.0f)
-                //         + glRgba(RANDOM_COLOR_SHIFT, 
+                //     color = glRgba(0.5f + (float)(randomVal() % 128) / 256.0f)
+                //         + glRgba(RANDOM_COLOR_SHIFT,
                 //                  RANDOM_COLOR_SHIFT,
                 //                  RANDOM_COLOR_SHIFT);
                 // }
             }
-            
+
             if(lit) {
-                color = gl_rgba(0.5f + ((float)(RandomVal() % 128) / 256.0f))
+                color = gl_rgba(0.5f + ((float)(randomVal() % 128) / 256.0f))
                     + gl_rgba(RANDOM_COLOR_SHIFT,
-                             RANDOM_COLOR_SHIFT, 
+                             RANDOM_COLOR_SHIFT,
                              RANDOM_COLOR_SHIFT);
             }
             else {
-                color = gl_rgba((float)(RandomVal() % 40) / 256.0f);
+                color = gl_rgba((float)(randomVal() % 40) / 256.0f);
             }
 
-            window(x * segment_size_, 
-                   y * segment_size_,
-                   segment_size_,
-                   my_id_,
-                   color);
+            buildingWindow(x * segment_size_,
+                           y * segment_size_,
+                           segment_size_,
+                           my_id_,
+                           color);
 
             run--;
         }
@@ -473,20 +474,20 @@ void CTexture::DrawSky()
 
     // Draw a bunch of little faux-buildings on the horizon
     for(i = 0; i < size_; i += 5) {
-        drawrect(i, 
-                 size_ - RandomVal(8) - RandomVal(8) - RandomVal(8),
-                 i + RandomVal(9),
+        drawrect(i,
+                 size_ - randomVal(8) - randomVal(8) - randomVal(8),
+                 i + randomVal(9),
                  size_,
                  gl_rgba(0.0f));
     }
 
     // Draw the clouds
     for(i = size_ - 30; i > 5; i -= 2) {
-        x = RandomVal(size_);
+        x = randomVal(size_);
         y = i;
 
         scale = 1.0f - ((float)y / (float)size_);
-        width = RandomVal(half_ / 2) + (int)((float)half_ * scale) / 2;
+        width = randomVal(half_ / 2) + (int)((float)half_ * scale) / 2;
         scale = 1.0f - ((float)y / (float)size_);
         height = (int)((float)width * scale);
         height = MAX(height, 4);
@@ -510,14 +511,14 @@ void CTexture::DrawSky()
 
                 color.set_alpha(0.2f);
                 glColor4fv(color.get_data());
-                width_adjust = 
+                width_adjust =
                     (int)(((float)width / 2.0f)
                           + (int)(inv_scale * ((float)width / 2.0f)));
-                
+
                 height_adjust = height + (int)(scale * (float)height * 0.99f);
-                
+
                 glTexCoord2f(0, 0);
-                glVertex2i(offset + x - width_adjust, 
+                glVertex2i(offset + x - width_adjust,
                            y + height - height_adjust);
 
                 glTexCoord2f(0, 1);
@@ -525,7 +526,7 @@ void CTexture::DrawSky()
 
                 glTexCoord2f(1, 1);
                 glVertex2i(offset + x + width_adjust, y + height);
-                
+
                 glTexCoord2f(1, 0);
                 glVertex2i(offset + x + width_adjust,
                            y + height - height_adjust);
@@ -601,7 +602,7 @@ void CTexture::Rebuild()
     int lapsed;
 
     start = SDL_GetTicks();
-    
+
     // Since we make textures by drawing into the viewport, we can't make
     // them bigger than the current view.
     size_ = desired_size_;
@@ -613,15 +614,15 @@ void CTexture::Rebuild()
     glBindTexture(GL_TEXTURE_2D, glid_);
     // Set up the texutre
     glTexImage2D(GL_TEXTURE_2D,
-                 0, 
+                 0,
                  GL_RGBA,
                  size_,
                  size_,
-                 0, 
+                 0,
                  GL_RGBA,
                  GL_UNSIGNED_BYTE,
                  NULL);
-    
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     if(clamp_) {
@@ -647,7 +648,7 @@ void CTexture::Rebuild()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     use_framebuffer = true;
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    
+
     switch(my_id_) {
     case TEXTURE_LATTICE:
         glLineWidth(2.0f);
@@ -666,7 +667,7 @@ void CTexture::Rebuild()
         // Vertical
         glVertex2i(0, 0);
         glVertex2i(size_, 0);
-        
+
         glEnd();
 
         glBegin(GL_LINE_STRIP);
@@ -737,9 +738,9 @@ void CTexture::Rebuild()
         i = 0;
         glDepthMask(false);
         glDisable(GL_BLEND);
-        name_num = RandomVal(NAME_COUNT);
-        prefix_num = RandomVal(PREFIX_COUNT);
-        suffix_num = RandomVal(SUFFIX_COUNT);
+        name_num = randomVal(NAME_COUNT);
+        prefix_num = randomVal(PREFIX_COUNT);
+        suffix_num = randomVal(SUFFIX_COUNT);
         glColor3f(1, 1, 1);
 
         while(i < size_) {
@@ -747,7 +748,7 @@ void CTexture::Rebuild()
             if(COIN_FLIP) {
                 RenderPrint(2,
                             size_ - i - (LOGO_PIXELS / 4),
-                            RandomVal(),
+                            randomVal(),
                             gl_rgba(1.0f),
                             "%s%s",
                             prefix[prefix_num],
@@ -756,7 +757,7 @@ void CTexture::Rebuild()
             else {
                 RenderPrint(2,
                             size_ - i - (LOGO_PIXELS / 4),
-                            RandomVal(),
+                            randomVal(),
                             gl_rgba(1.0f),
                             "%s%s",
                             name[name_num],
@@ -781,7 +782,7 @@ void CTexture::Rebuild()
                             gl_rgba(1.0f),
                             gl_rgba(0.5f));
         }
-        
+
         y += TRIM_PIXELS;
         for(x = 0; x < size_; x += TRIM_PIXELS * 2) {
             drawrect_simple(x + margin,
@@ -828,20 +829,20 @@ void CTexture::Rebuild()
         glBindTexture(GL_TEXTURE_2D, glid_);
         glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, size_, size_, 0);
     }
-    
+
     if(mipmap_) {
         bits = (unsigned char *)malloc(size_ * size_ * 4);
         glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, bits);
-        gluBuild2DMipmaps(GL_TEXTURE_2D, 
+        gluBuild2DMipmaps(GL_TEXTURE_2D,
                           GL_RGBA,
-                          size_, 
+                          size_,
                           size_,
                           GL_RGBA,
-                          GL_UNSIGNED_BYTE, 
+                          GL_UNSIGNED_BYTE,
                           bits);
 
         free(bits);
-        glTexParameteri(GL_TEXTURE_2D, 
+        glTexParameteri(GL_TEXTURE_2D,
                         GL_TEXTURE_MIN_FILTER,
                         GL_LINEAR_MIPMAP_LINEAR);
 
@@ -924,7 +925,7 @@ void TextureUpdate(void)
 void TextureTerm(void)
 {
     CTexture *t;
-    
+
     while(head) {
         t = head->next_;
         free(head);

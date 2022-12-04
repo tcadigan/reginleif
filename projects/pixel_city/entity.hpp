@@ -5,7 +5,7 @@
 
 class Entity {
 public:
-    Entity();;
+    Entity();
     virtual ~Entity();
     virtual void render();
     virtual void render_flat(bool wireframe);

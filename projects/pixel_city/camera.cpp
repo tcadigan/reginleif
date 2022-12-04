@@ -11,7 +11,7 @@
 
 #include "camera.hpp"
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <cmath>
 #include <ctime>
 #include <string>

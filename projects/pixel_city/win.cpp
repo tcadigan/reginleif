@@ -1,6 +1,6 @@
 /*
  * win.cpp
- * 
+ *
  * 2006 Shamus Young
  *
  * Create the main windows and make it go.
@@ -9,11 +9,16 @@
 
 #include "win.hpp"
 
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
+
+#include <ctime>
+#include <iostream>
+
 #include <cmath>
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
-#include <ctime>
 
 #include "camera.hpp"
 #include "car.hpp"
@@ -32,31 +37,8 @@
 // HACK
 static int width = 640;
 static int height = 480;
-
-static bool quit;
-
-int WinWidth(void)
-{
-    return width;
-}
-
-void WinMousePosition(int *x, int *y)
-{
-}
-
-int WinHeight(void)
-{
-    return height;
-}
-
-void WinTerm(void)
-{
-}
-
-void AppQuit()
-{
-    quit = true;
-}
+static bool quit = false;
+SDL_Window *window = nullptr;
 
 void AppUpdate()
 {
@@ -69,42 +51,80 @@ void AppUpdate()
     RenderUpdate();
 }
 
-void AppInit(void)
+void appInit(void)
 {
-    RandomInit(time(NULL));
+    SDL_Init(SDL_INIT_VIDEO);
+
+    unsigned int windowFlags = SDL_WINDOW_OPENGL;
+
+    window = SDL_CreateWindow(APP_TITLE, 0, 0, width, height, windowFlags);
+
+    randomInit(time(NULL));
     camera_init();
     RenderInit();
     TextureInit();
     WorldInit();
 }
 
-void AppTerm(void)
+void appQuit()
+{
+    quit = true;
+}
+
+void winTerm(SDL_Window *window)
+{
+    SDL_DestroyWindow(window);
+}
+
+void appTerm(SDL_Window *window)
 {
     TextureTerm();
     WorldTerm();
     RenderTerm();
     camera_term();
-    WinTerm();
+    winTerm(window);
+    SDL_Quit();
 }
 
 int main(int argc, char *argv[])
 {
-    // glutInit(&argc, argv);
-    // glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-    // glutInitDisplayString("double rgba depth >= 16 rgba");
-    // glutInitWindowSize(width, height);
-    // glutInitWindowPosition(0, 0);
-    // glutCreateWindows(APP_TITLE);
-    // glutVisibilityFunc(visible);
-    // glutReshapeFunc(resize);
-    // glutKeyboardFunc(keyboard);
-    // glutSpecialFunc(keyboard_s);
+    appInit();
 
-    AppInit();
-    
-    // glutMainLoop();
-    
-    AppTerm();
+    if (window == nullptr) {
+        std::cerr << "Unable to create window" << std::endl;
 
-    return 0;
-}    
+        return EXIT_FAILURE;
+    }
+
+    SDL_GLContext context = SDL_GL_CreateContext(window);
+
+    while (!quit) {
+        SDL_Event event;
+
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_KEYDOWN) {
+                switch (event.key.keysym.sym) {
+                case SDLK_ESCAPE:
+                    appQuit();
+                    break;
+                default:
+                    break;
+                }
+            } else if (event.type == SDL_QUIT) {
+                appQuit();
+            }
+        }
+
+        glViewport(0, 0, width, height);
+        glClearColor(1.0f, 1.0f, 1.0f, 0.0);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        SDL_GL_SwapWindow(window);
+    }
+
+    SDL_GL_DeleteContext(context);
+
+    appTerm(window);
+
+    return EXIT_SUCCESS;
+}

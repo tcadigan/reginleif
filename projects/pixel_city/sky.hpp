@@ -19,7 +19,6 @@ public:
 
 private:
     int list_;
-    int stars_list_;
     sky_point grid_[SKY_GRID][SKY_GRID];
 };
 
