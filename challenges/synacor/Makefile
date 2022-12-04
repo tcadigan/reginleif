@@ -11,7 +11,7 @@ BEAR = bear --append --
 all: ${PROG}
 
 ${PROG}: ${.TARGET:=.o}
-	${CXX} ${CXXFLAGS} ${LDFLAGS} ${.TARGET:=.o} -o ${.TARGET}
+	${CXX} ${CXXFLAGS} ${.TARGET:=.o} -o ${.TARGET}
 
 clean:
 	rm -rf *~ *.o ${PROG} eqsolver

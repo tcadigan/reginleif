@@ -14,7 +14,7 @@ OBJS = ${SRCS:.c=.o}
 all: ${PROG}
 
 ${PROG}: depend ${OBJS}
-	${CC} ${CFLAGS} ${LDFLAGS} ${OBJS} -o ${.TARGET}
+	${CC} ${CFLAGS} ${OBJS} -o ${.TARGET}
 
 clean:
 	rm -rf *~ *.o .depend ${PROG}
