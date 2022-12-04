@@ -21,7 +21,7 @@ void newlevel();
 void updatepos(char ch, int row, int col);
 void updateat();
 void mapinfer();
-void inferhall();
+void inferhall(int r, int c);
 void nametrap(int traptype, int standingonit);
 void findstairs(int notr, int notc);
 void teleport();

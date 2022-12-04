@@ -64,7 +64,7 @@ static double step = 0.33;
 
 static FILE *glog = NULL;
 
-static int compgene();
+static int compgene(void const *left, void const *right);
 static void makeunique(int new);
 static void randompool(int m);
 static void summgene(FILE *f, genotype *gene);
@@ -107,7 +107,6 @@ void initpool(int k, int m)
 void analyzepool(int full)
 {
     int g;
-    char *ctime();
 
     qsort(genes, length, sizeof(*genes), compgene);
 
@@ -145,11 +144,11 @@ void analyzepool(int full)
         for(g = 0; g < length; ++g) {
             printf("Living: ");
             summgene(stdout, genes[g]);
-            
+
             if(full) {
                 if(genes[g]->mother) {
-                    printf("  Parents: %3d,%-3d", 
-                           genes[g]->father, 
+                    printf("  Parents: %3d,%-3d",
+                           genes[g]->father,
                            genes[g]->mother);
                 }
                 else {
@@ -342,7 +341,7 @@ int readgenes(char *genepool)
     FILE *gfil;
 
     gfil = fopen(genepool, "r");
-    
+
     if(gfil == NULL) {
         if(fexists(genepool)) {
             quit(1, "Cannot open file '%s'\n", genepool);
@@ -382,7 +381,7 @@ int readgenes(char *genepool)
     }
 
     fclose(gfil);
-    
+
     return 1;
 }
 
@@ -393,7 +392,7 @@ int readgenes(char *genepool)
 static void parsegene(char *buf, genotype *gene)
 {
     int i;
-    
+
     /* Get genotype specific info */
     sscanf(buf,
            "%d %d %d %d",
@@ -431,7 +430,7 @@ void writegenes(char *genepool)
 
     /* Open the gene file */
     gfil = wopen(genepool, "w");
-    
+
     if(gfil == NULL) {
         quit(1, "Cannot open file '%s'\n", genepool);
     }
@@ -478,7 +477,7 @@ static void writegene(FILE *gfil, genotype *g)
     /* Write out dna */
     for(i = 0; i < MAXKNOB; ++i) {
         fprintf(gfil, "%2d", g->dna[i]);
-        
+
         if(i < (MAXKNOB - 1)) {
             fprintf(gfil, " ");
         }
@@ -499,7 +498,7 @@ static void writegene(FILE *gfil, genotype *g)
 static void initgene(genotype *gene)
 {
     int i;
-    
+
     /* Clear genotype specific info */
     gene->mother = 0;
     gene->father = gene->mother;
@@ -519,17 +518,19 @@ static void initgene(genotype *gene)
 /*
  * compgene: Compare two genotypes in terms of score.
  */
-static int compgene(genotype **a, genotype **b)
+static int compgene(void const *left, void const *right)
 {
+    genotype *a = (genotype *)left;
+    genotype *b = (genotype *)right;
     int result;
-    
-    result = (int)mean(&((*b)->score)) - (int)mean(&((*a)->score));
+
+    result = (int)mean(&(b->score)) - (int)mean(&(a->score));
 
     if(result) {
         return result;
     }
     else {
-        return ((*a)->id - (*b)->id);
+        return (a->id - b->id);
     }
 }
 
@@ -562,7 +563,7 @@ static void birth(FILE *f, genotype *gene)
     }
 
     fprintf(f, "Birth:  %d ", gene->id);
-    
+
     if(gene->mother) {
         fprintf(f, "(%d,%d)", gene->father, gene->mother);
     }
@@ -583,7 +584,7 @@ static void printdna(FILE *f, genotype *gene)
     int i;
 
     fprintf(f, "(");
-    
+
     for(i = 0; i < MAXKNOB; ++i) {
         fprintf(f, "%02d", gene->dna[i]);
 
@@ -671,15 +672,15 @@ static void mutate(int father, int new)
 
     while(!unique(new)) {
         i = randint(MAXKNOB);
-        genes[new]->dna[i] = 
+        genes[new]->dna[i] =
             (genes[new]->dna[i] + triangle(20) + ALLELE) % ALLELE;
     }
 
     /* Log the mutation */
     if(glog) {
-        fprintf(glog, 
-                "Mutating %d produces %d\n", 
-                genes[father]->id, 
+        fprintf(glog,
+                "Mutating %d produces %d\n",
+                genes[father]->id,
                 genes[new]->id);
     }
 
@@ -796,7 +797,7 @@ static int selectgene(int e1, int e2)
     return g;
 }
 
-/* 
+/*
  * unique: Return false if gene is an exact copy of another gene.
  */
 static int unique(int new)
@@ -867,7 +868,7 @@ static int youngest()
 
     for(g = randint(length); count-- > 0; g = (g + 1) % length) {
         newtrials = TRIALS(genes[g]);
-        
+
         if(newtrials < trials) {
             y = g;
             trials = newtrials;
@@ -886,7 +887,7 @@ static void makeunique(int new)
 
     while(!unique(new)) {
         i = randint(MAXKNOB);
-        genes[new]->dna[i] = 
+        genes[new]->dna[i] =
             (genes[new]->dna[i] + triangle(20) + ALLELE) % ALLELE;
     }
 }
@@ -936,7 +937,7 @@ static int badgene(int e1, int e2)
         avg = mean(&(genes[g]->score));
         dev = stdev(&(genes[g]->score)) / sqrt((double)trials);
         value = avg - (step * dev);
-        
+
         if(value > bestval) {
             bestval = value;
         }

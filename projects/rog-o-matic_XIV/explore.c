@@ -1,7 +1,7 @@
 /*
  * explore.c: Rog-O-Matic XIV (CMU) Wed Mar 20 00:12:21 1985 - mlm
  * Copyright (C) 1985 by A. Appel, G. Jacobson, L. Hamey, and M. Mauldin
- * 
+ *
  * This file contains all of the functions which are used to search out
  * paths to explore, pick up something, or run away.
  */
@@ -53,7 +53,7 @@ int genericinit()
     return 1;
 }
 
-/* 
+/*
  * Secret door search values and continuance tables:
  *
  * Number of unsearched walls adjacent.
@@ -415,7 +415,7 @@ int setpsd(int print)
     }
 
     reusepsd = numberpsd + 1;
-    
+
     return numberpsd;
 }
 
@@ -516,7 +516,7 @@ int expunpininit()
     expinit();
     expDor = 0;
     pinavoid();
-    
+
     return 1;
 }
 
@@ -736,7 +736,7 @@ int expinit()
     /* Avoidance values for doors */
     expDor = 0;
     expavoidval = avoid();
-                        
+
     return 1;
 }
 
@@ -1003,12 +1003,12 @@ int zigzagvalue(int r, int c, int depth, int *val, int *avd, int *cont)
     /* else if(onrc(BEEN + BOUNDARY, r, c) == BOUNDARY) { */
     /*     ++a; */
     /* } */
-        
+
     *avd = a;
     *val = v;
-    
+
     /* Look for orphans */
-    *cont = 0; 
+    *cont = 0;
 
     return 1;
 }
@@ -1034,7 +1034,7 @@ int secretvalue(int r, int c, int depth, int *val, int *avd, int *cont)
     int k;
 
     *val = 0;
-    
+
     /* Establish value of square */
     v = 0;
 
@@ -1358,15 +1358,11 @@ int secret()
  */
 int findroom()
 {
-    /* LGCH */
-    int expinit();
-    int expvalue();
-
     if(new_findroom) {
         if(!on(ROOM) && secret()) {
             return 1;
         }
-        
+
         if(makemove(EXPLORE, expinit, expvalue, REUSE)) {
             return 1;
         }
@@ -1383,10 +1379,6 @@ int findroom()
  */
 int exploreroom()
 {
-    /* LGCH */
-    int roominit();
-    int expvalue();
-
     if(!on(ROOM) || isexplored(atrow, atcol)) {
         return 0;
     }
@@ -1408,13 +1400,11 @@ int exploreroom()
 int doorexplore()
 {
     static int searchcount = 0;
-    int secretinit();
-    int secretvalue();
 
     /* If no new squares or read map, don't bother */
     if(!new_search || (Level == didreadmap)) {
         searchcount = 0;
-        
+
         return 0;
     }
 
@@ -1446,7 +1436,7 @@ int doorexplore()
 
     searchcount = 0;
     new_search = searchcount;
-    
+
     return 0;
 }
 
@@ -1457,7 +1447,7 @@ int safevalue(int r, int c, int depth, int *val, int *avd, int *cont)
 {
     int k;
     int v;
-    
+
     if(onrc(SAFE, r, c)) {
         *avd = 0;
     }
@@ -1757,7 +1747,7 @@ int movetorest()
         dwait(D_SEARCH, "movetorest wins.");
         restr = targetrow;
         restc = targetcol;
-    
+
         return 1;
     }
 
@@ -1772,7 +1762,7 @@ int movetorest()
 int restinit()
 {
     expavoidval = avoid();
-    
+
     if(on(ROOM) && !darkroom()) {
         restinlight = 1;
     }

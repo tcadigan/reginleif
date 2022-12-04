@@ -1,0 +1,17 @@
+name: Rog-o-matic XIV build
+
+on:
+  push:
+    paths:
+    - 'projects/rog-o-matic_XIV/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: A build job
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/general-build
+        with:
+          path: projects/rog-o-matic_XIV
+          language: C

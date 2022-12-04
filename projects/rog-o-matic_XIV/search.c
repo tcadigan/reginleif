@@ -36,7 +36,9 @@ static int didinit = 0;
  * makemove: Repeat move from here towards some sort of target.
  * Modified to use findmove. (5/13 MLM)
  */
-int makemove(int movetype, int (*evalinit)(), int (*evaluate)(), int reevaluate)
+int makemove(int movetype, int (*evalinit)(),
+             int (*evaluate)(int, int, int, int *, int *, int *),
+             int reevaluate)
 {
     if(findmove(movetype, evalinit, evaluate, reevaluate)) {
         return followmap(movetype);
@@ -49,7 +51,9 @@ int makemove(int movetype, int (*evalinit)(), int (*evaluate)(), int reevaluate)
  * findmove: Search for a move of type movetype. The move map is left in
  *           the correct state for validate map or followmap to work. (MLM)
  */
-int findmove(int movetype, int (*evalinit)(), int (*evaluate)(), int reevaluate)
+int findmove(int movetype, int (*evalinit)(),
+             int (*evaluate)(int, int, int, int *, int *, int *),
+             int reevaluate)
 {
     int result;
 
@@ -107,7 +111,7 @@ int findmove(int movetype, int (*evalinit)(), int (*evaluate)(), int reevaluate)
  * followmap: Assuming that the mvdir map is correct, send a movement
  *            command following the map (possibly searching first).
  *
- * <<Must be changed to use the saved map, when that code is added>> 
+ * <<Must be changed to use the saved map, when that code is added>>
  *
  * May 13, MLM
  */
@@ -242,7 +246,8 @@ int followmap(int movetype)
  *
  * Called only by findmove. MLM
  */
-int validatemap(int movetype, int (*evalinit)(), int (*evaluate)()) {
+int validatemap(int movetype, int (*evalinit)(),
+                int (*evaluate)(int, int, int, int *, int *, int *)) {
     int thedir;
     int dir;
     int r;
@@ -303,14 +308,14 @@ int validatemap(int movetype, int (*evalinit)(), int (*evaluate)()) {
            || val != moveval[r][c]
            || cont != movecont[r][c]) {
             dwait(D_SEARCH, "Validatemap: map invalidated.");
-        
+
             return 0;
         }
 
         dir = mvdir[r][c] - FROM;
         if(dir == TARGET) {
             dwait(D_SEARCH, "Validatemap: existing map validated.");
-            
+
             break;
         }
 
@@ -409,7 +414,7 @@ int searchfrom(int row, int col, int (*evaluate)(), char dir[24][80], int *trow,
  * paths to a single actual target such as the staircase, the
  * evaluation function should give zero value to everything except the
  * current Rog-O-Matic location To reuse the results of a search,
- * ensure that dir[row][col] is still set to TARGET and check that a 
+ * ensure that dir[row][col] is still set to TARGET and check that a
  * valid direction exists at the target position.)
  *
  * The search perfers horizontal movements to vertical movements, and
@@ -420,7 +425,7 @@ int searchfrom(int row, int col, int (*evaluate)(), char dir[24][80], int *trow,
  * Since this code is the single most time consuming subrouting, I am
  * attempting to hack it into a faster form. 11/6/82 MLM
  */
-int searchto(int row, int col, int (*evaluate)(), char dir[24][80], int *trow, int *tcol)
+int searchto(int row, int col, int (*evaluate)(int, int, int, int *, int *, int *), char dir[24][80], int *trow, int *tcol)
 {
     int searchcontinue = 10000000;
     int type;
@@ -577,7 +582,7 @@ int searchto(int row, int col, int (*evaluate)(), char dir[24][80], int *trow, i
         }
 
         type = SAFE;
-        
+
         while(1) {
             for(k = 0; k < 8; ++k) {
                 int S;
@@ -587,8 +592,8 @@ int searchto(int row, int col, int (*evaluate)(), char dir[24][80], int *trow, i
                 nc = c + sdeltc[k];
                 S = scrmap[nr][nc];
 
-                /* 
-                 * IF we have not considered stepping on the square yet
+                /*
+                 * If we have not considered stepping on the square yet
                  * and it if is accessible    THEN: Put it on the queue
                  */
                 if((dir[nr][nc] == NOTTRIED)
@@ -600,7 +605,7 @@ int searchto(int row, int col, int (*evaluate)(), char dir[24][80], int *trow, i
 
                     *(tail++) = nr;
                     *(tail++) = nc;
-                    
+
                     if(tail == end) {
                         tail = begin;
                     }

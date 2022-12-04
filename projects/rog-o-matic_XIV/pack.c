@@ -373,7 +373,6 @@ int inventory(char *msgstart, char *msgend)
     char *mess = msgstart;
     char *mend = msgend;
     char objname[100];
-    char *realname();
     int n;
     int ipos;
     int xknow = 0;
