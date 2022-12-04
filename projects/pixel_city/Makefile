@@ -27,9 +27,9 @@ clean:
 
 depend: ${SRCS}
 	rm -rf .depend
-	${CXX} ${CFLAGS} -MM ${SRCS} > .depend
+	${CXX} ${CXXFLAGS} -MM ${SRCS} > .depend
 
 -include .depend
 
 .cpp.o:
-	${BEAR} ${CXX} ${CFLAGS} -c ${.IMPSRC} -o ${.TARGET}
+	${BEAR} ${CXX} ${CXXFLAGS} -c ${.IMPSRC} -o ${.TARGET}
