@@ -13,7 +13,7 @@ runs:
     - name: Pre-requisites
       run: |
         sudo apt-get update
-        sudo apt-get install bmake
+        sudo apt-get install bmake libsdl2-dev libglu1-mesa-dev libgl1-mesa-dev
       shell: bash
     - if: ${{ inputs.language == 'C++' }}
       run: |
