@@ -96,7 +96,7 @@ void animate(char *movie[])
         else if (r == '~') { /* Update the screen and delay until one timestep is gone */
             /* Write out screen */
             refresh();
-            
+
             /* Pad with nulls */
             while(count < delaychars) {
                 putchar(0);
@@ -121,7 +121,7 @@ void animate(char *movie[])
     }
 }
 
-/* 
+/*
  * halftimeshow: If its time for a halftime show, call movie. Variable
  * 'nohalf' is true if the user does not want to see a halftime show.
  */
@@ -141,5 +141,3 @@ void halftimeshow(int level)
         }
     }
 }
-            
-        

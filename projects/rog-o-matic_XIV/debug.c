@@ -53,12 +53,12 @@ int dwait(int msgtype, char *f, ...)
 
         errfil = wopen(errfn, "a");
         if(errfil != NULL) {
-            fprintf(errfil, 
-                    "User %s, error type %d:  %s\n\n", 
-                    getname(), 
+            fprintf(errfil,
+                    "User %s, error type %d:  %s\n\n",
+                    getname(),
                     msgtype,
                     msg);
-            
+
             if(msgtype & (D_FATAL | D_ERROR)) {
                 printsnap(errfil);
                 summary(errfil, NEWLINE);
@@ -81,7 +81,7 @@ int dwait(int msgtype, char *f, ...)
     if(!debug(msgtype | D_INFORM)) { /* If debugoff */
         if(msgtype & D_SAY) { /* Echo? */
             saynow(msg);
-            
+
             return 1; /* Yes => win */
         }
 
@@ -100,7 +100,7 @@ int dwait(int msgtype, char *f, ...)
     /* Debugging loop, accept debugging commands from user */
     while(1) {
         refresh();
-        
+
         switch(fgetc(stdin)) {
         case '?':
             saynow("i = inv, d = debug, ! = stf, @ = mon, #=wls, $ = id, ^ = flg, & = chr");
@@ -110,7 +110,7 @@ int dwait(int msgtype, char *f, ...)
             at(1, 0);
             dumpinv((FILE *)NULL);
             at(row, col);
-            
+
             break;
         case 'd':
             toggledebug();
@@ -130,7 +130,7 @@ int dwait(int msgtype, char *f, ...)
             break;
         case '#':
             dumpwalls();
-            
+
             break;
         case '^':
             promptforflags();
@@ -154,7 +154,7 @@ int dwait(int msgtype, char *f, ...)
             break;
         case '~':
             saynow("Version %d, quit at %d", version, quitat);
-            
+
             break;
         case '/':
             dosnapshot();
@@ -175,7 +175,7 @@ void promptforflags()
 {
     int r;
     int c;
-    
+
     if(getscrpos("flags", &r, &c)) {
         mvprintw(0, 0, "Flags for %d,%d ", r, c);
         dumpflags(r, c);
@@ -204,7 +204,7 @@ void dumpflags(int r, int c)
     int b;
 
     printw(":");
-    
+
     f = fnames;
     for(b = 1; b <= EVERCLR; b = b * 2) {
         if(scrmap[r][c] & b) {
@@ -239,7 +239,7 @@ void timehistory(FILE *f, char sep)
             sprintf(s, "%s%5d", s, timespent[i].activity[j]);
         }
 
-        sprintf(s, 
+        sprintf(s,
                 "%s%6d%c",
                 s,
                 timespent[i].timestamp - timespent[i - 1].timestamp,

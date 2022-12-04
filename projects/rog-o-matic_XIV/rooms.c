@@ -337,7 +337,7 @@ int downright(int *drow, int *dcol)
         else {
             *drow = i;
             *dcol = j;
-            
+
             return 1;
         }
     }
@@ -364,7 +364,7 @@ int lightroom()
     }
 
     obj = havewand("light");
-    
+
     if((obj >= 0) && point(obj, 0)) {
         return 1;
     }
@@ -465,7 +465,7 @@ void currentrectangle()
 
             if(flags & fB) {
                 r = curb + 1;
-                
+
                 for(c = (curl - 1); c <= (curr + 1); ++c) {
                     if(onrc(ROOM, r, c)) {
                         ++curb;
@@ -482,8 +482,8 @@ void currentrectangle()
             }
 
             if(flags & fL) {
-                c = curl - 1; 
-                
+                c = curl - 1;
+
                 for(r = curt; r <= curb; ++r) {
                     if(onrc(ROOM, r, c)) {
                         --curl;
@@ -590,7 +590,7 @@ void currentrectangle()
         if((flags & (fT + fR)) == 0) {
             setrc(SEEN + WALL, curt - 1, curr + 1);
         }
-        
+
         if((flags & (fT + fL)) == 0) {
             setrc(SEEN + WALL, curt - 1, curl - 1);
         }
@@ -655,8 +655,8 @@ void updateat()
         zone = newzone;
     }
 
-    /* 
-     * Check for teleport, else if we moved 
+    /*
+     * Check for teleport, else if we moved
      * multiple squares, mark then as BEEN
      */
     if((direc(dr, dc) != movedir) || (dr && dc && (abs(dr) != abs(dc)))) {
@@ -787,7 +787,7 @@ void updatepos(char ch, int row, int col)
         unsetrc(MONSTER | SLEEPER, row, col);
         atrow = row;
         atcol = col;
-    
+
         break;
     case '#':
         if(!onrc(HALL, row, col)) {
@@ -800,7 +800,7 @@ void updatepos(char ch, int row, int col)
         }
 
         setrc(SEEN | CANGO | SAFE | HALL | EVERCLR, row, col);
-        
+
         unsetrc(DOOR
                 | ROOM
                 | TRAP
@@ -823,7 +823,7 @@ void updatepos(char ch, int row, int col)
         if(!onrc(DOOR, row, col)) {
             foundnew();
             timestosearch = k_door / 5;
-        
+
             /* Don't give up on this level yet */
             teleported = 0;
             *newdoors++ = row;
@@ -861,7 +861,7 @@ void updatepos(char ch, int row, int col)
          * we are in the room or not, and whether or not we were shooting
          * missiles last turn.
          */
-        
+
         /* The square can't be any of these */
         unsetrc(HALL
                 | DOOR
@@ -894,7 +894,7 @@ void updatepos(char ch, int row, int col)
              || (oldch == '@')
              || (oldch == ')'))
             && ((functionchar(lastcmd) == 't')
-                || (on(ROOM) 
+                || (on(ROOM)
                     && (whichroom(row, col) == whichroom(atrow, atcol)))))
            && onrc(STUFF, row, col)) {
             deletestuff(row, col);
@@ -938,7 +938,7 @@ void updatepos(char ch, int row, int col)
     case ',': /* HAH! HAH HAH! HAH HAH HAH! */
     case '*':
         setrc(SEEN | CANGO | SAFE | EVERCLR, row, col);
-        
+
         unsetrc(DOOR
                 | TRAP
                 | ARROW
@@ -1003,7 +1003,7 @@ void updatepos(char ch, int row, int col)
             deletestuff(row, col);
         }
 
-        unsetrc(SAFE 
+        unsetrc(SAFE
                 | HALL
                 | DOOR
                 | MONSTER
@@ -1029,7 +1029,7 @@ void updatepos(char ch, int row, int col)
             if(!onrc(DOOR, row, col)) {
                 foundnew();
                 timestosearch = k_door / 5;
-                
+
                 /* MLM */
                 setrc(DOOR, row, col);
                 setrc(WALL, row, col);
@@ -1134,9 +1134,9 @@ void mapinfer()
 
     for(r = 1; r < 23; ++r) {
         inroom = 1;
-        
+
         for(c = 0; c < 80; ++c) {
-            if(seerc('|', r, c) 
+            if(seerc('|', r, c)
                || (seerc('+', r, c) && !seerc('-', r, c - 1))) {
                 inroom = !inroom;
             }
@@ -1318,7 +1318,7 @@ void inferhall(int r, int c)
         rm = whichroom(r, c);
         end1 = bounds[rm].left;
         end2 = bounds[rm].right;
-        
+
         if(inc < 0) {
             end = bounds[rm - 3].top;
         }
@@ -1351,7 +1351,7 @@ void inferhall(int r, int c)
         }
     }
 
-    /* 
+    /*
      * NOTE: If we set SEEN here on the three squares beyond the door, then
      * we can prevent Rogomatic's persistence in search out every
      * corridor that leads to a secret door at the other end. Or, we could set
@@ -1514,13 +1514,13 @@ int nextto(int type, int r, int c)
     int result;
 
     result = onrc(type, r - 1, c);
-    
+
     if(result) {
         return result;
     }
 
     result = onrc(type, r + 1, c);
-    
+
     if(result) {
         return result;
     }
@@ -1542,7 +1542,7 @@ int nextto(int type, int r, int c)
 
 /*
  * nexttowall: Is there a wall adjacent wall?
- * 
+ *
  *         |
  * e.g.    ########|    <---- There should be a door here.
  *         |

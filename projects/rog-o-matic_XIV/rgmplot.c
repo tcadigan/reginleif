@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
             switch(**argv) {
             case 'c': /* List cheat games */
                 ++cheat;
-                
+
                 break;
             case 'a': /* Print average */
                 ++doavg;
@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
                 break;
             default:
                 printf("Usage: rgmplot [-ac] [minimum]\n");
-                
+
                 exit(1);
             }
         }
@@ -112,14 +112,14 @@ int main(int argc, char *argv[])
                 else {
                     davg = 0;
                 }
-                
+
                 if(rnum > 0) {
                     ravg = SCALE(rsum / rnum);
                 }
                 else {
                     ravg = 0;
                 }
-                
+
                 /* Roll the daily average statistics */
                 for(i = AVLEN - 1; i > 0; --i) {
                     sum[i] = sum[i - 1];
@@ -142,9 +142,9 @@ int main(int argc, char *argv[])
                 }
             }
 
-            printf("%3s %2d %4d\n%s\n", 
+            printf("%3s %2d %4d\n%s\n",
                    month[lastmon - 1],
-                   lastday, 
+                   lastday,
                    lastyy,
                    plot);
 
@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
     }
 
     printf("1-9    Number of games in range.\n");
-    
+
     if(doavg) {
         printf(" *     Average of day's scores.\n");
         printf("###    Rolling of %d day average.\n", AVLEN);
@@ -233,12 +233,12 @@ int getscore(int *mm, int *dd, int *yy, char *player, int *score, char *cheated)
     char reason[32];
 
     while(getlin(line) != EOF) {
-        sscanf(line, 
+        sscanf(line,
                "%d %d, %d %10s%d%c%17s",
                mm,
                dd,
-               yy, 
-               player, 
+               yy,
+               player,
                score,
                cheated,
                reason);
@@ -253,4 +253,3 @@ int getscore(int *mm, int *dd, int *yy, char *player, int *score, char *cheated)
 
     return EOF;
 }
-    

@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
             case 'c':
                 /* Will use trap arrows */
                 ++cheat;
-                
+
                 break;
             case 'e':
                 /* Echo file to roguelog */
@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
             case 'h':
                 /* No halftime show */
                 ++nohalf;
-                
+
                 break;
             case 'p':
                 /* Play back roguelog */
@@ -112,21 +112,21 @@ int main(int argc, char *argv[])
                 exit(1);
             }
         }
-        
+
         if(rf) {
             if(--argc) {
                 rfilearg = *++argv;
             }
-            
+
             rf = 0;
         }
     }
-    
+
     if(argc > 1) {
         printf("Usage: rogomatic [-cefhprstuwE] or rogomatic <file>\n");
         exit(1);
     }
-    
+
     /* Find which rogue to use */
     if(*rfile) {
         if(access(rfilearg, 1) == 0) {
@@ -222,7 +222,7 @@ int main(int argc, char *argv[])
         close(1);
         dup(ctp[WRITE]);
 
-        char *termcap_env_var = 
+        char *termcap_env_var =
             (char *)malloc(sizeof(char) * (strlen("TERMCAP=") + strlen(ROGUETERM) + 1));
         strncpy(termcap_env_var, "TERMCAP=", strlen("TERMCAP="));
         strncpy(termcap_env_var + strlen("TERMCAP="), ROGUETERM, strlen(ROGUETERM));
@@ -256,7 +256,7 @@ int main(int argc, char *argv[])
         /* Encode the open files into a two character string */
         char *ft = "aa";
         char rp[32];
-        
+
         ft[0] += frogue;
         ft[1] += trogue;
 
@@ -272,7 +272,7 @@ int main(int argc, char *argv[])
 #ifdef PLAYER
         execl(PLAYER, "player", ft, rp, options, roguename, NULL);
 #endif
-        
+
         printf("Rogomatic not avialable, 'player' binary missing.\n");
         kill(child, SIGKILL);
     }
@@ -314,5 +314,3 @@ int author()
         return 0;
     }
 }
-        
-        

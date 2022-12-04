@@ -90,7 +90,7 @@ void terpmes()
 
     /* Set 't' to the tail of the message, skip bckward over blank and dot */
     t = s + 79;
-    
+
     while((*t == ' ') || (*t == '.')) { /* Find last non-blank */
         --t;
     }
@@ -120,7 +120,7 @@ void terpmes()
         }
 
         /* Skip the period, if any */
-        ++s; 
+        ++s;
 
         /* Add trailing NULL */
         mend = m;
@@ -586,7 +586,7 @@ void parsemsg(char *mess, char *mend)
             }
             else if(MATCH("this potion tests like apricot juice")) {
                 infer("see invisible");
-                
+
                 if(version == RV36A) {
                     sendnow("%c", ESC);
                 }
@@ -801,7 +801,7 @@ void parsemsg(char *mess, char *mend)
                     forget(currentarmor, CURSED);
                     cursedarmor = 0;
                 }
-                
+
                 if(cursedweapon) {
                     forget(currentweapon, CURSED);
                     cursedweapon = 0;
@@ -886,7 +886,7 @@ void parsemsg(char *mess, char *mend)
             }
             else if(MATCH("you faint")) {
                 echoit = 0;
-                
+
                 if(version < RV36B) {
                     eat();
                 }
@@ -946,7 +946,7 @@ void parsemsg(char *mess, char *mend)
     else if(unknown) {
         dwait(D_WARNING, "Unknown message '%s'", mess);
     }
-    
+
     /* Send it to dwait; if dwait doesn't print it (and echo is on) echo it */
     if(echoit & !dwait(D_MESSAGE, mess)) {
         saynow(mess);
@@ -1042,7 +1042,7 @@ void readident(char *name)
     if(version < RV53A) { /* Rogue 3.6, Rogue 5.2 */
         /* Assume object is gone */
         deleteinv(OBJECT(afterid));
-        
+
         /* Identify it */
         sendnow(" %c", nextid);
 
@@ -1070,7 +1070,7 @@ void readident(char *name)
         }
         else if(streq(name, "identify potion")) {
             obj = unknown(potion_obj);
-            
+
             if(obj != NONE) {
                 id = LETTER(obj);
             }
@@ -1110,7 +1110,7 @@ void readident(char *name)
                 }
                 else {
                     obj = unknown(missile_obj);
-                    
+
                     if(obj != NONE) {
                         id = LETTER(obj);
                     }
@@ -1152,7 +1152,7 @@ void readident(char *name)
                 }
                 else {
                     obj = have(ring_obj);
-                    
+
                     if(obj != NONE) {
                         id = LETTER(obj);
                     }
@@ -1175,7 +1175,7 @@ void readident(char *name)
 
         /* Pick an object to identify */
         sendnow(" %c", id);
-        
+
         /* Must reset inventory */
         usesynch = 0;
         justreadid = 1;
@@ -1220,7 +1220,7 @@ void rampage()
     /* If we found a monster, send this character, else send ESC */
     if(monc) {
         saynow("About to rampage against %s", monname(monc));
-        
+
         /* Send the monster */
         sendnow(" %c;", monc);
 
@@ -1260,8 +1260,8 @@ void curseditem()
         }
         else if((inven[lastdrop].type == hitter_obj)
                 || (inven[lastdrop].type == missile_obj)) {
-            /* 
-             * Is it our wepaon (may be wielding a hitter 
+            /*
+             * Is it our wepaon (may be wielding a hitter
              * or a bogus magic arrow)?
              */
             currentweapon = lastdrop;
@@ -1309,7 +1309,7 @@ void killed(char *monster)
     if(!cosmic && !blinded && (targetmonster > 0) && streq(monster, "it")) {
         monster = monname(targetmonster);
     }
-    
+
     mh = getmonhist(monster, 0);
 
     if(mh != NONE) {
@@ -1322,7 +1322,7 @@ void killed(char *monster)
 
     /* If cheating against Rogue 3.6, check out our arrow */
     if((version < RV52A) && cheat) {
-        if(usingarrow 
+        if(usingarrow
            && (hitstokill > 1)
            && !beingstalked
            && (goodarrow < 20)) {
@@ -1400,7 +1400,7 @@ void washit(char *monster)
 
     /* Find out what really hit us */
     mh = getmonhist(monster, 1);
-    
+
     if(mh != NONE) {
         monster = monhist[mh].m_name;
         m = monsternum(monster);
@@ -1415,7 +1415,7 @@ void washit(char *monster)
         /* Wake him up */
         wakemonster(-m);
     }
-    
+
     /* hit points changed, read bottom */
     terpbot();
 
@@ -1466,12 +1466,12 @@ void wasmissed(char *monster)
 void didhit()
 {
     int m = 0;
-    
+
     /* Record our hit */
     if(!cosmic) {
         m = lastmonster;
     }
-    
+
     ++hits;
     ++hitstokill;
     addprob(&monhist[monindex[m]].wehit, SUCCESS);
@@ -1510,7 +1510,7 @@ void didmiss()
 void mshit(char *monster)
 {
     int mh;
-    
+
     /* Arching in a dark room? */
     if(!cosmic && !blinded && (targetmonster > 0) && streq(monster, "it")) {
         monster = monname(targetmonster);
@@ -1524,7 +1524,7 @@ void mshit(char *monster)
     }
 
     addprob(&monhist[monindex[mh]].arrowhit, SUCCESS);
-    
+
     if(mh == mtarget) {
         ++mhit;
     }

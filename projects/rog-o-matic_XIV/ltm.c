@@ -142,7 +142,7 @@ void saveltm(int score)
                 writestat(ltmfil, &monhist[m].atokill);
                 fprintf(ltmfil, "|\n");
             }
-            
+
             /* Close the file and unlock it */
             fclose(ltmfil);
         }
@@ -246,7 +246,7 @@ void parsemonster(char *monster)
 
     /* Separate the monster name from the attributes */
     attrs = index(monster, '|');
-    
+
     if(attrs == NULL) {
         return;
     }
@@ -312,7 +312,7 @@ void dumpmonstertable()
         }
 
         printw("%c: %s", monc, monname(monc));
-        
+
         if(monhist[monindex[m + 1]].damage.count > 0) {
             printw(" (%d,%d)", monatt[m].expdam, monatt[m].maxdam);
         }

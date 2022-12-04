@@ -219,7 +219,7 @@ int sleepvalue(int r, int c, int depth, int *val, int *avd, int *cont)
     if(onrc(SLEEPER, r, c)) {
         *val = 1;
         *avd = 0;
-        
+
         /* Default value when called */
         /* *cont = 0; */
     }
@@ -295,7 +295,7 @@ int setpsd(int print)
                     setrc(PSD, i, j);
                 }
             }
-            else if((attempt > 0) 
+            else if((attempt > 0)
                     &&  !onrc(BEEN | DOOR | HALL | ROOM | WALL | STAIRS, i, j)
                     && mazedoor(i, j)) {
                 /* Set possible secret door for maze room secret doors */
@@ -314,7 +314,7 @@ int setpsd(int print)
                 }
             }
             else if(!onrc(BEEN | DOOR | HALL | ROOM | WALL | STAIRS, i, j)
-                    && ((onrc(HALL, i - 1, j) 
+                    && ((onrc(HALL, i - 1, j)
                          + onrc(HALL, i + 1, j)
                          + onrc(HALL, i, j - 1)
                          + onrc(HALL, i, j + 1)) == HALL)
@@ -352,7 +352,7 @@ int setpsd(int print)
 
                     if((rm >= 0) && (rm < 9)) {
                         whereto = connect[rm][k];
-                        
+
                         if((whereto >= 0)
                            && (whereto < 9)
                            && ((attempt > 1) || (room[whereto] == 0))) {
@@ -541,7 +541,7 @@ int expunpinvalue(int r, int c, int depth, int *val, int *avd, int *cont)
         *val = (*val * 1000) + depth;
         *cont = INFINITE;
     }
-    
+
     *avd += avdmonsters[r][c];
 
     return 1;
@@ -559,9 +559,9 @@ int runinit()
 
 /*
  * runvalue:
- * 
+ *
  * Evaluate square for running away. Targets, in priority order are:
- * 
+ *
  * STAIRS TRAPDOR TELTRAP
  * RUNOK (cycle door)
  * DOOR
@@ -613,7 +613,7 @@ int runvalue(int r, int c, int depth, int *val, int *avd, int *cont)
         *avd = 0;
         /* *cont = 0; */
     }
-    else if((r == atrow) && (c == atcol)) { 
+    else if((r == atrow) && (c == atcol)) {
         /* If we are running our current can't be that great -- MLM */
         *val = 0;
     }
@@ -664,7 +664,7 @@ int unpininit()
 int rundoorinit()
 {
     avoidmonsters();
-    
+
     return 1;
 }
 
@@ -674,7 +674,7 @@ int rundoorinit()
  * Evaluate for running into doorway.
  *
  * Targets, in priority order are:
- * 
+ *
  * RUNOK (cycle door)
  * DOOR
  *
@@ -809,7 +809,7 @@ int expvalue(int r, int c, int depth, int *val, int *avd, int *cont)
     if(onrc(SCAREM, r, c) && (version < RV53A) && (objcount != maxobj)) {
         *avd = a + 1000;
         *val = 0;
-        
+
         return 1;
     }
 
@@ -830,8 +830,8 @@ int expvalue(int r, int c, int depth, int *val, int *avd, int *cont)
                     /* Count unseen boundary neighbors */
                     ++nunseenb;
 
-                    /* 
-                     * Count seen boundaries horiz/vert adjacent 
+                    /*
+                     * Count seen boundaries horiz/vert adjacent
                      * to unseen boundary
                      */
                     for(l = 0; l < 8; l += 2) {
@@ -847,7 +847,7 @@ int expvalue(int r, int c, int depth, int *val, int *avd, int *cont)
                      */
                     /* Horizontal/vertical */
                     l = (k / 2) * 2;
-                    
+
                     if(onrc(BOUNDARY + SEEN, nr + deltc[l], nc + deltc[l]) == BOUNDARY) {
                         nearb = 1;
                     }
@@ -900,11 +900,11 @@ int expvalue(int r, int c, int depth, int *val, int *avd, int *cont)
 
     *avd = a;
     *val = v;
-    
+
     if(v < 50) { /* Look for something better */
         *cont = 4;
     }
-    
+
     if(debug(D_SCREEN) && (v > 0)) {
         mvaddch(r, c, 'o');
         dwait(D_SCREEN, "Value %d", v);
@@ -1115,7 +1115,7 @@ int secretvalue(int r, int c, int depth, int *val, int *avd, int *cont)
             v = min(15, v);
             *val = secretvalues[v];
             *cont = secretcont[v];
-            
+
             if(onrc(DOOR, r, c)) {
                 a += expDor;
             }
@@ -1217,7 +1217,7 @@ void caddycorner(int r, int c, int d1, int d2, char ch)
         AVOID(r, c, ch);
         r += deltr[d1];
         c += deltc[d1];
-        
+
         if(!onrc(CANGO, r, c)) {
             break;
         }
@@ -1260,7 +1260,7 @@ void pinavoid()
             d = direc(searchstartr - mr, searchstartc - mc);
             dr = ((searchstartr - mr) / 2) + mr - deltr[d]; /* MLM */
             dc = ((searchstartc - mc) / 2) + mc - deltc[d]; /* MLM */
-            
+
             if(d & 1) {
                 caddycorner(dr, dc, (d - 1) & 7, (d - 3) & 7, '&');
                 caddycorner(dr, dc, (d + 1) & 7, (d + 3) & 7, '&');
@@ -1301,7 +1301,7 @@ int secret()
                ordinal(count));
 
         command(T_DOORSRCH, "s");
-        
+
         return 1;
     }
 
@@ -1481,7 +1481,7 @@ int safevalue(int r, int c, int depth, int *val, int *avd, int *cont)
 
     if(onrc(CANGO, r, c)) {
         v = 0;
-        
+
         for(k = 0; k < 8; ++k) {
             if(onrc(CANGO, r + deltr[k], c + deltc[k])
                && onrc(CANGO, r + deltr[k], c)
@@ -1594,7 +1594,7 @@ int archmonster(int m, int trns)
     if(darkroom()) {
         darkdir = direc(mr - atrow, mc - atcol);
         darkturns = max(abs(mr - atrow), abs(mc - atcol));
-        
+
         /* Go here to pikc up what (s)he drops */
         agoalr = mr;
         agoalc = mc;
@@ -1602,11 +1602,11 @@ int archmonster(int m, int trns)
 
     /* Tell the user about it */
     saynow("Arching at %s", monname(mlist[m].chr));
-    
+
     return 1;
 }
 
-/* 
+/*
  * archeryinit: Initialize an archery move. Must avoid monsters to avoid
  * waking our potential victim up.
  */
@@ -1621,7 +1621,7 @@ int archeryinit()
 
     /* Clear the archery value array */
     r = 24 * 80;
-    
+
     while(r) {
         archval[0][r] = 0;
         --r;
@@ -1798,7 +1798,7 @@ int restvalue(int r, int c, int depth, int *val, int *avd, int *cont)
     /* Set base value of square */
     if(onrc(TRAP | MONSTER, r, c)) {
         *avd = INFINITE;
-        
+
         return 0;
     }
     else if(restinroom && onrc(DOOR, r, c)) {
@@ -1856,11 +1856,11 @@ int restvalue(int r, int c, int depth, int *val, int *avd, int *cont)
         for(dir = 0; dir < 8; dir += 2) {
             dr = deltr[dir];
             dc = deltc[dir];
-            
+
             count = 0;
             ar = r + dr;
             ac = c + dc;
-            
+
             while(onrc(CANGO | HALL | MONSTER, ar, ac) == CANGO) {
                 /* Bonus of 'count' if this square covers a door */
                 if(onrc(DOOR, ar + deltr[(dir + 2) % 8], ac + deltc[(dir + 2) % 8])) {
@@ -1915,4 +1915,3 @@ int restvalue(int r, int c, int depth, int *val, int *avd, int *cont)
 
     return 1;
 }
-    

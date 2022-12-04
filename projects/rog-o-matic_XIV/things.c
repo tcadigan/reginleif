@@ -26,7 +26,7 @@ int wear(int obj)
 {
     if(currentarmor != NONE) {
         dwait(D_FATAL, "Trying to put on a second coat of armor");
-        
+
         return 0;
     }
 
@@ -47,7 +47,7 @@ int takeoff()
 {
     if(currentarmor == NONE) {
         dwait(D_ERROR, "Trying to take off armor we don't have on!");
-        
+
         return 0;
     }
 
@@ -97,7 +97,7 @@ int drop(int obj)
 
     /* read unknown scrolls or good scrolls rather than dropping them */
     if((inven[obj].type == scroll_obj)
-       && (!itemis(obj, KNOWN) 
+       && (!itemis(obj, KNOWN)
            || (stlmatch(inven[obj].str, "identify") && prepareident(pickident(), obj))
            || stlmatch(inven[obj].str, "enchant")
            || stlmatch(inven[obj].str, "genocide")
@@ -212,7 +212,7 @@ int puton(int obj)
 
         return 1;
     }
-   
+
     if((leftring == NONE) || (rightring == NONE)) {
         command(T_HANDLING, "P%c", LETTER(obj));
 
@@ -235,7 +235,7 @@ int removering(int obj)
 
     if((leftring != NONE) && (rightring != NONE) && (rightring == obj)) {
         command(T_HANDLING, "Rr");
-   
+
         return 1;
     }
 
@@ -281,7 +281,7 @@ void addstuff(char ch, int row, int col)
     setrc(STUFF, row, col);
 }
 
-/* 
+/*
  * deletestuff: Remove the object form the stuff list at location (x,y)
  */
 void deletestuff(int row, int col)
@@ -289,7 +289,7 @@ void deletestuff(int row, int col)
     int i;
 
     unsetrc(STUFF, row, col);
-    
+
     for(i = 0; i < slistlen; ++i) {
         if((slist[i].scol == col) && (slist[i].srow == row)) {
             --slistlen;
@@ -309,7 +309,7 @@ void dumpstuff()
     int i;
 
     at(1, 0);
-    
+
     for(i = 0; i < slistlen; ++i) {
         printw("%d at %d,%d (%c)\n",
                slist[i].what,
@@ -337,7 +337,7 @@ void display(char *s)
 int prepareident(int obj, int iscroll)
 {
     nextid = LETTER(obj);
-    
+
     if((iscroll > obj) || (inven[iscroll].count > 1)) {
         afterid = nextid;
     }
@@ -363,13 +363,13 @@ int pickident()
     int obj;
 
     obj = unknown(ring_obj);
-    
+
     if(obj != NONE) {
         return obj;
     }
 
     obj = unidentified(wand_obj);
-        
+
     if(obj != NONE) {
         return obj;
     }
@@ -381,7 +381,7 @@ int pickident()
     }
 
     obj = unidentified(potion_obj);
-    
+
     if(obj != NONE) {
         return obj;
     }
@@ -413,7 +413,7 @@ int pickident()
 int unknown(stuff otype)
 {
     int i;
-    
+
     for(i = 0; i < invcount; ++i) {
         if(inven[i].count
            && (inven[i].type == otype)
@@ -631,7 +631,7 @@ int willrust(int obj)
         return 0;
     }
 }
-    
+
 /*
  * wielding: Return true if we are wielding an object of type 'otype'
  */
@@ -700,7 +700,7 @@ int havefood(int n)
     }
 
     remaining = 800 - turns + lastate;
-    
+
     if(remaining < 0) {
         remaining = 0;
     }

@@ -53,7 +53,7 @@ void add_score(char *new_line, char *vers, int ntrm)
     while(lock_file(lokfil, MAXLOCK) == 0) {
         if((--wantscore < 1) && !ntrm) {
             printf("The score file is busy, do you wish to wait? [y/n] ");
-            
+
             ch = getchar();
             while((ch != 'y') && (ch != 'n')) {
                 ch = getchar();
@@ -133,7 +133,7 @@ void dumpscore(char *vers)
         /* If we have an old file and a delta file, merge them */
         if(scoref != NULL) {
             fclose(scoref);
-            
+
             sprintf(cmd,
                     "sort +4nr -o %s %s; sort -m +4nr -o %s %s %s",
                     newfil,
@@ -211,4 +211,3 @@ void interupscore()
 
     exit(1);
 }
-            

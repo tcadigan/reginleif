@@ -76,7 +76,7 @@ int strategize()
 
     if(handleweapon()) { /* Play with the nice sword */
         dwait(D_BATTLE, "Switching the sword [1]");
-        
+
         return 1;
     }
 
@@ -94,7 +94,7 @@ int strategize()
      * number of turns.
      */
     lyinginwait = 0; /* No more monsters to wait for */
-    
+
     if(foughtmonster) {
         /* Turns since fought monster */
         --foughtmonster;
@@ -116,12 +116,12 @@ int strategize()
     }
 
     /* End of short term memory modification */
-    
+
     if(dropjunk()) { /* Send it back */
         return 1;
     }
 
-    if(readscroll()) { 
+    if(readscroll()) {
         /* Get out the reading glasses. Must come before handlearmor() */
         return 1;
     }
@@ -204,7 +204,7 @@ int strategize()
      */
     if((attempt > 4) && makemove(ATTACKSLEEP, genericinit, sleepvalue, REUSE)) {
         display("No stairs, attacking sleeping monster...");
-        
+
         return 1;
     }
 
@@ -227,7 +227,7 @@ int strategize()
     if(on(STAIRS) && ((atrow != stairrow) || (atcol != staircol))) {
         dwait(D_ERROR, "Stairs moved!");
         findstairs(NONE, NONE);
-        
+
         return 1;
     }
 
@@ -238,7 +238,7 @@ int strategize()
     while(attempt++ < MAXATTEMPTS) {
         timestosearch += max(3, k_door / 5);
         foundnew();
-        
+
         if(doorexplore()) {
             return 1;
         }
@@ -247,7 +247,7 @@ int strategize()
     /* Don't give up, start all over! */
     newlevel();
     display("I would give up, but I am too stubborn, starting over...");
-    
+
     return grope(10);
 }
 
@@ -283,7 +283,7 @@ int fightmonster()
             if(mlist[i].q != ASLEEP) {
                 if((mlist[i].q != HELD) || (Hp >= Hpmax) || !havefood(1)) {
                     melee = 1;
-                    
+
                     if(mlist[i].q == AWAKE) {
                         alertmonster = 1;
                     }
@@ -324,7 +324,7 @@ int fightmonster()
                 /* If he is adjacent, add to the adj count */
                 if(onrc(CANGO, rr, atcol) && onrc(CANGO, atrow, cc)) {
                     ++adjacent;
-                    
+
                     if(isholder(monster)) {
                         howmean = 10000;
                     }
@@ -374,7 +374,7 @@ int fightmonster()
                 /* If he is adjacent, add to the adj count */
                 if(onrc(CANGO, rr, atcol) && onrc(CANGO, atrow, cc)) {
                     ++adjacent;
-                    
+
                     if(isholder(monster)) {
                         howmean = 10000;
                     }
@@ -402,7 +402,7 @@ int fightmonster()
         }
     }
 
-    /* 
+    /*
      * The folling variables have now been set:
      *
      * monc:     The letter of the worst monster we can hit
@@ -425,7 +425,7 @@ int fightmonster()
                           alertmonster,
                           max(1, adjacent))) {
             foughtmonster = DIDFIGHT;
-            
+
             return 1;
         }
     }
@@ -460,7 +460,7 @@ int fightmonster()
     /* If we are here but have no direction, there was a bug somewhere */
     if(mdir < 0) {
         dwait(D_BATTLE, "Adjacent, but no direction known!");
-        
+
         return 0;
     }
 
@@ -537,7 +537,7 @@ int tomonster()
          * Don't pick fights with sleepers if cosmic.  DR UTexas 25 Jan 84
          */
         if(usingarrow
-           || (mlist[i].q == AWAKE) 
+           || (mlist[i].q == AWAKE)
            || (!cosmic
                && wanttowake(monchar)
                && (((avghit(i) <= 50) || ((maxhit(i) + 50 - k_wake) < Hp))
@@ -556,7 +556,7 @@ int tomonster()
                 mbad = avghit(i);
             }
             else if((dist == closest) && (avghit(i) > avghit(which))) {
-                /* 
+                /*
                  * Or if is he meaner than another equally close monster,
                  * save him
                  */
@@ -600,13 +600,13 @@ int tomonster()
     if(battlestations(which, monster, mbad, danger, mdir, closest, 1, adj)) {
         return 1;
     }
-    
+
     /* If he is an odd number of squares away, lie in wait for him */
     if(((closest & 1) == 0) && !lyinginwait) {
         command(T_FIGHTING, "s");
         dwait(D_BATTLE, "Waiting for monster an odd number of squares away...");
         lyinginwait = 1;
-    
+
         return 1;
     }
 
@@ -615,7 +615,7 @@ int tomonster()
         goalr = mlist[which].mrow;
         goalc = mlist[which].mcol;
         lyinginwait = 0;
-        
+
         return 1;
     }
 
@@ -659,7 +659,7 @@ int wanttowake(char c)
  *             that it wasn't just a confused monster that blockes
  *             away and might get a hit on us if we move. Now only
  *             used when we lost a monster from view.
- * 
+ *
  *             Also rest if we are critically weak and have some food.
  */
 int aftermelee()
@@ -668,7 +668,7 @@ int aftermelee()
         lyinginwait = 1;
         command(T_RESTING, "s");
         dwait(D_BATTLE, "Aftermelee: waiting for %d rounds.", foughtmonster);
-        
+
         return 1;
     }
 
@@ -676,7 +676,7 @@ int aftermelee()
     if((Hp < 6) && (larder > 0)) {
         command(T_RESTING, "s");
         display("Recovering from severe beating...");
-        
+
         return 1;
     }
 
@@ -704,7 +704,7 @@ int aftermelee()
  * adj How many attackers are there?
  */
 int battlestations(int m,
-                   char *monster, 
+                   char *monster,
                    int mbad,
                    int danger,
                    int mdir,
@@ -760,14 +760,14 @@ int battlestations(int m,
     /* Switch back to our mace or sword? */
     if(live_for(1) && (turns < 2) && wielding(thrower_obj) && handleweapon()) {
         dwait(D_BATTLE, "Switching to sword [2]");
-        
+
         return 1;
     }
 
     /* Don't waste magic when on a scare monster scroll */
     if(on(SCAREM) && !streq(monster, "dragon")) {
         dwait(D_BATTLE, "Battlestations: hitting from scaremonster.");
-        
+
         return 0;
     }
 
@@ -796,7 +796,7 @@ int battlestations(int m,
     /* Are healing postions worthwhile? */
     if(die_in(1) && ((Hpmax - Hp) > 10) && (turns > 0)) {
         obj = havenamed(potion_obj, "extra healing");
-        
+
         if(obj != NONE) {
             return quaff(obj);
         }
@@ -822,7 +822,7 @@ int battlestations(int m,
        && (!on(DOOR) || (turns < 1))
        && (!streq(monster, "dragon") || cosmic)
        && ((Hp + Explev) < Hpmax)
-       && (die_in(1) 
+       && (die_in(1)
            || (Hp <= (danger + between(Level - 10, 0, 10)))
            || chicken)
        && runaway()) {
@@ -854,11 +854,11 @@ int battlestations(int m,
         if(onrc(CANGO | TRAP, atdrow(rdir), atdcol(rdir)) == CANGO) {
             move1(rdir);
             stepback = 7;
-            
+
             return 1;
         }
     }
-     
+
     /* Decrement turns until step back again */
     if(stepback) {
         --stepback;
@@ -1010,7 +1010,7 @@ int battlestations(int m,
 
         if(obj != NONE) {
             beingheld = 0;
-            
+
             return reads(obj);
         }
     }
@@ -1164,7 +1164,7 @@ int battlestations(int m,
        && (die_in(1) && (((Hp + (Explev / 2) + 3) < Hpmax) || chicken))
        && runaway()) {
         display("Run away! Run away!");
-        
+
         return 1;
     }
 
@@ -1211,7 +1211,7 @@ int battlestations(int m,
 
             /* DR UTexas 19 Jan 84 */
             /* zappedunknown = TRUE; */
-            
+
             return 1;
         }
     }
@@ -1272,7 +1272,7 @@ int battlestations(int m,
     /* Switch back to your mace or sword? */
     if(!cursedweapon && wielding(thrower_obj) && handleweapon()) {
         dwait(D_BATTLE, "Switching to sword [3]");
-        
+
         return 1;
     }
 
@@ -1315,7 +1315,7 @@ int tostuff()
 
     for(i = 0; i < slistlen; ++i) {
         if(!onrc(USELESS, slist[i].srow, slist[i].scol)
-           || (droppedscare 
+           || (droppedscare
                && (objcount < maxobj)
                && !onrc(SCAREM, slist[i].srow, slist[i].scol))) {
             dist = max(abs(slist[i].srow - atrow), abs(slist[i].scol - atcol));
@@ -1361,7 +1361,7 @@ int tostuff()
     /* Must drop something, pick least valuable item to drop */
     worst = NONE;
     worstval = 9999;
-    
+
     for(i = 0; i < invcount; ++i) {
         if(inven[i].count && !itemis(i, INUSE)) {
             w = worth(i);
@@ -1371,7 +1371,7 @@ int tostuff()
                 worstval = w;
             }
         }
-        
+
         /* Once we have found a totally useless item, stop looking */
         if(worstval == 0) {
             break;
@@ -1478,7 +1478,7 @@ int fightinvisible()
     /* If we can only go two ways, then go back and forth (will hit) */
     if((liberties == 1) || (liberties == 2)) {
         command(T_FIGHTING, "%c%c", keydir[lastdir], keydir[(lastdir + 4) & 7]);
-        
+
         return 1;
     }
     else if(runaway()) {
@@ -1502,7 +1502,7 @@ int fightinvisible()
     }
     else {
         command(T_FIGHTING,
-                "%c%c%c", 
+                "%c%c%c",
                 keydir[dir],
                 keydir[dir],
                 keydir[(dir + 4) & 7]);
@@ -1555,7 +1555,7 @@ int archery()
         if(((ammo >= mtk) && (larder > 0))
            || (((streq(monster, "leprechaun") && !hungry()))
                || streq(monster, "nymph"))) {
-            dwait(D_BATTLE, 
+            dwait(D_BATTLE,
                   "Arching at %c at (%d,%d)",
                   mlist[m].chr,
                   mlist[m].mrow,
@@ -1590,7 +1590,7 @@ int pickupafter()
     if((atrow == agoalr) && (atcol == agoalc)) {
         agoalc = NONE;
         agoalr = agoalc;
-    
+
         return 0;
     }
 

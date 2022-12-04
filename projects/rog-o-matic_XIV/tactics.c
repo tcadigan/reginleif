@@ -64,11 +64,11 @@ int handlearmor()
            && willrust(obj)
            && itemis(obj, KNOWN)) {
             obj = NONE;
-            
+
             if(Level < 13) {
                 obj = havearmor(1, NOPRINT, RUSTPROOF);
             }
-            
+
             if((Level < 13) && (obj == NONE)) {
                 obj = havearmor(3, NOPRINT, ANY);
             }
@@ -108,7 +108,7 @@ int handlearmor()
     /* If we are wearing the right armor, then don't bother */
     if(obj == currentarmor) {
         newarmor = 0;
-        
+
         return 0;
     }
 
@@ -391,7 +391,7 @@ int readscroll()
 
         if(obj2 != NONE) {
             prepareident(obj2, obj);
-            
+
             return reads(obj);
         }
     }
@@ -409,7 +409,7 @@ int readscroll()
     }
 
     obj = havenamed(scroll_obj, "identify potion");
-    
+
     if(obj != NONE) {
         obj2 = unknown(potion_obj);
 
@@ -460,7 +460,7 @@ int readscroll()
        && (!itemis(currentweapon, KNOWN)
            && (!usingarrow || (goodarrow > 20)))) {
         prepareident(obj2, obj);
-        
+
         return reads(obj);
     }
 
@@ -619,7 +619,7 @@ int handlering()
 
     ring1 = havering(1, NOPRINT);
     ring2 = havering(2, NOPRINT);
-    
+
     dwait(D_PACK,
           "Handlering: ring1 %d, ring2 %d, left %d, right %d",
           ring1,
@@ -630,7 +630,7 @@ int handlering()
     if(((leftring == ring1) && (rightring == ring2))
        || ((rightring == ring1) && (leftring == ring2))) {
         newring = 0;
-        
+
         return 0;
     }
 
@@ -709,7 +709,7 @@ int grope(int turns)
         else {
             command(T_GROPING, "%ds", 1);
         }
-         
+
         return 1;
     }
 
@@ -737,7 +737,7 @@ int grope(int turns)
     }
 
     if(turns) {
-        command(T_GROPING, 
+        command(T_GROPING,
                 "%c%c%ds",
                 keydir[blindir],
                 keydir[(blindir + 4) & 7],
@@ -836,7 +836,7 @@ int godownstairs(int running)
        && (goodarrow < 5)
        && waitaround()) {
         saynow("Checking out arrow...");
-        
+
         return 1;
     }
 
@@ -1014,7 +1014,7 @@ int waitaround()
                && gotowards(i, j, 0)) {
                 goalr = i;
                 goalc = j;
-                
+
                 return 1;
             }
         }
@@ -1123,7 +1123,7 @@ int restup()
     /* If we are confused, sit still so we don't bump into anything bad */
     if(confused) {
         command(T_RESTING, "s");
-        
+
         return 1;
     }
 
@@ -1148,7 +1148,7 @@ int restup()
      */
     if((Hp < (Level + 10)) && (Hp < (Hpmax / 3))) {
         obj = havemult(potion_obj, "extra healing", 2);
-        
+
         if((obj != NONE) && quaff(obj)) {
             return 1;
         }
@@ -1161,7 +1161,7 @@ int restup()
 
         if(know("hallucination")) {
             obj = havenamed(potion_obj, "extra healing");
-            
+
             if((obj != NONE) && quaff(obj)) {
                 return 1;
             }
@@ -1169,7 +1169,7 @@ int restup()
 
         if(know("blindness")) {
             obj = havenamed(potion_obj, "healing");
-            
+
             if((obj != NONE) && quaff(obj)) {
                 return 1;
             }
@@ -1235,7 +1235,7 @@ int gotowardsgoal()
 
 /*
  * gotocorner: Find a corner using downright and try to go there.
- * this is done so we can destroy old wands by throwing 
+ * this is done so we can destroy old wands by throwing
  * them into the corner (which destroys them).
  */
 int gotocorner()
@@ -1271,7 +1271,7 @@ int light()
     if(Level < 17) {
         return 0;
     }
-    
+
     return lightroom();
 }
 
@@ -1348,7 +1348,7 @@ int trywand()
 
     /*
      * If we aren't in a room, if there are monsters around,
-     * or we are in the dark, then we can't try this strategy 
+     * or we are in the dark, then we can't try this strategy
      */
     if(!on(ROOM) || mlistlen || darkroom()) {
         return 0;
@@ -1402,7 +1402,7 @@ int eat()
 
     if(obj != NONE) {
         command(T_HANDLING, "e%c", LETTER(obj));
-        
+
         return 1;
     }
 

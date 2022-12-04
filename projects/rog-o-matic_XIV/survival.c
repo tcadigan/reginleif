@@ -70,7 +70,7 @@ int markcycles(int print)
 
     int count = 1920;
     short *m = mark;
-    
+
     while(count) {
         *m = 0;
         ++m;
@@ -84,12 +84,12 @@ int markcycles(int print)
 
     for(D = 0; D < 8; D += 2) {
         newsquare = st[1].where + deltrc[D ^ 4];
-        
+
         if(Scr[newsquare] & CANGO) {
             if(mark[newsquare]) {
                 int stop;
                 int i;
-                
+
                 if(mark[newsquare]  < sp) {
                     if(Scr[st[sp].where] & DOOR) {
                         stop = st[mark[newsquare]].door;
@@ -116,7 +116,7 @@ int markcycles(int print)
                 st[sp].where = newsquare;
                 st[sp].dirs = 1;
                 st[1].dirs = -1;
-                
+
                 if(Scr[st[sp - 1].where] & DOOR) {
                     st[sp].door = sp - 1;
                 }
@@ -300,7 +300,7 @@ int backtodoor(int dist)
         stillcount = 0;
     }
     else if(dist < closest) {
-        closest = dist; 
+        closest = dist;
         stillcount = 0;
     }
     else if(++stillcount > 5) {

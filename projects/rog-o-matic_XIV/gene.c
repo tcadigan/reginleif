@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
                 break;
             case 'i':
                 ++init;
-                
+
                 break;
             case 'f':
                 full = 1;
@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
 
     /* Disable interrupts */
     critical();
-    
+
     if(lock_file(genelock, MAXLOCK)) {
         if(init) {
             /* Set the random number generator */

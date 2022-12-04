@@ -5,7 +5,7 @@ int quitforhonors();
 int strategize();
 int wanttowake(char c);
 int battlestations(int m,
-                   char *monster, 
+                   char *monster,
                    int mbad,
                    int danger,
                    int mdir,

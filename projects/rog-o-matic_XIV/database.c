@@ -84,7 +84,7 @@ void infername(char *oldname, char *name)
     else {
         if(*dbase[i].roguenam && strcmp(dbase[i].roguenam, name)) {
             dwait(D_ERROR,
-                  "Inconsistent inference '%s', '%s'", 
+                  "Inconsistent inference '%s', '%s'",
                   dbase[i].roguenam,
                   name);
         }
@@ -132,7 +132,7 @@ int know(char *name)
 char *realname(char *oldname)
 {
     int i;
-    
+
     for(i = 0; i < datalen; ++i) {
         if(*dbase[i].roguenam && streq(dbase[i].fakename, oldname)) {
             return dbase[i].roguenam;

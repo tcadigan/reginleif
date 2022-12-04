@@ -57,7 +57,7 @@ char *itemstr(int i)
                 worth(i),
                 inven[i].count,
                 stuffmess[(int)inven[i].type]);
-    
+
         if((inven[i].phit != UNKNOWN) && (inven[i].pdam == UNKNOWN)) {
             sprintf(item, "%s (%d)", item, inven[i].phit);
         }
@@ -141,7 +141,7 @@ char *itemstr(int i)
 void dumpinv(FILE *f)
 {
     int i;
-    
+
     if(f == NULL) {
         at(1, 0);
     }
@@ -168,7 +168,7 @@ void removeinv(int pos)
     if(inven[pos].count == 0) {
         /* Assure nothing at that spot  DR UT */
         clearpack(pos);
-        
+
         /* Close up the hole */
         rollpackup(pos);
     }
@@ -213,8 +213,8 @@ void clearpack(int pos)
     inven[pos].pdam = UNKNOWN;
     inven[pos].charges = UNKNOWN;
 
-    forget(pos, 
-           (KNOWN 
+    forget(pos,
+           (KNOWN
             | CURSED
             | ENCHANTED
             | PROTECTED
@@ -265,7 +265,7 @@ void rollpackup(int pos)
     }
 
     savebuf = inven[pos].str;
-    
+
     for(i = pos; (i + 1) < invcount; ++i) {
         inven[i] = inven[i + 1];
     }
@@ -288,7 +288,7 @@ void rollpackdown(int pos)
     }
 
     savebuf = inven[invcount].str;
-    
+
     for(i = invcount; i > pos; --i) {
         inven[i] = inven[i - 1];
 
@@ -419,7 +419,7 @@ int inventory(char *msgstart, char *msgend)
         if(*mess == 'a') { /* Eat the determiner A/An/The */
             ++mess;
         }
-        
+
         if(*mess == 'n') {
             ++mess;
         }
@@ -489,7 +489,7 @@ int inventory(char *msgstart, char *msgend)
         while(*mend != '(') { /* On exit mend -> '(' */
             --mend;
         }
-        
+
         if(stlmatch(mend, "(being worn)")) {
             currentarmor = ipos;
             inuse = INUSE;
@@ -637,7 +637,7 @@ int inventory(char *msgstart, char *msgend)
 
     /* Copy the name of the objet into a string */
     p = objname;
-    
+
     for(q = xbeg; q < xend; ++q) {
         *p = *q;
 
@@ -674,7 +674,7 @@ int inventory(char *msgstart, char *msgend)
         if(*dbname) {
             strcpy(objname, dbname);
             xknow = KNOWN;
-            
+
             if(newitem) {
                 at(0, 0);
 
@@ -689,7 +689,7 @@ int inventory(char *msgstart, char *msgend)
                     if(n == 1) {
                         printw("%s%s of %s (%c)",
                                "potion",
-                               "", 
+                               "",
                                objname,
                                LETTER(ipos));
                     }
@@ -753,7 +753,7 @@ int inventory(char *msgstart, char *msgend)
         newring = 1;
         lastfoodlevel = Level;
     }
-    else if(newitem 
+    else if(newitem
             && ((what == hitter_obj)
                 || (what == missile_obj)
                 || (what == wand_obj))) {
@@ -810,7 +810,7 @@ int inventory(char *msgstart, char *msgend)
     if(cursedarmor && (ipos == currentarmor)) {
         remember(ipos, CURSED);
     }
-    
+
     if(cursedweapon && (ipos == currentweapon)) {
         remember(ipos, CURSED);
     }

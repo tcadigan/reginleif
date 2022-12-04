@@ -111,7 +111,7 @@ void getrogue(char *waitstr, int onat)
 
     /* FSM to check for the '--More--' */
     m = "More--";
-    
+
     /* FSM to check for 'Call it:' */
     call = "Call it:";
 
@@ -120,7 +120,7 @@ void getrogue(char *waitstr, int onat)
 
     /* FSM to check for tombstone grass */
     d = ")      ";
-    
+
     if(moved) { /* If we moved last time, put an old monsters to sleep */
         sleepmonster();
         moved = 0;
@@ -130,8 +130,8 @@ void getrogue(char *waitstr, int onat)
      * While we have not reached the end of the Rogue input, read
      * characters from Rogue and figure out what they mean.
      */
-    while(*s 
-          || ((!hasted || (version != RV36A)) 
+    while(*s
+          || ((!hasted || (version != RV36A))
               && onat
               && screen[row][col] != '@')) {
         ch = getroguetoken();
@@ -146,7 +146,7 @@ void getrogue(char *waitstr, int onat)
             q = "(* for list): ";
         }
 
-        /* 
+        /*
          * Rogomatic now keys off the grass under the Tombstone to
          * detect that it has been killed. This was done because the
          * "Press return" prompt only happens if there is a score file
@@ -167,7 +167,7 @@ void getrogue(char *waitstr, int onat)
 
         /* If the message as a more, strip it off and call terpmes */
         if(ch == *m) {
-            if(*++m == 0) { 
+            if(*++m == 0) {
                 /* More than 50 messages since last command ==> start logging */
                 if((++morecount > 50) && !logging) {
                     toggleecho();
@@ -198,7 +198,7 @@ void getrogue(char *waitstr, int onat)
                 /* Interpret the message */
                 terpmes();
 
-                /* 
+                /*
                  * This code gets rid of the "Studded leather arm" bug.
                  * But it causes other problems.    MLM
                  */
@@ -280,7 +280,7 @@ void getrogue(char *waitstr, int onat)
             }
 
             col = 0;
-            
+
             break;
         case DO_TOK:
             ++row;
@@ -292,7 +292,7 @@ void getrogue(char *waitstr, int onat)
         case LF_TOK:
             ++row;
             col = 0;
-            
+
             break;
         case ND_TOK:
             ++col;
@@ -334,7 +334,7 @@ void getrogue(char *waitstr, int onat)
             }
             else if(row) {
                 at(row, col);
-                
+
                 if(!emacs && !terse) {
                     addch(ch);
                 }
@@ -351,7 +351,7 @@ void getrogue(char *waitstr, int onat)
             }
             else if((col == 1) && (ch == 'l') && (screen[0][0] == 'I')) {
                 screen[0][0] = screen00;
-                
+
                 if(screen00 != ' ') {
                     terpmes();
                 }
@@ -373,7 +373,7 @@ void getrogue(char *waitstr, int onat)
     if((atrow != atrow0) || (atcol != atcol0)) {
         /* Changed position, record the move */
         updateat();
-        
+
         /* Indicate that we moved */
         moved = 1;
 
@@ -397,7 +397,7 @@ void getrogue(char *waitstr, int onat)
 
     /* If mapping status has changed */
     if(wasmapped != didreadmap) {
-        dwait(D_CONTROL | D_SEARCH, 
+        dwait(D_CONTROL | D_SEARCH,
               "wasmapped: %d   didreadmap: %d",
               wasmapped,
               didreadmap);
@@ -525,7 +525,7 @@ void terpbot()
         /* Restore blank */
         screen[23][78] = ' ';
     }
-    
+
     if(oldlev != Level) {
         newlevel();
     }
@@ -583,7 +583,7 @@ void terpbot()
 
             if(emacs) {
                 sprintf(modeline, " %s (%%b)", screen[23]);
-                
+
                 if(strlen(modeline) > 72) {
                     sprintf(modeline, " %s", screen[23]);
                 }
@@ -827,7 +827,7 @@ char getroguetoken()
         switch(ch) {
         case CE_CHR:
             ch = CE_TOK;
-            
+
             break;
         case CL_CHR:
             ch = CL_TOK;
@@ -884,15 +884,15 @@ char getroguetoken()
             switch(ch) {
             case BS_TOK:
                 fprintf(fecho, "{bs}");
-                
+
                 break;
             case CE_TOK:
                 fprintf(fecho, "{ce}");
-                
+
                 break;
             case CL_TOK:
                 fprintf(fecho, "{ff}");
-                
+
                 break;
             case CM_TOK:
                 fprintf(fecho, "{cm(%d,%d)}", row, col);
@@ -916,7 +916,7 @@ char getroguetoken()
                 break;
             case SE_TOK:
                 fprintf(fecho, "{se}");
-                
+
                 break;
             case SO_TOK:
                 fprintf(fecho, "{so}");
@@ -1003,7 +1003,7 @@ void deadrogue()
  */
 
 /*
- * reason: A reason string for the summary line 
+ * reason: A reason string for the summary line
  * gld: What is the final score
  * terminationtype: SAVED, FINISHED, or DIED */
 void quitrogue(char *reason, int gld, int terminationtype)
@@ -1069,9 +1069,9 @@ void quitrogue(char *reason, int gld, int terminationtype)
 
     sprintf(sumline,
             "%s %2d %2d/%-6d  %d",
-            sumline, 
+            sumline,
             Ac,
-            Explev, 
+            Explev,
             Exp,
             ltm.gamecnt);
 
@@ -1133,7 +1133,7 @@ void quitrogue(char *reason, int gld, int terminationtype)
 void waitfor(char *mess)
 {
     char *m = mess;
-    
+
     while(*m) {
         if(getroguetoken() == *m) {
             ++m;
@@ -1155,7 +1155,7 @@ void say(char *f, va_list args)
     if(!emacs && !terse) {
         vsprintf(buf, f, args);
         at(0, 0);
-        
+
         for(b = buf; *b; ++b) {
             printw("%s", unctrl(*b));
         }
@@ -1177,7 +1177,7 @@ void saynow(char *f, ...)
         say(f, args);
         va_end(args);
         refresh();
-    }   
+    }
 }
 
 /*
@@ -1301,10 +1301,10 @@ void getrogver()
         waitfor("ersion ");
 
         ch = getroguetoken();
-        
+
         while(ch != ' ') {
             *(vstr++) = ch;
-            
+
             ch = getroguetoken();
         }
 
@@ -1364,7 +1364,7 @@ void redrawscreen()
     for(i = 1; i < 24; ++i) {
         for(j = 0; j < 80; ++j) {
             ch = screen[i][j];
-            
+
             if(ch > ' ') {
                 mvaddch(i, j, ch);
             }
@@ -1440,10 +1440,10 @@ void clearsendqueue()
 void startreplay(FILE **logf, char *logfname)
 {
     *logf = fopen(logfname, "r");
-    
+
     if(*logf == NULL) {
         fprintf(stderr, "Can't open \'%s\'.\n", logfname);
-        
+
         exit(1);
     }
 }
@@ -1487,7 +1487,7 @@ void printsnap(FILE *f)
     /* Print the current map */
     putn('-', f, 79);
     fprintf(f, "\n");
-    
+
     for(i = 0; i < 24; ++i) {
         for(length = 79; length >= 0; --length) {
             if((mvinch(i, length) & A_CHARTEXT) == ' ') {
@@ -1554,7 +1554,7 @@ char getlogtoken()
     if(ch == '{') {
         ch1 = GETLOGCHAR;
         ch2 = GETLOGCHAR;
-        
+
         /* Ignore the close '}' */
         ch = GETLOGCHAR;
 
@@ -1592,11 +1592,11 @@ char getlogtoken()
             break;
         case 'd':
             ch = DO_TOK;
-            
+
             break;
         case 'f':
             ch = CL_TOK;
-            
+
             break;
         case 'n':
             if(ch2 == 'l') {
@@ -1729,15 +1729,15 @@ char *statusline()
     if(aggravated) {
         strcat(s, "aggravated, ");
     }
-    
+
     if(beingheld) {
         strcat(s, "being held, ");
     }
-    
+
     if(blinded) {
         strcat(s, "blind, ");
     }
-    
+
     if(confused) {
         strcat(s, "confused, ");
     }
@@ -1745,7 +1745,7 @@ char *statusline()
     if(cosmic) {
         strcat(s, "cosmic, ");
     }
-    
+
     if(cursedarmor) {
         strcat(s, "cursed armor, ");
     }
@@ -1773,11 +1773,11 @@ char *statusline()
     if(protected) {
         strcat(s, "protected, ");
     }
-    
+
     if(redhands) {
         strcat(s, "red hands, ");
     }
-    
+
     if(Level == didreadmap) {
         strcat(s, "mapped, ");
     }

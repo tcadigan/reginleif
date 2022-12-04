@@ -59,7 +59,7 @@ int worth(int obj)
         value += 50;
     }
 
-    /* 
+    /*
      * Armor values are based on armor class, bonus for best, second
      * best, third best, or leather armor (leather doesn't rust)
      */
@@ -193,7 +193,7 @@ int useless(int i)
     }
 
     /* Many potions are useless */
-    if((inven[i].type == potion_obj) 
+    if((inven[i].type == potion_obj)
        && itemis(i, KNOWN)
        && (stlmatch(inven[i].str, "paralysi")
            || stlmatch(inven[i].str, "confusion")
@@ -246,7 +246,7 @@ int useless(int i)
         return 1;
     }
 
-    /* 
+    /*
      * If we are cheating and we have a good arrow
      * then many rings do us no good at all.
      */

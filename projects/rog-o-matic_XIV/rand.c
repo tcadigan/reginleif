@@ -26,7 +26,7 @@
 #define MUL2 1366
 #define OFF2 827291
 #define MOD2 1519572
-/* 
+/*
  * RAND2 generates 19 random bits, RAND3 generates 17. The X sequence
  * is made up of both, and thus has 31 random bits.
  */
@@ -58,7 +58,7 @@ void srand(int seed)
     seed3 = (seed3 + seed) % MOD3;
 
     i = AUXLEN;
-    
+
     while(i) {
         --i;
 

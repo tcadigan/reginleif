@@ -37,7 +37,7 @@ void positionreplay()
 
     /* Prompt user for a command character, read it, and lower case it */
     saynow("Which level (f = first, p = previous, c = current, l = last): ");
-    
+
     cmd = getch();
     if(isupper(cmd)) {
         cmd = tolower(cmd);
@@ -139,7 +139,7 @@ int findlevel(FILE *f, struct levstruct *lvpos, int *nmlev, int maxnum)
 
     /* Position file after first newline */
     rewind(f);
-    
+
     ch = getc(f);
     while((ch != '\n') && ((int)ch != EOF)) {
         ch = getc(f);
@@ -150,7 +150,7 @@ int findlevel(FILE *f, struct levstruct *lvpos, int *nmlev, int maxnum)
 
     if(!findmatch(f, FIRSTLEVSTR)) {
         rewind(f);
-        
+
         return FAILURE;
     }
 

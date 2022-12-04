@@ -52,7 +52,7 @@ short baudrate()
 char *getname()
 {
     static char name[100];
-    
+
     struct passwd *pass = getpwuid(getuid());
 
     strncpy(name, pass->pw_name, strlen(pass->pw_name));
@@ -184,7 +184,7 @@ int lock_file(char *lokfil, int maxtime)
 
         for(try = 0; try < 60; ++try) {
             sleep(1);
-            
+
             if(creat(lokfil, NOWRITE) > 0) {
                 return TRUE;
             }
@@ -253,7 +253,7 @@ int stlmatch(char *small, char *big)
 {
     char *s;
     char *b;
-    
+
     s = small;
     b = big;
 

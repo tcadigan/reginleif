@@ -69,7 +69,7 @@ void addmonster(char ch, int r, int c, int quiescence)
 void deletemonster(int r, int c)
 {
     int i;
-    
+
     new_arch = 1;
     unsetrc(MONSTER, r, c);
 
@@ -158,7 +158,7 @@ void holdmonsters()
     for(m = 0; m < mlistlen; ++m) {
         if((mlist[m].q == 0)
            && (max(abs(mlist[m].mrow - atrow), abs(mlist[m].mcol - atcol)) < 3)) {
-            dwait(D_MONSTER, 
+            dwait(D_MONSTER,
                   "Holding %s at %d,%d",
                   monname(mlist[m].chr),
                   mlist[m].mrow,
@@ -185,7 +185,7 @@ void wakemonster(int dir)
         if((mlist[m].q != AWAKE)
            && ((dir == ALL)
                || ((dir < 0) && ADJACENT(m) && (mlist[m].chr == -dir + 'A' - 1))
-               || ((dir >= 0) 
+               || ((dir >= 0)
                    && (dir < 8)
                    && (mlist[m].mrow == atdrow(dir))
                    && (mlist[m].mcol == atdcol(dir))))) {

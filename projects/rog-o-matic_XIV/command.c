@@ -87,12 +87,12 @@ void command(int tmode, char *f, ...)
     case 'L':
         movedir = 0;
         wakemonster(movedir);
-        
+
         break;
     case 'U':
         movedir = 1;
         wakemonster(movedir);
-        
+
         break;
     case 'K':
         movedir = 2;
@@ -132,7 +132,7 @@ void command(int tmode, char *f, ...)
     if(!replaying) {
         if(streq(lastcom, cmd)) {
             ++comcount;
-            
+
             if(streq(cmd, "i") && (comcount > 3)) {
                 dwait(D_FATAL,
                       "command: cannot synchronize inventory, invcount %d.",
@@ -153,7 +153,7 @@ void command(int tmode, char *f, ...)
 
     /* Do time accounting */
     times = commandcount(cmd);
-    
+
     if((tmode < T_OTHER) || (tmode >= T_LISTLEN)) {
         tmode = T_OTHER;
     }
@@ -299,7 +299,7 @@ void adjustpack(char *cmd)
         else {
             goodweapon = 0;
         }
-        
+
         hitstokill = 0;
         poorarrow = hitstokill;
         goodarrow = poorarrow;
@@ -441,7 +441,7 @@ void showcommand(char *cmd)
     at(23, 72);
     standout();
     printw(" ");
-    
+
     for(s = cmd; *s; ++s) {
         printw("%s", unctrl(*s));
     }

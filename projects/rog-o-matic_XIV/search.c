@@ -628,6 +628,3 @@ int searchto(int row, int col, int (*evaluate)(int, int, int, int *, int *, int 
         }
     }
 }
-                   
-            
-            

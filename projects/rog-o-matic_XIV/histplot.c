@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     i = NUMBUK;
     while(i != 0) {
         --i;
-        
+
         bucket[i] = 0;
 
         j = NOMON;
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
             switch(**argv) {
             case 'c': /* List cheat games */
                 ++cheat;
-                
+
                 break;
             case 'l': /* Plot level instead of score */
                 ++dolev;
@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
     while(getscore(&score, killer,  &level) != EOF) {
         if(score < min) {
             ++lowscore;
-            
+
             continue;
         }
 
@@ -215,7 +215,7 @@ int main(int argc, char *argv[])
         for(i = 0; i < NUMBUK; ++i) {
             if(bucket[i] >= f) {
                 plot[i] = '#';
-                
+
                 j = NOMON;
                 while(j != 0) {
                     --j;
@@ -255,7 +255,7 @@ int main(int argc, char *argv[])
     }
 
     printf("             A-Z Monster which killed Rog-O-Matic\n");
-    
+
     if(total[1]) {
         printf("             @ Killed by an arrow, bolt, or dart\n");
     }
@@ -287,7 +287,7 @@ int getscore(int *score, char *killer, int *level)
         yy = *score;
         dd = yy;
 
-        sscanf(line, 
+        sscanf(line,
                "%s %d, %d %10s%d%c%17s",
                mmstr,
                &dd,

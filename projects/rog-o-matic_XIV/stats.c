@@ -156,11 +156,11 @@ void parsestat(char *buf, statistic *s)
     s->sumsq = s->low;
     s->sum = s->sumsq;
 
-    sscanf(buf, 
-           "%d %lf %lf %lf %lf", 
-           &s->count, 
+    sscanf(buf,
+           "%d %lf %lf %lf %lf",
+           &s->count,
            &s->sum,
-           &s->sumsq, 
+           &s->sumsq,
            &s->low,
            &s->high);
 }
@@ -178,4 +178,3 @@ void writestat(FILE *f, statistic *s)
             s->low,
             s->high);
 }
-            

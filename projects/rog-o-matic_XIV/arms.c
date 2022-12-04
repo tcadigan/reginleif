@@ -61,7 +61,7 @@ int havearmor(int k, int print, int rustproof)
         else {
             mvprintw(1, 0, "Current %sArmor Rankings", "");
         }
-    
+
         for(i = 0; i < n; ++i) {
             mvprintw(i + 3,
                      8,
@@ -88,7 +88,7 @@ int havearmor(int k, int print, int rustproof)
 int armorclass(int i)
 {
     int class;
-    
+
     if(inven[i].type != armor_obj) {
         return 1000;
     }
@@ -181,7 +181,7 @@ int haveweapon(int k, int print)
             if(weapval[j] == weapval[j - 1]) {
                 i = weapind[j];
                 w = weapind[j - 1];
-                
+
                 if(!itemis(w, ENCHANTED)
                    && itemis(i, ENCHANTED)
                    && !itemis(w, KNOWN)
@@ -274,7 +274,7 @@ int weaponclass(int i)
             damplus = inven[i].pdam;
         }
     }
-    else if(cheat 
+    else if(cheat
             && (version <= RV36B)
             && usingarrow
             && (goodarrow > 20)
@@ -634,7 +634,7 @@ int ringclass(int i)
             else { /* Get difference in classes */
                 armdiff = armorclass(nextarm) - armorclass(bestarm);
             }
-        
+
             if(havefood(1)) {
                 class = 1000 + (200 * armdiff);
             }
@@ -692,7 +692,7 @@ int havebow(int k, int print)
 
     if(print) {
         mvaddstr(1, 0, "Current Bow Rankings");
-        
+
         for(i = 0; i < n; ++i) {
             mvprintw(i + 3,
                      8,
@@ -951,4 +951,3 @@ void setbonuses()
         }
     }
 }
-       

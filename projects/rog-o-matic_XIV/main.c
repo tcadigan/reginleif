@@ -8,7 +8,7 @@
  * Automatically exploring the dungeons of doom
  * Copyright (C) 1985 by Appel, Jacobson, Hamey, and Mauldin
  *
- * The right is grandted to any person, univeristy, or company
+ * The right is granted to any person, univeristy, or company
  * to copy, modify, or distribute (for free) these files,
  * provided that any person receiving a copy notifies Michael Mauldin
  *
@@ -54,7 +54,7 @@
  * conveniently conneting the two via two pipes.
  *
  * Source Files:
- * 
+ *
  *     arms.c        Armor, weapon, and ring handling functions
  *     command.c     Effector interface, sends commands to Rogue
  *     database.c    Memeory for objects "discovered"
@@ -397,14 +397,14 @@ int main(int argc, char *argv[])
     char msg[128];
     int startingup = 1;
     int i;
-    
+
 
     /* Initialize some storage */
     sprintf(lastcmd, "i");
     sprintf(ourkiller, "unknown");
 
     i = 80 * 24;
-    
+
     while(i) {
         --i;
         screen[0][i] = ' ';
@@ -489,7 +489,7 @@ int main(int argc, char *argv[])
 
     /* Clear the screen */
     clear();
-    
+
     /* Figure out Rogue version */
     getrogver();
 
@@ -558,7 +558,7 @@ int main(int argc, char *argv[])
     }
 
     /* Note: if we are replyaing, the logfile is now in synch */
-    
+
     /* Read the input up to the end of first command */
     getrogue(ill, 2);
 
@@ -703,7 +703,7 @@ int main(int argc, char *argv[])
                 break;
             case 'M':
                 dumpmazedoor();
-                
+
                 break;
             case '>':
                 if((atrow == stairrow) && (atcol == staircol)) {
@@ -764,7 +764,7 @@ int main(int argc, char *argv[])
                 break;
             case ':':
                 chicken = !chicken;
-                
+
                 if(chicken) {
                     saynow("chicken");
                 }
@@ -813,7 +813,7 @@ int main(int argc, char *argv[])
                 clear();
                 summary((FILE *)NULL, '\n');
                 pauserogue();
-                
+
                 break;
             case '|':
                 clear();
@@ -824,7 +824,7 @@ int main(int argc, char *argv[])
             case 'r':
                 resetinv();
                 saynow("Inventory reset.");
-                
+
                 break;
             case 'i':
                 clear();
@@ -859,11 +859,11 @@ int main(int argc, char *argv[])
                 break;
             case 'e':
                 toggleecho();
-                
+
                 break;
             case '!':
                 dumpstuff();
-                
+
                 break;
             case '@':
                 dumpmonster();
@@ -905,7 +905,7 @@ int main(int argc, char *argv[])
                 break;
             case '{':
                 promptforflags();
-                
+
                 break;
             case '&':
                 saynow("Object count is %d.", objcount);
@@ -935,7 +935,7 @@ int main(int argc, char *argv[])
                 break;
             case 'E':
                 dwait(D_ERROR, "Testing the ERROR trap...");
-               
+
                 break;
             case 'F':
                 dwait(D_FATAL, "Testing the FATAL trap...");
@@ -1010,7 +1010,7 @@ int main(int argc, char *argv[])
         if(*sumline) {
             printf("%s\n", sumline);
         }
-        
+
         printf("%s %s est.\n", gamename, termination);
     }
 
@@ -1046,7 +1046,7 @@ void onintr()
 {
     /* Tell rogue we don't want to quit */
     sendnow("n\033");
-    
+
     /* Print out everything */
     if(logging) {
         fflush(fecho);
@@ -1109,7 +1109,7 @@ void startlesson()
 
         /* Write out the gene pool */
         writegenes(genepool);
-        
+
         /* Close the gene log file */
         closelog();
 
@@ -1140,13 +1140,13 @@ void startlesson()
  */
 void endlesson()
 {
-    if((geneid > 0) 
+    if((geneid > 0)
        && (stlmatch(termination, "perditus")
            || stlmatch(termination, "victorius")
            || stlmatch(termination, "callidus"))) {
         /* Disbale interrupts */
         critical();
-        
+
         /* Lock the score file */
         if(lock_file(genelock, MAXLOCK)) {
             /* Open the gene log file */
@@ -1167,7 +1167,7 @@ void endlesson()
             unlock_file(genelock);
         }
         else {
-            fprintf(stderr, 
+            fprintf(stderr,
                     "Cannot lock gene pool to evaluate '%s'\n",
                     genepool);
         }
@@ -1176,5 +1176,3 @@ void endlesson()
         uncritical();
     }
 }
-    
-               
