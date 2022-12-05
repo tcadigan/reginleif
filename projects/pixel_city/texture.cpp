@@ -33,9 +33,9 @@
 #include "win.hpp"
 #include "world.hpp"
 
-#define RANDOM_COLOR_SHIFT ((float)(randomVal(10)) / 50.0f)
-#define RANDOM_COLOR_VAL ((float)(randomVal(256)) / 256.0f)
-#define RANDOM_COLOR_LIGHT ((float)(200 + randomVal(56)) / 256.0f)
+#define RANDOM_COLOR_SHIFT ((float)(random_val(10)) / 50.0f)
+#define RANDOM_COLOR_VAL ((float)(random_val(256)) / 256.0f)
+#define RANDOM_COLOR_LIGHT ((float)(200 + random_val(56)) / 256.0f)
 #define SKY_BANDS (sizeof(sky_pos) / sizeof(int))
 #define PREFIX_COUNT (sizeof(prefix) / sizeof(char *))
 #define SUFFIX_COUNT (sizeof(suffix) / sizeof(char *))
@@ -236,19 +236,19 @@ void drawrect(int left, int top, int right, int bottom, gl_rgba color)
             glBegin(GL_POINTS);
             for(i = left + 1; i < right - 1; ++i) {
                 for(j = top + 1; j < bottom - 1; ++j) {
-                    glColor4i(255, 0, randomVal(potential), 255);
+                    glColor4i(255, 0, random_val(potential), 255);
                     hue = 0.2f
-                        + ((float)randomVal(100) / 300.0f)
-                        + ((float)randomVal(100) / 300.0f)
-                        + ((float)randomVal(100) / 300.0f);
+                        + ((float)random_val(100) / 300.0f)
+                        + ((float)random_val(100) / 300.0f)
+                        + ((float)random_val(100) / 300.0f);
 
                     gl_rgba temp;
                     color_noise = temp.from_hsl(hue, 0.3f, 0.5f);
-                    color_noise.set_alpha((float)randomVal(potential) / 144.0f);
+                    color_noise.set_alpha((float)random_val(potential) / 144.0f);
                     glColor4f(RANDOM_COLOR_VAL,
                               RANDOM_COLOR_VAL,
                               RANDOM_COLOR_VAL,
-                              (float)randomVal(potential)/144.0f);
+                              (float)random_val(potential)/144.0f);
 
                     glColor4fv(color_noise.get_data());
                     glVertex2i(i, j);
@@ -257,22 +257,22 @@ void drawrect(int left, int top, int right, int bottom, gl_rgba color)
             glEnd();
         }
 
-        height = (bottom - top) + (randomVal(3) - 1) + (randomVal(3) - 1);
+        height = (bottom - top) + (random_val(3) - 1) + (random_val(3) - 1);
 
         for(i = left; i < right; ++i) {
-            if(randomVal(6) == 0) {
+            if(random_val(6) == 0) {
                 height = bottom - top;
-                height = randomVal(height);
-                height = randomVal(height);
-                height = randomVal(height);
+                height = random_val(height);
+                height = random_val(height);
+                height = random_val(height);
                 height = ((bottom - top) + height) / 2;
             }
 
             for(j = 0; j < 1; ++j) {
                 glBegin(GL_LINES);
-                glColor4f(0, 0, 0, (float)randomVal(256) / 256.0f);
+                glColor4f(0, 0, 0, (float)random_val(256) / 256.0f);
                 glVertex2i(i, bottom - height);
-                glColor4f(0, 0, 0, (float)randomVal(256) / 256.0f);
+                glColor4f(0, 0, 0, (float)random_val(256) / 256.0f);
                 glVertex2i(i, bottom);
                 glEnd();
             }
@@ -306,7 +306,7 @@ static void buildingWindow(int x, int y, int size, int id, gl_rgba color)
     case TEXTURE_BUILDING4:
         // Windows with blinds
         drawrect(x + 1, y + 1, x + size - 1, y + size - 1, color);
-        i = randomVal(size - 2);
+        i = random_val(size - 2);
         drawrect(x + 1, y + 1, x + size - 1, y + i + 1, color * 0.3f);
         break;
     case TEXTURE_BUILDING5:
@@ -403,18 +403,18 @@ void CTexture::DrawWindows()
         // Every few floors we change the behavior
         if(!(y % 8)) {
             run = 0;
-            run_length = randomVal(9) + 2;
-            lit_density = 2 + randomVal(2) + randomVal(2);
+            run_length = random_val(9) + 2;
+            lit_density = 2 + random_val(2) + random_val(2);
             lit = false;
         }
 
         for(x = 0; x < SEGMENTS_PER_TEXTURE; ++x) {
             // If this run is over reroll lit and start a new one
             if(run < 1) {
-                run = randomVal(run_length);
-                lit = (randomVal(lit_density) == 0);
+                run = random_val(run_length);
+                lit = (random_val(lit_density) == 0);
                 // if(lit) {
-                //     color = glRgba(0.5f + (float)(randomVal() % 128) / 256.0f)
+                //     color = glRgba(0.5f + (float)(random_val() % 128) / 256.0f)
                 //         + glRgba(RANDOM_COLOR_SHIFT,
                 //                  RANDOM_COLOR_SHIFT,
                 //                  RANDOM_COLOR_SHIFT);
@@ -422,13 +422,13 @@ void CTexture::DrawWindows()
             }
 
             if(lit) {
-                color = gl_rgba(0.5f + ((float)(randomVal() % 128) / 256.0f))
+                color = gl_rgba(0.5f + ((float)(random_val() % 128) / 256.0f))
                     + gl_rgba(RANDOM_COLOR_SHIFT,
                              RANDOM_COLOR_SHIFT,
                              RANDOM_COLOR_SHIFT);
             }
             else {
-                color = gl_rgba((float)(randomVal() % 40) / 256.0f);
+                color = gl_rgba((float)(random_val() % 40) / 256.0f);
             }
 
             buildingWindow(x * segment_size_,
@@ -475,19 +475,19 @@ void CTexture::DrawSky()
     // Draw a bunch of little faux-buildings on the horizon
     for(i = 0; i < size_; i += 5) {
         drawrect(i,
-                 size_ - randomVal(8) - randomVal(8) - randomVal(8),
-                 i + randomVal(9),
+                 size_ - random_val(8) - random_val(8) - random_val(8),
+                 i + random_val(9),
                  size_,
                  gl_rgba(0.0f));
     }
 
     // Draw the clouds
     for(i = size_ - 30; i > 5; i -= 2) {
-        x = randomVal(size_);
+        x = random_val(size_);
         y = i;
 
         scale = 1.0f - ((float)y / (float)size_);
-        width = randomVal(half_ / 2) + (int)((float)half_ * scale) / 2;
+        width = random_val(half_ / 2) + (int)((float)half_ * scale) / 2;
         scale = 1.0f - ((float)y / (float)size_);
         height = (int)((float)width * scale);
         height = MAX(height, 4);
@@ -738,9 +738,9 @@ void CTexture::Rebuild()
         i = 0;
         glDepthMask(false);
         glDisable(GL_BLEND);
-        name_num = randomVal(NAME_COUNT);
-        prefix_num = randomVal(PREFIX_COUNT);
-        suffix_num = randomVal(SUFFIX_COUNT);
+        name_num = random_val(NAME_COUNT);
+        prefix_num = random_val(PREFIX_COUNT);
+        suffix_num = random_val(SUFFIX_COUNT);
         glColor3f(1, 1, 1);
 
         while(i < size_) {
@@ -748,7 +748,7 @@ void CTexture::Rebuild()
             if(COIN_FLIP) {
                 RenderPrint(2,
                             size_ - i - (LOGO_PIXELS / 4),
-                            randomVal(),
+                            random_val(),
                             gl_rgba(1.0f),
                             "%s%s",
                             prefix[prefix_num],
@@ -757,7 +757,7 @@ void CTexture::Rebuild()
             else {
                 RenderPrint(2,
                             size_ - i - (LOGO_PIXELS / 4),
-                            randomVal(),
+                            random_val(),
                             gl_rgba(1.0f),
                             "%s%s",
                             name[name_num],

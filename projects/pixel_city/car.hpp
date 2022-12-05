@@ -3,6 +3,8 @@
 
 #include "gl-vector3.hpp"
 
+#include "win.hpp"
+
 class Car {
 public:
     Car();
@@ -10,7 +12,7 @@ public:
     void Render();
     void Update();
     void Park();
-    
+
     Car *next_;
 
 private:
@@ -21,7 +23,7 @@ private:
     int drive_angle_;
     int row_;
     int col_;
-    int direction_;
+    direction_t direction_;
     int change_;
     int stuck_;
     float speed_;

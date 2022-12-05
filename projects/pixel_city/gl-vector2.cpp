@@ -2,7 +2,7 @@
  * gl-vector2.cpp
  *
  * 2006 Shamus Young
- * 
+ *
  * Functions for dealing with 2d (usually texture mapping) values
  *
  */
@@ -16,10 +16,10 @@
 
 gl_vector2::gl_vector2()
 {
-    memset(data_, 0, sizeof(GLfloat) * 2);
+    memset(data_, 0, sizeof(float) * 2);
 }
 
-gl_vector2::gl_vector2(GLfloat x, GLfloat y)
+gl_vector2::gl_vector2(float x, float y)
 {
     data_[0] = x;
     data_[1] = y;
@@ -29,9 +29,9 @@ gl_vector2::~gl_vector2()
 {
 }
 
-GLfloat gl_vector2::length()
+float gl_vector2::length()
 {
-    return (GLfloat)sqrt((data_[0] * data_[0])
+    return (float)sqrt((data_[0] * data_[0])
                          + (data_[1] * data_[1]));
 }
 
@@ -58,7 +58,7 @@ gl_vector2 &gl_vector2::operator-=(gl_vector2 const &rhs)
     return *this;
 }
 
-gl_vector2 &gl_vector2::operator*=(GLfloat const &rhs)
+gl_vector2 &gl_vector2::operator*=(float const &rhs)
 {
     data_[0] *= rhs;
     data_[1] *= rhs;
@@ -66,7 +66,7 @@ gl_vector2 &gl_vector2::operator*=(GLfloat const &rhs)
     return *this;
 }
 
-gl_vector2 &gl_vector2::operator/=(GLfloat const &rhs)
+gl_vector2 &gl_vector2::operator/=(float const &rhs)
 {
     data_[0] /= rhs;
     data_[1] /= rhs;
@@ -74,45 +74,45 @@ gl_vector2 &gl_vector2::operator/=(GLfloat const &rhs)
     return *this;
 }
 
-GLfloat gl_vector2::dot_product(gl_vector2 const &rhs) const
+float gl_vector2::dot_product(gl_vector2 const &rhs) const
 {
-    return (GLfloat)((data_[0] * rhs.data_[0])
+    return (float)((data_[0] * rhs.data_[0])
                      + (data_[1] * rhs.data_[1]));
 }
 
-gl_vector2 gl_vector2::interpolate(gl_vector2 const &rhs, GLfloat scalar) const
+gl_vector2 gl_vector2::interpolate(gl_vector2 const &rhs, float scalar) const
 {
     return gl_vector2(MathInterpolate(data_[0], rhs.data_[0], scalar),
                       MathInterpolate(data_[1], rhs.data_[1], scalar));
 }
 
-void gl_vector2::set_data(GLfloat x, GLfloat y)
+void gl_vector2::set_data(float x, float y)
 {
     data_[0] = x;
     data_[1] = y;
 }
 
-void gl_vector2::set_x(GLfloat x)
+void gl_vector2::set_x(float x)
 {
     data_[0] = x;
 }
 
-void gl_vector2::set_y(GLfloat y)
+void gl_vector2::set_y(float y)
 {
     data_[1] = y;
 }
 
-GLfloat *gl_vector2::get_data()
+float *gl_vector2::get_data()
 {
     return data_;
 }
 
-GLfloat gl_vector2::get_x() const
+float gl_vector2::get_x() const
 {
     return data_[0];
 }
 
-GLfloat gl_vector2::get_y() const
+float gl_vector2::get_y() const
 {
     return data_[1];
 }

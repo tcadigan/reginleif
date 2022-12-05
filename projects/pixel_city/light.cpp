@@ -38,7 +38,7 @@ void LightClear()
 {
     Light *l;
 
-    while(head) {
+    while (head) {
         l = head;
         head = l->next_;
         delete l;
@@ -107,7 +107,7 @@ void Light::Blink()
 
     // We don't want blinkers to by in sync, so have them blink at
     // slightly different rates. (Milliseconds)
-    blink_interval_ = 1500 + randomVal(500);
+    blink_interval_ = 1500 + random_val(500);
 }
 
 void Light::Render()

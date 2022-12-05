@@ -8,37 +8,37 @@
 class gl_rgba {
 public:
     gl_rgba();
-    gl_rgba(GLint red, GLint green, GLint blue);
-    gl_rgba(GLfloat red, GLfloat green, GLfloat blue);
-    gl_rgba(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
-    gl_rgba(GLint color);
-    gl_rgba(GLfloat luminance);
+    gl_rgba(int red, int green, int blue);
+    gl_rgba(float red, float green, float blue);
+    gl_rgba(float red, float green, float blue, float alpha);
+    gl_rgba(int color);
+    gl_rgba(float luminance);
     gl_rgba(std::string const &color);
     virtual ~gl_rgba();
 
     gl_rgba &operator+=(gl_rgba const &rhs);
     gl_rgba &operator-=(gl_rgba const &rhs);
-    gl_rgba &operator*=(GLfloat const &rhs);
-    gl_rgba &operator/=(GLfloat const &rhs);
+    gl_rgba &operator*=(float const &rhs);
+    gl_rgba &operator/=(float const &rhs);
 
-    gl_rgba interpolate(gl_rgba const &rhs, GLfloat delta) const;
-    gl_rgba from_hsl(GLfloat hue, GLfloat saturation, GLfloat lightness) const;
-    gl_rgba unique(GLint index) const;
+    gl_rgba interpolate(gl_rgba const &rhs, float delta) const;
+    gl_rgba from_hsl(float hue, float saturation, float lightness) const;
+    gl_rgba unique(int index) const;
 
-    void set_data(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
-    void set_red(GLfloat red);
-    void set_green(GLfloat green);
-    void set_blue(GLfloat blue);
-    void set_alpha(GLfloat alpha);
+    void set_data(float red, float green, float blue, float alpha);
+    void set_red(float red);
+    void set_green(float green);
+    void set_blue(float blue);
+    void set_alpha(float alpha);
 
-    GLfloat *get_data();
-    GLfloat get_red() const;
-    GLfloat get_green() const;
-    GLfloat get_blue() const;
-    GLfloat get_alpha() const;
+    float *get_data();
+    float get_red() const;
+    float get_green() const;
+    float get_blue() const;
+    float get_alpha() const;
 
 private:
-    GLfloat data_[4];
+    float data_[4];
 };
 
 inline gl_rgba operator+(gl_rgba lhs, gl_rgba const &rhs)
@@ -55,14 +55,14 @@ inline gl_rgba operator-(gl_rgba lhs, gl_rgba const &rhs)
     return lhs;
 }
 
-inline gl_rgba operator*(gl_rgba lhs, GLfloat const &rhs)
+inline gl_rgba operator*(gl_rgba lhs, float const &rhs)
 {
     lhs *= rhs;
 
     return lhs;
 }
 
-inline gl_rgba operator/(gl_rgba lhs, GLfloat const &rhs)
+inline gl_rgba operator/(gl_rgba lhs, float const &rhs)
 {
     lhs /= rhs;
 

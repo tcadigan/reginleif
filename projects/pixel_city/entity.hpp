@@ -3,6 +3,8 @@
 
 #include "gl-vector3.hpp"
 
+#define MAX_VBUFFER 256
+
 class Entity {
 public:
     Entity();

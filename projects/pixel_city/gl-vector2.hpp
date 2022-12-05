@@ -6,31 +6,31 @@
 class gl_vector2 {
 public:
     gl_vector2();
-    gl_vector2(GLfloat x, GLfloat y);
+    gl_vector2(float x, float y);
     virtual ~gl_vector2();
 
-    GLfloat length();
+    float length();
     void normalize();
     void reflect(gl_vector2 const &normal);
 
     gl_vector2 &operator+=(gl_vector2 const &rhs);
     gl_vector2 &operator-=(gl_vector2 const &rhs);
-    gl_vector2 &operator*=(GLfloat const &rhs);
-    gl_vector2 &operator/=(GLfloat const &rhs);
+    gl_vector2 &operator*=(float const &rhs);
+    gl_vector2 &operator/=(float const &rhs);
 
-    GLfloat dot_product(gl_vector2 const &rhs) const;
-    gl_vector2 interpolate(gl_vector2 const &rhs, GLfloat scalar) const;
+    float dot_product(gl_vector2 const &rhs) const;
+    gl_vector2 interpolate(gl_vector2 const &rhs, float scalar) const;
 
-    void set_data(GLfloat x, GLfloat y);
-    void set_x(GLfloat x);
-    void set_y(GLfloat y);
+    void set_data(float x, float y);
+    void set_x(float x);
+    void set_y(float y);
 
-    GLfloat *get_data();
-    GLfloat get_x() const;
-    GLfloat get_y() const;
+    float *get_data();
+    float get_x() const;
+    float get_y() const;
 
 private:
-    GLfloat data_[2];
+    float data_[2];
 };
 
 inline gl_vector2 operator+(gl_vector2 lhs, gl_vector2 const &rhs)
@@ -47,21 +47,21 @@ inline gl_vector2 operator-(gl_vector2 lhs, gl_vector2 const &rhs)
     return lhs;
 }
 
-inline gl_vector2 operator*(gl_vector2 lhs, GLfloat const &rhs)
+inline gl_vector2 operator*(gl_vector2 lhs, float const &rhs)
 {
     lhs *= rhs;
 
     return lhs;
 }
 
-inline gl_vector2 operator/(gl_vector2 lhs, GLfloat const &rhs)
+inline gl_vector2 operator/(gl_vector2 lhs, float const &rhs)
 {
     lhs /= rhs;
 
     return lhs;
 }
 
-inline GLfloat dot_product(gl_vector2 const &lhs, gl_vector2 const &rhs)
+inline float dot_product(gl_vector2 const &lhs, gl_vector2 const &rhs)
 {
     return lhs.dot_product(rhs);
 }

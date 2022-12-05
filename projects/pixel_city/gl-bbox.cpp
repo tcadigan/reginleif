@@ -22,7 +22,7 @@ gl_bbox::~gl_bbox()
 
 
 // Does the given point fall within the given Bbox?
-bool gl_bbox::test_point(gl_vector3 const &point) 
+bool gl_bbox::test_point(gl_vector3 const &point)
 {
     if((point.get_x() > max_.get_x()) || (point.get_x() < min_.get_x())) {
         return false;

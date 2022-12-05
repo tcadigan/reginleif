@@ -6,34 +6,34 @@
 class gl_vector3 {
 public:
     gl_vector3();
-    gl_vector3(GLfloat x, GLfloat y, GLfloat z);
+    gl_vector3(float x, float y, float z);
     virtual ~gl_vector3();
 
-    GLfloat length();
+    float length();
     void normalize();
     void reflect(gl_vector3 const &normal);
 
     gl_vector3 &operator+=(gl_vector3 const &rhs);
     gl_vector3 &operator-=(gl_vector3 const &rhs);
-    gl_vector3 &operator*=(GLfloat const &rhs);
-    gl_vector3 &operator/=(GLfloat const &rhs);
+    gl_vector3 &operator*=(float const &rhs);
+    gl_vector3 &operator/=(float const &rhs);
 
-    GLfloat dot_product(gl_vector3 const &rhs) const;
+    float dot_product(gl_vector3 const &rhs) const;
     gl_vector3 cross_product(gl_vector3 const &rhs) const;
-    gl_vector3 interpolate(gl_vector3 const &rhs, GLfloat scalar) const;
+    gl_vector3 interpolate(gl_vector3 const &rhs, float scalar) const;
 
-    void set_data(GLfloat x, GLfloat y, GLfloat z);
-    void set_x(GLfloat x);
-    void set_y(GLfloat y);
-    void set_z(GLfloat z);
+    void set_data(float x, float y, float z);
+    void set_x(float x);
+    void set_y(float y);
+    void set_z(float z);
 
-    GLfloat *get_data();
-    GLfloat get_x() const;
-    GLfloat get_y() const;
-    GLfloat get_z() const;
+    float *get_data();
+    float get_x() const;
+    float get_y() const;
+    float get_z() const;
 
 private:
-    GLfloat data_[3];
+    float data_[3];
 };
 
 inline gl_vector3 operator+(gl_vector3 lhs, gl_vector3 const &rhs)
@@ -50,21 +50,21 @@ inline gl_vector3 operator-(gl_vector3 lhs, gl_vector3 const &rhs)
     return lhs;
 }
 
-inline gl_vector3 operator*(gl_vector3 lhs, GLfloat const &rhs)
+inline gl_vector3 operator*(gl_vector3 lhs, float const &rhs)
 {
     lhs *= rhs;
 
     return lhs;
 }
 
-inline gl_vector3 operator/(gl_vector3 lhs, GLfloat const &rhs)
+inline gl_vector3 operator/(gl_vector3 lhs, float const &rhs)
 {
     lhs /= rhs;
 
     return lhs;
 }
 
-inline GLfloat dot_product(gl_vector3 const &lhs, gl_vector3 const &rhs)
+inline float dot_product(gl_vector3 const &lhs, gl_vector3 const &rhs)
 {
     return lhs.dot_product(rhs);
 }

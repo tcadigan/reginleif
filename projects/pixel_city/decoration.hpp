@@ -3,6 +3,8 @@
 
 #include "entity.hpp"
 
+#include <array>
+
 #include "gl-rgba.hpp"
 #include "gl-vector2.hpp"
 #include "gl-vector3.hpp"
@@ -25,7 +27,7 @@ public:
                           float height,
                           gl_rgba color);
 
-    void CreateLightTrim(gl_vector3 *chain,
+    void CreateLightTrim(std::array<gl_vector3, MAX_VBUFFER> &chain,
                          int count,
                          float height,
                          int seed,

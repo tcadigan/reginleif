@@ -144,16 +144,16 @@ void Car::Update(void)
     camera = camera_position();
     if(!ready_) {
         // If the car isn't ready, we need to place it somewhere on the map
-        row_ = DEAD_ZONE + randomVal(WORLD_SIZE - (DEAD_ZONE * 2));
-        col_ = DEAD_ZONE + randomVal(WORLD_SIZE - (DEAD_ZONE * 2));
+        row_ = DEAD_ZONE + random_val(WORLD_SIZE - (DEAD_ZONE * 2));
+        col_ = DEAD_ZONE + random_val(WORLD_SIZE - (DEAD_ZONE * 2));
 
         // If there is already a car here, forget it.
         if(carmap[row_][col_] > 0) {
             return;
         }
 
-        // If this sport is not a road forget it
-        if(!(WorldCell(row_, col_) & CLAIM_ROAD)) {
+        // If this spot is not a road forget it
+        if((WorldCell(row_, col_) & usage_t::claim_road) == usage_t::none) {
             return;
         }
 
@@ -166,21 +166,24 @@ void Car::Update(void)
         drive_position_ = position_;
         ready_ = true;
 
-        if(WorldCell(row_, col_) & MAP_ROAD_NORTH) {
-            direction_ = NORTH;
+        if ((WorldCell(row_, col_) & usage_t::map_road_north) != usage_t::none) {
+            direction_ = direction_t::north;
+            drive_angle_ = dangles[0];
         }
-        if(WorldCell(row_, col_) & MAP_ROAD_EAST) {
-            direction_ = EAST;
+        if ((WorldCell(row_, col_) & usage_t::map_road_east) != usage_t::none) {
+            direction_ = direction_t::east;
+            drive_angle_ = dangles[1];
         }
-        if(WorldCell(row_, col_) & MAP_ROAD_SOUTH) {
-            direction_ = SOUTH;
+        if ((WorldCell(row_, col_) & usage_t::map_road_south) != usage_t::none) {
+            direction_ = direction_t::south;
+            drive_angle_ = dangles[2];
         }
-        if(WorldCell(row_, col_) & MAP_ROAD_WEST) {
-            direction_ = WEST;
+        if ((WorldCell(row_, col_) & usage_t::map_road_west) != usage_t::none) {
+            direction_ = direction_t::west;
+            drive_angle_ = dangles[3];
         }
 
-        drive_angle_ = dangles[direction_];
-        max_speed_ = (float)(4 + randomVal(6)) / 10.0f;
+        max_speed_ = (float)(4 + random_val(6)) / 10.0f;
         speed_ = 0.0f;
         change_ = 3;
         stuck_ = 0;
@@ -193,7 +196,20 @@ void Car::Update(void)
     old_pos = position_;
     speed_ += max_speed_ * 0.05f;
     speed_ =  MIN(speed_, max_speed_);
-    position_ += direction[direction_] * MOVEMENT_SPEED * speed_;
+
+    switch (direction_) {
+    case direction_t::north:
+        position_ += (direction[0] * (MOVEMENT_SPEED * speed_));
+        break;
+    case direction_t::east:
+        position_ += (direction[1] * (MOVEMENT_SPEED * speed_));
+        break;
+    case direction_t::south:
+        position_ += (direction[2] * (MOVEMENT_SPEED * speed_));
+        break;
+    case direction_t::west:
+        position_ += (direction[3] * (MOVEMENT_SPEED * speed_));
+    }
 
     // If the car has moved out of view, there's no need to keep simulating it
     if(!Visible(gl_vector3((float)row_, 0.0f, (float)col_))) {
@@ -244,13 +260,13 @@ void Car::Update(void)
         col_ = new_col;
         change_--;
         stuck_ = 0;
-        if(direction_ == NORTH) {
+        if(direction_ == direction_t::north) {
             front_ = (camera.get_z() < position_.get_z());
         }
-        else if(direction_ == SOUTH) {
+        else if(direction_ == direction_t::south) {
             front_ = (camera.get_z() > position_.get_z());
         }
-        else if(direction_ == EAST) {
+        else if(direction_ == direction_t::east) {
             front_ = (camera.get_z() > position_.get_x());
         }
         else {
@@ -290,7 +306,20 @@ void Car::Render()
 
     glBegin(GL_QUADS);
 
-    angle = dangles[direction_];
+    switch (direction_) {
+    case direction_t::north:
+        angle = dangles[0];
+        break;
+    case direction_t::east:
+        angle = dangles[1];
+        break;
+    case direction_t::south:
+        angle = dangles[2];
+        break;
+    case direction_t::west:
+        angle = dangles[3];
+        break;
+    }
     pos = drive_position_;
     angle = 360 - (int)MathAngle(position_.get_x(),
                                  position_.get_z(),

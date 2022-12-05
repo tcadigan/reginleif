@@ -3,9 +3,10 @@
 
 #include "gl-bbox.hpp"
 #include "gl-rgba.hpp"
+#include "win.hpp"
 
 gl_rgba WorldBloomColor();
-char WorldCell(int x, int y);
+usage_t WorldCell(int x, int y);
 gl_rgba WorldLightColor(unsigned index);
 int WorldLogoIndex();
 gl_bbox WorldHotZone();

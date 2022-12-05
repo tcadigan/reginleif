@@ -16,10 +16,10 @@
 
 gl_vector3::gl_vector3()
 {
-    memset(data_, 0, sizeof(GLfloat) * 3);
+    memset(data_, 0, sizeof(float) * 3);
 }
 
-gl_vector3::gl_vector3(GLfloat x, GLfloat y, GLfloat z)
+gl_vector3::gl_vector3(float x, float y, float z)
 {
     data_[0] = x;
     data_[1] = y;
@@ -30,9 +30,9 @@ gl_vector3::~gl_vector3()
 {
 }
 
-GLfloat gl_vector3::length()
+float gl_vector3::length()
 {
-    return (GLfloat)sqrt((data_[0] * data_[0])
+    return (float)sqrt((data_[0] * data_[0])
                          + (data_[1] * data_[1])
                          + (data_[2] * data_[2]));
 }
@@ -67,7 +67,7 @@ gl_vector3 &gl_vector3::operator-=(gl_vector3 const &rhs)
     return *this;
 }
 
-gl_vector3 &gl_vector3::operator*=(GLfloat const &rhs)
+gl_vector3 &gl_vector3::operator*=(float const &rhs)
 {
     data_[0] *= rhs;
     data_[1] *= rhs;
@@ -76,7 +76,7 @@ gl_vector3 &gl_vector3::operator*=(GLfloat const &rhs)
     return *this;
 }
 
-gl_vector3 &gl_vector3::operator/=(GLfloat const &rhs)
+gl_vector3 &gl_vector3::operator/=(float const &rhs)
 {
     data_[0] /= rhs;
     data_[1] /= rhs;
@@ -85,9 +85,9 @@ gl_vector3 &gl_vector3::operator/=(GLfloat const &rhs)
     return *this;
 }
 
-GLfloat gl_vector3::dot_product(gl_vector3 const &rhs) const
+float gl_vector3::dot_product(gl_vector3 const &rhs) const
 {
-    return (GLfloat)((data_[0] * rhs.data_[0])
+    return (float)((data_[0] * rhs.data_[0])
                      + (data_[1] * rhs.data_[1])
                      + (data_[2] * rhs.data_[2]));
 }
@@ -99,51 +99,51 @@ gl_vector3 gl_vector3::cross_product(gl_vector3 const &rhs) const
                       (data_[0] * rhs.data_[1]) - (rhs.data_[0] * data_[1]));
 }
 
-gl_vector3 gl_vector3::interpolate(gl_vector3 const &rhs, GLfloat scalar) const
+gl_vector3 gl_vector3::interpolate(gl_vector3 const &rhs, float scalar) const
 {
     return gl_vector3(MathInterpolate(data_[0], rhs.data_[0], scalar),
                       MathInterpolate(data_[1], rhs.data_[1], scalar),
                       MathInterpolate(data_[2], rhs.data_[2], scalar));
 }
 
-void gl_vector3::set_data(GLfloat x, GLfloat y, GLfloat z)
+void gl_vector3::set_data(float x, float y, float z)
 {
     data_[0] = x;
     data_[1] = y;
     data_[2] = z;
 }
 
-void gl_vector3::set_x(GLfloat x)
+void gl_vector3::set_x(float x)
 {
     data_[0] = x;
 }
 
-void gl_vector3::set_y(GLfloat y)
+void gl_vector3::set_y(float y)
 {
     data_[1] = y;
 }
 
-void gl_vector3::set_z(GLfloat z)
+void gl_vector3::set_z(float z)
 {
     data_[2] = z;
 }
 
-GLfloat *gl_vector3::get_data()
+float *gl_vector3::get_data()
 {
     return data_;
 }
 
-GLfloat gl_vector3::get_x() const
+float gl_vector3::get_x() const
 {
     return data_[0];
 }
 
-GLfloat gl_vector3::get_y() const
+float gl_vector3::get_y() const
 {
     return data_[1];
 }
 
-GLfloat gl_vector3::get_z() const
+float gl_vector3::get_z() const
 {
     return data_[2];
 }

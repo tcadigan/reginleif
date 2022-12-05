@@ -13,17 +13,17 @@
 
 static std::mt19937 generator;
 
-unsigned long randomVal(void)
+unsigned long random_val(void)
 {
     return generator();
 }
 
-unsigned long randomVal(int range)
+unsigned long random_val(int range)
 {
-    return (range ? (randomVal() % range) : 0);
+    return (range ? (random_val() % range) : 0);
 }
 
-void randomInit(unsigned long seed)
+void random_init(unsigned long seed)
 {
     generator.seed(seed);
 }

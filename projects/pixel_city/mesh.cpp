@@ -5,9 +5,9 @@
  *
  * This class is used to make constructing objects easier. It handles
  * allocating vertex lists, polygon lists, and such like.
- * 
+ *
  * If you were going to implement vertex buffers, this would be the
- * place to do it. Take away the vertex_ member variable and store vertices 
+ * place to do it. Take away the vertex_ member variable and store vertices
  * for ALL meshes in a common list, which could then be unloaded onto the
  * good ol' GPU
  *
@@ -48,29 +48,29 @@ int Mesh::PolyCount()
     return polycount_;
 }
 
-void Mesh::CubeAdd(const cube &c)
+void Mesh::CubeAdd(Cube const &cube)
 {
-    cube_.push_back(c);
+    cube_.push_back(cube);
     polycount_ += 5;
 }
 
-void Mesh::QuadStripAdd(const quad_strip &qs)
+void Mesh::QuadStripAdd(QuadStrip const &qs)
 {
     quad_strip_.push_back(qs);
     polycount_ += ((qs.index_list.size() - 2) / 2);
 }
 
-void Mesh::FanAdd(const fan &f)
+void Mesh::FanAdd(Fan const &fan)
 {
-    fan_.push_back(f);
-    polycount_ += (f.index_list.size() - 2);
+    fan_.push_back(fan);
+    polycount_ += (fan.index_list.size() - 2);
 }
 
 void Mesh::Render()
 {
-    std::vector<quad_strip>::iterator qsi;
-    std::vector<cube>::iterator ci;
-    std::vector<fan>::iterator fi;
+    std::vector<QuadStrip>::iterator qsi;
+    std::vector<Cube>::iterator ci;
+    std::vector<Fan>::iterator fi;
     std::vector<int>::iterator n;
 
     if(compiled_) {
@@ -80,7 +80,7 @@ void Mesh::Render()
 
     for(qsi = quad_strip_.begin(); qsi < quad_strip_.end(); ++qsi) {
         glBegin(GL_QUAD_STRIP);
-        
+
         for(n = qsi->index_list.begin(); n < qsi->index_list.end(); ++n) {
             glTexCoord2fv(vertex_[*n].get_uv().get_data());
             glVertex3fv(vertex_[*n].get_position().get_data());
@@ -118,7 +118,7 @@ void Mesh::Render()
 
     for(fi = fan_.begin(); fi < fan_.end(); ++fi) {
         glBegin(GL_TRIANGLE_FAN);
-        
+
         for(n = fi->index_list.begin(); n < fi->index_list.end(); ++n) {
             glTexCoord2fv(vertex_[*n].get_uv().get_data());
             glVertex3fv(vertex_[*n].get_position().get_data());

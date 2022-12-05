@@ -5,15 +5,18 @@
 
 #include <vector>
 
-struct cube {
+class Cube {
+public:
     std::vector<int> index_list; // Probably always size() == 10...
 };
 
-struct quad_strip {
+class QuadStrip {
+public:
     std::vector<int> index_list;
 };
 
-struct fan {
+class Fan {
+public:
     std::vector<int> index_list;
 };
 
@@ -22,21 +25,21 @@ public:
     Mesh();
     ~Mesh();
 
-    void VertexAdd(const gl_vertex &v);
+    void VertexAdd(gl_vertex const &v);
     int VertexCount();
     int PolyCount();
-    void CubeAdd(const cube &c);
-    void QuadStripAdd(const quad_strip &qs);
-    void FanAdd(const fan &f);
+    void CubeAdd(Cube const &c);
+    void QuadStripAdd(QuadStrip const &qs);
+    void FanAdd(Fan const &f);
     void Render();
     void Compile();
 
     unsigned int list_;
     int polycount_;
     std::vector<gl_vertex> vertex_;
-    std::vector<cube> cube_;
-    std::vector<quad_strip> quad_strip_;
-    std::vector<fan> fan_;
+    std::vector<Cube> cube_;
+    std::vector<QuadStrip> quad_strip_;
+    std::vector<Fan> fan_;
     bool compiled_;
 };
 

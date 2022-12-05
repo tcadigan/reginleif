@@ -22,15 +22,15 @@ gl_rgba::gl_rgba()
     data_[3] = 1.0f;
 }
 
-gl_rgba::gl_rgba(GLint red, GLint green, GLint blue)
+gl_rgba::gl_rgba(int red, int green, int blue)
 {
-    data_[0] = (GLfloat)red / 255.0f;
-    data_[1] = (GLfloat)green / 255.0f;
-    data_[2] = (GLfloat)blue / 255.0;
+    data_[0] = (float)red / 255.0f;
+    data_[1] = (float)green / 255.0f;
+    data_[2] = (float)blue / 255.0;
     data_[3] = 1.0f;
 }
 
-gl_rgba::gl_rgba(GLfloat red, GLfloat green, GLfloat blue)
+gl_rgba::gl_rgba(float red, float green, float blue)
 {
     data_[0] = red;
     data_[1] = green;
@@ -38,7 +38,7 @@ gl_rgba::gl_rgba(GLfloat red, GLfloat green, GLfloat blue)
     data_[3] = 1.0f;
 }
 
-gl_rgba::gl_rgba(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
+gl_rgba::gl_rgba(float red, float green, float blue, float alpha)
 {
     data_[0] = red;
     data_[1] = green;
@@ -46,15 +46,15 @@ gl_rgba::gl_rgba(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
     data_[3] = alpha;
 }
 
-gl_rgba::gl_rgba(GLint color)
+gl_rgba::gl_rgba(int color)
 {
-    data_[0] = (GLfloat)(color & 0x000000FF) / 255.0f;
-    data_[1] = (GLfloat)((color & 0x0000FF00) >> 8) / 255.0f;
-    data_[2] = (GLfloat)((color & 0x00FF0000) >> 16) / 255.0f;
+    data_[0] = (float)(color & 0x000000FF) / 255.0f;
+    data_[1] = (float)((color & 0x0000FF00) >> 8) / 255.0f;
+    data_[2] = (float)((color & 0x00FF0000) >> 16) / 255.0f;
     data_[3] = 1.0f;
 }
 
-gl_rgba::gl_rgba(GLfloat luminance)
+gl_rgba::gl_rgba(float luminance)
 {
     data_[0] = luminance;
     data_[1] = luminance;
@@ -68,12 +68,12 @@ gl_rgba::gl_rgba(std::string const &color)
 
     stream << color;
 
-    GLint value;
+    int value;
 
     if(stream >> value) {
-        data_[0] = (GLfloat)(value & 0x000000FF) / 255.0f;
-        data_[1] = (GLfloat)((value & 0x0000FF00) >> 8) / 255.0f;
-        data_[2] = (GLfloat)((value & 0x00FF0000) >> 16) / 255.0f;
+        data_[0] = (float)(value & 0x000000FF) / 255.0f;
+        data_[1] = (float)((value & 0x0000FF00) >> 8) / 255.0f;
+        data_[2] = (float)((value & 0x00FF0000) >> 16) / 255.0f;
         data_[3] = 1.0f;
     }
     else {
@@ -106,7 +106,7 @@ gl_rgba &gl_rgba::operator-=(gl_rgba const &rhs)
     return *this;
 }
 
-gl_rgba &gl_rgba::operator*=(GLfloat const &rhs)
+gl_rgba &gl_rgba::operator*=(float const &rhs)
 {
     data_[0] *= rhs;
     data_[1] *= rhs;
@@ -115,7 +115,7 @@ gl_rgba &gl_rgba::operator*=(GLfloat const &rhs)
     return *this;
 }
 
-gl_rgba &gl_rgba::operator/=(GLfloat const &rhs)
+gl_rgba &gl_rgba::operator/=(float const &rhs)
 {
     data_[0] /= rhs;
     data_[1] /= rhs;
@@ -124,16 +124,16 @@ gl_rgba &gl_rgba::operator/=(GLfloat const &rhs)
     return *this;
 }
 
-gl_rgba gl_rgba::interpolate(gl_rgba const &rhs, GLfloat delta) const
+gl_rgba gl_rgba::interpolate(gl_rgba const &rhs, float delta) const
 {
     return gl_rgba(MathInterpolate(data_[0], rhs.data_[0], delta),
                    MathInterpolate(data_[1], rhs.data_[1], delta),
                    MathInterpolate(data_[2], rhs.data_[2], delta));
 }
 
-gl_rgba gl_rgba::from_hsl(GLfloat hue,
-                          GLfloat saturation, 
-                          GLfloat lightness) const
+gl_rgba gl_rgba::from_hsl(float hue,
+                          float saturation,
+                          float lightness) const
 {
     if((hue < 0) || (hue >= 360)) {
         return gl_rgba(0);
@@ -147,7 +147,7 @@ gl_rgba gl_rgba::from_hsl(GLfloat hue,
         return gl_rgba(0);
     }
 
-    GLfloat chroma = saturation;
+    float chroma = saturation;
 
     if(((2 * lightness) - 1) < 0) {
         chroma *= (1 - (-1 * ((2 * lightness) - 1)));
@@ -156,9 +156,9 @@ gl_rgba gl_rgba::from_hsl(GLfloat hue,
         chroma *= (1 - ((2 * lightness) - 1));
     }
 
-    GLfloat hue_prime = hue / 60;
-    GLfloat X = chroma;
-    
+    float hue_prime = hue / 60;
+    float X = chroma;
+
     if((fmod(hue_prime, 2) - 1) < 0) {
         X *= (1 - (-1 * (fmod(hue_prime, 2) - 1)));
     }
@@ -166,7 +166,7 @@ gl_rgba gl_rgba::from_hsl(GLfloat hue,
         X *= (1 - (fmod(hue_prime, 2) - 1));
     }
 
-    GLfloat match = lightness - (0.5 * chroma);
+    float match = lightness - (0.5 * chroma);
 
     if((0 <= hue_prime) || (hue_prime < 1)) {
         return gl_rgba(chroma + match, X + match, match);
@@ -194,12 +194,12 @@ gl_rgba gl_rgba::from_hsl(GLfloat hue,
 // Takes the given index and returns a "random" color unique for that index.
 // 512 Unique values: #0 and #512 will be the same, as will #1 and #513, etc.
 // Useful for visual debugging in some situations.
-gl_rgba gl_rgba::unique(GLint index) const
+gl_rgba gl_rgba::unique(int index) const
 {
-    GLfloat red = 0.4f;
-    GLfloat green = 0.4f;
-    GLfloat blue = 0.4f;
-    GLfloat alpha = 1.0f;
+    float red = 0.4f;
+    float green = 0.4f;
+    float blue = 0.4f;
+    float alpha = 1.0f;
 
     if(index & 1) {
         if(index & 8) {
@@ -231,7 +231,7 @@ gl_rgba gl_rgba::unique(GLint index) const
             }
         }
     }
- 
+
     if(index & 2) {
         if(index & 32) {
             if(index & 128) {
@@ -297,7 +297,7 @@ gl_rgba gl_rgba::unique(GLint index) const
     return gl_rgba(red, green, blue, alpha);
 }
 
-void gl_rgba::set_data(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
+void gl_rgba::set_data(float red, float green, float blue, float alpha)
 {
     data_[0] = red;
     data_[1] = green;
@@ -305,47 +305,47 @@ void gl_rgba::set_data(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
     data_[2] = alpha;
 }
 
-void gl_rgba::set_red(GLfloat red)
+void gl_rgba::set_red(float red)
 {
     data_[0] = red;
 }
 
-void gl_rgba::set_green(GLfloat green)
+void gl_rgba::set_green(float green)
 {
     data_[1] = green;
 }
 
-void gl_rgba::set_blue(GLfloat blue)
+void gl_rgba::set_blue(float blue)
 {
     data_[2] = blue;
 }
 
-void gl_rgba::set_alpha(GLfloat alpha)
+void gl_rgba::set_alpha(float alpha)
 {
     data_[3] = alpha;
 }
 
-GLfloat *gl_rgba::get_data()
+float *gl_rgba::get_data()
 {
     return data_;
 }
 
-GLfloat gl_rgba::get_red() const
+float gl_rgba::get_red() const
 {
     return data_[0];
 }
 
-GLfloat gl_rgba::get_green() const
+float gl_rgba::get_green() const
 {
     return data_[1];
 }
 
-GLfloat gl_rgba::get_blue() const
+float gl_rgba::get_blue() const
 {
     return data_[2];
 }
 
-GLfloat gl_rgba::get_alpha() const
+float gl_rgba::get_alpha() const
 {
     return data_[3];
 }

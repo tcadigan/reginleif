@@ -1,6 +1,6 @@
 /*
  * ini.cpp
- * 
+ *
  * 2009 Shamus Young
  *
  * This takes various types of data and dumps them into a predefined ini file.
@@ -65,10 +65,10 @@ void IniVectorSet(char const *entry, gl_vector3 v)
 
 gl_vector3 IniVector(char const *entry)
 {
-    GLfloat x = 0.0f;
-    GLfloat y = 0.0f;
-    GLfloat z = 0.0f;
-    
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
+
     sscanf(result, FORMAT_VECTOR, &x, &y, &z);
 
     return gl_vector3(x, y, z);

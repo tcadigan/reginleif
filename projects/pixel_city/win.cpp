@@ -40,7 +40,7 @@ static int height = 480;
 static bool quit = false;
 SDL_Window *window = nullptr;
 
-void AppUpdate()
+void app_update()
 {
     camera_update();
     EntityUpdate();
@@ -51,44 +51,44 @@ void AppUpdate()
     RenderUpdate();
 }
 
-void appInit(void)
+void app_init(void)
 {
     SDL_Init(SDL_INIT_VIDEO);
 
-    unsigned int windowFlags = SDL_WINDOW_OPENGL;
+    unsigned int window_flags = SDL_WINDOW_OPENGL;
 
-    window = SDL_CreateWindow(APP_TITLE, 0, 0, width, height, windowFlags);
+    window = SDL_CreateWindow(APP_TITLE.c_str(), 0, 0, width, height, window_flags);
 
-    randomInit(time(NULL));
+    random_init(time(NULL));
     camera_init();
     RenderInit();
     TextureInit();
     WorldInit();
 }
 
-void appQuit()
+void app_quit()
 {
     quit = true;
 }
 
-void winTerm(SDL_Window *window)
+void win_term(SDL_Window *window)
 {
     SDL_DestroyWindow(window);
 }
 
-void appTerm(SDL_Window *window)
+void app_term(SDL_Window *window)
 {
     TextureTerm();
     WorldTerm();
     RenderTerm();
     camera_term();
-    winTerm(window);
+    win_term(window);
     SDL_Quit();
 }
 
 int main(int argc, char *argv[])
 {
-    appInit();
+    app_init();
 
     if (window == nullptr) {
         std::cerr << "Unable to create window" << std::endl;
@@ -105,13 +105,13 @@ int main(int argc, char *argv[])
             if (event.type == SDL_KEYDOWN) {
                 switch (event.key.keysym.sym) {
                 case SDLK_ESCAPE:
-                    appQuit();
+                    app_quit();
                     break;
                 default:
                     break;
                 }
             } else if (event.type == SDL_QUIT) {
-                appQuit();
+                app_quit();
             }
         }
 
@@ -124,7 +124,17 @@ int main(int argc, char *argv[])
 
     SDL_GL_DeleteContext(context);
 
-    appTerm(window);
+    app_term(window);
 
     return EXIT_SUCCESS;
+}
+
+usage_t operator&(usage_t left, usage_t right)
+{
+    return static_cast<usage_t>(static_cast<int>(left) & static_cast<int>(right));
+}
+
+usage_t operator|(usage_t left, usage_t right)
+{
+    return static_cast<usage_t>(static_cast<int>(left) | static_cast<int>(right));
 }

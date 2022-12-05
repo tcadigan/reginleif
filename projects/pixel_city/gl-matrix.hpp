@@ -8,24 +8,24 @@
 class gl_matrix {
 public:
     gl_matrix();
-    gl_matrix(GLfloat a00, GLfloat a01, GLfloat a02, GLfloat a03,
-              GLfloat a10, GLfloat a11, GLfloat a12, GLfloat a13,
-              GLfloat a20, GLfloat a21, GLfloat a22, GLfloat a23,
-              GLfloat a30, GLfloat a31, GLfloat a32, GLfloat a33);
+    gl_matrix(float a00, float a01, float a02, float a03,
+              float a10, float a11, float a12, float a13,
+              float a20, float a21, float a22, float a23,
+              float a30, float a31, float a32, float a33);
     virtual ~gl_matrix();
 
     gl_matrix &operator*=(gl_matrix const &rhs);
 
     gl_vector3 transform_point(gl_vector3 const &in);
-    void rotate(GLfloat theta, gl_vector3 const &point);
+    void rotate(float theta, gl_vector3 const &point);
 
-    void set_index(GLfloat value, GLint row, GLint column);
+    void set_index(float value, int row, int column);
 
-    // GLfloat *get_data() const;
-    GLfloat get_index(GLint row, GLint column) const;
+    // float *get_data() const;
+    float get_index(int row, int column) const;
 
 private:
-    GLfloat elements_[4][4];
+    float elements_[4][4];
 };
 
 inline gl_matrix operator*(gl_matrix lhs, gl_matrix const &rhs)

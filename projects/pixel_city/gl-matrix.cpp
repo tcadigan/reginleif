@@ -14,13 +14,13 @@
 
 gl_matrix::gl_matrix()
 {
-    memset(elements_, '0', sizeof(GLfloat) * 4 * 4);
+    memset(elements_, '0', sizeof(float) * 4 * 4);
 }
 
-gl_matrix::gl_matrix(GLfloat a00, GLfloat a01, GLfloat a02, GLfloat a03,
-                     GLfloat a10, GLfloat a11, GLfloat a12, GLfloat a13,
-                     GLfloat a20, GLfloat a21, GLfloat a22, GLfloat a23,
-                     GLfloat a30, GLfloat a31, GLfloat a32, GLfloat a33)
+gl_matrix::gl_matrix(float a00, float a01, float a02, float a03,
+                     float a10, float a11, float a12, float a13,
+                     float a20, float a21, float a22, float a23,
+                     float a30, float a31, float a32, float a33)
 {
     elements_[0][0] = a00;
     elements_[0][1] = a01;
@@ -116,11 +116,11 @@ gl_vector3 gl_matrix::transform_point(gl_vector3 const &in)
                       + elements_[3][2]);
 }
 
-void gl_matrix::rotate(GLfloat theta, gl_vector3 const &point)
+void gl_matrix::rotate(float theta, gl_vector3 const &point)
 {
-    GLfloat s;
-    GLfloat c;
-    GLfloat t;
+    float s;
+    float c;
+    float t;
     gl_vector3 in = point;
 
     theta *= (float)(acos(-1) / 180);
@@ -133,15 +133,15 @@ void gl_matrix::rotate(GLfloat theta, gl_vector3 const &point)
     if(in.length() >= 0.00001f) {
         in.normalize();
 
-        s = (GLfloat)sin(theta);
-        c = (GLfloat)cos(theta);
+        s = (float)sin(theta);
+        c = (float)cos(theta);
         t = 1.0f - c;
 
         elements_[0][0] = ((t * in.get_x()) * in.get_x()) + c;
         elements_[1][0] = ((t * in.get_x()) * in.get_y()) - (s * in.get_z());
         elements_[2][0] = ((t * in.get_x()) * in.get_z()) + (s * in.get_y());
         elements_[3][0] = 0.0f;
-        
+
         elements_[0][1] = ((t * in.get_x()) * in.get_y()) + (s * in.get_z());
         elements_[1][1] = ((t * in.get_y()) * in.get_y()) + c;
         elements_[2][1] = ((t * in.get_y()) * in.get_z()) - (s * in.get_z());
@@ -156,17 +156,17 @@ void gl_matrix::rotate(GLfloat theta, gl_vector3 const &point)
     }
 }
 
-void gl_matrix::set_index(GLfloat value, GLint row, GLint column)
+void gl_matrix::set_index(float value, int row, int column)
 {
     elements_[row][column] = value;
 }
 
-// GLfloat *gl_matrix::get_data() const
+// float *gl_matrix::get_data() const
 // {
 //     return elements_;
 // }
 
-GLfloat gl_matrix::get_index(GLint row, GLint column) const
+float gl_matrix::get_index(int row, int column) const
 {
     return elements_[row][column];
 }

@@ -376,7 +376,7 @@ static void do_effects(int type)
 
             RenderPrint(1,
                         "%s v%d.%d.%03d",
-                        APP_TITLE,
+                        APP_TITLE.c_str(),
                         VERSION_MAJOR,
                         VERSION_MINOR,
                         VERSION_REVISION);
