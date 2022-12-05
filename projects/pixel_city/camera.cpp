@@ -23,26 +23,28 @@
 #include "win.hpp"
 #include "world.hpp"
 
-#define EYE_HEIGHT 2.0f
-#define MAX_PITCH 85
-#define FLYCAM_CIRCUIT 60000
-#define FLYCAM_CIRCUIT_HALF (FLYCAM_CIRCUIT / 2)
-#define FLYCAM_LEG (FLYCAM_CIRCUIT / 4)
-#define ONE_SECOND 1000
-#define CAMERA_CHANGE_GLINTERVAL 15
-#define CAMERA_CYCLE_LENGTH (CAMERA_MODES * CAMERA_CHANGE_GLINTERVAL)
-
-enum {
-    CAMERA_FLYCAM1,
-    CAMERA_ORBIT_INWARD,
-    CAMERA_ORBIT_OUTWARD,
-    CAMERA_ORBIT_ELLIPTICAL,
-    CAMERA_FLYCAM2,
-    CAMERA_SPEED,
-    CAMERA_SPIN,
-    CAMERA_FLYCAM3,
-    CAMERA_MODES
+enum class camera_t {
+  orbit_inward,
+  orbit_outward,
+  orbit_elliptical,
+  speed,
+  spin,
+  flycam1,
+  flycam2,
+  flycam3,
+  modes
 };
+
+camera_t operator++(camera_t &camera, int val)
+{
+    return static_cast<camera_t>((static_cast<int>(camera) + 1) % static_cast<int>(camera_t::modes));
+}
+
+static int const MAX_PITCH = 85;
+static int const FLYCAM_CIRCUIT = 60000;
+static int constexpr FLYCAM_CIRCUIT_HALF = FLYCAM_CIRCUIT / 2;
+static int constexpr FLYCAM_LEG = FLYCAM_CIRCUIT / 4;
+static int const ONE_SECOND = 1000;
 
 static gl_vector3 angle;
 static gl_vector3 position;
@@ -52,21 +54,18 @@ static gl_vector3 movement;
 static bool cam_auto;
 static float tracker;
 static unsigned int last_update;
-static int camera_behavior;
+static camera_t camera_behavior;
 static unsigned int last_move;
 
 static gl_vector3 flycam_position(unsigned int t)
 {
-    unsigned int leg;
-    float delta;
     gl_vector3 start;
-    gl_vector3  end;
-    gl_bbox hot_zone;
+    gl_vector3 end;
 
-    hot_zone = WorldHotZone();
+    gl_bbox hot_zone = WorldHotZone();
     t %= FLYCAM_CIRCUIT;
-    leg = t / FLYCAM_LEG;
-    delta = (float)(t % FLYCAM_LEG) / FLYCAM_LEG;
+    unsigned int leg = t / FLYCAM_LEG;
+    float delta = (t % FLYCAM_LEG) / static_cast<float>(FLYCAM_LEG);
 
     switch(leg) {
     case 0:
@@ -119,27 +118,25 @@ static gl_vector3 flycam_position(unsigned int t)
 static void do_auto_cam()
 {
     float dist;
-    unsigned int elapsed;
-    unsigned int now;
-    int behavior;
     gl_vector3 target;
 
-    now = SDL_GetTicks();
-    elapsed = now - last_update;
+    unsigned int now = SDL_GetTicks();
+    unsigned int elapsed = now - last_update;
     elapsed = MIN(elapsed, 50); // Limit to 1/20th second worth of time
-    if(elapsed == 0) {
+
+    if (elapsed == 0) {
         return;
     }
 
     last_update = now;
 
-    behavior = camera_behavior;
+    camera_t behavior = camera_behavior;
 
     tracker += ((float)elapsed / 300.0f);
     // behavior = CAMERA_FLYCAM;
 
     switch(behavior) {
-    case CAMERA_ORBIT_INWARD:
+    case camera_t::orbit_inward:
         auto_position.set_x(WORLD_HALF + (sinf(tracker * DEGREES_TO_RADIANS) * 150.0f));
 
         auto_position.set_y(60.0f);
@@ -149,7 +146,7 @@ static void do_auto_cam()
         target = gl_vector3(WORLD_HALF, 40.0f, WORLD_HALF);
 
         break;
-    case CAMERA_ORBIT_OUTWARD:
+    case camera_t::orbit_outward:
         auto_position.set_x(WORLD_HALF + (sinf(tracker * DEGREES_TO_RADIANS) * 250.0f));
 
         auto_position.set_y(60.0f);
@@ -159,7 +156,7 @@ static void do_auto_cam()
         target = gl_vector3(WORLD_HALF, 30.0f, WORLD_HALF);
 
         break;
-    case CAMERA_ORBIT_ELLIPTICAL:
+    case camera_t::orbit_elliptical:
         dist = 150.0f + (sinf((tracker * DEGREES_TO_RADIANS) / 1.1f) * 50);
         auto_position.set_x(WORLD_HALF + (sinf(tracker * DEGREES_TO_RADIANS) * dist));
 
@@ -170,16 +167,16 @@ static void do_auto_cam()
         target = gl_vector3(WORLD_HALF, 50.0f, WORLD_HALF);
 
         break;
-    case CAMERA_FLYCAM1:
-    case CAMERA_FLYCAM2:
-    case CAMERA_FLYCAM3:
+    case camera_t::flycam1:
+    case camera_t::flycam2:
+    case camera_t::flycam3:
         auto_position =
             (flycam_position(now) + flycam_position(now + 4000)) / 2.0f;
 
         target = flycam_position(now + FLYCAM_CIRCUIT_HALF - (ONE_SECOND * 3));
 
         break;
-    case CAMERA_SPEED:
+    case camera_t::speed:
         auto_position =
             (flycam_position(now) + flycam_position(now + 500)) / 2.0f;
 
@@ -223,7 +220,6 @@ void camera_auto_toggle()
 void camera_next_behavior()
 {
     camera_behavior++;
-    camera_behavior %= CAMERA_MODES;
 }
 
 void camera_yaw(float delta)
@@ -238,22 +234,16 @@ void camera_pitch(float delta)
 
 void camera_pan(float delta)
 {
-    float move_x;
-    float move_y;
-
-    move_x = (float)sin(-angle.get_y() * DEGREES_TO_RADIANS) / 10.0f;
-    move_y = (float)cos(-angle.get_y() * DEGREES_TO_RADIANS) / 10.0f;
+    float move_x = sin(-angle.get_y() * DEGREES_TO_RADIANS) / 10.0f;
+    float move_y = cos(-angle.get_y() * DEGREES_TO_RADIANS) / 10.0f;
     position.set_x(position.get_x() - (move_y * delta));
     position.set_z(position.get_z() - (-move_x * delta));
 }
 
 void camera_forward(float delta)
 {
-    float move_x;
-    float move_y;
-
-    move_y = (float)sin(-angle.get_y() * DEGREES_TO_RADIANS) / 10.0f;
-    move_x = (float)cos(-angle.get_y() * DEGREES_TO_RADIANS) / 10.0f;
+    float move_y = sin(-angle.get_y() * DEGREES_TO_RADIANS) / 10.0f;
+    float move_x = cos(-angle.get_y() * DEGREES_TO_RADIANS) / 10.0f;
     position.set_x(position.get_x() - (move_y * delta));
     position.set_z(position.get_z() - (move_x * delta));
 }
@@ -278,7 +268,7 @@ void camera_medial(float val)
 
 gl_vector3 camera_position()
 {
-    if(cam_auto) {
+    if (cam_auto) {
         return auto_position;
     }
 
@@ -302,7 +292,7 @@ void camera_position_set(gl_vector3 new_pos)
 
 gl_vector3 camera_angle()
 {
-    if(cam_auto) {
+    if (cam_auto) {
         return auto_angle;
     }
 
@@ -329,18 +319,17 @@ void camera_update()
     camera_pan(movement.get_x());
     camera_forward(movement.get_z());
     position.set_y(position.get_y() + (movement.get_y() / 10.0f));
-    if((SDL_GetTicks() - last_move) > 1000) {
+    if ((SDL_GetTicks() - last_move) > 1000) {
         movement *= 0.9f;
-    }
-    else {
+    } else {
         movement *= 0.99f;
     }
 
-    if(cam_auto) {
+    if (cam_auto) {
         do_auto_cam();
     }
 
-    if(angle.get_y() < 0.0f) {
+    if (angle.get_y() < 0.0f) {
         angle.set_y(360.0f - (float)fmod(fabs(angle.get_y()), 360.0f));
     }
 

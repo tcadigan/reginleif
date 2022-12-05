@@ -754,7 +754,7 @@ void RenderUpdate(void)
         LightRender();
     }
 
-    CarRender();
+    car_render();
 
     if(show_wireframe) {
         glDisable(GL_TEXTURE_2D);
@@ -769,8 +769,8 @@ void RenderUpdate(void)
         RenderPrint(1,
                     "FPS=%d : Entities=%d : polys=%d",
                     current_fps,
-                    EntityCount() + LightCount() + CarCount(),
-                    EntityPolyCount() + LightCount() + CarCount());
+                    EntityCount() + LightCount() + car_count(),
+                    EntityPolyCount() + LightCount() + car_count());
     }
 
     // Show the help overlay

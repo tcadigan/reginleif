@@ -8,10 +8,10 @@
 class Car {
 public:
     Car();
-    bool TestPosition(int row, int col);
-    void Render();
-    void Update();
-    void Park();
+    bool test_position(int row, int col);
+    void render();
+    void update();
+    void park();
 
     Car *next_;
 
@@ -30,9 +30,9 @@ private:
     float max_speed_;
 };
 
-void CarClear();
-int CarCount();
-void CarRender();
-void CarUpdate();
+void car_clear();
+int car_count();
+void car_render();
+void car_update();
 
 #endif /* CAR_HPP_ */

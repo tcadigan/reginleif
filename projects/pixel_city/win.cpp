@@ -47,7 +47,7 @@ void app_update()
     WorldUpdate();
     TextureUpdate();
     VisibleUpdate();
-    CarUpdate();
+    car_update();
     RenderUpdate();
 }
 

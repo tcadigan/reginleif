@@ -501,7 +501,7 @@ static void do_reset(void)
     hot_zone.clear();
     EntityClear();
     LightClear();
-    CarClear();
+    car_clear();
     TextureReset();
 
     // Pink a tint for the bloom

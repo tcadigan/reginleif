@@ -470,7 +470,7 @@ float Building::construct_wall(int start_x,
         mid++;
     }
     // mid = (length / 2);
-    v.get_uv().set_x((float)(x + z) / SEGMENTS_PER_TEXTURE);
+    v.get_uv().set_x((x + z) / static_cast<float>(SEGMENTS_PER_TEXTURE));
     v.get_uv().set_x(uv_start);
     bool blank = false;
     for (int i = 0; i <= length; ++i) {
@@ -491,11 +491,11 @@ float Building::construct_wall(int start_x,
         }
         if ((last_blank != blank) || (i == 0) || (i == length)) {
             v.set_position(gl_vector3(x, start_y, z));
-            v.get_uv().set_y((float)start_y / SEGMENTS_PER_TEXTURE);
+            v.get_uv().set_y(start_y / static_cast<float>(SEGMENTS_PER_TEXTURE));
             mesh_->VertexAdd(v);
             qs.index_list.push_back(mesh_->VertexCount() - 1);
             v.get_position().set_y((start_y + height));
-            v.get_uv().set_y((float)(start_y + height) / SEGMENTS_PER_TEXTURE);
+            v.get_uv().set_y((start_y + height) / static_cast<float>(SEGMENTS_PER_TEXTURE));
             mesh_->VertexAdd(v);
             qs.index_list.push_back(mesh_->VertexCount() - 1);
         }
@@ -525,7 +525,7 @@ void Building::create_blocky()
     bool blank_corners = COIN_FLIP;
 
     // Choose a random color on our texture
-    float uv_start = (float)random_val(SEGMENTS_PER_TEXTURE) / SEGMENTS_PER_TEXTURE;
+    float uv_start = random_val(SEGMENTS_PER_TEXTURE) / static_cast<float>(SEGMENTS_PER_TEXTURE);
 
     // Choose how the windows are grouped
     int grouping = 2 + random_val(4);
@@ -704,8 +704,8 @@ void Building::create_simple()
     float z2 = y_;
     float z1 = (y_ + depth_);
 
-    float u = (float)(random_val(SEGMENTS_PER_TEXTURE)) / SEGMENTS_PER_TEXTURE;
-    float v1 = (float)(random_val(SEGMENTS_PER_TEXTURE)) / SEGMENTS_PER_TEXTURE;
+    float u = (random_val(SEGMENTS_PER_TEXTURE)) / static_cast<float>(SEGMENTS_PER_TEXTURE);
+    float v1 = (random_val(SEGMENTS_PER_TEXTURE)) / static_cast<float>(SEGMENTS_PER_TEXTURE);
     float v2 = v1 + (height_ * ONE_SEGMENT);
 
     p.set_position(gl_vector3(x1, y1, z1));
@@ -715,7 +715,7 @@ void Building::create_simple()
     p.set_uv(gl_vector2(u, v2));
     mesh_->VertexAdd(p);
 
-    u += ((float)depth_ / SEGMENTS_PER_TEXTURE);
+    u += (depth_ / static_cast<float>(SEGMENTS_PER_TEXTURE));
     p.set_position(gl_vector3(x1, y1, z2));
     p.set_uv(gl_vector2(u, v1));
     mesh_->VertexAdd(p);
@@ -723,7 +723,7 @@ void Building::create_simple()
     p.set_uv(gl_vector2(u, v2));
     mesh_->VertexAdd(p);
 
-    u += ((float)width_ / SEGMENTS_PER_TEXTURE);
+    u += (width_ / static_cast<float>(SEGMENTS_PER_TEXTURE));
     p.set_position(gl_vector3(x2, y1, z2));
     p.set_uv(gl_vector2(u, v1));
     mesh_->VertexAdd(p);
@@ -731,7 +731,7 @@ void Building::create_simple()
     p.set_uv(gl_vector2(u, v2));
     mesh_->VertexAdd(p);
 
-    u += ((float)depth_ / SEGMENTS_PER_TEXTURE);
+    u += (depth_ / static_cast<float>(SEGMENTS_PER_TEXTURE));
     p.set_position(gl_vector3(x2, y1, z1));
     p.set_uv(gl_vector2(u, v1));
     mesh_->VertexAdd(p);
@@ -739,7 +739,7 @@ void Building::create_simple()
     p.set_uv(gl_vector2(u, v2));
     mesh_->VertexAdd(p);
 
-    u += ((float)depth_ / SEGMENTS_PER_TEXTURE);
+    u += (depth_ / static_cast<float>(SEGMENTS_PER_TEXTURE));
     p.set_position(gl_vector3(x1, y1, z1));
     p.set_uv(gl_vector2(u, v1));
     mesh_->VertexAdd(p);
@@ -825,7 +825,7 @@ void Building::create_modern()
                 gl_rgba random_color;
                 d->CreateLogo(start,
                               end,
-                              (float)height_,
+                              height_,
                               WorldLogoIndex(),
                               random_color.from_hsl(random_val(255) / 255.0f,
                                                     1.0f,
@@ -836,13 +836,13 @@ void Building::create_modern()
         }
 
         p.set_position(pos);
-        p.get_uv().set_x((float)windows / SEGMENTS_PER_TEXTURE);
+        p.get_uv().set_x(windows / static_cast<float>(SEGMENTS_PER_TEXTURE));
         p.get_uv().set_y(0.0f);
         p.get_position().set_y(0.0f);
         mesh_->VertexAdd(p);
 
         p.get_position().set_y(height_);
-        p.get_uv().set_y((float)height_ / SEGMENTS_PER_TEXTURE);
+        p.get_uv().set_y(height_ / static_cast<float>(SEGMENTS_PER_TEXTURE));
         mesh_->VertexAdd(p);
         mesh_flat_->VertexAdd(p);
 
@@ -961,7 +961,7 @@ void Building::create_tower()
 
         // Build the four walls
         uv_start =
-            (float)random_val(SEGMENTS_PER_TEXTURE) / SEGMENTS_PER_TEXTURE;
+            random_val(SEGMENTS_PER_TEXTURE) / static_cast<float>(SEGMENTS_PER_TEXTURE);
 
         uv_start = construct_wall(left,
                                   bottom,

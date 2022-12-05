@@ -1,6 +1,7 @@
 #ifndef GL_RGBA_HPP_
 #define GL_RGBA_HPP_
 
+#include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 
 #include <string>
