@@ -94,14 +94,16 @@ int Building::poly_count()
 
 void Building::render()
 {
-    glColor3fv(color_.get_data());
+    std::array<float, 3> color = {color_.get_red(), color_.get_green(), color_.get_blue()};
+    glColor3fv(color.data());
     mesh_->Render();
 }
 
 void Building::render_flat(bool colored)
 {
     if (colored) {
-        glColor3fv(color_.get_data());
+        std::array<float, 3> color = {color_.get_red(), color_.get_green(), color_.get_blue()};
+        glColor3fv(color.data());
     }
 
     mesh_flat_->Render();

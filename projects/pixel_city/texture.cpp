@@ -157,7 +157,8 @@ static int build_time;
 
 void drawrect_simple(int left, int top, int right, int bottom, gl_rgba color)
 {
-    glColor3fv(color.get_data());
+    std::array<float, 3> color_data = {color.get_red(), color.get_green(), color.get_blue()};
+    glColor3fv(color_data.data());
     glBegin(GL_QUADS);
     glVertex2i(left, top);
     glVertex2i(right, top);
@@ -173,10 +174,12 @@ void drawrect_simple(int left,
                      gl_rgba color1,
                      gl_rgba color2)
 {
-    glColor3fv(color1.get_data());
+    std::array<float, 3> color_data = {color1.get_red(), color1.get_green(), color1.get_blue()};
+    glColor3fv(color_data.data());
     glBegin(GL_TRIANGLE_FAN);
     glVertex2i((left + right) / 2, (top + bottom) / 2);
-    glColor3fv(color2.get_data());
+    color_data = {color2.get_red(), color2.get_green(), color2.get_blue()};
+    glColor3fv(color_data.data());
     glVertex2i(left, top);
     glVertex2i(right, top);
     glVertex2i(right, bottom);
@@ -201,7 +204,8 @@ void drawrect(int left, int top, int right, int bottom, gl_rgba color)
     glEnable(GL_BLEND);
     glLineWidth(1.0f);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glColor3fv(color.get_data());
+    std::array<float, 3> color_data = {color.get_red(), color.get_green(), color.get_blue()};
+    glColor3fv(color_data.data());
 
     // In low resolution, a "rect" might be 1 pixel wide
     if(left == right) {
@@ -249,8 +253,8 @@ void drawrect(int left, int top, int right, int bottom, gl_rgba color)
                               RANDOM_COLOR_VAL,
                               RANDOM_COLOR_VAL,
                               (float)random_val(potential)/144.0f);
-
-                    glColor4fv(color_noise.get_data());
+                    std::array<float, 4> color_data = {color_noise.get_red(), color_noise.get_green(), color_noise.get_blue(), color_noise.get_alpha()};
+                    glColor4fv(color_data.data());
                     glVertex2i(i, j);
                 }
             }
@@ -467,7 +471,8 @@ void CTexture::DrawSky()
     glColor3f(0, 0, 0);
     glVertex2i(0, half_);
     glVertex2i(size_, half_);
-    glColor3fv(color.get_data());
+    std::array<float, 3> color_data = {color.get_red(), color.get_green(), color.get_blue()};
+    glColor3fv(color_data.data());
     glVertex2i(0, size_ - 2);
     glVertex2i(size_, size_ - 2);
     glEnd();
@@ -510,7 +515,8 @@ void CTexture::DrawSky()
                 }
 
                 color.set_alpha(0.2f);
-                glColor4fv(color.get_data());
+                std::array<float, 4> color_data = {color.get_red(), color.get_green(), color.get_blue(), color.get_alpha()};
+                glColor4fv(color_data.data());
                 width_adjust =
                     (int)(((float)width / 2.0f)
                           + (int)(inv_scale * ((float)width / 2.0f)));

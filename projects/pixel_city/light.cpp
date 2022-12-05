@@ -14,6 +14,7 @@
 #include "light.hpp"
 
 #include <SDL2/SDL.h>
+#include <array>
 #include <cmath>
 
 #include "camera.hpp"
@@ -138,7 +139,9 @@ void Light::Render()
     angle = (int)MathAngle(camera.get_y());
     offset = angles[size_][angle];
     pos = position_;
-    glColor4fv(color_.get_data());
+    std::array<float, 4> color = {color_.get_red(), color_.get_green(), color_.get_blue(), color_.get_alpha()};
+
+    glColor4fv(color.data());
 
     glTexCoord2f(0, 0);
     glVertex3f(pos.get_x() + offset.get_x(),

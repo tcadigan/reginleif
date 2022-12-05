@@ -32,14 +32,14 @@ public:
     void set_blue(float blue);
     void set_alpha(float alpha);
 
-    float *get_data();
+    SDL_Color get_data();
     float get_red() const;
     float get_green() const;
     float get_blue() const;
     float get_alpha() const;
 
 private:
-    float data_[4];
+    SDL_Color data;
 };
 
 inline gl_rgba operator+(gl_rgba lhs, gl_rgba const &rhs)

@@ -13,6 +13,7 @@
 
 #include <SDL2/SDL.h>
 #include <GL/glu.h>
+#include <array>
 #include <cmath>
 #include <cstdarg>
 #include <cstdio>
@@ -157,6 +158,7 @@ static void do_effects(int type)
     float hue3;
     float hue4;
     gl_rgba color;
+    std::array<float, 3> color_data;
     float fade;
     int radius;
     int x;
@@ -231,7 +233,8 @@ static void do_effects(int type)
         glEnable(GL_BLEND);
         glBegin(GL_QUADS);
         color = (WorldBloomColor() * BLOOM_SCALING) * 2;
-        glColor3fv(color.get_data());
+        color_data = {color.get_red(), color.get_green(), color.get_blue()};
+        glColor3fv(color_data.data());
         for(i = 0; i <= 100; i += 10) {
             glTexCoord2f(0, 0);
             glVertex2i(-i, i + render_height);
@@ -266,22 +269,26 @@ static void do_effects(int type)
 
             gl_rgba temp;
             color = temp.from_hsl(hue1, 1.0f, 0.6f);
-            glColor3fv(color.get_data());
+            color_data = {color.get_red(), color.get_green(), color.get_blue()};
+            glColor3fv(color_data.data());
             glTexCoord2f(0, 0);
             glVertex2i(0, render_height);
 
             color = temp.from_hsl(hue2, 1.0f, 0.6f);
-            glColor3fv(color.get_data());
+            color_data = {color.get_red(), color.get_green(), color.get_blue()};
+            glColor3fv(color_data.data());
             glTexCoord2f(0, 1);
             glVertex2i(0, 0);
 
             color = temp.from_hsl(hue3, 1.0f, 0.6f);
-            glColor3fv(color.get_data());
+            color_data = {color.get_red(), color.get_green(), color.get_blue()};
+            glColor3fv(color_data.data());
             glTexCoord2f(1, 1);
             glVertex2i(render_width, 0);
 
             color = temp.from_hsl(hue4, 1.0f, 0.6f);
-            glColor3fv(color.get_data());
+            color_data = {color.get_red(), color.get_green(), color.get_blue()};
+            glColor3fv(color_data.data());
             glTexCoord2f(1, 0);
             glVertex2i(render_width, render_height);
 
@@ -294,7 +301,8 @@ static void do_effects(int type)
         glBegin(GL_QUADS);
 
         color = WorldBloomColor() * BLOOM_SCALING;
-        glColor3fv(color.get_data());
+        color_data = {color.get_red(), color.get_green(), color.get_blue()};
+        glColor3fv(color_data.data());
         for(x = -bloom_radius; x <= bloom_radius; x += bloom_step) {
             for(y = -bloom_radius; y <= bloom_radius; y += bloom_step) {
                 if((abs(x) == abs(y)) && x) {
@@ -323,7 +331,8 @@ static void do_effects(int type)
         glBegin(GL_QUADS);
 
         color = WorldBloomColor() * 0.01f;
-        glColor3fv(color.get_data());
+        color_data = {color.get_red(), color.get_green(), color.get_blue()};
+        glColor3fv(color_data.data());
         for(x = -50; x <= 50; x += 5) {
             for(y = -50; y <= 50; y += 5) {
                 glTexCoord2f(0, 0);
@@ -437,7 +446,8 @@ void RenderPrint(int x, int y, int font, gl_rgba color, const char *fmt, ...)
 
     glPushAttrib(GL_LIST_BIT);
     glListBase(fonts[font % (sizeof(fonts) / sizeof(struct glFont))].base_char - 32);
-    glColor3fv(color.get_data());
+    std::array<float, 3> color_data = {color.get_red(), color.get_green(), color.get_blue()};
+    glColor3fv(color_data.data());
     glRasterPos2i(x, y);
     glCallLists(strlen(text), GL_UNSIGNED_BYTE, text);
     glPopAttrib();
@@ -716,7 +726,8 @@ void RenderUpdate(void)
         glFogf(GL_FOG_START, fog_distance - 100);
         glFogf(GL_FOG_END, fog_distance);
         color = gl_rgba(0.0f);
-        glFogfv(GL_FOG_COLOR, color.get_data());
+        std::array<float, 3> color_data = {color.get_red(), color.get_green(), color.get_blue()};
+        glFogfv(GL_FOG_COLOR, color_data.data());
     }
 
     WorldRender();
