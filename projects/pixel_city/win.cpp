@@ -43,7 +43,7 @@ SDL_Window *window = nullptr;
 void app_update()
 {
     camera_update();
-    EntityUpdate();
+    entity_update();
     WorldUpdate();
     TextureUpdate();
     VisibleUpdate();

@@ -3,7 +3,7 @@
 
 #include "gl-vector3.hpp"
 
-#define MAX_VBUFFER 256
+static int const MAX_VBUFFER = 256;
 
 class Entity {
 public:
@@ -21,12 +21,12 @@ protected:
     gl_vector3 center_;
 };
 
-void EntityClear();
-int EntityCount();
-float EntityProgress();
-bool EntityReady();
-void EntityRender();
-void EntityUpdate();
-int EntityPolyCount();
+void entity_clear();
+int entity_count();
+float entity_progress();
+bool entity_ready();
+void entity_render();
+void entity_update();
+int entity_poly_count();
 
 #endif /* ENTITY_HPP_ */

@@ -93,7 +93,7 @@ void car_render()
 
 void car_update()
 {
-    if (!TextureReady() || !EntityReady()) {
+    if (!TextureReady() || !entity_ready()) {
         return;
     }
 

@@ -39,7 +39,7 @@ struct cell {
 };
 
 static cell cell_list[GRID_SIZE][GRID_SIZE];
-static int entity_count;
+static int num_entities;
 static entity *entity_list;
 static bool sorted;
 static bool compiled;
@@ -73,10 +73,10 @@ static int do_compare(const void *arg1, const void *arg2)
 void add(Entity *b)
 {
     entity_list = (entity *)realloc(entity_list,
-                                    sizeof(entity) * (entity_count + 1));
+                                    sizeof(entity) * (num_entities + 1));
 
-    entity_list[entity_count].object = b;
-    entity_count++;
+    entity_list[num_entities].object = b;
+    num_entities++;
 
     polycount = 0;
 }
@@ -97,7 +97,7 @@ static void do_compile()
     // Changing texture is pretty expensive, and thus sorting the entities
     // so that they are grouped by texture used can really improve
     // framerate.
-    // qsort(entity_list, entity_count, sizeof(struct entity), do_compare);
+    // qsort(entity_list, num_entities, sizeof(struct entity), do_compare);
     // sorted = true;
 
     // Not group entities on the grid
@@ -111,7 +111,7 @@ static void do_compile()
                                      0.0f,
                                      (float)y * GRID_RESOLUTION);
 
-    for(i = 0; i < entity_count; ++i) {
+    for(i = 0; i < num_entities; ++i) {
         gl_vector3 pos = entity_list[i].object->center();
         if((WORLD_TO_GRID(pos.get_x()) == x)
            && (WORLD_TO_GRID(pos.get_z()) == y)
@@ -133,7 +133,7 @@ static void do_compile()
                                      0.0f,
                                      (float)y * GRID_RESOLUTION);
 
-    for(i = 0; i < entity_count; ++i) {
+    for(i = 0; i < num_entities; ++i) {
         gl_vector3 pos = entity_list[i].object->center();
         if((WORLD_TO_GRID(pos.get_x()) == x)
            && (WORLD_TO_GRID(pos.get_z()) == y)
@@ -154,7 +154,7 @@ static void do_compile()
                                      0.0f,
                                      (float)y * GRID_RESOLUTION);
 
-    for(i = 0; i < entity_count; ++i) {
+    for(i = 0; i < num_entities; ++i) {
         gl_vector3 pos = entity_list[i].object->center();
         if((WORLD_TO_GRID(pos.get_x()) == x)
            && (WORLD_TO_GRID(pos.get_z()) == y)
@@ -176,7 +176,7 @@ static void do_compile()
     glDepthMask(false);
     glEnable(GL_BLEND);
     glDisable(GL_CULL_FACE);
-    for(i = 0; i < entity_count; ++i) {
+    for(i = 0; i < num_entities; ++i) {
         gl_vector3 pos = entity_list[i].object->center();
         if((WORLD_TO_GRID(pos.get_x()) == x)
            && (WORLD_TO_GRID(pos.get_z()) == y)
@@ -203,17 +203,17 @@ static void do_compile()
     compile_count++;
 }
 
-bool EntityReady()
+bool entity_ready()
 {
     return compiled;
 }
 
-float EntityProgress()
+float entity_progress()
 {
     return (float)compile_count / (GRID_SIZE * GRID_SIZE);
 }
 
-void EntityUpdate()
+void entity_update()
 {
     unsigned int stop_time;
 
@@ -223,7 +223,7 @@ void EntityUpdate()
     }
 
     if(!sorted) {
-        qsort(entity_list, entity_count, sizeof(struct entity), do_compare);
+        qsort(entity_list, num_entities, sizeof(struct entity), do_compare);
         sorted = true;
     }
 
@@ -243,7 +243,7 @@ void EntityUpdate()
     }
 }
 
-void EntityRender()
+void entity_render()
 {
     int polymode[2];
     bool wireframe;
@@ -306,9 +306,9 @@ void EntityRender()
     }
 }
 
-void EntityClear()
+void entity_clear()
 {
-    for(int i = 0; i < entity_count; ++i) {
+    for(int i = 0; i < num_entities; ++i) {
         delete entity_list[i].object;
     }
 
@@ -317,7 +317,7 @@ void EntityClear()
     }
 
     entity_list = NULL;
-    entity_count = 0;
+    num_entities = 0;
     compile_x = 0;
     compile_y = 0;
     compile_count = 0;
@@ -340,16 +340,16 @@ void EntityClear()
     }
 }
 
-int EntityCount()
+int entity_count()
 {
-    return entity_count;
+    return num_entities;
 }
 
 void EnitityInit(void)
 {
 }
 
-int EntityPolyCount(void)
+int entity_poly_count(void)
 {
     if(!sorted) {
         return 0;
@@ -359,7 +359,7 @@ int EntityPolyCount(void)
         return polycount;
     }
 
-    for(int i = 0; i < entity_count; ++i) {
+    for(int i = 0; i < num_entities; ++i) {
         polycount += entity_list[i].object->poly_count();
     }
 

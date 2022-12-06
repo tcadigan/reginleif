@@ -37,10 +37,8 @@ Decoration::Decoration()
 
 void Decoration::Render()
 {
-    std::array<float, 3> color = {color_.get_red(), color_.get_green(), color_.get_blue()};
-
-    glColor3fv(color.data());
-    mesh_->Render();
+    glColor3fv(color_.get_rgb().data());
+    mesh_->render();
 }
 
 void Decoration::RenderFlat(bool colored)
@@ -54,7 +52,7 @@ bool Decoration::Alpha()
 
 int Decoration::PolyCount()
 {
-    return mesh_->PolyCount();
+    return mesh_->poly_count();
 }
 
 unsigned Decoration::Texture()
@@ -83,44 +81,44 @@ void Decoration::CreateRadioTower(gl_vector3 pos, float height)
                               center_.get_z()));
 
     v.set_uv(gl_vector2(0, 1));
-    mesh_->VertexAdd(v);
+    mesh_->vertex_add(v);
 
     v.set_position(gl_vector3(center_.get_x() - offset,
                               center_.get_y(),
                               center_.get_z() - offset));
 
     v.set_uv(gl_vector2(1, 0));
-    mesh_->VertexAdd(v);
+    mesh_->vertex_add(v);
 
     v.set_position(gl_vector3(center_.get_x() + offset,
                               center_.get_y(),
                               center_.get_z() - offset));
 
     v.set_uv(gl_vector2(0, 0));
-    mesh_->VertexAdd(v);
+    mesh_->vertex_add(v);
 
     v.set_position(gl_vector3(center_.get_x() + offset,
                               center_.get_y(),
                               center_.get_z() + offset));
 
     v.set_uv(gl_vector2(1, 0));
-    mesh_->VertexAdd(v);
+    mesh_->vertex_add(v);
 
     v.set_position(gl_vector3(center_.get_x() - offset,
                               center_.get_y(),
                               center_.get_z() + offset));
 
     v.set_uv(gl_vector2(0, 0));
-    mesh_->VertexAdd(v);
+    mesh_->vertex_add(v);
 
     v.set_position(gl_vector3(center_.get_x() - offset,
                               center_.get_y(),
                               center_.get_z() - offset));
 
     v.set_uv(gl_vector2(1, 0));
-    mesh_->VertexAdd(v);
+    mesh_->vertex_add(v);
 
-    mesh_->FanAdd(fan);
+    mesh_->fan_add(fan);
 
     l = new Light(gl_vector3(center_.get_x(),
                              center_.get_y() + height + 1.0f,
@@ -181,21 +179,21 @@ void Decoration::CreateLogo(gl_vector2 start,
 
     p.set_position(gl_vector3(start.get_x(), bottom, start.get_y()) + out);
     p.set_uv(gl_vector2(u1, v1));
-    mesh_->VertexAdd(p);
+    mesh_->vertex_add(p);
 
     p.set_position(gl_vector3(end.get_x(), bottom, end.get_y()) + out);
     p.set_uv(gl_vector2(u2, v1));
-    mesh_->VertexAdd(p);
+    mesh_->vertex_add(p);
 
     p.set_position(gl_vector3(end.get_x(), top, end.get_y()) + out);
     p.set_uv(gl_vector2(u2, v2));
-    mesh_->VertexAdd(p);
+    mesh_->vertex_add(p);
 
     p.set_position(gl_vector3(start.get_x(), top, start.get_y()) + out);
     p.set_uv(gl_vector2(u1, v2));
-    mesh_->VertexAdd(p);
+    mesh_->vertex_add(p);
 
-    mesh_->QuadStripAdd(qs);
+    mesh_->quad_strip_add(qs);
 
     texture_ = TextureId(TEXTURE_LOGOS);
 }
@@ -233,23 +231,23 @@ void Decoration::CreateLightStrip(float x,
 
     p.set_position(gl_vector3(x, height, z));
     p.set_uv(gl_vector2(0.0f, 0.0f));
-    mesh_->VertexAdd(p);
+    mesh_->vertex_add(p);
 
     p.set_position(gl_vector3(x, height, z + depth));
     p.set_uv(gl_vector2(0.0f, v));
-    mesh_->VertexAdd(p);
+    mesh_->vertex_add(p);
 
     p.set_position(gl_vector3(x + width, height, z + depth));
     p.set_uv(gl_vector2(u, v));
-    mesh_->VertexAdd(p);
+    mesh_->vertex_add(p);
 
     p.set_position(gl_vector3(x + width, height, z));
     p.set_uv(gl_vector2(u, 0.0f));
-    mesh_->VertexAdd(p);
+    mesh_->vertex_add(p);
 
-    mesh_->QuadStripAdd(qs1);
+    mesh_->quad_strip_add(qs1);
 
-    mesh_->Compile();
+    mesh_->compile();
 }
 
 void Decoration::CreateLightTrim(std::array<gl_vector3, MAX_VBUFFER> &chain,
@@ -305,21 +303,21 @@ void Decoration::CreateLightTrim(std::array<gl_vector3, MAX_VBUFFER> &chain,
 
         p.set_position(chain.at(i % count) + out);
         p.set_uv(gl_vector2(u, v2));
-        mesh_->VertexAdd(p);
+        mesh_->vertex_add(p);
 
         qs.index_list.push_back(index++);
 
         // Top point
         p.get_position().set_y(p.get_position().get_y() + height);
         p.set_uv(gl_vector2(u, v1));
-        mesh_->VertexAdd(p);
+        mesh_->vertex_add(p);
 
         qs.index_list.push_back(index++);
     }
 
-    mesh_->QuadStripAdd(qs);
+    mesh_->quad_strip_add(qs);
 
     texture_ = TextureId(TEXTURE_TRIM);
 
-    mesh_->Compile();
+    mesh_->compile();
 }

@@ -57,7 +57,7 @@ void LightRender()
 {
     Light *l;
 
-    if(!EntityReady()) {
+    if(!entity_ready()) {
         return;
     }
 
@@ -139,9 +139,8 @@ void Light::Render()
     angle = (int)MathAngle(camera.get_y());
     offset = angles[size_][angle];
     pos = position_;
-    std::array<float, 4> color = {color_.get_red(), color_.get_green(), color_.get_blue(), color_.get_alpha()};
 
-    glColor4fv(color.data());
+    glColor4fv(color_.get_rgba().data());
 
     glTexCoord2f(0, 0);
     glVertex3f(pos.get_x() + offset.get_x(),

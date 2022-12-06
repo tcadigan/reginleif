@@ -158,7 +158,6 @@ static void do_effects(int type)
     float hue3;
     float hue4;
     gl_rgba color;
-    std::array<float, 3> color_data;
     float fade;
     int radius;
     int x;
@@ -233,8 +232,7 @@ static void do_effects(int type)
         glEnable(GL_BLEND);
         glBegin(GL_QUADS);
         color = (WorldBloomColor() * BLOOM_SCALING) * 2;
-        color_data = {color.get_red(), color.get_green(), color.get_blue()};
-        glColor3fv(color_data.data());
+        glColor3fv(color.get_rgb().data());
         for(i = 0; i <= 100; i += 10) {
             glTexCoord2f(0, 0);
             glVertex2i(-i, i + render_height);
@@ -269,26 +267,22 @@ static void do_effects(int type)
 
             gl_rgba temp;
             color = temp.from_hsl(hue1, 1.0f, 0.6f);
-            color_data = {color.get_red(), color.get_green(), color.get_blue()};
-            glColor3fv(color_data.data());
+            glColor3fv(color.get_rgb().data());
             glTexCoord2f(0, 0);
             glVertex2i(0, render_height);
 
             color = temp.from_hsl(hue2, 1.0f, 0.6f);
-            color_data = {color.get_red(), color.get_green(), color.get_blue()};
-            glColor3fv(color_data.data());
+            glColor3fv(color.get_rgb().data());
             glTexCoord2f(0, 1);
             glVertex2i(0, 0);
 
             color = temp.from_hsl(hue3, 1.0f, 0.6f);
-            color_data = {color.get_red(), color.get_green(), color.get_blue()};
-            glColor3fv(color_data.data());
+            glColor3fv(color.get_rgb().data());
             glTexCoord2f(1, 1);
             glVertex2i(render_width, 0);
 
             color = temp.from_hsl(hue4, 1.0f, 0.6f);
-            color_data = {color.get_red(), color.get_green(), color.get_blue()};
-            glColor3fv(color_data.data());
+            glColor3fv(color.get_rgb().data());
             glTexCoord2f(1, 0);
             glVertex2i(render_width, render_height);
 
@@ -301,8 +295,7 @@ static void do_effects(int type)
         glBegin(GL_QUADS);
 
         color = WorldBloomColor() * BLOOM_SCALING;
-        color_data = {color.get_red(), color.get_green(), color.get_blue()};
-        glColor3fv(color_data.data());
+        glColor3fv(color.get_rgb().data());
         for(x = -bloom_radius; x <= bloom_radius; x += bloom_step) {
             for(y = -bloom_radius; y <= bloom_radius; y += bloom_step) {
                 if((abs(x) == abs(y)) && x) {
@@ -330,9 +323,8 @@ static void do_effects(int type)
         // low frame rate behavior.
         glBegin(GL_QUADS);
 
-        color = WorldBloomColor() * 0.01f;
-        color_data = {color.get_red(), color.get_green(), color.get_blue()};
-        glColor3fv(color_data.data());
+        color = WorldBloomColor() / 100;
+        glColor3fv(color.get_rgb().data());
         for(x = -50; x <= 50; x += 5) {
             for(y = -50; y <= 50; y += 5) {
                 glTexCoord2f(0, 0);
@@ -368,20 +360,20 @@ static void do_effects(int type)
             glEnd();
         }
 
-        if(TextureReady() && !EntityReady() && (fade != 0.0f)) {
+        if(TextureReady() && !entity_ready() && (fade != 0.0f)) {
             radius = render_width / 16;
             do_progress((float)render_width / 2,
                         (float)render_height / 2,
                         (float)radius,
                         fade,
-                        EntityProgress());
+                        entity_progress());
 
             RenderPrint((render_width / 2) - LOGO_PIXELS,
                         (render_height / 2) + LOGO_PIXELS,
                         0,
-                        gl_rgba(0.5f),
+                        gl_rgba(127, 127, 127),
                         "%1.2f%%",
-                        EntityProgress() * 100.0f);
+                        entity_progress() * 100.0f);
 
             RenderPrint(1,
                         "%s v%d.%d.%03d",
@@ -446,8 +438,7 @@ void RenderPrint(int x, int y, int font, gl_rgba color, const char *fmt, ...)
 
     glPushAttrib(GL_LIST_BIT);
     glListBase(fonts[font % (sizeof(fonts) / sizeof(struct glFont))].base_char - 32);
-    std::array<float, 3> color_data = {color.get_red(), color.get_green(), color.get_blue()};
-    glColor3fv(color_data.data());
+    glColor3fv(color.get_rgb().data());
     glRasterPos2i(x, y);
     glCallLists(strlen(text), GL_UNSIGNED_BYTE, text);
     glPopAttrib();
@@ -488,9 +479,9 @@ void RenderPrint(int line, const char *fmt, ...)
     glDisable(GL_FOG);
     glDisable(GL_TEXTURE_2D);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    RenderPrint(0, (line * FONT_SIZE) - 2, 0, gl_rgba(0.0f), text);
-    RenderPrint(4, (line * FONT_SIZE) + 2, 0, gl_rgba(0.0f), text);
-    RenderPrint(2, line * FONT_SIZE, 0, gl_rgba(1.0f), text);
+    RenderPrint(0, (line * FONT_SIZE) - 2, 0, gl_rgba(0, 0, 0), text);
+    RenderPrint(4, (line * FONT_SIZE) + 2, 0, gl_rgba(0, 0, 0), text);
+    RenderPrint(2, line * FONT_SIZE, 0, gl_rgba(255, 255, 255), text);
     glPopMatrix();
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
@@ -688,7 +679,7 @@ void RenderUpdate(void)
         glViewport(0, letterbox_offset, render_width, render_height);
     }
 
-    if(LOADING_SCREEN && TextureReady() && !EntityReady()) {
+    if(LOADING_SCREEN && TextureReady() && !entity_ready()) {
         do_effects(EFFECT_NONE);
         SDL_GL_SwapWindow(window);
 
@@ -725,9 +716,8 @@ void RenderUpdate(void)
         glEnable(GL_FOG);
         glFogf(GL_FOG_START, fog_distance - 100);
         glFogf(GL_FOG_END, fog_distance);
-        color = gl_rgba(0.0f);
-        std::array<float, 3> color_data = {color.get_red(), color.get_green(), color.get_blue()};
-        glFogfv(GL_FOG_COLOR, color_data.data());
+        color = gl_rgba(0, 0, 0);
+        glFogfv(GL_FOG_COLOR, color.get_rgb().data());
     }
 
     WorldRender();
@@ -747,7 +737,7 @@ void RenderUpdate(void)
         glDisable(GL_BLEND);
     }
 
-    EntityRender();
+    entity_render();
 
     if(!LOADING_SCREEN) {
         elapsed = 3000 - WorldSceneElapsed();
@@ -757,11 +747,11 @@ void RenderUpdate(void)
             glDisable(GL_TEXTURE_2D);
             glEnable(GL_BLEND);
             glBlendFunc(GL_ONE, GL_ONE);
-            EntityRender();
+            entity_render();
         }
     }
 
-    if(EntityReady()) {
+    if(entity_ready()) {
         LightRender();
     }
 
@@ -770,7 +760,7 @@ void RenderUpdate(void)
     if(show_wireframe) {
         glDisable(GL_TEXTURE_2D);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        EntityRender();
+        entity_render();
     }
 
     do_effects(effect);
@@ -780,8 +770,8 @@ void RenderUpdate(void)
         RenderPrint(1,
                     "FPS=%d : Entities=%d : polys=%d",
                     current_fps,
-                    EntityCount() + LightCount() + car_count(),
-                    EntityPolyCount() + LightCount() + car_count());
+                    entity_count() + LightCount() + car_count(),
+                    entity_poly_count() + LightCount() + car_count());
     }
 
     // Show the help overlay

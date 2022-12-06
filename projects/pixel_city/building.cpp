@@ -53,7 +53,7 @@ Building::Building(building_t type,
     seed_ = seed;
     texture_type_ = random_val();
     color_ = color;
-    color_.set_alpha(0.1f);
+    color_.set_alpha(25);
     have_lights_ = false;
     have_logo_ = false;
     have_trim_ = false;
@@ -89,24 +89,22 @@ GLuint Building::texture()
 
 int Building::poly_count()
 {
-    return(mesh_->PolyCount() + mesh_flat_->PolyCount());
+    return(mesh_->poly_count() + mesh_flat_->poly_count());
 }
 
 void Building::render()
 {
-    std::array<float, 3> color = {color_.get_red(), color_.get_green(), color_.get_blue()};
-    glColor3fv(color.data());
-    mesh_->Render();
+    glColor3fv(color_.get_rgb().data());
+    mesh_->render();
 }
 
 void Building::render_flat(bool colored)
 {
     if (colored) {
-        std::array<float, 3> color = {color_.get_red(), color_.get_green(), color_.get_blue()};
-        glColor3fv(color.data());
+        glColor3fv(color_.get_rgb().data());
     }
 
-    mesh_flat_->Render();
+    mesh_flat_->render();
 }
 
 void Building::construct_cube(int left,
@@ -125,7 +123,7 @@ void Building::construct_cube(int left,
     float y2 = top;
     float z1 = front;
     float z2 = back;
-    int base_index = mesh_->VertexCount();
+    int base_index = mesh_->vertex_count();
 
     float mapping = SEGMENTS_PER_TEXTURE;
     float u = (random_val() % SEGMENTS_PER_TEXTURE) / mapping;
@@ -161,15 +159,15 @@ void Building::construct_cube(int left,
     p.at(9).set_position(gl_vector3(x1, y2, z1));
     p.at(9).set_uv(gl_vector2(u, v2));
 
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < p.size(); ++i) {
         float pos_x = p.at(i).get_position().get_x();
         float pos_z = p.at(i).get_position().get_z();
         p.at(i).get_uv().set_x((pos_x + pos_z) / mapping);
-        mesh_->VertexAdd(p.at(i));
+        mesh_->vertex_add(p.at(i));
         cube.index_list.push_back(base_index + i);
     }
 
-    mesh_->CubeAdd(cube);
+    mesh_->cube_add(cube);
 }
 
 void Building::construct_cube_float(float left,
@@ -188,7 +186,7 @@ void Building::construct_cube_float(float left,
     float y2 = top;
     float z1 = front;
     float z2 = back;
-    int base_index = mesh_flat_->VertexCount();
+    int base_index = mesh_flat_->vertex_count();
 
     p.at(0).set_position(gl_vector3(x1, y1, z1));
     p.at(0).set_uv(gl_vector2(0.0f, 0.0f));
@@ -225,11 +223,11 @@ void Building::construct_cube_float(float left,
         float pos_z = p.at(i).get_position().get_z();
         p.at(i).get_uv().set_x((pos_x + pos_z) / SEGMENTS_PER_TEXTURE);
 
-        mesh_flat_->VertexAdd(p.at(i));
+        mesh_flat_->vertex_add(p.at(i));
         cube.index_list.push_back(base_index + i);
     }
 
-    mesh_flat_->CubeAdd(cube);
+    mesh_flat_->cube_add(cube);
 }
 
 /*
@@ -395,7 +393,7 @@ void Building::construct_spike(int left,
     gl_vector3 center;
 
     for (int i = 0; i < 5; ++i) {
-        fan.index_list.push_back(mesh_flat_->VertexCount() + i);
+        fan.index_list.push_back(mesh_flat_->vertex_count() + i);
     }
 
     fan.index_list.push_back(fan.index_list[1]);
@@ -403,21 +401,21 @@ void Building::construct_spike(int left,
     center.set_x((left + right) / 2.0f);
     center.set_z((front + back) / 2.0f);
     p.set_position(gl_vector3(center.get_x(), top, center.get_z()));
-    mesh_flat_->VertexAdd(p);
+    mesh_flat_->vertex_add(p);
 
     p.set_position(gl_vector3(left, bottom, back));
-    mesh_flat_->VertexAdd(p);
+    mesh_flat_->vertex_add(p);
 
     p.set_position(gl_vector3(right, bottom, back));
-    mesh_flat_->VertexAdd(p);
+    mesh_flat_->vertex_add(p);
 
     p.set_position(gl_vector3(right, bottom, front));
-    mesh_flat_->VertexAdd(p);
+    mesh_flat_->vertex_add(p);
 
     p.set_position(gl_vector3(left, bottom, front));
-    mesh_flat_->VertexAdd(p);
+    mesh_flat_->vertex_add(p);
 
-    mesh_flat_->FanAdd(fan);
+    mesh_flat_->fan_add(fan);
 }
 
 /*
@@ -494,12 +492,12 @@ float Building::construct_wall(int start_x,
         if ((last_blank != blank) || (i == 0) || (i == length)) {
             v.set_position(gl_vector3(x, start_y, z));
             v.get_uv().set_y(start_y / static_cast<float>(SEGMENTS_PER_TEXTURE));
-            mesh_->VertexAdd(v);
-            qs.index_list.push_back(mesh_->VertexCount() - 1);
+            mesh_->vertex_add(v);
+            qs.index_list.push_back(mesh_->vertex_count() - 1);
             v.get_position().set_y((start_y + height));
             v.get_uv().set_y((start_y + height) / static_cast<float>(SEGMENTS_PER_TEXTURE));
-            mesh_->VertexAdd(v);
-            qs.index_list.push_back(mesh_->VertexCount() - 1);
+            mesh_->vertex_add(v);
+            qs.index_list.push_back(mesh_->vertex_count() - 1);
         }
 
         //if (!blank && (i != 0) && (i != (length - 1))) {
@@ -511,7 +509,7 @@ float Building::construct_wall(int start_x,
         z += step_z;
     }
 
-    mesh_->QuadStripAdd(qs);
+    mesh_->quad_strip_add(qs);
 
     return v.get_uv().get_x();
 }
@@ -676,8 +674,8 @@ void Building::create_blocky()
                    0,
                    2);
 
-    mesh_->Compile();
-    mesh_flat_->Compile();
+    mesh_->compile();
+    mesh_flat_->compile();
 }
 
 /*
@@ -712,51 +710,51 @@ void Building::create_simple()
 
     p.set_position(gl_vector3(x1, y1, z1));
     p.set_uv(gl_vector2(u, v1));
-    mesh_->VertexAdd(p);
+    mesh_->vertex_add(p);
     p.set_position(gl_vector3(x1, y2, z1));
     p.set_uv(gl_vector2(u, v2));
-    mesh_->VertexAdd(p);
+    mesh_->vertex_add(p);
 
     u += (depth_ / static_cast<float>(SEGMENTS_PER_TEXTURE));
     p.set_position(gl_vector3(x1, y1, z2));
     p.set_uv(gl_vector2(u, v1));
-    mesh_->VertexAdd(p);
+    mesh_->vertex_add(p);
     p.set_position(gl_vector3(x1, y2, z2));
     p.set_uv(gl_vector2(u, v2));
-    mesh_->VertexAdd(p);
+    mesh_->vertex_add(p);
 
     u += (width_ / static_cast<float>(SEGMENTS_PER_TEXTURE));
     p.set_position(gl_vector3(x2, y1, z2));
     p.set_uv(gl_vector2(u, v1));
-    mesh_->VertexAdd(p);
+    mesh_->vertex_add(p);
     p.set_position(gl_vector3(x2, y2, z2));
     p.set_uv(gl_vector2(u, v2));
-    mesh_->VertexAdd(p);
+    mesh_->vertex_add(p);
 
     u += (depth_ / static_cast<float>(SEGMENTS_PER_TEXTURE));
     p.set_position(gl_vector3(x2, y1, z1));
     p.set_uv(gl_vector2(u, v1));
-    mesh_->VertexAdd(p);
+    mesh_->vertex_add(p);
     p.set_position(gl_vector3(x2, y2, z1));
     p.set_uv(gl_vector2(u, v2));
-    mesh_->VertexAdd(p);
+    mesh_->vertex_add(p);
 
     u += (depth_ / static_cast<float>(SEGMENTS_PER_TEXTURE));
     p.set_position(gl_vector3(x1, y1, z1));
     p.set_uv(gl_vector2(u, v1));
-    mesh_->VertexAdd(p);
+    mesh_->vertex_add(p);
     p.set_position(gl_vector3(x1, y2, z1));
     p.set_uv(gl_vector2(u, v2));
-    mesh_->VertexAdd(p);
+    mesh_->vertex_add(p);
 
-    mesh_->QuadStripAdd(qs);
+    mesh_->quad_strip_add(qs);
     construct_cube_float(x1 - ledge,
                          x2 + ledge,
                          z2 - ledge,
                          z1 + ledge,
                          height_,
                          height_ + cap_height);
-    mesh_->Compile();
+    mesh_->compile();
 }
 
 /*
@@ -841,15 +839,15 @@ void Building::create_modern()
         p.get_uv().set_x(windows / static_cast<float>(SEGMENTS_PER_TEXTURE));
         p.get_uv().set_y(0.0f);
         p.get_position().set_y(0.0f);
-        mesh_->VertexAdd(p);
+        mesh_->vertex_add(p);
 
         p.get_position().set_y(height_);
         p.get_uv().set_y(height_ / static_cast<float>(SEGMENTS_PER_TEXTURE));
-        mesh_->VertexAdd(p);
-        mesh_flat_->VertexAdd(p);
+        mesh_->vertex_add(p);
+        mesh_flat_->vertex_add(p);
 
         p.get_position().set_y(p.get_position().get_y() + cap_height);
-        mesh_flat_->VertexAdd(p);
+        mesh_flat_->vertex_add(p);
 
         vector_buffer.at(points / 2) = p.get_position();
         vector_buffer.at(points / 2).set_y(height_ + (cap_height / 4));
@@ -878,8 +876,8 @@ void Building::create_modern()
         qs.index_list.push_back(i);
     }
 
-    mesh_->QuadStripAdd(qs);
-    mesh_flat_->QuadStripAdd(qs);
+    mesh_->quad_strip_add(qs);
+    mesh_flat_->quad_strip_add(qs);
 
     // Add the fan to cap the top of the buildings
     fan.index_list.push_back(points);
@@ -889,8 +887,8 @@ void Building::create_modern()
     p.get_position().set_x(center_.get_x());
     p.get_position().set_z(center_.get_z());
 
-    mesh_flat_->VertexAdd(p);
-    mesh_flat_->FanAdd(fan);
+    mesh_flat_->vertex_add(p);
+    mesh_flat_->fan_add(fan);
 
     radius /= 2.0f;
 
@@ -900,8 +898,8 @@ void Building::create_modern()
     //               (int)(center_.z + radius),
     //               height_ + cap_height);
 
-    mesh_->Compile();
-    mesh_flat_->Compile();
+    mesh_->compile();
+    mesh_flat_->compile();
 }
 
 void Building::create_tower()
@@ -1036,6 +1034,6 @@ void Building::create_tower()
 
     construct_roof(left, right, front, back, bottom);
 
-    mesh_->Compile();
-    mesh_flat_->Compile();
+    mesh_->compile();
+    mesh_flat_->compile();
 }

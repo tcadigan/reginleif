@@ -97,7 +97,7 @@ Sky::Sky()
         rad = ((float)i / (SKYPOINTS - 1)) * 180.f * DEGREES_TO_RADIANS;
         lum = sinf(rad);
         lum = (float)pow(lum, 5);
-        circle[i].set_color(gl_rgba(lum));
+        circle[i].set_color(gl_rgba(lum * 255, lum * 255, lum * 255));
     }
 
     list_ = glGenLists(1);

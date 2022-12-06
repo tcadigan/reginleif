@@ -499,7 +499,7 @@ static void do_reset(void)
     blocky_count = 0;
     tower_count = 0;
     hot_zone.clear();
-    EntityClear();
+    entity_clear();
     LightClear();
     car_clear();
     TextureReset();
@@ -831,7 +831,7 @@ int WorldSceneElapsed()
 {
     int elapsed;
 
-    if(!EntityReady() || !WorldSceneBegin()) {
+    if(!entity_ready() || !WorldSceneBegin()) {
         elapsed = 1;
     }
     else {
@@ -855,7 +855,7 @@ void WorldUpdate(void)
     }
 
     if(fade_state != FADE_IDLE) {
-        if((fade_state == FADE_WAIT) && TextureReady() && EntityReady()) {
+        if((fade_state == FADE_WAIT) && TextureReady() && entity_ready()) {
             fade_state = FADE_IN;
             fade_start = now;
             fade_current = 1.0f;

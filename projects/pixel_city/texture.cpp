@@ -157,8 +157,7 @@ static int build_time;
 
 void drawrect_simple(int left, int top, int right, int bottom, gl_rgba color)
 {
-    std::array<float, 3> color_data = {color.get_red(), color.get_green(), color.get_blue()};
-    glColor3fv(color_data.data());
+    glColor3fv(color.get_rgb().data());
     glBegin(GL_QUADS);
     glVertex2i(left, top);
     glVertex2i(right, top);
@@ -174,12 +173,10 @@ void drawrect_simple(int left,
                      gl_rgba color1,
                      gl_rgba color2)
 {
-    std::array<float, 3> color_data = {color1.get_red(), color1.get_green(), color1.get_blue()};
-    glColor3fv(color_data.data());
+    glColor3fv(color1.get_rgb().data());
     glBegin(GL_TRIANGLE_FAN);
     glVertex2i((left + right) / 2, (top + bottom) / 2);
-    color_data = {color2.get_red(), color2.get_green(), color2.get_blue()};
-    glColor3fv(color_data.data());
+    glColor3fv(color2.get_rgb().data());
     glVertex2i(left, top);
     glVertex2i(right, top);
     glVertex2i(right, bottom);
@@ -204,8 +201,7 @@ void drawrect(int left, int top, int right, int bottom, gl_rgba color)
     glEnable(GL_BLEND);
     glLineWidth(1.0f);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    std::array<float, 3> color_data = {color.get_red(), color.get_green(), color.get_blue()};
-    glColor3fv(color_data.data());
+    glColor3fv(color.get_rgb().data());
 
     // In low resolution, a "rect" might be 1 pixel wide
     if(left == right) {
@@ -231,7 +227,8 @@ void drawrect(int left, int top, int right, int bottom, gl_rgba color)
         glVertex2i(left, bottom);
         glEnd();
 
-        average = (color.get_red() + color.get_blue() + color.get_green()) / 3.0f;
+        std::array<float, 3> vals = color.get_rgb();
+        average = (vals.at(0) + vals.at(1) + vals.at(2)) / 3.0f;
         bright = (average > 0.5f);
         potential = (int)(average * 255.0f);
 
@@ -248,13 +245,12 @@ void drawrect(int left, int top, int right, int bottom, gl_rgba color)
 
                     gl_rgba temp;
                     color_noise = temp.from_hsl(hue, 0.3f, 0.5f);
-                    color_noise.set_alpha((float)random_val(potential) / 144.0f);
+                    color_noise.set_alpha(((float)random_val(potential) / 144.0f) * 255);
                     glColor4f(RANDOM_COLOR_VAL,
                               RANDOM_COLOR_VAL,
                               RANDOM_COLOR_VAL,
-                              (float)random_val(potential)/144.0f);
-                    std::array<float, 4> color_data = {color_noise.get_red(), color_noise.get_green(), color_noise.get_blue(), color_noise.get_alpha()};
-                    glColor4fv(color_data.data());
+                              (float)random_val(potential) / 144.0f);
+                    glColor4fv(color_noise.get_rgba().data());
                     glVertex2i(i, j);
                 }
             }
@@ -363,7 +359,7 @@ static void do_bloom(CTexture *t)
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_TEXTURE_2D);
-    EntityRender();
+    entity_render();
     car_render();
     LightRender();
     glBindTexture(GL_TEXTURE_2D, t->glid_);
@@ -426,13 +422,15 @@ void CTexture::DrawWindows()
             }
 
             if(lit) {
-                color = gl_rgba(0.5f + ((float)(random_val() % 128) / 256.0f))
+                int rand_val = random_val() % 128;
+                color = gl_rgba(127 + rand_val, 127 + rand_val, 127 + rand_val)
                     + gl_rgba(RANDOM_COLOR_SHIFT,
                              RANDOM_COLOR_SHIFT,
                              RANDOM_COLOR_SHIFT);
             }
             else {
-                color = gl_rgba((float)(random_val() % 40) / 256.0f);
+                int rand_val = random_val() % 40;
+                color = gl_rgba(rand_val, rand_val, rand_val);
             }
 
             buildingWindow(x * segment_size_,
@@ -449,7 +447,6 @@ void CTexture::DrawWindows()
 void CTexture::DrawSky()
 {
     gl_rgba color;
-    float grey;
     float scale;
     float inv_scale;
     int i;
@@ -462,17 +459,15 @@ void CTexture::DrawSky()
     int height_adjust;
 
     color = WorldBloomColor();
-    grey = (color.get_red() + color.get_green() + color.get_blue()) / 3.0f;
 
     // Desaturate, slightly dim
-    color = (color + (gl_rgba(grey) * 2.0f)) / 15.0f;
+    color = (color / 15.0f) + (color / 45.0f) + (color / 45.0f);
     glDisable(GL_BLEND);
     glBegin(GL_QUAD_STRIP);
     glColor3f(0, 0, 0);
     glVertex2i(0, half_);
     glVertex2i(size_, half_);
-    std::array<float, 3> color_data = {color.get_red(), color.get_green(), color.get_blue()};
-    glColor3fv(color_data.data());
+    glColor3fv(color.get_rgb().data());
     glVertex2i(0, size_ - 2);
     glVertex2i(size_, size_ - 2);
     glEnd();
@@ -483,7 +478,7 @@ void CTexture::DrawSky()
                  size_ - random_val(8) - random_val(8) - random_val(8),
                  i + random_val(9),
                  size_,
-                 gl_rgba(0.0f));
+                 gl_rgba(0, 0, 0));
     }
 
     // Draw the clouds
@@ -511,12 +506,11 @@ void CTexture::DrawSky()
                     color = WorldBloomColor() * 0.1f;
                 }
                 else {
-                    color = gl_rgba(0.0f);
+                    color = gl_rgba(0, 0, 0);
                 }
 
-                color.set_alpha(0.2f);
-                std::array<float, 4> color_data = {color.get_red(), color.get_green(), color.get_blue(), color.get_alpha()};
-                glColor4fv(color_data.data());
+                color.set_alpha(51);
+                glColor4fv(color.get_rgba().data());
                 width_adjust =
                     (int)(((float)width / 2.0f)
                           + (int)(inv_scale * ((float)width / 2.0f)));
@@ -581,9 +575,9 @@ void CTexture::DrawHeadlight()
     glEnd();
 
     x = half_ - 6;
-    drawrect_simple(x - 3, y - 2, x + 2, y + 2, gl_rgba(1.0f));
+    drawrect_simple(x - 3, y - 2, x + 2, y + 2, gl_rgba(255, 255, 255));
     x = half_ + 6;
-    drawrect_simple(x - 2, y - 2, x + 3, y + 2, gl_rgba(1.0f));
+    drawrect_simple(x - 2, y - 2, x + 3, y + 2, gl_rgba(255, 255, 255));
 };
 
 // Here is where ALL of the procedural textures are created. It's filled with
@@ -755,7 +749,7 @@ void CTexture::Rebuild()
                 RenderPrint(2,
                             size_ - i - (LOGO_PIXELS / 4),
                             random_val(),
-                            gl_rgba(1.0f),
+                            gl_rgba(255, 255, 255),
                             "%s%s",
                             prefix[prefix_num],
                             name[name_num]);
@@ -764,7 +758,7 @@ void CTexture::Rebuild()
                 RenderPrint(2,
                             size_ - i - (LOGO_PIXELS / 4),
                             random_val(),
-                            gl_rgba(1.0f),
+                            gl_rgba(255, 255, 255),
                             "%s%s",
                             name[name_num],
                             suffix[suffix_num]);
@@ -785,8 +779,8 @@ void CTexture::Rebuild()
                             y + margin,
                             x + TRIM_PIXELS - margin,
                             y + TRIM_PIXELS - margin,
-                            gl_rgba(1.0f),
-                            gl_rgba(0.5f));
+                            gl_rgba(255, 255, 255),
+                            gl_rgba(127, 127, 127));
         }
 
         y += TRIM_PIXELS;
@@ -795,8 +789,8 @@ void CTexture::Rebuild()
                             y + margin,
                             x + TRIM_PIXELS - margin,
                             y + TRIM_PIXELS - margin,
-                            gl_rgba(1.0f),
-                            gl_rgba(0.5f));
+                            gl_rgba(255, 255, 255),
+                            gl_rgba(127, 127, 127));
         }
 
         y += TRIM_PIXELS;
@@ -805,8 +799,8 @@ void CTexture::Rebuild()
                             y + margin,
                             x + TRIM_PIXELS - margin,
                             y + TRIM_PIXELS - margin,
-                            gl_rgba(1.0f),
-                            gl_rgba(0.5f));
+                            gl_rgba(255, 255, 255),
+                            gl_rgba(127, 127, 127));
         }
 
         y += TRIM_PIXELS;
@@ -815,8 +809,8 @@ void CTexture::Rebuild()
                             y + margin,
                             x + TRIM_PIXELS - margin,
                             y + TRIM_PIXELS - margin,
-                            gl_rgba(1.0f),
-                            gl_rgba(0.5f));
+                            gl_rgba(255, 255, 255),
+                            gl_rgba(127, 127, 127));
         }
         break;
     case TEXTURE_SKY:

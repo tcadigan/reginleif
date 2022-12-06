@@ -9,11 +9,6 @@
 
 #include "gl-rgba.hpp"
 
-#include "math.hpp"
-
-#include <cmath>
-#include <sstream>
-
 gl_rgba::gl_rgba()
 {
     data.r = 0;
@@ -30,77 +25,11 @@ gl_rgba::gl_rgba(int red, int green, int blue)
     data.a = 255;
 }
 
-gl_rgba::gl_rgba(float red, float green, float blue)
-{
-    data.r = red * 255;
-    data.g = green * 255;
-    data.b = blue * 255;
-    data.a = 255;
-}
-
-gl_rgba::gl_rgba(float red, float green, float blue, float alpha)
-{
-    data.r = red * 255;
-    data.g = green * 255;
-    data.b = blue * 255;
-    data.a = alpha * 255;
-}
-
-gl_rgba::gl_rgba(int color)
-{
-    data.r = color & 0x000000FF;
-    data.g = (color & 0x0000FF00) >> 8;
-    data.b = (color & 0x00FF0000) >> 16;
-    data.a = 255;
-}
-
-gl_rgba::gl_rgba(float luminance)
-{
-    data.r = luminance * 255;
-    data.g = luminance * 255;
-    data.b = luminance * 255;
-    data.a = 255;
-}
-
-gl_rgba::gl_rgba(std::string const &color)
-{
-    try {
-        int value = std::stoi(color);
-        data.r = value & 0x000000FF;
-        data.g = (value & 0x0000FF00) >> 8;
-        data.b = (value & 0x00FF0000) >> 16;
-        data.a = 1.0f;
-    } catch (std::invalid_argument const &ex) {
-        data.r = 0;
-        data.g = 0;
-        data.b = 0;
-        data.a = 255;
-    } catch (std::out_of_range const &ex) {
-        data.r = 0;
-        data.g = 0;
-        data.b = 0;
-        data.a = 255;
-    }
-}
-
-gl_rgba::~gl_rgba()
-{
-}
-
 gl_rgba &gl_rgba::operator+=(gl_rgba const &rhs)
 {
     data.r += rhs.data.r;
     data.g += rhs.data.g;
     data.b += rhs.data.b;
-
-    return *this;
-}
-
-gl_rgba &gl_rgba::operator-=(gl_rgba const &rhs)
-{
-    data.r -= rhs.data.r;
-    data.g -= rhs.data.g;
-    data.b -= rhs.data.b;
 
     return *this;
 }
@@ -121,13 +50,6 @@ gl_rgba &gl_rgba::operator/=(float const &rhs)
     data.g /= rhs;
 
     return *this;
-}
-
-gl_rgba gl_rgba::interpolate(gl_rgba const &rhs, float delta) const
-{
-    return gl_rgba(MathInterpolate(data.r, rhs.data.r, delta),
-                   MathInterpolate(data.g, rhs.data.g, delta),
-                   MathInterpolate(data.b, rhs.data.b, delta));
 }
 
 gl_rgba gl_rgba::from_hsl(float hue,
@@ -187,124 +109,85 @@ gl_rgba gl_rgba::from_hsl(float hue,
 // Useful for visual debugging in some situations.
 gl_rgba gl_rgba::unique(int index) const
 {
-    float red = 0.4f;
-    float green = 0.4f;
-    float blue = 0.4f;
-    float alpha = 1.0f;
+    int red = 102;
+    int green = 102;
+    int blue = 102;
 
     if (index & 1) {
         if (index & 8) {
             if (index & 64) {
-                red += 0.2f;
+                red += 51;
             } else {
-                red += 0.5f;
+                red += 127;
             }
         } else if (index & 64) {
-            red -= 0.1f;
+            red -= 25;
         } else {
-            red += 0.2f;
+            red += 51;
         }
     } else if (index & 8) {
         if (!(index & 64)) {
-            red += 0.3f;
+            red += 76;
         }
     } else if (index & 64) {
-        red -= 0.3;
+        red -= 76;
     }
 
     if (index & 2) {
         if (index & 32) {
             if (index & 128) {
-                green += 0.2f;
+                green += 51;
             } else {
-                green += 0.5f;
+                green += 127;
             }
         } else if (index & 128) {
-            green -= 0.1f;
+            green -= 25;
         }
         else {
-            green += 0.2f;
+            green += 51;
         }
     } else if (index & 32) {
         if (!(index & 128)) {
-            green += 0.3f;
+            green += 76;
         }
     } else if (index & 128) {
-        green -= 0.3f;
+        green -= 76;
     }
 
     if (index & 4) {
         if (index & 16) {
             if (index & 256) {
-                blue += 0.2f;
+                blue += 51;
             } else {
-                blue += 0.5f;
+                blue += 127;
             }
         } else if (index & 256) {
-            blue -= 0.1f;
+            blue -= 25;
         } else {
-            blue += 0.2f;
+            blue += 51;
         }
     } else if (index & 16) {
         if (!(index & 256)) {
-            blue += 0.3f;
+            blue += 76;
         }
     } else if (index & 256) {
-        blue -= 0.3f;
+        blue -= 76;
     }
 
-    return gl_rgba(red, green, blue, alpha);
+    return gl_rgba(red, green, blue);
 }
 
-void gl_rgba::set_data(float red, float green, float blue, float alpha)
+void gl_rgba::set_alpha(int alpha)
 {
-    data.r = red * 255;
-    data.g = green * 255;
-    data.b = blue * 255;
-    data.a = alpha * 255;
+    data.a = alpha;
 }
 
-void gl_rgba::set_red(float red)
+std::array<float, 3> gl_rgba::get_rgb() const
 {
-    data.r = red * 255;
+    return std::array<float, 3>({data.r / 255.0f, data.g / 255.0f, data.b / 255.0f});
 }
 
-void gl_rgba::set_green(float green)
+std::array<float, 4> gl_rgba::get_rgba() const
 {
-    data.g = green * 255;
-}
-
-void gl_rgba::set_blue(float blue)
-{
-    data.b = blue * 255;
-}
-
-void gl_rgba::set_alpha(float alpha)
-{
-    data.a = alpha * 255;
-}
-
-SDL_Color gl_rgba::get_data()
-{
-    return data;
-}
-
-float gl_rgba::get_red() const
-{
-    return data.r / 255.0f;
-}
-
-float gl_rgba::get_green() const
-{
-    return data.g / 255.0f;
-}
-
-float gl_rgba::get_blue() const
-{
-    return data.b / 255.0f;
-}
-
-float gl_rgba::get_alpha() const
-{
-    return data.a / 255.0f;
+    return std::array<float, 4>({data.r / 255.0f, data.g / 255.0f, data.g / 255.0f, data.a / 255.0f});
 }

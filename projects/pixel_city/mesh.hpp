@@ -25,17 +25,17 @@ public:
     Mesh();
     ~Mesh();
 
-    void VertexAdd(gl_vertex const &v);
-    int VertexCount();
-    int PolyCount();
-    void CubeAdd(Cube const &c);
-    void QuadStripAdd(QuadStrip const &qs);
-    void FanAdd(Fan const &f);
-    void Render();
-    void Compile();
+    void vertex_add(gl_vertex const &v);
+    int vertex_count();
+    int poly_count();
+    void cube_add(Cube const &c);
+    void quad_strip_add(QuadStrip const &qs);
+    void fan_add(Fan const &f);
+    void render();
+    void compile();
 
     unsigned int list_;
-    int polycount_;
+    int poly_count_;
     std::vector<gl_vertex> vertex_;
     std::vector<Cube> cube_;
     std::vector<QuadStrip> quad_strip_;

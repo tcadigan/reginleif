@@ -13,8 +13,6 @@ public:
     void update();
     void park();
 
-    Car *next_;
-
 private:
     gl_vector3 position_;
     gl_vector3 drive_position_;
