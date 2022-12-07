@@ -107,14 +107,14 @@ Sky::Sky()
     glBegin(GL_QUAD_STRIP);
     for(i = 0; i < SKYPOINTS; ++i) {
         glTexCoord2f(circle[i].get_uv().get_x(), 0.0f);
-        glVertex3fv(circle[i].get_position().get_data());
+        glVertex3fv(circle[i].get_position().get_data().data());
         pos = circle[i].get_position();
         pos.set_y(size / 3.5f);
         glTexCoord2f(circle[i].get_uv().get_x(), 1.0f);
-        glVertex3fv(pos.get_data());
+        glVertex3fv(pos.get_data().data());
     }
     glEnd();
     glEndList();
-    
+
     sky = this;
 }

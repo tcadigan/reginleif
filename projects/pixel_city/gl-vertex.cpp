@@ -1,13 +1,5 @@
 #include "gl-vertex.hpp"
 
-gl_vertex::gl_vertex()
-{
-}
-
-gl_vertex::~gl_vertex()
-{
-}
-
 void gl_vertex::set_position(gl_vector3 const &position)
 {
     position_ = position;

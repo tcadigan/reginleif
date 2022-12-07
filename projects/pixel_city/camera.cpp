@@ -310,8 +310,8 @@ void camera_init()
     std::string camera_angle("CameraAngle");
     std::string camera_position("CameraPosition");
 
-    angle = IniVector(const_cast<char *>(camera_angle.c_str()));
-    position = IniVector(const_cast<char *>(camera_position.c_str()));
+    angle = ini_vector(const_cast<char *>(camera_angle.c_str()));
+    position = ini_vector(const_cast<char *>(camera_position.c_str()));
 }
 
 void camera_update()
@@ -343,6 +343,6 @@ void camera_term()
     std::string camera_position("CameraPosition");
 
     // Just store our most recent position in the ini
-    IniVectorSet(const_cast<char *>(camera_angle.c_str()), angle);
-    IniVectorSet(const_cast<char *>(camera_position.c_str()), position);
+    ini_vector_set(const_cast<char *>(camera_angle.c_str()), angle);
+    ini_vector_set(const_cast<char *>(camera_position.c_str()), position);
 }

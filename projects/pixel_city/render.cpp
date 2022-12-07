@@ -543,19 +543,19 @@ void RenderTerm()
 void RenderInit()
 {
     // If the program is running for the first time, set the defaults.
-    if(!IniInt("SetDefaults")) {
-        IniIntSet("SetDefaults", 1);
-        IniIntSet("Effect", EFFECT_BLOOM);
-        IniIntSet("ShowFog", 1);
+    if(!ini_int("SetDefaults")) {
+        ini_int_set("SetDefaults", 1);
+        ini_int_set("Effect", EFFECT_BLOOM);
+        ini_int_set("ShowFog", 1);
     }
 
     // Load in our settings
-    letterbox = (IniInt("Letterbox") != 0);
-    show_wireframe = (IniInt("Wireframe") != 0);
-    show_fps = (IniInt("ShowFPS") != 0);
-    show_fog = (IniInt("ShowFog") != 0);
-    effect = IniInt("Effect");
-    flat = (IniInt("Flat") != 0);
+    letterbox = (ini_int("Letterbox") != 0);
+    show_wireframe = (ini_int("Wireframe") != 0);
+    show_fps = (ini_int("ShowFPS") != 0);
+    show_fog = (ini_int("ShowFog") != 0);
+    effect = ini_int("Effect");
+    flat = (ini_int("Flat") != 0);
     fog_distance = WORLD_HALF;
 
     // Clear the viewport so the user isn't looking at trash
@@ -573,7 +573,7 @@ void RenderInit()
 void RenderFPSToggle()
 {
     show_fps = !show_fps;
-    IniIntSet("ShowFPS", show_fps ? 1 : 0);
+    ini_int_set("ShowFPS", show_fps ? 1 : 0);
 }
 
 
@@ -585,20 +585,20 @@ bool RenderFog()
 void RenderFogToggle()
 {
     show_fog = !show_fog;
-    IniIntSet("ShowFog", show_fog ? 1 : 0);
+    ini_int_set("ShowFog", show_fog ? 1 : 0);
 }
 
 void RenderLetterBoxToggle()
 {
     letterbox = !letterbox;
-    IniIntSet("Letterbox", letterbox ? 1: 0);
+    ini_int_set("Letterbox", letterbox ? 1: 0);
     RenderResize();
 }
 
 void RenderWireframeToggle()
 {
     show_wireframe = !show_wireframe;
-    IniIntSet("Wireframe" , show_wireframe ? 1 : 0);
+    ini_int_set("Wireframe" , show_wireframe ? 1 : 0);
 }
 
 bool RenderWireframe()
@@ -609,7 +609,7 @@ bool RenderWireframe()
 void RenderEffectCycle()
 {
     effect = (effect + 1) % EFFECT_COUNT;
-    IniIntSet("Effect", effect);
+    ini_int_set("Effect", effect);
 }
 
 bool RenderBloom()
@@ -628,7 +628,7 @@ bool RenderFlat()
 void RenderFlatToggle()
 {
     flat = !flat;
-    IniIntSet("Flat", flat ? 1 : 0);
+    ini_int_set("Flat", flat ? 1 : 0);
 }
 
 void RenderHelpToggle()

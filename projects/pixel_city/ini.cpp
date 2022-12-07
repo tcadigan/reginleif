@@ -22,19 +22,19 @@
 
 static char result[MAX_RESULT];
 
-int IniInt(char const *entry)
+int ini_int(char const *entry)
 {
     return 0;
 }
 
-void IniIntSet(char const *entry, int val)
+void ini_int_set(char const *entry, int val)
 {
     char buf[20];
 
     sprintf(buf, "%d", val);
 }
 
-float IniFloat(char const *entry)
+float ini_float(char const *entry)
 {
     float f;
 
@@ -42,28 +42,23 @@ float IniFloat(char const *entry)
     return f;
 }
 
-void IniFloatSet(char const *entry, float val)
+void ini_float_set(char const *entry, float val)
 {
     char buf[20];
 
     sprintf(buf, FORMAT_FLOAT, val);
 }
 
-char *IniString(char const *entry)
+char *ini_string(char const *entry)
 {
     return result;
 }
 
-void IniStringSet(char const *entry, char *val)
+void ini_string_set(char const *entry, char *val)
 {
 }
 
-void IniVectorSet(char const *entry, gl_vector3 v)
-{
-    sprintf(result, FORMAT_VECTOR, v.get_x(), v.get_y(), v.get_z());
-}
-
-gl_vector3 IniVector(char const *entry)
+gl_vector3 ini_vector(char const *entry)
 {
     float x = 0.0f;
     float y = 0.0f;
@@ -72,4 +67,9 @@ gl_vector3 IniVector(char const *entry)
     sscanf(result, FORMAT_VECTOR, &x, &y, &z);
 
     return gl_vector3(x, y, z);
+}
+
+void ini_vector_set(char const *entry, gl_vector3 v)
+{
+    sprintf(result, FORMAT_VECTOR, v.get_x(), v.get_y(), v.get_z());
 }

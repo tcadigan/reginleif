@@ -3,13 +3,13 @@
 
 #include "gl-vector3.hpp"
 
-int IniInt(char const *entry);
-void IniIntSet(char const *entry, int val);
-float IniFloat(char const *entry);
-void IniFloatSet(char const *entry, float val);
-char *IniString(char const *entry);
-void IniStringSet(char const *entry, char *val);
-void IniVectorSet(char const *entry, gl_vector3 v);
-gl_vector3 IniVector(char const *entry);
+int ini_int(char const *entry);
+void ini_int_set(char const *entry, int val);
+float ini_float(char const *entry);
+void ini_float_set(char const *entry, float val);
+char *ini_string(char const *entry);
+void ini_string_set(char const *entry, char *val);
+void ini_vector_set(char const *entry, gl_vector3 v);
+gl_vector3 ini_vector(char const *entry);
 
 #endif /* INI_HPP_ */

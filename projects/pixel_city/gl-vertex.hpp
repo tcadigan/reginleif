@@ -7,9 +7,6 @@
 
 class gl_vertex {
 public:
-    gl_vertex();
-    virtual ~gl_vertex();
-
     void set_position(gl_vector3 const &position);
     void set_uv(gl_vector2 const &uv);
     void set_color(gl_rgba const &color);
