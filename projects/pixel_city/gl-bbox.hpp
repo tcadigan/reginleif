@@ -5,9 +5,6 @@
 
 class gl_bbox {
 public:
-    gl_bbox();
-    virtual ~gl_bbox();
-
     bool test_point(gl_vector3 const &point);
     void contain_point(gl_vector3 const &point);
     void clear();

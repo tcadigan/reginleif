@@ -488,7 +488,7 @@ void RenderPrint(int line, const char *fmt, ...)
     glMatrixMode(GL_MODELVIEW);
 }
 
-void static do_help(void)
+void static do_help()
 {
     char *text;
     int line;
@@ -511,7 +511,7 @@ void do_fps()
     frames = 0;
 }
 
-void RenderResize(void)
+void RenderResize()
 {
     float fovy = 60.0f;
 
@@ -536,11 +536,11 @@ void RenderResize(void)
     glMatrixMode(GL_MODELVIEW);
 }
 
-void RenderTerm(void)
+void RenderTerm()
 {
 }
 
-void RenderInit(void)
+void RenderInit()
 {
     // If the program is running for the first time, set the defaults.
     if(!IniInt("SetDefaults")) {
@@ -656,7 +656,7 @@ void RenderFogFX(float scalar)
     glEnable(GL_FOG);
 }
 
-void RenderUpdate(void)
+void RenderUpdate()
 {
     gl_vector3 pos;
     gl_vector3 angle;

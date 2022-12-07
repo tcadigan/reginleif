@@ -6,7 +6,7 @@
  * This module runs the visibility grid, a 2-dimensional array that aids in
  * culling objects during rendering.
  *
- * There are many ways this could be refined or sped up, although tests 
+ * There are many ways this could be refined or sped up, although tests
  * indicate it's not a huge drain on performance.
  *
  */
@@ -24,17 +24,19 @@
 
 static bool vis_grid[GRID_SIZE][GRID_SIZE];
 
-bool Visible(gl_vector3 pos)
+bool visible(gl_vector3 pos)
 {
-    return vis_grid[WORLD_TO_GRID(pos.get_x())][WORLD_TO_GRID(pos.get_z())];
+    int row = pos.get_x() / GRID_RESOLUTION;
+    int col = pos.get_z() / GRID_RESOLUTION;
+    return vis_grid[row][col];
 }
 
-bool Visible(int x, int z)
+bool visible(int x, int z)
 {
     return vis_grid[x][z];
 }
 
-void VisibleUpdate(void)
+void visible_update()
 {
     gl_vector3 angle;
     gl_vector3 position;
@@ -57,8 +59,8 @@ void VisibleUpdate(void)
     // Calculate which cell the camera is in
     angle = camera_angle();
     position = camera_position();
-    grid_x = WORLD_TO_GRID(position.get_x());
-    grid_z = WORLD_TO_GRID(position.get_z());
+    grid_x = position.get_x() / GRID_RESOLUTION;
+    grid_z = position.get_z() / GRID_RESOLUTION;
 
     // Cells directly adjacent to the camera might technically fall out of the
     // fov, but still have a few objects poking into screenspace when looking up
@@ -73,7 +75,7 @@ void VisibleUpdate(void)
     if((angle.get_y() < 45.0f) || (angle.get_y() > 315.0f)) {
         front = 0;
     }
-    
+
     // Looking south, can't see north.
     if((angle.get_y() > 135.0f) && (angle.get_y() < 225.0f)) {
         back = 0;
@@ -95,7 +97,7 @@ void VisibleUpdate(void)
         if((x < 0) || (x >= GRID_SIZE)) {
             continue;
         }
-        
+
         for(y = grid_z - back; y <= grid_z + front; ++y) {
             // Just in case the camera leaves the world map
             if((y < 0) || (y >= GRID_SIZE)) {
@@ -128,7 +130,7 @@ void VisibleUpdate(void)
             else {
                 target_x = (float)(x + 1) * GRID_RESOLUTION;
             }
-            
+
             if(grid_z < y) {
                 target_z = (float)y * GRID_RESOLUTION;
             }
@@ -136,7 +138,7 @@ void VisibleUpdate(void)
                 target_z = (float)(y + 1) * GRID_RESOLUTION;
             }
 
-            angle_to = 
+            angle_to =
                 10 - MathAngle(target_x, target_z, position.get_x(), position.get_z());
 
             // Store how many degrees the cell is to the camera

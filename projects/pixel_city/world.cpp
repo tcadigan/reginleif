@@ -434,7 +434,7 @@ static int build_light_strip(int x1, int z1, direction_t direction)
     d = new Decoration();
 
     if(direction == direction_t::east) {
-        d->CreateLightStrip((float)x1,
+        d->create_light_strip((float)x1,
                             (float)z1 - size_adjust,
                             (float)width,
                             (float)depth + size_adjust,
@@ -442,7 +442,7 @@ static int build_light_strip(int x1, int z1, direction_t direction)
                             color);
     }
     else if(direction == direction_t::west) {
-        d->CreateLightStrip((float)x1,
+        d->create_light_strip((float)x1,
                             (float)z1,
                             (float)width,
                             (float)depth + size_adjust,
@@ -450,7 +450,7 @@ static int build_light_strip(int x1, int z1, direction_t direction)
                             color);
     }
     else if(direction == direction_t::north) {
-        d->CreateLightStrip((float)x1,
+        d->create_light_strip((float)x1,
                             (float)z1,
                             (float)width + size_adjust,
                             (float)depth,
@@ -458,7 +458,7 @@ static int build_light_strip(int x1, int z1, direction_t direction)
                             color);
     }
     else {
-        d->CreateLightStrip((float)x1 - size_adjust,
+        d->create_light_strip((float)x1 - size_adjust,
                             (float)z1,
                             (float)width - size_adjust,
                             (float)depth,
@@ -469,7 +469,7 @@ static int build_light_strip(int x1, int z1, direction_t direction)
     return length;
 }
 
-static void do_reset(void)
+static void do_reset()
 {
     int x;
     int y;
@@ -763,11 +763,11 @@ gl_bbox WorldHotZone()
     return hot_zone;
 }
 
-void WorldTerm(void)
+void WorldTerm()
 {
 }
 
-void WorldReset(void)
+void WorldReset()
 {
     // If we're already fading out, then this is the developer
     // hammering on the "rebuild" button. Let's hurry up for the
@@ -815,7 +815,7 @@ void WorldRender()
     glDepthMask(true);
 }
 
-float WorldFade(void)
+float WorldFade()
 {
     return fade_current;
 }
@@ -843,7 +843,7 @@ int WorldSceneElapsed()
     return elapsed;
 }
 
-void WorldUpdate(void)
+void WorldUpdate()
 {
     unsigned fade_delta;
     int now;
@@ -903,7 +903,7 @@ void WorldUpdate(void)
     }
 }
 
-void WorldInit(void)
+void WorldInit()
 {
     last_update = SDL_GetTicks();
     for(int i = 0; i < CARS; ++i) {

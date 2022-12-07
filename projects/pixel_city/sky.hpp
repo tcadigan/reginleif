@@ -15,7 +15,7 @@ struct sky_point {
 class Sky {
 public:
     Sky();
-    void Render(void);
+    void Render();
 
 private:
     int list_;

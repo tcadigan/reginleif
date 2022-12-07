@@ -95,8 +95,8 @@ Light::Light(gl_vector3 pos, gl_rgba color, int size)
     vert_size_ = (float)size_ + 0.5f;
     flat_size_ = vert_size_ + 0.5f;
     blink_ = false;
-    cell_x_ = WORLD_TO_GRID(pos.get_x());
-    cell_z_ = WORLD_TO_GRID(pos.get_z());
+    cell_x_ = pos.get_x() / GRID_RESOLUTION;
+    cell_z_ = pos.get_z() / GRID_RESOLUTION;
     next_ = head;
     head = this;
     count++;
@@ -119,7 +119,7 @@ void Light::Render()
     gl_vector3 camera_pos;
     gl_vector2 offset;
 
-    if(!Visible(cell_x_, cell_z_)) {
+    if(!visible(cell_x_, cell_z_)) {
         return;
     }
 

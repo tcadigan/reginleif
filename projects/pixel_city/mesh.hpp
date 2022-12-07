@@ -27,11 +27,11 @@ public:
 
     void vertex_add(gl_vertex const &v);
     int vertex_count();
-    int poly_count();
+    int poly_count() const;
     void cube_add(Cube const &c);
     void quad_strip_add(QuadStrip const &qs);
     void fan_add(Fan const &f);
-    void render();
+    void render() const;
     void compile();
 
     unsigned int list_;

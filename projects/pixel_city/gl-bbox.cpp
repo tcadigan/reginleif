@@ -12,27 +12,18 @@
 
 #include <cfloat>
 
-gl_bbox::gl_bbox()
-{
-}
-
-gl_bbox::~gl_bbox()
-{
-}
-
-
 // Does the given point fall within the given Bbox?
 bool gl_bbox::test_point(gl_vector3 const &point)
 {
-    if((point.get_x() > max_.get_x()) || (point.get_x() < min_.get_x())) {
+    if ((point.get_x() > max_.get_x()) || (point.get_x() < min_.get_x())) {
         return false;
     }
 
-    if((point.get_y() > max_.get_y()) || (point.get_y() < min_.get_y())) {
+    if ((point.get_y() > max_.get_y()) || (point.get_y() < min_.get_y())) {
         return false;
     }
 
-    if((point.get_z() > max_.get_z()) || (point.get_z() < min_.get_z())) {
+    if ((point.get_z() > max_.get_z()) || (point.get_z() < min_.get_z())) {
         return false;
     }
 
@@ -42,27 +33,27 @@ bool gl_bbox::test_point(gl_vector3 const &point)
 // Expand BBox (if needed) to contain given point
 void gl_bbox::contain_point(gl_vector3 const &point)
 {
-    if(min_.get_x() >= point.get_x()) {
+    if (min_.get_x() >= point.get_x()) {
         min_.set_x(point.get_x());
     }
 
-    if(min_.get_y() >= point.get_y()) {
+    if (min_.get_y() >= point.get_y()) {
         min_.set_y(point.get_y());
     }
 
-    if(min_.get_z() >= point.get_z()) {
+    if (min_.get_z() >= point.get_z()) {
         min_.set_z(point.get_z());
     }
 
-    if(max_.get_x() <= point.get_x()) {
+    if (max_.get_x() <= point.get_x()) {
         max_.set_x(point.get_x());
     }
 
-    if(max_.get_y() <= point.get_y()) {
+    if (max_.get_y() <= point.get_y()) {
         max_.set_y(point.get_y());
     }
 
-    if(max_.get_z() <= point.get_z()) {
+    if (max_.get_z() <= point.get_z()) {
         max_.set_z(point.get_z());
     }
 }

@@ -82,23 +82,23 @@ Building::~Building()
 {
 }
 
-GLuint Building::texture()
+unsigned int Building::texture() const
 {
     return TextureRandomBuilding(texture_type_);
 }
 
-int Building::poly_count()
+int Building::poly_count() const
 {
     return(mesh_->poly_count() + mesh_flat_->poly_count());
 }
 
-void Building::render()
+void Building::render() const
 {
     glColor3fv(color_.get_rgb().data());
     mesh_->render();
 }
 
-void Building::render_flat(bool colored)
+void Building::render_flat(bool colored) const
 {
     if (colored) {
         glColor3fv(color_.get_rgb().data());
@@ -311,7 +311,7 @@ void Building::construct_roof(float left,
             break;
         }
 
-        dec->CreateLogo(start, end, bottom, WorldLogoIndex(), trim_color_);
+        dec->create_logo(start, end, bottom, WorldLogoIndex(), trim_color_);
         have_logo_ = true;
     } else if (addon == addon_t::trim) {
         Decoration *dec = new Decoration;
@@ -321,7 +321,7 @@ void Building::construct_roof(float left,
         vector_buffer.at(2) = gl_vector3(right, bottom, front);
         vector_buffer.at(3) = gl_vector3(right, bottom, back);
 
-        dec->CreateLightTrim(vector_buffer,
+        dec->create_light_trim(vector_buffer,
                              4,
                              random_val(2) + 1.0f,
                              seed_,
@@ -374,7 +374,7 @@ void Building::construct_roof(float left,
 
     if (height_ > 45) {
         Decoration *dec = new Decoration;
-        dec->CreateRadioTower(gl_vector3((left + right) / 2.0f,
+        dec->create_radio_tower(gl_vector3((left + right) / 2.0f,
                                          bottom,
                                          (front + back) / 2.0f),
                               15.0f);
@@ -823,7 +823,7 @@ void Building::create_modern()
 
                 d = new Decoration;
                 gl_rgba random_color;
-                d->CreateLogo(start,
+                d->create_logo(start,
                               end,
                               height_,
                               WorldLogoIndex(),
@@ -860,7 +860,7 @@ void Building::create_modern()
     if (!logo_done && do_trim) {
         d = new Decoration;
         gl_rgba random_color;
-        d->CreateLightTrim(vector_buffer,
+        d->create_light_trim(vector_buffer,
                            (points / 2) - 2,
                            cap_height / 2.0f,
                            seed_,

@@ -13,7 +13,7 @@
 
 static std::mt19937 generator;
 
-unsigned long random_val(void)
+unsigned long random_val()
 {
     return generator();
 }

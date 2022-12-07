@@ -13,6 +13,8 @@
 
 #include "entity.hpp"
 
+#include <set>
+
 #include <SDL2/SDL.h>
 #include <cmath>
 #include <cstdlib>
@@ -26,10 +28,6 @@
 #include "win.hpp"
 #include "world.hpp"
 
-struct entity {
-    Entity *object;
-};
-
 struct cell {
     unsigned int list_textured;
     unsigned int list_flat;
@@ -38,151 +36,138 @@ struct cell {
     gl_vector3 pos;
 };
 
-static cell cell_list[GRID_SIZE][GRID_SIZE];
-static int num_entities;
-static entity *entity_list;
-static bool sorted;
-static bool compiled;
-static int polycount;
-static int compile_x;
-static int compile_y;
-static int compile_count;
-static int compile_end;
-
-static int do_compare(const void *arg1, const void *arg2)
+// Changing texture is pretty expensive, and thus sorting the entities
+// so that they are grouped by texture used can really improve
+// framerate.
+bool EntityCompare::operator()(std::shared_ptr<Entity> const &lhs, std::shared_ptr<Entity> const &rhs) const
 {
-    struct entity *e1 = (struct entity *)arg1;
-    struct entity *e2 = (struct entity *)arg2;
-
-    if(e1->object->alpha() && !e2->object->alpha()) {
+    if (lhs->alpha() && !rhs->alpha()) {
         return 1;
     }
-    if(!e1->object->alpha() && e2->object->alpha()) {
+
+    if (!lhs->alpha() && rhs->alpha()) {
         return -1;
     }
-    if(e1->object->texture() > e2->object->texture()) {
+
+    if (lhs->texture() > rhs->texture()) {
         return 1;
     }
-    else if(e1->object->texture() < e2->object->texture()) {
+
+    if (lhs->texture() < rhs->texture()) {
         return -1;
     }
 
     return 0;
 }
 
-void add(Entity *b)
+static cell cell_list[GRID_SIZE][GRID_SIZE];
+static std::set<std::shared_ptr<Entity>, EntityCompare> entity_list;
+static bool compiled;
+static int poly_count;
+static int compile_x;
+static int compile_y;
+static int compile_count;
+static int compile_end;
+
+void add(std::shared_ptr<Entity> const &b)
 {
-    entity_list = (entity *)realloc(entity_list,
-                                    sizeof(entity) * (num_entities + 1));
+    entity_list.insert(b);
 
-    entity_list[num_entities].object = b;
-    num_entities++;
-
-    polycount = 0;
+    poly_count = 0;
 }
 
 static void do_compile()
 {
-    int i;
-    int x;
-    int y;
-
-    if(compiled) {
+    if (compiled) {
         return;
     }
 
-    x = compile_x;
-    y = compile_y;
-
-    // Changing texture is pretty expensive, and thus sorting the entities
-    // so that they are grouped by texture used can really improve
-    // framerate.
-    // qsort(entity_list, num_entities, sizeof(struct entity), do_compare);
-    // sorted = true;
+    int x = compile_x;
+    int y = compile_y;
 
     // Not group entities on the grid
     // Make a list for the textured objects in this region
-    if(!cell_list[x][y].list_textured) {
+    if (!cell_list[x][y].list_textured) {
         cell_list[x][y].list_textured = glGenLists(1);
     }
 
     glNewList(cell_list[x][y].list_textured, GL_COMPILE);
-    cell_list[x][y].pos = gl_vector3(GRID_TO_WORLD(x),
+    cell_list[x][y].pos = gl_vector3(x * GRID_RESOLUTION,
                                      0.0f,
-                                     (float)y * GRID_RESOLUTION);
+                                     y * GRID_RESOLUTION);
 
-    for(i = 0; i < num_entities; ++i) {
-        gl_vector3 pos = entity_list[i].object->center();
-        if((WORLD_TO_GRID(pos.get_x()) == x)
-           && (WORLD_TO_GRID(pos.get_z()) == y)
-           && !entity_list[i].object->alpha()) {
-            glBindTexture(GL_TEXTURE_2D, entity_list[i].object->texture());
-            entity_list[i].object->render();
+    for (std::shared_ptr<Entity> const &entity : entity_list) {
+        gl_vector3 pos = entity->center();
+        if (((pos.get_x() / GRID_RESOLUTION) == x)
+            && ((pos.get_z() / GRID_RESOLUTION) == y)
+            && !entity->alpha()) {
+            glBindTexture(GL_TEXTURE_2D, entity->texture());
+            entity->render();
         }
     }
     glEndList();
 
     // Make a list of flat-color stuff (A/C units, ledges, roofs, etc.)
-    if(!cell_list[x][y].list_flat) {
+    if (!cell_list[x][y].list_flat) {
         cell_list[x][y].list_flat = glGenLists(1);
     }
 
     glNewList(cell_list[x][y].list_flat, GL_COMPILE);
     glEnable(GL_CULL_FACE);
-    cell_list[x][y].pos = gl_vector3(GRID_TO_WORLD(x),
+    cell_list[x][y].pos = gl_vector3(x * GRID_RESOLUTION,
                                      0.0f,
-                                     (float)y * GRID_RESOLUTION);
+                                     y * GRID_RESOLUTION);
 
-    for(i = 0; i < num_entities; ++i) {
-        gl_vector3 pos = entity_list[i].object->center();
-        if((WORLD_TO_GRID(pos.get_x()) == x)
-           && (WORLD_TO_GRID(pos.get_z()) == y)
-           && !entity_list[i].object->alpha()) {
-            entity_list[i].object->render_flat(false);
+    for (std::shared_ptr<Entity> const &entity : entity_list) {
+        gl_vector3 pos = entity->center();
+        if (((pos.get_x() / GRID_RESOLUTION) == x)
+            && ((pos.get_z() / GRID_RESOLUTION) == y)
+            && !entity->alpha()) {
+            entity->render_flat(false);
         }
     }
     glEndList();
 
     // Now a list of flat-colored stuff that will be wireframe friendly
-    if(!cell_list[x][y].list_flat_wireframe) {
+    if (!cell_list[x][y].list_flat_wireframe) {
         cell_list[x][y].list_flat_wireframe = glGenLists(1);
     }
 
     glNewList(cell_list[x][y].list_flat_wireframe, GL_COMPILE);
     glEnable(GL_CULL_FACE);
-    cell_list[x][y].pos = gl_vector3(GRID_TO_WORLD(x),
+    cell_list[x][y].pos = gl_vector3(x * GRID_RESOLUTION,
                                      0.0f,
-                                     (float)y * GRID_RESOLUTION);
+                                     y * GRID_RESOLUTION);
 
-    for(i = 0; i < num_entities; ++i) {
-        gl_vector3 pos = entity_list[i].object->center();
-        if((WORLD_TO_GRID(pos.get_x()) == x)
-           && (WORLD_TO_GRID(pos.get_z()) == y)
-           && !entity_list[i].object->alpha()) {
-            entity_list[i].object->render_flat(true);
+    for (std::shared_ptr<Entity> const &entity : entity_list) {
+        gl_vector3 pos = entity->center();
+        if (((pos.get_x() / GRID_RESOLUTION) == x)
+            && ((pos.get_z() / GRID_RESOLUTION) == y)
+            && !entity->alpha()) {
+            entity->render_flat(true);
         }
     }
     glEndList();
 
     // Now a list of stuff to be alpha-blended, and thus rendered last
-    if(!cell_list[x][y].list_alpha) {
+    if (!cell_list[x][y].list_alpha) {
         cell_list[x][y].list_alpha = glGenLists(1);
     }
 
     glNewList(cell_list[x][y].list_alpha, GL_COMPILE);
-    cell_list[x][y].pos = gl_vector3(GRID_TO_WORLD(x),
+    cell_list[x][y].pos = gl_vector3(x * GRID_RESOLUTION,
                                      0.0f,
-                                     (float)y * GRID_RESOLUTION);
+                                     y * GRID_RESOLUTION);
     glDepthMask(false);
     glEnable(GL_BLEND);
     glDisable(GL_CULL_FACE);
-    for(i = 0; i < num_entities; ++i) {
-        gl_vector3 pos = entity_list[i].object->center();
-        if((WORLD_TO_GRID(pos.get_x()) == x)
-           && (WORLD_TO_GRID(pos.get_z()) == y)
-           && entity_list[i].object->alpha()) {
-            glBindTexture(GL_TEXTURE_2D, entity_list[i].object->texture());
-            entity_list[i].object->render();
+    for (std::shared_ptr<Entity> const &entity: entity_list) {
+        gl_vector3 pos = entity->center();
+        if (((pos.get_x() / GRID_RESOLUTION) == x)
+            && ((pos.get_z() / GRID_RESOLUTION) == y)
+            && entity->alpha()) {
+            glBindTexture(GL_TEXTURE_2D, entity->texture());
+            entity->render();
         }
     }
     glDepthMask(true);
@@ -190,10 +175,10 @@ static void do_compile()
 
     // Now walk the grid
     compile_x++;
-    if(compile_x == GRID_SIZE) {
+    if (compile_x == GRID_SIZE) {
         compile_x = 0;
         compile_y++;
-        if(compile_y == GRID_SIZE) {
+        if (compile_y == GRID_SIZE) {
             compiled = true;
         }
 
@@ -217,23 +202,17 @@ void entity_update()
 {
     unsigned int stop_time;
 
-    if(!TextureReady()) {
-        sorted = false;
+    if (!TextureReady()) {
         return;
-    }
-
-    if(!sorted) {
-        qsort(entity_list, num_entities, sizeof(struct entity), do_compare);
-        sorted = true;
     }
 
     // We want to do several cells at once. Enough to get things done, but
     // not so many that they program is unresponsive.
-    if(LOADING_SCREEN) {
+    if (LOADING_SCREEN) {
         // If we're using a loading screen, we want to build as
         // fast as possible
         stop_time = SDL_GetTicks() + 100;
-        while(!compiled && (SDL_GetTicks() < stop_time)) {
+        while (!compiled && (SDL_GetTicks() < stop_time)) {
             do_compile();
         }
     }
@@ -247,31 +226,28 @@ void entity_render()
 {
     int polymode[2];
     bool wireframe;
-    int x;
-    int y;
     int elapsed;
 
     // Draw all textured objects
     glGetIntegerv(GL_POLYGON_MODE, &polymode[0]);
     wireframe = (polymode[0] != GL_FILL);
-    if(RenderFlat()) {
+    if (RenderFlat()) {
         glDisable(GL_TEXTURE_2D);
     }
 
     // If we're not using a loading screen, make the wireframe fade out via fog
-    if(!LOADING_SCREEN && wireframe) {
+    if (!LOADING_SCREEN && wireframe) {
         elapsed = 6000 - WorldSceneElapsed();
-        if((elapsed >= 0) && (elapsed <= 6000)) {
+        if ((elapsed >= 0) && (elapsed <= 6000)) {
             RenderFogFX((float)elapsed / 6000.0f);
-        }
-        else {
+        } else {
             return;
         }
     }
 
-    for(x = 0; x < GRID_SIZE; ++x) {
-        for(y = 0; y < GRID_SIZE; ++y) {
-            if(Visible(x, y)) {
+    for (int x = 0; x < GRID_SIZE; ++x) {
+        for (int y = 0; y < GRID_SIZE; ++y) {
+            if (visible(x, y)) {
                 glCallList(cell_list[x][y].list_textured);
             }
         }
@@ -280,13 +256,12 @@ void entity_render()
     // Draw all flat colored objects
     glBindTexture(GL_TEXTURE_2D, 0);
     glColor3f(0, 0, 0);
-    for(x = 0; x < GRID_SIZE; ++x) {
-        for(y = 0; y < GRID_SIZE; ++y) {
-            if(Visible(x, y)) {
-                if(wireframe) {
+    for (int x = 0; x < GRID_SIZE; ++x) {
+        for (int y = 0; y < GRID_SIZE; ++y) {
+            if (visible(x, y)) {
+                if (wireframe) {
                     glCallList(cell_list[x][y].list_flat_wireframe);
-                }
-                else {
+                } else {
                     glCallList(cell_list[x][y].list_flat);
                 }
             }
@@ -297,9 +272,9 @@ void entity_render()
     glBindTexture(GL_TEXTURE_2D, 0);
     glColor3f(0, 0, 0);
     glEnable(GL_BLEND);
-    for(x = 0; x < GRID_SIZE; ++x) {
-        for(y = 0; y < GRID_SIZE; ++y) {
-            if(Visible(x, y)) {
+    for (int x = 0; x < GRID_SIZE; ++x) {
+        for (int y = 0; y < GRID_SIZE; ++y) {
+            if (visible(x, y)) {
                 glCallList(cell_list[x][y].list_alpha);
             }
         }
@@ -308,26 +283,13 @@ void entity_render()
 
 void entity_clear()
 {
-    for(int i = 0; i < num_entities; ++i) {
-        delete entity_list[i].object;
-    }
-
-    if(entity_list) {
-        free(entity_list);
-    }
-
-    entity_list = NULL;
-    num_entities = 0;
     compile_x = 0;
     compile_y = 0;
     compile_count = 0;
     compiled = false;
-    sorted = false;
 
-    int x;
-    int y;
-    for(x = 0; x < GRID_SIZE; ++x) {
-        for(y = 0; y < GRID_SIZE; ++y) {
+    for (int x = 0; x < GRID_SIZE; ++x) {
+        for (int y = 0; y < GRID_SIZE; ++y) {
             glNewList(cell_list[x][y].list_textured, GL_COMPILE);
             glEndList();
             glNewList(cell_list[x][y].list_alpha, GL_COMPILE);
@@ -342,67 +304,55 @@ void entity_clear()
 
 int entity_count()
 {
-    return num_entities;
+    return entity_list.size();
 }
 
-void EnitityInit(void)
+int entity_poly_count()
 {
-}
-
-int entity_poly_count(void)
-{
-    if(!sorted) {
-        return 0;
+    if (poly_count) {
+        return poly_count;
     }
 
-    if(polycount) {
-        return polycount;
+    for (std::shared_ptr<Entity> const &entity : entity_list) {
+        poly_count += entity->poly_count();
     }
 
-    for(int i = 0; i < num_entities; ++i) {
-        polycount += entity_list[i].object->poly_count();
-    }
-
-    return polycount;
+    return poly_count;
 }
 
-Entity::Entity(void)
+Entity::Entity()
 {
-    add(this);
+    add(std::shared_ptr<Entity>(this));
 }
 
-Entity::~Entity()
+void Entity::render() const
 {
 }
 
-void Entity::render(void)
+void Entity::render_flat(bool wireframe) const
 {
 }
 
-void Entity::render_flat(bool wireframe)
+void Entity::update()
 {
 }
 
-void Entity::update(void)
-{
-}
-
-gl_vector3 Entity::center()
+gl_vector3 Entity::center() const
 {
     return center_;
 }
 
-bool Entity::alpha()
+bool Entity::alpha() const
 {
     return false;
 }
 
-unsigned int Entity::texture()
+unsigned int Entity::texture() const
 {
     return -1;
 }
 
-int Entity::poly_count()
+int Entity::poly_count() const
 {
     return 0;
 }

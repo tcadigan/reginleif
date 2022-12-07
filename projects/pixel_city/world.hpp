@@ -10,13 +10,13 @@ usage_t WorldCell(int x, int y);
 gl_rgba WorldLightColor(unsigned index);
 int WorldLogoIndex();
 gl_bbox WorldHotZone();
-void WorldInit(void);
-float WorldFade(void);
+void WorldInit();
+float WorldFade();
 void WorldRender();
-void WorldReset(void);
+void WorldReset();
 int WorldSceneBegin();
 int WorldSceneElapsed();
-void WorldTerm(void);
-void WorldUpdate(void);
+void WorldTerm();
+void WorldUpdate();
 
 #endif /* WORLD_HPP_ */

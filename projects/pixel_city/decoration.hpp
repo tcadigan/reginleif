@@ -4,6 +4,7 @@
 #include "entity.hpp"
 
 #include <array>
+#include <memory>
 
 #include "gl-rgba.hpp"
 #include "gl-vector2.hpp"
@@ -13,37 +14,37 @@
 class Decoration : Entity {
 public:
     Decoration();
-    ~Decoration();
-    void CreateLogo(gl_vector2 start,
-                    gl_vector2 end,
-                    float base,
-                    int seed,
-                    gl_rgba color);
 
-    void CreateLightStrip(float x,
-                          float z,
-                          float width,
-                          float depth,
-                          float height,
-                          gl_rgba color);
+    void create_logo(gl_vector2 start,
+                     gl_vector2 end,
+                     float base,
+                     int seed,
+                     gl_rgba color);
 
-    void CreateLightTrim(std::array<gl_vector3, MAX_VBUFFER> &chain,
-                         int count,
-                         float height,
-                         int seed,
-                         gl_rgba color);
+    void create_light_strip(float x,
+                            float z,
+                            float width,
+                            float depth,
+                            float height,
+                            gl_rgba color);
 
-    void CreateRadioTower(gl_vector3 pos, float height);
-    void Render(void);
-    void RenderFlat(bool colored);
-    bool Alpha();
-    int PolyCount();
-    unsigned Texture();
+    void create_light_trim(std::array<gl_vector3, MAX_VBUFFER> &chain,
+                           int count,
+                           float height,
+                           int seed,
+                           gl_rgba color);
+
+    void create_radio_tower(gl_vector3 pos, float height);
+    void render() const override;
+    void render_flat(bool colored) const override;
+    bool alpha() const override;
+    int poly_count() const override;
+    unsigned int texture() const override;
 
 private:
     gl_rgba color_;
-    Mesh *mesh_;
-    unsigned texture_;
+    std::unique_ptr<Mesh> mesh_;
+    unsigned int texture_;
     bool use_alpha_;
 };
 

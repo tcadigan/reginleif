@@ -43,7 +43,7 @@ int Mesh::vertex_count()
     return vertex_.size();
 }
 
-int Mesh::poly_count()
+int Mesh::poly_count() const
 {
     return poly_count_;
 }
@@ -66,7 +66,7 @@ void Mesh::fan_add(Fan const &fan)
     poly_count_ += (fan.index_list.size() - 2);
 }
 
-void Mesh::render()
+void Mesh::render() const
 {
     if (compiled_) {
         glCallList(list_);

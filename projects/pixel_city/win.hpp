@@ -52,7 +52,7 @@ usage_t operator|(usage_t left, usage_t right);
 // Used in orienting roads and cars
 enum class direction_t { north, east, south, west };
 
-void win_term(void);
+void win_term();
 
 extern SDL_Window *window;
 

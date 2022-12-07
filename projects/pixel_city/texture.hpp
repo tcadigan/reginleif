@@ -40,11 +40,11 @@ enum {
 
 unsigned int TextureFromName(char *name);
 unsigned int TextureId(int id);
-void TextureInit(void);
-void TextureTerm(void);
+void TextureInit();
+void TextureTerm();
 unsigned int TextureRandomBuilding(int index);
 bool TextureReady();
-void TextureReset(void);
-void TextureUpdate(void);
+void TextureReset();
+void TextureUpdate();
 
 #endif /* TEXTURE_HPP_ */

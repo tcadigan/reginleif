@@ -46,12 +46,12 @@ void app_update()
     entity_update();
     WorldUpdate();
     TextureUpdate();
-    VisibleUpdate();
+    visible_update();
     car_update();
     RenderUpdate();
 }
 
-void app_init(void)
+void app_init()
 {
     SDL_Init(SDL_INIT_VIDEO);
 

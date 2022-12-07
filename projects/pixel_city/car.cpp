@@ -132,7 +132,7 @@ bool Car::test_position(int row, int col)
     return true;
 }
 
-void Car::update(void)
+void Car::update()
 {
     gl_vector3 old_pos;
 
@@ -153,7 +153,7 @@ void Car::update(void)
             return;
         }
 
-        if (!Visible(gl_vector3(row_, 0.0f, col_))) {
+        if (!visible(gl_vector3(row_, 0.0f, col_))) {
             return;
         }
 
@@ -208,7 +208,7 @@ void Car::update(void)
     }
 
     // If the car has moved out of view, there's no need to keep simulating it
-    if (!Visible(gl_vector3(row_, 0.0f, col_))) {
+    if (!visible(gl_vector3(row_, 0.0f, col_))) {
         ready_ = false;
     }
 
@@ -281,7 +281,7 @@ void Car::render()
         return;
     }
 
-    if (!Visible(drive_position_)) {
+    if (!visible(drive_position_)) {
         return;
     }
 

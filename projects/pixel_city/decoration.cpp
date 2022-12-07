@@ -22,56 +22,49 @@
 #include "visible.hpp"
 #include "world.hpp"
 
-#define LOGO_OFFSET 0.2f // How far a logo sticks out from the given surface
-
-Decoration::~Decoration()
-{
-    delete mesh_;
-}
+static float const LOGO_OFFSET = 0.2f; // How far a logo sticks out from the given surface
 
 Decoration::Decoration()
 {
-    mesh_ = new Mesh();
+    mesh_ = std::make_unique<Mesh>(Mesh());
     use_alpha_ = false;
 }
 
-void Decoration::Render()
+void Decoration::render() const
 {
     glColor3fv(color_.get_rgb().data());
     mesh_->render();
 }
 
-void Decoration::RenderFlat(bool colored)
+void Decoration::render_flat(bool colored) const
 {
 }
 
-bool Decoration::Alpha()
+bool Decoration::alpha() const
 {
     return use_alpha_;
 }
 
-int Decoration::PolyCount()
+int Decoration::poly_count() const
 {
     return mesh_->poly_count();
 }
 
-unsigned Decoration::Texture()
+unsigned Decoration::texture() const
 {
     return texture_;
 }
 
-void Decoration::CreateRadioTower(gl_vector3 pos, float height)
+void Decoration::create_radio_tower(gl_vector3 pos, float height)
 {
-    Light *l;
-    float offset;
     gl_vertex v;
     Fan fan;
 
-    for(int i = 0; i < 6; ++i) {
+    for (int i = 0; i < 6; ++i) {
         fan.index_list.push_back(i);
     }
 
-    offset = height / 15.0f;
+    float offset = height / 15.0f;
     center_ = pos;
     use_alpha_ = true;
 
@@ -120,17 +113,18 @@ void Decoration::CreateRadioTower(gl_vector3 pos, float height)
 
     mesh_->fan_add(fan);
 
-    l = new Light(gl_vector3(center_.get_x(),
-                             center_.get_y() + height + 1.0f,
-                             center_.get_z()),
-                  gl_rgba(255, 192, 160),
-                  1);
-    l->Blink();
+    std::shared_ptr<Light> light =
+        std::make_shared<Light>(Light(gl_vector3(center_.get_x(),
+                                                 center_.get_y() + height + 1.0f,
+                                                 center_.get_z()),
+                                      gl_rgba(255, 192, 160),
+                                      1));
+    light->Blink();
 
     texture_ = TextureId(TEXTURE_LATTICE);
 }
 
-void Decoration::CreateLogo(gl_vector2 start,
+void Decoration::create_logo(gl_vector2 start,
                             gl_vector2 end,
                             float bottom,
                             int seed,
@@ -138,17 +132,6 @@ void Decoration::CreateLogo(gl_vector2 start,
 {
     gl_vertex p;
     QuadStrip qs;
-    float u1;
-    float u2;
-    float v1;
-    float v2;
-    float top;
-    float height;
-    float length;
-    gl_vector2 center2d;
-    gl_vector3 to;
-    gl_vector3 out;
-    int logo_index;
 
     qs.index_list.push_back(0);
     qs.index_list.push_back(1);
@@ -157,25 +140,25 @@ void Decoration::CreateLogo(gl_vector2 start,
 
     use_alpha_ = true;
     color_ = color;
-    logo_index = seed % LOGO_ROWS;
+    int logo_index = seed % LOGO_ROWS;
 
-    to = gl_vector3(start.get_x(), 0.0f, start.get_y())
+    gl_vector3 to = gl_vector3(start.get_x(), 0.0f, start.get_y())
         - gl_vector3(end.get_x(), 0.0f, end.get_y());
 
     to.normalize();
 
-    out = cross_product(gl_vector3(0.0f, 1.0f, 0.0f), to) * LOGO_OFFSET;
+    gl_vector3 out = cross_product(gl_vector3(0.0f, 1.0f, 0.0f), to) * LOGO_OFFSET;
 
-    center2d = (start + end) / 2;
+    gl_vector2 center2d = (start + end) / 2;
     center_ = gl_vector3(center2d.get_x(), bottom, center2d.get_y());
     gl_vector2 temp = start - end;
-    length= temp.length();
-    height = (length / 8.0f) * 1.5f;
-    top = bottom + height;
-    u1 = 0.0f;
-    u2 = 0.5f; // We actually only use the left half of the texture
-    v1 = (float)logo_index / LOGO_ROWS;
-    v2 = v1 + (1.0f / LOGO_ROWS);
+    float length = temp.length();
+    float height = (length / 8.0f) * 1.5f;
+    float top = bottom + height;
+    float u1 = 0.0f;
+    float u2 = 0.5f; // We actually only use the left half of the texture
+    float v1 = (float)logo_index / LOGO_ROWS;
+    float v2 = v1 + (1.0f / LOGO_ROWS);
 
     p.set_position(gl_vector3(start.get_x(), bottom, start.get_y()) + out);
     p.set_uv(gl_vector2(u1, v1));
@@ -198,12 +181,12 @@ void Decoration::CreateLogo(gl_vector2 start,
     texture_ = TextureId(TEXTURE_LOGOS);
 }
 
-void Decoration::CreateLightStrip(float x,
-                                  float z,
-                                  float width,
-                                  float depth,
-                                  float height,
-                                  gl_rgba color)
+void Decoration::create_light_strip(float x,
+                                    float z,
+                                    float width,
+                                    float depth,
+                                    float height,
+                                    gl_rgba color)
 {
     gl_vertex p;
     QuadStrip qs1;
@@ -218,13 +201,12 @@ void Decoration::CreateLightStrip(float x,
     color_ = color;
     use_alpha_ = true;
     center_ = gl_vector3(x + (width / 2), height, z + (depth / 2));
-    if(width > depth) {
+    if (width > depth) {
         u = 1.0f;
-        v = (float)((int)(depth / width));
-    }
-    else {
+        v = std::floor(depth / width);
+    } else {
         v = 1.0f;
-        u = (float)((int)(width / depth));
+        u = std::floor(width / depth);
     }
 
     texture_ = TextureId(TEXTURE_LIGHT);
@@ -250,49 +232,43 @@ void Decoration::CreateLightStrip(float x,
     mesh_->compile();
 }
 
-void Decoration::CreateLightTrim(std::array<gl_vector3, MAX_VBUFFER> &chain,
-                                 int count,
-                                 float height,
-                                 int seed,
-                                 gl_rgba color)
+void Decoration::create_light_trim(std::array<gl_vector3, MAX_VBUFFER> &chain,
+                                   int count,
+                                   float height,
+                                   int seed,
+                                   gl_rgba color)
 {
     gl_vertex p;
     gl_vector3 to;
     gl_vector3 out;
-    int i;
-    int index;
     int prev;
     int next;
-    float u;
-    float v1;
-    float v2;
-    float row;
     QuadStrip qs;
 
     color_ = color;
     center_ = gl_vector3(0.0f, 0.0f, 0.0f);
     qs.index_list.reserve((count * 2) + 2);
 
-    for(i = 0; i < count; ++i) {
+    for (int i = 0; i < count; ++i) {
         center_ = center_ + chain.at(i);
     }
 
     center_ /= (float)count;
-    row = (float)(seed % TRIM_ROWS);
-    v1 = row * TRIM_SIZE;
-    v2 = (row + 1.0f) * TRIM_SIZE;
-    index = 0;
-    u = 0.0f;
+    float row = (float)(seed % TRIM_ROWS);
+    float v1 = row * TRIM_SIZE;
+    float v2 = (row + 1.0f) * TRIM_SIZE;
+    int index = 0;
+    float u = 0.0f;
 
-    for(i = 0; i < (count + 1); ++i) {
-        if(i) {
+    for (int i = 0; i < (count + 1); ++i) {
+        if (i) {
             gl_vector3 temp = chain.at(i % count) - p.get_position();
             u += (temp.length() * 0.1f);
         }
 
         // Add the bottom point
         prev = i - 1;
-        if(prev < 0) {
+        if (prev < 0) {
             prev = count + prev;
         }
 

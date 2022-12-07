@@ -23,10 +23,10 @@ public:
              int width, int depth, int seed, gl_rgba color);
     ~Building();
 
-    void render() override ;
-    int poly_count() override;
-    void render_flat(bool wireframe) override;
-    unsigned int texture() override;
+    void render() const override;
+    int poly_count() const override;
+    void render_flat(bool wireframe) const override;
+    unsigned int texture() const override;
 
 private:
     int x_;

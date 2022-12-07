@@ -2,15 +2,14 @@
 #define VISIBLE_HPP_
 
 #include "gl-vector3.hpp"
+#include "win.hpp"
 
-#define GRID_RESOLUTION 32
-#define GRID_CELL (GRID_RESOLUTION / 2)
-#define GRID_SIZE (WORLD_SIZE / GRID_RESOLUTION)
-#define WORLD_TO_GRID(x) (int)(x / GRID_RESOLUTION)
-#define GRID_TO_WORLD(x) ((float)x * GRID_RESOLUTION)
+static int const GRID_RESOLUTION = 32;
+static int constexpr GRID_CELL = GRID_RESOLUTION / 2;
+static int constexpr GRID_SIZE = WORLD_SIZE / GRID_RESOLUTION;
 
-void VisibleUpdate(void);
-bool Visible(gl_vector3 pos);
-bool Visible(int x, int z);
+void visible_update();
+bool visible(gl_vector3 pos);
+bool visible(int x, int z);
 
 #endif /* VISIBLE_HPP_ */

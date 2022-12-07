@@ -876,7 +876,7 @@ unsigned int TextureRandomBuilding(int index)
     return TextureId(TEXTURE_BUILDING1 + index);
 }
 
-void TextureReset(void)
+void TextureReset()
 {
     textures_done = false;
     build_time = 0;
@@ -894,7 +894,7 @@ bool TextureReady()
     return textures_done;
 }
 
-void TextureUpdate(void)
+void TextureUpdate()
 {
     if(textures_done) {
         if(!RenderBloom()) {
@@ -922,7 +922,7 @@ void TextureUpdate(void)
     textures_done = true;
 }
 
-void TextureTerm(void)
+void TextureTerm()
 {
     CTexture *t;
 
@@ -933,7 +933,7 @@ void TextureTerm(void)
     }
 }
 
-void TextureInit(void)
+void TextureInit()
 {
     new CTexture(TEXTURE_SKY, 512, true, false, false);
     new CTexture(TEXTURE_LATTICE, 128, true, true, true);
