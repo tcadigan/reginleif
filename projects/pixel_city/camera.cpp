@@ -46,6 +46,11 @@ static int constexpr FLYCAM_CIRCUIT_HALF = FLYCAM_CIRCUIT / 2;
 static int constexpr FLYCAM_LEG = FLYCAM_CIRCUIT / 4;
 static int const ONE_SECOND = 1000;
 
+static std::string const camera_section_ini("CAMERA");
+static std::string const camera_angle_ini("camera angle");
+static std::string const camera_position_ini("camera position");
+
+
 static gl_vector3 angle;
 static gl_vector3 position;
 static gl_vector3 auto_angle;
@@ -307,11 +312,8 @@ void camera_angle_set(gl_vector3 new_angle)
 
 void camera_init()
 {
-    std::string camera_angle("CameraAngle");
-    std::string camera_position("CameraPosition");
-
-    angle = ini_vector(const_cast<char *>(camera_angle.c_str()));
-    position = ini_vector(const_cast<char *>(camera_position.c_str()));
+    angle = ini_vector(camera_section_ini, camera_angle_ini);
+    position = ini_vector(camera_section_ini, camera_position_ini);
 }
 
 void camera_update()
@@ -339,10 +341,7 @@ void camera_update()
 
 void camera_term()
 {
-    std::string camera_angle("CameraAngle");
-    std::string camera_position("CameraPosition");
-
     // Just store our most recent position in the ini
-    ini_vector_set(const_cast<char *>(camera_angle.c_str()), angle);
-    ini_vector_set(const_cast<char *>(camera_position.c_str()), position);
+    ini_vector_set(camera_section_ini, camera_angle_ini, angle);
+    ini_vector_set(camera_section_ini, camera_position_ini, position);
 }

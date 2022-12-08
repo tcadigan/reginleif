@@ -59,6 +59,7 @@ void app_init()
 
     window = SDL_CreateWindow(APP_TITLE.c_str(), 0, 0, width, height, window_flags);
 
+    load_ini();
     random_init(time(NULL));
     camera_init();
     RenderInit();
@@ -83,6 +84,7 @@ void app_term(SDL_Window *window)
     RenderTerm();
     camera_term();
     win_term(window);
+    write_ini();
     SDL_Quit();
 }
 

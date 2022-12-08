@@ -25,7 +25,7 @@ public:
     void set_y(float y);
     void set_z(float z);
 
-    std::array<float, 3> get_data();
+    std::array<float, 3> get_data() const;
     float get_x() const;
     float get_y() const;
     float get_z() const;

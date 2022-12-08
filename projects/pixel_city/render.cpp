@@ -69,6 +69,15 @@ enum {
     EFFECT_GLASS_CITY,
 };
 
+static std::string const render_section_ini("RENDER");
+static std::string const set_defaults_ini("set defaults");
+static std::string const effect_ini("effect");
+static std::string const show_fog_ini("show fog");
+static std::string const letterbox_ini("letterbox");
+static std::string const wireframe_ini("wireframe");
+static std::string const show_fps_ini("show fps");
+static std::string const flat_ini("flat");
+
 static float render_aspect;
 static float fog_distance;
 static int render_width;
@@ -543,19 +552,19 @@ void RenderTerm()
 void RenderInit()
 {
     // If the program is running for the first time, set the defaults.
-    if(!ini_int("SetDefaults")) {
-        ini_int_set("SetDefaults", 1);
-        ini_int_set("Effect", EFFECT_BLOOM);
-        ini_int_set("ShowFog", 1);
+    if (!ini_int(render_section_ini, set_defaults_ini)) {
+        ini_int_set(render_section_ini, set_defaults_ini, 1);
+        ini_int_set(render_section_ini, effect_ini, EFFECT_BLOOM);
+        ini_int_set(render_section_ini, show_fog_ini, 1);
     }
 
     // Load in our settings
-    letterbox = (ini_int("Letterbox") != 0);
-    show_wireframe = (ini_int("Wireframe") != 0);
-    show_fps = (ini_int("ShowFPS") != 0);
-    show_fog = (ini_int("ShowFog") != 0);
-    effect = ini_int("Effect");
-    flat = (ini_int("Flat") != 0);
+    letterbox = (ini_int(render_section_ini, letterbox_ini) != 0);
+    show_wireframe = (ini_int(render_section_ini, wireframe_ini) != 0);
+    show_fps = (ini_int(render_section_ini, show_fps_ini) != 0);
+    show_fog = (ini_int(render_section_ini, show_fog_ini) != 0);
+    effect = ini_int(render_section_ini, effect_ini);
+    flat = (ini_int(render_section_ini, flat_ini) != 0);
     fog_distance = WORLD_HALF;
 
     // Clear the viewport so the user isn't looking at trash
@@ -573,7 +582,7 @@ void RenderInit()
 void RenderFPSToggle()
 {
     show_fps = !show_fps;
-    ini_int_set("ShowFPS", show_fps ? 1 : 0);
+    ini_int_set(render_section_ini, show_fps_ini, show_fps ? 1 : 0);
 }
 
 
@@ -585,20 +594,20 @@ bool RenderFog()
 void RenderFogToggle()
 {
     show_fog = !show_fog;
-    ini_int_set("ShowFog", show_fog ? 1 : 0);
+    ini_int_set(render_section_ini, show_fog_ini, show_fog ? 1 : 0);
 }
 
 void RenderLetterBoxToggle()
 {
     letterbox = !letterbox;
-    ini_int_set("Letterbox", letterbox ? 1: 0);
+    ini_int_set(render_section_ini, letterbox_ini, letterbox ? 1: 0);
     RenderResize();
 }
 
 void RenderWireframeToggle()
 {
     show_wireframe = !show_wireframe;
-    ini_int_set("Wireframe" , show_wireframe ? 1 : 0);
+    ini_int_set(render_section_ini, wireframe_ini, show_wireframe ? 1 : 0);
 }
 
 bool RenderWireframe()
@@ -609,7 +618,7 @@ bool RenderWireframe()
 void RenderEffectCycle()
 {
     effect = (effect + 1) % EFFECT_COUNT;
-    ini_int_set("Effect", effect);
+    ini_int_set(render_section_ini, effect_ini, effect);
 }
 
 bool RenderBloom()
@@ -628,7 +637,7 @@ bool RenderFlat()
 void RenderFlatToggle()
 {
     flat = !flat;
-    ini_int_set("Flat", flat ? 1 : 0);
+    ini_int_set(render_section_ini, flat_ini, flat ? 1 : 0);
 }
 
 void RenderHelpToggle()

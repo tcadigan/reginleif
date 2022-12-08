@@ -100,7 +100,7 @@ void gl_vector3::set_z(float z)
     data_[2] = z;
 }
 
-std::array<float, 3>gl_vector3::get_data()
+std::array<float, 3>gl_vector3::get_data() const
 {
     return data_;
 }
