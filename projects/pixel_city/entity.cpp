@@ -20,6 +20,7 @@
 #include <cstdlib>
 
 #include "camera.hpp"
+#include "cell.hpp"
 #include "math.hpp"
 #include "render.hpp"
 #include "texture.hpp"
@@ -27,18 +28,10 @@
 #include "win.hpp"
 #include "world.hpp"
 
-struct cell {
-    unsigned int list_textured;
-    unsigned int list_flat;
-    unsigned int list_flat_wireframe;
-    unsigned int list_alpha;
-    gl_vector3 pos;
-};
-
 // Changing texture is pretty expensive, and thus sorting the entities
 // so that they are grouped by texture used can really improve
 // framerate.
-bool EntityCompare::operator()(std::shared_ptr<Entity> const &lhs, std::shared_ptr<Entity> const &rhs) const
+auto entity_compare = [](std::shared_ptr<Entity> lhs, std::shared_ptr<Entity> rhs)
 {
     if (lhs->alpha() && !rhs->alpha()) {
         return 1;
@@ -57,10 +50,10 @@ bool EntityCompare::operator()(std::shared_ptr<Entity> const &lhs, std::shared_p
     }
 
     return 0;
-}
+};
 
-static cell cell_list[GRID_SIZE][GRID_SIZE];
-static std::set<std::shared_ptr<Entity>, EntityCompare> entity_list;
+static Cell cell_list[GRID_SIZE][GRID_SIZE];
+static std::set<std::shared_ptr<Entity>, decltype(entity_compare)> entity_list(entity_compare);
 static bool compiled;
 static int poly_count;
 static int compile_x;

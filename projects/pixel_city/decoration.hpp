@@ -11,7 +11,7 @@
 #include "gl-vector3.hpp"
 #include "mesh.hpp"
 
-class Decoration : Entity {
+class Decoration : public Entity {
 public:
     Decoration();
 

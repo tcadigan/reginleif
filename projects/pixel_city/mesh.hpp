@@ -1,24 +1,12 @@
 #ifndef MESH_HPP_
 #define MESH_HPP_
 
+#include "cube.hpp"
+#include "fan.hpp"
+#include "quad-strip.hpp"
 #include "gl-vertex.hpp"
 
 #include <vector>
-
-class Cube {
-public:
-    std::vector<int> index_list; // Probably always size() == 10...
-};
-
-class QuadStrip {
-public:
-    std::vector<int> index_list;
-};
-
-class Fan {
-public:
-    std::vector<int> index_list;
-};
 
 class Mesh {
 public:
@@ -34,6 +22,7 @@ public:
     void render() const;
     void compile();
 
+private:
     unsigned int list_;
     int poly_count_;
     std::vector<gl_vertex> vertex_;

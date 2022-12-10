@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 
 #include <string>
+#include <memory>
 
 // Versioning info
 static std::string const APP_TITLE("PixelCity");

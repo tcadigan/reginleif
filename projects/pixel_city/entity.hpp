@@ -31,11 +31,6 @@ protected:
     int poly_count_;
 };
 
-class EntityCompare {
-public:
-    bool operator()(std::shared_ptr<Entity> const &lhs, std::shared_ptr<Entity> const &rhs) const;
-};
-
 void entity_clear();
 int entity_count();
 float entity_progress();

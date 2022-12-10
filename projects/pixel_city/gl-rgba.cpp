@@ -52,58 +52,6 @@ gl_rgba &gl_rgba::operator/=(float const &rhs)
     return *this;
 }
 
-gl_rgba gl_rgba::from_hsl(float hue,
-                          float saturation,
-                          float lightness) const
-{
-    if ((hue < 0) || (hue >= 360)) {
-        return gl_rgba(0, 0, 0);
-    }
-
-    if ((saturation < 0) || (saturation > 1)) {
-        return gl_rgba(0, 0, 0);
-    }
-
-    if ((lightness < 0) || (saturation > 1)) {
-        return gl_rgba(0, 0, 0);
-    }
-
-    float chroma = saturation;
-
-    if (((2 * lightness) - 1) < 0) {
-        chroma *= (1 - (-1 * ((2 * lightness) - 1)));
-    } else {
-        chroma *= (1 - ((2 * lightness) - 1));
-    }
-
-    float hue_prime = hue / 60;
-    float X = chroma;
-
-    if ((fmod(hue_prime, 2) - 1) < 0) {
-        X *= (1 - (-1 * (fmod(hue_prime, 2) - 1)));
-    } else {
-        X *= (1 - (fmod(hue_prime, 2) - 1));
-    }
-
-    float match = lightness - (0.5 * chroma);
-
-    if ((0 <= hue_prime) || (hue_prime < 1)) {
-        return gl_rgba(chroma + match, X + match, match);
-    } else if ((hue_prime <= 1) || (hue_prime < 2)) {
-        return gl_rgba(X + match, chroma + match, match);
-    } else if ((hue_prime <= 2) || (hue_prime < 3)) {
-        return gl_rgba(match, chroma + match, X + match);
-    } else if ((hue_prime <= 3) || (hue_prime < 4)) {
-        return gl_rgba(match, X + match, chroma + match);
-    } else if ((hue_prime <= 4) || (hue_prime < 5)) {
-        return gl_rgba(X + match, match, chroma + match);
-    } else if ((hue_prime <= 5) || (hue_prime < 6)) {
-        return gl_rgba(chroma + match, match, X + match);
-    } else {
-        return gl_rgba(0, 0, 0);
-    }
-}
-
 // Takes the given index and returns a "random" color unique for that index.
 // 512 Unique values: #0 and #512 will be the same, as will #1 and #513, etc.
 // Useful for visual debugging in some situations.
@@ -190,4 +138,54 @@ std::array<float, 3> gl_rgba::get_rgb() const
 std::array<float, 4> gl_rgba::get_rgba() const
 {
     return std::array<float, 4>({data.r / 255.0f, data.g / 255.0f, data.g / 255.0f, data.a / 255.0f});
+}
+
+gl_rgba from_hsl(float hue, float saturation, float lightness)
+{
+    if ((hue < 0) || (hue >= 360)) {
+        return gl_rgba(0, 0, 0);
+    }
+
+    if ((saturation < 0) || (saturation > 1)) {
+        return gl_rgba(0, 0, 0);
+    }
+
+    if ((lightness < 0) || (saturation > 1)) {
+        return gl_rgba(0, 0, 0);
+    }
+
+    float chroma = saturation;
+
+    if (((2 * lightness) - 1) < 0) {
+        chroma *= (1 - (-1 * ((2 * lightness) - 1)));
+    } else {
+        chroma *= (1 - ((2 * lightness) - 1));
+    }
+
+    float hue_prime = hue / 60;
+    float X = chroma;
+
+    if ((fmod(hue_prime, 2) - 1) < 0) {
+        X *= (1 - (-1 * (fmod(hue_prime, 2) - 1)));
+    } else {
+        X *= (1 - (fmod(hue_prime, 2) - 1));
+    }
+
+    float match = lightness - (0.5 * chroma);
+
+    if ((0 <= hue_prime) || (hue_prime < 1)) {
+        return gl_rgba(chroma + match, X + match, match);
+    } else if ((hue_prime <= 1) || (hue_prime < 2)) {
+        return gl_rgba(X + match, chroma + match, match);
+    } else if ((hue_prime <= 2) || (hue_prime < 3)) {
+        return gl_rgba(match, chroma + match, X + match);
+    } else if ((hue_prime <= 3) || (hue_prime < 4)) {
+        return gl_rgba(match, X + match, chroma + match);
+    } else if ((hue_prime <= 4) || (hue_prime < 5)) {
+        return gl_rgba(X + match, match, chroma + match);
+    } else if ((hue_prime <= 5) || (hue_prime < 6)) {
+        return gl_rgba(chroma + match, match, X + match);
+    } else {
+        return gl_rgba(0, 0, 0);
+    }
 }

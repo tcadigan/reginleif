@@ -10,9 +10,9 @@ BEAR = bear --append --
 .endif
 
 SRCS = building.cpp camera.cpp car.cpp decoration.cpp entity.cpp gl-bbox.cpp \
-       gl-rgba.cpp gl-vector2.cpp gl-vector3.cpp gl-vertex.cpp ini.cpp \
-       light.cpp math.cpp mesh.cpp random.cpp render.cpp sky.cpp texture.cpp \
-       visible.cpp win.cpp world.cpp
+       gl-font.cpp gl-rgba.cpp gl-vector2.cpp gl-vector3.cpp gl-vertex.cpp \
+       hsl.cpp ini.cpp light.cpp math.cpp mesh.cpp random.cpp render.cpp \
+       sky.cpp texture.cpp visible.cpp win.cpp world.cpp
 
 OBJS = ${SRCS:.cpp=.o}
 

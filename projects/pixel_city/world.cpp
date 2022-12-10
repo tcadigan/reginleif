@@ -24,9 +24,11 @@
 #include "camera.hpp"
 #include "car.hpp"
 #include "decoration.hpp"
+#include "hsl.hpp"
 #include "light.hpp"
 #include "math.hpp"
 #include "mesh.hpp"
+#include "plot.hpp"
 #include "random.hpp"
 #include "render.hpp"
 #include "sky.hpp"
@@ -35,16 +37,6 @@
 #include "win.hpp"
 #include "world.hpp"
 
-#define LIGHT_COLOR_COUNT (sizeof(light_colors) / sizeof(HSL))
-
-class Plot {
-public:
-    int x;
-    int z;
-    int width;
-    int depth;
-};
-
 enum class fade_t {
     idle,
     out,
@@ -52,49 +44,21 @@ enum class fade_t {
     in
 };
 
-class HSL {
-public:
-    HSL(float hue, float sat, float lum);
-
-    float hue;
-    float sat;
-    float lum;
-};
-
-HSL::HSL(float hue, float sat, float lum)
-    : hue(hue)
-    , sat(sat)
-    , lum(lum)
-{}
-
-class Street {
-public:
-    int _x;
-    int _y;
-    int _width;
-    int _depth;
-    int _mesh;
-
-    Street(int x, int y, int width, int depth);
-    ~Street();
-    void render();
-};
-
 static std::array<HSL, 14> light_colors = {
-    HSL{0.04f, 0.9f, 0.93f}, // Amber/pink
-    HSL{0.055f, 0.95f, 0.93f}, // Slightly brighter amber
-    HSL{0.08f, 0.7f, 0.93f}, // Very pale amber
-    HSL{0.07f, 0.9f, 0.93f}, // Very pale orange
-    HSL{0.1f, 0.9f, 0.85f},  // Peach
-    HSL{0.13f, 0.9f, 0.93f}, // Pale yellow
-    HSL{0.15f, 0.9f, 0.93f}, // Yellow
-    HSL{0.17f, 1.0f, 0.85f}, // Saturated yellow
-    HSL{0.55f, 0.9f, 0.93f}, // Cyan
-    HSL{0.6f, 0.9f, 0.93f}, // Pale Blue
-    HSL{0.65f, 0.9f, 0.93f}, // Pale blue II, the palening
-    HSL{0.65f, 0.4f, 0.99f}, // Pure white. bo-ring.
-    HSL{0.65f, 0.0f, 0.8f}, // Dimmer white
-    HSL{0.65, 0.0f, 0.6f}, // Dimmest white
+    HSL(0.04f, 0.9f, 0.93f), // Amber/pink
+    HSL(0.055f, 0.95f, 0.93f), // Slightly brighter amber
+    HSL(0.08f, 0.7f, 0.93f), // Very pale amber
+    HSL(0.07f, 0.9f, 0.93f), // Very pale orange
+    HSL(0.1f, 0.9f, 0.85f),  // Peach
+    HSL(0.13f, 0.9f, 0.93f), // Pale yellow
+    HSL(0.15f, 0.9f, 0.93f), // Yellow
+    HSL(0.17f, 1.0f, 0.85f), // Saturated yellow
+    HSL(0.55f, 0.9f, 0.93f), // Cyan
+    HSL(0.6f, 0.9f, 0.93f), // Pale Blue
+    HSL(0.65f, 0.9f, 0.93f), // Pale blue II, the palening
+    HSL(0.65f, 0.4f, 0.99f), // Pure white. bo-ring.
+    HSL(0.65f, 0.0f, 0.8f), // Dimmer white
+    HSL(0.65, 0.0f, 0.6f), // Dimmest white
 };
 
 static gl_rgba bloom_color;
@@ -116,9 +80,7 @@ static int scene_begin;
 
 static gl_rgba get_light_color(float sat, float lum)
 {
-    int index = random_val(LIGHT_COLOR_COUNT);
-    gl_rgba temp;
-    return temp.from_hsl(light_colors[index].hue, sat, lum);
+    return from_hsl(light_colors[random_val(light_colors.size())].hue, sat, lum);
 }
 
 static void claim(int x, int y, int width, int depth, usage_t val)
@@ -362,8 +324,7 @@ static int build_light_strip(int x1, int z1, direction_t direction)
 
     // We adjust the size of the lights with this.
     float size_adjust = 2.5f;
-    gl_rgba temp;
-    color = temp.from_hsl(0.09f, 0.99f, 0.85f);
+    color = from_hsl(0.09f, 0.99f, 0.85f);
 
     switch(direction) {
     case direction_t::north:
@@ -473,8 +434,6 @@ static void do_reset()
 
     // Pink a tint for the bloom
     bloom_color = get_light_color(0.5f + ((float)random_val(10) / 20.0f), 0.75f);
-    gl_rgba temp;
-    // gl_rgba light_color = temp.from_hsl(0.11f, 1.0f, 0.65f);
     for (std::array<usage_t, WORLD_SIZE> &row : world) {
         row.fill(static_cast<usage_t>(0));
     }
@@ -694,11 +653,11 @@ static void do_reset()
 // from a narrow group of hues. (Yellows, oranges, blues.)
 gl_rgba world_light_color(unsigned int index)
 {
-    index %= LIGHT_COLOR_COUNT;
-    gl_rgba temp;
-    return temp.from_hsl(light_colors[index].hue,
-                         light_colors[index].sat,
-                         light_colors[index].lum);
+    index %= light_colors.size();
+
+    return from_hsl(light_colors[index].hue,
+                    light_colors[index].sat,
+                    light_colors[index].lum);
 }
 
 usage_t world_cell(int x, int y)

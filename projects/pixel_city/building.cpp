@@ -826,9 +826,9 @@ void Building::create_modern()
                               end,
                               height_,
                               world_logo_index(),
-                              random_color.from_hsl(random_val(255) / 255.0f,
-                                                    1.0f,
-                                                    1.0f));
+                              from_hsl(random_val(255) / 255.0f,
+                                       1.0f,
+                                       1.0f));
             }
         } else if (skip_counter != 1) {
             windows++;
@@ -863,9 +863,9 @@ void Building::create_modern()
                            (points / 2) - 2,
                            cap_height / 2.0f,
                            seed_,
-                           random_color.from_hsl(random_val(255) / 255.0f,
-                                                 1.0f,
-                                                 1.0f));
+                           from_hsl(random_val(255) / 255.0f,
+                                    1.0f,
+                                    1.0f));
     }
 
     qs.index_list.reserve(points);

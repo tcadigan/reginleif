@@ -16,7 +16,6 @@ public:
     gl_rgba &operator*=(float const &rhs);
     gl_rgba &operator/=(float const &rhs);
 
-    gl_rgba from_hsl(float hue, float saturation, float lightness) const;
     gl_rgba unique(int index) const;
 
     void set_alpha(int alpha);
@@ -27,6 +26,8 @@ public:
 private:
     SDL_Color data;
 };
+
+gl_rgba from_hsl(float hue, float saturation, float lightness);
 
 inline gl_rgba operator+(gl_rgba lhs, gl_rgba const &rhs)
 {

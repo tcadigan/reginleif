@@ -205,8 +205,7 @@ void drawrect(int left, int top, int right, int bottom, gl_rgba color)
                         + (random_val(100) / 300.0f)
                         + (random_val(100) / 300.0f);
 
-                    gl_rgba temp;
-                    gl_rgba color_noise = temp.from_hsl(hue, 0.3f, 0.5f);
+                    gl_rgba color_noise = from_hsl(hue, 0.3f, 0.5f);
                     color_noise.set_alpha((random_val(potential) / 144.0f) * 255);
                     glColor4f(random_val(256) / 256.0f,
                               random_val(256) / 256.0f,

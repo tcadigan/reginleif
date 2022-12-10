@@ -23,6 +23,7 @@
 #include "camera.hpp"
 #include "car.hpp"
 #include "entity.hpp"
+#include "gl-font.hpp"
 #include "ini.hpp"
 #include "light.hpp"
 #include "math.hpp"
@@ -48,11 +49,6 @@ std::array<std::string, 9> help = {"ESC - Exit!",
     "E   - Change full-scene effects",
     "T   - Toggle Textures",
     "G   - Toggle Fog"};
-
-struct glFont {
-    char *name;
-    unsigned int base_char;
-};
 
 enum class effect_t {
   none = 0,
@@ -265,22 +261,22 @@ static void do_effects(effect_t type)
         glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
         glBegin(GL_QUADS);
 
-        color = temp.from_hsl(hue1, 1.0f, 0.6f);
+        color = from_hsl(hue1, 1.0f, 0.6f);
         glColor3fv(color.get_rgb().data());
         glTexCoord2f(0, 0);
         glVertex2i(0, render_height);
 
-        color = temp.from_hsl(hue2, 1.0f, 0.6f);
+        color = from_hsl(hue2, 1.0f, 0.6f);
         glColor3fv(color.get_rgb().data());
         glTexCoord2f(0, 1);
         glVertex2i(0, 0);
 
-        color = temp.from_hsl(hue3, 1.0f, 0.6f);
+        color = from_hsl(hue3, 1.0f, 0.6f);
         glColor3fv(color.get_rgb().data());
         glTexCoord2f(1, 1);
         glVertex2i(render_width, 0);
 
-        color = temp.from_hsl(hue4, 1.0f, 0.6f);
+        color = from_hsl(hue4, 1.0f, 0.6f);
         glColor3fv(color.get_rgb().data());
         glTexCoord2f(1, 0);
         glVertex2i(render_width, render_height);
@@ -415,28 +411,26 @@ void render_print(int x, int y, int font, gl_rgba color, const char *fmt, ...)
     vsprintf(text, fmt, ap);
     va_end(ap);
 
-    char curier_new[] = { 'C', 'o', 'u', 'r', 'i', 'e', 'r', ' ', 'N', 'e', 'w', '\0' };
-    char arial[] = { 'A', 'r', 'i', 'a', 'l', '\0' };
-    char times_new_roman[] =
-        { 'T', 'i', 'm', 'e', 's', ' ', 'N', 'e', 'w', ' ', 'R', 'o', 'm', 'a', 'n', '\0' };
+    std::string curier_new("Courier New");
+    std::string arial("Arial");
+    std::string times_new_roman("Times New Roman");
+    std::string arial_black("Arial Black");
+    std::string impact("Impact");
+    std::string agency_fb("Agency FB");
+    std::string book_antiqua("Book Antiqua");
 
-    char arial_black[] = { 'A', 'r', 'i', 'a', 'l', ' ', 'B', 'l', 'a', 'c', 'k', '\0' };
-    char impact[] = { 'I', 'm', 'p', 'a', 'c', 't' };
-    char agency_fb[] = { 'A', 'g', 'e', 'n', 'c', 'y', ' ', 'F', 'B', '\0' };
-    char book_antiqua[] = { 'B', 'o', 'o', 'k', ' ', 'A', 'n', 't', 'i', 'q', 'u', 'a', '\0' };
-
-    glFont fonts[] = {
-        {curier_new, 0},
-        {arial, 0},
-        {times_new_roman, 0},
-        {arial_black, 0},
-        {impact, 0},
-        {agency_fb, 0},
-        {book_antiqua, 0},
+    std::array<gl_font, 7> fonts = {
+        gl_font{curier_new, 0},
+        gl_font{arial, 0},
+        gl_font{times_new_roman, 0},
+        gl_font{arial_black, 0},
+        gl_font{impact, 0},
+        gl_font{agency_fb, 0},
+        gl_font{book_antiqua, 0},
     };
 
     glPushAttrib(GL_LIST_BIT);
-    glListBase(fonts[font % (sizeof(fonts) / sizeof(struct glFont))].base_char - 32);
+    glListBase(fonts[font % fonts.size()].get_base_char() - 32);
     glColor3fv(color.get_rgb().data());
     glRasterPos2i(x, y);
     glCallLists(strlen(text), GL_UNSIGNED_BYTE, text);
