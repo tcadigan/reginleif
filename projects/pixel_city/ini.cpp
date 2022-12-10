@@ -18,8 +18,8 @@
 
 #include "win.hpp"
 
-static const std::string FORMAT_VECTOR = "%f %f %f";
-static const std::string INI_FILE = "pixelcity.ini";
+static std::string const FORMAT_VECTOR = "%f %f %f";
+static std::string const INI_FILE = "pixelcity.ini";
 
 static std::map<std::string, std::map<std::string, std::string>> contents;
 

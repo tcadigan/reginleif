@@ -13,7 +13,6 @@
 #include <cmath>
 
 #include "light.hpp"
-#include "macro.hpp"
 #include "math.hpp"
 #include "mesh.hpp"
 #include "random.hpp"
@@ -22,7 +21,7 @@
 #include "visible.hpp"
 #include "world.hpp"
 
-static float const LOGO_OFFSET = 0.2f; // How far a logo sticks out from the given surface
+static float constexpr LOGO_OFFSET = 0.2f; // How far a logo sticks out from the given surface
 
 Decoration::Decoration()
 {
@@ -119,9 +118,9 @@ void Decoration::create_radio_tower(gl_vector3 pos, float height)
                                                  center_.get_z()),
                                       gl_rgba(255, 192, 160),
                                       1));
-    light->Blink();
+    light->blink();
 
-    texture_ = TextureId(TEXTURE_LATTICE);
+    texture_ = texture_id(texture_t::lattice);
 }
 
 void Decoration::create_logo(gl_vector2 start,
@@ -178,7 +177,7 @@ void Decoration::create_logo(gl_vector2 start,
 
     mesh_->quad_strip_add(qs);
 
-    texture_ = TextureId(TEXTURE_LOGOS);
+    texture_ = texture_id(texture_t::logos);
 }
 
 void Decoration::create_light_strip(float x,
@@ -209,7 +208,7 @@ void Decoration::create_light_strip(float x,
         u = std::floor(width / depth);
     }
 
-    texture_ = TextureId(TEXTURE_LIGHT);
+    texture_ = texture_id(texture_t::light);
 
     p.set_position(gl_vector3(x, height, z));
     p.set_uv(gl_vector2(0.0f, 0.0f));
@@ -293,7 +292,7 @@ void Decoration::create_light_trim(std::array<gl_vector3, MAX_VBUFFER> &chain,
 
     mesh_->quad_strip_add(qs);
 
-    texture_ = TextureId(TEXTURE_TRIM);
+    texture_ = texture_id(texture_t::trim);
 
     mesh_->compile();
 }

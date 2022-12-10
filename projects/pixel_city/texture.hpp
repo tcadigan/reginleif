@@ -1,50 +1,70 @@
 #ifndef TEXTURE_HPP_
 #define TEXTURE_HPP_
 
-const int SEGMENTS_PER_TEXTURE = 64;
-#define ONE_SEGMENT (1.0f / SEGMENTS_PER_TEXTURE)
-#define LANES_PER_TEXTURE 8
-#define LANE_SIZE (1.0f / LANES_PER_TEXTURE)
-#define LANE_PIXELS (_size / LANES_PER_TEXTURE)
-#define TRIM_RESOLUTION 256
-#define TRIM_ROWS 4
-#define TRIM_SIZE (1.0f / TRIM_ROWS)
-#define TRIM_PIXELS (TRIM_RESOLUTION / TRIM_ROWS)
-#define LOGO_RESOLUTION 512
-#define LOGO_ROWS 16
-#define LOGO_SIZE (1.0f / LOGO_ROWS)
-#define LOGO_PIXELS (LOGO_RESOLUTION / LOGO_ROWS)
+static int constexpr SEGMENTS_PER_TEXTURE = 64;
+static float constexpr ONE_SEGMENT = 1.0f / SEGMENTS_PER_TEXTURE;
+static int constexpr LANES_PER_TEXTURE = 8;
+static float constexpr LANE_SIZE = 1.0f / LANES_PER_TEXTURE;
+static int constexpr TRIM_RESOLUTION = 256;
+static int constexpr TRIM_ROWS = 4;
+static float constexpr TRIM_SIZE = 1.0f / TRIM_ROWS;
+static int constexpr TRIM_PIXELS = TRIM_RESOLUTION / TRIM_ROWS;
+static int constexpr LOGO_RESOLUTION = 512;
+static int constexpr LOGO_ROWS = 16;
+static float constexpr LOGO_SIZE = 1.0 / LOGO_ROWS;
+static int constexpr LOGO_PIXELS = LOGO_RESOLUTION / LOGO_ROWS;
 
-enum {
-    TEXTURE_LIGHT,
-    TEXTURE_SOFT_CIRCLE,
-    TEXTURE_SKY,
-    TEXTURE_LOGOS,
-    TEXTURE_TRIM,
-    TEXTURE_BLOOM,
-    TEXTURE_HEADLIGHT,
-    TEXTURE_LATTICE,
-    TEXTURE_BUILDING1,
-    TEXTURE_BUILDING2,
-    TEXTURE_BUILDING3,
-    TEXTURE_BUILDING4,
-    TEXTURE_BUILDING5,
-    TEXTURE_BUILDING6,
-    TEXTURE_BUILDING7,
-    TEXTURE_BUILDING8,
-    TEXTURE_BUILDING9,
-    TEXTURE_COUNT,
+enum class texture_t {
+    light,
+    soft_circle,
+    sky,
+    logos,
+    trim,
+    bloom,
+    headlight,
+    lattice,
+    building1,
+    building2,
+    building3,
+    building4,
+    building5,
+    building6,
+    building7,
+    building8,
+    building9,
+    count,
 };
 
-#define BUILDING_COUNT ((TEXTURE_BUILDING9 - TEXTURE_BUILDING1) + 1)
+static int constexpr BUILDING_COUNT = static_cast<int>(texture_t::building9) - static_cast<int>(texture_t::building1) + 1;
 
-unsigned int TextureFromName(char *name);
-unsigned int TextureId(int id);
-void TextureInit();
-void TextureTerm();
-unsigned int TextureRandomBuilding(int index);
-bool TextureReady();
-void TextureReset();
-void TextureUpdate();
+class Texture {
+public:
+    texture_t my_id_;
+    unsigned int glid_;
+    int desired_size_;
+    int size_;
+    int half_;
+    int segment_size_;
+    bool ready_;
+    bool masked_;
+    bool mipmap_;
+    bool clamp_;
+
+    Texture(texture_t id, int size, bool mipmap, bool clamp, bool masked);
+    void clear();
+    void rebuild();
+    void draw_windows();
+    void draw_sky();
+    void draw_headlight();
+};
+
+unsigned int texture_from_name(char *name);
+unsigned int texture_id(texture_t id);
+void texture_init();
+void texture_term();
+unsigned int texture_random_building(int index);
+bool texture_ready();
+void texture_reset();
+void texture_update();
 
 #endif /* TEXTURE_HPP_ */

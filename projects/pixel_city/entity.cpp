@@ -20,7 +20,6 @@
 #include <cstdlib>
 
 #include "camera.hpp"
-#include "macro.hpp"
 #include "math.hpp"
 #include "render.hpp"
 #include "texture.hpp"
@@ -202,7 +201,7 @@ void entity_update()
 {
     unsigned int stop_time;
 
-    if (!TextureReady()) {
+    if (!texture_ready()) {
         return;
     }
 
@@ -231,15 +230,15 @@ void entity_render()
     // Draw all textured objects
     glGetIntegerv(GL_POLYGON_MODE, &polymode[0]);
     wireframe = (polymode[0] != GL_FILL);
-    if (RenderFlat()) {
+    if (render_flat()) {
         glDisable(GL_TEXTURE_2D);
     }
 
     // If we're not using a loading screen, make the wireframe fade out via fog
     if (!LOADING_SCREEN && wireframe) {
-        elapsed = 6000 - WorldSceneElapsed();
+        elapsed = 6000 - world_scene_elapsed();
         if ((elapsed >= 0) && (elapsed <= 6000)) {
-            RenderFogFX((float)elapsed / 6000.0f);
+            render_fog_fx((float)elapsed / 6000.0f);
         } else {
             return;
         }

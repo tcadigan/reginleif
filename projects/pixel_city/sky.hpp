@@ -4,25 +4,20 @@
 #include "gl-rgba.hpp"
 #include "gl-vector3.hpp"
 
-#define SKY_GRID 21
-#define SKY_HALF (SKY_GRID / 2)
-
-struct sky_point {
-    gl_rgba color;
-    gl_vector3 position;
-};
+static int constexpr SKY_GRID = 21;
+static int constexpr SKY_HALF = SKY_GRID / 2;
 
 class Sky {
 public:
     Sky();
-    void Render();
+    void render();
 
 private:
     int list_;
-    sky_point grid_[SKY_GRID][SKY_GRID];
+    std::array<std::array<std::pair<gl_rgba, gl_vector3>, SKY_GRID>, SKY_GRID> grid_;
 };
 
-void SkyRender();
-void SkyClear();
+void sky_render();
+void sky_clear();
 
 #endif /* SKY_HPP_ */

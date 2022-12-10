@@ -12,13 +12,13 @@
 #include "camera.hpp"
 
 #include <SDL2/SDL.h>
+#include <algorithm>
 #include <cmath>
 #include <ctime>
 #include <string>
 
 #include "gl-bbox.hpp"
 #include "ini.hpp"
-#include "macro.hpp"
 #include "math.hpp"
 #include "win.hpp"
 #include "world.hpp"
@@ -40,11 +40,11 @@ camera_t operator++(camera_t &camera, int val)
     return static_cast<camera_t>((static_cast<int>(camera) + 1) % static_cast<int>(camera_t::modes));
 }
 
-static int const MAX_PITCH = 85;
-static int const FLYCAM_CIRCUIT = 60000;
+static int constexpr MAX_PITCH = 85;
+static int constexpr FLYCAM_CIRCUIT = 60000;
 static int constexpr FLYCAM_CIRCUIT_HALF = FLYCAM_CIRCUIT / 2;
 static int constexpr FLYCAM_LEG = FLYCAM_CIRCUIT / 4;
-static int const ONE_SECOND = 1000;
+static int constexpr ONE_SECOND = 1000;
 
 static std::string const camera_section_ini("CAMERA");
 static std::string const camera_angle_ini("camera angle");
@@ -67,7 +67,7 @@ static gl_vector3 flycam_position(unsigned int t)
     gl_vector3 start;
     gl_vector3 end;
 
-    gl_bbox hot_zone = WorldHotZone();
+    gl_bbox hot_zone = world_hot_zone();
     t %= FLYCAM_CIRCUIT;
     unsigned int leg = t / FLYCAM_LEG;
     float delta = (t % FLYCAM_LEG) / static_cast<float>(FLYCAM_LEG);
@@ -115,7 +115,7 @@ static gl_vector3 flycam_position(unsigned int t)
         break;
     }
 
-    delta = MathScalarCurve(delta);
+    delta = math_scalar_curve(delta);
 
     return start.interpolate(end, delta);
 }
@@ -127,7 +127,8 @@ static void do_auto_cam()
 
     unsigned int now = SDL_GetTicks();
     unsigned int elapsed = now - last_update;
-    elapsed = MIN(elapsed, 50); // Limit to 1/20th second worth of time
+    // Limit to 1/20th second worth of time
+    elapsed = std::min(elapsed, static_cast<unsigned int>(50));
 
     if (elapsed == 0) {
         return;
@@ -137,7 +138,7 @@ static void do_auto_cam()
 
     camera_t behavior = camera_behavior;
 
-    tracker += ((float)elapsed / 300.0f);
+    tracker += (elapsed / 300.0f);
     // behavior = CAMERA_FLYCAM;
 
     switch(behavior) {
@@ -201,17 +202,17 @@ static void do_auto_cam()
         auto_position.set_z(WORLD_HALF + (cosf(tracker * DEGREES_TO_RADIANS) * 50.0f));
     }
 
-    dist = MathDistance(auto_position.get_x(),
+    dist = math_distance(auto_position.get_x(),
                         auto_position.get_z(),
                         target.get_x(),
                         target.get_z());
 
-    auto_angle.set_y(-MathAngle(auto_position.get_x(),
+    auto_angle.set_y(-math_angle(auto_position.get_x(),
                                 auto_position.get_y(),
                                 target.get_x(),
                                 target.get_y()));
 
-    auto_angle.set_x(90.f + MathAngle(0,
+    auto_angle.set_x(90.f + math_angle(0,
                                       auto_position.get_y(),
                                       dist,
                                       target.get_y()));
@@ -307,7 +308,7 @@ gl_vector3 camera_angle()
 void camera_angle_set(gl_vector3 new_angle)
 {
     angle = new_angle;
-    angle.set_x(CLAMP(angle.get_x(), -80.f, 80.f));
+    angle.set_x(std::clamp(angle.get_x(), -80.f, 80.f));
 }
 
 void camera_init()
@@ -332,11 +333,11 @@ void camera_update()
     }
 
     if (angle.get_y() < 0.0f) {
-        angle.set_y(360.0f - (float)fmod(fabs(angle.get_y()), 360.0f));
+        angle.set_y(360.0f - fmod(fabs(angle.get_y()), 360.0f));
     }
 
-    angle.set_y((float)fmod(angle.get_y(), 360.0f));
-    angle.set_x(CLAMP(angle.get_x(), -MAX_PITCH, MAX_PITCH));
+    angle.set_y(fmod(angle.get_y(), 360.0f));
+    angle.set_x(std::clamp(angle.get_x(), static_cast<float>(-MAX_PITCH), static_cast<float>(MAX_PITCH)));
 }
 
 void camera_term()

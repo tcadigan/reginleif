@@ -12,10 +12,10 @@
 #include "sky.hpp"
 
 #include <cmath>
+#include <memory>
 
 #include "camera.hpp"
 #include "gl-vertex.hpp"
-#include "macro.hpp"
 #include "math.hpp"
 #include "random.hpp"
 #include "render.hpp"
@@ -23,32 +23,25 @@
 #include "texture.hpp"
 #include "world.hpp"
 
-#define SKYPOINTS 24
+static int constexpr SKYPOINTS = 24;
 
-static Sky *sky;
+static std::unique_ptr<Sky> sky;
 
-void SkyRender()
+void sky_render()
 {
-    if(sky && !RenderFlat()) {
-        sky->Render();
+    if (sky && !render_flat()) {
+        sky->render();
     }
 }
 
-void SkyClear()
+void sky_clear()
 {
-    if(sky) {
-        delete sky;
-    }
-
-    sky = NULL;
+    sky = nullptr;
 }
 
-void Sky::Render()
+void Sky::render()
 {
-    gl_vector3 angle;
-    gl_vector3 position;
-
-    if(!TextureReady()) {
+    if (!texture_ready()) {
         return;
     }
 
@@ -59,14 +52,14 @@ void Sky::Render()
     glDisable(GL_FOG);
     glPushMatrix();
     glLoadIdentity();
-    angle = camera_angle();
-    position = camera_position();
+    gl_vector3 angle = camera_angle();
+    gl_vector3 position = camera_position();
     glRotatef(angle.get_x(), 1.0f, 0.0f, 0.0f);
     glRotatef(angle.get_y(), 0.0f, 1.0f, 0.0f);
     glRotatef(angle.get_z(), 0.0f, 0.0f, 1.0f);
     glTranslatef(0.0f, -position.get_y() / 100.0f, 0.0f);
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, TextureId(TEXTURE_SKY));
+    glBindTexture(GL_TEXTURE_2D, texture_id(texture_t::sky));
     glCallList(list_);
     glPopMatrix();
     glPopAttrib();
@@ -76,26 +69,20 @@ void Sky::Render()
 
 Sky::Sky()
 {
-    gl_vertex circle[SKYPOINTS];
-    gl_vector3 pos;
-    float angle;
-    int i;
-    float size;
-    float rad;
-    float lum;
+    std::array<gl_vertex, SKYPOINTS> circle;
 
-    size = 10.0f;
-    for(i = 0; i < SKYPOINTS; ++i) {
-        angle = (float)i / (float)(SKYPOINTS - 1);
+    float size = 10.0f;
+    for (int i = 0; i < SKYPOINTS; ++i) {
+        float angle = static_cast<float>(i) / (SKYPOINTS - 1);
         angle *= 360;
         angle *= DEGREES_TO_RADIANS;
         circle[i].get_position().set_x(sinf(angle) * size);
         circle[i].get_position().set_y(0.1f);
         circle[i].get_position().set_z(cosf(angle) * size);
-        circle[i].get_uv().set_x(((float)i / (float)(SKYPOINTS - 1)) * 5.0f);
+        circle[i].get_uv().set_x((static_cast<float>(i) / (SKYPOINTS - 1)) * 5.0f);
         circle[i].get_uv().set_y(0.5f);
-        rad = ((float)i / (SKYPOINTS - 1)) * 180.f * DEGREES_TO_RADIANS;
-        lum = sinf(rad);
+        float rad = (static_cast<float>(i) / (SKYPOINTS - 1)) * 180.f * DEGREES_TO_RADIANS;
+        float lum = sinf(rad);
         lum = (float)pow(lum, 5);
         circle[i].set_color(gl_rgba(lum * 255, lum * 255, lum * 255));
     }
@@ -105,10 +92,10 @@ Sky::Sky()
     glColor3f(1, 1, 1);
 
     glBegin(GL_QUAD_STRIP);
-    for(i = 0; i < SKYPOINTS; ++i) {
+    for (int i = 0; i < SKYPOINTS; ++i) {
         glTexCoord2f(circle[i].get_uv().get_x(), 0.0f);
         glVertex3fv(circle[i].get_position().get_data().data());
-        pos = circle[i].get_position();
+        gl_vector3 pos = circle[i].get_position();
         pos.set_y(size / 3.5f);
         glTexCoord2f(circle[i].get_uv().get_x(), 1.0f);
         glVertex3fv(pos.get_data().data());
@@ -116,5 +103,5 @@ Sky::Sky()
     glEnd();
     glEndList();
 
-    sky = this;
+    sky.reset(this);
 }

@@ -14,7 +14,6 @@
 
 #include "decoration.hpp" // Decoration
 #include "light.hpp" // Light
-#include "macro.hpp"
 #include "math.hpp"
 #include "random.hpp"
 #include "texture.hpp"
@@ -58,7 +57,7 @@ Building::Building(building_t type,
     have_logo_ = false;
     have_trim_ = false;
     roof_tiers_ = 0;
-    trim_color_ = WorldLightColor(seed); // Pick a color for logos & roof lights
+    trim_color_ = world_light_color(seed); // Pick a color for logos & roof lights
     mesh_ = std::make_unique<Mesh>(); // The main textured mesh for the building
     mesh_flat_ = std::make_unique<Mesh>(); // Flat-color mesh for untextured detail items
 
@@ -84,7 +83,7 @@ Building::~Building()
 
 unsigned int Building::texture() const
 {
-    return TextureRandomBuilding(texture_type_);
+    return texture_random_building(texture_type_);
 }
 
 int Building::poly_count() const
@@ -276,12 +275,12 @@ void Building::construct_roof(float left,
         direction_t face;
 
         if (width > depth) {
-            if (COIN_FLIP) {
+            if (random_val(2) == 0) {
                 face = direction_t::north;
             } else {
                 face = direction_t::south;
             }
-        } else if (COIN_FLIP) {
+        } else if (random_val(2) == 0) {
             face = direction_t::east;
         }
         else {
@@ -311,7 +310,7 @@ void Building::construct_roof(float left,
             break;
         }
 
-        dec->create_logo(start, end, bottom, WorldLogoIndex(), trim_color_);
+        dec->create_logo(start, end, bottom, world_logo_index(), trim_color_);
         have_logo_ = true;
     } else if (addon == addon_t::trim) {
         Decoration *dec = new Decoration;
@@ -522,7 +521,7 @@ void Building::create_blocky()
     int max_tiers;
 
     // Choose if the corners of the building are to be windowless
-    bool blank_corners = COIN_FLIP;
+    bool blank_corners = random_val(2) == 0;
 
     // Choose a random color on our texture
     float uv_start = random_val(SEGMENTS_PER_TEXTURE) / static_cast<float>(SEGMENTS_PER_TEXTURE);
@@ -601,10 +600,10 @@ void Building::create_blocky()
 
         if (!skip) {
             // If this is the top, then push some lights up here
-            max_left = MAX(left, max_left);
-            max_right = MAX(right, max_right);
-            max_front = MAX(front, max_front);
-            max_back = MAX(back, max_back);
+            max_left = std::max(left, max_left);
+            max_right = std::max(right, max_right);
+            max_front = std::max(front, max_front);
+            max_back = std::max(back, max_back);
 
             // Now build the four walls of this part
             uv_start = construct_wall(mid_x - left,
@@ -809,7 +808,7 @@ void Building::create_modern()
         pos.set_z(center.get_z() + cosf(angle * DEGREES_TO_RADIANS) * radius.get_y());
 
         if ((angle > 0) && (skip_counter == 0)) {
-            length = MathDistance(p.get_position().get_x(),
+            length = math_distance(p.get_position().get_x(),
                                   p.get_position().get_z(),
                                   pos.get_x(),
                                   pos.get_z());
@@ -826,7 +825,7 @@ void Building::create_modern()
                 d->create_logo(start,
                               end,
                               height_,
-                              WorldLogoIndex(),
+                              world_logo_index(),
                               random_color.from_hsl(random_val(255) / 255.0f,
                                                     1.0f,
                                                     1.0f));
@@ -954,7 +953,7 @@ void Building::create_tower()
         remaining_height = height_ - bottom;
         section_depth = back - front;
         section_width = right - left;
-        section_height = MAX(remaining_height / tier_fraction, 2);
+        section_height = std::max(remaining_height / tier_fraction, 2);
         if (remaining_height < 10) {
             section_height = remaining_height;
         }

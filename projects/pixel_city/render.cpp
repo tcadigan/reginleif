@@ -25,49 +25,50 @@
 #include "entity.hpp"
 #include "ini.hpp"
 #include "light.hpp"
-#include "macro.hpp"
 #include "math.hpp"
 #include "sky.hpp"
 #include "texture.hpp"
 #include "win.hpp"
 #include "world.hpp"
 
-#define RENDER_DISTANCE 1280
-#define MAX_TEXT 256
-#define YOUFAIL(message) {WinPopup(message); \
-        return; }
+static int constexpr RENDER_DISTANCE = 1280;
+static int constexpr MAX_TEXT = 256;
 
-#define HELP_SIZE sizeof(help)
-#define COLOR_CYCLE_TIME 10000 // Milliseconds
-#define COLOR_CYCLE (COLOR_CYCLE_TIME / 4)
-#define FONT_SIZE (LOGO_PIXELS - (LOGO_PIXELS / 8))
-#define BLOOM_SCALING 0.07f
+static int constexpr COLOR_CYCLE_TIME = 10000; // Milliseconds
+static int constexpr COLOR_CYCLE = COLOR_CYCLE_TIME / 4;
+static int constexpr FONT_SIZE = LOGO_PIXELS - (LOGO_PIXELS / 8);
+static float constexpr BLOOM_SCALING = 0.07f;
 
-static char help[] = "ESC - Exit!\n"
-    "F1  - Show this help screen\n"
-    "R   - Rebuild city\n"
-    "L   - Toggle 'letterbox' mode\n"
-    "F   - Show Framecounter\n"
-    "W   - Toggle Wireframe\n"
-    "E   - Change full-scene effects\n"
-    "T   - Toggle Textures\n"
-    "G   - Toggle Fog\n";
+std::array<std::string, 9> help = {"ESC - Exit!",
+    "F1  - Show this help screen",
+    "R   - Rebuild city",
+    "L   - Toggle 'letterbox' mode",
+    "F   - Show Framecounter",
+    "W   - Toggle Wireframe",
+    "E   - Change full-scene effects",
+    "T   - Toggle Textures",
+    "G   - Toggle Fog"};
 
 struct glFont {
     char *name;
     unsigned int base_char;
 };
 
-enum {
-    EFFECT_NONE,
-    EFFECT_BLOOM,
-    EFFECT_COUNT,
-    EFFECT_DEBUG_OVERBLOOM,
-    EFFECT_DEBUG,
-    EFFECT_BLOOM_RADIAL,
-    EFFECT_COLOR_CYCLE,
-    EFFECT_GLASS_CITY,
+enum class effect_t {
+  none = 0,
+  bloom,
+  count,
+  debug_overbloom,
+  debug,
+  bloom_radial,
+  color_cycle,
+  glass_city,
 };
+
+effect_t operator++(effect_t &effect, int val)
+{
+    return static_cast<effect_t>((static_cast<int>(effect) + 1) % static_cast<int>(effect_t::count));
+}
 
 static std::string const render_section_ini("RENDER");
 static std::string const set_defaults_ini("set defaults");
@@ -84,7 +85,7 @@ static int render_width;
 static int render_height;
 static bool letterbox;
 static int letterbox_offset;
-static int effect;
+static effect_t effect;
 static unsigned int current_fps;
 static unsigned int frames;
 static bool show_wireframe;
@@ -100,24 +101,19 @@ static void do_progress(float center_x,
                         float opacity,
                         float progress)
 {
-    int i;
-    int end_angle;
-    float inner;
-    float outer;
     float angle;
     float s;
     float c;
-    float gap;
 
     // Outer ring
-    gap = radius * 0.05f;
-    outer = radius;
-    inner = radius - (gap * 2);
+    float gap = radius * 0.05f;
+    float outer = radius;
+    float inner = radius - (gap * 2);
     glColor4f(1, 1, 1, opacity);
     glBegin(GL_QUAD_STRIP);
 
-    for(i = 0; i <= 360; i += 15) {
-        angle = (float)i * DEGREES_TO_RADIANS;
+    for (int i = 0; i <= 360; i += 15) {
+        angle = i * DEGREES_TO_RADIANS;
         s = sinf(angle);
         c = -cosf(angle);
         glVertex2f(center_x + (s * outer), center_y + (c * outer));
@@ -128,13 +124,13 @@ static void do_progress(float center_x,
 
     // Progress indicator
     glColor4f(1, 1, 1, opacity);
-    end_angle = (int)(360 * progress);
+    int end_angle = (360 * progress);
     outer = radius - (gap * 3);
     glBegin(GL_TRIANGLE_FAN);
 
     glVertex2f(center_x, center_y);
-    for(i = 0; i < end_angle; i += 3) {
-        angle = (float)i * DEGREES_TO_RADIANS;
+    for (int i = 0; i < end_angle; i += 3) {
+        angle = i * DEGREES_TO_RADIANS;
         s = sinf(angle);
         c = -cosf(angle);
         glVertex2f(center_x + (s * outer), center_y + (c * outer));
@@ -149,8 +145,8 @@ static void do_progress(float center_x,
     glColor4f(0, 0, 0, opacity);
     glBegin(GL_LINES);
 
-    for(i = 0; i <= 360; i += 15) {
-        angle = (float)i * DEGREES_TO_RADIANS;
+    for (int i = 0; i <= 360; i += 15) {
+        angle = i * DEGREES_TO_RADIANS;
         s = sinf(angle);
         c = -cosf(angle);
         glVertex2f(center_x + (s * outer), center_y + (c * outer));
@@ -160,26 +156,22 @@ static void do_progress(float center_x,
     glEnd();
 }
 
-static void do_effects(int type)
+static void do_effects(effect_t type)
 {
     float hue1;
     float hue2;
     float hue3;
     float hue4;
     gl_rgba color;
-    float fade;
+    gl_rgba temp;
     int radius;
-    int x;
-    int y;
-    int i;
-    int bloom_radius;
-    int bloom_step;
+    float offset;
 
-    fade = WorldFade();
-    bloom_radius = 15;
-    bloom_step = bloom_radius / 3;
+    float fade = world_fade();
+    int bloom_radius = 15;
+    int bloom_step = bloom_radius / 3;
 
-    if(!TextureReady()) {
+    if (!texture_ready()) {
         return;
     }
 
@@ -201,11 +193,11 @@ static void do_effects(int type)
     glEnable(GL_TEXTURE_2D);
     glDisable(GL_DEPTH_TEST);
     glDepthMask(false);
-    glBindTexture(GL_TEXTURE_2D, TextureId(TEXTURE_BLOOM));
+    glBindTexture(GL_TEXTURE_2D, texture_id(texture_t::bloom));
 
     switch(type) {
-    case EFFECT_DEBUG:
-        glBindTexture(GL_TEXTURE_2D, TextureId(TEXTURE_LOGOS));
+    case effect_t::debug:
+        glBindTexture(GL_TEXTURE_2D, texture_id(texture_t::logos));
         glDisable(GL_BLEND);
         glBegin(GL_QUADS);
         glColor3f(1, 1, 1);
@@ -236,13 +228,13 @@ static void do_effects(int type)
 
         glEnd();
         break;
-    case EFFECT_BLOOM_RADIAL:
+    case effect_t::bloom_radial:
         // Psychedelic bloom
         glEnable(GL_BLEND);
         glBegin(GL_QUADS);
-        color = (WorldBloomColor() * BLOOM_SCALING) * 2;
+        color = (world_bloom_color() * BLOOM_SCALING) * 2;
         glColor3fv(color.get_rgb().data());
-        for(i = 0; i <= 100; i += 10) {
+        for (int i = 0; i <= 100; i += 10) {
             glTexCoord2f(0, 0);
             glVertex2i(-i, i + render_height);
 
@@ -258,56 +250,53 @@ static void do_effects(int type)
 
         glEnd();
         break;
-    case EFFECT_COLOR_CYCLE:
-        {
-            // Oooh. Pretty colors. Tint the scene according to the screenspace
-            hue1 = (float)(SDL_GetTicks() % COLOR_CYCLE_TIME) / COLOR_CYCLE_TIME;
+    case effect_t::color_cycle:
+        // Oooh. Pretty colors. Tint the scene according to the screenspace
+        hue1 = (SDL_GetTicks() % COLOR_CYCLE_TIME) / COLOR_CYCLE_TIME;
 
-            float offset = SDL_GetTicks() + COLOR_CYCLE;
-            hue2 = fmod(offset, (float)COLOR_CYCLE_TIME) / COLOR_CYCLE_TIME;
-            hue3 = fmod(offset * 2, (float)COLOR_CYCLE_TIME) / COLOR_CYCLE_TIME;
-            hue4 = fmod(offset * 3, (float)COLOR_CYCLE_TIME) / COLOR_CYCLE_TIME;
+        offset = SDL_GetTicks() + COLOR_CYCLE;
+        hue2 = fmod(offset, COLOR_CYCLE_TIME) / COLOR_CYCLE_TIME;
+        hue3 = fmod(offset * 2, COLOR_CYCLE_TIME) / COLOR_CYCLE_TIME;
+        hue4 = fmod(offset * 3, COLOR_CYCLE_TIME) / COLOR_CYCLE_TIME;
 
-            glBindTexture(GL_TEXTURE_2D, 0);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_ONE, GL_ONE);
-            glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
-            glBegin(GL_QUADS);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE, GL_ONE);
+        glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
+        glBegin(GL_QUADS);
 
-            gl_rgba temp;
-            color = temp.from_hsl(hue1, 1.0f, 0.6f);
-            glColor3fv(color.get_rgb().data());
-            glTexCoord2f(0, 0);
-            glVertex2i(0, render_height);
+        color = temp.from_hsl(hue1, 1.0f, 0.6f);
+        glColor3fv(color.get_rgb().data());
+        glTexCoord2f(0, 0);
+        glVertex2i(0, render_height);
 
-            color = temp.from_hsl(hue2, 1.0f, 0.6f);
-            glColor3fv(color.get_rgb().data());
-            glTexCoord2f(0, 1);
-            glVertex2i(0, 0);
+        color = temp.from_hsl(hue2, 1.0f, 0.6f);
+        glColor3fv(color.get_rgb().data());
+        glTexCoord2f(0, 1);
+        glVertex2i(0, 0);
 
-            color = temp.from_hsl(hue3, 1.0f, 0.6f);
-            glColor3fv(color.get_rgb().data());
-            glTexCoord2f(1, 1);
-            glVertex2i(render_width, 0);
+        color = temp.from_hsl(hue3, 1.0f, 0.6f);
+        glColor3fv(color.get_rgb().data());
+        glTexCoord2f(1, 1);
+        glVertex2i(render_width, 0);
 
-            color = temp.from_hsl(hue4, 1.0f, 0.6f);
-            glColor3fv(color.get_rgb().data());
-            glTexCoord2f(1, 0);
-            glVertex2i(render_width, render_height);
+        color = temp.from_hsl(hue4, 1.0f, 0.6f);
+        glColor3fv(color.get_rgb().data());
+        glTexCoord2f(1, 0);
+        glVertex2i(render_width, render_height);
 
-            glEnd();
-        }
+        glEnd();
 
         break;
-    case EFFECT_BLOOM:
+    case effect_t::bloom:
         // Simple bloom effect
         glBegin(GL_QUADS);
 
-        color = WorldBloomColor() * BLOOM_SCALING;
+        color = world_bloom_color() * BLOOM_SCALING;
         glColor3fv(color.get_rgb().data());
-        for(x = -bloom_radius; x <= bloom_radius; x += bloom_step) {
-            for(y = -bloom_radius; y <= bloom_radius; y += bloom_step) {
-                if((abs(x) == abs(y)) && x) {
+        for (int x = -bloom_radius; x <= bloom_radius; x += bloom_step) {
+            for (int y = -bloom_radius; y <= bloom_radius; y += bloom_step) {
+                if ((abs(x) == abs(y)) && x) {
                     continue;
                 }
 
@@ -327,15 +316,15 @@ static void do_effects(int type)
 
         glEnd();
         break;
-    case EFFECT_DEBUG_OVERBLOOM:
+    case effect_t::debug_overbloom:
         // This will punish that uppity GPU. Good for testing
         // low frame rate behavior.
         glBegin(GL_QUADS);
 
-        color = WorldBloomColor() / 100;
+        color = world_bloom_color() / 100;
         glColor3fv(color.get_rgb().data());
-        for(x = -50; x <= 50; x += 5) {
-            for(y = -50; y <= 50; y += 5) {
+        for (int x = -50; x <= 50; x += 5) {
+            for (int y = -50; y <= 50; y += 5) {
                 glTexCoord2f(0, 0);
                 glVertex2i(x, y + render_height);
 
@@ -352,11 +341,13 @@ static void do_effects(int type)
 
         glEnd();
         break;
+    default:
+        break;
     }
 
     // Do the fade to/from darkness used to hide screen transitions
-    if(LOADING_SCREEN) {
-        if(fade > 0.0f) {
+    if (LOADING_SCREEN) {
+        if (fade > 0.0f) {
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glEnable(GL_BLEND);
             glDisable(GL_TEXTURE_2D);
@@ -369,22 +360,22 @@ static void do_effects(int type)
             glEnd();
         }
 
-        if(TextureReady() && !entity_ready() && (fade != 0.0f)) {
+        if (texture_ready() && !entity_ready() && (fade != 0.0f)) {
             radius = render_width / 16;
-            do_progress((float)render_width / 2,
-                        (float)render_height / 2,
-                        (float)radius,
+            do_progress(render_width / 2,
+                        render_height / 2,
+                        radius,
                         fade,
                         entity_progress());
 
-            RenderPrint((render_width / 2) - LOGO_PIXELS,
+            render_print((render_width / 2) - LOGO_PIXELS,
                         (render_height / 2) + LOGO_PIXELS,
                         0,
                         gl_rgba(127, 127, 127),
                         "%1.2f%%",
                         entity_progress() * 100.0f);
 
-            RenderPrint(1,
+            render_print(1,
                         "%s v%d.%d.%03d",
                         APP_TITLE.c_str(),
                         VERSION_MAJOR,
@@ -400,24 +391,23 @@ static void do_effects(int type)
     glEnable(GL_DEPTH_TEST);
 }
 
-int RenderMaxTextureSize()
+int render_max_texture_size()
 {
     int mts;
-
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &mts);
-    mts = MIN(mts, render_width);
+    mts = std::min(mts, render_width);
 
-    return (MIN(mts, render_height));
+    return std::min(mts, render_height);
 }
 
-void RenderPrint(int x, int y, int font, gl_rgba color, const char *fmt, ...)
+void render_print(int x, int y, int font, gl_rgba color, const char *fmt, ...)
 {
     char text[MAX_TEXT];
     va_list ap;
 
     text[0] = 0;
 
-    if(fmt == NULL) {
+    if (fmt == NULL) {
         return;
     }
 
@@ -459,14 +449,14 @@ void RenderPrint(int x, int y, int font, gl_rgba color, const char *fmt, ...)
     // }
 }
 
-void RenderPrint(int line, const char *fmt, ...)
+void render_print(int line, const char *fmt, ...)
 {
     char text[MAX_TEXT];
     va_list ap;
 
     text[0] = 0;
 
-    if(fmt == NULL) {
+    if (fmt == NULL) {
         return;
     }
 
@@ -488,9 +478,9 @@ void RenderPrint(int line, const char *fmt, ...)
     glDisable(GL_FOG);
     glDisable(GL_TEXTURE_2D);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    RenderPrint(0, (line * FONT_SIZE) - 2, 0, gl_rgba(0, 0, 0), text);
-    RenderPrint(4, (line * FONT_SIZE) + 2, 0, gl_rgba(0, 0, 0), text);
-    RenderPrint(2, line * FONT_SIZE, 0, gl_rgba(255, 255, 255), text);
+    render_print(0, (line * FONT_SIZE) - 2, 0, gl_rgba(0, 0, 0), text);
+    render_print(4, (line * FONT_SIZE) + 2, 0, gl_rgba(0, 0, 0), text);
+    render_print(2, line * FONT_SIZE, 0, gl_rgba(255, 255, 255), text);
     glPopMatrix();
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
@@ -499,42 +489,40 @@ void RenderPrint(int line, const char *fmt, ...)
 
 void static do_help()
 {
-    char *text;
-    int line;
-    char parse[HELP_SIZE];
-
-    strcpy(parse, help);
-    line = 0;
-    text = strtok(parse, "\n");
-    while(text) {
-        RenderPrint(line + 2, text);
-        text = strtok(NULL, "\n");
+    int line = 0;
+    for (std::string const &text : help) {
+        render_print(line + 2, text.c_str());
         line++;
     }
 }
 
 void do_fps()
 {
-    LIMIT_INTERVAL(1000);
+    static long next_update;
+
+    if (next_update > SDL_GetTicks()) {
+        return;
+    }
+
+    next_update = SDL_GetTicks() + 1000;
     current_fps = frames;
     frames = 0;
 }
 
-void RenderResize()
+void render_resize()
 {
     float fovy = 60.0f;
 
     SDL_GetWindowSize(window, &render_width, &render_height);
-    if(letterbox) {
+    if (letterbox) {
         letterbox_offset = render_height / 6;
         render_height = render_height - (letterbox_offset * 2);
-    }
-    else {
+    } else {
         letterbox_offset = 0;
     }
 
-    render_aspect = (float)render_height / (float)render_width;
-    if(render_aspect > 1.0f) {
+    render_aspect = render_height / render_width;
+    if (render_aspect > 1.0f) {
         fovy /= render_aspect;
     }
 
@@ -545,16 +533,16 @@ void RenderResize()
     glMatrixMode(GL_MODELVIEW);
 }
 
-void RenderTerm()
+void render_term()
 {
 }
 
-void RenderInit()
+void render_init()
 {
     // If the program is running for the first time, set the defaults.
     if (!ini_int(render_section_ini, set_defaults_ini)) {
         ini_int_set(render_section_ini, set_defaults_ini, 1);
-        ini_int_set(render_section_ini, effect_ini, EFFECT_BLOOM);
+        ini_int_set(render_section_ini, effect_ini, static_cast<int>(effect_t::bloom));
         ini_int_set(render_section_ini, show_fog_ini, 1);
     }
 
@@ -563,7 +551,7 @@ void RenderInit()
     show_wireframe = (ini_int(render_section_ini, wireframe_ini) != 0);
     show_fps = (ini_int(render_section_ini, show_fps_ini) != 0);
     show_fog = (ini_int(render_section_ini, show_fog_ini) != 0);
-    effect = ini_int(render_section_ini, effect_ini);
+    effect = static_cast<effect_t>(ini_int(render_section_ini, effect_ini));
     flat = (ini_int(render_section_ini, flat_ini) != 0);
     fog_distance = WORLD_HALF;
 
@@ -576,22 +564,22 @@ void RenderInit()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     SDL_GL_SwapWindow(window);
-    RenderResize();
+    render_resize();
 }
 
-void RenderFPSToggle()
+void render_fps_toggle()
 {
     show_fps = !show_fps;
     ini_int_set(render_section_ini, show_fps_ini, show_fps ? 1 : 0);
 }
 
 
-bool RenderFog()
+bool render_fog()
 {
     return show_fog;
 }
 
-void RenderFogToggle()
+void render_fog_toggle()
 {
     show_fog = !show_fog;
     ini_int_set(render_section_ini, show_fog_ini, show_fog ? 1 : 0);
@@ -601,51 +589,51 @@ void RenderLetterBoxToggle()
 {
     letterbox = !letterbox;
     ini_int_set(render_section_ini, letterbox_ini, letterbox ? 1: 0);
-    RenderResize();
+    render_resize();
 }
 
-void RenderWireframeToggle()
+void render_wireframe_toggle()
 {
     show_wireframe = !show_wireframe;
     ini_int_set(render_section_ini, wireframe_ini, show_wireframe ? 1 : 0);
 }
 
-bool RenderWireframe()
+bool render_wireframe()
 {
     return show_wireframe;
 }
 
-void RenderEffectCycle()
+void render_effect_cycle()
 {
-    effect = (effect + 1) % EFFECT_COUNT;
-    ini_int_set(render_section_ini, effect_ini, effect);
+    effect++;
+    ini_int_set(render_section_ini, effect_ini, static_cast<int>(effect));
 }
 
-bool RenderBloom()
+bool render_bloom()
 {
-    return ((effect == EFFECT_BLOOM)
-            || (effect == EFFECT_BLOOM_RADIAL)
-            || (effect == EFFECT_DEBUG_OVERBLOOM)
-            || (effect == EFFECT_COLOR_CYCLE));
+    return ((effect == effect_t::bloom)
+            || (effect == effect_t::bloom_radial)
+            || (effect == effect_t::debug_overbloom)
+            || (effect == effect_t::color_cycle));
 }
 
-bool RenderFlat()
+bool render_flat()
 {
     return flat;
 }
 
-void RenderFlatToggle()
+void render_flat_toggle()
 {
     flat = !flat;
     ini_int_set(render_section_ini, flat_ini, flat ? 1 : 0);
 }
 
-void RenderHelpToggle()
+void render_help_toggle()
 {
     show_help = !show_help;
 }
 
-float RenderFogDistance()
+float render_fog_distance()
 {
     return fog_distance;
 }
@@ -653,9 +641,9 @@ float RenderFogDistance()
 // This is used to set a gradient fog that goes from camera to some portion
 // of the normal fog distance. This is used for making wireframe outlines and
 // flat surfaces fade out after rebuild. Looks cool.
-void RenderFogFX(float scalar)
+void render_fog_fx(float scalar)
 {
-    if(scalar >= 1.0f) {
+    if (scalar >= 1.0f) {
         glDisable(GL_FOG);
         return;
     }
@@ -665,7 +653,7 @@ void RenderFogFX(float scalar)
     glEnable(GL_FOG);
 }
 
-void RenderUpdate()
+void render_update()
 {
     gl_vector3 pos;
     gl_vector3 angle;
@@ -684,12 +672,12 @@ void RenderUpdate()
     glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    if(letterbox) {
+    if (letterbox) {
         glViewport(0, letterbox_offset, render_width, render_height);
     }
 
-    if(LOADING_SCREEN && TextureReady() && !entity_ready()) {
-        do_effects(EFFECT_NONE);
+    if (LOADING_SCREEN && texture_ready() && !entity_ready()) {
+        do_effects(effect_t::none);
         SDL_GL_SwapWindow(window);
 
         return;
@@ -720,8 +708,8 @@ void RenderUpdate()
 
     // Render all the stuff in the whole entire world.
     glDisable(GL_FOG);
-    SkyRender();
-    if(show_fog) {
+    sky_render();
+    if (show_fog) {
         glEnable(GL_FOG);
         glFogf(GL_FOG_START, fog_distance - 100);
         glFogf(GL_FOG_END, fog_distance);
@@ -729,9 +717,9 @@ void RenderUpdate()
         glFogfv(GL_FOG_COLOR, color.get_rgb().data());
     }
 
-    WorldRender();
+    world_render();
 
-    if(effect == EFFECT_GLASS_CITY) {
+    if (effect == effect_t::glass_city) {
         glDisable(GL_CULL_FACE);
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE);
@@ -740,19 +728,18 @@ void RenderUpdate()
         glMatrixMode(GL_TEXTURE);
         glTranslatef((pos.get_x() + pos.get_z()) / SEGMENTS_PER_TEXTURE, 0, 0);
         glMatrixMode(GL_MODELVIEW);
-    }
-    else {
+    } else {
         glEnable(GL_CULL_FACE);
         glDisable(GL_BLEND);
     }
 
     entity_render();
 
-    if(!LOADING_SCREEN) {
-        elapsed = 3000 - WorldSceneElapsed();
+    if (!LOADING_SCREEN) {
+        elapsed = 3000 - world_scene_elapsed();
 
-        if((elapsed >= 0) && (elapsed <= 3000)) {
-            RenderFogFX((float)elapsed / 3000.0f);
+        if ((elapsed >= 0) && (elapsed <= 3000)) {
+            render_fog_fx((float)elapsed / 3000.0f);
             glDisable(GL_TEXTURE_2D);
             glEnable(GL_BLEND);
             glBlendFunc(GL_ONE, GL_ONE);
@@ -760,13 +747,13 @@ void RenderUpdate()
         }
     }
 
-    if(entity_ready()) {
-        LightRender();
+    if (entity_ready()) {
+        light_render();
     }
 
     car_render();
 
-    if(show_wireframe) {
+    if (show_wireframe) {
         glDisable(GL_TEXTURE_2D);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         entity_render();
@@ -775,16 +762,16 @@ void RenderUpdate()
     do_effects(effect);
 
     // Framerate tracker
-    if(show_fps) {
-        RenderPrint(1,
+    if (show_fps) {
+        render_print(1,
                     "FPS=%d : Entities=%d : polys=%d",
                     current_fps,
-                    entity_count() + LightCount() + car_count(),
-                    entity_poly_count() + LightCount() + car_count());
+                    entity_count() + light_count() + car_count(),
+                    entity_poly_count() + light_count() + car_count());
     }
 
     // Show the help overlay
-    if(show_help) {
+    if (show_help) {
         do_help();
     }
 

@@ -8,8 +8,8 @@ class Light {
 public:
     Light(gl_vector3 pos, gl_rgba color, int size);
     Light *next_;
-    void Render();
-    void Blink();
+    void render() const;
+    void blink();
 
 private:
     gl_vector3 position_;
@@ -23,8 +23,8 @@ private:
     int cell_z_;
 };
 
-void LightRender();
-void LightClear();
-int LightCount();
+void light_render();
+void light_clear();
+int light_count();
 
 #endif /* LIGHT_HPP_ */

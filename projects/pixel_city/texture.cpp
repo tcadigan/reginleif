@@ -20,12 +20,13 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <list>
 
 #include "building.hpp"
 #include "camera.hpp"
 #include "car.hpp"
 #include "light.hpp"
-#include "macro.hpp"
+#include "math.hpp"
 #include "random.hpp"
 #include "render.hpp"
 #include "sky.hpp"
@@ -33,15 +34,7 @@
 #include "win.hpp"
 #include "world.hpp"
 
-#define RANDOM_COLOR_SHIFT ((float)(random_val(10)) / 50.0f)
-#define RANDOM_COLOR_VAL ((float)(random_val(256)) / 256.0f)
-#define RANDOM_COLOR_LIGHT ((float)(200 + random_val(56)) / 256.0f)
-#define SKY_BANDS (sizeof(sky_pos) / sizeof(int))
-#define PREFIX_COUNT (sizeof(prefix) / sizeof(char *))
-#define SUFFIX_COUNT (sizeof(suffix) / sizeof(char *))
-#define NAME_COUNT (sizeof(name) / sizeof(char *))
-
-static char const *prefix[] = {
+static std::array<std::string, 23> prefix = {
     "i",
     "Green ",
     "Mega",
@@ -67,7 +60,7 @@ static char const *prefix[] = {
     "National "
 };
 
-static char const *name[] = {
+std::array<std::string, 33> name = {
     "Biotic",
     "Info",
     "Data",
@@ -103,7 +96,7 @@ static char const *name[] = {
     "Studios"
 };
 
-static char const *suffix[] = {
+std::array<std::string, 15> suffix = {
     "Corp.",
     " Inc.",
     "Co",
@@ -121,38 +114,17 @@ static char const *suffix[] = {
     " LLC"
 };
 
-class CTexture {
-public:
-    int my_id_;
-    unsigned int glid_;
-    int desired_size_;
-    int size_;
-    int half_;
-    int segment_size_;
-    bool ready_;
-    bool masked_;
-    bool mipmap_;
-    bool clamp_;
-    CTexture *next_;
 
-    CTexture(int id, int size, bool mipmap, bool clamp, bool masked);
-    void Clear();
-    void Rebuild();
-    void DrawWindows();
-    void DrawSky();
-    void DrawHeadlight();
-};
-
-void CTexture::Clear()
+void Texture::clear()
 {
     ready_ = false;
 }
 
-static CTexture *head;
+static std::list<Texture> textures;
 static bool textures_done;
-static bool prefix_used[PREFIX_COUNT];
-static bool name_used[NAME_COUNT];
-static bool suffix_used[SUFFIX_COUNT];
+static std::array<bool, prefix.size()> prefix_used;
+static std::array<bool, name.size()> name_used;
+static std::array<bool, suffix.size()> suffix_used;
 static int build_time;
 
 void drawrect_simple(int left, int top, int right, int bottom, gl_rgba color)
@@ -187,15 +159,6 @@ void drawrect_simple(int left,
 
 void drawrect(int left, int top, int right, int bottom, gl_rgba color)
 {
-    float average;
-    float hue;
-    int potential;
-    int height;
-    int i;
-    int j;
-    bool bright;
-    gl_rgba color_noise;
-
     glDisable(GL_CULL_FACE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
@@ -204,7 +167,7 @@ void drawrect(int left, int top, int right, int bottom, gl_rgba color)
     glColor3fv(color.get_rgb().data());
 
     // In low resolution, a "rect" might be 1 pixel wide
-    if(left == right) {
+    if (left == right) {
         glBegin(GL_LINES);
         glVertex2i(left, top);
         glVertex2i(left, bottom);
@@ -212,13 +175,12 @@ void drawrect(int left, int top, int right, int bottom, gl_rgba color)
     }
 
     // In low resolution, a "rect" might be 1 pixel wide
-    if(top == bottom) {
+    if (top == bottom) {
         glBegin(GL_LINES);
         glVertex2i(left, top);
         glVertex2i(right, top);
         glEnd();
-    }
-    else {
+    } else {
         // Draw one of those fancy 2-dimensional rectangles
         glBegin(GL_QUADS);
         glVertex2i(left, top);
@@ -228,28 +190,28 @@ void drawrect(int left, int top, int right, int bottom, gl_rgba color)
         glEnd();
 
         std::array<float, 3> vals = color.get_rgb();
-        average = (vals.at(0) + vals.at(1) + vals.at(2)) / 3.0f;
-        bright = (average > 0.5f);
-        potential = (int)(average * 255.0f);
+        float average = (vals.at(0) + vals.at(1) + vals.at(2)) / 3.0f;
+        bool bright = (average > 0.5f);
+        int potential = (average * 255.0f);
 
-        if(bright) {
+        if (bright) {
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glBegin(GL_POINTS);
-            for(i = left + 1; i < right - 1; ++i) {
-                for(j = top + 1; j < bottom - 1; ++j) {
+            for (int i = left + 1; i < right - 1; ++i) {
+                for (int j = top + 1; j < bottom - 1; ++j) {
                     glColor4i(255, 0, random_val(potential), 255);
-                    hue = 0.2f
-                        + ((float)random_val(100) / 300.0f)
-                        + ((float)random_val(100) / 300.0f)
-                        + ((float)random_val(100) / 300.0f);
+                    float hue = 0.2f
+                        + (random_val(100) / 300.0f)
+                        + (random_val(100) / 300.0f)
+                        + (random_val(100) / 300.0f);
 
                     gl_rgba temp;
-                    color_noise = temp.from_hsl(hue, 0.3f, 0.5f);
-                    color_noise.set_alpha(((float)random_val(potential) / 144.0f) * 255);
-                    glColor4f(RANDOM_COLOR_VAL,
-                              RANDOM_COLOR_VAL,
-                              RANDOM_COLOR_VAL,
-                              (float)random_val(potential) / 144.0f);
+                    gl_rgba color_noise = temp.from_hsl(hue, 0.3f, 0.5f);
+                    color_noise.set_alpha((random_val(potential) / 144.0f) * 255);
+                    glColor4f(random_val(256) / 256.0f,
+                              random_val(256) / 256.0f,
+                              random_val(256) / 256.0f,
+                              random_val(potential) / 144.0f);
                     glColor4fv(color_noise.get_rgba().data());
                     glVertex2i(i, j);
                 }
@@ -257,10 +219,10 @@ void drawrect(int left, int top, int right, int bottom, gl_rgba color)
             glEnd();
         }
 
-        height = (bottom - top) + (random_val(3) - 1) + (random_val(3) - 1);
+        int height = (bottom - top) + (random_val(3) - 1) + (random_val(3) - 1);
 
-        for(i = left; i < right; ++i) {
-            if(random_val(6) == 0) {
+        for (int i = left; i < right; ++i) {
+            if (random_val(6) == 0) {
                 height = bottom - top;
                 height = random_val(height);
                 height = random_val(height);
@@ -268,11 +230,11 @@ void drawrect(int left, int top, int right, int bottom, gl_rgba color)
                 height = ((bottom - top) + height) / 2;
             }
 
-            for(j = 0; j < 1; ++j) {
+            for (int j = 0; j < 1; ++j) {
                 glBegin(GL_LINES);
-                glColor4f(0, 0, 0, (float)random_val(256) / 256.0f);
+                glColor4f(0, 0, 0, random_val(256) / 256.0f);
                 glVertex2i(i, bottom - height);
-                glColor4f(0, 0, 0, (float)random_val(256) / 256.0f);
+                glColor4f(0, 0, 0, random_val(256) / 256.0f);
                 glVertex2i(i, bottom);
                 glEnd();
             }
@@ -280,36 +242,34 @@ void drawrect(int left, int top, int right, int bottom, gl_rgba color)
     }
 }
 
-static void buildingWindow(int x, int y, int size, int id, gl_rgba color)
+static void buildingWindow(int x, int y, int size, texture_t id, gl_rgba color)
 {
-    int margin;
-    int half;
     int i;
 
-    margin = size / 3;
-    half = size / 2;
+    int margin = size / 3;
+    int half = size / 2;
 
     switch(id) {
-    case TEXTURE_BUILDING1:
+    case texture_t::building1:
         // Filled, 1-pixel frame
         drawrect(x + 1, y + 1, x + size - 1, y + size - 1, color);
         break;
-    case TEXTURE_BUILDING2:
+    case texture_t::building2:
         // Vertical
         drawrect(x + margin, y + 1, x + size - margin, y + size - 1, color);
         break;
-    case TEXTURE_BUILDING3:
+    case texture_t::building3:
         // Side-by-side pair
         drawrect(x + 1, y + 1, x + half - 1, y + size - margin, color);
         drawrect(x + half + 1, y + 1, x + size - 1, y + size - margin, color);
         break;
-    case TEXTURE_BUILDING4:
+    case texture_t::building4:
         // Windows with blinds
         drawrect(x + 1, y + 1, x + size - 1, y + size - 1, color);
         i = random_val(size - 2);
         drawrect(x + 1, y + 1, x + size - 1, y + i + 1, color * 0.3f);
         break;
-    case TEXTURE_BUILDING5:
+    case texture_t::building5:
         // Vert stripes
         drawrect(x + 1, y + 1, x + size - 1, y + size - 1, color);
         drawrect(x + margin, y + 1, x + margin, y + size - 1, color * 0.7f);
@@ -319,31 +279,33 @@ static void buildingWindow(int x, int y, int size, int id, gl_rgba color)
                  y + size - 1,
                  color * 0.3f);
         break;
-    case TEXTURE_BUILDING6:
+    case texture_t::building6:
         // Wide horz line
         drawrect(x + 1, y + 1, x + size - 1, y + size - margin, color);
         break;
-    case TEXTURE_BUILDING7:
+    case texture_t::building7:
         // 4-pane
         drawrect(x + 2, y + 1, x + size - 1, y + size - 1, color);
         drawrect(x + 2, y + half, x + size - 1, y + half, color * 0.2f);
         drawrect(x + half, y + 1, x + half, y + size - 1, color * 0.2f);
         break;
-    case TEXTURE_BUILDING8:
+    case texture_t::building8:
         // Single narrow window
         drawrect(x + half - 1, y + 1, x + half + 1, y + size - margin, color);
         break;
-    case TEXTURE_BUILDING9:
+    case texture_t::building9:
         // Horizontal
         drawrect(x + 1, y + margin, x + size - 1, y + size - margin - 1, color);
+        break;
+    default:
         break;
     }
 }
 
-static void do_bloom(CTexture *t)
+static void do_bloom(Texture const &t)
 {
     glBindTexture(GL_TEXTURE_2D, 0);
-    glViewport(0, 0, t->size_, t->size_);
+    glViewport(0, 0, t.size_, t.size_);
     glCullFace(GL_BACK);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDepthMask(true);
@@ -353,21 +315,21 @@ static void do_bloom(CTexture *t)
     glCullFace(GL_BACK);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_FOG);
-    glFogf(GL_FOG_START, RenderFogDistance() / 2);
-    glFogf(GL_FOG_END, RenderFogDistance());
+    glFogf(GL_FOG_START, render_fog_distance() / 2);
+    glFogf(GL_FOG_END, render_fog_distance());
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_TEXTURE_2D);
     entity_render();
     car_render();
-    LightRender();
-    glBindTexture(GL_TEXTURE_2D, t->glid_);
+    light_render();
+    glBindTexture(GL_TEXTURE_2D, t.glid_);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, t->size_, t->size_, 0);
+    glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, t.size_, t.size_, 0);
 }
 
-CTexture::CTexture(int id, int size, bool mipmap, bool clamp, bool masked)
+Texture::Texture(texture_t id, int size, bool mipmap, bool clamp, bool masked)
 {
     glGenTextures(1, &glid_);
     my_id_ = id;
@@ -379,8 +341,7 @@ CTexture::CTexture(int id, int size, bool mipmap, bool clamp, bool masked)
     half_ = size / 2;
     segment_size_ = size / SEGMENTS_PER_TEXTURE;
     ready_ = false;
-    next_ = head;
-    head = this;
+    textures.push_back(*this);
 }
 
 // This draws all of the windows on a building texture. lit_density controls
@@ -388,10 +349,8 @@ CTexture::CTexture(int id, int size, bool mipmap, bool clamp, bool masked)
 // mean less lit windows). run_length controls how often it will consider
 // changing the lit/unlit status. 1 produces a complete scatter, higher
 // numbers make long strings of lights
-void CTexture::DrawWindows()
+void Texture::draw_windows()
 {
-    int x;
-    int y;
     int run;
     int run_length;
     int lit_density;
@@ -399,36 +358,35 @@ void CTexture::DrawWindows()
     bool lit;
 
     // color = glRgbaUnique(_my_id);
-    for(y = 0; y < SEGMENTS_PER_TEXTURE; ++y) {
+    for (int y = 0; y < SEGMENTS_PER_TEXTURE; ++y) {
         // Every few floors we change the behavior
-        if(!(y % 8)) {
+        if (!(y % 8)) {
             run = 0;
             run_length = random_val(9) + 2;
             lit_density = 2 + random_val(2) + random_val(2);
             lit = false;
         }
 
-        for(x = 0; x < SEGMENTS_PER_TEXTURE; ++x) {
+        for (int x = 0; x < SEGMENTS_PER_TEXTURE; ++x) {
             // If this run is over reroll lit and start a new one
-            if(run < 1) {
+            if (run < 1) {
                 run = random_val(run_length);
                 lit = (random_val(lit_density) == 0);
-                // if(lit) {
+                // if (lit) {
                 //     color = glRgba(0.5f + (float)(random_val() % 128) / 256.0f)
-                //         + glRgba(RANDOM_COLOR_SHIFT,
-                //                  RANDOM_COLOR_SHIFT,
-                //                  RANDOM_COLOR_SHIFT);
+                //         + glRgba(random_val(10) / 50.0f,
+                //                  random_val(10) / 50.0f,
+                //                  random_val(10) / 50.0f);
                 // }
             }
 
-            if(lit) {
+            if (lit) {
                 int rand_val = random_val() % 128;
                 color = gl_rgba(127 + rand_val, 127 + rand_val, 127 + rand_val)
-                    + gl_rgba(RANDOM_COLOR_SHIFT,
-                             RANDOM_COLOR_SHIFT,
-                             RANDOM_COLOR_SHIFT);
-            }
-            else {
+                    + gl_rgba(random_val(10) / 50.0f,
+                              random_val(10) / 50.0f,
+                              random_val(10) / 50.0f);
+            } else {
                 int rand_val = random_val() % 40;
                 color = gl_rgba(rand_val, rand_val, rand_val);
             }
@@ -444,21 +402,14 @@ void CTexture::DrawWindows()
     }
 }
 
-void CTexture::DrawSky()
+void Texture::draw_sky()
 {
-    gl_rgba color;
-    float scale;
     float inv_scale;
-    int i;
-    int x;
-    int y;
-    int width;
     int height;
-    int offset;
     int width_adjust;
     int height_adjust;
 
-    color = WorldBloomColor();
+    gl_rgba color = world_bloom_color();
 
     // Desaturate, slightly dim
     color = (color / 15.0f) + (color / 45.0f) + (color / 45.0f);
@@ -473,7 +424,7 @@ void CTexture::DrawSky()
     glEnd();
 
     // Draw a bunch of little faux-buildings on the horizon
-    for(i = 0; i < size_; i += 5) {
+    for (int i = 0; i < size_; i += 5) {
         drawrect(i,
                  size_ - random_val(8) - random_val(8) - random_val(8),
                  i + random_val(9),
@@ -482,40 +433,38 @@ void CTexture::DrawSky()
     }
 
     // Draw the clouds
-    for(i = size_ - 30; i > 5; i -= 2) {
-        x = random_val(size_);
-        y = i;
+    for (int i = size_ - 30; i > 5; i -= 2) {
+        int x = random_val(size_);
+        int y = i;
 
-        scale = 1.0f - ((float)y / (float)size_);
-        width = random_val(half_ / 2) + (int)((float)half_ * scale) / 2;
-        scale = 1.0f - ((float)y / (float)size_);
-        height = (int)((float)width * scale);
-        height = MAX(height, 4);
+        float scale = 1.0f - (static_cast<float>(y) / size_);
+        int width = random_val(half_ / 2) + (half_ * scale) / 2;
+        scale = 1.0f - (static_cast<float>(y) / size_);
+        height = (width * scale);
+        height = std::max(height, 4);
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glDisable(GL_CULL_FACE);
         glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, TextureId(TEXTURE_SOFT_CIRCLE));
+        glBindTexture(GL_TEXTURE_2D, texture_id(texture_t::soft_circle));
         glDepthMask(false);
         glBegin(GL_QUADS);
-        for(offset = -size_; offset <= size_; offset += size_) {
-            for(scale = 1.0f; scale > 0.0f; scale -= 0.25f) {
+        for (int offset = -size_; offset <= size_; offset += size_) {
+            for (float scale = 1.0f; scale > 0.0f; scale -= 0.25f) {
                 inv_scale = 1.0f - scale;
-                if(scale < 0.4f) {
-                    color = WorldBloomColor() * 0.1f;
-                }
-                else {
+                if (scale < 0.4f) {
+                    color = world_bloom_color() * 0.1f;
+                } else {
                     color = gl_rgba(0, 0, 0);
                 }
 
                 color.set_alpha(51);
                 glColor4fv(color.get_rgba().data());
                 width_adjust =
-                    (int)(((float)width / 2.0f)
-                          + (int)(inv_scale * ((float)width / 2.0f)));
+                    ((width / 2.0f) + (inv_scale * (width / 2.0f)));
 
-                height_adjust = height + (int)(scale * (float)height * 0.99f);
+                height_adjust = height + (scale * height * 0.99f);
 
                 glTexCoord2f(0, 0);
                 glVertex2i(offset + x - width_adjust,
@@ -537,28 +486,24 @@ void CTexture::DrawSky()
     glEnd();
 }
 
-void CTexture::DrawHeadlight()
+void Texture::draw_headlight()
 {
-    float radius;
-    int i;
-    int x;
-    int y;
     gl_vector2 pos;
 
     // Make a simple circle of light, bright in the center and fading out
-    radius = ((float)half_) - 20;
-    x = half_ - 20;
-    y = half_;
+    float radius = (half_) - 20;
+    int x = half_ - 20;
+    int y = half_;
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glBegin(GL_TRIANGLE_FAN);
     glColor4f(0.8f, 0.8f, 0.8f, 0.6f);
     glVertex2i(half_ - 5, y);
     glColor4f(0, 0, 0, 0);
-    for(i = 0; i <= 360; i += 36) {
-        pos.set_x(sinf((float)(i % 360) * DEGREES_TO_RADIANS) * radius);
-        pos.set_y(cosf((float)(i % 360) * DEGREES_TO_RADIANS) * radius);
-        glVertex2i(x + (int)pos.get_x(), half_ + (int)pos.get_y());
+    for (int i = 0; i <= 360; i += 36) {
+        pos.set_x(sinf((i % 360) * DEGREES_TO_RADIANS) * radius);
+        pos.set_y(cosf((i % 360) * DEGREES_TO_RADIANS) * radius);
+        glVertex2i(x + pos.get_x(), half_ + pos.get_y());
     }
     glEnd();
 
@@ -567,10 +512,10 @@ void CTexture::DrawHeadlight()
     glColor4f(0.8f, 0.8f, 0.8f, 0.6f);
     glVertex2i(half_ + 5, y);
     glColor4f(0, 0, 0, 0);
-    for(i = 0; i <= 360; i += 36) {
-        pos.set_x(sinf((float)(i % 360) * DEGREES_TO_RADIANS) * radius);
-        pos.set_y(cosf((float)(i % 360) * DEGREES_TO_RADIANS) * radius);
-        glVertex2i(x + (int)pos.get_x(), half_ + (int)pos.get_y());
+    for (int i = 0; i <= 360; i += 36) {
+        pos.set_x(sinf((i % 360) * DEGREES_TO_RADIANS) * radius);
+        pos.set_y(cosf((i % 360) * DEGREES_TO_RADIANS) * radius);
+        glVertex2i(x + pos.get_x(), half_ + pos.get_y());
     }
     glEnd();
 
@@ -584,30 +529,25 @@ void CTexture::DrawHeadlight()
 // obscure logic, magic numbers, and message code. Part of this is because
 // there is a lot of "art" being done here, and lots of numbers that could be
 // endlessly tweaked. Also because I'm lazy.
-void CTexture::Rebuild()
+void Texture::rebuild()
 {
     int i;
-    int j;
-    int x;
     int y;
     int name_num;
     int prefix_num;
     int suffix_num;
-    int max_size;
     float radius;
     gl_vector2 pos;
-    bool use_framebuffer;
     unsigned char *bits;
-    unsigned int start;
     int lapsed;
 
-    start = SDL_GetTicks();
+    unsigned int start = SDL_GetTicks();
 
     // Since we make textures by drawing into the viewport, we can't make
     // them bigger than the current view.
     size_ = desired_size_;
-    max_size = RenderMaxTextureSize();
-    while(size_ > max_size) {
+    int max_size = render_max_texture_size();
+    while (size_ > max_size) {
         size_ /= 2;
     }
 
@@ -625,7 +565,7 @@ void CTexture::Rebuild()
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    if(clamp_) {
+    if (clamp_) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
@@ -646,11 +586,11 @@ void CTexture::Rebuild()
     glTranslatef(0, 0, -10.0f);
     glClearColor(0, 0, 0, masked_ ? 0.0f : 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    use_framebuffer = true;
+    bool use_framebuffer = true;
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     switch(my_id_) {
-    case TEXTURE_LATTICE:
+    case texture_t::lattice:
         glLineWidth(2.0f);
 
         glColor3f(0, 0, 0);
@@ -672,26 +612,24 @@ void CTexture::Rebuild()
 
         glBegin(GL_LINE_STRIP);
         glVertex2i(0, 0);
-        for(i = 0; i < size_; i += 9) {
-            if(i % 2) {
+        for (int i = 0; i < size_; i += 9) {
+            if (i % 2) {
                 glVertex2i(0, i);
-            }
-            else {
+            } else {
                 glVertex2i(i, i);
             }
         }
 
-        for(i = 0; i < size_; i += 9) {
-            if(i % 2) {
+        for (int i = 0; i < size_; i += 9) {
+            if (i % 2) {
                 glVertex2i(i, 0);
-            }
-            else {
+            } else {
                 glVertex2i(i, i);
             }
         }
         glEnd();
         break;
-    case TEXTURE_SOFT_CIRCLE:
+    case texture_t::soft_circle:
         // Make a simple circle of light, bright in the center and fading out
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -700,30 +638,29 @@ void CTexture::Rebuild()
         glColor4f(1, 1, 1, 1);
         glVertex2i(half_, half_);
         glColor4f(0, 0, 0, 0);
-        for(i = 0; i <= 360; ++i) {
+        for (int i = 0; i <= 360; ++i) {
             pos.set_x(sinf((float)i * DEGREES_TO_RADIANS) * radius);
             pos.set_y(cosf((float)i * DEGREES_TO_RADIANS) * radius);
             glVertex2i(half_ + (int)pos.get_x(), half_ + (int)pos.get_y());
         }
         glEnd();
         break;
-    case TEXTURE_LIGHT:
+    case texture_t::light:
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         radius = (float)half_ - 3;
-        for(j = 0; j < 2; ++j) {
+        for (int j = 0; j < 2; ++j) {
             glBegin(GL_TRIANGLE_FAN);
             glColor4f(1, 1, 1, 1);
             glVertex2i(half_, half_);
-            if(!j) {
+            if (!j) {
                 radius = (float)half_ / 2;
-            }
-            else {
+            } else {
                 radius = 8;
             }
 
             glColor4f(1, 1, 1, 0);
-            for(i = 0; i <= 360; ++i) {
+            for (int i = 0; i <= 360; ++i) {
                 pos.set_x(sinf((float)i * DEGREES_TO_RADIANS) * radius);
                 pos.set_y(cosf((float)i * DEGREES_TO_RADIANS) * radius);
                 glVertex2i(half_ + (int)pos.get_x(), half_ + (int)pos.get_y());
@@ -731,50 +668,49 @@ void CTexture::Rebuild()
             glEnd();
         }
         break;
-    case TEXTURE_HEADLIGHT:
-        DrawHeadlight();
+    case texture_t::headlight:
+        draw_headlight();
         break;
-    case TEXTURE_LOGOS:
+    case texture_t::logos:
         i = 0;
         glDepthMask(false);
         glDisable(GL_BLEND);
-        name_num = random_val(NAME_COUNT);
-        prefix_num = random_val(PREFIX_COUNT);
-        suffix_num = random_val(SUFFIX_COUNT);
+        name_num = random_val(name.size());
+        prefix_num = random_val(prefix.size());
+        suffix_num = random_val(suffix.size());
         glColor3f(1, 1, 1);
 
-        while(i < size_) {
+        while (i < size_) {
             // Randomly use a prefix OR suffix, but not both. Too verbose.
-            if(COIN_FLIP) {
-                RenderPrint(2,
-                            size_ - i - (LOGO_PIXELS / 4),
-                            random_val(),
-                            gl_rgba(255, 255, 255),
-                            "%s%s",
-                            prefix[prefix_num],
-                            name[name_num]);
-            }
-            else {
-                RenderPrint(2,
-                            size_ - i - (LOGO_PIXELS / 4),
-                            random_val(),
-                            gl_rgba(255, 255, 255),
-                            "%s%s",
-                            name[name_num],
-                            suffix[suffix_num]);
+            if (random_val(2) == 0) {
+                render_print(2,
+                             size_ - i - (LOGO_PIXELS / 4),
+                             random_val(),
+                             gl_rgba(255, 255, 255),
+                             "%s%s",
+                             prefix[prefix_num].c_str(),
+                             name[name_num].c_str());
+            } else {
+                render_print(2,
+                             size_ - i - (LOGO_PIXELS / 4),
+                             random_val(),
+                             gl_rgba(255, 255, 255),
+                             "%s%s",
+                             name[name_num].c_str(),
+                             suffix[suffix_num].c_str());
             }
 
-            name_num = (name_num + 1) % NAME_COUNT;
-            prefix_num = (prefix_num + 1) % PREFIX_COUNT;
-            suffix_num = (suffix_num + 1) % SUFFIX_COUNT;
+            name_num = (name_num + 1) % name.size();
+            prefix_num = (prefix_num + 1) % prefix.size();
+            suffix_num = (suffix_num + 1) % suffix.size();
         }
         break;
-    case TEXTURE_TRIM:
+    case texture_t::trim:
         int margin;
         y = 0;
-        margin = MAX(TRIM_PIXELS / 4, 1);
+        margin = std::max(TRIM_PIXELS / 4, 1);
 
-        for(x = 0; x < size_; x += TRIM_PIXELS) {
+        for (int x = 0; x < size_; x += TRIM_PIXELS) {
             drawrect_simple(x + margin,
                             y + margin,
                             x + TRIM_PIXELS - margin,
@@ -784,7 +720,7 @@ void CTexture::Rebuild()
         }
 
         y += TRIM_PIXELS;
-        for(x = 0; x < size_; x += TRIM_PIXELS * 2) {
+        for (int x = 0; x < size_; x += TRIM_PIXELS * 2) {
             drawrect_simple(x + margin,
                             y + margin,
                             x + TRIM_PIXELS - margin,
@@ -794,7 +730,7 @@ void CTexture::Rebuild()
         }
 
         y += TRIM_PIXELS;
-        for(x = 0; x < size_; x += TRIM_PIXELS * 3) {
+        for (int x = 0; x < size_; x += TRIM_PIXELS * 3) {
             drawrect_simple(x + margin,
                             y + margin,
                             x + TRIM_PIXELS - margin,
@@ -804,7 +740,7 @@ void CTexture::Rebuild()
         }
 
         y += TRIM_PIXELS;
-        for(x = 0; x < size_; x += TRIM_PIXELS) {
+        for (int x = 0; x < size_; x += TRIM_PIXELS) {
             drawrect_simple(x + margin,
                             y + margin,
                             x + TRIM_PIXELS - margin,
@@ -813,24 +749,24 @@ void CTexture::Rebuild()
                             gl_rgba(127, 127, 127));
         }
         break;
-    case TEXTURE_SKY:
-        DrawSky();
+    case texture_t::sky:
+        draw_sky();
         break;
     default:
         // Building textures
-        DrawWindows();
+        draw_windows();
         break;
     }
 
     glPopMatrix();
 
     // Now blit the finished image into our texture
-    if(use_framebuffer) {
+    if (use_framebuffer) {
         glBindTexture(GL_TEXTURE_2D, glid_);
         glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, size_, size_, 0);
     }
 
-    if(mipmap_) {
+    if (mipmap_) {
         bits = (unsigned char *)malloc(size_ * size_ * 4);
         glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, bits);
         gluBuild2DMipmaps(GL_TEXTURE_2D,
@@ -847,74 +783,74 @@ void CTexture::Rebuild()
                         GL_LINEAR_MIPMAP_LINEAR);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    }
-    else {
+    } else {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     }
 
     // Cleanup and restore the viewport
-    RenderResize();
+    render_resize();
     ready_ = true;
     lapsed = SDL_GetTicks() - start;
     build_time += lapsed;
 }
 
-unsigned int TextureId(int id)
+unsigned int texture_id(texture_t id)
 {
-    for(CTexture *t = head; t; t = t->next_) {
-        if(t->my_id_ == id) {
-            return t->glid_;
+    for (Texture const &texture : textures) {
+        if (texture.my_id_ == id) {
+            return texture.glid_;
         }
     }
 
     return 0;
 }
 
-unsigned int TextureRandomBuilding(int index)
+unsigned int texture_random_building(int index)
 {
     index = abs(index) % BUILDING_COUNT;
-    return TextureId(TEXTURE_BUILDING1 + index);
+    return texture_id(static_cast<texture_t>(static_cast<int>(texture_t::building1) + index));
 }
 
-void TextureReset()
+void texture_reset()
 {
     textures_done = false;
     build_time = 0;
-    for(CTexture *t = head; t; t = t->next_) {
-        t->Clear();
+
+    for (Texture &texture: textures) {
+        texture.clear();
     }
 
-    memset(prefix_used, '0', sizeof(prefix_used));
-    memset(name_used, '0', sizeof(name_used));
-    memset(suffix_used, '0', sizeof(suffix_used));
+    prefix_used.fill(false);
+    name_used.fill(false);
+    suffix_used.fill(false);
 }
 
-bool TextureReady()
+bool texture_ready()
 {
     return textures_done;
 }
 
-void TextureUpdate()
+void texture_update()
 {
-    if(textures_done) {
-        if(!RenderBloom()) {
+    if (textures_done) {
+        if (!render_bloom()) {
             return;
         }
 
-        CTexture *t;
-        for(t = head; t; t = t->next_) {
-            if(t->my_id_ != TEXTURE_BLOOM) {
+        for (Texture const &texture : textures) {
+            if (texture.my_id_ == texture_t::bloom) {
                 continue;
             }
 
-            do_bloom(t);
+            do_bloom(texture);
             return;
         }
     }
 
-    for(CTexture *t = head; t; t = t->next_) {
-        if(!t->ready_) {
-            t->Rebuild();
+    for (Texture &texture : textures) {
+        if (!texture.ready_) {
+            texture.rebuild();
+
             return;
         }
     }
@@ -922,28 +858,22 @@ void TextureUpdate()
     textures_done = true;
 }
 
-void TextureTerm()
+void texture_term()
 {
-    CTexture *t;
-
-    while(head) {
-        t = head->next_;
-        free(head);
-        head = t;
-    }
+    textures.clear();
 }
 
-void TextureInit()
+void texture_init()
 {
-    new CTexture(TEXTURE_SKY, 512, true, false, false);
-    new CTexture(TEXTURE_LATTICE, 128, true, true, true);
-    new CTexture(TEXTURE_LIGHT, 128, false, false, true);
-    new CTexture(TEXTURE_SOFT_CIRCLE, 128, false, false, true);
-    new CTexture(TEXTURE_HEADLIGHT, 128, false, false, true);
-    new CTexture(TEXTURE_TRIM, TRIM_RESOLUTION, true, false, false);
-    new CTexture(TEXTURE_LOGOS, LOGO_RESOLUTION, true, false, true);
-    for(int i = TEXTURE_BUILDING1; i < TEXTURE_BUILDING9; ++i) {
-        new CTexture(i, 512, true, false, false);
+    new Texture(texture_t::sky, 512, true, false, false);
+    new Texture(texture_t::lattice, 128, true, true, true);
+    new Texture(texture_t::light, 128, false, false, true);
+    new Texture(texture_t::soft_circle, 128, false, false, true);
+    new Texture(texture_t::headlight, 128, false, false, true);
+    new Texture(texture_t::trim, TRIM_RESOLUTION, true, false, false);
+    new Texture(texture_t::logos, LOGO_RESOLUTION, true, false, true);
+    for (int i = static_cast<int>(texture_t::building1); i < static_cast<int>(texture_t::building9); ++i) {
+        new Texture(static_cast<texture_t>(i), 512, true, false, false);
     }
-    new CTexture(TEXTURE_BLOOM, 512, true, false, false);
+    new Texture(texture_t::bloom, 512, true, false, false);
 }

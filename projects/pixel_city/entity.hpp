@@ -5,7 +5,7 @@
 
 #include "gl-vector3.hpp"
 
-static int const MAX_VBUFFER = 256;
+static int constexpr MAX_VBUFFER = 256;
 
 class Entity {
 public:

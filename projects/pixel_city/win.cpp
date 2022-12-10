@@ -24,15 +24,12 @@
 #include "car.hpp"
 #include "entity.hpp"
 #include "ini.hpp"
-#include "macro.hpp"
 #include "random.hpp"
 #include "render.hpp"
 #include "texture.hpp"
 #include "visible.hpp"
 #include "win.hpp"
 #include "world.hpp"
-
-#define MOUSE_MOVEMENT 0.5f
 
 // HACK
 static int width = 640;
@@ -44,11 +41,11 @@ void app_update()
 {
     camera_update();
     entity_update();
-    WorldUpdate();
-    TextureUpdate();
+    world_update();
+    texture_update();
     visible_update();
     car_update();
-    RenderUpdate();
+    render_update();
 }
 
 void app_init()
@@ -62,9 +59,9 @@ void app_init()
     load_ini();
     random_init(time(NULL));
     camera_init();
-    RenderInit();
-    TextureInit();
-    WorldInit();
+    render_init();
+    texture_init();
+    world_init();
 }
 
 void app_quit()
@@ -79,9 +76,9 @@ void win_term(SDL_Window *window)
 
 void app_term(SDL_Window *window)
 {
-    TextureTerm();
-    WorldTerm();
-    RenderTerm();
+    texture_term();
+    world_term();
+    render_term();
     camera_term();
     win_term(window);
     write_ini();

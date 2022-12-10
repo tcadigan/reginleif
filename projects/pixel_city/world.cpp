@@ -4,7 +4,7 @@
  * 2009 Shamus Young
  *
  * This holds a bunch of variables used by other modules. It has the
- * claim system, which tracks all of the "porperty" that is being
+ * claim system, which tracks all of the "property" that is being
  * used: As roads, buildings, etc.
  *
  */
@@ -13,6 +13,7 @@
 
 #include <SDL2/SDL.h>
 
+#include <algorithm>
 #include <cmath>
 #include <cstring>
 #include <cstdlib>
@@ -24,7 +25,6 @@
 #include "car.hpp"
 #include "decoration.hpp"
 #include "light.hpp"
-#include "macro.hpp"
 #include "math.hpp"
 #include "mesh.hpp"
 #include "random.hpp"
@@ -37,29 +37,37 @@
 
 #define LIGHT_COLOR_COUNT (sizeof(light_colors) / sizeof(HSL))
 
-using namespace std;
-
-struct plot {
+class Plot {
+public:
     int x;
     int z;
     int width;
     int depth;
 };
 
-enum {
-    FADE_IDLE,
-    FADE_OUT,
-    FADE_WAIT,
-    FADE_IN,
+enum class fade_t {
+    idle,
+    out,
+    wait,
+    in
 };
 
-struct HSL {
+class HSL {
+public:
+    HSL(float hue, float sat, float lum);
+
     float hue;
     float sat;
     float lum;
 };
 
-class CStreet {
+HSL::HSL(float hue, float sat, float lum)
+    : hue(hue)
+    , sat(sat)
+    , lum(lum)
+{}
+
+class Street {
 public:
     int _x;
     int _y;
@@ -67,33 +75,33 @@ public:
     int _depth;
     int _mesh;
 
-    CStreet(int x, int y, int width, int depth);
-    ~CStreet();
-    void Render();
+    Street(int x, int y, int width, int depth);
+    ~Street();
+    void render();
 };
 
-static HSL light_colors[] = {
-    {0.04f, 0.9f, 0.93f}, // Amber/pink
-    {0.055f, 0.95f, 0.93f}, // Slightly brighter amber
-    {0.08f, 0.7f, 0.93f}, // Very pale amber
-    {0.07f, 0.9f, 0.93f}, // Very pale orange
-    {0.1f, 0.9f, 0.85f},  // Peach
-    {0.13f, 0.9f, 0.93f}, // Pale yellow
-    {0.15f, 0.9f, 0.93f}, // Yellow
-    {0.17f, 1.0f, 0.85f}, // Saturated yellow
-    {0.55f, 0.9f, 0.93f}, // Cyan
-    {0.6f, 0.9f, 0.93f}, // Pale Blue
-    {0.65f, 0.9f, 0.93f}, // Pale blue II, the palening
-    {0.65f, 0.4f, 0.99f}, // Pure white. bo-ring.
-    {0.65f, 0.0f, 0.8f}, // Dimmer white
-    {0.65, 0.0f, 0.6f}, // Dimmest white
+static std::array<HSL, 14> light_colors = {
+    HSL{0.04f, 0.9f, 0.93f}, // Amber/pink
+    HSL{0.055f, 0.95f, 0.93f}, // Slightly brighter amber
+    HSL{0.08f, 0.7f, 0.93f}, // Very pale amber
+    HSL{0.07f, 0.9f, 0.93f}, // Very pale orange
+    HSL{0.1f, 0.9f, 0.85f},  // Peach
+    HSL{0.13f, 0.9f, 0.93f}, // Pale yellow
+    HSL{0.15f, 0.9f, 0.93f}, // Yellow
+    HSL{0.17f, 1.0f, 0.85f}, // Saturated yellow
+    HSL{0.55f, 0.9f, 0.93f}, // Cyan
+    HSL{0.6f, 0.9f, 0.93f}, // Pale Blue
+    HSL{0.65f, 0.9f, 0.93f}, // Pale blue II, the palening
+    HSL{0.65f, 0.4f, 0.99f}, // Pure white. bo-ring.
+    HSL{0.65f, 0.0f, 0.8f}, // Dimmer white
+    HSL{0.65, 0.0f, 0.6f}, // Dimmest white
 };
 
 static gl_rgba bloom_color;
 static long int last_update;
-static usage_t world[WORLD_SIZE][WORLD_SIZE];
+static std::array<std::array<usage_t, WORLD_SIZE>, WORLD_SIZE> world;
 static Sky *sky;
-static int fade_state;
+static fade_t fade_state;
 static unsigned int fade_start;
 static float fade_current;
 static int modern_count;
@@ -108,22 +116,17 @@ static int scene_begin;
 
 static gl_rgba get_light_color(float sat, float lum)
 {
-    int index;
-
-    index = random_val(LIGHT_COLOR_COUNT);
+    int index = random_val(LIGHT_COLOR_COUNT);
     gl_rgba temp;
     return temp.from_hsl(light_colors[index].hue, sat, lum);
 }
 
 static void claim(int x, int y, int width, int depth, usage_t val)
 {
-    int xx;
-    int yy;
-
-    for(xx = x; xx < (x + width); ++xx) {
-        for(yy = y; yy < (y + depth); ++yy) {
-            int x_index = CLAMP(xx, 0, WORLD_SIZE - 1);
-            int y_index = CLAMP(yy, 0, WORLD_SIZE - 1);
+    for (int xx = x; xx < (x + width); ++xx) {
+        for (int yy = y; yy < (y + depth); ++yy) {
+            int x_index = std::clamp(xx, 0, WORLD_SIZE - 1);
+            int y_index = std::clamp(yy, 0, WORLD_SIZE - 1);
 
             world[x_index][y_index] = world[x_index][y_index] | val;
         }
@@ -132,15 +135,12 @@ static void claim(int x, int y, int width, int depth, usage_t val)
 
 static bool claimed(int x, int y, int width, int depth)
 {
-    int xx;
-    int yy;
+    for (int xx = x; xx < (x + width); ++xx) {
+        for (int yy = y; yy < (y + width); ++yy) {
+            int x_index = std::clamp(xx, 0, WORLD_SIZE - 1);
+            int y_index = std::clamp(yy, 0, WORLD_SIZE - 1);
 
-    for(xx = x; xx < (x + width); ++xx) {
-        for(yy = y; yy < (y + width); ++yy) {
-            int x_index = CLAMP(xx, 0, WORLD_SIZE - 1);
-            int y_index = CLAMP(yy, 0, WORLD_SIZE - 1);
-
-            if(world[x_index][y_index] != usage_t::none) {
+            if (world[x_index][y_index] != usage_t::none) {
                 return true;
             }
         }
@@ -153,33 +153,30 @@ static void build_road(int x1, int y1, int width, int depth)
 {
     int lanes;
     int divider;
-    int sidewalk;
 
     // The given rectangle defines a street and its sidewalk. See which way
     // it goes.
-    if(width > depth) {
+    if (width > depth) {
         lanes = depth;
-    }
-    else {
+    } else {
         lanes = width;
     }
 
     // If we don't have room for both lanes and sidewalk, abort
-    if(lanes < 4) {
+    if (lanes < 4) {
         return;
     }
 
     // If we have an odd number of lanes give the extra to a divider
-    if(lanes % 2) {
+    if (lanes % 2) {
         lanes--;
         divider = 1;
-    }
-    else {
+    } else {
         divider = 0;
     }
 
     // No more than 10 traffic lanes, give the rest to sidewalks
-    sidewalk = MAX(2, (lanes - 10));
+    int sidewalk = std::max(2, (lanes - 10));
     lanes -= sidewalk;
     sidewalk /= 2;
 
@@ -190,15 +187,14 @@ static void build_road(int x1, int y1, int width, int depth)
     claim(x1, y1, width, depth, usage_t::claim_walk);
 
     // No place the directional roads
-    if(width > depth) {
+    if (width > depth) {
         claim(x1, y1 + sidewalk, width, lanes, usage_t::claim_road | usage_t::map_road_west);
         claim(x1,
               y1 + sidewalk + lanes + divider,
               width,
               lanes,
               usage_t::claim_road | usage_t::map_road_west);
-    }
-    else {
+    } else {
         claim(x1 + sidewalk, y1, lanes, depth, usage_t::claim_road | usage_t::map_road_south);
         claim(x1 + sidewalk + lanes + divider,
               y1,
@@ -208,35 +204,31 @@ static void build_road(int x1, int y1, int width, int depth)
     }
 }
 
-static plot find_plot(int x, int z)
+static Plot find_plot(int x, int z)
 {
-    plot p;
-    int x1;
-    int x2;
-    int z1;
-    int z2;
+    Plot p;
 
     // We've been given the location of an open bit of land, be we have
     // no idea how big it is. Find the boundary.
-    x2 = x;
-    x1 = x;
+    int x2 = x;
+    int x1 = x;
 
-    while(!claimed(x1 - 1, z, 1, 1) && (x1 > 0)) {
+    while (!claimed(x1 - 1, z, 1, 1) && (x1 > 0)) {
         x1--;
     }
 
-    while(!claimed(x2 + 1, z, 1, 1) && (x2 < WORLD_SIZE)) {
+    while (!claimed(x2 + 1, z, 1, 1) && (x2 < WORLD_SIZE)) {
         x2++;
     }
 
-    z2 = z;
-    z1 = z;
+    int z2 = z;
+    int z1 = z;
 
-    while(!claimed(x, z1 - 1, 1, 1) && (z1 > 0)) {
+    while (!claimed(x, z1 - 1, 1, 1) && (z1 > 0)) {
         z1--;
     }
 
-    while(!claimed(x, z2 + 1, 1, 1) && (z2 < WORLD_SIZE)) {
+    while (!claimed(x, z2 + 1, 1, 1) && (z2 < WORLD_SIZE)) {
         z2++;
     }
 
@@ -248,51 +240,44 @@ static plot find_plot(int x, int z)
     return p;
 }
 
-static plot make_plot(int x, int z, int width, int depth)
+static Plot make_plot(int x, int z, int width, int depth)
 {
-    plot p = {x, z, width, depth};
+    Plot p = {x, z, width, depth};
 
     return p;
 }
 
-void do_building(plot p)
+void do_building(Plot p)
 {
     int height;
-    int seed;
-    int area;
     building_t type;
-    gl_rgba color;
-    bool square;
 
     // Now we know how bit the rectangle plot is.
-    area = p.width * p.depth;
-    color = WorldLightColor(random_val());
-    seed = random_val();
+    int area = p.width * p.depth;
+    gl_rgba color = world_light_color(random_val());
+    int seed = random_val();
 
     // Make sure the plot is big enough for a building
-    if((p.width < 10) || (p.depth < 10)) {
+    if ((p.width < 10) || (p.depth < 10)) {
         return;
     }
 
     // If the area is too big for one building subdivide it
-    if(area > 800) {
-        if(COIN_FLIP) {
+    if (area > 800) {
+        if (random_val(2) == 0) {
             p.width /= 2;
-            if(COIN_FLIP) {
+            if (random_val(2) == 0) {
                 do_building(make_plot(p.x, p.z, p.width, p.depth));
-            }
-            else {
+            } else {
                 do_building(make_plot(p.x + p.width, p.z, p.width, p.depth));
             }
 
             return;
-        }
-        else {
+        } else {
             p.depth /= 2;
-            if(COIN_FLIP) {
+            if (random_val(2) == 0) {
                 do_building(make_plot(p.x, p.z, p.width, p.depth));
-            }
-            else {
+            } else {
                 do_building(make_plot(p.x, p.z + p.depth, p.width, p.depth));
             }
 
@@ -300,19 +285,19 @@ void do_building(plot p)
         }
     }
 
-    if(area < 100) {
+    if (area < 100) {
         return;
     }
 
     // The plot is "square" if width and depth are close
-    square = (abs(p.width - p.depth) < 10);
+    bool square = (abs(p.width - p.depth) < 10);
 
     // Mark the land as used so other buildings don't appear here,
     // even if we don't use it all.
     claim(p.x, p.z, p.width, p.depth, usage_t::claim_building);
 
     // The roundy mod buildings look best on square plots.
-    if(square && (p.width > 20)) {
+    if (square && (p.width > 20)) {
         height = 45 + random_val(10);
         modern_count++;
         skyscrapers++;
@@ -330,7 +315,7 @@ void do_building(plot p)
 
     // // Rectangular plots are a good place for Blocky style buildings
     // // to sprawl blockily
-    // if((p.width > (p.depth * 2))
+    // if ((p.width > (p.depth * 2))
     //    || ((p.depth > (p.width * 2)) && (area > 800))) {
     //     height = 20 + random_val(10);
     //     blocky_count++;
@@ -351,15 +336,13 @@ void do_building(plot p)
 
     // This spot isn't ideal for any particular building, but try to keep
     // a good mix
-    if((tower_count < modern_count) && (tower_count < blocky_count)) {
+    if ((tower_count < modern_count) && (tower_count < blocky_count)) {
         type = building_t::tower;
         tower_count++;
-    }
-    else if(blocky_count < modern_count) {
+    } else if (blocky_count < modern_count) {
         type = building_t::blocky;
         blocky_count++;
-    }
-    else {
+    } else {
         type = building_t::modern;
         modern_count++;
     }
@@ -374,17 +357,11 @@ static int build_light_strip(int x1, int z1, direction_t direction)
 {
     Decoration *d;
     gl_rgba color;
-    int x2;
-    int z2;
-    int length;
-    int width;
-    int depth;
     int dir_x;
     int dir_z;
-    float size_adjust;
 
     // We adjust the size of the lights with this.
-    size_adjust = 2.5f;
+    float size_adjust = 2.5f;
     gl_rgba temp;
     color = temp.from_hsl(0.09f, 0.99f, 0.85f);
 
@@ -410,12 +387,12 @@ static int build_light_strip(int x1, int z1, direction_t direction)
     // So we know we're on the corner of an intersection
     // look in the given until we reach the end of
     // the sidewalk
-    x2 = x1;
-    z2 = z1;
-    length = 0;
+    int x2 = x1;
+    int z2 = z1;
+    int length = 0;
 
-    while((x2 > 0) && (x2 < WORLD_SIZE) && (z2 > 0) && (z2 < WORLD_SIZE)) {
-        if((world[x2][z2] & usage_t::claim_road) != usage_t::none) {
+    while ((x2 > 0) && (x2 < WORLD_SIZE) && (z2 > 0) && (z2 < WORLD_SIZE)) {
+        if ((world[x2][z2] & usage_t::claim_road) != usage_t::none) {
             break;
         }
 
@@ -424,44 +401,41 @@ static int build_light_strip(int x1, int z1, direction_t direction)
         z2 += dir_z;
     }
 
-    if(length < 10) {
+    if (length < 10) {
         return length;
     }
 
-    width = MAX(abs(x2 - x1), 1);
-    depth = MAX(abs(z2 - z1), 1);
+    int width = std::max(abs(x2 - x1), 1);
+    int depth = std::max(abs(z2 - z1), 1);
 
     d = new Decoration();
 
-    if(direction == direction_t::east) {
-        d->create_light_strip((float)x1,
-                            (float)z1 - size_adjust,
-                            (float)width,
-                            (float)depth + size_adjust,
+    if (direction == direction_t::east) {
+        d->create_light_strip(x1,
+                            z1 - size_adjust,
+                            width,
+                            depth + size_adjust,
                             2,
                             color);
-    }
-    else if(direction == direction_t::west) {
-        d->create_light_strip((float)x1,
-                            (float)z1,
-                            (float)width,
-                            (float)depth + size_adjust,
+    } else if (direction == direction_t::west) {
+        d->create_light_strip(x1,
+                            z1,
+                            width,
+                            depth + size_adjust,
                             2,
                             color);
-    }
-    else if(direction == direction_t::north) {
-        d->create_light_strip((float)x1,
-                            (float)z1,
-                            (float)width + size_adjust,
-                            (float)depth,
+    } else if (direction == direction_t::north) {
+        d->create_light_strip(x1,
+                            z1,
+                            width + size_adjust,
+                            depth,
                             2,
                             color);
-    }
-    else {
-        d->create_light_strip((float)x1 - size_adjust,
-                            (float)z1,
-                            (float)width - size_adjust,
-                            (float)depth,
+    } else {
+        d->create_light_strip(x1 - size_adjust,
+                            z1,
+                            width - size_adjust,
+                            depth,
                             2,
                             color);
     }
@@ -471,16 +445,9 @@ static int build_light_strip(int x1, int z1, direction_t direction)
 
 static void do_reset()
 {
-    int x;
-    int y;
     int width;
     int depth;
     int height;
-    int attempts;
-    bool broadway_done;
-    bool road_left;
-    bool road_right;
-    gl_rgba light_color;
     gl_rgba building_color;
     float west_street;
     float north_street;
@@ -491,7 +458,7 @@ static void do_reset()
     // Helpful when running tests.
     random_init(6);
     reset_needed = false;
-    broadway_done = false;
+    bool broadway_done = false;
     skyscrapers = 0;
     logo_index = 0;
     scene_begin = 0;
@@ -500,30 +467,30 @@ static void do_reset()
     tower_count = 0;
     hot_zone.clear();
     entity_clear();
-    LightClear();
+    light_clear();
     car_clear();
-    TextureReset();
+    texture_reset();
 
     // Pink a tint for the bloom
     bloom_color = get_light_color(0.5f + ((float)random_val(10) / 20.0f), 0.75f);
     gl_rgba temp;
-    light_color = temp.from_hsl(0.11f, 1.0f, 0.65f);
-    memset(world, '0', WORLD_SIZE * WORLD_SIZE);
-    y = WORLD_EDGE;
-    for(/* empty */; y < (WORLD_SIZE - WORLD_EDGE); y += random_val(25) + 25) {
-        if(!broadway_done && (y > (WORLD_HALF - 20))) {
+    // gl_rgba light_color = temp.from_hsl(0.11f, 1.0f, 0.65f);
+    for (std::array<usage_t, WORLD_SIZE> &row : world) {
+        row.fill(static_cast<usage_t>(0));
+    }
+    for (int y = WORLD_EDGE; y < (WORLD_SIZE - WORLD_EDGE); y += random_val(25) + 25) {
+        if (!broadway_done && (y > (WORLD_HALF - 20))) {
             build_road(0, y, WORLD_SIZE, 19);
             y += 20;
             broadway_done = true;
-        }
-        else {
+        } else {
             depth = 6 + random_val(6);
-            if(y < (WORLD_HALF / 2)) {
-                north_street = (float)(y + (depth / 2));
+            if (y < (WORLD_HALF / 2)) {
+                north_street = (y + (depth / 2.0f));
             }
 
-            if(y < (WORLD_SIZE - (WORLD_HALF / 2))) {
-                south_street = (float)(y + (depth / 2));
+            if (y < (WORLD_SIZE - (WORLD_HALF / 2))) {
+                south_street = (y + (depth / 2.0f));
             }
 
             build_road(0, y, WORLD_SIZE, depth);
@@ -531,20 +498,18 @@ static void do_reset()
     }
 
     broadway_done = false;
-    x = WORLD_EDGE;
-    for(/* empty */; x < (WORLD_SIZE - WORLD_EDGE); x += random_val(25) + 25) {
-        if(!broadway_done && (x > (WORLD_HALF - 20))) {
+    for (int x = WORLD_EDGE; x < (WORLD_SIZE - WORLD_EDGE); x += random_val(25) + 25) {
+        if (!broadway_done && (x > (WORLD_HALF - 20))) {
             build_road(x, 0, 19, WORLD_SIZE);
             x += 20;
             broadway_done = true;
-        }
-        else {
+        } else {
             width = 6 + random_val(6);
-            if(x <= (WORLD_HALF / 2)) {
-                west_street = (float)(x + (width / 2));
+            if (x <= (WORLD_HALF / 2)) {
+                west_street = (x + (width / 2.0f));
             }
-            if(x <= (WORLD_HALF + (WORLD_HALF / 2))) {
-                east_street = (float)(x + (width / 2));
+            if (x <= (WORLD_HALF + (WORLD_HALF / 2))) {
+                east_street = (x + (width / 2.0f));
             }
 
             build_road(x, 0, width, WORLD_SIZE);
@@ -561,30 +526,30 @@ static void do_reset()
 
     // Scan for places to put runs of streetlights on the east and west
     // size of the road
-    for(x = 1; x < (WORLD_SIZE - 1); ++x) {
-        for(y = 0; y < WORLD_SIZE; ++y) {
+    for (int x = 1; x < (WORLD_SIZE - 1); ++x) {
+        for (int y = 0; y < WORLD_SIZE; ++y) {
             // If this isn't a bit of sidewalk, then keep looking
-            if((world[x][y] & usage_t::claim_walk) == usage_t::none) {
+            if ((world[x][y] & usage_t::claim_walk) == usage_t::none) {
                 continue;
             }
 
             // If it's used as a road, skip it.
-            if((world[x][y] & usage_t::claim_road) != usage_t::none) {
+            if ((world[x][y] & usage_t::claim_road) != usage_t::none) {
                 continue;
             }
 
-            road_left = ((world[x + 1][y] & usage_t::claim_road) != usage_t::none);
-            road_right = ((world[x - 1][y] & usage_t::claim_road) != usage_t::none);
+            bool road_left = ((world[x + 1][y] & usage_t::claim_road) != usage_t::none);
+            bool road_right = ((world[x - 1][y] & usage_t::claim_road) != usage_t::none);
 
             // If the cells to our east and west are not road,
             // then we're not on a corner.
-            if(!road_left && !road_right) {
+            if (!road_left && !road_right) {
                 continue;
             }
 
             // If the cell to our east and west is road, then we're on
             // a median. skip it
-            if(road_left && road_right) {
+            if (road_left && road_right) {
                 continue;
             }
 
@@ -594,30 +559,30 @@ static void do_reset()
 
     // Scan for places to put runs of streetlights on the north
     // and south side of the road
-    for(y = 1; y < (WORLD_SIZE - 1); ++y) {
-        for(x = 1; x < (WORLD_SIZE - 1); ++x) {
+    for (int y = 1; y < (WORLD_SIZE - 1); ++y) {
+        for (int x = 1; x < (WORLD_SIZE - 1); ++x) {
             // If this isn't a bit of sidewalk, then keep looking
-            if((world[x][y] & usage_t::claim_walk) == usage_t::none) {
+            if ((world[x][y] & usage_t::claim_walk) == usage_t::none) {
                 continue;
             }
 
             // If it's used as a road, skip it.
-            if((world[x][y] & usage_t::claim_road) != usage_t::none) {
+            if ((world[x][y] & usage_t::claim_road) != usage_t::none) {
                 continue;
             }
 
-            road_left = ((world[x][y + 1] & usage_t::claim_road) != usage_t::none);
-            road_right = ((world[x][y - 1] & usage_t::claim_road) != usage_t::none);
+            bool road_left = ((world[x][y + 1] & usage_t::claim_road) != usage_t::none);
+            bool road_right = ((world[x][y - 1] & usage_t::claim_road) != usage_t::none);
 
             // If the cell to our east and west is road, then we're on
             // a median. skip it
-            if(road_left && road_right) {
+            if (road_left && road_right) {
                 continue;
             }
 
             // If the cells to our north and source are not road,
             // then we're not on a corner.
-            if(!road_left && !road_right) {
+            if (!road_left && !road_right) {
                 continue;
             }
 
@@ -626,11 +591,11 @@ static void do_reset()
     }
 
     // Scan over the center area of the map and place the big buildings
-    attempts = 0;
-    while((skyscrapers < 50) && (attempts < 350)) {
-        x = (WORLD_HALF / 2) + (random_val() % WORLD_HALF);
-        y = (WORLD_HALF / 2) + (random_val() % WORLD_HALF);
-        if(!claimed(x, y, 1, 1)) {
+    int attempts = 0;
+    while ((skyscrapers < 50) && (attempts < 350)) {
+        int x = (WORLD_HALF / 2) + (random_val() % WORLD_HALF);
+        int y = (WORLD_HALF / 2) + (random_val() % WORLD_HALF);
+        if (!claimed(x, y, 1, 1)) {
             do_building(find_plot(x, y));
             skyscrapers++;
         }
@@ -639,33 +604,32 @@ static void do_reset()
     }
 
     // Now blanket the rest of the world with lesser buildings
-    for(x = 0; x < WORLD_SIZE; ++x) {
-        for(y = 0; y < WORLD_SIZE; ++y) {
-            if(world[CLAMP(x, 0, WORLD_SIZE)][CLAMP(y, 0, WORLD_SIZE)] != usage_t::none) {
+    for (int x = 0; x < WORLD_SIZE; ++x) {
+        for (int y = 0; y < WORLD_SIZE; ++y) {
+            if (world[std::clamp(x, 0, WORLD_SIZE)][std::clamp(y, 0, WORLD_SIZE)] != usage_t::none) {
                 continue;
             }
 
             width = 12 + random_val(20);
             depth = 12 + random_val(20);
-            height = MIN(width, depth);
+            height = std::min(width, depth);
 
-            if((x < 30)
+            if ((x < 30)
                || (y < 30)
                || (x > (WORLD_SIZE - 30))
                || (y > (WORLD_SIZE - 30))) {
                 height = random_val(15 + 20);
-            }
-            else if(x < (WORLD_HALF / 2)) {
+            } else if (x < (WORLD_HALF / 2)) {
                 height /= 2;
             }
 
-            while((width > 8) && (depth > 8)) {
-                if(!claimed(x, y, width, depth)) {
+            while ((width > 8) && (depth > 8)) {
+                if (!claimed(x, y, width, depth)) {
                     claim(x, y, width, depth, usage_t::claim_building);
-                    building_color = WorldLightColor(random_val());
+                    building_color = world_light_color(random_val());
 
                     // If we're out of the host zone use simple builings
-                    if((x < hot_zone.get_min().get_x())
+                    if ((x < hot_zone.get_min().get_x())
                        || (x > hot_zone.get_max().get_x())
                        || (y < hot_zone.get_min().get_z())
                        || (y > hot_zone.get_max().get_z())) {
@@ -679,13 +643,12 @@ static void do_reset()
                                      depth - 2,
                                      random_val(),
                                      building_color);
-                    }
-                    else {
+                    } else {
                         // Use fancy buildings.
                         height = 15 + random_val(15);
                         width -= 2;
                         depth -= 2;
-                        if(COIN_FLIP) {
+                        if (random_val(2) == 0) {
                             new Building(building_t::tower,
                                          x + 1,
                                          y + 1,
@@ -694,8 +657,7 @@ static void do_reset()
                                          depth,
                                          random_val(),
                                          building_color);
-                        }
-                        else {
+                        } else {
                             new Building(building_t::blocky,
                                          x + 1,
                                          y + 1,
@@ -716,13 +678,13 @@ static void do_reset()
 
             // Leave big gaps near the edge of the map,
             // no need to pack detail there.
-            if((y < WORLD_EDGE) || (y > (WORLD_SIZE - WORLD_EDGE))) {
+            if ((y < WORLD_EDGE) || (y > (WORLD_SIZE - WORLD_EDGE))) {
                 y += 32;
             }
         }
 
         // Leave big gaps near the edge of the map
-        if((x < WORLD_EDGE) || (x > (WORLD_SIZE - WORLD_EDGE))) {
+        if ((x < WORLD_EDGE) || (x > (WORLD_SIZE - WORLD_EDGE))) {
             x += 28;
         }
     }
@@ -730,7 +692,7 @@ static void do_reset()
 
 // This will return a random color which is suitable for light sources, taken
 // from a narrow group of hues. (Yellows, oranges, blues.)
-gl_rgba WorldLightColor(unsigned int index)
+gl_rgba world_light_color(unsigned int index)
 {
     index %= LIGHT_COLOR_COUNT;
     gl_rgba temp;
@@ -739,52 +701,52 @@ gl_rgba WorldLightColor(unsigned int index)
                          light_colors[index].lum);
 }
 
-usage_t WorldCell(int x, int y)
+usage_t world_cell(int x, int y)
 {
-    int x_index = CLAMP(x, 0, WORLD_SIZE - 1);
-    int y_index = CLAMP(y, 0, WORLD_SIZE - 1);
+    int x_index = std::clamp(x, 0, WORLD_SIZE - 1);
+    int y_index = std::clamp(y, 0, WORLD_SIZE - 1);
 
     return world[x_index][y_index];
 }
 
-gl_rgba WorldBloomColor()
+gl_rgba world_bloom_color()
 {
     return bloom_color;
 }
 
-int WorldLogoIndex()
+int world_logo_index()
 {
     return logo_index++;
 }
 
 
-gl_bbox WorldHotZone()
+gl_bbox world_hot_zone()
 {
     return hot_zone;
 }
 
-void WorldTerm()
+void world_term()
 {
 }
 
-void WorldReset()
+void world_reset()
 {
     // If we're already fading out, then this is the developer
     // hammering on the "rebuild" button. Let's hurry up for the
     // nice man...
-    if(fade_state == FADE_OUT) {
+    if (fade_state == fade_t::out) {
         do_reset();
     }
 
     // If reset is called but the world isn't ready, then don't
     // bother fading out. The program probably just started.
-    fade_state = FADE_OUT;
+    fade_state = fade_t::out;
     fade_start = SDL_GetTicks();
 }
 
-void WorldRender()
+void world_render()
 {
-    if(!SHOW_DEBUG_GROUND) {
+    if (!SHOW_DEBUG_GROUND) {
         return;
     }
 
@@ -815,48 +777,47 @@ void WorldRender()
     glDepthMask(true);
 }
 
-float WorldFade()
+float world_fade()
 {
     return fade_current;
 }
 
-int WorldSceneBegin()
+int world_scene_begin()
 {
     return scene_begin;
 }
 
 // How long since this current iteration of the city went
 // on display
-int WorldSceneElapsed()
+int world_scene_elapsed()
 {
     int elapsed;
 
-    if(!entity_ready() || !WorldSceneBegin()) {
+    if (!entity_ready() || !world_scene_begin()) {
         elapsed = 1;
-    }
-    else {
-        elapsed = SDL_GetTicks() - WorldSceneBegin();
+    } else {
+        elapsed = SDL_GetTicks() - world_scene_begin();
     }
 
-    elapsed = MAX(elapsed, 1);
+    elapsed = std::max(elapsed, 1);
 
     return elapsed;
 }
 
-void WorldUpdate()
+void world_update()
 {
     unsigned fade_delta;
     int now;
 
     now = SDL_GetTicks();
-    if(reset_needed) {
+    if (reset_needed) {
         // Now we've faded out the scene, rebuild it
         do_reset();
     }
 
-    if(fade_state != FADE_IDLE) {
-        if((fade_state == FADE_WAIT) && TextureReady() && entity_ready()) {
-            fade_state = FADE_IN;
+    if (fade_state != fade_t::idle) {
+        if ((fade_state == fade_t::wait) && texture_ready() && entity_ready()) {
+            fade_state = fade_t::in;
             fade_start = now;
             fade_current = 1.0f;
         }
@@ -864,54 +825,52 @@ void WorldUpdate()
         fade_delta = now - fade_start;
 
         // See if we're done fading in or out
-        if((fade_delta > FADE_TIME) && (fade_state != FADE_WAIT)) {
-            if(fade_state == FADE_OUT) {
+        if ((fade_delta > FADE_TIME) && (fade_state != fade_t::wait)) {
+            if (fade_state == fade_t::out) {
                 reset_needed = true;
-                fade_state = FADE_WAIT;
+                fade_state = fade_t::wait;
                 fade_current = 1.0f;
-            }
-            else {
-                fade_start = FADE_IDLE;
+            } else {
+                fade_state = fade_t::idle;
                 fade_current = 0.0f;
                 start_time = time(NULL);
                 scene_begin = SDL_GetTicks();
             }
-        }
-        else {
+        } else {
             fade_current = (float)fade_delta / FADE_TIME;
-            if(fade_state == FADE_IN) {
+            if (fade_state == fade_t::in) {
                 fade_current = 1.0f - fade_current;
             }
 
-            if(fade_start == FADE_WAIT) {
+            if (fade_state == fade_t::wait) {
                 fade_current = 1.0f;
             }
         }
 
-        if(!TextureReady()) {
+        if (!texture_ready()) {
             fade_current = 1.0f;
         }
     }
 
-    if((fade_state == FADE_IDLE) && !TextureReady()) {
-        fade_state = FADE_IN;
+    if ((fade_state == fade_t::idle) && !texture_ready()) {
+        fade_state = fade_t::in;
         fade_start = now;
     }
 
-    if((fade_state == FADE_IDLE) && (WorldSceneElapsed() > RESET_INTERVAL)) {
-        WorldReset();
+    if ((fade_state == fade_t::idle) && (world_scene_elapsed() > RESET_INTERVAL)) {
+        world_reset();
     }
 }
 
-void WorldInit()
+void world_init()
 {
     last_update = SDL_GetTicks();
-    for(int i = 0; i < CARS; ++i) {
+    for (int i = 0; i < CARS; ++i) {
         new Car();
     }
 
     sky = new Sky();
-    WorldReset();
-    fade_state = FADE_OUT;
+    world_reset();
+    fade_state = fade_t::out;
     fade_start = 0;
 }

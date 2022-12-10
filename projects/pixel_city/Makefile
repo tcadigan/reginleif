@@ -1,6 +1,6 @@
 PROG = pixelcity
 CXX = clang++
-CXXFLAGS = -Wall `sdl2-config --cflags`
+CXXFLAGS = -Wall `sdl2-config --cflags` --std=c++17
 LDFLAGS = -lGL -lGLU `sdl2-config --libs`
 
 .ifdef DISABLE_BEAR

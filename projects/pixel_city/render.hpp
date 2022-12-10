@@ -3,25 +3,25 @@
 
 #include "gl-rgba.hpp"
 
-bool RenderBloom();
-void RenderEffectCycle();
-bool RenderFlat();
-void RenderFlatToggle();
-float RenderFogDistance();
-bool RenderFog();
-void RenderFogToggle();
-void RenderFogFX(float scalar);
-void RenderFPSToggle();
-void RenderInit();
-void RenderLetterboxToggle();
-int RenderMaxTextureSize();
-void RenderResize();
-void RenderTerm();
-void RenderUpdate();
-bool RenderWireframe();
-void RenderWireframeToggle();
-void RenderHelpToggle();
-void RenderPrint(int x, int y, int font, gl_rgba color, const char *fmt, ...);
-void RenderPrint(int line, const char *fmt, ...);
+bool render_bloom();
+void render_effect_cycle();
+bool render_flat();
+void render_flat_toggle();
+float render_fog_distance();
+bool render_fog();
+void render_fog_toggle();
+void render_fog_fx(float scalar);
+void render_fps_toggle();
+void render_init();
+void render_letterbox_toggle();
+int render_max_texture_size();
+void render_resize();
+void render_term();
+void render_update();
+bool render_wireframe();
+void render_wireframe_toggle();
+void render_help_toggle();
+void render_print(int x, int y, int font, gl_rgba color, const char *fmt, ...);
+void render_print(int line, const char *fmt, ...);
 
 #endif /* RENDER_HPP_ */

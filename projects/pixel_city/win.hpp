@@ -7,31 +7,31 @@
 
 // Versioning info
 static std::string const APP_TITLE("PixelCity");
-static int const VERSION_MAJOR = 1;
-static int const VERSION_MINOR = 0;
-static int const VERSION_REVISION = 10;
+static int constexpr VERSION_MAJOR = 1;
+static int constexpr VERSION_MINOR = 0;
+static int constexpr VERSION_REVISION = 10;
 
 // Do we hide scene building behind a loading screen or show it?
-static bool const LOADING_SCREEN = true;
+static bool constexpr LOADING_SCREEN = true;
 
 // Controls the density of cars
-static int const CARS = 500;
+static int constexpr CARS = 500;
 
 // The "dead zone" along the edge of the world, with super-low detail
-static int const WORLD_EDGE = 200;
+static int constexpr WORLD_EDGE = 200;
 
 // How often to rebuild the city
-static int const RESET_INTERVAL = 999999; // Milliseconds
+static int constexpr RESET_INTERVAL = 999999; // Milliseconds
 
 // How long the screen fade takes when transitioning to a new city
-static int const FADE_TIME = 1; // Milliseconds
+static int constexpr FADE_TIME = 1; // Milliseconds
 
 // Debug ground texture that shows traffic lanes
-static bool const SHOW_DEBUG_GROUND = false;
+static bool constexpr SHOW_DEBUG_GROUND = false;
 
 // Controls the amount of space available for buildings.
 // Other code is written for assuming this will be a power of two
-static int const WORLD_SIZE = 1024;
+static int constexpr WORLD_SIZE = 1024;
 static int constexpr WORLD_HALF = WORLD_SIZE / 2;
 
 // Bitflags use to track how world space is being used.

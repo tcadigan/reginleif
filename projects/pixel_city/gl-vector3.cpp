@@ -80,9 +80,9 @@ gl_vector3 gl_vector3::cross_product(gl_vector3 const &rhs) const
 
 gl_vector3 gl_vector3::interpolate(gl_vector3 const &rhs, float scalar) const
 {
-    return gl_vector3(MathInterpolate(data_[0], rhs.data_[0], scalar),
-                      MathInterpolate(data_[1], rhs.data_[1], scalar),
-                      MathInterpolate(data_[2], rhs.data_[2], scalar));
+    return gl_vector3(math_interpolate(data_[0], rhs.data_[0], scalar),
+                      math_interpolate(data_[1], rhs.data_[1], scalar),
+                      math_interpolate(data_[2], rhs.data_[2], scalar));
 }
 
 void gl_vector3::set_x(float x)

@@ -16,7 +16,6 @@
 #include "building.hpp"
 #include "camera.hpp"
 #include "gl-vector2.hpp"
-#include "macro.hpp"
 #include "math.hpp"
 #include "mesh.hpp"
 #include "random.hpp"
@@ -26,11 +25,11 @@
 #include "win.hpp"
 #include "world.hpp"
 
-static int const DEAD_ZONE = 200;
-static int const STUCK_TIME = 230;
-static int const UPDATE_INTERVAL = 30; // Milliseconds
-static float const MOVEMENT_SPEED = 0.61f;
-static float const CAR_SIZE = 3.0f;
+static int constexpr DEAD_ZONE = 200;
+static int constexpr STUCK_TIME = 230;
+static int constexpr UPDATE_INTERVAL = 30; // Milliseconds
+static float constexpr MOVEMENT_SPEED = 0.61f;
+static float constexpr CAR_SIZE = 3.0f;
 
 static std::array<gl_vector3, 4> direction = {
     gl_vector3(0.0f, 0.0f, -1.0f),
@@ -82,7 +81,7 @@ void car_render()
     glDisable(GL_CULL_FACE);
     glBlendFunc(GL_ONE, GL_ONE);
     glBindTexture(GL_TEXTURE_2D, 0);
-    glBindTexture(GL_TEXTURE_2D, TextureId(TEXTURE_HEADLIGHT));
+    glBindTexture(GL_TEXTURE_2D, texture_id(texture_t::headlight));
 
     for (Car &car : cars) {
         car.render();
@@ -93,7 +92,7 @@ void car_render()
 
 void car_update()
 {
-    if (!TextureReady() || !entity_ready()) {
+    if (!texture_ready() || !entity_ready()) {
         return;
     }
 
@@ -125,7 +124,7 @@ bool Car::test_position(int row, int col)
     }
 
     // Now make sure that the lane is going the right direction
-    if (WorldCell(row, col) != WorldCell(row_, col_)) {
+    if (world_cell(row, col) != world_cell(row_, col_)) {
         return false;
     }
 
@@ -149,7 +148,7 @@ void Car::update()
         }
 
         // If this spot is not a road forget it
-        if ((WorldCell(row_, col_) & usage_t::claim_road) == usage_t::none) {
+        if ((world_cell(row_, col_) & usage_t::claim_road) == usage_t::none) {
             return;
         }
 
@@ -162,19 +161,19 @@ void Car::update()
         drive_position_ = position_;
         ready_ = true;
 
-        if ((WorldCell(row_, col_) & usage_t::map_road_north) != usage_t::none) {
+        if ((world_cell(row_, col_) & usage_t::map_road_north) != usage_t::none) {
             direction_ = direction_t::north;
             drive_angle_ = dangles.at(0);
         }
-        if ((WorldCell(row_, col_) & usage_t::map_road_east) != usage_t::none) {
+        if ((world_cell(row_, col_) & usage_t::map_road_east) != usage_t::none) {
             direction_ = direction_t::east;
             drive_angle_ = dangles.at(1);
         }
-        if ((WorldCell(row_, col_) & usage_t::map_road_south) != usage_t::none) {
+        if ((world_cell(row_, col_) & usage_t::map_road_south) != usage_t::none) {
             direction_ = direction_t::south;
             drive_angle_ = dangles.at(2);
         }
-        if ((WorldCell(row_, col_) & usage_t::map_road_west) != usage_t::none) {
+        if ((world_cell(row_, col_) & usage_t::map_road_west) != usage_t::none) {
             direction_ = direction_t::west;
             drive_angle_ = dangles.at(3);
         }
@@ -191,7 +190,7 @@ void Car::update()
     carmap.at(row_).at(col_)--;
     old_pos = position_;
     speed_ += max_speed_ * 0.05f;
-    speed_ =  MIN(speed_, max_speed_);
+    speed_ = std::min(speed_, max_speed_);
 
     switch (direction_) {
     case direction_t::north:
@@ -216,7 +215,7 @@ void Car::update()
     // buildings almost always block views of cars on the diagonal.
     float x_dist = fabs(camera.get_x() - position_.get_x());
     float z_dist = fabs(camera.get_z() - position_.get_z());
-    if ((x_dist + z_dist) > RenderFogDistance()) {
+    if ((x_dist + z_dist) > render_fog_distance()) {
         ready_ = false;
     }
 
@@ -310,14 +309,18 @@ void Car::render()
         break;
     }
     gl_vector3 pos = drive_position_;
-    angle = 360 - MathAngle(position_.get_x(),
+    angle = 360 - math_angle(position_.get_x(),
                                  position_.get_z(),
                                  pos.get_x(),
                                  pos.get_z());
 
     angle %= 360;
-    int turn = MathAngleDifference(drive_angle_, angle);
-    drive_angle_ += SIGN(turn);
+    int turn = math_angle_difference(drive_angle_, angle);
+    if (turn > 0) {
+        ++drive_angle_;
+    } else if (turn < 0) {
+        --drive_angle_;
+    }
     pos += gl_vector3(0.5f, 0.0f, 0.5f);
 
     glTexCoord2f(0, 0);
