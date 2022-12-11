@@ -2,7 +2,7 @@
 #define VISIBLE_HPP_
 
 #include "gl-vector3.hpp"
-#include "win.hpp"
+#include "world.hpp"
 
 static int constexpr GRID_RESOLUTION = 32;
 static int constexpr GRID_CELL = GRID_RESOLUTION / 2;

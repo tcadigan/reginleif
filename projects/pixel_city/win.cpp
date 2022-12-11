@@ -27,6 +27,7 @@
 #include "random.hpp"
 #include "render.hpp"
 #include "texture.hpp"
+#include "version.hpp"
 #include "visible.hpp"
 #include "win.hpp"
 #include "world.hpp"
@@ -126,14 +127,4 @@ int main(int argc, char *argv[])
     app_term(window);
 
     return EXIT_SUCCESS;
-}
-
-usage_t operator&(usage_t left, usage_t right)
-{
-    return static_cast<usage_t>(static_cast<int>(left) & static_cast<int>(right));
-}
-
-usage_t operator|(usage_t left, usage_t right)
-{
-    return static_cast<usage_t>(static_cast<int>(left) | static_cast<int>(right));
 }

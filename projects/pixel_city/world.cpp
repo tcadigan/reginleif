@@ -784,7 +784,7 @@ void world_update()
         fade_delta = now - fade_start;
 
         // See if we're done fading in or out
-        if ((fade_delta > FADE_TIME) && (fade_state != fade_t::wait)) {
+        if ((fade_delta > FADE_TIME.count()) && (fade_state != fade_t::wait)) {
             if (fade_state == fade_t::out) {
                 reset_needed = true;
                 fade_state = fade_t::wait;
@@ -796,7 +796,7 @@ void world_update()
                 scene_begin = SDL_GetTicks();
             }
         } else {
-            fade_current = static_cast<float>(fade_delta) / FADE_TIME;
+            fade_current = static_cast<float>(fade_delta) / FADE_TIME.count();
             if (fade_state == fade_t::in) {
                 fade_current = 1.0f - fade_current;
             }
@@ -816,7 +816,7 @@ void world_update()
         fade_start = now;
     }
 
-    if ((fade_state == fade_t::idle) && (world_scene_elapsed() > RESET_INTERVAL)) {
+    if ((fade_state == fade_t::idle) && (world_scene_elapsed() > RESET_INTERVAL.count())) {
         world_reset();
     }
 }
@@ -832,4 +832,14 @@ void world_init()
     world_reset();
     fade_state = fade_t::out;
     fade_start = 0;
+}
+
+usage_t operator&(usage_t left, usage_t right)
+{
+    return static_cast<usage_t>(static_cast<int>(left) & static_cast<int>(right));
+}
+
+usage_t operator|(usage_t left, usage_t right)
+{
+    return static_cast<usage_t>(static_cast<int>(left) | static_cast<int>(right));
 }

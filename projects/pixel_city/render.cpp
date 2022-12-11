@@ -14,6 +14,7 @@
 #include <SDL2/SDL.h>
 #include <GL/glu.h>
 #include <array>
+#include <chrono>
 #include <cmath>
 #include <cstdarg>
 #include <cstdio>
@@ -29,14 +30,15 @@
 #include "math.hpp"
 #include "sky.hpp"
 #include "texture.hpp"
+#include "version.hpp"
 #include "win.hpp"
 #include "world.hpp"
 
 static int constexpr RENDER_DISTANCE = 1280;
 static int constexpr MAX_TEXT = 256;
 
-static int constexpr COLOR_CYCLE_TIME = 10000; // Milliseconds
-static int constexpr COLOR_CYCLE = COLOR_CYCLE_TIME / 4;
+static std::chrono::milliseconds constexpr COLOR_CYCLE_TIME(10000); // Milliseconds
+static int constexpr COLOR_CYCLE = COLOR_CYCLE_TIME.count() / 4;
 static int constexpr FONT_SIZE = LOGO_PIXELS - (LOGO_PIXELS / 8);
 static float constexpr BLOOM_SCALING = 0.07f;
 
@@ -248,12 +250,12 @@ static void do_effects(effect_t type)
         break;
     case effect_t::color_cycle:
         // Oooh. Pretty colors. Tint the scene according to the screenspace
-        hue1 = (SDL_GetTicks() % COLOR_CYCLE_TIME) / COLOR_CYCLE_TIME;
+        hue1 = fmod(SDL_GetTicks(), COLOR_CYCLE_TIME.count()) / COLOR_CYCLE_TIME.count();
 
         offset = SDL_GetTicks() + COLOR_CYCLE;
-        hue2 = fmod(offset, COLOR_CYCLE_TIME) / COLOR_CYCLE_TIME;
-        hue3 = fmod(offset * 2, COLOR_CYCLE_TIME) / COLOR_CYCLE_TIME;
-        hue4 = fmod(offset * 3, COLOR_CYCLE_TIME) / COLOR_CYCLE_TIME;
+        hue2 = fmod(offset, COLOR_CYCLE_TIME.count()) / COLOR_CYCLE_TIME.count();
+        hue3 = fmod(offset * 2, COLOR_CYCLE_TIME.count()) / COLOR_CYCLE_TIME.count();
+        hue4 = fmod(offset * 3, COLOR_CYCLE_TIME.count()) / COLOR_CYCLE_TIME.count();
 
         glBindTexture(GL_TEXTURE_2D, 0);
         glEnable(GL_BLEND);

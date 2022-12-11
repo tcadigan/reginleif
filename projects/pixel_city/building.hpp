@@ -8,7 +8,7 @@
 
 #include "gl-rgba.hpp"
 #include "mesh.hpp"
-#include "win.hpp"
+#include "world.hpp"
 
 enum class building_t {
     simple,

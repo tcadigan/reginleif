@@ -10,6 +10,7 @@
 #include "car.hpp"
 
 #include <SDL2/SDL.h>
+#include <chrono>
 #include <cmath>
 #include <list>
 
@@ -27,7 +28,7 @@
 
 static int constexpr DEAD_ZONE = 200;
 static int constexpr STUCK_TIME = 230;
-static int constexpr UPDATE_INTERVAL = 30; // Milliseconds
+static std::chrono::milliseconds constexpr UPDATE_INTERVAL(30);
 static float constexpr MOVEMENT_SPEED = 0.61f;
 static float constexpr CAR_SIZE = 3.0f;
 
@@ -102,7 +103,7 @@ void car_update()
         return;
     }
 
-    next_update = now + UPDATE_INTERVAL;
+    next_update = now + UPDATE_INTERVAL.count();
 
     for (Car &car : cars) {
         car.update();
