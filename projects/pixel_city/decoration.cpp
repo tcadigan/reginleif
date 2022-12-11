@@ -156,7 +156,7 @@ void Decoration::create_logo(gl_vector2 start,
     float top = bottom + height;
     float u1 = 0.0f;
     float u2 = 0.5f; // We actually only use the left half of the texture
-    float v1 = (float)logo_index / LOGO_ROWS;
+    float v1 = static_cast<float>(logo_index) / LOGO_ROWS;
     float v2 = v1 + (1.0f / LOGO_ROWS);
 
     p.set_position(gl_vector3(start.get_x(), bottom, start.get_y()) + out);
@@ -252,8 +252,8 @@ void Decoration::create_light_trim(std::array<gl_vector3, MAX_VBUFFER> &chain,
         center_ = center_ + chain.at(i);
     }
 
-    center_ /= (float)count;
-    float row = (float)(seed % TRIM_ROWS);
+    center_ /= count;
+    float row = (seed % TRIM_ROWS);
     float v1 = row * TRIM_SIZE;
     float v2 = (row + 1.0f) * TRIM_SIZE;
     int index = 0;
@@ -295,4 +295,8 @@ void Decoration::create_light_trim(std::array<gl_vector3, MAX_VBUFFER> &chain,
     texture_ = texture_id(texture_t::trim);
 
     mesh_->compile();
+}
+
+void Decoration::update()
+{
 }

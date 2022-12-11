@@ -372,7 +372,7 @@ void Texture::draw_windows()
                 run = random_val(run_length);
                 lit = (random_val(lit_density) == 0);
                 // if (lit) {
-                //     color = glRgba(0.5f + (float)(random_val() % 128) / 256.0f)
+                //     color = glRgba(0.5f + (random_val() % 128) / 256.0f)
                 //         + glRgba(random_val(10) / 50.0f,
                 //                  random_val(10) / 50.0f,
                 //                  random_val(10) / 50.0f);
@@ -632,37 +632,37 @@ void Texture::rebuild()
         // Make a simple circle of light, bright in the center and fading out
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        radius = (float)half_ - 3;
+        radius = half_ - 3;
         glBegin(GL_TRIANGLE_FAN);
         glColor4f(1, 1, 1, 1);
         glVertex2i(half_, half_);
         glColor4f(0, 0, 0, 0);
         for (int i = 0; i <= 360; ++i) {
-            pos.set_x(sinf((float)i * DEGREES_TO_RADIANS) * radius);
-            pos.set_y(cosf((float)i * DEGREES_TO_RADIANS) * radius);
-            glVertex2i(half_ + (int)pos.get_x(), half_ + (int)pos.get_y());
+            pos.set_x(sinf(i * DEGREES_TO_RADIANS) * radius);
+            pos.set_y(cosf(i * DEGREES_TO_RADIANS) * radius);
+            glVertex2i(half_ + pos.get_x(), half_ + pos.get_y());
         }
         glEnd();
         break;
     case texture_t::light:
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        radius = (float)half_ - 3;
+        radius = half_ - 3;
         for (int j = 0; j < 2; ++j) {
             glBegin(GL_TRIANGLE_FAN);
             glColor4f(1, 1, 1, 1);
             glVertex2i(half_, half_);
             if (!j) {
-                radius = (float)half_ / 2;
+                radius = half_ / 2.0f;
             } else {
                 radius = 8;
             }
 
             glColor4f(1, 1, 1, 0);
             for (int i = 0; i <= 360; ++i) {
-                pos.set_x(sinf((float)i * DEGREES_TO_RADIANS) * radius);
-                pos.set_y(cosf((float)i * DEGREES_TO_RADIANS) * radius);
-                glVertex2i(half_ + (int)pos.get_x(), half_ + (int)pos.get_y());
+                pos.set_x(sinf(i * DEGREES_TO_RADIANS) * radius);
+                pos.set_y(cosf(i * DEGREES_TO_RADIANS) * radius);
+                glVertex2i(half_ + pos.get_x(), half_ + pos.get_y());
             }
             glEnd();
         }
@@ -687,16 +687,16 @@ void Texture::rebuild()
                              random_val(),
                              gl_rgba(255, 255, 255),
                              "%s%s",
-                             prefix[prefix_num].c_str(),
-                             name[name_num].c_str());
+                             prefix.at(prefix_num).c_str(),
+                             name.at(name_num).c_str());
             } else {
                 render_print(2,
                              size_ - i - (LOGO_PIXELS / 4),
                              random_val(),
                              gl_rgba(255, 255, 255),
                              "%s%s",
-                             name[name_num].c_str(),
-                             suffix[suffix_num].c_str());
+                             name.at(name_num).c_str(),
+                             suffix.at(suffix_num).c_str());
             }
 
             name_num = (name_num + 1) % name.size();

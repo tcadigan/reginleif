@@ -733,7 +733,7 @@ void render_update()
         elapsed = 3000 - world_scene_elapsed();
 
         if ((elapsed >= 0) && (elapsed <= 3000)) {
-            render_fog_fx((float)elapsed / 3000.0f);
+            render_fog_fx(elapsed / 3000.0f);
             glDisable(GL_TEXTURE_2D);
             glEnable(GL_BLEND);
             glBlendFunc(GL_ONE, GL_ONE);

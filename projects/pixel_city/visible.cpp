@@ -27,12 +27,12 @@ bool visible(gl_vector3 pos)
 {
     int row = pos.get_x() / GRID_RESOLUTION;
     int col = pos.get_z() / GRID_RESOLUTION;
-    return vis_grid[row][col];
+    return vis_grid.at(row).at(col);
 }
 
 bool visible(int x, int z)
 {
-    return vis_grid[x][z];
+    return vis_grid.at(x).at(z);
 }
 
 void visible_update()
@@ -93,13 +93,13 @@ void visible_update()
                 continue;
             }
 
-            vis_grid[x][y] = true;
+            vis_grid.at(x).at(y) = true;
         }
     }
 
     // Doesn't matter where we are facing, objects in current cell are always
     // visible
-    vis_grid[grid_x][grid_z] = true;
+    vis_grid.at(grid_x).at(grid_z) = true;
 
     // Here, we look at the angle from the current camera position to
     // the cell on the grid, and home much that angle deviates from the
@@ -107,7 +107,7 @@ void visible_update()
     for (int x = 0; x < GRID_SIZE; ++x) {
         for (int y = 0; y < GRID_SIZE; ++y) {
             // If we marked it visible earlier, skip all this math
-            if (vis_grid[x][y]) {
+            if (vis_grid.at(x).at(y)) {
                 continue;
             }
 
@@ -130,7 +130,7 @@ void visible_update()
 
             // Store how many degrees the cell is to the camera
             float angle_diff = fabs(math_angle_difference(angle.get_y(), angle_to));
-            vis_grid[x][y] = (angle_diff < 45);
+            vis_grid.at(x).at(y) = (angle_diff < 45);
         }
     }
 }

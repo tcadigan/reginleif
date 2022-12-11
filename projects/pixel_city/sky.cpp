@@ -76,15 +76,15 @@ Sky::Sky()
         float angle = static_cast<float>(i) / (SKYPOINTS - 1);
         angle *= 360;
         angle *= DEGREES_TO_RADIANS;
-        circle[i].get_position().set_x(sinf(angle) * size);
-        circle[i].get_position().set_y(0.1f);
-        circle[i].get_position().set_z(cosf(angle) * size);
-        circle[i].get_uv().set_x((static_cast<float>(i) / (SKYPOINTS - 1)) * 5.0f);
-        circle[i].get_uv().set_y(0.5f);
+        circle.at(i).get_position().set_x(sinf(angle) * size);
+        circle.at(i).get_position().set_y(0.1f);
+        circle.at(i).get_position().set_z(cosf(angle) * size);
+        circle.at(i).get_uv().set_x((static_cast<float>(i) / (SKYPOINTS - 1)) * 5.0f);
+        circle.at(i).get_uv().set_y(0.5f);
         float rad = (static_cast<float>(i) / (SKYPOINTS - 1)) * 180.f * DEGREES_TO_RADIANS;
         float lum = sinf(rad);
-        lum = (float)pow(lum, 5);
-        circle[i].set_color(gl_rgba(lum * 255, lum * 255, lum * 255));
+        lum = pow(lum, 5);
+        circle.at(i).set_color(gl_rgba(lum * 255, lum * 255, lum * 255));
     }
 
     list_ = glGenLists(1);
@@ -93,11 +93,11 @@ Sky::Sky()
 
     glBegin(GL_QUAD_STRIP);
     for (int i = 0; i < SKYPOINTS; ++i) {
-        glTexCoord2f(circle[i].get_uv().get_x(), 0.0f);
-        glVertex3fv(circle[i].get_position().get_data().data());
-        gl_vector3 pos = circle[i].get_position();
+        glTexCoord2f(circle.at(i).get_uv().get_x(), 0.0f);
+        glVertex3fv(circle.at(i).get_position().get_data().data());
+        gl_vector3 pos = circle.at(i).get_position();
         pos.set_y(size / 3.5f);
-        glTexCoord2f(circle[i].get_uv().get_x(), 1.0f);
+        glTexCoord2f(circle.at(i).get_uv().get_x(), 1.0f);
         glVertex3fv(pos.get_data().data());
     }
     glEnd();

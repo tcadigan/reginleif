@@ -80,7 +80,7 @@ static int scene_begin;
 
 static gl_rgba get_light_color(float sat, float lum)
 {
-    return from_hsl(light_colors[random_val(light_colors.size())].hue, sat, lum);
+    return from_hsl(light_colors.at(random_val(light_colors.size())).hue, sat, lum);
 }
 
 static void claim(int x, int y, int width, int depth, usage_t val)
@@ -90,7 +90,7 @@ static void claim(int x, int y, int width, int depth, usage_t val)
             int x_index = std::clamp(xx, 0, WORLD_SIZE - 1);
             int y_index = std::clamp(yy, 0, WORLD_SIZE - 1);
 
-            world[x_index][y_index] = world[x_index][y_index] | val;
+            world.at(x_index).at(y_index) = world.at(x_index).at(y_index) | val;
         }
     }
 }
@@ -102,7 +102,7 @@ static bool claimed(int x, int y, int width, int depth)
             int x_index = std::clamp(xx, 0, WORLD_SIZE - 1);
             int y_index = std::clamp(yy, 0, WORLD_SIZE - 1);
 
-            if (world[x_index][y_index] != usage_t::none) {
+            if (world.at(x_index).at(y_index) != usage_t::none) {
                 return true;
             }
         }
@@ -282,7 +282,7 @@ void do_building(Plot p)
     //     height = 20 + random_val(10);
     //     blocky_count++;
     //     skyscrapers++;
-    //     new CBuilding(BUILDING_BLOCKY,
+    //     new Building(BUILDING_BLOCKY,
     //                   p.x,
     //                   p.z,
     //                   height,
@@ -353,7 +353,7 @@ static int build_light_strip(int x1, int z1, direction_t direction)
     int length = 0;
 
     while ((x2 > 0) && (x2 < WORLD_SIZE) && (z2 > 0) && (z2 < WORLD_SIZE)) {
-        if ((world[x2][z2] & usage_t::claim_road) != usage_t::none) {
+        if ((world.at(x2).at(z2) & usage_t::claim_road) != usage_t::none) {
             break;
         }
 
@@ -433,7 +433,7 @@ static void do_reset()
     texture_reset();
 
     // Pink a tint for the bloom
-    bloom_color = get_light_color(0.5f + ((float)random_val(10) / 20.0f), 0.75f);
+    bloom_color = get_light_color(0.5f + (random_val(10) / 20.0f), 0.75f);
     for (std::array<usage_t, WORLD_SIZE> &row : world) {
         row.fill(static_cast<usage_t>(0));
     }
@@ -488,17 +488,17 @@ static void do_reset()
     for (int x = 1; x < (WORLD_SIZE - 1); ++x) {
         for (int y = 0; y < WORLD_SIZE; ++y) {
             // If this isn't a bit of sidewalk, then keep looking
-            if ((world[x][y] & usage_t::claim_walk) == usage_t::none) {
+            if ((world.at(x).at(y) & usage_t::claim_walk) == usage_t::none) {
                 continue;
             }
 
             // If it's used as a road, skip it.
-            if ((world[x][y] & usage_t::claim_road) != usage_t::none) {
+            if ((world.at(x).at(y) & usage_t::claim_road) != usage_t::none) {
                 continue;
             }
 
-            bool road_left = ((world[x + 1][y] & usage_t::claim_road) != usage_t::none);
-            bool road_right = ((world[x - 1][y] & usage_t::claim_road) != usage_t::none);
+            bool road_left = ((world.at(x + 1).at(y) & usage_t::claim_road) != usage_t::none);
+            bool road_right = ((world.at(x - 1).at(y) & usage_t::claim_road) != usage_t::none);
 
             // If the cells to our east and west are not road,
             // then we're not on a corner.
@@ -521,17 +521,17 @@ static void do_reset()
     for (int y = 1; y < (WORLD_SIZE - 1); ++y) {
         for (int x = 1; x < (WORLD_SIZE - 1); ++x) {
             // If this isn't a bit of sidewalk, then keep looking
-            if ((world[x][y] & usage_t::claim_walk) == usage_t::none) {
+            if ((world.at(x).at(y) & usage_t::claim_walk) == usage_t::none) {
                 continue;
             }
 
             // If it's used as a road, skip it.
-            if ((world[x][y] & usage_t::claim_road) != usage_t::none) {
+            if ((world.at(x).at(y) & usage_t::claim_road) != usage_t::none) {
                 continue;
             }
 
-            bool road_left = ((world[x][y + 1] & usage_t::claim_road) != usage_t::none);
-            bool road_right = ((world[x][y - 1] & usage_t::claim_road) != usage_t::none);
+            bool road_left = ((world.at(x).at(y + 1) & usage_t::claim_road) != usage_t::none);
+            bool road_right = ((world.at(x).at(y - 1) & usage_t::claim_road) != usage_t::none);
 
             // If the cell to our east and west is road, then we're on
             // a median. skip it
@@ -565,7 +565,7 @@ static void do_reset()
     // Now blanket the rest of the world with lesser buildings
     for (int x = 0; x < WORLD_SIZE; ++x) {
         for (int y = 0; y < WORLD_SIZE; ++y) {
-            if (world[std::clamp(x, 0, WORLD_SIZE)][std::clamp(y, 0, WORLD_SIZE)] != usage_t::none) {
+            if (world.at(std::clamp(x, 0, WORLD_SIZE)).at(std::clamp(y, 0, WORLD_SIZE)) != usage_t::none) {
                 continue;
             }
 
@@ -655,9 +655,9 @@ gl_rgba world_light_color(unsigned int index)
 {
     index %= light_colors.size();
 
-    return from_hsl(light_colors[index].hue,
-                    light_colors[index].sat,
-                    light_colors[index].lum);
+    return from_hsl(light_colors.at(index).hue,
+                    light_colors.at(index).sat,
+                    light_colors.at(index).lum);
 }
 
 usage_t world_cell(int x, int y)
@@ -665,7 +665,7 @@ usage_t world_cell(int x, int y)
     int x_index = std::clamp(x, 0, WORLD_SIZE - 1);
     int y_index = std::clamp(y, 0, WORLD_SIZE - 1);
 
-    return world[x_index][y_index];
+    return world.at(x_index).at(y_index);
 }
 
 gl_rgba world_bloom_color()
@@ -796,7 +796,7 @@ void world_update()
                 scene_begin = SDL_GetTicks();
             }
         } else {
-            fade_current = (float)fade_delta / FADE_TIME;
+            fade_current = static_cast<float>(fade_delta) / FADE_TIME;
             if (fade_state == fade_t::in) {
                 fade_current = 1.0f - fade_current;
             }

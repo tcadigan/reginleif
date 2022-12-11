@@ -18,12 +18,13 @@ public:
     Entity &operator =(Entity const &other) = delete;
     Entity &operator =(Entity &&other) = delete;
 
-    virtual void render() const;
-    virtual void render_flat(bool wireframe) const;
-    virtual unsigned int texture() const;
-    virtual void update();
-    virtual bool alpha() const;
-    virtual int poly_count() const;
+    virtual void render() const = 0;
+    virtual void render_flat(bool wireframe) const = 0;
+    virtual unsigned int texture() const = 0;
+    virtual void update() = 0;
+    virtual bool alpha() const = 0;
+    virtual int poly_count() const = 0;
+
     gl_vector3 center() const;
 
 protected:

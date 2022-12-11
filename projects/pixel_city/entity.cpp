@@ -52,7 +52,7 @@ auto entity_compare = [](std::shared_ptr<Entity> lhs, std::shared_ptr<Entity> rh
     return 0;
 };
 
-static Cell cell_list[GRID_SIZE][GRID_SIZE];
+static std::array<std::array<Cell, GRID_SIZE>, GRID_SIZE> cell_list;
 static std::set<std::shared_ptr<Entity>, decltype(entity_compare)> entity_list(entity_compare);
 static bool compiled;
 static int poly_count;
@@ -68,7 +68,7 @@ void add(std::shared_ptr<Entity> const &b)
     poly_count = 0;
 }
 
-static void do_compile()
+void do_compile()
 {
     if (compiled) {
         return;
@@ -79,12 +79,12 @@ static void do_compile()
 
     // Not group entities on the grid
     // Make a list for the textured objects in this region
-    if (!cell_list[x][y].list_textured) {
-        cell_list[x][y].list_textured = glGenLists(1);
+    if (!cell_list.at(x).at(y).list_textured) {
+        cell_list.at(x).at(y).list_textured = glGenLists(1);
     }
 
-    glNewList(cell_list[x][y].list_textured, GL_COMPILE);
-    cell_list[x][y].pos = gl_vector3(x * GRID_RESOLUTION,
+    glNewList(cell_list.at(x).at(y).list_textured, GL_COMPILE);
+    cell_list.at(x).at(y).pos = gl_vector3(x * GRID_RESOLUTION,
                                      0.0f,
                                      y * GRID_RESOLUTION);
 
@@ -100,13 +100,13 @@ static void do_compile()
     glEndList();
 
     // Make a list of flat-color stuff (A/C units, ledges, roofs, etc.)
-    if (!cell_list[x][y].list_flat) {
-        cell_list[x][y].list_flat = glGenLists(1);
+    if (!cell_list.at(x).at(y).list_flat) {
+        cell_list.at(x).at(y).list_flat = glGenLists(1);
     }
 
-    glNewList(cell_list[x][y].list_flat, GL_COMPILE);
+    glNewList(cell_list.at(x).at(y).list_flat, GL_COMPILE);
     glEnable(GL_CULL_FACE);
-    cell_list[x][y].pos = gl_vector3(x * GRID_RESOLUTION,
+    cell_list.at(x).at(y).pos = gl_vector3(x * GRID_RESOLUTION,
                                      0.0f,
                                      y * GRID_RESOLUTION);
 
@@ -121,13 +121,13 @@ static void do_compile()
     glEndList();
 
     // Now a list of flat-colored stuff that will be wireframe friendly
-    if (!cell_list[x][y].list_flat_wireframe) {
-        cell_list[x][y].list_flat_wireframe = glGenLists(1);
+    if (!cell_list.at(x).at(y).list_flat_wireframe) {
+        cell_list.at(x).at(y).list_flat_wireframe = glGenLists(1);
     }
 
-    glNewList(cell_list[x][y].list_flat_wireframe, GL_COMPILE);
+    glNewList(cell_list.at(x).at(y).list_flat_wireframe, GL_COMPILE);
     glEnable(GL_CULL_FACE);
-    cell_list[x][y].pos = gl_vector3(x * GRID_RESOLUTION,
+    cell_list.at(x).at(y).pos = gl_vector3(x * GRID_RESOLUTION,
                                      0.0f,
                                      y * GRID_RESOLUTION);
 
@@ -142,12 +142,12 @@ static void do_compile()
     glEndList();
 
     // Now a list of stuff to be alpha-blended, and thus rendered last
-    if (!cell_list[x][y].list_alpha) {
-        cell_list[x][y].list_alpha = glGenLists(1);
+    if (!cell_list.at(x).at(y).list_alpha) {
+        cell_list.at(x).at(y).list_alpha = glGenLists(1);
     }
 
-    glNewList(cell_list[x][y].list_alpha, GL_COMPILE);
-    cell_list[x][y].pos = gl_vector3(x * GRID_RESOLUTION,
+    glNewList(cell_list.at(x).at(y).list_alpha, GL_COMPILE);
+    cell_list.at(x).at(y).pos = gl_vector3(x * GRID_RESOLUTION,
                                      0.0f,
                                      y * GRID_RESOLUTION);
     glDepthMask(false);
@@ -187,7 +187,7 @@ bool entity_ready()
 
 float entity_progress()
 {
-    return (float)compile_count / (GRID_SIZE * GRID_SIZE);
+    return static_cast<float>(compile_count) / (GRID_SIZE * GRID_SIZE);
 }
 
 void entity_update()
@@ -216,13 +216,13 @@ void entity_update()
 
 void entity_render()
 {
-    int polymode[2];
+    std::array<int, 2> polymode;
     bool wireframe;
     int elapsed;
 
     // Draw all textured objects
-    glGetIntegerv(GL_POLYGON_MODE, &polymode[0]);
-    wireframe = (polymode[0] != GL_FILL);
+    glGetIntegerv(GL_POLYGON_MODE, &polymode.at(0));
+    wireframe = (polymode.at(0) != GL_FILL);
     if (render_flat()) {
         glDisable(GL_TEXTURE_2D);
     }
@@ -231,7 +231,7 @@ void entity_render()
     if (!LOADING_SCREEN && wireframe) {
         elapsed = 6000 - world_scene_elapsed();
         if ((elapsed >= 0) && (elapsed <= 6000)) {
-            render_fog_fx((float)elapsed / 6000.0f);
+            render_fog_fx(elapsed / 6000.0f);
         } else {
             return;
         }
@@ -240,7 +240,7 @@ void entity_render()
     for (int x = 0; x < GRID_SIZE; ++x) {
         for (int y = 0; y < GRID_SIZE; ++y) {
             if (visible(x, y)) {
-                glCallList(cell_list[x][y].list_textured);
+                glCallList(cell_list.at(x).at(y).list_textured);
             }
         }
     }
@@ -252,9 +252,9 @@ void entity_render()
         for (int y = 0; y < GRID_SIZE; ++y) {
             if (visible(x, y)) {
                 if (wireframe) {
-                    glCallList(cell_list[x][y].list_flat_wireframe);
+                    glCallList(cell_list.at(x).at(y).list_flat_wireframe);
                 } else {
-                    glCallList(cell_list[x][y].list_flat);
+                    glCallList(cell_list.at(x).at(y).list_flat);
                 }
             }
         }
@@ -267,7 +267,7 @@ void entity_render()
     for (int x = 0; x < GRID_SIZE; ++x) {
         for (int y = 0; y < GRID_SIZE; ++y) {
             if (visible(x, y)) {
-                glCallList(cell_list[x][y].list_alpha);
+                glCallList(cell_list.at(x).at(y).list_alpha);
             }
         }
     }
@@ -282,13 +282,13 @@ void entity_clear()
 
     for (int x = 0; x < GRID_SIZE; ++x) {
         for (int y = 0; y < GRID_SIZE; ++y) {
-            glNewList(cell_list[x][y].list_textured, GL_COMPILE);
+            glNewList(cell_list.at(x).at(y).list_textured, GL_COMPILE);
             glEndList();
-            glNewList(cell_list[x][y].list_alpha, GL_COMPILE);
+            glNewList(cell_list.at(x).at(y).list_alpha, GL_COMPILE);
             glEndList();
-            glNewList(cell_list[x][y].list_flat_wireframe, GL_COMPILE);
+            glNewList(cell_list.at(x).at(y).list_flat_wireframe, GL_COMPILE);
             glEndList();
-            glNewList(cell_list[x][y].list_flat, GL_COMPILE);
+            glNewList(cell_list.at(x).at(y).list_flat, GL_COMPILE);
             glEndList();
         }
     }
@@ -317,31 +317,9 @@ Entity::Entity()
     add(std::shared_ptr<Entity>(this));
 }
 
-void Entity::render() const
-{
-}
-
-void Entity::render_flat(bool wireframe) const
-{
-}
-
-void Entity::update()
-{
-}
-
 gl_vector3 Entity::center() const
 {
     return center_;
-}
-
-bool Entity::alpha() const
-{
-    return false;
-}
-
-unsigned int Entity::texture() const
-{
-    return -1;
 }
 
 int Entity::poly_count() const

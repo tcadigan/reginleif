@@ -35,11 +35,13 @@ public:
                            gl_rgba color);
 
     void create_radio_tower(gl_vector3 pos, float height);
+
     void render() const override;
     void render_flat(bool colored) const override;
+    unsigned int texture() const override;
+    void update() override;
     bool alpha() const override;
     int poly_count() const override;
-    unsigned int texture() const override;
 
 private:
     gl_rgba color_;

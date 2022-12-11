@@ -24,9 +24,11 @@ public:
     ~Building();
 
     void render() const override;
-    int poly_count() const override;
     void render_flat(bool wireframe) const override;
     unsigned int texture() const override;
+    void update() override;
+    bool alpha() const override;
+    int poly_count() const override;
 
 private:
     int x_;

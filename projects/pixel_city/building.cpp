@@ -86,6 +86,13 @@ unsigned int Building::texture() const
     return texture_random_building(texture_type_);
 }
 
+void Building::update() {}
+
+bool Building::alpha() const
+{
+    return false;
+}
+
 int Building::poly_count() const
 {
     return(mesh_->poly_count() + mesh_flat_->poly_count());
@@ -271,7 +278,7 @@ void Building::construct_roof(float left,
 
     // Consider putting a logo on the root, if it's tall enough
     if ((addon == addon_t::logo) && !have_logo_) {
-        Decoration *dec = new Decoration;
+        Decoration *dec = new Decoration();
         direction_t face;
 
         if (width > depth) {
@@ -313,7 +320,7 @@ void Building::construct_roof(float left,
         dec->create_logo(start, end, bottom, world_logo_index(), trim_color_);
         have_logo_ = true;
     } else if (addon == addon_t::trim) {
-        Decoration *dec = new Decoration;
+        Decoration *dec = new Decoration();
 
         vector_buffer.at(0) = gl_vector3(left, bottom, back);
         vector_buffer.at(1) = gl_vector3(left, bottom, front);
@@ -395,7 +402,7 @@ void Building::construct_spike(int left,
         fan.index_list.push_back(mesh_flat_->vertex_count() + i);
     }
 
-    fan.index_list.push_back(fan.index_list[1]);
+    fan.index_list.push_back(fan.index_list.at(1));
     p.set_uv(gl_vector2(0.0f, 0.0f));
     center.set_x((left + right) / 2.0f);
     center.set_z((front + back) / 2.0f);
@@ -813,7 +820,7 @@ void Building::create_modern()
                                   pos.get_x(),
                                   pos.get_z());
 
-            windows += (int)length;
+            windows += length;
             if ((length > 10) && !logo_done) {
                 logo_done = true;
                 start = gl_vector2(pos.get_x(), pos.get_z());
@@ -891,10 +898,10 @@ void Building::create_modern()
 
     radius /= 2.0f;
 
-    // ConstructRoof((int)(center_.x - radius),
-    //               (int)(center_.x + radius),
-    //               (int)(center_.z - radius),
-    //               (int)(center_.z + radius),
+    // ConstructRoof((center_.x - radius),
+    //               (center_.x + radius),
+    //               (center_.z - radius),
+    //               (center_.z + radius),
     //               height_ + cap_height);
 
     mesh_->compile();

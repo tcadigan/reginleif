@@ -77,8 +77,8 @@ void Mesh::render() const
         glBegin(GL_QUAD_STRIP);
 
         for (int const &index : quad_strip.index_list) {
-            glTexCoord2fv(vertex_[index].get_uv().get_data().data());
-            glVertex3fv(vertex_[index].get_position().get_data().data());
+            glTexCoord2fv(vertex_.at(index).get_uv().get_data().data());
+            glVertex3fv(vertex_.at(index).get_position().get_data().data());
         }
 
         glEnd();
@@ -88,26 +88,26 @@ void Mesh::render() const
         glBegin(GL_QUAD_STRIP);
 
         for (int const &index : cube.index_list) {
-            glTexCoord2fv(vertex_[index].get_uv().get_data().data());
-            glVertex3fv(vertex_[index].get_position().get_data().data());
+            glTexCoord2fv(vertex_.at(index).get_uv().get_data().data());
+            glVertex3fv(vertex_.at(index).get_position().get_data().data());
         }
 
         glEnd();
 
         glBegin(GL_QUADS);
-        glTexCoord2fv(vertex_[cube.index_list[7]].get_uv().get_data().data());
-        glVertex3fv(vertex_[cube.index_list[7]].get_position().get_data().data());
-        glVertex3fv(vertex_[cube.index_list[5]].get_position().get_data().data());
-        glVertex3fv(vertex_[cube.index_list[3]].get_position().get_data().data());
-        glVertex3fv(vertex_[cube.index_list[1]].get_position().get_data().data());
+        glTexCoord2fv(vertex_.at(cube.index_list.at(7)).get_uv().get_data().data());
+        glVertex3fv(vertex_.at(cube.index_list.at(7)).get_position().get_data().data());
+        glVertex3fv(vertex_.at(cube.index_list.at(5)).get_position().get_data().data());
+        glVertex3fv(vertex_.at(cube.index_list.at(3)).get_position().get_data().data());
+        glVertex3fv(vertex_.at(cube.index_list.at(1)).get_position().get_data().data());
         glEnd();
 
         glBegin(GL_QUADS);
-        glTexCoord2fv(vertex_[cube.index_list[6]].get_uv().get_data().data());
-        glVertex3fv(vertex_[cube.index_list[0]].get_position().get_data().data());
-        glVertex3fv(vertex_[cube.index_list[2]].get_position().get_data().data());
-        glVertex3fv(vertex_[cube.index_list[4]].get_position().get_data().data());
-        glVertex3fv(vertex_[cube.index_list[6]].get_position().get_data().data());
+        glTexCoord2fv(vertex_.at(cube.index_list.at(6)).get_uv().get_data().data());
+        glVertex3fv(vertex_.at(cube.index_list.at(0)).get_position().get_data().data());
+        glVertex3fv(vertex_.at(cube.index_list.at(2)).get_position().get_data().data());
+        glVertex3fv(vertex_.at(cube.index_list.at(4)).get_position().get_data().data());
+        glVertex3fv(vertex_.at(cube.index_list.at(6)).get_position().get_data().data());
         glEnd();
     }
 
@@ -115,8 +115,8 @@ void Mesh::render() const
         glBegin(GL_TRIANGLE_FAN);
 
         for (int const &index : fan.index_list) {
-            glTexCoord2fv(vertex_[index].get_uv().get_data().data());
-            glVertex3fv(vertex_[index].get_position().get_data().data());
+            glTexCoord2fv(vertex_.at(index).get_uv().get_data().data());
+            glVertex3fv(vertex_.at(index).get_position().get_data().data());
         }
 
         glEnd();
