@@ -5,7 +5,7 @@
  * This module contains the core of the program.
  */
 
-#include "app.hpp"
+#include <iostream>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
@@ -22,83 +22,66 @@
 // #include "win.hpp"
 // #include "world.hpp"
 
-static GLboolean quit;
-// static HINSTANCE instance;
+SDL_Window *window = nullptr;
 
-// HINSTANCE app_instance()
-// {
-//     return instance;
-// }
-
-void app_quit()
+void win_term(SDL_Window *window)
 {
-    quit = true;
+    SDL_DestroyWindow(window);
+}
+
+void app_init()
+{
+    SDL_Init(SDL_INIT_VIDEO);
+
+    unsigned int window_flags = SDL_WINDOW_OPENGL;
+
+    window = SDL_CreateWindow("Terrain", 0, 0, 640, 480, window_flags);
+}
+
+void app_term(SDL_Window *window)
+{
+    win_term(window);
+    SDL_Quit();
 }
 
 int main(int argc, char *argv[])
 {
-    SDL_LogSetAllPriority(SDL_LOG_PRIORITY_VERBOSE);
-    ini_manager *ini = new ini_manager();
-    SDL_LogVerbose(SDL_LOG_CATEGORY_VIDEO, "%s", "Created ini manager");
-    win *window = new win(*ini);
-    SDL_LogVerbose(SDL_LOG_CATEGORY_VIDEO, "%s", "Created window");
-    window->init();
+    app_init();
 
-    window->term();
-    return 0;
-}
+    if (window == nullptr) {
+        std::cerr << "Unable to create window\n";
 
-// int PASCAL WinMain(HINSTANCE instance_in, 
-//                    HINSTANCE previous_instance, 
-//                    LPSTR command_line,
-//                    int show_style)
-// {
-//     MSG msg;
-//     instance = instance_in;
+        return EXIT_FAILURE;
+    }
+
+    SDL_GLContext context = SDL_GL_CreateContext(window);
+
+    bool quit = false;
     
-//     WinInit();
-//     ConsoleInit();
-//     CameraInit();
-//     RenderInit();
-//     TextureInit();
-//     MapInit();
-//     MapTextureInit();
-//     EntityInit();
+    while (!quit) {
+        SDL_Event event;
 
-//     while(!quit) {
-//         if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-//             if(msg.message == WM_QUIT) {
-//                 quit = true;
-//             }
-//             else {
-//                 // Translate the message
-//                 TranslateMessage(&msg);
-                
-//                 // Dispatch the message
-//                 DispatchMessage(&msg);
-//             }
-//         }
-//         else {
-//             // Update
-//             CameraUpdate();
-//             EntityUpdate();
-//             MapUpdate();
-//             MapTextureUpdate();
-//             WorldUpdate();
-//             RenderUpdate();
-//             Sleep(1);
-//         }
-//     }
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_KEYDOWN) {
+                switch (event.key.keysym.sym) {
+                case SDLK_ESCAPE:
+                    quit = true;
 
-//     EntityTerm();
-//     TextureTerm();
-//     MapTerm();
-//     MapTextureTerm();
-//     WorldTerm();
-//     RenderTerm();
-//     CameraTerm();
-//     ConsoleTerm();
-//     WinTerm();
+                    break;
+                default:
+                    break;
+                }
+            } else if (event.type == SDL_QUIT) {
+                quit = true;
+            }
+        }
 
-//     return 0;
-// }
+        SDL_GL_SwapWindow(window);
+    }
+
+    SDL_GL_DeleteContext(context);
+
+    app_term(window);
+
+    return EXIT_SUCCESS;
+}

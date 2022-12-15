@@ -1,0 +1,17 @@
+name: Terrain build
+
+on:
+  push:
+    paths:
+    - 'projects/terrain/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: A build job
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/general-build
+        with:
+          path: projects/terrain
+          language: C++

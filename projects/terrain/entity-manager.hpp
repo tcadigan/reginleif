@@ -8,10 +8,6 @@
 
 class entity_manager {
 public:
-    entity_manager();
-    virtual ~entity_manager();
-
-    void init();
     void update();
     void term();
 
