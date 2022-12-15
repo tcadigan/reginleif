@@ -107,6 +107,30 @@ int main(int argc, char *argv[])
                 case SDLK_ESCAPE:
                     app_quit();
                     break;
+                case SDLK_F1:
+                    render_help_toggle();
+                    break;
+                case SDLK_r:
+                    world_reset();
+                    break;
+                case SDLK_l:
+                    render_letterbox_toggle();
+                    break;
+                case SDLK_f:
+                    render_fps_toggle();
+                    break;
+                case SDLK_w:
+                    render_wireframe_toggle();
+                    break;
+                case SDLK_e:
+                    render_effect_cycle();
+                    break;
+                case SDLK_t:
+                    render_flat_toggle();
+                    break;
+                case SDLK_g:
+                    render_fog_toggle();
+                    break;
                 default:
                     break;
                 }
