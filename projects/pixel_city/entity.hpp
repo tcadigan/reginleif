@@ -1,5 +1,5 @@
-#ifndef ENTITY_HPP_
-#define ENTITY_HPP_
+#ifndef __ENTITY_HPP__
+#define __ENTITY_HPP__
 
 #include <memory>
 
@@ -40,4 +40,4 @@ void entity_render();
 void entity_update();
 int entity_poly_count();
 
-#endif /* ENTITY_HPP_ */
+#endif /* __ENTITY_HPP__ */

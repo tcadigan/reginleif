@@ -1,11 +1,9 @@
-#ifndef GL_RGBA_HPP_
-#define GL_RGBA_HPP_
+#ifndef __GL_RGBA_HPP__
+#define __GL_RGBA_HPP__
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_opengl.h>
 
 #include <array>
-#include <string>
 
 class gl_rgba {
 public:
@@ -50,4 +48,4 @@ inline gl_rgba operator/(gl_rgba lhs, float const &rhs)
     return lhs;
 }
 
-#endif
+#endif /* __GL_RGBA_HPP__ */

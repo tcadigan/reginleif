@@ -1,5 +1,5 @@
-#ifndef GL_VECTOR3_HPP_
-#define GL_VECTOR3_HPP_
+#ifndef __GL_VECTOR3_HPP__
+#define __GL_VECTOR3_HPP__
 
 #include <SDL2/SDL_opengl.h>
 
@@ -67,4 +67,4 @@ inline gl_vector3 cross_product(gl_vector3 const &lhs, gl_vector3 const &rhs)
     return lhs.cross_product(rhs);
 }
 
-#endif
+#endif /* _GL_VECTOR3_HPP__ */

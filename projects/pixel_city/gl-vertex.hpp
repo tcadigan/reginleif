@@ -1,5 +1,5 @@
-#ifndef GL_VERTEX_HPP_
-#define GL_VERTEX_HPP_
+#ifndef __GL_VERTEX_HPP__
+#define __GL_VERTEX_HPP__
 
 #include "gl-rgba.hpp"
 #include "gl-vector2.hpp"
@@ -21,4 +21,4 @@ private:
     gl_rgba color_;
 };
 
-#endif
+#endif /* __GL_VERTEX_HPP__ */

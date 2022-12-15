@@ -1,5 +1,5 @@
-#ifndef TEXTURE_HPP_
-#define TEXTURE_HPP_
+#ifndef __TEXTURE_HPP__
+#define __TEXTURE_HPP__
 
 static int constexpr SEGMENTS_PER_TEXTURE = 64;
 static float constexpr ONE_SEGMENT = 1.0f / SEGMENTS_PER_TEXTURE;
@@ -58,7 +58,6 @@ public:
     void draw_headlight();
 };
 
-unsigned int texture_from_name(char *name);
 unsigned int texture_id(texture_t id);
 void texture_init();
 void texture_term();
@@ -67,4 +66,4 @@ bool texture_ready();
 void texture_reset();
 void texture_update();
 
-#endif /* TEXTURE_HPP_ */
+#endif /* __TEXTURE_HPP__ */

@@ -1,5 +1,5 @@
-#ifndef CAR_HPP_
-#define CAR_HPP_
+#ifndef __CAR_HPP__
+#define __CAR_HPP__
 
 #include "gl-vector3.hpp"
 
@@ -33,4 +33,4 @@ int car_count();
 void car_render();
 void car_update();
 
-#endif /* CAR_HPP_ */
+#endif /* __CAR_HPP__ */

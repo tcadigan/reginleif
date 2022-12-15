@@ -1,5 +1,5 @@
-#ifndef BUILDING_HPP_
-#define BUILDING_HPP_
+#ifndef __BUILDING_HPP__
+#define __BUILDING_HPP__
 
 #include "entity.hpp"
 
@@ -91,4 +91,4 @@ private:
                         float bottom);
 };
 
-#endif /* BUILDING_HPP_ */
+#endif /* __BUILDING_HPP__ */

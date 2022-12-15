@@ -21,6 +21,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <list>
+#include <string>
 
 #include "building.hpp"
 #include "camera.hpp"

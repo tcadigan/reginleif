@@ -1,5 +1,5 @@
-#ifndef GL_BBOX_HPP_
-#define GL_BBOX_HPP_
+#ifndef __GL_BBOX_HPP__
+#define __GL_BBOX_HPP__
 
 #include "gl-vector3.hpp"
 
@@ -20,4 +20,4 @@ private:
     gl_vector3 max_;
 };
 
-#endif
+#endif /* __GL_BBOX_HPP__ */

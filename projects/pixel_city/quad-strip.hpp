@@ -8,4 +8,4 @@ public:
     std::vector<int> index_list;
 };
 
-#endif /* __QUAD_STRIP_HPP_ */
+#endif /* __QUAD_STRIP_HPP__ */

@@ -1,5 +1,5 @@
-#ifndef RENDER_HPP_
-#define RENDER_HPP_
+#ifndef __RENDER_HPP__
+#define __RENDER_HPP__
 
 #include "gl-rgba.hpp"
 
@@ -24,4 +24,4 @@ void render_help_toggle();
 void render_print(int x, int y, int font, gl_rgba color, const char *fmt, ...);
 void render_print(int line, const char *fmt, ...);
 
-#endif /* RENDER_HPP_ */
+#endif /* __RENDER_HPP__ */

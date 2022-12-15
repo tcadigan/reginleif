@@ -1,5 +1,5 @@
-#ifndef GL_VECTOR2_HPP_
-#define GL_VECTOR2_HPP_
+#ifndef __GL_VECTOR2_HPP__
+#define __GL_VECTOR2_HPP__
 
 #include <SDL2/SDL_opengl.h>
 
@@ -48,4 +48,4 @@ inline gl_vector2 operator/(gl_vector2 lhs, float const &rhs)
     return lhs;
 }
 
-#endif
+#endif /* GL_VECTOR2_HPP__ */

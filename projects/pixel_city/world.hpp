@@ -1,5 +1,5 @@
-#ifndef WORLD_HPP_
-#define WORLD_HPP_
+#ifndef __WORLD_HPP__
+#define __WORLD_HPP__
 
 #include "gl-bbox.hpp"
 #include "gl-rgba.hpp"
@@ -61,4 +61,4 @@ int world_scene_elapsed();
 void world_term();
 void world_update();
 
-#endif /* WORLD_HPP_ */
+#endif /* __WORLD_HPP__ */

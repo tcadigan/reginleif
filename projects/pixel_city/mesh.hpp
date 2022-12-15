@@ -1,5 +1,5 @@
-#ifndef MESH_HPP_
-#define MESH_HPP_
+#ifndef __MESH_HPP__
+#define __MESH_HPP__
 
 #include "cube.hpp"
 #include "fan.hpp"
@@ -32,4 +32,4 @@ private:
     bool compiled_;
 };
 
-#endif /* MESH_HPP_ */
+#endif /* __MESH_HPP__ */

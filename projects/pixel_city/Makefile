@@ -18,7 +18,6 @@ OBJS = ${SRCS:.cpp=.o}
 
 all: ${PROG}
 
-# Test
 ${PROG}: depend ${OBJS}
 	${CXX} ${CXXFLAGS} ${OBJS} -o ${.TARGET} ${LDFLAGS}
 

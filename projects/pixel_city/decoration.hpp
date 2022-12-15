@@ -1,5 +1,5 @@
-#ifndef DECORATION_HPP_
-#define DECORATION_HPP_
+#ifndef __DECORATION_HPP__
+#define __DECORATION_HPP__
 
 #include "entity.hpp"
 
@@ -50,4 +50,4 @@ private:
     bool use_alpha_;
 };
 
-#endif /* DECORATION_HPP_ */
+#endif /* __DECORATION_HPP__ */

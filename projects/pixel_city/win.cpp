@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
     app_init();
 
     if (window == nullptr) {
-        std::cerr << "Unable to create window" << std::endl;
+        std::cerr << "Unable to create window\n";
 
         return EXIT_FAILURE;
     }

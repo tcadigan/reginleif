@@ -581,7 +581,7 @@ void render_fog_toggle()
     ini_int_set(render_section_ini, show_fog_ini, show_fog ? 1 : 0);
 }
 
-void RenderLetterBoxToggle()
+void render_letterbox_toggle()
 {
     letterbox = !letterbox;
     ini_int_set(render_section_ini, letterbox_ini, letterbox ? 1: 0);

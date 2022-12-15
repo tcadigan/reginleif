@@ -1,5 +1,5 @@
-#ifndef VISIBLE_HPP_
-#define VISIBLE_HPP_
+#ifndef __VISIBLE_HPP__
+#define __VISIBLE_HPP__
 
 #include "gl-vector3.hpp"
 #include "world.hpp"
@@ -12,4 +12,4 @@ void visible_update();
 bool visible(gl_vector3 pos);
 bool visible(int x, int z);
 
-#endif /* VISIBLE_HPP_ */
+#endif /* __VISIBLE_HPP__ */

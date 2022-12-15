@@ -1,5 +1,5 @@
-#ifndef LIGHT_HPP_
-#define LIGHT_HPP_
+#ifndef __LIGHT_HPP__
+#define __LIGHT_HPP__
 
 #include "gl-rgba.hpp"
 #include "gl-vector3.hpp"
@@ -27,4 +27,4 @@ void light_render();
 void light_clear();
 int light_count();
 
-#endif /* LIGHT_HPP_ */
+#endif /* __LIGHT_HPP__ */

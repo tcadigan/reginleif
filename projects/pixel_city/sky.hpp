@@ -1,5 +1,5 @@
-#ifndef SKY_HPP_
-#define SKY_HPP_
+#ifndef __SKY_HPP__
+#define __SKY_HPP__
 
 #include "gl-rgba.hpp"
 #include "gl-vector3.hpp"
@@ -20,4 +20,4 @@ private:
 void sky_render();
 void sky_clear();
 
-#endif /* SKY_HPP_ */
+#endif /* __SKY_HPP__ */
