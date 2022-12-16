@@ -5,7 +5,7 @@
 
 class Cube {
 public:
-    std::vector<int> index_list; // Probably always size() == 10...
+  std::vector<int> index_list; // Probably always size() == 10...
 };
 
 #endif /* __CUBE_HPP__ */

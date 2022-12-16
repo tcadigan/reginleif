@@ -9,12 +9,13 @@ static int constexpr SKY_HALF = SKY_GRID / 2;
 
 class Sky {
 public:
-    Sky();
-    void render();
+  Sky();
+  void render();
 
 private:
-    int list_;
-    std::array<std::array<std::pair<gl_rgba, gl_vector3>, SKY_GRID>, SKY_GRID> grid_;
+  int list_;
+  std::array<std::array<std::pair<gl_rgba, gl_vector3>, SKY_GRID>, SKY_GRID>
+      grid_;
 };
 
 void sky_render();

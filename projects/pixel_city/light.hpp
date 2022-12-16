@@ -6,21 +6,21 @@
 
 class Light {
 public:
-    Light(gl_vector3 pos, gl_rgba color, int size);
-    Light *next_;
-    void render() const;
-    void blink();
+  Light(gl_vector3 pos, gl_rgba color, int size);
+  Light *next_;
+  void render() const;
+  void blink();
 
 private:
-    gl_vector3 position_;
-    gl_rgba color_;
-    int size_;
-    float vert_size_;
-    float flat_size_;
-    bool blink_;
-    unsigned blink_interval_;
-    int cell_x_;
-    int cell_z_;
+  gl_vector3 position_;
+  gl_rgba color_;
+  int size_;
+  float vert_size_;
+  float flat_size_;
+  bool blink_;
+  unsigned blink_interval_;
+  int cell_x_;
+  int cell_z_;
 };
 
 void light_render();

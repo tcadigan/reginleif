@@ -31,14 +31,14 @@ static int constexpr WORLD_HALF = WORLD_SIZE / 2;
 
 // Bitflags use to track how world space is being used.
 enum class usage_t {
-    none = 0,
-    claim_road = 1,
-    claim_walk = 2,
-    claim_building = 4,
-    map_road_north = 8,
-    map_road_south = 16,
-    map_road_east = 32,
-    map_road_west = 64
+  none = 0,
+  claim_road = 1,
+  claim_walk = 2,
+  claim_building = 4,
+  map_road_north = 8,
+  map_road_south = 16,
+  map_road_east = 32,
+  map_road_west = 64
 };
 
 usage_t operator&(usage_t left, usage_t right);

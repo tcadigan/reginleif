@@ -38,117 +38,108 @@ static int height = 480;
 static bool quit = false;
 SDL_Window *window = nullptr;
 
-void app_update()
-{
-    camera_update();
-    entity_update();
-    world_update();
-    texture_update();
-    visible_update();
-    car_update();
-    render_update();
+void app_update() {
+  camera_update();
+  entity_update();
+  world_update();
+  texture_update();
+  visible_update();
+  car_update();
+  render_update();
 }
 
-void app_init()
-{
-    SDL_Init(SDL_INIT_VIDEO);
+void app_init() {
+  SDL_Init(SDL_INIT_VIDEO);
 
-    unsigned int window_flags = SDL_WINDOW_OPENGL;
+  unsigned int window_flags = SDL_WINDOW_OPENGL;
 
-    window = SDL_CreateWindow(APP_TITLE.c_str(), 0, 0, width, height, window_flags);
+  window =
+      SDL_CreateWindow(APP_TITLE.c_str(), 0, 0, width, height, window_flags);
 
-    load_ini();
-    random_init(time(NULL));
-    camera_init();
-    render_init();
-    texture_init();
-    world_init();
+  load_ini();
+  random_init(time(NULL));
+  camera_init();
+  render_init();
+  texture_init();
+  world_init();
 }
 
-void app_quit()
-{
-    quit = true;
+void app_quit() { quit = true; }
+
+void win_term(SDL_Window *window) { SDL_DestroyWindow(window); }
+
+void app_term(SDL_Window *window) {
+  texture_term();
+  world_term();
+  render_term();
+  camera_term();
+  win_term(window);
+  write_ini();
+  SDL_Quit();
 }
 
-void win_term(SDL_Window *window)
-{
-    SDL_DestroyWindow(window);
-}
+int main(int argc, char *argv[]) {
+  app_init();
 
-void app_term(SDL_Window *window)
-{
-    texture_term();
-    world_term();
-    render_term();
-    camera_term();
-    win_term(window);
-    write_ini();
-    SDL_Quit();
-}
+  if (window == nullptr) {
+    std::cerr << "Unable to create window\n";
 
-int main(int argc, char *argv[])
-{
-    app_init();
+    return EXIT_FAILURE;
+  }
 
-    if (window == nullptr) {
-        std::cerr << "Unable to create window\n";
+  SDL_GLContext context = SDL_GL_CreateContext(window);
 
-        return EXIT_FAILURE;
-    }
+  while (!quit) {
+    SDL_Event event;
 
-    SDL_GLContext context = SDL_GL_CreateContext(window);
-
-    while (!quit) {
-        SDL_Event event;
-
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_KEYDOWN) {
-                switch (event.key.keysym.sym) {
-                case SDLK_ESCAPE:
-                    app_quit();
-                    break;
-                case SDLK_F1:
-                    render_help_toggle();
-                    break;
-                case SDLK_r:
-                    world_reset();
-                    break;
-                case SDLK_l:
-                    render_letterbox_toggle();
-                    break;
-                case SDLK_f:
-                    render_fps_toggle();
-                    break;
-                case SDLK_w:
-                    render_wireframe_toggle();
-                    break;
-                case SDLK_e:
-                    render_effect_cycle();
-                    break;
-                case SDLK_t:
-                    render_flat_toggle();
-                    break;
-                case SDLK_g:
-                    render_fog_toggle();
-                    break;
-                default:
-                    break;
-                }
-            } else if (event.type == SDL_QUIT) {
-                app_quit();
-            }
+    while (SDL_PollEvent(&event)) {
+      if (event.type == SDL_KEYDOWN) {
+        switch (event.key.keysym.sym) {
+        case SDLK_ESCAPE:
+          app_quit();
+          break;
+        case SDLK_F1:
+          render_help_toggle();
+          break;
+        case SDLK_r:
+          world_reset();
+          break;
+        case SDLK_l:
+          render_letterbox_toggle();
+          break;
+        case SDLK_f:
+          render_fps_toggle();
+          break;
+        case SDLK_w:
+          render_wireframe_toggle();
+          break;
+        case SDLK_e:
+          render_effect_cycle();
+          break;
+        case SDLK_t:
+          render_flat_toggle();
+          break;
+        case SDLK_g:
+          render_fog_toggle();
+          break;
+        default:
+          break;
         }
-
-        glViewport(0, 0, width, height);
-        glClearColor(1.0f, 1.0f, 1.0f, 0.0);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        SDL_GL_SwapWindow(window);
+      } else if (event.type == SDL_QUIT) {
+        app_quit();
+      }
     }
 
-    SDL_GL_DeleteContext(context);
+    glViewport(0, 0, width, height);
+    glClearColor(1.0f, 1.0f, 1.0f, 0.0);
+    glClear(GL_COLOR_BUFFER_BIT);
 
-    app_term(window);
+    SDL_GL_SwapWindow(window);
+  }
 
-    return EXIT_SUCCESS;
+  SDL_GL_DeleteContext(context);
+
+  app_term(window);
+
+  return EXIT_SUCCESS;
 }

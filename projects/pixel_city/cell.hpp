@@ -5,12 +5,11 @@
 
 class Cell {
 public:
-    unsigned int list_textured;
-    unsigned int list_flat;
-    unsigned int list_flat_wireframe;
-    unsigned int list_alpha;
-    gl_vector3 pos;
+  unsigned int list_textured;
+  unsigned int list_flat;
+  unsigned int list_flat_wireframe;
+  unsigned int list_alpha;
+  gl_vector3 pos;
 };
-
 
 #endif /* __CELL_HPP__ */

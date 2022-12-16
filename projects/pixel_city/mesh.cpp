@@ -17,116 +17,108 @@
 
 #include <vector>
 
-Mesh::Mesh()
-{
-    list_ = glGenLists(1);
-    compiled_ = false;
-    poly_count_ = 0;
+Mesh::Mesh() {
+  list_ = glGenLists(1);
+  compiled_ = false;
+  poly_count_ = 0;
 }
 
-Mesh::~Mesh()
-{
-    glDeleteLists(list_, 1);
-    vertex_.clear();
-    fan_.clear();
-    quad_strip_.clear();
-    cube_.clear();
+Mesh::~Mesh() {
+  glDeleteLists(list_, 1);
+  vertex_.clear();
+  fan_.clear();
+  quad_strip_.clear();
+  cube_.clear();
 }
 
-void Mesh::vertex_add(const gl_vertex &v)
-{
-    vertex_.push_back(v);
+void Mesh::vertex_add(const gl_vertex &v) { vertex_.push_back(v); }
+
+int Mesh::vertex_count() { return vertex_.size(); }
+
+int Mesh::poly_count() const { return poly_count_; }
+
+void Mesh::cube_add(Cube const &cube) {
+  cube_.push_back(cube);
+  poly_count_ += 5;
 }
 
-int Mesh::vertex_count()
-{
-    return vertex_.size();
+void Mesh::quad_strip_add(QuadStrip const &qs) {
+  quad_strip_.push_back(qs);
+  poly_count_ += ((qs.index_list.size() - 2) / 2);
 }
 
-int Mesh::poly_count() const
-{
-    return poly_count_;
+void Mesh::fan_add(Fan const &fan) {
+  fan_.push_back(fan);
+  poly_count_ += (fan.index_list.size() - 2);
 }
 
-void Mesh::cube_add(Cube const &cube)
-{
-    cube_.push_back(cube);
-    poly_count_ += 5;
-}
+void Mesh::render() const {
+  if (compiled_) {
+    glCallList(list_);
+    return;
+  }
 
-void Mesh::quad_strip_add(QuadStrip const &qs)
-{
-    quad_strip_.push_back(qs);
-    poly_count_ += ((qs.index_list.size() - 2) / 2);
-}
+  for (QuadStrip const &quad_strip : quad_strip_) {
+    glBegin(GL_QUAD_STRIP);
 
-void Mesh::fan_add(Fan const &fan)
-{
-    fan_.push_back(fan);
-    poly_count_ += (fan.index_list.size() - 2);
-}
-
-void Mesh::render() const
-{
-    if (compiled_) {
-        glCallList(list_);
-        return;
+    for (int const &index : quad_strip.index_list) {
+      glTexCoord2fv(vertex_.at(index).get_uv().get_data().data());
+      glVertex3fv(vertex_.at(index).get_position().get_data().data());
     }
 
-    for (QuadStrip const &quad_strip : quad_strip_) {
-        glBegin(GL_QUAD_STRIP);
+    glEnd();
+  }
 
-        for (int const &index : quad_strip.index_list) {
-            glTexCoord2fv(vertex_.at(index).get_uv().get_data().data());
-            glVertex3fv(vertex_.at(index).get_position().get_data().data());
-        }
+  for (Cube const &cube : cube_) {
+    glBegin(GL_QUAD_STRIP);
 
-        glEnd();
+    for (int const &index : cube.index_list) {
+      glTexCoord2fv(vertex_.at(index).get_uv().get_data().data());
+      glVertex3fv(vertex_.at(index).get_position().get_data().data());
     }
 
-    for (Cube const &cube : cube_) {
-        glBegin(GL_QUAD_STRIP);
+    glEnd();
 
-        for (int const &index : cube.index_list) {
-            glTexCoord2fv(vertex_.at(index).get_uv().get_data().data());
-            glVertex3fv(vertex_.at(index).get_position().get_data().data());
-        }
+    glBegin(GL_QUADS);
+    glTexCoord2fv(vertex_.at(cube.index_list.at(7)).get_uv().get_data().data());
+    glVertex3fv(
+        vertex_.at(cube.index_list.at(7)).get_position().get_data().data());
+    glVertex3fv(
+        vertex_.at(cube.index_list.at(5)).get_position().get_data().data());
+    glVertex3fv(
+        vertex_.at(cube.index_list.at(3)).get_position().get_data().data());
+    glVertex3fv(
+        vertex_.at(cube.index_list.at(1)).get_position().get_data().data());
+    glEnd();
 
-        glEnd();
+    glBegin(GL_QUADS);
+    glTexCoord2fv(vertex_.at(cube.index_list.at(6)).get_uv().get_data().data());
+    glVertex3fv(
+        vertex_.at(cube.index_list.at(0)).get_position().get_data().data());
+    glVertex3fv(
+        vertex_.at(cube.index_list.at(2)).get_position().get_data().data());
+    glVertex3fv(
+        vertex_.at(cube.index_list.at(4)).get_position().get_data().data());
+    glVertex3fv(
+        vertex_.at(cube.index_list.at(6)).get_position().get_data().data());
+    glEnd();
+  }
 
-        glBegin(GL_QUADS);
-        glTexCoord2fv(vertex_.at(cube.index_list.at(7)).get_uv().get_data().data());
-        glVertex3fv(vertex_.at(cube.index_list.at(7)).get_position().get_data().data());
-        glVertex3fv(vertex_.at(cube.index_list.at(5)).get_position().get_data().data());
-        glVertex3fv(vertex_.at(cube.index_list.at(3)).get_position().get_data().data());
-        glVertex3fv(vertex_.at(cube.index_list.at(1)).get_position().get_data().data());
-        glEnd();
+  for (Fan const &fan : fan_) {
+    glBegin(GL_TRIANGLE_FAN);
 
-        glBegin(GL_QUADS);
-        glTexCoord2fv(vertex_.at(cube.index_list.at(6)).get_uv().get_data().data());
-        glVertex3fv(vertex_.at(cube.index_list.at(0)).get_position().get_data().data());
-        glVertex3fv(vertex_.at(cube.index_list.at(2)).get_position().get_data().data());
-        glVertex3fv(vertex_.at(cube.index_list.at(4)).get_position().get_data().data());
-        glVertex3fv(vertex_.at(cube.index_list.at(6)).get_position().get_data().data());
-        glEnd();
+    for (int const &index : fan.index_list) {
+      glTexCoord2fv(vertex_.at(index).get_uv().get_data().data());
+      glVertex3fv(vertex_.at(index).get_position().get_data().data());
     }
 
-    for (Fan const &fan : fan_) {
-        glBegin(GL_TRIANGLE_FAN);
-
-        for (int const &index : fan.index_list) {
-            glTexCoord2fv(vertex_.at(index).get_uv().get_data().data());
-            glVertex3fv(vertex_.at(index).get_position().get_data().data());
-        }
-
-        glEnd();
-    }
+    glEnd();
+  }
 }
 
-void Mesh::compile()
-{
-    glNewList(list_, GL_COMPILE);
-    render();
-    glEndList();
-    compiled_ = true;
+void Mesh::compile() {
+  glNewList(list_, GL_COMPILE);
+  render();
+  glEndList();
+  compiled_ = true;
 }

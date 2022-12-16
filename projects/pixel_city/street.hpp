@@ -3,11 +3,11 @@
 
 class Street {
 public:
-    int _x;
-    int _y;
-    int _width;
-    int _depth;
-    int _mesh;
+  int _x;
+  int _y;
+  int _width;
+  int _depth;
+  int _mesh;
 };
 
 #endif /* __STREET_HPP__ */

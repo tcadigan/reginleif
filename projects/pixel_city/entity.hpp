@@ -9,27 +9,27 @@ static int constexpr MAX_VBUFFER = 256;
 
 class Entity {
 public:
-    Entity();
+  Entity();
 
-    // Rule of five
-    virtual ~Entity() = default;
-    Entity(Entity const &other) = delete;
-    Entity(Entity  &&other) = delete;
-    Entity &operator =(Entity const &other) = delete;
-    Entity &operator =(Entity &&other) = delete;
+  // Rule of five
+  virtual ~Entity() = default;
+  Entity(Entity const &other) = delete;
+  Entity(Entity &&other) = delete;
+  Entity &operator=(Entity const &other) = delete;
+  Entity &operator=(Entity &&other) = delete;
 
-    virtual void render() const = 0;
-    virtual void render_flat(bool wireframe) const = 0;
-    virtual unsigned int texture() const = 0;
-    virtual void update() = 0;
-    virtual bool alpha() const = 0;
-    virtual int poly_count() const = 0;
+  virtual void render() const = 0;
+  virtual void render_flat(bool wireframe) const = 0;
+  virtual unsigned int texture() const = 0;
+  virtual void update() = 0;
+  virtual bool alpha() const = 0;
+  virtual int poly_count() const = 0;
 
-    gl_vector3 center() const;
+  gl_vector3 center() const;
 
 protected:
-    gl_vector3 center_;
-    int poly_count_;
+  gl_vector3 center_;
+  int poly_count_;
 };
 
 void entity_clear();

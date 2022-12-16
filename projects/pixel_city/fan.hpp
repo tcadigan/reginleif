@@ -5,7 +5,7 @@
 
 class Fan {
 public:
-    std::vector<int> index_list;
+  std::vector<int> index_list;
 };
 
 #endif /* __FAN_HPP__ */

@@ -5,7 +5,7 @@
 
 class QuadStrip {
 public:
-    std::vector<int> index_list;
+  std::vector<int> index_list;
 };
 
 #endif /* __QUAD_STRIP_HPP__ */
