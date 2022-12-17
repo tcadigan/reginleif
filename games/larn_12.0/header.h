@@ -2,6 +2,8 @@
  * header.h
  * Larn is copyrighted 1986 by Noah Morgan.
  */
+#ifndef __HEADER_H__
+#define __HEADER_H__
 
 #include <stdio.h>
 
@@ -84,9 +86,9 @@ struct cel {
     char know;
 };
 
-/* 
+/*
  * This is the structure for maintaining and moving the spehere of
- * annihilation 
+ * annihilation
  */
 struct sphere {
     /* Pointer to the next structure */
@@ -436,7 +438,7 @@ extern char *scrollname[];
 extern char sex;
 extern char *spelcode[];
 extern char *speldescript[];
-char *spelknow;
+extern char spelknow[];
 extern char *spelname[];
 extern char *spelmes[];
 extern char spelweird[MAXMONST + 8][SPNUM];
@@ -448,8 +450,8 @@ extern char wizard;
 extern short diroffx[];
 extern short diroffy[];
 extern short hitflag;
-short hit2flag;
-short hit3flag;
+extern short hit2flag;
+extern short hit3flag;
 extern short hitp[MAXX][MAXY];
 extern short iarg[MAXX][MAXY];
 extern short ivenarg[];
@@ -465,7 +467,7 @@ extern short playerx;
 extern short playery;
 extern int dayplay;
 extern int enable_scroll;
-int srcount;
+extern int srcount;
 extern int yrepcount;
 extern int userid;
 extern int wisid;
@@ -546,7 +548,7 @@ extern struct _itm itm[];
 /* Macro to clear to end of line */
 #define cltoeoln() (*lpnt++ = CL_LINE)
 
-#endif
+#endif /* VT100 */
 
 /* Macro to output one byte to the output buffer */
 #define lprc(ch)				\
@@ -564,4 +566,6 @@ extern struct _itm itm[];
 #define lcc(x) (to_lower[x])
 #define ucc(x) (to_upper[x])
 
-#endif
+#endif /* NODEFS */
+
+#endif /* __HEADER_H__ */

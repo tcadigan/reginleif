@@ -647,7 +647,7 @@ void movsphere()
     x = 0;
     
     /* Look through sphere list */
-    for(sp2 = spheres; sp; sp2 = sp2->p) {
+    for(sp2 = spheres; sp2; sp2 = sp2->p) {
 	/* Only in this level */
 	if(sp2->lev == level) {
 	    /* Copy the struct */

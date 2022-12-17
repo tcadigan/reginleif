@@ -5,7 +5,7 @@ void genmonst();
 void sphboom(int x, int y);
 int rmsphere(int x, int y);
 int newsphere(int x, int y, int dir, int life);
-void checkloss();
+void checkloss(int x);
 void dropgold(int amount);
 void dropsomething(int monst);
 void something(int level);

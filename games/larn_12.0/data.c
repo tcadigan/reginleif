@@ -214,9 +214,9 @@ char lastmonst[40];
 char beenhere[MAXLEVEL + MAXVLEVEL] = {0};
 
 /* This is the present verion # of the program */
-char VERSION = VER;
+char VERSION = (char)12;
 
-char SUBVERSION = SUBVER;
+char SUBVERSION = (char)0;
 
 /* 
  * Set to 1 to disable the signals from doing anything,
@@ -263,10 +263,10 @@ short lastnum = 0;
 short hitflag = 0;
 
 /* Flag for if player has been hit when running */
-short hitflag2 = 0;
+short hit2flag = 0;
 
 /* Flag for if player has been hit flush input */
-short hit3 = 0;
+short hit3flag = 0;
 
 /* The room on the present level of the player */
 short playerx;
@@ -584,7 +584,7 @@ char *potionname[] = {
 };
 
 /* Spell data */
-char spellknow[SPNUM] = {0};
+char spelknow[SPNUM] = {0};
 char splev[] = { 1, 4, 9, 14, 18, 22, 26, 29, 32, 35, 37, 37, 37, 37, 37 };
 
 char *spelcode[] = {

@@ -31,7 +31,7 @@
 static char copyright[] = "\nLarn is copyrighted 1986 by Noah Morgan.\n";
 
 /* Line counter for showstr() */
-int srccount = 0;
+int srcount = 0;
 
 /* If 1 then don't lookforobject() next round */
 int dropflag = 0;

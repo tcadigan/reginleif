@@ -11,7 +11,7 @@
 #define LINSZ 1000
 #define STRSZ 40
 
-int fd;
+int forture_fd;
 char string[STRSZ];
 
 int main(int argc, char *argv[])
@@ -20,8 +20,8 @@ int main(int argc, char *argv[])
     int propct = 0;
     char *sp;
 
-    fd = open(DEF_FILE, 0);
-    if(fd < 0) {
+    forture_fd = open(DEF_FILE, 0);
+    if(forture_fd < 0) {
         perror(DEF_FILE);
         
         return 1;
@@ -81,7 +81,7 @@ int eof;
 
 void readline()
 {
-    int n = read(fd, lp0, (line + LINSZ) - lp0);
+    int n = read(forture_fd, lp0, (line + LINSZ) - lp0);
     if(n < 0) {
         printf("Input error.\n");
 

@@ -1,6 +1,5 @@
 # Hack or Quest Makefile
 
-# Make Hack
 HACK = hack
 MAKEDEFS = makedefs
 MKLEV = mklev
