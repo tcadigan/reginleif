@@ -70,6 +70,28 @@ void init_objects()
         bases[i] = first;
         
         while(1) {
+            if(let == GEM_SYM) {
+                extern xchar dlevel;
+
+                for(j = 0; j < (9 - (dlevel / 3)); ++j) {
+                    objects[first + j].oc_prob = 0;
+                }
+
+                first += j;
+
+                if((first >= last) || (first >= LAST_GEM)) {
+                    printf("Not enough gems? - first=%d last=%d j=%d LAST_GEM=%d\n",
+                           first,
+                           last,
+                           j,
+                           LAST_GEM);
+                }
+
+                for(j = first; j < LAST_GEM; ++j) {
+                    objects[j].oc_prob = ((20 + j) - first) / (LAST_GEM - first);
+                }
+            }
+
             sum = 0;
             for(j = first; j < last; ++j) {
                 sum += objects[j].oc_prob;
@@ -87,7 +109,7 @@ void init_objects()
         }
 
         if(sum != 100) {
-            hack_error("init-prob error for %c", let);
+            panic("init-prob error for %c", let);
         }
 
         /*
@@ -131,45 +153,4 @@ int probtype(char let)
     }
 
     return i;
-}
-
-#define SIZE(x) (sizeof(x) / sizeof(x[0]))
-
-void savenames(int fd)
-{
-    int i;
-    unsigned int len;
-    
-    bwrite(fd, (char *)bases, sizeof(bases));
-    bwrite(fd, (char *)objects, sizeof(objects));
-
-    /*
-     * As long as we use only one version of Hack/Quest we
-     * need not save oc_name or oc_descr, but we must save
-     * oc_uname for all objects
-     */
-    for(i = 0; i < SIZE(objects); ++i) {
-        if(objects[i].oc_uname != NULL) {
-            len = strlen(objects[i].oc_uname) + 1;
-            bwrite(fd, (char *)&len, sizeof(len));
-            bwrite(fd, objects[i].oc_uname, len);
-        }
-    }
-}
-
-void restnames(int fd)
-{
-    int i;
-    unsigned int len;
-
-    mread(fd, (char *)bases, sizeof(bases));
-    mread(fd, (char *)objects, sizeof(objects));
-    
-    for(i = 0; i < SIZE(objects); ++i) {
-        if(objects[i].oc_uname != NULL) {
-            mread(fd, (char *)&len, sizeof(len));
-            objects[i].oc_uname = (char *)alloc(len);
-            mread(fd, objects[i].oc_uname, len);
-        }
-    }
 }

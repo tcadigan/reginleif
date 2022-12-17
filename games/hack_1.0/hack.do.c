@@ -57,7 +57,7 @@ int dodrink()
     int nothing = 0;
 
     otmp = getobj("!", "drink");
-    
+
     if(otmp != NULL) {
         return 0;
     }
@@ -112,7 +112,7 @@ int dodrink()
     case POT_FRUIT_JUICE:
         pline("This tastes like fruit juice.");
         lesshungry(20);
-       
+
         break;
     case POT_HEALING:
         pline("You begin to feel better.");
@@ -147,7 +147,7 @@ int dodrink()
         }
         else {
             cls();
-            
+
             for(mtmp = fmon; mtmp != NULL; mtmp = mtmp->nmon) {
                 if(mtmp->mx > 0) {
                     at(mtmp->mx, mtmp->my, mtmp->data->mlet);
@@ -164,10 +164,10 @@ int dodrink()
     case POT_OBJECT_DETECTION:
         {
             int flag = 0;
-            
+
             if(fobj == NULL) {
                 strange_feeling(otmp);
-                
+
                 return 1;
             }
             else {
@@ -181,16 +181,16 @@ int dodrink()
 
                 if(flag == 0) {
                     pline("You sense the presence of objects close nearby.");
-                    
+
                     break;
                 }
-            
+
                 cls();
-                
+
                 for(objs = fobj; objs != NULL; objs = objs->nobj) {
                     at(objs->ox, objs->oy, objs->olet);
                 }
-                 
+
                 prme();
                 pline("You sense the presence of objects.");
                 more();
@@ -201,14 +201,14 @@ int dodrink()
         break;
     case POT_SICKNESS:
         pline("Yech! This stuff tastest like poison.");
-        
+
         if(Poison_resistance != 0) {
             pline("(But in fact it was biologically contaminated orange juice.)");
         }
 
         losestr(rn1(4, 3));
         losehp(rnd(10), "poison potion");
-    
+
         break;
     case POT_CONFUSION:
         if(Confusion == 0) {
@@ -263,7 +263,7 @@ int dodrink()
         }
 
         Fast += rn1(10, 100);
-        
+
         break;
     case POT_BLINDNESS:
         if(Blind == 0) {
@@ -285,16 +285,16 @@ int dodrink()
         pline("You feel much better");
         flags.botl = 1;
         u.uhp += (d(2, 20) + 1);
-        
+
         if(u.uhp > u.uhpmax) {
             u.uhpmax += 2;
             u.uhp = u.uhpmax;
         }
-        
+
         if(Blind != 0) {
             Blind = 1;
         }
-        
+
         if(Sick != 0) {
             Sick = 0;
         }
@@ -310,7 +310,7 @@ int dodrink()
 
         Levitation += rnd(100);
         u.uprops[PROP(RIN_LEVITATION)].p_tofn = float_down;
-        
+
         break;
     default:
         pline("What a funny potion! (%d)", otmp->otyp);
@@ -342,7 +342,7 @@ int dodrink()
 void pluslvl()
 {
     int num;
-    
+
     pline("You feel more experienced.");
     num = rnd(10);
     u.uhpmax += num;
@@ -368,9 +368,9 @@ void strange_feeling(struct obj *obj)
 int dodrop()
 {
     struct obj *obj;
-    
+
     obj = getobj("0$#", "drop");
-    
+
     if(obj == NULL) {
         return 0;
     }
@@ -485,7 +485,7 @@ void rhack(unsigned char *cmd)
         }
 
         flags.mv = 1;
-        
+
 #ifdef QUEST
         if(flags.run >= 4) {
             fiddir();
@@ -503,7 +503,7 @@ void rhack(unsigned char *cmd)
     }
 
     if(((*cmd == 'f') && (movecm(cmd + 1) != 0))
-       || (movecm((unsigned const char *)unctrl((chtype)cmd)) != 0)) {
+       || (movecm((unsigned const char *)unctrl((chtype)*cmd)) != 0)) {
         flags.run = 2;
 
         if(firsttime != 0) {
@@ -520,7 +520,7 @@ void rhack(unsigned char *cmd)
         if(flags.run >= 4) {
             finddir();
         }
-         
+
         if(firsttime != 0) {
             u.ux0 = u.ux + u.dx;
             u.uy0 = u.uy + u.dy;
@@ -557,7 +557,7 @@ void rhack(unsigned char *cmd)
 #endif
 
         domove();
-        
+
         return;
     }
 
@@ -611,7 +611,7 @@ void rhack(unsigned char *cmd)
         if(*cmd == 'F') {
             flags.run += 2;
         }
-            
+
         if(cmd[2] == '-') {
             flags.run += 1;
         }
@@ -638,14 +638,14 @@ void rhack(unsigned char *cmd)
 #endif
 
         domove();
-        
+
         return;
     }
 #endif
 
     while(tlist->f_char != 0) {
         if(*cmd == tlist->f_char) {
-            res = (*(tlist->f_funct))(0);
+            res = (*tlist->f_funct)(0);
 
             if(res == 0) {
                 flags.move = 0;
@@ -666,7 +666,7 @@ void rhack(unsigned char *cmd)
 int doredraw()
 {
     docrt();
-    
+
     return 0;
 }
 
@@ -685,14 +685,14 @@ int dohelp()
 int dosh()
 {
     char *str;
-    
+
     if(child(0) != 0) {
         if(chdir(getenv("HOME")) == -1) {
 	    pline("Unable to change to HOME directory");
 	}
 
         str = getenv("SHELL");
-        
+
         if(str != 0) {
             execl(str, str, (char *)0);
         }
@@ -718,10 +718,10 @@ int child(int wt)
         /* Child */
         settty((char *)0);
         setuid(getuid());
-        
+
         return 1;
     }
-    
+
     if(f == -1) {
         /* Cannot fork */
         pline("Fork failed. Try again.");
@@ -732,7 +732,7 @@ int child(int wt)
     /* Fork succeeded; wait for child to exit */
     signal(SIGINT, SIG_IGN);
     signal(SIGQUIT, SIG_IGN);
-    wait((union wait *)0);
+    wait(NULL);
     setctty();
     signal(SIGINT, done1);
 
@@ -822,9 +822,9 @@ void goto_level(int newlevel, boolean at_stairs)
 
     glo(dlevel);
     fd = creat(lock, FMASK);
-    
+
     if(fd < 0) {
-        /* 
+        /*
          * This is not quite impossible: e.g., we may have
          * exceeded our quota. If that is the case then we
          * cannot leave this level, and cannot save either
@@ -846,7 +846,7 @@ void goto_level(int newlevel, boolean at_stairs)
     keepdogs();
     seeoff(1);
     flags.nscrinh = 1;
-    
+
     /* Hack */
     u.ux = FAR;
 
@@ -919,7 +919,7 @@ void goto_level(int newlevel, boolean at_stairs)
             u.ux = rnd(COLNO - 1);
             u.uy = rn2(ROWNO);
         }
-               
+
         if(Punished != 0) {
             if((uwep != uball) && (/* %% */ up == 0) && (rn2(5) != 0)) {
                 pline("The iron ball falls on your head.");
@@ -968,7 +968,7 @@ int dothrow()
 
     if((obj->owornmask & (W_ARMOR | W_RING)) != 0) {
         pline("You can't throw something you are wearing");
-        
+
         return 0;
     }
 
@@ -991,7 +991,7 @@ int dothrow()
     }
 
     freeinv(obj);
-    
+
     if(u.uswallow != 0) {
         mon = u.ustuck;
         bhitpos.x = mon->mx;
@@ -999,11 +999,11 @@ int dothrow()
     }
     else if(obj->otyp == BOOMERANG) {
         mon = boomhit(u.dx, u.dy);
-        
+
         /* boomhit() delivers -1 if the thing was caught */
         if(mon == (struct monst *)-1) {
             addinv(obj);
-            
+
             return 1;
         }
     }
@@ -1041,7 +1041,7 @@ int dothrow()
             }
 
             tmp += obj->spe;
-            
+
             if((u.uswallow != 0) || (tmp >= rnd(20))) {
 #ifndef NOWORM
                 if(hmon(mon, obj, 1) == TRUE) {
@@ -1056,12 +1056,12 @@ int dothrow()
                     mon = 0;
                 }
 #endif
-                
+
                 /* Weapons thrown disappear sometimes */
                 if((obj->otyp < BOOMERANG) && (rn2(3) != 0)) {
                     /* Check bill; free */
                     obfree(obj, (struct obj *)0);
-                    
+
                     return 1;
                 }
             }
@@ -1111,7 +1111,7 @@ int dothrow()
                         pline("%s graciously accepts your gift.", Monnam(mon));
                         mpickobj(mon, obj);
                         rloc(mon);
-                        
+
                         return 1;
                     }
                     else {
@@ -1124,7 +1124,7 @@ int dothrow()
                     pline("%s graciously accepts your gift.", Monnam(mon));
                     mpickobj(mon, obj);
                     rloc(mon);
-                    
+
                     return 1;
                 }
             }
@@ -1173,7 +1173,7 @@ int dothrow()
 
             u.utrap = 0;
         }
-   
+
         unsee();
         uchain->nobj = fobj;
         fobj = uchain;
@@ -1195,7 +1195,7 @@ int dothrow()
 int getdir()
 {
     unsigned char buf[2];
-    
+
     pline("What direction?");
     buf[0] = readchar();
     buf[1] = 0;
@@ -1203,7 +1203,7 @@ int getdir()
     return movecm(buf);
 }
 
-/* 
+/*
  * Split obj so that it gets size num
  * remainder is put in the object structure delivered by this call
  */
@@ -1212,7 +1212,7 @@ struct obj *splitobj(struct obj *obj, int num)
     struct obj *otmp;
 
     otmp = newobj(0);
-    
+
     /* Copies whole structure */
     *otmp = *obj;
     otmp->o_id = flags.ident;
@@ -1224,7 +1224,7 @@ struct obj *splitobj(struct obj *obj, int num)
 
     /* -= obj->owt ? */
     otmp->owt = weight(otmp);
-    
+
     obj->nobj = otmp;
 
     if(obj->unpaid != 0) {

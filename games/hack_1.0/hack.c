@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 #include "def.trap.h"
+#include "hack.do.h"
 #include "hack.do_name.h"
 #include "hack.do_wear.h"
 #include "hack.eat.h"
@@ -54,7 +55,7 @@ void unsee()
         for(x = u.ux - 1; x < (u.ux + 2); ++x) {
             for(y = u.uy - 1; y < (u.uy + 2); ++y) {
                 lev = &levl[x][y];
-                
+
                 if((lev->lit == 0) && (lev->scrsym == '.')) {
                     lev->scrsym = ' ';
                     lev->new = 1;
@@ -79,7 +80,7 @@ void unsee()
 
 }
 
-/* 
+/*
  * Called:
  * in hack.eat.c: seeoff(0) - Blind after eating rotten food
  * in hack.mon.c: seeoff(0) - Blinded by a yellow light
@@ -160,7 +161,7 @@ int finddir()
 {
     int i;
     int ui = u.di;
-    
+
     for(i = 0; i <= 8; ++i) {
         if((flags.run & 1) != 0) {
             ++ui;
@@ -276,7 +277,7 @@ void domove()
 
     if(u.uswallow == 0) {
         trap = g_at(u.ux + u.dx, u.uy + u.dy, ftrap);
-        
+
         if(trap != 0) {
             if((trap->gflag & SEEN) != 0) {
                 nomul(0);
@@ -327,7 +328,7 @@ void domove()
         mdat = mtmp->data;
 
         int flag = 0;
-        if((mdat->mlet == 'L') 
+        if((mdat->mlet == 'L')
            && (mtmp->mfroz == 0)
            && (mtmp->msleep == 0)
            && (mtmp->mconf == 0)
@@ -352,7 +353,7 @@ void domove()
                     break;
                 case '$':
                     pline("The chest was a Mimic!");
-                    
+
                     break;
                 default:
                     pline("Wait! That's a Mimic!");
@@ -369,13 +370,13 @@ void domove()
 
             if((mtmp->mhide != 0) && (mtmp->mundetected != 0)) {
                 struct obj *obj;
-                
+
                 mtmp->mundetected = 0;
                 obj = o_at(mtmp->mx, mtmp->my);
 
                 if((obj != NULL) && (Blind == 0)) {
-                    pline("Wait! There's a %s hiding under %s!", 
-                          mdat->mname, 
+                    pline("Wait! There's a %s hiding under %s!",
+                          mdat->mname,
                           doname(obj));
                 }
 
@@ -383,7 +384,7 @@ void domove()
             }
 
             tmp = ((u.uluck + u.ulevel) + mdat->ac) + abon();
-        
+
             if(uwep != 0) {
                 if(uwep->olet == WEAPON_SYM) {
                     tmp += uwep->spe;
@@ -398,7 +399,7 @@ void domove()
                 else if(uwep->otyp == CRYSKNIFE) {
                     tmp += 3;
                 }
-                else if((uwep->otyp == SPEAR) 
+                else if((uwep->otyp == SPEAR)
                         && (index("XDne", mdat->mlet) != NULL)) {
                     tmp += 2;
                 }
@@ -411,7 +412,7 @@ void domove()
 
             if(mtmp->mfroz != 0) {
                 tmp += 4;
-                
+
                 if(rn2(10) == 0) {
                     mtmp->mfroz = 0;
                 }
@@ -436,12 +437,12 @@ void domove()
             else {
                 /* We hit the monster; be careful, it might die! */
                 malive = hmon(mtmp, uwep, 0);
-                
+
                 if(malive == TRUE) {
                     /* Monster still alive */
                     if((rn2(25) == 0) && (mtmp->mhp < (mtmp->orig_hp / 2))) {
                         mtmp->mflee = 1;
-                    
+
                         if((u.ustuck == mtmp) && (u.uswallow == 0)) {
                             u.ustuck = 0;
                         }
@@ -500,7 +501,7 @@ void domove()
             return;
         }
     }
-    
+
     /* Not attacking an animal, so we try to move */
     if(u.utrap != 0) {
         if(u.utraptype == TT_PIT) {
@@ -549,7 +550,7 @@ void domove()
             }
 
             gtmp = g_at(rx, ry, ftrap);
-        
+
             if(gtmp != NULL) {
                 switch(gtmp->gflag & ~SEEN) {
                 case PIT:
@@ -557,12 +558,12 @@ void domove()
                     deltrap(gtmp);
                     delobj(otmp);
                     pline("It completely fills the pit!");
-                    
+
                     continue;
                 case TELEP_TRAP:
                     pline("You push the rock and suddenly it disappears!");
                     delobj(otmp);
-                    
+
                     continue;
                 }
             }
@@ -570,25 +571,25 @@ void domove()
             otmp->ox = rx;
             otmp->oy = ry;
             /* pobj(otmp); */
-            
+
             if(cansee(rx, ry) != 0) {
                 atl(rx, ry, otmp->olet);
             }
-            
+
             if(Invis != 0) {
                 newsym(u.ux + u.dy, u.uy + u.dy);
             }
-            
-            /* 
-             * Note: This variable contains garbage initially 
-             * and after a restore 
+
+            /*
+             * Note: This variable contains garbage initially
+             * and after a restore
              */
             static int lastmovetime;
-            
+
             if((moves > (lastmovetime + 2)) || (moves < lastmovetime)) {
                 pline("With great effort you move the enormous rock.");
             }
-            
+
             lastmovetime = moves;
         }
         else {
@@ -622,17 +623,17 @@ void domove()
                     else {
                         pline("You cannot%sdrap the heavy iron ball.", "");
                     }
-                    
+
                     nomul(0);
-                    
+
                     return;
                 }
-                
+
                 movobj(uball, uchain->ox, uchain->oy);
-                
+
                 /* BAH %% */
                 unpobj(uball);
-                
+
                 uchain->ox = u.ux;
                 uchain->oy = u.uy;
                 nomul(-2);
@@ -650,7 +651,7 @@ void domove()
 
     u.ux += u.dx;
     u.uy += u.dy;
-    
+
     if(flags.run != 0) {
         if((tmpr->typ == DOOR)
            || ((xupstair == u.ux) && (yupstair == u.uy))
@@ -705,7 +706,7 @@ void domove()
 
             nose1(oldx - u.dx, oldy - u.dy);
         }
-#endif 
+#endif
     }
     else {
         pru();
@@ -714,7 +715,7 @@ void domove()
     if(flags.nopick == 0) {
         pickup();
     }
-    
+
     if(trap != 0) {
         /* Fall into pit, arrow trap, etc. */
         dotrap(trap);
@@ -814,15 +815,14 @@ void pickup()
             if(wt > 0) {
                 if(obj->quan > 1) {
                     /* See how many we can lift */
-                    extern struct obj *splitobj();
-                    
+
                     int savequan = obj->quan;
                     int iw = inv_weight();
                     int qq;
 
                     for(qq = 1; qq < savequan; ++qq) {
                         obj->quan = qq;
-                        
+
                         if((iw + weight(obj)) > 0) {
                             break;
                         }
@@ -836,7 +836,7 @@ void pickup()
                         if(obj->quan == 1) {
                             if(invent == NULL) {
                                 pline("There %s %s here, but %s.",
-                                      "is", 
+                                      "is",
                                       doname(obj),
                                       "it is too heavy for you to lift");
                             }
@@ -878,14 +878,14 @@ void pickup()
 
                     splitobj(obj, qq);
 
-                    /* 
+                    /*
                      * Note: obj2 is set already, so we'll never
                      * encounter the other half; if it should be otherwise then write
                      * obj2 = splitobj(obj, qq);
                      */
                     if(inv_cnt() >= 52) {
                         pline("Your knapsack cannot accomodate anymore items.");
-                        
+
                         break;
                     }
 
@@ -903,9 +903,9 @@ void pickup()
                     addtobill(obj);
                     int pickquan = obj->quan;
                     int mergquan;
-                    
+
                     if(Blind == 0) {
-                        /* 
+                        /*
                          * This is done by prinv() but addinv() needs it already
                          * for merging, might merge with other objects
                          */
@@ -967,7 +967,7 @@ void pickup()
             }
 
             freeobj(obj);
-            
+
             if(Invis != 0) {
                 newsym(u.ux, u.uy);
             }
@@ -977,9 +977,9 @@ void pickup()
 
             int pickquan = obj->quan;
             int mergquan;
-            
+
             if(Blind == 0) {
-                /* 
+                /*
                  * This is done by prinv() but addinv() needs it already
                  * for merging might merge it with other objects
                  */
@@ -1027,7 +1027,7 @@ void lookaround()
 #ifdef QUEST
     if((u.ux0 == (u.ux + u.dx)) && (u.uy0 == (u.uy + u.dy))) {
         nomul(0);
-        
+
         return;
     }
 #endif
@@ -1067,7 +1067,7 @@ void lookaround()
             case '-':
             case '.':
             case ' ':
-                
+
                 break;
             case '+':
                 if((x != u.ux) && (y != u.uy)) {
@@ -1076,7 +1076,7 @@ void lookaround()
 
                 if(flags.run != 1) {
                     nomul(0);
-                    
+
                     return;
                 }
 
@@ -1097,7 +1097,7 @@ void lookaround()
                         i0 = i;
                         x0 = x;
                         y0 = y;
-                        
+
                         if(mtmp != 0) {
                             m0 = 1;
                         }
@@ -1106,7 +1106,7 @@ void lookaround()
                         }
                     }
                 }
-                
+
                 ++corrct;
 
                 break;
@@ -1128,7 +1128,7 @@ void lookaround()
                             i0 = i;
                             x0 = x;
                             y0 = y;
-                            
+
                             if(mtmp != NULL) {
                                 m0 = 1;
                             }
@@ -1145,7 +1145,7 @@ void lookaround()
 
                 if((x == (u.ux + u.dx)) && (y == (u.uy + u.dy))) {
                     nomul(0);
-                    
+
                     return;
                 }
 
@@ -1189,7 +1189,7 @@ void lookaround()
                 }
 
                 nomul(0);
-                
+
                 return;
             }
         }
@@ -1312,7 +1312,7 @@ int cansee(xchar x, xchar y)
                 rturen 0;
             }
         }
-         
+
         return 1;
     }
     else if(ady > adx) {
@@ -1392,7 +1392,7 @@ void setsee()
 
     if(Blind != 0) {
         pru();
-        
+
         return;
     }
 
@@ -1411,10 +1411,10 @@ void setsee()
 {
     int x;
     int y;
-    
+
     if(Blind != 0) {
         pru();
-        
+
         return;
     }
 
@@ -1426,13 +1426,13 @@ void setsee()
     }
     else {
         seelx = u.ux;
-        
+
         while(levl[(int)(seelx - 1)][(int)u.uy].lit != 0) {
             --seelx;
         }
 
         seehx = u.ux;
-        
+
         while(levl[(int)(seehx + 1)][(int)u.uy].lit != 0) {
             ++seehx;
         }
@@ -1573,14 +1573,14 @@ void losestr(int num)
 void losehp(int n, char *knam)
 {
     u.uhp -= n;
-    
+
     if(u.uhp > u.uhpmax) {
         /* Perhaps n was negative */
         u.uhpmax = u.uhp;
     }
 
     flags.botl = 1;
-    
+
     if(u.uhp < 1) {
         /* The thing that killed you */
         killer = knam;
@@ -1620,7 +1620,7 @@ int inv_weight()
 {
     struct obj *otmp = invent;
     int wt = 0;
-    
+
     int carrcap = (5 * u.ustr) + u.ulevel;
 
     if(u.ustr > 18) {
@@ -1634,7 +1634,7 @@ int inv_weight()
     if((Wounded_legs & LEFT_SIDE) != 0) {
         carrcap -= 10;
     }
-   
+
     if((Wounded_legs & RIGHT_SIDE) != 0) {
         carrcap -= 10;
     }

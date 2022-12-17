@@ -181,7 +181,7 @@ int mintrap(struct monst *mtmp)
 
         extern char mlarge[];
 
-        if((mtmp->mtrapseen != 0) && (1 << tt)) {
+        if((mtmp->mtrapseen != 0) & (1 << tt)) {
             /* He has been in such a trap - perhaps he escapes */
             if(rn2(4) != 0) {
                 return 0;

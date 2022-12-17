@@ -22,7 +22,7 @@ int getprice(struct obj *obj);
 int dopayobj(struct bill_x *bp);
 int realhunger();
 int inshop();
-void addtobill();
+void addtobill(struct obj *obj);
 void paybill();
 char *shkname();
 void shkdead();

@@ -108,7 +108,7 @@ void use_camera(struct obj *obj)
 }
 
 /*
- * A local variable of use_ice_box, to be used by its 
+ * A local variable of use_ice_box, to be used by its
  * local procedures in/ck_ice_box
  */
 struct obj *current_ice_box;
@@ -124,7 +124,7 @@ int in_ice_box(struct obj *obj)
 
     if(obj->owornmask & (W_ARMOR | W_RING)) {
         pline("You cannot refrigerate something you are wearing.");
-       
+
         return 0;
     }
 
@@ -178,7 +178,7 @@ int out_ice_box(struct obj *obj)
 
     current_ice_box->owt -= obj->owt;
     obj->age = moves - obj->age; /* Simulated point of time */
-    
+
     addinv(obj);
 
     return 0; /* Needed to be function pointer for askchain() */
@@ -202,7 +202,7 @@ void use_ice_box(struct obj *obj)
     }
     else {
         pline("Do you want to take something out of the ice-box? [yn] ");
-        
+
         if(readchar() == 'y') {
             if(askchain(fcobj, (char *)0, 0, out_ice_box, ck_ice_box, 0)) {
                 return;
@@ -301,4 +301,3 @@ void use_magic_whistle(struct obj *obj)
         mtmp = mtmp->nmon;
     }
 }
-        

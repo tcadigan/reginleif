@@ -1,7 +1,7 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1984. */
 
-#ifndef DEF_MONST_H_
-#define DEF_MONST_H_
+#ifndef MKLV_DEF_MONST_H_
+#define MKLV_DEF_MONST_H_
 
 #include "config.h"
 #include "mklev.h" /* coord */
@@ -58,8 +58,6 @@ struct monst {
 #define newmonst(xl) (struct monst *)alloc((unsigned int)(xl) + sizeof(struct monst))
 
 extern struct monst *fmon;
-
-extern struct monst *fallen_down;
 
 /* These are in mspeed */
 #define MSLOW 1 /* Slow monster */

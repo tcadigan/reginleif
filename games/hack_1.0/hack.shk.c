@@ -259,7 +259,7 @@ void setshk()
             bill = &(ESHK->bill[0]);
             shlevel = dlevel;;
 
-            if((ANGRY != 0)
+            if(((ANGRY) != 0)
                && (strncmp(ESHK->customer, plname, PL_NSIZ) != 0)) {
                 NOTANGRY = 1;
             }
@@ -414,7 +414,7 @@ int dopay()
         return 1;
     }
 
-    if(ANGRY != 0) {
+    if((ANGRY) != 0) {
         pline("But in order to appease %s,", amonnam(shopkeeper, "angry"));
 
         if(u.ugold >= 1000) {
@@ -533,7 +533,7 @@ int dopayobj(struct bill_x *bp)
     obj->unpaid = 0;
     ltmp = bp->price * bp->bquan;
     
-    if(ANGRY != 0) {
+    if((ANGRY) != 0) {
         ltmp += (ltmp / 3);
     }
     
@@ -757,7 +757,7 @@ void subfrombill(struct obj *obj)
 
     ltmp = getprice(obj) * obj->quan;
 
-    if(ANGRY != 0) {
+    if((ANGRY) != 0) {
         ltmp /= 3;
 
         NOTANGRY = 1;
@@ -999,7 +999,7 @@ int shk_move()
 
     shkr = inroom(omx, omy);
 
-    if((ANGRY != 0) && (dist(omx, omy) < 3)) {
+    if(((ANGRY) != 0) && (dist(omx, omy) < 3)) {
         hitu(shopkeeper, d(mdat->damn, mdat->damd) + 1);
     
         return 0;
@@ -1009,7 +1009,7 @@ int shk_move()
     gx = ESHK->shk.x;
     gy = ESHK->shk.y;
 
-    if(ANGRY != 0) {
+    if((ANGRY) != 0) {
         int saveBlind = Blind;
         Blind = 0;
 

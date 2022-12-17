@@ -8,22 +8,13 @@
 #include "hack.o_init.h"
 #include "rnd.h"
 
-#include "hack.h"
+#include "mklev.h"
 
 char mkobjstr[] = "))[[!!!!????%%%%/=**))[[!!!!????%%%%/=**(";
 
 void mkobj_at(int let, int x, int y)
 {
     struct obj *otmp = mkobj(let);
-    otmp->ox = x;
-    otmp->oy = y;
-    otmp->nobj = fobj;
-    fobj = otmp;
-}
-
-void mksobj_at(int let, int otyp, int x, int y)
-{
-    struct obj *otmp = mksobj(let, otyp);
     otmp->ox = x;
     otmp->oy = y;
     otmp->nobj = fobj;
@@ -53,9 +44,8 @@ struct obj *mksobj(int let, int otyp)
     otmp = newobj(0);
     *otmp = zeroobj;
 
-    otmp->age = moves;
-    otmp->o_id = flags.ident;
-    ++flags.ident;
+    otmp->age = 0;
+    otmp->o_id = 0;
 
     otmp->quan = 1;
 
@@ -215,5 +205,7 @@ void mkgold(int num, int x, int y)
         gtmp->gy = y;
         gtmp->gflag = amount;
         fgold = gtmp;
+
+        levl[x][y].scrsym = '$';
     }
 }

@@ -11,9 +11,10 @@
 #include "rnd.h"
 
 #include "hack.h"
-#include "hack.pri.h"
+#include "mklev.h"
+#include "hack.mkobj.h"
 
-extern char fut_geno[];
+extern char *fut_geno;
 
 struct monst zeromonst;
 
@@ -112,9 +113,6 @@ struct monst *makemon(struct permonst *ptr, int x, int y)
     mtmp->nmon = fmon;
     fmon = mtmp;
 
-    mtmp->m_id = flags.ident;
-    ++flags.ident;
-
     mtmp->data = ptr;
     mtmp->mxlth = ptr->pxlth;
 
@@ -139,39 +137,26 @@ struct monst *makemon(struct permonst *ptr, int x, int y)
         mtmp->mimic = ']';
     }
 
-    if((x == u.ux) && (y == u.uy)) {
-        mnexto(mtmp);
-    }
-
-    if((x == 0) && (y == 0)) {
-        rloc(mtmp);
-    }
-
     if((ptr->mlet == 's') || (ptr->mlet == 'S')) {
         mtmp->mundetected = 1;
         mtmp->mhide = mtmp->mundetected;
         
+        if((mtmp->mx != 0) && (mtmp->my != 0)) {
+            mkobj_at(0, mtmp->mx, mtmp->my);
+        }
     }
 
     if(ptr->mlet == ':') {
         mtmp->cham = 1;
-
-        newcham(mtmp, &mons[(dlevel + 14) + rn2((CMNUM - 14) - dlevel)]);
     }
 
     if(ptr->mlet == 'I') {
         mtmp->minvis = 1;
     }
 
-    if((ptr->mlet == 'L') || (ptr->mlet == 'N')) {
+    if((ptr->mlet == 'L') || (ptr->mlet == 'N') || (rn2(5) != 0)) {
         mtmp->msleep = 1;
     }
-
-#ifndef NOWORM
-    if((ptr->mlet == 'w') && (getwn(mtmp) != 0)) {
-        initworm(mtmp);
-    }
-#endif
 
     if(anything != 0) {
         if((ptr->mlet == 'O') || (ptr->mlet == 'k')) {
@@ -316,7 +301,5 @@ int goodpos(int x, int y)
             && (y >= 1)
             && (y <= (ROWNO - 2))
             && (m_at(x, y) == 0)
-            && (levl[x][y].typ >= DOOR)
-            && ((x != u.ux) || (y != u.uy))
-            && (sobj_at(ENORMOUS_ROCK, x, y) == 0));
+            && (levl[x][y].typ >= DOOR));
 }

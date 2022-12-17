@@ -11,14 +11,14 @@
 
 #include "alloc.h"
 #include "def.trap.h"
-#include "hack.makemon.h"
+#include "mklv.makemon.h"
 #include "hack.mkobj.h"
 #include "hack.o_init.h"
 #include "mklev.h"
 #include "mklv.makemaz.h"
 #include "mklv.shk.h"
 #include "rnd.h"
-#include "savelev.h"
+#include "mklv.savelev.h"
 
 char *tfile;
 char *tspe;
@@ -33,7 +33,7 @@ boolean wizard;
 #define somex() ((rand() % ((croom->hx - croom->lx) + 1)) + croom->lx)
 #define somey() ((rand() % ((croom->hy - croom->ly) + 1)) + croom->ly)
 
-struct rm lvel[COLNO][ROWNO];
+struct rm levl[COLNO][ROWNO];
 struct monst *fmon;
 struct obj *fobj;
 struct gen *fgold;
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
     tfile = argv[1];
     tspe = argv[2];
     dlevel = atoi(argv[3]);
-    
+
     if(dlevel < 1) {
         panic("Bad level");
     }
@@ -103,9 +103,9 @@ int main(int argc, char *argv[])
     /* a: normal; b: maze */
     if(*tspe == 'b') {
         makemaz();
-        
+
         savelev();
-     
+
         return 0;
     }
 
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
 
         /* Put traps and mimics inside */
         goldseen = FALSE;
-        
+
         while(rn2(8 - (dlevel / 6)) == 0) {
             mktrap(0, 0);
         }
@@ -144,10 +144,10 @@ int main(int argc, char *argv[])
 
                 if(tryct > 100) {
                     printf("tryct overflow 4\n");
-                    
+
                     break;
                 }
- 
+
                 mkobj_at(0, somex(), somey());
             }
         }
@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
 
     levl[(int)xdnstair][(int)ydnstair].scrsym = '>';
     levl[(int)xdnstair][(int)ydnstair].typ = STAIRS;
-    
+
     troom = croom;
 
     ++tryct;
@@ -236,7 +236,7 @@ int main(int argc, char *argv[])
             /* Make secret room */
             if(makerooms(1)) {
                 troom->rtype = 6; /* Treasure vault */
-            
+
                 for(x = troom->lx; x <= troom->hx; ++x) {
                     for(y = troom->ly; y <= troom->hy; ++y) {
                         mkgold(rnd(dlevel * 100) + 50, x, y);
@@ -258,7 +258,7 @@ int main(int argc, char *argv[])
     else if((dlevel > 1) && (dlevel < 20) && (rn2(dlevel) < 2)) {
         mkshop();
     }
-    else if((dlevel > 6) 
+    else if((dlevel > 6)
             && ((rn2(7) == 0) || (strcmp("david", getlogin()) == 0))) {
         mkzoo();
     }
@@ -273,7 +273,7 @@ int main(int argc, char *argv[])
 #endif
 
     savelev();
-    
+
     return 0;
 }
 
@@ -306,7 +306,7 @@ int makerooms(int secret)
                     continue;
                 }
 
-                if(((secret != 0) && maker(lowx, 1, lowy, 1)) 
+                if(((secret != 0) && maker(lowx, 1, lowy, 1))
                    || ((secret == 0)
                        && maker(lowx, rn1(9, 2), lowy, rn1(4,2))
                        && ((nroom + 2) > MAXNROFROOMS))) {
@@ -323,7 +323,7 @@ int comp(const void *x, const void *y)
 {
     struct mkroom *left = (struct mkroom *)x;
     struct mkroom *right = (struct mkroom *)y;
-    
+
     if(left->lx < right->lx) {
         return -1;
     }
@@ -359,7 +359,7 @@ coord finddpos(int xl, int yl, int xh, int yh)
         for(x = xl; x < xh; ++x) {
             if(okdoor(x, ff.y) != 0) {
                 ff.x = x;
-                
+
                 return ff;
             }
         }
@@ -498,15 +498,15 @@ void dodoor(int x, int y, struct mkroom *aroom)
             doors[tmp] = doors[tmp - 1];
         }
     }
-     
+
     ++doorindex;
-    
+
     doors[tmp].x = x;
     doors[tmp].y = y;
-    
+
     while(broom->hx >= 0) {
         ++broom->fdoor;
-        
+
         ++broom;
     }
 }
@@ -539,7 +539,7 @@ void newloc()
 
             return;
         }
-        
+
         a = rn2(nroom);
         b = rn2(nroom);
 
@@ -653,7 +653,7 @@ void mktrap(int num, int mazeflag)
                 else {
                     my = croom->ly - 1;
                 }
-                
+
                 mx = somex();
             }
         }
@@ -695,7 +695,7 @@ void mktrap(int num, int mazeflag)
                     else {
                         my = croom->ly - 1;
                     }
-                    
+
                     mx = somex();
                 }
             }
@@ -731,23 +731,23 @@ void mktrap(int num, int mazeflag)
 
         return;
     }
-    
+
     gtmp = newgen();
     gtmp->gflag = kind;
-    
+
     ++tryct;
-    
+
     if(tryct > 200) {
         printf("tryct overflow 7\n");
-        
+
         free((char *)gtmp);
-        
+
         return;
     }
-    
+
     if(mazeflag != 0) {
         coord mm;
-        
+
         mm = mazexy();
         gtmp->gx = mm.x;
         gtmp->gy = mm.y;
@@ -756,21 +756,21 @@ void mktrap(int num, int mazeflag)
         gtmp->gx = somex();
         gtmp->gy = somey();
     }
-    
+
     while(g_at(gtmp->gx, gtmp->gy, ftrap) != 0) {
         ++tryct;
-        
+
         if(tryct > 200) {
             printf("tryct overflow 7\n");
-            
+
             free((char *)gtmp);
-            
+
             return;
         }
-        
+
         if(mazeflag != 0) {
             coord mm;
-            
+
             mm = mazexy();
             gtmp->gx = mm.x;
             gtmp->gy = mm.y;
@@ -780,10 +780,10 @@ void mktrap(int num, int mazeflag)
             gtmp->gy = somey();
         }
     }
-    
+
     gtmp->ngen = ftrap;
     ftrap = gtmp;
-    
+
     if((mazeflag != 0) && (rn2(10) == 0) && (gtmp->gflag < PIERC)) {
         gtmp->gflag |= SEEN;
     }
@@ -821,7 +821,7 @@ int maker(schar lowx, schar ddx, schar lowy, schar ddy)
     if(hix > (COLNO - 5)) {
         hix = COLNO - 5;
     }
-    
+
     if(hiy > (ROWNO - 4)) {
         hiy = ROWNO - 4;
     }
@@ -848,7 +848,7 @@ int maker(schar lowx, schar ddx, schar lowy, schar ddy)
         }
     }
 
-    /* 
+    /*
      * On low levels the room is lit (usually)
      * secret vaults are always lit
      */
@@ -926,7 +926,7 @@ void makecor()
             }
             else {
                 printf("Something went wrong. We try again...\n");
-                execl("./mklev", 
+                execl("./mklev",
                       args[0],
                       tfile,
                       tspe,
@@ -938,8 +938,8 @@ void makecor()
             }
         }
 
-        dix = fabs(nx - tx);
-        diy = fabs(ny - ty);
+        dix = abs(nx - tx);
+        diy = abs(ny - ty);
 
         if((dy != 0) && (dix > diy)) {
             dy = 0;
@@ -953,7 +953,7 @@ void makecor()
         }
         else if((dx != 0) && (diy > dix)) {
             dx = 0;
-            
+
             if(ny > ty) {
                 dy = -1;
             }
@@ -1001,12 +1001,12 @@ void makecor()
 
         if((secondtry == 0) && ((nx != (xx + dx)) || (ny != (yy + dy)))) {
             ++secondtry;
-            
+
             continue;
         }
         else {
             ++secondtry;
-            
+
             break;
         }
     }

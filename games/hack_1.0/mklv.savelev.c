@@ -1,45 +1,41 @@
-#include "savelev.h"
+#include "mklv.savelev.h"
 
 #include <stdlib.h>
 #include <unistd.h>
 
 extern char nul[];
 
-#include "def.wseg.h"
-#include "hack.h"
-#include "hack.engrave.h"
+#include <fcntl.h>
 
-extern struct obj *billobjs;
+#include "mklev.h"
 
-void savelev(int fd)
+void savelev()
 {
-#ifndef NOWORM
-    struct wseg *wtmp;
-    struct wseg *wtmp2;
-    int tmp;
-#endif
+    extern char *tfile;
+    
+    int fd;
+
+    fd = creat(tfile, FMASK);
 
     if(fd < 0) {
-        panic("Save on bad file!");
+        panic("Cannot create %s\n", tfile);
     }
 
     bwrite(fd, (char *)levl, sizeof(levl));
-    bwrite(fd, (char *)&moves, sizeof(long));
-
+    bwrite(fd, (char *)nul, sizeof(long));
     bwrite(fd, (char *)&xupstair, sizeof(xupstair));
     bwrite(fd, (char *)&yupstair, sizeof(yupstair));
     bwrite(fd, (char *)&xdnstair, sizeof(xdnstair));
     bwrite(fd, (char *)&ydnstair, sizeof(ydnstair));
-    
+
     savemonchn(fd, fmon);
     savegenchn(fd, fgold);
     savegenchn(fd, ftrap);
     saveobjchn(fd, fobj);
-    saveobjchn(fd, billobjs);
-    
-    billobjs = 0;
-    save_engravings(fd);
+    saveobjchn(fd, (struct obj *)0);
 
+    bwrite(fd, (char *)nul, sizeof(unsigned));
+    
 #ifndef QUEST
     bwrite(fd, (char *)rooms, sizeof(rooms));
     bwrite(fd, (char *)doors, sizeof(doors));
@@ -48,26 +44,6 @@ void savelev(int fd)
     ftrap = 0;
     fgold = 0;
     fobj = 0;
-
-/*--------------------------------------------------------*/
-#ifndef NOWORM
-    extern struct wseg *wsegs[32];
-    extern long wgrowtime[32];
-    
-    bwrite(fd, (char *)wsegs, sizeof(wsegs));
-
-    for(tmp = 1; tmp < 32; ++tmp) {
-        for(wtmp = wsegs[tmp]; wtmp != 0; wtmp = wtmp2) {
-            wtmp2 = wtmp->nseg;
-            bwrite(fd, (char *)wtmp, sizeof(struct wseg));
-        }
-
-        wsegs[tmp] = 0;
-    }
-
-    bwrite(fd, (char *)wgrowtime, sizeof(wgrowtime));
-#endif
-/*--------------------------------------------------------*/
 }
  
 void bwrite(int fd, char *loc, unsigned int num)

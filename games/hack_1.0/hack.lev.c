@@ -57,7 +57,7 @@ int getlev(int fd)
 
     fgold = 0;
     ftrap = 0;
-    
+
     /* 0 from MKLEV */
     mread(fd, (char *)&omoves, sizeof(omoves));
     mread(fd, (char *)&xupstair, sizeof(xupstair));
@@ -129,7 +129,7 @@ int getlev(int fd)
     mread(fd, (char *)rooms, sizeof(rooms));
     mread(fd, (char *)doors, sizeof(doors));
 #endif
-    
+
     if(omoves == 0) {
         /* From MKLEV */
         return 0;
@@ -145,7 +145,7 @@ int getlev(int fd)
 
             while(1) {
                 mread(fd, (char *)wtmp, sizeof(struct wseg));
-                
+
                 if(wtmp->nseg == 0) {
                     break;
                 }
@@ -170,7 +170,7 @@ void mread(int fd, char *buf, unsigned int len)
 
     if(rlen != len) {
         pline("Read %d instead of %d bytes\n", rlen, len);
-    
+
         panic("Cannot read %d bytes from file #%d\n", len, fd);
     }
 }
@@ -179,7 +179,7 @@ void mklev()
 {
     int fd;
     char type[2];
-    union wait status;
+    int status;
     extern char fut_geno[];
 
     if(getbones() != 0) {
@@ -201,7 +201,7 @@ void mklev()
     case 0:
         signal(SIGINT, SIG_IGN);
         signal(SIGQUIT, SIG_IGN);
-      
+
         if(wizard != 0) {
             execl("./mklev",
                   "mklev",
@@ -214,7 +214,7 @@ void mklev()
         }
         else {
             execl("./mklev",
-                  "mklev", 
+                  "mklev",
                   lock,
                   type,
                   itoa(dlevel),
@@ -226,7 +226,7 @@ void mklev()
         exit(2);
     case -1:
         settty("Cannot fork!\n");
-        
+
         exit(1);
     default:
         /* You fell into a trap ... */
@@ -234,31 +234,29 @@ void mklev()
         wait(&status);
     }
 
-    if(status.w_status != 0) {
-        if(status.w_coredump != 0) {
-            settty("Mklev dumped core. Exiting...\n");
+    if(WCOREDUMP(status)) {
+        settty("Mklev dumped core. Exiting...\n");
+
+        exit(1);
+    }
+
+    if(WTERMSIG(status)) {
+        settty("Mklev killed by a signal. Exiting...\n");
+
+        exit(1);
+    }
+
+    if(WIFEXITED(status)) {
+        if(WEXITSTATUS(status) == 2) {
+            settty("Cannot execl mklev.\n");
 
             exit(1);
         }
 
-        if(status.w_termsig != 0) {
-            settty("Mklev killed by a signal. Exiting...\n");
-            
-            exit(1);
-        }
+        pline("Mklev failed. Let's try again.");
+        mklev();
 
-        if(status.w_retcode != 0) {
-            if(status.w_retcode == 2) {
-                settty("Cannot execl mklev.\n");
-
-                exit(1);
-            }
-
-            pline("Mklev failed. Let's try again.");
-            mklev();
-
-            return;
-        }
+        return;
     }
 
     fd = open(lock, 0);

@@ -5,7 +5,7 @@
 
 struct func_tab {
     char f_char;
-    int (*f_funct)();
+    int (*f_funct)(char *);
 };
 
 extern struct func_tab list[];

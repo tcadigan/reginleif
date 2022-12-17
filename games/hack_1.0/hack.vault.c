@@ -3,6 +3,7 @@
 #include "hack.vault.h"
 
 #include <math.h>
+#include <stdlib.h>
 
 #include "hack.h"
 #include "hack.dog.h"
@@ -212,7 +213,7 @@ void invault()
                 dy = 0;
             }
 
-            if(fabs(gx - x) >= fabs(gy - y)) {
+            if(abs(gx - x) >= abs(gy - y)) {
                 x += dx;
             }
             else {
@@ -408,7 +409,7 @@ int gd_move()
         dy = 0;
     }
     
-    if(fabs(gx - x) >= fabs(gy - y)) {
+    if(abs(gx - x) >= abs(gy - y)) {
         nx += dx;
     }
     else {

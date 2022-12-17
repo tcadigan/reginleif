@@ -10,15 +10,15 @@ struct obj *getobj(char *let, char *word);
 int ggetobj(char *word, int (*fn)(struct obj *obj), int max);
 void stackobj(struct obj *obj);
 void delobj(struct obj *obj);
-struct obj *addinv();
+struct obj *addinv(struct obj *obj);
 void freeinv(struct obj *obj);
 void prinv(struct obj *obj);
 void prname(struct obj *obj, char let, int onelin);
-int askchain(struct obj *objchain, 
+int askchain(struct obj *objchain,
              char *olets,
-             int allflag, 
-             int (*fn)(struct obj *obj), 
-             int (*ckfn)(struct obj *otmp), 
+             int allflag,
+             int (*fn)(struct obj *obj),
+             int (*ckfn)(struct obj *otmp),
              int max);
 void doinv(char *lets);
 void useup(struct obj *obj);
@@ -38,4 +38,4 @@ int doprarm();
 int doprring();
 int digit(char c);
 
-#endif 
+#endif
