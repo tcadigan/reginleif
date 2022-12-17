@@ -9,6 +9,7 @@ BEAR =
 BEAR = bear --append --
 .endif
 
+
 SRCS = app.cpp camera.cpp console.cpp entity-manager.cpp gl-bbox.cpp \
        gl-matrix.cpp gl-quat.cpp gl-rgba.cpp gl-vector2.cpp gl-vector3.cpp \
        ini-manager.cpp terrain-map.cpp terrain-texture.cpp math.cpp \

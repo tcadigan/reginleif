@@ -15,6 +15,7 @@ BEAR =
 BEAR = bear --append --
 .endif
 
+
 PLAYER_SRCS = arms.c command.c database.c debug.c explore.c io.c learn.c ltm.c \
               main.c mess.c monsters.c pack.c rand.c replay.c rooms.c \
               scorefile.c search.c stats.c strategy.c survival.c tactics.c \
