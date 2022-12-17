@@ -32,5 +32,6 @@ void show_equip(int r1);
 char cur_char2(int item_val);
 void change_trap(int y, int x);
 void poison_gas(int dam, char *kb_str);
+char cur_char1(int item_val);
 
 #endif

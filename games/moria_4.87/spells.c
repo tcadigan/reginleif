@@ -823,7 +823,7 @@ int disarm_all(int dir, int y, int x)
 }
 
 /* Return flags for given type area affect    -RAK- */
-void get_flags(int typ, int *weapon_type, int *harm_type, int (**destroy)())
+void get_flags(int typ, int *weapon_type, int *harm_type, int (**destroy)(int))
 {
     switch(typ) {
     case 1: /* Lightning */
@@ -1057,7 +1057,7 @@ void fire_ball(int typ, int dir, int y, int x, int dam_hp, ctype descrip)
     int weapon_type;
     int harm_type;
     int flag;
-    int (*destroy)();
+    int (*destroy)(int);
     cave_type *c_ptr;
     monster_type *m_ptr;
     creature_type *r_ptr;
@@ -1374,7 +1374,7 @@ void breath(int typ, int y, int x, int dam_hp, char *ddesc)
     int max_dis;
     int weapon_type;
     int harm_type;
-    int(*destroy)();
+    int(*destroy)(int);
     cave_type *c_ptr;
     monster_type *m_ptr;
     creature_type *r_ptr;

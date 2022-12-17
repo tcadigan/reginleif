@@ -1,0 +1,18 @@
+name: Moria 4.87 build
+
+on:
+  push:
+    paths:
+    - 'games/moria_4.87/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: A build job
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/general-build
+        with:
+          path: games/moria_4.87
+          language: C
+          dependencies: libtinfo-dev libncurses5-dev

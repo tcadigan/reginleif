@@ -954,7 +954,7 @@ void place_win_monster()
 }
 
 /* Allocates a random monster    -RAK- */
-void alloc_monster(int (*alloc_set)(), int num, int dis, int slp)
+void alloc_monster(int (*alloc_set)(int), int num, int dis, int slp)
 {
     int y;
     int x;

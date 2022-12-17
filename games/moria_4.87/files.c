@@ -402,7 +402,7 @@ void print_map()
 		fprintf(file1, "Section[%d,%d];     ", i7, i8);
 		fprintf(file1, "Depth : %d (feet)\n\n   ", dun_level * 50);
 
-		for(m = j; j <= l; ++m) {
+		for(m = j; m <= l; ++m) {
 		    n = m / 100;
 		    fprintf(file1, "%d", n);
 		}

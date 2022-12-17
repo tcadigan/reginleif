@@ -99,7 +99,7 @@ extern store_type store[MAX_STORES];
 extern treasure_type store_door[MAX_STORES];
 extern int store_choice[MAX_STORES][STORE_CHOICES];
 
-int (*store_buy[MAX_STORES])();
+extern int (*store_buy[MAX_STORES])(int);
 
 /* The following are treasure arrays and variables */
 extern treasure_type object_list[MAX_OBJECTS];

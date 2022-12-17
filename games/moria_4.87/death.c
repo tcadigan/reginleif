@@ -20,39 +20,6 @@
 
 #define MIN(a, b) ((a < b) ? a : b)
 
-/* Correct SUN stupidity in the stdio.h file */
-#ifdef sun
-char *sprintf();
-#endif
-
-#if defined(ultrix) || defined(sun) || defined(USG)
-int getuid();
-#else
-uid_t getuid();
-#endif
-
-#if defined(sun) || defined(USG) || defined(ultrix)
-long lseek();
-#else
-off_t lseek();
-#endif
-
-#ifdef USG
-#define L_SET 0
-#endif
-
-#if defined(ultrix) || defined(USG)
-void perror();
-void exit();
-#endif
-
-#ifdef USG
-struct passwd *getpwuid();
-#endif
-
-char *getlogin();
-long time();
-
 void date(char *day)
 {
     char *tmp;

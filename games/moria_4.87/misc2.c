@@ -788,7 +788,7 @@ void place_object(int y, int x)
 }
 
 /* Allocates an object for tunnels and rooms    -RAK- */
-void alloc_object(int (*alloc_set)(), int typ, int num)
+void alloc_object(int (*alloc_set)(int), int typ, int num)
 {
     int i;
     int j;
@@ -1183,7 +1183,7 @@ void prt_title()
 /* Prints strength    -RAK- */
 void prt_strength()
 {
-    prt_strength("\0", py.stats.cstr, 6, stat_column + 6);
+    prt_stat("\0", py.stats.cstr, 6, stat_column + 6);
 }
 
 /* Prints intelligence    -RAK- */
@@ -1965,7 +1965,7 @@ void inven_drop(int item_val, int y, int x)
 }
 
 /* Destroys a type of item on given percent chance    -RAK- */
-int inven_damage(int (*typ)(), int perc)
+int inven_damage(int (*typ)(unsigned char), int perc)
 {
     int i;
     int j;

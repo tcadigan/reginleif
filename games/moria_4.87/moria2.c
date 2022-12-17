@@ -40,8 +40,6 @@ extern int cave_flag;
 /* Used in move_light */
 extern int light_flag;
 
-char cur_char1();
-
 /* Teleport the player to a new location    -RAK- */
 void teleport(int dis)
 {

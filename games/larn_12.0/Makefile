@@ -16,13 +16,13 @@ SRCS = bill.c config.c create.c data.c diag.c display.c fortune.c global.c \
        savelev.c scores.c signal.c store.c tok.c
 OBJS = ${SRCS:.c=.o}
 
-all: $(PROG)
+all: ${PROG}
 
-$(PROG): depend $(OBJS)
+${PROG}: depend ${OBJS}
 	${CC} ${CFLAGS} ${SRCS} -o ${.TARGET} ${LDFLAGS}
 
 clean:
-	rm -rf *~ *.o .depend $(PROG)
+	rm -rf *~ *.o .depend ${PROG}
 
 depend: ${SRCS}
 	${CC} ${CFLAGS} -MM ${SRCS} > .depend
