@@ -8,7 +8,6 @@ CC = clang
 CFLAGS = -Wall
 LDFLAGS = -lm -lcurses -ltermcap # Should really move to terminfo
 
-
 .ifdef DISABLE_BEAR
 BEAR =
 .else

@@ -637,26 +637,13 @@ int m_move(struct monst *mtmp, int after)
         for(j = 0; (j < MTSZ) && (j < (cnt - 1)); ++j) {
             if((nx == mtmp->mtrack[j].x) && (ny == mtmp->mtrack[j].y)) {
                 if(rn2(4 * (cnt - j)) == 0) {
-#ifdef STUPID
-                    /* Some stupid compilers thing that is is too complicated */
-                    int d1 = DIST(nx, ny, gx, gy);
-                    int d2 = DIST(nix, niy, gx, gy);
-                    
-                    if(d1 < d2) {
-                        nearer = 1;
-                    }
-                    else {
-                        nearer = 0;
-                    }
-#else
 		    if(DIST(nx, ny, gx, gy) < DIST(nix, niy, gx, gy)) {
 			nearer = 1;
 		    }
 		    else {
 			nearer = 0;
 		    }
-#endif
-		    
+
                     if(((appr == 1) && (nearer != 0))
                        || ((appr == -1) && (nearer == 0))
                        || (mmoved == 0)) {

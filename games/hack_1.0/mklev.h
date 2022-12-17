@@ -11,14 +11,7 @@
 #include "def.objclass.h"
 #include "def.permonst.h"
 
-#ifdef BSD
-#include <strings.h> /* Declarations for strcat etc. */
-#else
-#include <string.h> /* Idem on System V */
-
-#define index strchr
-#define rindex strrchr
-#endif
+#include <string.h>
 
 typedef struct {
     xchar x;

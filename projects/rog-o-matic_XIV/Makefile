@@ -7,14 +7,13 @@ RGMPLOT = rgmplot
 
 CC = clang
 CFLAGS = -Wall
-LDFLAGS = -lm -lcurses -ltermcap
+LDFLAGS = -lm -lcurses -ltermcap # Should really move to terminfo
 
 .ifdef DISABLE_BEAR
 BEAR =
 .else
 BEAR = bear --append --
 .endif
-
 
 PLAYER_SRCS = arms.c command.c database.c debug.c explore.c io.c learn.c ltm.c \
               main.c mess.c monsters.c pack.c rand.c replay.c rooms.c \

@@ -34,11 +34,7 @@ extern struct wseg *wheads[32];
 extern long wgrowtime[32];
 #endif
 
-#ifdef BSD
 #include <sys/wait.h>
-#else
-#include <wait.h>
-#endif
 
 int getlev(int fd)
 {

@@ -38,11 +38,7 @@
 #include "rnd.h"
 #include "savelev.h"
 
-#ifdef BSD
 #include <sys/wait.h>
-#else
-#include <wait.h>
-#endif
 
 extern char *nomovemsg;
 extern char *catmore;

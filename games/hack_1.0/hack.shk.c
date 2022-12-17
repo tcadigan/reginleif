@@ -1090,24 +1090,12 @@ int shk_move()
 
         if((tmp == ROOM)
            || ((shkr != ESHK->shoproom) && ((tmp == CORR) || tmp == DOOR))) {
-#ifdef STUPID
-            /* Cater for stupid compilers */
-            int zz;
-            if(((appr == 0) && (rn2(++chcnt) == 0))
-               || ((appr != 0) && (zz = GDIST(nix, niy)))
-               && (zz > GDIST(nx, ny))) {
-                nix = nx;
-                niy = ny;
-                chi = i;
-            }   
-#else
             if(((appr == 0) && (rn2(++chcnt) == 0)) ||
                ((appr != 0) && (GDIST(nx, ny) < GDIST(nix, niy)))) {
                 nix = nx;
                 niy = ny;
                 chi = i;
             }
-#endif
         }
     }
 

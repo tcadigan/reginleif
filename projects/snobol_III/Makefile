@@ -8,7 +8,6 @@ BEAR =
 BEAR = bear --append --
 .endif
 
-
 SRCS = sno1.c sno2.c sno3.c sno4.c
 OBJS = ${SRCS:.c=.o}
 
