@@ -15,3 +15,4 @@ jobs:
         with:
           path: projects/terrain
           language: C++
+          dependencies: libsdl2-dev libglu1-mesa-dev libgl1-mesa-dev

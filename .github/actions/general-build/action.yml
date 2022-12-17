@@ -6,6 +6,9 @@ inputs:
   language:
     required: true
     type: string
+  dependencies:
+    required: false
+    type: string
 runs:
   using: "composite"
   steps:
@@ -13,7 +16,11 @@ runs:
     - name: Pre-requisites
       run: |
         sudo apt-get update
-        sudo apt-get install bmake libsdl2-dev libglu1-mesa-dev libgl1-mesa-dev
+        sudo apt-get install bmake
+      shell: bash
+    - if: ${{ inputs.dependencies != '' }}
+      run: |
+        sudo apt-get install ${{ inputs.dependencies }}
       shell: bash
     - if: ${{ inputs.language == 'C++' }}
       run: |
