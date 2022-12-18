@@ -3,7 +3,7 @@
 
 struct delayed_action {
     int d_type;
-    int (*d_func)();
+    int (*d_func)(int);
     int d_arg;
     int d_time;
 };

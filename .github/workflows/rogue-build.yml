@@ -1,0 +1,18 @@
+name: Rogue 3.6 build
+
+on:
+  push:
+    paths:
+    - 'games/rogue_3.6/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: A build job
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/general-build
+        with:
+          path: games/rogue_3.6
+          language: C
+          dependencies: libncurses5-dev

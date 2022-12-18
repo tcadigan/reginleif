@@ -6,7 +6,7 @@
 int ring_on();
 int ring_off();
 int gethand();
-int ring_eat();
+int ring_eat(int hand);
 char *ring_num(struct object *obj);
 
 #endif

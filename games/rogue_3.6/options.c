@@ -18,22 +18,22 @@ struct optstruct {
     // Prompt for interactive entry
     char	*o_prompt;
     // Pointer to thing to set
-    int		*o_opt;
+    char        *o_opt;
     // Function to print value
-    int		(*o_putfunc)();
+    int		(*o_putfunc)(char *b);
     // Function to get value interactively
-    int		(*o_getfunc)();
+    int		(*o_getfunc)(char *opt, WINDOW *win);
 };
 
 struct optstruct optlist[] = {
-    {"terse", "Terse output: "                     , (int *) &terse      , put_bool, get_bool },
-    {"flush", "Flush typeahead during battle: "    , (int *) &fight_flush, put_bool, get_bool },
-    {"jump" , "Show position only at end of run: " , (int *) &jump       , put_bool, get_bool },
-    {"step" , "Do inventories one line at a time: ", (int *) &slow_invent, put_bool, get_bool },
-    {"askme", "Ask me about unidentified things: " , (int *) &askme      , put_bool, get_bool },
-    {"name" , "Name: "                             , (int *) whoami      , put_str , get_str  },
-    {"fruit", "Fruit: "                            , (int *) fruit       , put_str , get_str  },
-    {"file" , "Save file: "                        , (int *) file_name   , put_str , get_str  }
+    {"terse", "Terse output: "                     , (char *) &terse      , put_bool, get_bool },
+    {"flush", "Flush typeahead during battle: "    , (char *) &fight_flush, put_bool, get_bool },
+    {"jump" , "Show position only at end of run: " , (char *) &jump       , put_bool, get_bool },
+    {"step" , "Do inventories one line at a time: ", (char *) &slow_invent, put_bool, get_bool },
+    {"askme", "Ask me about unidentified things: " , (char *) &askme      , put_bool, get_bool },
+    {"name" , "Name: "                             , (char *) whoami      , put_str , get_str  },
+    {"fruit", "Fruit: "                            , (char *) fruit       , put_str , get_str  },
+    {"file" , "Save file: "                        , (char *) file_name   , put_str , get_str  }
 };
 
 // option:
@@ -89,7 +89,7 @@ int option()
 
 // put_bool:
 //     Put out a boolean
-int put_bool(bool *b)
+int put_bool(char *b)
 {
     if(*b) {
         waddstr(hw, "True");
@@ -112,7 +112,7 @@ int put_str(char *str)
 
 // get_bool:
 //     Allow changing a boolean option and print it out
-int get_bool(bool *bp, WINDOW *win)
+int get_bool(char *bp, WINDOW *win)
 {
     int oy;
     int ox;

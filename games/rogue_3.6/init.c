@@ -27,6 +27,8 @@ bool firstmove = FALSE;
 bool askme = FALSE;
 bool amulet = FALSE;
 bool in_shell = FALSE;
+bool after = FALSE;
+bool waswizard = FALSE;
 struct linked_list *lvl_obj = NULL;
 struct linked_list *mlist = NULL;
 struct object *cur_weapon = NULL;
@@ -45,1615 +47,125 @@ int food_left = HUNGERTIME;
 int group = 1;
 int hungry_state = 0;
 int lastscore = -1;
-
+int max_hp = 0;
 
 struct thing monsters[26] = {
-    { "giant ant", /* Name */
-      { 0, 0 },    /* Current position */
-      0,           /* Turn to move */
-      'A',         /* Type */
-      '\0',        /* Prior location character */
-      NULL,        /* Destination */
-      ISMEAN,      /* Flags */
-      '\0',        /* Mimic disguise */
-      0,           /* Probability to carry */
-
-      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
-      {    1,         1,   10,   2,     3,  1,             "1d6" },
-      NULL         /* Pack */
-    },
-    { "bat",    /* Name */
-      { 0, 0 }, /* Current position */
-      0,        /* Turn to move */
-      'B',      /* Type */
-      '\0',     /* Prior location character */
-      NULL,     /* Destination */
-      0,        /* Flags */
-      '\0',     /* Mimic disguise */
-      0,        /* Probability to carry */
-
-      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
-      {    1,         1,    1,   4,     4,  1,             "1d2" },
-      NULL      /* Pack */
-    },
-    { "centaur", /* Name */
-      { 0, 0 },  /* Current position */
-      0,         /* Turn to move */
-      'C',       /* Type */
-      '\0',      /* Prior location character */
-      NULL,      /* Destination */
-      0,         /* Flags */
-      '\0',      /* Mimic disguise */
-      15,        /* Probability to carry */
-
-      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
-      {    1,         1,   15,   4,     4,  1,         "1d6/1d6" },
-      NULL       /* Pack */
-    },
-    { "dragon", /* Name */
-      { 0, 0 }, /* Current position */
-      0,        /* Turn to move */
-      'D',      /* Type */
-      '\0',     /* Prior location character */
-      NULL,     /* Destination */
-      ISGREED,  /* Flags */
-      '\0',     /* Mimic disguise */
-      100,      /* Probability to carry */
-
-      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,                Dmg */
-      {    1,         1, 9000,  10,    -1,  1,     "1d8/1d8/3d10" },
-      NULL      /* Pack */
-    },
-    { "floating eye", /* Name */
-      { 0, 0 },       /* Current position */
-      0,              /* Turn to move */
-      'E',            /* Type */
-      '\0',           /* Prior location character */
-      NULL,           /* Destination */
-      0,              /* Flags */
-      '\0',           /* Mimic disguise */
-      0,              /* Probability to carry */
-
-      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,                Dmg */
-      {    1,         1,    5,   1,     9,  1,              "0d0" },
-      NULL            /* Pack */
-    },
-    { "violet fungi", /* Name */
-      { 0, 0 },       /* Current position */
-      0,              /* Turn to move */
-      'F',            /* Type */
-      '\0',           /* Prior location character */
-      NULL,           /* Destination */
-      ISMEAN,         /* Flags */
-      '\0',           /* Mimic disguise */
-      0,              /* Probability to carry */
-
-      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,                Dmg */
-      {    1,         1,   85,   8,     3,  1,            "000d0" },
-      NULL            /* Pack */
-    },
-    { "gnome",  /* Name */
-      { 0, 0 }, /* Current position */
-      0,        /* Turn to move */
-      'G',      /* Type */
-      '\0',     /* Prior location character */
-      NULL,     /* Destination */
-      0,        /* Flags */
-      '\0',     /* Mimic disguise */
-      10,       /* Probability to carry */
-
-      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,                Dmg */
-      {    1,         1,    8,   1,     5,  1,              "1d6" },
-      NULL      /* Pack */
-    },
-    { "hobgoblin", /* Name */
-      { 0, 0 },    /* Current position */
-      0,           /* Turn to move */
-      'H',         /* Type */
-      '\0',        /* Prior location character */
-      NULL,        /* Destination */
-      ISMEAN,      /* Flags */
-      '\0',        /* Mimic disguise */
-      0,           /* Probability to carry */
-
-      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
-      {    1,         1,    3,   1,     5,  1,             "1d8" },
-      NULL         /* Pack */
-    },
-    { "invisible stalker", /* Name */
-      { 0, 0 },            /* Current position */
-      0,                   /* Turn to move */
-      'I',                 /* Type */
-      '\0',                /* Prior location character */
-      NULL,                /* Destination */
-      ISINVIS,             /* Flags */
-      '\0',                /* Mimic disguise */
-      0,                   /* Probability to carry */
-
-      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
-      {    1,         1,  120,   8,     3,  1,              "4d4" },
-      NULL                 /* Pack */
-    },
-    { "jackel", /* Name */
-      { 0, 0 }, /* Current position */
-      0,        /* Turn to move */
-      'J',      /* Type */
-      '\0',     /* Prior location character */
-      NULL,     /* Destination */
-      ISMEAN,   /* Flags */
-      '\0',     /* Mimic disguise */
-      0,        /* Probabilty to carry */
-
-      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
-      {    1,         1,    2,   1,     7,  1,             "1d2" },
-      NULL      /* Pack */
-    },
-    { "kobold", /* Name */
-      { 0, 0 }, /* Current position */
-      0,        /* Turn to move */
-      'K',      /* Type */
-      '\0',     /* Prior location character */
-      NULL,     /* Destination */
-      ISMEAN,   /* Flags */
-      '\0',     /* Mimic disguise */
-      0,        /* Probability to carry */
-
-      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
-      {    1,         1,    1,   1,     7,   1,            "1d4" },
-      NULL      /* Pack */
-    },
-    { "leprechaun", /* Name */
-      { 0, 0 },     /* Current position */
-      0,            /* Turn to move */
-      'L',          /* Type */
-      '\0',         /* Prior location character */
-      NULL,         /* Destination */
-      0,            /* Flags */
-      '\0',         /* Mimic disguise */
-      0,            /* Probability to carry */
-
-      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
-      {    1,         1,   10,   3,     8,  1,             "1d1" },
-      NULL          /* Pack */
-    },
-    { "mimic",  /* Name */
-      { 0, 0 }, /* Current position */
-      0,        /* Turn to move */
-      'M',      /* Type */
-      '\0',     /* Prior location character */
-      NULL,     /* Destination */
-      0,        /* Flags */
-      '\0',     /* Mimic disguise */
-      30,       /* Probability to carry */
-
-      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
-      {    1,         1,  140,   7,     7,  1,             "3d4" },
-      NULL      /* Pack */
-    },
-    { "nymph",  /* Name */
-      { 0, 0 }, /* Current position */
-      0,        /* Turn to move */
-      'N',      /* Type */
-      '\0',     /* Prior location character */
-      NULL,     /* Destination */
-      0,        /* Flags */
-      '\0',     /* Mimic disguise */
-      100,      /* Probability to carry */
-
-      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
-      {    1,         1,   40,   3,     9,  1,             "0d0" },
-      NULL      /* Pack */
-    },
-    { "orc",    /* Name */
-      { 0, 0 }, /* Current position */
-      0,        /* Turn to move */
-      'O',      /* Type */
-      '\0',     /* Prior location character */
-      NULL,     /* Destination */
-      ISBLOCK,  /* Flags */
-      '\0',     /* Mimic disguise */
-      15,       /* Probability to carry */
-
-      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
-      {    1,         1,    5,   1,     6,  1,             "1d8" },
-      NULL      /* Pack */
-    },
-    { "purple worm", /* Name */
-      { 0, 0 },      /* Current position */
-      0,             /* Turn to move */
-      'P',           /* Type */
-      '\0',          /* Prior location character */
-      NULL,          /* Destination */
-      0,             /* Flags */
-      '\0',          /* Mimic disguise */
-      70,            /* Probability to carry */
-
-      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
-      {    1,         1, 7000,  15,     6,  1,        "2d12/2d4" },
-      NULL           /* Pack */
-    },
-    { "quasit", /* Name */
-      { 0, 0 }, /* Current position */
-      0,        /* Turn to move */
-      'Q',      /* Type */
-      '\0',     /* Prior location character */
-      NULL,     /* Destination */
-      ISMEAN,   /* Flags */
-      '\0',     /* Mimic disguise */
-      30,       /* Probability to carry */
-
-      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
-      {    1,         1,   35,   3,     2,  1,     "1d2/1d2/1d4" },
-      NULL      /* Pack */
-    },
-    { "rust monster", /* Name */
-      { 0, 0 },       /* Current position */
-      0,              /* Turn to move */
-      'R',            /* Type */
-      '\0',           /* Prior location character */
-      NULL,           /* Destination */
-      ISMEAN,         /* Flags */
-      '\0',           /* Mimic disguise */
-      0,              /* Probability to carry */
-
-      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
-      {    1,         1,   25,   5,     2,  1,         "0d0/0d0" },
-      NULL            /* Pack */
-    },
-    { "snake",  /* Name */
-      { 0, 0 }, /* Current position */
-      0,        /* Turn to move */
-      'S',      /* Type */
-      '\0',     /* Prior location character */
-      NULL,     /* Destination */
-      ISMEAN,   /* Flags */
-      '\0',     /* Mimic disguise */
-      0,        /* Probability to carry */
-
-      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
-      {    1,         1,    3,   1,     5,  1,             "1d3" },
-      NULL      /* Pack */
-    },
-    { "troll",          /* Name */
-      { 0, 0 },         /* Current position */
-      0,                /* Turn to move */
-      'T',              /* Type */
-      '\0',             /* Prior location character */
-      NULL,             /* Destination */
-      ISREGEN | ISMEAN, /* Flags */
-      '\0',             /* Mimic disguise */
-      50,               /* Probability to carry */
-
-      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
-      {    1,         1,   55,   6,     4,  1,     "1d8/1d8/2d6" },
-      NULL              /* Pack */
-    },
-    { "umber hulk", /* Name */
-      { 0, 0 },     /* Current position */
-      0,            /* Turn to move */
-      'U',          /* Type */
-      '\0',         /* Prior location character */
-      NULL,         /* Destination */
-      ISMEAN,       /* Flags */
-      '\0',         /* Mimic disguise */
-      40,           /* Probability to carry */
-
-      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
-      {    1,         1,  130,   8,     2,  1,     "3d4/3d4/2d5" },
-      NULL          /* Pack */
-    },
-    { "vampire",        /* Name */
-      { 0, 0 },         /* Current position */
-      0,                /* Turn to move */
-      'V',              /* Type */
-      '\0',             /* Prior location character */
-      NULL,             /* Destination */
-      ISREGEN | ISMEAN, /* Flags */
-      '\0',             /* Mimic disguise */
-      20,               /* Probability to carry */
-
-      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
-      {    1,         1,  380,   8,     1,  1,            "1d10" },
-      NULL              /* Pack */
-    },
-    { "wraith", /* Name */
-      { 0, 0 }, /* Current position */
-      0,        /* Turn to move */
-      'W',      /* Type */
-      '\0',     /* Prior location character */
-      NULL,     /* Destination */
-      0,        /* Flags */
-      '\0',     /* Mimic disguise */
-      0,        /* Probability to carry */
-
-      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
-      {    1,         1,   55,   5,     4,  1,             "1d6" },
-      NULL      /* Pack */
-    },
-    { "xorn",   /* Name */
-      { 0, 0 }, /* Current position */
-      0,        /* Turn to move */
-      'X',      /* Type */
-      '\0',     /* Prior location character */
-      NULL,     /* Destination */
-      ISMEAN,   /* Flags */
-      '\0',     /* Mimic disguise */
-      0,        /* Probability to carry */
-
-      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
-      {    1,         1,  120,   7,    -2,  1, "1d3/1d3/1d3/4d5" },
-      NULL      /* Pack */
-    },
-    { "yeti",   /* Name */
-      { 0, 0 }, /* Current position */
-      0,        /* Turn to move */
-      'Y',      /* Type */
-      '\0',     /* Prior location character */
-      NULL,     /* Destination */
-      0,        /* Flags */
-      '\0',     /* Mimic disguise */
-      30,       /* Probability to carry */
-
-      /* Str, Bonus str,  Exp, Lvl, Armor, Hp,               Dmg */
-      {    1,         1,   50,   5,     6,  1,         "1d6/1d6" },
-      NULL      /* Pack */
-    },
-    { "zombie", /* Name */
-      { 0, 0 }, /* Current position */
-      0,        /* Turn to move */
-      'Z',      /* Type */
-      '\0',     /* Prio location character */
-      NULL,     /* Destination */
-      ISMEAN,   /* Flags */
-      '\0',     /* Mimic disguise */
-      0,        /* Probability to carry */
-
-      /* Str, Bonus str, Exp, Lvl, Armor, Hp,                Dmg */
-      {    1,         1,   7,   2,     4,  1,               "1d8" },
-      NULL      /* Pack */
-    }
+    {"giant ant", {0, 0}, 0, 'A', '\0', NULL, ISMEAN, '\0', 0, {1, 1, 10, 2, 3, 1, "1d6"}, NULL},
+    {"bat", {0, 0}, 0, 'B', '\0', NULL, 0, '\0', 0, {1, 1, 1, 4, 4, 1, "1d2"}, NULL},
+    {"centaur", {0, 0}, 0, 'C', '\0', NULL, 0, '\0', 15, {1, 1, 15, 4, 4, 1, "1d6/1d6"}, NULL},
+    {"dragon", {0, 0}, 0, 'D', '\0', NULL, ISGREED, '\0', 100, {1, 1, 9000, 10, -1, 1, "1d8/1d8/3d10"}, NULL},
+    {"floating eye", {0, 0}, 0, 'E', '\0', NULL, 0, '\0', 0, {1, 1, 5, 1, 9, 1, "0d0"}, NULL},
+    {"violet fungi", {0, 0}, 0, 'F', '\0', NULL, ISMEAN, '\0', 0, {1, 1, 85, 8, 3, 1, "000d0"}, NULL},
+    {"gnome", {0, 0}, 0, 'G', '\0', NULL, 0, '\0', 10, {1, 1, 8, 1, 5, 1, "1d6"}, NULL},
+    {"hobgoblin", {0, 0}, 0, 'H', '\0', NULL, ISMEAN, '\0', 0, {1, 1, 3, 1, 5, 1, "1d8"}, NULL},
+    {"invisible stalker", {0, 0}, 0, 'I', '\0', NULL, ISINVIS, '\0', 0, {1, 1, 120, 8, 3, 1, "4d4"}, NULL},
+    {"jackel", {0, 0}, 0, 'J', '\0', NULL, ISMEAN, '\0', 0, {1, 1, 2, 1, 7, 1, "1d2"}, NULL},
+    {"kobold", {0, 0}, 0, 'K', '\0', NULL, ISMEAN, '\0', 0, {1, 1, 1, 1, 7, 1, "1d4"}, NULL},
+    {"leprechaun", {0, 0}, 0, 'L', '\0', NULL, 0, '\0', 0, {1, 1, 10, 3, 8, 1, "1d1"}, NULL},
+    {"mimic", {0, 0}, 0, 'M', '\0', NULL, 0, '\0', 30, {1, 1, 140, 7, 7, 1, "3d4"}, NULL},
+    {"nymph", {0, 0}, 0, 'N', '\0', NULL, 0, '\0', 100, {1, 1, 40, 3, 9, 1, "0d0"}, NULL},
+    {"orc", {0, 0}, 0, 'O', '\0', NULL, ISBLOCK, '\0', 15, {1, 1, 5, 1, 6, 1, "1d8"}, NULL},
+    {"purple worm", {0, 0}, 0, 'P', '\0', NULL, 0, '\0', 70, {1, 1, 7000, 15, 6, 1, "2d12/2d4"}, NULL},
+    {"quasit", {0, 0}, 0, 'Q', '\0', NULL, ISMEAN, '\0', 30, {1, 1, 35, 3, 2, 1, "1d2/1d2/1d4"}, NULL},
+    {"rust monster", {0, 0}, 0, 'R', '\0', NULL, ISMEAN, '\0', 0, {1, 1, 25, 5, 2, 1, "0d0/0d0"}, NULL},
+    {"snake", {0, 0}, 0, 'S', '\0', NULL, ISMEAN, '\0', 0, {1, 1, 3, 1, 5, 1, "1d3"}, NULL},
+    {"troll", {0, 0}, 0, 'T', '\0', NULL, ISREGEN | ISMEAN, '\0', 50, {1, 1, 55, 6, 4, 1, "1d8/1d8/2d6"}, NULL},
+    {"umber hulk", {0, 0}, 0, 'U', '\0', NULL, ISMEAN, '\0', 40, {1, 1, 130, 8, 2, 1, "3d4/3d4/2d5"}, NULL},
+    {"vampire", {0, 0}, 0, 'V', '\0', NULL, ISREGEN | ISMEAN, '\0', 20, {1, 1, 380, 8, 1, 1, "1d10"}, NULL},
+    {"wraith", {0, 0}, 0, 'W', '\0', NULL, 0, '\0', 0, {1, 1, 55, 5, 4, 1, "1d6"}, NULL},
+    {"xorn", {0, 0}, 0, 'X', '\0', NULL, ISMEAN, '\0', 0, {1, 1, 120, 7, -2, 1, "1d3/1d3/1d3/4d5"}, NULL},
+    {"yeti", {0, 0}, 0, 'Y', '\0', NULL, 0, '\0', 30, {1, 1, 50, 5, 6, 1, "1d6/1d6"}, NULL},
+    {"zombie", {0, 0}, 0, 'Z', '\0', NULL, ISMEAN, '\0',  0,  {1, 1, 7, 2, 4, 1, "1d8"},  NULL}
 };
 
 struct object things[NUMTHINGS] = {
-    { "Potion", /* Name */
-      "",       /* Read text */
-      POTION,   /* Type */
-      -1,       /* Which of type */
-      -1,       /* Group */
-      { 0, 0 }, /* Position */
-      27,       /* Probability */
-      1,        /* Count of object */
-      0,        /* Flags */
-      0,        /* Worth */
-      11,       /* Armor class */
-      '\0',     /* Launcher */
-      "",       /* Damage */
-      "",       /* Hurl damage */
-      0,        /* Hit bonus */
-      0         /* Damage bonus */
-    },
-    { "Scroll", /* Name */
-      "",       /* Read text */
-      SCROLL,   /* Type */
-      -1,       /* Which of type */
-      -1,       /* Group */
-      { 0, 0 }, /* Position */
-      54,       /* Probability */
-      1,        /* Count of object */
-      0,        /* Flags */
-      0,        /* Worth */
-      11,       /* Armor class */
-      '\0',     /* Launcher */
-      "",       /* Damage */
-      "",       /* Hurl damage */
-      0,        /* Hit bonus */
-      0         /* Damage bonus */
-    },
-    { "Food",   /* Name */
-      "",       /* Read text */
-      FOOD,     /* Type */
-      -1,       /* Which of type */
-      -1,       /* Group */
-      { 0, 0 }, /* Position */
-      72,       /* Probability */
-      1,        /* Count of object */
-      0,        /* Flags */
-      0,        /* Worth */
-      11,       /* Armor class */
-      '\0',     /* Launcher */
-      "",       /* Damage */
-      "",       /* Hurl damage */
-      0,        /* Hit bonus */
-      0         /* Damage bonus */
-    },
-    { "Weapon", /* Name */
-      "",       /* Read text */
-      WEAPON,   /* Type */
-      -1,       /* Which of type */
-      -1,       /* Group */
-      { 0, 0 }, /* Position */
-      81,       /* Probability */
-      1,        /* Count of object */
-      0,        /* Flags */
-      0,        /* Worth */
-      11,       /* Armor class */
-      '\0',     /* Launcher */
-      "",       /* Damage */
-      "",       /* Hurl damage */
-      0,        /* Hit bonus */
-      0         /* Damage bonus */
-    },
-    { "Armor",  /* Name */
-      "",       /* Read text */
-      ARMOR,    /* Type */
-      -1,       /* Which of type */
-      -1,       /* Group */
-      { 0, 0 }, /* Position */
-      90,       /* Probability */
-      1,        /* Count of object */
-      0,        /* Flags */
-      0,        /* Worth */
-      11,       /* Armor class */
-      '\0',     /* Launcher */
-      "",       /* Damage */
-      "",       /* Hurl Damage */
-      0,        /* Hit bonus */
-      0         /* Damage bonus */
-    },
-    { "Ring",   /* Name */
-      "",       /* Read text */
-      RING,     /* Type */
-      -1,       /* Which of type */
-      -1,       /* Group */
-      { 0, 0 }, /* Position */
-      95,       /* Probability */
-      1,        /* Count of object */
-      0,        /* Flags */
-      0,        /* Worth */
-      11,       /* Armor class */
-      '\0',     /* Launcher */
-      "",       /* Damage */
-      "",       /* Hurl damage */
-      0,        /* Hit bonus */
-      0         /* Damage bonus */
-    },
-    { "Stick",  /* Name */
-      "",       /* Read text */
-      STICK,    /* Type */
-      -1,       /* Which of type */
-      -1,       /* Group */
-      { 0, 0 }, /* Position */
-      100,      /* Probability */
-      1,        /* Count of object */
-      0,        /* Flags */
-      0,        /* Worth */
-      11,       /* Armor class */
-      '\0',     /* Launcher */
-      "",       /* Damage */
-      "",       /* Hurl Damage */
-      0,        /* Hit bonus */
-      0         /* Damage bonus */
-    }
+    {"Potion", "", POTION, -1, -1, {0, 0}, 27, 1, 0, 0, 11, '\0', "", "", 0, 0},
+    {"Scroll", "", SCROLL, -1, -1, {0, 0}, 54, 1, 0, 0, 11, '\0', "", "", 0, 0},
+    {"Food", "", FOOD, -1, -1, {0, 0}, 72, 1, 0, 0, 11, '\0', "", "", 0, 0},
+    {"Weapon", "", WEAPON, -1, -1, {0, 0}, 81, 1, 0, 0, 11, '\0', "", "", 0, 0},
+    {"Armor", "", ARMOR, -1, -1, {0, 0}, 90, 1, 0, 0, 11, '\0', "", "", 0, 0},
+    {"Ring", "", RING, -1, -1, {0, 0}, 95, 1, 0, 0, 11, '\0', "", "", 0, 0},
+    {"Stick", "", STICK, -1, -1, {0, 0}, 100, 1, 0, 0, 11, '\0', "", "", 0, 0}
 };
 
 struct object s_magic[MAXSCROLLS] = {
-    { "monster confusion", /* Name */
-      "",                  /* Read text */
-      SCROLL,              /* Type */
-      S_CONFUSE,           /* Which of type */
-      -1,                  /* Group */
-      { 0, 0 },            /* Position */
-      8,                   /* Probability */
-      1,                   /* Count of object */
-      0,                   /* Flags */
-      170,                 /* Worth */
-      11,                  /* Armor class */
-      '\0',                /* Launcher */
-      ""                   /* Damage */
-      "",                  /* Hurl damage */
-      0,                   /* Hit bonus */
-      0                    /* Damage bonus */
-    },
-    { "magic mapping", /* Name */
-      "",              /* Read text */
-      SCROLL,          /* Type */
-      S_MAP,           /* Which of type */
-      -1,              /* Group */
-      { 0, 0 },        /* Position */
-      13,              /* Probability */
-      1,               /* Count of object */
-      0,               /* Flags */
-      180,             /* Worth */
-      11,              /* Armor class */
-      '\0',            /* Launcher */
-      "",              /* Damage */
-      "",              /* Hurl damage */
-      0,               /* Hit bonus */
-      0                /* Damage bonus */
-    },
-    { "light",  /* Name */
-      "",       /* Read text */
-      SCROLL,   /* Type */
-      S_LIGHT,  /* Which of type */
-      -1,       /* Group */
-      { 0, 0 }, /* Position */
-      23,       /* Probability */
-      1,        /* Count of object */
-      0,        /* Flags */
-      100,      /* Worth */
-      11,       /* Armor class */
-      '\0',     /* Launcher */
-      "",       /* Damage */
-      "",       /* Hurl damage */
-      0,        /* Hit bonus */
-      0         /* Damage bonus */
-    },
-    { "hold monster", /* Name */
-      "",             /* Read text */
-      SCROLL,         /* Type */
-      S_HOLD,         /* Which of type */
-      -1,             /* Group */
-      { 0, 0 },       /* Position */
-      25,             /* Probability */
-      1,              /* Count of object */
-      0,              /* Flags */
-      200,            /* Worth */
-      11,             /* Armor class */
-      '\0',           /* Launcher */
-      "",             /* Damage */
-      "",             /* Hurl  damage */
-      0,              /* Hit bonus */
-      0               /* Damage bonus */
-    },
-    { "sleep",  /* Name */
-      "",       /* Read text */
-      SCROLL,   /* Type */
-      S_SLEEP,  /* Which of type */
-      -1,       /* Group */
-      { 0, 0 }, /* Position */
-      30,       /* Probability */
-      1,        /* Count of object */
-      0,        /* Flags */
-      50,       /* Worth */
-      11,       /* Armor class */
-      '\0',     /* Launcher */
-      "",       /* Damage */
-      "",       /* Hurl damage */
-      0,        /* Hit bonus */
-      0         /* Damage bonus */
-    },
-    { "enchant armor", /* Name */
-      "",              /* Read text */
-      SCROLL,          /* Type */
-      S_ARMOR,         /* Which of type */
-      -1,              /* Group */
-      { 0, 0 },        /* Position */
-      38,              /* Probability */
-      1,               /* Count of object */
-      0,               /* Flags */
-      130,             /* Worth */
-      11,              /* Armor class */
-      '\0',            /* Launcher */
-      "",              /* Damage */
-      "",              /* Hurl damage */
-      0,               /* Hit bonus */
-      0                /* Damage bonus */
-    },
-    { "identify", /* Name */
-      "",         /* Read text */
-      SCROLL,     /* Type */
-      S_IDENT,    /* Which of type */
-      -1,         /* Group */
-      { 0, 0 },   /* Position */
-      59,         /* Probability */
-      1,          /* Count of object */
-      0,          /* Flags */
-      100,        /* Worth */
-      11,         /* Armor class */
-      '\0',       /* Launcher */
-      "",         /* Damage */
-      "",         /* Hurl damage */
-      0,          /* Hit bonus */
-      0           /* Damage bonus */
-    },
-    { "scare monster", /* Name */
-      "",              /* Read text */
-      SCROLL,          /* Type */
-      S_SCARE,         /* Which of type */
-      -1,              /* Group */
-      { 0, 0 },        /* Position */
-      63,              /* Probability */
-      1,               /* Count of object */
-      0,               /* Flags */
-      180,             /* Worth */
-      11,              /* Armor class */
-      '\0',            /* Launcher */
-      "",              /* Damage */
-      "",              /* Hurl damage */
-      0,               /* Hit bonus */
-      0                /* Damage bonus */
-    },
-    { "gold detection", /* Name */
-      "",               /* Read text */
-      SCROLL,           /* Type */
-      S_GFIND,          /* Which of type */
-      -1,               /* Group */
-      { 0, 0 },         /* Position */
-      67,               /* Probability */
-      1,                /* Count of object */
-      0,                /* Flags */
-      110,              /* Worth */
-      11,               /* Armor class */
-      '\0',             /* Launcher */
-      "",               /* Damage */
-      "",               /* Hurl damage */
-      0,                /* Hit bonus */
-      0                 /* Damage bonus */
-    },
-    { "teleportation", /* Name */
-      "",              /* Read text */
-      SCROLL,          /* Type */
-      S_TELEP,         /* Which of type */
-      -1,              /* Group */
-      { 0, 0 },        /* Position */
-      74,              /* Probability */
-      1,               /* Count of object */
-      0,               /* Flags */
-      175,             /* Worth */
-      11,              /* Armor class */
-      '\0',            /* Launcher */
-      "",              /* Damage */
-      "",              /* Hurl damage */
-      0,               /* Hit bonus */
-      0                /* Damage bonus */
-    },
-    { "enchant weapon", /* Name */
-      "",               /* Read text */
-      SCROLL,           /* Type */
-      S_ENCH,           /* Which of type */
-      -1,               /* Group */
-      { 0, 0 },         /* Position */
-      84,               /* Probability */
-      1,                /* Count of object */
-      0,                /* Flags */
-      150,              /* Worth */
-      11,               /* Armor class */
-      '\0',             /* Launcher */
-      "",               /* Damage */
-      "",               /* Hurl damage */
-      0,                /* Hit bonus */
-      0                 /* Damage bonus */
-    },
-    { "create monster", /* Name */
-      "",               /* Read text */
-      SCROLL,           /* Type */
-      S_CREATE,         /* Which of type */
-      -1,               /* Group */
-      { 0, 0 },         /* Position */
-      89,               /* Probability */
-      1,                /* Count of object */
-      0,                /* Flags */
-      75,               /* Worth */
-      11,               /* Armor class */
-      '\0',             /* Launcher */
-      "",               /* Damage */
-      "",               /* Hurl damage */
-      0,                /* Hit bonus */
-      0                 /* Damage bonus */
-    },
-    { "remove curse", /* Name */
-      "",             /* Read text */
-      SCROLL,         /* Type */
-      S_REMOVE,       /* Which of type */
-      -1,             /* Group */
-      { 0, 0 },       /* Position */
-      97,             /* Probability */
-      1,              /* Count of object */
-      0,              /* Flags */
-      105,            /* Worth */
-      11,             /* Armor class */
-      '\0',           /* Launcher */
-      "",             /* Damage */
-      "",             /* Hurl damage */
-      0,              /* Hit bonus */
-      0               /* Damage bonus */
-    },
-    { "aggravate monsters", /* Name */
-      "",                   /* Read text */
-      SCROLL,               /* Type */
-      S_AGGR,               /* Which of type */
-      -1,                   /* Group */
-      { 0, 0 },             /* Position */
-      98,                   /* Probability */
-      1,                    /* Count of object */
-      0,                    /* Flags */
-      60,                   /* Worth */
-      11,                   /* Armor class */
-      '\0',                 /* Launcher */
-      "",                   /* Damage */
-      "",                   /* Hurl damage */
-      0,                    /* Hit bonus */
-      0                     /* Damage bonus */
-    },
-    { "blank paper", /* Name */
-      "",            /* Read text */
-      SCROLL,        /* Type */
-      S_NOP,         /* Which of type */
-      -1,            /* Group */
-      { 0, 0 },      /* Position */
-      99,            /* Probability */
-      1,             /* Count of object */
-      0,             /* Flags */
-      50,            /* Worth */
-      11,            /* Armor class */
-      '\0',          /* Launcher */
-      "",            /* Damage */
-      "",            /* Hurl damage */
-      0,             /* Hit bonus */
-      0              /* Damage bonus */
-    },
-    { "genocide", /* Name */
-      "",         /* Read text */
-      SCROLL,     /* Type */
-      S_GENOCIDE, /* Which of type */
-      -1,         /* Group */
-      { 0, 0 },   /* Position */
-      100,        /* Probability */
-      1,          /* Count of object */
-      0,          /* Flags */
-      200,        /* Worth */
-      11,         /* Armor class */
-      '\0',       /* Launcher */
-      "",         /* Damage */
-      "",         /* Hurl damage */
-      0,          /* Hit bonus */
-      0           /* Damage bonus */
-    }
+    {"monster confusion", "", SCROLL, S_CONFUSE, -1, {0, 0}, 8, 1, 0, 170, 11, '\0', "", "", 0, 0},
+    {"magic mapping", "", SCROLL, S_MAP, -1, {0, 0}, 13, 1, 0, 180, 11, '\0', "", "", 0, 0},
+    {"light", "", SCROLL, S_LIGHT, -1, {0, 0}, 23, 1, 0, 100, 11, '\0', "", "", 0, 0},
+    {"hold monster", "", SCROLL, S_HOLD, -1, {0, 0}, 25, 1, 0, 200, 11, '\0', "", "", 0, 0},
+    {"sleep", "", SCROLL, S_SLEEP, -1, {0, 0}, 30, 1, 0, 50, 11, '\0', "", "", 0, 0},
+    {"enchant armor", "", SCROLL, S_ARMOR, -1, {0, 0}, 38, 1, 0, 130, 11, '\0', "", "", 0, 0},
+    {"identify", "", SCROLL, S_IDENT, -1, {0, 0}, 59, 1, 0, 100, 11, '\0', "", "", 0, 0},
+    {"scare monster", "", SCROLL, S_SCARE, -1, {0, 0}, 63, 1, 0, 180, 11, '\0', "", "", 0, 0},
+    {"gold detection", "", SCROLL, S_GFIND, -1, {0, 0}, 67, 1, 0, 110, 11, '\0', "", "", 0, 0},
+    {"teleportation", "", SCROLL, S_TELEP, -1, {0, 0}, 74, 1, 0, 175, 11, '\0', "", "", 0, 0},
+    {"enchant weapon", "", SCROLL, S_ENCH, -1, {0, 0}, 84, 1, 0, 150, 11, '\0', "", "", 0, 0},
+    {"create monster", "", SCROLL, S_CREATE, -1, {0, 0}, 89, 1, 0, 75, 11, '\0', "", "", 0, 0},
+    {"remove curse", "", SCROLL, S_REMOVE, -1, {0, 0}, 97, 1, 0, 105, 11, '\0', "", "", 0, 0},
+    {"aggravate monsters", "", SCROLL, S_AGGR, -1, {0, 0}, 98, 1, 0, 60, 11, '\0', "", "", 0, 0},
+    {"blank paper", "", SCROLL, S_NOP, -1, {0, 0}, 99, 1, 0, 50, 11, '\0', "", "", 0, 0},
+    {"genocide", "", SCROLL, S_GENOCIDE, -1, {0, 0}, 100, 1, 0, 200, 11, '\0', "", "", 0, 0}
 };
 
 struct object p_magic[MAXPOTIONS] = {
-    { "confusion", /* Name */
-      "",          /* Read text */
-      POTION,      /* Type */
-      P_CONFUSE,   /* Which of type */
-      -1,          /* Group */
-      { 0, 0 },    /* Position */
-      8,           /* Probability */
-      1,           /* Count of object */
-      0,           /* Flags */
-      50,          /* Worth */
-      11,          /* Armor class */
-      '\0',        /* Launcher */
-      "",          /* Damage */
-      "",          /* Hurl damage */
-      0,           /* Hit bonus */
-      0            /* Damage bonus */
-    },
-    { "paralysis", /* Name */
-      "",          /* Read text */
-      POTION,      /* Type */
-      P_PARALYZE,  /* Which of type */
-      -1,          /* Group */
-      { 0, 0 },    /* Position */
-      18,          /* Probability */
-      1,           /* Count of object */
-      0,           /* Flags */
-      50,          /* Worth */
-      11,          /* Armor class */
-      '\0',        /* Launcher */
-      "",          /* Damage */
-      "",          /* Hurl damage */
-      0,           /* Hit bonus */
-      0            /* Damage bonus */
-    },
-    { "poison", /* Name */
-      "",       /* Read text */
-      POTION,   /* Type */
-      P_POISON, /* Which of type */
-      -1,       /* Group */
-      { 0, 0 }, /* Position */
-      26,       /* Probability */
-      1,        /* Count of object */
-      0,        /* Flags */
-      50,       /* Worth */
-      11,       /* Armor class */
-      '\0',     /* Launcher */
-      "",       /* Damage */
-      "",       /* Hurl damage */
-      0,        /* Hit bonus */
-      0         /* Damage bonus */
-    },
-    { "gain strength", /* Name */
-      "",              /* Read text */
-      POTION,          /* Type */
-      P_STRENGTH,      /* Which of type */
-      -1,              /* Group */
-      { 0, 0 },        /* Position */
-      41,              /* Probability */
-      1,               /* Count of object */
-      0,               /* Flags */
-      150,             /* Worth */
-      11,              /* Armor class */
-      '\0',            /* Launcher */
-      "",              /* Damage */
-      "",              /* Hurl damage */
-      0,               /* Hit bonus */
-      0                /* Damage bonus */
-    },
-    { "see invisible", /* Name */
-      "",              /* Read text */
-      POTION,          /* Type */
-      P_SEEINVIS,      /* Which of type */
-      -1,              /* Group */
-      { 0, 0 },        /* Position */
-      43,              /* Probability */
-      1,               /* Count of object */
-      0,               /* Flags */
-      170,             /* Worth */
-      11,              /* Armor class */
-      '\0',            /* Launcher */
-      "",              /* Damage */
-      "",              /* Hurl damage */
-      0,               /* Hit bonus */
-      0                /* Damage bonus */
-    },
-    { "healing", /* Name */
-      "",        /* Read text */
-      POTION,    /* Type */
-      P_HEALING, /* Which of type */
-      -1,        /* Group */
-      { 0, 0 },  /* Position */
-      58,        /* Probability */
-      1,         /* Count of object */
-      0,         /* Flags */
-      130,       /* Worth */
-      11,        /* Armor class */
-      '\0',      /* Launcher */
-      "",        /* Damage */
-      "",        /* Hurl damage */
-      0,         /* Hit bonus */
-      0          /* Damage bonus */
-    },
-    { "monster detection", /* Name */
-      "",                  /* Read text */
-      POTION,              /* Type */
-      P_MFIND,             /* Which of type */
-      -1,                  /* Group */
-      { 0, 0 },            /* Position */
-      64,                  /* Probability */
-      1,                   /* Count of object */
-      0,                   /* Flags */
-      120,                 /* Worth */
-      11,                  /* Armor class */
-      '\0',                /* Launcher */
-      "",                  /* Damage */
-      "",                  /* Hurl damage */
-      0,                   /* Hit bonus */
-      0                    /* Damage bonus */
-    },
-    { "magic detection", /* Name */
-      "",                /* Read text */
-      POTION,            /* Type */
-      P_TFIND,           /* Which of type */
-      -1,                /* Group */
-      { 0, 0 },          /* Position */
-      70,                /* Probability */
-      1,                 /* Count of object */
-      0,                 /* Flags */
-      105,               /* Worth */
-      11,                /* Armor class */
-      '\0',              /* Launcher */
-      "",                /* Damage */
-      "",                /* Hurl damage */
-      0,                 /* Hit bonus */
-      0                  /* Damage bonus */
-    },
-    { "raise level", /* Name */
-      "",            /* Read text */
-      POTION,        /* Type */
-      P_RAISE,       /* Which of type */
-      -1,            /* Group */
-      { 0, 0 },      /* Position */
-      72,            /* Probability */
-      1,             /* Count of object */
-      0,             /* Flags */
-      220,           /* Worth */
-      11,            /* Armor class */
-      '\0',          /* Launcher */
-      "",            /* Damage */
-      "",            /* Hurl damage */
-      0,             /* Hit bonus */
-      0              /* Damage bonus */
-    },
-    { "extra healing", /* Name */
-      "",              /* Read text */
-      POTION,          /* Type */
-      P_XHEAL,         /* Which of type */
-      -1,              /* Group */
-      { 0, 0 },        /* Position */
-      77,              /* Probability */
-      1,               /* Count of object */
-      0,               /* Flags */
-      180,             /* Worth */
-      11,              /* Armor class */
-      '\0',            /* Launcher */
-      "",              /* Damage */
-      "",              /* Hurl damage */
-      0,               /* Hit bonus */
-      0                /* Damage bonus */
-    },
-    { "haste self", /* Name */
-      "",           /* Read text */
-      POTION,       /* Type */
-      P_HASTE,      /* Which of type */
-      -1,           /* Group */
-      { 0, 0 },     /* Position */
-      81,           /* Probability */
-      1,            /* Count of object */
-      0,            /* Flags */
-      200,          /* Worth */
-      11,           /* Armor class */
-      '\0',         /* Launcher */
-      "",           /* Damage */
-      "",           /* Hurl damage */
-      0,            /* Hit bonus */
-      0             /* Damage bonus */
-    },
-    { "restore strength", /* Name */
-      "",                 /* Read text */
-      POTION,             /* Type */
-      P_RESTORE,          /* Which of type */
-      -1,                 /* Group */
-      { 0, 0 },           /* Position */
-      95,                 /* Probability */
-      1,                  /* Count of object */
-      0,                  /* Flags */
-      120,                /* Worth */
-      11,                 /* Armor class */
-      '\0',               /* Launcher */
-      "",                 /* Damage */
-      "",                 /* Hurl damage */
-      0,                  /* Hit bonus */
-      0                   /* Damage bonus */
-    },
-    { "blindness", /* Name */
-      "",          /* Read text */
-      POTION,      /* Type */
-      P_BLIND,     /* Which of type */
-      -1,          /* Group */
-      { 0, 0 },    /* Position */
-      99,          /* Probability */
-      1,           /* Count of object */
-      0,           /* Flags */
-      50,          /* Worth */
-      11,          /* Armor class */
-      '\0',        /* Launcher */
-      "",          /* Damage */
-      "",          /* Hurl damage */
-      0,           /* Hit bonus */
-      0            /* Damage bonus */
-    },
-    { "thirst quenching", /* Name */
-      "",                 /* Read text */
-      POTION,             /* Type */
-      P_NOP,              /* Which of type */
-      -1,                 /* Group */
-      { 0, 0 },           /* Position */
-      100,                /* Probability */
-      1,                  /* Count of object */
-      0,                  /* Flags */
-      50,                 /* Worth */
-      11,                 /* Armor class */
-      '\0',               /* Launcher */
-      "",                 /* Damage */
-      "",                 /* Hurl damage */
-      0,                  /* Hit bonus */
-      0                   /* Damage bonus */
-    }
+    {"confusion", "", POTION, P_CONFUSE, -1, {0, 0}, 8, 1, 0, 50, 11, '\0', "", "", 0, 0},
+    {"paralysis", "", POTION, P_PARALYZE, -1, {0, 0}, 18, 1, 0, 50, 11, '\0', "", "", 0, 0},
+    {"poison", "", POTION, P_POISON, -1, {0, 0}, 26, 1, 0, 50, 11, '\0', "", "", 0, 0},
+    {"gain strength", "", POTION, P_STRENGTH, -1, {0, 0}, 41, 1, 0, 150, 11, '\0', "", "", 0, 0},
+    {"see invisible", "", POTION, P_SEEINVIS, -1, {0, 0}, 43, 1, 0, 170, 11, '\0', "", "", 0, 0},
+    {"healing", "", POTION, P_HEALING, -1, {0, 0}, 58, 1, 0, 130, 11, '\0', "", "", 0, 0},
+    {"monster detection", "", POTION, P_MFIND, -1, {0, 0}, 64, 1, 0, 120, 11, '\0', "", "", 0, 0},
+    {"magic detection", "", POTION, P_TFIND, -1, {0, 0}, 70, 1, 0, 105, 11, '\0', "", "", 0, 0},
+    {"raise level", "", POTION, P_RAISE, -1, {0, 0}, 72, 1, 0, 220, 11, '\0', "", "", 0, 0},
+    {"extra healing", "", POTION, P_XHEAL, -1, {0, 0}, 77, 1, 0, 180, 11, '\0', "", "", 0, 0},
+    {"haste self", "", POTION, P_HASTE, -1, {0, 0}, 81, 1, 0, 200, 11, '\0', "", "", 0, 0},
+    {"restore strength", "", POTION, P_RESTORE, -1, {0, 0}, 95, 1, 0, 120, 11, '\0', "", "", 0, 0},
+    {"blindness", "", POTION, P_BLIND, -1, {0, 0}, 99, 1, 0, 50, 11, '\0', "", "", 0, 0},
+    {"thirst quenching", "", POTION, P_NOP, -1, {0, 0}, 100, 1, 0, 50, 11, '\0', "", "", 0, 0}
 };
 
 struct object r_magic[MAXRINGS] = {
-    { "protection", /* Name */
-      "",           /* Read text */
-      RING,         /* Type */
-      R_PROTECT,    /* Which of type */
-      -1,           /* Group */
-      { 0, 0 },     /* Position */
-      9,            /* Probability */
-      1,            /* Count of object */
-      0,            /* Flags */
-      200,          /* Worth */
-      11,           /* Armor class */
-      '\0',         /* Launcher */
-      "",           /* Damage */
-      "",           /* Hurl damage */
-      0,            /* Hit bonus */
-      0             /* Damage bonus */
-    },
-    { "add strength", /* Name */
-      "",             /* Read text */
-      RING,           /* Type */
-      R_ADDSTR,       /* Which of type */
-      -1,             /* Group */
-      { 0, 0 },       /* Position */
-      18,             /* Probability */
-      1,              /* Count of object */
-      0,              /* Flags */
-      200,            /* Worth */
-      11,             /* Armor class */
-      '\0',           /* Launcher */
-      "",             /* Damage */
-      "",             /* Hurl damage */
-      0,              /* Hit bonus */
-      0               /* Damage bonus */
-    },
-    { "sustain strength", /* Name */
-      "",                 /* Read text */
-      RING,               /* Type */
-      R_SUSTSTR,          /* Which of type */
-      -1,                 /* Group */
-      { 0, 0 },           /* Position */
-      23,                 /* Probability */
-      1,                  /* Count of object */
-      0,                  /* Flags */
-      180,                /* Worth */
-      11,                 /* Armor class */
-      '\0',               /* Launcher */
-      "",                 /* Damage */
-      "",                 /* Hurl damage */
-      0,                  /* Hit bonus */
-      0                   /* Damage bonus */
-    },
-    { "searching", /* Name */
-      "",          /* Read text */
-      RING,        /* Type */
-      R_SEARCH,    /* Which of type */
-      -1,          /* Group */
-      { 0, 0 },    /* Position */
-      33,          /* Probability */
-      1,           /* Count of object */
-      0,           /* Flags */
-      200,         /* Worth */
-      11,          /* Armor class */
-      '\0',        /* Launcher */
-      "",          /* Damage */
-      "",          /* Hurl damage */
-      0,           /* Hit bonus */
-      0            /* Damage bonus */
-    },
-    { "see invisible", /* Name */
-      "",              /* Read text */
-      RING,            /* Type */
-      R_SEEINVIS,      /* Which of type */
-      -1,              /* Group */
-      { 0, 0 },        /* Position */
-      43,              /* Probability */
-      1,               /* Count of object */
-      0,               /* Flags */
-      175,             /* Worth */
-      11,              /* Armor class */
-      '\0',            /* Launcher */
-      "",              /* Damage */
-      "",              /* Hurl damage */
-      0,               /* Hit bonus */
-      0                /* Damage bonus */
-    },
-    { "adornment", /* Name */
-      "",          /* Read text */
-      RING,        /* Type */
-      R_NOP,       /* Which of type */
-      -1,          /* Group */
-      { 0, 0 },    /* Position */
-      44,          /* Probability */
-      1,           /* Count of object */
-      0,           /* Flags */
-      100,         /* Worth */
-      11,          /* Armor class */
-      '\0',        /* Launcher */
-      "",          /* Damage */
-      "",          /* Hurl damage */
-      0,           /* Hit bonus */
-      0            /* Damage bonus */
-    },
-    { "aggravate monster", /* Name */
-      "",                  /* Read text */
-      RING,                /* Type */
-      R_AGGR,              /* Which of type */
-      -1,                  /* Group */
-      { 0, 0 },            /* Position */
-      55,                  /* Probability */
-      1,                   /* Count of object */
-      0,                   /* Flags */
-      100,                 /* Worth */
-      11,                  /* Armor class */
-      '\0',                /* Launcher */
-      "",                  /* Damage */
-      "",                  /* Hurl damage */
-      0,                   /* Hit bonus */
-      0                    /* Damage bonus */
-    },
-    { "dexterity", /* Name */
-      "",          /* Read text */
-      RING,        /* Type */
-      R_ADDHIT,    /* Which of type */
-      -1,          /* Group */
-      { 0, 0 },    /* Position */
-      63,          /* Probability */
-      1,           /* Count of object */
-      0,           /* Flags */
-      220,         /* Worth */
-      11,          /* Armor class */
-      '\0',        /* Launcher */
-      "",          /* Damage */
-      "",          /* Hurl damage */
-      0,           /* Hit bonus */
-      0            /* Damage bonus */
-    },
-    { "increase damage", /* Name */
-      "",                /* Read text */
-      RING,              /* Type */
-      R_ADDDAM,          /* Which of type */
-      -1,                /* Group */
-      { 0, 0 },          /* Position */
-      71,                /* Probability */
-      1,                 /* Count of object */
-      0,                 /* Flags */
-      220,               /* Worth */
-      11,                /* Armor class */
-      '\0',              /* Launcher */
-      "",                /* Damage */
-      "",                /* Hurl damage */
-      0,                 /* Hit bonus */
-      0                  /* Damage bonus */
-    },
-    { "regeneration", /* Name */
-      "",             /* Read text */
-      RING,           /* Type */
-      R_REGEN,        /* Which of type */
-      -1,             /* Group */
-      { 0, 0 },       /* Position */
-      75,             /* Probability */
-      1,              /* Count of object */
-      0,              /* Flags */
-      260,            /* Worth */
-      11,             /* Armor class */
-      '\0',           /* Launcher */
-      "",             /* Damage */
-      "",             /* Hurl damage */
-      0,              /* Hit bonus */
-      0               /* Damage bonus */
-    },
-    { "slow digestion", /* Name */
-      "",               /* Read text */
-      RING,             /* Type */
-      R_DIGEST,         /* Which of type */
-      -1,               /* Group */
-      { 0, 0 },         /* Position */
-      84,               /* Probability */
-      1,                /* Count of object */
-      0,                /* Flags */
-      240,              /* Worth */
-      11,               /* Armor class */
-      '\0',             /* Launcher */
-      "",               /* Damage */
-      "",               /* Hurl damage */
-      0,                /* Hit bonus */
-      0                 /* Damage bonus */
-    },
-    { "telportation", /* Name */
-      "",             /* Read text */
-      RING,           /* Type */
-      R_TELEPORT,     /* Which of type */
-      -1,             /* Group */
-      { 0, 0 },       /* Position */
-      93,             /* Probability */
-      1,              /* Count of object */
-      0,              /* Flags */
-      100,            /* Worth */
-      11,             /* Armor class */
-      '\0',           /* Launcher */
-      "",             /* Damage */
-      "",             /* Hurl damage */
-      0,              /* Hit bonus */
-      0               /* Damage bonus */
-    },
-    { "stealth", /* Name */
-      "",        /* Read text */
-      RING,      /* Type */
-      R_STEALTH, /* Which of type */
-      -1,        /* Group */
-      { 0, 0 },  /* Position */
-      100,       /* Probability */
-      1,         /* Count of object */
-      0,         /* Flags */
-      100,       /* Worth */
-      11,        /* Armor class */
-      '\0',      /* Launcher */
-      "",        /* Damage */
-      "",        /* Hurl damage */
-      0,         /* Hit bonus */
-      0          /* Damage bonus */
-    }
+    {"protection", "", RING, R_PROTECT, -1, {0, 0}, 9, 1, 0, 200, 11, '\0', "", "", 0, 0},
+    {"add strength", "", RING, R_ADDSTR, -1, {0, 0}, 18, 1, 0, 200, 11, '\0', "", "", 0, 0},
+    {"sustain strength", "", RING, R_SUSTSTR, -1, {0, 0}, 23, 1, 0, 180, 11, '\0', "", "", 0, 0},
+    {"searching", "", RING, R_SEARCH, -1, {0, 0}, 33, 1, 0, 200, 11, '\0', "", "", 0, 0},
+    {"see invisible", "", RING, R_SEEINVIS, -1, {0, 0}, 43, 1, 0, 175, 11, '\0', "", "", 0, 0},
+    {"adornment", "", RING, R_NOP, -1, {0, 0}, 44, 1, 0, 100, 11, '\0', "", "", 0, 0},
+    {"aggravate monster", "", RING, R_AGGR, -1, {0, 0}, 55, 1, 0, 100, 11, '\0', "", "", 0, 0},
+    {"dexterity", "", RING, R_ADDHIT, -1, {0, 0}, 63, 1, 0, 220, 11, '\0', "", "", 0, 0},
+    {"increase damage", "", RING, R_ADDDAM, -1, {0, 0}, 71, 1, 0, 220, 11, '\0', "", "", 0, 0},
+    {"regeneration", "", RING, R_REGEN, -1, {0, 0}, 75, 1, 0, 260, 11, '\0', "", "", 0, 0},
+    {"slow digestion", "", RING, R_DIGEST, -1, {0, 0}, 84, 1, 0, 240, 11, '\0', "", "", 0, 0},
+    {"telportation", "", RING, R_TELEPORT, -1, {0, 0}, 93, 1, 0, 100, 11, '\0', "", "", 0, 0},
+    {"stealth", "", RING, R_STEALTH, -1, {0, 0}, 100, 1, 0, 100, 11, '\0', "", "", 0, 0}
 };
 
 struct object ws_magic[MAXSTICKS] = {
-    { "light",  /* Name */
-      "",       /* Read text */
-      STICK,    /* Type */
-      WS_LIGHT, /* Which of type */
-      -1,       /* Group */
-      { 0, 0 }, /* Position */
-      12,       /* Probability */
-      1,        /* Count of object */
-      0,        /* Flags */
-      120,      /* Worth */
-      11,       /* Armor class */
-      '\0',     /* Launcher */
-      "",       /* Damage */
-      "",       /* Hurl damage */
-      0,        /* Hit bonus */
-      0         /* Damage bonus */
-    },
-    { "striking", /* Name */
-      "",         /* Read text */
-      STICK,      /* Type */
-      WS_HIT,     /* Which of type */
-      -1,         /* Group */
-      { 0, 0 },   /* Position */
-      21,         /* Probability */
-      1,          /* Count of object */
-      0,          /* Flags */
-      115,        /* Worth */
-      11,         /* Armor class */
-      '\0',       /* Launcher */
-      "",         /* Damage */
-      "",         /* Hurl damage */
-      0,          /* Hit bonus */
-      0           /* Damage bonus */
-    },
-    { "lightning", /* Name */
-      "",          /* Read text */
-      STICK,       /* Type */
-      WS_ELECT,    /* Which of type */
-      -1,          /* Group */
-      { 0, 0 },    /* Position */
-      24,          /* Probability */
-      1,           /* Count of object */
-      0,           /* Flags */
-      200,         /* Worth */
-      11,          /* Armor class */
-      '\0',        /* Launcher */
-      "",          /* Damage */
-      "",          /* Hurl damage */
-      0,           /* Hit bonus */
-      0            /* Damage bonus */
-    },
-    { "fire",   /* Name */
-      "",       /* Read text */
-      STICK,    /* Type */
-      WS_FIRE,  /* Which of type */
-      -1,       /* Group */
-      { 0, 0 }, /* Position */
-      27,       /* Probability */
-      1,        /* Count of object */
-      0,        /* Flags */
-      200,      /* Worth */
-      11,       /* Armor class */
-      '\0',     /* Launcher */
-      "",       /* Damage */
-      "",       /* Hurl damage */
-      0,        /* Hit bonus */
-      0         /* Damage bonus */
-    },
-    { "cold",   /* Name */ 
-      "",       /* Read text */
-      STICK,    /* Type */
-      WS_COLD,  /* Which of type */
-      -1,       /* Group */
-      { 0, 0 }, /* Position */
-      30,       /* Probability */
-      1,        /* Count of object */
-      0,        /* Flags */
-      200,      /* Worth */
-      11,       /* Armor class */
-      '\0',     /* Launcher */
-      "",       /* Damage */
-      "",       /* Hurl damage */
-      0,        /* Hit bonus */
-      0         /* Damage bonus */
-    },
-    { "polymorph",  /* Name */
-      "",           /* Read text */
-      STICK,        /* Type */
-      WS_POLYMORPH, /* Which of type */
-      -1,           /* Group */
-      { 0, 0 },     /* Position */
-      45,           /* Probability */
-      1,            /* Count of object */
-      0,            /* Flags */
-      210,          /* Worth */
-      11,           /* Armor class */
-      '\0',         /* Launcher */
-      "",           /* Damage */
-      "",           /* Hurl damage */
-      0,            /* Hit bonus */
-      0             /* Damage bonus */
-    },
-    { "magic missile", /* Name */
-      "",              /* Read text */
-      STICK,           /* Type */
-      WS_MISSILE,      /* Which of type */
-      -1,              /* Group */
-      { 0, 0 },        /* Position */
-      55,              /* Probability */
-      1,               /* Count of object */
-      0,               /* Flags */
-      170,             /* Worth */
-      11,              /* Armor class */
-      '\0',            /* Launcher */
-      "",              /* Damage */
-      "",              /* Hurl damage */
-      0,               /* Hit bonus */
-      0                /* Damage bonus */
-    },
-    { "haste monster", /* Name */
-      "",              /* Read text */
-      STICK,           /* Type */
-      WS_HASTE_M,      /* Which of type */
-      -1,              /* Group */
-      { 0, 0 },        /* Position */
-      64,              /* Probability */
-      1,               /* Count of object */
-      0,               /* Flags */
-      50,              /* Worth */
-      11,              /* Armor class */
-      '\0',            /* Launcher */
-      "",              /* Damage */
-      "",              /* Hurl damage */
-      0,               /* Hit bonus */
-      0                /* Damage bonus */
-    },
-    { "slow monster", /* Name */
-      "",             /* Read text */
-      STICK,          /* Type */
-      WS_SLOW_M,      /* Which of type */
-      -1,             /* Group */
-      { 0, 0 },       /* Position */
-      75,             /* Probability */
-      1,              /* Count of object */
-      0,              /* Flags */
-      220,            /* Worth */
-      11,             /* Armor class */
-      '\0',           /* Launcher */
-      "",             /* Damage */
-      "",             /* Hurl damage */
-      0,              /* Hit bonus */
-      0               /* Damage bonus */
-    },
-    { "drain life", /* Name */
-      "",           /* Read text */
-      STICK,        /* Type */
-      WS_DRAIN,     /* Which of type */
-      -1,           /* Group */
-      { 0 , 0 },    /* Position */
-      84,           /* Probability */
-      1,            /* Count of object */
-      0,            /* Flags */
-      210,          /* Worth */
-      11,           /* Armor class */
-      '\0',         /* Launcher */
-      "",           /* Damage */
-      "",           /* Hurl damage */
-      0,            /* Hit bonus */
-      0             /* Damage bonus */
-    },
-    { "nothing", /* Name */
-      "",        /* Read text */
-      STICK,     /* Type */
-      WS_NOP,    /* Which of type */
-      -1,        /* Group */
-      { 0, 0 },  /* Position */
-      85,        /* Probability */
-      1,         /* Count of object */
-      0,         /* Flags */
-      70,        /* Worth */
-      11,        /* Armor class */
-      '\0',      /* Launcher */
-      "",        /* Damage */
-      "",        /* Hurl damage */
-      0,         /* Hit bonus */
-      0          /* Damage bonus */
-    },
-    { "teleport away", /* Name */
-      "",              /* Read text */
-      STICK,           /* Type */
-      WS_TELAWAY,      /* Which of type */
-      -1,              /* Group */
-      { 0, 0 },        /* Position */
-      90,              /* Probability */
-      1,               /* Count of object */
-      0,               /* Flags */
-      140,             /* Worth */
-      11,              /* Armor class */
-      '\0',            /* Launcher */
-      "",              /* Damage */
-      "",              /* Hurl daamage */
-      0,               /* Hit bonus */
-      0                /* Damage bonus */
-    },
-    { "teleport to", /* Name */
-      "",            /* Read text */
-      STICK,         /* Type */
-      WS_TELTO,      /* Which of type */
-      -1,            /* Group */
-      { 0, 0 },      /* Position */
-      95,            /* Probability */
-      1,             /* Count of object */
-      0,             /* Flags */
-      60,            /* Worth */
-      11,            /* Armor class */
-      '\0',          /* Launcher */
-      "",            /* Damage */
-      "",            /* Hurl damage */
-      0,             /* Hit bonus */
-      0              /* Damage bonus */
-    },
-    { "cancellation", /* Name */
-      "",             /* Read text */
-      STICK,          /* Type */
-      WS_CANCEL,      /* Which of type */
-      -1,             /* Group */
-      { 0, 0 },       /* Position */
-      100,            /* Probability */
-      1,              /* Count of object */
-      0,              /* Flags */
-      130,            /* Worth */
-      11,             /* Armor class */
-      '\0',           /* Launcher */
-      "",             /* Damage */
-      "",             /* Hurl damage */
-      0,              /* Hit bonus */
-      0               /* Damage bonus */
-    }
+    {"light", "", STICK, WS_LIGHT, -1, {0, 0}, 12, 1, 0, 120, 11, '\0', "", "", 0, 0},
+    {"striking", "", STICK, WS_HIT, -1, {0, 0}, 21, 1, 0, 115, 11, '\0', "", "", 0, 0},
+    {"lightning", "", STICK, WS_ELECT, -1, {0, 0}, 24, 1, 0, 200, 11, '\0', "", "", 0, 0},
+    {"fire", "", STICK, WS_FIRE, -1, {0, 0}, 27, 1, 0, 200, 11, '\0', "", "", 0, 0},
+    {"cold", "", STICK, WS_COLD, -1, {0, 0}, 30, 1, 0, 200, 11, '\0', "", "", 0, 0},
+    {"polymorph", "", STICK, WS_POLYMORPH, -1, {0, 0}, 45, 1, 0, 210, 11, '\0', "", "", 0, 0},
+    {"magic missile", "", STICK, WS_MISSILE, -1, {0, 0}, 55, 1, 0, 170, 11, '\0', "", "", 0, 0},
+    {"haste monster", "", STICK, WS_HASTE_M, -1, {0, 0}, 64, 1, 0, 50, 11, '\0', "", "", 0, 0},
+    {"slow monster", "", STICK, WS_SLOW_M, -1, {0, 0}, 75, 1, 0, 220, 11, '\0', "", "", 0, 0},
+    {"drain life", "", STICK, WS_DRAIN, -1, {0 , 0}, 84, 1, 0, 210, 11, '\0', "", "", 0, 0},
+    {"nothing", "", STICK, WS_NOP, -1, {0, 0}, 85, 1, 0, 70, 11, '\0', "", "", 0, 0},
+    {"teleport away", "", STICK, WS_TELAWAY, -1, {0, 0}, 90, 1, 0, 140, 11, '\0', "", "", 0, 0},
+    {"teleport to", "", STICK, WS_TELTO, -1, {0, 0}, 95, 1, 0, 60, 11, '\0', "", "", 0, 0},
+    {"cancellation", "", STICK, WS_CANCEL, -1, {0, 0}, 100, 1, 0, 130, 11, '\0', "", "", 0, 0}
 };
 
 struct object armors[MAXARMORS] = {
-    { "leather armor", /* Name */
-      "",              /* Read text */
-      ARMOR,           /* Type */
-      LEATHER,         /* Which of type */
-      -1,              /* Group */
-      { 0, 0 },        /* Position */
-      20,              /* Probability */
-      1,               /* Count of object */
-      0,               /* Flags */
-      0,               /* Worth */
-      8,               /* Armor class */
-      '\0',            /* Lancher */
-      "",              /* Damage */
-      "",              /* Hurl damage */
-      0,               /* Hit bonus */
-      0                /* Damage bonus */
-    },
-    { "ring mail", /* Name */
-      "",          /* Read text */
-      ARMOR,       /* Type */
-      RING_MAIL,   /* Which of type */
-      -1,          /* Group */
-      { 0, 0 },    /* Position */
-      35,          /* Probability */
-      1,           /* Count of object */
-      0,           /* Flags */
-      0,           /* Worth */
-      7,           /* Armor class */
-      '\0',        /* Launcher */
-      "",          /* Damage */
-      "",          /* Hurl damage */
-      0,           /* Hit bonus */
-      0            /* Damage bonus */
-    },
-    { "studded leather armor", /* Name */
-      "",                      /* Read text */
-      ARMOR,                   /* Type */
-      STUDDED_LEATHER,         /* Which of type */
-      -1,                      /* Group */
-      { 0 , 0 },               /* Position */
-      50,                      /* Probability */
-      1,                       /* Count of object */
-      0,                       /* Flags */
-      0,                       /* Worth */
-      7,                       /* Armor class */
-      '\0',                    /* Launcher */
-      "",                      /* Damage */
-      "",                      /* Hurl Damage */
-      0,                       /* Hit bonus */
-      0                        /* Damage bonus */
-    },
-    { "scale mail", /* Name */
-      "",           /* Read text */
-      ARMOR,        /* Type */
-      SCALE_MAIL,   /* Which of type */
-      -1,           /* Group */
-      { 0, 0 },     /* Position */
-      63,           /* Probability */
-      1,            /* Count of object */
-      0,            /* Flags */
-      0,            /* Worth */
-      6,            /* Armor class */
-      '\0',         /* Launcher */
-      "",           /* Damage */
-      "",           /* Hurl damage */
-      0,            /* Hit bonus */
-      0             /* Damage bonus */
-    },
-    { "chain mail", /* Name */
-      "",           /* Read text */
-      ARMOR,        /* Type */
-      CHAIN_MAIL,   /* Which of type */
-      -1,           /* Group */
-      { 0, 0 },     /* Position */
-      75,           /* Probability */
-      1,            /* Count of object */
-      0,            /* Flags */
-      0,            /* Worth */
-      5,            /* Armor class */
-      '\0',         /* Launcher */
-      "",           /* Damage */
-      "",           /* Hurl damage */
-      0,            /* Hit bonus */
-      0             /* Damage bonus */
-    },
-    { "splint mail", /* Name */
-      "",            /* Read text */
-      ARMOR,         /* Type */
-      SPLINT_MAIL,   /* Which of type */
-      -1,            /* Group */
-      { 0, 0 },      /* Position */
-      85,            /* Probability */
-      1,             /* Count of object */
-      0,             /* Flags */
-      0,             /* Worth */
-      4,             /* Armor class */
-      '\0',          /* Launcher */
-      "",            /* Damage */
-      "",            /* Hurl damage */
-      0,             /* Hit bonus */
-      0              /* Damage bonus */
-    },
-    { "banded mail", /* Name */
-      "",            /* Read text */
-      ARMOR,         /* Type */
-      BANDED_MAIL,   /* Which of type */
-      -1,            /* Group */
-      { 0, 0 },      /* Position */
-      95,            /* Probability */
-      1,             /* Count of object */
-      0,             /* Flags */
-      0,             /* Worth */
-      4,             /* Armor class */
-      '\0',          /* Launcher */
-      "",            /* Damage */
-      "",            /* Hurl damage */
-      0,             /* Hit bonus */
-      0              /* Damage bonus */
-    },
-    { "plate mail", /* Name */
-      "",           /* Read text */
-      ARMOR,        /* Type */
-      PLATE_MAIL,   /* Which of type */
-      -1,           /* Group */
-      { 0, 0 },     /* Position */
-      100,          /* Probability */
-      1,            /* Count of object */
-      0,            /* Flags */
-      0,            /* Worth */
-      3,            /* Armor class */
-      '\0',         /* Launcher */
-      "",           /* Damage */
-      "",           /* Hurl Damage */
-      0,            /* Hit bonus */
-      0             /* Damage bonus */
-    }
+    {"leather armor", "", ARMOR, LEATHER, -1, {0, 0}, 20, 1, 0, 0, 8, '\0', "", "", 0, 0},
+    {"ring mail", "", ARMOR, RING_MAIL, -1, {0, 0}, 35, 1, 0, 0, 7, '\0', "", "", 0, 0},
+    {"studded leather armor", "", ARMOR, STUDDED_LEATHER, -1, {0 , 0}, 50, 1, 0, 0, 7, '\0', "", "", 0, 0},
+    {"scale mail", "", ARMOR, SCALE_MAIL, -1, {0, 0}, 63, 1, 0, 0, 6, '\0', "", "", 0, 0},
+    {"chain mail", "", ARMOR, CHAIN_MAIL, -1, {0, 0}, 75, 1, 0, 0, 5, '\0', "", "", 0, 0},
+    {"splint mail", "", ARMOR, SPLINT_MAIL, -1, {0, 0}, 85, 1, 0, 0, 4, '\0', "", "", 0, 0},
+    {"banded mail", "", ARMOR, BANDED_MAIL, -1, {0, 0}, 95, 1, 0, 0, 4, '\0', "", "", 0, 0},
+    {"plate mail", "", ARMOR, PLATE_MAIL, -1, {0, 0}, 100, 1, 0, 0, 3, '\0', "", "", 0, 0}
 };
 
 // Contains definitions and functions for dealing with things like
@@ -1909,10 +421,49 @@ static char *metal[] = {
     "Zinc"
 };
 
+struct thing player;
+struct stats max_stats;
+char take;
+char runch;
+int dnum;
+int ntraps;
+int seed;
+int max_level = 0;
+
+struct object *cur_armor = NULL;
+struct room *oldrp = NULL;
+struct object *cur_ring[2];
+char prbuf[80];
+char whoami[80];
+char fruit[80];
+char huh[80];
+char file_name[80];
+char home[80];
+
+struct object traps[MAXTRAPS];
+struct room rooms[MAXROOMS];
+
+char *s_names[MAXSCROLLS];
+char *p_colors[MAXPOTIONS];
+char *r_stones[MAXRINGS];
+char *ws_made[MAXSTICKS];
+char *s_guess[MAXSCROLLS];
+char *p_guess[MAXPOTIONS];
+char *r_guess[MAXRINGS];
+char *ws_guess[MAXSTICKS];
+char *ws_type[MAXSTICKS];
+bool s_know[MAXSCROLLS];
+bool p_know[MAXPOTIONS];
+bool r_know[MAXRINGS];
+bool ws_know[MAXSTICKS];
+
+struct coord oldpos;
+struct coord delta;
+
 // init_player:
 //     Roll up the rogue
 int init_player()
-{    
+{
     player.t_stats.s_lvl = 1;
     player.t_stats.s_exp = 0L;
     player.t_stats.s_hpt = 12;
@@ -1926,7 +477,7 @@ int init_player()
         player.t_stats.st_str = 16;
         player.t_stats.st_add = 0;
     }
-    
+
     player.t_stats.s_dmg = "1d4";
     player.t_stats.s_arm = 10;
     max_stats = player.t_stats;
@@ -1938,7 +489,7 @@ int init_player()
     print_thing(&player, output);
     fclose(output);
     /* TC_DEBUG: Finish */
-    
+
     return 0;
 }
 
@@ -1984,7 +535,7 @@ int init_colors()
                 }
             }
         }
-        
+
         p_colors[i] = str;
         p_know[i] = FALSE;
         p_guess[i] = NULL;
@@ -2008,13 +559,13 @@ int init_names()
     for(i = 0; i < MAXSCROLLS; ++i) {
         cp = prbuf;
         nwords = rnd(4) + 2;
-        
+
         while(nwords) {
             nsyl = rnd(3) + 1;
-            
+
             while(nsyl) {
                 sp = sylls[rnd((sizeof sylls) / (sizeof (char *)))];
-                
+
                 while(*sp) {
                     *cp = *sp;
                     ++cp;
@@ -2023,7 +574,7 @@ int init_names()
 
                 --nsyl;
             }
-            
+
             *cp = ' ';
             ++cp;
             --nwords;
@@ -2031,13 +582,13 @@ int init_names()
 
         --cp;
         *cp = '\0';
-        
+
         s_names[i] = (char *)new(strlen(prbuf) + 1);
         s_know[i] = FALSE;
         s_guess[i] = NULL;
         strcpy(s_names[i], prbuf);
     }
-    
+
     badcheck("scrolls", s_magic, MAXSCROLLS);
 
     return 0;
@@ -2053,7 +604,7 @@ int init_stones()
 
     int used_stones = 0;
     int been_used = 0;
-    
+
     for(i = 0; i < MAXRINGS; ++i) {
         been_used = 0;
         str = stones[rnd(sizeof(stones) / sizeof(char *))];
@@ -2080,7 +631,7 @@ int init_stones()
         r_know[i] = FALSE;
         r_guess[i] = NULL;
     }
-    
+
     badcheck("rings", r_magic, MAXRINGS);
 
     return 0;
@@ -2096,10 +647,10 @@ int init_materials()
 
     int used_materials = 0;
     int been_used = 0;
-    
+
     for(i = 0; i < MAXSTICKS; ++i) {
         been_used = 0;
-        
+
         if(rnd(100) > 50) {
             str = metal[rnd(sizeof(metal) / sizeof(char *))];
             ws_type[i] = "wand";
@@ -2108,24 +659,24 @@ int init_materials()
             str = wood[rnd(sizeof(wood) / sizeof(char *))];
             ws_type[i] = "staff";
         }
-        
+
         for(j = 0; j < used_materials; ++j) {
             if(strncmp(str, ws_made[j], strlen(ws_made[j])) == 0) {
                 been_used = 1;
                 break;
             }
         }
-        
+
         while(been_used) {
             been_used = 0;
 
-            if(strncmp("wand", ws_type[i], strlen(ws_type[i])) == 0) {               
+            if(strncmp("wand", ws_type[i], strlen(ws_type[i])) == 0) {
                 str = metal[rnd(sizeof(metal) / sizeof(char *))];
             }
             else {
                 str = wood[rnd(sizeof(wood) / sizeof(char *))];
             }
-            
+
             for(j = 0; j < used_materials; ++j) {
                 if(strncmp(str, ws_made[j], strlen(ws_made[j])) == 0) {
                     been_used = 1;
@@ -2133,12 +684,12 @@ int init_materials()
                 }
             }
         }
-        
+
         ws_made[i] = str;
         ws_know[i] = FALSE;
         ws_guess[i] = NULL;
     }
-    
+
     badcheck("sticks", ws_magic, MAXSTICKS);
 
     return 0;
@@ -2149,20 +700,20 @@ int init_materials()
 int badcheck(char *name, struct object *magic, int bound)
 {
     struct object *end;
-    
+
     if(magic[bound - 1].o_prob == 100) {
         return 0;
     }
-    
+
     printf("\nBad percentages for %s:\n", name);
-    
+
     for(end = &magic[bound]; magic < end; ++magic) {
         printf("%3d%% %s\n", magic->o_prob, magic->o_name);
     }
-    
+
     printf("[hit RETURN to continue]");
     fflush(stdout);
-    
+
     while(getchar() != '\n') {
         continue;
     }

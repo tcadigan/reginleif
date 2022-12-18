@@ -10,9 +10,6 @@
 // 22 Dec 81  DPK  Added set[ug]id code to main
 //  1 Jan 82  DPK  Added code to print out rogue news on startup.
 //                 If RNOTES is defined, the file is opened and printed
-
-#define _XOPEN_SOURCE 700
-
 #include "main.h"
 
 #include "chase.h"
@@ -31,28 +28,20 @@
 #include "save.h"
 #include "weapons.h"
 
+#if defined(BSD)
+#include <crypt.h>
+#else
+#include <unistd.h>
+#endif
+
 #include <fcntl.h>
 #include <pwd.h>
 #include <signal.h>
 #include <termios.h>
-#include <unistd.h>
 
-#ifdef __APPLE__
-#undef LOADAV
-#endif
-
-#ifdef LOADAV
-#include <bsd/nlist.h>
-#endif
-
-#ifdef UCOUNT
-#include <utmpx.h>
-#endif
-
-#ifdef CHECKTIME
-// Times we've gone over in checkout()
-static int num_checks;
-#endif
+WINDOW *cw = NULL;
+WINDOW *hw = NULL;
+WINDOW *mw = NULL;
 
 int main(int argc, char **argv, char **envp)
 {
@@ -68,7 +57,7 @@ int main(int argc, char **argv, char **envp)
     output = fopen("debug.txt", "w");
     fclose(output);
     /* TC_DEBUG: Finish */
-    
+
     // Lower priority slightly
     if(getuid() != 0) {
         int res = nice(1);
@@ -95,34 +84,11 @@ int main(int argc, char **argv, char **envp)
 
     // Check to see if he is a wizard
     if((argc >= 2) && (argv[1][0] == '\0')) {
-        FILE *input;
-        input = fopen("/dev/tty", "r");
-
-        printf("Wizard's password: ");
-
-        struct termios terminal;
-        tcgetattr(fileno(input), &terminal);
-        terminal.c_lflag &= ~ECHO;
-        tcsetattr(fileno(input), TCSANOW, &terminal);
-
-        char *line = NULL;
-        size_t read_length = 0;
-
-        ssize_t line_length = getline(&line, &read_length, input);
-
-        tcgetattr(fileno(input), &terminal);
-        terminal.c_lflag &= ECHO;
-        tcsetattr(fileno(input), TCSANOW, &terminal);
-
-        line[line_length - 1] = '\0';
-
-        if(strcmp(PASSWD, crypt(line, "mT")) == 0) {
+        if (strcmp(PASSWD, crypt(getpass("Wizard's password: "), "mT")) == 0) {
             wizard = TRUE;
             ++argv;
             --argc;
         }
-
-        free(line);
     }
 
     // Get home and options from environment
@@ -132,7 +98,7 @@ int main(int argc, char **argv, char **envp)
     }
     else {
         pw = getpwuid(getuid());
-        
+
         if(pw != NULL) {
             strcpy(home, pw->pw_dir);
         }
@@ -140,7 +106,7 @@ int main(int argc, char **argv, char **envp)
             home[0] = '\0';
         }
     }
-    
+
     strcat(home, "/");
 
     strcpy(file_name, home);
@@ -173,7 +139,7 @@ int main(int argc, char **argv, char **envp)
         exit(1);
     }
 #endif
-    
+
     if(argc == 2) {
         // Note: restore() will never return
         if(!restore(argv[1], envp)) {
@@ -196,10 +162,10 @@ int main(int argc, char **argv, char **envp)
     else {
         printf("Hello %s, just a moment while I dig the dungeon...\n", whoami);
     }
-    
+
     fflush(stdout);
     seed = dnum;
-    
+
     // Shake the dice
     srand(seed);
     // Roll up the rogue
@@ -227,7 +193,7 @@ int main(int argc, char **argv, char **envp)
 
     // Draw current level
     new_level();
-    
+
     // Start up daemons and fuses
     start_daemon(&doctor, 0, AFTER);
     fuse(&swander, 0, WANDERTIME, AFTER);
@@ -331,7 +297,7 @@ int roll(int number, int sides)
     while(number--) {
         dtotal += (rnd(sides) + 1);
     }
-    
+
     return dtotal;
 }
 
@@ -378,14 +344,7 @@ int setup()
 #ifdef SIGTSTP
     signal(SIGTSTP, tstp);
 #endif
-#ifdef CHECKTIME
-    if(!author()) {
-        signal(SIGALRM, checkout);
-        alarm(CHECKTIME * 60);
-        num_checks = 0;
-    }
-#endif
-    
+
     // cbreak mode
     crmode();
     // Echo off
@@ -413,7 +372,7 @@ int playit()
         // Command execution
         command();
     }
-    
+
     endit(0);
 
     return 0;
@@ -446,130 +405,10 @@ int author()
 }
 #endif
 
-#ifdef CHECKTIME
-// checkout:
-//     Something...
-void checkout(int parameter)
-{
-    static char *msgs[] = {
-        "The load is too high to be playing.  Please leave in %d minutes",
-        "Please save your game.  You have %d minutes",
-        "Last warning.  You have %d minutes to leave"
-    };
-    int checktime;
-
-    signal(SIGALRM, checkout);
-    if(too_much()) {
-        if (num_checks == 3) {
-            fatal("Sorry. You took to long. You are dead\n");
-        }
-        checktime = CHECKTIME / (num_checks + 1);
-        int args[] = { checktime };
-        chmsg(msgs[num_checks++], args);
-        alarm(checktime * 60);
-    }
-    else {
-        if(num_checks) {
-            chmsg("The load has dropped back down.  You have a reprieve.", NULL);
-            num_checks = 0;
-        }
-        alarm(CHECKTIME * 60);
-    }
-}
-
-// chmsg:
-//     checkout()'s version of msg(). If we are in the middle of a shell,
-//     do a printf instead of a msg() to avoid the refresh
-int chmsg(char *fmt, void *args)
-{
-    if(in_shell) {
-        printf(fmt, args);
-        putchar('\n');
-        fflush(stdout);
-    }
-    else {
-        msg(fmt, args);
-    }
-
-    return 0;
-}
-#endif
-
-#ifdef LOADAV
-struct nlist avenrun = {
-    {"_avenrun"}
-};
-
-// ladav:
-//     Something...
-int loadav(double *avg)
-{
-    int kmem;
-
-    kmem = open("/dev/kmem", 0);
-
-    if(kmem < 0) {
-        avg[2] = 0.0;
-        avg[1] = 0.0;
-        avg[0] = 0.0;
-
-        return 0;
-    }
-    
-    nlist(NAMELIST, &avenrun);
-    
-    if(avenrun.n_type == 0) {
-        avg[2] = 0.0;
-        avg[1] = 0.0;
-        avg[0] = 0.0;
-        
-        return 0;
-    }
-    
-    lseek(kmem, (long) avenrun.n_value, 0);
-    int res = read(kmem, avg, 3 * sizeof (double));
-    if(res == -1) {
-        chmsg("loadav: Unable to read()", NULL);
-    }
-
-    return 0;
-}
-#else
 int loadav(double *avg)
 {
     return 0;
 }
-#endif
-
-#ifdef UCOUNT
-struct utmpx buf;
-
-// ucount:
-//     Something...
-int ucount()
-{
-    struct utmpx *up;
-    FILE *utmp;
-    int count;
-
-    utmp = fopen(UTMP, "r");
-    if(utmp == NULL) {
-        return 0;
-    }
-
-    up = &buf;
-    count = 0;
-
-    while(fread(up, 1, sizeof (*up), utmp) > 0) {
-        if(buf.ut_user[0] != '\0') {
-            ++count;
-        }
-    }
-    
-    fclose(utmp);
-    return count;
-}
-#endif
 
 #ifdef RNOTES
 // roguenotes:
@@ -579,7 +418,7 @@ int roguenotes()
     FILE *notef;
     char buf[512];
     short nread;
-    
+
     notef = fopen(RNOTES, "R");
     if(notef != NULL) {
         nread = fread(buf, 1, sizeof(buf), notef);
@@ -592,7 +431,7 @@ int roguenotes()
         fflush(stdout);
         wait_for('\n');
     }
-    
+
     return 0;
 }
 #endif

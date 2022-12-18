@@ -3,8 +3,6 @@
 //
 // @(#)wizard.c 3.8 (Berkeley) 6/3/81
 
-#define _XOPEN_SOURCE 700
-
 #include "wizard.h"
 
 #include "io.h"
@@ -15,12 +13,18 @@
 #include "newlevel.h"
 #include "pack.h"
 #include "rooms.h"
+#include "rogue.h"
 #include "sticks.h"
 #include "things.h"
 #include "weapons.h"
 
-#include <ctype.h>
+#if defined(BSD)
+#include <crypt.h>
+#else
 #include <unistd.h>
+#endif
+
+#include <ctype.h>
 
 // whatis:
 //     What a certain object is
@@ -233,6 +237,6 @@ int passwd()
         return FALSE;
     }
     *sp = '\0';
-    
+
     return (strcmp(PASSWD, crypt(buf, "mT")) == 0);
 }
