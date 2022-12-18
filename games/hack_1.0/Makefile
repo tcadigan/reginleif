@@ -35,19 +35,19 @@ MKLEV_OBJS = ${MKLEV_SRCS:.c=.o}
 
 all: ${HACK} ${MAKEDEFS} ${MKLEV}
 
-${HACK}: second-depend ${HACK_OBJS} ${MKLEV}
+${HACK}: depend ${HACK_OBJS} ${MKLEV}
 	${CC} ${CFLAGS} ${HACK_SRCS} -o ${.TARGET} ${LDFLAGS}
 
-${MAKEDEFS}: initial-depend ${MAKEDEFS_OBJS}
+${MAKEDEFS}: bootstrap-depend ${MAKEDEFS_OBJS}
 	${CC} ${CFLAGS} ${MAKEDEFS_SRCS} -o ${.TARGET} ${LDFLAGS}
 
-${MKLEV}: second-depend ${MKLEV_OBJS}
+${MKLEV}: depend ${MKLEV_OBJS}
 	${CC} ${CFLAGS} ${MKLEV_SRCS} -o ${.TARGET} ${LDFLAGS}
 
 clean:
 	rm -rf *~ *.o .depend ${HACK} ${MAKEDEFS} ${MKLEV} hack.onames.h
 
-depend: initial-depend second-depend
+depend: bootstrap-depend full-depend
 
 bootstrap-depend: ${MAKEDEFS_SRCS}
 	${CC} ${CFLAGS} -MM ${MAKEDEFS_SRCS} > .depend
