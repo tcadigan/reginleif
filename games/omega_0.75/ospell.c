@@ -7,6 +7,7 @@
  */
 #include "ospell.h"
 
+#include <stdlib.h>
 #include <string.h>
 
 #include "oaux1.h"

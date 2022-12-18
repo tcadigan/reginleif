@@ -196,7 +196,7 @@ void save_player(FILE *fd)
     fwrite((char *)&LastCountryLocY, sizeof(int), 1, fd);
     fwrite((char *)&LastTownLocX, sizeof(int), 1, fd);
     fwrite((char *)&LastTownLocY, sizeof(int), 1, fd);
-    fwrite((char *)&PawnDate, sizeof(int), 1, fd);
+    fwrite((char *)&Pawndate, sizeof(int), 1, fd);
     fwrite((char *)&twohand, sizeof(int), 1, fd);
     fwrite((char *)Spells, sizeof(Spells), 1, fd);
     fwrite((char *)&Command_Duration, sizeof(Command_Duration), 1, fd);
@@ -669,7 +669,7 @@ void restore_player(FILE *fd)
         printf("Read nothing\n");
     }
 
-    result = fread((char *)&PawnDate, sizeof(int), 1, fd);
+    result = fread((char *)&Pawndate, sizeof(int), 1, fd);
     if(result == 0) {
         printf("Read nothing\n");
     }

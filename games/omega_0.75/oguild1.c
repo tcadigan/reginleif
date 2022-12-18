@@ -11,6 +11,7 @@
  */
 #include "oguild1.h"
 
+#include <stdlib.h>
 #include <string.h>
 
 #include "oaux1.h"

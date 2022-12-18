@@ -1312,7 +1312,7 @@ void item_use(struct object *o)
 
         break;
     case I_HINT:
-        hint(o);
+        hint();
 
         break;
     case I_HERO:

@@ -85,7 +85,7 @@ int Current_Dungeon = -1;
 int Current_Environment = E_CITY;
 
 /* Which environment were we in */
-int Laste_Environment = E_COUNTRYSIDE;
+int Last_Environment = E_COUNTRYSIDE;
 
 /* 9 x,y directions */
 int Dirs[2][9];
@@ -123,7 +123,7 @@ int Date;
 /* Pawn Shop item generation date */
 int Pawndate;
 
-pob Pawnitmes[PAWNITEMS] = {
+pob Pawnitems[PAWNITEMS] = {
     NULL,
     NULL,
     NULL,
@@ -168,7 +168,7 @@ int RitualRoom = -1;
 int Lawstone = 0;
 
 /* Magic stone counter */
-int ChaosStone = 0;
+int Chaostone = 0;
 
 /* Magic stone counter */
 int Mindstone = 0;
@@ -253,7 +253,7 @@ int Archmagebehavior;
 int Primebehavior;
 int Commandantbehavior;
 int Championbehavior;
-int Preiestbehavior[7];
+int Priestbehavior[7];
 int Hibehavior;
 int Dukebehavior;
 int Chaoslordbehavior;
@@ -270,7 +270,7 @@ char Hiscorer[80];
 char Hidescrip[80];
 char Chaoslord[80];
 char Lawlord[80];
-char Jusiciar[80];
+char Justiciar[80];
 int Shadowlordlevel;
 int Archmagelevel;
 int Primelevel;

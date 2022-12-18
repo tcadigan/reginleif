@@ -18,9 +18,11 @@
 #include "ofile.h"
 #include "ogen1.h"
 #include "oglob.h"
+#include "oiinit.h"
 #include "oitem.h"
 #include "oinv.h"
 #include "olev.h"
+#include "ominit.h"
 #include "omon.h"
 #include "oscr.h"
 #include "osite2.h"
@@ -1300,8 +1302,8 @@ void l_pawn_shop()
         print1("Show Closed: Have a Nice (K)Night");
     }
     else {
-        limit = min(5, Date - PawnDate);
-        PawnDate = Date;
+        limit = min(5, Date - Pawndate);
+        Pawndate = Date;
 
         for(k = 0; k < limit; ++k) {
             if(Pawnitems[0] != NULL) {
