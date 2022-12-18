@@ -25,7 +25,6 @@ clean:
 	rm -rf *~ *.o .depend ${PROG}
 
 depend: ${SRCS}
-	rm -rf .depend
 	${CXX} ${CXXFLAGS} -MM ${SRCS} > .depend
 
 -include .depend

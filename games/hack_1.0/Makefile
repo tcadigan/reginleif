@@ -42,7 +42,6 @@ ${MAKEDEFS}: initial-depend ${MAKEDEFS_OBJS}
 	${CC} ${CFLAGS} ${MAKEDEFS_SRCS} -o ${.TARGET} ${LDFLAGS}
 
 ${MKLEV}: second-depend ${MKLEV_OBJS}
-	echo ${MKLEV_SRCS}
 	${CC} ${CFLAGS} ${MKLEV_SRCS} -o ${.TARGET} ${LDFLAGS}
 
 clean:
@@ -50,12 +49,10 @@ clean:
 
 depend: initial-depend second-depend
 
-initial-depend: ${MAKEDEFS_SRCS}
-	rm -rf .depend
+bootstrap-depend: ${MAKEDEFS_SRCS}
 	${CC} ${CFLAGS} -MM ${MAKEDEFS_SRCS} > .depend
 
-second-depend: hack.onames.h ${HACK_SRCS} ${MKLEV_SRCS}
-	rm -rf .depend
+full-depend: hack.onames.h ${HACK_SRCS} ${MKLEV_SRCS}
 	${CC} ${CFLAGS} -MM ${HACK_SRCS} ${MKLEV_SRCS} >> .depend
 
 -include .depend

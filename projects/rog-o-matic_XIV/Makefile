@@ -60,7 +60,6 @@ clean:
 	rm -rf *~ *.o .depend ${ROGOMATIC} ${DATESUB} ${GENE} ${HISTPLOT} ${PLAYER} ${RGMPLOT} datesub.c
 
 depend: ${ROGOMATIC_SRCS} ${DATESUB_SRCS} ${GENE_SRCS} ${HISTPLOT_SRCS} ${PLAYER_SRCS} ${RGMPLOT_SRCS}
-	rm -rf .depend
 	${CC} ${CFLAGS} -MM ${ROGOMATIC_SRCS} ${DATESUB_SRCS} ${GENE_SRCS} ${HISTPLOT_SRCS} ${PLAYER_SRCS} ${RGMPLOT_SRCS} > .depend
 
 -include .depend
