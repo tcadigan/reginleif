@@ -849,7 +849,7 @@ void dataprint()
     wclear(Dataw);
 
     wprintw(Dataw,
-            "HP:%d/%d MANA:%d/%d AU:%d LEVEL:%d/%d CARRY:%d/%d \n",
+            "HP:%d/%d MANA:%ld/%ld AU:%ld LEVEL:%d/%ld CARRY:%d/%d \n",
             Player.hp,
             Player.maxhp,
             Player.mana,
@@ -1626,7 +1626,7 @@ void display_inventory_slot(int slotnum, int topline)
 
     switch(slotnum) {
     case O_UP_IN_AIR:
-        wprintw(W, "-- Object \'up in air\':", usechar);
+        wprintw(W, "-- Object \'up in air\':");
 
         break;
     case O_READY_HAND:
