@@ -308,7 +308,7 @@ void print1(char *s)
     if(!gamestatusp(SUPPRESS_PRINTING)) {
         buffercycle(s);
         wclear(Msg1w);
-        wprintw(Msg1w, s);
+        wprintw(Msg1w, "%s", s);
         wrefresh(Msg1w);
     }
 }
@@ -318,7 +318,7 @@ void nprint1(char *s)
 {
     if(!gamestatusp(SUPPRESS_PRINTING)) {
         buffercycle(s);
-        wprintw(Msg1w, s);
+        wprintw(Msg1w, "%s", s);
         wrefresh(Msg1w);
     }
 }
@@ -329,7 +329,7 @@ void print2(char *s)
     if(!gamestatusp(SUPPRESS_PRINTING)) {
         buffercycle(s);
         wclear(Msg2w);
-        wprintw(Msg2w, s);
+        wprintw(Msg2w, "%s", s);
         wrefresh(Msg2w);
     }
 }
@@ -339,7 +339,7 @@ void nprint2(char *s)
 {
     if(!gamestatusp(SUPPRESS_PRINTING)) {
         buffercycle(s);
-        wprintw(Msg2w, s);
+        wprintw(Msg2w, "%s", s);
         wrefresh(Msg2w);
     }
 }
@@ -354,7 +354,7 @@ void print3(char *s)
     if(!gamestatusp(SUPPRESS_PRINTING)) {
         buffercycle(s);
         wclear(Msg3w);
-        wprintw(Msg3w, s);
+        wprintw(Msg3w, "%s", s);
         wrefresh(Msg3w);
     }
 }
@@ -364,7 +364,7 @@ void nprint3(char *s)
 {
     if(!gamestatusp(SUPPRESS_PRINTING)) {
         buffercycle(s);
-        wprintw(Msg3w, s);
+        wprintw(Msg3w, "%s", s);
         wrefresh(Msg3w);
     }
 }
@@ -398,7 +398,7 @@ void mprint(char *s)
             }
         }
 
-        wprintw(Msgw, s);
+        wprintw(Msgw, "%s", s);
         waddch(Msgw, ' ');
         wrefresh(Msgw);
     }
@@ -827,9 +827,9 @@ void timeprint()
         wprintw(Timew, " AM\n");
     }
     
-    wprintw(Timew, month());
+    wprintw(Timew, "%s", month());
     wprintw(Timew, " the %d", day());
-    wprintw(Timew, ordinal(day()));
+    wprintw(Timew, "%s", ordinal(day()));
     wrefresh(Timew);
 }
 
@@ -1020,7 +1020,7 @@ void menuspellprint(int i)
         wclear(Menuw);
     }
 
-    wprintw(Menuw, spellid(i));
+    wprintw(Menuw, "%s", spellid(i));
     wprintw(Menuw, "(%d)\n", Spells[i].powerdrain);
     wrefresh(Menuw);
 }
@@ -1039,7 +1039,7 @@ void menuprint(char *s)
         wclear(Menuw);
     }
 
-    wprintw(Menuw, s);
+    wprintw(Menuw, "%s", s);
     wrefresh(Menuw);
 }
 
@@ -1117,7 +1117,7 @@ char *msgscanstring()
 void locprint(char *s)
 {
     wclear(Locw);
-    wprintw(Locw, s);
+    wprintw(Locw, "%s", s);
     wrefresh(Locw);
 }
 
@@ -1243,12 +1243,12 @@ void display_death(char *source)
     clear();
     printw("\n\n\n\n");
     printw("Reuiescat In Pace, ");
-    printw(Player.name);
+    printw("%s", Player.name);
     printw(" (%d points)", calc_points());
     strcpy(Str4, "Killed by ");
     strcat(Str4, source);
     printw("\n");
-    printw(Str4);
+    printw("%s", Str4);
     printw(".");
     printw("\n\n\n\n\nHit any key to continue.");
     refresh();
@@ -1262,7 +1262,7 @@ void display_win()
 {
     clear();
     printw("\n\n\n\n");
-    printw(Player.name);
+    printw("%s", Player.name);
 
     if(Player.status[ADEPT]) {
         printw(" is a total master of omega with %d points!", FixedPoints);
@@ -1291,7 +1291,7 @@ void display_quit()
 {
     clear();
     printw("\n\n\n\n");
-    printw(Player.name);
+    printw("%s", Player.name);
     strcpy(Str4, "A quitter.");
     printw(" wimped out with %d points!", calc_points());
     printw("\n\n\n\n\nHit any key to continue.");
@@ -1306,7 +1306,7 @@ void display_bigwin()
 {
     clear();
     printw("\n\n\n\n");
-    printw(Player.name);
+    printw("%s", Player.name);
     strcpy(Str4, "retired, an Adept of Omega.");
     printw(" retired, an Adept of Omega with %d points!", FixedPoints);
     printw("\n\n\n\n\nHit any key to continue.");
@@ -1582,7 +1582,7 @@ void display_pack()
 
             waddch(Packw, i + 'A');
             waddch(Packw, ':');
-            wprintw(Packw, itemid(Player.pack[i]));
+            wprintw(Packw, "%s", itemid(Player.pack[i]));
         }
 
         wrefresh(Packw);
@@ -1695,7 +1695,7 @@ void display_inventory_slot(int slotnum, int topline)
         wprintw(W, "(slot vacant)");
     }
     else {
-        wprintw(W, itemid(Player.possessions[slotnum]));
+        wprintw(W, "%s", itemid(Player.possessions[slotnum]));
     }
 
     wrefresh(W);
@@ -1902,7 +1902,7 @@ void bufferprint()
     wprintw(Msg1w, "^p for last message, anything else ot quit.");
     wrefresh(Msg1w);
     wclear(Msg2w);
-    wprintw(Msg2w, Stringbuffer[i]);
+    wprintw(Msg2w, "%s", Stringbuffer[i]);
     wrefresh(Msg2w);
     ++i;
 
@@ -1912,7 +1912,7 @@ void bufferprint()
 
     while(mgetc() == 16) {
         wclear(Msg2w);
-        wprintw(Msg2w, Stringbuffer[i]);
+        wprintw(Msg2w, "%s", Stringbuffer[i]);
         wrefresh(Msg2w);
         ++i;
 
