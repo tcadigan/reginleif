@@ -1159,9 +1159,7 @@ void Video::walkputbuffer(Sint32 walkerstartx, Sint32 walkerstarty,
     Sint32 ymin = 0;
     Sint32 ymax = walkerheight;
     Sint32 walkoff = 0;
-    Sint32 buffoff = 0;
     Sint32 walkshift = 0;
-    Sint32 buffshift = 0;
     Sint32 totrows;
     Sint32 rowsize;
 
@@ -1205,10 +1203,8 @@ void Video::walkputbuffer(Sint32 walkerstartx, Sint32 walkerstarty,
     // Note!! The clipper makes the assumption that no object is larger than
     // the view it will be clipped to in either dimension!!!
     walkshift = walkerwidth - rowsize;
-    buffshift = VIDEO_BUFFER_WIDTH - rowsize;
 
     walkoff = (ymin * walkerwidth) + xmin;
-    buffoff = (walkerstarty * VIDEO_BUFFER_WIDTH) + walkerstartx;
 
     for (cury = 0; cury < totrows; ++cury) {
         for (curx = 0; curx < rowsize; ++curx) {
@@ -1216,7 +1212,6 @@ void Video::walkputbuffer(Sint32 walkerstartx, Sint32 walkerstarty,
             ++walkoff;
 
             if (!curcolor) {
-                ++buffoff;
                 continue;
             }
 
@@ -1229,7 +1224,6 @@ void Video::walkputbuffer(Sint32 walkerstartx, Sint32 walkerstarty,
         }
 
         walkoff += walkshift;
-        buffoff += buffshift;
     }
 }
 
@@ -1247,9 +1241,7 @@ void Video::walkputbuffer_flash(Sint32 walkerstartx, Sint32 walkerstarty,
     Sint32 ymin = 0;
     Sint32 ymax = walkerheight;
     Sint32 walkoff = 0;
-    Sint32 buffoff = 0;
     Sint32 walkshift = 0;
-    Sint32 buffshift = 0;
     Sint32 totrows;
     Sint32 rowsize;
 
@@ -1293,10 +1285,8 @@ void Video::walkputbuffer_flash(Sint32 walkerstartx, Sint32 walkerstarty,
     // Note!! The clipper makes the assumption that no object is larger than
     // the view it will be clipped to in either dimension!!!
     walkshift = walkerwidth - rowsize;
-    buffshift = VIDEO_BUFFER_WIDTH - rowsize;
 
     walkoff = (ymin * walkerwidth) + xmin;
-    buffoff = (walkerstarty * VIDEO_BUFFER_WIDTH) + walkerstartx;
 
     for (cury = 0; cury < totrows; ++cury) {
         for (curx = 0; curx < rowsize; ++curx) {
@@ -1304,7 +1294,6 @@ void Video::walkputbuffer_flash(Sint32 walkerstartx, Sint32 walkerstarty,
             ++walkoff;
 
             if (!curcolor) {
-                ++buffoff;
                 continue;
             }
 
@@ -1332,7 +1321,6 @@ void Video::walkputbuffer_flash(Sint32 walkerstartx, Sint32 walkerstarty,
                 palette_color.b += 100;
             }
 
-            // buffers: PORT: videobuffter[buffoff++] = curcolor
             pointb(walkerstartx + curx,
                    walkerstarty + cury,
                    palette_color.r,
@@ -1341,7 +1329,6 @@ void Video::walkputbuffer_flash(Sint32 walkerstartx, Sint32 walkerstarty,
         }
 
         walkoff += walkshift;
-        buffoff += buffshift;
     }
 }
 
@@ -1359,9 +1346,7 @@ void Video::walkputbuffertext(Sint32 walkerstartx, Sint32 walkerstarty,
     Sint32 ymin = 0;
     Sint32 ymax = walkerheight;
     Sint32 walkoff = 0;
-    Sint32 buffoff = 0;
     Sint32 walkshift = 0;
-    Sint32 buffshift = 0;
     Sint32 totrows;
     Sint32 rowsize;
     Sint32 color;
@@ -1407,10 +1392,8 @@ void Video::walkputbuffertext(Sint32 walkerstartx, Sint32 walkerstarty,
     // Note!! The clipper makes the assumption that no object is larger than
     // the view it will be clipped to in either dimension!!!
     walkshift = walkerwidth - rowsize;
-    buffshift = VIDEO_BUFFER_WIDTH - rowsize;
 
     walkoff = (ymin * walkerwidth) + xmin;
-    buffoff = (walkerstarty * VIDEO_BUFFER_WIDTH) + walkerstartx;
 
     for (cury = 0; cury < totrows; ++cury) {
         for (curx = 0; curx < rowsize; ++curx) {
@@ -1418,7 +1401,6 @@ void Video::walkputbuffertext(Sint32 walkerstartx, Sint32 walkerstarty,
             ++walkoff;
 
             if (!curcolor) {
-                ++buffoff;
                 continue;
             }
 
@@ -1440,7 +1422,6 @@ void Video::walkputbuffertext(Sint32 walkerstartx, Sint32 walkerstarty,
         }
 
         walkoff += walkshift;
-        buffoff += buffshift;
     }
 }
 
@@ -1458,9 +1439,7 @@ void Video::walkputbuffertext_alpha(Sint32 walkerstartx, Sint32 walkerstarty,
     Sint32 ymin = 0;
     Sint32 ymax = walkerheight;
     Sint32 walkoff = 0;
-    Sint32 buffoff = 0;
     Sint32 walkshift = 0;
-    Sint32 buffshift = 0;
     Sint32 totrows;
     Sint32 rowsize;
 
@@ -1503,12 +1482,9 @@ void Video::walkputbuffertext_alpha(Sint32 walkerstartx, Sint32 walkerstarty,
 
     // Note!! The clipper makse the assumption that no object is larger than
     // the view it will be clipped to in either dimension!!!
-
     walkshift = walkerwidth - rowsize;
-    buffshift = VIDEO_BUFFER_WIDTH - rowsize;
 
     walkoff = (ymin * walkerwidth) + xmin;
-    buffoff = (walkerstarty * VIDEO_BUFFER_WIDTH) + walkerstartx;
 
     for (cury = 0; cury < totrows; ++cury) {
         for (curx = 0; curx < rowsize; ++curx) {
@@ -1516,7 +1492,6 @@ void Video::walkputbuffertext_alpha(Sint32 walkerstartx, Sint32 walkerstarty,
             ++walkoff;
 
             if (!curcolor) {
-                ++buffoff;
                 continue;
             }
 
@@ -1528,7 +1503,6 @@ void Video::walkputbuffertext_alpha(Sint32 walkerstartx, Sint32 walkerstarty,
         }
 
         walkoff += walkshift;
-        buffoff += buffshift;
     }
 }
 
@@ -1551,7 +1525,6 @@ void Video::walkputbuffer(Sint32 walkerstartx, Sint32 walkerstarty,
     Sint32 walkoff = 0;
     Sint32 buffoff = 0;
     Sint32 walkshift = 0;
-    Sint32 buffshift = 0;
     Sint32 totrows;
     Sint32 rowsize;
     Sint8 shift;
@@ -1604,7 +1577,6 @@ void Video::walkputbuffer(Sint32 walkerstartx, Sint32 walkerstarty,
     // Note!! The clipper makes the assumption that no object is larger than
     // the view it will be clipped to in either dimension!!!
     walkshift = walkerwidth - rowsize;
-    buffshift = VIDEO_BUFFER_WIDTH - rowsize;
 
     walkoff = (ymin * walkerwidth) + xmin;
     buffoff = (walkerstarty * VIDEO_BUFFER_WIDTH) + walkerstartx;
@@ -1821,7 +1793,6 @@ void Video::walkputbuffer(Sint32 walkerstartx, Sint32 walkerstarty,
             }
 
             walkoff += walkshift;
-            buffoff += buffshift;
             // End all rows
         }
 
@@ -1849,7 +1820,6 @@ void Video::walkputbuffer(Sint32 walkerstartx, Sint32 walkerstarty,
             }
 
             walkoff += walkshift;
-            buffoff += buffshift;
             // End all rows
         }
 

@@ -2164,7 +2164,6 @@ Sint16 Walker::attack(Walker *target)
     Uint8 targetfamily = target->query_family();
     // Us or our owner...
     Walker *attacker;
-    Sint16 tom = 0;
 
     if ((myguy != nullptr) || (team_num == 0)) {
         getscore = 1;
@@ -2193,10 +2192,6 @@ Sint16 Walker::attack(Walker *target)
 
     while (headguy->owner && (headguy->owner != headguy)) {
         headguy = headguy->owner;
-    }
-
-    if (headguy->myguy && (headguy->user == 0) && (order == ORDER_WEAPON)) {
-        ++tom;
     }
 
     // Modify attack value based on things like magical attacks, etc.

@@ -870,7 +870,6 @@ bool VideoScreen::endgame(Sint16 ending, Sint16 nextlevel)
     } else if (ending == 0) {
         // We won
         Uint32 bonuscash[4] = { 0, 0, 0, 0 };
-        Uint32 allbonuscash = 0;
 
         // Update all the money!
         for (Sint32 i = 0; i < 4; ++i) {
@@ -881,7 +880,6 @@ bool VideoScreen::endgame(Sint16 ending, Sint16 nextlevel)
         for (Sint32 i = 0; i < 4; ++i) {
             bonuscash[i] = get_time_bonus(i);
             save_data.m_totalcash[i] += bonuscash[i];
-            allbonuscash += bonuscash[i];
         }
 
         // Already won, no bonus
@@ -889,8 +887,6 @@ bool VideoScreen::endgame(Sint16 ending, Sint16 nextlevel)
             for (Sint32 i = 0; i < 4; ++i) {
                 bonuscash[i] = 0;
             }
-
-            allbonuscash = 0;
         }
 
         // Beat that level

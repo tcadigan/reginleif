@@ -59,8 +59,6 @@ Sint16 Treasure::eat_me(Walker *eater)
     Walker *target;
     Walker *flash;
     std::string exitname;
-    Sint32 leftside;
-    Sint32 rightside;
 
     switch (family) {
     case FAMILY_DRUMSTICK:
@@ -207,9 +205,6 @@ Sint16 Treasure::eat_me(Walker *eater)
             buf.clear();
         }
 
-        leftside = 160 - ((exitname.length() + 18) * 3);
-        rightside = 160 + ((exitname.length() + 18) * 3);
-
         /*
          * First check to see if we're withdrawing into somewhere we've been,
          * in which case we abort this level, and set our current level to
@@ -219,8 +214,6 @@ Sint16 Treasure::eat_me(Walker *eater)
             && !myscreen->save_data.is_level_completed(myscreen->save_data.scen_num)
             && guys_here) {
             // Okay to leave
-            leftside -= 12;
-            rightside += 12;
 
             buf << "Withdraw to " << exitname << "?";
             bool result = yes_or_no_prompt("Exit Field", buf.str(), false);
