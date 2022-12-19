@@ -7,7 +7,7 @@
 
 void cmd_crypt(char *args);
 void cmd_uncrypt(char *nick);
-void cmd_listcrypt(void);
+void cmd_listcrypt(char *nop);
 char *check_crypt(char *message, int type);
 void cmd_cr(char *args);
 void init_crypt(void);

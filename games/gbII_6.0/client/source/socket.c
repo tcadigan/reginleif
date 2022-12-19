@@ -76,9 +76,9 @@ long last_no_logout_time; /* For no_logout */
 char last_prompt[MAXSIZ]; /* Holds last prompt found */
 
 char *build_scope(void);
-void (*check4_endprompt)();
+void (*check4_endprompt)(char *);
 void connect_prompts(char *s);
-void null_func(void);
+void null_func(char *);
 void oldcheck4_endprompts();
 void check_for_special_formatting(char *s, int type);
 void check_for_timecodes(char *s);
@@ -163,7 +163,6 @@ int is_connected(void)
 void get_socket(void)
 {
     char *gbbuf;
-    char *remove_buffer();
 
     gbbuf = remove_buffer(&gbsobuf);
 
@@ -188,9 +187,7 @@ void get_socket(void)
 /* Take the given string and process it as socket output */
 void process_gb(char *s)
 {
-    if (options[RAWMODE / 32] & ((RAWMODE < 32) ?
-                                 (1 << RAWMODE)
-                                 : (1 << (RAWMODE % 32)))) {
+    if (options[RAWMODE / 8] & (1 << (RAWMODE % 8))) {
         display_msg(s); /* No more needed here */
 
         return;
@@ -275,9 +272,7 @@ void process_socket(char *s)
     if (end_prompt == PASS_PROMPT) {
         client_stats = L_PASSWORD;
 
-        if (options[AUTOLOGIN / 32] & ((AUTOLOGIN < 32) ?
-                                       (1 << AUTOLOGIN)
-                                       : (1 << (AUTOLOGIN % 32)))) {
+        if (options[AUTOLOGIN / 8] & (1 << (AUTOLOGIN % 8))) {
             if (!password_invalid) {
                 send_password();
             }
@@ -286,9 +281,7 @@ void process_socket(char *s)
         return;
     } else {
         if ((client_stats < L_PASSWORD)
-            && (options[LOGINSUPPRESS / 32] & ((LOGINSUPPRESS < 32) ?
-                                               (1 << LOGINSUPPRESS)
-                                               : (1 << (LOGINSUPPRESS % 32))))) {
+            && (options[LOGINSUPPRESS / 8] & (1 << (LOGINSUPPRESS % 8)))) {
             return;
         }
     }
@@ -407,9 +400,7 @@ void process_socket(char *s)
         command_has_output = true;
     }
 
-    if ((options[BEEP / 32] & ((BEEP < 32) ?
-                               (1 << BEEP)
-                               : (1 << (BEEP % 32))))
+    if ((options[BEEP / 8] & (1 << (BEEP % 8)))
         && !end_prompt) {
         term_beep(1);
     }
@@ -433,9 +424,7 @@ void socket_final_process(char *s, int type)
     add_recall(s, type);
 
     if ((type != NONE)
-        && (options[BOLD_COMM / 32] & ((BOLD_COMM < 32) ?
-                                       (1 << BOLD_COMM)
-                                       : (1 << (BOLD_COMM % 32))))) {
+        && (options[BOLD_COMM / 8] & (1 << (BOLD_COMM % 8)))) {
         display_bold_communication(s);
     } else {
         /* Write to screen */
@@ -639,15 +628,9 @@ void oldcheck4_endprompt(char *s)
         game_type = GAME_GBDT;
         add_assign("game_type", "GB+");
 
-        if (LOGINSUPPRESS < 32) {
-            options[LOGINSUPPRESS / 32] &= ~(1 << LOGINSUPPRESS);
-        } else {
-            options[LOGINSUPPRESS / 32] &= ~(1 << (LOGINSUPPRESS % 32));
-        }
+        options[LOGINSUPPRESS / 8] &= ~(1 << (LOGINSUPPRESS % 8));
 
-        if (!(options[AUTOLOGIN / 32] & ((AUTOLOGIN < 32) ?
-                                         (1 << AUTOLOGIN)
-                                         : (1 << (AUTOLOGIN % 32))))) {
+        if (!(options[AUTOLOGIN / 8] & (1 << (AUTOLOGIN % 8)))) {
             msg("%s", s);
             hide_input = true;
             promptfor("Password> ", dummybuf, PROMPT_STRING);
@@ -662,23 +645,9 @@ void oldcheck4_endprompt(char *s)
         password_invalid = true;
 
         if (game_type == GAME_GBDT) {
-            if (LOGINSUPPRESS < 32) {
-                options[LOGINSUPPRESS / 32] &= ~(1 << LOGINSUPPRESS);
-            } else {
-                options[LOGINSUPPRESS / 32] &= ~(1 << (LOGINSUPPRESS % 32));
-            }
-
-            if (AUTOLOGIN < 32) {
-                options[AUTOLOGIN / 32] &= ~(1 << AUTOLOGIN);
-            } else {
-                options[AUTOLOGIN / 32] &= ~(1 << (AUTOLOGIN % 32));
-            }
-
-            if (CONNECT < 32) {
-                options[CONNECT / 32] &= ~(1 << CONNECT);
-            } else {
-                options[CONNECT / 32] &= ~(1 << (CONNECT % 32));
-            }
+            options[LOGINSUPPRESS / 8] &= ~(1 << (LOGINSUPPRESS % 8));
+            options[AUTOLOGIN / 8] &= ~(1 << (AUTOLOGIN % 8));
+            options[CONNECT / 8] &= ~(1 << (CONNECT % 8));
         }
 
         msg("%s", s);
@@ -697,23 +666,9 @@ void oldcheck4_endprompt(char *s)
         msg("-- Client is in RACEGEN mode.");
         strcpy(last_prompt, "[ GB Racegen ]");
 
-        if (PARTIAL_LINES < 32) {
-            options[PARTIAL_LINES / 32] |= (1 << PARTIAL_LINES);
-        } else {
-            options[PARTIAL_LINES / 32] |= (1 << (PARTIAL_LINES % 32));
-        }
-
-        if (AUTOLOGIN < 32) {
-            options[AUTOLOGIN / 32] &= ~(1 << AUTOLOGIN);
-        } else {
-            options[AUTOLOGIN / 32] &= ~(1 << (AUTOLOGIN % 32));
-        }
-
-        if (LOGINSUPPRESS < 32) {
-            options[LOGINSUPPRESS / 32] &= ~(1 << LOGINSUPPRESS);
-        } else {
-            options[LOGINSUPPRESS / 32] &= ~(1 << (LOGINSUPPRESS % 32));
-        }
+        options[PARTIAL_LINES / 8] |= (1 << (PARTIAL_LINES % 8));
+        options[AUTOLOGIN / 8] &= ~(1 << (AUTOLOGIN % 8));
+        options[LOGINSUPPRESS / 8] &= ~(1 << (LOGINSUPPRESS % 8));
 
         force_update_status();
     } else {
@@ -738,15 +693,9 @@ void connect_prompts(char *s)
         game_type = GAME_GBDT;
         add_assign("game_type", "GB+");
 
-        if (LOGINSUPPRESS < 32) {
-            options[LOGINSUPPRESS / 32] &= ~(1 << LOGINSUPPRESS);
-        } else {
-            options[LOGINSUPPRESS / 32] &= ~(1 << (LOGINSUPPRESS % 32));
-        }
+        options[LOGINSUPPRESS / 8] &= ~(1 << (LOGINSUPPRESS % 8));
 
-        if (!(options[AUTOLOGIN / 32] & ((AUTOLOGIN < 32) ?
-                                         (1 << AUTOLOGIN)
-                                         : (1 << (AUTOLOGIN % 32))))) {
+        if (!(options[AUTOLOGIN / 8] & (1 << (AUTOLOGIN % 8)))) {
             msg("%s", s);
             hide_input = true;
             promptfor("PASSWORD> ", buf, PROMPT_STRING);
@@ -772,23 +721,9 @@ void connect_prompts(char *s)
         password_invalid = true;
 
         if (game_type == GAME_GBDT) {
-            if (LOGINSUPPRESS < 32) {
-                options[LOGINSUPPRESS / 32] &= ~(1 << LOGINSUPPRESS);
-            } else {
-                options[LOGINSUPPRESS / 32] &= ~(1 << (LOGINSUPPRESS % 32));
-            }
-
-            if (AUTOLOGIN < 32) {
-                options[AUTOLOGIN / 32] &= ~(1 << AUTOLOGIN);
-            } else {
-                options[AUTOLOGIN / 32] &= ~(1 << (AUTOLOGIN % 32));
-            }
-
-            if (CONNECT < 32) {
-                options[CONNECT / 32] &= ~(1 << CONNECT);
-            } else {
-                options[CONNECT / 32] &= ~(1 << (CONNECT % 32));
-            }
+            options[LOGINSUPPRESS / 8] &= ~(1 << (LOGINSUPPRESS % 8));
+            options[AUTOLOGIN / 8] &= ~(1 << (AUTOLOGIN % 8));
+            options[CONNECT / 8] &= ~(1 << (CONNECT % 8));
         }
 
         msg("%s", s);
@@ -812,9 +747,7 @@ void connect_prompts(char *s)
         game_type = GAME_GBDT;
         add_assign("game_type", "GB+");
 
-        if (options[AUTOLOGIN / 32] & ((AUTOLOGIN < 32) ?
-                                       (1 << AUTOLOGIN)
-                                       : (1 << (AUTOLOGIN % 32)))) {
+        if (options[AUTOLOGIN / 8] & (1 << (AUTOLOGIN % 8))) {
             if (!strcmp(cur_game.game.type, "chap")) {
                 strcpy(race_name, cur_game.game.racename);
                 strcpy(govn_name, cur_game.game.govname);
@@ -835,23 +768,9 @@ void connect_prompts(char *s)
         msg("-- CHAP login failed, try again or 'ctrl-c' to quit.");
 
         if (game_type == GAME_GBDT) {
-            if (LOGINSUPPRESS < 32) {
-                options[LOGINSUPPRESS / 32] &= ~(1 << LOGINSUPPRESS);
-            } else {
-                options[LOGINSUPPRESS / 32] &= ~(1 << (LOGINSUPPRESS % 32));
-            }
-
-            if (AUTOLOGIN < 32) {
-                options[AUTOLOGIN / 32] &= ~(1 << AUTOLOGIN);
-            } else {
-                options[AUTOLOGIN / 32] &= ~(1 << (AUTOLOGIN % 32));
-            }
-
-            if (CONNECT < 32) {
-                options[CONNECT / 32] &= ~(1 << CONNECT);
-            } else {
-                options[CONNECT / 32] &= ~(1 << (CONNECT % 32));
-            }
+            options[LOGINSUPPRESS / 8] &= ~(1 << (LOGINSUPPRESS % 8));
+            options[AUTOLOGIN / 8] &= ~(1 << (AUTOLOGIN % 8));
+            options[CONNECT / 8] &= ~(1 << (CONNECT % 8));
         }
     } else if (!strcmp(s, "CHAP SUCCESS")) {
         strcpy(s, ""); /* To blank out the message -mfw */
@@ -860,23 +779,9 @@ void connect_prompts(char *s)
         msg("-- Client is in RACEGEN mode.");
         strcpy(last_prompt, "[ GB Racegen ]");
 
-        if (PARTIAL_LINES < 32) {
-            options[PARTIAL_LINES / 32] |= (1 << PARTIAL_LINES);
-        } else {
-            options[PARTIAL_LINES / 32] |= (1 << (PARTIAL_LINES % 32));
-        }
-
-        if (AUTOLOGIN < 32) {
-            options[AUTOLOGIN / 32] &= ~(1 << AUTOLOGIN);
-        } else {
-            options[AUTOLOGIN / 32] &= ~(1 << (AUTOLOGIN % 32));
-        }
-
-        if (LOGINSUPPRESS < 32) {
-            options[LOGINSUPPRESS / 32] &= ~(1 << LOGINSUPPRESS);
-        } else {
-            options[LOGINSUPPRESS / 32] &= ~(1 << (LOGINSUPPRESS % 32));
-        }
+        options[PARTIAL_LINES / 8] |= (1 << (PARTIAL_LINES % 8));
+        options[AUTOLOGIN / 8] &= ~(1 << (AUTOLOGIN % 8));
+        options[LOGINSUPPRESS / 8] &= ~(1 << (LOGINSUPPRESS % 8));
 
         force_update_status();
     } else {
@@ -900,9 +805,7 @@ void send_gb(char *s, int len)
 
     if((!queue_sending && have_queue())
        || ((client_stats != L_ACTIVE)
-           && !(options[PARTIAL_LINES / 32] & ((PARTIAL_LINES < 32) ?
-                                               (1 << PARTIAL_LINES)
-                                               : (1 << (PARTIAL_LINES % 32))))
+           && !(options[PARTIAL_LINES / 8] & (1 << (PARTIAL_LINES % 8)))
            && !((client_stats == L_PASSWORD)
                 || (client_stats == L_INTERNALINIT)
                 || (client_stats == L_REINIT)))) {
@@ -911,9 +814,7 @@ void send_gb(char *s, int len)
         return;
     }
 
-    if (options[NO_LOGOUT / 32] & ((NO_LOGOUT < 32) ?
-                                   (1 << NO_LOGOUT)
-                                   : (1 << (NO_LOGOUT % 32)))) {
+    if (options[NO_LOGOUT / 8] & (1 << (NO_LOGOUT % 8))) {
         set_no_logout();
     }
 
@@ -983,9 +884,7 @@ int sendgb(char *buf, int len)
 
 void cursor_output_window(void)
 {
-    if (options[DISPLAY_TOP / 32] & ((DISPLAY_TOP < 32) ?
-                                     (1 << DISPLAY_TOP)
-                                     : (1 << (DISPLAY_TOP % 32)))) {
+    if (options[DISPLAY_TOP / 8] & (1 << (DISPLAY_TOP % 8))) {
         term_move_cursor(0, last_output_row);
     } else {
         term_move_cursor(0, output_row);
@@ -997,9 +896,7 @@ void cursor_output_window(void)
 void scroll_output_window(void)
 {
     if ((last_output_row >= output_row)
-        || !(options[DISPLAY_TOP / 32] & ((DISPLAY_TOP < 32) ?
-                                          (1 << DISPLAY_TOP)
-                                          : (1 << (DISPLAY_TOP % 32))))) {
+        || !(options[DISPLAY_TOP / 8] & (1 << (DISPLAY_TOP % 8)))) {
         term_scroll(0, output_row, 1);
         cursor_display = false;
 
@@ -1109,24 +1006,12 @@ void cmd_connect(char *s)
         add_assign("govname", cur_game.game.govname);
         add_assign("secpassword", cur_game.game.secpassword);
 
-        if (options[AUTOLOGIN_STARTUP / 32] & ((AUTOLOGIN_STARTUP < 32) ?
-                                               (1 << AUTOLOGIN_STARTUP)
-                                               : (1 << (AUTOLOGIN_STARTUP % 32)))) {
-            if (AUTOLOGIN < 32) {
-                options[AUTOLOGIN / 32] |= (1 << AUTOLOGIN);
-            } else {
-                options[AUTOLOGIN / 32] |= (1 << (AUTOLOGIN % 32));
-            }
+        if (options[AUTOLOGIN_STARTUP / 8] & (1 << (AUTOLOGIN_STARTUP % 8))) {
+            options[AUTOLOGIN / 8] |= (1 << (AUTOLOGIN % 8));
         }
 
-        if (options[LOGINSUPPRESS_STARTUP / 32] & ((LOGINSUPPRESS_STARTUP < 32) ?
-                                                   (1 << LOGINSUPPRESS_STARTUP)
-                                                   : (1 << (LOGINSUPPRESS_STARTUP % 32)))) {
-            if (LOGINSUPPRESS < 32) {
-                options[LOGINSUPPRESS / 32] |= (1 << LOGINSUPPRESS);
-            } else {
-                options[LOGINSUPPRESS / 32] |= (1 << (LOGINSUPPRESS % 32));
-            }
+        if (options[LOGINSUPPRESS_STARTUP / 8] & (1 << (LOGINSUPPRESS_STARTUP % 8))) {
+            options[LOGINSUPPRESS / 8] |= (1 << (LOGINSUPPRESS % 8));
         }
 
         msg("-- Connected to new host.");
@@ -1159,9 +1044,7 @@ void check_no_logout(void)
     long now;
     char tbuf[NORMSIZ];
 
-    if (!(options[NO_LOGOUT / 32] & ((NO_LOGOUT < 32) ?
-                                     (1 << NO_LOGOUT)
-                                     : (1 << (NO_LOGOUT % 32))))) {
+    if (!(options[NO_LOGOUT / 8] & (1 << (NO_LOGOUT % 8)))) {
         return;
     }
 
@@ -1397,34 +1280,16 @@ void loggedin(void)
         check4_endprompt = oldcheck4_endprompt;
     }
 
-    if (options[CONNECT_STARTUP / 32] & ((CONNECT_STARTUP < 32) ?
-                                         (1 << CONNECT_STARTUP)
-                                         : (1 << (CONNECT_STARTUP % 32)))) {
-        if (CONNECT < 32) {
-            options[CONNECT / 32] |= (1 << CONNECT);
-        } else {
-            options[CONNECT / 32] |= (1 << (CONNECT %32));
-        }
+    if (options[CONNECT_STARTUP / 8] & (1 << (CONNECT_STARTUP % 8))) {
+        options[CONNECT / 8] |= (1 << (CONNECT % 8));
     }
 
-    if (options[AUTOLOGIN_STARTUP / 32] & ((AUTOLOGIN_STARTUP < 32) ?
-                                           (1 << AUTOLOGIN_STARTUP)
-                                           : (1 << (AUTOLOGIN_STARTUP % 32)))) {
-        if (AUTOLOGIN < 32) {
-            options[AUTOLOGIN / 32] |= (1 << AUTOLOGIN);
-        } else {
-            options[AUTOLOGIN / 32] |= (1 << (AUTOLOGIN % 32));
-        }
+    if (options[AUTOLOGIN_STARTUP / 8] & (1 << (AUTOLOGIN_STARTUP % 8))) {
+        options[AUTOLOGIN / 8] |= (1 << (AUTOLOGIN % 8));
     }
 
-    if (options[LOGINSUPPRESS_STARTUP / 32] & ((LOGINSUPPRESS_STARTUP < 32) ?
-                                               (1 << LOGINSUPPRESS_STARTUP)
-                                               : (1 << (LOGINSUPPRESS_STARTUP % 32)))) {
-        if (LOGINSUPPRESS < 32) {
-            options[LOGINSUPPRESS / 32] |= (1 << LOGINSUPPRESS);
-        } else {
-            options[LOGINSUPPRESS / 32] |= (1 << (LOGINSUPPRESS % 32));
-        }
+    if (options[LOGINSUPPRESS_STARTUP / 8] & (1 << (LOGINSUPPRESS_STARTUP % 8))) {
+        options[LOGINSUPPRESS / 8] |= (1 << (LOGINSUPPRESS % 8));
     }
 
     init_start_commands(0); /* Set client_stats below */
@@ -1479,7 +1344,7 @@ void cmd_ping(char *s)
     }
 }
 
-void null_func(void)
+void null_func(char *s)
 {
     return;
 }
@@ -1503,9 +1368,7 @@ int on_endprompt(int eprompt)
 
     if (eprompt == LEVEL_PROMPT) {
         if ((client_stats == L_PASSWORD)
-            && !(options[PARTIAL_LINES / 32] & ((PARTIAL_LINES < 32) ?
-                                                (1 << PARTIAL_LINES)
-                                                : (1 << (PARTIAL_LINES % 32))))) {
+            && !(options[PARTIAL_LINES / 8] & (1 << (PARTIAL_LINES % 8)))) {
             msg("-- WARNING: The client does NOT know your race id number.");
 
             while ((client_stats != L_LOGGEDIN) && (client_stats >= L_PASSWORD)) {
@@ -1563,9 +1426,7 @@ int on_endprompt(int eprompt)
     }
 
     if ((eprompt >= NODIS_PROMPT)
-        && (options[HIDE_END_PROMPT / 32] & ((HIDE_END_PROMPT < 32) ?
-                                             (1 << HIDE_END_PROMPT)
-                                             : (1 << (HIDE_END_PROMPT % 32))))) {
+        && (options[HIDE_END_PROMPT / 8] & (1 << (HIDE_END_PROMPT % 8)))) {
         cursor_to_window();
 
         return true;
@@ -1625,11 +1486,7 @@ void chap_response(char *line)
         || !race_pass[0]
         || !govn_pass[0]
         || password_failed) {
-        if (LOGINSUPPRESS < 32) {
-            options[LOGINSUPPRESS / 32] &= ~(1 << LOGINSUPPRESS);
-        } else {
-            options[LOGINSUPPRESS / 32] &= ~(1 << (LOGINSUPPRESS % 32));
-        }
+        options[LOGINSUPPRESS / 8] &= ~(1 << (LOGINSUPPRESS % 8));
 
         get_pass_info();
     }

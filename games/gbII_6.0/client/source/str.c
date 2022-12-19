@@ -355,9 +355,7 @@ int wrap(char *line)
         return 0;
     }
 
-    if (options[BRACKETS / 32] & ((BRACKETS < 32) ?
-                                  (1 << BRACKETS)
-                                  : (1 << (BRACKETS % 32)))) {
+    if (options[BRACKETS / 8] & (1 << (BRACKETS % 8))) {
         for (p = s; *p; ++p) {
             switch (*p) {
             case '[':
@@ -630,10 +628,7 @@ void msg(char *fmt, ...)
     char buf[MAXSIZ];
     char *p;
 
-    if (!(options[DISPLAYING / 32] & ((DISPLAYING < 32) ?
-                                      (1 << DISPLAYING)
-                                      : (1 << (DISPLAYING % 32))))
-        || paused) {
+    if (!(options[DISPLAYING / 8] & (1 << (DISPLAYING % 8))) || paused) {
         return;
     }
 
@@ -669,10 +664,7 @@ void display_msg(char *s)
 {
     char store[MAXSIZ];
 
-    if (!(options[DISPLAYING / 32] & ((DISPLAYING < 32) ?
-                                      (1 << DISPLAYING)
-                                      : (1 << (DISPLAYING % 32))))
-        || paused) {
+    if (!(options[DISPLAYING / 8] & (1 << (DISPLAYING % 8))) || paused) {
         return;
     }
 
@@ -736,10 +728,7 @@ void msg_error(char *fmt, ...)
     va_list vargs;
     char buf[MAXSIZ];
 
-    if (!(options[DISPLAYING / 32] & ((DISPLAYING < 32) ?
-                                      (1 << DISPLAYING)
-                                      : (1 << (DISPLAYING % 32))))
-        || paused) {
+    if (!(options[DISPLAYING / 8] & (1 << (DISPLAYING % 8))) || paused) {
         return;
     }
 
@@ -929,9 +918,7 @@ char *strfree(char *ptr)
 
 void place_string_on_output_window(char *str, int len)
 {
-    if (options[FULLSCREEN / 32] & ((FULLSCREEN < 32) ?
-                                    (1 << FULLSCREEN)
-                                    : (1 << (FULLSCREEN % 32)))) {
+    if (options[FULLSCREEN / 8] & (1 << (FULLSCREEN % 8))) {
         scroll_output_window();
     }
 
@@ -939,9 +926,7 @@ void place_string_on_output_window(char *str, int len)
     write_string(str, len);
     ++last_output_row;
 
-    if (!(options[FULLSCREEN / 32] & ((FULLSCREEN < 32) ?
-                                      (1 << FULLSCREEN)
-                                      : (1 << (FULLSCREEN % 32))))) {
+    if (!(options[FULLSCREEN / 8] & (1 << (FULLSCREEN % 8)))) {
         scroll_output_window();
     }
 
@@ -956,15 +941,13 @@ void write_string(char *s, int cnt)
     for (i = 0, p = s; i <= cnt; ++i) {
         switch (*p) {
         case BELL_CHAR:
-            if (options[DO_BELLS / 32] & ((DO_BELLS < 32) ?
-                                          (1 << DO_BELLS)
-                                          : (1 << (DO_BELLS % 32)))) {
+            if (options[DO_BELLS / 8] & (1 << (DO_BELLS % 8))) {
                 term_beep(1);
             } else {
                 if (!term_standout_status()) {
                     term_standout_on();
                     term_putchar(*p + 'A' - 1);
-                    term_standout_off();
+                    term_standout_off(NULL, 0, NULL);
                 } else {
                     term_putchar(*p + 'A' - 1);
                 }

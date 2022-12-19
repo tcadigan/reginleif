@@ -26,7 +26,7 @@ int read_socket(void);
 int have_socket_output(void);
 void loggedin(void);
 void cmd_ping(char *s);
-void null_func(void);
+void null_func(char *s);
 int on_endprompt(int eprompt);
 void get_pass_info(void);
 void chap_response(char *line);

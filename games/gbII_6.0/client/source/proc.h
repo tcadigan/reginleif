@@ -17,7 +17,7 @@ void flush_process_string(char *header, char *s);
 void close_up_process(void);
 void signal_pipe(int a);
 void procmsg(char *header, char *args);
-void internal_pipe_off(void);
+void internal_pipe_off(char *nop);
 
 extern int pipe_running;
 

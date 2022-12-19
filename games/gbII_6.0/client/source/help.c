@@ -110,7 +110,7 @@ void help(char *args, FILE *fdhelp)
                 if (multi && !strcmp(buf + strlen("-- *"), args)) {
                     found = true;
                     mode = HELP_MULTI;
-                    sprintf(multistr, "-- %s", buf + strlen("-- *"));
+                    snprintf(multistr, 200, "-- %s", buf + strlen("-- *"));
                     msg("");
                 } else if (!strcmp(buf + strlen("-- "), args)) {
                     found = true;
@@ -143,7 +143,7 @@ void help(char *args, FILE *fdhelp)
                         if (!strncmp(buf + strlen("-- "), multistr, strlen(multistr))) {
                             continue;
                         } else {
-                            sprintf(temp, "%s (*)", buf + strlen("-- *"));
+                            snprintf(temp, SMABUF, "%s (*)", buf + strlen("-- *"));
                             do_column_maker(temp);
                             strcpy(multistr, buf + strlen("-- *"));
                             oldmulti = true;

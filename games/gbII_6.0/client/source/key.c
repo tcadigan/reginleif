@@ -660,9 +660,7 @@ void refresh_screen(char ch)
 
     i = start_refresh_line_index(&start_pos);
 
-    if (options[DISPLAY_TOP / 32] & ((DISPLAY_TOP < 32) ?
-                                     (1 << DISPLAY_TOP)
-                                     : (1 << (DISPLAY_TOP % 32)))) {
+    if (options[DISPLAY_TOP / 8] & (1 << (DISPLAY_TOP % 8))) {
         cnt = 0;
     } else {
         /*
@@ -897,10 +895,7 @@ void process_key(char *s, int interactive)
         return;
     }
 
-    if (!*p
-        && (options[PARTIAL_LINES / 32] & ((PARTIAL_LINES < 32) ?
-                                           (1 << PARTIAL_LINES)
-                                           : (1 << (PARTIAL_LINES % 32))))) {
+    if (!*p && (options[PARTIAL_LINES / 8] & (1 << PARTIAL_LINES % 8))) {
         strcpy(p, "\n");
     }
 
@@ -995,17 +990,13 @@ void do_key(char *buf, int interactive)
     debug(2, "do_key after: '%s'", holdbuf);
 
     if (*holdbuf == '\0') {
-        if (options[PARTIAL_LINES / 32] & ((PARTIAL_LINES < 32) ?
-                                           (1 << PARTIAL_LINES)
-                                           : (1 << (PARTIAL_LINES % 32)))) {
+        if (options[PARTIAL_LINES / 8] & (1 << (PARTIAL_LINES % 8))) {
             send_gb("", 0);
         } else {
             return;
         }
     } else if (*holdbuf == macro_char) {
-        if ((options[SLASH_COMMANDS / 32] & ((SLASH_COMMANDS < 32) ?
-                                             (1 << SLASH_COMMANDS)
-                                             : (1 << (SLASH_COMMANDS % 32))))
+        if ((options[SLASH_COMMANDS / 8] & (SLASH_COMMANDS % 8))
             && client_command(holdbuf + 1, interactive)) {
             set_values_on_end_prompt();
             cursor_to_window();
@@ -1029,17 +1020,13 @@ void do_key(char *buf, int interactive)
         argify(holdbuf);
 
         if (!do_macro(holdbuf + 1)) {
-            if (options[SLASH_COMMANDS / 32] & ((SLASH_COMMANDS < 32) ?
-                                                (1 << SLASH_COMMANDS)
-                                                : (1 << (SLASH_COMMANDS % 32)))) {
+            if (options[SLASH_COMMANDS / 8] & (1 << (SLASH_COMMANDS % 8))) {
                 msg("-- No such command macro defined.");
             } else {
                 msg("-- No such macro defined.");
             }
         }
-    } else if (!(options[SLASH_COMMANDS / 32] & ((SLASH_COMMANDS < 32) ?
-                                                 (1 << SLASH_COMMANDS)
-                                                 : (1 << (SLASH_COMMANDS % 32))))
+    } else if (!(options[SLASH_COMMANDS / 8] & (1 << (SLASH_COMMANDS % 8)))
                && client_command(holdbuf, interactive)) {
         /* Argify is called in client_command after variables parsing */
         if (interactive) {

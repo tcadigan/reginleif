@@ -235,9 +235,7 @@ char *build_status(void)
             case 'S':
                 strcpy(q, last_prompt);
 
-                if (options[BRACKETS / 32] & ((BRACKETS < 32) ?
-                                              (1 << BRACKETS)
-                                              : (1 << (BRACKETS % 32)))) {
+                if (options[BRACKETS / 8] & (1 << (BRACKETS % 8))) {
                     r = strchr(q, '[');
                     *r = '(';
                     r = strchr(q, ']');
@@ -248,9 +246,7 @@ char *build_status(void)
 
                 break;
             case 'T':
-                if (options[SHOW_CLOCK / 32] & ((SHOW_CLOCK < 32) ?
-                                                (1 << SHOW_CLOCK)
-                                                : (1 << (SHOW_CLOCK % 32)))) {
+                if (options[SHOW_CLOCK / 8] & (1 << (SHOW_CLOCK % 8))) {
                     strcpy(q, print_time(present));
                     q += 5;
                 }
@@ -274,9 +270,7 @@ char *build_status(void)
 
                 break;
             case 'm':
-                if (options[SHOW_MAIL / 32] & ((SHOW_MAIL < 32) ?
-                                               (1 << SHOW_MAIL)
-                                               : (1 << (SHOW_MAIL % 32)))) {
+                if (options[SHOW_MAIL / 8] & (1 << (SHOW_MAIL % 8))) {
                     mcnt = check_mail();
 
                     if (mcnt > 0) {

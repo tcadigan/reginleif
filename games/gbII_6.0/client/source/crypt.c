@@ -60,7 +60,7 @@ void cmd_crypt(char *args)
     char key[NORMSIZ];
 
     if (!*args) {
-        cmd_listcrypt();
+        cmd_listcrypt(NULL);
 
         return;
     }
@@ -152,7 +152,7 @@ void cmd_uncrypt(char *nick)
 }
 
 /* Prints the entire crypt list */
-void cmd_listcrypt(void)
+void cmd_listcrypt(char *nop)
 {
     Crypt *p;
     int i = 1;
@@ -281,7 +281,7 @@ char *check_crypt(char *message, int type)
         debug(3, "Crypt: no key for message");
 
 
-        if (options[ENCRYPT / 32] & (1 << ENCRYPT)) {
+        if (options[ENCRYPT / 8] & (1 << (ENCRYPT % 8))) {
             sprintf(buf2, "%s [encrypted]", returnfmt);
 
             return buf2;

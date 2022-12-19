@@ -48,9 +48,7 @@ void plot_surface(char *t)
     }
 #endif
 
-    want_color = (options[DISP_ANSI / 32] & ((DISP_ANSI < 32) ?
-                                             (1 << DISP_ANSI)
-                                             : (1 << (DISP_ANSI % 32))));
+    want_color = (options[DISP_ANSI / 8] & (1 << (DISP_ANSI % 8)));
 
     /* Skip the marking char $ */
     u = t + 1;
@@ -121,14 +119,10 @@ void plot_surface(char *t)
 
         inverse = 0;
 
-        if (options[MAP_DOUBLE / 32] & ((MAP_DOUBLE < 32) ?
-                                        (1 << MAP_DOUBLE)
-                                        : (1 << (MAP_DOUBLE % 32)))) {
+        if (options[MAP_DOUBLE / 8] & (1 << (MAP_DOUBLE % 8))) {
             sprintf(temp,
                     "%s%c%c",
-                    (options[MAP_SPACE / 32] & ((MAP_SPACE < 32) ?
-                                                (1 << MAP_SPACE)
-                                                : (1 << (MAP_SPACE % 32)))) ?
+                    (options[MAP_SPACE / 8] & (1 << (MAP_SPACE % 8))) ?
                     " "
                     : "",
                     (y / 10) + '0',
@@ -141,12 +135,8 @@ void plot_surface(char *t)
         add_recall(maplog, 0);
     }
 
-    if (options[MAP_DOUBLE / 32] & ((MAP_DOUBLE < 32) ?
-                                    (1 << MAP_DOUBLE)
-                                    : (1 << (MAP_DOUBLE % 32)))) {
-        if (options[MAP_SPACE / 32] & ((MAP_SPACE < 32) ?
-                                       (1 << MAP_SPACE)
-                                       : (1 << (MAP_SPACE % 32)))) {
+    if (options[MAP_DOUBLE / 8] & (1 << (MAP_DOUBLE % 8))) {
+        if (options[MAP_SPACE / 8] & (1 << (MAP_SPACE % 8))) {
             msg("");
         }
 
@@ -179,9 +169,7 @@ void print_X(int Maxx)
 
     msg(buf);
 
-    if (options[MAP_SPACE / 32] & ((MAP_SPACE < 32) ?
-                                   (1 << MAP_SPACE)
-                                   : (1 << (MAP_SPACE % 32)))) {
+    if (options[MAP_SPACE / 8] & (1 << (MAP_SPACE % 8))) {
         msg("");
     }
 }
@@ -213,9 +201,7 @@ void plot_orbit(char *t)
     }
 #endif
 
-    want_color = (options[DISP_ANSI / 32] & ((DISP_ANSI < 32) ?
-                                             (1 << DISP_ANSI)
-                                             : (1 << (DISP_ANSI % 32))));
+    want_color = (options[DISP_ANSI / 8] & (1 << (DISP_ANSI % 8)));
     term_clear_screen();
     q = t + 1;
 
@@ -273,7 +259,7 @@ void plot_orbit(char *t)
             }
 
             if (stand1 == '1') {
-                term_standout_off();
+                term_standout_off(NULL, 0, NULL);
             }
 
             term_puts(" ", 1);
@@ -298,7 +284,7 @@ void plot_orbit(char *t)
             }
 
             if (stand2 == '1') {
-                term_standout_off();
+                term_standout_off(NULL, 0, NULL);
             }
         }
 
@@ -307,7 +293,7 @@ void plot_orbit(char *t)
         p = strchr(q, ';');
     }
 
-    term_standout_off();
+    term_standout_off(NULL, 0, NULL);
     last_output_row = output_row;
 }
 

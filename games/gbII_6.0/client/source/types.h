@@ -344,7 +344,7 @@ typedef struct node {
 /* For binary search */
 typedef struct command_struct {
     char *name;
-    void (*func)();
+    void (*func)(char *);
     bool parse_var;
     bool echo_command;
     bool send_to_socket;
@@ -727,14 +727,14 @@ typedef struct pmap {
 typedef struct cspsendval_struct {
     char *name;
     int comm_num;
-    char *(*func)();
+    char *(*func)(char *);
     int cnt;
     int know;
 } CSPSendVal;
 
 typedef struct cspreceiveval_struct {
     int comm_num;
-    void (*func)();
+    void (*func)(int, char *);
     int cnt;
     int know;
 } CSPReceiveVal;
@@ -761,7 +761,7 @@ typedef struct cryptstruct {
 typedef struct commandset_struct {
     char *name;
     int value;
-    void (*func)();
+    void (*func)(char *, int, char *);
     int has_changed;
 } CommandSet;
 

@@ -259,9 +259,7 @@ void cspr_map(int cnum, char *line)
         p = get_map_info_buf(NEXT, &map);
         csp_msg("%-40s%s", outbuf1, p);
 
-        if (options[MAP_SPACE / 32] & ((MAP_SPACE < 32) ?
-                                       (1 << MAP_SPACE)
-                                       : (1 << (MAP_SPACE % 32)))) {
+        if (options[MAP_SPACE / 8] & (1 << (MAP_SPACE % 8))) {
             p = get_map_info_buf(NEXT, &map);
             csp_msg("%-40s%s", "", p);
         }
@@ -419,17 +417,11 @@ void cspr_map(int cnum, char *line)
                 "%s%s%s%s",
                 nums,
                 outbuf1,
-                ((options[MAP_DOUBLE / 32] & ((MAP_DOUBLE < 32) ?
-                                              (1 << MAP_DOUBLE)
-                                              : (1 << (MAP_DOUBLE % 32))))
-                 && (options[MAP_SPACE / 32] & ((MAP_SPACE < 32) ?
-                                                (1 << MAP_SPACE)
-                                                : (1 << (MAP_SPACE % 32))))) ?
+                ((options[MAP_DOUBLE / 8] & (1 << (MAP_DOUBLE % 8)))
+                 && (options[MAP_SPACE / 8] & (1 << (MAP_SPACE % 8)))) ?
                 " "
                 : "",
-                (options[MAP_DOUBLE / 32] & ((MAP_DOUBLE < 32) ?
-                                             (1 << MAP_DOUBLE)
-                                             : (1 << (MAP_DOUBLE % 32)))) ?
+                (options[MAP_DOUBLE / 8] & (1 << (MAP_DOUBLE % 8))) ?
                 nums
                 : "");
 
@@ -450,12 +442,8 @@ void cspr_map(int cnum, char *line)
         }
 #endif
 
-        if (options[MAP_DOUBLE / 32] & ((MAP_DOUBLE < 32) ?
-                                        (1 << MAP_DOUBLE)
-                                        : (1 << (MAP_DOUBLE % 32)))) {
-            if (options[MAP_SPACE / 32] & ((MAP_SPACE < 32) ?
-                                           (1 << MAP_SPACE)
-                                           : (1 << (MAP_SPACE % 32)))) {
+        if (options[MAP_DOUBLE / 8] & (1 << (MAP_DOUBLE % 8))) {
+            if (options[MAP_SPACE / 8] & (1 << (MAP_SPACE % 8))) {
                 p = get_map_info_buf(NEXT, &map);
 
                 if (p) {
@@ -1807,9 +1795,7 @@ void plot_orbit_object(void)
     char colbuf[SMABUF];
     char ptype[] = "@oO#~.\"-0(";
 
-    want_color = (options[DISP_ANSI / 32] & ((DISP_ANSI < 32) ?
-                                             (1 << DISP_ANSI)
-                                             : (1 << (DISP_ANSI % 32))));
+    want_color = (options[DISP_ANSI / 8] & (1 << (DISP_ANSI % 8)));
 
     if ((orbit.type == TYPE_STAR) && (orbit.scope == CSPD_UNIV)) {
         x = (int)(orbit.scale + ((orbit.scale * (orbit.star.x - orbit.lastx)) / (orbit.univsize * orbit.zoom)));
@@ -1910,7 +1896,7 @@ void plot_orbit_object(void)
             if (orbit.star.explored && orbit.inverse) {
                 term_standout_on();
                 term_putchar('*');
-                term_standout_off();
+                term_standout_off(NULL, 0, NULL);
             } else {
                 term_putchar('*');
             }
@@ -1918,7 +1904,7 @@ void plot_orbit_object(void)
             if (orbit.planet.explored && orbit.inverse) {
                 term_standout_on();
                 term_putchar(ptype[orbit.planet.type]);
-                term_standout_off();
+                term_standout_off(NULL, 0, NULL);
             } else {
                 term_putchar('?');
             }
@@ -1936,7 +1922,7 @@ void plot_orbit_object(void)
             } else if ((orbit.ship.owner == profile.raceid) && orbit.inverse) {
                 term_standout_on();
                 term_putchar(orbit.ship.type);
-                term_standout_off();
+                term_standout_off(NULL, 0, NULL);
             } else {
                 term_putchar(orbit.ship.type);
             }
@@ -1950,7 +1936,7 @@ void plot_orbit_object(void)
             if (orbit.star.inhabited && orbit.inverse) {
                 term_standout_on();
                 term_puts(colbuf, strlen(colbuf));
-                term_standout_off();
+                term_standout_off(NULL, 0, NULL);
             } else {
                 term_puts(colbuf, strlen(colbuf));
             }
@@ -1960,7 +1946,7 @@ void plot_orbit_object(void)
             if (orbit.planet.owned && orbit.inverse) {
                 term_standout_on();
                 term_puts(colbuf, strlen(colbuf));
-                term_standout_off();
+                term_standout_off(NULL, 0, NULL);
             } else {
                 term_puts(colbuf, strlen(colbuf));
             }

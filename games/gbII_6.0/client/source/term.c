@@ -90,12 +90,11 @@ int term_ND_cursor_right(void);
 int term_SPACE_clear_to_eol(int x, int y);
 void term_clear(int l1, int l2);
 void term_move_cursor(int x, int y);
-int term_null(void *);
+int term_null(int, int, int);
 int term_param_ALDL_scroll(int l1, int l2, int n);
 void term_put_termstring(char *c);
 void term_boldface_off(void);
 void term_boldface_on(void);
-void term_standout_off(void);
 void term_standout_on(void);
 void term_underline_off(void);
 void term_underline_on(void);
@@ -306,7 +305,7 @@ void get_termcap(void)
     SG = tgetflag("sg");
 }
 
-int term_null(void *n)
+int term_null(int a, int b, int c)
 {
     return 1;
 }
@@ -461,7 +460,7 @@ void term_puts(char *str, int len)
         if ((*str < 32) && (*str != '\t') && (*str != 27)) {
             term_standout_on();
             term_putchar(*str + 64);
-            term_standout_off();
+            term_standout_off(NULL, 0, NULL);
         } else {
             term_putchar(*str);
         }
@@ -471,7 +470,7 @@ void term_puts(char *str, int len)
 void term_normal_mode(void)
 {
     if (inverse) {
-        term_standout_off();
+        term_standout_off(NULL, 0, NULL);
     }
 
     if (underline) {
@@ -486,7 +485,7 @@ void term_normal_mode(void)
 void term_toggle_standout(void)
 {
     if (inverse) {
-        term_standout_off();
+        term_standout_off(NULL, 0, NULL);
     } else {
         term_standout_on();
     }
@@ -498,7 +497,7 @@ void term_standout_on(void)
     inverse = true;
 }
 
-void term_standout_off(void)
+void term_standout_off(char *nop_str, int nop_int, char *nop_str2)
 {
     term_put_termstring(SE);
     inverse = false;
@@ -578,9 +577,7 @@ void term_move_cursor(int x, int y)
 
 void term_clear_screen(void)
 {
-    if (options[SCROLL_CLR / 32] & ((SCROLL_CLR < 32) ?
-                                    (1 << SCROLL_CLR)
-                                    : (1 << (SCROLL_CLR % 32)))) {
+    if (options[SCROLL_CLR / 8] & (1 << (SCROLL_CLR % 8))) {
         term_scroll(0, output_row, output_row + 1);
     } else {
         term_clear(0, output_row + 1);

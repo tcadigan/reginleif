@@ -445,7 +445,7 @@ void redraw_map(void)
                     }
                 } else if (!p->own) {
                     if (inverse) {
-                        term_standout_off();
+                        term_standout_off(NULL, 0, NULL);
                         inverse = false;
                     }
 
@@ -461,7 +461,7 @@ void redraw_map(void)
                 } else {
                     /* Owned by someone but not me */
                     if (inverse) {
-                        term_standout_off();
+                        term_standout_off(NULL, 0, NULL);
                         inverse = false;
                     }
 
@@ -481,7 +481,7 @@ void redraw_map(void)
     }
 
     if (inverse) {
-        term_standout_off();
+        term_standout_off(NULL, 0, NULL);
     }
 }
 
@@ -608,7 +608,7 @@ void update_sector(Sector *ptr)
         if (imap_map.inverse && (ptr->own == profile.raceid)) {
             term_standout_on();
             term_putchar(ptr->sectc);
-            term_standout_off();
+            term_standout_off(NULL, 0, NULL);
         } else {
             term_putchar(ptr->sectc);
         }
@@ -631,7 +631,7 @@ void update_sector(Sector *ptr)
             }
 
             if (imap_map.inverse) {
-                term_standout_off();
+                term_standout_off(NULL, 0, NULL);
             }
         } else if (!ptr->own) {
             if (ptr->numships) {

@@ -776,15 +776,9 @@ void cmd_quit(char *args)
         gb_close_socket = 1;
         send_gb("quit", 4);
 
-        if (CONNECT < 32) {
-            options[CONNECT / 32] &= ~(1 << CONNECT);
-        } else {
-            options[CONNECT / 32] &= ~(1 << (CONNECT % 32));
-        }
+        options[CONNECT / 8] &= ~(1 << (CONNECT % 8));
 
-        if ((options[QUIT_ALL / 32] & ((QUIT_ALL < 32) ?
-                                       (1 << QUIT_ALL)
-                                       : (1 << (QUIT_ALL % 32))))
+        if ((options[QUIT_ALL / 8] & (1 << (QUIT_ALL % 8)))
             || !strcmp(args, "all")) {
             quit_all = true;
         } else {

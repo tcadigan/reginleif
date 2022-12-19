@@ -2695,14 +2695,10 @@ void xmap_plot_continue(void)
             strncat(maplog, &p.des, 1);
         }
 
-        if (options[MAP_DOUBLE / 32] & ((MAP_DOUBLE < 32) ?
-                                        (1 << MAP_DOUBLE)
-                                        : (1 << (MAP_DOUBLE % 32)))) {
+        if (options[MAP_DOUBLE / 8] & (1 << (MAP_DOUBLE % 8))) {
             sprintf(convbuf,
                     "%s%c%c",
-                    (options[MAP_SPACE / 32] & ((MAP_SPACE < 32) ?
-                                                (1 << MAP_SPACE)
-                                                : (1 << (MAP_SPACE % 32)))) ?
+                    (options[MAP_SPACE / 8] & (1 << (MAP_SPACE % 8))) ?
                     " "
                     : "",
                     (y / 10) + '0',

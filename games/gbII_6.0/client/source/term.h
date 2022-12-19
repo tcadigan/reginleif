@@ -15,7 +15,7 @@
 void get_termcap(void);
 void term_test(void);
 void term_termcap(void);
-int term_null(void *n);
+int term_null(int, int, int);
 int term_CE_clear_to_eol(void);
 int term_SPACE_clear_to_eol(int x, int y);
 int term_CS_scroll(int l1, int l2, int n);
@@ -32,7 +32,7 @@ void term_puts(char *str, int len);
 void term_normal_mode(void);
 void term_toggle_standout(void);
 void term_standout_on(void);
-void term_standout_off(void);
+void term_standout_off(char *nop_str, int nop_int, char *nop_str2);
 int term_standout_status(void);
 void term_toggle_underline(void);
 void term_underline_on(void);
@@ -54,7 +54,7 @@ extern int output_row;
 extern int num_columns;
 extern int num_rows;
 extern int (*term_clear_to_eol)();
-extern int (*term_scroll)();
+extern int (*term_scroll)(int, int, int);
 extern int (*term_cursor_right)();
 extern int (*term_cursor_left)();
 

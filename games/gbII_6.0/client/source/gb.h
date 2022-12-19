@@ -121,7 +121,7 @@ extern int client_devel;
 #define HYPER_DRIVE_FUEL_USE 5.0
 
 #ifdef RWHO
-struct rwhostruct rwho;
+extern struct rwhostruct rwho;
 #endif
 
 extern struct morestruct more_val;

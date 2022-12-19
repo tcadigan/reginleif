@@ -447,9 +447,7 @@ void log_file(char *args)
 
     strcpy(logfile.name, args);
 
-    if ((options[NOCLOBBER / 32] & ((NOCLOBBER < 32) ?
-                                    (1 << NOCLOBBER)
-                                    : (1 << (NOCLOBBER % 32))))
+    if ((options[NOCLOBBER / 8] & (1 << NOCLOBBER % 8))
         && (*mode == 'w')
         && (stat(logfile.name, &statbuf) == 0)) {
         logfile.on = false;

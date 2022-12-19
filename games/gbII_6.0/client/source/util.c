@@ -75,7 +75,7 @@ void add_game(char *nick, char *host, char *port, char *type, char *racename, ch
 void add_queue(char *args, int wait);
 void cmd_listdef(char *args);
 void cmd_listgag(char *args);
-void cmd_listgame(void);
+void cmd_listgame(char *nop);
 void cmd_ungag(char *name);
 void cmd_ungame(char *args);
 void def_update_index(void);
@@ -904,7 +904,7 @@ void save_defs(FILE *fd)
 }
 
 /* Erase all nodes from the macro list */
-void cmd_cleardef(void)
+void cmd_cleardef(char *nop)
 {
     Macro *p;
 
@@ -942,7 +942,7 @@ void cmd_game(char *args)
     memset(sub4, '\0', sizeof(sub4));
 
     if (!*args) {
-        cmd_listgame();
+        cmd_listgame(NULL);
 
         return;
     }
@@ -1159,7 +1159,7 @@ Game *find_game(char *nick)
 }
 
 /* Lists the games in the list */
-void cmd_listgame(void)
+void cmd_listgame(char *nop)
 {
     Game *p = game_head;
     int i = 1;

@@ -526,7 +526,7 @@ void procmsg(char *header, char *args)
     }
 }
 
-void internal_pipe_off(void)
+void internal_pipe_off(char *nop)
 {
     if (pipe_running) {
         process_eof();

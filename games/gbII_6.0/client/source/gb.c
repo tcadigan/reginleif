@@ -52,12 +52,16 @@ extern long last_no_logout_time; /* For no_logout */
 extern long map_time;
 #endif
 
+#ifdef RWHO
+struct rwhostruct rwho;
+#endif
+
 int errno;
 static jmp_buf int_jmp;
 static int nfds;
 struct logstruct logfile = { (FILE *)NULL, "", false, false, LOG_OFF };
 struct scopestruct scope;
-struct waitforstruct wait_csp = { 0, 0, false, "" };
+struct waitforstruct wait_csp = {0, 0, false, ""};
 
 struct morestruct more_val = {
     MORE_DEFAULT_QUITCH,
@@ -332,7 +336,7 @@ int main(int argc, char *argv[])
 #endif
     }
 
-    toggle((int *)"off", DISPLAYING, "display");
+    toggle("off", DISPLAYING, "display");
 
     while ((--argc > 0) && ((*++argv)[0] == '-')) {
         while (*++(*argv)) {
@@ -366,14 +370,10 @@ int main(int argc, char *argv[])
 
                 break;
             case 'l':
-                if (DISPLAY_TOP < 32) {
-                    options[DISPLAY_TOP / 32] &= ~(1 << DISPLAY_TOP);
-                } else {
-                    options[DISPLAY_TOP / 32] &= ~(1 << (DISPLAY_TOP % 32));
-                }
+                options[DISPLAY_TOP / 8] &= ~(1 << (DISPLAY_TOP % 8));
 
-                toggle((int *)"on", DISPLAYING, "display");
-                cmd_listgame();
+                toggle("on", DISPLAYING, "display");
+                cmd_listgame(NULL);
                 quit_gb(0, "", NULL, NULL);
 
                 break;
@@ -390,13 +390,9 @@ int main(int argc, char *argv[])
 
                 break;
             case 'v':
-                if (DISPLAY_TOP < 32) {
-                    options[DISPLAY_TOP / 32] &= ~(1 << DISPLAY_TOP);
-                } else {
-                    options[DISPLAY_TOP / 32] &= ~(1 << (DISPLAY_TOP % 32));
-                }
+                options[DISPLAY_TOP / 8] &= ~(1 << (DISPLAY_TOP % 8));
 
-                toggle((int *)"on", DISPLAYING, "display");
+                toggle("on", DISPLAYING, "display");
                 cmd_version("");
                 quit_gb(-1, "", NULL, NULL);
 
@@ -435,13 +431,9 @@ int main(int argc, char *argv[])
             case 'h':
             case '?':
             default:
-                if (DISPLAY_TOP < 32) {
-                    options[DISPLAY_TOP / 32] &= ~(1 << DISPLAY_TOP);
-                } else {
-                    options[DISPLAY_TOP / 32] &= ~(1 << (DISPLAY_TOP % 32));
-                }
+                options[DISPLAY_TOP / 8] &= ~(1 << (DISPLAY_TOP % 8));
 
-                toggle((int *)"on", DISPLAYING, "display");
+                toggle("on", DISPLAYING, "display");
                 msg("-- Usage: %s [-adehlrsvER?] [-e<filename>] [-i<filename>] [-V<version#>] [host | nick] [port]", progname);
                 msg("  -a      toggles autologin");
                 msg("  -d      toggles display_from_top");
@@ -474,9 +466,9 @@ int main(int argc, char *argv[])
 
     /* Needs to be here in case of -f argument */
     if (allow_init_file) {
-        toggle((int *)"on", DISPLAYING, "display");
+        toggle("on", DISPLAYING, "display");
         load_predefined(gbrc_path);
-        toggle((int *)"off", DISPLAYING, "display");
+        toggle("off", DISPLAYING, "display");
     }
 
     while ((argc > 0) && *argv) {
@@ -522,11 +514,7 @@ int main(int argc, char *argv[])
                     cur_game.game.nick = string(game->nick);
                     add_assign("game_nick", game->nick);
 
-                    if (AUTOLOGIN < 32) {
-                        options[AUTOLOGIN / 32] |= (1 << AUTOLOGIN);
-                    } else {
-                        options[AUTOLOGIN / 32] |= (1 << (AUTOLOGIN % 32));
-                    }
+                    options[AUTOLOGIN / 8] |= (1 << (AUTOLOGIN % 8));
                 }
             }
         } else {
@@ -574,49 +562,25 @@ int main(int argc, char *argv[])
             cur_game.game.nick = string(game->nick);
             add_assign("game_nick", game->nick);
 
-            if (AUTOLOGIN < 32) {
-                options[AUTOLOGIN / 32] |= (1 << AUTOLOGIN);
-            } else {
-                options[AUTOLOGIN / 32] |= (1 << (AUTOLOGIN % 32));
-            }
+            options[AUTOLOGIN / 8] |= (1 << (AUTOLOGIN % 8));
         }
     }
 
     /* Set up the duplicate options so as to preserve GBRC info */
-    if (options[AUTOLOGIN_STARTUP / 32] & ((AUTOLOGIN_STARTUP < 32) ?
-                                           (1 << AUTOLOGIN_STARTUP)
-                                           : (1 << (AUTOLOGIN_STARTUP % 32)))) {
-        if (AUTOLOGIN < 32) {
-            options[AUTOLOGIN / 32] |= (1 << AUTOLOGIN);
-        } else {
-            options[AUTOLOGIN / 32] |= (1 << (AUTOLOGIN %32));
-        }
+    if (options[AUTOLOGIN_STARTUP / 8] & (1 << (AUTOLOGIN_STARTUP % 8))) {
+        options[AUTOLOGIN / 8] |= (1 << (AUTOLOGIN % 8));
     } else {
-        if (AUTOLOGIN < 32) {
-            options[AUTOLOGIN / 32] &= ~(1 << AUTOLOGIN);
-        } else {
-            options[AUTOLOGIN / 32] &= ~(1 << (AUTOLOGIN % 32));
-        }
+        options[AUTOLOGIN / 8] &= ~(1 << (AUTOLOGIN % 8));
     }
 
-    if (options[LOGINSUPPRESS_STARTUP / 32] & ((LOGINSUPPRESS_STARTUP < 32) ?
-                                               (1 << LOGINSUPPRESS_STARTUP)
-                                               : (1 << (LOGINSUPPRESS_STARTUP % 32)))) {
-        if (LOGINSUPPRESS < 32) {
-            options[LOGINSUPPRESS / 32] |= (1 << LOGINSUPPRESS);
-        } else {
-            options[LOGINSUPPRESS / 32] |= (1 << (LOGINSUPPRESS % 32));
-        }
+    if (options[LOGINSUPPRESS_STARTUP / 8] & (1 << (LOGINSUPPRESS_STARTUP % 8))) {
+        options[LOGINSUPPRESS / 8] |= (1 << (LOGINSUPPRESS % 8));
     } else {
-        if (LOGINSUPPRESS < 32) {
-            options[LOGINSUPPRESS / 32] &= ~(1 << LOGINSUPPRESS);
-        } else {
-            options[LOGINSUPPRESS / 32] &= ~(1 << (LOGINSUPPRESS % 32));
-        }
+        options[LOGINSUPPRESS / 8] &= ~(1 << (LOGINSUPPRESS % 8));
     }
 
     /* We are initialized and booted, so let's go on! */
-    toggle((int *)"on", DISPLAYING, "display");
+    toggle("on", DISPLAYING, "display");
     client_stats = L_BOOTED;
     boot_time = time(0);
 
@@ -643,11 +607,7 @@ int main(int argc, char *argv[])
 #endif
 
     /* Default to hide encrypted messages (confuses newbies) -mfw */
-    if (ENCRYPT < 32) {
-        options[ENCRYPT / 32] |= (1 << ENCRYPT);
-    } else {
-        options[ENCRYPT / 32] |= (1 << (ENCRYPT % 32));
-    }
+    options[ENCRYPT / 8] |= (1 << (ENCRYPT % 8));
 
     if (editclient) {
         msg("-- client running in editing mode.");
@@ -750,29 +710,15 @@ void gbs(void)
             if (then == -1) {
                 then = now;
             } else if (!exit_now
-                       && (options[CONNECT / 32] & ((CONNECT < 32) ?
-                                                    (1 << CONNECT)
-                                                    : (1 << (CONNECT % 32))))
+                       && (options[CONNECT / 8] & (1 << (CONNECT % 8)))
                        && (now > (then + reconnect_delay))) {
                 if (game_type == GAME_GBDT) {
-                    if (options[AUTOLOGIN_STARTUP / 32] & ((AUTOLOGIN_STARTUP < 32) ?
-                                                           (1 << AUTOLOGIN_STARTUP)
-                                                           : (1 << (AUTOLOGIN_STARTUP % 32)))) {
-                        if (AUTOLOGIN < 32) {
-                            options[AUTOLOGIN / 32] |= (1 << AUTOLOGIN);
-                        } else {
-                            options[AUTOLOGIN / 32] |= (1 << (AUTOLOGIN % 32));
-                        }
+                    if (options[AUTOLOGIN_STARTUP / 8] & (1 << (AUTOLOGIN_STARTUP % 8))) {
+                        options[AUTOLOGIN / 8] = (1 << (AUTOLOGIN % 8));
                     }
 
-                    if (options[LOGINSUPPRESS_STARTUP / 32] & ((LOGINSUPPRESS_STARTUP < 32) ?
-                                                             (1 << LOGINSUPPRESS_STARTUP)
-                                                             : (1 << (LOGINSUPPRESS_STARTUP % 32)))) {
-                        if (LOGINSUPPRESS < 32) {
-                            options[LOGINSUPPRESS / 32] |= (1 << LOGINSUPPRESS);
-                        } else {
-                            options[LOGINSUPPRESS / 32] |= (1 << (LOGINSUPPRESS % 32));
-                        }
+                    if (options[LOGINSUPPRESS_STARTUP / 8] & (1 << (LOGINSUPPRESS_STARTUP % 8))) {
+                        options[LOGINSUPPRESS / 8] |= (1 << (LOGINSUPPRESS % 8));
                     }
                 }
 
