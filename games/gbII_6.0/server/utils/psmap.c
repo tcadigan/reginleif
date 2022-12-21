@@ -197,7 +197,7 @@ int draw_star(struct star *star, int min_x, int min_y, double scale)
 {
     printf("%d %d (%s) drawstar\n",
            (int)((star->x - min_x) * scale),
-           (int)((min_y - star_y) * scale),
+           (int)((min_y - star->y) * scale),
            star->name);
 
     return 1;

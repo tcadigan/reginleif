@@ -1,21 +1,25 @@
 #ifndef FILES_SHL_H_
 #define FILES_SHL_H_
 
+#include "power.h"
+#include "races.h"
+#include "ships.h"
+
 void close_file(int);
 void open_data_files(void);
 void close_data_files(void);
 void openstardata(int *);
 void openshdata(int *);
-void opencommoddata P_(int *);
+void opencommoddata(int *);
 void openpdata(int *);
 void opensectdata(int *);
 void openracedata(int *);
 void getsdata(struct stardata *);
 void getrace(racetype **, int);
-void getstar(racetype **, int);
+void getstar(startype **, int);
 void getplanet(planettype **, int, int);
 int getsector(sectortype **, planettype *, int, int);
-int getsmap(sectortype **, planettype *);
+int getsmap(sectortype *, planettype *);
 int getship(shiptype **, int);
 int getcommod(commodtype **, int);
 int getdeadship(void);

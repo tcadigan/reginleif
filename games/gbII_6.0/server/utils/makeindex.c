@@ -58,7 +58,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-3include "idx.h"
+#include "../server/idx.h"
 
 char line[LINE_SIZE + 1];
 

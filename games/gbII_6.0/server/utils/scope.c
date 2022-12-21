@@ -18,8 +18,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "vars.h"
-#include "files.h"
+#include "../server/vars.h"
+#include "../server/files.h"
 
 #define DATAFILE DATA(sector)
 
@@ -43,9 +43,9 @@ int main(int argc, char *argv[])
 
     sect = malloc(sizeof(sectortype));
 
-    while (Filerad(sect_fd, sect, sizeof(sectortype), i * sizeof(sectortype))) {
+    while (Fileread(sect_fd, sect, sizeof(sectortype), i * sizeof(sectortype))) {
         if (!sect->eff
-            && !sect_fert
+            && !sect->fert
             && !sect->mobilization
             && !sect->crystals
             && !sect->owner
@@ -63,9 +63,9 @@ int main(int argc, char *argv[])
         ++i;
     }
 
-    clos(sect_fd);
+    close(sect_fd);
     free(sect);
-    printf("Size of sectortype: %d bytes.\n", sizeof(sectortype));
+    printf("Size of sectortype: %lu bytes.\n", sizeof(sectortype));
 
     exit(0);
 }

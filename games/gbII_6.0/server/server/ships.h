@@ -22,8 +22,11 @@
  *
  * #ident "@(#)ships.h 1.10 11/5/93 "
  */
+#ifndef __SHIPS_H__
+#define __SHIPS_H__
 
 #include "config.h"
+#include "vars.h"
 
 #define LIGHT 1
 #define MEDIUM 2
@@ -106,7 +109,7 @@
 #define ABIL_DESTCAP 3
 #define ABIL_GUNS 4
 #define ABIL_PRIMARY 5
-#define ABIL_SECONDARDY 6
+#define ABIL_SECONDARY 6
 #define ABIL_FUELCAP 7
 #define ABIL_MAXCREW 8
 #define ABIL_ARMOR 9
@@ -135,7 +138,7 @@
 
 #define SHIP_NAMESIZE 18
 
-#define INT_MAX_TARGETS 20
+#define INF_MAX_TARGETS 20
 #define INF_MAX_ATMO_SETTING 10
 #define INF_NULL 999
 #define INF_MAX 100
@@ -147,7 +150,7 @@
 
 typedef struct ship shiptype;
 typedef struct place placetype;
-typedef unsigned shot shipnumtype;
+typedef unsigned short shipnumtype;
 
 struct inf_setting {
     unsigned short x;
@@ -182,7 +185,7 @@ struct ship {
     shipnumtype ships; /* Ships landed on it */
 
     unsigned char armor;
-    unsigned shot size;
+    unsigned short size;
 
     unsigned short max_crew;
     unsigned short max_resource;
@@ -199,6 +202,7 @@ struct ship {
     unsigned short destruct; /* Stuff it's carrying */
     unsigned short resource;
     unsigned short popn; /* Crew */
+    unsigned short troops; /* Marines */
     unsigned short crystals;
 
     /* INF */
@@ -267,7 +271,7 @@ struct ship {
             unsigned char generation; /* What generation of VN */
             unsigned char busy; /* Is the VN currently on assignment? */
             unsigned char tampered; /* Recently tampered with? */
-            unsigned short who_kill; /* Who killed the ship */
+            unsigned short who_killed; /* Who killed the ship */
             unsigned char dummy[1];
         } mind;
 #endif
@@ -309,7 +313,7 @@ struct ship {
     } hyper_drive;
 
     unsigned char cew; /* CEW strength */
-    unsigned short cew_range /* CEW (confined-energy-weapon) range */
+    unsigned short cew_range; /* CEW (confined-energy-weapon) range */
     unsigned char fire_laser; /* Retaliation strength for lasers */
 
     unsigned char storbits; /* What star # orbits */
@@ -345,7 +349,7 @@ struct ship {
     unsigned int bombard:1; /* bombard planet we're orbiting */
     unsigned int mounted:1; /* Has a crystal mounted */
     unsigned int cloaked:1; /* Is cloaked ship */
-    unsigned int cloaking:1 /* Cloak order has been issued */
+    unsigned int cloaking:1; /* Cloak order has been issued */
     unsigned int sheep:1; /* Is under influence of mind control */
     unsigned int docked:1; /* Is landed on a planet or docked */
     unsigned int notified:1; /* Has been notified of something */
@@ -392,3 +396,5 @@ extern char Shipltrs[];
 extern char const *Shipnames[];
 
 extern shiptype **ships;
+
+#endif /* __SHIPS_H__ */

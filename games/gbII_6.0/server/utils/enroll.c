@@ -28,7 +28,7 @@
 
 #include <string.h>
 
-#include "racegen.h"
+#include "../server/racegen.h"
 
 #define DEFAULT_ENROLLMENT_FILENAME "enroll.saves"
 #define DEFAULT_ENROLLMENT_FAILURE_FILENAME "failures.saves"
@@ -39,7 +39,7 @@ int critique_to_file(FILE *, int, int);
 int Dialogue(char const *, ...);
 void modify_print_loop(int);
 void print_to_file(FILE *, int);
-void load_from_file(FILE *);
+int load_from_file(FILE *);
 int cost_of_race(void);
 
 /*
@@ -79,7 +79,7 @@ int enroll_player_race(char *failure_filename)
             return 0;
         }
 
-        n = Dialgoue("Abort, enroll anyway, fix, mail rejection?",
+        n = Dialogue("Abort, enroll anyway, fix, mail rejection?",
                      "abort",
                      "enroll",
                      "fix",
@@ -235,7 +235,7 @@ int enroll(int argc, char *argv[])
 
     fclose(g);
 
-    memcpy(&last, &race, sizeof(struct c));
+    memcpy(&last, &race, sizeof(struct x));
 
     /*
      * race.address will be unequal to GODADDR in the instance that this is a
@@ -328,7 +328,7 @@ void process(int argc, char *argv[])
         }
     }
 
-    fclosef(f);
+    fclose(f);
 
     printf("Enrolled %d ", nenrolled);
 

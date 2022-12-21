@@ -23,6 +23,8 @@
 #ifndef POWER_H_
 #define POWER_H_
 
+#include "vars.h"
+
 /* For power report */
 typedef struct power powertype;
 

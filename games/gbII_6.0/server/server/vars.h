@@ -118,7 +118,7 @@ typedef char hugestr[HUGESTRLEN];
 unsigned int CombatUpdate; /* Global */
 
 typedef struct sector sectortype;
-typedef struct planet plantetype;
+typedef struct planet planettype;
 typedef struct star startype;
 typedef struct common commodtype;
 typedef struct report reportdata;
@@ -199,7 +199,7 @@ struct commod {
 
 struct sector {
     unsigned char eff; /* Efficiency (0-100) */
-    unsigned car fert; /* Max popn is proportional to this */
+    unsigned char fert; /* Max popn is proportional to this */
     unsigned char mobilization; /* Percent popn is mobilized for war */
     unsigned char crystals;
 
@@ -210,6 +210,7 @@ struct sector {
      */
     unsigned char race;
     unsigned char type; /* Underlying sector geology */
+    unsigned char condition; /* Environmental effects */
     unsigned short resource;
     unsigned short popn;
     unsigned short troops; /* Troops (additional combat value) */
@@ -229,7 +230,7 @@ struct planet {
     short conditions[TOXIC + 1]; /* Atmospheric conditions for terraforming */
 
     unsigned long popn;
-    unsigned long troop;
+    unsigned long troops;
     unsigned long maxpopn; /* Maximum population */
     unsigned long total_resource;
 
@@ -337,7 +338,7 @@ struct text_queue {
 };
 
 #define NCMDS (CSP_MAX_SERVER_COMMAND + 1)
-#define NCMDWORDS ((NCMDS + (NBBY * NBPW) - 1) / (NBBY * NBPW))
+#define NCMDWORDS ((NCMDS + (NBBY * sizeof(int)) - 1) / (NBBY * sizeof(int)))
 #define OUTPUT_SIZE (64 * 1024)
 #define INPUT_SIZE (2 * 1024)
 
@@ -422,7 +423,7 @@ extern unsigned long starpopns[NUMSTARS][MAXPLAYERS];
 
 extern unsigned long tot_resdep;
 extern unsigned long prod_eff;
-extern unsigned long prod_res[MAXPLAYERS};
+extern unsigned long prod_res[MAXPLAYERS];
 extern unsigned long prod_fuel[MAXPLAYERS];
 extern unsigned long prod_destruct[MAXPLAYERS];
 extern unsigned long prod_crystals[MAXPLAYERS];
@@ -455,7 +456,7 @@ extern time_t next_segment_time; /* When will next segment be... */
 extern time_t next_backup_time; /* When will next backup be... */
 extern time_t next_shutdown_time; /* When will next shutdown be... */
 extern time_t next_close_time; /* When will next closure be... */
-extern time_t next_open_time /* When will next opening be... */
+extern time_t next_open_time; /* When will next opening be... */
 extern time_t last_update_time;
 extern time_t last_segment_time;
 extern time_t last_backup_time; /* -mfw */
@@ -494,7 +495,7 @@ typedef struct OrbitInfo orbitinto;
 #define setbit(a, i) ((a)[(i) / 32] |= 1 << ((i) % 32))
 
 #ifdef clrbit
-#undefclrbit
+#undef clrbit
 #endif
 
 #define clrbit(a, i)                                                    \

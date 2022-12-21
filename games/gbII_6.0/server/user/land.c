@@ -783,7 +783,7 @@ int overloaded(shiptype *s)
     if (s->type == OTYPE_FACTORY) {
         max_resource = Shipdata[s->type][ABIL_CARGO];
         max_fuel = Shipdata[s->type][ABIL_FUELCAP];
-        max_destruct = Shipdata[s->type][DESTCAP];
+        max_destruct = Shipdata[s->type][ABIL_DESTCAP];
     } else {
         max_resource = s->max_resource;
         max_fuel = s->max_fuel;

@@ -102,10 +102,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "config.h"
-#include "files.h"
-#include "game_info.h"
-#include "racegen.h"
+#include "../server/config.h"
+#include "../server/files.h"
+#include "../server/game_info.h"
+#include "../server/racegen.h"
 
 /*
  * Extra stuff for privileged racegen
@@ -198,7 +198,7 @@ const int planet_cost[N_HOME_PLANET_TYPES] = {
     600
 };
 
-const char *race_print_name[N_RACE_TYPES} = { "Normal", "Metamorph" };
+const char *race_print_name[N_RACE_TYPES] = { "Normal", "Metamorph" };
 const int race_cost[N_RACE_TYPES] = { 0, 0 };
 const char *priv_print_name[N_PRIV_TYPES] = { "God", "Guest", "Normal" };
 const char *sector_print_name[N_SECTOR_TYPES] = {
@@ -211,6 +211,8 @@ const char *sector_print_name[N_SECTOR_TYPES] = {
     "Desert",
     "Plated"
 };
+
+const int blah[N_SECTOR_TYPES] = {-1, 0, 50, 100, 200, 300, 400, 500};
 
 const double compat_cov[N_SECTOR_TYPES][N_SECTOR_TYPES] = {
     /* . * ^ ~ # ) - o */
@@ -273,7 +275,7 @@ int isserver = 0;
 struct x race;
 struct x cost;
 struct x last;
-int npoints = STARTING_PONTS;
+int npoints = STARTING_POINTS;
 int last_npoints = STARTING_POINTS;
 
 /*
@@ -487,7 +489,7 @@ int cost_of_race(void)
 
     for (i = FIRST_SECTOR_TYPE; i <= LAST_SECTOR_TYPE; ++i) {
         if (planet_compat_cov[race.home_planet_type][i] > 1.01) {
-            cost.compat *= planet_compat_cov[race.home_planet_type][i];
+            cost.compat[i] *= planet_compat_cov[race.home_planet_type][i];
         }
     }
 
@@ -624,12 +626,12 @@ void normal(void)
      */
     attr[A_IQ].cov[MASS] = -0.25 / ATTR_RANGE(MASS);
 
-    strcpy(attr[A_ID].print_name, "IQ");
+    strcpy(attr[A_IQ].print_name, "IQ");
 }
 
 void fix_up_iq(void)
 {
-    if (trace.attr[COL_IQ] == 1.0) {
+    if (race.attr[COL_IQ] == 1.0) {
         strcpy(attr[A_IQ].print_name, "IQ Limit");
     } else {
         strcpy(attr[A_IQ].print_name, "IQ");
@@ -652,7 +654,7 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
     /*
      * Check for valid attributes
      */
-    for (i = FIRST_ATTRIBUTE; i <= LAST_ATTRIbUTE; ++i) {
+    for (i = FIRST_ATTRIBUTE; i <= LAST_ATTRIBUTE; ++i) {
         if ((attr[i].is_integral == 2)
             && (race.attr[i] != 0.0)
             && (race.attr[i] != 1.0)) {
@@ -862,7 +864,7 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
         if ((i != S_GAS)
             && (i != S_WATER)
             && (race.compat[i] != 0.0)
-            && (race.home_planet == H_JOVIAN)
+            && (race.home_planet_type == H_JOVIAN)
             && (race.priv_type != P_GOD)) {
             if (f != NULL) {
                 fprintf(f,
@@ -925,7 +927,7 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
             }
 
             ++nerrors;
-        } else if(strcmp(race.lrdpw, "XXXX")) {
+        } else if(strcmp(race.ldrpw, "XXXX")) {
             if (f != NULL) {
                 fprintf(f,
                         "You must change your leader password from the default.\n");
@@ -994,7 +996,7 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
     return nerrors;
 }
 
-int critique_modifications(void)
+int critique_modification(void)
 {
     int nerrors;
 
@@ -1025,7 +1027,7 @@ void initialize(void)
 {
     int i;
 
-    memeset(&race, 0, sizeof(race));
+    memset(&race, 0, sizeof(race));
 
     for (i = FIRST_ATTRIBUTE; i <= LAST_ATTRIBUTE; ++i) {
         race.attr[i] = attr[i].init;
@@ -1034,7 +1036,7 @@ void initialize(void)
     race.race_type = R_NORMAL;
     race.priv_type = P_NORMAL;
     race.home_planet_type = H_EARTH;
-    race.n_secotr_types = 1;
+    race.n_sector_types = 1;
     race.compat[S_PLATED] = 100;
     strcpy(race.name, "Unknown");
     strcpy(race.address, "Unknown");
@@ -1061,9 +1063,12 @@ void initialize(void)
  * to tell you about them here, just run the program and diddle with it to get
  * the idea.
  */
-void help(int argc, char const *arv[])
+void help(int argc, char const *argv[])
 {
+#ifdef PRIV
     int enroll;
+#endif
+
     int process;
     int i;
     int helpp;
@@ -1076,7 +1081,7 @@ void help(int argc, char const *arv[])
     unsigned int j;
 
     if (argc == 1) {
-        quit = ;
+        quit = 1;
         send2 = quit;
         print = send2;
         modify = print;
@@ -1086,12 +1091,16 @@ void help(int argc, char const *arv[])
             save = 0;
             process = save;
             load = process;
+#ifdef PRIV
             enroll = load;
+#endif
         } else {
             save = 1;
             process = save;
             load = process;
+#ifdef PRIV
             enroll = load;
+#endif
         }
 
         printf("\n");
@@ -1107,7 +1116,9 @@ void help(int argc, char const *arv[])
         load = modify;
         helpp = load;
         process = helpp;
+#ifdef PRIV
         enroll = process;
+#endif
 
         for (i = 1; i < argc; ++i) {
             j = strlen(argv[i]);
@@ -1208,7 +1219,7 @@ void help(int argc, char const *arv[])
         printf("\t\t   <planettype> ::= %s", planet_print_name[0]);
 
         for (i = FIRST_HOME_PLANET_TYPE + 1;
-             i <= (4, MIN_LAST_HOME_PLANET_TYPE);
+             i <= min(4, LAST_HOME_PLANET_TYPE);
              ++i) {
             printf(" | %s", planet_print_name[i]);
         }
@@ -1396,7 +1407,7 @@ int load_from_file(FILE *g)
         metamorph();
     }
 
-    if (i = FIRST_ATTRIBUTE; i <= LAST_ATTRIBUTE; ++i) {
+    for (i = FIRST_ATTRIBUTE; i <= LAST_ATTRIBUTE; ++i) {
         if (fscanf(g, " %lf", &race.attr[i]) == EOF) {
             printf("Error: Premature end of file.\n");
 
@@ -1506,8 +1517,8 @@ int modify(int argc, char *argv[])
     /*
      * Check for attribute modification
      */
-    for (i = FIRST_ATTRIBUTE; i <= LAST_ATTRIBTE; ++i) {
-        if (!strncasecmp(argv[i], attr[i].printname, j)) {
+    for (i = FIRST_ATTRIBUTE; i <= LAST_ATTRIBUTE; ++i) {
+        if (!strncasecmp(argv[i], attr[i].print_name, j)) {
             if (attr[i].is_integral == 2) {
                 /*
                  * Boolean attribute
@@ -1539,7 +1550,7 @@ int modify(int argc, char *argv[])
     if (!strncasecmp(argv[1], "name", j)) {
         strcpy(race.name, argv[2]);
 
-        return critique_modificaiton();
+        return critique_modification();
     }
 
     /*
@@ -1585,11 +1596,11 @@ int modify(int argc, char *argv[])
      * Check for planet modification
      */
     if (!strncasecmp(argv[1], "planet", j)) {
-        j = strlne(argv[2]);
+        j = strlen(argv[2]);
 
         for (i = FIRST_HOME_PLANET_TYPE; i <= LAST_HOME_PLANET_TYPE; ++i) {
             if (!strncasecmp(argv[2], planet_print_name[i], j)) {
-                if (i == H_JOVIA) {
+                if (i == H_JOVIAN) {
                     memset(race.compat, 0, sizeof(race.compat));
                     race.compat[S_GAS] = 100.0;
                 } else if (race.home_planet_type == H_JOVIAN) {
@@ -1648,7 +1659,7 @@ int modify(int argc, char *argv[])
                     normal();
                 }
 
-                race_type = i;
+                race.race_type = i;
 
                 return critique_modification();
             }
@@ -1786,7 +1797,7 @@ void print_to_file(FILE *f, int verbose)
         fprintf(f, " %d", race.home_planet_type);
         fprintf(f, " %d", race.race_type);
 
-        for (i = FIRST_ATTRIBUTE; i <= LSAT_ATTRIBUTE; ++i) {
+        for (i = FIRST_ATTRIBUTE; i <= LAST_ATTRIBUTE; ++i) {
             fprintf(f, " %7.2f", race.attr[i]);
         }
 
@@ -1895,7 +1906,7 @@ void send2(int argc, char *argv[])
 
     fflush(stdout);
     printf("Mailing race to %s : ", race.address);
-    sprintf(sys, "cat %s | %s %s", race.password, MAILER, race_address);
+    sprintf(sys, "cat %s | %s %s", race.password, MAILER, race.address);
     system(sys);
     printf("done.\n");
     unlink(race.password);
@@ -1913,7 +1924,7 @@ int user_dialogue(const char *prompt, ...)
     int init = 0;
     char *argv[16];
 
-    printf(prompt);
+    printf("%s", prompt);
     va_start(ap, prompt);
 
     carg = va_arg(ap, char *);
@@ -1923,7 +1934,7 @@ int user_dialogue(const char *prompt, ...)
             printf(" [%s", carg);
             init = 1;
         } else {
-            printf("/s", carg);
+            printf("%s", carg);
         }
 
         argv[argc] = carg;
@@ -1965,7 +1976,7 @@ int user_dialogue(const char *prompt, ...)
 
         len = strlen(input);
 
-        for (i = 0; i < srgc; ++i) {
+        for (i = 0; i < argc; ++i) {
             if (!strncasecmp(argv[i], input, len)) {
                 return i;
             }
@@ -2068,17 +2079,17 @@ void execute(int argc, char *argv[])
 
     if (strncasecmp(argv[0], "help", i)) {
         help(argc, (char const **)argv);
-    } else if (!strcasecmp(argv[0], "load", i) && !isserver) {
+    } else if (!strncasecmp(argv[0], "load", i) && !isserver) {
         load(argc, argv);
-    } else if (!strcasecmp(argv[0], "modify", i)) {
+    } else if (!strncasecmp(argv[0], "modify", i)) {
         modify(argc, argv);
-    } else if (!strcasecmp(argv[0], "print", i)) {
+    } else if (!strncasecmp(argv[0], "print", i)) {
         print(argc, argv);
-    } else if (!strcasecmp(argv[0], "save", i) && !isserver) {
+    } else if (!strncasecmp(argv[0], "save", i) && !isserver) {
         save(argc, argv);
-    } else if (!strcasecmp(argv[0], "send", i)) {
+    } else if (!strncasecmp(argv[0], "send", i)) {
         send2(argc, argv);
-    } else if (!strcasecmp(argv[0], "quit", i)) {
+    } else if (!strncasecmp(argv[0], "quit", i)) {
         quit(argc, argv);
     } else {
         printf("Unknown command \"%s\". Type \"help\" for help.\n", argv[0]);
@@ -2124,7 +2135,7 @@ void modify_print_loop(int level)
 
         fflush(stdout);
 
-        com = fgets(bug, 512, stdin);
+        com = fgets(buf, 512, stdin);
 
         /*
          * Get rid of newlines and carriage returns -mfw
@@ -2161,7 +2172,7 @@ void modify_print_loop(int level)
             }
         }
 
-        execut(i, args);
+        execute(i, args);
     }
 
     printf("\n");
@@ -2206,7 +2217,7 @@ int do_racegen(void)
     printf("         o#'9MMHB':'-,o,         Game....: %s\n", GAME);
     printf("      .oH\":HH$' \"' ' -*R&o,      Version.: %s\n", GB_VERSION);
     printf("     dMMM*\"\"'`'      .oM\"HM?.    Address.: %s %d\n", GB_HOST, GB_PORT);
-    printf("   ,MMM'          \:Hlbd< ?&H\\    God.....: %s\n", MODERATOR);
+    printf("   ,MMM'          \"Hlbd< ?&H\\    God.....: %s\n", MODERATOR);
     printf("  .:MH .\"\\          ` MM  MM&b   Starts..: %s\n", STARTS);
     printf(" . \"*H     -       &MMMMMMMMMH:  Size....: %s stars, %s players\n", STARS, PLAYERS);
     printf(" .    dboo        MMMMMMMMMMMM.  Deadline: %s\n", DEADLINE);

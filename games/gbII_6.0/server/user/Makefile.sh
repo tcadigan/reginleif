@@ -76,7 +76,7 @@ LIBTARGET = libgbuser.a
 
 # Lists
 USER_SRC = analysis.c autoreport.c autoshoot.c bug.c build.c capital.c \
-           capture.c cha.c cs.c csp_prof.c csp_orbits.c csp_dump.c \
+           capture.c chan.c cs.c csp_prof.c csp_orbit.c csp_dump.c \
            csp_map.c csp_survey.c csp_explore.c declare.c dissolve.c \
            dock.c enslave.c examine.c explore.c fire.c fleet.c fuel.c \
            help.c land.c launch.c load.c map.c mobiliz.c move.c \

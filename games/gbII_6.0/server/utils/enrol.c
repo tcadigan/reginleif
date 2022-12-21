@@ -26,18 +26,23 @@
 #include <curses.h>
 #include <errno.h>
 #include <signal.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
-#include "buffers.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "shipdata.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/files_shl.h"
+#include "../server/max.h"
+#include "../server/perm.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/rand.h"
+#include "../server/ranks.h"
+#include "../server/shipdata.h"
+#include "../server/ships.h"
+#include "../server/vars.h"
 
 #define RACIAL_TYPES 10
 
@@ -135,18 +140,16 @@ int main(int argc, char *argv[])
     int s;
     int idx;
     int k;
-    int shipno;
     char str[100];
     char c;
     /*
      * char racepass[MAXCOMMSTRSIZE];
      * char govpass[MAXCOMMSTRSIZE];
      */
-    shiptype s;
     sectortype *sect;
     struct stype secttypes[WASTED + 1];
-    planettypes *planet;
-    unsigned char not_found[TYPES_GASGIANT + 1];
+    planettype *planet;
+    unsigned char not_found[TYPE_GASGIANT + 1];
     startype *star_arena;
     /*
      * FILE *fd;
@@ -168,7 +171,7 @@ int main(int argc, char *argv[])
     }
 
     printf("Enter racial type to be created (1-%d):", RACIAL_TYPES);
-    scanf("&d", &idx);
+    scanf("%d", &idx);
     getchr();
 
     if ((idx <= 0) || (idx > RACIAL_TYPES)) {
@@ -247,14 +250,14 @@ int main(int argc, char *argv[])
 
     star = 0;
     while ((star < Sdata.numstars) && !found && (count < 100)) {
-        check = 1;
+        bool check = true;
 
         /*
          * Skip over inhabited stars - or stars with just one planet!
          */
         if ((Stars[star]->inhabited[0] + Stars[star]->inhabited[1])
             || (Stars[star]->numplanets < 2)) {
-            check = 0;
+            check = false;
         }
 
         /*
@@ -377,14 +380,14 @@ int main(int argc, char *argv[])
         star = 0;
 
         while ((star < Sdata.numstars) && !found && (count < 100)) {
-            check = 1;
+            bool check = true;
 
             /*
              * Skip over inhabited stars - or stars with just one planet!
              */
             if((Stars[star]->inhabited[0] + Stars[star]->inhabited[1])
                || (Stars[star]->numplanets < 2)) {
-                check = 0;
+                check = false;
             }
 
             /*
@@ -464,9 +467,9 @@ int main(int argc, char *argv[])
     }
 
     if (c == 'g') {
-        race->guest = 1;
+        Race->Guest = 1;
     } else {
-        Race->guest = 0;
+        Race->Guest = 0;
     }
 
     strcpy(Race->name, "Unknown");
@@ -487,7 +490,7 @@ int main(int argc, char *argv[])
      */
     Race->governor[0].toggle.highlight = Playernum;
     Race->governor[0].toggle.inverse = 1;
-    Race->governor[0].toggle.colot = 0;
+    Race->governor[0].toggle.color = 0;
     Race->governor[0].active = 1;
 
     printf("Enter the password for this race:");
@@ -556,7 +559,7 @@ int main(int argc, char *argv[])
         Race->pods = 0;
         Race->collective_iq = Race->pods;
         Race->absorb = Race->collective_iq;
-        Race->Metatamorph = Race->absorb;
+        Race->Metamorph = Race->absorb;
     }
 
     Race->adventurism = db_Adventurism[idx] + (0.01 * (double)int_rand(-10, 10));
@@ -571,7 +574,7 @@ int main(int argc, char *argv[])
 
     printf("       Birthrate: %.3f\n", Race->birthrate);
     printf("Fighting ability: %d\n", Race->fighters);
-    printf("              IQ: %d\n", Race-IQ);
+    printf("              IQ: %d\n", Race->IQ);
     printf("      Metabolism: %2.f\n", Race->metabolism);
     printf("     Adventurism: %.2f\n", Race->adventurism);
     printf("            Mass: %.2f\n", Race->mass);
@@ -610,7 +613,7 @@ int main(int argc, char *argv[])
         Race->number_sexes = int_rand(Min_Sexes[idx], int_rand(Min_Sexes[idx], Max_Sexes[idx]));
         Race->metabolism = db_Metabolism[idx] + (0.01 * (double)int_rand(-15, 15));
 
-        if (race->Metamorph) {
+        if (Race->Metamorph) {
             printf("METAMORPHIC\n");
         } else {
             printf("\n");
@@ -646,18 +649,18 @@ int main(int argc, char *argv[])
     Getxysect(planet, 0, 0, 1);
 
     while (Getxysect(planet, &x, &y, 0)) {
-        ++settypes[Sector(*planet, x, y).condition].count;
+        ++secttypes[Sector(*planet, x, y).condition].count;
 
         if (!secttypes[Sector(*planet, x, y).condition].here) {
-            secttype[Sector(*planet, x, y).condition].here = 1;
-            secttype[Sector(*planet, x, y).condition].x = x;
-            secttype[Sector(*planet, x, y).condition].y = y;
+            secttypes[Sector(*planet, x, y).condition].here = 1;
+            secttypes[Sector(*planet, x, y).condition].x = x;
+            secttypes[Sector(*planet, x, y).condition].y = y;
         }
     }
 
     planet->explored = 1;
 
-    for (i = SEA; i <= WASTER; ++i) {
+    for (i = SEA; i <= WASTED; ++i) {
         if (secttypes[i].here) {
             printf("(%2d): %c (%d, %d) (%s, %d sectors)\n",
                    i,
@@ -721,84 +724,85 @@ int main(int argc, char *argv[])
     /*
      * Build a capital ship to run the government
      */
-    Bzero(s);
-    shipno = Numships() + 1;
+    shiptype capital_ship;
+    Bzero(capital_ship);
+    int shipno = Numships() + 1;
 
     printf("Creating government ship %d...\n", shipno);
 
     Race->Gov_ship = shipno;
     planet->ships = shipno;
-    s.nextship = 0;
+    capital_ship.nextship = 0;
 
-    s.type = OTYPE_GOV;
-    s.xpos = Stars[star]->xpos + planet->xpos;
-    s.ypos = Stars[star]->ypos + planet->ypos;
-    s.land_x = (char)secttypes[i].x;
-    s.land_y = (char)secttypes[i].y;
-    s.speed = 0;
-    s.owner = Playernum;
-    s.race = Playernum;
-    s.governor = 0;
-    s.tech = 100.0;
-    s.build_type = s.type;
-    s.armor = Shipdata[s.type][ABIL_ARMOR];
-    s.guns = PRIMARY;
-    s.primary = Shipdata[s.type][ABIL_GUNS];
-    s.primtype = Shipdata[s.type][ABIL_PRIMARY];
-    s.secondary = Shipdata[s.type][ABIL_GUNS];
-    s.sectype = Shipdata[s.type][ABIL_SECONDARY];
-    s.max_crew = Shipdata[s.type][ABIL_MAXCREW];
-    s.max_destruct = Shipdata[s.type][ABIL_DESTCAP];
-    s.max_resource = shipdata[s.type][ABIL_CARGO];
-    s.max_fuel = Shipdata[s.type][ABIL_FUELCAP];
-    s.max_speed = Shipdata[s.type][ABIL_SPEED];
-    s.build_cost = Shipdata[s.type][ABIL_COST];
-    s.size = 100;
-    s.base_mass = 100.0;
-    sprintf(s.class, "Standard");
-    s.fuel = 0.0;
-    s.popn = s.max_crew;
-    s.troops = 0;
-    s.mass = s.base_mass + (s.popn * Race->mass);
-    s.resource = 0;
-    s.destruct = s.resource;
-    s.alive = 1;
-    s.active = 1;
-    s.protect.self = 1;
-    s.docked = 1;
+    capital_ship.type = OTYPE_GOV;
+    capital_ship.xpos = Stars[star]->xpos + planet->xpos;
+    capital_ship.ypos = Stars[star]->ypos + planet->ypos;
+    capital_ship.land_x = (char)secttypes[i].x;
+    capital_ship.land_y = (char)secttypes[i].y;
+    capital_ship.speed = 0;
+    capital_ship.owner = Playernum;
+    capital_ship.race = Playernum;
+    capital_ship.governor = 0;
+    capital_ship.tech = 100.0;
+    capital_ship.build_type = capital_ship.type;
+    capital_ship.armor = Shipdata[capital_ship.type][ABIL_ARMOR];
+    capital_ship.guns = PRIMARY;
+    capital_ship.primary = Shipdata[capital_ship.type][ABIL_GUNS];
+    capital_ship.primtype = Shipdata[capital_ship.type][ABIL_PRIMARY];
+    capital_ship.secondary = Shipdata[capital_ship.type][ABIL_GUNS];
+    capital_ship.sectype = Shipdata[capital_ship.type][ABIL_SECONDARY];
+    capital_ship.max_crew = Shipdata[capital_ship.type][ABIL_MAXCREW];
+    capital_ship.max_destruct = Shipdata[capital_ship.type][ABIL_DESTCAP];
+    capital_ship.max_resource = Shipdata[capital_ship.type][ABIL_CARGO];
+    capital_ship.max_fuel = Shipdata[capital_ship.type][ABIL_FUELCAP];
+    capital_ship.max_speed = Shipdata[capital_ship.type][ABIL_SPEED];
+    capital_ship.build_cost = Shipdata[capital_ship.type][ABIL_COST];
+    capital_ship.size = 100;
+    capital_ship.base_mass = 100.0;
+    sprintf(capital_ship.class, "Standard");
+    capital_ship.fuel = 0.0;
+    capital_ship.popn = capital_ship.max_crew;
+    capital_ship.troops = 0;
+    capital_ship.mass = capital_ship.base_mass + (capital_ship.popn * Race->mass);
+    capital_ship.resource = 0;
+    capital_ship.destruct = capital_ship.resource;
+    capital_ship.alive = 1;
+    capital_ship.active = 1;
+    capital_ship.protect.self = 1;
+    capital_ship.docked = 1;
     /*
      * Docked on the planet
      */
-    s.whatorbits = LEVEL_PLAN;
-    s.whatdest = LEVEL_PLAN;
-    s.deststar = star;
-    s.destpnum = pnum;
-    s.storbits = star;
-    s.pnumorbits = pnum;
-    s.rad = 0;
+    capital_ship.whatorbits = LEVEL_PLAN;
+    capital_ship.whatdest = LEVEL_PLAN;
+    capital_ship.deststar = star;
+    capital_ship.destpnum = pnum;
+    capital_ship.storbits = star;
+    capital_ship.pnumorbits = pnum;
+    capital_ship.rad = 0;
     /*
-     * Shipdata[s.type][ABIL_DAMAGE];
+     * Shipdata[capital_ship.type][ABIL_DAMAGE];
      */
-    s.damage = 0;
+    capital_ship.damage = 0;
     /*
      * First capital is 100% efficient
      */
-    s.retaliate = 0;
-    s.ships = 0;
-    s.on = 1;
-    s.limit = 100;
-    s.use_stock = 1;
-    s.hop = 1;
-    s.name[0] = '\0';
-    s.number = shipno;
+    capital_ship.retaliate = 0;
+    capital_ship.ships = 0;
+    capital_ship.on = 1;
+    capital_ship.limit = 100;
+    capital_ship.use_stock = 1;
+    capital_ship.hop = 1;
+    capital_ship.name[0] = '\0';
+    capital_ship.number = shipno;
 
     printf("Created on sector %d,%d on /%s/%s\n",
-           s.land_x,
-           s.land_y,
-           Stars[s.storbits]->name,
-           Stars[s.storbits]->pnames[s.pnumorbits]);
+           capital_ship.land_x,
+           capital_ship.land_y,
+           Stars[capital_ship.storbits]->name,
+           Stars[capital_ship.storbits]->pnames[capital_ship.pnumorbits]);
 
-    putship(&s);
+    putship(&capital_ship);
 
     for (j = 0; j < MAXPLAYERS; ++j) {
         Race->points[j] = 0;
@@ -806,7 +810,7 @@ int main(int argc, char *argv[])
 
     putrace(Race);
 
-    sect->owned = Playernum;
+    sect->owner = Playernum;
     sect->race = Playernum;
 
     if (ADAM_AND_EVE) {
@@ -865,7 +869,7 @@ int main(int argc, char *argv[])
  */
 char end_desshow(planettype *p, int x, int y)
 {
-    sectortype *s = &sector(*p, x, y);
+    sectortype *s = &Sector(*p, x, y);
 
     switch (s->condition) {
     case WASTED:
@@ -877,7 +881,7 @@ char end_desshow(planettype *p, int x, int y)
     case MOUNT:
         return CHAR_MOUNT;
     case GAS:
-        return CHAR_GAS:
+        return CHAR_GAS;
     case PLATED:
         return CHAR_PLATED;
     case DESERT:

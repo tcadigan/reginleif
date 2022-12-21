@@ -30,5 +30,3 @@ depend: ${SRCS}
 
 .c.o:
 	${BEAR} ${CC} ${CFLAGS} -c ${.IMPSRC} -o ${.TARGET}
-
-# LINUX_LIB = -lncurses -lcrypt -lbsd

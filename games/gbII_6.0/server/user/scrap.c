@@ -229,7 +229,7 @@ void scrap(int playernum, int governor, int apcount)
                 if (s2->type == OTYPE_FACTORY) {
                     max_resource = Shipdata[s2->type][ABIL_CARGO];
                     max_fuel = Shipdata[s2->type][ABIL_FUELCAP];
-                    max_destruct = Shipdata[s2->type][DESTCAP];
+                    max_destruct = Shipdata[s2->type][ABIL_DESTCAP];
                 } else {
                     max_resource = s2->max_resource;
                     max_fuel = s2->max_fuel;

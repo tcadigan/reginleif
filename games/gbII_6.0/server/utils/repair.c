@@ -18,8 +18,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "vars.h"
-#include "files.h"
+#include "../server/vars.h"
+#include "../server/files.h"
 
 #define DATAFILE "sector"
 
@@ -28,11 +28,10 @@ void Filewrite(int fd, sectortype const *p, unsigned num, int posn);
 
 int main(int argc, char *argv[])
 {
-    int i = 0;
-    static int sect_id;
+    static int sect_fd;
     sectortype *sect;
 
-    sect_id = open(DATAFILE, 000, 0777);
+    sect_fd = open(DATAFILE, 000, 0777);
 
     if (sect_fd < 0) {
         perror("main");

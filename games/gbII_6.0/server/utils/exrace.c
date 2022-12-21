@@ -35,9 +35,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "files.h"
-#include "races.h"
-#include "vars.h"
+#include "../server/files.h"
+#include "../server/races.h"
+#include "../server/vars.h"
 
 #define DATAFILE DATA(race)
 
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
 
     check_size();
 
-    if (argv == 1) {
+    if (argc == 1) {
         /*
          * Check the whole database for errors
          */
@@ -234,7 +234,7 @@ void display_race(void)
     for (i = 0; i < 6; ++i) {
         if (display->governor[i].active) {
             printf("Gov Number: %d", i);
-            prtinf("\tGov Name: %s", display->governor[i].name);
+            printf("\tGov Name: %s", display->governor[i].name);
             printf("\tGov Password: %s", display->governor[i].password);
             printf("\tRank: %d\n", display->governor[i].rank);
         }

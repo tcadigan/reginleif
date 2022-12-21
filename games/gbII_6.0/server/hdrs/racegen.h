@@ -186,7 +186,7 @@ extern int const race_cost[N_RACE_TYPES];
 #define P_GUEST (P_GOD + 1)
 #define P_NORMAL (P_GUEST + 1)
 #define LAST_PRIV_TYPE (P_NORMAL)
-#define N_PRIV_TYPES (LAST_PRINT_TYPE + 1)
+#define N_PRIV_TYPES (LAST_PRIV_TYPE + 1)
 
 extern char const *priv_print_name[N_PRIV_TYPES];
 

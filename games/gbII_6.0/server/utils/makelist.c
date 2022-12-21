@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
     FILE *input;
     FILE *add;
     char *c;
-    char buf[BUFSIZE];
+    char buf[BUFSIZ];
     int names;
 
     if (argc != 3) {
@@ -80,8 +80,8 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    if (fgets(buf, BUFSIZE, input)) {
-        list_head = (LIST *)malloc(sizeof(LIS));
+    if (fgets(buf, BUFSIZ, input)) {
+        list_head = (LIST *)malloc(sizeof(LIST));
         list_head->prev = NULL;
         list_head->next = NULL;
 

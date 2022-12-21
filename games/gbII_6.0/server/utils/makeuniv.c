@@ -34,11 +34,11 @@
 /*
  * For power
  */
-#include "power.h"
-#include "races.h"
-#include "ships.h"
-#include "vars.h"
-#include "tweakables.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ships.h"
+#include "../server/vars.h"
+#include "../server/tweakables.h"
 
 #define OUTPUTFILE "universe.txt"
 #define DEFAULT_POSTSCRIPT_MAP_FILENAME "universe.ps"
@@ -51,7 +51,7 @@ extern int Temperature(double, int);
 extern void PrintStatistics(FILE *);
 extern void Makeplanet_init(void);
 extern void Makestar_init(void);
-extern startype *Makestar(FILE *, FILE *, File *);
+extern startype *Makestar(FILE *, FILE *, FILE *);
 extern int round_rand(double);
 extern void make_wormhole(startype *, FILE *, FILE *, FILE *);
 extern char *NextStarName(void);
@@ -60,7 +60,7 @@ int int_rand(int, int);
 double double_rand(void);
 void InitFile(char const *, void *, unsigned int);
 void EmptyFile(char const *);
-void place_star(starttype *);
+void place_star(startype *);
 void produce_postscript(char const *);
 
 
@@ -163,7 +163,6 @@ int main(int argc, char *argv[])
     int z;
     int squaresleft;
     int total;
-    int flag = 0;
     struct power power[MAXPLAYERS];
     struct block block[MAXPLAYERS];
 
@@ -366,7 +365,7 @@ int main(int argc, char *argv[])
     if (!wormholes) {
         whcnt = 0;
     } else {
-        whcnt (int)(nstars / wormholes) - 1;
+        whcnt = (int)(nstars / wormholes) - 1;
     }
 
     wormidx = 0;
@@ -402,7 +401,7 @@ int main(int argc, char *argv[])
 
                 make_wormhole(Stars[star], planetdata, sectordata, outputtxt);
                 w_holes[wormidx].star = Stars[star];
-                w_hoels[wormidx].num = star;
+                w_holes[wormidx].num = star;
                 ++wormidx;
             }
         }
@@ -565,7 +564,7 @@ int main(int argc, char *argv[])
                 if (dist < (4 * SYSTEMSIZE)) {
                     z = 1;
 
-                    if (stars[x]->ypos > Stars[y]->ypos) {
+                    if (Stars[x]->ypos > Stars[y]->ypos) {
                         Stars[x]->ypos += (4 * SYSTEMSIZE);
                     } else {
                         Stars[y]->ypos += (4 * SYSTEMSIZE);
@@ -600,13 +599,13 @@ int main(int argc, char *argv[])
             fprintf(outputtxt,
                     "Wormhole[%d], Dest: %d, Star: %d %s, Stab: %d\n",
                     x - 1,
-                    w_holes[x - 1].star->wh_test_starnum,
+                    w_holes[x - 1].star->wh_dest_starnum,
                     w_holes[x - 1].num,
                     w_holes[x - 1].star->name,
                     w_holes[x - 1].star->wh_stability);
         }
 
-        if (printfstarinfo) {
+        if (printstarinfo) {
             fprintf(outputtxt,
                     "Wormhole[%d], Dest: %d, Star: %d %s, Stab: %d\n",
                     x,
@@ -659,6 +658,8 @@ int main(int argc, char *argv[])
          * Circle of stars
          */
         fprintf(outputtxt, "Grouping [%f]", dist);
+
+        int flag = 0;
 
         for (clusters = 1; clusters <= CLUSTER_COUNTER; ++clusters) {
             /*
@@ -770,14 +771,14 @@ int main(int argc, char *argv[])
     InitFile(POWFL, power, sizeof(power));
 
     memset((char *)block, 0, sizeof(block));
-    Initfile(BLOCKDATAFL, block, sizeof(block));
+    InitFile(BLOCKDATAFL, block, sizeof(block));
 
     /*
      * Telegram files: directory and a file for each player.
      */
-    sprintf(str, "/bin/mkdir -p %s", MSGDIR);
+    sprintf(str, "/bin/mkdir -p %s", MSGSDIR);
     system(str);
-    chmod(MSGDIR, 00770);
+    chmod(MSGSDIR, 00770);
 
 #if 0
     /*
@@ -831,7 +832,7 @@ void EmptyFile(char const *filename)
 void produce_postscript(char const *filename)
 {
     int min_x;
-    int max_s;
+    int max_x;
     int min_y;
     int max_y;
     int i;
@@ -861,7 +862,7 @@ void produce_postscript(char const *filename)
             max_x = Stars[i]->xpos;
         }
 
-        if (stars[i]->ypos < min_y) {
+        if (Stars[i]->ypos < min_y) {
             min_y = Stars[i]->ypos;
         }
 

@@ -83,8 +83,8 @@ SERVER_SRC = GB_server.c amoeba.c client.c dispatch.c doplanet.c dosector.c \
 
 ULIB_SRC = files.c perm.c rand.c max.c md5.c files_shl.c files_rw.c shlmisc.c
 
-SERVER_OBJ = $(SERVER_SRC:.c=.0)
-ULIB_OBJ = $(ULIB_SRC:.c=.o
+SERVER_OBJ = $(SERVER_SRC:.c=.o)
+ULIB_OBJ = $(ULIB_SRC:.c=.o)
 
 # Standard targets
 all: GB_SERVER ligbserv.a

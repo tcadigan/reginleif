@@ -118,7 +118,8 @@
  * GB_PORT:
  *   This symbol contains the port number that GB will run on.
  */
-#define GB_PORT $port
+// #define GB_PORT $port
+#define GB_PORT 1337
 
 /*
  * GODADDR:

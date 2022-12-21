@@ -33,10 +33,10 @@
 /*
  * (for power)
  */
-#include "power.h"
-#include "races.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ships.h"
+#include "../server/vars.h"
 
 #if 0
 G.O.D[1] > methane melts at -182C
@@ -84,7 +84,7 @@ int namestcount;
 char SNames[1000][20];
 char PNames[1000][20];
 int planet_list[1000];
-char star_list[1000];
+int star_list[1000];
 int Numtypes[TYPE_DESERT + 2] = { 0 };
 int Resource[TYPE_DESERT + 2] = { 0 };
 int Numsects[TYPE_DESERT + 2][PLATED + 1] = { {0} };
@@ -113,7 +113,7 @@ char const *Namesects[] = {
     "plated"
 };
 
-int Temperatur(double dist, int stemp)
+int Temperature(double dist, int stemp)
 {
     return (-269 + (((stemp * 1315) * 40) / (40 + dist)));
 }
@@ -143,14 +143,14 @@ void PrintStatistics(FILE *outputtxt)
         fprintf(outputtxt, "%3.3s%4d ", Nametypes[i], Numtypes[i]);
 
         if (i < (TYPE_DESERT + 1)) {
-            Numtypes[TYPE_DESERT = 1] += Numtypes[i];
+            Numtypes[TYPE_DESERT + 1] += Numtypes[i];
 
             for (j = 0; j < PLATED; ++j) {
                 fprintf(outputtxt, "%5d", Numsects[i][j]);
                 Numsects[i][PLATED] += Numsects[i][j];
 
                 if (i <= TYPE_DESERT) {
-                    Numsects[TYPES_DESERT + 1][j] += Numsects[i][j];
+                    Numsects[TYPE_DESERT + 1][j] += Numsects[i][j];
                 }
             }
         } else {
@@ -213,7 +213,7 @@ void PrintStatistics(FILE *outputtxt)
         }
 
         fprintf(outputtxt,
-                "%8 %7.1f %5.1f\n",
+                "%8d %7.1f %5.1f\n",
                 y,
                 (1.0 * y) / Numtypes[i],
                 (1.0 * y) / Numsects[i][PLATED]);
@@ -352,7 +352,7 @@ void Makeplanet_init(void)
 
 char const *NextPlanetName(int i)
 {
-    static const char *Numbers = {
+    static const char *Numbers[] = {
         "1", "2", "3", "4", "5", "6", "7", "8",
         "9", "10", "11", "12", "13", "14", "15"
     };
@@ -624,11 +624,11 @@ startype *Makestar(FILE *planetdata, FILE *sectordata, FILE *outputtxt)
                     Star->name,
                     dist);
 
-            fprintf(outputtxt, "sect map(%dx%d):\n", planet.Maxx, Planet.Maxy);
+            fprintf(outputtxt, "sect map(%dx%d):\n", planet.Maxx, planet.Maxy);
 
             for (y = 0; y < planet.Maxy; ++y) {
                 for (x = 0; x < planet.Maxx; ++x) {
-                    switch (sector(planet, x, y).condition) {
+                    switch (Sector(planet, x, y).condition) {
                     case LAND:
                         fprintf(outputtxt, "%c", CHAR_LAND);
 

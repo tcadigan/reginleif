@@ -27,14 +27,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "buffers.h"
-#include "config.h"
-#include "power.h"
-#include "racegen.h"
-#include "races.h"
-#include "shipdata.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/config.h"
+#include "../server/files_shl.h"
+#include "../server/max.h"
+#include "../server/perm.h"
+#include "../server/power.h"
+#include "../server/racegen.h"
+#include "../server/races.h"
+#include "../server/rand.h"
+#include "../server/shipdata.h"
+#include "../server/ships.h"
+#include "../server/vars.h"
 
 #define START_RES 100;
 #define START_MESO_RES_DIFF 40
@@ -48,6 +52,7 @@ int planet_translate[N_HOME_PLANET_TYPES] = { 0, 6, 7, 5, 2, 3, 4 };
 
 int getpid(void);
 void modify_print_loop(int level);
+void found_planet(int playernum, int star, int pnum);
 
 int notify(int who, int gov, const char *msg)
 {
@@ -107,7 +112,7 @@ int enroll_valid_race(void)
         sprintf(race.rejection,
                 "There are already %d players; No more allowed.\n",
                 MAXPLAYERS - 1);
-        race.status = STATUS_RUNENROLLABLE;
+        race.status = STATUS_UNENROLLABLE;
 
         return 1;
     }
@@ -149,7 +154,17 @@ int enroll_valid_race(void)
             && !Stars[star]->inhabited[1]) {
             /* Look for uninhabited planets */
             for (pnum = 0; pnum < Stars[star]->numplanets; ++pnum) {
-                found_planet(playernum, star, pnum);
+                planettype *planet;
+
+                getplanet(&planet, star, pnum);
+
+                if ((planet->type == ppref)
+                    && (planet->conditions[RTEMP] >= -200)
+                    && (planet->conditions[RTEMP] <= 100)) {
+                    found_planet(playernum, star, pnum);
+                }
+
+                free(planet);
 
                 return 0;
             }
@@ -187,75 +202,7 @@ void found_planet(int playernum, int star, int pnum)
 
     getplanet(&planet, star, pnum);
 
-    /*
-     * Build a capital ship to run the government
-     */
-    Bzero(s);
-    shipno = Numships() + 1;
-    s.nextship = 0;
-
-    s.type = OTYPE_GOV;
-    s.xpos = Stars[star]->xpos + planet->xpos;
-    s.ypos = Stars[star]->ypos + planet->ypos;
-    s.land_x = x;
-    s.land_y = y;
-
-    s.speed = 0;
-    s.owner = playernum;
-    s.race = playernum;
-    s.governor = 0;
-    s.tech = 100.0;
-    s.build_type = s.type;
-    s.armor = Shipdata[s.type][ABIL_ARMOR];
-    s.guns = PRIMARY;
-    s.primary = Shipdata[s.type][ABIL_GUNS];
-    s.primtype = Shipdata[s.type][ABIL_PRIMARY];
-    s.secondary = Shipdata[s.type][ABIL_GUNS];
-    s.sectype = Shipdata[s.type][ABIL_SECONDARY];
-    s.max_crew = Shipdata[s.type][ABIL_MAXCREW];
-    s.max_destruct = Shipdata[s.type][ABIL_DESTCAP];
-    s.max_resource = Shipdata[s.type][ABIL_CARGO];
-    s.max_fuel = Shipdata[s.type][ABIL_FUELCAP];
-    s.max_speed = Shipdata[s.type][ABIL_SPEED];
-    s.build_cost = Shipdata[s.type][ABIL_COST];
-    s.size = 100;
-    s.base_mass = 100.0;
-    sprintf(s.class, "Standard");
-    s.fuel = 0.0;
-    s.popn = s.max_crew;
-    s.troops = 0;
-    s.mass = s.base_mass + (s.max_crew * Race->mass);
-    s.resource = 0;
-    s.destruct = 0;
-    s.alive = 1;
-    s.active = 1;
-    s.protect.self = 1;
-    /*
-     * Docked on the planet.
-     */
-    s.docked = 1;
-    s.whatorbit = LEVEL_PLAN;
-    s.whatdest = s.whatorbit;
-    s.deststar = star;
-    s.destpnum = pnum;
-    s.storbits = s.deststar;
-    s.pnumorbits = s.destpnum;
-    s.rad = 0;
-    s.damage = 0;
-    /*
-     * Shipdata[s.type][ABIL_DAMAGE];
-     */
-
-    /*
-     * First capital is 100% efficient
-     */
-    s.retaliate = 0;
-    s.ships = 0;
-    s.on = 1;
-    s.name[0] = '\0';
-    s.numer = shipno;
-    putship(&s);
-
+    // ===
     printf(" Found!\n");
     Race = Malloc(racetype);
     Bzero(*Race);
@@ -264,14 +211,13 @@ void found_planet(int playernum, int star, int pnum)
     Race->God = (race.priv_type == P_GOD);
     Race->Guest = (race.priv_type == P_GUEST);
     Race->governors = 0;
-    Race->Gov_ship = shipno;
 
     strcpy(Race->name, race.name);
     strcpy(Race->password, race.password);
     strcpy(Race->governor[0].name, race.leader);
     strcpy(Race->governor[0].password, race.ldrpw);
 
-    Race->goernor[0].deflevel = LEVEL_PLAN;
+    Race->governor[0].deflevel = LEVEL_PLAN;
     Race->governor[0].homelevel = Race->governor[0].deflevel;
     Race->governor[0].defsystem = star;
     Race->governor[0].homesystem = Race->governor[0].defsystem;
@@ -282,7 +228,7 @@ void found_planet(int playernum, int star, int pnum)
      * Display options
      */
     Race->governor[0].toggle.highlight = playernum;
-    Race->governor[0].toggle.invers = 1;
+    Race->governor[0].toggle.inverse = 1;
     Race->governor[0].toggle.color = 0;
     Race->governor[0].active = 1;
 
@@ -378,7 +324,7 @@ void found_planet(int playernum, int star, int pnum)
      * Find sector to build capitol on, and populate it.
      */
     getsmap(Smap, planet);
-    PremuteSects(planet);
+    PermuteSects(planet);
     Getxysect(planet, 0, 0, 1);
     i = Getxysect(planet, &x, &y, 0);
 
@@ -412,16 +358,87 @@ void found_planet(int playernum, int star, int pnum)
      * mask = sigblocks(SIGBLOCKS);
      */
 
-    planet->troops = sect.troops;
+    /*
+     * Build a capital ship to run the government
+     */
+    Bzero(s);
+    shipno = Numships() + 1;
+    s.nextship = 0;
+
+    s.type = OTYPE_GOV;
+    s.xpos = Stars[star]->xpos + planet->xpos;
+    s.ypos = Stars[star]->ypos + planet->ypos;
+    s.land_x = x;
+    s.land_y = y;
+
+    s.speed = 0;
+    s.owner = playernum;
+    s.race = playernum;
+    s.governor = 0;
+    s.tech = 100.0;
+    s.build_type = s.type;
+    s.armor = Shipdata[s.type][ABIL_ARMOR];
+    s.guns = PRIMARY;
+    s.primary = Shipdata[s.type][ABIL_GUNS];
+    s.primtype = Shipdata[s.type][ABIL_PRIMARY];
+    s.secondary = Shipdata[s.type][ABIL_GUNS];
+    s.sectype = Shipdata[s.type][ABIL_SECONDARY];
+    s.max_crew = Shipdata[s.type][ABIL_MAXCREW];
+    s.max_destruct = Shipdata[s.type][ABIL_DESTCAP];
+    s.max_resource = Shipdata[s.type][ABIL_CARGO];
+    s.max_fuel = Shipdata[s.type][ABIL_FUELCAP];
+    s.max_speed = Shipdata[s.type][ABIL_SPEED];
+    s.build_cost = Shipdata[s.type][ABIL_COST];
+    s.size = 100;
+    s.base_mass = 100.0;
+    sprintf(s.class, "Standard");
+    s.fuel = 0.0;
+    s.popn = s.max_crew;
+    s.troops = 0;
+    s.mass = s.base_mass + (s.max_crew * Race->mass);
+    s.resource = 0;
+    s.destruct = 0;
+    s.alive = 1;
+    s.active = 1;
+    s.protect.self = 1;
+    /*
+     * Docked on the planet.
+     */
+    s.docked = 1;
+    s.whatorbits = LEVEL_PLAN;
+    s.whatdest = s.whatorbits;
+    s.deststar = star;
+    s.destpnum = pnum;
+    s.storbits = s.deststar;
+    s.pnumorbits = s.destpnum;
+    s.rad = 0;
+    s.damage = 0;
+    /*
+     * Shipdata[s.type][ABIL_DAMAGE];
+     */
+
+    /*
+     * First capital is 100% efficient
+     */
+    s.retaliate = 0;
+    s.ships = 0;
+    s.on = 1;
+    s.name[0] = '\0';
+    s.number = shipno;
+    putship(&s);
+
+    Race->Gov_ship = shipno;
+
+    planet->troops = sect->troops;
     planet->ships = shipno;
-    planet->info[playernum - 1].numsectowned = 1;
+    planet->info[playernum - 1].numsectsowned = 1;
     planet->explored = 0;
     planet->info[playernum - 1].explored = 1;
     /*
      * planet->info[playernum - 1].autorep = 1;
      */
     planet->maxpopn =
-        ((maxsupport(race, sect, 100.0, 0) * planet->Maxx) * planet->Maxy) / 2;
+        ((maxsupport(Race, sect, 100.0, 0) * planet->Maxx) * planet->Maxy) / 2;
     planet->popn = sect->popn;
 
 #ifdef STARTING_INVENTROY
@@ -445,10 +462,10 @@ void found_planet(int playernum, int star, int pnum)
      */
     getstar(&Stars[star], star);
     setbit(Stars[star]->explored, playernum);
-    setbit(Start[star]->inhabited, playernum);
+    setbit(Stars[star]->inhabited, playernum);
     Stars[star]->AP[playernum - 1] = 5;
     putstar(Stars[star], star);
-    close_data_file();
+    close_data_files();
 
     /*
      * sigsetmask(mask);

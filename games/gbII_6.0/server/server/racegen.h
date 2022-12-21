@@ -81,8 +81,6 @@
 #define min(x, y) (((x) < (y)) ? (x) : (y))
 
 int system(char const *);
-double atof();
-int Dialogue();
 
 /*
  * Attributes, attribute names, and parameters for attribute costs.
@@ -97,9 +95,9 @@ int Dialogue();
 #define FIGHT (A_IQ + 1)
 #define PODS (FIGHT + 1)
 #define MASS (PODS + 1)
-#define SEXES (PODS + 1)
+#define SEXES (MASS + 1)
 #define METAB (SEXES + 1)
-#define LAS_ATTRIBUTE (METAB)
+#define LAST_ATTRIBUTE (METAB)
 #define N_ATTRIBUTES (LAST_ATTRIBUTE + 1)
 
 typedef struct {
@@ -112,7 +110,7 @@ typedef struct {
     double l_fudge;
     double minimum;
     double init;
-    double maximun;
+    double maximum;
     double cov[N_ATTRIBUTES];
     int is_integral;
 } attribute;
@@ -188,7 +186,7 @@ extern int const race_cost[N_RACE_TYPES];
 #define P_GUEST (P_GOD + 1)
 #define P_NORMAL (P_GUEST + 1)
 #define LAST_PRIV_TYPE (P_NORMAL)
-#define N_PRIV_TYPES (LAST_PRINT_TYPE + 1)
+#define N_PRIV_TYPES (LAST_PRIV_TYPE + 1)
 
 extern char const *priv_print_name[N_PRIV_TYPES];
 
@@ -248,7 +246,7 @@ extern struct x race;
 extern struct x rgen_cost;
 extern struct x last;
 extern int npoints;
-extern in last_npoints;
+extern int last_npoints;
 /* 1 if and only if race has been altered since last saved */
 extern int altered;
 /* 1 if and only if race has been changed since last printed */

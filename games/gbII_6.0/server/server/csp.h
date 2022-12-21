@@ -147,7 +147,7 @@
 #define CSP_PLANDUMP_PROD 2003 /* Production last update */
 #define CSP_PLANDUMP_MISC 2004 /* Rest of stuff */
 #define CSP_PLANDUMP_NOEXPL 2005 /* Planet not explored */
-#define CSP_PLANDUMP_END 2009 /* Sent when done
+#define CSP_PLANDUMP_END 2009 /* Sent when done */
 
 /* General usage */
 #define CSP_STAR_UNEXPL 2010 /* Star is not explored */

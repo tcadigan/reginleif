@@ -27,6 +27,8 @@
 #ifndef RACES_H_
 #define RACES_H_
 
+#include "vars.h"
+
 typedef struct {
     char invisible;
     char standby;
@@ -42,7 +44,7 @@ typedef struct {
 } toggletype;
 
 struct race {
-    int Playernm;
+    int Playernum;
     char name[RNAMESIZE]; /* Racial name. */
     char password[RNAMESIZE];
     char info[PERSONALSIZE]; /* Personal information */
@@ -63,7 +65,7 @@ struct race {
     double birthrate;
     double mass;
     double metabolism;
-    double likes[WASTER + 1]; /* Sector condition compats. */
+    double likes[WASTED + 1]; /* Sector condition compats. */
     short conditions[OTHER + 1]; /* Atmosphere/temperature this race likes. */
     unsigned char likesbest; /* 100% compat sector condition for this race. */
     char dissolved; /* Player has quit. */
@@ -96,12 +98,13 @@ struct race {
         unsigned char rank;
         unsigned char active;
         unsigned char deflevel;
+        unsigned char defsystem;
         unsigned char defplanetnum; /* Current default */
         unsigned char homelevel;
         unsigned char homesystem;
         unsigned char homeplanetnum; /* Home place */
         unsigned long newspos[4]; /* News file pointers */
-        toggletype toggel;
+        toggletype toggle;
         unsigned long money;
         unsigned long income;
         unsigned long maintain;

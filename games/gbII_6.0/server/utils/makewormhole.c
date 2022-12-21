@@ -28,7 +28,7 @@
 #include <math.h>
 #include <string.h>
 
-#include "vars.h"
+#include "../server/vars.h"
 
 #define PLANET_DIST_MAX 1900.0
 #define PLANET_DIST_MIN 100.0
@@ -49,8 +49,7 @@ void make_wormhole(startype *star,
 {
     planettype planet;
     double angle;
-    double diststep;
-    double distmax;
+    double distsep;
     double dist;
     int x;
     int y;
@@ -71,7 +70,6 @@ void make_wormhole(startype *star,
            NextPlanetName(star->numplanets));
 
     distsep = (PLANET_DIST_MAX - distmin) / (double)(star->numplanets - 1);
-    distmax = distmin + distsep;
     dist = distmin + distsep;
 
     /*
@@ -103,14 +101,6 @@ void make_wormhole(startype *star,
     planet.conditions[TEMP] = planet.conditions[RTEMP];
 
     angle = 2.0 * M_PI * double_rand();
-
-    /*
-     * printf("A=%f, dmin=%f, dsep=%f, dmax=%f, dist=%f\n",
-     *        angle,
-     *        distmin,
-     *        distsep,
-     *        dist);
-     */
 
     planet.xpos = dist * sin(angle);
     planet.ypos = dist * cos(angle);
@@ -194,7 +184,7 @@ void make_wormhole(startype *star,
 
                     break;
                 case FOREST:
-                    fprintf(outputxt, "%c", CHAR_FOREST);
+                    fprintf(outputtxt, "%c", CHAR_FOREST);
 
                     break;
                 case WORM:

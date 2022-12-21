@@ -642,7 +642,7 @@ void csp_ship_report(int playernum,
                     : s->max_resource,
                     s->destruct,
                     s->type == OTYPE_FACTORY
-                    ? Shipdata[s->type][DESTCAP]
+                    ? Shipdata[s->type][ABIL_DESTCAP]
                     : s->max_destruct,
                     s->fuel,
                     s->type == OTYPE_FACTORY

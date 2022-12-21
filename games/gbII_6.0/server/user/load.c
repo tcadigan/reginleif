@@ -371,7 +371,7 @@ void load(int playernum, governor, int apcount, int mode)
                         uplim = 0;
                     } else if (s->type == OTYPE_FACTORY) {
                         uplim = MIN(s2->destruct,
-                                    Shipdata[s->type][DESTCAP] - s->destruct);
+                                    Shipdata[s->type][ABIL_DESTCAP] - s->destruct);
                     } else {
                         uplim = MIN(s2->destruct,
                                     s->max_destruct - s->destruct);
@@ -379,7 +379,7 @@ void load(int playernum, governor, int apcount, int mode)
 
                     if (s2->type == OTYPE_FACTORY) {
                         lolim = -MIN(s->destruct,
-                                     Shipdata[s->type][DESTCAP] - s2->destruct);
+                                     Shipdata[s->type][ABIL_DESTCAP] - s2->destruct);
                     } else {
                         lolim = -MIN(s->destruct,
                                      s2->max_destruct - s2->destruct);
@@ -387,7 +387,7 @@ void load(int playernum, governor, int apcount, int mode)
                 } else {
                     if (s->type == OTYPE_FACTORY) {
                         uplim = MIN(p->info[playernum - 1].destruct,
-                                    Shipdata[s->type][DESTCAP] - s->destruct);
+                                    Shipdata[s->type][ABIL_DESTCAP] - s->destruct);
                     } else {
                         uplim = MIN(p->info[playernum - 1].destruct,
                                     s->max_destruct - s->destruct);

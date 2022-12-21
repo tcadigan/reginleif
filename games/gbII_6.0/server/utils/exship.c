@@ -41,10 +41,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "files.h"
-#include "shipdata.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/files.h"
+#include "../server/shipdata.h"
+#include "../server/ships.h"
+#include "../server/vars.h"
 
 #define DATAFILE DATA(ship)
 
@@ -57,8 +57,6 @@ void display_ship(void);
 void summarize_ship(void);
 
 void readship(shiptype **, int);
-void main();
-void readship();
 
 /*
  * Global variables
@@ -105,7 +103,7 @@ int main(int argc, char *argv[])
 {
     int i;
 
-    ship_fd = open(DATA_FILE, 000, 0777);
+    ship_fd = open(DATAFILE, 000, 0777);
 
     if (ship_fd < 0) {
         perror("main");
@@ -246,12 +244,12 @@ void check_ship(int idx)
             ship_ok = pop;
         }
 
-        if (dsiplay->troops > Shipdata[display->type][ABIL_MAXCREW]) {
+        if (display->troops > Shipdata[display->type][ABIL_MAXCREW]) {
             troops = 0;
             ship_ok = troops;
         }
 
-        if ((display->popn + display->troops) > Shipdata[display-type][ABIL_MAXCREW]) {
+        if ((display->popn + display->troops) > Shipdata[display->type][ABIL_MAXCREW]) {
             troops = 0;
             pop = troops;
             ship_ok = pop;
@@ -277,7 +275,7 @@ void check_ship(int idx)
     if (display->type == OTYPE_FACTORY) {
         max_resource = Shipdata[display->type][ABIL_CARGO];
         max_fuel = Shipdata[display->type][ABIL_FUELCAP];
-        max_destruct = Shipdata[display->type][DESTCAP];
+        max_destruct = Shipdata[display->type][ABIL_DESTCAP];
         max_speed = Shipdata[display->type][ABIL_SPEED];
     } else {
         max_resource = display->max_resource;
@@ -345,11 +343,11 @@ void check_ship(int idx)
         if (res) {
             printf("\t        resources: %d\t max_resources: %d\n",
                    display->resource,
-                   display->max_resources);
+                   display->max_resource);
         } else {
             printf("\t -----> resources: %d\t max_resources: %d\n",
                    display->resource,
-                   display->max_resources);
+                   display->max_resource);
         }
 
         if (des) {

@@ -20,7 +20,7 @@ echo "Extracting misc/Makefile (with variable substitutions)"
 cat >Makefile <<EOF
 #
 # misc level Makefile for the GB+ program
-# This Makefile will mae the commands library routines
+# This Makefile will make the commands library routines
 #
 # Bug reports, patches, comments, suggestions should be sent to:
 #

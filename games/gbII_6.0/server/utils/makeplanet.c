@@ -35,7 +35,8 @@
  */
 #include <stdlib.h>
 
-#include "vars.h"
+#include "../server/rand.h"
+#include "../server/vars.h"
 
 /*
  * # of beginning islands for makeuniv
@@ -69,7 +70,7 @@ extern int use_smashup;
 extern double double_rand(void);
 extern int int_rad(int, int);
 extern int round_rand(double);
-extern in rposneg(void);
+extern int rposneg(void);
 extern int Temperature(double, int);
 double DistmapSq(int, int, int, int);
 int gb_rand(void);
@@ -376,7 +377,7 @@ planettype Makeplanet(double dist, short stemp, int type)
             planet.conditions[OTHER] = atmos;
         } else {
             planet.conditions[HYDROGEN] = int_rand(30, 75);
-            atmos = 100 - planet_conditions[HYDROGEN];
+            atmos = 100 - planet.conditions[HYDROGEN];
             planet.conditions[HELIUM] = int_rand(20, atmos / 2);
             atmos -= planet.conditions[HELIUM];
             planet.conditions[METHANE] = ((gb_rand() % 2) == 1);
@@ -389,7 +390,7 @@ planettype Makeplanet(double dist, short stemp, int type)
             atmos -= planet.conditions[NITROGEN];
             planet.conditions[SULFUR] = 0;
             atmos -= planet.conditions[SULFUR];
-            palnet.conditions[OTHER] = atmos;
+            planet.conditions[OTHER] = atmos;
         }
 
         if (int_rand(1, 100) < JOVIAN_WITH_WATER) {
@@ -436,7 +437,7 @@ planettype Makeplanet(double dist, short stemp, int type)
         }
 
         seed(&planet, DESERT, int_rand(1, total_sects));
-        seed(&palnet, MOUNT, int_rand(1, total_sects));
+        seed(&planet, MOUNT, int_rand(1, total_sects));
 
         if (use_smashup) {
             if (int_rand(0, 4)) {
@@ -455,7 +456,7 @@ planettype Makeplanet(double dist, short stemp, int type)
          * No atmosphere
          */
         for (y = 0; y < planet.Maxy; ++y) {
-            for (x = 0; x < planet.Maxxl ++x) {
+            for (x = 0; x < planet.Maxx; ++x) {
                 if (!int_rand(0, 3)) {
                     s = &Sector(planet,
                                 int_rand(1, planet.Maxx),
@@ -534,7 +535,7 @@ planettype Makeplanet(double dist, short stemp, int type)
             grow(&planet, FOREST, 1, 2);
             seed(&planet, DESERT, int_rand(total_sects / 65, total_sects / 45));
             grow(&planet, DESERT, 1, 1);
-            grow(*planet, DESERT, 1, 2);
+            grow(&planet, DESERT, 1, 2);
 
             break;
         case 1:
@@ -552,7 +553,7 @@ planettype Makeplanet(double dist, short stemp, int type)
         case 2:
             seed(&planet, FOREST, int_rand(total_sects / 65, total_sects / 45));
             grow(&planet, FOREST, 1, 1);
-            gros(&planet, FOREST, 1, 2);
+            grow(&planet, FOREST, 1, 2);
             seed(&planet, MOUNT, int_rand(total_sects / 65, total_sects / 45));
             grow(&planet, MOUNT, 1, 1);
             grow(&planet, MOUNT, 1, 2);
@@ -767,7 +768,6 @@ int SectorTemp(planettype *pptr, int x, int y)
      * X of the pole, and the ghost pole
      */
     int p_x;
-    int p_xg;
 
     /*
      * Y of the nearest pole
@@ -819,12 +819,6 @@ int SectorTemp(planettype *pptr, int x, int y)
         if (p_x >= pptr->Maxx) {
             p_x -= pptr->Maxx;
         }
-    }
-
-    if (p_x <= (pptr->Maxy / 2)) {
-        p_xg = p_x + pptr->Maxy;
-    } else {
-        p_xg = p_x - pptr->Maxy;
     }
 
     d = (y - p_y) * (y - p_y);
@@ -1114,7 +1108,7 @@ void smashup(planettype *pptr, int n, char desig, int res, int fert, int waste)
 
                         if (waste) {
                             s->condition = WASTED;
-                            s->type = WASTEd;
+                            s->type = WASTED;
                         }
 
                         if (res) {
@@ -1155,12 +1149,12 @@ int Volcano(planettype *pptr,
     s = &Sector(*pptr, x, y);
 
     if (y > (pptr->Maxy / 2)) {
-        if (y == (pptr->maxy - 1)) {
+        if (y == (pptr->Maxy - 1)) {
             s->type = ICE;
 
             return ((random() % 2) == 1);
         } else {
-            if ((Sector(*pptr, x, y +1) == ICE)
+            if ((Sector(*pptr, x, y +1).type == ICE)
                 && (int_rand(-50, 20) > pptr->conditions[RTEMP])) {
                 s->type = ICE;
 
@@ -1234,7 +1228,6 @@ int TemperatureFOO(float dist, short stemp)
  */
 int num_niehgbors(planettype *p, int x, int y, int type)
 {
-    int d;
     int count = 0;
 
     count = (Sector(*p, abs((x - 1) % p->Maxx), y).type == type);

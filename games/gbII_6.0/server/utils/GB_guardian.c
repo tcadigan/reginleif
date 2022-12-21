@@ -35,8 +35,8 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "config.h"
-#include "files.h"
+#include "../server/config.h"
+#include "../server/files.h"
 
 /*
  * Minimum UID (user) that we'll run as

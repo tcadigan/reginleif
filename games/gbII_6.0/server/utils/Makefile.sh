@@ -99,7 +99,7 @@ MAKEINDEX_SRC = makeindex.c
 MAKEINDEX_OBJ = $(MAKEINDEX_SRC:.c=.o)
 
 GUARDIAN_SRC = GB_guardian.c
-GUARDIAN_OBJ = $(GUARDIAN_SRC:.c=.0)
+GUARDIAN_OBJ = $(GUARDIAN_SRC:.c=.o)
 
 # Standard targets
 all: makeuniv GB_racegen psmap exship exrace enrol makelist makeindex GB_guardian

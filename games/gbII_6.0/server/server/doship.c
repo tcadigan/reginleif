@@ -1747,7 +1747,7 @@ void do_god(shiptype *ship)
     if (races[ship->owner - 1]->God) {
         if (ship->type == OTYPE_FACTORY) {
             ship->fuel = Shipdata[ship->type][ABIL_FUELCAP];
-            ship->destruct = Shipdata[ship->type][DESTCAP];
+            ship->destruct = Shipdata[ship->type][ABIL_DESTCAP];
             ship->resource = Shipdata[ship->type][ABIL_CARGO];
         } else {
             ship->fuel = ship->max_fuel;
