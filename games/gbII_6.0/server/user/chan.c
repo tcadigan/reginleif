@@ -33,17 +33,21 @@
  * $Header: /var/cvs/gbp/GB+/user/chan.c,v 1.4 2007/07/-6 18:09:34 gbp Exp $
  * *****************************************************************************
  */
+#include "chan.h"
 
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "buffers.h"
-#include "config.h"
-#include "power.h"
-#include "races.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/config.h"
+#include "../server/GB_server.h"
+#include "../server/getplace.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ships.h"
+#include "../server/shlmisc.h"
+#include "../server/vars.h"
 
 extern void channel(int, int, int, int);
 
@@ -52,9 +56,9 @@ void channel(int playernum, int governor, int ap, int startup)
     int want;
 
     if (startup) {
-        if (isclr(races[playernum - 1]->governor[governor].channel, COMM_RCV_CHANNEL1)
-            && isclr(races[playernum - 1]->governor[governor].channel, COMM_RCV_CHANNEL2)
-            && isclr(races[playernum - 1]->governor[governor].channel, COMM_RCV_CHANNEL3)) {
+        if (!isset(races[playernum - 1]->governor[governor].channel, COMM_RCV_CHANNEL1)
+            && !isset(races[playernum - 1]->governor[governor].channel, COMM_RCV_CHANNEL2)
+            && !isset(races[playernum - 1]->governor[governor].channel, COMM_RCV_CHANNEL3)) {
             setbit(races[playernum - 1]->governor[governor].channel,
                    COMM_RCV_CHANNEL1);
 
@@ -141,7 +145,7 @@ void channel(int playernum, int governor, int ap, int startup)
         && isclr(races[playernum - 1]->governor[governor].channel, COMM_XMIT_CHANNEL2)
         && isclr(races[playernum - 1]->governor[governor].channel, COMM_XMIT_CHANNEL3)) {
         /* No xmit channel set, pick one */
-        if (isset(races[playernum - 1]->governor[governor].channel, COMM_RCV_CHANNEL!)) {
+        if (isset(races[playernum - 1]->governor[governor].channel, COMM_RCV_CHANNEL1)) {
             setbit(races[playernum - 1]->governor[governor].channel,
                    COMM_XMIT_CHANNEL1);
 

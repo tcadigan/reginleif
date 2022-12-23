@@ -23,6 +23,8 @@
 #ifndef FLEET_H_
 #define FLEET_H_
 
+#include "tweakables.h"
+
 const char *Fleetnames[MAXFLEETS + 1] = {
     "Error",
     "Able",

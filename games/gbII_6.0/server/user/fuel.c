@@ -28,17 +28,28 @@
  *
  * $Header: /var/cvs/gbp/GB+/user/fuel.c,v 1.4 2007/07/06 18:09:34 gbp Exp $
  */
+#include "fuel.h"
 
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/doship.h"
+#include "../server/GB_server.h"
+#include "../server/getplace.h"
+#include "../server/files_shl.h"
+#include "../server/log.h"
+#include "../server/max.h"
+#include "../server/moveship.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/vars.h"
+
+#include "fire.h"
+#include "order.h"
 
 /*
  * extern long next_segment_time;
@@ -140,7 +151,7 @@ void proj_fuel(int playernum, int governor, int apcount)
     }
 
     if (landed(ship) && (ship->whatorbits == LEVEL_PLAN)) {
-        getplanet(&p, (int)ship->strobits, (int)ship->pnumorbits);
+        getplanet(&p, (int)ship->storbits, (int)ship->pnumorbits);
         gravity_factor = gravity(p);
 
         sprintf(plan_buf,
@@ -152,12 +163,12 @@ void proj_fuel(int playernum, int governor, int apcount)
     }
 
     if (argn == 2) {
-        srtcpy(args[2], prin_ship_dest(playernum, governor, ship));
+        strcpy(args[2], prin_ship_dest(playernum, governor, ship));
     }
 
     tmpdest = Getplace(playernum, governor, args[2], 1);
 
-    if (tempdest.err) {
+    if (tmpdest.err) {
         notify(playernum, governor, "fuel: Bad scope.\n");
         free(ship);
 
@@ -183,8 +194,8 @@ void proj_fuel(int playernum, int governor, int apcount)
 
     if ((tmpdest.level != LEVEL_UNIV)
         && (tmpdest.level != LEVEL_SHIP)
-        && ((ship->storbits != tempdest.snum) && tmpdest.level != LEVEL_STAR)
-        && isclr(Stars[tempdest.snum]->explored, ship->owner)) {
+        && ((ship->storbits != tmpdest.snum) && tmpdest.level != LEVEL_STAR)
+        && isclr(Stars[tmpdest.snum]->explored, ship->owner)) {
         notify(playernum,
                governor,
                "You haven't explored the destination system.\n");
@@ -231,13 +242,13 @@ void proj_fuel(int playernum, int governor, int apcount)
         y_1 = tmpship->ypos;
         free(tmpship);
     } else if (tmpdest.level == LEVEL_PLAN) {
-        getplanet(&p, (int)tempdest.snum, (int)tmpdest.pnum);
+        getplanet(&p, (int)tmpdest.snum, (int)tmpdest.pnum);
         x_1 = p->xpos + Stars[tmpdest.snum]->xpos;
         y_1 = p->ypos + Stars[tmpdest.snum]->ypos;
         free(p);
-    } else if (tempdest.level == LEVEL_STAR) {
-        x_1 = Stars[tempdest.snum]->xpos;
-        y_1 = Stars[tempdest.snum]->ypos;
+    } else if (tmpdest.level == LEVEL_STAR) {
+        x_1 = Stars[tmpdest.snum]->xpos;
+        y_1 = Stars[tmpdest.snum]->ypos;
     } else {
         loginfo(ERRORLOG, WANTERRNO, "ERROR 99\n");
     }
@@ -263,7 +274,7 @@ void proj_fuel(int playernum, int governor, int apcount)
      */
 
     /* Watch this next block, it was commented out in VoS code -mfw */
-    if ((tempdest.level == LEVEL_SHIP) || tmpship->ships) {
+    if ((tmpdest.level == LEVEL_SHIP) || tmpship->ships) {
         /* Bring in the other ships. Moveship() uses ships[]. */
         Num_ships = Numships();
         ships = (shiptype **)malloc((sizeof(shiptype *) * Num_ships) + 1);
@@ -278,7 +289,7 @@ void proj_fuel(int playernum, int governor, int apcount)
     current_segs = number_segments;
 
     if (current_settings) {
-        current_fuel = level - tempship->fuel;
+        current_fuel = level - tmpship->fuel;
     }
 
     /* 2nd loop to determine lowest fuel needed... */
@@ -314,7 +325,7 @@ void proj_fuel(int playernum, int governor, int apcount)
 
     if (!current_settings) {
         strcpy(buf, "The ship will not be able to complete the trip.\n");
-        notify(playernum, govenror, buf);
+        notify(playernum, governor, buf);
     } else {
         fuel_output(playernum,
                     governor,
@@ -398,7 +409,7 @@ void fuel_output(int playernum,
     }
 
     sprintf(buf,
-            "Total Distance = %.2f   Number of Segments = %d\nFuel = %.2fs  ",
+            "Total Distance = %.2f   Number of Segments = %d\nFuel = %.2f%s  ",
             dist,
             segs,
             fuel,

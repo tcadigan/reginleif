@@ -26,18 +26,22 @@
  *
  * #ident  "@(#)reserve.c       1.14 11/5/93 "
  */
+#include "reserve.h"
 
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "buffers.h"
-#include "doturn.h"
-#include "power.h"
-#include "races.h"
-#include "ships.h"
-#include "tweakables.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/doturn.h"
+#include "../server/files_shl.h"
+#include "../server/GB_server.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ships.h"
+#include "../server/shlmisc.h"
+#include "../server/tweakables.h"
+#include "../server/vars.h"
 
 void reserve(int playernum, int governor, int apcost)
 {

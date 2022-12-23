@@ -26,15 +26,22 @@
  *
  * $Header: /var/cvs/gbp/GB+/user/capital.c,v 1.4 2007/07/06 18:09:34 gbp Exp $
  */
+#include "capital.h"
 
 #include <stdlib.h> /* Added for atoi() and free() (kse) */
 
-#include "buffers.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/files_shl.h"
+#include "../server/GB_server.h"
+#include "../server/getplace.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ranks.h"
+#include "../server/shlmisc.h"
+#include "../server/ships.h"
+#include "../server/vars.h"
+
+#include "fire.h"
 
 void capital(int playernum, int governor, int apcount)
 {
@@ -68,7 +75,7 @@ void capital(int playernum, int governor, int apcount)
         snum = s->storbits;
 
         if (!stat || testship(playernum, governor, s)) {
-            notify(playernu, governor, "You can't do that!\n");
+            notify(playernum, governor, "You can't do that!\n");
             free(s);
 
             return;
@@ -103,13 +110,13 @@ void capital(int playernum, int governor, int apcount)
     if (s->type == OTYPE_FACTORY) {
         sprintf(buf,
                 "Efficiency of governmental center: %.0f%%.\n",
-                ((double)s->popn / (Shipdata[s->type][ABIL_MAXCREW] - s->troops)
+                ((double)s->popn / (Shipdata[s->type][ABIL_MAXCREW] - s->troops))
                 * (100 - (double)s->damage));
     } else {
         sprintf(buf,
                 "Efficiency of governmental center: %.0f%%.\n",
                 ((double)s->popn / (s->max_crew - s->troops))
-                * (100 - (doule)s->damage));
+                * (100 - (double)s->damage));
     }
 
     notify(playernum, governor, buf);

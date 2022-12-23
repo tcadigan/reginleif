@@ -1,6 +1,9 @@
 #ifndef MOVE_H_
 #define MOVE_H_
 
+#include "../server/races.h"
+#include "../server/ships.h"
+
 void arm(int, int, int, int);
 void move_popn(int, int, int);
 void walk(int, int, int);
@@ -13,7 +16,7 @@ void mech_attac_people(shiptype *, int *, int *, racetype *,
 void people_attack_mech(shiptype *, int, int, racetype *, racetype *,
                                    sectortype *, int, int, char *, char *);
 void ground_attack(racetype *, racetype *, int *, int,
-                              unsigned short *, unsigned shot *, unsigned int,
+                              unsigned short *, unsigned short *, unsigned int,
                               unsigned int, double, double, double *, double *,
                               int *, int *, int *);
 

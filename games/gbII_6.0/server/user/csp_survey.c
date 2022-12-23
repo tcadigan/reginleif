@@ -25,22 +25,31 @@
  *
  * #ident  "@(#)csp_survey.c    1.2 12/3/93 "
  *
- * $Header: /var/cvs/gbp/GB+/user/csp_survey.c,v 1.4 2007/07/06 18:09:34 gbp Exp $
+ * $Header: /var/cvs/gbp/GB+/user/csp_survey.c,v 1.4 2007/07/06 18:09:34 gbp Exp
+ * $
  */
+#include "csp_survey.h"
 
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "buffers.h"
-#include "csp.h"
-#include "csp_types.h"
-#include "debug.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/csp.h"
+#include "../server/csp_types.h"
+#include "../server/debug.h"
+#include "../server/files_shl.h"
+#include "../server/GB_server.h"
+#include "../server/get4args.h"
+#include "../server/max.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/vars.h"
+
+#include "fire.h"
+#include "map.h"
 
 #define MAX_SHIPS_PER_SECTOR 10
 
@@ -48,8 +57,8 @@ void csp_survey(int playernum, int governor, int apcount)
 {
     int lowx;
     int hix;
+    int lowy;
     int hiy;
-    int x2;
     int x2;
     int i;
     int shiplist;
@@ -137,12 +146,12 @@ void csp_survey(int playernum, int governor, int apcount)
         x2 = 0;
         hix = p->Maxx - 1;
         lowy = 0;
-        hiy = p->maxy - 1;
+        hiy = p->Maxy - 1;
     }
 
     if (fullRep) {
         sprintf(buf,
-                "%c %d %d %d %s %s %d %d %d %ld %ld %s %.2f %d\n",
+                "%c %d %d %d %s %s %d %d %d %ld %ld %d %.2f %d\n",
                 CSP_CLIENT,
                 CSP_SURVEY_INTRO,
                 p->Maxx,
@@ -168,7 +177,7 @@ void csp_survey(int playernum, int governor, int apcount)
     while (shiplist) {
         getship(&shipa, shiplist);
 
-        if ((shipa == playernum)
+        if ((shipa->owner == playernum)
             && (shipa->popn || (shipa->type == OTYPE_PROBE))) {
             inhere = 1;
         }

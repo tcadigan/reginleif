@@ -26,6 +26,7 @@
  *
  * $Header: /var/cvs/gbp/GB+/user/order.c,v 1.8 2007/07/06 18:09:34 gbp Exp $
  */
+#include "order.h"
 
 #include <curses.h>
 #include <ctype.h>
@@ -33,13 +34,27 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "buffers.h"
-#include "orders.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/files_shl.h"
+#include "../server/first.h"
+#include "../server/fleet.h"
+#include "../server/GB_server.h"
+#include "../server/getplace.h"
+#include "../server/lists.h"
+#include "../server/misc.h"
+#include "../server/moveship.h"
+#include "../server/orders.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/shlmisc.h"
+#include "../server/vars.h"
+
+#include "build.h"
+#include "fire.h"
+#include "load.h"
+#include "shootblast.h"
 
 void order(int, int, int);
 void mk_expl_aimed_at(int, int, shiptype *);
@@ -606,7 +621,7 @@ void give_orders(int playernum,
 
             notify(playernum, governor, buf);
         } else {
-            if (Shipdata[ship->type][ABIL_CLOAK] && s->cloak) {
+            if (Shipdata[ship->type][ABIL_CLOAK] && ship->cloak) {
                 sprintf(buf, "Ship has no cloaking device\n");
             } else {
                 sprintf(buf, "This ship cannot cloak\n");
@@ -760,7 +775,7 @@ void give_orders(int playernum,
             if (match(args[3], "on")) {
                 ship->autoscrap = 1;
             } else {
-                ship-autoscrap = 0;
+                ship->autoscrap = 0;
             }
         } else {
             ship->autoscrap = !ship->autoscrap;
@@ -788,7 +803,7 @@ void give_orders(int playernum,
                     ship->protect.on = 0;
                 } else {
                     ship->protect.on = 1;
-                    ship->protect.sip = j;
+                    ship->protect.ship = j;
                 }
             } else {
                 notify(playernum, governor, "That ship cannot protect.\n");
@@ -901,7 +916,7 @@ void give_orders(int playernum,
                         if ((where.level!= LEVEL_UNIV)
                             && ((ship->storbits != where.snum)
                                 && (where.level != LEVEL_STAR))
-                            && isclr(Stars[where.snum]->explored, ship_owner)) {
+                            && isclr(Stars[where.snum]->explored, ship->owner)) {
                             notify(playernum,
                                    governor,
                                    "You haven't explored this system.\n");
@@ -944,7 +959,7 @@ void give_orders(int playernum,
         if (ship->type == OTYPE_FACTORY) {
             max_speed = Shipdata[ship->type][ABIL_SPEED];
         } else {
-            max_speed = shpi->max_speed;
+            max_speed = ship->max_speed;
         }
 
         if (max_crew && max_speed) {
@@ -1138,7 +1153,7 @@ void give_orders(int playernum,
             if (j < 0) {
                 notify(playernum, governor, "Specify a positive speed.\n");
             } else {
-                if (j > ship->max_speed)) {
+                if (j > ship->max_speed) {
                     j = ship->max_speed;
                 }
 
@@ -1368,7 +1383,7 @@ void give_orders(int playernum,
         break;
     case ORD_TRAN:
         if (ship->type == OTYPE_TRANSDEV) {
-            ship->special.transport.target == atoi(args[3]);
+            ship->special.transport.target = atoi(args[3]);
 
             if (ship->special.transport.target == ship->number) {
                 notify(playernum,
@@ -1466,7 +1481,7 @@ void give_orders(int playernum,
                    governor,
                    "this ship does not have an on/off setting.\n");
         } else {
-            if (ship->damage && (ship->type != OTYPE_FACTOR)) {
+            if (ship->damage && (ship->type != OTYPE_FACTORY)) {
                 notify(playernum,
                        governor,
                        "Damaged ships cannot be activated.\n");
@@ -1515,7 +1530,7 @@ void give_orders(int playernum,
                                 return;
                             }
 
-                            hangerneeded = (1 + (int)(HAB_FACT_SIZE * (double)ship_size(ship))) - ((s2->max_hanger - s2->hanger) + ship_size);
+                            hangerneeded = (1 + (HAB_FACT_SIZE * ship_size(ship))) - ((s2->max_hanger - s2->hanger) + ship->size);
 
                             if (hangerneeded > 0) {
                                 sprintf(buf,
@@ -1531,7 +1546,7 @@ void give_orders(int playernum,
 
                             s2->resource -= oncost;
                             s2->hanger -= (unsigned short)ship->size;
-                            ship->size = 1 + (int)(HAB_FACT_SIZE * (double)ship->size(ship));
+                            ship->size = 1 + (int)(HAB_FACT_SIZE * (double)ship_size(ship));
                             s2->hanger += (unsigned short)ship->size;
                             putship(s2);
                             free(s2);
@@ -1557,7 +1572,7 @@ void give_orders(int playernum,
 
                         oncost = 2 * ship->build_cost;
 
-                        if (planet->inf[playernum - 1].resource < oncost) {
+                        if (planet->info[playernum - 1].resource < oncost) {
                             sprintf(buf,
                                     "You don't have %d resources on the planet to activate this factory.\n",
                                     oncost);
@@ -1769,7 +1784,7 @@ void mk_expl_aimed_at(int playernum, int governor, shiptype *s)
             notify(playernum, governor, buf);
             free((char *)str);
         } else {
-            sprintf(buf
+            sprintf(buf,
                     "Too far to see (%g, max %g).\n",
                     dist,
                     tele_range((int)s->type, s->tech));
@@ -1854,7 +1869,7 @@ void DispOrders(int playernum, int governor, shiptype *ship)
 
     sprintf(buf,
             "%5d %c %11.11s %d %c %1u %-10s %-10.10s ",
-            ship->number;
+            ship->number,
             Shipltrs[ship->type],
             ship->name,
             ship->governor,
@@ -2587,7 +2602,7 @@ char const *prin_ship_dest_brief(int playernum, int governor, shiptype *ship)
 
 int get_order_type(char *ord)
 {
-    it (match(ord, "inf")) {
+    if (match(ord, "inf")) {
         return ORD_INF;
     }
 
@@ -2660,7 +2675,7 @@ int get_order_type(char *ord)
     }
 
     if (match(ord, "merchant")) {
-        return ORD_MER;
+        return ORD_MERC;
     }
 
     if (match(ord, "speed")) {

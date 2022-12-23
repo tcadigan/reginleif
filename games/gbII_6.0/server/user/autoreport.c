@@ -24,17 +24,22 @@
  *
  * #ident  "@(#)autoreport.c    1.8 12/3/93 "
  *
- * $Header: /var/cvs/gbp/GB+/user/autoreport.c,v 1.3 2007/07/06 18:09:34 gbp Exp $
+ * $Header: /var/cvs/gbp/GB+/user/autoreport.c,v 1.3 2007/07/06 18:09:34 gbp Exp
+ * $
  */
+#include "autoreport.h"
 
 #include <stdlib.h> /* Added for free() (kse) */
 
-#include "buffers.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/files_shl.h"
+#include "../server/GB_server.h"
+#include "../server/getplace.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/vars.h"
 
 void autoreport(int playernum, int governor, int apcount)
 {

@@ -36,17 +36,21 @@
  * $Header: /var/cvs/gbp/GB+/user/toxi.c,v 1.4 2007/07/06 18:09:34 gbp Exp $
  * *****************************************************************************
  */
+#include "toxi.h"
 
 #include <ctype.h>
 #include <math.h>
 #include <stdlib.h>
 
-#include "buffers.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/files_shl.h"
+#include "../server/GB_server.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/shlmisc.h"
+#include "../server/vars.h"
 
 /*
  * clearlog:

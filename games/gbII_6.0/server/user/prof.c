@@ -29,19 +29,27 @@
  *
  * $Header: /var/cvs/gbp/GB+/user/prof.c,v 1.3 2007/07/06 18:09:34 gbp Exp $
  */
+#include "prof.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "buffers.h"
-#include "config.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "tweakables.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/client.h"
+#include "../server/config.h"
+#include "../server/GB_server.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/shlmisc.h"
+#include "../server/tweakables.h"
+#include "../server/vars.h"
+
+#include "csp_prof.h"
+#include "shootblast.h"
+#include "tele.h"
 
 extern char *Desnames[];
 
@@ -109,7 +117,7 @@ void treasury(int playernum, int governor)
 
     sprintf(buf,
             "Income last update was: %ld                Cost last update was: %ld\n",
-            race->governor[grep].income + Race->governor[grep].profit_market,
+            race->governor[grep].income + race->governor[grep].profit_market,
             race->governor[grep].maintain + race->governor[grep].cost_tech + race->governor[grep].cost_market);
 
     notify(playernum, governor, buf);
@@ -167,7 +175,7 @@ void profile(int playernum, int governor, int apcount)
             sprintf(buf,
                     "--==** Racial profile for %s (player %d) **==--\n",
                     race->name,
-                    race->playernum);
+                    race->Playernum);
 
             notify(playernum, governor, buf);
 
@@ -238,7 +246,7 @@ void profile(int playernum, int governor, int apcount)
             notify(playernum, governor, buf);
 
             sprintf(buf,
-                    "Mass:   %4.2            oxygen   %5d%%           %8.8s %c %3.0f%%\n",
+                    "Mass:   %4.2f            oxygen   %5d%%           %8.8s %c %3.0f%%\n",
                     race->mass,
                     race->conditions[OXYGEN],
                     Desnames[GAS],
@@ -248,7 +256,7 @@ void profile(int playernum, int governor, int apcount)
             notify(playernum, governor, buf);
 
             sprintf(buf,
-                    "Fight:     %d            helium   %5d%%           %-8.8s %c %s.0f%%\n",
+                    "Fight:     %d            helium   %5d%%           %-8.8s %c %3.0f%%\n",
                     race->fighters,
                     race->conditions[HELIUM],
                     Desnames[ICE],
@@ -268,7 +276,7 @@ void profile(int playernum, int governor, int apcount)
             notify(playernum, governor, buf);
 
             sprintf(buf,
-                    "Sexes:     %ld            CO2      %5d%%           %-8.8s %c %3.0f%%\n",
+                    "Sexes:     %1d            CO2      %5d%%           %-8.8s %c %3.0f%%\n",
                     race->number_sexes,
                     race->conditions[CO2],
                     Desnames[LAND],
@@ -278,12 +286,12 @@ void profile(int playernum, int governor, int apcount)
             notify(playernum, governor, buf);
 
             sprintf(buf,
-                    "Explore:  %-3.0ff%%          hyrdogen %5d%%           %-8.8s %c %3.0f%%\n",
+                    "Explore:  %-3.0f%%          hyrdogen %5d%%           %-8.8s %c %3.0f%%\n",
                     race->adventurism * 100.0,
                     race->conditions[HYDROGEN],
                     Desnames[DESERT],
                     CHAR_DESERT,
-                    Race->likes[DESERT] * 100.0);
+                    race->likes[DESERT] * 100.0);
 
             notify(playernum, governor, buf);
 
@@ -293,7 +301,7 @@ void profile(int playernum, int governor, int apcount)
                     race->conditions[SULFUR],
                     Desnames[FOREST],
                     CHAR_FOREST,
-                    Race->likes[FOREST] * 100.0);
+                    race->likes[FOREST] * 100.0);
 
             notify(playernum, governor, buf);
 
@@ -303,7 +311,7 @@ void profile(int playernum, int governor, int apcount)
                     race->conditions[OTHER],
                     Desnames[PLATED],
                     CHAR_PLATED,
-                    Race->likes[PLATED] * 100.0);
+                    race->likes[PLATED] * 100.0);
 
             notify(playernum, governor, buf);
             notify(playernum, governor, "Discoveries:");
@@ -384,7 +392,7 @@ void profile(int playernum, int governor, int apcount)
             if (race->translate[p - 1] > 50) {
                 sprintf(buf,
                         "%s\t  Planet Conditions\n",
-                        r->metamorph ? "Metamorphic Race" : "Normal Race\t");
+                        r->Metamorph ? "Metamorphic Race" : "Normal Race\t");
 
                 notify(playernum, governor, buf);
                 sprintf(buf,
@@ -410,13 +418,13 @@ void profile(int playernum, int governor, int apcount)
 
                 sprintf(buf,
                         "Fert:    %s",
-                        Estimate_i((int)r->fertilize, race p));
+                        Estimate_i((int)r->fertilize, race, p));
 
                 notify(playernum, governor, buf);
 
                 sprintf(buf,
                         "\t\t  Temp:\t%s\n",
-                        Estimate_i((int)r->conditions[TEMP], race, p););
+                        Estimate_i((int)r->conditions[TEMP], race, p));
 
                 notify(playernum, governor, buf);
                 sprintf(buf, "Rate:    %s", Estimate_f(r->birthrate, race, p));
@@ -454,7 +462,7 @@ void profile(int playernum, int governor, int apcount)
 
             sprintf(buf,
                     "\t\t  space:  %6s\n",
-                    Estimate_f(tele_range(OTYPE_STELE, r-tech), race, p));
+                    Estimate_f(tele_range(OTYPE_STELE, r->tech), race, p));
 
             notify(playernum, governor, buf);
             sprintf(buf, "Metab:   %s", Estimate_f(r->metabolism, race, p));
@@ -565,7 +573,7 @@ char *Estimate_i(int data, racetype *r, int p)
         } else if ((int)abs(est) < 1000000) {
             sprintf(est_buf, "%.1fM", (double)est / 1000.0);
         } else {
-            sprintf(est_buf, "%.1M", (double)est / 1000000.0);
+            sprintf(est_buf, "%.1fM", (double)est / 1000000.0);
         }
     }
 

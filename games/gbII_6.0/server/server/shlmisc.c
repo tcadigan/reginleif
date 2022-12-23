@@ -1564,7 +1564,7 @@ void no_permission(int playernum, int governor, char const *order, int level)
     notify(playernum, governor, buf);
 }
 
-int authorizes(int governor, shiptype *ship)
+int authorized(int governor, shiptype *ship)
 {
     /* return (!governor || (ship->governor == governor)); */
     /* return (ship->governor == governor); */

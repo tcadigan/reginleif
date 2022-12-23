@@ -25,23 +25,31 @@
  *
  * #ident  "@(#)csp_prof.c      1.4 12/9/93 "
  *
- * $Headers: /var/cvs/gbp/GB+/user/csp_prof.c,v 1.4 2007/07/06 18:09:34 gbp Exp $
+ * $Headers: /var/cvs/gbp/GB+/user/csp_prof.c,v 1.4 2007/07/06 18:09:34 gbp Exp
+ * $
  */
+#include "csp_prof.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-#include "buffers.h"
-#include "config.h"
-#include "csp.h"
-#include "csp_types.h"
-#include "debug.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "tweakables.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/config.h"
+#include "../server/csp.h"
+#include "../server/csp_types.h"
+#include "../server/debug.h"
+#include "../server/GB_server.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/shlmisc.h"
+#include "../server/tweakables.h"
+#include "../server/vars.h"
+
+#include "prof.h"
+#include "shootblast.h"
 
 extern char *Desnames[];
 
@@ -75,7 +83,7 @@ void CSP_profile(int playernum, int governor, int apcount)
 
                 race = races[p - 1];
             } else {
-                RStatus = CSPD_DIETY;
+                RStatus = CSPD_DEITY;
             }
         } else if (race->Guest) {
             RStatus = CSPD_GUEST;
@@ -89,7 +97,7 @@ void CSP_profile(int playernum, int governor, int apcount)
             RType = CSPD_RACE_NORMAL;
         }
 
-        sprintf(defscope,
+        sprintf(defScope,
                 "%s/%s",
                 Stars[race->governor[governor].homesystem]->name,
                 Stars[race->governor[governor].homesystem]->pnames[race->governor[governor].homeplanetnum]);
@@ -333,14 +341,14 @@ void CSP_profile(int playernum, int governor, int apcount)
                 CSP_CLIENT,
                 CSP_PROFILE_PLANET,
                 IntEstimate_i((double)r->conditions[TEMP], race, p),
-                IntEstimate_t((double)r->conditions[METHANE], race, p),
-                IntEstimate_t((double)r->conditions[OXYGEN], race, p),
-                IntEstimate_t((double)r->conditions[CO2], race, p),
-                IntEstimate_t((double)r->conditions[HYDROGEN], race, p),
-                IntEstimate_t((double)r->conditions[NITROGEN], race, p),
-                IntEstimate_t((double)r->conditions[SULFUR], race, p),
-                IntEstimate_t((double)r->conditions[HELIUM], race, p),
-                IntEstimate_t((double)r->conditions[OTHER], race, p));
+                IntEstimate_i((double)r->conditions[METHANE], race, p),
+                IntEstimate_i((double)r->conditions[OXYGEN], race, p),
+                IntEstimate_i((double)r->conditions[CO2], race, p),
+                IntEstimate_i((double)r->conditions[HYDROGEN], race, p),
+                IntEstimate_i((double)r->conditions[NITROGEN], race, p),
+                IntEstimate_i((double)r->conditions[SULFUR], race, p),
+                IntEstimate_i((double)r->conditions[HELIUM], race, p),
+                IntEstimate_i((double)r->conditions[OTHER], race, p));
 
         notify(playernum, governor, buf);
 

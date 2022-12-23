@@ -28,25 +28,33 @@
  *
  * $Header: /var/cvs/gbp/GB+/user/dissolve.c,v 1.4 2007/07/06 18:09:34 gbp Exp $
  */
+#include "dissolve.h"
 
 #include <math.h>
 #include <stdlib.h>
 
-#include "buffers.h"
-#include "config.h"
-#include "doturn.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/config.h"
+#include "../server/doship.h"
+#include "../server/doturn.h"
+#include "../server/files_shl.h"
+#include "../server/GB_server.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/rand.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/shlmisc.h"
+#include "../server/vars.h"
+
+#include "tele.h"
 
 void dissolve(int playernum, int governor)
 {
     int n_ships;
     int i;
     int j;
-    int x;
+    int z;
     int x2;
     int y2;
     int hix;
@@ -237,7 +245,7 @@ int revolt(planettype *pl, int victim, int agent)
                         /* All troops destroyed */
                         s->troops = 0;
                         pl->info[victim - 1].numsectsowned -= 1;
-                        pl->info[agent - 1].numsectswoned += 1;
+                        pl->info[agent - 1].numsectsowned += 1;
                         pl->info[victim - 1].mob_points -= s->mobilization;
                         pl->info[agent - 1].mob_points += s->mobilization;
                         ++changed_hands;

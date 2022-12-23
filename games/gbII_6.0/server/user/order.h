@@ -1,8 +1,10 @@
 #ifndef ORDER_H_
 #define ORDER_H_
 
+#include "../server/ships.h"
+
 void order(int, int, int);
-void give_order(int, int, int, shiptype *, int);
+void give_orders(int, int, int, shiptype *, int);
 char const *prin_aimed_at(int, int, shiptype *);
 char const *prin_ship_dest(int, int, shiptype *);
 void mk_expl_aimed_at(int, int, shiptype *);

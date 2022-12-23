@@ -36,18 +36,20 @@
  * $Header: /var/cvs/gbp/GB+/user/vict.c,v 1.3 2007/07/06 18:09:34 gbp Exp $
  * *****************************************************************************
  */
+#include "vict.h"
 
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
-#include "buffers.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/GB_server.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/vars.h"
 
 /* Prototypes */
 void create_victory_list(struct vic[MAXPLAYERS]);

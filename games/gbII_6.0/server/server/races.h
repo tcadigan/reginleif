@@ -116,7 +116,7 @@ struct race {
         char last_ip[16];
 
         struct {
-            unsigned int csp:1;
+            unsigned int csp_user:1;
             unsigned int empty:5;
             unsigned int csp_client_vers;
         } CSP_client_info;

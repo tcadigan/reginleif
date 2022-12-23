@@ -27,6 +27,9 @@
 #ifndef DOTURN_H_
 #define DOTURN_H_
 
+#include "races.h"
+#include "ships.h"
+
 struct stinfo {
     short temp_add; /* Addition to temperature to each planet */
     unsigned char thing_add; /* New Thing colony on this planet */

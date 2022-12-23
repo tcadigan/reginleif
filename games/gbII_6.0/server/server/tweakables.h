@@ -149,7 +149,7 @@
 #define CHAR_PLATED 'o'
 #define CHAR_WASTED '%'
 #define CHAR_GAS '~'
-#define CHAR_CLOCKED ' '
+#define CHAR_CLOAKED ' '
 #define CHAR_ICE '#'
 #define CHAR_CRYSTAL 'x'
 #define CHAR_DESERT '-'
@@ -244,7 +244,7 @@
 #define HAB_FACT_ON_COST 4
 #define PLAN_FACT_ON_COST 2
 
-#define SECTOR_DDDAMAGE 0.3
+#define SECTOR_DAMAGE 0.3
 #define SHIP_DAMAGE 2.0
 
 /* Von Neumann Machine tweakables */
@@ -255,7 +255,7 @@
 #define VNS_LIKE_TO_LIVE 10 /* % change VN's say no to scrap not implemented */
 
 #define LAUNCH_GRAV_MASS_FACTOR 0.18 /* Fuel use modifier for taking off */
-#define LANDDD_GRAV_MASS_FACTOR 0.0145
+#define LAND_GRAV_MASS_FACTOR 0.0145
 
 #define FUEL_USE 0.02 /* Fuel use per ship mass pt. per speed factor */
 #define HABITAT_PROD_RATE 0.05
@@ -335,15 +335,11 @@
 /* Otherwise move to only 1 adj. space */
 #define SHIP_MOVE_SCALE 3.0
 
-/* To save object cod e*/
+/* To save object code */
 #define getchr() fgetc(stdin)
 #define putchr(c) fputc((c), stdout)
 
 /* Assorted macros */
-
-#ifndef abs
-#define abs(x) (((x) < 0) ? (-x) : (x))
-#endif
 
 #ifndef MIN
 #define MIN(x, y) (((x) > (y)) ? (y) : (x))

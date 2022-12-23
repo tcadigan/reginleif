@@ -25,19 +25,30 @@
  *
  * #ident  "@(#)autoshoot.c    1.8 13/3/93 "
  *
- * $Header: /var/cvs/gbp/GB+/user/autoshoot.c,v 1.3 2007/07/06 18:09:34 gbp Exp $
+ * $Header: /var/cvs/gbp/GB+/user/autoshoot.c,v 1.3 2007/07/06 18:09:34 gbp Exp
+ * $
  */
+#include "autoshoot.h"
 
 #include <stdlib.h> /* Added for free() (kse) */
 #include <string.h> /* Added for strcat() (kse) */
 
-#include "buffers.h"
-#include "doturn.h"
-#include "power.h"
-#include "power.h"
-#include "races.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/doturn.h"
+#include "../server/files_shl.h"
+#include "../server/GB_server.h"
+#include "../server/perm.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/rand.h"
+#include "../server/ships.h"
+#include "../server/shlmisc.h"
+#include "../server/vars.h"
+
+#include "fire.h"
+#include "load.h"
+#include "shootblast.h"
+#include "tele.h"
 
 extern long Shipdata[NUMSTYPES][NUMABILS];
 extern int Bombard(shiptype *, planettype *, racetype *);
@@ -98,7 +109,7 @@ int auto_bomb(shiptype *ship,
 
 #ifdef USE_VN
         /* CWL berserker take a pot shot at PDNs */
-        if (!ok && (type->type == OTYPE_BERS)) {
+        if (!ok && (ship->type == OTYPE_BERS)) {
             rez = 1;
 
             while (ship->alive && ship->destruct && defender->alive && (rez > 0)) {
@@ -179,7 +190,7 @@ int auto_bomb(shiptype *ship,
 
     if ((x < 0) || (y < 0)) {
         x = 0;
-        y = ;
+        y = 0;
 
         /* We're automatically going to find some sectors to shoot at */
         getsmap(Smap, planet);
@@ -193,7 +204,7 @@ int auto_bomb(shiptype *ship,
                 && (Sector(*planet, x, y).condition != WASTED)) {
                 checked = 1;
 
-                if (isset(Race->atwar, Sector(*planet, x, y).owner)) {
+                if (isset(race->atwar, Sector(*planet, x, y).owner)) {
                     found = 1;
                 }
 
@@ -222,7 +233,7 @@ int auto_bomb(shiptype *ship,
                         "%s reports /%s/%s has already been saturation bombed.\n",
                         Ship(ship),
                         Stars[ship->storbits]->name,
-                        Stars[ship->storbits].->pnames[ship->pnumorbits]);
+                        Stars[ship->storbits]->pnames[ship->pnumorbits]);
 
                 notify(ship->owner, ship->governor, buf);
 
@@ -377,7 +388,7 @@ int auto_bomb(shiptype *ship,
 
                 if (damage >= 0) {
                     if (laser_on(defender)) {
-                        use_fuel(defender, 2.0 (double)strength);
+                        use_fuel(defender, 2.0 * (double)strength);
                     } else {
                         use_destruct(defender, strength);
                     }

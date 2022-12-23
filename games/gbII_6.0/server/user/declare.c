@@ -26,15 +26,23 @@
  *
  * $Header: /var/cvs/gbp/GB+/user/declare.c,v 1.4 2007/07/06 18:06:56 gbp Exp $
  */
+#include "declare.h"
 
 #include <ctype.h>
 
-#include "buffers.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/files_shl.h"
+#include "../server/first.h"
+#include "../server/GB_server.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/rand.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/shlmisc.h"
+#include "../server/vars.h"
+
+#include "tele.h"
 
 void show_votes(int, int);
 
@@ -103,11 +111,11 @@ void invite(int playernum, int governor, int apcount, int mode)
     }
 
     post(buf, DECLARATION);
-    PutBlocks(Blocks);
+    Putblock(Blocks);
 }
 
 /* Declare that you wish to be included in the alliance block */
-void pledge(int playernum, int governor, int apcount, in mode)
+void pledge(int playernum, int governor, int apcount, int mode)
 {
     int n;
     racetype *race;
@@ -339,7 +347,7 @@ void declare(int playernum, int governor, int apcount)
                 playernum,
                 race->name);
 
-        war_race(n, buf);
+        warn_race(n, buf);
 
         switch (int_rand(1,5)) {
         case 1:
@@ -434,7 +442,7 @@ void vote (int playernum, int governor, int apcount)
         return;
     }
 
-    if (race->guest) {
+    if (race->Guest) {
         sprintf(buf, "You are not allowed to vote, but, here is the count.\n");
         notify(playernum, governor, buf);
         show_votes(playernum, governor);
@@ -464,7 +472,7 @@ void vote (int playernum, int governor, int apcount)
             return;
         }
 
-        putrace(Race);
+        putrace(race);
 
         if (check) {
             /*
@@ -478,7 +486,7 @@ void vote (int playernum, int governor, int apcount)
             for (playernum = 1; playernum <= Num_races; ++playernum) {
                 race = races[playernum - 1];
 
-                if (race->God || race->guest || race->dissolved) {
+                if (race->God || race->Guest || race->dissolved) {
                     continue;
                 }
 
@@ -538,7 +546,7 @@ void show_votes(int playernum, int governor)
             sprintf(buf, "  %s voted wait.\n", race->name);
         }
 
-        if (races[playernum, - 1]->God) {
+        if (races[playernum - 1]->God) {
             notify(playernum, governor, buf);
         }
     }

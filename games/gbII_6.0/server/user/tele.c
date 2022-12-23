@@ -41,6 +41,7 @@
  *
  * *****************************************************************************
  */
+#include "tele.h"
 
 #include <ctype.h>
 #include <errno.h>
@@ -48,15 +49,18 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/file.h>
-#include <sys.stat.h>
+#include <sys/stat.h>
 #include <time.h>
 
-#include "buffers.h"
-#include "files.h"
-#include "power.h"
-#include "races.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/files.h"
+#include "../server/files_shl.h"
+#include "../server/GB_server.h"
+#include "../server/log.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ships.h"
+#include "../server/vars.h"
 
 static time_t tm;
 static FILE *teleg_read_fd;
@@ -193,7 +197,7 @@ void push_telegram(int recipient, int gov, char const *msg)
         telegram_fd = fopen(telefl, "w+");
 
         if (telegram_fd == NULL) {
-            perror(teleg_send);
+            perror("teleg_send");
 
             return;
         }
@@ -202,7 +206,7 @@ void push_telegram(int recipient, int gov, char const *msg)
     tm = time(0);
     current_tm = localtime(&tm);
 
-    sprintf(telegram_fd,
+    fprintf(telegram_fd,
             "%2d/%2d %02d:%02d:%02d %s\n",
             current_tm->tm_mon + 1,
             current_tm->tm_mday,
@@ -353,9 +357,9 @@ void news_read(int playernum, int governor, int type)
         return;
     }
 
-    teleg_read_file = fopen(telegram_file, "r");
+    teleg_read_fd = fopen(telegram_file, "r");
 
-    if (teleg_read_file != 0) {
+    if (teleg_read_fd != 0) {
         race = races[playernum - 1];
 
         if (race->governor[governor].newspos[type] > newslength[type]) {

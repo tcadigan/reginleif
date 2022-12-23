@@ -1,6 +1,9 @@
 #ifndef LOAD_H_
 #define LOAD_H_
 
+#include "../server/races.h"
+#include "../server/ships.h"
+
 void load(int, int, int, int);
 void jettison(int, int, int);
 int jettison_check(int, int, int, int);
@@ -21,6 +24,6 @@ void rcv_troops(shiptype *, int, double);
 void do_transporter(racetype *, int, shiptype *);
 int landed_on(shiptype *, int);
 void unload_onto_alien_sector(int, int, planettype *, shiptype *,
-                                         sectortype *, int int);
+                              sectortype *, int, int);
 
 #endif /* LOAD_H_ */

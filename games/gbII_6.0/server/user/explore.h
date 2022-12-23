@@ -1,6 +1,8 @@
 #ifndef EXPLORE_H_
 #define EXPLORE_H_
 
+#include "../server/races.h"
+
 void colonies_at_star(int, int, racetype *, int, int);
 void colonies(int, int, int, int);
 void distance(int, int, int);

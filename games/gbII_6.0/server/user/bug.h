@@ -5,4 +5,4 @@ void bug(int, int, int);
 int send_bug_email(char *);
 void read_bug_report(int, int);
 
-#endif BUG_H_
+#endif /* BUG_H_ */

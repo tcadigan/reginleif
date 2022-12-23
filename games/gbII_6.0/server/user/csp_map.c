@@ -27,19 +27,28 @@
  *
  * $Header: /var/cvs/gbp/GB+/user/csp_map.c,v 1.4 2007/07/06 18:09:34 gbp Exp $
  */
+#include "csp_map.h"
 
 #include <curses.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "buffers.h"
-#include "csp.h"
-#include "csp_types.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/csp.h"
+#include "../server/csp_types.h"
+#include "../server/files_shl.h"
+#include "../server/GB_server.h"
+#include "../server/log.h"
+#include "../server/max.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/rand.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/shlmisc.h"
+#include "../server/vars.h"
+
+#include "fire.h"
 
 static racetype *race;
 extern char *Planet_types[];
@@ -113,7 +122,7 @@ void CSP_map(int playernum, int governor, int snum, int pnum, planettype *p)
                 p->conditions[TOXIC],
                 p->slaved_to,
                 p->Maxx,
-                p-Maxy,
+                p->Maxy,
                 race->governor[governor].toggle.geography,
                 race->governor[governor].toggle.inverse,
                 race->governor[governor].toggle.double_digits,
@@ -162,7 +171,7 @@ void CSP_map(int playernum, int governor, int snum, int pnum, planettype *p)
     notify(playernum, governor, buf);
 
     sprintf(buf,
-            "%c %d %s %s %ld %ld %d %ld %ld %d %d %ld %d\n",
+            "%c %d %d %d %ld %ld %d %ld %ld %d %d %ld %d\n",
             CSP_CLIENT,
             CSP_MAP_DYNAMIC_2,
             p->info[playernum - 1].mob_set,
@@ -244,11 +253,11 @@ char getsymbol(planettype *p, int x, int y, racetype *r, int playernum)
     if (s->crystals && (r->discoveries[D_CRYSTAL] || r->God)) {
         retval = CSPD_XTAL_SYMBOL;
     } else if (s->troops) {
-        if (s->owner == Playernum) {
-            retval = CSPD_TROOP_MIN_SYMBOL;
+        if (s->owner == playernum) {
+            retval = CSPD_TROOP_MINE_SYMBOL;
         } else if (isset(r->allied, s->owner)) {
             retval = CSPD_TROOP_ALLIED_SYMBOL;
-        } else if (isset(r->war, s->owner)) {
+        } else if (isset(r->atwar, s->owner)) {
             retval = CSPD_TROOP_ENEMY_SYMBOL;
         } else {
             retval = CSPD_TROOP_NEUTRAL_SYMBOL;

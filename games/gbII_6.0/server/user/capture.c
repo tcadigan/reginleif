@@ -26,17 +26,29 @@
  *
  * $Header: /var/cvs/gbp/GB+/user/capture.c,v 1.6 2007/07/06 18:09:34 gbp Exp $
  */
+#include "capture.h"
 
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "buffers.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/doship.h"
+#include "../server/files_shl.h"
+#include "../server/GB_server.h"
+#include "../server/getplace.h"
+#include "../server/lists.h"
+#include "../server/misc.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/rand.h"
+#include "../server/ranks.h"
+#include "../server/shlmisc.h"
+#include "../server/ships.h"
+#include "../server/vars.h"
+
+#include "fire.h"
+#include "tele.h"
 
 extern int Defensedata[];
 void capture_stuff(shiptype *);
@@ -80,8 +92,8 @@ void capture(int playernum, int governor, int apcount)
 
     snum = Dir[playernum - 1][governor].snum;
     pnum = Dir[playernum - 1][governor].pnum;
-    newshipno = start_shiplist(playernum, governor, args[1]);
-    shipno = do_shiplist(&ship, nextshipno);
+    nextshipno = start_shiplist(playernum, governor, args[1]);
+    shipno = do_shiplist(&ship, &nextshipno);
 
     while (shipno) {
         if ((ship->owner != playernum)
@@ -119,7 +131,7 @@ void capture(int playernum, int governor, int apcount)
             }
 #endif
 
-            if (!enufAP(playernum, governor, Stars[ship->storbits]->AP[playernum - 1], APcount)) {
+            if (!enufAP(playernum, governor, Stars[ship->storbits]->AP[playernum - 1], apcount)) {
                 free(ship);
 
                 continue;
@@ -238,7 +250,7 @@ void capture(int playernum, int governor, int apcount)
                 if (what == MIL) {
                     astrength = (double)race->fighters * 10.0 * 0.01 * race->tech * (race->likes[sect->condition] + 0.01) * ((double)Defensedata[sect->condition] + 1.0) * morale_factor((double)(race->morale - alien->morale));
                 } else {
-                    astrength = 1.0 * 0.01 * race->tech * (Race->likes[sect->condition] + 0.01) * ((double)Defensedata[sect->condition] + 1.0) * morale_factor((double)(race->morale - alien->morale));
+                    astrength = 1.0 * 0.01 * race->tech * (race->likes[sect->condition] + 0.01) * ((double)Defensedata[sect->condition] + 1.0) * morale_factor((double)(race->morale - alien->morale));
                 }
 
                 if (ship->type == OTYPE_FACTORY) {
@@ -272,25 +284,25 @@ void capture(int playernum, int governor, int apcount)
                 }
 
                 if (dstrength > 0.0) {
-                    casualties1 = round_rand(0, round_rand(((double)casualty_scale * (astrength + 1.0)) / (dstrength + 1.0)));
+                    casualties1 = int_rand(0, round_rand(((double)casualty_scale * (astrength + 1.0)) / (dstrength + 1.0)));
 
-                    casualties2 = round_rand(0, round_rand(((double)casualty_scale * (astrength + 1.0)) / (dstrength + 1.0)));
+                    casualties2 = int_rand(0, round_rand(((double)casualty_scale * (astrength + 1.0)) / (dstrength + 1.0)));
 
                     shipdam = int_rand(0, round_rand((25.0 * (astrength + 1.0)) / (dstrength + 1.0)));
 
-                    ship->damage = MIN(100, ship->damage -> shipdam);
+                    ship->damage = MIN(100, ship->damage + shipdam);
                 }
 
-                casualties = MIN(borders, casualties);
+                casualties = MIN(boarders, casualties);
                 boarders -= casualties;
 
-                casualties1 = MIN(oldppon, casualties);
-                ship->popn - casualties;
-                ship->mass = (casualties1 * alien->mass);
+                casualties1 = MIN(olddpopn, casualties);
+                ship->popn -= casualties;
+                ship->mass -= (casualties1 * alien->mass);
 
-                casualties2 = MIN(oldtroops, casualties2);
-                ship->droops -= casualties;
-                ship->mass -= (casualties * alien_mass);
+                casualties2 = MIN(olddtroops, casualties2);
+                ship->troops -= casualties;
+                ship->mass -= (casualties * alien->mass);
 
             } else if (ship->destruct) {
                 /* Booby trapped robot ships */
@@ -313,7 +325,7 @@ void capture(int playernum, int governor, int apcount)
 
             if (olddpopn + olddtroops) {
                 if (what == MIL) {
-                    astrength = (double)boarders * (double)race->fighters * 10.0 * 0.01 * race->tech * (race->likes[sect->condition] + 0.01) * ((double)Defensedata[sect->condition] + 1.0) * moral_factor((double)(race->morale - alien_morale));
+                    astrength = (double)boarders * (double)race->fighters * 10.0 * 0.01 * race->tech * (race->likes[sect->condition] + 0.01) * ((double)Defensedata[sect->condition] + 1.0) * morale_factor((double)(race->morale - alien_morale));
                 } else {
                     astrength = (double)boarders * 1.0 * 0.01 * race->tech * (race->likes[sect->condition] + 0.01) * ((double)Defensedata[sect->condition] + 1.0) * morale_factor((double)(race->morale - alien->morale));
                 }
@@ -419,7 +431,7 @@ void capture(int playernum, int governor, int apcount)
                 } else if (what == MIL) {
                     if (ship->type == OTYPE_FACTORY) {
                         ship->troops = MIN(boarders,
-                                           Shipdata[ship->type][ABIL_MAX_CREW]
+                                           Shipdata[ship->type][ABIL_MAXCREW]
                                            - ship->popn);
                     } else {
                         ship->troops = MIN(boarders,
@@ -438,7 +450,7 @@ void capture(int playernum, int governor, int apcount)
                 /* Retreat */
                 if (what == CIV) {
                     sect->popn += boarders;
-                } else if (what = MIL) {
+                } else if (what == MIL) {
                     sect->troops += boarders;
                 }
             }
@@ -502,7 +514,7 @@ void capture(int playernum, int governor, int apcount)
             strcpy(telegram_buf, buf);
 
             sprintf(buf,
-                    "You are being attacked by %s Player #%d (%d)!!!\n",
+                    "You are being attacked by %s Player #%d (%s)!!!\n",
                     isset(alien->allied, playernum) ? "your ally"
                     : isset(alien->atwar, playernum) ? "your enemy"
                     : "neutral",
@@ -668,7 +680,7 @@ void capture(int playernum, int governor, int apcount)
                 post(short_buf, COMBAT);
             }
 
-            notify_start(playernum,
+            notify_star(playernum,
                          governor,
                          oldowner,
                          (int)ship->storbits,
@@ -679,7 +691,7 @@ void capture(int playernum, int governor, int apcount)
             putplanet(p, snum, pnum);
             putrace(race);
             putrace(alien);
-            deductAPs(playernum, governor, APcount, (int)ship->storbits, 0);
+            deductAPs(playernum, governor, apcount, (int)ship->storbits, 0);
             free(p);
             free(ship);
         } else {

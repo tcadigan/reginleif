@@ -26,17 +26,23 @@
  *
  * $Header: /var/cvs/gbp/GB+/user/power.c,v 1.3 2007/07/06 18:09:34 gbp Exp $
  */
+#include "user_power.h"
 
 #include <errno.h>
 #include <string.h>
 #include <time.h>
 
-#include "buffers.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/GB_server.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/shlmisc.h"
+#include "../server/vars.h"
+
+#include "prof.h"
+#include "vict.h"
 
 extern int errno;
 extern struct tm *update_tm;
@@ -67,7 +73,7 @@ void block(int playernum, int governor, int apcount)
             return;
         }
 
-        r = race[p - 1];
+        r = races[p - 1];
         /* Used as flag for finding a block */
         dummy_ = 0;
         sprintf(buf, "Race #%d [%s] is a member of ", p, r->name);
@@ -194,7 +200,7 @@ void block(int playernum, int governor, int apcount)
                     strcat(buf, temp);
                     sprintf(temp,
                             "%5s",
-                            Estimate_i((int)Power[i - 1].ship_owned, race, i));
+                            Estimate_i((int)Power[i - 1].ships_owned, race, i));
 
                     strcat(buf, temp);
                     sprintf(temp,
@@ -283,7 +289,7 @@ void block(int playernum, int governor, int apcount)
                         Estimate_i((int)Power_blocks.VPs[i - 1], race, i));
 
                 strcat(buf, temp);
-                sprintf(temp, " %3s%%\n", race->translate[i - 1]);
+                sprintf(temp, " %3d%%\n", race->translate[i - 1]);
                 strcat(buf, temp);
                 notify(playernum, governor, buf);
             }
@@ -322,7 +328,7 @@ void power(int playernum, int governor, int apcount)
 
     notify(playernum, governor, buf);
 
-    if (race->god) {
+    if (race->God) {
 #ifdef USE_VN
         sprintf(buf,
                 "%s  #  Name          VP  mil  civ cash ship pl  res fuel dest morl  VNhl\n",
@@ -376,8 +382,8 @@ void prepare_output_line(racetype *race, racetype *r, int i, int rank)
             i,
             isset(race->allied, i) ? "+"
             : isset(race->atwar, i) ? "-" : " ",
-            isset(r->allied, race->playernum) ? "+"
-            : isset(r->atwar, race->playernum) ? "-" : " ",
+            isset(r->allied, race->Playernum) ? "+"
+            : isset(r->atwar, race->Playernum) ? "-" : " ",
             r->name,
             Estimate_i((int)r->victory_score, race, i));
 

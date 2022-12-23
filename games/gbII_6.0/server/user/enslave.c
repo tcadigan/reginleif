@@ -26,16 +26,23 @@
  *
  * $Header: /var/cvs/gbp/GB+/user/enslave.c, v 1.4 2007/07/06 18:06:56 gbp Exp $
  */
+#include "enslave.h"
 
 #include <stdlib.h>
 #include <string.h>
 
-#include "buffers.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/files_shl.h"
+#include "../server/first.h"
+#include "../server/GB_server.h"
+#include "../server/getplace.h"
+#include "../server/max.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/shlmisc.h"
+#include "../server/vars.h"
 
 extern void enslave(int, int, int);
 
@@ -117,7 +124,7 @@ void enslave(int playernum, int governor, int apcount)
     aliens = def;
     attack = aliens;
 
-    for (i = 1; i < MAX_PLAYERS; ++i) {
+    for (i = 1; i < MAXPLAYERS; ++i) {
         if (p->info[i - 1].numsectsowned && (i != playernum)) {
             if (races[i - 1]->Guest) {
                 notify(playernum,

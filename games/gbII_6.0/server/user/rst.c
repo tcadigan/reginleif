@@ -28,18 +28,30 @@
  *
  * $Header: /var/cvs/gbp/GB+/user/rst.c,v 1.5 2007/07/06 18:09:3334 gbp Exp $
  */
+#include "rst.h"
 
 #include <ctype.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "buffers.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/files_shl.h"
+#include "../server/first.h"
+#include "../server/GB_server.h"
+#include "../server/getplace.h"
+#include "../server/log.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/shlmisc.h"
+#include "../server/vars.h"
+
+#include "build.h"
+#include "fire.h"
+#include "order.h"
+#include "shootblast.h"
 
 #define REPORT 0
 #define STOCK 1
@@ -79,7 +91,7 @@ reportdata *rd;
 
 extern void rst(int, int, int, int);
 extern void ship_report(int, int, int, unsigned char[], int);
-extern void plan_getrships(int, int, int);
+extern void plan_getrships(int, int, int, int);
 extern void star_getrships(int, int, int);
 extern int Getrship(int, int, int);
 extern void Free_rlist(void);
@@ -110,7 +122,7 @@ void rst(int playernum, int governor, int apcount, int rst)
     from_planet = 0;
     what_race = 0;
     terse_out = 0;
-    num_ships = 0;
+    Num_ships = 0;
     display = 1;
     first = 1;
     found = 0;
@@ -258,7 +270,7 @@ void rst(int playernum, int governor, int apcount, int rst)
     if (tactical && from_planet) {
         planettype *p;
 
-        if (Dir[playernum - 1][Governor].level != LEVEL_PLAN) {
+        if (Dir[playernum - 1][governor].level != LEVEL_PLAN) {
             sprintf(buf, "You must be at planetary scope to run this.\n");
             notify(playernum, governor, buf);
             free(rd);
@@ -269,19 +281,19 @@ void rst(int playernum, int governor, int apcount, int rst)
             pnum = Dir[playernum - 1][governor].pnum;
 
             /* This allows us to do tactical reports from planets */
-            getplanet(&rd[num_ships].p, snum, pnum);
-            p = rd[num_ships].p;
+            getplanet(&rd[Num_ships].p, snum, pnum);
+            p = rd[Num_ships].p;
 
             /* Add this planet into the ship list */
-            rd[num_ships].star = snum;
-            rd[num_ships].pnum = pnum;
-            rd[num_ships].type = PLANET;
-            rd[num_ships].n = 0;
-            rd[num_ships].x = Stars[snum]->xpos + p->xpos;
-            rd[num_ships].y = Stars[snum]->ypos + p->ypos;
-            ++num_ships;
+            rd[Num_ships].star = snum;
+            rd[Num_ships].pnum = pnum;
+            rd[Num_ships].type = PLANET;
+            rd[Num_ships].n = 0;
+            rd[Num_ships].x = Stars[snum]->xpos + p->xpos;
+            rd[Num_ships].y = Stars[snum]->ypos + p->ypos;
+            ++Num_ships;
 
-            num = num_ships;
+            num = Num_ships;
             star_getrships(playernum, governor, snum);
             ship_report(playernum, governor, num - 1, report_types, terse_out);
             Free_rlist();
@@ -321,9 +333,9 @@ void rst(int playernum, int governor, int apcount, int rst)
                     return;
                 }
 
-                num = num_ships;
+                num = Num_ships;
 
-                if (rd[num_ships - 1].s->whatorbits != LEVEL_UNIV) {
+                if (rd[Num_ships - 1].s->whatorbits != LEVEL_UNIV) {
                     star_getrships(playernum,
                                    governor,
                                    (int)rd[num - 1].s->storbits);
@@ -355,7 +367,7 @@ void rst(int playernum, int governor, int apcount, int rst)
             /* Display summary header */
             num = -1;
 
-            for (i = 0; i < NUM_STYPES; ++i) {
+            for (i = 0; i < NUMSTYPES; ++i) {
                 report_types[i] = 0;
             }
 
@@ -393,7 +405,7 @@ void rst(int playernum, int governor, int apcount, int rst)
             notify(playernum, governor, buf);
         }
 
-        if (Dir[playernum - 1][governor].level = LEVEL_PLAN) {
+        if (Dir[playernum - 1][governor].level == LEVEL_PLAN) {
             sprintf(buf,
                     "/%s",
                     Stars[Dir[playernum - 1][governor].snum]->pnames[Dir[playernum - 1][governor].pnum]);
@@ -411,20 +423,20 @@ void rst(int playernum, int governor, int apcount, int rst)
         notify(playernum, governor, buf);
     }
 
-    switch (Dir[playernum, - 1][governor].level) {
+    switch (Dir[playernum - 1][governor].level) {
     case LEVEL_UNIV:
         if ((rst != TACTICAL) || (argn >= 2)) {
             shn = Sdata.ships;
 
             while (shn && Getrship(playernum, governor, shn)) {
-                shn = nextship(rd[num_ships - 1].s);
+                shn = nextship(rd[Num_ships - 1].s);
             }
 
             for (i = 0; i < Sdata.numstars; ++i) {
                 star_getrships(playernum, governor, i);
             }
 
-            for (i = 0; i < num_ships; ++i) {
+            for (i = 0; i < Num_ships; ++i) {
                 ship_report(playernum, governor, i, report_types, terse_out);
             }
         } else {
@@ -452,7 +464,7 @@ void rst(int playernum, int governor, int apcount, int rst)
                            Dir[playernum - 1][governor].snum);
         }
 
-        for (i = 0; i < num_ships; ++i) {
+        for (i = 0; i < Num_ships; ++i) {
             ship_report(playernum, governor, i, report_types, terse_out);
         }
 
@@ -460,7 +472,7 @@ void rst(int playernum, int governor, int apcount, int rst)
     case LEVEL_STAR:
         star_getrships(playernum, governor, Dir[playernum - 1][governor].snum);
 
-        for (i = 0; i < num_ships; ++i) {
+        for (i = 0; i < Num_ships; ++i) {
             ship_report(playernum, governor, i, report_types, terse_out);
         }
 
@@ -468,18 +480,18 @@ void rst(int playernum, int governor, int apcount, int rst)
     case LEVEL_SHIP:
         Getrship(playernum,
                  governor,
-                 Dir[playernum - ][governor].shipno);
+                 Dir[playernum - 1][governor].shipno);
 
         /* First ship report */
         ship_report(playernum, governor, 0, report_types, terse_out);
         shn = rd[0].s->ships;
-        num_ships = 0;
+        Num_ships = 0;
 
-        while (shn && getrship(playernum, governor, shn)) {
-            shn = nextship(rd[num_ships - 1].s);
+        while (shn && Getrship(playernum, governor, shn)) {
+            shn = nextship(rd[Num_ships - 1].s);
         }
 
-        for (i = 0; i < num_ships; ++i) {
+        for (i = 0; i < Num_ships; ++i) {
             ship_report(playernum, governor, i, report_types, terse_out);
         }
 
@@ -519,7 +531,6 @@ void ship_report(int playernum,
     double dist;
     double bear;
     double head;
-    int planet_cnt;
     int war_rng_cnt;
     int ally_rng_cnt;
     int neut_rng_cnt;
@@ -646,7 +657,8 @@ void ship_report(int playernum,
             }
 
             sprintf(buf,
-                    "%5u %c %14.14s %-4d %s  %3d/%-4d  %4d  %3d%c/%3dc    %3d%%  %c %s\n",
+
+                    "%5u %c %14.14s %-4d %s  %3d/%-4d  %4d  %3d%c/%3d%c    %3d%%  %c %s\n",
                     shipno,
                     Shipltrs[s->type],
                     s->active ? s->name : "INACTIVE",
@@ -697,7 +709,7 @@ void ship_report(int playernum,
                             : s->primtype == MEDIUM ? "M"
                             : s->primtype == HEAVY ? "H" : "N");
                 } else {
-                    strncpy(tmpbuf, "---", 9);
+                    strncpy(tmpbuf1, "---", 9);
                 }
 
                 if (s->sectype) {
@@ -742,9 +754,11 @@ void ship_report(int playernum,
                         s->mounted ? '+' : '-'
                         : '*'
                         : ' ',
-                        s_max_speed,
+                        s->max_speed,
                         tmpbuf1,
                         tmpbuf2,
+                        s->laser ? "yes" : "no",
+                        s->cloaked ? "Cloaked" : "",
                         tmpbuf3,
                         tmpbuf4,
                         s->damage,
@@ -782,7 +796,7 @@ void ship_report(int playernum,
             } else {
                 strncpy(locstrn,
                         prin_ship_dest(playernum, governor, s),
-                        COMMAND_SIZE - 1);
+                        COMMANDSIZE - 1);
             }
 
             if (!s->active) {
@@ -832,7 +846,7 @@ void ship_report(int playernum,
                     sprintf(buf,
                             "Tactical report from planet /%s/%s:\n",
                             Stars[rd[indx].star]->name,
-                            Stars[rd[indx].star]=>pnames[rd[indx].pnum]);
+                            Stars[rd[indx].star]->pnames[rd[indx].pnum]);
 
                     notify(playernum, governor, buf);
                     sprintf(buf, "\ntech    guns             dest   fuel\n");
@@ -895,7 +909,7 @@ void ship_report(int playernum,
                             s->damage,
                             fspeed,
                             fev ? "yes" : "    ",
-                            Displace(playernum, governor, &where));
+                            Dispplace(playernum, governor, &where));
 
                     notify(playernum, governor, buf);
 
@@ -923,15 +937,14 @@ void ship_report(int playernum,
                     notify(playernum, governor, buf);
                 }
 
-                planet_cnt = 0;
                 war_see_cnt = 0;
                 war_rng_cnt = 0;
                 ally_see_cnt = 0;
                 ally_rng_cnt = 0;
-                nuet_see_cnt = 0;
+                neut_see_cnt = 0;
                 neut_rng_cnt = 0;
 
-                for (i = 0; i < num_ships; ++i) {
+                for (i = 0; i < Num_ships; ++i) {
                     if (i != indx) {
                         dist = sqrt(Distsq(rd[indx].x, rd[indx].y, rd[i].x, rd[i].y));
 
@@ -939,8 +952,6 @@ void ship_report(int playernum,
                             bear = rad2deg(M_PI - atan2(rd[i].x - rd[indx].x, rd[i].y - rd[indx].y));
 
                             if (rd[i].type == PLANET) {
-                                ++planet_cnt;
-
                                 if (!terse && (rd[i].pnum != rd[indx].pnum)) {
                                     /* Tac report at planet */
                                     sprintf(buf,
@@ -966,7 +977,7 @@ void ship_report(int playernum,
                                          || !authorized(governor, rd[i].s))
                                         && rd[i].s->alive
                                         && (rd[i].s->type != OTYPE_CANIST)
-                                        && (rd[i].s->type 1= OTYPE_GREEN)) {
+                                        && (rd[i].s->type != OTYPE_GREEN)) {
                                         int tev = 0;
                                         int tspeed = 0;
                                         int body = 0;
@@ -1051,10 +1062,10 @@ void ship_report(int playernum,
                                             if (rd[indx].type == PLANET) {
                                                 potdmg = (SHIP_DAMAGE
                                                           * MEDIUM
-                                                          * p->inf[playernum - 1].guns)
+                                                          * p->info[playernum - 1].guns)
                                                     / sqrt((double)(0.1
                                                                     * (rd[i].s->size
-                                                                       - rd[i].s->max-hanger)));
+                                                                       - rd[i].s->max_hanger)));
                                             } else {
                                                 potdmg = (SHIP_DAMAGE
                                                           * current_caliber(rd[indx].s)
@@ -1069,7 +1080,7 @@ void ship_report(int playernum,
                                         sprintf(buf,
                                                 "%6d %s %2d,%1d %c %14.14s%4d %4.0f %3.0f %3d %3.0f %1s %4d %3d%% %3u%%%s %3.0f%%",
                                                 rd[i].n,
-                                                isset(race[playernum - 1]->atwar, rd[i].s->owner) ? "-"
+                                                isset(races[playernum - 1]->atwar, rd[i].s->owner) ? "-"
                                                 : isset(races[playernum -1]->allied, rd[i].s->owner) ? "+" : " ",
                                                 rd[i].s->owner,
                                                 rd[i].s->governor,
@@ -1186,7 +1197,7 @@ void ship_report(int playernum,
                                 neut_see_cnt,
                                 war_rng_cnt,
                                 ally_rng_cnt,
-                                neut_rng, cnt);
+                                neut_rng_cnt);
 
                         notify(playernum, governor, buf);
                     } else if (shipno) {
@@ -1215,22 +1226,22 @@ void plan_getrships(int playernum, int governor, int snum, int pnum)
     int shn;
     planettype *p;
 
-    getplanet(&rd[num_ships].p, snum, pnum);
-    p = rd[num_ships].p;
+    getplanet(&rd[Num_ships].p, snum, pnum);
+    p = rd[Num_ships].p;
     /* Add this planet into the ship list */
-    rd[num_ships].star = snum;
-    rd[num_ships].pnum = pnum;
-    rd[num_ships].type = PLANET;
-    rd[num_ships].n = 0;
-    rd[num_ships].x = Stars[snum]->xpos + p->xpos;
-    rd[num_ships].y = Stars[snum]->ypos + p->ypos;
-    ++num_ships;
+    rd[Num_ships].star = snum;
+    rd[Num_ships].pnum = pnum;
+    rd[Num_ships].type = PLANET;
+    rd[Num_ships].n = 0;
+    rd[Num_ships].x = Stars[snum]->xpos + p->xpos;
+    rd[Num_ships].y = Stars[snum]->ypos + p->ypos;
+    ++Num_ships;
 
     if (p->info[playernum - 1].explored) {
         shn = p->ships;
 
         while (shn && Getrship(playernum, governor, shn)) {
-            shn = nextship(rd[num_ships - 1].s);
+            shn = nextship(rd[Num_ships - 1].s);
         }
     }
 }
@@ -1244,7 +1255,7 @@ void star_getrships(int playernum, int governor, int snum)
         shn = Stars[snum]->ships;
 
         while (shn && Getrship(playernum, governor, shn)) {
-            shn = nextship(rd[num_ships - 1].s);
+            shn = nextship(rd[Num_ships - 1].s);
         }
 
         for (i = 0; i < Stars[snum]->numplanets; ++i) {
@@ -1256,12 +1267,12 @@ void star_getrships(int playernum, int governor, int snum)
 /* Get a ship from the disk and add it to the ship list we're maintaining. */
 int Getrship(int playernum, int governor, int shipno)
 {
-    if (getship(&rd[num_ships].s, shipno)) {
-        rd[num_ships].type = 0;
-        rd[num_ships].n = shipno;
-        rd[num_ships].x = rd[num_ships].s->xpos;
-        rd[num_ships].y = rd[num_ships].s->ypos;
-        ++num_ships;
+    if (getship(&rd[Num_ships].s, shipno)) {
+        rd[Num_ships].type = 0;
+        rd[Num_ships].n = shipno;
+        rd[Num_ships].x = rd[Num_ships].s->xpos;
+        rd[Num_ships].y = rd[Num_ships].s->ypos;
+        ++Num_ships;
 
         return 1;
     } else {
@@ -1276,7 +1287,7 @@ void Free_rlist(void)
 {
     int i;
 
-    for (i = 0; i < num_ships; ++i) {
+    for (i = 0; i < Num_ships; ++i) {
         if (rd[i].type == PLANET) {
             free(rd[i].p);
         } else {
@@ -1326,7 +1337,7 @@ int see_cloaked(reportdata *target, reportdata *orig, double dist)
         }
 
         /* Is a probe, better chance */
-        if (dist > (500 & (s->tech / 200))) {
+        if (dist > (500 * (s->tech / 200))) {
             return 0;
         } else {
             return 1;

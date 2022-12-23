@@ -26,15 +26,24 @@
  *
  * $Header: /var/cvs/gbp/GB+/user/scrap.c,v 1.4 2007/07/06 18:07:58 gbp Exp $
  */
+#include "scrap.h"
 
 #include <stdlib.h>
 
-#include "buffers.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/doship.h"
+#include "../server/files_shl.h"
+#include "../server/GB_server.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/shlmisc.h"
+#include "../server/vars.h"
+
+#include "fire.h"
+#include "land.h"
+#include "load.h"
 
 int inship(shiptype *); /* This was missing (kse) */
 
@@ -193,7 +202,7 @@ void scrap(int playernum, int governor, int apcount)
                 }
 
                 if ((!s2->docked || (s2->destshipno != s->number))
-                    && (!s->whatorbits == LEVEL_SHIP)) {
+                    && (!(s->whatorbits == LEVEL_SHIP))) {
                     sprintf(buf, "Warning, other ship not docked...\n");
                     notify(playernum, governor, buf);
                     free(s);
@@ -205,7 +214,7 @@ void scrap(int playernum, int governor, int apcount)
             }
 
             if (s->type == OTYPE_FACTORY) {
-                cost = (2 * s->build_code * s->on) + Shipdata[s->type][ABIL_COST];
+                cost = (2 * s->build_cost * s->on) + Shipdata[s->type][ABIL_COST];
             } else {
                 cost = s->build_cost;
             }
@@ -213,7 +222,8 @@ void scrap(int playernum, int governor, int apcount)
             scrapval = (cost / 2) + s->resource;
 
             if (s->docked) {
-                sprintf(buf, "%s: original cost: %ld\n", Ship(s), cost);
+                sprintf(buf, "%s: original cost: %ld\n", Ship(s),
+                        s->type == OTYPE_FACTORY ? 2 * s->build_cost * s->on : Shipdata[s->type][ABIL_COST]);
                 notify(playernum, governor, buf);
 
                 sprintf(buf,
@@ -371,7 +381,7 @@ void scrap(int playernum, int governor, int apcount)
 
             /* More adjustments needed here for hangar. Maarten */
             if (s->whatorbits == LEVEL_SHIP) {
-                s2->hangar -= (unsigned short)s->size;
+                s2->hanger -= (unsigned short)s->size;
             }
 
             if (s->whatorbits == LEVEL_UNIV) {
@@ -450,7 +460,7 @@ void scrap(int playernum, int governor, int apcount)
                         notify(playernum, governor, buf);
                     }
 
-                    if ((playernum->info[playernum - 1].fuel + fuelval) <= USHRT_MAX) {
+                    if ((planet->info[playernum - 1].fuel + fuelval) <= USHRT_MAX) {
                         planet->info[playernum - 1].fuel += fuelval;
                     } else {
                         planet->info[playernum - 1].fuel = USHRT_MAX;
@@ -480,7 +490,7 @@ void scrap(int playernum, int governor, int apcount)
                      * planet->info[playernum - 1].fuel += (int)fuelval;
                      */
 
-                    plant->popn += crewval;
+                    planet->popn += crewval;
                     planet->info[playernum - 1].crystals += (int)xtalval;
                     putsector(sect, planet, (int)s->land_x, (int)s->land_y);
                     free(sect);

@@ -1,6 +1,8 @@
 #ifndef DISPATCH_H_
 #define DISPATCH_H_
 
+#include "vars.h"
+
 int count_dispatch(int, int);
 int open_dispatch(int, int, mdbtype ***);
 void read_dispatch(int, int, int);

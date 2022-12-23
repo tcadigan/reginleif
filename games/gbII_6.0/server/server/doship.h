@@ -1,6 +1,9 @@
 #ifndef DOSHIP_H_
 #define DOSHIP_H_
 
+#include "ships.h"
+#include "vars.h"
+
 void doship(shiptype *, int);
 void doloc(shiptype *);
 void domass(shiptype *);

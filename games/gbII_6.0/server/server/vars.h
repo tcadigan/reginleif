@@ -44,7 +44,7 @@ unsigned long segments; /* Number of movement segments (global variable) */
 /* Shipping routes - DON'T change this unless you know what you are doing */
 #define MAX_ROUTES 4
 
-#define TH_REASOURCE 0 /* THRESHOLDING STUFF */
+#define TH_RESOURCE 0 /* THRESHOLDING STUFF */
 #define TH_DESTRUCT 1
 #define TH_FUEL 2
 #define TH_CRYSTALS 3
@@ -120,7 +120,7 @@ unsigned int CombatUpdate; /* Global */
 typedef struct sector sectortype;
 typedef struct planet planettype;
 typedef struct star startype;
-typedef struct common commodtype;
+typedef struct commod commodtype;
 typedef struct report reportdata;
 
 struct plinfo {
@@ -191,7 +191,7 @@ struct commod {
     unsigned char deliver; /* Whether the lot is ready for shipping or not */
     unsigned char bidder;
     unsigned char bidder_gov;
-    unsigned char start_from; /* Where the stuff originated from */
+    unsigned char star_from; /* Where the stuff originated from */
     unsigned char planet_from;
     unsigned char star_to; /* Where it goes to */
     unsigned char planet_to;
@@ -232,7 +232,7 @@ struct planet {
     unsigned long popn;
     unsigned long troops;
     unsigned long maxpopn; /* Maximum population */
-    unsigned long total_resource;
+    unsigned long total_resources;
 
     unsigned char slaved_to;
     unsigned char type; /* What type planet is */
@@ -481,7 +481,7 @@ struct OrbitInfo {
     int DontDispNum;
 };
 
-typedef struct OrbitInfo orbitinto;
+typedef struct OrbitInfo orbitinfo;
 
 /* Bit routines stolen from UNIX <sys/param.h> */
 #ifdef setbit
@@ -541,7 +541,7 @@ typedef struct OrbitInfo orbitinto;
 /* Channel communication system */
 #define COMM_RCV_CHANNEL1 1
 #define COMM_RCV_CHANNEL2 2
-#define COMM_RCV_CHANNEL3
+#define COMM_RCV_CHANNEL3 3
 #define COMM_XMIT_CHANNEL1 4
 #define COMM_XMIT_CHANNEL2 5
 #define COMM_XMIT_CHANNEL3 6

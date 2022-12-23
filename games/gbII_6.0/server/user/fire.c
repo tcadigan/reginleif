@@ -26,16 +26,29 @@
  *
  * $Header: /var/cvs/gbp/GB+/user/fire.c,v 1.5 2007/07/06 18:06:56 gbp Exp $
  */
+#include "fire.h"
 
 #include <stdlib.h>
 #include <string.h>
 
-#include "buffers.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/doship.h"
+#include "../server/GB_server.h"
+#include "../server/getplace.h"
+#include "../server/files_shl.h"
+#include "../server/first.h"
+#include "../server/rand.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/shlmisc.h"
+#include "../server/vars.h"
+
+#include "autoshoot.h"
+#include "load.h"
+#include "shootblast.h"
+#include "tele.h"
 
 extern void fire(int, int, int, int);
 extern void bombard(int, int, int);
@@ -362,10 +375,10 @@ void fire(int playernum, int governor, int apcount, int cew)
                  */
                 if (from->destruct < strength) {
                     getplanet(&planet, from->storbits, from->pnumorbits);
-                    plant->info[from->owner - 1].destruct -= MIN(planet->info[from->owner - 1].destruct, strength - from->destruct);
+                    planet->info[from->owner - 1].destruct -= MIN(planet->info[from->owner - 1].destruct, strength - from->destruct);
 
                     use_destruct(from, from->destruct);
-                    put_planet(planet, from->storbits, from->pnumorbits);
+                    putplanet(planet, from->storbits, from->pnumorbits);
                     free(planet);
                 } else {
                     use_destruct(from, strength);
@@ -384,7 +397,7 @@ void fire(int playernum, int governor, int apcount, int cew)
                         (int)from->storbits,
                         short_buf);
 
-            warn((int)to->owner, (int)to->governor, long_bug);
+            warn((int)to->owner, (int)to->governor, long_buf);
             notify(playernum, governor, long_buf);
 
             /* Defending ship retaliates */
@@ -565,7 +578,7 @@ void fire(int playernum, int governor, int apcount, int cew)
 
                         if (damage >= 0) {
                             if (laser_on(ship)) {
-                                use_fuel(ship, 2.0 & (double)strength);
+                                use_fuel(ship, 2.0 * (double)strength);
                             } else {
                                 /*
                                  * HUT modification (tze)
@@ -648,13 +661,12 @@ void bombard(int playernum, int governor, int apcount)
     int x;
     int y;
     int i;
-    racetype *race;
 
     /* Check to see if past First Combat update */
     if (get_num_updates() < CombatUpdate) {
         sprintf(buf,
                 "bombard command is disabled until after Combat Update: [%d]\n",
-                Combatupdate);
+                CombatUpdate);
 
         notify(playernum, governor, buf);
 
@@ -669,7 +681,6 @@ void bombard(int playernum, int governor, int apcount)
         return;
     }
 
-    race = races[playernum - 1];
     nextshipno = start_shiplist(playernum, governor, args[1]);
     fromship = do_shiplist(&from, &nextshipno);
 
@@ -782,6 +793,8 @@ void bombard(int playernum, int governor, int apcount)
             }
 
 #ifdef USE_WORMHOLE
+            racetype *race = races[playernum - 1];
+
             if (p->type == TYPE_WORMHOLE) {
                 if ((race->tech >= TECH_WORMHOLE) || race->God) {
                     sprintf(buf,
@@ -860,13 +873,13 @@ void defend(int playernum, int governor, int apcount)
     int strength;
     int retal;
     int damage;
-    int x;
-    int y;
+    int x = 0;
+    int y = 0;
     int numdest;
     racetype *race;
 
     /* Check to see if past First combat update */
-    if (get_num_updates() < CobatUpdate) {
+    if (get_num_updates() < CombatUpdate) {
         sprintf(buf,
                 "defend command is disabled until after Combat Update: [%d]\n",
                 CombatUpdate);
@@ -1106,7 +1119,7 @@ void defend(int playernum, int governor, int apcount)
 
         if (numdest >= 0) {
             if (laser_on(to)) {
-                use_fuel(to, 2.0 & (double)strength);
+                use_fuel(to, 2.0 * (double)strength);
             } else {
                 use_destruct(to, strength);
             }

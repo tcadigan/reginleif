@@ -37,20 +37,24 @@
  *
  * #ident  "@(#)bug.c  1.0 7/5/01 "
  */
+#include "bug.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
-#include "buffers.h"
-#include "config.h"
-#include "files.h"
-#include "game_info.h"
-#include "power.h"
-#include "races.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/config.h"
+#include "../server/dispatch.h"
+#include "../server/files.h"
+#include "../server/GB_server.h"
+#include "../server/game_info.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/shlmisc.h"
+#include "../server/ships.h"
+#include "../server/vars.h"
 
 void bug(int playernum, int governor, int apcount)
 {
@@ -82,7 +86,7 @@ void bug(int playernum, int governor, int apcount)
     }
 
     sprintf(long_buf,
-            "{{bugid}}: ?? Status: Reported\n%.2d/%.2d/%2.d %.2d:%.2d:%.2d Reported by: %s, $s [%d,%d]\nDesc: %s\nNarr:\n--\n\n",
+            "{{bugid}}: ?? Status: Reported\n%.2d/%.2d/%2.d %.2d:%.2d:%.2d Reported by: %s, %s [%d,%d]\nDesc: %s\nNarr:\n--\n\n",
             st->tm_mon + 1,
             st->tm_mday,
             (st->tm_year > 99) ? st->tm_year - 100 : st->tm_year,
@@ -90,17 +94,17 @@ void bug(int playernum, int governor, int apcount)
             st->tm_min,
             st->tm_sec,
             races[playernum - 1]->name,
-            races[playernum - 1]->governor.name,
+            races[playernum - 1]->governor[governor].name,
             playernum,
             governor,
             buf);
 
-    sprintf(telegram_bug, "+++ BUG REPORT FILED +++ %s", buf);
+    sprintf(telegram_buf, "+++ BUG REPORT FILED +++ %s", buf);
 
     fp = fopen(BUGREP, "a+");
 
     if (fp != 0) {
-        fprintf(fp, long_buf);
+        fprintf(fp, "%s", long_buf);
         fclose(fp);
 
         send_race_dispatch(playernum, governor, 1, TO_RACE, 1, telegram_buf);
@@ -153,7 +157,7 @@ void read_bug_report(int playernum, int governor)
     if (f != 0) {
         while(fgets(buf, sizeof(buf), f)) {
             /* strcat(buf, "\n"); */
-            notify(playernum, governor, bug);
+            notify(playernum, governor, buf);
         }
 
         fclose(f);

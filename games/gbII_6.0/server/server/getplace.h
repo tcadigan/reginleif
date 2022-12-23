@@ -1,6 +1,8 @@
 #ifndef GETPLACE_H_
 #define GETPLACE_H_
 
+#include "ships.h"
+
 placetype Getplace(int, int, char const *, int);
 placetype Getplace2(int, int, char const *, placetype *, int, int);
 char *Dispshiploc_brief(shiptype *);

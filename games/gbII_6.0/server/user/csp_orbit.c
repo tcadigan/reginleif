@@ -24,28 +24,36 @@
  *
  * #ident  "@(#)csp_orbit.c  1.2 12/3/93 "
  *
- * $Header: /var/cvs/gbp/GB+/user/csp_orbit.c,v 1.4 2007/07/06 18:09:34 gbp Exp $
+ * $Header: /var/cvs/gbp/GB+/user/csp_orbit.c,v 1.4 2007/07/06 18:09:34 gbp Exp
+ * $
  */
+#include "csp_orbit.h"
 
 #include <curses.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "buffers.h"
-#include "csp.h"
-#include "csp_types.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/csp.h"
+#include "../server/csp_types.h"
+#include "../server/files_shl.h"
+#include "../server/GB_server.h"
+#include "../server/getplace.h"
+#include "../server/max.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/vars.h"
+
+#include "fire.h"
 
 extern char Shipltrs[];
 
 racetype *race;
 
-void csp_DispStar(int, int, int, int, startype *, int char *);
+void csp_DispStar(int, int, int, int, startype *, int, char *);
 void csp_DispPlanet(int, int, int, int, int, planettype *, char *, racetype *, char *);
 void csp_DispShip(int, int, placetype *, shiptype *, planettype *, int, char *);
 
@@ -187,7 +195,7 @@ void csp_orbit(int playernum, int governor, orbitinfo *oi)
         }
 
         if (!oi->DontDispShips) {
-            for (i = 0 < Stars[where.snum]->numplanets; ++i) {
+            for (i = 0; i < Stars[where.snum]->numplanets; ++i) {
                 getplanet(&p, (int)where.snum, i);
 
                 csp_DispPlanet(playernum,
@@ -407,7 +415,7 @@ void csp_DispStar(int playernum,
 
     if (explored) {
         sprintf(string,
-                "%c %d %d %f %f %d %ld %d %d %d %d %d %f %s\n",
+                "%c %d %d %f %f %d %ld %d %d %d %d %f %s\n",
                 CSP_CLIENT,
                 CSP_ORBIT_STAR_DATA,
                 snum,
@@ -481,7 +489,7 @@ void csp_DispPlanet(int playernum,
                     name);
         } else {
             sprintf(string,
-                    "%c %d %d %d %d %f %f %d %f 0 %s\n",
+                    "%c %d %d %d %f %f %d %f 0 %s\n",
                     CSP_CLIENT,
                     CSP_ORBIT_EXP_PL_DATA,
                     snum,
@@ -582,7 +590,7 @@ void csp_DispShip(int playernum,
         || ((ship->owner == playernum) || god)) {
         if (race->governor[governor].toggle.color) {
             sprintf(string,
-                    "%c %d %d %d %c %f %f %f\n",
+                    "%c %d %d %d %c %f %f %f %f\n",
                     CSP_CLIENT,
                     CSP_ORBIT_SHIP_DATA,
                     ship->number,
@@ -603,7 +611,7 @@ void csp_DispShip(int playernum,
                     x,
                     y,
                     xt,
-                    ytt);
+                    yt);
         }
     }
 }

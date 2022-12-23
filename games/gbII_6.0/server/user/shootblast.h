@@ -1,7 +1,10 @@
 #ifndef SHOOTBLAST_H_
 #define SHOOTBLAST_H_
 
-int shoot_ship_to_ship(shiptype *, shiptype *, int, int, int char *,
+#include "../server/races.h"
+#include "../server/ships.h"
+
+int shoot_ship_to_ship(shiptype *, shiptype *, int, int, int, char *,
                                   char *);
 int shoot_planet_to_ship(racetype *, planettype *, shiptype *, int,
                                     char *, char *);

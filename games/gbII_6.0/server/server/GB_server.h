@@ -24,7 +24,7 @@ int shutdown_socket(int);
 int readfd(int, char *, unsigned int);
 int writefd(int, char *, unsigned int);
 int connection(void);
-void outste(int, char const *);
+void outstr(int, char const *);
 int init_network(unsigned int);
 char *addrout(int);
 void goodbye_user(int);

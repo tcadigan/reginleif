@@ -26,17 +26,31 @@
  *
  * $Header: /var/cvs/gbp/GB+/user/dock.c,v 1.5 2007/07/06 18:09:34 gbp Exp $
  */
+#include "dock.h"
 
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "buffers.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/doship.h"
+#include "../server/files_shl.h"
+#include "../server/GB_server.h"
+#include "../server/lists.h"
+#include "../server/max.h"
+#include "../server/misc.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/rand.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/shlmisc.h"
+#include "../server/vars.h"
+
+#include "capture.h"
+#include "fire.h"
+#include "load.h"
+#include "tele.h"
 
 void dock(int playernum, int governor, int apcount, int assault)
 {
@@ -57,7 +71,7 @@ void dock(int playernum, int governor, int apcount, int assault)
     double fuel;
     double bstrength = -1.0;
     double b2strength = -1.0;
-    double dist;
+    double Dist;
     char dfire[MAXARGS][COMMANDSIZE];
     shiptype *s;
     shiptype *s2;
@@ -91,7 +105,7 @@ void dock(int playernum, int governor, int apcount, int assault)
 
     while (shipno) {
         if (in_list(playernum, args[1], s, &nextshipno)) {
-            if (!authorize(governor, s)) {
+            if (!authorized(governor, s)) {
                 sprintf(buf,
                         "You are not authorized to control ship %s...\n",
                         Ship(s));
@@ -191,7 +205,7 @@ void dock(int playernum, int governor, int apcount, int assault)
                     sscanf(args[2], "%d", &ship2no);
                 }
 
-                if (shipno = ship2no) {
+                if (shipno == ship2no) {
                     notify(playernum, governor, "You can't dock with yourself!\n");
                     free(s);
                     shipno = do_shiplist(&s, &nextshipno);
@@ -724,7 +738,7 @@ void dock(int playernum, int governor, int apcount, int assault)
                     warn(old2owner, old2gov, telegram_buf);
 
                     sprintf(buf,
-                            "%d %d %d at %s.\n",
+                            "%s %s %s at %s.\n",
                             Ship(s),
                             s2->alive ? (s2->owner == playernum ? "CAPTURED" : "assualted") : "DESTROYED",
                             Ship(&ship),
@@ -751,11 +765,11 @@ void dock(int playernum, int governor, int apcount, int assault)
                 if (Dir[playernum - 1][governor].level == LEVEL_UNIV) {
                     deductAPs(playernum, governor, apcount, 0, 1);
                 } else {
-                    deduct(playernum,
-                           governor,
-                           apcount,
-                           Dir[playernum - 1][governor].snum,
-                           0);
+                    deductAPs(playernum,
+                              governor,
+                              apcount,
+                              Dir[playernum - 1][governor].snum,
+                              0);
                 }
 
                 s2->notified = 0;

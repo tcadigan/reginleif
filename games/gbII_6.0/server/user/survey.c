@@ -31,19 +31,30 @@
  *
  * $Header: /var/cvs/gbp/GB+/user/survey.c,v 1.4 2007/06 18:09:34 gbp Exp $
  */
+#include "survey.h"
 
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "buffers.h"
-#include "csp.h"
-#include "csp_types.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/csp.h"
+#include "../server/csp_types.h"
+#include "../server/files_shl.h"
+#include "../server/GB_server.h"
+#include "../server/get4args.h"
+#include "../server/getplace.h"
+#include "../server/max.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/shlmisc.h"
+#include "../server/vars.h"
+
+#include "fire.h"
+#include "map.h"
+#include "mobiliz.h"
 
 #define MAX_SHIPS_PER_SECTOR 10
 
@@ -102,7 +113,7 @@ void survey(int playernum, int governor, int apcount, int mode)
     struct numshipstuff shiplocs[MAX_X][MAX_Y];
 
     /* General code -- jpd -- */
-    if (!Cando(playernum, governor, RANK_SURVEY)) {
+    if (!(governor == 0 ? 1 : races[playernum - 1]->governor[governor].rank <= RANK_SURVEY ? 1 : 0)) {
         no_permission(playernum, governor, "survey", RANK_SURVEY);
 
         return;
@@ -129,7 +140,7 @@ void survey(int playernum, int governor, int apcount, int mode)
             } else {
                 where.level = LEVEL_PLAN;
                 where.snum = Dir[playernum - 1][governor].snum;
-                where.pnum = Dir[playernum - 1][governor].pnnnum;
+                where.pnum = Dir[playernum - 1][governor].pnum;
             }
         } else {
             where = Getplace(playernum, governor, args[1], 0);
@@ -215,7 +226,7 @@ void survey(int playernum, int governor, int apcount, int mode)
 
                         shiplocs[shipa->land_x][shipa->land_y].shipstuffs[shiplocs[shipa->land_x][shipa->land_y].pos].ltr = Shipltrs[shipa->type];
 
-                        ++shiplocs[shipa->land_x][shipa->land_y];
+                        ++shiplocs[shipa->land_x][shipa->land_y].pos;
                     }
 
                     shiplist = nextship(shipa);
@@ -225,13 +236,13 @@ void survey(int playernum, int governor, int apcount, int mode)
 
             while (lowy <= hiy) {
                 for (lowx = x2; lowx <= hix; ++lowx) {
-                    s = &Sector(*p, lox, lowy);
+                    s = &Sector(*p, lowx, lowy);
 
                     /* if (s->owner == playernum) { */
                     if (!mode) {
                         sprintf(buf, "%2d,%-2d ", lowx, lowy);
                         notify(playernum, governor, buf);
-                        d = desshow(playernum, ogvernor, p, lowx, lowy, race);
+                        d = desshow(playernum, governor, p, lowx, lowy, race);
 
                         if (d == CHAR_CLOAKED) {
                             sprintf(buf, "?  (    ?    )\n");
@@ -347,7 +358,7 @@ void survey(int playernum, int governor, int apcount, int mode)
             }
         } else {
             /* Survey of planet */
-            sprintf(buf, "%s:\n", Stars[where.snum->pnames]);
+            sprintf(buf, "%s:\n", Stars[where.snum]->pnames[where.pnum]);
             notify(playernum, governor, buf);
             sprintf(buf,
                     "gravity   x,y absolute     x,y relative to %s\n",
@@ -464,7 +475,7 @@ void survey(int playernum, int governor, int apcount, int mode)
                     sprintf(buf,
                             "%29s: %ld\n",
                             "Total resource deposits",
-                            p->total_resource);
+                            p->total_resources);
 
                     notify(playernum, governor, buf);
                 }
@@ -472,12 +483,12 @@ void survey(int playernum, int governor, int apcount, int mode)
                 sprintf(buf,
                         "fuel_stock  resource_stock dest_pot.   %s    ^%s\n",
                         race->Metamorph ? "biomass" : "popltn",
-                        race-<Metamorph ? "biomass" : "popltn");
+                        race->Metamorph ? "biomass" : "popltn");
 
                 notify(playernum, governor, buf);
 
                 sprintf(buf,
-                        "%10u  %14u %9u  %7lu%11lu\n"
+                        "%10u  %14u %9u  %7lu%11lu\n",
                         p->info[playernum - 1].fuel,
                         p->info[playernum - 1].resource,
                         p->info[playernum - 1].destruct,
@@ -486,7 +497,7 @@ void survey(int playernum, int governor, int apcount, int mode)
 
                 notify(playernum, governor, buf);
 
-                if (p->saved_to) {
+                if (p->slaved_to) {
                     sprintf(buf,
                             "This planet ENSLAVED to player %d!\n",
                             p->slaved_to);
@@ -567,7 +578,7 @@ void survey(int playernum, int governor, int apcount, int mode)
 
         for (x2 = 0; x2 < Stars[where.snum]->numplanets; ++x2) {
             sprintf(buf, "%s ", Stars[where.snum]->pnames[x2]);
-            notify(playernum, ogvernor, buf);
+            notify(playernum, governor, buf);
         }
 
         sprintf(buf, "\n");
@@ -648,7 +659,7 @@ void repair(int playernum, int governor, int apcount)
                 where.pnum = Dir[playernum - 1][governor].pnum;
             }
         } else {
-            where = Getplace(playernum, ogvernor, args[1], 0);
+            where = Getplace(playernum, governor, args[1], 0);
 
             if (where.err || (where.level == LEVEL_SHIP)) {
                 return;

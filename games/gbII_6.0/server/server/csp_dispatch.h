@@ -29,6 +29,18 @@
 #ifndef CSP_DISPATCH_H_
 #define CSP_DISPATCH_H_
 
+#include "client.h"
+#include "csp.h"
+
+#include "../user/csp_dump.h"
+#include "../user/csp_orbit.h"
+#include "../user/explore.h"
+#include "../user/map.h"
+#include "../user/prof.h"
+#include "../user/relation.h"
+#include "../user/survey.h"
+#include "../user/zoom.h"
+
 extern void voidpoint(void);
 
 /* For binary search */
@@ -49,9 +61,9 @@ typedef struct command_struct {
 /* These are commands the server will RECEIVE from the client */
 static CSP_commands csp_client_commands[] = {
     {       CSP_KNOWLEDGE,      CSP_knowledge, 0}, /* ok */
-    {   CSP_LOGIN_COMMADS,  CSP_client_toggle, 1}, /* ok */
+    {   CSP_LOGIN_COMMAND,  CSP_client_toggle, 1}, /* ok */
     {  CSP_SURVEY_COMMAND,             survey, 1}, /* ok */
-    { CSP_RELATION_COMAND,           relation, 1}, /* ok */
+    {CSP_RELATION_COMMAND,           relation, 1}, /* ok */
     { CSP_PROFILE_COMMAND,            profile, 1}, /* ok */
     /* {     CSP_WHO_COMMAND,         dump_users, 0}, /\* ok *\/ */
     { CSP_EXPLORE_COMMAND,        exploration, 0}, /* ok */
@@ -106,7 +118,7 @@ static CSP_commands csp_server_commands[] = {
     {    CSP_EXPLORE_STAR_DATA,      voidpoint, 0}, /* ok */
     {  CSP_EXPLORE_STAR_ALIENS,      voidpoint, 0}, /* ok */
     {     CSP_EXPLORE_STAR_END,      voidpoint, 0}, /* ok */
-    {           CSP_EXPORE_END,      voidpoint, 0}, /* ok */
+    {          CSP_EXPLORE_END,      voidpoint, 0}, /* ok */
     {           CSP_UPDATE_END,      voidpoint, 0},
     {         CSP_UPDATE_START,      voidpoint, 0},
     {      CSP_UPDATES_RESUMED,      voidpoint, 0},
@@ -120,7 +132,7 @@ static CSP_commands csp_server_commands[] = {
     {        CSP_PLANDUMP_PROD,      voidpoint, 0},
     {        CSP_PLANDUMP_MISC,      voidpoint, 0},
     {      CSP_PLANDUMP_NOEXPL,      voidpoint, 0},
-    {          CSP_STAR_ENEXPL,      voidpoint, 0},
+    {          CSP_STAR_UNEXPL,      voidpoint, 0},
     {   CSP_ORBIT_OUTPUT_INTRO,      voidpoint, 0},
     {      CSP_ORBIT_STAR_DATA,      voidpoint, 0},
     {  CSP_ORBIT_UNEXP_PL_DATA,      voidpoint, 0},
@@ -147,7 +159,7 @@ static CSP_commands csp_server_commands[] = {
     {        CSP_SHIPLIST_DATA,      voidpoint, 0},
     {         CSP_SHIPLIST_END,      voidpoint, 0},
     {        CSP_SECTORS_INTRO,      voidpoint, 0},
-    {           CSP_SECTOR_END,      voidpoint, 0},
+    {          CSP_SECTORS_END,      voidpoint, 0},
     /* NOT SUPPORTED */
     {                  CSP_ERR,      voidpoint, 0}
 };

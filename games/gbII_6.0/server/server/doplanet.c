@@ -2785,7 +2785,7 @@ void squeeze_targets(shiptype *ship)
  *      * First handle eff and fert targets then get settings and loop until zero
  *      *\/
  *     if (effsetting) {
- *         for (i = 0; i < INF_MAX_TARGET; ++i) {
+ *         for (i = 0; i < INF_MAX_TARGETS; ++i) {
  *             infs = &ship->inf.eff_targets[i];
  *
  *             if (infs->x != 999) {
@@ -2868,7 +2868,7 @@ void squeeze_targets(shiptype *ship)
  *     }
  *
  *     if (fertsetting) {
- *         for (i = 0; i < INF_MAX_TARGET; ++i) {
+ *         for (i = 0; i < INF_MAX_TARGETS; ++i) {
  *             infs = &ship->inf.fert_targets[i];
  *
  *             if (infs->x != 999) {

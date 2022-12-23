@@ -28,17 +28,26 @@
  *
  * $Header: /var/cvs/gbp/GB+/user/explore.c,v 1.4 2007/07/06 18:09:34 gbp Exp $
  */
+#include "explore.h"
 
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "buffers.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/client.h"
+#include "../server/files_shl.h"
+#include "../server/GB_server.h"
+#include "../server/getplace.h"
+#include "../server/max.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/vars.h"
+
+#include "csp_explore.h"
+#include "tech.h"
 
 extern char Psymbol[];
 extern char *Planet_types[];
@@ -89,7 +98,7 @@ void colonies_at_star(int playernum,
                         pl->info[playernum - 1].autorep ? '*' : ' ',
                         Stars[star]->governor[playernum - 1],
                         pl->info[playernum - 1].numsectsowned,
-                        pl->info[playernum - 1].techinvest,
+                        pl->info[playernum - 1].tech_invest,
                         pl->info[playernum - 1].popn,
                         pl->info[playernum - 1].crystals,
                         pl->info[playernum - 1].resource,
@@ -126,6 +135,7 @@ void colonies_at_star(int playernum,
                         Stars[star]->name,
                         Stars[star]->pnames[i],
                         pl->info[playernum - 1].autorep ? '*' : ' ',
+                        Stars[star]->governor[playernum - 1],
                         pl->info[playernum - 1].prod_tech,
                         pl->total_resources,
                         pl->info[playernum - 1].prod_crystals,
@@ -234,13 +244,13 @@ void distance(int playernum, int governor, int apcount)
     planettype *p;
     double x0;
     double y0;
-    double x2;
+    double x1;
     double y1;
     double dist;
     shiptype *ship;
 
     if (argn < 3) {
-        notify(playernum, governor, "Syntax: 'distance <from> <to>'.\m");
+        notify(playernum, governor, "Syntax: 'distance <from> <to>'.\n");
 
         return;
     }
@@ -306,7 +316,7 @@ void distance(int playernum, int governor, int apcount)
         }
 
         x0 = p->xpos + Stars[from.snum]->xpos;
-        y0 = p->ypox + Stars[from.snum]->ypos;
+        y0 = p->ypos + Stars[from.snum]->ypos;
         free(p);
     } else if (from.level == LEVEL_STAR) {
         x0 = Stars[from.snum]->xpos;
@@ -363,7 +373,7 @@ void star_locations(int playernum, int governor, int apcount)
     y = Dir[playernum - 1][governor].lasty[1];
 
     if (argn > 1) {
-        max = aroi(args[1]);
+        max = atoi(args[1]);
     } else {
         max = 999999;
     }
@@ -417,7 +427,7 @@ void exploration(int playernum, int governor, int apcount)
                     return;
                 }
 
-                strq = where.snum;
+                starq = where.snum;
             }
 
             race = races[playernum - 1];
@@ -565,7 +575,7 @@ void tech_status(int playernum, int governor, int apcount)
             } else {
                 /* Ok, a proper location */
                 star = where.snum;
-                getstar(&Stars[star].star);
+                getstar(&Stars[star], star);
 
                 tech_report_star(playernum,
                                  governor,
@@ -620,7 +630,7 @@ void tech_report_star(int playernum,
                                      (int)pl->info[playernum - 1].popn);
 
                 sprintf(buf,
-                        "%16.16s %10ld%10ld%8.3%8.3 %s\n",
+                        "%16.16s %10ld%10d%8.3f%8.3f %s\n",
                         str,
                         pl->info[playernum - 1].popn,
                         pl->info[playernum - 1].tech_invest,
@@ -629,7 +639,7 @@ void tech_report_star(int playernum,
                         pl->info[playernum - 1].autorep ? " True" : " False");
 
                 notify(playernum, governor, buf);
-                *t_invest += pl->info[playernum, - 1].tech_invest;
+                *t_invest += pl->info[playernum - 1].tech_invest;
                 *t_gain += gain;
                 *t_max_gain += max_gain;
             }

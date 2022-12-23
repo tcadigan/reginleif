@@ -33,18 +33,22 @@
  *
  * *****************************************************************************
  */
+#include "tech.h"
 
 #include <ctype.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "buffers.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/files_shl.h"
+#include "../server/GB_server.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/shlmisc.h"
+#include "../server/vars.h"
 
 /* Prototypes */
 double tech_prod(int, int);
@@ -104,12 +108,12 @@ void technology(int playernum, int governor, int apcount)
                 ++setihere;
 
                 if (seti->on) {
-                    nseti_fact = ((float)seti->popn / (float)set->max_crew) * ((float)(100 - set->damage) / 100.0);
+                    nseti_fact = ((float)seti->popn / (float)seti->max_crew) * ((float)(100 - seti->damage) / 100.0);
                 } else {
                     nseti_fact = 0;
                 }
 
-                set_fact += nseti_fact;
+                seti_fact += nseti_fact;
             }
 
             sh = nextship(seti);

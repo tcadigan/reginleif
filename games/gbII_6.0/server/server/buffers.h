@@ -24,22 +24,10 @@
 
 #include "tweakables.h"
 
-#ifndef BIGBUFF
-
-extern char buf[2047];
-extern char long_buf[1024];
-extern char short_buf[256];
-extern char telegram_buf[AUTO_TELEG_SIZE];
-extern char temp[128];
-
-#else
-
 extern char buf[4096];
 extern char long_buf[4096];
 extern char short_buf[1024];
 extern char telegram_buf[4096];
 extern char temp[2048];
-
-#endif
 
 #endif /* BUFFERS_H_ */

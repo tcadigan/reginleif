@@ -33,18 +33,28 @@
  *
  * Header: /var/cvs/gbp/GB+/user/orbit.c,v 1.3 2007/07/06 18:09:34 gbp Exp $
  */
+#include "orbit.h"
 
 #include <curses.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "buffers.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/client.h"
+#include "../server/files_shl.h"
+#include "../server/GB_server.h"
+#include "../server/getplace.h"
+#include "../server/max.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/rand.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/vars.h"
+
+#include "csp_orbit.h"
+#include "fire.h"
 
 extern char Shipltrs[];
 
@@ -88,7 +98,7 @@ extern void DispShip(int,
                      char *,
                      orbitinfo *);
 
-void orbit(playernum, int governor, int apcount)
+void orbit(int playernum, int governor, int apcount)
 {
     int sh;
     int i;
@@ -110,7 +120,7 @@ void orbit(playernum, int governor, int apcount)
         }
 
         if (opts['S']) {
-            oi.Dontdispstars = 1;
+            oi.DontDispStars = 1;
         }
 
         if (opts['p']) {
@@ -118,7 +128,7 @@ void orbit(playernum, int governor, int apcount)
         }
 
         if (opts['d']) {
-            or.DontDispNum = opts['d'];
+            oi.DontDispNum = opts['d'];
 
             if (oi.DontDispNum) {
                 /* Make a '1' into a '0' */
@@ -170,7 +180,7 @@ void orbit(playernum, int governor, int apcount)
     switch (where.level) {
     case LEVEL_UNIV:
         for (i = 0; i < Sdata.numstars; ++i) {
-            if (oi.DontdispNum != i) {
+            if (oi.DontDispNum != i) {
                 DispStar(playernum,
                          governor,
                          LEVEL_UNIV,
@@ -263,7 +273,7 @@ void orbit(playernum, int governor, int apcount)
         }
 
         if (!oi.DontDispShips) {
-            sh = Stars[where].snum->ships;
+            sh = Stars[where.snum]->ships;
 
             while (sh) {
                 getship(&s, sh);
@@ -381,10 +391,10 @@ void DispStar(int playernum,
 
     if (level == LEVEL_UNIV) {
         x = (int)(ORBIT_SCALE + ((ORBIT_SCALE * (star->xpos - oi->Lastx)) / (UNIVSIZE * oi->Zoom)));
-        y = (int)(ORBIT_SCALE + ((ORBIT_SCALE * (star->ypox - oi->Lasty)) / (UNIVSIZE * oi->Zoom)));
+        y = (int)(ORBIT_SCALE + ((ORBIT_SCALE * (star->ypos - oi->Lasty)) / (UNIVSIZE * oi->Zoom)));
     } else if (level == LEVEL_STAR) {
-        x = (int)(ORBIT_SCALE + (ORBIT_SCALE * (-oi->Lastx)) / (SYSTEMSIZE * oi.Zoom));
-        y = (int)(ORBIT_SCALE + (ORBIT_SCALE * (-oi->Lasty)) / (SYSTEMSIZE * oi.Zoom));
+        x = (int)(ORBIT_SCALE + (ORBIT_SCALE * (-oi->Lastx)) / (SYSTEMSIZE * oi->Zoom));
+        y = (int)(ORBIT_SCALE + (ORBIT_SCALE * (-oi->Lasty)) / (SYSTEMSIZE * oi->Zoom));
     }
 
     /*
@@ -401,7 +411,7 @@ void DispStar(int playernum,
                 stand = 0 + '?';
             }
 
-            sprintf(temp, "%c %d %d %d * ", (char)stand, x, y, sta->nova_stage);
+            sprintf(temp, "%c %d %d %d * ", (char)stand, x, y, star->nova_stage);
             strcat(string, temp);
 
             if (isset(star->inhabited, playernum)) {
@@ -575,7 +585,7 @@ void DispShip(int playernum,
     switch (where->level) {
     case LEVEL_PLAN:
         x = (int)(ORBIT_SCALE + ((ORBIT_SCALE * (ship->xpos - (Stars[where->snum]->xpos + pl->xpos) - oi->Lastx)) / (PLORBITSIZE * oi->Zoom)));
-        y = (int)(ORBIT_SCALE + ((ORBIT_SCALE * (ship->ypos - (Stars[where->snum]->ypos + pl->ypos) - oi->Lasty)) / (PLORBITSIZE * oi->zoom)));
+        y = (int)(ORBIT_SCALE + ((ORBIT_SCALE * (ship->ypos - (Stars[where->snum]->ypos + pl->ypos) - oi->Lasty)) / (PLORBITSIZE * oi->Zoom)));
 
         break;
     case LEVEL_STAR:
@@ -585,7 +595,7 @@ void DispShip(int playernum,
         break;
     case LEVEL_UNIV:
         x = (int)(ORBIT_SCALE + ((ORBIT_SCALE * (ship->xpos - oi->Lastx)) / (UNIVSIZE * oi->Zoom)));
-        y = (int)(ORBIT_SCALE + ((ORBIT_SCALE * (ship->ypos - oi->Lasty)) / (UNIVSIZE * oi->zoom)));
+        y = (int)(ORBIT_SCALE + ((ORBIT_SCALE * (ship->ypos - oi->Lasty)) / (UNIVSIZE * oi->Zoom)));
 
         break;
     default:

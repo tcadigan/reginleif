@@ -26,6 +26,7 @@
  *
  * $Header: /var/cvs/gbp/GB+/user/csp_dump.c,v 1.4 2007/07/06 18:09:34 gbp Exp $
  */
+#include "csp_dump.h"
 
 #include <ctype.h>
 #include <curses.h>
@@ -34,16 +35,29 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "buffers.h"
-#include "csp.h"
-#include "csp_types.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/csp.h"
+#include "../server/csp_types.h"
+#include "../server/files_shl.h"
+#include "../server/first.h"
+#include "../server/GB_server.h"
+#include "../server/getplace.h"
+#include "../server/log.h"
+#include "../server/max.h"
+#include "../server/misc.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/shlmisc.h"
+#include "../server/vars.h"
 
-#include PLANET 1
+#include "build.h"
+#include "fire.h"
+#include "rst.h"
+#include "shootblast.h"
+
+#define PLANET 1
 
 extern char Shipltrs[];
 extern reportdata *rd;
@@ -67,7 +81,7 @@ void CSP_sectors(int playernum, int governor)
                 ++controlled;
             }
 
-            sectors += planets[star][i]->info[Playernum - 1].numsectsowned;
+            sectors += planets[star][i]->info[playernum - 1].numsectsowned;
         }
     }
 
@@ -117,7 +131,7 @@ void CSP_star_dump(int playernum, int governor)
         return;
     }
 
-    if (!isset(Stars[where.snum]->explored., playernum)) {
+    if (!isset(Stars[where.snum]->explored, playernum)) {
         sprintf(buf, "%c %d %d\n", CSP_CLIENT, CSP_STAR_UNEXPL, where.snum);
         notify(playernum, governor, buf);
 
@@ -127,15 +141,15 @@ void CSP_star_dump(int playernum, int governor)
     star = Stars[where.snum];
 
     /* Intro */
-    if (isset(star->inabited, playernum)) {
+    if (isset(star->inhabited, playernum)) {
         sprintf(buf,
                 "%c %d %d %s %d %d %f %f\n",
                 CSP_CLIENT,
-                CS_STARDUMP_INTRO,
+                CSP_STARDUMP_INTRO,
                 where.snum,
                 star->name,
                 1,
-                1m
+                1,
                 star->xpos,
                 star->ypos);
     } else {
@@ -247,7 +261,7 @@ void csp_planet_dump(int playernum, int governor)
     getplanet(&p, (int)where.snum, (int)where.pnum);
 
     sprintf(buf,
-            "%d %f %f %f %s %s\n",
+            "%c %d %d %d %s %s\n",
             CSP_CLIENT,
             CSP_PLANDUMP_INTRO,
             where.snum,
@@ -265,7 +279,7 @@ void csp_planet_dump(int playernum, int governor)
                 CSP_CLIENT,
                 CSP_PLANDUMP_CONDITIONS,
                 where.snum,
-                were.pnum,
+                where.pnum,
                 p->conditions[RTEMP],
                 p->conditions[TEMP],
                 p->conditions[METHANE],
@@ -299,7 +313,7 @@ void csp_planet_dump(int playernum, int governor)
         notify(playernum, governor, buf);
 
         sprintf(buf,
-                "%c %d %d %d %ld %d %d %d %d %d %f\n",
+                "%c %d %d %d %ld %d %d %d %d %f\n",
                 CSP_CLIENT,
                 CSP_PLANDUMP_PROD,
                 where.snum,
@@ -314,7 +328,7 @@ void csp_planet_dump(int playernum, int governor)
         notify(playernum, governor, buf);
 
         sprintf(buf,
-                "%c %d %d %d %d %d %d %d %d %d %d 5ld %d %d %f %f %d %ld %ld %ld %d %d %d %d\n",
+                "%c %d %d %d %d %d %d %d %d %d %d %ld %d %d %f %f %d %ld %ld %ld %ld %d %d %d %d\n",
                 CSP_CLIENT,
                 CSP_PLANDUMP_MISC,
                 where.snum,
@@ -362,7 +376,6 @@ void csp_planet_dump(int playernum, int governor)
 void CSP_ship_list(int playernum, int governor)
 {
     shiptype *s;
-    planettype *p;
     int starnum;
     unsigned short shipno;
     int i;
@@ -401,7 +414,6 @@ void CSP_ship_list(int playernum, int governor)
     for (i = 0; i < Num_ships; ++i) {
         /* Last ship gotten from disk */
         s = rd[i].s;
-        p = rd[i].p;
         shipno = rd[i].n;
 
         if ((shipno > 0) && (s->owner == playernum)) {
@@ -544,7 +556,7 @@ void csp_ship_dump(int playernum, int governor)
         Num_ships = 0;
 
         while (shn && Getrship(playernum, governor, shn)) {
-            shn = nextship(rd[Num_ships - 1].sh);
+            shn = nextship(rd[Num_ships - 1].s);
         }
 
         for (i = 0; i < Num_ships; ++i) {
@@ -613,7 +625,7 @@ void csp_ship_report(int playernum,
                 sprintf(buf,
                         "%c %d %d %d %d %d %d %d %ld %d \"%s\" \"%s\"\n",
                         CSP_CLIENT,
-                        CS_SHIPDUMP_GEN,
+                        CSP_SHIPDUMP_GEN,
                         shipno,
                         s->type,
                         s->active,
@@ -646,7 +658,7 @@ void csp_ship_report(int playernum,
                     : s->max_destruct,
                     s->fuel,
                     s->type == OTYPE_FACTORY
-                    ? shipdata[s->type][ABIL_FUELCAP]
+                    ? Shipdata[s->type][ABIL_FUELCAP]
                     : s->max_fuel,
                     s->popn,
                     s->troops,
@@ -657,7 +669,7 @@ void csp_ship_report(int playernum,
 
             if (s->type == STYPE_POD) {
                 sprintf(buf,
-                        "%c %d %d %d %d %d %d %ld %f %ld %f %ld %ld %f %d\n",
+                        "%c %d %d %d %d %d %d %ld %f %ld %ld %f %d\n",
                         CSP_CLIENT,
                         CSP_SHIPDUMP_STATUS,
                         shipno,
@@ -665,15 +677,21 @@ void csp_ship_report(int playernum,
                         s->mount,
                         s->mounted,
                         s->special.pod.temperature,
-                        (s->armor * (100 - s->damage)) / 100,
+                        s->type == OTYPE_FACTORY
+                        ? Shipdata[s->type][ABIL_ARMOR]
+                        : (s->armor * (100 - s->damage)) / 100,
                         s->tech,
-                        s->max_speed,
-                        s->build_cost,
+                        s->type == OTYPE_FACTORY
+                        ? Shipdata[s->type][ABIL_SPEED]
+                        : s->max_speed,
+                        s->type == OTYPE_FACTORY
+                        ? (2 * s->build_cost * s->on) + Shipdata[s->type][ABIL_COST]
+                        : s->build_cost,
                         s->mass,
                         s->size);
             } else {
                 sprintf(buf,
-                        "%c %d %d %d %d %d 0 %ld %f %ld %f %ld %ld %f %d\n",
+                        "%c %d %d %d %d %d 0 %ld %f %ld %ld %f %d\n",
                         CSP_CLIENT,
                         CSP_SHIPDUMP_STATUS,
                         shipno,
@@ -699,7 +717,7 @@ void csp_ship_report(int playernum,
             sprintf(buf,
                     "%c %d %d %d %d %d %d %d %d %d %d\n",
                     CSP_CLIENT,
-                    CS_SHIPDUMP_WEAPONS,
+                    CSP_SHIPDUMP_WEAPONS,
                     shipno,
                     s->laser,
                     s->cew,
@@ -765,7 +783,7 @@ void csp_ship_report(int playernum,
 #ifdef THRESHOLDING
             sprintf(buf, "%c %d %d ", CSP_CLIENT, CSP_SHIPDUMP_THRESH, shipno);
 
-            if (i = 0; i <= TH_CRYSTALS; ++i) {
+            for (i = 0; i <= TH_CRYSTALS; ++i) {
                 sprintf(buf2, "%d %d ", i, s->threshold[i]);
                 strcat(buf, buf2);
             }
@@ -865,7 +883,7 @@ void csp_ship_report(int playernum,
             if (s->type == OTYPE_FACTORY) {
                 if ((s->build_type != 0) && (s->build_type != OTYPE_FACTORY)) {
                     sprintf(buf,
-                            "%c %d %d %d %d %f %f %d %d %d %d %d %d %d %d\n",
+                            "%c %d %d %d %f %f %d %d %d %d %d %d %d %d\n",
                             CSP_CLIENT,
                             CSP_SHIPDUMP_FACTORY,
                             shipno,
@@ -934,7 +952,7 @@ void csp_ship_report(int playernum,
             tech = s->tech;
             caliber = current_caliber(s);
 
-            if (((s-whatdest != LEVEL_UNIV) || s->navigate.on)
+            if (((s->whatdest != LEVEL_UNIV) || s->navigate.on)
                 && !s->docked
                 && s->active) {
                 fspeed = s->speed;
@@ -968,7 +986,7 @@ void csp_ship_report(int playernum,
                                 sprintf(buf,
                                         "%c %d %d %d %d %d %f\n",
                                         CSP_CLIENT,
-                                        CS_SHIPDUMP_PTACT_PDIST,
+                                        CSP_SHIPDUMP_PTACT_PDIST,
                                         rd[indx].star,
                                         rd[indx].pnum,
                                         rd[i].star,
@@ -1008,7 +1026,7 @@ void csp_ship_report(int playernum,
                                 if (((rd[i].s->whatdest != LEVEL_UNIV)
                                      || rd[i].s->navigate.on)
                                     && !rd[i].s->docked
-                                    && rd[i].s->activate) {
+                                    && rd[i].s->active) {
                                     tspeed = rd[i].s->speed;
                                     tev = rd[i].s->protect.evade;
                                 }
@@ -1050,7 +1068,7 @@ void csp_ship_report(int playernum,
                                             factor,
                                             body,
                                             tspeed,
-                                            tec,
+                                            tev,
                                             prob,
                                             rd[i].s->damage,
                                             landed(rd[i].s),
@@ -1068,7 +1086,7 @@ void csp_ship_report(int playernum,
                                             caliber,
                                             rd[i].n,
                                             rd[i].s->owner,
-                                            rd[i].s->govenror,
+                                            rd[i].s->governor,
                                             rd[i].s->type,
                                             rd[i].s->active,
                                             Dist,
@@ -1083,7 +1101,7 @@ void csp_ship_report(int playernum,
                                             rd[i].s->land_y,
                                             rd[i].s->name,
                                             rd[i].s->xpos,
-                                            rd[i].s->ypox);
+                                            rd[i].s->ypos);
                                 }
 
                                 notify(playernum, governor, buf);
@@ -1119,7 +1137,7 @@ void csp_univ_dump(int playernum, int governor)
     }
 
     if (argn > 3) {
-        max(atoi(args[3]));
+        max = atoi(args[3]);
     } else {
         max = 999999;
     }

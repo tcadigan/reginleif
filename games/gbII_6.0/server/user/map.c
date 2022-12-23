@@ -26,17 +26,30 @@
  *
  * $Header: /var/cvs/gbp/GB+/user/map.c,v 1.3 2007/07/06 18:09:34 gbp Exp $
  */
+#include "map.h"
 
 #include <curses.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "buffers.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/client.h"
+#include "../server/files_shl.h"
+#include "../server/GB_server.h"
+#include "../server/getplace.h"
+#include "../server/log.h"
+#include "../server/max.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/rand.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/shlmisc.h"
+#include "../server/vars.h"
+
+#include "csp_map.h"
+#include "fire.h"
+#include "orbit.h"
 
 #define DISP_DATA 1
 
@@ -118,7 +131,7 @@ void show_map(int playernum,
         return;
     }
 
-    if (!Race->governor[governor].toggle.geography) {
+    if (!race->governor[governor].toggle.geography) {
         /*
          * Traverse ship list on planet; find out if we can look at ships here
          */
@@ -131,7 +144,7 @@ void show_map(int playernum,
         sh = p->ships;
 
         while (sh) {
-            if (!getship(&s, hs)) {
+            if (!getship(&s, sh)) {
                 sh = 0;
 
                 continue;
@@ -193,7 +206,7 @@ void show_map(int playernum,
                                 desshow(playernum, governor, p, x, y, race));
                     } else {
                         sprintf(buf,
-                                "%0c",
+                                "0%c",
                                 desshow(playernum, governor, p, x, y, race));
                     }
                 }
@@ -210,13 +223,13 @@ void show_map(int playernum,
         if (race->Metamorph) {
             sprintf(temp,
                     "Type: %8s   Sects %7s: %3u   Aliens:",
-                    Planet_types[p->type],
+                    planet_types[p->type],
                     "covered",
                     p->info[playernum - 1].numsectsowned);
         } else {
             sprintf(temp,
                     "Type: %8s   Sects %7s: %3u   Aliens:",
-                    Planet_types[p->type],
+                    planet_types[p->type],
                     "owned",
                     p->info[playernum - 1].numsectsowned);
         }
@@ -307,7 +320,7 @@ void show_map(int playernum,
 
         sprintf(temp,
                 "%ld Total Resource Deposits     Tax rate %u%%  New %u%%\n",
-                r->total_resource,
+                p->total_resources,
                 p->info[playernum - 1].tax,
                 p->info[playernum - 1].newtax);
 
@@ -360,7 +373,7 @@ char desshow(int playernum,
                 if ((s->owner < 10) || (x % 2)) {
                     return ((s->owner % 10) + '0');
                 } else {
-                    return ((s-owner / 10) + '0');
+                    return ((s->owner / 10) + '0');
                 }
             }
         }

@@ -26,15 +26,19 @@
  *
  * $Header: /var/cvs/gbp/GB+/user/relation.c,v 1.3 2007/07/06 18:09:34 gbp Exp $
  */
+#include "relation.h"
 
-#include "buffers.h"
-#include "csp.h"
-#include "csp_types.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/client.h"
+#include "../server/csp.h"
+#include "../server/csp_types.h"
+#include "../server/GB_server.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/shlmisc.h"
+#include "../server/vars.h"
 
 extern char *Desnames[];
 
@@ -157,7 +161,7 @@ void csp_relation(int playernum, int governor)
     notify(playernum, governor, buf);
 
     for (p = 1; p <= numraces; ++p) {
-        if (p != race->playernum) {
+        if (p != race->Playernum) {
             r = races[p - 1];
 
             /*
@@ -176,7 +180,7 @@ void csp_relation(int playernum, int governor)
             sprintf(buf,
                     "%c %d %d %d %d %d %d %s\n",
                     CSP_CLIENT,
-                    CSP_RLATION_DATA,
+                    CSP_RELATION_DATA,
                     p,
                     irt,
                     race->translate[p - 1],

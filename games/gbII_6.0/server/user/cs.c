@@ -26,15 +26,20 @@
  *
  * $Header: /var/cvs/gbp/GB+/user/cs.c,v 1.4 2007/07/06 18:09:34 gbp Exp $
  */
+#include "cs.h"
 
 #include <stdlib.h>
 
-#include "buffers.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/client.h"
+#include "../server/files_shl.h"
+#include "../server/GB_server.h"
+#include "../server/getplace.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/vars.h"
 
 void center(int playernum, int governor, int apcount)
 {
@@ -43,7 +48,7 @@ void center(int playernum, int governor, int apcount)
 
     where = Getplace(playernum, governor, args[1], 1);
 
-    if (were.err) {
+    if (where.err) {
         sprintf(buf, "cs: Bad scope.\n");
         notify(playernum, governor, buf);
 
@@ -81,7 +86,7 @@ void center(int playernum, int governor, int apcount)
         where = Getplace(playernum, governor, args[1], 1);
         getplanet(&planet, where.snum, where.pnum);
         Dir[playernum - 1][governor].lastx[0] = planet->xpos;
-        Dir[playernum - 1][governor].lasty[0] = planer->ypos;
+        Dir[playernum - 1][governor].lasty[0] = planet->ypos;
         free(planet);
 
         sprintf(buf,
@@ -419,7 +424,7 @@ void cs(int playernum, int governor, int apcount)
         Dir[playernum - 1][governor].snum = race->governor[governor].defsystem;
 
         if (Dir[playernum - 1][governor].snum >= Sdata.numstars) {
-            Dir[playernum[governor].snum] = Sdata.numstars - 1;
+            Dir[playernum][governor].snum = Sdata.numstars - 1;
         }
 
         Dir[playernum - 1][governor].pnum = race->governor[governor].defplanetnum;

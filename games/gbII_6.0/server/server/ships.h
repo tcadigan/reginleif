@@ -61,13 +61,13 @@
 #define OTYPE_GREEN 22
 #define OTYPE_GOV 23
 #define OTYPE_OMCL 24
-#define OTYPE_TOXWC 25
+#define OTYPE_TOXIC 25
 #define OTYPE_PROBE 26
 #define OTYPE_GR 27
 #define OTYPE_FACTORY 28
 #define OTYPE_TERRA 29
 #define OTYPE_TRANSDEV 30
-#define OTYPE_MISSILE 31
+#define STYPE_MISSILE 31
 #define OTYPE_PLANDEF 32
 #define OTYPE_QUARRY 33
 #define OTYPE_PLOW 34
@@ -306,7 +306,7 @@ struct ship {
 
     struct {
         unsigned char charge;
-        unsigned int read:1;
+        unsigned int ready:1;
         unsigned int on:1;
         unsigned int has:1;
         unsigned dummy:5;

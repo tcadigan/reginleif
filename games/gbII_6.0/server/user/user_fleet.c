@@ -33,15 +33,18 @@
  * #ident  "@(#)fleet.c  1.0 6/28/01 "
  * *****************************************************************************
  */
+#include "user_fleet.h"
 
 #include <stdlib.h>
 #include <string.h>
 
-#include "fleet.h"
-#include "power.h"
-#include "races.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/files_shl.h"
+#include "../server/fleet.h"
+#include "../server/GB_server.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ships.h"
+#include "../server/vars.h"
 
 extern long Shipdata[NUMSTYPES][NUMABILS];
 extern char const *Shipnames[];
@@ -77,7 +80,7 @@ void fleet(int playernum, int governor, int apcount)
         if (sh) {
             some = 1;
             strcpy(name, races[playernum - 1]->fleet[i].name);
-            sdm = races[playernum - 1]->fleet[i].admiral;
+            adm = races[playernum - 1]->fleet[i].admiral;
 
             if (name[0]) {
                 sprintf(obuf,

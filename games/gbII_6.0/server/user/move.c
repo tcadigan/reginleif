@@ -26,24 +26,38 @@
  *
  * $Header: /var/cvs/gpb/GB+/user/move.c,v 1.4 2007/07/06 18:06:56 gbp Exp $
  */
+#include "move.h"
 
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "buffers.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "tweakables.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/doship.h"
+#include "../server/files_shl.h"
+#include "../server/first.h"
+#include "../server/GB_server.h"
+#include "../server/getplace.h"
+#include "../server/misc.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/rand.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/shlmisc.h"
+#include "../server/tweakables.h"
+#include "../server/vars.h"
+
+#include "fire.h"
+#include "load.h"
+#include "shootblast.h"
+#include "tele.h"
 
 /* Defense 5 is impenetrable */
 int Defensedata[] = {1, 1, 3, 2, 2, 3, 2, 4, 0};
 
 extern char *Desnames[];
-extern char *Dessymbols[];
+extern char Dessymbols[];
 
 extern void arm(int, int, int, int);
 extern void move_popn(int, int, int);
@@ -60,7 +74,7 @@ extern void mech_defend(int,
                         int,
                         sectortype *);
 
-extern void mech_attach_people(shiptype *,
+extern void mech_attack_people(shiptype *,
                                int *,
                                int *,
                                racetype *,
@@ -72,7 +86,7 @@ extern void mech_attach_people(shiptype *,
                                char *,
                                char *);
 
-extern void people_attach_mech(shiptype *,
+extern void people_attack_mech(shiptype *,
                                int,
                                int,
                                racetype *,
@@ -111,7 +125,7 @@ void arm(int playernum, int governor, int apcount, int mode)
     int enlist_cost;
     int max_allowed;
 
-    if (races[playernum, - 1]->Guest) {
+    if (races[playernum - 1]->Guest) {
         notify(playernum, governor, "Guest races may not arm civilians.\n");
 
         return;
@@ -164,7 +178,7 @@ void arm(int playernum, int governor, int apcount, int mode)
         return;
     }
 
-    if (sec->owner != playernum) {
+    if (sect->owner != playernum) {
         notify(playernum, governor, "You don't own that sector.\n");
         free(planet);
         free(sect);
@@ -173,7 +187,7 @@ void arm(int playernum, int governor, int apcount, int mode)
     }
 
     if (mode) {
-        max_allowed = MIN(sec->popn,
+        max_allowed = MIN(sect->popn,
                           planet->info[playernum - 1].destruct * (sect->mobilization + 1));
 
         if (argn < 3) {
@@ -203,9 +217,9 @@ void arm(int playernum, int governor, int apcount, int mode)
             return;
         }
 
-        Race = races[playernum - 1];
+        race = races[playernum - 1];
         /* enlist_cost = ENLIST_TROOP_COST * amount; */
-        enlist_cost = Race->fighters * amount;
+        enlist_cost = race->fighters * amount;
 
         if (enlist_cost > MONEY(race, governor)) {
             sprintf(buf,
@@ -226,7 +240,7 @@ void arm(int playernum, int governor, int apcount, int mode)
         sect->troops += amount;
         sect->popn -= amount;
         planet->popn -= amount;
-        planet->inf[playernum - 1].popn -= amount;
+        planet->info[playernum - 1].popn -= amount;
         planet->troops += amount;
         planet->info[playernum - 1].troops += amount;
         planet->info[playernum - 1].destruct -= cost;
@@ -402,7 +416,7 @@ void move_popn(int playernum, int governor, int what)
             return;
         }
 
-        if (!adjacent, x, y, x2, y2, planet) {
+        if (!adjacent(x, y, x2, y2, planet)) {
             sprintf(buf, "Illegal move - to adjacent sectors only!\n");
             notify(playernum, governor, buf);
             free(planet);
@@ -742,7 +756,7 @@ void move_popn(int playernum, int governor, int what)
                         x,
                         y,
                         alien->name,
-                        alien->playernum,
+                        alien->Playernum,
                         Dessymbols[sect2->condition],
                         x2,
                         y2);
@@ -757,7 +771,7 @@ void move_popn(int playernum, int governor, int what)
                         x,
                         y,
                         alien->name,
-                        alien->playernum,
+                        alien->Playernum,
                         Dessymbols[sect2->condition],
                         x2,
                         y2);
@@ -841,7 +855,7 @@ void move_popn(int playernum, int governor, int what)
                         casualties);
             }
 
-            strcat(telegram_bug, buf);
+            strcat(telegram_buf, buf);
             warn(old2owner, old2gov, telegram_buf);
 
             if (what == CIV) {
@@ -893,7 +907,7 @@ void move_popn(int playernum, int governor, int what)
         deductAPs(playernum,
                   governor,
                   apcost,
-                  Dir[playernum - 1][Governor].snum,
+                  Dir[playernum - 1][governor].snum,
                   0);
 
         /* Get ready for the next round */
@@ -920,7 +934,6 @@ void walk(int playernum, int governor, int apcount)
     int succ = 0;
     int civ;
     int mil;
-    int damage;
     int oldowner;
     int oldgov;
     int strength;
@@ -1065,13 +1078,13 @@ void walk(int playernum, int governor, int apcount)
                 while (strength && strength1) {
                     memcpy(&dummy, ship, sizeof(shiptype));
 
-                    damage = shoot_ship_to_ship(ship2,
-                                                ship,
-                                                strength,
-                                                0,
-                                                0,
-                                                long_buf,
-                                                short_buf);
+                    shoot_ship_to_ship(ship2,
+                                       ship,
+                                       strength,
+                                       0,
+                                       0,
+                                       long_buf,
+                                       short_buf);
 
                     use_destruct(ship2, strength);
                     notify(playernum, governor, long_buf);
@@ -1088,13 +1101,13 @@ void walk(int playernum, int governor, int apcount)
                                 short_buf);
 
                     if (strength1) {
-                        damage = shoot_ship_to_ship(&dummy,
-                                                    ship2,
-                                                    strength1,
-                                                    0,
-                                                    1,
-                                                    long_buf,
-                                                    short_buf);
+                        shoot_ship_to_ship(&dummy,
+                                           ship2,
+                                           strength1,
+                                           0,
+                                           1,
+                                           long_buf,
+                                           short_buf);
 
                         use_destruct(ship, strength1);
                         notify(playernum, governor, long_buf);
@@ -1163,7 +1176,7 @@ void walk(int playernum, int governor, int apcount)
                                    short_buf);
 
                 notify(playernum, governor, long_buf);
-                warn(alien->playernum, oldgov, long_buf);
+                warn(alien->Playernum, oldgov, long_buf);
 
                 notify_star(playernum,
                             governor,
@@ -1185,7 +1198,7 @@ void walk(int playernum, int governor, int apcount)
                                    short_buf);
 
                 notify(playernum, governor, long_buf);
-                warn(alien->playernum, oldgov, long_buf);
+                warn(alien->Playernum, oldgov, long_buf);
 
                 notify_star(playernum,
                             governor,
@@ -1197,7 +1210,7 @@ void walk(int playernum, int governor, int apcount)
                     post(short_buf, COMBAT);
                 }
 
-                sect->popn;
+                sect->popn = civ;
                 sect->troops = mil;
 
                 if (!(sect->popn + sect->troops)) {
@@ -1394,7 +1407,7 @@ void mech_defend(int playernum,
                                            short_buf);
 
                         notify(playernum, governor, long_buf);
-                        warn(alien->playernum, oldgov, long_buf);
+                        warn(alien->Playernum, oldgov, long_buf);
 
                         if (civ + mil) {
                             people_attack_mech(ship,
@@ -1409,7 +1422,7 @@ void mech_defend(int playernum,
                                                short_buf);
 
                             notify(playernum, governor, long_buf);
-                            warn(alien->playernum, oldgov, long_buf);
+                            warn(alien->Playernum, oldgov, long_buf);
                         }
                     }
                 }
@@ -1551,13 +1564,13 @@ void people_attack_mech(shiptype *ship,
         * (alien->likes[sect->condition] + 1.0)
         * morale_factor((double)(alien->morale - race->morale));
 
-    astrength = (double)((10 * mil * race->figthers) + civ)
+    astrength = (double)((10 * mil * race->fighters) + civ)
         * 0.01
         * race->tech
         * 0.01
         * (race->likes[sect->condition] + 1.0)
         * ((double)Defensedata[sect->condition] + 1.0)
-        * moral_factor((double)(race->morale - alien->morale));
+        * morale_factor((double)(race->morale - alien->morale));
 
     ammo = (int)log10((double)astrength + 1.0) - 1;
     ammo = MIN(strength, MAX(0, ammo));
@@ -1618,11 +1631,11 @@ void people_attack_mech(shiptype *ship,
             pdam,
             sdam);
 
-    strcat(long_msg, bug);
+    strcat(long_msg, buf);
 }
 
 void ground_attack(racetype *race,
-                   racetype *aliend,
+                   racetype *alien,
                    int *people,
                    int what,
                    unsigned short *civ,
@@ -1631,8 +1644,8 @@ void ground_attack(racetype *race,
                    unsigned int def2,
                    double alikes,
                    double dlikes,
-                   double *astrength;
-                   double *dstrength;
+                   double *astrength,
+                   double *dstrength,
                    int *casualties,
                    int *casualties2,
                    int *casualties3)
@@ -1658,17 +1671,17 @@ void ground_attack(racetype *race,
 
     /* Nuke both populations */
     if (what == MIL) {
-        casualty_scale = MIN(*people * 10 * race->fighers,
+        casualty_scale = MIN(*people * 10 * race->fighters,
                              (*civ + (*mil * 10)) * alien->fighters);
     } else {
-        casualty_scale = MIN(*people * race->fighers,
-                             (*civ + (*mil * 10)) * alien->fighers);
+        casualty_scale = MIN(*people * race->fighters,
+                             (*civ + (*mil * 10)) * alien->fighters);
     }
 
     if (what == MIL) {
-        *casualties = int_rand(0, round_rand((double)(((casualty_scale / 10) * dstrength) / *astrength)));
+        *casualties = int_rand(0, round_rand((double)(((casualty_scale / 10.0) * *dstrength) / *astrength)));
     } else {
-        *casualties = int_rand(0, round_rand((double)((casualty_scale * dstrength) / *astrength)));
+        *casualties = int_rand(0, round_rand((double)((casualty_scale * *dstrength) / *astrength)));
     }
 
     *casualties = MIN(*people, *casualties);
@@ -1680,7 +1693,7 @@ void ground_attack(racetype *race,
     *civ -= *casualties2;
 
     /* And for troops */
-    *casualties3 = int_rand((double)(((casualty_scale / 10) * *astrength) / *dstrength));
+    *casualties3 = int_rand(0, round_rand((double)(((casualty_scale / 10.0) * *astrength) / *dstrength)));
 
     *casualties3 = MIN(*mil, *casualties3);
     *mil -= *casualties3;

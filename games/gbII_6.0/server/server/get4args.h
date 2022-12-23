@@ -3,4 +3,4 @@
 
 void get4args(char *s, int *xl, int *xh, int *yl, int *yh);
 
-#endif /* GET4ARGS_H_
+#endif /* GET4ARGS_H_ */

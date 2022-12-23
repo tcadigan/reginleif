@@ -26,15 +26,27 @@
  *
  * $Header: /var/cvs/gbp/GB+/user/launch.c,v 1.4 2007/07/06 18:09:34 gbp Exp $
  */
+#include "launch.h"
 
 #include <stdlib.h>
 
-#include "buffers.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/doship.h"
+#include "../server/files_shl.h"
+#include "../server/GB_server.h"
+#include "../server/lists.h"
+#include "../server/max.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/rand.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/shlmisc.h"
+#include "../server/vars.h"
+
+#include "fire.h"
+#include "land.h"
+#include "load.h"
 
 void launch(int, int, int);
 
@@ -74,7 +86,7 @@ void launch(int playernum, int governor, int apcount)
         ship_to_launch = args[1];
     }
 
-    nextship = start_shiplist(playernum, governor, ship_to_launch);
+    nextshipno = start_shiplist(playernum, governor, ship_to_launch);
     shipno = do_shiplist(&s, &nextshipno);
 
     while (shipno) {
@@ -376,7 +388,7 @@ void launch(int playernum, int governor, int apcount)
 
                 if (s->damage) {
                     sprintf(buf,
-                            "Attempting to launch ship with %s%% damage...\n",
+                            "Attempting to launch ship with %d%% damage...\n",
                             (int)s->damage);
 
                     notify(playernum, governor, buf);
@@ -417,7 +429,7 @@ void launch(int playernum, int governor, int apcount)
                 if (crash(s, fuel)) {
                     /* Damaged ships stand chance of exploding on launch */
                     if (roll) {
-                        sprintf(buf, "You rolled a %s!\n", roll);
+                        sprintf(buf, "You rolled a %d!\n", roll);
                         notify(playernum, governor, buf);
                     }
 

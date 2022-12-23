@@ -27,16 +27,32 @@
  *
  * $Header: /var/cvs/gbp/GB+/user/land.c,v 1.5 2007/07/06 18:06:56 gbp Exp $
  */
+#include "land.h"
 
 #include <math.h>
 #include <stdlib.h>
 
-#include "buffers.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/doship.h"
+#include "../server/files_shl.h"
+#include "../server/first.h"
+#include "../server/GB_server.h"
+#include "../server/getplace.h"
+#include "../server/lists.h"
+#include "../server/max.h"
+#include "../server/moveship.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/rand.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/shlmisc.h"
+#include "../server/vars.h"
+
+#include "fire.h"
+#include "load.h"
+#include "shootblast.h"
+#include "tele.h"
 
 extern long Shipdata[NUMSTYPES][NUMABILS];
 static int roll;
@@ -59,7 +75,6 @@ void land(int playernum, int governor, int apcount)
     int i;
     int numdest = -1;
     int strength = 0;
-    int damage = 0;
     int nupdates;
     double fuel;
     double dist;
@@ -286,7 +301,7 @@ void land(int playernum, int governor, int apcount)
                     }
 
                     /* Check to see if close enough to land */
-                    dist = sqrt((double)Distsq(s2->xpos, x2->ypos, s->xpos, s->ypos));
+                    dist = sqrt((double)Distsq(s2->xpos, s2->ypos, s->xpos, s->ypos));
 
                     if (dist > DIST_TO_DOCK) {
                         sprintf(buf,
@@ -492,7 +507,7 @@ void land(int playernum, int governor, int apcount)
                 }
 
                 /* Handle FIRST_COMBAT rule here */
-                nupdates = get_num_updateS();
+                nupdates = get_num_updates();
 
                 for (i = 1; i <= Num_races; ++i) {
                     if ((i != playernum) && p->info[i - 1].popn) {
@@ -557,12 +572,12 @@ void land(int playernum, int governor, int apcount)
                                                (int)p->info[i - 1].destruct);
 
                                 if (strength) {
-                                    damage = shoot_planet_to_ship(alien,
-                                                                  p,
-                                                                  s,
-                                                                  strength,
-                                                                  buf,
-                                                                  temp);
+                                    shoot_planet_to_ship(alien,
+                                                         p,
+                                                         s,
+                                                         strength,
+                                                         buf,
+                                                         temp);
 
                                     post(temp, COMBAT);
                                     notify_star(0,
@@ -610,7 +625,7 @@ void land(int playernum, int governor, int apcount)
                 if (crash(s, fuel)) {
                     /* Damaged ships stand a chance of crash landing */
                     if (roll) {
-                        sprintf(buf, "You rolled a %s!\n", roll);
+                        sprintf(buf, "You rolled a %d!\n", roll);
                     } else {
                         sprintf(buf,
                                 "You had %.1ff while the landing required %.1ff\n",
@@ -633,7 +648,7 @@ void land(int playernum, int governor, int apcount)
 
                     if (numdest > 0) {
                         sprintf(buf,
-                                "BOOM!! %s crashes on sector %d,%d with blast radius of %s.\n",
+                                "BOOM!! %s crashes on sector %d,%d with blast radius of %d.\n",
                                 Ship(s),
                                 x,
                                 y,
@@ -666,15 +681,15 @@ void land(int playernum, int governor, int apcount)
                     /* No destination */
                     s->whatdest = LEVEL_PLAN;
                     s->deststar = s->storbits;
-                    s->destpnum - s->pnumorbits;
+                    s->destpnum = s->pnumorbits;
 
-                    if (getsector(&sector, p, x, y)) {
+                    if (getsector(&sect, p, x, y)) {
                         if (sect->condition == WASTED) {
                             sprintf(buf,
                                     "Warning: That sector is a wasteland!\n");
 
                             notify(playernum, governor, buf);
-                        } else if (sec->owner && (sect->owner != playernum)) {
+                        } else if (sect->owner && (sect->owner != playernum)) {
                             race = races[playernum - 1];
                             alien = races[sect->owner - 1];
 
@@ -723,7 +738,7 @@ void land(int playernum, int governor, int apcount)
                             Stars[s->storbits]->name,
                             Stars[s->storbits]->pnames[s->pnumorbits]);
 
-                    for (i = 1, i <= Num_races; ++i) {
+                    for (i = 1; i <= Num_races; ++i) {
                         if (p->info[i - 1].numsectsowned && (i != playernum)) {
                             notify(i,
                                    (int)Stars[s->storbits]->governor[i - 1],
@@ -810,7 +825,7 @@ int wormhole_damage(int here, int there)
     h = Stars[here];
     t = Stars[there];
 
-    tdist = sqrt((double)Distsq(h->xpos, y->ypos, t->xpos, t->ypos));
+    tdist = sqrt((double)Distsq(h->xpos, t->ypos, t->xpos, t->ypos));
     dmg = (int)((tdist / UNIVSIZE) * 200);
 
     return dmg;
@@ -822,7 +837,7 @@ void go_thru_wormhole(shiptype *ship)
     startype *there;
     int h;
     int t;
-    int damage;
+    int damage = 0;
     int maxdamage;
     planettype *dpl;
 

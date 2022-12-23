@@ -31,6 +31,7 @@
  *
  * $Header: /var/cvs/gbp/GB+/user/name.c,v 1.6 2007/07/06 18:09:34 gbp Exp $
  */
+#include "name.h"
 
 #include <ctype.h>
 #include <math.h>
@@ -38,14 +39,29 @@
 #include <string.h>
 #include <time.h>
 
-#include "buffers.h"
-#include "config.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "tweakables.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/config.h"
+#include "../server/dispatch.h"
+#include "../server/files_shl.h"
+#include "../server/GB_server.h"
+#include "../server/getplace.h"
+#include "../server/lists.h"
+#include "../server/max.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/rand.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/shlmisc.h"
+#include "../server/tweakables.h"
+#include "../server/vars.h"
+
+#include "capture.h"
+#include "dissolve.h"
+#include "tele.h"
+
+static char msg[1024];
+static char head[1024];
 
 /* For watching next update */
 /* static struct tm *current_tm; */
@@ -159,7 +175,7 @@ void bless(int playernum, int governor, int apcount)
         race->collective_iq = 0;
         sprintf(buf, "Deity took away collective intelligence.\n");
     } else if (match(args[2], "maxiq")) {
-        race->IQ_limit = aoit(args[3]);
+        race->IQ_limit = atoi(args[3]);
         sprintf(buf, "Deity gave you a maximum IQ of %d.\n", race->IQ_limit);
     } else if (match(args[2], "mass")) {
         race->mass = atof(args[3]);
@@ -282,7 +298,7 @@ void bless(int playernum, int governor, int apcount)
                 Stars[Dir[playernum - 1][governor].snum]->pnames[Dir[playernum - 1][governor].pnum]);
 
         if (match(args[3], "system")) {
-            clrbit(Stars[Dir[Playernum - 1][governor].snum]->explored, who);
+            clrbit(Stars[Dir[playernum - 1][governor].snum]->explored, who);
         }
     } else if (match(args[2], "planetpopulation"))  {
         long was;
@@ -428,7 +444,7 @@ void insurgency(int playernum, int governor, int apcount)
         return;
     }
 
-    who = GetPlanet(args[1]);
+    who = GetPlayer(args[1]);
 
     if (!who) {
         sprintf(buf, "No such player.\n");
@@ -759,7 +775,7 @@ void give(int playernum, int governor, int apcount)
 
     /* Check to see if both players are mutually allied */
     if (!race->God
-        && (!isset(race->allied, who)) || isset(race->allied, playernum)) {
+        && (!isset(race->allied, who)) && isset(race->allied, playernum)) {
         notify(playernum, governor, "You two are not mutually allied\n");
 
         return;
@@ -792,7 +808,7 @@ void give(int playernum, int governor, int apcount)
                governor,
                "You cannot give ship from different system.\n");
 
-        free(help);
+        free(ship);
 
         return;
     }
@@ -837,7 +853,7 @@ void give(int playernum, int governor, int apcount)
 
         break;
     default:
-        if (!enufAP(playernum, governor, Stars[Dir[playernum - 1][governor].snum]->Ap[playernum - 1], apcount)) {
+        if (!enufAP(playernum, governor, Stars[Dir[playernum - 1][governor].snum]->AP[playernum - 1], apcount)) {
             free(ship);
 
             return;
@@ -864,13 +880,13 @@ void give(int playernum, int governor, int apcount)
 
         break;
     case LEVEL_STAR:
-        getstar(&Stars[ship->strobits], (int)ship->storbits);
+        getstar(&Stars[ship->storbits], (int)ship->storbits);
         setbit(Stars[ship->storbits]->explored, who);
         putstar(Stars[ship->storbits], (int)ship->storbits);
 
         break;
     case LEVEL_PLAN:
-        getstar(&Stars[ship->storbits], (int)ship->strobits);
+        getstar(&Stars[ship->storbits], (int)ship->storbits);
         setbit(Stars[ship->storbits]->explored, who);
         putstar(Stars[ship->storbits], (int)ship->storbits);
 
@@ -1074,7 +1090,7 @@ void send_message(int playernum, int governor, int apcount0, int postit)
     }
 
     if (match(args[1], "block")) {
-        to_lock = 1;
+        to_block = 1;
         notify(playernum, governor, "Sending message to alliance block.\n");
 
         who = GetPlayer(args[2]);
@@ -1157,7 +1173,7 @@ void send_message(int playernum, int governor, int apcount0, int postit)
     } else if (postit) {
         start = 1;
     } else {
-        to = to_RACE;
+        to = TO_RACE;
         what = who;
         start = 2;
     }
@@ -1225,7 +1241,7 @@ void send_message(int playernum, int governor, int apcount0, int postit)
                 && isset(Stars[star]->inhabited, i)) {
                 alien = races[i - 1];
 
-                if (!race-God && !alien->God && (chat_flag == TRANS_CHAT)) {
+                if (!race->God && !alien->God && (chat_flag == TRANS_CHAT)) {
                     garble_msg(msg,
                                alien->translate[playernum - 1],
                                1,
@@ -1281,7 +1297,7 @@ void read_messages(int playernum, int governor, int apcount)
 {
     if (!strncmp(args[1], "telegrams", 1)) {
         teleg_read(playernum, governor);
-    } else if (!strncamp(args[1], "dispatches", 1)) {
+    } else if (!strncmp(args[1], "dispatches", 1)) {
         if (argn == 2) {
             read_dispatch(playernum, governor, 0);
         } else if (argn == 3) {
@@ -1313,14 +1329,14 @@ void read_messages(int playernum, int governor, int apcount)
                "\n----------          Bulletins         ----------\n");
 
         news_read(playernum, governor, ANNOUNCE);
-    } else if (!strncamp(args[1], "declarations", 2)) {
+    } else if (!strncmp(args[1], "declarations", 2)) {
         notify(playernum, governor, CUTE_MESSAGE);
         notify(playernum,
                governor,
                "\n----------        Declarations        ----------\n");
 
         news_read(playernum, governor, DECLARATION);
-    } else if (!strncamp(args[1], "combat", 1)) {
+    } else if (!strncmp(args[1], "combat", 1)) {
         notify(playernum, governor, CUTE_MESSAGE);
         notify(playernum,
                governor,
@@ -1571,7 +1587,7 @@ void name(int playernum, int governor, int apcount)
                       Dir[playernum - 1][governor].snum,
                       Dir[playernum - 1][governor].pnum);
 
-            if ((((p->Maxx * p->Maxy) 2) >= p->info[playernum - 1].numsectsowned)
+            if ((((p->Maxx * p->Maxy) / 2) >= p->info[playernum - 1].numsectsowned)
                 && !race->God) {
                 notify(playernum,
                        governor,
@@ -1809,7 +1825,7 @@ void announce(int playernum, int governor, char *message, int mode, int override
         break;
     }
 
-    *message++;
+    message++;
     sprintf(msg, "%s\n", message);
 
     if (mode == EMOTE) {
@@ -1861,7 +1877,7 @@ void announce(int playernum, int governor, char *message, int mode, int override
 }
 
 /* Garble -CWL */
-char garble_msg(char *s, int pcnt, int diff, int playernum)
+char *garble_msg(char *s, int pcnt, int diff, int playernum)
 {
     int l;
     int i;

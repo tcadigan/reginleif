@@ -23,23 +23,29 @@
  * CSP_EXPLORE Copyright (c) 1993 GBDT, John P. Deragon Portions Copyright (c)
  * 1989, Robert Chansky
  *
- * $Header: /var/cvs/gbp/GB+/user/csp_explore.c,v 1.4 2007/07/06 18:09:34 gbp Exp $
+ * $Header: /var/cvs/gbp/GB+/user/csp_explore.c,v 1.4 2007/07/06 18:09:34 gbp
+ * Exp $
  */
+#include "csp_explore.h"
 
 #include <ctype.h>
 #include <curses.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "buffers.h"
-#include "csp.h"
-#include "csp_types.h"
-#include "debug.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/csp.h"
+#include "../server/csp_types.h"
+#include "../server/debug.h"
+#include "../server/files_shl.h"
+#include "../server/GB_server.h"
+#include "../server/getplace.h"
+#include "../server/max.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/vars.h"
 
 extern char *Planet_types[];
 
@@ -60,7 +66,7 @@ void CSP_exploration(int playernum, int governor)
         where = Getplace(playernum, governor, args[1], 0);
 
         if (where.err) {
-            sprintf(buf, "%c %d %d\n", CSP_CLIENT, CS_ERR, CSP_ERR_NOSUCH_PLACE);
+            sprintf(buf, "%c %d %d\n", CSP_CLIENT, CSP_ERR, CSP_ERR_NOSUCH_PLACE);
             notify(playernum, governor, buf);
             debug(LEVEL_CSP, "CSP: Leaving csp_explore [failed]\n");
 
@@ -150,7 +156,7 @@ void CSP_exploration(int playernum, int governor)
                                 i + 1,
                                 Stars[star]->pnames[i],
                                 pl->info[playernum - 1].explored ? TRUE : FALSE,
-                                pl->info[playernum - 1].numsectswoned ? info[playernum - 1].numsectsowned : FALSE,
+                                pl->info[playernum - 1].numsectsowned ? pl->info[playernum - 1].numsectsowned : FALSE,
                                 pl->info[playernum - 1].autorep ? TRUE : FALSE,
                                 pl->slaved_to ? pl->slaved_to : FALSE,
                                 pl->conditions[TOXIC] > 70 ? TRUE : FALSE,

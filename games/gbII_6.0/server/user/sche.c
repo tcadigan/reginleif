@@ -35,18 +35,20 @@
  * $Header: /var/cvs/gbp/GB+/user/sche.c,v 1.3 2007/07/06 18:09:34 gbp Exp $
  * *****************************************************************************
  */
+#include "sche.h"
 
 #include <ctype.h>
 #include <time.h>
 #include <string.h>
 #include <sys/stat.h>
 
-#include "buffers.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/GB_server.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/vars.h"
 
 /* Prototypes */
 void timedifftoascii(long, long, char *);
@@ -208,7 +210,7 @@ void timedifftoascii(long t1, long t2, char *tbuf)
     tdiff = t1 - t2;
 
     /* Days */
-    x = tdif / (24 * 60 * 60);
+    x = tdiff / (24 * 60 * 60);
 
     if (x) {
         sprintf(tbuf2, "%ld day%s", x, x > 1 ? "s" : "");

@@ -35,19 +35,22 @@
  *
  * *****************************************************************************
  */
+#include "help.h"
 
 #include <dirent.h>
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "buffers.h"
-#include "idx.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/GB_server.h"
+#include "../server/idx.h"
+#include "../server/log.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/vars.h"
 
 /*
  * help:
@@ -138,7 +141,7 @@ void help(int who)
                 return;
             } else {
                 loginfo(ERRORLOG, NOERRNO, "%s: errno %d", textfile, errno);
-                sprintf(buf, "%s: error number %d\n", textilfe, errno);
+                sprintf(buf, "%s: error number %d\n", textfile, errno);
                 outstr(who, buf);
                 perror(textfile);
 
@@ -155,18 +158,18 @@ void help(int who)
         }
     }
 
-    indx_found = fread(&entry, sizeof(indx_mark), 1, ifile);
+    idx_found = fread(&entry, sizeof(idx_mark), 1, ifile);
 
-    while (indx_file == 1) {
+    while (idx_found == 1) {
         if (string_prefix(entry.topic, topic)) {
             /* Search for single topic, found it */
             break;
         }
 
-        indx_found = fread(&entry, sizeof(indx_mark), 1, ifile);
+        idx_found = fread(&entry, sizeof(idx_mark), 1, ifile);
     }
 
-    if (indx_found <= 0) {
+    if (idx_found <= 0) {
         sprintf(buf, "No '%s' in %s.\n", topic, subject);
         outstr(who, buf);
 

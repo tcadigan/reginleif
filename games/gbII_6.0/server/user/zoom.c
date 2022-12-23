@@ -36,17 +36,19 @@
  * $Header: /var/cvs/gbp/GB+/user/zoom.c,v 1.3 2007/07/06 18:09:34 gbp Exp $
  * *****************************************************************************
  */
+#include "zoom.h"
 
 #include <stdlib.h>
 
-#include "buffers.h"
-#include "csp.h"
-#include "csp_types.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/csp.h"
+#include "../server/csp_types.h"
+#include "../server/GB_server.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ranks.h"
+#include "../server/ships.h"
+#include "../server/vars.h"
 
 /*
  * GB_schedule:
@@ -116,7 +118,7 @@ void csp_zoom(int playernum, int governor)
     }
 
     if (argn > 3) {
-        ns = sscanf(args[3], "%lf,%ls", &num, &denom);
+        ns = sscanf(args[3], "%lf,%lf", &num, &denom);
 
         if (ns == 2) {
             /* num/denom format */

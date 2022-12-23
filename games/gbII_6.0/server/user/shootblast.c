@@ -24,18 +24,30 @@
  *
  * #ident  "@(#)shootblast.c    1.9 12/3/93 "
  *
- * $Header: /var/cvs/gbp/GB+/user/shootblast.c,v 1.4 2007/07/06 18:09:34 gbp Exp $
+ * $Header: /var/cvs/gbp/GB+/user/shootblast.c,v 1.4 2007/07/06 18:09:34 gbp Exp
+ * $
  */
+#include "shootblast.h"
 
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "buffers.h"
-#include "power.h"
-#include "races.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/doship.h"
+#include "../server/files_shl.h"
+#include "../server/getplace.h"
+#include "../server/misc.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/rand.h"
+#include "../server/ships.h"
+#include "../server/shlmisc.h"
+#include "../server/vars.h"
+
+#include "build.h"
+#include "fire.h"
+#include "tele.h"
 
 extern int Defensedata[];
 
@@ -47,6 +59,7 @@ int CEW_hit(double, int);
 int Num_hits(double, int, int, double, int, int, int, int, int, int, int, int);
 int hit_odds(double, int *, double, int, int, int, int, int, int, int, int);
 int cew_hit_odds(double, int);
+int do_radiation(shiptype *, double, int, int, char const *, char *);
 double gun_range(racetype *, shiptype *, int);
 int current_caliber(shiptype *);
 void do_critical_hits(int, shiptype *, int *, int *, int, char *);
@@ -98,7 +111,7 @@ int shoot_ship_to_ship(shiptype *from,
         return -1;
     }
 
-    if (from->strobits != to->storbits) {
+    if (from->storbits != to->storbits) {
         return -1;
     }
 
@@ -126,7 +139,7 @@ int shoot_ship_to_ship(shiptype *from,
         dist = sqrt((double)Distsq(xfrom, yfrom, xto, yto));
 
         /* Compute the effective range. Mines are very effective inside 200 */
-        if (from_type == STYPE_MINEF) {
+        if (from->type == STYPE_MINEF) {
             dist *= (dist/ 600.0);
         }
     }
@@ -203,7 +216,7 @@ int shoot_ship_to_ship(shiptype *from,
                 Ship(to));
 
         strcpy(long_msg, short_msg);
-        strcpy(long_msg, damage, msg);
+        strcpy(long_msg, damage_msg);
     } else {
         if (cew) {
             sprintf(weapon, "strength CEW");
@@ -270,7 +283,7 @@ int shoot_ship_to_ship(shiptype *from,
             push_telegram(from->owner, from->governor, str);
 
             /* It pops */
-            if (int_rand(1, 100) <= from_damage) {
+            if (int_rand(1, 100) <= from->damage) {
                 sprintf(str, "SETI %s overloads and EXPLODES!\n", Ship(from));
                 push_telegram(from->owner, from->governor, str);
                 kill_ship(from->owner, from);
@@ -683,7 +696,7 @@ int do_damage(int who,
     strcat(msg, buf);
 
     /* Ship may lost some armor */
-    if (ship->>armor) {
+    if (ship->armor) {
         if (success(hits * caliber)) {
             --ship->armor;
             sprintf(buf, "\t\tArmor reduced to %d\n", ship->armor);
@@ -696,12 +709,12 @@ int do_damage(int who,
 
     /* HUT modification (tze) : Effect of ship armor is doubled */
     if (ship->type == OTYPE_FACTORY) {
-        arm = MAX(0, (2 * shipdata[ship->type][ABIL_ARMOR]) + defense - (hits / 5));
+        arm = MAX(0, (2 * Shipdata[ship->type][ABIL_ARMOR]) + defense - (hits / 5));
     } else {
         arm = MAX(0, (2 * ((ship->armor * (100 - ship->damage)) / 100)) + defense - (hits / 5));
     }
 
-    body = sqrt((double)(0.1 * (ship->body - ship->max_hanger)));
+    body = sqrt((double)(0.1 * (ship->size - ship->max_hanger)));
 
     critdam = 0;
     crithits = 0;
@@ -935,7 +948,7 @@ int hit_odds(double range,
     return odds;
 }
 
-int cew_hit_odds(double_range, int cew_range)
+int cew_hit_odds(double range, int cew_range)
 {
     int odds;
     double factor;
@@ -974,7 +987,7 @@ int current_caliber(shiptype *ship)
         return HEAVY;
     } else if (ship->type == STYPE_MISSILE) {
         return HEAVY;
-    } else if (ship->smart_file) {
+    } else if (ship->smart_fire) {
         /* Process smart gun, from HAP - mfw */
         if (ship->smart_gun == PRIMARY) {
             return ship->primtype;
@@ -1029,9 +1042,9 @@ void do_critical_hits(int penetrate,
     /* Check for special systems damage */
     strcpy(critmsg, "\t\tSpecial systems damage: ");
 
-    if (chip->cew && success(*critdam)) {
+    if (ship->cew && success(*critdam)) {
         strcat(critmsg, "CEW ");
-        ship->cew;
+        ship->cew = 0;
     }
 
     if (ship->laser && success(*critdam)) {

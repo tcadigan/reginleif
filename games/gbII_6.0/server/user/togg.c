@@ -38,14 +38,19 @@
  *
  * *****************************************************************************
  */
+#include "togg.h"
 
 #include <string.h>
 
-#include "buffers.h"
-#include "power.h"
-#include "races.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/csp_dispatch.h"
+#include "../server/files_shl.h"
+#include "../server/GB_server.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ships.h"
+#include "../server/shlmisc.h"
+#include "../server/vars.h"
 
 /* Prototypes */
 void tog(int, int, char *, char const *);
@@ -124,7 +129,7 @@ void toggle(int playernum, int governor, int apcount)
             notify(playernum, governor, "client toggled\n");
         } else {
             sprintf(buf, "No such option \'%s\'\n", args[1]);
-            notify(playernum, governor, bug);
+            notify(playernum, governor, buf);
 
             return;
         }
@@ -195,7 +200,7 @@ void toggle(int playernum, int governor, int apcount)
 
         sprintf(buf,
                 "client mode is %s\n",
-                Race->governor[governor].CSP_client_info.csp_user ? "ON" : "OFF");
+                race->governor[governor].CSP_client_info.csp_user ? "ON" : "OFF");
 
         notify(playernum, governor, buf);
 

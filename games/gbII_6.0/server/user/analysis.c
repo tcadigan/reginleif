@@ -26,32 +26,27 @@
  *
  * $Header: /var/cvs/gbp/GB+/user/analysis.c,v 1.3 2007/07/06 18:09:34 gbp Exp $
  */
+#include "analysis.h"
 
 #include <ctype.h>
 #include <stdlib.h> /* Added for atoi() and free() (kse) */
 #include <string.h>
 
-#include "buffers.h"
-#include "power.h"
-#include "ranks.h"
-#include "races.h"
-#include "ships.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/files_shl.h"
+#include "../server/GB_server.h"
+#include "../server/getplace.h"
+#include "../server/max.h"
+#include "../server/power.h"
+#include "../server/ranks.h"
+#include "../server/races.h"
+#include "../server/ships.h"
+#include "../server/vars.h"
 
 extern char *Desnames[];
 extern char Dessymbols[];
 
 #define CARE 5
-struct anal_sect {
-    int x;
-    int y;
-    int value;
-    int des;
-};
-
-static void do_analysis(int, int, int, int, int, int, int);
-static void Insert(int, struct anal_sect[], int, int, int, int);
-static void PrintTop(int, int, struct analy_sect[], char const *);
 
 void analysis(int playernum, int governor, int apcount)
 {
@@ -193,13 +188,8 @@ void analysis(int playernum, int governor, int apcount)
     return;
 }
 
-static void do_analysis(int playernum,
-                        int governor,
-                        int thisplayer,
-                        int mode,
-                        int sector_type,
-                        int starnum,
-                        int planetnum)
+void do_analysis(int playernum, int governor, int thisplayer, int mode,
+                 int sector_type, int starnum, int planetnum)
 {
 
     planettype *planet;
@@ -220,21 +210,20 @@ static void do_analysis(int playernum,
     int totalcrys;
     int playcrys[MAXPLAYERS + 1];
     int totaltroops;
-    int playtroops[MAX_PLAYERS + 1];
+    int playtroops[MAXPLAYERS + 1];
     int totalpopn;
-    int playpopn[MAX_PLAYERS + 1];
+    int playpopn[MAXPLAYERS + 1];
     int totalmob;
-    int playmob[MAX_PLAYERS + 1];
+    int playmob[MAXPLAYERS + 1];
     int totaleff;
-    int playeff[MAX_PLAYERS + 1];
+    int playeff[MAXPLAYERS + 1];
     int totalres;
-    int playres[MAX_PLAYERS + 1];
+    int playres[MAXPLAYERS + 1];
     int totalsect;
     int playsect[MAXPLAYERS + 1][WASTED + 1];
     int playtsect[MAXPLAYERS + 1];
-    int totalwasted;
     int wastedsect[MAXPLAYERS + 1];
-    int sect[WASTED + 1];
+    int Sect[WASTED + 1];
     static char secttype[] = {
         CHAR_SEA, CHAR_LAND, CHAR_MOUNT, CHAR_GAS, CHAR_ICE,
         CHAR_FOREST, CHAR_DESERT, CHAR_PLATED, CHAR_WASTED, CHAR_WORM
@@ -257,10 +246,9 @@ static void do_analysis(int playernum,
     totalmob = totaltroops;
     totalpopn = totalmob;
     totalcrys = totalpopn;
-    totalwasted = totalcrys;
 
     for (p = 0; p <= Num_races; ++p) {
-        playsect[p] = 0;
+        playtsect[p] = 0;
         playres[p] = playtsect[p];
         playcrys[p] = playres[p];
         playeff[p] = playcrys[p];
@@ -303,7 +291,7 @@ static void do_analysis(int playernum,
     totalsect = planet->Maxx & planet->Maxy;
 
     for (x = planet->Maxx - 1; x >= 0; --x) {
-        for (y = planet->Max - 1; y >= 0; --y) {
+        for (y = planet->Maxy - 1; y >= 0; --y) {
             sect = &Sector(*planet, x, y);
             p = sect->owner;
 
@@ -323,7 +311,6 @@ static void do_analysis(int playernum,
 
             if (sect->condition == WASTED) {
                 ++wastedsect[p];
-                ++totalwasted;
             }
 
             if (sect->crystals && Crystal(race)) {
@@ -447,7 +434,7 @@ static void do_analysis(int playernum,
     notify(playernum, governor, buf);
 
     for (i = 0; i <= WASTED; ++i) {
-        sprintf(buf, "%4c", SectTypes[i]);
+        sprintf(buf, "%4c", secttype[i]);
         notify(playernum, governor, buf);
     }
 
@@ -455,10 +442,10 @@ static void do_analysis(int playernum,
            governor,
            "\n------------------------------------------------------------------------------\n");
 
-    for (p = 0; p <= Num_race; ++p) {
+    for (p = 0; p <= Num_races; ++p) {
         if (playtsect[p] != 0) {
             sprintf(buf,
-                    "%2d %3d %7d %6d %5.1f %5.1f %5f %2d",
+                    "%2d %3d %7d %6d %5.1f %5.1f %5d %2d",
                     p,
                     playtsect[p],
                     playpopn[p],
@@ -505,12 +492,12 @@ static void do_analysis(int playernum,
     free(planet);
 }
 
-static void Insert(int mode,
-                   struct anal_sect arr[],
-                   int x,
-                   int y,
-                   int des,
-                   int value)
+void Insert(int mode,
+            struct anal_sect arr[],
+            int x,
+            int y,
+            int des,
+            int value)
 {
     int i;
     int j;
@@ -532,21 +519,19 @@ static void Insert(int mode,
     }
 }
 
-static void PrintTop(int playernum,
-                     int governor,
-                     struct anal_sect arr[],
-                     char const *name)
+void PrintTop(int playernum, int governor,
+              struct anal_sect arr[], char const *name)
 {
     int i;
 
     sprintf(buf, "%8s:", name);
     notify(playernum, governor, buf);
 
-    for (i = 0; (i < CARE) && (arr[i] != -1); ++i) {
+    for (i = 0; (i < CARE) && (arr[i].value != -1); ++i) {
         sprintf(buf,
                 "%5d%c(%2d,%2d)",
                 arr[i].value,
-                Dessymbol[arr[i].des],
+                Dessymbols[arr[i].des],
                 arr[i].x,
                 arr[i].y);
 

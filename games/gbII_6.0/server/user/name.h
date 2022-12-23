@@ -1,6 +1,8 @@
 #ifndef NAME_H_
 #define NAME_H_
 
+#include "../server/vars.h"
+
 void personal(int, int, char *);
 void bless(int, int, int);
 void insurgency(int, int, int);

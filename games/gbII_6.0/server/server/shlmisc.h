@@ -1,6 +1,9 @@
 #ifndef SHLMISC_H_
 #define SHLMISC_H_
 
+#include "races.h"
+#include "ships.h"
+
 char *Ship(shiptype *);
 void grant(int, int, int );
 void governors(int, int, int);

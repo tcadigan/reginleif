@@ -1,6 +1,8 @@
 #ifndef FIRE_H_
 #define FIRE_H_
 
+#include "../server/ships.h"
+
 void fire(int, int, int, int);
 void bombard(int, int, int);
 void defend(int, int, int);

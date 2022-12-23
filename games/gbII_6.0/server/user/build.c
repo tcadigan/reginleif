@@ -31,6 +31,7 @@
  *
  * $Header: /var/cvs/bgp/GB+/user/build.c,v 1.7 2007/07/06 18:09:34 gbp Exp $
  */
+#include "build.h"
 
 #include <ctype.h>
 #include <curses.h>
@@ -39,13 +40,24 @@
 #include <stdlib.h> /* Added for free() and atoi() (kse) */
 #include <string.h>
 
-#include "buffers.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "ships.h"
-#include "tweakables.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/GB_server.h"
+#include "../server/getplace.h"
+#include "../server/files_shl.h"
+#include "../server/lists.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/ranks.h"
+#include "../server/shlmisc.h"
+#include "../server/ships.h"
+#include "../server/tweakables.h"
+#include "../server/vars.h"
+
+
+#include "fire.h"
+#include "land.h"
+#include "shootblast.h"
+#include "tele.h"
 
 extern int ShipVector[];
 
@@ -108,7 +120,7 @@ void upgrade(int playernum, int governor, int apcount)
         return;
     }
 
-    if (testship(Playrenum, governor, dirship)) {
+    if (testship(playernum, governor, dirship)) {
         notify(playernum, governor, "Error in testship.\n");
         free(dirship);
 
@@ -129,7 +141,7 @@ void upgrade(int playernum, int governor, int apcount)
         return;
     }
 
-    if (dirship->type == OTYPE_FACTORIES) {
+    if (dirship->type == OTYPE_FACTORY) {
         notify(playernum, governor, "You cannot upgrade factories.\n");
         free(dirship);
 
@@ -166,7 +178,7 @@ void upgrade(int playernum, int governor, int apcount)
                 return;
             }
 
-            newtech = Race->tech;
+            newtech = race->tech;
             oldtech = dirship->tech;
             netcost = (int)(((double)(newtech - oldtech) / (double)(2 * oldtech)) * (double)dirship->build_cost);
             ship.cloak = 1;
@@ -198,7 +210,7 @@ void upgrade(int playernum, int governor, int apcount)
                 return;
             } else if (netcost > dirship->resource) {
                 sprintf(buf,
-                        "You need %s resources on board to make this modification.\n",
+                        "You need %d resources on board to make this modification.\n",
                         netcost);
 
                 notify(playernum, governor, buf);
@@ -308,7 +320,7 @@ void upgrade(int playernum, int governor, int apcount)
                 ship.secondary = MAX(ship.secondary, dirship->secondary);
             } else if (matchic(args[2], "caliber")) {
                 if (matchic(args[3], "light")) {
-                    ship.sectype == MAX(LIGHT, dirship->sectype);
+                    ship.sectype = MAX(LIGHT, dirship->sectype);
                 } else if (matchic(args[3], "medium")) {
                     ship.sectype = MAX(MEDIUM, dirship->sectype);
                 } else if (matchic(args[3], "heavy")) {
@@ -364,7 +376,7 @@ void upgrade(int playernum, int governor, int apcount)
             }
         } else if (matchic(args[1], "laser")
                    && Shipdata[dirship->build_type][ABIL_LASER]) {
-            if (!laser(race)) {
+            if (!Laser(race)) {
                 sprintf(buf, "Your race cannot build lasers.\n");
                 notify(playernum, governor, buf);
                 free(dirship);
@@ -731,7 +743,7 @@ void make_mod(int playernum, int governor, int apcount, int mode)
 
             notify(playernum, governor, buf);
 
-            if (Shipdata(dirship->build_type][ABIL_CEW]) {
+            if (Shipdata[dirship->build_type][ABIL_CEW]) {
                 if (dirship->cew) {
                     sprintf(buf, "          CEW: yes\n");
                 } else {
@@ -815,7 +827,7 @@ void make_mod(int playernum, int governor, int apcount, int mode)
         dirship->max_destruct = Shipdata[i][ABIL_DESTCAP];
         dirship->max_speed = Shipdata[i][ABIL_SPEED];
         dirship->mount = Shipdata[i][ABIL_MOUNT] * Crystal(race);
-        dirship->hyper_drive.has = Shipdata[i][ABIL_JUMP] * Hyperdrive(race);
+        dirship->hyper_drive.has = Shipdata[i][ABIL_JUMP] * Hyper_drive(race);
         dirship->cloak = Shipdata[i][ABIL_CLOAK] * Cloak(race);
         dirship->laser = Shipdata[i][ABIL_LASER] * Laser(race);
         dirship->cew = 0;
@@ -884,7 +896,7 @@ void make_mod(int playernum, int governor, int apcount, int mode)
             } else if (matchic(args[1], "hanger")
                        && Shipdata[dirship->build_type][ABIL_HANGER]) {
                 dirship->max_hanger = MIN(value, 10000);
-            } else if (match(args[1], "fuel")
+            } else if (matchic(args[1], "fuel")
                        && Shipdata[dirship->build_type][ABIL_FUELCAP]) {
                 dirship->max_fuel = MIN(value, 10000);
             } else if (matchic(args[1], "destruct")
@@ -1148,7 +1160,7 @@ void build(int playernum, int governor, int apcount)
     int low = -1;
     double load_fuel;
     double tech;
-    FILE *fp;
+    FILE *fd;
     planettype *planet = NULL;
     sectortype *sector = NULL;
     shiptype *builder = NULL;
@@ -1196,6 +1208,7 @@ void build(int playernum, int governor, int apcount)
                     "fuel",
                     "crew",
                     "sp",
+                    "clk",
                     "tech",
                     "cost");
 
@@ -1211,10 +1224,10 @@ void build(int playernum, int governor, int apcount)
 
                 if (race->God
                     || race->pods
-                    || ((x == STYPE_POD) || (x == STYPE_SUPERPOD))) {
+                    || ((i == STYPE_POD) || (i == STYPE_SUPERPOD))) {
                     if (Shipdata[i][ABIL_PROGRAMMED]
                         && ((i != STYPE_POD) || NORMAL_PODS)
-                        && ((i 1= STYPE_SUPERPOD) || SUPER_PODS)
+                        && ((i != STYPE_SUPERPOD) || SUPER_PODS)
                         && ((Shipdata[i][ABIL_TECH] < 9999) || race->God)
                         && ((Shipdata[i][ABIL_TECH] >= low)
                             && (Shipdata[i][ABIL_TECH] <= high))) {
@@ -1326,7 +1339,7 @@ void build(int playernum, int governor, int apcount)
 
                     /* Default parameters */
                     sprintf(temp,
-                            "\n%1s %-15s %5s %5s %%3d %4d %3s %3s %3s %4s %4s %2s %3s %4s %4s\n- --------------- ----- ----- --- ---- --- --- --- ---- ---- -- ---\n",
+                            "\n%1s %-15s %5s %5s %3s %4s %3s %3s %3s %4s %4s %2s %3s %4s %4s\n- --------------- ----- ----- --- ---- --- --- --- ---- ---- -- --- ---- ----\n",
                             "?",
                             "name",
                             "cargo",
@@ -1480,7 +1493,7 @@ void build(int playernum, int governor, int apcount)
 
             if (!can_build_on_sector(what, race, planet, sector, x, y, buf)
                 && !race->God) {
-                notify(playernu, governor, buf);
+                notify(playernum, governor, buf);
                 free(planet);
                 free(sector);
 
@@ -1612,7 +1625,7 @@ void build(int playernum, int governor, int apcount)
                     return;
                 }
 
-                Getfactship(&newship, build);
+                Getfactship(&newship, builder);
 
                 if (landed(builder)) {
                     outside = 1;
@@ -1697,7 +1710,7 @@ void build(int playernum, int governor, int apcount)
             if (outside && (build_level == LEVEL_PLAN)) {
                 getplanet(&planet, snum, pnum);
 
-                if (builder->type == OTYPE_FACTOR) {
+                if (builder->type == OTYPE_FACTORY) {
                     if (!can_build_at_planet(playernum, governor, Stars[snum], planet)) {
                         notify(playernum, governor, "You can't build that here.\n");
                         free(planet);
@@ -2032,7 +2045,7 @@ void build(int playernum, int governor, int apcount)
 
                 getplanet(&planet, snum, pnum);
 
-                if (!can_build_at_plant(playernum, governor, Stars[snum], planet)
+                if (!can_build_at_planet(playernum, governor, Stars[snum], planet)
                     && !race->God) {
                     notify(playernum, governor, "You can't build that here.\n");
                     free(planet);
@@ -2077,7 +2090,7 @@ void build(int playernum, int governor, int apcount)
                     return;
                 }
 
-                getship(&newship, what, race);
+                Getship(&newship, what, race);
             } /* if (!count) */
 
             /*
@@ -2189,7 +2202,7 @@ void build(int playernum, int governor, int apcount)
                         return;
                     }
 
-                    Getfactship(&newship, build);
+                    Getfactship(&newship, builder);
 
                     if (landed(builder)) {
                         outside = 1;
@@ -2253,7 +2266,7 @@ void build(int playernum, int governor, int apcount)
                     Getship(&newship, what, race);
                 }
 
-                if (builder->type == OTYPE_FACTOR) {
+                if (builder->type == OTYPE_FACTORY) {
                     tech = complexity(builder);
                 } else {
                     tech = Shipdata[what][ABIL_TECH];
@@ -2274,7 +2287,7 @@ void build(int playernum, int governor, int apcount)
                 if (outside && (build_level == LEVEL_PLAN)) {
                     getplanet(&planet, snum, pnum);
 
-                    if (builder->type == OTYPE_FACTOR) {
+                    if (builder->type == OTYPE_FACTORY) {
                         if (!can_build_at_planet(playernum, governor, Stars[snum], planet)) {
                             notify(playernum,
                                    governor,
@@ -2653,7 +2666,7 @@ int can_build_at_planet(int playernum,
     return 1;
 }
 
-inf get_build_type(char *string)
+int get_build_type(char *string)
 {
     char shipc;
     int i = 0;
@@ -2673,14 +2686,14 @@ inf get_build_type(char *string)
 
 int can_build_this(int what, racetype *race, char *string)
 {
-    if (((x == STYPE_POD) || (x == STYPE_SUPERPOD)) && !race->pods) {
+    if (((what == STYPE_POD) || (what == STYPE_SUPERPOD)) && !race->pods) {
         sprintf(string, "Only Metamorphic races can build Spore Pods.\n");
 
         return 0;
     }
 
     if (!Shipdata[what][ABIL_PROGRAMMED]) {
-        sprintf(string, "This ship types has not been programmed.\n");
+        sprintf(string, "This ship type has not been programmed.\n");
 
         return 0;
     }
@@ -2689,7 +2702,7 @@ int can_build_this(int what, racetype *race, char *string)
     if ((what == OTYPE_VN) && !Vn(race)) {
         sprintf(string, "You have not discovered VN technology.\n");
 
-        return;
+        return 0;
     }
 #endif
 
@@ -2750,7 +2763,7 @@ int can_build_on_sector(int what,
         return 0;
     }
 
-    if (sector->conditions == WASTED) {
+    if (sector->condition == WASTED) {
         sprintf(string, "You can't build on wasted sectors.\n");
 
         return 0;
@@ -2902,7 +2915,7 @@ void initialize_new_ship(int playernum,
     newship->threshold[CRYSTAL] = 0;
 #endif
 
-    newship->speed = newship->max-speed;
+    newship->speed = newship->max_speed;
     newship->owner = playernum;
     newship->governor = governor;
     newship->troops = 0;
@@ -3100,10 +3113,10 @@ int create_ship_by_planet(int playernum,
     
     newship->whatorbits = LEVEL_PLAN;
     newship->whatdest = LEVEL_PLAN;
-    newship->destar = snum;
+    newship->deststar = snum;
     newship->destpnum = pnum;
     newship->storbits = snum;
-    newship->pnumornits = pnum;
+    newship->pnumorbits = pnum;
     newship->docked = 1;
     newship->cloak = Shipdata[newship->type][ABIL_CLOAK] * Cloak(race);
     newship->cloaked = 0;
@@ -3131,12 +3144,12 @@ int create_ship_by_planet(int playernum,
                 newship->special.waste.toxic = planet->conditions[TOXIC];
             }
 
-            planet->conditions[TOXIC] -= newship->special.was.toxic;
+            planet->conditions[TOXIC] -= newship->special.waste.toxic;
             sprintf(buf, " now %d%%.\n", planet->conditions[TOXIC]);
             notify(playernum, governor, buf);
         }
 
-        for (i = 0; i < INF_MAX_TARGET; ++i) {
+        for (i = 0; i < INF_MAX_TARGETS; ++i) {
             newship->inf.eff_targets[i].x = 999;
             newship->inf.fert_targets[i].x = 999;
         }
@@ -3174,7 +3187,7 @@ int create_ship_by_planet(int playernum,
 }
 
 int create_ship_by_ship(int playernum,
-                        it governor,
+                        int governor,
                         racetype *race,
                         int outside,
                         startype *star,
@@ -3235,14 +3248,14 @@ int create_ship_by_ship(int playernum,
             newship->whatdest = LEVEL_SHIP;
             newship->deststar = builder->deststar;
             newship->destpnum = builder->destpnum;
-            newship->destshipno = builder>number;
+            newship->destshipno = builder->number;
             newship->storbits = builder->storbits;
             newship->pnumorbits = builder->pnumorbits;
             newship->docked = 1;
             newship->cloak = Shipdata[newship->type][ABIL_CLOAK] * Cloak(race);
             newship->cloaked = 0;
             insert_sh_ship(newship, builder);
-            builder->mass ++ getmass(newship);
+            builder->mass += getmass(newship);
             builder->hanger += ship_size(newship);
         }
 
@@ -3364,7 +3377,7 @@ void system_cost(double *advantage, double *disadvantage, int value, int base)
 {
     double factor;
 
-    factor = (((double)value + 1.0) / (base + 1.0)) = 1.0;
+    factor = (((double)value + 1.0) / (base + 1.0)) - 1.0;
 
     if (factor >= 0.0) {
         *advantage += factor;
@@ -3619,7 +3632,7 @@ void sell(int playernum, int governor, int apcount)
             ok = 1;
         }
 
-        sh = newship(s);
+        sh = nextship(s);
         free(s);
     }
 
@@ -3779,7 +3792,7 @@ void bid(int playernum, int governor, int apcount)
     int u;
     int shipcost = 0;
     int minbid;
-    int money_owned = 0;
+    int money_owed = 0;
     int snum;
     int pnum;
     double dist;
@@ -3801,7 +3814,7 @@ void bid(int playernum, int governor, int apcount)
             if (c->owner && c->quantity) {
                 rate = (double)c->bid / (double)c->quantity;
 
-                if (s->bidder == playernum) {
+                if (c->bidder == playernum) {
                     sprintf(temp,
                             "%4.4s/%-4.4s",
                             Stars[c->star_to]->name,
@@ -3904,7 +3917,7 @@ void bid(int playernum, int governor, int apcount)
                         i,
                         c->deliver ? '*' : ' ',
                         c->quantity,
-                        Commod[(unsigned in)c->type],
+                        Commod[(unsigned int)c->type],
                         c->owner,
                         minbid,
                         c->bidder,

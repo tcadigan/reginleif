@@ -1,5 +1,7 @@
-#ifndef POWER_H_
-#define POWER_H_
+#ifndef __USER_POWER_H__
+#define __USER_POWER_H__
+
+#include "../server/races.h"
 
 void block(int, int, int);
 void power(int, int, int);

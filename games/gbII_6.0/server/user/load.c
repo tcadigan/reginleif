@@ -26,15 +26,27 @@
  *
  * $Header: /var/cvs/gbp/GB+/user/load.c,v 1.4 2007/07/06 18:09:34 gbp Exp $
  */
+#include "load.h"
 
 #include <stdlib.h>
 #include <string.h>
 
-#include "buffers.h"
-#include "power.h"
-#include "races.h"
-#include "ranks.h"
-#include "vars.h"
+#include "../server/buffers.h"
+#include "../server/files_shl.h"
+#include "../server/getplace.h"
+#include "../server/GB_server.h"
+#include "../server/misc.h"
+#include "../server/power.h"
+#include "../server/races.h"
+#include "../server/rand.h"
+#include "../server/ranks.h"
+#include "../server/shlmisc.h"
+#include "../server/vars.h"
+
+#include "fire.h"
+#include "land.h"
+#include "load.h"
+#include "move.h"
 
 extern char Dessymbols[];
 extern char *Desnames[];
@@ -75,7 +87,7 @@ extern void unload_onto_alien_sector(int,
 
 int inship(shiptype *);
 
-void load(int playernum, governor, int apcount, int mode)
+void load(int playernum, int governor, int apcount, int mode)
 {
     char commod;
     unsigned char sh = 0;
@@ -627,7 +639,7 @@ void load(int playernum, governor, int apcount, int mode)
                             notify(playernum, governor, buf);
                         } else {
                             --p->info[playernum - 1].numsectsowned;
-                            p->info[playernum - 1].mob_points -= sect_mobilization;
+                            p->info[playernum - 1].mob_points -= sect->mobilization;
                             sect->owner = 0;
                             sprintf(buf,
                                     "Sector %d,%d evacuated.\n",
@@ -915,7 +927,7 @@ void load(int playernum, governor, int apcount, int mode)
                 free(s2);
             } else {
                 if ((commod == 'c') || (commod == 'm')) {
-                    putsector(sect, p, (int)s->land_x, (int)land_y);
+                    putsector(sect, p, (int)s->land_x, (int)s->land_y);
                     free(sect);
                 }
 
@@ -930,7 +942,7 @@ void load(int playernum, governor, int apcount, int mode)
             if ((s->type == OTYPE_TRANSDEV)
                 && s->special.transport.target
                 && s->on) {
-                do_transported(race, governor, s);
+                do_transporter(race, governor, s);
             }
 
             putship(s);
@@ -1041,7 +1053,7 @@ void jettison(int playernum, int governor, int apcount)
 
                 if (amt > 0) {
                     s->popn -= amt;
-                    s->mass -= (amt & race->mass);
+                    s->mass -= (amt * race->mass);
 
                     if (amt == 1) {
                         sprintf(buf,
@@ -1059,7 +1071,7 @@ void jettison(int playernum, int governor, int apcount)
                             Ship(s),
                             s->popn);
 
-                    notify(playernum, governor, bu);
+                    notify(playernum, governor, buf);
                     mod = 1;
                 }
 
@@ -1106,7 +1118,7 @@ void jettison(int playernum, int governor, int apcount)
                     sprintf(buf, "%d destruct jettisoned.\n", amt);
                     notify(playernum, governor, buf);
 
-                    if (!max_crew(s)) {
+                    if (!((s->type == OTYPE_FACTORY) ? Shipdata[s->type][ABIL_MAXCREW] - s->troops : s->max_crew - s->troops)) {
                         sprintf(buf, "\n%s ", Ship(s));
                         notify(playernum, governor, buf);
 
@@ -1126,7 +1138,7 @@ void jettison(int playernum, int governor, int apcount)
 
                 break;
             case 'f':
-                amt = jettison_check(playernum, governor, amt (int)s->fuel);
+                amt = jettison_check(playernum, governor, amt, (int)s->fuel);
 
                 if (amt > 0) {
                     use_fuel(s, (double)amt);
@@ -1268,7 +1280,7 @@ void dump(int playernum, int governor, int apcount)
                     setbit(Stars[star]->explored, player);
                 }
 
-                for (i = 0; i < Stars[star]->numplanets, ++i) {
+                for (i = 0; i < Stars[star]->numplanets; ++i) {
                     new_info = 0;
                     getplanet(&planets[star][i], star, i);
 
@@ -1449,7 +1461,7 @@ void transfer(int playernum, int governor, int apcount)
             notify(playernum, governor, buf);
         } else {
             planet->info[playernum - 1].crystals -= give;
-            planet->into[player - 1].crystals += give;
+            planet->info[player - 1].crystals += give;
 
             sprintf(buf,
                     "%s %d crystal(s) transferred from player %d to #%d\n",
@@ -1495,7 +1507,7 @@ void transfer(int playernum, int governor, int apcount)
 
         break;
     case 'd':
-        if (give -> planet->info[playernum - 1].destruct) {
+        if (give > planet->info[playernum - 1].destruct) {
             sprintf(buf, "You don't have %d destruct on this planet.\n", give);
             notify(playernum, governor, buf);
         } else {
@@ -1659,7 +1671,7 @@ void use_fuel(shiptype *s, double amt)
 void use_destruct(shiptype *s, int amt)
 {
     s->destruct -= amt;
-    s->mass -= ((double)amt & MASS_DESTRUCT);
+    s->mass -= ((double)amt * MASS_DESTRUCT);
 }
 
 void use_resource(shiptype *s, int amt)
@@ -1709,7 +1721,7 @@ void do_transporter(racetype *race, int governor, shiptype *s)
     int playernum;
     shiptype *s2;
 
-    playernum - race->Playernum;
+    playernum = race->Playernum;
 
     if (!landed(s) && !inship(s)) {
         notify(playernum, governor, "Origin ship not landed.\n");
@@ -1807,7 +1819,7 @@ void do_transporter(racetype *race, int governor, shiptype *s)
             sprintf(bufc, "%d population\n", s->popn);
         }
 
-        s->mass -= (s->popn * Race->mass);
+        s->mass -= (s->popn * race->mass);
         s->popn -= s->popn;
     } else {
         bufc[0] = '\0';
@@ -1863,6 +1875,7 @@ void unload_onto_alien_sector(int playernum,
     double dstrength;
     int oldowner;
     int oldgov;
+    int oldpopn;
     int old2popn;
     int old3popn;
     int casualties;
@@ -1881,13 +1894,13 @@ void unload_onto_alien_sector(int playernum,
         return;
     }
 
-    ++ground_assaults[playernum - 1][sector->owner - 1][Dir[playernum - 1][governor].snum];
+    ++ground_assaults[playernum - 1][sect->owner - 1][Dir[playernum - 1][governor].snum];
 
     race = races[playernum - 1];
     alien = races[sect->owner - 1];
     /* Races find out about each other */
     alien->translate[playernum - 1] = MIN(alien->translate[playernum - 1] + 5, 100);
-    race->translate[sect->owner - 1] = MIN(race->translate[sect-owner - 1] + 5, 100);
+    race->translate[sect->owner - 1] = MIN(race->translate[sect->owner - 1] + 5, 100);
 
     oldowner = (int)sect->owner;
     oldgov = Stars[Dir[playernum - 1][governor].snum]->governor[sect->owner - 1];
@@ -1907,7 +1920,7 @@ void unload_onto_alien_sector(int playernum,
     }
 
     notify(playernum, governor, buf);
-    sprintf(buf, "Crew compliment %d civ  %d mil\n", sip->popn, ship->troops);
+    sprintf(buf, "Crew compliment %d civ  %d mil\n", ship->popn, ship->troops);
     notify(playernum, governor, buf);
 
     if (what == CIV) {
@@ -1966,7 +1979,7 @@ void unload_onto_alien_sector(int playernum,
         if (what == CIV) {
             sect->popn = people + absorbed;
         } else if (what == MIL) {
-            set->popn = absorbed;
+            sect->popn = absorbed;
             sect->troops = people;
         }
 
@@ -1987,9 +2000,9 @@ void unload_onto_alien_sector(int playernum,
 
         /* Load them back up */
         if (what == CIV) {
-            sprintf(buf, "Loading %d civ\n");
+            sprintf(buf, "Loading %d civ\n", people);
         } else {
-            sprintf(buf,"Loading %d mil\n");
+            sprintf(buf,"Loading %d mil\n", people);
         }
 
         notify(playernum, governor, buf);
@@ -2023,7 +2036,7 @@ void unload_onto_alien_sector(int playernum,
                 ship->land_y);
     } else {
         sprintf(telegram_buf,
-                "/%s/%S: %s [%d] %s assaults %s [%d] %c(%d,%d) DEFEAT\n",
+                "/%s/%s: %s [%d] %s assaults %s [%d] %c(%d,%d) DEFEAT\n",
                 Stars[Dir[playernum - 1][governor].snum]->name,
                 Stars[Dir[playernum - 1][governor].snum]->pnames[Dir[playernum - 1][governor].pnum],
                 race->name,

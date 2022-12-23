@@ -201,7 +201,7 @@
 /* Dan Dickey for XGB *** NOT SUPPORTED FULLY *** */
 
 /* ----- Error responses ----- */
-#define CSP_ERROR 9000 /* Error */
+#define CSP_ERR 9900 /* Error */
 #define CSP_ERR_TOO_MANY_ARGS 9901 /* Too many args */
 #define CSP_ERR_TOO_FEW_ARGS 9902 /* Too few args */
 #define CSP_ERR_UNKNOWN_COMMAND 9903 /* Unknown command */
