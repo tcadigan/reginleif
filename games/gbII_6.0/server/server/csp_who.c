@@ -36,6 +36,7 @@
 #include "csp.h"
 #include "csp_types.h"
 #include "debug.h"
+#include "GB_server.h"
 #include "power.h"
 #include "races.h"
 #include "ships.h"
@@ -98,7 +99,7 @@ void csp_who(int playernum, int governor)
                 }
 
                 sprintf(buf,
-                        "%c %d %s %s %ld %ld %s %d %d\n",
+                        "%c %d %s %s %ld %ld %ld %s %d %d\n",
                         CSP_CLIENT,
                         CSP_WHO_DATA,
                         r->name,

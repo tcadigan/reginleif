@@ -30,12 +30,20 @@
 #include <string.h>
 
 #include "buffers.h"
+#include "doship.h"
 #include "doturn.h"
+#include "GB_server.h"
+#include "moveplanet.h"
 #include "power.h"
 #include "races.h"
+#include "rand.h"
 #include "ships.h"
 #include "tweakables.h"
 #include "vars.h"
+
+#include "../user/build.h"
+#include "../user/order.h"
+#include "../user/tele.h"
 
 extern char *Commod[];
 extern long Shipdata[NUMSTYPES][NUMABILS];
@@ -110,7 +118,7 @@ void doOrbit(int shipno)
             }
 
             warn((int)sh->owner, (int)sh->governor, buf);
-            sprintf(buf2, "[%d,%d]", sh->owner, sh->governr);
+            sprintf(buf2, "[%d,%d]", sh->owner, sh->governor);
             strcat(buf2, buf);
             post(buf2, COMBAT);
             sh->build_cost = (int)cost(sh);
@@ -118,7 +126,7 @@ void doOrbit(int shipno)
     }
 }
 
-void doUniv(in shipno)
+void doUniv(int shipno)
 {
     shiptype *sh;
     unsigned short damage;
@@ -165,16 +173,16 @@ void doUniv(in shipno)
                     damage);
 
             kill_ship(sh->owner, sh);
-            push_telegram((int)sh->owner, (int)sh->governr, buf2);
+            push_telegram((int)sh->owner, (int)sh->governor, buf2);
         } else if (((damage > 10.0) || (sh->damage > 70.0))
                    && sh->wants_reports) {
             sprintf(buf2,
                     "Ship [#%d] headed for %s, in trouble in deep space. %d%% damage incurred.",
                     shipno,
-                    prin_ship_dest(sh->owner, sh->governr, sh),
+                    prin_ship_dest(sh->owner, sh->governor, sh),
                     damage);
 
-            push_telegram((int)sh->owner, (int)sh->governr, buf2);
+            push_telegram((int)sh->owner, (int)sh->governor, buf2);
         }
     }
 }

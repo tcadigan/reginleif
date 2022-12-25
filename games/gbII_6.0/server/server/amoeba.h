@@ -1,6 +1,8 @@
 #ifndef AMOEBA_H_
 #define AMOEBA_H_
 
+#include "ships.h"
+
 void do_amoeba(shiptype *);
 void amoeba_planet(shiptype *, planettype *);
 

@@ -57,7 +57,7 @@ void csp_DispStar(int, int, int, int, startype *, int, char *);
 void csp_DispPlanet(int, int, int, int, int, planettype *, char *, racetype *, char *);
 void csp_DispShip(int, int, placetype *, shiptype *, planettype *, int, char *);
 
-void csp_orbit(int playernum, int governor, orbitinfo *oi)
+void csp_orbit(int playernum, int governor, int unused3, int unused4, orbitinfo *oi)
 {
     int sh;
     int i;

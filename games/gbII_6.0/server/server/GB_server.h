@@ -1,6 +1,8 @@
 #ifndef GB_SERVER_H_
 #define GB_SERVER_H_
 
+#include "vars.h"
+
 int main(int, char **);
 void print_usage(char *);
 void print_version(void);
@@ -50,7 +52,7 @@ void warn(int, int, char *);
 void warn_star(int, int, int, char *);
 void notify_star(int, int, int, int, char *);
 void shut_game(void);
-void voidpoint(void);
+void voidpoint(int, int, int, int, orbitinfo *);
 int clear_all_fds(void);
 void _reset(int, int);
 void _emulate(int, int);

@@ -115,7 +115,7 @@
 #define TIME_AP 0 /* Was 1 -mfw */
 #define TOGGLE_AP 0
 #define TOXICITY_AP 1
-#define TRASFER_AP 1
+#define TRANSFER_AP 1
 #define TREASURY_AP 0
 #define UNDOCK_AP 1
 #define UNINVITE_AP 1

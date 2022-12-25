@@ -70,23 +70,31 @@
 #include "buffers.h"
 #include "config.h"
 #include "debug.h"
+#include "files_shl.h"
+#include "log.h"
+#include "max.h"
+#include "rand.h"
 #include "power.h"
 #include "races.h"
 #include "ships.h"
 #include "tweakables.h"
 #include "vars.h"
 
+#include "../user/build.h"
+#include "../user/load.h"
+#include "../user/tele.h"
+
 #ifdef USE_AMOEBA
 
 #define AMOEBA_DIVIDE 50
 #define AMOEBAS_REPRODUCE 5
-#define AMOEBA_CONVERSION_RACE 3
+#define AMOEBA_CONVERSION_RATE 3
 
 /* Max number of point amoeba heals per segment */
 #define AMOEBA_HEAL_RATE 5
 
 /* Number of popn consumed to heal one damage point */
-#define AMOEBA_HEAL_POPN
+#define AMOEBA_HEAL_POPN 10
 
 #define WAITING 0
 #define TRAVELING 1
@@ -202,7 +210,7 @@ void do_amoeba(shiptype *a)
                          * Reallocate the ship array making room for the new
                          * amoeba
                          */
-                        ships = (ship **)realloc(ships, (Num_ships + 1) * sizeof(shiptype *));
+                        ships = (shiptype **)realloc(ships, (Num_ships + 1) * sizeof(shiptype *));
 
                         /* Append the baby amoeba to the ship array */
                         ships[Num_ships] = baby;
@@ -257,7 +265,7 @@ void do_amoeba(shiptype *a)
             }
         } /* Reproduction */
 
-        if (a->special.amoeba.doing = GROWING) {
+        if (a->special.amoeba.doing == GROWING) {
             /* Should happen after a jump */
             a->max_fuel *= 2;
             a->max_crew *= 2;
@@ -274,7 +282,7 @@ void do_amoeba(shiptype *a)
             int heal = 0;
 
             sprintf(buf, "do_amoeba(): Has %d damage.\n", a->damage);
-            debug(LEVEL_GENERAL_, buf);
+            debug(LEVEL_GENERAL, buf);
             heal = MIN(a->damage, AMOEBA_HEAL_RATE);
 
             if ((heal * AMOEBA_HEAL_POPN) > a->popn) {
@@ -317,7 +325,7 @@ void do_amoeba(shiptype *a)
             a->mass += (p2f * MASS_FUEL);
 
             sprintf(buf,
-                    "do_amoeba(): Converting %d population to $d fuel.\n",
+                    "do_amoeba(): Converting %d population to %d fuel.\n",
                     popnused,
                     p2f);
 
@@ -406,7 +414,7 @@ void do_amoeba(shiptype *a)
             } else {
                 a->whatdest = LEVEL_PLAN;
                 a->deststar = pug;
-                a->destnum = bog;
+                a->destpnum = bog;
                 a->docked = 0;
                 a->speed = Shipdata[OTYPE_AMOEBA][ABIL_SPEED];
                 /* Flag that we have been set on course */
@@ -420,9 +428,9 @@ void do_amoeba(shiptype *a)
             || (a->special.amoeba.doing == WAITING)) {
             a->cloak = 1;
         } else if (a->whatorbits == LEVEL_UNIV) {
-            if (a->hyperdrive.has && a->mounted) {
-                a->hyperdrive.on = 1;
-                a->hyperdrive.ready = 1;
+            if (a->hyper_drive.has && a->mounted) {
+                a->hyper_drive.on = 1;
+                a->hyper_drive.ready = 1;
             }
 
             /* A chance that the amoeba will grow in deep space */
@@ -472,7 +480,7 @@ void amoeba_planet(shiptype *a, planettype *planet)
         && (a->pnumorbits == a->destpnum)) {
         /* We're here */
         sprintf(buf, "amoeba_planet(): We've arrived.\n");
-        debug(LEVEL_GENERAL, bug);
+        debug(LEVEL_GENERAL, buf);
 
         /* Find the heaviest populated sector */
         for (px = 0; px < planet->Maxx; ++px) {
@@ -527,10 +535,10 @@ void amoeba_planet(shiptype *a, planettype *planet)
             rcv_popn(a, max, 1);
             a->special.amoeba.doing = JUST_GRAZED;
             putsector(s, planet, atx, aty);
-            putplanet(planet, (int)s->storbits, (int)a->pnumorbits);
+            putplanet(planet, (int)a->storbits, (int)a->pnumorbits);
         } else {
             sprintf(buf, "amoeba_planet(): Empty planet, move on.\n");
-            debug(LEVEL_GENERAL, bug);
+            debug(LEVEL_GENERAL, buf);
 
             /*
              * This planet is empty, set special.amoeba.doing off so we can move

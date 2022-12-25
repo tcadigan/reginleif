@@ -606,7 +606,7 @@ startype *Makestar(FILE *planetdata, FILE *sectordata, FILE *outputtxt)
         planet = Makeplanet(dist, Star->temperature, type);
         planet.xpos = xpos;
         planet.ypos = ypos;
-        planet.total_resource = 0;
+        planet.total_resources = 0;
         ++Numtypes[type];
 
         if (printplaninfo) {
@@ -688,7 +688,7 @@ startype *Makestar(FILE *planetdata, FILE *sectordata, FILE *outputtxt)
         for (y = 0; y < planet.Maxy; ++y) {
             for(x = 0; x < planet.Maxx; ++x) {
                 char d = Sector(planet, x, y).condition;
-                planet.total_resource += Sector(planet, x, y).resource;
+                planet.total_resources += Sector(planet, x, y).resource;
                 Resource[type] += Sector(planet, x, y).resource;
                 ++Numsects[type][(unsigned int)d];
                 Fertsects[type][(unsigned int)d] += Sector(planet, x, y).fert;

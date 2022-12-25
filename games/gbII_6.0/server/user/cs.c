@@ -117,7 +117,7 @@ void do_prompt(int playernum, int governor)
     shiptype *s2;
 
     if (client_can_understand(playernum, governor, CSP_SCOPE_COMMAND)) {
-        CSP_prompt(playernum, governor);
+        CSP_prompt(playernum, governor, -1, -1, NULL);
     } else {
         if (Dir[playernum - 1][governor].level == LEVEL_UNIV) {
             sprintf(Dir[playernum - 1][governor].prompt,

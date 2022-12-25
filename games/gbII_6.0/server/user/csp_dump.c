@@ -66,7 +66,7 @@ racetype *race;
 
 void csp_ship_report(int, int, int, unsigned char[], int);
 
-void CSP_sectors(int playernum, int governor)
+void CSP_sectors(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     int star;
     int i;
@@ -91,7 +91,7 @@ void CSP_sectors(int playernum, int governor)
     notify(playernum, governor, buf);
 }
 
-void CSP_star_dump(int playernum, int governor)
+void CSP_star_dump(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     placetype where;
     struct star *star;
@@ -210,7 +210,7 @@ void CSP_star_dump(int playernum, int governor)
     return;
 }
 
-void csp_planet_dump(int playernum, int governor)
+void csp_planet_dump(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     planettype *p;
     placetype where;
@@ -373,7 +373,7 @@ void csp_planet_dump(int playernum, int governor)
     free(p);
 }
 
-void CSP_ship_list(int playernum, int governor)
+void CSP_ship_list(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     shiptype *s;
     int starnum;
@@ -426,7 +426,7 @@ void CSP_ship_list(int playernum, int governor)
     notify(playernum, governor, buf);
 }
 
-void csp_ship_dump(int playernum, int governor)
+void csp_ship_dump(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     int shipno;
     int shn;
@@ -1114,7 +1114,7 @@ void csp_ship_report(int playernum,
     }
 }
 
-void csp_univ_dump(int playernum, int governor)
+void csp_univ_dump(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     int i;
     double dist;

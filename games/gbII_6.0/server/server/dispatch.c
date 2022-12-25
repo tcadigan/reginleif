@@ -49,6 +49,8 @@
 
 #include "buffers.h"
 #include "files.h"
+#include "GB_server.h"
+#include "log.h"
 #include "power.h"
 #include "races.h"
 #include "ranks.h"
@@ -70,7 +72,7 @@ int count_dispatch(int playernum, int governor)
         return -1;
     }
 
-    c = getc(f);
+    char c = getc(f);
 
     while (c != EOF) {
         if (c == '\n') {
@@ -110,7 +112,7 @@ int open_dispatch(int playernum, int governor, mdbtype ***mdb)
         return -1;
     }
 
-    *mdb = (mdb **)malloc(count_dispatch(playernum, governor) * sizeof(mdbtype *));
+    *mdb = (mdbtype **)malloc(count_dispatch(playernum, governor) * sizeof(mdbtype *));
     hdb = *mdb;
 
     while (fgets(mbuf, sizeof(mbuf), f)) {
@@ -128,7 +130,7 @@ int open_dispatch(int playernum, int governor, mdbtype ***mdb)
 
                 if (s) {
                     ++s;
-                    data = atoi(s);
+                    date = atoi(s);
 
                     s = strchr(s, ':');
 
@@ -400,7 +402,7 @@ void send_dispatch(int fromrace,
 }
 
 void send_race_dispatch(int fromrace,
-                        int fromgoc,
+                        int fromgov,
                         int torace,
                         int who,
                         int what,
@@ -428,10 +430,10 @@ void delete_dispatch(int playernum, int governor, int apcount)
     if (argn != 2) {
         notify(playernum, governor, "Incorrect usage, see \'help\'\n");
 
-        reutrn;
+        return;
     }
 
-    canit = atoi(args[i]);
+    canit = atoi(args[1]);
     msgn = open_dispatch(playernum, governor, &mdb);
 
     if (msgn < 0) {
@@ -508,7 +510,7 @@ void purge_dispatch(int playernum, int governor, int apcount)
         }
     }
 
-    flcose(f);
+    fclose(f);
 
     /* Free memory allocated by open_dispatch() */
     for (i = 0; i < msgn; ++i) {
@@ -543,9 +545,9 @@ void check_dispatch(int playernum, int governor)
 
     if (msgn > 0) {
         if (new == 1) {
-            sprintf(notice, ", %d is new");
+            sprintf(notice, ", %d is new", new);
         } else {
-            sprintf(notice, ", %d are new");
+            sprintf(notice, ", %d are new", new);
         }
 
         char *plural;

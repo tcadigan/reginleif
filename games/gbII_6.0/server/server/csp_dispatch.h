@@ -41,12 +41,12 @@
 #include "../user/survey.h"
 #include "../user/zoom.h"
 
-extern void voidpoint(void);
+extern void voidpoint(int, int, int, int, orbitinfo *);
 
 /* For binary search */
 typedef struct command_struct {
     int command;
-    void (*func) ();
+    void (*func) (int, int, int, int, orbitinfo *);
     int cnt;
 } CSP_commands;
 

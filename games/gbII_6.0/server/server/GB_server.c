@@ -184,7 +184,7 @@ void warn(int, int, char *);
 void warn_star(int, int, int, char *);
 void notify_star(int, int, int, int, char *);
 void shut_game(void);
-void voidpoint(void);
+void voidpoint(int, int, int, int);
 int clear_all_fds(void);
 void _reset(int, int);
 void _emulate(int, int);
@@ -3346,7 +3346,7 @@ void shut_game()
     shutdown_flag = TRUE;
 }
 
-void voidpoint()
+void voidpoint(int unused1, int unused2, int unused3, int unused4)
 {
 }
 

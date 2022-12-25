@@ -68,7 +68,7 @@ extern struct sectinfo Sectinfo[MAX_X][MAX_Y];
 void do_turn(int);
 int APadd(int, int, racetype *);
 int governed(racetype *);
-void fix_stability(racetype *);
+void fix_stability(startype *);
 void do_reset(int);
 void handle_victory(void);
 void make_discoveries(racetype *);

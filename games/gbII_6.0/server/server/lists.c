@@ -327,5 +327,5 @@ void SortShips(void)
         ShipVector[i] = i;
     }
 
-    qsort(ShipVector, NUMSTYPES, sizeof(inf), ShipCompare);
+    qsort(ShipVector, NUMSTYPES, sizeof(int), ShipCompare);
 }

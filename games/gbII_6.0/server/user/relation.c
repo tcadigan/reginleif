@@ -42,11 +42,11 @@
 
 extern char *Desnames[];
 
-extern void relation(int, int, int);
+extern void relation(int, int, int, int, orbitinfo *);
 extern void csp_relation(int, int);
 extern int isallied(racetype *, int, int, int);
 
-void relation(int playernum, int governor, int apcount)
+void relation(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int numraces;
     int p;

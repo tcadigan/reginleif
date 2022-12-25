@@ -161,7 +161,7 @@ void create_victory_list(struct vic vic[MAXPLAYERS])
 {
     racetype *vic_races[MAXPLAYERS];
     int i;
-    int (*func)();
+    int (*func)(struct vic *, struct vic *);
 
     for (i = 1; i <= Num_races; ++i) {
         vic_races[i - 1] = races[i - 1];

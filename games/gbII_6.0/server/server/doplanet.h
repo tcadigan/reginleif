@@ -1,6 +1,9 @@
 #ifndef DOPLANET_H_
 #define DOPLANET_H_
 
+#include "ships.h"
+#include "vars.h"
+
 int doplanet(int, planettype *, int);
 int moveship_onplanet(shiptype *, planettype *);
 void terraform(shiptype *, planettype *);

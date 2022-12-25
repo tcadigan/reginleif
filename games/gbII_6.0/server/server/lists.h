@@ -1,6 +1,8 @@
 #ifndef LISTS_H_
 #define LISTS_H_
 
+#include "ships.h"
+
 void insert_sh_univ(struct stardata *, shiptype *);
 void insert_sh_star(startype *, shiptype *);
 void insert_sh_plan(planettype *, shiptype *);

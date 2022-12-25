@@ -390,7 +390,7 @@
 #define GASGIANT_POINTS int_rand(8, 20)
 #define WATER_POINTS int_rand(2, 3)
 #define FOREST_POINTS int_rand(2, 3)
-#define DESERT_POINTS in_rand(2, 3)
+#define DESERT_POINTS int_rand(2, 3)
 
 /* Numbers used for VP's... */
 #define VP_EARTH 5

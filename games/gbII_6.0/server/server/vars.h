@@ -428,7 +428,7 @@ extern unsigned long prod_fuel[MAXPLAYERS];
 extern unsigned long prod_destruct[MAXPLAYERS];
 extern unsigned long prod_crystals[MAXPLAYERS];
 extern unsigned long prod_money[MAXPLAYERS];
-extern unsigned long tot_captures;
+extern unsigned long tot_captured;
 extern unsigned long prod_mob;
 extern unsigned long avg_mob[MAXPLAYERS];
 extern unsigned char sects_gained[MAXPLAYERS];

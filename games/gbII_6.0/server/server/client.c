@@ -46,6 +46,8 @@
 #include "csp_dispatch.h"
 #include "csp_types.h"
 #include "debug.h"
+#include "files_shl.h"
+#include "GB_server.h"
 #include "power.h"
 #include "races.h"
 #include "ships.h"
@@ -53,17 +55,17 @@
 
 /* Prototypes */
 void CSP_process_command(int, int);
-void CSP_client_on(int, int);
-void CSP_client_off(int, int);
-void CSP_client_toggle(int, int);
-void CSP_client_version(int, int);
+void CSP_client_on(int, int, int, int, orbitinfo *);
+void CSP_client_off(int, int, int, int, orbitinfo *);
+void CSP_client_toggle(int, int, int, int, orbitinfo *);
+void CSP_client_version(int, int, int, int, orbitinfo *);
 /* void CSP_range(int, int); */
-CSP_Commands *CSP_client_search(int);
-CSP_Commands *CSP_server_search(int);
+CSP_commands *CSP_client_search(int);
+CSP_commands *CSP_server_search(int);
 int client_can_understand(int, int, int);
 void stripargs(int);
 
-void CSP_knowledge(int playernum, int governor)
+void CSP_knowledge(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     if (argn < 2) {
         sprintf(buf, "%c %d %d\n", CSP_CLIENT, CSP_ERR, CSP_ERR_TOO_FEW_ARGS);
@@ -83,10 +85,7 @@ void CSP_process_command2(int playernum, int governor)
 {
     int command;
     /* int ucmd; */
-    racetype *r;
-    CSP_Commands *handler;
-
-    r = races[playernum - 1];
+    CSP_commands *handler;
 
     if (argn < 2) {
         sprintf(buf, "%c %d %d\n", CSP_CLIENT, CSP_ERR, CSP_ERR_TOO_FEW_ARGS);
@@ -95,7 +94,9 @@ void CSP_process_command2(int playernum, int governor)
         return;
     }
 
-    handler = (CSP_Commands *)CSP_client_search(command);
+    command = atoi(args[1]);
+
+    handler = (CSP_commands *)CSP_client_search(command);
 
     if (handler == NULL) {
         /* Error log here */
@@ -107,15 +108,15 @@ void CSP_process_command2(int playernum, int governor)
     }
 
     if (handler->cnt) {
-        handler->func(playernum, governor, handler->cnt);
+        handler->func(playernum, governor, handler->cnt, -1, NULL);
     } else {
-        handler->func(playernum, governor);
+        handler->func(playernum, governor, -1, -1, NULL);
     }
 
     return; /* TRUE */
 }
 
-CSP_Commands *CSP_server_search(int cnum)
+CSP_commands *CSP_server_search(int cnum)
 {
     int bottom = 0;
     int top = (sizeof(csp_server_commands) / sizeof(CSP_commands)) - 1;
@@ -138,7 +139,7 @@ CSP_Commands *CSP_server_search(int cnum)
     return NULL; /* Fail */
 }
 
-CSP_Commands * CSP_client_search(int cnum)
+CSP_commands * CSP_client_search(int cnum)
 {
     int bottom = 0;
     int top = (sizeof(csp_client_commands) / sizeof(CSP_commands)) - 1;
@@ -147,7 +148,7 @@ CSP_Commands * CSP_client_search(int cnum)
 
     while (bottom <= top) {
         mid = bottom + ((top - bottom) / 2);
-        value = cnum - csp_client_commands[mids].command;
+        value = cnum - csp_client_commands[mid].command;
 
         if (value == 0) {
             return &csp_client_commands[mid];
@@ -165,7 +166,7 @@ void CSP_server_qsort()
 {
     qsort(csp_server_commands,
           sizeof(csp_server_commands) / sizeof(CSP_commands),
-          sizeof(CSP_Commands),
+          sizeof(CSP_commands),
           qsort_csp);
 }
 
@@ -173,13 +174,13 @@ void CSP_client_qsort()
 {
     qsort(csp_client_commands,
           sizeof(csp_client_commands) / sizeof(CSP_commands),
-          sizeof(CSP_Commands),
+          sizeof(CSP_commands),
           qsort_csp);
 }
 
 int qsort_csp(void const *a, void const *b)
 {
-    return (((CSP_Commands *)a)->command - ((CSP_Commands *)b)->command);
+    return (((CSP_commands *)a)->command - ((CSP_commands *)b)->command);
 }
 
 /* CSP_send_knowledge */
@@ -211,7 +212,7 @@ void CSP_receive_knowledge(int playernum, int governor)
             memset(des[i].command_bits, 0, sizeof(des[i].command_bits));
 
             for (j = 2; j < argn; ++j) {
-                cmd = atoi(argv[j]);
+                cmd = atoi(args[j]);
 
                 if (cmd < (sizeof(des[i].command_bits) * NBBY)) {
                     if (cmd <= CSP_MAX_SERVER_COMMAND) {
@@ -282,7 +283,6 @@ void CSP_developer(int playernum, int governor)
     racetype *q;
     char *racequery;
     int i;
-    int userdescriptor;
     int desc;
     int gov;
     int bits;
@@ -328,10 +328,7 @@ void CSP_developer(int playernum, int governor)
 
                     for (desc = 0; desc <= MAXDESCRIPTORS; ++desc) {
                         if (des[desc].Playernum == q->Playernum) {
-                            userdescriptor = desc; /* Save for later */
-
-
-                            for (bits = 0; bits < (sizeof(des[dec].commands_bits) * NBBY); ++bits) {
+                            for (bits = 0; bits < (sizeof(des[desc].command_bits) * NBBY); ++bits) {
                                 if (isset(des[desc].command_bits, bits)) {
                                     sprintf(temp, "%d ", bits);
                                     strcat(buf, temp);
@@ -358,7 +355,7 @@ void CSP_developer(int playernum, int governor)
  *
  * INTERNAL ** Called by CSP_client_toggle()
  */
-void CSP_client_on(int playernum, int governor)
+void CSP_client_on(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     int i;
 
@@ -389,7 +386,7 @@ void CSP_client_on(int playernum, int governor)
  *
  * INTERNAL ** Called by CSP_client_toggle()
  */
-void CSP_client_off(int playernum, int governor)
+void CSP_client_off(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     int i;
 
@@ -415,24 +412,24 @@ void CSP_client_off(int playernum, int governor)
  * Called from the toggle command, and aslo when a CSP_CLIENT_LOGIN was received
  * from CSP_process_command
  */
-void CSP_client_toggle(int playernum, int governor, int startup)
+void CSP_client_toggle(int playernum, int governor, int startup, int unused4, orbitinfo *unused5)
 {
     racetype *r;
 
-    r = races[Playernum - 1];
+    r = races[playernum - 1];
 
     if (startup) {
         /* Forced via a CSP_CLIENT_LOGIN command */
         r->governor[governor].CSP_client_info.csp_user = 1;
-        CSP_client_on(playernum, governor);
-        csp_send_knowledge(playernum, governor);
+        CSP_client_on(playernum, governor, -1, -1, NULL);
+        CSP_send_knowledge(playernum, governor);
     } else {
         if (r->governor[governor].CSP_client_info.csp_user == 1) {
             r->governor[governor].CSP_client_info.csp_user = 0;
-            CSP_client_off(playernum, governor);
+            CSP_client_off(playernum, governor, -1, -1, NULL);
         } else {
             r->governor[governor].CSP_client_info.csp_user = 1;
-            CSP_client_on(playernum, governor);
+            CSP_client_on(playernum, governor, -1, -1, NULL);
         }
     }
 }
@@ -442,7 +439,7 @@ void CSP_client_toggle(int playernum, int governor, int startup)
  *
  * Prints out the server version information, when requested from client
  */
-void CSP_client_version(int playernum, int governor)
+void CSP_client_version(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     sprintf(buf,
             "%c %d Server Version: %s\n",
@@ -550,7 +547,7 @@ void stripargs(int count)
 
     argn -= count;
 
-    for (i = i < MAXARGS; ++i) {
+    for (i = 0; i < MAXARGS; ++i) {
         targs[i][0] = '\0';
     }
 
@@ -568,7 +565,7 @@ void stripargs(int count)
  *
  * jpd Thu Oct 14 23:14:01 EST 1993
  */
-void CSP_prompt(int playernum, int governor)
+void CSP_prompt(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     char header[10];
     int ships[CSPD_MAXSHIP_SCOPE];
@@ -618,7 +615,7 @@ void CSP_prompt(int playernum, int governor)
         planet = CSP_print_planet_number(playernum,
                                          governor,
                                          Stars[Dir[playernum - 1][governor].snum]->numplanets,
-                                         Stars[Dir[playernum - 1][governor].snum]->pnames[Dir[Playernum - 1][governor].pnum]);
+                                         Stars[Dir[playernum - 1][governor].snum]->pnames[Dir[playernum - 1][governor].pnum]);
 
         sprintf(Dir[playernum - 1][governor].prompt,
                 "%s %d %d %d %d %s %d %s\n",
@@ -627,9 +624,9 @@ void CSP_prompt(int playernum, int governor)
                 CSPD_NOSHIP,
                 Stars[Dir[playernum - 1][governor].snum]->AP[playernum - 1],
                 star,
-                Stars[dir[playernum - 1][governor].snum]->name,
+                Stars[Dir[playernum - 1][governor].snum]->name,
                 planet + 1,
-                Stars[dir[playernum - 1][governor].snum]->pnames[Dir[playernum - 1][governor].pnum]);
+                Stars[Dir[playernum - 1][governor].snum]->pnames[Dir[playernum - 1][governor].pnum]);
 
         break;
     case LEVEL_SHIP:
@@ -665,7 +662,7 @@ void CSP_prompt(int playernum, int governor)
             break;
         case LEVEL_PLAN:
             star = CSP_print_star_number(playernum,
-                                         governo,
+                                         governor,
                                          Sdata.numstars,
                                          Stars[Dir[playernum - 1][governor].snum]->name);
 
@@ -684,7 +681,7 @@ void CSP_prompt(int playernum, int governor)
                     Stars[s->storbits]->name,
                     planet + 1,
                     Stars[Dir[playernum - 1][governor].snum]->pnames[Dir[playernum - 1][governor].pnum],
-                    dir[playernum - 1][governor].shipno);
+                    Dir[playernum - 1][governor].shipno);
 
             break;
         case LEVEL_SHIP:
@@ -713,7 +710,7 @@ void CSP_prompt(int playernum, int governor)
                         header,
                         CSPD_STAR,
                         CSPD_NOSHIP + 2,
-                        Stars[Dir[Playernum - 1][governor].snum]->AP[Playernum - 1],
+                        Stars[Dir[playernum - 1][governor].snum]->AP[playernum - 1],
                         star,
                         Stars[Dir[playernum - 1][governor].snum]->name,
                         Dir[playernum - 1][governor].shipno,
@@ -736,11 +733,11 @@ void CSP_prompt(int playernum, int governor)
                         header,
                         CSPD_PLAN,
                         CSPD_NOSHIP + 2,
-                        Stars[s->storibts]->AP[playernum - 1],
+                        Stars[s->storbits]->AP[playernum - 1],
                         star,
                         Stars[s->storbits]->name,
                         planet + 1,
-                        Stars[Dir[Playernum - 1][governor].snum]->pnames[Dir[playernum - 1][governor].pnum],
+                        Stars[Dir[playernum - 1][governor].snum]->pnames[Dir[playernum - 1][governor].pnum],
                         Dir[playernum - 1][governor].shipno,
                         s->destshipno);
 
@@ -755,7 +752,7 @@ void CSP_prompt(int playernum, int governor)
                 j = 2;
 
                 /* 0 is the ship we targets */
-                ships[0] = dir[playernum - 1][governor].shipno;
+                ships[0] = Dir[playernum - 1][governor].shipno;
                 /* 1 is its immediate parent */
                 ships[1] = s->destshipno;
 
@@ -805,7 +802,7 @@ void CSP_prompt(int playernum, int governor)
                     planet = CSP_print_planet_number(playernum,
                                                      governor,
                                                      Stars[Dir[playernum - 1][governor].snum]->numplanets,
-                                                     Stars[dir[playernum - 1][governor].snum]->pnames[Dir[playernum - 1][governor].pnum]);
+                                                     Stars[Dir[playernum - 1][governor].snum]->pnames[Dir[playernum - 1][governor].pnum]);
 
                     sprintf(Dir[playernum - 1][governor].prompt,
                             "%s %d %d %d %d %s %d %s",
@@ -816,10 +813,10 @@ void CSP_prompt(int playernum, int governor)
                             star,
                             Stars[s->storbits]->name,
                             planet + 1,
-                            Stars[Dir[Playernum - 1][governor].snum]->pnames[Dir[playernum - 1][governor].pnum]);
+                            Stars[Dir[playernum - 1][governor].snum]->pnames[Dir[playernum - 1][governor].pnum]);
 
                     for (i = 0; i < j; ++i) {
-                        psrintf(buf, "%d ", ships[i]);
+                        sprintf(buf, "%d ", ships[i]);
                         strcat(Dir[playernum - 1][governor].prompt, buf);
                     }
 
@@ -836,7 +833,7 @@ void CSP_prompt(int playernum, int governor)
 
                     for (i = 0; i < j; ++i) {
                         sprintf(buf, "%d ", ships[i]);
-                        strcat(Dir[Playernum - 1][governor].prompt, buf);
+                        strcat(Dir[playernum - 1][governor].prompt, buf);
                     }
 
                     strcat(Dir[playernum - 1][governor].prompt, "\n");
@@ -864,7 +861,7 @@ int CSP_print_planet_number(int playernum,
 {
     int i;
 
-    for (i = 0; i < starcount; ++i) {
+    for (i = 0; i < planetcount; ++i) {
         if (strcmp(wh, Stars[Dir[playernum - 1][governor].snum]->pnames[i]) == 0) {
             return i;
         }

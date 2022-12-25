@@ -54,7 +54,7 @@
 extern char *Desnames[];
 
 extern void whois(int, int, int);
-extern void profile(int, int, int);
+extern void profile(int, int, int, int, orbitinfo *);
 extern char *Estimate_f(double, racetype *, int);
 extern char *Estimate_i(int, racetype *, int);
 extern int round_perc(int, racetype *, int);
@@ -145,7 +145,7 @@ void treasury(int playernum, int governor)
     notify(playernum, governor, buf);
 }
 
-void profile(int playernum, int governor, int apcount)
+void profile(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int p;
     racetype *r;

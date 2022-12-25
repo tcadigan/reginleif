@@ -58,7 +58,7 @@ int get_num_updates(void)
         fclose(sfile);
     }
 
-    if (nupdates_done = 9999) {
+    if (nupdates_done == 9999) {
         return -1;
     } else {
         return nupdates_done;

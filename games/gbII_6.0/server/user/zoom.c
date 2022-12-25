@@ -96,7 +96,7 @@ void zoom(int playernum, int governor)
     notify(playernum, governor, buf);
 }
 
-void csp_zoom(int playernum, int governor)
+void csp_zoom(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     double num;
     double denom;

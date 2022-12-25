@@ -76,7 +76,7 @@ static char const *Tox[] = {
     "???"
 };
 
-void survey(int playernum, int governor, int apcount, int mode)
+void survey(int playernum, int governor, int apcount, int mode, orbitinfo *unused5)
 {
     int lowx;
     int hix;

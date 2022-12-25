@@ -268,7 +268,7 @@ int loginfo(int Where, ...)
     check_logsize(logf); /* Make sure we don't hog space */
     write(logf, buf1, strlen(buf1));
     close(logf);
-    errnor = 0;
+    errno = 0;
     va_end(list);
 
     return 1;

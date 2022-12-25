@@ -1,6 +1,9 @@
 #ifndef MISC_H_
 #define MISC_H_
 
+#include "races.h"
+#include "ships.h"
+
 double logscale(int);
 void adjust_morale(racetype *, racetype *, int);
 void load_star_data(void);

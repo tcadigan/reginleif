@@ -125,7 +125,7 @@ void toggle(int playernum, int governor, int apcount)
                 &race->governor[governor].toggle.compat,
                 "compatibility");
         } else if (match(args[1], "client")) {
-            CSP_client_toggle(playernum, governor, 0);
+            CSP_client_toggle(playernum, governor, 0, -1, NULL);
             notify(playernum, governor, "client toggled\n");
         } else {
             sprintf(buf, "No such option \'%s\'\n", args[1]);

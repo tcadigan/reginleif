@@ -370,7 +370,7 @@ void Moveship(shiptype *s, int mode, int send_messages, int checking_fuel)
                 sprintf(telegram_buf,
                         "%s at %s lost sight of destination ship #%d.",
                         Ship(s),
-                        print_ship_orbits(s),
+                        prin_ship_orbits(s),
                         s->destshipno);
 
                 if (send_messages) {

@@ -85,7 +85,7 @@
 #define STYPE_SUPERPOD 46
 #define OTYPE_INF 47
 #define OTYPE_SETI 48
-#define STYPE_FRIDATE 49
+#define STYPE_FRIGATE 49
 #define OTYPE_REFINERY 50
 
 #ifdef USE_VN

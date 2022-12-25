@@ -34,10 +34,13 @@
 #include "dosector.h"
 
 #include <math.h>
+#include <stdlib.h>
 
 #include "doturn.h"
+#include "max.h"
 #include "power.h"
 #include "races.h"
+#include "rand.h"
 #include "ships.h"
 #include "vars.h"
 
@@ -81,7 +84,7 @@ void produce(startype *star,  planettype *planet, sectortype *s)
 
         /* Added this from treehouse -mfw */
         if (s->resource == 0) {
-            s->resource == TRICKLE_RESOURCES;
+            s->resource = TRICKLE_RESOURCES;
         }
 
         if (s->condition == GAS) {
@@ -150,7 +153,7 @@ void produce(startype *star,  planettype *planet, sectortype *s)
         plate(s);
     }
 
-    if ((s->conditions != WASTED) && race->fertilize && (s->fert < 100)) {
+    if ((s->condition != WASTED) && race->fertilize && (s->fert < 100)) {
         if (int_rand(0, 100) < race->fertilize) {
             s->fert += 1;
         }
@@ -337,8 +340,10 @@ void explore(planettype *planet, sectortype *s, int x, int y, int p)
 
     /* Explore sectors surrounding sectors currently explored. */
     if (Sectinfo[x][y].explored) {
-        Sectinfo[mod(x - 1, planet->Maxx, d)][y].explored = p;
-        Sectinfo[mod(x + 1, planet->Maxx, d)][y].explored = p;
+        d = (x - 1) % planet->Maxx;
+        Sectinfo[abs(d)][y].explored = p;
+        d = (x + 1) % planet->Maxx;
+        Sectinfo[abs(d)][y].explored = p;
 
         if (y == 0) {
             Sectinfo[x][1].explored = p;

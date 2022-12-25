@@ -27,15 +27,63 @@
  */
 
 #include "apcosts.h"
+#include "client.h"
+#include "dispatch.h"
+#include "GB_server.h"
+#include "misc.h"
+#include "shlmisc.h"
+#include "vars.h"
+#include "vn.h"
 
-extern void voidpoint(void);
+#include "../user/analysis.h"
+#include "../user/autoreport.h"
+#include "../user/bug.h"
+#include "../user/build.h"
+#include "../user/capital.h"
+#include "../user/capture.h"
+#include "../user/chan.h"
+#include "../user/cs.h"
+#include "../user/csp_dump.h"
+#include "../user/declare.h"
+#include "../user/dissolve.h"
+#include "../user/dock.h"
+#include "../user/enslave.h"
+#include "../user/examine.h"
+#include "../user/explore.h"
+#include "../user/fire.h"
+#include "../user/fuel.h"
+#include "../user/land.h"
+#include "../user/launch.h"
+#include "../user/load.h"
+#include "../user/map.h"
+#include "../user/mobiliz.h"
+#include "../user/move.h"
+#include "../user/name.h"
+#include "../user/orbit.h"
+#include "../user/order.h"
+#include "../user/prof.h"
+#include "../user/relation.h"
+#include "../user/reserve.h"
+#include "../user/rst.h"
+#include "../user/sche.h"
+#include "../user/survey.h"
+#include "../user/tech.h"
+#include "../user/tele.h"
+#include "../user/togg.h"
+#include "../user/toxi.h"
+#include "../user/user_fleet.h"
+#include "../user/user_power.h"
+#include "../user/vict.h"
+#include "../user/zoom.h"
+
+extern void voidpoint(int, int, int, int, orbitinfo *);
 
 /*
  * For binary search
  */
 typedef struct command_struct {
     const char *name;
-    void (*func)();
+    void (*func)(int, int, int, int, orbitinfo *);
     int god;
     int guest;
     int rank;
@@ -59,7 +107,7 @@ static Command command_list[] = {
     {        "@boot",       boot_user, 1, 0,  NOVICE,                0, 0, 0, 0},
     {       "@close",      close_game, 1, 0,  NOVICE,                0, 0, 0, 0},
     {       "@debug",        setdebug, 1, 0,  NOVICE,                0, 0, 0, 0},
-    {       "@dinfo",   CSP_developer, 0, 1, CAPTAIN,            DINFO, 0, 0, 0},
+    {       "@dinfo",   CSP_developer, 0, 1, CAPTAIN,         DINFO_AP, 0, 0, 0},
     {     "@emulate",        _emulate, 1, 0,  NOVICE,                0, 0, 0, 0},
     {         "@fix",             fix, 1, 0,  NOVICE,                0, 0, 0, 0},
     {   "@freeships",       _freeship, 1, 0,  NOVICE,                0, 0, 0, 0},
@@ -69,7 +117,7 @@ static Command command_list[] = {
     {       "@purge",           purge, 1, 0,  NOVICE,                0, 0, 0, 0},
     {       "@query",       CSP_query, 1, 0,  NOVICE,                0, 0, 0, 0},
     {       "@reset",          _reset, 1, 0,  NOVICE,                0, 0, 0, 0},
-    {    "@schedule",      _sechedule, 1, 0,  NOVICE,                0, 0, 0, 0},
+    {    "@schedule",       _schedule, 1, 0,  NOVICE,                0, 0, 0, 0},
     {     "@segment",      do_segment, 1, 0,  NOVICE,                0, 1, 1, 0},
     {    "@shutdown",       shut_game, 1, 0,  NOVICE,                0, 0, 0, 0},
     {     "@suspend",         suspend, 1, 0,  NOVICE,                0, 0, 0, 0},
@@ -146,8 +194,8 @@ static Command command_list[] = {
     {      "promote",       governors, 0, 0, GENERAL,       PROMOTE_AP, 0, 0, 0},
     {        "purge",  purge_messages, 0, 0,  NOVICE,         PURGE_AP, 0, 0, 0},
     {         "read",   read_messages, 0, 0,  NOVICE,          READ_AP, 0, 0, 0},
-    {     "relation",        relation, 0, 0, NOVICES,      RELATION_AP, 0, 0, 0},
-    {       "repair",          repair, 0, 0, CAPTAIN,        REPARI_AP, 0, 0, 0},
+    {     "relation",        relation, 0, 0,  NOVICE,      RELATION_AP, 0, 0, 0},
+    {       "repair",          repair, 0, 0, CAPTAIN,        REPAIR_AP, 0, 0, 0},
     {       "report",             rst, 0, 0, CAPTAIN,        REPORT_AP, 1, 0, 0},
     {      "reserve",         reserve, 0, 0, CAPTAIN,       RESERVE_AP, 1, 1, 0},
     {       "revoke",       governors, 0, 0, GENERAL,        REVOKE_AP, 0, 0, 0},
@@ -170,7 +218,7 @@ static Command command_list[] = {
     {         "time",         GB_time, 0, 0,  NOVICE,          TIME_AP, 0, 0, 0},
     {       "toggle",          toggle, 0, 0,  NOVICE,        TOGGLE_AP, 0, 0, 0},
     {     "toxicity",        toxicity, 0, 0, CAPTAIN,      TOXICITY_AP, 0, 0, 0},
-    {     "transfer",        transfer, 0, 1, CAPTAIN,       TRANSER_AP, 0, 0, 0},
+    {     "transfer",        transfer, 0, 1, CAPTAIN,      TRANSFER_AP, 0, 0, 0},
     {     "treasury",        treasury, 0, 1,  NOVICE,      TREASURY_AP, 0, 0, 0},
     {       "undock",          launch, 0, 1, CAPTAIN,        UNDOCK_AP, 0, 0, 0},
     {     "uninvite",          invite, 0, 1, GENERAL,      UNINVITE_AP, 1, 0, 0},

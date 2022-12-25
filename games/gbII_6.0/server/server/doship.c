@@ -34,13 +34,31 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "amoeba.h"
 #include "buffers.h"
 #include "debug.h"
 #include "doturn.h"
+#include "files_shl.h"
+#include "first.h"
+#include "GB_server.h"
+#include "lists.h"
+#include "max.h"
+#include "misc.h"
+#include "moveship.h"
+#include "moveplanet.h"
 #include "power.h"
+#include "rand.h"
 #include "races.h"
 #include "ships.h"
+#include "shlmisc.h"
 #include "vars.h"
+#include "vn.h"
+
+#include "../user/build.h"
+#include "../user/fire.h"
+#include "../user/load.h"
+#include "../user/shootblast.h"
+#include "../user/tele.h"
 
 extern long Shipdata[NUMSTYPES][NUMABILS];
 
@@ -129,7 +147,7 @@ void doship(shiptype *ship, int update)
 
         if (ship->alive && (ship->age == SHIP_TOO_OLD)) {
             sprintf(buf,
-                    "%s: %s %%d %s is showing moderate signs of wear,\nupgrade its tech soon.\n",
+                    "%s: %s %c%d %s is showing moderate signs of wear,\nupgrade its tech soon.\n",
                     prin_ship_orbits(ship),
                     Shipnames[ship->type],
                     Shipltrs[ship->type],
@@ -139,8 +157,8 @@ void doship(shiptype *ship, int update)
             push_telegram(ship->owner, ship->governor, buf);
         } else if (ship->alive && (ship->age > (2 * SHIP_TOO_OLD))) {
             sprintf(buf,
-                    "%s: %s %c %d %s is showing extreme signs of wear,\nit needs a tech upgrade or replacing.\n",
-                    printship_orbits(ship),
+                    "%s: %s %c%d %s is showing extreme signs of wear,\nit needs a tech upgrade or replacing.\n",
+                    prin_ship_orbits(ship),
                     Shipnames[ship->type],
                     Shipltrs[ship->type],
                     ship->number,
@@ -201,11 +219,11 @@ void doship(shiptype *ship, int update)
                 armor = (ship->armor * (100 - ship->damage)) / 100;
             }
 
-            ship->damage += ((5 * Stars[storbits]->nova_stage)
+            ship->damage += ((5 * Stars[ship->storbits]->nova_stage)
                              / ((armor + 1) * segments));
 
             if (ship->damage >= 100) {
-                kill_ship((int)ship_owner, ship);
+                kill_ship((int)ship->owner, ship);
 
                 return;
             }
@@ -280,7 +298,7 @@ void doship(shiptype *ship, int update)
          * Added in for blowing up Waste canisters. Moved over from
          * treehouse. -mfw
          */
-        if (update && (ship->type == OTYPE_TOXWC)) {
+        if (update && (ship->type == OTYPE_TOXIC)) {
             if (int_rand(1, 100) <= (TOXCAN_LEAK * ship->age)) {
                 sprintf(telegram_buf,
                         "%s is leaking and had to be destroyed as %s.",
@@ -417,7 +435,7 @@ void doship(shiptype *ship, int update)
                                     ship->number,
                                     ship->name);
 
-                            push_telegram(ship, cloak_fuel);
+                            push_telegram(ship->owner, cloak_fuel, buf);
                         } /* Fuel ok */
                     } else {
                         ship->cloaking = 0;
@@ -425,7 +443,7 @@ void doship(shiptype *ship, int update)
                         sprintf(buf,
                                 "%s [%d] %s cannot cloak, check crystal.\n",
                                 Shipnames[ship->type],
-                                ship->number.
+                                ship->number,
                                 ship->name);
 
                         push_telegram(ship->owner, ship->governor, buf);
@@ -723,7 +741,7 @@ void domissile(shiptype *ship)
         sh2 = ship->destshipno;
         dist = sqrt(Distsq(ship->xpos, ship->ypos, ships[sh2]->xpos, ships[sh2]->ypos));
 
-        if (dist <= (((double)ship->speed * STRIKE_DISTANCS_FACTOR * (100.0 - (double)ship->damage)) / 100.0)) {
+        if (dist <= (((double)ship->speed * STRIKE_DISTANCE_FACTOR * (100.0 - (double)ship->damage)) / 100.0)) {
 #ifdef USE_VN
             /* CWL Allow berserkers to defend against missiles */
             if (ships[sh2]->type == OTYPE_BERS) {
@@ -811,8 +829,8 @@ void domissile(shiptype *ship)
                                           (int)ships[fship]->governor,
                                           long_buf);
 
-                            push_telegram((int)ships->owner,
-                                          (int)ships->governor,
+                            push_telegram((int)ships[fship]->owner,
+                                          (int)ships[fship]->governor,
                                           long_buf);
 
 #ifndef LIMITED_COMBAT_MESSAGE
@@ -976,7 +994,7 @@ void do_mine(int shipno, int manual_detonate)
                 in_radius = 1;
             }
 
-            if (ship-alive) {
+            if (ship->alive) {
                 if (in_radius) {
                     sprintf(buf,
                             "Minefield %s detonated at %s\n",
@@ -1018,7 +1036,7 @@ void do_mine(int shipno, int manual_detonate)
                             s = ships[sh];
                         }
 
-                        if ((ship != shipno)
+                        if ((sh != shipno)
                             && s->alive
                             && (s->type != OTYPE_CANIST)
                             && (s->type != OTYPE_GREEN)
@@ -1038,13 +1056,13 @@ void do_mine(int shipno, int manual_detonate)
                                                                        short_buf);
                                     }
                                 } else {
-                                    int_radius = shoot_ship_to_ship(ship,
-                                                                    s,
-                                                                    1,
-                                                                    0,
-                                                                    0,
-                                                                    long_buf,
-                                                                    short_buf);
+                                    in_radius = shoot_ship_to_ship(ship,
+                                                                   s,
+                                                                   1,
+                                                                   0,
+                                                                   0,
+                                                                   long_buf,
+                                                                   short_buf);
                                 }
 
                                 if (in_radius > 0) {
@@ -1107,7 +1125,7 @@ void do_mine(int shipno, int manual_detonate)
 
 void do_sweeper(int shipno)
 {
-    int sh;
+    int sh = 0;
     int sh2;
     shiptype *s;
     shiptype *sweeper;
@@ -1126,20 +1144,20 @@ void do_sweeper(int shipno)
     }
 
     /* Called only from doturn() so all ships are in ships[] */
-    void getship(&sweeper, shipno);
+    getship(&sweeper, shipno);
     /* Handled by getship above instead -mfw */
     /* sweeper = ships[shipno]; */
 
-    int sweeper = 0;
+    int found_sweeper = 0;
 
 #ifdef USE_VN
     /* Berserkers are sweepers too */
-    if (sweeper->type != OTYPE_BERS) {
-        sweeper = 1;
+    if (sweeper->type == OTYPE_BERS) {
+        found_sweeper = 1;
     }
 #endif
 
-    if (((sweeper->type == STYPE_SWEEPER) || sweeper)
+    if (((sweeper->type == STYPE_SWEEPER) || found_sweeper)
         && sweeper->alive
         && sweeper->owner) {
         switch(sweeper->whatorbits) {
@@ -1175,7 +1193,8 @@ void do_sweeper(int shipno)
             getship(&s, sh);
             /* Handled by getship() above -mfw */
             /* s = ships[sh]; */
-            xd = s->xpos = sweeper->xpos;
+            xd = s->xpos - sweeper->xpos;
+            yd = s->ypos - sweeper->ypos;
             range = sqrt((xd * xd) + (yd * yd));
 
             /*
@@ -1237,14 +1256,14 @@ void do_sweeper(int shipno)
                                                      long_buf,
                                                      short_buf);
 
-                            if (rez > 0) {
+                            if (res > 0) {
                                 warn_star(s->owner,
-                                          so->owner,
+                                          s->owner,
                                           (int)sweeper->storbits,
                                           short_buf);
 
                                 warn((int)sweeper->owner,
-                                     sweeper->governr,
+                                     sweeper->governor,
                                      long_buf);
 
                                 warn(s->owner, s->governor, long_buf);
@@ -1270,7 +1289,6 @@ void doabm(shiptype *ship)
 {
     int sh2;
     int numdest;
-    int caliber;
     planettype *p;
 
     if (get_num_updates() < CombatUpdate) {
@@ -1287,7 +1305,7 @@ void doabm(shiptype *ship)
 
     if (landed(ship)) {
         p = planets[ship->storbits][ship->pnumorbits];
-        caliber = current_caliber(ship);
+        current_caliber(ship);
         /* Check to see if missiles/mines are present */
         sh2 = p->ships;
 
@@ -1322,7 +1340,7 @@ void doabm(shiptype *ship)
                                    short_buf);
 
                 push_telegram((int)ship->owner,
-                              (int)ship->governr,
+                              (int)ship->governor,
                               long_buf);
 
                 push_telegram((int)ships[sh2]->owner,
@@ -1378,7 +1396,7 @@ void do_repair(shiptype *ship)
                  * will help in repairing the ship
                  */
                 if ((ship->whatorbits == LEVEL_PLAN) && landed(ship)) {
-                    if (getsector(&s, planet[ship->storbits][ship->pnumorbits], (int)ship->land_x, (int)ship->land_y)) {
+                    if (getsector(&s, planets[ship->storbits][ship->pnumorbits], (int)ship->land_x, (int)ship->land_y)) {
                         if (ship->max_crew < 1) { /* For VNs -mfw */
                             rate = 1;
                         } else {
@@ -1424,7 +1442,7 @@ void do_repair(shiptype *ship)
                 }
 
                 /* -mfw */
-                if (s->type == OTYPE_FACTORY) {
+                if (ship->type == OTYPE_FACTORY) {
                     cost = (int)(0.005
                                  * maxrep
                                  * ((2
@@ -1518,7 +1536,7 @@ void do_habitat(shiptype *ship)
     /* In v5.0+ habitats make resources out of fuel */
     if (ship->on) {
         if (ship->whatorbits == LEVEL_PLAN) {
-            if (planets[ship->storbits][ship->pnumorbits]->type == TYPE_GAS_GIANT) {
+            if (planets[ship->storbits][ship->pnumorbits]->type == TYPE_GASGIANT) {
                 fuse = (double)ship->fuel * ((double)ship->popn / (double)ship->max_crew) * (1.0 - (0.01 * (double)ship->damage));
 
                 add = (int)fuse / 10;
@@ -1568,7 +1586,7 @@ void do_habitat(shiptype *ship)
     add = round_rand((double)ship->popn * races[ship->owner - 1]->birthrate);
 
     if (ship->type == OTYPE_FACTORY) {
-        max_crew = Shipdata[ship->type][ABIL_MAX_CREW] - ship->troops;
+        max_crew = Shipdata[ship->type][ABIL_MAXCREW] - ship->troops;
     } else {
         max_crew = ship->max_crew - ship->troops;
     }
@@ -1612,7 +1630,7 @@ void do_canister(shiptype *ship)
     }
 }
 
-void do_greenhouse(shipttype *ship)
+void do_greenhouse(shiptype *ship)
 {
     if ((ship->whatorbits == LEVEL_PLAN) && !landed(ship)) {
         ++ship->special.timer.count;
@@ -1631,10 +1649,10 @@ void do_greenhouse(shipttype *ship)
 
             sprintf(telegram_buf,
                     "Greenhouse gases at %s have dissipated.\n",
-                    print_ship_orbits(ship));
+                    prin_ship_orbits(ship));
 
             for (j = 1; j <= Num_races; ++j) {
-                if (planet[ship->storbits][ship->pnumorbits]->info[j - 1].numsectsowned) {
+                if (planets[ship->storbits][ship->pnumorbits]->info[j - 1].numsectsowned) {
                     push_telegram(j,
                                   (int)Stars[ship->storbits]->governor[j - 1],
                                   telegram_buf);
@@ -1662,7 +1680,7 @@ void do_mirror(shiptype *ship)
             shiptype *s;
 
             s = ships[ship->special.aimed_at.shipno];
-            range = sqrt(Distsq(ship->xpos, ship->ypos, s->xpos, x->ypos));
+            range = sqrt(Distsq(ship->xpos, ship->ypos, s->xpos, s->ypos));
             i = int_rand(0,
                          round_rand(2.0
                                     / (((double)(s->size - s->max_hanger)
@@ -1760,7 +1778,7 @@ void do_god(shiptype *ship)
 int do_ap(shiptype *ship)
 {
     racetype *race;
-    plaettype *planet;
+    planettype *planet;
     char rbuf[((INF_MAX_ATMO_SETTING * 4) + 4) * 80];
     char itemp[256];
     char gas[80];
@@ -1999,7 +2017,7 @@ void do_omcl(shiptype *ship)
     }
 }
 
-int do_weapon_planet(shiptype *ship, unsigned *reso, unsigned *fuel)
+int do_weapon_plant(shiptype *ship, unsigned *reso, unsigned *fuel)
 {
     int maxrate;
     int rate;
@@ -2011,12 +2029,12 @@ int do_weapon_planet(shiptype *ship, unsigned *reso, unsigned *fuel)
      *
      * rate = round_rand(MIN((double)ship->resource / (double)RES_COST_WPLANT, ship->fuel / FUEL_COST_WPLANT);
      */
-    rate = round_rand((MIN((((double)*res * ship->use_stock) + ship->resource) / (double)RES_COST_WPLANT,
+    rate = round_rand((MIN((((double)*reso * ship->use_stock) + ship->resource) / (double)RES_COST_WPLANT,
                            (((double)*fuel * ship->use_stock) + ship->fuel) / FUEL_COST_WPLANT)
                        * (1.0 - (0.01 * (double)ship->damage))
                        * (double)ship->popn) / (double)ship->max_crew);
 
-    rate = MIN(race, maxrate);
+    rate = MIN(rate, maxrate);
 
     /*
      * HUTm (kse)
@@ -2154,7 +2172,7 @@ int kill_ship(int playernum, shiptype *ship)
     }
 #endif
 
-    if ((ship->type == OTYPE_TOXWC) && (ship->whatorbits == LEVEL_PLAN)) {
+    if ((ship->type == OTYPE_TOXIC) && (ship->whatorbits == LEVEL_PLAN)) {
         getplanet(&planet, (int)ship->storbits, (int)ship->pnumorbits);
         planet->conditions[TOXIC] = MIN(100, planet->conditions[TOXIC] + ship->special.waste.toxic);
         putplanet(planet, (int)ship->storbits, (int)ship->pnumorbits);

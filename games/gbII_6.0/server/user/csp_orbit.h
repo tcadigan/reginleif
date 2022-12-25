@@ -5,7 +5,7 @@
 #include "../server/ships.h"
 #include "../server/vars.h"
 
-void csp_orbit(int, int, orbitinfo *);
+void csp_orbit(int, int, int, int, orbitinfo *);
 void csp_DispStar(int, int, int, int, startype *, int, char *);
 void csp_DispPlanet(int, int, int, int, int, planettype *, char *,
                     racetype *, char *);

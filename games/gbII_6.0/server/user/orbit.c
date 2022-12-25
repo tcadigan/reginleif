@@ -168,7 +168,7 @@ void orbit(int playernum, int governor, int apcount)
 
     /* Display CSP orbit instead, if the client can understand it */
     if (client_can_understand(playernum, governor, CSP_ORBIT_OUTPUT_INTRO)) {
-        csp_orbit(playernum, governor, &oi);
+        csp_orbit(playernum, governor, -1, -1, &oi);
 
         return;
     }

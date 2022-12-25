@@ -39,12 +39,28 @@
 #include <unistd.h>
 
 #include "buffers.h"
+#include "doplanet.h"
+#include "doship.h"
+#include "dospace.h"
 #include "doturn.h"
+#include "files_shl.h"
+#include "first.h"
+#include "GB_server.h"
+#include "lists.h"
+#include "log.h"
+#include "max.h"
+#include "moveplanet.h"
 #include "power.h"
 #include "races.h"
+#include "rand.h"
 #include "ships.h"
+#include "shlmisc.h"
 #include "tweakables.h"
 #include "vars.h"
+#include "vn.h"
+
+#include "../user/build.h"
+#include "../user/tele.h"
 
 extern char *Commod[];
 extern long Shipdata[NUMSTYPES][NUMABILS];
@@ -163,7 +179,7 @@ void do_turn(int update)
             push_telegram(1, 0, msg);
             bad = 1;
         } else if (owner
-                   && ((gov > MAXGOVERNOR)
+                   && ((gov > MAXGOVERNORS)
                        || !races[owner - 1]->governor[gov].active)) {
             sprintf(msg, "DATA Error: Ship %d Owner(Gov) Unknown", i);
             loginfo(ERRORLOG, WANTERRNO, msg);
@@ -190,12 +206,12 @@ void do_turn(int update)
 
     /* Get all stars and planets */
     getsdata(&Sdata);
-    planet_count = 0;
+    Planet_count = 0;
 
     for (star = 0; star <Sdata.numstars; ++star) {
         getstar(&Stars[star], star);
 
-        if (updatE) {
+        if (update) {
             /* Nova */
             fix_stability(Stars[star]);
         }
@@ -206,14 +222,14 @@ void do_turn(int update)
             /* Move planets in orbits; also sets StarsInhab[] */
             if (planets[star][i]->type != TYPE_ASTEROID) {
                 /* We need the total to evaluate victory */
-                ++planet_count;
+                ++Planet_count;
             }
 
             if (update) {
-                moveplanet(star, planet[star][i], i);
+                moveplanet(star, planets[star][i], i);
             }
 
-            if (Stars[star]->pnames[i] == '\0') {
+            if (Stars[star]->pnames[i] == NULL) {
                 sprintf(Stars[star]->pnames[i], "NULL-%d", i);
             }
         }
@@ -273,10 +289,10 @@ void do_turn(int update)
 #ifdef MARKET
     if (update) {
         /* Reset market */
-        num_commods = Numcommods();
+        Num_commods = Numcommods();
         clr_commodfree();
 
-        for (i = num_commods; i >= 1; --i) {
+        for (i = Num_commods; i >= 1; --i) {
             getcommod(&c, i);
 
             if (!c->deliver) {
@@ -295,7 +311,7 @@ void do_turn(int update)
                 temp = shipping_cost((int)c->star_to,
                                      (int)c->star_from,
                                      &dist,
-                                     (int)c-bid);
+                                     (int)c->bid);
 
 #ifdef COLLECTIVE_MONEY
                 races[c->bidder - 1]->governor[0].cost_market += (c->bid + temp);
@@ -344,7 +360,7 @@ void do_turn(int update)
                         "Lot %d (%d %s sold to %s [%d] at a cost of %ld.\n",
                         i,
                         c->quantity,
-                        Commod[(unsigned in)c->type],
+                        Commod[(unsigned int)c->type],
                         races[c->bidder - 1]->name,
                         c->bidder,
                         c->bid);
@@ -357,7 +373,7 @@ void do_turn(int update)
             } else {
                 c->bidder_gov = 0;
                 c->bidder = c->bidder_gov;
-                c->bid;
+                c->bid = 0;
             }
 
             if (!c->owner) {
@@ -380,7 +396,7 @@ void do_turn(int update)
 
     /* Do all ships one turn - do slower ships first */
     for (j = 0; j <= 9; ++j) {
-        if (i = 1; i <= Num_ships; ++i) {
+        for (i = 1; i <= Num_ships; ++i) {
             if (ALIVE(i) && (ships[i]->speed == j)) {
                 doship(ships[i], update);
 
@@ -462,7 +478,7 @@ void do_turn(int update)
 
                             if (ships[nsh]->cloaked) {
                                 sprintf(telegram_buf,
-                                        "Science Station #%d detected cloaked ship #%d.\n\t%s Distance: %6.2f Position: %6.2, %6.2f (%d, %d)",
+                                        "Science Station #%d detected cloaked ship #%d.\n\t%s Distance: %6.2f Position: %6.2f, %6.2f (%d, %d)",
                                         i,
                                         nsh,
                                         prin_ship_orbits(ships[i]),
@@ -562,7 +578,7 @@ void do_turn(int update)
         if (ALIVE(i)) {
             switch (ships[i]->whatorbits) {
             case LEVEL_UNIV:
-                inset_sh_univ(&Sdata, ships[i]);
+                insert_sh_univ(&Sdata, ships[i]);
 
                 break;
             case LEVEL_STAR:
@@ -631,13 +647,13 @@ void do_turn(int update)
                 }
 
                 if ((planets[star][i]->type != TYPE_ASTEROID)
-                    && (planets[star][i]->info[j - 1].numsectsowned > ((planets[star][i]->Maxx * planets[star][i]) / 2))) {
+                    && (planets[star][i]->info[j - 1].numsectsowned > ((planets[star][i]->Maxx * planets[star][i]->Maxy) / 2))) {
                     ++races[j - 1]->controlled_planets;
                 }
 
                 if (planets[star][i]->info[j - 1].numsectsowned) {
                     races[j - 1]->planet_points += planet_points(planets[star][i]);
-                    planet_points[j - 1] += ((planets[star][i]->info[j - 1].numsectsowned * (double)vp_planet_points(planets[star][i])) / (double)(planets[star][i]->Maxx * planets[star][i]->Maxy));
+                    planet_pts[j - 1] += ((planets[star][i]->info[j - 1].numsectsowned * (double)vp_planet_points(planets[star][i])) / (double)(planets[star][i]->Maxx * planets[star][i]->Maxy));
                 }
             }
 
@@ -660,7 +676,7 @@ void do_turn(int update)
                 if (starpopns[star][i - 1]) {
                     setbit(Stars[star]->inhabited, i);
                 } else {
-                    clbit(Stars[star]->inhabited, i);
+                    clrbit(Stars[star]->inhabited, i);
                 }
 
                 if (isset(Stars[star]->inhabited, i)) {
@@ -702,10 +718,10 @@ void do_turn(int update)
 
                 aps = Sdata.AP[i - 1] + races[i - 1]->planet_points;
 
-                if (aps < GLOBAL_LIMIT_APs) {
+                if (aps < GLOBAL_LIMIT_APS) {
                     Sdata.AP[i - 1] = aps;
                 } else {
-                    Sdata.AP[i - 1] = GLOBAL_LIMIT_APs;
+                    Sdata.AP[i - 1] = GLOBAL_LIMIT_APS;
                 }
             }
         }
@@ -802,7 +818,7 @@ void do_turn(int update)
                 races[i - 1]->IQ = races[i - 1]->IQ_limit * x * x;
             }
 
-            races[i - 1].tech += ((double)(races[i - 1]->IQ) / 100.0);
+            races[i - 1]->tech += ((double)(races[i - 1]->IQ) / 100.0);
 
             /* MORALE */
             /* Morale cutter by 10% before calculus. /Gardan 11.2.1997 */
@@ -967,7 +983,7 @@ void fix_stability(startype *s)
             sprintf(telegram_buf, "Notice:\n");
             sprintf(buf, "\n\tScientists report that star %s\n", s->name);
             strcat(telegram_buf, buf);
-            sprint(buf, "\tis no longer undergoing nova...\n");
+            sprintf(buf, "\tis no longer undergoing nova...\n");
             strcat(telegram_buf, buf);
 
             for (i = 1; i <= Num_races; ++i) {
@@ -1066,7 +1082,7 @@ void do_reset(int time_reset)
 
                 break;
             case LEVEL_STAR:
-                insert_sh_star(Stars[ships[i]->storbits], ship[i]);
+                insert_sh_star(Stars[ships[i]->storbits], ships[i]);
 
                 break;
             case LEVEL_PLAN:
@@ -1090,7 +1106,7 @@ void do_reset(int time_reset)
     }
 
     /* Check ship masses */
-    if (i = 1; i <= Num_ships; ++i) {
+    for (i = 1; i <= Num_ships; ++i) {
         if (ALIVE(i)) {
             /*
              * Put this next check in to avoid some core dumps, see domass()
@@ -1137,7 +1153,7 @@ void do_reset(int time_reset)
 
 #ifdef COLLECTIVE_MONEY
     for (i = 1; i <= Num_races; ++i) {
-        for (j = 1; j <= MAXGOVERNOR; ++j) {
+        for (j = 1; j <= MAXGOVERNORS; ++j) {
             MONEY(races[i - 1], 0) += races[i - 1]->governor[j].money;
             races[i - 1]->governor[j].money = 0;
         }
@@ -1174,7 +1190,7 @@ void handle_victory(void)
             win_category[i - 1] = LITTLE_WINNER;
         }
 
-        if (races[i - 1]->victory_turns >= VICTORY_UPDATE) {
+        if (races[i - 1]->victory_turns >= VICTORY_UPDATES) {
             ++game_over;
             win_category[i - 1] = BIG_WINNER;
         }
@@ -1205,7 +1221,7 @@ void handle_victory(void)
             }
 
             strcat(telegram_buf, "Lesser winners:");
-            push_telegram_race(i, telegram_buff);
+            push_telegram_race(i, telegram_buf);
 
             for (j = 1; j <= Num_races; ++j) {
                 if (win_category[j - 1] == LITTLE_WINNER) {
@@ -1232,7 +1248,7 @@ void make_discoveries(racetype *r)
     }
 
     if (!Laser(r) && learn_tech(r, TECH_LASER)) {
-        push_telegram_race[r->Playernum,
+        push_telegram_race(r->Playernum,
                            "You have discovered LASER technology.\n");
 
         r->discoveries[D_LASER] = 1;
@@ -1275,7 +1291,7 @@ void make_discoveries(racetype *r)
         r->discoveries[D_AVPM] = 1;
     }
 
-    if (!Cloack(r) && learn_tech(r, TECH_CLOAK)) {
+    if (!Cloak(r) && learn_tech(r, TECH_CLOAK)) {
         push_telegram_race(r->Playernum,
                            "You have discovered CLOAK technology.\n");
 

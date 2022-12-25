@@ -56,11 +56,11 @@
 static racetype *race;
 extern char *planet_types[];
 
-extern void map(int, int, int);
+extern void map(int, int, int, int, orbitinfo *);
 extern void show_map(int, int, int, int, planettype *, int, int);
 extern char desshow(int, int, planettype *, int, int, racetype *);
 
-void map(int playernum, int governor, int apcount)
+void map(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     planettype *p;
     placetype where;
