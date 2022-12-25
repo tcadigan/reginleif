@@ -1401,7 +1401,7 @@ int process_fd(int which)
                 }
             }
         }
-
+#endif
         /* Only reached if login_mode is False. */
         if (!strcmp(args[0], "")) {
             Happy = TRUE;

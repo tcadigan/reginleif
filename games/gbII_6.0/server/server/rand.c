@@ -38,7 +38,7 @@
 
 #include <stdlib.h>
 #include <sys/types.h>
-#include <time.h
+#include <time.h>
 #include <unistd.h>
 
 #include "tweakables.h"
@@ -131,7 +131,7 @@ int gb_rand(void)
 #else
 #error "Must choose pseudo-random number generator, see tweakables.h"
 
-#endif;
+#endif
 }
 
 int int_rand(int low, int hi)

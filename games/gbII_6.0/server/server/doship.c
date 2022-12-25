@@ -1502,7 +1502,7 @@ void do_repair(shiptype *ship)
         use_resource(ship, ship->resource);
     }
 
-    ship->damage = MAX(0, (int)ship->damage, drep);
+    ship->damage = MAX(0, (int)ship->damage - drep);
 }
 
 void do_habitat(shiptype *ship)

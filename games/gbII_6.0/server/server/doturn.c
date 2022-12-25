@@ -526,7 +526,8 @@ void do_turn(int update)
             }
         }
     }
-
+#endif
+    
     /* Prepare dead ships for recycling */
     clr_shipfree();
 
@@ -847,12 +848,13 @@ void do_turn(int update)
             }
 
 #else
-
             j = 0;
 
             if (races[i - 1]->governor[j].active) {
                 maintain(races[i - 1], j, (int)races[i - 1]->governor[j].maintain);
             }
+#endif
+#endif
         }
 
         for (i = 1; i <= Num_races; ++i) {

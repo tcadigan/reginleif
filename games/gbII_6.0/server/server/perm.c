@@ -32,6 +32,7 @@
 
 #include "power.h"
 #include "races.h"
+#include "rand.h"
 #include "ships.h"
 #include "vars.h"
 

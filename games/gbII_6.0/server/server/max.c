@@ -37,6 +37,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "files_shl.h"
 #include "power.h"
 #include "races.h"
 #include "ships.h"
@@ -75,12 +76,12 @@ double compatibility(planettype *planet, racetype *race)
 
     /* Make an adjustment for planetary temperature */
     add = 0.1 * ((double)planet->conditions[TEMP] - (double)race->conditions[TEMP]);
-    sum = 1.0 - ((double)abs(add) / 100.0);
+    sum = 1.0 - ((double)fabs(add) / 100.0);
 
     /* Step through and report compatibility of each planetary gas */
     for (i = TEMP + 1; i <= OTHER; ++i) {
         add = (double)planet->conditions[i] - (double)race->conditions[i];
-        atmosphere *= (1.0 - ((double)abs(add) / 100.0));
+        atmosphere *= (1.0 - ((double)fabs(add) / 100.0));
     }
 
     sum *= atmosphere;

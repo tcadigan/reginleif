@@ -40,6 +40,11 @@
 #include <time.h>
 
 #include "buffers.h"
+#include "files_shl.h"
+#include "fleet.h"
+#include "GB_server.h"
+#include "max.h"
+#include "md5.h"
 #include "power.h"
 #include "races.h"
 #include "ranks.h"
@@ -152,7 +157,7 @@ void grant(int playernum, int governor, int apcount)
                 ship->governor = gov;
                 sprintf(buf,
                         "\"%s\" granted you %s at %s\n",
-                        race->governor[Governor].name,
+                        race->governor[governor].name,
                         Ship(ship),
                         prin_ship_orbits(ship));
 
@@ -161,7 +166,7 @@ void grant(int playernum, int governor, int apcount)
                 sprintf(buf,
                         "%s granted to \"%s\"\n",
                         Ship(ship),
-                        Race->governor[gov].name);
+                        race->governor[gov].name);
 
                 notify(playernum, governor, buf);
                 free(ship);
@@ -280,7 +285,7 @@ void governor(int playernum, int governor, int apcount)
                         race->governor[i].name,
                         race->governor[i].active ? "ACTIVE" : "INACTIVE",
                         rank,
-                        (i != 0) ? 0 : MONEY(Race, 0),
+                        (i != 0) ? 0 : MONEY(race, 0),
                         ctime(&race->governor[i].last_login));
 #endif
             } else {
@@ -355,7 +360,7 @@ void governor(int playernum, int governor, int apcount)
             race->governor[gov].homelevel = race->governor[gov].deflevel;
             race->governor[gov].defsystem = race->governor[0].defsystem;
             race->governor[gov].homesystem = race->governor[gov].defsystem;
-            race->governor[gov].defplanetnum = race-governor[0].defplanetnum;
+            race->governor[gov].defplanetnum = race->governor[0].defplanetnum;
             race->governor[gov].homeplanetnum = race->governor[gov].defplanetnum;
 
 #ifndef COLLECTIVE_MONEY
@@ -501,7 +506,7 @@ void do_revoke(racetype *race, int gov, int j)
     char revoke_buf[1024];
     shiptype *ship;
 
-    sprintf(revoke_buf.
+    sprintf(revoke_buf,
             "*** Transferring [%d,%d];s ownings to [%d,%d] ***\n\n",
             race->Playernum,
             gov,
@@ -538,7 +543,7 @@ void do_revoke(racetype *race, int gov, int j)
                     Shipltrs[ship->type],
                     i);
 
-            notify(race->Playeernum, 0, revoke_buf);
+            notify(race->Playernum, 0, revoke_buf);
             putship(ship);
         }
 
@@ -726,7 +731,7 @@ int do_shiplist(shiptype **s, int *nextshipno)
     return 0;
 }
 
-int in_list(int playernum, char *list, shiptype *s, int nextshipno)
+int in_list(int playernum, char *list, shiptype *s, int *nextshipno)
 {
     char *p;
     char q;
@@ -1081,7 +1086,7 @@ void fix(int playernum, int governor)
             }
 
             sprintf(buf, "popn = %d\n", s->popn);
-        } else if (match[2], "troops") {
+        } else if (match(args[2], "troops")) {
             if (argn > 3) {
                 s->troops = atoi(args[3]);
             }
@@ -1221,7 +1226,7 @@ void DontOwnErr(int playernum, int governor, int shipno)
 
 int enufAP(int playernum, int governor, unsigned int ap, int x)
 {
-    int blah;
+    int blah = 0;
 
     if (ap < x) {
         blah = 1;
@@ -1233,7 +1238,7 @@ int enufAP(int playernum, int governor, unsigned int ap, int x)
 }
 
 #ifdef CHAP_AUTH
-int Getracenum(char *racenum,
+int Getracenum(char *racename,
                char *govname,
                int *racenum,
                int *govnum,
@@ -1266,7 +1271,7 @@ int Getracenum(char *racenum,
                             races[i - 1]->governor[i].password,
                             des[which].key);
 
-                    MD5String(hushbuf, server_hash);
+                    MD5String(hashbuf, server_hash);
 
                     /*
                      * Helpful debug output -mfw
@@ -1389,7 +1394,7 @@ void allocateAPs(int playernum, int governor, int apcount)
     getsdata(&Sdata);
 
     maxalloc = MIN(Sdata.AP[playernum - 1],
-                   LIMIT_APs - Stars[Dir[playernum - 1][governor].snum]->AP[playernum - 1]);
+                   LIMIT_APS - Stars[Dir[playernum - 1][governor].snum]->AP[playernum - 1]);
 
     if (alloc > maxalloc) {
         sprintf(buf, "Illegal value (%d) - maximum = %d\n", alloc, maxalloc);
@@ -1445,7 +1450,7 @@ void deductAPs(int playernum, int governor, int n, int snum, int sdata)
             }
         } else {
             getsdata(&Sdata);
-            Sdata.AP[Playernum - 1] = MAX(0, Sdata.AP[playernum - 1] - n);
+            Sdata.AP[playernum - 1] = MAX(0, Sdata.AP[playernum - 1] - n);
             putsdata(&Sdata);
 
             if (Dir[playernum - 1][governor].level == LEVEL_UNIV) {
@@ -1475,7 +1480,7 @@ void list(int playernum, int governor)
         getstar(&Stars[Dir[playernum - 1][governor].snum],
                 Dir[playernum - 1][governor].snum);
 
-        sh = Stars[Dir[Playernum - 1][governor].snum]->ships;
+        sh = Stars[Dir[playernum - 1][governor].snum]->ships;
 
         break;
     case LEVEL_PLAN:
@@ -1483,7 +1488,7 @@ void list(int playernum, int governor)
                   Dir[playernum - 1][governor].snum,
                   Dir[playernum - 1][governor].pnum);
 
-        sh = p-ships;
+        sh = p->ships;
         free(p);
 
         break;
@@ -1581,7 +1586,7 @@ int authorized_in_star(int playernum, int governor, startype *star)
     }
 }
 
-int match2(char *, char const *b, int n)
+int match2(char *a, char const *b, int n)
 {
     return (!strncasecmp(a, b, strlen(a)) && (strlen(a) >= n));
 }

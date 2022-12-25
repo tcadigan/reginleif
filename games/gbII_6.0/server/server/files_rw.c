@@ -53,8 +53,8 @@ int Fileread(int fd, char *p, unsigned num, int posn)
     /*
      * Commented out for now, used in 'utils' so this function is undefined
      * there.
-     /*
-     /* debug(7, "Fileread() size: %d, position: %d\n", num, posn); */
+     */
+     // debug(7, "Fileread() size: %d, position: %d\n", num, posn);
 
     if (lseek(fd, posn, L_SET) < 0) {
         sprintf(buf, "Fileread seek: %s", p);

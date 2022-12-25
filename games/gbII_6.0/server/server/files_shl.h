@@ -49,7 +49,7 @@ void clear_dead_ship(void);
 int getdeadship_new(int, int);
 int getFreeShip(int, int );
 int initFreeShipList(void);
-int doFreeshipList(shiptype **, int, int);
+int doFreeShipList(shiptype **, int, int);
 int shipSlotsAvail(void);
 void create_pid_file(void);
 void delete_pid_file(void);

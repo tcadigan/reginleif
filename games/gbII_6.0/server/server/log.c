@@ -167,6 +167,7 @@ int clearlog(int override)
     /* Simple enough eh? */
     return 1;
 }
+#endif
 /* End of clearlog */
 
 /*

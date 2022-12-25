@@ -41,6 +41,8 @@
 #include <unistd.h>
 
 #include "buffers.h"
+#include "files_rw.h"
+#include "log.h"
 #include "power.h"
 #include "races.h"
 #include "ships.h"
@@ -474,7 +476,7 @@ int getdeadcommod(void)
     if (buffer.st_size && (abort == 1)) {
         /* Put topmost entry in fpos */
         Fileread(fd,
-                (char *)&cmmodnum,
+                (char *)&commodnum,
                 sizeof(short),
                 buffer.st_size - sizeof(short));
 
@@ -506,9 +508,9 @@ void putrace(racetype *r)
 void putstar(startype *s, int snum)
 {
     Filewrite(stdata,
-              (char *s)s,
+              (char *)s,
               sizeof(startype),
-              (int)(sizeof(Sdata + (snum * sizeof(startype)))));
+              (int)(sizeof(Sdata) + (snum * sizeof(startype))));
 }
 
 void putplanet(planettype *p, int star, int pnum)
@@ -591,7 +593,7 @@ int Numcommods(void)
 int Newslength(int type)
 {
     struct stat buffer;
-    FILE *fp;
+    FILE *fp = NULL;
 
     switch (type) {
     case DECLARATION:
@@ -631,7 +633,7 @@ int Newslength(int type)
         break;
     }
 
-    fstat(filno(fp), &buffer);
+    fstat(fileno(fp), &buffer);
     fclose(fp);
 
     return (int)buffer.st_size;
@@ -675,14 +677,14 @@ void makeshipdead(int shipnum)
 
     /* Write the ship # at the very end of SHIPFREEDATAFL */
     fstat(fd, &buffer);
-    FileWrite(fd, (char *)&shipno, sizeof(shipno), buffer.st_size);
+    Filewrite(fd, (char *)&shipno, sizeof(shipno), buffer.st_size);
     close_file(fd);
 }
 
 void makecommoddead(int commodnum)
 {
     int fd;
-    unsigned short cmoodno;
+    unsigned short commodno;
     struct stat buffer;
 
     /* Convert to u_short */

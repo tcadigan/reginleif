@@ -1,7 +1,7 @@
 #ifndef MD5_H_
 #define MD5_H_
 
-#ifdef CAP_AUTH
+#ifdef CHAP_AUTH
 void MD5String(char *, char *);
 #endif
 
