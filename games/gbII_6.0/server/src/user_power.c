@@ -44,11 +44,6 @@
 #include "prof.h"
 #include "vict.h"
 
-extern int errno;
-extern struct tm *update_tm;
-
-extern void prepare_output_line(racetype *, racetype *, int, int);
-
 void block(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int i;

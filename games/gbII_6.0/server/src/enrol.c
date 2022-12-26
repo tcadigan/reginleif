@@ -48,9 +48,6 @@
 
 char en_desshow(planettype *p, int x, int y);
 
-extern int errno;
-
-racetype *Race;
 struct stardata Sdata;
 startype *Stars[NUMSTARS];
 sectortype Smap[((MAX_X + 1) * (MAX_Y + 1)) + 1];
@@ -58,6 +55,7 @@ planettype *planets[NUMSTARS][MAXPLANETS];
 unsigned long Num_ships;
 
 char buf[4096];
+unsigned short free_ship_list;
 
 struct stype {
   char here;
@@ -433,52 +431,52 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  Race = Malloc(racetype);
-  Bzero(*Race);
+  racetype *race = Malloc(racetype);
+  Bzero(*race);
 
   printf("\n\tDeity/Guest/Normal (d/g/n)?");
   c = getchr();
   getchr();
 
   if (c == 'd') {
-    Race->God = 1;
+    race->God = 1;
   } else {
-    Race->God = 0;
+    race->God = 0;
   }
 
   if (c == 'g') {
-    Race->Guest = 1;
+    race->Guest = 1;
   } else {
-    Race->Guest = 0;
+    race->Guest = 0;
   }
 
-  strcpy(Race->name, "Unknown");
+  strcpy(race->name, "Unknown");
 
   for (i = 0; i <= MAXGOVERNORS; ++i) {
-    Race->governor[0].money = 0;
+    race->governor[0].money = 0;
   }
 
-  Race->governor[0].deflevel = LEVEL_PLAN;
-  Race->governor[0].homelevel = Race->governor[0].deflevel;
-  Race->governor[0].defsystem = star;
-  Race->governor[0].homesystem = Race->governor[0].defsystem;
-  Race->governor[0].defplanetnum = pnum;
-  Race->governor[0].homeplanetnum = Race->governor[0].defplanetnum;
+  race->governor[0].deflevel = LEVEL_PLAN;
+  race->governor[0].homelevel = race->governor[0].deflevel;
+  race->governor[0].defsystem = star;
+  race->governor[0].homesystem = race->governor[0].defsystem;
+  race->governor[0].defplanetnum = pnum;
+  race->governor[0].homeplanetnum = race->governor[0].defplanetnum;
 
   /*
    * Display options
    */
-  Race->governor[0].toggle.highlight = Playernum;
-  Race->governor[0].toggle.inverse = 1;
-  Race->governor[0].toggle.color = 0;
-  Race->governor[0].active = 1;
+  race->governor[0].toggle.highlight = Playernum;
+  race->governor[0].toggle.inverse = 1;
+  race->governor[0].toggle.color = 0;
+  race->governor[0].active = 1;
 
   printf("Enter the password for this race:");
-  scanf("%s", Race->password);
+  scanf("%s", race->password);
   getchr();
 
   printf("Enter the password for thise leader:");
-  scanf("%s", Race->governor[0].password);
+  scanf("%s", race->governor[0].password);
   getchr();
 
   /*
@@ -487,7 +485,7 @@ int main(int argc, char *argv[]) {
    * difference between planet and race (commented out)
    */
   for (j = 0; j <= OTHER; ++j) {
-    Race->conditions[j] = planet->conditions[j];
+    race->conditions[j] = planet->conditions[j];
 
     /*
      * + int_rand(round_rand(-planet->conditions[j] * 2.0),
@@ -499,13 +497,13 @@ int main(int argc, char *argv[]) {
     /*
      * Messages from autoreport, player #1 are decodable
      */
-    if ((i == Playernum) || (Playernum == 1) || Race->God) {
+    if ((i == Playernum) || (Playernum == 1) || race->God) {
       /*
        * You can talk to your own race
        */
-      Race->translate[i - 1] = 100;
+      race->translate[i - 1] = 100;
     } else {
-      Race->translate[i - 1] = 1;
+      race->translate[i - 1] = 1;
     }
   }
 
@@ -513,54 +511,54 @@ int main(int argc, char *argv[]) {
    * Assign racial characteristics
    */
   for (i = 0; i < 100; ++i) {
-    Race->discoveries[i] = 0;
+    race->discoveries[i] = 0;
   }
 
-  Race->tech = 0.0;
-  Race->morale = 0;
-  Race->turn = 0;
-  Race->allied[1] = 0;
-  Race->allied[0] = Race->allied[1];
-  Race->atwar[1] = 0;
-  Race->atwar[0] = Race->atwar[1];
+  race->tech = 0.0;
+  race->morale = 0;
+  race->turn = 0;
+  race->allied[1] = 0;
+  race->allied[0] = race->allied[1];
+  race->atwar[1] = 0;
+  race->atwar[0] = race->atwar[1];
 
-  Race->mass = db_Mass[idx] + (0.001 * (double)int_rand(-25, 25));
-  Race->birthrate = db_Birthrate[idx] + (0.01 * (double)int_rand(-10, 10));
-  Race->fighters = db_Fighters[idx] + int_rand(-1, 1);
+  race->mass = db_Mass[idx] + (0.001 * (double)int_rand(-25, 25));
+  race->birthrate = db_Birthrate[idx] + (0.01 * (double)int_rand(-10, 10));
+  race->fighters = db_Fighters[idx] + int_rand(-1, 1);
 
   if (Thing[idx]) {
-    Race->IQ = 0;
-    Race->pods = 1;
-    Race->collective_iq = Race->pods;
-    Race->absorb = Race->collective_iq;
-    Race->Metamorph = Race->absorb;
+    race->IQ = 0;
+    race->pods = 1;
+    race->collective_iq = race->pods;
+    race->absorb = race->collective_iq;
+    race->Metamorph = race->absorb;
   } else {
-    Race->IQ = db_Intelligence[idx] + int_rand(-10, 10);
-    Race->pods = 0;
-    Race->collective_iq = Race->pods;
-    Race->absorb = Race->collective_iq;
-    Race->Metamorph = Race->absorb;
+    race->IQ = db_Intelligence[idx] + int_rand(-10, 10);
+    race->pods = 0;
+    race->collective_iq = race->pods;
+    race->absorb = race->collective_iq;
+    race->Metamorph = race->absorb;
   }
 
-  Race->adventurism = db_Adventurism[idx] + (0.01 * (double)int_rand(-10, 10));
-  Race->number_sexes =
+  race->adventurism = db_Adventurism[idx] + (0.01 * (double)int_rand(-10, 10));
+  race->number_sexes =
       int_rand(Min_Sexes[idx], int_rand(Min_Sexes[idx], Max_Sexes[idx]));
-  Race->metabolism = db_Metabolism[idx] + (0.01 * (double)int_rand(-15, 15));
+  race->metabolism = db_Metabolism[idx] + (0.01 * (double)int_rand(-15, 15));
 
-  if (Race->Metamorph) {
+  if (race->Metamorph) {
     printf("METAMORPHIC\n");
   } else {
     printf("\n");
   }
 
-  printf("       Birthrate: %.3f\n", Race->birthrate);
-  printf("Fighting ability: %d\n", Race->fighters);
-  printf("              IQ: %d\n", Race->IQ);
-  printf("      Metabolism: %2.f\n", Race->metabolism);
-  printf("     Adventurism: %.2f\n", Race->adventurism);
-  printf("            Mass: %.2f\n", Race->mass);
+  printf("       Birthrate: %.3f\n", race->birthrate);
+  printf("Fighting ability: %d\n", race->fighters);
+  printf("              IQ: %d\n", race->IQ);
+  printf("      Metabolism: %2.f\n", race->metabolism);
+  printf("     Adventurism: %.2f\n", race->adventurism);
+  printf("            Mass: %.2f\n", race->mass);
   printf(" Number of sexes: %d (minimum required for colonization)\n",
-         Race->number_sexes);
+         race->number_sexes);
 
   printf("\n\nLook OK (y/n)?");
 
@@ -572,44 +570,44 @@ int main(int argc, char *argv[]) {
   }
 
   while (str[0] != 'y') {
-    Race->mass = db_Mass[idx] + (0.001 * (double)int_rand(-25, 25));
-    Race->birthrate = db_Birthrate[idx] + (0.01 * (double)int_rand(-10, 10));
-    Race->fighters = db_Fighters[idx] + int_rand(-1, 1);
+    race->mass = db_Mass[idx] + (0.001 * (double)int_rand(-25, 25));
+    race->birthrate = db_Birthrate[idx] + (0.01 * (double)int_rand(-10, 10));
+    race->fighters = db_Fighters[idx] + int_rand(-1, 1);
 
     if (Thing[idx]) {
-      Race->IQ = 0;
-      Race->pods = 1;
-      Race->collective_iq = Race->pods;
-      Race->absorb = Race->collective_iq;
-      Race->Metamorph = Race->absorb;
+      race->IQ = 0;
+      race->pods = 1;
+      race->collective_iq = race->pods;
+      race->absorb = race->collective_iq;
+      race->Metamorph = race->absorb;
     } else {
-      Race->IQ = db_Intelligence[idx] + int_rand(-10, 10);
-      Race->pods = 0;
-      Race->collective_iq = Race->pods;
-      Race->absorb = Race->collective_iq;
-      Race->Metamorph = Race->absorb;
+      race->IQ = db_Intelligence[idx] + int_rand(-10, 10);
+      race->pods = 0;
+      race->collective_iq = race->pods;
+      race->absorb = race->collective_iq;
+      race->Metamorph = race->absorb;
     }
 
-    Race->adventurism =
+    race->adventurism =
         db_Adventurism[idx] + (0.01 * (double)int_rand(-10, 10));
-    Race->number_sexes =
+    race->number_sexes =
         int_rand(Min_Sexes[idx], int_rand(Min_Sexes[idx], Max_Sexes[idx]));
-    Race->metabolism = db_Metabolism[idx] + (0.01 * (double)int_rand(-15, 15));
+    race->metabolism = db_Metabolism[idx] + (0.01 * (double)int_rand(-15, 15));
 
-    if (Race->Metamorph) {
+    if (race->Metamorph) {
       printf("METAMORPHIC\n");
     } else {
       printf("\n");
     }
 
-    printf("       Birthrate: %.3f\n", Race->birthrate);
-    printf("Fighting ability: %d\n", Race->fighters);
-    printf("              IQ: %d\n", Race->IQ);
-    printf("      Metabolism: %.2f\n", Race->metabolism);
-    printf("     Adventurism: %.2f\n", Race->adventurism);
-    printf("            Mass: %.2f\n", Race->mass);
+    printf("       Birthrate: %.3f\n", race->birthrate);
+    printf("Fighting ability: %d\n", race->fighters);
+    printf("              IQ: %d\n", race->IQ);
+    printf("      Metabolism: %.2f\n", race->metabolism);
+    printf("     Adventurism: %.2f\n", race->adventurism);
+    printf("            Mass: %.2f\n", race->mass);
     printf(" Number of sexes: %d (minimum required for colonization)\n",
-           Race->number_sexes);
+           race->number_sexes);
 
     printf("\n\nLook OK (y/n)?");
 
@@ -677,10 +675,10 @@ int main(int argc, char *argv[]) {
   }
 
   sect = &Sector(*planet, secttypes[i].x, secttypes[i].y);
-  Race->likesbest = i;
-  Race->likes[i] = 1.0;
-  Race->likes[PLATED] = 1.0;
-  Race->likes[WASTED] = 0.0;
+  race->likesbest = i;
+  race->likes[i] = 1.0;
+  race->likes[PLATED] = 1.0;
+  race->likes[WASTED] = 0.0;
 
   printf("\nEnter compatibilities of other sectors -\n");
 
@@ -688,13 +686,13 @@ int main(int argc, char *argv[]) {
     if (i != j) {
       printf("%6s (%3d sectors): ", Desnames[j], secttypes[j].count);
       scanf("%d", &k);
-      Race->likes[j] = (double)k / 100.0;
+      race->likes[j] = (double)k / 100.0;
     }
   }
 
   printf("Numraces = %d\n", Numraces());
-  Race->Playernum = Numraces() + 1;
-  Playernum = Race->Playernum;
+  race->Playernum = Numraces() + 1;
+  Playernum = race->Playernum;
 
   /*
    * mask = sigblock(SIGBLOCKS);
@@ -709,7 +707,7 @@ int main(int argc, char *argv[]) {
 
   printf("Creating government ship %d...\n", shipno);
 
-  Race->Gov_ship = shipno;
+  race->Gov_ship = shipno;
   planet->ships = shipno;
   capital_ship.nextship = 0;
 
@@ -742,7 +740,7 @@ int main(int argc, char *argv[]) {
   capital_ship.fuel = 0.0;
   capital_ship.popn = capital_ship.max_crew;
   capital_ship.troops = 0;
-  capital_ship.mass = capital_ship.base_mass + (capital_ship.popn * Race->mass);
+  capital_ship.mass = capital_ship.base_mass + (capital_ship.popn * race->mass);
   capital_ship.resource = 0;
   capital_ship.destruct = capital_ship.resource;
   capital_ship.alive = 1;
@@ -782,16 +780,16 @@ int main(int argc, char *argv[]) {
   putship(&capital_ship);
 
   for (j = 0; j < MAXPLAYERS; ++j) {
-    Race->points[j] = 0;
+    race->points[j] = 0;
   }
 
-  putrace(Race);
+  putrace(race);
 
   sect->owner = Playernum;
   sect->race = Playernum;
 
   if (ADAM_AND_EVE) {
-    planet->popn = Race->number_sexes;
+    planet->popn = race->number_sexes;
   } else {
     planet->popn = 0;
   }
@@ -807,7 +805,7 @@ int main(int argc, char *argv[]) {
    * Approximate
    */
   planet->maxpopn =
-      ((maxsupport(Race, sect, 100.0, 0) * planet->Maxx) * planet->Maxy) / 2;
+      ((maxsupport(race, sect, 100.0, 0) * planet->Maxx) * planet->Maxy) / 2;
   planet->info[Playernum - 1].numsectsowned = 1;
   planet->info[Playernum - 1].explored = 1;
   /*

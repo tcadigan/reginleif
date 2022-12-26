@@ -51,8 +51,6 @@
 #include "prof.h"
 #include "shootblast.h"
 
-extern char *Desnames[];
-
 void CSP_profile(int playernum, int governor, int apcount)
 {
     int p;

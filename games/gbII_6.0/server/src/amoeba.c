@@ -76,6 +76,7 @@
 #include "rand.h"
 #include "power.h"
 #include "races.h"
+#include "shipdata.h"
 #include "ships.h"
 #include "tweakables.h"
 #include "vars.h"

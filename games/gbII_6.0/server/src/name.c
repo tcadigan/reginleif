@@ -67,19 +67,8 @@ static char head[1024];
 /* static struct tm *current_tm; */
 /* static long clk; */
 
-extern void personal(int, int, char *);
-extern void motto(int, int, int, char *);
-extern int MostAPs(int, startype *);
-extern void announce(int, int, char *, int, int);
-extern char *garble_msg(char *, int, int, int);
-
 /* Garble code variables from HAP by CWL -mfw */
 #define BUFFER_LEN ((MAX_COMMAND_LEN) * 8)
-
-extern int chat_flag;
-extern int chat_static;
-extern long size_of_words;
-extern FILE *garble_file;
 
 /* Buffer used by garble */
 char gbuf[BUFFER_LEN];

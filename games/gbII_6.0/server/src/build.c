@@ -49,6 +49,7 @@
 #include "races.h"
 #include "ranks.h"
 #include "shlmisc.h"
+#include "shipdata.h"
 #include "ships.h"
 #include "tweakables.h"
 #include "vars.h"
@@ -57,8 +58,6 @@
 #include "land.h"
 #include "shootblast.h"
 #include "tele.h"
-
-extern int ShipVector[];
 
 #ifdef MARKET
 char const *Commod[] = {"resources", "destruct", "fuel", "crystals"};

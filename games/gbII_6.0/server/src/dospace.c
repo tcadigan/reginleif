@@ -45,9 +45,6 @@
 #include "order.h"
 #include "tele.h"
 
-extern char *Commod[];
-extern long Shipdata[NUMSTYPES][NUMABILS];
-
 void do_turn(int);
 int APadd(int, int, racetype *);
 int governed(racetype *);

@@ -281,11 +281,12 @@ const double planet_compat_cov[N_HOME_PLANET_TYPES][N_SECTOR_TYPES] = {
  */
 int fd;
 int isserver = 0;
-struct x race;
-struct x cost;
-struct x last;
+struct raceinfo gen_race;
+struct raceinfo cost;
+struct raceinfo last;
 int npoints = STARTING_POINTS;
 int last_npoints = STARTING_POINTS;
+unsigned short free_ship_list;
 
 /*
  * 1 if and only if race has been altered since last saved
@@ -451,15 +452,15 @@ int cost_of_race(void)
 
     for (i = FIRST_ATTRIBUTE; i <= LAST_ATTRIBUTE; ++i) {
         cost.attr[i] =
-            (exp(attr[i].e_fudge * (race.attr[i] - attr[i].e_hinge))
+            (exp(attr[i].e_fudge * (gen_race.attr[i] - attr[i].e_hinge))
              * attr[i].e_factor)
-            + (race.attr[i] * attr[i].l_factor);
+            + (gen_race.attr[i] * attr[i].l_factor);
     }
 
     for (i = FIRST_ATTRIBUTE; i <= LAST_ATTRIBUTE; ++i) {
         for (j = FIRST_ATTRIBUTE; j <= LAST_ATTRIBUTE; ++j) {
             if (attr[i].cov[j] != 0.0) {
-                cost.attr[i] *= (1.0 + (attr[i].cov[j] * race.attr[j]));
+                cost.attr[i] *= (1.0 + (attr[i].cov[j] * gen_race.attr[j]));
             }
         }
     }
@@ -469,36 +470,36 @@ int cost_of_race(void)
         sum += cost.attr[i];
     }
 
-    cost.home_planet_type = planet_cost[race.home_planet_type];
+    cost.home_planet_type = planet_cost[gen_race.home_planet_type];
     sum += cost.home_planet_type;
-    cost.race_type = race_cost[race.race_type];
+    cost.race_type = race_cost[gen_race.race_type];
     sum += cost.race_type;
-    race.n_sector_types = 0;
+    gen_race.n_sector_types = 0;
 
     for (i = FIRST_SECTOR_TYPE; i <= LAST_SECTOR_TYPE; ++i) {
-        if (race.compat[i] != 0.0) {
-            race.n_sector_types += 1;
+        if (gen_race.compat[i] != 0.0) {
+            gen_race.n_sector_types += 1;
         }
 
         /*
          * Get the base costs
          */
         cost.compat[i] =
-            (race.compat[i] * 0.5) + (10.8 * log(1.0 + race.compat[i]));
+            (gen_race.compat[i] * 0.5) + (10.8 * log(1.0 + gen_race.compat[i]));
     }
 
     for (i = FIRST_SECTOR_TYPE; i <= LAST_SECTOR_TYPE; ++i) {
         for (j = i + 1; j <= LAST_SECTOR_TYPE; ++j) {
             if (compat_cov[j][i] != 0.0) {
-                cost.compat[i] *= (1.0 + (compat_cov[j][i] * race.compat[j]));
-                cost.compat[j] *= (1.0 + (compat_cov[j][i] * race.compat[i]));
+                cost.compat[i] *= (1.0 + (compat_cov[j][i] * gen_race.compat[j]));
+                cost.compat[j] *= (1.0 + (compat_cov[j][i] * gen_race.compat[i]));
             }
         }
     }
 
     for (i = FIRST_SECTOR_TYPE; i <= LAST_SECTOR_TYPE; ++i) {
-        if (planet_compat_cov[race.home_planet_type][i] > 1.01) {
-            cost.compat[i] *= planet_compat_cov[race.home_planet_type][i];
+        if (planet_compat_cov[gen_race.home_planet_type][i] > 1.01) {
+            cost.compat[i] *= planet_compat_cov[gen_race.home_planet_type][i];
         }
     }
 
@@ -507,7 +508,7 @@ int cost_of_race(void)
         sum += cost.compat[i];
     }
 
-    cost.n_sector_types = blah[race.n_sector_types];
+    cost.n_sector_types = blah[gen_race.n_sector_types];
     sum += cost.n_sector_types;
 
     return sum;
@@ -640,7 +641,7 @@ void normal(void)
 
 void fix_up_iq(void)
 {
-    if (race.attr[COL_IQ] == 1.0) {
+    if (gen_race.attr[COL_IQ] == 1.0) {
         strcpy(attr[A_IQ].print_name, "IQ Limit");
     } else {
         strcpy(attr[A_IQ].print_name, "IQ");
@@ -665,8 +666,8 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
      */
     for (i = FIRST_ATTRIBUTE; i <= LAST_ATTRIBUTE; ++i) {
         if ((attr[i].is_integral == 2)
-            && (race.attr[i] != 0.0)
-            && (race.attr[i] != 1.0)) {
+            && (gen_race.attr[i] != 0.0)
+            && (gen_race.attr[i] != 1.0)) {
             if (f != NULL) {
                 fprintf(f,
                         "%s is boolean valued. Use \"yes\" or \"no\".\n",
@@ -676,13 +677,13 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
             ++nerrors;
         }
 
-        if (race.attr[i] < attr[i].minimum) {
+        if (gen_race.attr[i] < attr[i].minimum) {
             /*
              * Don't care if metamorph's num of sex is 1
              */
-            if ((race.race_type != R_METAMORPH)
+            if ((gen_race.race_type != R_METAMORPH)
                 || (i != SEXES)
-                || (race.attr[i] != 1)) {
+                || (gen_race.attr[i] != 1)) {
                 if (f != NULL) {
                     fprintf(f,
                             "%s must be at least %0.2f.\n",
@@ -694,7 +695,7 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
             }
         }
 
-        if (race.attr[i] > attr[i].maximum) {
+        if (gen_race.attr[i] > attr[i].maximum) {
             if (f != NULL) {
                 fprintf(f,
                         "%s must be at most %0.2f.\n",
@@ -705,9 +706,9 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
             ++nerrors;
         }
 
-        if ((race.race_type == R_METAMORPH)
+        if ((gen_race.race_type == R_METAMORPH)
             && (i == SEXES)
-            && (race.attr[i] != 1)) {
+            && (gen_race.attr[i] != 1)) {
             if (f != NULL) {
                 fprintf(f,
                         "Metamorphic race must have one sex. It's their privilege.\n");
@@ -720,22 +721,22 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
          * Warning, but no error
          */
         if (attr[i].is_integral) {
-            if (race.attr[i] != (double)(int)(race.attr[i])) {
+            if (gen_race.attr[i] != (double)(int)(gen_race.attr[i])) {
                 if (f != NULL) {
-                    race.attr[i] = (double)(int)(race.attr[i]);
+                    gen_race.attr[i] = (double)(int)(gen_race.attr[i]);
                     fprintf(f,
                             "%s is integral; truncated to %1.0f.\n",
                             attr[i].print_name,
-                            race.attr[i]);
+                            gen_race.attr[i]);
                 }
             }
-        } else if (race.attr[i] != ((double)(int)(100.0 * race.attr[i]) / 100.0)) {
+        } else if (gen_race.attr[i] != ((double)(int)(100.0 * gen_race.attr[i]) / 100.0)) {
             if (f != NULL) {
-                race.attr[i] = (double)(int)(100.0 * race.attr[i]) / 100.0;
+                gen_race.attr[i] = (double)(int)(100.0 * gen_race.attr[i]) / 100.0;
                 fprintf(f,
                         "%s truncated to next lowest hundredth (%1.2f).\n",
                         attr[i].print_name,
-                        race.attr[i]);
+                        gen_race.attr[i]);
             }
         }
     }
@@ -743,8 +744,8 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
     /*
      * Check for valid normal race attributes
      */
-    if (race.race_type == R_NORMAL) {
-        if (race.attr[ABSORB] != 0.0) {
+    if (gen_race.race_type == R_NORMAL) {
+        if (gen_race.attr[ABSORB] != 0.0) {
             if (f != NULL) {
                 fprintf(f,
                         "Normal races do not absorb their enemies in combat.\n");
@@ -753,7 +754,7 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
             ++nerrors;
         }
 
-        if (race.attr[PODS] != 0.0) {
+        if (gen_race.attr[PODS] != 0.0) {
             if (f != NULL) {
                 fprintf(f, "Normal races do mot make pods.\n");
             }
@@ -765,7 +766,7 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
     /*
      * Check for valid name
      */
-    if (strlen(race.name) == 0) {
+    if (strlen(gen_race.name) == 0) {
         if (f != NULL) {
             fprintf(f, "Use a non-empty name.\n");
         }
@@ -776,7 +777,7 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
     /*
      * Check for valid leader
      */
-    if (strlen(race.leader) == 0) {
+    if (strlen(gen_race.leader) == 0) {
         if (f != NULL) {
             fprintf(f, "Use a non-empty leader.\n");
         }
@@ -787,8 +788,8 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
     /*
      * Check for valid privileges
      */
-    if ((race.priv_type < FIRST_PRIV_TYPE)
-        || (race.priv_type > LAST_PRIV_TYPE)) {
+    if ((gen_race.priv_type < FIRST_PRIV_TYPE)
+        || (gen_race.priv_type > LAST_PRIV_TYPE)) {
         if (f != NULL) {
             fprintf(f, "Privileges out of valid range.\n");
         }
@@ -796,11 +797,11 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
         ++nerrors;
     }
 
-    if ((race.priv_type != P_NORMAL) && (is_player_race || isserver)) {
+    if ((gen_race.priv_type != P_NORMAL) && (is_player_race || isserver)) {
         if (f != NULL) {
             fprintf(f,
                     "Players may not create %s races.\n",
-                    priv_print_name[race.priv_type]);
+                    priv_print_name[gen_race.priv_type]);
         }
 
         ++nerrors;
@@ -809,8 +810,8 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
     /*
      * Check for valid home planet
      */
-    if ((race.home_planet_type < FIRST_HOME_PLANET_TYPE)
-        || (race.home_planet_type > LAST_HOME_PLANET_TYPE)) {
+    if ((gen_race.home_planet_type < FIRST_HOME_PLANET_TYPE)
+        || (gen_race.home_planet_type > LAST_HOME_PLANET_TYPE)) {
         if (f != NULL) {
             fprintf(f, "Home planet type out of valid range.\n");
         }
@@ -821,8 +822,8 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
     /*
      * Check for valid race
      */
-    if ((race.race_type < FIRST_RACE_TYPE)
-        || (race.race_type > LAST_RACE_TYPE)) {
+    if ((gen_race.race_type < FIRST_RACE_TYPE)
+        || (gen_race.race_type > LAST_RACE_TYPE)) {
         if (f != NULL) {
             fprintf(f, "Race type out of valid range.\n");
         }
@@ -833,8 +834,8 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
     /*
      * Check for valid sector compats
      */
-    if ((race.home_planet_type != H_JOVIAN)
-        && (race.compat[S_PLATED] != 100.0)) {
+    if ((gen_race.home_planet_type != H_JOVIAN)
+        && (gen_race.compat[S_PLATED] != 100.0)) {
         if (f != NULL) {
             fprintf(f, "Non-jovian races must have 100%% plated compat.\n");
         }
@@ -843,7 +844,7 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
     }
 
     for (i = FIRST_SECTOR_TYPE + 1; i <= LAST_SECTOR_TYPE; ++i) {
-        if (race.compat[i] < 0.0) {
+        if (gen_race.compat[i] < 0.0) {
             if (f != NULL) {
                 fprintf(f, "Sector compatibility is at minimum 0%%.\n");
             }
@@ -851,7 +852,7 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
             ++nerrors;
         }
 
-        if (race.compat[i] > 100.0) {
+        if (gen_race.compat[i] > 100.0) {
             if (f != NULL) {
                 fprintf(f, "Sector compatibility may be at most 100%%.\n");
             }
@@ -860,8 +861,8 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
         }
 
         if ((i == S_GAS)
-            && (race.compat[i] != 0.0)
-            && (race.home_planet_type != H_JOVIAN)) {
+            && (gen_race.compat[i] != 0.0)
+            && (gen_race.home_planet_type != H_JOVIAN)) {
             if (f != NULL) {
                 fprintf(f,
                         "Non-jovian races may never have gas compatibility!\n");
@@ -872,9 +873,9 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
 
         if ((i != S_GAS)
             && (i != S_WATER)
-            && (race.compat[i] != 0.0)
-            && (race.home_planet_type == H_JOVIAN)
-            && (race.priv_type != P_GOD)) {
+            && (gen_race.compat[i] != 0.0)
+            && (gen_race.home_planet_type == H_JOVIAN)
+            && (gen_race.priv_type != P_GOD)) {
             if (f != NULL) {
                 fprintf(f,
                         "Jovian races may have no compatibility other than gas or water!\n");
@@ -886,12 +887,12 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
         /*
          * A warning, but no error
          */
-        if (race.compat[i] != (double)(int)(race.compat[i])) {
+        if (gen_race.compat[i] != (double)(int)(gen_race.compat[i])) {
             if (f != NULL) {
-                race.compat[i] = (double)(int)(race.compat[i]);
+                gen_race.compat[i] = (double)(int)(gen_race.compat[i]);
                 fprintf(f,
                         "Sector compatibilities are integral; truncated to %1.0f.\n",
-                        race.compat[i]);
+                        gen_race.compat[i]);
             }
         }
     }
@@ -900,9 +901,9 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
         /*
          * Any rejection notice is an error
          */
-        if (strlen(race.rejection)) {
+        if (strlen(gen_race.rejection)) {
             if (f != NULL) {
-                fprintf(f, "%s", race.rejection);
+                fprintf(f, "%s", gen_race.rejection);
             }
 
             ++nerrors;
@@ -911,7 +912,7 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
         /*
          * Check for valid password
          */
-        if (strlen(race.password) < MIN_PASSWORD_LENGTH) {
+        if (strlen(gen_race.password) < MIN_PASSWORD_LENGTH) {
             if (f != NULL) {
                 fprintf(f,
                         "Race passwords are required to be at least %d characters long.\n",
@@ -921,7 +922,7 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
             ++nerrors;
         }
 
-        if (strlen(race.ldrpw) < MIN_PASSWORD_LENGTH) {
+        if (strlen(gen_race.ldrpw) < MIN_PASSWORD_LENGTH) {
             if (f != NULL) {
                 fprintf(f,
                         "Leader passwords are required to be at least %d characters long.\n",
@@ -929,14 +930,14 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
             }
 
             ++nerrors;
-        } else if(!strcmp(race.password, "XXXX")) {
+        } else if(!strcmp(gen_race.password, "XXXX")) {
             if (f != NULL) {
                 fprintf(f,
                         "You must change your race password from the default.\n");
             }
 
             ++nerrors;
-        } else if(strcmp(race.ldrpw, "XXXX")) {
+        } else if(strcmp(gen_race.ldrpw, "XXXX")) {
             if (f != NULL) {
                 fprintf(f,
                         "You must change your leader password from the default.\n");
@@ -945,7 +946,7 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
             ++nerrors;
         }
 
-        if (!strcmp(race.address, "Unknown")) {
+        if (!strcmp(gen_race.address, "Unknown")) {
             if (f != NULL) {
                 fprintf(f, "You must change your email address.\n");
             }
@@ -956,7 +957,7 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
         /*
          * Check that race isn't 'super race'
          */
-        if ((npoints < 0) && (race.priv_type != P_GOD)) {
+        if ((npoints < 0) && (gen_race.priv_type != P_GOD)) {
             if (f != NULL) {
                 fprintf(f, "You can't have negative points left!\n");
             }
@@ -967,8 +968,8 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
         /*
          * Check that sector compats are reasonable
          */
-        if ((race.home_planet_type != H_JOVIAN)
-            && (race.n_sector_types == 1)) {
+        if ((gen_race.home_planet_type != H_JOVIAN)
+            && (gen_race.n_sector_types == 1)) {
             if (f != NULL) {
                 fprintf(f,
                         "Non-jovian races must be compat with at least one sector type besides plated.\n");
@@ -978,8 +979,8 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
         }
 
         for (i = FIRST_SECTOR_TYPE; i <= LAST_SECTOR_TYPE; ++i) {
-            if ((planet_compat_cov[race.home_planet_type][i] == 1.0)
-                && (race.compat[i] == 100.0)) {
+            if ((planet_compat_cov[gen_race.home_planet_type][i] == 1.0)
+                && (gen_race.compat[i] == 100.0)) {
                 break;
             }
         }
@@ -994,11 +995,11 @@ int critique_to_file(FILE *f, int rigorous_checking, int is_player_race)
         }
     }
 
-    if (race.status >= 0) {
+    if (gen_race.status >= 0) {
         if (nerrors == 0) {
-            race.status = STATUS_BALANCED;
+            gen_race.status = STATUS_BALANCED;
         } else {
-            race.status = STATUS_UNBALANCED;
+            gen_race.status = STATUS_UNBALANCED;
         }
     }
 
@@ -1009,20 +1010,20 @@ int critique_modification(void)
 {
     int nerrors;
 
-    race.rejection[0] = '\0';
+    gen_race.rejection[0] = '\0';
     nerrors = critique_to_file(stdout, 0, IS_PLAYER);
 
     if (nerrors) {
-        memcpy(&race, &last, sizeof(struct x));
+        memcpy(&gen_race, &last, sizeof(struct raceinfo));
     } else {
         altered = 1;
         changed = 1;
     }
 
     if (nerrors == 0) {
-        race.status = STATUS_BALANCED;
+        gen_race.status = STATUS_BALANCED;
     } else {
-        race.status = STATUS_UNBALANCED;
+        gen_race.status = STATUS_UNBALANCED;
     }
 
     return nerrors;
@@ -1036,24 +1037,24 @@ void initialize(void)
 {
     int i;
 
-    memset(&race, 0, sizeof(race));
+    memset(&gen_race, 0, sizeof(gen_race));
 
     for (i = FIRST_ATTRIBUTE; i <= LAST_ATTRIBUTE; ++i) {
-        race.attr[i] = attr[i].init;
+        gen_race.attr[i] = attr[i].init;
     }
 
-    race.race_type = R_NORMAL;
-    race.priv_type = P_NORMAL;
-    race.home_planet_type = H_EARTH;
-    race.n_sector_types = 1;
-    race.compat[S_PLATED] = 100;
-    strcpy(race.name, "Unknown");
-    strcpy(race.address, "Unknown");
-    strcpy(race.password, "XXXX");
-    strcpy(race.leader, "Unknown");
-    strcpy(race.ldrpw, "XXXX");
+    gen_race.race_type = R_NORMAL;
+    gen_race.priv_type = P_NORMAL;
+    gen_race.home_planet_type = H_EARTH;
+    gen_race.n_sector_types = 1;
+    gen_race.compat[S_PLATED] = 100;
+    strcpy(gen_race.name, "Unknown");
+    strcpy(gen_race.address, "Unknown");
+    strcpy(gen_race.password, "XXXX");
+    strcpy(gen_race.leader, "Unknown");
+    strcpy(gen_race.ldrpw, "XXXX");
     normal();
-    memcpy(&last, &race, sizeof(struct x));
+    memcpy(&last, &gen_race, sizeof(struct raceinfo));
     cost_of_race();
 
     for (i = FIRST_ATTRIBUTE; i <= LAST_ATTRIBUTE; ++i) {
@@ -1186,8 +1187,8 @@ void help(int argc, char const *argv[])
         printf("\t\t this command will load your race from the file specified\n");
         printf("\t\t in the optional first argument or from the file ");
 
-        if (race.filename[0]) {
-            printf("\"%s\"\n", race.filename);
+        if (gen_race.filename[0]) {
+            printf("\"%s\"\n", gen_race.filename);
         } else {
             printf("\"%s\"\n", SAVETO);
         }
@@ -1291,8 +1292,8 @@ void help(int argc, char const *argv[])
         printf("\t\t This command will save your race to the file specified in\n");
         printf("\t\t the optional first argument, or to the file ");
 
-        if (race.filename[0]) {
-            printf("\"%s\"\n", race.filename);
+        if (gen_race.filename[0]) {
+            printf("\"%s\"\n", gen_race.filename);
         } else {
             printf("\"%s\"\n", SAVETO);
         }
@@ -1360,64 +1361,64 @@ int load_from_file(FILE *g)
         }
     }
 
-    race.status = STATUS_BALANCED;
+    gen_race.status = STATUS_BALANCED;
 
-    if (fscanf(g, " %s", race.address) == EOF) {
+    if (fscanf(g, " %s", gen_race.address) == EOF) {
         printf("Error: Premature end of file.\n");
 
         return 1;
     }
 
-    if (fscanf(g, " %d", &race.priv_type) == EOF) {
+    if (fscanf(g, " %d", &gen_race.priv_type) == EOF) {
         printf("Error: Premature end of file.\n");
 
         return 1;
     }
 
-    if (fscanf(g, " %s", race.name) == EOF) {
+    if (fscanf(g, " %s", gen_race.name) == EOF) {
         printf("Error: Premature end of file.\n");
 
         return 1;
     }
 
-    if (fscanf(g, " %s", race.password) == EOF) {
+    if (fscanf(g, " %s", gen_race.password) == EOF) {
         printf("Error: Premature end of file.\n");
 
         return 1;
     }
 
-    if (fscanf(g, " %s", race.leader) == EOF) {
+    if (fscanf(g, " %s", gen_race.leader) == EOF) {
         printf("Error: Premature end of file.\n");
 
         return 1;
     }
 
-    if (fscanf(g, " %s", race.ldrpw) == EOF) {
+    if (fscanf(g, " %s", gen_race.ldrpw) == EOF) {
         printf("Error: Premature end of file.\n");
 
         return 1;
     }
 
-    if (fscanf(g, " %d", &race.home_planet_type) == EOF) {
+    if (fscanf(g, " %d", &gen_race.home_planet_type) == EOF) {
         printf("Error: Premature end of file.\n");
 
         return 1;
     }
 
-    if (fscanf(g, " %d", &race.race_type) == EOF) {
+    if (fscanf(g, " %d", &gen_race.race_type) == EOF) {
         printf("Error: Premature end of file.\n");
 
         return 1;
     }
 
-    if (race.race_type == R_NORMAL) {
+    if (gen_race.race_type == R_NORMAL) {
         normal();
     } else {
         metamorph();
     }
 
     for (i = FIRST_ATTRIBUTE; i <= LAST_ATTRIBUTE; ++i) {
-        if (fscanf(g, " %lf", &race.attr[i]) == EOF) {
+        if (fscanf(g, " %lf", &gen_race.attr[i]) == EOF) {
             printf("Error: Premature end of file.\n");
 
             return 1;
@@ -1427,7 +1428,7 @@ int load_from_file(FILE *g)
     fix_up_iq();
 
     for (i = FIRST_SECTOR_TYPE; i <= LAST_SECTOR_TYPE; ++i) {
-        if (fscanf(g, " %lf", &race.compat[i]) == EOF) {
+        if (fscanf(g, " %lf", &gen_race.compat[i]) == EOF) {
             printf("Error: Premature end of file.\n");
 
             return 1;
@@ -1476,7 +1477,7 @@ void load(int argc, char *argv[])
     char c[64];
     int i;
 
-    memcpy(&last, &race, sizeof(struct x));
+    memcpy(&last, &gen_race, sizeof(struct raceinfo));
 
     if (altered) {
         i = dialogue("This race has been altered; load anyway?",
@@ -1491,16 +1492,16 @@ void load(int argc, char *argv[])
 
     if (argc > 1) {
         strcpy(c, argv[1]);
-    } else if(!race.filename[0]) {
+    } else if(!gen_race.filename[0]) {
         strcpy(c, SAVETO);
     }
 
     if (load_from_filename(c)) {
         printf("Load from file \"%s\" failed.\n", c);
-        memcpy(&race, &last, sizeof(struct x));
+        memcpy(&gen_race, &last, sizeof(struct raceinfo));
     } else {
         printf("loaded race from file \"%s\".\n", c);
-        strcpy(race.filename, c);
+        strcpy(gen_race.filename, c);
         altered = 0;
         changed = 1;
     }
@@ -1521,7 +1522,7 @@ int modify(int argc, char *argv[])
 
     j = strlen(argv[1]);
 
-    memcpy(&last, &race, sizeof(struct x));
+    memcpy(&last, &gen_race, sizeof(struct raceinfo));
 
     /*
      * Check for attribute modification
@@ -1545,7 +1546,7 @@ int modify(int argc, char *argv[])
                 f = atof(argv[2]);
             }
 
-            race.attr[i] = f;
+            gen_race.attr[i] = f;
             fix_up_iq();
 
 
@@ -1557,7 +1558,7 @@ int modify(int argc, char *argv[])
      * Check for name modification
      */
     if (!strncasecmp(argv[1], "name", j)) {
-        strcpy(race.name, argv[2]);
+        strcpy(gen_race.name, argv[2]);
 
         return critique_modification();
     }
@@ -1566,7 +1567,7 @@ int modify(int argc, char *argv[])
      * Check for leader modification
      */
     if (!strncasecmp(argv[1], "leader", j)) {
-        strcpy(race.leader, argv[2]);
+        strcpy(gen_race.leader, argv[2]);
 
         return critique_modification();
     }
@@ -1575,7 +1576,7 @@ int modify(int argc, char *argv[])
      * Check for from-address modification
      */
     if (!strncasecmp(argv[1], "address", j)) {
-        strcpy(race.address, argv[2]);
+        strcpy(gen_race.address, argv[2]);
 
         return critique_modification();
     }
@@ -1610,14 +1611,14 @@ int modify(int argc, char *argv[])
         for (i = FIRST_HOME_PLANET_TYPE; i <= LAST_HOME_PLANET_TYPE; ++i) {
             if (!strncasecmp(argv[2], planet_print_name[i], j)) {
                 if (i == H_JOVIAN) {
-                    memset(race.compat, 0, sizeof(race.compat));
-                    race.compat[S_GAS] = 100.0;
-                } else if (race.home_planet_type == H_JOVIAN) {
-                    race.compat[S_PLATED] = 100.0;
-                    race.compat[S_GAS] = 0.0;
+                    memset(gen_race.compat, 0, sizeof(gen_race.compat));
+                    gen_race.compat[S_GAS] = 100.0;
+                } else if (gen_race.home_planet_type == H_JOVIAN) {
+                    gen_race.compat[S_PLATED] = 100.0;
+                    gen_race.compat[S_GAS] = 0.0;
                 }
 
-                race.home_planet_type = i;
+                gen_race.home_planet_type = i;
 
                 return critique_modification();
             }
@@ -1632,7 +1633,7 @@ int modify(int argc, char *argv[])
      * Check for password modification
      */
     if (!strncasecmp(argv[1], "password", j)) {
-        strcpy(race.password, argv[2]);
+        strcpy(gen_race.password, argv[2]);
 
         return critique_modification();
     }
@@ -1641,7 +1642,7 @@ int modify(int argc, char *argv[])
      * Check for leader password modification
      */
     if (!strncasecmp(argv[1], "ldrpw", j)) {
-        strcpy(race.ldrpw, argv[2]);
+        strcpy(gen_race.ldrpw, argv[2]);
 
         return critique_modification();
     }
@@ -1655,20 +1656,20 @@ int modify(int argc, char *argv[])
         for (i = FIRST_RACE_TYPE; i <= LAST_RACE_TYPE; ++i) {
             if (!strncasecmp(argv[2], race_print_name[i], j)) {
                 if (i == R_METAMORPH) {
-                    race.attr[ABSORB] = 1;
-                    race.attr[PODS] = 1;
-                    race.attr[COL_IQ] = 1;
-                    race.attr[SEXES] = 1;
+                    gen_race.attr[ABSORB] = 1;
+                    gen_race.attr[PODS] = 1;
+                    gen_race.attr[COL_IQ] = 1;
+                    gen_race.attr[SEXES] = 1;
                     metamorph();
                 } else {
-                    race.attr[ABSORB] = 0;
-                    race.attr[PODS] = 0;
-                    race.attr[COL_IQ] = 0;
-                    race.attr[SEXES] = 2;
+                    gen_race.attr[ABSORB] = 0;
+                    gen_race.attr[PODS] = 0;
+                    gen_race.attr[COL_IQ] = 0;
+                    gen_race.attr[SEXES] = 2;
                     normal();
                 }
 
-                race.race_type = i;
+                gen_race.race_type = i;
 
                 return critique_modification();
             }
@@ -1695,7 +1696,7 @@ int modify(int argc, char *argv[])
 #else
     for (i = FIRST_SECTOR_TYPE; i <= LAST_SECTOR_TYPE; ++i) {
         if (!strncasecmp(argv[1], sector_print_name[i], j)) {
-            race.compat[i] = atof(argv[2]);
+            gen_race.compat[i] = atof(argv[2]);
 
             return critique_modification();
         }
@@ -1719,24 +1720,24 @@ void print_to_file(FILE *f, int verbose)
 
     if (verbose) {
         fprintf(f, "\nAddress      :");
-        fprintf(f, " %-24.24s", race.address);
+        fprintf(f, " %-24.24s", gen_race.address);
 #ifdef PRIV
         fprintf(f, "Privileges      :");
         fprintf(f, " %-22.22s\n", priv_print_name[race.priv_type]);
 #endif
         fprintf(f, "Race Name    :");
-        fprintf(f, " %-24.24s", race.name);
+        fprintf(f, " %-24.24s", gen_race.name);
         fprintf(f, "Race Password   :");
-        fprintf(f, " %-22.22s\n", race.password);
+        fprintf(f, " %-22.22s\n", gen_race.password);
         fprintf(f, "Leader Name  :");
-        fprintf(f, " %-24.24s", race.leader);
+        fprintf(f, " %-24.24s", gen_race.leader);
         fprintf(f, "Leader Password :");
-        fprintf(f, " %-22.22s\n", race.ldrpw);
+        fprintf(f, " %-22.22s\n", gen_race.ldrpw);
         fprintf(f, "Planet       :");
-        fprintf(f, " %12.12s", planet_print_name[race.home_planet_type]);
+        fprintf(f, " %12.12s", planet_print_name[gen_race.home_planet_type]);
         fprintf(f, " [%4d]     ", cost.home_planet_type);
         fprintf(f, "Race Type       :");
-        fprintf(f, " %-9.9s", race_print_name[race.race_type]);
+        fprintf(f, " %-9.9s", race_print_name[gen_race.race_type]);
         fprintf(f, "  [%4d]\n", cost.race_type);
         fprintf(f, "\n");
         fprintf(f, "Attributes:\n");
@@ -1745,7 +1746,7 @@ void print_to_file(FILE *f, int verbose)
             fprintf(f, "%13.13s:", attr[i].print_name);
 
             if (attr[i].is_integral == 2) {
-                if (race.attr[i] > 0.0) {
+                if (gen_race.attr[i] > 0.0) {
                     fprintf(f, "  yes   ");
                 } else {
                     fprintf(f, "   no   ");
@@ -1769,14 +1770,14 @@ void print_to_file(FILE *f, int verbose)
 
         fprintf(f,
                 "Sector Types:    %2d     [%4d]\n",
-                race.n_sector_types,
+                gen_race.n_sector_types,
                 cost.n_sector_types);
 
         for (i = FIRST_SECTOR_TYPE; i <= LAST_SECTOR_TYPE; ++i) {
             fprintf(f, "%13.13s ", sector_print_name[i]);
-            fprintf(f, " %3.0f", race.compat[i]);
+            fprintf(f, " %3.0f", gen_race.compat[i]);
 
-            if (planet_compat_cov[race.home_planet_type][i] == 1.0) {
+            if (planet_compat_cov[gen_race.home_planet_type][i] == 1.0) {
                 fprintf(f, "%%   *[%4.0f]", cost.compat[i]);
             } else {
                 fprintf(f, "%%    [%4.0f]",  cost.compat[i]);
@@ -1797,21 +1798,21 @@ void print_to_file(FILE *f, int verbose)
                 last_npoints);
     } else {
         fprintf(f, START_RECORD_STRING);
-        fprintf(f, " %s", race.address);
-        fprintf(f, "%d", race.priv_type);
-        fprintf(f, " %s", race.name);
-        fprintf(f, " %s", race.password);
-        fprintf(f, " %s", race.leader);
-        fprintf(f, " %s", race.ldrpw);
-        fprintf(f, " %d", race.home_planet_type);
-        fprintf(f, " %d", race.race_type);
+        fprintf(f, " %s", gen_race.address);
+        fprintf(f, "%d", gen_race.priv_type);
+        fprintf(f, " %s", gen_race.name);
+        fprintf(f, " %s", gen_race.password);
+        fprintf(f, " %s", gen_race.leader);
+        fprintf(f, " %s", gen_race.ldrpw);
+        fprintf(f, " %d", gen_race.home_planet_type);
+        fprintf(f, " %d", gen_race.race_type);
 
         for (i = FIRST_ATTRIBUTE; i <= LAST_ATTRIBUTE; ++i) {
-            fprintf(f, " %7.2f", race.attr[i]);
+            fprintf(f, " %7.2f", gen_race.attr[i]);
         }
 
         for (i = FIRST_SECTOR_TYPE; i <= LAST_SECTOR_TYPE; ++i) {
-            fprintf(f, " %3.0f", race.compat[i]);
+            fprintf(f, " %3.0f", gen_race.compat[i]);
         }
 
         /*
@@ -1858,13 +1859,13 @@ void print(int argc, char *argv[])
 void save(int argc, char *argv[])
 {
     if (argc > 1) {
-        strcpy(race.filename, argv[1]);
-    } else if (!race.filename[0]) {
-        strcpy(race.filename, SAVETO);
+        strcpy(gen_race.filename, argv[1]);
+    } else if (!gen_race.filename[0]) {
+        strcpy(gen_race.filename, SAVETO);
     }
 
-    if (print_to_filename(race.filename, 0)) {
-        printf("Saved race to file \"%s\".\n", race.filename);
+    if (print_to_filename(gen_race.filename, 0)) {
+        printf("Saved race to file \"%s\".\n", gen_race.filename);
         altered = 0;
     }
 }
@@ -1874,21 +1875,21 @@ void send2(int argc, char *argv[])
     FILE *f;
     char sys[64];
 
-    memcpy(&last, &race, sizeof(struct x));
+    memcpy(&last, &gen_race, sizeof(struct raceinfo));
 
     if (critique_to_file(stdout, 1, IS_PLAYER)) {
         return;
     }
 
-    f = fopen(race.password, "w");
+    f = fopen(gen_race.password, "w");
 
     if (f == NULL) {
-        printf("Unable to open file \"%s\".\n", race.password);
+        printf("Unable to open file \"%s\".\n", gen_race.password);
 
         return;
     }
 
-    fprintf(f, "From: %s\n", race.address);
+    fprintf(f, "From: %s\n", gen_race.address);
     fprintf(f, "Subject: %s Race Submission\n", GAME);
     fprintf(f, "\n");
     print_to_file(f, 0);
@@ -1896,29 +1897,29 @@ void send2(int argc, char *argv[])
 
     fflush(stdout);
     printf("Mailing race to %s : ", GODADDR);
-    sprintf(sys, "cat %s | %s %s", race.password, MAILER, GODADDR);
+    sprintf(sys, "cat %s | %s %s", gen_race.password, MAILER, GODADDR);
     system(sys);
     printf("done.\n");
 
-    f = fopen(race.password, "w");
+    f = fopen(gen_race.password, "w");
 
     if (f == NULL) {
-        printf("Unable to open file \"%s\".\n", race.password);
+        printf("Unable to open file \"%s\".\n", gen_race.password);
 
         return;
     }
 
-    fprintf(f, "From: %s\n", race.address);
+    fprintf(f, "From: %s\n", gen_race.address);
     fprintf(f, "Subject: %s Race Submission\n\n", GAME);
     print_to_file(f, 1);
     fclose(f);
 
     fflush(stdout);
-    printf("Mailing race to %s : ", race.address);
-    sprintf(sys, "cat %s | %s %s", race.password, MAILER, race.address);
+    printf("Mailing race to %s : ", gen_race.address);
+    sprintf(sys, "cat %s | %s %s", gen_race.password, MAILER, gen_race.address);
     system(sys);
     printf("done.\n");
-    unlink(race.password);
+    unlink(gen_race.password);
 }
 
 int dialogue(const char *prompt, ...)

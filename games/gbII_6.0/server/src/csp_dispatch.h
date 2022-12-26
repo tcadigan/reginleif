@@ -43,19 +43,11 @@
 #include "zoom.h"
 
 /* For binary search */
-typedef struct command_struct {
+typedef struct {
     int command;
     void (*func) (int, int, int, int, orbitinfo *);
     int cnt;
 } CSP_commands;
-
-/*
- * typedef struct csp_recv_command_struct {
- *     int command;
- *     void (*func)();
- *     int cnt;
- * } CSP_Commands;
- */
 
 /* These are commands the server will RECEIVE from the client */
 static CSP_commands csp_client_commands[] = {

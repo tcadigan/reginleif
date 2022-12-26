@@ -48,6 +48,7 @@
 #include "power.h"
 #include "races.h"
 #include "ranks.h"
+#include "shipdata.h"
 #include "ships.h"
 #include "tweakables.h"
 #include "vars.h"
@@ -69,9 +70,6 @@ int Getracenum(char *, char *, int *, int *);
 int GetPlayer(char *);
 void deductAps(int, int, int, int, int);
 double morale_factor(double);
-
-extern int authorized(int, shiptype *);
-extern int authorized_in_star(int, int, startype *);
 
 #define FNAMESIZE 20
 
@@ -270,7 +268,7 @@ void governors(int playernum, int governor, int apcount, int unused4, orbitinfo 
                         race->governor[i].active ? "ACTIVE" : "INACTIVE",
                         rank,
                         MONEY(race, i);
-                        ctime(&Race->governor[i].last_login));
+                        ctime(&race->governor[i].last_login));
 
 #else
 

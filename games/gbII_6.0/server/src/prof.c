@@ -51,12 +51,6 @@
 #include "shootblast.h"
 #include "tele.h"
 
-extern char *Desnames[];
-
-extern char *Estimate_f(double, racetype *, int);
-extern char *Estimate_i(int, racetype *, int);
-extern int round_perc(int, racetype *, int);
-
 static char est_buf[20];
 
 void whois(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)

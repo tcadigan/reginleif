@@ -40,12 +40,6 @@
 #include "shlmisc.h"
 #include "vars.h"
 
-extern char *Desnames[];
-
-extern void relation(int, int, int, int, orbitinfo *);
-extern void csp_relation(int, int);
-extern int isallied(racetype *, int, int, int);
-
 void relation(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int numraces;
@@ -184,8 +178,8 @@ void csp_relation(int playernum, int governor)
                     p,
                     irt,
                     race->translate[p - 1],
-                    iallied(race, p, 100, (int)race->God),
-                    iallied(r, q, (int)race->translate[p - 1], (int)race->God),
+                    isallied(race, p, 100, (int)race->God),
+                    isallied(r, q, (int)race->translate[p - 1], (int)race->God),
                     r->name);
         }
     }

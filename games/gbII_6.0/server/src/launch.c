@@ -40,6 +40,7 @@
 #include "races.h"
 #include "rand.h"
 #include "ranks.h"
+#include "shipdata.h"
 #include "ships.h"
 #include "shlmisc.h"
 #include "vars.h"

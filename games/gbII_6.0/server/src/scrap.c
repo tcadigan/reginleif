@@ -37,15 +37,15 @@
 #include "power.h"
 #include "races.h"
 #include "ranks.h"
+#include "shipdata.h"
 #include "ships.h"
 #include "shlmisc.h"
 #include "vars.h"
 
+#include "build.h"
 #include "fire.h"
 #include "land.h"
 #include "load.h"
-
-int inship(shiptype *); /* This was missing (kse) */
 
 void scrap(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {

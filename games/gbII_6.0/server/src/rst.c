@@ -44,6 +44,7 @@
 #include "power.h"
 #include "races.h"
 #include "ranks.h"
+#include "shipdata.h"
 #include "ships.h"
 #include "shlmisc.h"
 #include "vars.h"
@@ -62,8 +63,6 @@
 #define FACTORIES 6
 
 #define PLANET 1
-
-extern char Shipltrs[];
 
 static char Caliber[] = { ' ', 'L', 'M', 'H' };
 static char shiplist[256];
@@ -89,14 +88,8 @@ static int display;
 /* Global; used in csp_dump.c */
 reportdata *rd;
 
-extern void ship_report(int, int, int, unsigned char[], int);
-extern void plan_getrships(int, int, int, int);
-extern void star_getrships(int, int, int);
-extern int Getrship(int, int, int);
-extern void Free_rlist(void);
-extern int listed(int, char *);
-extern double rad2deg(double);
-extern double deg2rad(double);
+double rad2deg(double);
+double deg2rad(double);
 
 void rst(int playernum, int governor, int apcount, int rst, orbitinfo *unused5)
 {

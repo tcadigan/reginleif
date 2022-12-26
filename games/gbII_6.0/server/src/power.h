@@ -26,9 +26,8 @@
 #include "vars.h"
 
 /* For power report */
-typedef struct power powertype;
 
-struct power {
+typedef struct {
     unsigned long troops; /* Total troops */
     unsigned long popn; /* Total population */
     unsigned long resource; /* Total resource in stock */
@@ -40,8 +39,8 @@ struct power {
     unsigned long money;
     unsigned long sum_mob; /* Total mobilization */
     unsigned long sum_eff; /* Total efficiency */
-};
+} powertype;
 
-extern struct power Power[MAXPLAYERS];
+extern powertype Power[MAXPLAYERS];
 
 #endif /* POWER_H_ */

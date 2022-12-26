@@ -48,6 +48,7 @@
 #include "power.h"
 #include "races.h"
 #include "ranks.h"
+#include "shipdata.h"
 #include "ships.h"
 #include "shlmisc.h"
 #include "vars.h"
@@ -58,11 +59,6 @@
 #include "shootblast.h"
 
 #define PLANET 1
-
-extern char Shipltrs[];
-extern reportdata *rd;
-
-racetype *race;
 
 void csp_ship_report(int, int, int, unsigned char[], int);
 
@@ -94,7 +90,7 @@ void CSP_sectors(int playernum, int governor, int unused3, int unused4, orbitinf
 void CSP_star_dump(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     placetype where;
-    struct star *star;
+    startype *star;
     int i;
 
     if (argn < 2) {
@@ -403,7 +399,6 @@ void CSP_ship_list(int playernum, int governor, int unused3, int unused4, orbiti
     }
 
     /* One list entry for each ship, planet in universe */
-    race = races[playernum - 1];
 
     /* Get ship here */
     sscanf(args[2], "%d", &starnum);
@@ -454,7 +449,6 @@ void csp_ship_dump(int playernum, int governor, int unused3, int unused4, orbiti
     }
 
     /* One list entry for each ship, planet in universe */
-    race = races[playernum - 1];
     tact_mode = 1;
     first_arg = 2;
 
@@ -930,7 +924,7 @@ void csp_ship_report(int playernum,
 
         /* Tactical information... */
         if (rd[indx].type == PLANET) {
-            tech = race->tech;
+            tech = races[playernum - 1]->tech;
             caliber = MEDIUM;
 
             sprintf(buf,
@@ -979,7 +973,7 @@ void csp_ship_report(int playernum,
                 if (i != indx) {
                     Dist = sqrt(Distsq(rd[indx].x, rd[indx].y, rd[i].x, rd[i].y));
 
-                    if (Dist < gun_range(race, rd[indx].s, (rd[indx].type == PLANET))) {
+                    if (Dist < gun_range(races[playernum - 1], rd[indx].s, (rd[indx].type == PLANET))) {
                         if (rd[i].type == PLANET) {
                             /* tact report at planet */
                             if (rd[indx].type == PLANET) {

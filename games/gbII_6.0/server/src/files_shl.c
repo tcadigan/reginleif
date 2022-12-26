@@ -50,20 +50,12 @@
 
 #define SHIP_CONSISTENCY
 
-extern int errno;
-extern unsigned short free_ship_list;
-
-/* Comment this out if sys_errlist is not in libc -mfw */
-/* extern char *sys_errlist[]; */
-
-/* int sys_nerr; */
 int commoddata;
 int pdata;
 int racedata;
 int sectdata;
 int shdata;
 int stdata;
-unsigned short free_ship_list;
 
 void close_file(int);
 void close_data_files(void);
@@ -98,10 +90,10 @@ void clr_shipfree(void);
 void clr_commodfree(void);
 void makeshipdead(int);
 void makecommoddead(int);
-void Putpower(struct power[MAXPLAYERS]);
-void GetPower(struct power[MAXPLAYERS]);
-void Putblock(struct block[MAXPLAYERS]);
-void Getblock(struct block[MAXPLAYERS]);
+void Putpower(powertype[MAXPLAYERS]);
+void GetPower(powertype[MAXPLAYERS]);
+void Putblock(blocktype[MAXPLAYERS]);
+void Getblock(blocktype[MAXPLAYERS]);
 int nextship(shiptype *);
 
 void close_file(int fd)
@@ -710,7 +702,7 @@ void makecommoddead(int commodnum)
     close_file(fd);
 }
 
-void Putpower(struct power p[MAXPLAYERS])
+void Putpower(powertype p[MAXPLAYERS])
 {
     int power_fd;
 
@@ -727,7 +719,7 @@ void Putpower(struct power p[MAXPLAYERS])
     close_file(power_fd);
 }
 
-void GetPower(struct power p[MAXPLAYERS])
+void GetPower(powertype p[MAXPLAYERS])
 {
     int power_fd;
 
@@ -744,7 +736,7 @@ void GetPower(struct power p[MAXPLAYERS])
     }
 }
 
-void Putblock(struct block b[MAXPLAYERS])
+void Putblock(blocktype b[MAXPLAYERS])
 {
     int block_fd;
 
@@ -761,7 +753,7 @@ void Putblock(struct block b[MAXPLAYERS])
     close_file(block_fd);
 }
 
-void Getblock(struct block b[MAXPLAYERS])
+void Getblock(blocktype b[MAXPLAYERS])
 {
     int block_fd;
 

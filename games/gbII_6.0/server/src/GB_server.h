@@ -1,6 +1,8 @@
 #ifndef GB_SERVER_H_
 #define GB_SERVER_H_
 
+#include <stdio.h>
+
 #include "vars.h"
 
 int main(int, char **);
@@ -63,5 +65,12 @@ void close_game(int, int, int, int, orbitinfo *);
 void read_schedule_file(int, int);
 void _freeship(int, int, int, int, orbitinfo *);
 void show_uptime(int, int, int, int, orbitinfo *);
+
+extern char const *Desnames[];
+extern char const Dessymbols[];
+extern int chat_static;
+extern int chat_flag;
+extern long size_of_words;
+extern FILE *garble_file;
 
 #endif /* GB_SERVER_H_ */

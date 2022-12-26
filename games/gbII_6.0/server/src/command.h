@@ -80,7 +80,7 @@
 /*
  * For binary search
  */
-typedef struct command_struct {
+typedef struct {
     const char *name;
     void (*func)(int, int, int, int, orbitinfo *);
     int god;

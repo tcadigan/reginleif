@@ -159,8 +159,8 @@ int main(int argc, char *argv[])
     int z;
     int squaresleft;
     int total;
-    struct power power[MAXPLAYERS];
-    struct block block[MAXPLAYERS];
+    powertype power[MAXPLAYERS];
+    blocktype block[MAXPLAYERS];
 
     /*
      * Initialize

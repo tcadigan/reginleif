@@ -41,6 +41,7 @@
 #include "power.h"
 #include "races.h"
 #include "rand.h"
+#include "shipdata.h"
 #include "ships.h"
 #include "shlmisc.h"
 #include "vars.h"
@@ -49,9 +50,6 @@
 #include "load.h"
 #include "shootblast.h"
 #include "tele.h"
-
-extern long Shipdata[NUMSTYPES][NUMABILS];
-extern int Bombard(shiptype *, planettype *, racetype *);
 
 /* Ship #shipno bombards planet, then alert whom it may concern. */
 int auto_bomb(shiptype *ship,

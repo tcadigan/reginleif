@@ -37,17 +37,13 @@
 #include "csp.h"
 #include "config.h"
 #include "files.h"
+#include "ships.h"
 #include "tweakables.h"
 
 extern unsigned long segments; /* Number of movement segments (global variable) */
 
 /* Shipping routes - DON'T change this unless you know what you are doing */
 #define MAX_ROUTES 4
-
-#define TH_RESOURCE 0 /* THRESHOLDING STUFF */
-#define TH_DESTRUCT 1
-#define TH_FUEL 2
-#define TH_CRYSTALS 3
 
 #define FAIL 0
 #define SUCCESS 1
@@ -117,12 +113,6 @@ typedef char hugestr[HUGESTRLEN];
 
 extern unsigned int CombatUpdate; /* Global */
 
-typedef struct sector sectortype;
-typedef struct planet planettype;
-typedef struct star startype;
-typedef struct commod commodtype;
-typedef struct report reportdata;
-
 struct plinfo {
     /* Planetary stockpiles */
     unsigned short fuel; /* Fuel for powering things */
@@ -180,7 +170,7 @@ struct plinfo {
 #define Crystals(x) ((x) & M_CRYSTALS)
 #define Military(x) ((x) & M_MILITARY)
 
-struct commod {
+typedef struct {
     char owner;
     char governor;
     char type;
@@ -195,9 +185,9 @@ struct commod {
     unsigned char planet_from;
     unsigned char star_to; /* Where it goes to */
     unsigned char planet_to;
-};
+} commodtype;
 
-struct sector {
+typedef struct {
     unsigned char eff; /* Efficiency (0-100) */
     unsigned char fert; /* Max popn is proportional to this */
     unsigned char mobilization; /* Percent popn is mobilized for war */
@@ -215,9 +205,9 @@ struct sector {
     unsigned short popn;
     unsigned short troops; /* Troops (additional combat value) */
     unsigned long dummy2;
-};
+} sectortype;
 
-struct planet {
+typedef struct {
     int sectormappos; /* File posn for sector map */
     double xpos; /* x relative to orbit */
     double ypos; /* y relative to orbit */
@@ -242,9 +232,9 @@ struct planet {
     unsigned char sheep; /* Is emotion suppressed */
 
     unsigned long dummy[2];
-};
+} planettype;
 
-struct star {
+typedef struct {
     unsigned short ships; /* 1st ship in orbit */
     char name[NAMESIZE]; /* Name of sate */
     char governor[MAXPLAYERS]; /* Which subordinate maintains the system */
@@ -269,18 +259,18 @@ struct star {
     unsigned short wh_stability; /* Stability of wormhole */
 
     long dummy[2]; /* Dummy bits for development */
-};
+} startype;
 
-struct report {
+typedef struct {
     unsigned char type; /* Ship or planet */
-    struct ship *s;
+    shiptype *s;
     planettype *p;
     short n;
     unsigned char star;
     unsigned char pnum;
     double x;
     double y;
-};
+} reportdata;
 
 /* this data will all be read once */
 struct stardata {
@@ -379,7 +369,7 @@ struct dtable {
 
 #define MAIL_SIZE 1024
 
-struct mdb_entry {
+typedef struct {
     int fromrace;
     int fromgov;
     long date;
@@ -387,7 +377,7 @@ struct mdb_entry {
     int what;
     char flags; /* See the following. */
     char message[MAIL_SIZE];
-};
+} mdbtype;
 
 #define TO_PLAYER 0
 #define TO_BLOCK 1
@@ -397,8 +387,6 @@ struct mdb_entry {
 #define MF_DELETED 1
 #define MF_READ 2
 #define MF_NEW 4
-
-typedef struct mdb_entry mdbtype;
 
 extern struct descrip des[MAXDESCRIPTORS + 1];
 extern struct dtable actives[MAXPLAY_GOV + 1];
@@ -471,7 +459,7 @@ extern int suspended; /* Prevent updates/segments flag */
 
 #define ORBIT_SCALE 100
 
-struct OrbitInfo {
+typedef struct {
     double Lastx;
     double Lasty;
     double Zoom;
@@ -479,9 +467,7 @@ struct OrbitInfo {
     int DontDispStars;
     int DontDispShips;
     int DontDispNum;
-};
-
-typedef struct OrbitInfo orbitinfo;
+} orbitinfo;
 
 /* Bit routines stolen from UNIX <sys/param.h> */
 #ifdef setbit
@@ -546,9 +532,6 @@ typedef struct OrbitInfo orbitinfo;
 #define COMM_XMIT_CHANNEL2 5
 #define COMM_XMIT_CHANNEL3 6
 #define COMM_CHANNEL_MASK 3
-
-/* For smart guns from HAP -mfw */
-#define SMART_LIST_SIZE 15
 
 /*
  * For time tags. The strlen of these plus the strlen of a UNIX timestamp should

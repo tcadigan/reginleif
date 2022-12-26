@@ -45,6 +45,7 @@
 #include "power.h"
 #include "races.h"
 #include "ranks.h"
+#include "shipdata.h"
 #include "ships.h"
 #include "vars.h"
 

@@ -224,7 +224,7 @@ extern double const planet_compat_cov[N_HOME_PLANET_TYPES][N_SECTOR_TYPES];
 /*
  * Structure for holding information about a race.
  */
-struct x {
+struct raceinfo {
     char address[64]; /* Person who this is from, or going to. */
     char filename[64];
     char name[64];
@@ -242,9 +242,9 @@ struct x {
 };
 
 /* Global variables for this program. */
-extern struct x race;
-extern struct x rgen_cost;
-extern struct x last;
+extern struct raceinfo gen_race;
+extern struct raceinfo rgen_cost;
+extern struct raceinfo last;
 extern int npoints;
 extern int last_npoints;
 /* 1 if and only if race has been altered since last saved */

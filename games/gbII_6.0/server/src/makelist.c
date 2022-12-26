@@ -39,7 +39,7 @@
 
 #define NUM_CHARS 4
 
-typedef struct list {
+typedef struct {
     char name[257];
     struct list *next;
     struct list *prev;

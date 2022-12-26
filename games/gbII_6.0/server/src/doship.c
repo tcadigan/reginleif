@@ -49,6 +49,7 @@
 #include "power.h"
 #include "rand.h"
 #include "races.h"
+#include "shipdata.h"
 #include "ships.h"
 #include "shlmisc.h"
 #include "vars.h"
@@ -59,8 +60,6 @@
 #include "load.h"
 #include "shootblast.h"
 #include "tele.h"
-
-extern long Shipdata[NUMSTYPES][NUMABILS];
 
 void doship(shiptype *, int);
 void domass(shiptype *);

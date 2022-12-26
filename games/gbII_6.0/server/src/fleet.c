@@ -20,16 +20,34 @@
  * The GNU General Public License is contained in the file LICENSE.
  * -----------------------------------------------------------------------------
  */
-#ifndef FLEET_H_
-#define FLEET_H_
+#include "fleet.h"
 
-#include "tweakables.h"
-#include "vars.h"
-
-extern const char *Fleetnames[MAXFLEETS + 1];
-
-void fleet(int, int, int, int, orbitinfo *);
-char fitofc(int);
-int fctofi(char);
-
-#endif /* FLEET_H_ */
+const char *Fleetnames[MAXFLEETS + 1] = {
+    "Error",
+    "Able",
+    "Baker",
+    "Charlie",
+    "Dog",
+    "Easy",
+    "Fox",
+    "George",
+    "How",
+    "Item",
+    "Jig",
+    "King",
+    "Love",
+    "Mike",
+    "Nan",
+    "Oboe",
+    "Peter",
+    "Queen",
+    "Roger",
+    "Sugar",
+    "Tare",
+    "Uncle",
+    "Victor",
+    "William",
+    "Xray",
+    "Yoke",
+    "Zebra"
+};

@@ -35,5 +35,10 @@ int Shipcost(int, racetype *);
 void sell(int, int, int, int, orbitinfo *);
 void bid(int, int, int, int, orbitinfo *);
 int shipping_cost(int, int, double *, int);
+int inship(shiptype *);
+
+#ifdef MARKET
+extern char const *Commod[];
+#endif
 
 #endif /* BUILD_H_ */

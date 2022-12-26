@@ -26,16 +26,17 @@ GBII_SRCS = GB_server.c amoeba.c analysis.c autoreport.c autoshoot.c bug.c \
             csp_explore.c csp_map.c csp_orbit.c csp_prof.c csp_survey.c \
             csp_who.c declare.c dispatch.c dissolve.c dock.c doplanet.c \
             dosector.c doship.c dospace.c doturn.c enslave.c examine.c \
-            explore.c files.c files_rw.c files_shl.c fire.c first.c fuel.c \
-            get4args.c getplace.c help.c land.c launch.c lists.c load.c log.c \
-            map.c max.c md5.c misc.c mobiliz.c move.c moveplanet.c moveship.c \
-            name.c orbit.c order.c perm.c pod.c prof.c rand.c relation.c \
-            reserve.c rst.c sche.c schedule.c scrap.c shlmisc.c shootblast.c \
-            survey.c tech.c tele.c togg.c toxi.c user_fleet.c user_power.c \
-            vict.c vn.c zoom.c
+            explore.c files.c files_rw.c files_shl.c fire.c first.c fleet.c \
+            fuel.c get4args.c getplace.c help.c land.c launch.c lists.c load.c \
+            log.c map.c max.c md5.c misc.c mobiliz.c move.c moveplanet.c \
+            moveship.c name.c orbit.c order.c perm.c pod.c prof.c rand.c \
+            relation.c reserve.c rst.c sche.c schedule.c scrap.c shipdata.c \
+            shlmisc.c shootblast.c survey.c tech.c tele.c togg.c toxi.c \
+            user_fleet.c user_power.c vict.c vn.c zoom.c
 GBII_OBJS = ${GBII_SRCS:.c=.o}
 
-ENROL_SRCS = enrol.c files.c files_rw.c files_shl.c log.c max.c perm.c rand.c
+ENROL_SRCS = enrol.c files.c files_rw.c files_shl.c log.c max.c perm.c rand.c \
+             shipdata.c
 ENROL_OBJS = ${ENROL_SRCS:.c=.o}
 
 MAKEUNIV_SRCS = files.c makeplanet.c makestar.c makeuniv.c makewormhole.c \
@@ -43,7 +44,7 @@ MAKEUNIV_SRCS = files.c makeplanet.c makestar.c makeuniv.c makewormhole.c \
 MAKEUNIV_OBJS = ${MAKEUNIV_SRCS:.c=.o}
 
 RACEGEN_SRCS = GB_enroll.c GB_racegen.c enroll.c files.c files_rw.c \
-               files_shl.c log.c max.c perm.c rand.c
+               files_shl.c log.c max.c perm.c rand.c shipdata.c
 RACEGEN_OBJS = ${RACEGEN_SRCS:.c=.o}
 
 PSMAP_SRCS = psmap.c

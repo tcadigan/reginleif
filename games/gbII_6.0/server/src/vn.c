@@ -60,6 +60,7 @@
 #include "power.h"
 #include "races.h"
 #include "rand.h"
+#include "shipdata.h"
 #include "ships.h"
 #include "vars.h"
 
@@ -70,8 +71,6 @@
 #include "tele.h"
 
 #ifdef USE_VN
-
-extern long Shipdata[NUMSTYPES][NUMABILS];
 
 void do_vn(shiptype *ship)
 {

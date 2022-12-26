@@ -75,20 +75,7 @@
 
 #include "help.h"
 
-/* Data file descriptors */
-int commoddata;
-int pdata;
-int racedata;
-int sectdata;
-int shdata;
-int stdata;
-
-extern long Shipdata[NUMSTYPES][NUMABILS];
-extern int errno;
-extern unsigned short free_ship_list;
-
-/* Only use sys_errlist if it is defined in libc -mfw */
-/* extern char *sys_errlist[]; */
+unsigned short free_ship_list;
 
 int shutdown_flag = 0;
 int update_flag = 0;
@@ -100,6 +87,12 @@ char start_buf[128];
 char update_buf[128];
 char segment_buf[128];
 
+char buf[4096];
+char long_buf[4096];
+char short_buf[1024];
+char telegram_buf[4096];
+char temp[2048];
+
 int chat_flag = DEFAULT_CHAT; /* CWL */
 int chat_static = 1; /* CWL */
 long size_of_words; /* CWL */
@@ -110,7 +103,7 @@ FILE *garble_file; /* CWL */
 static int ainit =0;
 static int naddresses = 0;
 
-typedef struct access {
+typedef struct {
     struct in_addr ac_addr;
     int ac_cidr;
     int ac_value;

@@ -39,18 +39,19 @@
 #include "getplace.h"
 #include "lists.h"
 #include "misc.h"
+#include "move.h"
 #include "power.h"
 #include "races.h"
 #include "rand.h"
 #include "ranks.h"
 #include "shlmisc.h"
+#include "shipdata.h"
 #include "ships.h"
 #include "vars.h"
 
 #include "fire.h"
 #include "tele.h"
 
-extern int Defensedata[];
 void capture_stuff(shiptype *);
 
 void capture(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)

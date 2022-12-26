@@ -56,59 +56,17 @@
 /* Defense 5 is impenetrable */
 int Defensedata[] = {1, 1, 3, 2, 2, 3, 2, 4, 0};
 
-extern char *Desnames[];
-extern char Dessymbols[];
-
-extern void mech_defend(int,
-                        int,
+void mech_attack_people(shiptype *,
                         int *,
-                        int,
-                        planettype *,
-                        int,
-                        int,
+                        int *,
+                        racetype *,
+                        racetype *,
                         sectortype *,
                         int,
                         int,
-                        sectortype *);
-
-extern void mech_attack_people(shiptype *,
-                               int *,
-                               int *,
-                               racetype *,
-                               racetype *,
-                               sectortype *,
-                               int,
-                               int,
-                               int,
-                               char *,
-                               char *);
-
-extern void people_attack_mech(shiptype *,
-                               int,
-                               int,
-                               racetype *,
-                               racetype *,
-                               sectortype *,
-                               int,
-                               int,
-                               char *,
-                               char *);
-
-extern void ground_attack(racetype *,
-                          racetype *,
-                          int *,
-                          int,
-                          unsigned short *,
-                          unsigned short *,
-                          unsigned int,
-                          unsigned int,
-                          double,
-                          double,
-                          double *,
-                          double *,
-                          int *,
-                          int *,
-                          int *);
+                        int,
+                        char *,
+                        char *);
 
 void arm(int playernum, int governor, int apcount, int mode, orbitinfo *unused5)
 {

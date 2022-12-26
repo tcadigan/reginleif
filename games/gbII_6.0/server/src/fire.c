@@ -41,6 +41,7 @@
 #include "power.h"
 #include "races.h"
 #include "ranks.h"
+#include "shipdata.h"
 #include "ships.h"
 #include "shlmisc.h"
 #include "vars.h"
@@ -49,13 +50,6 @@
 #include "load.h"
 #include "shootblast.h"
 #include "tele.h"
-
-extern int retal_strength(shiptype *);
-extern int adjacent(int, int, int, int, planettype *);
-extern int landed(shiptype *);
-extern void check_overload(shiptype *, int, int *);
-extern void check_retal_strength(shiptype *, int *);
-extern int laser_on(shiptype *);
 
 /* Ship vs ship */
 void fire(int playernum, int governor, int apcount, int cew, orbitinfo *unused5)

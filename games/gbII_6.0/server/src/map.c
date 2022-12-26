@@ -43,6 +43,7 @@
 #include "races.h"
 #include "rand.h"
 #include "ranks.h"
+#include "shipdata.h"
 #include "ships.h"
 #include "shlmisc.h"
 #include "vars.h"
@@ -54,11 +55,6 @@
 #define DISP_DATA 1
 
 static racetype *race;
-extern char *planet_types[];
-
-extern void map(int, int, int, int, orbitinfo *);
-extern void show_map(int, int, int, int, planettype *, int, int);
-extern char desshow(int, int, planettype *, int, int, racetype *);
 
 void map(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
@@ -223,13 +219,13 @@ void show_map(int playernum,
         if (race->Metamorph) {
             sprintf(temp,
                     "Type: %8s   Sects %7s: %3u   Aliens:",
-                    planet_types[p->type],
+                    Planet_types[p->type],
                     "covered",
                     p->info[playernum - 1].numsectsowned);
         } else {
             sprintf(temp,
                     "Type: %8s   Sects %7s: %3u   Aliens:",
-                    planet_types[p->type],
+                    Planet_types[p->type],
                     "owned",
                     p->info[playernum - 1].numsectsowned);
         }

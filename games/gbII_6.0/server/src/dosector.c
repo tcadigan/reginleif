@@ -38,13 +38,12 @@
 
 #include "doturn.h"
 #include "max.h"
+#include "move.h"
 #include "power.h"
 #include "races.h"
 #include "rand.h"
 #include "ships.h"
 #include "vars.h"
-
-extern int Defensedata[];
 
 /* Produce stuff in sector */
 void produce(startype *, planettype *, sectortype *);

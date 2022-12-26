@@ -11,4 +11,6 @@ int Getrship(int, int, int);
 void Free_rlist(void);
 int listed(int, char *);
 
+extern reportdata *rd;
+
 #endif /* RST_H_ */

@@ -50,13 +50,12 @@
 #include "races.h"
 #include "rand.h"
 #include "ranks.h"
+#include "shipdata.h"
 #include "ships.h"
 #include "vars.h"
 
 #include "csp_orbit.h"
 #include "fire.h"
-
-extern char Shipltrs[];
 
 static racetype *race;
 
@@ -77,25 +76,6 @@ char const *Planet_types[] = {
     "Wormhole",
     "Swamp"
 };
-
-extern void DispStar(int, int, int, startype *, int, char *, orbitinfo *);
-extern void DispPlanet(int,
-                       int,
-                       int,
-                       planettype *,
-                       char *,
-                       racetype *,
-                       char *,
-                       orbitinfo *);
-
-extern void DispShip(int,
-                     int,
-                     placetype *,
-                     shiptype *,
-                     planettype *,
-                     int,
-                     char *,
-                     orbitinfo *);
 
 void orbit(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {

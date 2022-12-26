@@ -38,6 +38,7 @@
 #include "races.h"
 #include "ranks.h"
 #include "shlmisc.h"
+#include "shipdata.h"
 #include "ships.h"
 #include "vars.h"
 

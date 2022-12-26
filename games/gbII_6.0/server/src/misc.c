@@ -55,13 +55,6 @@
 #include "ships.h"
 #include "vars.h"
 
-extern double logscale(int);
-extern void getsdata(struct stardata *);
-extern void getstar(struct star **, int);
-extern void getplanet(struct planet **, int, int);
-extern void getrace(struct race **, int);
-extern void putrace(struct race *);
-
 double logscale(int x)
 {
     /* return ((x + 5.0) / (x + 10.0)); */

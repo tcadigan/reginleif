@@ -9,7 +9,10 @@ void orbit(int, int, int, int, orbitinfo *);
 void DispStar(int, int, int, startype *, int, char *, orbitinfo *);
 void DispPlanet(int, int, int, planettype *, char *, racetype *,
                            char *, orbitinfo *);
-void DispShip(int, int, placetype *, shiptype *, planettype *, int,
-                         char *, orbitinfo *);
+void DispShip(int, int, placetype *, shiptype *, planettype *, int, char *,
+              orbitinfo *);
+
+extern char Psymbol[];
+extern const char *Planet_types[];
 
 #endif /* ORBIT_H_ */

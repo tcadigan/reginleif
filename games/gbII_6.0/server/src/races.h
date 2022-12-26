@@ -43,7 +43,7 @@ typedef struct {
     /* char autopurge; /\* Add this in for next run *\/ */
 } toggletype;
 
-struct race {
+typedef struct {
     int Playernum;
     char name[RNAMESIZE]; /* Racial name. */
     char password[RNAMESIZE];
@@ -128,7 +128,7 @@ struct race {
         unsigned short flagship; /* First ship in the fleet list */
         unsigned short admiral; /* Governor in control of this fleet */
     } fleet[MAXFLEETS + 1];
-};
+} racetype;
 
 /* Vote bits */
 #define VOTE_UPDATE_GO 0x01 /* On - Go, Off - Wait */
@@ -186,7 +186,7 @@ struct race {
 #define TECH_WORMHOLE 100.0
 #define TECH_CRYSTAL 80.0 /* Was 50: changed by Gardan 20.12.1996 */
 
-struct block {
+typedef struct {
     int Playernum;
     char name[RNAMESIZE];
     char motto[MOTTOSIZE];
@@ -199,9 +199,9 @@ struct block {
     unsigned long VPs;
     unsigned long money;
     unsigned long dummy[2];
-};
+} blocktype;
 
-struct power_blocks {
+typedef struct {
     char time[128];
     unsigned long members[MAXPLAYERS];
     unsigned long troops[MAXPLAYERS]; /* Total troops */
@@ -215,13 +215,10 @@ struct power_blocks {
     unsigned long money[MAXPLAYERS];
     unsigned short VPs[MAXPLAYERS];
     unsigned long planets_owned[MAXPLAYERS];
-};
+} power_blockstype;
 
-typedef struct race racetype;
-typedef struct block blocktype;
-
-extern struct block Blocks[MAXPLAYERS];
-extern struct power_blocks Power_blocks;
+extern blocktype Blocks[MAXPLAYERS];
+extern power_blockstype Power_blocks;
 extern racetype *races[MAXPLAYERS];
 
 #endif /* RACES_H_ */

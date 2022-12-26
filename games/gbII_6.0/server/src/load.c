@@ -36,21 +36,19 @@
 #include "getplace.h"
 #include "GB_server.h"
 #include "misc.h"
+#include "move.h"
 #include "power.h"
 #include "races.h"
 #include "rand.h"
 #include "ranks.h"
+#include "shipdata.h"
 #include "shlmisc.h"
 #include "vars.h"
 
+#include "build.h"
 #include "fire.h"
 #include "land.h"
-#include "load.h"
 #include "move.h"
-
-extern char Dessymbols[];
-extern char *Desnames[];
-extern int Defensedata[];
 
 static char buff[128];
 static char bufr[128];
@@ -58,28 +56,6 @@ static char bufd[128];
 static char bufc[128];
 static char bufx[128];
 static char bufm[128];
-
-extern int jettison_check(int, int, int, int);
-extern void _mount(int, int, int, int);
-extern void use_destruct(shiptype *, int);
-extern void use_resource(shiptype *, int);
-extern void use_popn(shiptype *, int, double);
-extern void rcv_fuel(shiptype *, double);
-extern void rcv_resource(shiptype *, int);
-extern void rcv_destruct(shiptype *, int);
-extern void rcv_popn(shiptype *, int, double);
-extern void rcv_troops(shiptype *, int, double);
-extern void do_transporter(racetype *, int, shiptype *);
-extern int landed_on(shiptype *, int);
-extern void unload_onto_alien_sector(int,
-                                     int,
-                                     planettype *,
-                                     shiptype *,
-                                     sectortype *,
-                                     int,
-                                     int);
-
-int inship(shiptype *);
 
 void load(int playernum, int governor, int apcount, int mode, orbitinfo *unused5)
 {

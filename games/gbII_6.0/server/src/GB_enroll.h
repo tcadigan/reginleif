@@ -24,5 +24,6 @@
 #define GB_ENROLL_H_
 
 void init_enroll(void);
+int enroll_valid_race(void);
 
 #endif /* GB_ENROLL_H_ */

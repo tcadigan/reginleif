@@ -45,6 +45,7 @@
 #include "races.h"
 #include "rand.h"
 #include "ranks.h"
+#include "shipdata.h"
 #include "ships.h"
 #include "shlmisc.h"
 #include "vars.h"
@@ -54,12 +55,7 @@
 #include "shootblast.h"
 #include "tele.h"
 
-extern long Shipdata[NUMSTYPES][NUMABILS];
 static int roll;
-
-extern int crash(shiptype *, double);
-extern int docked(shiptype *);
-extern int overloaded(shiptype *);
 
 void land(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {

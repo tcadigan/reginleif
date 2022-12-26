@@ -28,13 +28,12 @@
 
 #include <string.h>
 
+#include "GB_enroll.h"
 #include "GB_racegen.h"
 #include "racegen.h"
 
 #define DEFAULT_ENROLLMENT_FILENAME "enroll.saves"
 #define DEFAULT_ENROLLMENT_FAILURE_FILENAME "failures.saves"
-
-extern int enroll_valid_race(void);
 
 int critique_to_file(FILE *, int, int);
 void modify_print_loop(int);
@@ -61,10 +60,10 @@ int enroll_player_race(char *failure_filename)
     while (n) {
         if (n > 1) {
             printf("Race (%s) unacceptable, for the following reasons:\n",
-                   race.name);
+                   gen_race.name);
         } else {
             printf("Race (%s) unacceptable, for the following reason:\n",
-                   race.name);
+                   gen_race.name);
         }
 
         critique_to_file(stdout, 1, 1);
@@ -75,7 +74,7 @@ int enroll_player_race(char *failure_filename)
             return 1;
         }
 
-        if (race.status == STATUS_ENROLLED) {
+        if (gen_race.status == STATUS_ENROLLED) {
             return 0;
         }
 
@@ -142,10 +141,10 @@ int enroll_player_race(char *failure_filename)
             return 1;
         }
 
-        fprintf(g, "To: %s\n", race.address);
+        fprintf(g, "To: %s\n", gen_race.address);
         fprintf(g, "Subject: %s Race Registration\n", GAME);
         fprintf(g, "\n");
-        fprintf(g, "The race you submitted (%s) was not accepted, ", race.name);
+        fprintf(g, "The race you submitted (%s) was not accepted, ", gen_race.name);
         if (n > 1) {
             fprintf(g, "for the following reasons:\n");
         } else {
@@ -166,9 +165,9 @@ int enroll_player_race(char *failure_filename)
         print_to_file(g, 1);
         fclose(g);
 
-        printf("Sending critique to %s via %s...", race.address, MAILER);
+        printf("Sending critique to %s via %s...", gen_race.address, MAILER);
         fflush(stdout);
-        sprintf(c, "cat %s | %s %s", TMP, MAILER, race.address);
+        sprintf(c, "cat %s | %s %s", TMP, MAILER, gen_race.address);
         system(c);
         printf("done.\n");
 
@@ -192,10 +191,10 @@ int enroll_player_race(char *failure_filename)
         return 0;
     }
 
-    fprintf(g, "To: %s\n", race.address);
+    fprintf(g, "To: %s\n", gen_race.address);
     fprintf(g, "Subject %s Race Accepted\n", GAME);
     fprintf(g, "\n");
-    fprintf(g, "The race you submitted (%s) was accepted.\n", race.name);
+    fprintf(g, "The race you submitted (%s) was accepted.\n", gen_race.name);
 
 #if 0
     if (race.modified_by_deity) {
@@ -209,9 +208,9 @@ int enroll_player_race(char *failure_filename)
 
     fclose(g);
 
-    printf("Sending acceptance to %s via %s...", race.address, MAILER);
+    printf("Sending acceptance to %s via %s...", gen_race.address, MAILER);
     fflush(stdout);
-    sprintf(c, "cat %s | %s %s", TMP, MAILER, race.address);
+    sprintf(c, "cat %s | %s %s", TMP, MAILER, gen_race.address);
     system(c);
     printf("done.\n");
 
@@ -235,13 +234,13 @@ int enroll(int argc, char *argv[])
 
     fclose(g);
 
-    memcpy(&last, &race, sizeof(struct x));
+    memcpy(&last, &gen_race, sizeof(struct raceinfo));
 
     /*
      * race.address will be unequal to GODADDR in the instance that this is a
      * race submission mailed from somebody other than the moderator.
      */
-    if (strcmp(race.address, GODADDR)) {
+    if (strcmp(gen_race.address, GODADDR)) {
         ret = enroll_player_race(argv[1]);
     } else {
         ret = critique_to_file(NULL, 1, 0);
@@ -249,10 +248,10 @@ int enroll(int argc, char *argv[])
         if (ret) {
             if (ret > 1) {
                 printf("Race (%s) unacceptable, for the following reasons:\n",
-                       race.name);
+                       gen_race.name);
             } else {
                 printf("Race (%s) unacceptable, for the following reason:\n",
-                       race.name);
+                       gen_race.name);
             }
 
             critique_to_file(stdout, 1, 0);
@@ -315,7 +314,7 @@ void process(int argc, char *argv[])
         }
 
         ++n;
-        printf("%s, from %s\n", race.name, race.address);
+        printf("%s, from %s\n", gen_race.name, gen_race.address);
 
         /*
          * We need the side effects:

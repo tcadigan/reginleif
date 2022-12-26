@@ -49,6 +49,7 @@
 #include "power.h"
 #include "races.h"
 #include "rand.h"
+#include "shipdata.h"
 #include "ships.h"
 #include "shlmisc.h"
 #include "tweakables.h"
@@ -63,7 +64,6 @@
 #include "tele.h"
 #include "shootblast.h"
 
-extern long Shipdata[NUMSTYPES][NUMABILS];
 int Sectormappos;
 
 /* Types of accidents that can occur on a toxic planet. */

@@ -51,13 +51,6 @@
 #include "fire.h"
 #include "order.h"
 
-/*
- * extern long next_segment_time;
- * extern long next_update_time;
- * extern long nsegments_done;
- * extern int update_time;
- */
-
 static char plan_buf[1024];
 static int number_segments;
 static double x_0;
@@ -66,9 +59,6 @@ static double x_1;
 static double y_1;
 static shiptype *tmpship;
 static placetype tmpdest;
-
-extern void fuel_output(int, int, double, double, double, double, int);
-extern int do_trip(double, double);
 
 void proj_fuel(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {

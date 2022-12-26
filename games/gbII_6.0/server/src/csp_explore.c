@@ -41,13 +41,12 @@
 #include "GB_server.h"
 #include "getplace.h"
 #include "max.h"
+#include "orbit.h"
 #include "power.h"
 #include "races.h"
 #include "ranks.h"
 #include "ships.h"
 #include "vars.h"
-
-extern char *Planet_types[];
 
 void CSP_exploration(int playernum, int governor)
 {

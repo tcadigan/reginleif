@@ -26,7 +26,6 @@
 #define __SHIPS_H__
 
 #include "config.h"
-#include "vars.h"
 
 #define LIGHT 1
 #define MEDIUM 2
@@ -148,8 +147,14 @@
 #define INF_NO_COMPAT -4
 #define INF_NOT_OWNED -5
 
-typedef struct ship shiptype;
-typedef struct place placetype;
+/* For smart guns from HAP -mfw */
+#define SMART_LIST_SIZE 15
+
+#define TH_RESOURCE 0 /* THRESHOLDING STUFF */
+#define TH_DESTRUCT 1
+#define TH_FUEL 2
+#define TH_CRYSTALS 3
+
 typedef unsigned short shipnumtype;
 
 struct inf_setting {
@@ -158,7 +163,7 @@ struct inf_setting {
     unsigned int max;
 };
 
-struct ship {
+typedef struct {
     shipnumtype number; /* Shop knows its own number */
     unsigned char owner; /* Owner of ship */
     unsigned char governor; /* Subordinate that controls the ship */
@@ -377,22 +382,20 @@ struct ship {
 
     unsigned short hanger; /* Amount of hanger space used */
     unsigned short max_hanger; /* Total hanger space */
-};
+} shiptype;
 
 /*
  * Used in function return for finding place
  */
-struct place {
+typedef struct {
     unsigned char snum;
     unsigned char pnum;
     shipnumtype shipno;
     shiptype *shipptr;
     unsigned char level; /* .level: same as Dir */
     unsigned char err; /* If error */
-};
+} placetype;
 
-extern long Shipdata[NUMSTYPES][NUMABILS];
-extern char Shipltrs[];
 extern char const *Shipnames[];
 
 extern shiptype **ships;

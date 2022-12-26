@@ -2,6 +2,7 @@
 #define LISTS_H_
 
 #include "ships.h"
+#include "vars.h"
 
 void insert_sh_univ(struct stardata *, shiptype *);
 void insert_sh_star(startype *, shiptype *);
@@ -15,5 +16,7 @@ int ShipCompare(void const *, void const *);
 void SortShips(void);
 void insert_sh_fleet(int, int, shiptype *, int);
 void remove_sh_fleet(int, int, shiptype *);
+
+extern int ShipVector[NUMSTYPES];
 
 #endif /* LISTS_H_ */

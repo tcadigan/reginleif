@@ -55,4 +55,6 @@ void create_pid_file(void);
 void delete_pid_file(void);
 int nextship(shiptype *);
 
+extern unsigned short free_ship_list;
+
 #endif /* FILES_SHL_H_ */

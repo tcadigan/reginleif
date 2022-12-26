@@ -40,10 +40,12 @@
 #include "GB_server.h"
 #include "log.h"
 #include "max.h"
+#include "orbit.h"
 #include "power.h"
 #include "races.h"
 #include "rand.h"
 #include "ranks.h"
+#include "shipdata.h"
 #include "ships.h"
 #include "shlmisc.h"
 #include "vars.h"
@@ -51,7 +53,6 @@
 #include "fire.h"
 
 static racetype *race;
-extern char *Planet_types[];
 
 int getowner(planettype *, int, int);
 char getsymbol(planettype *, int, int, racetype *, int);

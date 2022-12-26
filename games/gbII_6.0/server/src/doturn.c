@@ -53,6 +53,7 @@
 #include "power.h"
 #include "races.h"
 #include "rand.h"
+#include "shipdata.h"
 #include "ships.h"
 #include "shlmisc.h"
 #include "tweakables.h"
@@ -61,10 +62,6 @@
 
 #include "build.h"
 #include "tele.h"
-
-extern char *Commod[];
-extern long Shipdata[NUMSTYPES][NUMABILS];
-extern int chat_static;
 
 void do_turn(int);
 int APadd(int, int, racetype *);

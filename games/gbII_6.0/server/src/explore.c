@@ -40,6 +40,7 @@
 #include "GB_server.h"
 #include "getplace.h"
 #include "max.h"
+#include "orbit.h"
 #include "power.h"
 #include "races.h"
 #include "ranks.h"
@@ -48,13 +49,6 @@
 
 #include "csp_explore.h"
 #include "tech.h"
-
-extern char Psymbol[];
-extern char *Planet_types[];
-
-extern void colonies_at_star(int, int, racetype *, int, int);
-extern void star_location(int, int, int);
-extern void tech_report_star(int, int, startype *, int, int *, double *, double *);
 
 void colonies_at_star(int playernum,
                       int governor,

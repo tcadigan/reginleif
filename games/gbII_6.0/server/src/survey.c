@@ -48,6 +48,7 @@
 #include "power.h"
 #include "races.h"
 #include "ranks.h"
+#include "shipdata.h"
 #include "ships.h"
 #include "shlmisc.h"
 #include "vars.h"
@@ -57,9 +58,6 @@
 #include "mobiliz.h"
 
 #define MAX_SHIPS_PER_SECTOR 10
-
-extern char *Desnames[];
-extern char Dessymbols[];
 
 static char const *Tox[] = {
     "Stage 0, mild",

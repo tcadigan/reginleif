@@ -43,9 +43,6 @@
 #include "ships.h"
 #include "vars.h"
 
-extern char *Desnames[];
-extern char Dessymbols[];
-
 #define CARE 5
 
 void analysis(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)

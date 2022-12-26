@@ -38,9 +38,11 @@
 #include "files_shl.h"
 #include "getplace.h"
 #include "misc.h"
+#include "move.h"
 #include "power.h"
 #include "races.h"
 #include "rand.h"
+#include "shipdata.h"
 #include "ships.h"
 #include "shlmisc.h"
 #include "vars.h"
@@ -48,8 +50,6 @@
 #include "build.h"
 #include "fire.h"
 #include "tele.h"
-
-extern int Defensedata[];
 
 static int hit_probability;
 static double penetration_factor;

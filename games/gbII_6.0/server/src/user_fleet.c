@@ -43,11 +43,9 @@
 #include "GB_server.h"
 #include "power.h"
 #include "races.h"
+#include "shipdata.h"
 #include "ships.h"
 #include "vars.h"
-
-extern long Shipdata[NUMSTYPES][NUMABILS];
-extern char const *Shipnames[];
 
 int bad_flagship(int, int, int);
 int fctofi(char);

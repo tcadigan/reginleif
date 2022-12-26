@@ -44,18 +44,15 @@
 #include "power.h"
 #include "races.h"
 #include "ranks.h"
+#include "shipdata.h"
 #include "ships.h"
 #include "vars.h"
 
 #include "fire.h"
 
-extern char Shipltrs[];
-
-racetype *race;
-
-void csp_DispStar(int, int, int, int, startype *, int, char *);
+void csp_DispStar(int, int, int, int, startype *, racetype *, char *);
 void csp_DispPlanet(int, int, int, int, int, planettype *, char *, racetype *, char *);
-void csp_DispShip(int, int, placetype *, shiptype *, planettype *, int, char *);
+void csp_DispShip(int, int, placetype *, shiptype *, planettype *, racetype *, char *);
 
 void csp_orbit(int playernum, int governor, int unused3, int unused4, orbitinfo *oi)
 {
@@ -116,7 +113,7 @@ void csp_orbit(int playernum, int governor, int unused3, int unused4, orbitinfo 
         return;
     }
 
-    race = races[playernum - 1];
+    racetype *race = races[playernum - 1];
 
     sprintf(buf,
             "%c %d %d %d %d %d %d %lf %lf %lf %d %d %d %d %d %d %s %s\n",
@@ -150,7 +147,7 @@ void csp_orbit(int playernum, int governor, int unused3, int unused4, orbitinfo 
                              LEVEL_UNIV,
                              i,
                              Stars[i],
-                             (int)race->God,
+                             race,
                              buf);
 
                 notify(playernum, governor, buf);
@@ -169,7 +166,7 @@ void csp_orbit(int playernum, int governor, int unused3, int unused4, orbitinfo 
                                  &where,
                                  s,
                                  NULL,
-                                 (int)race->God,
+                                 race,
                                  buf);
 
                     notify(playernum, governor, buf);
@@ -188,7 +185,7 @@ void csp_orbit(int playernum, int governor, int unused3, int unused4, orbitinfo 
                          LEVEL_STAR,
                          where.snum,
                          Stars[where.snum],
-                         (int)race->God,
+                         race,
                          buf);
 
             notify(playernum, governor, buf);
@@ -261,7 +258,7 @@ void csp_orbit(int playernum, int governor, int unused3, int unused4, orbitinfo 
                                      &where,
                                      s,
                                      NULL,
-                                     (int)race->God,
+                                     race,
                                      buf);
 
                         notify(playernum, governor, buf);
@@ -285,7 +282,7 @@ void csp_orbit(int playernum, int governor, int unused3, int unused4, orbitinfo 
                                  &where,
                                  s,
                                  NULL,
-                                 (int)race->God,
+                                 race,
                                  buf);
 
                     notify(playernum, governor, buf);
@@ -349,7 +346,7 @@ void csp_orbit(int playernum, int governor, int unused3, int unused4, orbitinfo 
                                      &where,
                                      s,
                                      p,
-                                     (int)race->God,
+                                     race,
                                      buf);
 
                         notify(playernum, governor, buf);
@@ -379,13 +376,14 @@ void csp_DispStar(int playernum,
                   int level,
                   int snum,
                   startype *star,
-                  int god,
+                  racetype *race,
                   char *string)
 {
     int stability;
     int explored;
     double x = -1.0;
     double y = -1.0;
+    int god = race->God;
 
     if (level == LEVEL_UNIV) {
         x = star->xpos;
@@ -508,7 +506,7 @@ void csp_DispShip(int playernum,
                   placetype *where,
                   shiptype *ship,
                   planettype *pl,
-                  int god,
+                  racetype *race,
                   char *string)
 {
     double x;
@@ -517,6 +515,7 @@ void csp_DispShip(int playernum,
     planettype *apl;
     double xt;
     double yt;
+    int god = race->God;
 
     *string = '\0';
 

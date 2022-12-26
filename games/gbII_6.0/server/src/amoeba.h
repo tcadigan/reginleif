@@ -2,6 +2,7 @@
 #define AMOEBA_H_
 
 #include "ships.h"
+#include "vars.h"
 
 void do_amoeba(shiptype *);
 void amoeba_planet(shiptype *, planettype *);
