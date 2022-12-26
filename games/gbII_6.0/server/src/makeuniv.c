@@ -23,6 +23,7 @@
  * makeuniv.c - Universe creation program. Makes various required data files;
  *              calls makestar for each star desired.
  */
+#include "makeuniv.h"
 
 #include <math.h>
 #include <stdlib.h>
@@ -34,8 +35,12 @@
 /*
  * For power
  */
+#include "files.h"
+#include "makestar.h"
+#include "makewormhole.h"
 #include "power.h"
 #include "races.h"
+#include "rand.h"
 #include "ships.h"
 #include "vars.h"
 #include "tweakables.h"
@@ -47,22 +52,9 @@
 #define CLUSTER_STAR_MIN -1500
 #define CLUSTER_STAR_MAX 1500
 
-extern int Temperature(double, int);
-extern void PrintStatistics(FILE *);
-extern void Makeplanet_init(void);
-extern void Makestar_init(void);
-extern startype *Makestar(FILE *, FILE *, FILE *);
-extern int round_rand(double);
-extern void make_wormhole(startype *, FILE *, FILE *, FILE *);
-extern char *NextStarName(void);
-
-int int_rand(int, int);
-double double_rand(void);
 void InitFile(char const *, void *, unsigned int);
 void EmptyFile(char const *);
-void place_star(startype *);
 void produce_postscript(char const *);
-
 
 int STAR_COUNTER;
 int CLUsTER_COUNTER;
@@ -74,7 +66,7 @@ int autoname_star = -1;
 int autoname_plan = -1;
 int use_smashup = -1;
 int minplanets = -1;
-int maxplanets = -11;
+int maxplanets = -1;
 int nstars = -1;
 int planetlesschance = -1;
 int printpostscript = 0;
@@ -99,6 +91,10 @@ planettype *planet;
 sectortype *s;
 int cx;
 int cy;
+
+sectortype Smap[((MAX_X + 1) * (MAX_Y + 1)) + 1];
+struct stardata Sdata;
+startype *Stars[NUMSTARS];
 
 static int occupied[100][100];
 
@@ -817,6 +813,21 @@ int main(int argc, char *argv[])
     }
 
     return 0;
+}
+
+void InitFile(char const *filename, void *ptr, unsigned int len)
+{
+    FILE *f = fopen(filename, "w+");
+
+    if (f == NULL) {
+        printf("Unable to open \"%s\".\n", filename);
+
+        exit(-1);
+    }
+
+    fwrite(ptr, len, 1, f);
+    chmod(filename, 00660);
+    fclose(f);
 }
 
 void EmptyFile(char const *filename)

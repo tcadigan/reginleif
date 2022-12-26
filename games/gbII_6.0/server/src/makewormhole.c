@@ -24,23 +24,18 @@
  *
  * Written by: Time Brown
  */
+#include "makewormhole.h"
 
 #include <math.h>
 #include <string.h>
 
+#include "makestar.h"
+#include "makeuniv.h"
+#include "rand.h"
 #include "vars.h"
 
 #define PLANET_DIST_MAX 1900.0
 #define PLANET_DIST_MIN 100.0
-
-extern char *Nametypes[];
-extern char Namesects[];
-extern int printplaninfo;
-extern double distmin;
-
-extern double double_rand(void);
-
-char const *NextPlanetName(int);
 
 void make_wormhole(startype *star,
                    FILE *planetdata,

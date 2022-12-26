@@ -13,7 +13,7 @@ REPAIR = repair
 
 CC = clang
 CFLAGS = -Wall
-LDFLAGS = -lcurses -lcrypt
+LDFLAGS = -lcurses -lcrypt -lm
 
 .ifdef DISABLE_BEAR
 BEAR =
@@ -38,7 +38,8 @@ GBII_OBJS = ${GBII_SRCS:.c=.o}
 ENROL_SRCS = enrol.c files.c files_rw.c files_shl.c log.c max.c perm.c rand.c
 ENROL_OBJS = ${ENROL_SRCS:.c=.o}
 
-MAKEUNIV_SRCS = makeplanet.c makestar.c makeuniv.c makewormhole.c rand.c
+MAKEUNIV_SRCS = files.c makeplanet.c makestar.c makeuniv.c makewormhole.c \
+                rand.c
 MAKEUNIV_OBJS = ${MAKEUNIV_SRCS:.c=.o}
 
 RACEGEN_SRCS = GB_enroll.c GB_racegen.c enroll.c files.c files_rw.c \

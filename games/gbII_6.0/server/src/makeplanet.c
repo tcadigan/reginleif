@@ -26,6 +26,7 @@
  *
  * Modified Feb 13, 1992 by Shawn Fox: skf5055@tamsun.tamu.edu
  */
+#include "makeplanet.h"
 
 #include <math.h>
 #include <string.h>
@@ -35,6 +36,8 @@
  */
 #include <stdlib.h>
 
+#include "makestar.h"
+#include "makeuniv.h"
 #include "rand.h"
 #include "vars.h"
 
@@ -66,15 +69,8 @@
 #define POLEFUDGE 10
 #define TFAC 10
 
-extern int use_smashup;
-extern double double_rand(void);
-extern int int_rad(int, int);
-extern int round_rand(double);
-extern int rposneg(void);
-extern int Temperature(double, int);
 double DistmapSq(int, int, int, int);
 int gb_rand(void);
-planettype Makeplanet(double, short, int);
 void MakeEarthAtmosphere(planettype *, int);
 int neighbors(planettype *, int, int, int);
 int SectorTemp(planettype *, int, int);
@@ -841,7 +837,7 @@ int SectorTemp(planettype *pptr, int x, int y)
 /*
  * Returns # of neighors of a given desgination that a sector has
  */
-int nieghbors(planettype *p, int x, int y, int type)
+int neighbors(planettype *p, int x, int y, int type)
 {
     /*
      * Left and right columns
@@ -1214,19 +1210,10 @@ int Volcano(planettype *pptr,
     }
 }
 
-int TemperatureFOO(float dist, short stemp)
-{
-    float factor;
-
-    factor = 20.0 * (((float)stemp * (1000.0 / dist)) - 6.0);
-
-    return (int)factor;
-}
-
 /*
- * Return # of neighbots of a given desgination that a sector has
+ * Return # of neighbors of a given desgination that a sector has
  */
-int num_niehgbors(planettype *p, int x, int y, int type)
+int num_neighbors(planettype *p, int x, int y, int type)
 {
     int count = 0;
 

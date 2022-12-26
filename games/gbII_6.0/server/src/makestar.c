@@ -24,6 +24,7 @@
  *
  * #ident "@(#)makestar.c 1.3 2/17/93 "
  */
+#include "makestar.h"
 
 #include <ctype.h>
 #include <math.h>
@@ -33,8 +34,11 @@
 /*
  * (for power)
  */
+#include "makeplanet.h"
+#include "makeuniv.h"
 #include "power.h"
 #include "races.h"
+#include "rand.h"
 #include "ships.h"
 #include "vars.h"
 
@@ -48,32 +52,6 @@ G.O.D[1] > boils at -33
 #define PLANET_DIST_MAX 1900.0
 #define PLANET_DIST_MIN 100.0
 
-/*
- * Just in case
- */
-extern void place_star(startype *star);
-extern planettype Makeplanet(double, int, int);
-extern double double_rand(void);
-extern int int_rand(int, int);
-extern int round_rand(double);
-extern int rposneg(void);
-
-
-/*
- * Variables found in makeuniv.c
- */
-extern int autoname_plan;
-extern int autoname_star;
-extern int minplanets;
-extern int maxplanets;
-extern int nstars;
-extern int planetlesschance;
-extern int printplaninfo;
-extern int printstarinfo;
-
-startype *Makestar(FILE *, FILE *, FILE *);
-void Makeplanet_init(void);
-char const *NextPlanetName(int);
 void rand_list(int, int *);
 
 double distmin;
