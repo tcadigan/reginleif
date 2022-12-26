@@ -35,7 +35,7 @@ GBII_SRCS = GB_server.c amoeba.c analysis.c autoreport.c autoshoot.c bug.c \
             vict.c vn.c zoom.c
 GBII_OBJS = ${GBII_SRCS:.c=.o}
 
-ENROL_SRCS = enrol.c files.c files_rw.c max.c rand.c
+ENROL_SRCS = enrol.c files.c files_rw.c files_shl.c log.c max.c perm.c rand.c
 ENROL_OBJS = ${ENROL_SRCS:.c=.o}
 
 MAKEUNIV_SRCS = makeplanet.c makestar.c makeuniv.c makewormhole.c rand.c

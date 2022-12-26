@@ -39,7 +39,7 @@
 #include "files.h"
 #include "tweakables.h"
 
-unsigned long segments; /* Number of movement segments (global variable) */
+extern unsigned long segments; /* Number of movement segments (global variable) */
 
 /* Shipping routes - DON'T change this unless you know what you are doing */
 #define MAX_ROUTES 4
@@ -115,7 +115,7 @@ typedef char hugestr[HUGESTRLEN];
 
 #define CHAP_KEYSIZE 12
 
-unsigned int CombatUpdate; /* Global */
+extern unsigned int CombatUpdate; /* Global */
 
 typedef struct sector sectortype;
 typedef struct planet planettype;
@@ -558,7 +558,7 @@ typedef struct OrbitInfo orbitinfo;
 #define CLOSE_TIME_TAG "<T<T<T<T<"
 
 #ifdef USE_VN
-int vn_reproduction;
+extern int vn_reproduction;
 #endif
 
 #endif /* VARS_H_ */

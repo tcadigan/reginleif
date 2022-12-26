@@ -66,7 +66,6 @@ int stdata;
 unsigned short free_ship_list;
 
 void close_file(int);
-void open_data_files(void);
 void close_data_files(void);
 void openstardata(int *);
 void openshdata(int *);

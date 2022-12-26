@@ -346,9 +346,7 @@ char desshow(int playernum,
              int y,
              racetype *r)
 {
-    sectortype *s;
-
-    s = &Sector(*p, x, y);
+    sectortype *s = &Sector(*p, x, y);
 
     if (s->troops && !r->governor[governor].toggle.geography) {
         if (s->owner == playernum) {
