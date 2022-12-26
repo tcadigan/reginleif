@@ -22,6 +22,7 @@
  *
  * GB_enroll.c -- GB file interface for GB race enrollment program.
  */
+#include "GB_enroll.h"
 
 #include <signal.h>
 #include <stdlib.h>
@@ -53,22 +54,6 @@ int planet_translate[N_HOME_PLANET_TYPES] = { 0, 6, 7, 5, 2, 3, 4 };
 int getpid(void);
 void modify_print_loop(int level);
 void found_planet(int playernum, int star, int pnum);
-
-int notify(int who, int gov, const char *msg)
-{
-    /* This is a dummy routine */
-    return 1;
-}
-
-void warn(int who, int gov, char *msg)
-{
-    /* This is a dummy routine */
-}
-
-void push_message(int what, int who, char *msg)
-{
-    /* This is a dummy routing */
-}
 
 void init_enroll(void)
 {
@@ -481,9 +466,4 @@ void found_planet(int playernum, int star, int pnum)
     race.status = STATUS_ENROLLED;
 
     free(planet);
-}
-
-int loginfo(int i, ...)
-{
-    return 1;
 }

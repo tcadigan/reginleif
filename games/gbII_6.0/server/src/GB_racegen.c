@@ -92,6 +92,7 @@
  *                   not specified, as before. If compiled without -DPRIV,
  *                   creates a standard non-enroll, non-server racegen.
  */
+#include "GB_racegen.h"
 
 #include <math.h>
 #include <signal.h>
@@ -104,8 +105,10 @@
 
 #include "config.h"
 #include "files.h"
+#include "GB_enroll.h"
 #include "game_info.h"
 #include "racegen.h"
+#include "vars.h"
 
 /*
  * Extra stuff for privileged racegen
@@ -120,11 +123,17 @@
 
 #endif
 
-extern void init_enroll(void);
 int do_racegen(void);
-int user_dialogue(const char *, ...);
 int enroll(int, char **);
 void process(int, char **);
+
+struct stardata Sdata;
+unsigned long Num_ships;
+startype *Stars[NUMSTARS];
+sectortype Smap[((MAX_X + 1) * (MAX_Y + 1)) + 1];
+planettype *planets[NUMSTARS][MAXPLANETS];
+
+char buf[4096];
 
 /*
  * Definitions for data types and such used in the program.
@@ -1470,10 +1479,10 @@ void load(int argc, char *argv[])
     memcpy(&last, &race, sizeof(struct x));
 
     if (altered) {
-        i = user_dialogue("This race has been altered; load anyway?",
-                          "yes",
-                          "no",
-                          0);
+        i = dialogue("This race has been altered; load anyway?",
+                     "yes",
+                     "no",
+                     0);
 
         if (i == 1) {
             return;
@@ -1912,7 +1921,7 @@ void send2(int argc, char *argv[])
     unlink(race.password);
 }
 
-int user_dialogue(const char *prompt, ...)
+int dialogue(const char *prompt, ...)
 {
     va_list ap;
     char input[512];
@@ -2014,11 +2023,11 @@ void quit(int argc, char *argv[])
 
     if (altered) {
         if (!isserver) {
-            i = user_dialogue("Save this race quitting?",
-                              "yes",
-                              "no",
-                              "abort",
-                              0);
+            i = dialogue("Save this race quitting?",
+                         "yes",
+                         "no",
+                         "abort",
+                         0);
 
             if (i == 0) {
                 save(1, NULL);
@@ -2026,7 +2035,7 @@ void quit(int argc, char *argv[])
                 please_quit = 0;
             }
         } else {
-            i = user_dialogue("Are you sure?", "yes", "no", "abort", 0);
+            i = dialogue("Are you sure?", "yes", "no", "abort", 0);
 
             if (i == 1) {
                 please_quit = 0;
@@ -2234,7 +2243,7 @@ int do_racegen(void)
     printf("\n");
 
     fflush(stdout);
-    user_dialogue("Hit return", 0);
+    dialogue("Hit return", 0);
     modify_print_loop(0);
 
     return 0;

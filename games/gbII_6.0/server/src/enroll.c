@@ -28,6 +28,7 @@
 
 #include <string.h>
 
+#include "GB_racegen.h"
 #include "racegen.h"
 
 #define DEFAULT_ENROLLMENT_FILENAME "enroll.saves"
@@ -36,7 +37,6 @@
 extern int enroll_valid_race(void);
 
 int critique_to_file(FILE *, int, int);
-int Dialogue(char const *, ...);
 void modify_print_loop(int);
 void print_to_file(FILE *, int);
 int load_from_file(FILE *);
@@ -79,7 +79,7 @@ int enroll_player_race(char *failure_filename)
             return 0;
         }
 
-        n = Dialogue("Abort, enroll anyway, fix, mail rejection?",
+        n = dialogue("Abort, enroll anyway, fix, mail rejection?",
                      "abort",
                      "enroll",
                      "fix",
