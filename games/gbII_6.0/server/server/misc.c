@@ -47,6 +47,9 @@
 #include "buffers.h"
 #include "debug.h"
 #include "files.h"
+#include "files_shl.h"
+#include "GB_server.h"
+#include "log.h"
 #include "power.h"
 #include "races.h"
 #include "ships.h"
@@ -58,7 +61,6 @@ extern void getstar(struct star **, int);
 extern void getplanet(struct planet **, int, int);
 extern void getrace(struct race **, int);
 extern void putrace(struct race *);
-extern void setdebug(int, int);
 
 double logscale(int x)
 {
@@ -117,7 +119,7 @@ void load_star_data(void)
     for (s = 0; s < Sdata.numstars; ++s) {
         for (t = 0; t < Stars[s]->numplanets; ++t) {
             --pcount;
-            planets[s][t] = &planet_arena;
+            planets[s][t] = &planet_arena[pcount];
             getplanet(&planets[s][t], s, t);
 
             if (planets[s][t]->type != TYPE_ASTEROID) {
@@ -147,10 +149,10 @@ void load_race_data(void)
 
     for (i = 1; i <= Num_races; ++i) {
         /* Allocates into memory */
-        getrace(&race[i - 1], i);
+        getrace(&races[i - 1], i);
 
         if (races[i - 1]->Playernum != i) {
-            race[i - 1]->Playernum = i;
+            races[i - 1]->Playernum = i;
             putrace(races[i - 1]);
         }
     }
@@ -192,7 +194,7 @@ void print_motd(int which)
     f = fopen(MOTD, "r");
 
     if (f != NULL) {
-        fgets(bud, 1024, f);
+        fgets(buf, 1024, f);
 
         while (!feof(f)) {
             outstr(which, buf);
@@ -223,7 +225,7 @@ void check_for_telegrams(int playernum, int governor)
         return;
     }
 
-    if (sbuf,st_size) {
+    if (sbuf.st_size) {
         notify(playernum,
                governor,
                "You have telegrams waiting. Use 'read telegrams' to read them.\n");
@@ -234,7 +236,7 @@ void check_for_telegrams(int playernum, int governor)
  * setdebug allows you to set debugging level, along with who should receive
  * it.
  */
-void setdebug(int playernum, int governor)
+void setdebug(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     int i;
     int who;
@@ -302,7 +304,7 @@ void debug(int level, char *fmt, ...)
     va_start(args, fmt);
     strcpy(s, "");
 
-    for (p = fmt; *p, ++p) {
+    for (p = fmt; *p; ++p) {
         if (*p != '%') {
             sprintf(s, "%s%c", s, *p);
 
@@ -345,7 +347,7 @@ void debug(int level, char *fmt, ...)
     }
 }
 
-void backup()
+void backup(int unused1, int unused2, int unused3, int unused4, orbitinfo *unused5)
 {
     int i;
     int ret;
@@ -385,12 +387,12 @@ void backup()
         send_special_string(i, BACKUP_END);
     }
 
-    debug(LEVEL, GENERAL, "Backup finished --\n");
+    debug(LEVEL_GENERAL, "Backup finished --\n");
     loginfo(UPDATELOG, NOERRNO, "Backup finished\n");
     clear_all_fds();
 }
 
-void suspend(int playernum, int governor)
+void suspend(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     int i;
     long clk;
@@ -406,7 +408,7 @@ void suspend(int playernum, int governor)
 
     if (!suspended) {
         for (i = 1; i <= Num_races; ++i) {
-            spend_special_string(i, UPDATES_SUSPENDED);
+            send_special_string(i, UPDATES_SUSPENDED);
         }
 
         clear_all_fds();

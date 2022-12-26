@@ -239,7 +239,7 @@ void CSP_receive_knowledge(int playernum, int governor)
     }
 }
 
-void CSP_query(int playernum, int governor)
+void CSP_query(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     /*
      * This is a god command, permissions checked through the dispatch
@@ -277,7 +277,7 @@ void CSP_query(int playernum, int governor)
     notify(playernum, governor, buf);
 }
 
-void CSP_developer(int playernum, int governor)
+void CSP_developer(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     racetype *r;
     racetype *q;

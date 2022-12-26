@@ -53,7 +53,7 @@
 extern int Defensedata[];
 void capture_stuff(shiptype *);
 
-void capture(int playernum, int governor, int apcount)
+void capture(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     shiptype *ship;
     shiptype s;

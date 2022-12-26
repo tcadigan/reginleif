@@ -28,10 +28,10 @@ int writefd(int, char *, unsigned int);
 int connection(void);
 void outstr(int, char const *);
 int init_network(unsigned int);
-char *addrout(int);
+char *addrout(unsigned int);
 void goodbye_user(int);
-void do_update(int);
-void do_segment(int, int);
+void do_update(int, int, int, int, orbitinfo *);
+void do_segment(int, int, int, int, orbitinfo *);
 void update_times(int);
 
 #ifdef CHAP_AUTH
@@ -43,25 +43,25 @@ void Login_Parse(char *, char *, char *);
 #endif
 
 void dump_users(int);
-void dump_users_priv(int, int);
-void boot_user(int, int);
-void GB_time(int, int);
+void dump_users_priv(int, int, int, int, orbitinfo *);
+void boot_user(int, int, int, int, orbitinfo *);
+void GB_time(int, int, int, int, orbitinfo *);
 void compute_power_blocks(void);
 void warn_race(int, char *);
 void warn(int, int, char *);
 void warn_star(int, int, int, char *);
 void notify_star(int, int, int, int, char *);
-void shut_game(void);
+void shut_game(int, int, int, int, orbitinfo *);
 void voidpoint(int, int, int, int, orbitinfo *);
 int clear_all_fds(void);
-void _reset(int, int);
-void _emulate(int, int);
-void _schedule(int, int);
-void last_logip(int, int);
+void _reset(int, int, int, int, orbitinfo *);
+void _emulate(int, int, int, int, orbitinfo *);
+void _schedule(int, int, int, int, orbitinfo *);
+void last_logip(int, int, int, int, orbitinfo *);
 void _repair(int, int);
-void close_game(int, int);
+void close_game(int, int, int, int, orbitinfo *);
 void read_schedule_file(int, int);
-void _freeship(int, int);
-void show_uptime(int, int);
+void _freeship(int, int, int, int, orbitinfo *);
+void show_uptime(int, int, int, int, orbitinfo *);
 
 #endif /* GB_SERVER_H_ */

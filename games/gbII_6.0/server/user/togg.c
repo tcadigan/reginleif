@@ -69,7 +69,7 @@ void tog(int, int, char *, char const *);
  *              options. Currently inverse, double_digits, gag, autoload,
  *              autopurge, color and monitor
  */
-void toggle(int playernum, int governor, int apcount)
+void toggle(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     racetype *race;
 
@@ -221,7 +221,7 @@ void toggle(int playernum, int governor, int apcount)
  * description: Called process commands.
  */
 
-void highlight(int playernum, int governor)
+void highlight(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     int n;
     racetype *race;

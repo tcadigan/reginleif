@@ -49,9 +49,7 @@
 #include "../server/shlmisc.h"
 #include "../server/vars.h"
 
-extern void channel(int, int, int, int);
-
-void channel(int playernum, int governor, int ap, int startup)
+void channel(int playernum, int governor, int ap, int startup, orbitinfo *unused5)
 {
     int want;
 

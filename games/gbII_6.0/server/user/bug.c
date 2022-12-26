@@ -56,7 +56,7 @@
 #include "../server/ships.h"
 #include "../server/vars.h"
 
-void bug(int playernum, int governor, int apcount)
+void bug(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     FILE *fp;
     time_t t;

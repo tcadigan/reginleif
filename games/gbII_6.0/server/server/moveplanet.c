@@ -33,6 +33,8 @@
 #include <math.h>
 
 #include "doturn.h"
+#include "files_shl.h"
+#include "log.h"
 #include "power.h"
 #include "races.h"
 #include "ships.h"
@@ -44,9 +46,9 @@ int valid_ship(int sh)
 {
     char buf[80]; /* -mfw */
 
-    if (!sh || (sh > numships())) {
+    if (!sh || (sh > Numships())) {
         sprintf(buf, "Bad ship number: %d\n", sh);
-        loginfo(ERRORLOG, NOERRNO, bud);
+        loginfo(ERRORLOG, NOERRNO, buf);
 
         return 0;
     }

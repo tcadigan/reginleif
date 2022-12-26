@@ -608,7 +608,7 @@ void survey(int playernum, int governor, int apcount, int mode, orbitinfo *unuse
     }
 } /* End survey */
 
-void repair(int playernum, int governor, int apcount)
+void repair(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int lowx;
     int hix;

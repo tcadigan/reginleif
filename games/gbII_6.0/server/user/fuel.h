@@ -1,7 +1,9 @@
 #ifndef FUEL_H_
 #define FUEL_H_
 
-void proj_fuel(int, int, int);
+#include "../server/vars.h"
+
+void proj_fuel(int, int, int, int, orbitinfo *);
 void fuel_output(int, int, double, double, double, double, int);
 int do_trip(double, double);
 

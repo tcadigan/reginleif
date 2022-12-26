@@ -4,9 +4,9 @@
 #include "../server/races.h"
 #include "../server/ships.h"
 
-void arm(int, int, int, int);
-void move_popn(int, int, int);
-void walk(int, int, int);
+void arm(int, int, int, int, orbitinfo *);
+void move_popn(int, int, int, int, orbitinfo *);
+void walk(int, int, int, int, orbitinfo *);
 int get_move(char, int, int, int *, int *, planettype *);
 void mech_defend(int, int, int *, int, planettype *, int, int,
                             sectortype *, int, int, sectortype *);

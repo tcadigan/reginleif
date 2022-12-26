@@ -57,12 +57,11 @@
 extern long Shipdata[NUMSTYPES][NUMABILS];
 static int roll;
 
-extern void land(int, int, int);
 extern int crash(shiptype *, double);
 extern int docked(shiptype *);
 extern int overloaded(shiptype *);
 
-void land(int playernum, int governor, int apcount)
+void land(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     shiptype *s;
     shiptype *s2;

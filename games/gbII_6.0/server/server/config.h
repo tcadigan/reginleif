@@ -136,9 +136,9 @@
 
 /*
  * COMBAT UPDATE:
- *   Combat is not allowed until after this update
+ *   Combat is not allowed until after this update (default 15)
  */
-#define COMBAT_UPDATE $d_combat_update
+#define COMBAT_UPDATE 15
 
 /*
  * THRESHOLDING:
@@ -171,8 +171,8 @@
  * SPORE_SUCCESS_RATE:
  *   Chance of spore survival. (Was in tweakables.h before)
  */
-#define SPORE_SUCCESS_RATE $spore_success_rate
-#define NORMAL_SUCCESS_RATE $normal_success_rate
+#define SPORE_SUCCESS_RATE 75
+#define NORMAL_SUCCESS_RATE 25
 
 /*
  * USE_VN:
@@ -215,7 +215,7 @@
  * DEFAULT_CHAT:
  *   Select either NO_CHAT, TRANS_CHAT, or FREE_CHAT (see vars.h)
  */
-#define DEFAULT_CHAT $d_garble_chat
+#define DEFAULT_CHAT TRANS_CHAT
 
 /*
  * TAX_PROTEST:
@@ -241,7 +241,7 @@
  * MAX_LOGSIZE:
  *   Size in bytes of the log when it truncates
  */
-#define MAX_LOGSIZE $maxlogsize
+#define MAX_LOGSIZE 1000000
 
 /*
  * I_TIME:

@@ -53,12 +53,9 @@
 #include "vars.h"
 
 char *Ship(shiptype *s);
-void grant(int, int, int);
-void governors(int, int, int);
 void do_revoke(racetype *, int, int);
 int do_shiplist(shiptype **, int *);
 int in_list(int, char *, shiptype *, int *);
-void fix(int, int);
 void DontOwn_Err(int, int, int);
 
 #ifdef CHAP_AUTH
@@ -70,9 +67,7 @@ int Getracenum(char *, char *, int *, int *);
 #endif
 
 int GetPlayer(char *);
-void allocateAPs(int, int, int);
 void deductAps(int, int, int, int, int);
-void list(int, int);
 double morale_factor(double);
 
 extern int authorized(int, shiptype *);
@@ -101,7 +96,7 @@ char *Ship(shiptype *s)
     return junk[adr];
 }
 
-void grant(int playernum, int governor, int apcount)
+void grant(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     racetype *race;
     int gov;
@@ -224,7 +219,7 @@ void grant(int playernum, int governor, int apcount)
     }
 }
 
-void governor(int playernum, int governor, int apcount)
+void governors(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     racetype *race;
     int i;
@@ -783,7 +778,7 @@ int in_list(int playernum, char *list, shiptype *s, int *nextshipno)
 }
 
 /* Deity fix-it utilities */
-void fix(int playernum, int governor)
+void fix(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     planettype *p;
     shiptype *s;
@@ -1367,7 +1362,7 @@ int GetPlayer(char *name)
     }
 }
 
-void allocateAPs(int playernum, int governor, int apcount)
+void allocateAPs(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int maxalloc;
     int alloc;
@@ -1465,7 +1460,7 @@ void deductAPs(int playernum, int governor, int n, int snum, int sdata)
 }
 
 /* Lists all ships in current scope for debugging purposes */
-void list(int playernum, int governor)
+void list(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     shiptype *ship;
     planettype *p;

@@ -55,7 +55,7 @@ const char *Fleetnames[MAXFLEETS + 1] = {
     "Zebra"
 };
 
-void fleet(int, int, int);
+void fleet(int, int, int, int, orbitinfo *);
 char fitofc(int);
 int fctofi(char);
 

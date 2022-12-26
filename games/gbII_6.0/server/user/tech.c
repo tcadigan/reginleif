@@ -53,7 +53,7 @@
 /* Prototypes */
 double tech_prod(int, int);
 
-void technology(int playernum, int governor, int apcount)
+void technology(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     short int invest;
     planettype *p;
@@ -187,7 +187,7 @@ void technology(int playernum, int governor, int apcount)
     free(p);
 }
 
-void techlevel(int playernum, int governor, int apcount)
+void techlevel(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     racetype *r;
 

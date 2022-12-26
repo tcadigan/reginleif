@@ -420,7 +420,7 @@ void send_race_dispatch(int fromrace,
     }
 }
 
-void delete_dispatch(int playernum, int governor, int apcount)
+void delete_dispatch(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     mdbtype **mdb;
     int msgn;

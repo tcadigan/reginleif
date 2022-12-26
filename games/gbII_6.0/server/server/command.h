@@ -66,6 +66,7 @@
 #include "../user/reserve.h"
 #include "../user/rst.h"
 #include "../user/sche.h"
+#include "../user/scrap.h"
 #include "../user/survey.h"
 #include "../user/tech.h"
 #include "../user/tele.h"
@@ -75,8 +76,6 @@
 #include "../user/user_power.h"
 #include "../user/vict.h"
 #include "../user/zoom.h"
-
-extern void voidpoint(int, int, int, int, orbitinfo *);
 
 /*
  * For binary search
@@ -90,7 +89,7 @@ typedef struct command_struct {
     int ap_cost;
     int args;
     int arg1;
-    int arg2;
+    orbitinfo *arg2;
 } Command;
 
 #define NUM_COMMANDS (sizeof(command_list) / sizeof(Command))
@@ -162,7 +161,7 @@ static Command command_list[] = {
     {      "explore",     exploration, 0, 1, PRIVATE,       EXPLORE_AP, 0, 0, 0},
     {    "factories",             rst, 0, 1,  NOVICE,     FACTORIES_AP, 1, 6, 0},
     {         "fire",            fire, 0, 1, CAPTAIN,          FIRE_AP, 1, 0, 0},
-    {        "fleet",           fleet, 0, 1,  NOVICE,         FLEET_AP, 0, 0, 0},
+    {        "fleet",      user_fleet, 0, 1,  NOVICE,         FLEET_AP, 0, 0, 0},
     {         "fuel",       proj_fuel, 0, 1, CAPTAIN,          FUEL_AP, 0, 0, 0},
     {         "give",            give, 0, 1, GENERAL,          GIVE_AP, 0, 0, 0},
     {    "governors",       governors, 0, 0,  NOVICE,     GOVERNORS_AP, 0, 0, 0},
@@ -188,7 +187,7 @@ static Command command_list[] = {
     {          "pay",             pay, 0, 1, GENERAL,           PAY_AP, 0, 0, 0},
     {       "pledge",          pledge, 0, 1, GENERAL,        PLEDGE_AP, 1, 1, 0},
     {         "post",    send_message, 0, 0,  NOVICE,          POST_AP, 1, 1, 0},
-    {        "power",           power, 0, 0, PRIVATE,         POWER_AP, 0, 0, 0},
+    {        "power",      user_power, 0, 0, PRIVATE,         POWER_AP, 0, 0, 0},
     {   "production",        colonies, 0, 0, PRIVATE,    PRODUCTION_AP, 1, 1, 0},
     {      "profile",         profile, 0, 0,  NOVICE,       PROFILE_AP, 0, 0, 0},
     {      "promote",       governors, 0, 0, GENERAL,       PROMOTE_AP, 0, 0, 0},

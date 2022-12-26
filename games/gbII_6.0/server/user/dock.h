@@ -1,6 +1,8 @@
 #ifndef DOCK_H_
 #define DOCK_H_
 
-void dock(int, int, int, int);
+#include "../server/vars.h"
+
+void dock(int, int, int, int, orbitinfo *);
 
 #endif /* DOCK_H_ */

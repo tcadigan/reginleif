@@ -193,21 +193,18 @@ int clearlog(int override)
 /* VARARGS */
 int loginfo(int Where, ...)
 {
-    vA_list list;
+    va_list list;
     time_t now;
     char buf[1024];
     char buf1[1024];
     char *fmt; /* The actual data to be printed */
-    int noerrno; /* Should we care about the errno? */
     int logf;
-    char const *error;
     char *p;
     char const *logfile = NULL; /* The actual log file name */
-    struct tm *no_tm;
+    struct tm *now_tm;
 
-    va_start(list, where);
+    va_start(list, Where);
     where = Where; /* Put it where? */
-    noerrno = va_arg(list, int); /* Disregard errno? false yes, true no */
     fmt = va_arg(list, char *); /* Data */
     vsprintf(buf, fmt, list);
 
@@ -218,7 +215,7 @@ int loginfo(int Where, ...)
      */
 
     switch (where) {
-    case ERRLOG:
+    case ERRORLOG:
         logfile = ERRLOG;
 
         break;
@@ -244,17 +241,12 @@ int loginfo(int Where, ...)
 
     time(&now); /* For the timestamp */
     now_tm = localtime(&now);
-    error = "log";
-
-    if ((errno != 0) && noerrno) {
-        error = strerror(errno);
-    }
 
     sprintf(buf1,
             "%2d/%02d %2d:%02d:%02d - %s\n",
             now_tm->tm_mon + 1,
             now_tm->tm_mday,
-            now_tm->hour,
+            now_tm->tm_hour,
             now_tm->tm_min,
             now_tm->tm_sec,
             buf);

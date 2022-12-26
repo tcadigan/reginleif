@@ -44,9 +44,7 @@
 extern long Shipdata[NUMSTYPES][NUMABILS];
 extern char const *Shipnames[];
 
-void examine(int, int, int);
-
-void examine(int playernum, int governor, int apcount)
+void examine(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     shiptype *ship;
     int t;

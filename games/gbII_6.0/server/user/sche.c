@@ -63,7 +63,7 @@ void timedifftoascii(long, long, char *);
  * Called by:
  *   process_command
  */
-void GB_schedule(int playernum, int governor)
+void GB_schedule(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     char *ctp;
     char *nlp;

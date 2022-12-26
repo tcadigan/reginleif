@@ -41,7 +41,7 @@
 #include "../server/ships.h"
 #include "../server/vars.h"
 
-void autoreport(int playernum, int governor, int apcount)
+void autoreport(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     planettype *p;
     placetype place;

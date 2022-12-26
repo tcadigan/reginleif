@@ -1,6 +1,8 @@
 #ifndef __USER_FLEET_H__
 #define __USER_FLEET_H__
 
-void fleet(int, int, int);
+#include "../server/vars.h"
+
+void user_fleet(int, int, int, int, orbitinfo *);
 
 #endif

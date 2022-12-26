@@ -1,7 +1,9 @@
 #ifndef TELE_H_
 #define TELE_H_
 
-void purge(int, int);
+#include "../server/vars.h"
+
+void purge(int, int, int, int, orbitinfo *);
 void post(char const *, int);
 void push_telegram_race(int, char const *);
 void push_telegram(int, int, char const *);

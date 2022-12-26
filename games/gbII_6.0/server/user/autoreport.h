@@ -1,6 +1,8 @@
 #ifndef AUTOREPORT_H_
 #define AUTOREPORT_H_
 
-void autoreport(int, int, int);
+#include "../server/vars.h"
+
+void autoreport(int, int, int, int, orbitinfo *);
 
 #endif /* AUTOREPORT_H_ */

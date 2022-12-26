@@ -3,8 +3,8 @@
 
 #include "../server/vars.h"
 
-extern void mobilize(int, int, int);
-extern void tax(int, int, int);
-extern int control(int, int, startype *);
+void mobilize(int, int, int, int, orbitinfo *);
+void tax(int, int, int, int, orbitinfo *);
+int control(int, int, startype *);
 
 #endif /* MOBILIZE_H_ */

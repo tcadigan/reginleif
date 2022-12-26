@@ -48,7 +48,7 @@ extern char Dessymbols[];
 
 #define CARE 5
 
-void analysis(int playernum, int governor, int apcount)
+void analysis(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int pnum;
     int sector_type = -1; /* -1 does analysis on all types */

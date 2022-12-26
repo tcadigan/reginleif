@@ -17,6 +17,6 @@ int is_target(shiptype *, int, int, int);
 void do_inf(shiptype *, planettype *);
 
 /* New code by Kharush. */
-extern void check_overflow(planettype *, int, int, unsigned char, int);
+void check_overflow(planettype *, int, int, unsigned char, int);
 
 #endif /* DOPLANET_H_ */

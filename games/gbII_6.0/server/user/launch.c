@@ -48,13 +48,11 @@
 #include "land.h"
 #include "load.h"
 
-void launch(int, int, int);
-
 /*
  * In launch, when ship is launched it is checked whether launched ship was
  * dhuttle. If so, a little more information is provided. Kharush.
  */
-void launch(int playernum, int governor, int apcount)
+void launch(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int sh2;
     shiptype *s;

@@ -53,11 +53,7 @@ extern char Psymbol[];
 extern char *Planet_types[];
 
 extern void colonies_at_star(int, int, racetype *, int, int);
-extern void colonies(int, int, int, int);
-extern void distance(int, int, int);
 extern void star_location(int, int, int);
-extern void exploration(int, int, int, int, orbitinfo *);
-extern void tech_status(int, int, int);
 extern void tech_report_star(int, int, startype *, int, int *, double *, double *);
 
 void colonies_at_star(int playernum,
@@ -159,7 +155,7 @@ void colonies_at_star(int playernum,
     }
 }
 
-void colonies(int playernum, int governor, int apcount, int mode)
+void colonies(int playernum, int governor, int apcount, int mode, orbitinfo *unused5)
 {
     int i;
     int star;
@@ -237,7 +233,7 @@ void colonies(int playernum, int governor, int apcount, int mode)
     notify(playernum, governor, "\n");
 }
 
-void distance(int playernum, int governor, int apcount)
+void distance(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     placetype from;
     placetype to;
@@ -361,7 +357,7 @@ void distance(int playernum, int governor, int apcount)
     notify(playernum, governor, buf);
 }
 
-void star_locations(int playernum, int governor, int apcount)
+void star_locations(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int i;
     double dist;
@@ -534,7 +530,7 @@ void exploration(int playernum, int governor, int apcount, int unused4, orbitinf
     }
 }
 
-void tech_status(int playernum, int governor, int apcount)
+void tech_status(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int star;
     int k;

@@ -9,7 +9,7 @@ void read_dispatch(int, int, int);
 void write_dispatch(int, int, int, mdbtype ***);
 void send_dispatch(int, int, int, int, int, int, char const *);
 void send_race_dispatch(int, int, int, int, int, char const *);
-void delete_dispatch(int, int, int);
+void delete_dispatch(int, int, int, int, orbitinfo *);
 void purge_dispatch(int, int, int);
 void check_dispatch(int, int);
 

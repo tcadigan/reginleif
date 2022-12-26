@@ -37,9 +37,12 @@
 #include <string.h>
 
 #include "buffers.h"
+#include "files_shl.h"
+#include "GB_server.h"
 #include "power.h"
 #include "races.h"
 #include "ships.h"
+#include "shlmisc.h"
 #include "vars.h"
 
 char Disps[PLACENAMESIZE];
@@ -144,7 +147,7 @@ placetype Getplace(int playernum,
                     && pl->info[playernum - 1].numsectsowned
                     && (!governor
                         || (Stars[star]->governor[playernum - 1] == governor)
-                        || (Races->governor[governor].rank == GENERAL))) {
+                        || (race->governor[governor].rank == GENERAL))) {
                     where.level = LEVEL_PLAN;
                     where.snum = star;
                     where.pnum = plan;
@@ -239,7 +242,7 @@ placetype Getplace2(int playernum,
                     char const *string,
                     placetype *where,
                     int ignoreexpl,
-                    int gof)
+                    int god)
 {
     char substr[NAMESIZE];
     planettype *p;
@@ -524,13 +527,11 @@ char const *Dispplace(int playernum, int governor, placetype *where)
 
 int testship(int playernum, int governor, shiptype *s)
 {
-    int r;
-
-    r = 0;
+    int r = 0;
 
     if (!s->alive) {
         sprintf(buf, "%s has been destroyed.\n", Ship(s));
-        notify(playernum, gvernor, buf);
+        notify(playernum, governor, buf);
         r = 1;
     } else if (s->owner != playernum) {
         /* || !authorized(governor, s)) */
@@ -546,7 +547,7 @@ int testship(int playernum, int governor, shiptype *s)
         r = 1;
     }
 
-    return 1;
+    return r;
 }
 
 char const *Dispplace_brief(int playernum, int governor, placetype *where)

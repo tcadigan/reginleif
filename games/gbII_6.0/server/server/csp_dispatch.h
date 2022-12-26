@@ -41,8 +41,6 @@
 #include "../user/survey.h"
 #include "../user/zoom.h"
 
-extern void voidpoint(int, int, int, int, orbitinfo *);
-
 /* For binary search */
 typedef struct command_struct {
     int command;

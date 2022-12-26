@@ -59,13 +59,7 @@ static char bufc[128];
 static char bufx[128];
 static char bufm[128];
 
-extern void load(int, int, int, int);
-extern void jettison(int, int, int);
 extern int jettison_check(int, int, int, int);
-extern void dump(int, int, int);
-extern void transfer(int, int, int);
-extern void mount(int, int, int);
-extern void dismount(int, int, int);
 extern void _mount(int, int, int, int);
 extern void use_destruct(shiptype *, int);
 extern void use_resource(shiptype *, int);
@@ -87,7 +81,7 @@ extern void unload_onto_alien_sector(int,
 
 int inship(shiptype *);
 
-void load(int playernum, int governor, int apcount, int mode)
+void load(int playernum, int governor, int apcount, int mode, orbitinfo *unused5)
 {
     char commod;
     unsigned char sh = 0;
@@ -956,7 +950,7 @@ void load(int playernum, int governor, int apcount, int mode)
     }
 }
 
-void jettison(int playernum, int governor, int apcount)
+void jettison(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int mod = 0;
     int shipno;
@@ -1213,7 +1207,7 @@ int jettison_check(int playernum, int governor, int amt, int max)
 
 /* Gardan code 20.12.1996 Start of commented dump code */
 
-void dump(int playernum, int governor, int apcount)
+void dump(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int player;
     int star;
@@ -1372,7 +1366,7 @@ void dump(int playernum, int governor, int apcount)
 
 /* Gardan 20.12.1996 end of commented dump command */
 
-void transfer(int playernum, int governor, int apcount)
+void transfer(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int player;
     int give;
@@ -1555,12 +1549,12 @@ void transfer(int playernum, int governor, int apcount)
               0);
 }
 
-void mount(int playernum, int governor, int apcount)
+void mount(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     _mount(playernum, governor, apcount, 1);
 }
 
-void dismount(int playernum, int governor, int apcount)
+void dismount(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     _mount(playernum, governor, apcount, 0);
 }

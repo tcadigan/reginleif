@@ -43,11 +43,9 @@
 #include "../server/shlmisc.h"
 #include "../server/vars.h"
 
-void mobilize(int, int, int);
-void tax(int, int, int);
 int control(int, int, startype *);
 
-void mobilize(int playernum, int governor, int apcount)
+void mobilize(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int sum_mob = 0;
     planettype *p;
@@ -111,7 +109,7 @@ void mobilize(int playernum, int governor, int apcount)
     free(p);
 }
 
-void tax(int playernum, int governor, int apcount)
+void tax(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int sum_tax = 0;
     planettype *p;

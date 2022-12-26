@@ -2,11 +2,12 @@
 #define FIRE_H_
 
 #include "../server/ships.h"
+#include "../server/vars.h"
 
-void fire(int, int, int, int);
-void bombard(int, int, int);
-void defend(int, int, int);
-void detonate(int, int, int);
+void fire(int, int, int, int, orbitinfo *);
+void bombard(int, int, int, int, orbitinfo *);
+void defend(int, int, int, int, orbitinfo *);
+void detonate(int, int, int, int, orbitinfo *);
 int retal_strength(shiptype *);
 int adjacent(int, int, int, int, planettype *);
 int landed(shiptype *);

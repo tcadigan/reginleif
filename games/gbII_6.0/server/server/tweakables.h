@@ -347,7 +347,7 @@
 #endif
 
 /* Swap two variable */
-#define swap(a, b) ((a) ^= (b); (b) ^= (a); (a) ^= (b))
+#define swap(a, b) (a) ^= (b); (b) ^= (a); (a) ^= (b)
 
 /* Euclidean distance */
 #define Distsq(x1, y1, x2, y2) \
@@ -474,7 +474,7 @@
 #define REPEAT_CHARACTER ' '
 
 #define MAXGOVERNORS 5
-#define POD_THREHOLD 18
+#define POD_THRESHOLD 18
 #define POD_DECAY 4
 
 /* Hoe planet size affects the rate of atmosphere processing */

@@ -1,6 +1,8 @@
 #ifndef ANALYSIS_H_
 #define ANALYSIS_H_
 
+#include "../server/vars.h"
+
 struct anal_sect {
     int x;
     int y;
@@ -8,7 +10,7 @@ struct anal_sect {
     int des;
 };
 
-void analysis(int, int, int);
+void analysis(int, int, int, int, orbitinfo *);
 
 void do_analysis(int, int, int, int, int, int, int);
 void Insert(int, struct anal_sect[], int, int, int, int);

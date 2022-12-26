@@ -1,6 +1,8 @@
 #ifndef CHAN_H_
 #define CHAN_H_
 
-void channel(int, int, int, int);
+#include "../server/vars.h"
+
+void channel(int, int, int, int, orbitinfo *);
 
 #endif /* CHAN_H_ */

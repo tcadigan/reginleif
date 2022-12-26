@@ -68,19 +68,10 @@ static char head[1024];
 /* static long clk; */
 
 extern void personal(int, int, char *);
-extern void bless(int, int, int);
-extern void insurgency(int, int, int);
-extern void pay(int, int, int);
-extern void give(int, int, int);
-extern void page(int, int, int);
-extern void send_message(int, int, int, int);
-extern void read_message(int, int, int);
 extern void motto(int, int, int, char *);
-extern void name(int, int, int);
 extern int MostAPs(int, startype *);
 extern void announce(int, int, char *, int, int);
 extern char *garble_msg(char *, int, int, int);
-extern void garble_chat(int, int);
 
 /* Garble code variables from HAP by CWL -mfw */
 #define BUFFER_LEN ((MAX_COMMAND_LEN) * 8)
@@ -106,7 +97,7 @@ void personal(int playernum, int governor, char *message)
     putrace(race);
 }
 
-void bless(int playernum, int governor, int apcount)
+void bless(int playernum, int governor, int apcount, int unused3, orbitinfo *unused4)
 {
     planettype *planet;
     racetype *race;
@@ -408,7 +399,7 @@ void bless(int playernum, int governor, int apcount)
     free(planet);
 }
 
-void insurgency(int playernum, int governor, int apcount)
+void insurgency(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int who;
     int amount;
@@ -666,7 +657,7 @@ void insurgency(int playernum, int governor, int apcount)
     free(p);
 }
 
-void pay(int playernum, int governor, int apcount)
+void pay(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int who;
     int amount;
@@ -740,7 +731,7 @@ void pay(int playernum, int governor, int apcount)
     putrace(race);
 }
 
-void give(int playernum, int governor, int apcount)
+void give(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int who;
     int sh;
@@ -946,7 +937,7 @@ void give(int playernum, int governor, int apcount)
     }
 }
 
-void page(int playernum, int governor, int apcount0)
+void page(int playernum, int governor, int apcount0, int unused4, orbitinfo *unused5)
 {
     int i;
     int who = -1;
@@ -1038,7 +1029,7 @@ void page(int playernum, int governor, int apcount0)
               0);
 }
 
-void send_message(int playernum, int governor, int apcount0, int postit)
+void send_message(int playernum, int governor, int apcount0, int postit, orbitinfo *unused5)
 {
     int who = -1;
     int i;
@@ -1293,7 +1284,7 @@ void send_message(int playernum, int governor, int apcount0, int postit)
               0);
 }
 
-void read_messages(int playernum, int governor, int apcount)
+void read_messages(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     if (!strncmp(args[1], "telegrams", 1)) {
         teleg_read(playernum, governor);
@@ -1362,7 +1353,7 @@ void read_messages(int playernum, int governor, int apcount)
     }
 }
 
-void purge_messages(int playernum, int governor, int apcount)
+void purge_messages(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     if (argn != 2) {
         notify(playernum, governor, "Purge what?\n");
@@ -1391,7 +1382,7 @@ void motto(int playernum, int governor, int apcount, char *message)
     notify(playernum, governor, "Done.\n");
 }
 
-void name(int playernum, int governor, int apcount)
+void name(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     char *ch;
     int i;
@@ -2018,7 +2009,7 @@ char *garble_msg(char *s, int pcnt, int diff, int playernum)
     }
 } /* End garble_msg */
 
-void garble_chat(int playernum, int governor)
+void garble_chat(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     int temp1;
     int temp2;

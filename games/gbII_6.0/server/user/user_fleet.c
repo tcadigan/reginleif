@@ -49,12 +49,11 @@
 extern long Shipdata[NUMSTYPES][NUMABILS];
 extern char const *Shipnames[];
 
-void fleet(int, int, int);
 int bad_flagship(int, int, int);
 int fctofi(char);
 char fitofc(int);
 
-void fleet(int playernum, int governor, int apcount)
+void user_fleet(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     shiptype *st;
     int i;

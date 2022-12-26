@@ -34,11 +34,21 @@
 #include <string.h>
 
 #include "buffers.h"
+#include "doship.h"
 #include "doturn.h"
+#include "files_shl.h"
+#include "first.h"
+#include "GB_server.h"
+#include "max.h"
+#include "perm.h"
 #include "power.h"
 #include "races.h"
+#include "rand.h"
 #include "ships.h"
+#include "shlmisc.h"
 #include "vars.h"
+
+#include "../user/tele.h"
 
 void do_pod(shiptype *);
 int infect_planet(int, int, int, int);
@@ -57,7 +67,7 @@ void do_pod(shiptype *ship)
                 starsys = ship->storbits;
                 planetno = int_rand(0, (int)Stars[starsys]->numplanets - 1);
                 sprintf(telegram_buf,
-                        "%s has warmed and exploded at %\n",
+                        "%s has warmed and exploded at %s\n",
                         Ship(ship),
                         prin_ship_orbits(ship));
 
@@ -252,7 +262,7 @@ void do_meta_infect(int who, planettype *p)
         p->info[who - 1].numsectsowned += 1;
         Sector(*p, x, y).popn = races[who - 1]->number_sexes;
         Sector(*p, x, y).owner = who;
-        Sector(*p, x, y).condition = sector(*p, x, y).type;
+        Sector(*p, x, y).condition = Sector(*p, x, y).type;
 
 #ifdef POD_TERRAFORM
         Sector(*p, x, y).condition = races[who - 1]->likesbest;

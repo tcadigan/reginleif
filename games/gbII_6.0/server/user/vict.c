@@ -54,7 +54,7 @@
 /* Prototypes */
 void create_victory_list(struct vic[MAXPLAYERS]);
 
-static int victory_sort(struct vic *, struct vic *);
+static int victory_sort(void const *, void const *);
 
 /*
  * victory:
@@ -69,7 +69,7 @@ static int victory_sort(struct vic *, struct vic *);
  *
  * description: Called from process_commands
  */
-void victory(int playernum, int governor)
+void victory(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     struct vic vic[MAXPLAYERS];
     racetype *race;
@@ -161,7 +161,6 @@ void create_victory_list(struct vic vic[MAXPLAYERS])
 {
     racetype *vic_races[MAXPLAYERS];
     int i;
-    int (*func)(struct vic *, struct vic *);
 
     for (i = 1; i <= Num_races; ++i) {
         vic_races[i - 1] = races[i - 1];
@@ -184,8 +183,7 @@ void create_victory_list(struct vic vic[MAXPLAYERS])
         }
     }
 
-    func = victory_sort;
-    qsort(vic, Num_races, sizeof(struct vic), func);
+    qsort(vic, Num_races, sizeof(struct vic), &victory_sort);
 }
 
 /*
@@ -199,8 +197,10 @@ void create_victory_list(struct vic vic[MAXPLAYERS])
  *
  * description:
  */
-static int victory_sort(struct vic *a, struct vic *b)
+static int victory_sort(void const *left, void const *right)
 {
+    struct vic *a = (struct vic *)left;
+    struct vic *b = (struct vic *)right;
     if (a->no_count) {
         return 1;
     } else if (b->no_count) {

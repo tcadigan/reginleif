@@ -69,7 +69,7 @@ struct race {
     short conditions[OTHER + 1]; /* Atmosphere/temperature this race likes. */
     unsigned char likesbest; /* 100% compat sector condition for this race. */
     char dissolved; /* Player has quit. */
-    char God; /* Planer is a God race. */
+    char God; /* Player is a God race. */
     char Guest; /* Player is a guest race. */
     char Metamorph; /* Player is a morph; (for printing). */
     char monitor; /* God is monitoring this race. */

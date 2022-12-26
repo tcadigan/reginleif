@@ -33,10 +33,14 @@
 #include <string.h>
 
 #include "power.h"
+#include "files_shl.h"
+#include "log.h"
 #include "races.h"
 #include "shipdata.h"
 #include "ships.h"
 #include "vars.h"
+
+#include "../user/build.h"
 
 int ShipVector[NUMSTYPES];
 
@@ -195,7 +199,7 @@ void insert_sh_fleet(int player, int gov, shiptype *s, int fl)
     r = races[player - 1];
 
     /* First ship in fleet, appoint the admiral */
-    if (!r->flee[fl].flagship) {
+    if (!r->fleet[fl].flagship) {
         r->fleet[fl].admiral = gov;
         strcpy(r->fleet[fl].name, "\0");
     }

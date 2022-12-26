@@ -97,7 +97,7 @@ void map(int playernum, int governor, int apcount, int unused4, orbitinfo *unuse
         }
     } else {
         /* Make orbit map instead */
-        orbit(playernum, governor, apcount);
+        orbit(playernum, governor, apcount, -1, NULL);
     }
 }
 

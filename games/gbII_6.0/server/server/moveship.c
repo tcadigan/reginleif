@@ -37,10 +37,21 @@
 
 #include "buffers.h"
 #include "doturn.h"
+#include "doship.h"
+#include "files_shl.h"
+#include "log.h"
+#include "max.h"
+#include "misc.h"
 #include "power.h"
 #include "races.h"
 #include "ships.h"
+#include "shlmisc.h"
 #include "vars.h"
+
+#include "../user/fire.h"
+#include "../user/load.h"
+#include "../user/order.h"
+#include "../user/tele.h"
 
 /*
  * Amount to move for each dir level. I arrived at these numbers only after
@@ -101,7 +112,7 @@ void Moveship(shiptype *s, int mode, int send_messages, int checking_fuel)
         }
 
         if (s->hyper_drive.ready) {
-            dist = sqrt(distsq(s->xpos,
+            dist = sqrt(Distsq(s->xpos,
                                s->ypos,
                                Stars[s->deststar]->xpos,
                                Stars[s->deststar]->ypos));
@@ -154,7 +165,7 @@ void Moveship(shiptype *s, int mode, int send_messages, int checking_fuel)
             s->hyper_drive.ready = 1; /* Causes a one seg delay TB */
             s->hyper_drive.charge = HYPER_DRIVE_READY_CHARGE;
         } else {
-            if (s->hyper_drive.charge == HYPER_DRIVE_READ_CHARGE) {
+            if (s->hyper_drive.charge == HYPER_DRIVE_READY_CHARGE) {
                 s->hyper_drive.ready = 1;
             } else {
                 s->hyper_drive.charge += 1;
@@ -170,7 +181,7 @@ void Moveship(shiptype *s, int mode, int send_messages, int checking_fuel)
          * HUTm Kharush Because of linear speed formula we decided that
          * increased fuel usage at high speeds would be logical.
          */
-        fuse = (0.5 * pow((double)s->speed, 1.5) * (1 + s->protect.evage) * s->mass * FUEL_USE) / (double)segments;
+        fuse = (0.5 * pow((double)s->speed, 1.5) * (1 + s->protect.evade) * s->mass * FUEL_USE) / (double)segments;
 
         /*
          * Old code
@@ -248,7 +259,7 @@ void Moveship(shiptype *s, int mode, int send_messages, int checking_fuel)
             opl = planets[s->storbits][s->pnumorbits];
 
             if (s->whatorbits == LEVEL_PLAN) {
-                dist = sqrt(Distsq(x->xpos,
+                dist = sqrt(Distsq(s->xpos,
                                    s->ypos,
                                    ost->xpos + opl->xpos,
                                    ost->ypos + opl->ypos));
@@ -282,7 +293,7 @@ void Moveship(shiptype *s, int mode, int send_messages, int checking_fuel)
 
                     break;
                 case LEVEL_PLAN:
-                    if ((s->whatorbits 1= dsh->whatorbits)
+                    if ((s->whatorbits != dsh->whatorbits)
                         || (s->pnumorbits != dsh->pnumorbits)) {
                         destlevel = LEVEL_PLAN;
                     }
@@ -309,7 +320,7 @@ void Moveship(shiptype *s, int mode, int send_messages, int checking_fuel)
 
             if ((destlevel == LEVEL_STAR)
                 || ((destlevel == LEVEL_PLAN)
-                    && ((s->storbits != s->deststart)
+                    && ((s->storbits != s->deststar)
                         || (s->whatorbits == LEVEL_UNIV)))) {
                 destlevel = LEVEL_STAR;
                 deststar = s->deststar;
@@ -349,7 +360,7 @@ void Moveship(shiptype *s, int mode, int send_messages, int checking_fuel)
             heading = atan2((double)(xdest - s->xpos),
                             (double)(-ydest + s->ypos));
 
-            mfactor = (SHIP_MOVE_SCALE * (1.0 - (0.01 * (double)s->rad)) * (1.0 - (0.01 * (double)s->damage)) * Speedconsts[s->speed] * MoveConsts[s->whatorbits]) / (double)segments;
+            mfactor = (SHIP_MOVE_SCALE * (1.0 - (0.01 * (double)s->rad)) * (1.0 - (0.01 * (double)s->damage)) * SpeedConsts[s->speed] * MoveConsts[s->whatorbits]) / (double)segments;
 
             /* Keep from ending up in the middle of the system. */
             if ((destlevel == LEVEL_STAR)
@@ -482,7 +493,7 @@ void Moveship(shiptype *s, int mode, int send_messages, int checking_fuel)
                 if (dist <= PLORBITSIZE) {
                     if (!checking_fuel
                         && (s->popn || (s->type == OTYPE_PROBE))) {
-                        dpl->info[s->owner - 1].expored - 1;
+                        dpl->info[s->owner - 1].explored = 1;
                         setbit(dst->explored, (int)s->owner);
                         setbit(dst->inhabited, (int)s->owner);
                     }
@@ -569,7 +580,7 @@ int followable(shiptype *s1, shiptype *s2)
     }
 
     dx = s1->xpos - s2->xpos;
-    dy = s1->ypos - x2->ypos;
+    dy = s1->ypos - s2->ypos;
     range = 4.0 * logscale((int)(s1->tech + 1.0)) * SYSTEMSIZE;
 
     r = races[s2->owner - 1];
@@ -594,7 +605,7 @@ int do_merchant(shiptype *s, planettype *p)
     char load;
     char unload;
     int amount;
-    sectortype *sec;
+    sectortype *sect;
 
     i = s->owner - 1;
     j = s->merchant - 1; /* Try to speed things up a bit */

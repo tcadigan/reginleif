@@ -51,7 +51,7 @@ unsigned long segments; /* Number of movement segments (global variable) */
 
 #define FAIL 0
 #define SUCCESS 1
-#define AVIALABLE 0
+#define AVAILABLE 0
 
 #define LEVEL_UNIV 0
 #define LEVEL_STAR 1

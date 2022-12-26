@@ -47,7 +47,7 @@
 void show_votes(int, int);
 
 /* Invite people to join your alliance block */
-void invite(int playernum, int governor, int apcount, int mode)
+void invite(int playernum, int governor, int apcount, int mode, orbitinfo *unused5)
 {
     int n;
     racetype *race;
@@ -115,7 +115,7 @@ void invite(int playernum, int governor, int apcount, int mode)
 }
 
 /* Declare that you wish to be included in the alliance block */
-void pledge(int playernum, int governor, int apcount, int mode)
+void pledge(int playernum, int governor, int apcount, int mode, orbitinfo *unused5)
 {
     int n;
     racetype *race;
@@ -212,7 +212,7 @@ void pledge(int playernum, int governor, int apcount, int mode)
     Putblock(Blocks);
 }
 
-void declare(int playernum, int governor, int apcount)
+void declare(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int n;
     int d_mod;
@@ -424,7 +424,7 @@ void declare(int playernum, int governor, int apcount)
 }
 
 #ifdef VOTING
-void vote (int playernum, int governor, int apcount)
+void vote(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     racetype *race;
     int check;
@@ -502,7 +502,7 @@ void vote (int playernum, int governor, int apcount)
             /* Is Update/Movement vote unanimous now? */
             if ((nvotes > 0) && (nvotes == yays) && (nays == 0)) {
                 /* Do it... */
-                do_update(1);
+                do_update(1, -1, -1, -1, NULL);
             }
         }
     } else {

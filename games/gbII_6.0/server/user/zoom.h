@@ -3,7 +3,7 @@
 
 #include "../server/vars.h"
 
-void zoom(int, int);
+void zoom(int, int, int, int, orbitinfo *);
 void csp_zoom(int, int, int, int, orbitinfo *);
 
 #endif /* ZOOM_H_ */

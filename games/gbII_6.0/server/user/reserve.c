@@ -43,7 +43,7 @@
 #include "../server/tweakables.h"
 #include "../server/vars.h"
 
-void reserve(int playernum, int governor, int apcost)
+void reserve(int playernum, int governor, int apcost, int unused4, orbitinfo *unused5)
 {
     placetype where;
     planettype *p;

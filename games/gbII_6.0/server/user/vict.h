@@ -3,7 +3,7 @@
 
 #include "../server/vars.h"
 
-void victory(int, int);
+void victory(int, int, int, int, orbitinfo *);
 void create_victory_list(struct vic[MAXPLAYERS]);
 
 #endif /* VICT_H_ */

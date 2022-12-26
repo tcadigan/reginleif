@@ -41,7 +41,7 @@
 #include "../server/ships.h"
 #include "../server/vars.h"
 
-void center(int playernum, int governor, int apcount)
+void center(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     placetype where;
     planettype *planet;
@@ -253,7 +253,7 @@ void do_prompt(int playernum, int governor)
     }
 }
 
-void cs(int playernum, int governor, int apcount)
+void cs(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     placetype where;
     planettype *planet;

@@ -47,7 +47,7 @@
 
 int inship(shiptype *); /* This was missing (kse) */
 
-void scrap(int playernum, int governor, int apcount)
+void scrap(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     planettype *planet;
     sectortype *sect;

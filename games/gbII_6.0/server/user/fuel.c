@@ -67,11 +67,10 @@ static double y_1;
 static shiptype *tmpship;
 static placetype tmpdest;
 
-extern void proj_fuel(int, int, int);
 extern void fuel_output(int, int, double, double, double, double, int);
 extern int do_trip(double, double);
 
-void proj_fuel(int playernum, int governor, int apcount)
+void proj_fuel(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int shipno;
     int opt_settings;

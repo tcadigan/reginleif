@@ -61,13 +61,19 @@
 #include "csp_types.h"
 #include "debug.h"
 #include "doturn.h"
+#include "files_shl.h"
 #include "game_info.h"
+#include "lists.h"
+#include "log.h"
 #include "power.h"
 #include "races.h"
 #include "ranks.h"
+#include "schedule.h"
 #include "ships.h"
 #include "tweakables.h"
 #include "vars.h"
+
+#include "../user/help.h"
 
 /* Data file descriptors */
 int commoddata;
@@ -102,7 +108,7 @@ FILE *garble_file; /* CWL */
 #ifdef ACCESS_CHECK
 /* Have we read in the access control file? */
 static int ainit =0;
-static int naddesses = 0;
+static int naddresses = 0;
 
 typedef struct access {
     struct in_addr ac_addr;
@@ -110,7 +116,7 @@ typedef struct access {
     int ac_value;
 } ac_t;
 
-static sc_t *ac_tab = (ac_t *)NULL;
+static ac_t *ac_tab = (ac_t *)NULL;
 #endif
 
 /*
@@ -123,7 +129,7 @@ static char const *bad_password = "Bad Password.\n";
 #endif
 
 static char const *client_invalid = "Invalid: ";
-static char const *already_on = "Player already logged on!\n");
+static char const *already_on = "Player already logged on!\n";
 static char const *max_trys = "Too many bad passwords! See Ya!\n";
 static char const *shutdown_message = "Shutdown ordered by deity - Bye\n";
 static char const *out_of_fds = "No free file descriptors for connect!\n";
@@ -137,7 +143,7 @@ static char const *lost_message = "<Output Lost>\n";
 int errno;
 time_t clk; /* Global clock */
 time_t go_time; /* Global clock */
-time_t boot_time /* Server startup time */
+time_t boot_time; /* Server startup time */
 
 static int sockfd; /* Global socketfd */
 static int ndescriptors = 0;
@@ -147,7 +153,7 @@ void set_signals(void);
 int send_special_string(int, int);
 void d_think(int, int, char *, char *);
 void d_broadcast(int, int, char *, char *, int);
-void d_shout(int, int, int, char *, char *);
+void d_shout(int, int, char *, char *);
 int command_loop(void);
 void scheduled(void);
 int whack_args(int);
@@ -163,8 +169,6 @@ int shutdown_socket(int);
 int connection(void);
 static void refill_output(int);
 void goodbye_user(int);
-void do_update(int);
-void do_segment(int, int);
 
 #ifdef CHAP_AUTH
 int Login_Parse(char *, char *, char *, char *, char *);
@@ -175,22 +179,12 @@ int Login_Parse(char *, char *, char *);
 #endif
 
 void dump_users(int);
-void dump_users_priv(int, int);
-void boot_user(int, int);
-void GB_time(int, int);
 void compute_power_blocks(void);
 void warn_race(int, char *);
 void warn(int, int, char *);
 void warn_star(int, int, int, char *);
 void notify_star(int, int, int, int, char *);
-void shut_game(void);
-void voidpoint(int, int, int, int);
 int clear_all_fds(void);
-void _reset(int, int);
-void _emulate(int, int);
-void _schedule(int, int);
-void last_logip(int, int);
-void close_game(int, int);
 void read_schedule_file(int, int);
 void show_update(int, int);
 
@@ -199,8 +193,8 @@ void client_key(char *);
 #endif
 
 #ifdef ACCESS_CHECK
-int address_ok(struct sockadd_in *);
-int address_match(struct in_add *, struct in_addr *, int);
+int address_ok(struct sockaddr_in *);
+int address_match(struct in_addr *, struct in_addr *, int);
 void add_address(unsigned long, int, int);
 #endif
 
@@ -306,13 +300,13 @@ int main(int argc, char *argv[])
     loginfo(ERRORLOG, NOERRNO, buf);
     loginfo(ERRORLOG, NOERRNO, "GB server started");
     loginfo(ERRORLOG, NOERRNO, buf);
-    loginfo(ERRORLOG, NOERRO, "Running on Port %d\n", port);
+    loginfo(ERRORLOG, NOERRNO, "Running on Port %d\n", port);
 
     loginfo(USERLOG, NOERRNO, buf);
     loginfo(USERLOG, NOERRNO, "GB server started");
     loginfo(USERLOG, NOERRNO, buf);
 
-    loginfo(UPDATELOG, NOERROR, buf);
+    loginfo(UPDATELOG, NOERRNO, buf);
     loginfo(UPDATELOG, NOERRNO, "GB server started");
     loginfo(UPDATELOG, NOERRNO, buf);
     loginfo(UPDATELOG, NOERRNO, "%d minutes between update", update_time);
@@ -383,7 +377,7 @@ int main(int argc, char *argv[])
                     last_segment_time = atol(dum);
                 }
 
-                if (fgets(sum, sizeof(dum), sfile)) {
+                if (fgets(dum, sizeof(dum), sfile)) {
                     next_segment_time = atol(dum);
                 }
 
@@ -427,7 +421,7 @@ int main(int argc, char *argv[])
         garble_file = fopen(GARBLEFILE, "r");
 
         if (garble_file != NULL) {
-            flock((int)garble_file, LOCK_EX);
+            flock(fileno(garble_file), LOCK_EX);
 
             while (fgets(buf, 1024, garble_file)) {
                 ++size_of_words;
@@ -459,7 +453,7 @@ int main(int argc, char *argv[])
     Getpower(Power); /* Get power report from disk */
     Getblock(Blocks); /* Get alliance block data */
     SortShips(); /* Sort the ship list by tech for "build ?" */
-    initFreeshipList(); /* Generate free ship list */
+    initFreeShipList(); /* Generate free ship list */
 
     for (i = 1; i <= MAXPLAYERS; ++i) {
         setbit(Blocks[i - 1].invite, i);
@@ -619,7 +613,6 @@ int notify(int player, int governor, char const *message)
 int send_special_string(int player, int what)
 {
     int gov;
-    time_t clk;
     /* int csp_client = 0; */
     char message[24];
     int i;
@@ -633,7 +626,7 @@ int send_special_string(int player, int what)
                 && (des[i].Governor == gov)) {
                 /* cleardes(i); */
 
-                if (races[des[i].Playernum - 1].governor[des[i].Governor]
+                if (races[des[i].Playernum - 1]->governor[des[i].Governor]
                     .CSP_client_info.csp_user) {
                     switch (what) {
                     case UPDATE_START:
@@ -774,7 +767,7 @@ void d_think(int playernum, int governor, char *head, char *message)
         if ((des[i].descriptor != AVAILABLE) && (des[i].Playernum == playernum)
             && (des[i].Governor == governor) && (des[i].Playernum != 0)
             && !races[des[i].Playernum - 1]->governor[des[i].Governor].toggle.gag) {
-            if (client_can_understand(des_playernum, des_Governor, CSPD_THINK)) {
+            if (client_can_understand(des[i].Playernum, des[i].Governor, CSPD_THINK)) {
                 char sbuf[20];
                 sprintf(sbuf, "%c %d ", CSP_CLIENT, CSPD_THINK);
                 outstr(i, sbuf);
@@ -854,9 +847,9 @@ void d_shout(int playernum, int governor, char *head, char *message)
 {
     int i;
 
-    for (i = 0; i < MASDESCRIPTORS; ++i) {
-        if ((des[i].descriptor != AVIALABLE)
-            && !((des[i].Playernum == playernum) && (des[t].Governor == governor))
+    for (i = 0; i < MAXDESCRIPTORS; ++i) {
+        if ((des[i].descriptor != AVAILABLE)
+            && !((des[i].Playernum == playernum) && (des[i].Governor == governor))
             && (des[i].Playernum != 0)) {
             if (client_can_understand(des[i].Playernum, des[i].Governor, CSPD_SHOUT)) {
                 char sbuf[20];
@@ -896,14 +889,14 @@ void d_announce(int playernum,
                 outstr(i, sbuf);
             }
 
-            race = races[Playernum - 1];
+            race = races[playernum - 1];
             alien = races[des[i].Playernum - 1];
 
             outstr(i, head);
 
-            if (!race->god && !alien->God && (chat_flag == TRANS_CHAT)) {
+            if (!race->God && !alien->God && (chat_flag == TRANS_CHAT)) {
                 garble_msg(message,
-                           alien->translate[Playernum - 1],
+                           alien->translate[playernum - 1],
                            1,
                            playernum);
             }
@@ -988,10 +981,10 @@ void scheduled()
     if ((go_time > 0) && (clk >= go_time)) {
         if (nsegments_done < segments) {
             debug(LEVEL_GENERAL, "Calling do_segment\n");
-            do_segment(0, 1);
+            do_segment(0, 1, -1, -1, NULL);
         } else {
             debug(LEVEL_GENERAL, "Calling do_update\n");
-            do_update(0);
+            do_update(0, -1, -1, -1, NULL);
         }
 
         go_time = 0;
@@ -999,7 +992,7 @@ void scheduled()
 
     /* Do scheduled backups -mfw */
     if ((next_backup_time > 0) && (clk >= next_backup_time)) {
-        backup();
+        backup(-1, -1, -1, -1, NULL);
         next_backup_time = clk + (backup_time * 60);
     }
 
@@ -1012,7 +1005,7 @@ void scheduled()
     }
 
     if ((next_shutdown_time > 0) && (clk >= next_shutdown_time)) {
-        shut_game();
+        shut_game(-1, -1, -1, -1, NULL);
     }
 }
 
@@ -1195,7 +1188,7 @@ int process_fd(int which)
         strcpy(string, des[which].input);
     }
 
-    ptr = (char*)srtchr(des[which].input, '\n');
+    ptr = (char*)strchr(des[which].input, '\n');
 
     if (!ptr) {
         des[which].tame = TRUE;
@@ -1223,404 +1216,346 @@ int process_fd(int which)
     } else {
         /* NOTREACHED if !ptr above returns. */
         /* des[which].input = 0 */
-        memcpy(data, des[which].input, sizeof(des[which].input));
+        memcpy(data, des[which].input, sizeof(*des[which].input));
     }
 
     whack_args(which);
     chomp_opts();
 
     while (1) {
-        if (args[0] && login_mode) {
-            debug(LEVEL_LOGIN,
-                  "process_fd: In login mode fd: %d\n",
-                  des[which].descriptor);
+      if (args[0] && login_mode) {
+        debug(LEVEL_LOGIN, "process_fd: In login mode fd: %d\n",
+              des[which].descriptor);
 
 #ifdef CHAP_AUTH
-            if (Login_Parse(string, race_name, gov_name, client_hash, code)) {
-                if (!strcmp(code, "ABORT")) {
-                    outstr(which, "Aborting login...\n");
-                    debug(LEVEL_LOGIN,
-                          "procesS_fd: login mode abort [fail] fd: %d\n",
-                          des[which].descriptor);
-                    cleardes(which); /* -mfw */
-                    shutdown_socket(which);
-                    happy = TRUE;
+        if (Login_Parse(string, race_name, gov_name, client_hash, code)) {
+          if (!strcmp(code, "ABORT")) {
+            outstr(which, "Aborting login...\n");
+            debug(LEVEL_LOGIN, "procesS_fd: login mode abort [fail] fd: %d\n",
+                  des[which].descriptor);
+            cleardes(which); /* -mfw */
+            shutdown_socket(which);
+            happy = TRUE;
 
-                    break;
-                }
+            break;
+          }
 
-                if (strcmp(code, "RESPONSE")
-                    || !Getracenum(race_name, gov_name, &player, &governor, client_hash, which)) {
-                    ++des[which].Trys;
+          if (strcmp(code, "RESPONSE") ||
+              !Getracenum(race_name, gov_name, &player, &governor, client_hash,
+                          which)) {
+            ++des[which].Trys;
 
-                    if (des[which].Trys > MAXLOGIN_ATTEMPTS) {
-                        outstr(which, max_trys);
-                        debug(LEVEL_LOGIN,
-                              "process_fd: login mode exit [fail] fd: %d\n",
-                              des[which].descriptor);
-                        cleardes(which); /* -mfw */
-                        shutdown_socket(which);
-                        happy = TRUE;
-                    } else {
-                        sprintf(buf, "CHAP FAILURE\n");
-                        outstr(which, buf);
-                        client_key(des[which].key);
-                        sprintf(buf, "CHAP CHALLENGE %s\n", des[which].key);
-                        outstr(which, buf);
-                        loginfo(USERLOG,
-                                NOERROR,
-                                "FAILED    : D%02d        %-12.12s %-10.10s %s\n",
-                                des[which].descriptor,
-                                race_name,
-                                gov_name,
-                                addrout(des[which].Hose));
-                        debug(LEVEL_LOGIN,
-                              "process_fd: login mode exit [fail] fd: %d\n",
-                              des[which].descriptor);
-                        happy = TRUE;
-                    } /* MAXLOGIN_ATTEMPTS */
-
-                    break;
-                } else {
-                    /* Login OK! */
-                    sprintf(buf, "CHAP SUCCESS\n");
-                    outstr(which, buf);
-
-                    if (game_closer && (player != 1)) {
-                        if (next_open_time) {
-                            char tbuf[20];
-                            sprintf(tbuf, "%ld", next_open_time);
-                            sprintf(buf,
-                                    "Temporarily Close, will reopen %s%-10s%s\n",
-                                    OPEN_TIME_TAG,
-                                    tbuf,
-                                    CLOSE_TIME_TAG);
-                        } else {
-                            sprintf(buf, "Temporarily Closed.\n");
-                        }
-
-                        outstr(which, buf);
-                        cleardes(which); /* -mfw */
-                        shutdown_socket(which);
-
-                        break;
-                    } else {
-                        Login_Process(player, governor, which);
-                        debug(LEVEL_LOGIN,
-                              "process_fd: login mode exit [success] fd: %d\n",
-                              des[which].descriptor);
-                        happy = TRUE;
-
-                        break;
-                    }
-                }
+            if (des[which].Trys > MAXLOGIN_ATTEMPTS) {
+              outstr(which, max_trys);
+              debug(LEVEL_LOGIN, "process_fd: login mode exit [fail] fd: %d\n",
+                    des[which].descriptor);
+              cleardes(which); /* -mfw */
+              shutdown_socket(which);
+              happy = TRUE;
             } else {
-                /* Reached if Login_Parse() fails */
-                break;
-            }
+              sprintf(buf, "CHAP FAILURE\n");
+              outstr(which, buf);
+              client_key(des[which].key);
+              sprintf(buf, "CHAP CHALLENGE %s\n", des[which].key);
+              outstr(which, buf);
+              loginfo(USERLOG, NOERRNO,
+                      "FAILED    : D%02d        %-12.12s %-10.10s %s\n",
+                      des[which].descriptor, race_name, gov_name,
+                      addrout(des[which].Host));
+              debug(LEVEL_LOGIN, "process_fd: login mode exit [fail] fd: %d\n",
+                    des[which].descriptor);
+              happy = TRUE;
+            } /* MAXLOGIN_ATTEMPTS */
 
+            break;
+          } else {
+            /* Login OK! */
+            sprintf(buf, "CHAP SUCCESS\n");
+            outstr(which, buf);
+
+            if (game_closed && (player != 1)) {
+              if (next_open_time) {
+                char tbuf[20];
+                sprintf(tbuf, "%ld", next_open_time);
+                sprintf(buf, "Temporarily Close, will reopen %s%-10s%s\n",
+                        OPEN_TIME_TAG, tbuf, CLOSE_TIME_TAG);
+              } else {
+                sprintf(buf, "Temporarily Closed.\n");
+              }
+
+              outstr(which, buf);
+              cleardes(which); /* -mfw */
+              shutdown_socket(which);
+
+              break;
+            } else {
+              Login_Process(player, governor, which);
+              debug(LEVEL_LOGIN,
+                    "process_fd: login mode exit [success] fd: %d\n",
+                    des[which].descriptor);
+              happy = TRUE;
+
+              break;
+            }
+          }
+        } else {
+          /* Reached if Login_Parse() fails */
+          break;
+        }
 #else
+        Login_Parse(string, race_password, gov_password);
 
-            Login_Parse(string, race_password, gov_password);
+        if (!strcmp(race_password, "quit")) {
+          outstr(which, "Aborting login...\n");
+          debug(LEVEL_LOGIN, "process_fd: login mode abort [fail] fd: %d\n",
+                des[which].descriptor);
+          cleardes(which); /* -mfw */
+          shutdown_socket(which);
+          happy = TRUE;
 
-            if (!strcmp(race_password, "quit")) {
-                outstr(which, "Aborting login...\n");
-                debug(LEVEL_LOGIN,
-                      "process_fd: login mode abort [fail] fd: %d\n",
-                      des[which].descriptor);
-                cleardes(which); /* -mfw */
-                shutdown_socket(which);
-                happy = TRUE;
+          break;
+        }
 
-                break;
-            }
+        if (!Getracenum(race_password, gov_password, &player, &governor)) {
+          ++des[which].Trys;
 
-            if (!Getracenum(race_password, gov_password, &player, &governor)) {
-                ++des[which].Trys;
+          if (des[which].Trys > MAXLOGIN_ATTEMPTS) {
+            outstr(which, max_trys);
+            debug(LEVEL_LOGIN, "process_fd: login mode exit [fail] fd: %d\n",
+                  des[which].descriptor);
+            cleardes(which); /* -mfw */
+            shutdown_socket(which);
+            happy = TRUE;
+          } else {
+            sprintf(buf, "%s %s", client_invalid, bad_password);
+            outstr(which, buf);
 
-                if (des[which].Trys > MAXLOGIN_ATTEMPTS) {
-                    outstr(which, max_trys);
-                    debug(LEVEL_LOGIN,
-                          "process_fd: login mode exit [fail] fd: %d\n",
-                          des[which].descriptor);
-                    cleardes(which); /* -mfw */
-                    shutdown_socket(which);
-                    happy = TRUE;
-                } else {
-                    sprintf(buf, "%s %s", client_invalid, bad_password);
-                    outstr(which, buf);
+            sprintf(buf, "Re-%s", client_login);
+            outstr(which, buf);
 
-                    sprintf(buf, "Re-%s", client_login);
-                    outstr(which, buf);
+            loginfo(USERLOG, NOERRNO,
+                    "Failed    : D%02d        %-10.10s %-12.12s %s\n",
+                    des[which].descriptor, race_password, gov_password,
+                    addrout(des[which].Host));
 
-                    loginfo(USERLOG,
-                            NOERRNO,
-                            "Failed    : D%02d        %-10.10s %-12.12s %s\n",
-                            des[which].descriptor,
-                            race_password,
-                            gov_password,
-                            addrout(des[which].Host));
+            debut(LEVEL_LOGIN, "process_fd: login mode exit [fail] fd: %d\n",
+                  des[which].descriptor);
+            happy = TRUE;
+          } /* MAXLOGIN_ATTEMPTS */
 
-                    debut(LEVEL_LOGIN,
-                          "process_fd: login mode exit [fail] fd: %d\n",
-                          des[which].descriptor);
-                    happy = TRUE;
-                } /* MAXLOGIN_ATTEMPTS */
+          break;
+        } else {
+          /* Login OK! */
 
-                break;
+          if (game_closed && (player != 1)) {
+            if (next_open_time) {
+              char tbuf[20];
+
+              sprintf(tbuf, "%ld", next_open_time);
+              sprintf(buf, "Temporarily Close, will reopen %s%-10s%s\n",
+                      OPEN_TIME_TAG, tbuf, CLOSE_TIME_TAG);
             } else {
-                /* Login OK! */
-
-                if (game_closed && (player != 1)) {
-                    if (next_open_time) {
-                        char tbuf[20];
-
-                        sprintf(tbuf, "%ld", next_open_time);
-                        sprintf(buf,
-                                "Temporarily Close, will reopen %s%-10s%s\n",
-                                OPEN_TIME_TAG,
-                                tbuf,
-                                CLOSE_TIME_TAG);
-                    } else {
-                        sprintf(buf, "Temporarily Closed.\n");
-                    }
-
-                    outstr(which, buf);
-                    cleardes(which); /* -mfw */
-                    shutdown_socket(which);
-
-                    break;
-                } else {
-                    Login_Process(player, governor, which);
-                    debug(LEVEL_LOGIN,
-                          "procesS_fd: login mode exit [success] fd: %d\n",
-                          des[which].descriptor);
-                    Happy = TRUE;
-
-                    break;
-                }
+              sprintf(buf, "Temporarily Closed.\n");
             }
+
+            outstr(which, buf);
+            cleardes(which); /* -mfw */
+            shutdown_socket(which);
+
+            break;
+          } else {
+            Login_Process(player, governor, which);
+            debug(LEVEL_LOGIN, "procesS_fd: login mode exit [success] fd: %d\n",
+                  des[which].descriptor);
+            Happy = TRUE;
+
+            break;
+          }
         }
 #endif
-        /* Only reached if login_mode is False. */
-        if (!strcmp(args[0], "")) {
-            Happy = TRUE;
+      }
 
-            break;
+      /* Only reached if login_mode is False. */
+      if (!strcmp(args[0], "")) {
+          happy = TRUE;
+
+          break;
         } else if (match(args[0], CSP_SERVER)) {
-            debug(LEVEL_CSP,
-                  "process_fd: PRocessing CSP command fd: %d\n",
-                  des[which].descriptor);
-            CSP_process_command2(des[which].Playernum, des[which].Governor);
-            Happy = TRUE;
+          debug(LEVEL_CSP, "process_fd: PRocessing CSP command fd: %d\n",
+                des[which].descriptor);
+          CSP_process_command2(des[which].Playernum, des[which].Governor);
+          happy = TRUE;
 
-            break;
-        } else if(match2(args[0], "BRoadcast", 2) || match(args[0], "'")) {
-            debug(LEVEL_HANDLER,
-                  "process_fd: Processing broadcast command fd: %d\n",
-                  des[which].descriptor);
-            announce(des[which].Playernum,
-                     des[which].Governor,
-                     message,
-                     BROADCAST,
-                     0);
-            Happy = TRUE;
+          break;
+        } else if (match2(args[0], "BRoadcast", 2) || match(args[0], "'")) {
+          debug(LEVEL_HANDLER,
+                "process_fd: Processing broadcast command fd: %d\n",
+                des[which].descriptor);
+          announce(des[which].Playernum, des[which].Governor, message,
+                   BROADCAST, 0);
+          happy = TRUE;
 
-            break;
+          break;
         } else if (match(args[0], "think") || match(args[0], "`")) {
-            debug(LEVEL_HANDLER,
-                  "process_fd: Processing think command fd: %d\n",
-                  des[which].descriptor);
-            announce(des[which].Playernum,
-                     des[which].Governor,
-                     message,
-                     THINK,
-                     0);
-            Happy = TRUE;
+          debug(LEVEL_HANDLER, "process_fd: Processing think command fd: %d\n",
+                des[which].descriptor);
+          announce(des[which].Playernum, des[which].Governor, message, THINK,
+                   0);
+          happy = TRUE;
 
-            break;
+          break;
         } else if (match2(args[0], "SHOut", 3)) {
-            debug(LEVEL_HANDLER,
-                  "process_fd: Processing shout command fd: %d\n",
-                  des[which].descriptor);
-            announce(des[which].Playernum,
-                     des[which].Governor,
-                     message,
-                     SHOUT,
-                     0);
-            Happy = TRUE;
+          debug(LEVEL_HANDLER, "process_fd: Processing shout command fd: %d\n",
+                des[which].descriptor);
+          announce(des[which].Playernum, des[which].Governor, message, SHOUT,
+                   0);
+          happy = TRUE;
 
-            break;
+          break;
         } else if (match2(args[0], "ANnounce", 2) || match(args[0], ":")) {
-            debug(LEVEL_HANDLER,
-                  "process_fd: Processing announce command fd: %d\n",
-                  des[which].descriptor);
-            announce(des[which].Playernum,
-                     des[which].Governor,
-                     message,
-                     ANN,
-                     0);
-            Happy = TRUE;
+          debug(LEVEL_HANDLER,
+                "process_fd: Processing announce command fd: %d\n",
+                des[which].descriptor);
+          announce(des[which].Playernum, des[which].Governor, message, ANN, 0);
+          happy = TRUE;
 
-            break;
+          break;
         } else if (match2(args[0], "EMOte", 3) || match(args[0], ";")) {
-            debug(LEVEL_HANDLER,
-                  "process_fd: Processing emote command fd: %d\n",
-                  des[which].descriptor);
-            announce(des[which].Playernum,
-                     des[which].Governor,
-                     message,
-                     EMOTE,
-                     0);
-            Happy = TRUE;
+          debug(LEVEL_HANDLER, "process_fd: Processing emote command fd: %d\n",
+                des[which].descriptor);
+          announce(des[which].Playernum, des[which].Governor, message, EMOTE,
+                   0);
+          happy = TRUE;
 
-            break;
+          break;
         } else if (match(args[0], QUIT_COMMAND)) {
-            debug(LEVEL_HANDLER,
-                  "process_fd: Processing quit command fd: %d\n",
-                  des[which].descriptor);
-            goodbye_user(which);
-            Happy = TRUE;
+          debug(LEVEL_HANDLER, "process_fd: Processing quit command fd: %d\n",
+                des[which].descriptor);
+          goodbye_user(which);
+          happy = TRUE;
 
-            break;
+          break;
         } else if (match2(args[0], "MOTto", 3)) {
-            debug(LEVEL_HANDLER,
-                  "process_fd: Processing motto command fd: %d\n",
-                  des[which].descriptor);
-            motto(des[which].Playernum, des[which].Governor, 0, messagE);
-            Happy = TRUE;
+          debug(LEVEL_HANDLER, "process_fd: Processing motto command fd: %d\n",
+                des[which].descriptor);
+          motto(des[which].Playernum, des[which].Governor, 0, message);
+          happy = TRUE;
 
-            break;
+          break;
         } else if (match(args[0], "personal")) {
-            debug(LEVEL_HANDLER,
-                  "process_fd: Processing personal command fd: %d\n",
-                  des[which].descriptor);
-            personal(des[which].Playernum, des[which].Governor, message);
-            Happy = TRUE;
+          debug(LEVEL_HANDLER,
+                "process_fd: Processing personal command fd: %d\n",
+                des[which].descriptor);
+          personal(des[which].Playernum, des[which].Governor, message);
+          happy = TRUE;
 
-            break;
+          break;
         } else if (match(args[0], WHO_COMMAND) && !login_mode) {
-            debug(LEVEL_HANDLER,
-                  "process_fd: Processing who command fd: %d\n",
-                  des[which].descriptor);
-            dump_users(which);
-            Happy = TRUE;
-            break;
+          debug(LEVEL_HANDLER, "process_fd: Processing who command fd: %d\n",
+                des[which].descriptor);
+          dump_users(which);
+          happy = TRUE;
+          break;
         } else if (match(args[0], HELP_COMMAND)) {
-            debug(LEVEL_HANDLER,
-                  "process_fd: Processing help command fd: %d\n",
-                  des[which].descriptor);
-            help(which);
-            Happy = TRUE;
+          debug(LEVEL_HANDLER, "process_fd: Processing help command fd: %d\n",
+                des[which].descriptor);
+          help(which);
+          happy = TRUE;
 
-            break;
+          break;
         } else if (!login_mode) {
-            handler = hash_search(args[0]);
+          handler = hash_search(args[0]);
 
-            if (handler == NULL) {
-                debug(LEVEL_HANDLER,
-                      "process_fd: hash_search failed for \'%s\' command fd: %d\n",
-                      args[0],
-                      des[which].descriptor);
-                Happy = FALSE;
-            } else {
-                debug(LEVEL_HANDLER,
-                      "process_fd: Processing %s command fd: %d\n",
-                      handler->name,
-                      des[which].descriptor);
+          if (handler == NULL) {
+            debug(LEVEL_HANDLER,
+                  "process_fd: hash_search failed for \'%s\' command fd: %d\n",
+                  args[0], des[which].descriptor);
+            happy = FALSE;
+          } else {
+            debug(LEVEL_HANDLER, "process_fd: Processing %s command fd: %d\n",
+                  handler->name, des[which].descriptor);
 
-                if ((handler->God && !des[which].God)
-                    || (handler->Guest && des[which].Guest)) {
-                    outstr(which, "That is a restricted command.\n");
-                    Happy = TRUE;
+            if ((handler->god && !des[which].God) ||
+                (handler->guest && des[which].Guest)) {
+              outstr(which, "That is a restricted command.\n");
+              happy = TRUE;
 
-                    break;
-                }
-
-                if (des[which].Governor == 0) {
-                    allowed = TRUE;
-                } else if (races[des[which].Playernum - 1]->governor[des[which].Governor].rank <= handler->Rank) {
-                    allowed = TRUE;
-                } else {
-                    allowed = FALSE;
-                }
-
-                if (!allowed) {
-                    switch (handler->Rank) {
-                    case LEADER:
-                        strcpy(rank, "leader");
-
-                        break;
-                    case GENERAL:
-                        strcpy(rank, "general");
-
-                        break;
-                    case CAPTAIN:
-                        strcpy(rank, "captain");
-
-                        break;
-                    case PRIVATE:
-                        strcpy(rank, "private");
-
-                        break;
-                    case NOVICE:
-                        strcpy(rank, "novice");
-
-                        break;
-                    }
-
-                    sprintf(buf,
-                            "The \"%s\" command requires a minimum level of %s to run.\n",
-                            handler->name,
-                            rank);
-                    outstr(which, buf);
-                    Happy = TRUE;
-
-                    break;
-                }
-
-                if (!handler->Args) {
-                    debug(LEVEL_HANDLER,
-                          "process_fd: Calling %s with no Args\n",
-                          handler->name);
-                    handler->func(des[which].Playernum,
-                                  des[which].Governor,
-                                  handler->APCost);
-                } else if (handler->args == 1) {
-                    debug(LEVEL_HANDLER,
-                          "process_fd: Calling %s with Args %d [%d]\n",
-                          handler->name,
-                          des[which].descriptor,
-                          handler->Args,
-                          handler->Arg1);
-                    handler->func(des[which].Playernum,
-                                  des[which].Governor,
-                                  handler->APCost,
-                                  handler->Arg1);
-                } else if (handler->Args == 2) {
-                    debug(LEVEL_HANDLER,
-                          "process_fd: Calling %s with Args %d [%d %d]\n",
-                          handler->name,
-                          des[which].descriptor,
-                          handler->Args,
-                          handler->Arg1,
-                          handler->Arg2);
-                    handler->func(des[which].Playernum,
-                                  des[which].Governor,
-                                  handler->APCost,
-                                  handler->Arg1,
-                                  handler->Arg2);
-                } else {
-                    loginfo(ERRORLOG, WANTERRNO, "Error in handler\n");
-
-                    /* exit(); */
-                }
-
-                Happy = TRUE;
+              break;
             }
+
+            if (des[which].Governor == 0) {
+              allowed = TRUE;
+            } else if (races[des[which].Playernum - 1]
+                           ->governor[des[which].Governor]
+                           .rank <= handler->rank) {
+              allowed = TRUE;
+            } else {
+              allowed = FALSE;
+            }
+
+            if (!allowed) {
+              switch (handler->rank) {
+              case LEADER:
+                strcpy(rank, "leader");
+
+                break;
+              case GENERAL:
+                strcpy(rank, "general");
+
+                break;
+              case CAPTAIN:
+                strcpy(rank, "captain");
+
+                break;
+              case PRIVATE:
+                strcpy(rank, "private");
+
+                break;
+              case NOVICE:
+                strcpy(rank, "novice");
+
+                break;
+              }
+
+              sprintf(
+                  buf,
+                  "The \"%s\" command requires a minimum level of %s to run.\n",
+                  handler->name, rank);
+              outstr(which, buf);
+              happy = TRUE;
+
+              break;
+            }
+
+            if (!handler->args) {
+              debug(LEVEL_HANDLER, "process_fd: Calling %s with no Args\n",
+                    handler->name);
+              handler->func(des[which].Playernum, des[which].Governor,
+                            handler->ap_cost, -1, NULL);
+            } else if (handler->args == 1) {
+              debug(LEVEL_HANDLER, "process_fd: Calling %s with Args %d [%d]\n",
+                    handler->name, des[which].descriptor, handler->args,
+                    handler->arg1);
+              handler->func(des[which].Playernum, des[which].Governor,
+                            handler->ap_cost, handler->arg1, NULL);
+            } else if (handler->args == 2) {
+              debug(LEVEL_HANDLER,
+                    "process_fd: Calling %s with Args %d [%d %d]\n",
+                    handler->name, des[which].descriptor, handler->args,
+                    handler->arg1, handler->arg2);
+              handler->func(des[which].Playernum, des[which].Governor,
+                            handler->ap_cost, handler->arg1, handler->arg2);
+            } else {
+              loginfo(ERRORLOG, WANTERRNO, "Error in handler\n");
+
+              /* exit(); */
+            }
+
+            happy = TRUE;
+          }
         }
 
-        if (!Happy && !login_mode) {
+        if (!happy && !login_mode) {
             sprintf(buf,
                     "\'%s\': Illegal command error (%d).\n",
                     args[0],
@@ -1629,7 +1564,7 @@ int process_fd(int which)
         }
 
         break;
-    }
+      }
 
     /* Prevents doing work on an freed descriptor */
     if (des[which].descriptor != AVAILABLE) {
@@ -1654,7 +1589,7 @@ int process_fd(int which)
     }
 
     return 1;
-}
+    }
 
 /*
  * hash_search expect for the command.h to have commands starting with @ or a
@@ -1664,7 +1599,7 @@ int process_fd(int which)
  * commands in whatever order you want. This will affect things such as whether
  * 'rep' will do 'report' or 'repair'.
  */
-static Command *hash_search(char *)
+static Command *hash_search(char *cmd)
 {
     static int hash_table[27] = {
         -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -1780,7 +1715,7 @@ int Login_Process(int player, int governor, int which)
             (des[which].Playernum * 5) + des[which].Governor + 1,
             des[which].descriptor);
 
-    actives[((des[which].Playernum - 1) * 5) + dest[which].Governor + 1].which_des = des[which].descriptor;
+    actives[((des[which].Playernum - 1) * 5) + des[which].Governor + 1].which_des = des[which].descriptor;
 
     des[which].Active = TRUE;
     print_motd(which);
@@ -1801,12 +1736,12 @@ int Login_Process(int player, int governor, int which)
     }
 
     outstr(which, buf);
-    GB_time(player, governor);
+    GB_time(player, governor, -1, -1, NULL);
 
     if (r->governor[governor].CSP_client_info.csp_user == 1) {
         char tbuf[20];
 
-        sprintf(tbug, "%ld", r->governor[governor].last_login);
+        sprintf(tbuf, "%ld", r->governor[governor].last_login);
         sprintf(buf,
                 "Last login      : %s%-10s%s\n",
                 OPEN_TIME_TAG,
@@ -1816,7 +1751,7 @@ int Login_Process(int player, int governor, int which)
     } else {
         sprintf(buf,
                 "Last login      : %s",
-                ctime(*r->governor[governor].last_login));
+                ctime(&r->governor[governor].last_login));
         outstr(which, buf);
     }
 
@@ -1830,9 +1765,9 @@ int Login_Process(int player, int governor, int which)
     buf[0] = '\0';
 
     r->governor[governor].last_login = time(0);
-    actives[((des[which].Playernum - 1) * 5) + des[which].Governor + 1].connect_Time = time(0);
+    actives[((des[which].Playernum - 1) * 5) + des[which].Governor + 1].connect_time = time(0);
     actives[((des[which].Playernum - 1) * 5) + des[which].Governor + 1].idle_time = time(0);
-    strcpy(r->governor[Governor].last_ip, addrout(des[which].Host));
+    strcpy(r->governor[governor].last_ip, addrout(des[which].Host));
 
     putrace(r);
 
@@ -1853,12 +1788,12 @@ int Login_Process(int player, int governor, int which)
     check_dispatch(des[which].Playernum, des[which].Governor);
 
     /* Always have one channel on at login, set default channel */
-    channel(des[which].Playernum, des[which].Governor, 0, 1);
+    channel(des[which].Playernum, des[which].Governor, 0, 1, NULL);
 
     /* Change scope to our default system */
     argn = 1;
     strcpy(args[0], "cs");
-    cs(des[which].Playernum, des[which].Governor, 0);
+    cs(des[which].Playernum, des[which].Governor, 0, -1, NULL);
 
     return 1;
 }
@@ -1884,7 +1819,7 @@ int checkfds()
      * Loop through the descriptors looking for input or output
      */
     for (dnum = 0; dnum < MAXDESCRIPTORS; ++dnum) {
-        if (des[dum].descriptor != AVAILABLE) {
+        if (des[dnum].descriptor != AVAILABLE) {
             /* Did we pass the timelimit for EWOULDBLOCK's? */
             if (now >= des[dnum].lastblock) {
                 if (des[dnum].output_size) {
@@ -1926,7 +1861,7 @@ int checkfds()
         }
     }
     if (waitseconds <= 0) {
-        seconds = 1;
+        waitseconds = 1;
     }
 
     timeout.tv_sec = waitseconds;
@@ -1998,7 +1933,7 @@ int readdes(int whichfd)
                  INPUT_SIZE - strlen(des[whichfd].input) - 2);
     des[whichfd].tame = FALSE;
 
-    if (red <= 0) {
+    if (ret <= 0) {
         cleardes(whichfd); /* -mfw */
         shutdown_socket(whichfd);
     }
@@ -2126,7 +2061,7 @@ int readfd(int whichfd, char *buffer, unsigned int howmuch)
 int writefd(int whichfd, char *buffer, unsigned int howmuch)
 {
     int numwritten;
-    struct descript *dp = &des[whichfd];
+    struct descrip *dp = &des[whichfd];
 
     numwritten = write(dp->descriptor, buffer, howmuch);
 
@@ -2176,7 +2111,7 @@ int connection()
 
     if (a < 0) {
         perror("accept");
-        loginfo(ERROR_LOG, NOERRNO, "Error on accept\n");
+        loginfo(ERRORLOG, NOERRNO, "Error on accept\n");
 
         return FAIL;
     }
@@ -2224,7 +2159,7 @@ int connection()
         perror("fcntl");
         shutdown(des[avail].descriptor, 2);
         close(des[avail].descriptor);
-        des[avail]descriptor = AVAILABLE;
+        des[avail].descriptor = AVAILABLE;
 
         return FAIL;
     }
@@ -2362,7 +2297,7 @@ void outstr(int whichfd, char const *str)
             }
 
             dp->overflow_end = ftell(dp->overflow_fd);
-            nok = fwrite(str, 1, n, dp->overflow_ffd);
+            nok = fwrite(str, 1, n, dp->overflow_fd);
 
             if (nok > 0) {
                 dp->overflow_end += nok;
@@ -2488,7 +2423,7 @@ int init_network(unsigned int port)
     struct sockaddr_in saddr;
     int opt = 1;
 
-    sockfd = socket(AF_INET, SOCKSTREAM, 0);
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
     if (sockfd < 0) {
         perror("socket");
@@ -2509,7 +2444,7 @@ int init_network(unsigned int port)
         return FAIL;
     }
 
-    if (setsockopt(sockfd, SOL_SOCKER, SO_KEEPALIVE, (char *)&opt, sizeof(opt)) < 0) {
+    if (setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE, (char *)&opt, sizeof(opt)) < 0) {
         perror("setsockopt(so_keepalive)");
 
         return FAIL;
@@ -2532,7 +2467,7 @@ int init_network(unsigned int port)
         return FAIL;
     }
 
-    if (list(sockfd, 5) < 0) {
+    if (listen(sockfd, 5) < 0) {
         perror("listen");
 
         return FAIL;
@@ -2561,7 +2496,7 @@ void goodbye_user(int whichfd)
     shutdown_socket(whichfd);
 }
 
-void do_update(int forceit)
+void do_update(int forceit, int unused2, int unused3, int unused4, orbitinfo *unused5)
 {
     int i;
     time_t clk;
@@ -2588,7 +2523,7 @@ void do_update(int forceit)
 
 #ifdef USE_VN
     if (stat(NOVNFL, &stbuf) >= 0) {
-        fn_reproduction = 0;
+        vn_reproduction = 0;
     } else {
         vn_reproduction = 1;
     }
@@ -2632,24 +2567,24 @@ void do_update(int forceit)
         ++nupdates_done;
     }
 
-    sprintf(Power_block.time, "%s", ctime(&clk));
+    sprintf(Power_blocks.time, "%s", ctime(&clk));
     sprintf(update_buf, "Last Update %3d : %s", nupdates_done, ctime(&clk));
     sprintf(segment_buf, "Last Segment %2d : %s", nsegments_done, ctime(&clk));
 
     loginfo(UPDATELOG,
             NOERRNO,
             "Next Update %3d : %s",
-            nupdate_done + 1,
+            nupdates_done + 1,
             ctime(&next_update_time));
 
     if (nsegments_done == segments) {
-        loginfo(UPDATE_LOG,
+        loginfo(UPDATELOG,
                 NOERRNO,
                 "Next Segment %2d : %s",
                 1,
                 ctime(&next_segment_time));
     } else {
-        loginfo(UPDATE_LOG,
+        loginfo(UPDATELOG,
                 NOERRNO,
                 "Next Segment %2d : %s",
                 nsegments_done + 1,
@@ -2740,7 +2675,7 @@ void update_times(int which)
     }
 }
 
-void do_segment(int forceit, int segment)
+void do_segment(int forceit, int segment, int unused3, int unused4, orbitinfo *unused5)
 {
     int i;
     time_t clk;
@@ -2999,10 +2934,10 @@ void dump_users(int which)
 
     /* CWL garble code -mfw */
     if (chat_flag) {
-        if (char_flag == TRANS_CHAT) {
-            sprintf(buf, "Chat level %s: Translated chat. ", chat_flag);
+        if (chat_flag == TRANS_CHAT) {
+            sprintf(buf, "Chat level %d: Translated chat. ", chat_flag);
         } else {
-            sprintf(buf, "Chat level %s: Free chat. ", chat_flag);
+            sprintf(buf, "Chat level %d: Free chat. ", chat_flag);
         }
 
         outstr(which, buf);
@@ -3105,7 +3040,7 @@ void dump_users(int which)
 #endif
 }
 
-void dump_users_priv(int playernum, int governor)
+void dump_users_priv(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     time_t now;
     racetype *r;
@@ -3115,7 +3050,7 @@ void dump_users_priv(int playernum, int governor)
     sprintf(buf, "Current Players: %s", ctime(&now));
     notify(playernum, governor, buf);
 
-    for (i = 0; i < MAXDESCRIPTORS, ++i) {
+    for (i = 0; i < MAXDESCRIPTORS; ++i) {
         if (des[i].Playernum && (des[i].descriptor != AVAILABLE)) {
             r = races[des[i].Playernum - 1];
             sprintf(temp, "\"%s\"", r->governor[des[i].Governor].name);
@@ -3162,7 +3097,7 @@ void dump_users_priv(int playernum, int governor)
     }
 }
 
-void boot_user(int playernum, int governor)
+void boot_user(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     int homicide;
     int i;
@@ -3186,7 +3121,7 @@ void boot_user(int playernum, int governor)
     }
 }
 
-void GB_time(int playernum, int governor)
+void GB_time(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     /* Report back the update status */
     racetype *r;
@@ -3257,7 +3192,7 @@ void compute_power_blocks(void)
 
     for (i = 1; i <= Num_races; ++i) {
         dummy[0] = Blocks[i - 1].invite[0] & Blocks[i - 1].pledge[0];
-        dummy[1] = blocks[i - 1].invite[1] & Blocks[i - 1].pledge[1];
+        dummy[1] = Blocks[i - 1].invite[1] & Blocks[i - 1].pledge[1];
         Power_blocks.members[i - 1] = 0;
         Power_blocks.sectors_owned[i - 1] = 0;
         Power_blocks.popn[i - 1] = 0;
@@ -3267,7 +3202,7 @@ void compute_power_blocks(void)
         Power_blocks.destruct[i - 1] = 0;
         Power_blocks.money[i - 1] = 0;
         Power_blocks.systems_owned[i - 1] = Blocks[i - 1].systems_owned;
-        Power_blocks.vps[i - 1] = Blocks[i -1].vps;
+        Power_blocks.VPs[i - 1] = Blocks[i -1].VPs;
 
         for (j = 1; j <= Num_races; ++j) {
             if (isset(dummy, j)) {
@@ -3321,7 +3256,7 @@ void warn_star(int a, int b, int star, char *message)
 
 void notify_star(int a, int g, int b, int star, char *message)
 {
-    int racetype *race;
+    racetype *race;
     int i;
 
 #ifdef MONITOR
@@ -3341,12 +3276,12 @@ void notify_star(int a, int g, int b, int star, char *message)
     }
 }
 
-void shut_game()
+void shut_game(int unused1, int unused2, int unused3, int unused4, orbitinfo *unused5)
 {
     shutdown_flag = TRUE;
 }
 
-void voidpoint(int unused1, int unused2, int unused3, int unused4)
+void voidpoint(int unused1, int unused2, int unused3, int unused4, orbitinfo *unused5)
 {
 }
 
@@ -3363,7 +3298,7 @@ int clear_all_fds()
     return 1;
 }
 
-void _reset(int playernum, int governor)
+void _reset(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     int j;
 
@@ -3377,7 +3312,7 @@ void _reset(int playernum, int governor)
     do_reset(1);
 }
 
-void _emulate(int playernum, int governor)
+void _emulate(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     int i;
     int ok = 0;
@@ -3426,9 +3361,9 @@ void _emulate(int playernum, int governor)
     }
 }
 
-void _schedule(int playernum, int governor)
+void _schedule(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
-    int shudown_time;
+    int shutdown_time;
 
     if (argn < 2) {
         notify(playernum,
@@ -3441,7 +3376,7 @@ void _schedule(int playernum, int governor)
     time(&clk);
 
     if (match(args[1], "reread")) {
-        read_schedule_file(playernumber, governor);
+        read_schedule_file(playernum, governor);
     } else if (match(args[1], "update")) {
         if (argn != 3) {
             notify(playernum, governor, "usage: @schedule update #\n");
@@ -3507,7 +3442,7 @@ void _schedule(int playernum, int governor)
                     nupdates_done = atoi(dum);
                 }
 
-                if (fgets(dum), sizeof(dum), sfile) {
+                if (fgets(dum, sizeof(dum), sfile)) {
                     last_update_time = atol(dum);
                 }
 
@@ -3523,7 +3458,7 @@ void _schedule(int playernum, int governor)
                     suspended = atoi(dum);
                 }
 
-                flcose(sfile);
+                fclose(sfile);
             }
 
             notify(playernum, governor, "Update schedule reloaded.\n");
@@ -3562,7 +3497,7 @@ void _schedule(int playernum, int governor)
 }
 
 /* -mfw */
-void last_logip(int playernum, int governor)
+void last_logip(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     long int raceid;
     long int govid;
@@ -3570,7 +3505,7 @@ void last_logip(int playernum, int governor)
     if (argn != 3) {
         notify(playernum, governor, "Race and Gov number required.\n");
 
-        reutrn;
+        return;
     }
 
     raceid = atoi(args[1]);
@@ -3594,7 +3529,7 @@ void last_logip(int playernum, int governor)
 
         sprintf(buf,
                 "From host: %s\n",
-                races[raceid - 1]->governor[govid].las_ip);
+                races[raceid - 1]->governor[govid].last_ip);
 
         notify(playernum, governor, buf);
 
@@ -3641,7 +3576,7 @@ void client_key(char *randompasswdptr)
 }
 #endif
 
-void close_game(int playernum, int governor)
+void close_game(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     if (argn != 2) {
         if (game_closed) {
@@ -3672,8 +3607,8 @@ void read_schedule_file(int playernum, int governor)
     if (sfile) {
         if (!getschedule(sfile)) {
             /* Suspend updates if there was a problem in the schedule file */
-            if (!Playernum) {
-                loginfo(ERRLOG,
+            if (!playernum) {
+                loginfo(ERRORLOG,
                         NOERRNO,
                         "Updates suspended due to problems in schedule file.\n");
             } else {
@@ -3706,7 +3641,7 @@ void read_schedule_file(int playernum, int governor)
     }
 }
 
-void _freeship(int playernum, int governor)
+void _freeship(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     if (match(args[1], "reinit")) {
         initFreeShipList();
@@ -3727,7 +3662,7 @@ void _freeship(int playernum, int governor)
 }
 
 #ifdef ACCESS_CHECK
-int address_ok(struct sockadd_in *ap)
+int address_ok(struct sockaddr_in *ap)
 {
     int i;
     ac_t *acp;
@@ -3838,7 +3773,7 @@ void add_address(unsigned long ina, int mask, int aval)
     ac_t *nac_t;
 
     if (naddresses > 0) {
-        nac_t (ac_t *)realloc(ac_tab, sizeof(ac_t) * (naddresses + 1));
+        nac_t = (ac_t *)realloc(ac_tab, sizeof(ac_t) * (naddresses + 1));
     } else {
         nac_t = (ac_t *)calloc(1, sizeof(ac_t));
     }
@@ -3858,7 +3793,7 @@ void add_address(unsigned long ina, int mask, int aval)
 }
 #endif
 
-void show_update(int playernum, int governor)
+void show_uptime(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     time_t now;
     time_t total;

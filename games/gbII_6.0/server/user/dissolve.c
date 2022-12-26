@@ -49,7 +49,7 @@
 
 #include "tele.h"
 
-void dissolve(int playernum, int governor)
+void dissolve(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     int n_ships;
     int i;

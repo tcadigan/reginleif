@@ -65,7 +65,7 @@
  * description: Called from process_commands. This sets the toxicity value on
  *              the planet to automatically launch twc when reached.
  */
-void toxicity(int playernum, int governor, int apcount)
+void toxicity(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int thresh;
     planettype *p;

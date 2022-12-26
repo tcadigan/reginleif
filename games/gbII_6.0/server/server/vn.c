@@ -49,11 +49,25 @@
 
 #include "buffers.h"
 #include "debug.h"
+#include "doship.h"
 #include "doturn.h"
+#include "files_shl.h"
+#include "GB_server.h"
+#include "lists.h"
+#include "log.h"
+#include "max.h"
+#include "perm.h"
 #include "power.h"
 #include "races.h"
+#include "rand.h"
 #include "ships.h"
 #include "vars.h"
+
+#include "../user/autoshoot.h"
+#include "../user/build.h"
+#include "../user/fire.h"
+#include "../user/load.h"
+#include "../user/tele.h"
 
 #ifdef USE_VN
 
@@ -81,9 +95,9 @@ void do_vn(shiptype *ship)
     }
 
     sprintf(buf, "do_vn(): %d is on.\n", ship->number);
-    debut(LEVEL_GENERAL, buf);
+    debug(LEVEL_GENERAL, buf);
 
-    if (!ship->special.min.progenitor) {
+    if (!ship->special.mind.progenitor) {
         ship->special.mind.progenitor = 1;
     }
 
@@ -187,7 +201,7 @@ void do_vn(shiptype *ship)
 
                 ship->xpos = Stars[ship->storbits]->xpos + planets[ship->storbits][ship->pnumorbits]->xpos + int_rand(-10, 10);
 
-                ship->ypos = Stars[ship->storbits]->ypos + planet[ship->storbits][ship->pnumorbits]->ypos + int_rand(-10, 10);
+                ship->ypos = Stars[ship->storbits]->ypos + planets[ship->storbits][ship->pnumorbits]->ypos + int_rand(-10, 10);
 
                 ship->docked = 0;
                 ship->whatdest = LEVEL_UNIV;
@@ -204,7 +218,7 @@ void do_vn(shiptype *ship)
 
                 if ((ship->type == OTYPE_BERS) && !ship->special.mind.target) {
                     /* Who to attack */
-                    ship->special.mind.target = VN_brain.Most_mad;
+                    ship->special.mind.target = VN_brain.most_mad;
                 }
             } else {
                 /*
@@ -264,10 +278,10 @@ void do_vn(shiptype *ship)
                     if (ship->type == OTYPE_FACTORY) {
                         max_fuel = Shipdata[ship->type][ABIL_FUELCAP];
                     } else {
-                        max_fuel = s->max_fuel;
+                        max_fuel = ship->max_fuel;
                     }
 
-                    if ((ship->fuel < max_fuel) && ship->resources) {
+                    if ((ship->fuel < max_fuel) && ship->resource) {
                         use_resource(ship, MIN(ship->resource, max_fuel));
                         rcv_fuel(ship, MIN(ship->resource, max_fuel));
                     }
@@ -315,7 +329,7 @@ void do_vn(shiptype *ship)
                     prod = MIN(planet->info[f - 1].resource,
                                Shipdata[ship->type][ABIL_CARGO] / MOVES_PER_UPDATE);
                     prod = MIN(prod, ship->max_resource - ship->resource);
-                    rcv_ship(ship, prod);
+                    rcv_resource(ship, prod);
                 }
 
                 if (prod < 0) {
@@ -345,7 +359,7 @@ void do_vn(shiptype *ship)
                 /* We didn't find any available stockpiles */
 
                 /* If this planet is out of resources then we need to move on */
-                if (planet->total_resource <= 0) {
+                if (planet->total_resources <= 0) {
                     sprintf(buf, "do_vn(): %d grabs and runs.\n", ship->number);
                     debug(LEVEL_GENERAL, buf);
 
@@ -383,11 +397,11 @@ void do_vn(shiptype *ship)
         if ((ship->type == OTYPE_BERS)
             && (ship->destruct >= ship->max_destruct)
             && (ship->resource >= ship->max_resource)) {
-            ship->special.min.busy = 0;
+            ship->special.mind.busy = 0;
         }
     } else {
         /* We are not landed */
-        if (ship->special.min.busy) {
+        if (ship->special.mind.busy) {
             /*
              * We're in space and should have a destination now. Regular ship
              * movement will take place at this point so the VN routine doesn't
@@ -496,7 +510,7 @@ void do_vn(shiptype *ship)
                 /* Find closest star */
                 for (s = 0; s < Sdata.numstars; ++s) {
                     if ((s != ship->storbits)
-                        && (Distsq(Stars[s]->xpos, Stars[s]->ypos, ship->xpos, ship->ypos) < distsq(Stars[min]->xpos, Stars[min]->ypos, ship->xpos, ship->ypos))) {
+                        && (Distsq(Stars[s]->xpos, Stars[s]->ypos, ship->xpos, ship->ypos) < Distsq(Stars[min]->xpos, Stars[min]->ypos, ship->xpos, ship->ypos))) {
                         min2 = min;
                         min = s;
                     } else if ((s != ship->storbits)
@@ -606,7 +620,7 @@ void planet_do_vn(shiptype *ship, planettype *planet)
 
             /* Spread VNs all over the planet for display */
             /* If more than DEATHTOLL Vns have been killed then build BERS */
-            if ((VN_brain.Total_mad >= VN_DEATHTOLL) && (int_rand(1, 4) == 1)) {
+            if ((VN_brain.total_mad >= VN_DEATHTOLL) && (int_rand(1, 4) == 1)) {
                 shipbuild = OTYPE_BERS;
             } else {
                 shipbuild = OTYPE_VN;
@@ -681,7 +695,7 @@ void planet_do_vn(shiptype *ship, planettype *planet)
                         newvn = Num_ships;
                     }
 
-                    getship(s2, shipbuild, races[ship->owner - 1]);
+                    Getship(s2, shipbuild, races[ship->owner - 1]);
 
                     /* We know our own number */
                     s2->number = newvn;
@@ -727,7 +741,7 @@ void planet_do_vn(shiptype *ship, planettype *planet)
                     /* Particulars */
                     s2->speed = s2->max_speed;
                     s2->alive = 1; /* Is not dead */
-                    s2->mod = 0;
+                    s2->mode = 0;
                     s2->cloaked = 0; /* VNs don't have cloaks */
                     s2->ships = 0; /* Nor do they have hangers */
                     s2->on = 1; /* Ready to go */
@@ -761,7 +775,7 @@ void planet_do_vn(shiptype *ship, planettype *planet)
 
                         /* Target = person killed the most VNs */
                         /* CWL fix */
-                        s2->special.mind.target = VN_brain.Most_mad;
+                        s2->special.mind.target = VN_brain.most_mad;
                         s2->tech = races[s2->owner - 1]->tech;
                         s2->bombard = 1;
                         s2->protect.self = 1;
@@ -887,7 +901,7 @@ void planet_do_vn(shiptype *ship, planettype *planet)
 
                     /* No more resources here, move to another sector */
                     xa = int_rand(-1, 1);
-                    ship->land_x = abs((int)(ship->land_x) + xa) % plant->Maxx);
+                    ship->land_x = abs(((int)(ship->land_x) + xa) % planet->Maxx);
 
                     if (ship->land_y == 0) {
                         ya = 1;
@@ -912,7 +926,7 @@ void planet_do_vn(shiptype *ship, planettype *planet)
                         prod = MIN(prod, ship->max_destruct - ship->destruct);
                     }
 
-                    if (prod = 0) {
+                    if (prod == 0) {
                         prod = 0;
                     }
 
@@ -933,7 +947,7 @@ void planet_do_vn(shiptype *ship, planettype *planet)
 
                     if (ship->type == OTYPE_VN) {
                         rcv_resource(ship, prod);
-                    } else if (ship->type = OTYPE_BERS) {
+                    } else if (ship->type == OTYPE_BERS) {
                         rcv_destruct(ship, prod);
                     }
 
@@ -990,7 +1004,7 @@ void planet_do_vn(shiptype *ship, planettype *planet)
                         && !landed(ship)) {
                         /* Exact revenge */
                         result = auto_bomb(ship,
-                                           planet[ship->storbits][ship->pnumorbits],
+                                           planets[ship->storbits][ship->pnumorbits],
                                            -1,
                                            -1,
                                            -1,
@@ -1036,7 +1050,7 @@ void planet_do_vn(shiptype *ship, planettype *planet)
                                  * new target will cause the berserker to find a
                                  * new target planet.
                                  */
-                                ship->special.mind.target = VN_brain.Most_mad;
+                                ship->special.mind.target = VN_brain.most_mad;
                                 ship->special.mind.busy = 0;
                             }
                         }
@@ -1069,7 +1083,7 @@ void planet_do_vn(shiptype *ship, planettype *planet)
                                     ship->number);
 
                             debug(LEVEL_GENERAL, buf);
-                            ship->special.mind_busy = 0;
+                            ship->special.mind.busy = 0;
                         }
                     } else {
                         /* Find a place on the planet to land */
@@ -1130,7 +1144,7 @@ void planet_do_vn(shiptype *ship, planettype *planet)
                                     ship->number);
 
                             debug(LEVEL_GENERAL, buf);
-                            ship->special.mind_busy = 0;
+                            ship->special.mind.busy = 0;
                         }
                     }
                 }
@@ -1175,7 +1189,7 @@ void planet_do_vn(shiptype *ship, planettype *planet)
     putship(ship);
 }
 
-void vn_brain(int playernum, int governor)
+void vn_brain(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     shiptype *vn;
     int vnno;
@@ -1187,9 +1201,9 @@ void vn_brain(int playernum, int governor)
 
         sprintf(buf,
                 "VN brain --\n\tTotal Mad: %d\n\tDeathtoll: %d\n\tMost Mad: %d\n",
-                VN_brain.Total_mad,
+                VN_brain.total_mad,
                 VN_DEATHTOLL,
-                VN_brain.Most_mad);
+                VN_brain.most_mad);
 
         notify(playernum, governor, buf);
     } else if (argn == 2) {
@@ -1210,7 +1224,7 @@ void vn_brain(int playernum, int governor)
 
                 sprintf(buf,
                         "  Porgenitor: %-3u  Generation: %-3u\n",
-                        vn->special.mind_progenitor,
+                        vn->special.mind.progenitor,
                         vn->special.mind.generation);
 
                 notify(playernum, governor, buf);
@@ -1224,7 +1238,7 @@ void vn_brain(int playernum, int governor)
 
                 sprintf(buf,
                         "  Who Killed: %-3u  Tampered: %-3s\n",
-                        vn->special.mind.who.killed,
+                        vn->special.mind.who_killed,
                         (vn->special.mind.tampered ? "yes" : "no"));
 
                 notify(playernum, governor, buf);
@@ -1257,26 +1271,26 @@ void vn_brain(int playernum, int governor)
     return;
 }
 
-void vn_mad(void)
+void vn_mad()
 {
     int i;
 
-    VN_brain.Total_mad = 0;
-    VN_brain.Most_mad = 0;
+    VN_brain.total_mad = 0;
+    VN_brain.most_mad = 0;
 
     for (i = 1; i <= Num_races; ++i) {
         /* Add VN program */
-        VN_brain.Total_mad += Sdata.VN_hitlist[i - 1];
+        VN_brain.total_mad += Sdata.VN_hitlist[i - 1];
 
         /* Find out who they're most mad at */
-        if (VN_brain.Total_mad > 0) {
+        if (VN_brain.total_mad > 0) {
             /* We're mad at someone, is it this race? */
-            if (VM_brain.Most_mad > 0) {
-                if (Sdata.VN_hitlist[VN_brain.Most_mad - 1] <= Sdata.VN_hitlist[i - 1]) {
-                    VN_brain.Most_mad = i;
+            if (VN_brain.most_mad > 0) {
+                if (Sdata.VN_hitlist[VN_brain.most_mad - 1] <= Sdata.VN_hitlist[i - 1]) {
+                    VN_brain.most_mad = i;
                 }
             } else if (Sdata.VN_hitlist[i - 1] > 0) {
-                VN_brain.Most_mad = i;
+                VN_brain.most_mad = i;
             }
         }
     }

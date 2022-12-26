@@ -1,6 +1,8 @@
 #ifndef TOXI_H_
 #define TOXI_H_
 
-void toxicity(int, int, int);
+#include "../server/vars.h"
+
+void toxicity(int, int, int, int, orbitinfo *);
 
 #endif /* TOXI_H_ */

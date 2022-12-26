@@ -78,7 +78,6 @@ char const *Planet_types[] = {
     "Swamp"
 };
 
-extern void orbit(int, int, int);
 extern void DispStar(int, int, int, startype *, int, char *, orbitinfo *);
 extern void DispPlanet(int,
                        int,
@@ -98,7 +97,7 @@ extern void DispShip(int,
                      char *,
                      orbitinfo *);
 
-void orbit(int playernum, int governor, int apcount)
+void orbit(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int sh;
     int i;

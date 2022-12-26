@@ -59,9 +59,6 @@ int Defensedata[] = {1, 1, 3, 2, 2, 3, 2, 4, 0};
 extern char *Desnames[];
 extern char Dessymbols[];
 
-extern void arm(int, int, int, int);
-extern void move_popn(int, int, int);
-extern void walk(int, int, int);
 extern void mech_defend(int,
                         int,
                         int *,
@@ -113,7 +110,7 @@ extern void ground_attack(racetype *,
                           int *,
                           int *);
 
-void arm(int playernum, int governor, int apcount, int mode)
+void arm(int playernum, int governor, int apcount, int mode, orbitinfo *unused5)
 {
     planettype *planet;
     sectortype *sect;
@@ -301,7 +298,7 @@ void arm(int playernum, int governor, int apcount, int mode)
     free(planet);
 }
 
-void move_popn(int playernum, int governor, int what)
+void move_popn(int playernum, int governor, int what, int unused4, orbitinfo *unused5)
 {
     int assault;
     int apcost = -1;
@@ -919,7 +916,7 @@ void move_popn(int playernum, int governor, int what)
     free(planet);
 }
 
-void walk(int playernum, int governor, int apcount)
+void walk(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     shiptype *ship;
     shiptype *ship2;

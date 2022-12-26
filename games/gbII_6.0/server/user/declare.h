@@ -1,10 +1,12 @@
 #ifndef DECLARE_H_
 #define DECLARE_H_
 
-void invite(int, int, int, int);
-void pledge(int, int, int, int);
-void declare(int, int, int);
-void vote(int, int, int);
+#include "../server/vars.h"
+
+void invite(int, int, int, int, orbitinfo *);
+void pledge(int, int, int, int, orbitinfo *);
+void declare(int, int, int, int, orbitinfo *);
+void vote(int, int, int, int, orbitinfo *);
 void show_votes(int, int);
 
 #endif /* DECLARE_H_ */

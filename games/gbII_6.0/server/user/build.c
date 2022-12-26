@@ -89,7 +89,7 @@ int shipping_cost(int, int, double *, int);
 int inship(shiptype *); /* This was missing (kse) */
 
 /* Upgrade ship characteristics */
-void upgrade(int playernum, int governor, int apcount)
+void upgrade(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int value;
     int oldcost;
@@ -552,7 +552,7 @@ void upgrade(int playernum, int governor, int apcount)
     free(dirship);
 }
 
-void make_mod(int playernum, int governor, int apcount, int mode)
+void make_mod(int playernum, int governor, int apcount, int mode, orbitinfo *unused5)
 {
     int i;
     int value;
@@ -1135,7 +1135,7 @@ void make_mod(int playernum, int governor, int apcount, int mode)
     free(dirship);
 }
 
-void build(int playernum, int governor, int apcount)
+void build(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     racetype *race;
     char c;
@@ -3548,7 +3548,7 @@ int inship(shiptype *s)
 }
 
 #ifdef MARKET
-void sell(int playernum, int governor, int apcount)
+void sell(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     racetype *race;
     planettype *p;
@@ -3774,7 +3774,7 @@ void sell(int playernum, int governor, int apcount)
     deductAPs(playernum, governor, apcount, snum, 0);
 }
 
-void bid(int playernum, int governor, int apcount)
+void bid(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     racetype *race;
     planettype *p;

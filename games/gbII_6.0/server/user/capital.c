@@ -43,7 +43,7 @@
 
 #include "fire.h"
 
-void capital(int playernum, int governor, int apcount)
+void capital(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int shipno;
     int stat;

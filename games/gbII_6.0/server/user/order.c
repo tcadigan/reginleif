@@ -56,14 +56,12 @@
 #include "load.h"
 #include "shootblast.h"
 
-void order(int, int, int);
 void mk_expl_aimed_at(int, int, shiptype *);
 void DispOrdersHeader(int, int);
 void DispOrders(int, int, shiptype *);
-void route(int, int, int);
 int get_order_type(char *);
 
-void order(int playernum, int governor, int apcount)
+void order(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int shipno;
     int nextshipno;
@@ -2251,7 +2249,7 @@ int AddOrderToString(int playernum, int governor, char *str2add)
     return 1;
 }
 
-void route(int playernum, int governor, int apcount)
+void route(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int i;
     int x;

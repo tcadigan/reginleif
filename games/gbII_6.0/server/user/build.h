@@ -3,10 +3,11 @@
 
 #include "../server/races.h"
 #include "../server/ships.h"
+#include "../server/vars.h"
 
-void upgrade(int, int, int);
-void make_mod(int, int, int, int);
-void build(int, int, int);
+void upgrade(int, int, int, int, orbitinfo *);
+void make_mod(int, int, int, int, orbitinfo *);
+void build(int, int, int, int, orbitinfo *);
 int getcount(int, char *);
 int can_build_at_planet(int, int, startype *, planettype *);
 int get_build_type(char *);
@@ -31,8 +32,8 @@ double complexity(shiptype *);
 void Getship(shiptype *, int, racetype *);
 void Getfactship(shiptype *, shiptype *);
 int Shipcost(int, racetype *);
-void sell(int, int, int);
-void bid(int, int, int);
+void sell(int, int, int, int, orbitinfo *);
+void bid(int, int, int, int, orbitinfo *);
 int shipping_cost(int, int, double *, int);
 
 #endif /* BUILD_H_ */

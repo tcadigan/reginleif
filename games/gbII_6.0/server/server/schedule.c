@@ -41,6 +41,7 @@
 #include <time.h>
 
 #include "files.h"
+#include "log.h"
 #include "power.h"
 #include "races.h"
 #include "ships.h"
@@ -84,7 +85,7 @@ int getschedule(FILE *fp)
     next_shutdown_time = 0;
 
     /* Let's find this morning's timestamp */
-    not = time(NULL);
+    now = time(NULL);
     date = localtime(&now);
     today = date->tm_wday;
     morning.tm_sec = 0;

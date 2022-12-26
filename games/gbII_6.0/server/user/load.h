@@ -4,13 +4,13 @@
 #include "../server/races.h"
 #include "../server/ships.h"
 
-void load(int, int, int, int);
-void jettison(int, int, int);
+void load(int, int, int, int, orbitinfo *);
+void jettison(int, int, int, int, orbitinfo *);
 int jettison_check(int, int, int, int);
-void dump(int, int, int);
-void transfer(int, int, int);
-void mount(int, int, int);
-void dismount(int, int, int);
+void dump(int, int, int, int, orbitinfo *);
+void transfer(int, int, int, int, orbitinfo *);
+void mount(int, int, int, int, orbitinfo *);
+void dismount(int, int, int, int, orbitinfo *);
 void _mount(int, int, int, int);
 void use_fuel(shiptype *, double);
 void use_destruct(shiptype *, int);

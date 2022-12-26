@@ -53,15 +53,13 @@
 
 extern char *Desnames[];
 
-extern void whois(int, int, int);
-extern void profile(int, int, int, int, orbitinfo *);
 extern char *Estimate_f(double, racetype *, int);
 extern char *Estimate_i(int, racetype *, int);
 extern int round_perc(int, racetype *, int);
 
 static char est_buf[20];
 
-void whois(int playernum, int governor, int apcount)
+void whois(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int i;
     int j;
@@ -101,7 +99,7 @@ void whois(int playernum, int governor, int apcount)
     }
 }
 
-void treasury(int playernum, int governor)
+void treasury(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     racetype *race;
     int grep;

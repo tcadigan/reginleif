@@ -50,10 +50,6 @@
 #include "shootblast.h"
 #include "tele.h"
 
-extern void fire(int, int, int, int);
-extern void bombard(int, int, int);
-extern void defend(int, int, int);
-extern void detonate(int, int, int);
 extern int retal_strength(shiptype *);
 extern int adjacent(int, int, int, int, planettype *);
 extern int landed(shiptype *);
@@ -62,7 +58,7 @@ extern void check_retal_strength(shiptype *, int *);
 extern int laser_on(shiptype *);
 
 /* Ship vs ship */
-void fire(int playernum, int governor, int apcount, int cew)
+void fire(int playernum, int governor, int apcount, int cew, orbitinfo *unused5)
 {
     int fromship;
     int toship;
@@ -650,7 +646,7 @@ void fire(int playernum, int governor, int apcount, int cew)
 }
 
 /* Ship vs planet */
-void bombard(int playernum, int governor, int apcount)
+void bombard(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int fromship;
     int nextshipno;
@@ -861,7 +857,7 @@ void bombard(int playernum, int governor, int apcount)
 
 #ifdef DEFENSE
 /* Planet vs ship */
-void defend(int playernum, int governor, int apcount)
+void defend(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     int toship;
     int sh;
@@ -1211,7 +1207,7 @@ void defend(int playernum, int governor, int apcount)
 }
 #endif
 
-void detonate(int playernum, int governor, int apcount)
+void detonate(int playernum, int governor, int apcount, int unused4, orbitinfo *unused5)
 {
     shiptype *s;
     int shipno;

@@ -52,7 +52,7 @@
 #include "load.h"
 #include "tele.h"
 
-void dock(int playernum, int governor, int apcount, int assault)
+void dock(int playernum, int governor, int apcount, int assault, orbitinfo *unused5)
 {
     int boarders = 0;
     int dam = 0;
@@ -328,7 +328,7 @@ void dock(int playernum, int governor, int apcount, int assault)
                     sprintf(args[0], "fire");
                     sprintf(args[1], "#%d", ship2no);
                     sprintf(args[2], "#%d", shipno);
-                    fire((int)s2->owner, (int)s2->governor, 0, 0);
+                    fire((int)s2->owner, (int)s2->governor, 0, 0, NULL);
                     argn = oldargn;
                     strcpy(args[0], dfire[0]);
                     strcpy(args[1], dfire[1]);

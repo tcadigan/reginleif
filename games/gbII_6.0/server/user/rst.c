@@ -89,7 +89,6 @@ static int display;
 /* Global; used in csp_dump.c */
 reportdata *rd;
 
-extern void rst(int, int, int, int);
 extern void ship_report(int, int, int, unsigned char[], int);
 extern void plan_getrships(int, int, int, int);
 extern void star_getrships(int, int, int);
@@ -99,7 +98,7 @@ extern int listed(int, char *);
 extern double rad2deg(double);
 extern double deg2rad(double);
 
-void rst(int playernum, int governor, int apcount, int rst)
+void rst(int playernum, int governor, int apcount, int rst, orbitinfo *unused5)
 {
     int shipno;
     int shn;

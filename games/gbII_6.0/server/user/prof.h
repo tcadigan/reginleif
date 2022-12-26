@@ -4,8 +4,8 @@
 #include "../server/races.h"
 #include "../server/vars.h"
 
-void whois(int, int, int);
-void treasury(int, int);
+void whois(int, int, int, int, orbitinfo *);
+void treasury(int, int, int, int, orbitinfo *);
 void profile(int, int, int, int, orbitinfo *);
 char *Estimate_f(double, racetype *, int);
 char *Estimate_i(int, racetype *, int);
