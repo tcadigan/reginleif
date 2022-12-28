@@ -3,7 +3,7 @@ name: Galactic Bloodshed II build
 on:
   push:
     paths:
-    - 'games/GBII_6.0/**'
+    - 'games/gbII_6.0/**'
 
 jobs:
   build:
