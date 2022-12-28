@@ -112,7 +112,7 @@ void survey(int playernum, int governor, int apcount, int mode, orbitinfo *unuse
 
     /* General code -- jpd -- */
     if (!(governor == 0 ? 1 : races[playernum - 1]->governor[governor].rank <= RANK_SURVEY ? 1 : 0)) {
-        no_permission(playernum, governor, "survey", RANK_SURVEY);
+        no_permission_thing(playernum, governor, "survey", RANK_SURVEY);
 
         return;
     }

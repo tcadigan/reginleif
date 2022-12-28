@@ -50,7 +50,7 @@ RACEGEN_OBJS = ${RACEGEN_SRCS:.c=.o}
 PSMAP_SRCS = psmap.c
 PSMAP_OBJS = ${PSMAP_SRCS:.c=.o}
 
-EXSHIP_SRCS = exship.c files.c
+EXSHIP_SRCS = exship.c files.c shipdata.c
 EXSHIP_OBJS = ${EXSHIP_SRCS:.c=.o}
 
 EXRACE_SRCS = exrace.c files.c

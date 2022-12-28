@@ -75,6 +75,10 @@
 
 #include "help.h"
 
+#define TIME_BOTH 0
+#define TIME_UP 1
+#define TIME_SEG 2
+
 unsigned short free_ship_list;
 
 int shutdown_flag = 0;
@@ -98,100 +102,85 @@ int chat_static = 1; /* CWL */
 long size_of_words; /* CWL */
 FILE *garble_file; /* CWL */
 
-#ifdef ACCESS_CHECK
-/* Have we read in the access control file? */
-static int ainit =0;
-static int naddresses = 0;
-
-typedef struct {
-    struct in_addr ac_addr;
-    int ac_cidr;
-    int ac_value;
-} ac_t;
-
-static ac_t *ac_tab = (ac_t *)NULL;
-#endif
-
-/*
- * DO NOT change these two lines... They are client specific and are used in the
- * login procedure according to the CLIENT PROTOCOL file -- JPD --
- */
-#ifndef CHAP_AUTH
-static char const *client_login = "Enter Password <race> <gov>:\n";
-static char const *bad_password = "Bad Password.\n";
-#endif
-
-static char const *client_invalid = "Invalid: ";
-static char const *already_on = "Player already logged on!\n";
-static char const *max_trys = "Too many bad passwords! See Ya!\n";
-static char const *shutdown_message = "Shutdown ordered by deity - Bye\n";
-static char const *out_of_fds = "No free file descriptors for connect!\n";
-static char const *access_denied = "Unauthorized Access.\n";
-static char const *lost_message = "<Output Lost>\n";
-
-#define TIME_BOTH 0
-#define TIME_UP 1
-#define TIME_SEG 2
-
-int errno;
 time_t clk; /* Global clock */
 time_t go_time; /* Global clock */
 time_t boot_time; /* Server startup time */
 
-static int sockfd; /* Global socketfd */
-static int ndescriptors = 0;
+// power.h externs
+powertype Power[MAXPLAYERS];
 
-/* Prototypes */
-void set_signals(void);
-int send_special_string(int, int);
-void d_think(int, int, char *, char *);
-void d_broadcast(int, int, char *, char *, int);
-void d_shout(int, int, char *, char *);
-int command_loop(void);
-void scheduled(void);
-int whack_args(int);
-void chomp_opts(void);
-int stripem(char *);
-int process_fd(int);
-static Command *hash_search(char *);
-int Login_Process(int, int, int);
-int checkfds(void);
-static void cleardes(int);
-int readdes(int);
-int shutdown_socket(int);
-int connection(void);
-static void refill_output(int);
-void goodbye_user(int);
+// races.h externs
+power_blockstype Power_blocks;
+racetype *races[MAXPLAYERS];
+blocktype Blocks[MAXPLAYERS];
 
-#ifdef CHAP_AUTH
-int Login_Parse(char *, char *, char *, char *, char *);
+// doturn.h externs
+struct stinfo Stinfo[NUMSTARS][MAXPLANETS];
+struct vnbrain VN_brain;
+struct sectinfo Sectinfo[MAX_X][MAX_Y];
 
-#else
+shiptype **ships;
 
-int Login_Parse(char *, char *, char *);
-#endif
+char args[MAXARGS][COMMANDSIZE];
+char junk[2][256];
+int game_closed;
+int update_time;
+int backup_time;
+int suspended;
+int nupdates_done;
+int nsegments_done;
+int vn_reproduction;
+int argn;
+int optn;
+time_t next_update_time;
+time_t next_backup_time;
+time_t next_segment_time;
+time_t next_open_time;
+time_t next_close_time;
+time_t next_shutdown_time;
+time_t last_update_time;
+time_t last_segment_time;
+double Compat[MAXPLAYERS];
+unsigned short opts[MAXOPTS];
+unsigned short Sdatanumships[MAXPLAYERS];
+unsigned short starnumships[NUMSTARS][MAXPLAYERS];
+unsigned char Claims;
+unsigned char adr;
+unsigned char Nuked[MAXPLAYERS];
+unsigned char sects_gained[MAXPLAYERS];
+unsigned char sects_lost[MAXPLAYERS];
+unsigned char ground_assaults[MAXPLAYERS][MAXPLAYERS][NUMSTARS];
+unsigned int CombatUpdate;
+unsigned long segments;
+unsigned long Num_races;
+unsigned long Num_ships;
+unsigned long tot_captured;
+unsigned long prod_mob;
+unsigned long prod_eff;
+unsigned long tot_resdep;
+unsigned long Planet_count;
+unsigned long Num_commods;
+unsigned long newslength[4];
+unsigned long avg_mob[MAXPLAYERS];
+unsigned long prod_res[MAXPLAYERS];
+unsigned long prod_fuel[MAXPLAYERS];
+unsigned long prod_destruct[MAXPLAYERS];
+unsigned long prod_crystals[MAXPLAYERS];
+unsigned long starpopns[NUMSTARS][MAXPLAYERS];
+unsigned long StarsInhab[NUMSTARS];
+unsigned long Sdatapopns[MAXPLAYERS];
+unsigned long inhabited[NUMSTARS][2];
+unsigned long StarsExpl[NUMSTARS];
+startype *star_arena;
+startype *Stars[NUMSTARS];
+planettype *planet_arena;
+planettype *planets[NUMSTARS][MAXPLANETS];
+sectortype Smap[((MAX_X + 1) * (MAX_Y + 1)) + 1];
+struct stardata Sdata;
+struct descrip des[MAXDESCRIPTORS + 1];
+struct dtable actives[MAXPLAY_GOV + 1];
+struct directory Dir[MAXPLAYERS][MAXGOVERNORS + 1];
 
-void dump_users(int);
-void compute_power_blocks(void);
-void warn_race(int, char *);
-void warn(int, int, char *);
-void warn_star(int, int, int, char *);
-void notify_star(int, int, int, int, char *);
-int clear_all_fds(void);
-void read_schedule_file(int, int);
-void show_update(int, int);
-
-#ifdef CHAP_AUTH
-void client_key(char *);
-#endif
-
-#ifdef ACCESS_CHECK
-int address_ok(struct sockaddr_in *);
-int address_match(struct in_addr *, struct in_addr *, int);
-void add_address(unsigned long, int, int);
-#endif
-
-/* Prototpyes */
 const char *Desnames[] = {
     "ocean",
     "land",
@@ -218,13 +207,77 @@ char const Dessymbols[] = {
     CHAR_WORM
 };
 
+static int sockfd; /* Global socketfd */
+static int ndescriptors = 0;
+
+static char const *client_invalid = "Invalid: ";
+static char const *already_on = "Player already logged on!\n";
+static char const *max_trys = "Too many bad passwords! See Ya!\n";
+static char const *shutdown_message = "Shutdown ordered by deity - Bye\n";
+static char const *out_of_fds = "No free file descriptors for connect!\n";
+static char const *access_denied = "Unauthorized Access.\n";
+static char const *lost_message = "<Output Lost>\n";
+
+/* Prototypes */
+void print_usage(char *);
+void print_version(void);
+void set_signals(void);
+int readfd(int, char *, unsigned int);
+int writefd(int, char *, unsigned int);
+int init_network(unsigned int);
+char *addrout(unsigned int);
+int command_loop(void);
+void scheduled(void);
+int whack_args(int);
+void chomp_opts(void);
+int stripem(char *);
+int process_fd(int);
+Command *hash_search(char *);
+int login_process(int, int, int);
+int checkfds(void);
+void cleardes(int);
+int readdes(int);
+int shutdown_socket(int);
+int connection(void);
+void refill_output(int);
+void goodbye_user(int);
+
+#ifdef CHAP_AUTH
+int Login_Parse(char *, char *, char *, char *, char *);
+void client_key(char *);
+
+#else
+
+/*
+ * DO NOT change these two lines... They are client specific and are used in the
+ * login procedure according to the CLIENT PROTOCOL file -- JPD --
+ */
+static char const *client_login = "Enter Password <race> <gov>:\n";
+static char const *bad_password = "Bad Password.\n";
+
+int Login_Parse(char *, char *, char *);
+#endif
+
+#ifdef ACCESS_CHECK
+/* Have we read in the access control file? */
+static int ainit = 0;
+static int naddresses = 0;
+
+typedef struct {
+    struct in_addr ac_addr;
+    int ac_cidr;
+    int ac_value;
+} ac_t;
+
+static ac_t *ac_tab = (ac_t *)NULL;
+
+int address_ok(struct sockaddr_in *);
+int address_match(struct in_addr *, struct in_addr *, int);
+void add_address(unsigned long, int, int);
+#endif
+
 int main(int argc, char *argv[])
 {
-    int i;
-    int c;
-    struct stat stbuf;
-    FILE *sfile;
-
     suspended = 0;
     game_closed = 0;
     update_time = DEFAULT_UPDATE_TIME;
@@ -233,7 +286,7 @@ int main(int argc, char *argv[])
     CombatUpdate = COMBAT_UPDATE;
 
     /* Parse command line arguments */
-    c = getopt(argc, argv, "cf:hm:p:su:v?");
+    int c = getopt(argc, argv, "cf:hm:p:su:v?");
 
     while (c != -1) {
         switch(c) {
@@ -307,8 +360,9 @@ int main(int argc, char *argv[])
 
     next_update_time = clk + (update_time * 60);
 
+    struct stat stbuf;
     if (stat(UPDATEFL, &stbuf) >= 0) {
-        sfile = fopen(UPDATEFL, "r");
+        FILE *sfile = fopen(UPDATEFL, "r");
 
         if (sfile != NULL) {
             char dum[32];
@@ -357,7 +411,7 @@ int main(int argc, char *argv[])
         next_segment_time = clk + ((update_time * 60) / segments);
 
         if (stat(SEGMENTFL, &stbuf) >= 0) {
-            sfile = fopen(SEGMENTFL, "r");
+            FILE *sfile = fopen(SEGMENTFL, "r");
 
             if (sfile != NULL) {
                 char dum[32];
@@ -448,7 +502,7 @@ int main(int argc, char *argv[])
     SortShips(); /* Sort the ship list by tech for "build ?" */
     initFreeShipList(); /* Generate free ship list */
 
-    for (i = 1; i <= MAXPLAYERS; ++i) {
+    for (int i = 1; i <= MAXPLAYERS; ++i) {
         setbit(Blocks[i - 1].invite, i);
         setbit(Blocks[i - 1].pledge, i);
     }
@@ -458,7 +512,7 @@ int main(int argc, char *argv[])
     set_signals();
 
     /* Set all the descriptors to available */
-    for (i = 0; i < MAXPLAY_GOV; ++i) {
+    for (int i = 0; i < MAXPLAY_GOV; ++i) {
         actives[i].which_des = AVAILABLE;
         actives[i].idle_time = 0;
     }
@@ -467,7 +521,7 @@ int main(int argc, char *argv[])
     CSP_client_qsort();
 
     /* Set all the debug levels to 0 */
-    for (i = 0; i < MAXDESCRIPTORS; ++i) {
+    for (int i = 0; i < MAXDESCRIPTORS; ++i) {
         des[i].descriptor = AVAILABLE;
         des[i].Debug = LEVEL_NONE;
 
@@ -515,7 +569,7 @@ int main(int argc, char *argv[])
      * Recover memory allocated to races, this block of memory was originally
      * allocated in files_shl.c:getrace() -mfw
      */
-    for (i = 1; i < Num_races; ++i) {
+    for (int i = 1; i < Num_races; ++i) {
         free(races[i - 1]);
     }
 
@@ -523,7 +577,7 @@ int main(int argc, char *argv[])
      * Recover memory allocated to descriptors, this block of memory was
      * originally allocated in GB_server.c:main() desalloc -mfw
      */
-    for (i = 0; i < MAXDESCRIPTORS; ++i) {
+    for (int i = 0; i < MAXDESCRIPTORS; ++i) {
         free(des[i].input);
         free(des[i].output);
     }
@@ -575,10 +629,8 @@ void set_signals(void)
 
 void notify_race(int race, char const *message)
 {
-    int i;
-
     if (!update_flag) {
-        for (i = 0; i < MAXDESCRIPTORS; ++i) {
+        for (int i = 0; i < MAXDESCRIPTORS; ++i) {
             if ((des[i].Playernum == race)
                 && (des[i].descriptor != AVAILABLE)) {
                 outstr(i, message);
@@ -590,10 +642,9 @@ void notify_race(int race, char const *message)
 
 int notify(int player, int governor, char const *message)
 {
-    int i;
-    int found = 0;
+    int found = FALSE;
 
-    for (i = 0; i < MAXDESCRIPTORS; ++i) {
+    for (int i = 0; i < MAXDESCRIPTORS; ++i) {
         if ((des[i].Playernum == player) && (des[i].Governor == governor)) {
             outstr(i, message);
             found = TRUE;
@@ -605,15 +656,13 @@ int notify(int player, int governor, char const *message)
 
 int send_special_string(int player, int what)
 {
-    int gov;
     /* int csp_client = 0; */
     char message[24];
-    int i;
 
     clk = time(0);
 
-    for (gov = 0; gov <= 5; ++gov) {
-        for (i = 0; i < MAXDESCRIPTORS; ++i) {
+    for (int gov = 0; gov <= 5; ++gov) {
+        for (int i = 0; i < MAXDESCRIPTORS; ++i) {
             if ((des[i].descriptor != AVAILABLE)
                 && (des[i].Playernum == player)
                 && (des[i].Governor == gov)) {
@@ -754,9 +803,7 @@ int send_special_string(int player, int what)
 
 void d_think(int playernum, int governor, char *head, char *message)
 {
-    int i;
-
-    for (i = 0; i < MAXDESCRIPTORS; ++i) {
+    for (int i = 0; i < MAXDESCRIPTORS; ++i) {
         if ((des[i].descriptor != AVAILABLE) && (des[i].Playernum == playernum)
             && (des[i].Governor == governor) && (des[i].Playernum != 0)
             && !races[des[i].Playernum - 1]->governor[des[i].Governor].toggle.gag) {
@@ -778,9 +825,6 @@ void d_broadcast(int playernum,
                  char *message,
                  int emote)
 {
-    int i;
-    racetype *race;
-    racetype *alien;
     int channel = 0;
 
     /* Get xmit channel -mfw */
@@ -796,7 +840,7 @@ void d_broadcast(int playernum,
         return;
     }
 
-    for (i = 0; i < MAXDESCRIPTORS; ++i) {
+    for (int i = 0; i < MAXDESCRIPTORS; ++i) {
         if ((des[i].descriptor != AVAILABLE)
             && !((des[i].Playernum == playernum) && (des[i].Governor == governor))
             && (des[i].Playernum != 0)
@@ -813,8 +857,8 @@ void d_broadcast(int playernum,
                 outstr(i, sbuf);
             }
 
-            race = races[playernum - 1];
-            alien = races[des[i].Playernum - 1];
+            racetype *race = races[playernum - 1];
+            racetype *alien = races[des[i].Playernum - 1];
 
             if (!race->God && !alien->God && (chat_flag == TRANS_CHAT)) {
                 garble_msg(message,
@@ -838,9 +882,7 @@ void d_broadcast(int playernum,
 
 void d_shout(int playernum, int governor, char *head, char *message)
 {
-    int i;
-
-    for (i = 0; i < MAXDESCRIPTORS; ++i) {
+    for (int i = 0; i < MAXDESCRIPTORS; ++i) {
         if ((des[i].descriptor != AVAILABLE)
             && !((des[i].Playernum == playernum) && (des[i].Governor == governor))
             && (des[i].Playernum != 0)) {
@@ -863,11 +905,7 @@ void d_announce(int playernum,
                 char *head,
                 char *message)
 {
-    int i;
-    racetype *race;
-    racetype *alien;
-
-    for (i = 0; i < MAXDESCRIPTORS; ++i) {
+    for (int i = 0; i < MAXDESCRIPTORS; ++i) {
         if ((des[i].descriptor != AVAILABLE)
             && !((des[i].Playernum == playernum) && (des[i].Governor == governor))
             && (des[i].Playernum != 0)
@@ -882,8 +920,8 @@ void d_announce(int playernum,
                 outstr(i, sbuf);
             }
 
-            race = races[playernum - 1];
-            alien = races[des[i].Playernum - 1];
+            racetype *race = races[playernum - 1];
+            racetype *alien = races[des[i].Playernum - 1];
 
             outstr(i, head);
 
@@ -905,27 +943,24 @@ void d_announce(int playernum,
  */
 int command_loop(void)
 {
-    int busy;
-    int which;
-    int i;
-
     go_time = 0;
 
     if (!shutdown_flag) {
         post("Server started\n", ANNOUNCE);
     }
 
-    for (i = 0; i <= ANNOUNCE; ++i) {
+    for (int i = 0; i <= ANNOUNCE; ++i) {
         newslength[i] = Newslength(i);
     }
 
+    int busy = FALSE;
     while (!shutdown_flag) {
         checkfds();
         time(&clk);
 
         busy = FALSE;
 
-        for (which = 0; which < MAXDESCRIPTORS; ++which) {
+        for (int which = 0; which < MAXDESCRIPTORS; ++which) {
             if (des[which].descriptor != AVAILABLE) {
                 if (strlen(des[which].input) && !des[which].tame) {
                     debug(LEVEL_RAW, "Calling process_fd [des %d]\n", which);
@@ -938,7 +973,7 @@ int command_loop(void)
         while (busy) {
             busy = FALSE;
 
-            for (which = 0; which < MAXDESCRIPTORS; ++which) {
+            for (int which = 0; which < MAXDESCRIPTORS; ++which) {
                 if (des[which].descriptor != AVAILABLE) {
                     if (strlen(des[which].input) && !des[which].tame) {
                         debug(LEVEL_RAW,
@@ -1008,14 +1043,13 @@ void scheduled()
  */
 int whack_args(int which) {
     int quit = 0;
-    int i;
     char *cp = data;
 
     argn = 0;
     stripem(cp);
 
     while (!quit) {
-        i = 0;
+        int i = 0;
 
         while (!isspace((unsigned char)*cp)
                && (*cp != '\0')
@@ -1039,7 +1073,7 @@ int whack_args(int which) {
         ++argn;
     }
 
-    for (i = argn; i < MAXARGS; ++i) {
+    for (int i = argn; i < MAXARGS; ++i) {
         args[i][0] = '\0';
     }
 
@@ -1055,11 +1089,9 @@ void chomp_opts(void)
 {
     int count = argn;
     int pos = 0;
-    int i;
-    unsigned int idx;
 
     /* Clear and initialize */
-    for (i = 0; i < MAXOPTS; ++i) {
+    for (int i = 0; i < MAXOPTS; ++i) {
         opts[i] = 0;
     }
 
@@ -1067,8 +1099,8 @@ void chomp_opts(void)
 
     if (*args[pos] == '-') {
         if (args[pos][1]) {
-            for (i = 1; args[pos][i] != '\0'; ++i) {
-                idx = (unsigned int)args[pos][i];
+            for (int i = 1; args[pos][i] != '\0'; ++i) {
+                unsigned int idx = (unsigned int)args[pos][i];
 
                 if (!opts[idx]) {
                     opts[idx] = 1;
@@ -1081,7 +1113,7 @@ void chomp_opts(void)
             }
 
             /* Move args */
-            for (i = pos; i < argn; ++i) {
+            for (int i = pos; i < argn; ++i) {
                 strcpy(args[i], args[i + 1]);
             }
 
@@ -1096,8 +1128,8 @@ void chomp_opts(void)
     while (count) {
         if (*args[pos] == '-') {
             if (args[pos][1]) {
-                for (i = 1; args[pos][i] != '\0'; ++i) {
-                    idx = (unsigned int)args[pos][i];
+                for (int i = 1; args[pos][i] != '\0'; ++i) {
+                    unsigned int idx = (unsigned int)args[pos][i];
 
                     if (!opts[idx]) {
                         opts[idx] = 1;
@@ -1110,7 +1142,7 @@ void chomp_opts(void)
                 }
 
                 /* Move args */
-                for (i = pos; i < argn; ++i) {
+                for (int i = pos; i < argn; ++i) {
                     strcpy(args[i], args[i + 1]);
                 }
 
@@ -1128,9 +1160,7 @@ void chomp_opts(void)
 
 int stripem(char *c)
 {
-    int i;
-
-    for (i = 0; i < strlen(c); ++i) {
+    for (int i = 0; i < strlen(c); ++i) {
         if ((c[i] == '\n') || (c[i] == '\r')) {
             c[i] = 0;
         } else if (!isprint((unsigned char)c[i])
@@ -1150,14 +1180,11 @@ int stripem(char *c)
  */
 int process_fd(int which)
 {
-    int login_mode;
     int player = 0;
     int governor = 0;
     int happy = FALSE;
     int allowed = FALSE;
     char *string = NULL;
-    char *ptr;
-    char *message;
     char rank[9];
     Command *handler;
 
@@ -1173,7 +1200,7 @@ int process_fd(int which)
     char gov_password[MAX_COMMAND_LEN];
 #endif
 
-    login_mode = !des[which].Playernum;
+    int login_mode = !des[which].Playernum;
     memset(data, 0, datasz);
 
     if (login_mode) {
@@ -1181,7 +1208,7 @@ int process_fd(int which)
         strcpy(string, des[which].input);
     }
 
-    ptr = (char*)strchr(des[which].input, '\n');
+    char *ptr = (char*)strchr(des[which].input, '\n');
 
     if (!ptr) {
         des[which].tame = TRUE;
@@ -1196,7 +1223,7 @@ int process_fd(int which)
     des[which].tame = FALSE;
     *ptr = 0;
     memcpy(data, des[which].input, strlen(des[which].input) + 1);
-    message = data;
+    char *message = data;
 
     while (*message && (*message != ' ')) {
         ++message;
@@ -1282,7 +1309,7 @@ int process_fd(int which)
 
               break;
             } else {
-              Login_Process(player, governor, which);
+              login_process(player, governor, which);
               debug(LEVEL_LOGIN,
                     "process_fd: login mode exit [success] fd: %d\n",
                     des[which].descriptor);
@@ -1592,15 +1619,13 @@ int process_fd(int which)
  * commands in whatever order you want. This will affect things such as whether
  * 'rep' will do 'report' or 'repair'.
  */
-static Command *hash_search(char *cmd)
+Command *hash_search(char *cmd)
 {
     static int hash_table[27] = {
         -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1
     };
-    int hash_entry;
-    int i;
     static int hashed = 0;
 
     /*
@@ -1609,8 +1634,8 @@ static Command *hash_search(char *cmd)
      * each group.
      */
     if (!hashed) {
-        for (i = NUM_COMMANDS - 1; i >= 0; --i) {
-            hash_entry = command_list[i].name[0] - 96;
+        for (int i = NUM_COMMANDS - 1; i >= 0; --i) {
+            int hash_entry = command_list[i].name[0] - 96;
 
             if ((hash_entry < 0) || (hash_entry > 26)) {
                 hash_entry = 0;
@@ -1626,7 +1651,7 @@ static Command *hash_search(char *cmd)
      * This will only work for commands starting with @ or a lower case letter
      * of the alphabet. You may want to change it.
      */
-    hash_entry = cmd[0] - 96;
+    int hash_entry = cmd[0] - 96;
 
     if (cmd[0] == '@') {
         hash_entry = 0;
@@ -1638,7 +1663,7 @@ static Command *hash_search(char *cmd)
         return NULL;
     }
 
-    i = hash_table[hash_entry];
+    int i = hash_table[hash_entry];
 
     while (cmd[0] == command_list[i].name[0]) {
         if (!strncmp(cmd, command_list[i].name, strlen(cmd))) {
@@ -1659,15 +1684,13 @@ static Command *hash_search(char *cmd)
  * This deals with all the login specific stuff. To check if they are logged in
  * already, etc... It also prints out the preliminary info when you login.
  */
-int Login_Process(int player, int governor, int which)
+int login_process(int player, int governor, int which)
 {
     /*
      * At this point, they have entered a valid password, just check to make
      * sure they are not logged on already
      */
-    racetype *r;
-
-    r = races[player - 1];
+    racetype *r = races[player - 1];
 
     loginfo(USERLOG,
             NOERRNO,
@@ -1797,21 +1820,19 @@ int Login_Process(int player, int governor, int which)
  */
 int checkfds()
 {
-    int dnum;
     int maxfd;
     struct timeval timeout;
     fd_set input_set;
     fd_set output_set;
     int waitseconds;
     time_t now;
-    time_t realidle; /* rjn */
 
     time(&now);
 
     /*
      * Loop through the descriptors looking for input or output
      */
-    for (dnum = 0; dnum < MAXDESCRIPTORS; ++dnum) {
+    for (int dnum = 0; dnum < MAXDESCRIPTORS; ++dnum) {
         if (des[dnum].descriptor != AVAILABLE) {
             /* Did we pass the timelimit for EWOULDBLOCK's? */
             if (now >= des[dnum].lastblock) {
@@ -1845,7 +1866,7 @@ int checkfds()
              * to establish the correct idle time -- so if we have 0 in the idle
              * time slot don't do anything
              */
-            realidle = actives[((des[dnum].Playernum - 1) * 5) + des[dnum].Governor + 1].idle_time;
+            time_t realidle = actives[((des[dnum].Playernum - 1) * 5) + des[dnum].Governor + 1].idle_time;
 
             if (((now - realidle) > (60 * DISCONNECT_TIME)) && (realidle > 0)) {
                 cleardes(dnum); /* -mfw */
@@ -1860,7 +1881,7 @@ int checkfds()
     timeout.tv_sec = waitseconds;
     timeout.tv_usec = 0;
 
-    dnum = select(maxfd + 1, &input_set, &output_set, 0, &timeout);
+    int dnum = select(maxfd + 1, &input_set, &output_set, 0, &timeout);
 
     if (dnum < 0) {
         perror("select");
@@ -1874,7 +1895,7 @@ int checkfds()
             connection();
         }
 
-        for (dnum = 0; dnum < MAXDESCRIPTORS; ++dnum) {
+        for (int dnum = 0; dnum < MAXDESCRIPTORS; ++dnum) {
             if (des[dnum].descriptor != AVAILABLE) {
                 if (FD_ISSET(des[dnum].descriptor, &output_set)) {
                     cleardes(dnum);
@@ -1891,16 +1912,15 @@ int checkfds()
 }
 
 /* This writes out anything lingering around on the fd */
-static void cleardes(int whichfd)
+void cleardes(int whichfd)
 {
-    int ret;
     struct descrip *dp = &des[whichfd];
 
     if (dp->output_size <= 0) {
         return;
     }
 
-    ret = writefd(whichfd, &dp->output[dp->output_start], dp->output_size);
+    int ret = writefd(whichfd, &dp->output[dp->output_start], dp->output_size);
 
     if (ret > 0) {
         dp->output_start += ret;
@@ -1919,9 +1939,7 @@ static void cleardes(int whichfd)
 /* This reads anything off the respective fd. */
 int readdes(int whichfd)
 {
-    int ret;
-
-    ret = readfd(des[whichfd].descriptor,
+    int ret = readfd(des[whichfd].descriptor,
                  des[whichfd].input + strlen(des[whichfd].input),
                  INPUT_SIZE - strlen(des[whichfd].input) - 2);
     des[whichfd].tame = FALSE;
@@ -1937,9 +1955,6 @@ int readdes(int whichfd)
 /* This shutdown the respective socket, logging info in the log files */
 int shutdown_socket(int whichfd)
 {
-    racetype *r;
-    /* int i; */
-
     if (whichfd == -1) {
         loginfo(ERRORLOG, NOERRNO, "Shutting down socket with -1\n");
     }
@@ -1951,7 +1966,7 @@ int shutdown_socket(int whichfd)
     if (des[whichfd].Active) {
         /* We were connected */
         des[whichfd].Active = FALSE;
-        r = races[des[whichfd].Playernum - 1];
+        racetype *r = races[des[whichfd].Playernum - 1];
         sprintf(buf, "\"%s\"", r->governor[des[whichfd].Governor].name);
 
         loginfo(USERLOG,
@@ -2034,11 +2049,7 @@ int shutdown_socket(int whichfd)
 /* Lowest level read. This does the ACTUAL read of the fd */
 int readfd(int whichfd, char *buffer, unsigned int howmuch)
 {
-    int numread;
-    /* char *q; */
-    /* char *qend; */
-
-    numread = read(whichfd, buffer, howmuch);
+    int numread = read(whichfd, buffer, howmuch);
 
     if (numread <= 0) {
         return numread;
@@ -2053,10 +2064,9 @@ int readfd(int whichfd, char *buffer, unsigned int howmuch)
 /* Lowest level write. This does the ACTUAL write of the fd. */
 int writefd(int whichfd, char *buffer, unsigned int howmuch)
 {
-    int numwritten;
     struct descrip *dp = &des[whichfd];
 
-    numwritten = write(dp->descriptor, buffer, howmuch);
+    int numwritten = write(dp->descriptor, buffer, howmuch);
 
     if (numwritten <= 0) {
         if (errno == EWOULDBLOCK) {
@@ -2083,8 +2093,6 @@ int writefd(int whichfd, char *buffer, unsigned int howmuch)
 int connection()
 {
     struct sockaddr_in newuser;
-    int newuser_len;
-    int a;
     int opt = 0;
     int avail;
 
@@ -2092,7 +2100,7 @@ int connection()
     char keyout[33];
 #endif
 
-    newuser_len = sizeof(newuser);
+    int newuser_len = sizeof(newuser);
 
     for (avail = 0; avail < MAXDESCRIPTORS; ++avail) {
         if (des[avail].descriptor == AVAILABLE) {
@@ -2100,7 +2108,7 @@ int connection()
         }
     }
 
-    a = accept(sockfd, (struct sockaddr *)&newuser, (socklen_t *)&newuser_len);
+    int a = accept(sockfd, (struct sockaddr *)&newuser, (socklen_t *)&newuser_len);
 
     if (a < 0) {
         perror("accept");
@@ -2349,18 +2357,15 @@ void outstr(int whichfd, char const *str)
     dp->output_size += n;
 }
 
-static void refill_output(int whichfd)
+void refill_output(int whichfd)
 {
     struct descrip *dp = &des[whichfd];
-    unsigned int space;
-    unsigned int nbytes;
-    char *rbuf;
 
     if (!strlen(dp->output_overflow_file)) {
         return;
     }
 
-    nbytes = dp->overflow_end - dp->overflow_offset;
+    unsigned int nbytes = dp->overflow_end - dp->overflow_offset;
 
     if (nbytes <= 0) {
         fclose(dp->overflow_fd);
@@ -2371,7 +2376,7 @@ static void refill_output(int whichfd)
         return;
     }
 
-    space = OUTPUT_SIZE - (dp->output_size + dp->output_start + 1);
+    unsigned int space = OUTPUT_SIZE - (dp->output_size + dp->output_start + 1);
 
     if (space <= 0) {
         return;
@@ -2381,7 +2386,7 @@ static void refill_output(int whichfd)
         space = nbytes;
     }
 
-    rbuf = (char *)malloc(space * sizeof(char));
+    char *rbuf = (char *)malloc(space * sizeof(char));
     fseek(dp->overflow_fd, dp->overflow_offset, SEEK_SET);
     nbytes = fread(rbuf, 1, space, dp->overflow_fd);
 
@@ -2491,8 +2496,6 @@ void goodbye_user(int whichfd)
 
 void do_update(int forceit, int unused2, int unused3, int unused4, orbitinfo *unused5)
 {
-    int i;
-    time_t clk;
     struct stat stbuf;
     int skipit;
     /* int client; */
@@ -2522,12 +2525,12 @@ void do_update(int forceit, int unused2, int unused3, int unused4, orbitinfo *un
     }
 #endif
 
-    clk = next_update_time;
+    time_t clk = next_update_time;
 
     /* sprintf(buf, "%sDOING UPDATE...\n", ctime(&clk)); */
 
     if (!skipit) {
-        for (i = 1; i < Num_races; ++i) {
+        for (int i = 1; i < Num_races; ++i) {
             send_special_string(i, UPDATE_START);
         }
 
@@ -2596,7 +2599,7 @@ void do_update(int forceit, int unused2, int unused3, int unused4, orbitinfo *un
     clk = time(0);
 
     if (!skipit) {
-        for (i = 1; i <= Num_races; ++i) {
+        for (int i = 1; i <= Num_races; ++i) {
             send_special_string(i, UPDATE_END);
         }
 
@@ -2606,12 +2609,10 @@ void do_update(int forceit, int unused2, int unused3, int unused4, orbitinfo *un
 
 void update_times(int which)
 {
-    FILE *sfile;
-    time_t clk = 0;
     int up;
     int seg;
 
-    clk = time(0);
+    time_t clk = time(0);
 
     /* 0 = both, 1 = update, 2 = seg */
     switch (which) {
@@ -2640,7 +2641,7 @@ void update_times(int which)
     if (up) {
         loginfo(UPDATELOG, NOERRNO, "Saving update time\n");
         unlink(UPDATEFL);
-        sfile = fopen(UPDATEFL, "w");
+        FILE *sfile = fopen(UPDATEFL, "w");
 
         if (sfile) {
             fprintf(sfile, "%d\n", nupdates_done);
@@ -2656,7 +2657,7 @@ void update_times(int which)
     if (seg) {
         loginfo(UPDATELOG, NOERRNO, "Saving segment time\n");
         unlink(SEGMENTFL);
-        sfile = fopen(SEGMENTFL, "w");
+        FILE *sfile = fopen(SEGMENTFL, "w");
 
         if (sfile) {
             fprintf(sfile, "%d\n", nsegments_done);
@@ -2670,8 +2671,6 @@ void update_times(int which)
 
 void do_segment(int forceit, int segment, int unused3, int unused4, orbitinfo *unused5)
 {
-    int i;
-    time_t clk;
     struct stat stbuf;
     int skipit;
 
@@ -2685,14 +2684,14 @@ void do_segment(int forceit, int segment, int unused3, int unused4, orbitinfo *u
         skipit = 0;
     }
 
-    clk = next_segment_time;
+    time_t clk = next_segment_time;
 
     if (!forceit && (segments <= 1)) {
         return;
     }
 
     if (!skipit) {
-        for (i = 1; i <= Num_races; ++i) {
+        for (int i = 1; i <= Num_races; ++i) {
             send_special_string(i, SEGMENT_START);
         }
     }
@@ -2737,7 +2736,7 @@ void do_segment(int forceit, int segment, int unused3, int unused4, orbitinfo *u
     clk = time(0);
 
     if (!skipit) {
-        for (i = 1; i <= Num_races; ++i) {
+        for (int i = 1; i <= Num_races; ++i) {
             send_special_string(i, SEGMENT_END);
         }
     }
@@ -2750,11 +2749,6 @@ int Login_Parse(char *message,
                 char *client_hash,
                 char *code)
 {
-    char *p;
-    char *q;
-    char *r;
-    char *c;
-
     /* Clear initial whitepace (if any) */
     while (*message
            && isascii((unsigned char)*message)
@@ -2777,7 +2771,7 @@ int Login_Parse(char *message,
     }
 
     /* CHAP code */
-    c = code;
+    char *c = code;
 
     while(*message
           && isascii((unsigned char)*message)
@@ -2797,7 +2791,7 @@ int Login_Parse(char *message,
     }
 
     /* Read race name */
-    p = race_name;
+    char *p = race_name;
 
     while (*message
            && isascii((unsigned char)*message)
@@ -2817,7 +2811,7 @@ int Login_Parse(char *message,
     }
 
     /* Read governor name */
-    q = gov_name;
+    char *q = gov_name;
 
     while (*message
            && isascii((unsigned char)*message)
@@ -2837,7 +2831,7 @@ int Login_Parse(char *message,
     }
 
     /* Read client hash */
-    r = client_hash;
+    char *r = client_hash;
 
     while (*message
            && isascii((unsigned char)*message)
@@ -2868,15 +2862,12 @@ int Login_Parse(char *message,
 
 void Login_Parse(char *message, char *race_pass, char *gov)
 {
-    char *p;
-    char *q;
-
     /* Race password */
     while (*message && isascii(*message) && isspace(*message)) {
         ++message;
     }
 
-    p = race_pass;
+    char *p = race_pass;
 
     while (*message && isascii(*message) && !isspace(*message)) {
         *p = *message;
@@ -2891,7 +2882,7 @@ void Login_Parse(char *message, char *race_pass, char *gov)
         ++message;
     }
 
-    q = gov_pass;
+    char *q = gov_pass;
 
     while (*message && isascii(*message) && !isspace(*message)) {
         *q = *message;
@@ -2906,11 +2897,7 @@ void Login_Parse(char *message, char *race_pass, char *gov)
 void dump_users(int which)
 {
     time_t now;
-    racetype *r;
-    int god = 0;
     int coward_count = 0;
-    int whoami;
-    int i;
     int visible; /* -mfw */
     char tbuf[80];
 
@@ -2951,9 +2938,9 @@ void dump_users(int which)
     }
 
     outstr(which, "\n");
-    whoami = des[which].Playernum;
-    r = races[whoami - 1];
-    god = r->God;
+    int whoami = des[which].Playernum;
+    racetype *r = races[whoami - 1];
+    int god = r->God;
 
     /* Hack for SHOW_COWARDS below -mfw */
     if (r->governor[des[which].Governor].toggle.invisible) {
@@ -2962,7 +2949,7 @@ void dump_users(int which)
         visible = 1;
     }
 
-    for (i = 0; i < MAXDESCRIPTORS; ++i) {
+    for (int i = 0; i < MAXDESCRIPTORS; ++i) {
         /* rjn - Why does this not yield 0 for non-player */
         /* if (des[i].Playernum) { */
         if ((des[i].Playernum > 0) && (des[i].Playernum <= MAXDESCRIPTORS)) {
@@ -3036,16 +3023,14 @@ void dump_users(int which)
 void dump_users_priv(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     time_t now;
-    racetype *r;
-    int i;
 
     time(&now);
     sprintf(buf, "Current Players: %s", ctime(&now));
     notify(playernum, governor, buf);
 
-    for (i = 0; i < MAXDESCRIPTORS; ++i) {
+    for (int i = 0; i < MAXDESCRIPTORS; ++i) {
         if (des[i].Playernum && (des[i].descriptor != AVAILABLE)) {
-            r = races[des[i].Playernum - 1];
+            racetype *r = races[des[i].Playernum - 1];
             sprintf(temp, "\"%s\"", r->governor[des[i].Governor].name);
 
             char *gag;
@@ -3092,9 +3077,6 @@ void dump_users_priv(int playernum, int governor, int unused3, int unused4, orbi
 
 void boot_user(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
-    int homicide;
-    int i;
-
     if (argn != 2) {
         notify(playernum,
                governor,
@@ -3103,9 +3085,9 @@ void boot_user(int playernum, int governor, int unused3, int unused4, orbitinfo 
         return;
     }
 
-    homicide = atoi(args[1]);
+    int homicide = atoi(args[1]);
 
-    for (i = 0; i < MAXDESCRIPTORS; ++i) {
+    for (int i = 0; i < MAXDESCRIPTORS; ++i) {
         if (des[i].descriptor == homicide) {
             shutdown_socket(i);
             sprintf(buf, "Descriptor %d disconnected.\n", homicide);
@@ -3117,10 +3099,9 @@ void boot_user(int playernum, int governor, int unused3, int unused4, orbitinfo 
 void GB_time(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
     /* Report back the update status */
-    racetype *r;
     char tbuf[80];
 
-    r = races[playernum - 1];
+    racetype *r = races[playernum - 1];
     clk = time(0);
 
     if (r->governor[governor].CSP_client_info.csp_user == 1) {
@@ -3176,14 +3157,12 @@ void GB_time(int playernum, int governor, int unused3, int unused4, orbitinfo *u
 
 void compute_power_blocks(void)
 {
-    int i;
-    int j;
     int dummy[2];
 
     /* Compute alliance block power */
     sprintf(Power_blocks.time, "%s", ctime(&clk));
 
-    for (i = 1; i <= Num_races; ++i) {
+    for (int i = 1; i <= Num_races; ++i) {
         dummy[0] = Blocks[i - 1].invite[0] & Blocks[i - 1].pledge[0];
         dummy[1] = Blocks[i - 1].invite[1] & Blocks[i - 1].pledge[1];
         Power_blocks.members[i - 1] = 0;
@@ -3197,7 +3176,7 @@ void compute_power_blocks(void)
         Power_blocks.systems_owned[i - 1] = Blocks[i - 1].systems_owned;
         Power_blocks.VPs[i - 1] = Blocks[i -1].VPs;
 
-        for (j = 1; j <= Num_races; ++j) {
+        for (int j = 1; j <= Num_races; ++j) {
             if (isset(dummy, j)) {
                 Power_blocks.members[i - 1] += 1;
                 Power_blocks.sectors_owned[i - 1] += Power[j - 1].sectors_owned;
@@ -3214,9 +3193,7 @@ void compute_power_blocks(void)
 
 void warn_race(int who, char *message)
 {
-    int i;
-
-    for (i = 0; i <= MAXGOVERNORS; ++i) {
+    for (int i = 0; i <= MAXGOVERNORS; ++i) {
         if (races[who - 1]->governor[i].active) {
             warn(who, i, message);
         }
@@ -3238,9 +3215,7 @@ void warn(int who, int governor, char *message)
 
 void warn_star(int a, int b, int star, char *message)
 {
-    int i;
-
-    for (i = 1; i < Num_races; ++i) {
+    for (int i = 1; i < Num_races; ++i) {
         if ((i != a) && (i != b) && isset(Stars[star]->inhabited, i)) {
             warn_race(i, message);
         }
@@ -3249,18 +3224,15 @@ void warn_star(int a, int b, int star, char *message)
 
 void notify_star(int a, int g, int b, int star, char *message)
 {
-    racetype *race;
-    int i;
-
 #ifdef MONITOR
-    race = races[0]; /* Deity */
+    racetype *race = races[0]; /* Deity */
 
     if (race->monitor || ((a != 1) && (b != 1))) {
         notify_race(1, message);
     }
 #endif
 
-    for (i = 0; i < MAXDESCRIPTORS; ++i) {
+    for (int i = 0; i < MAXDESCRIPTORS; ++i) {
         if ((des[i].descriptor != AVAILABLE)
             && ((des[i].Playernum != a) || (des[i].Governor != g))
             && isset(Stars[star]->inhabited, des[i].Playernum)) {
@@ -3280,9 +3252,7 @@ void voidpoint(int unused1, int unused2, int unused3, int unused4, orbitinfo *un
 
 int clear_all_fds()
 {
-    int i;
-
-    for (i = 0; i < MAXDESCRIPTORS; ++i) {
+    for (int i = 0; i < MAXDESCRIPTORS; ++i) {
         if (des[i].descriptor != AVAILABLE) {
             cleardes(i);
         }
@@ -3293,9 +3263,7 @@ int clear_all_fds()
 
 void _reset(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
-    int j;
-
-    for (j = 1; j <= Num_races; ++j) {
+    for (int j = 1; j <= Num_races; ++j) {
         send_special_string(j, RESET_START);
     }
 
@@ -3423,10 +3391,9 @@ void _schedule(int playernum, int governor, int unused3, int unused4, orbitinfo 
         return;
     } else if (match(args[1], "repair")) {
         struct stat stbuf;
-        FILE *sfile;
 
         if (stat(UPDATEFL, &stbuf) >= 0) {
-            sfile = fopen(UPDATEFL, "r");
+            FILE *sfile = fopen(UPDATEFL, "r");
 
             if (sfile) {
                 char dum[23];
@@ -3458,7 +3425,7 @@ void _schedule(int playernum, int governor, int unused3, int unused4, orbitinfo 
         }
 
         if (stat(SEGMENTFL, &stbuf) >= 0) {
-            sfile = fopen(SEGMENTFL, "r");
+            FILE *sfile = fopen(SEGMENTFL, "r");
 
             if (sfile) {
                 char dum[32];
@@ -3492,17 +3459,14 @@ void _schedule(int playernum, int governor, int unused3, int unused4, orbitinfo 
 /* -mfw */
 void last_logip(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
-    long int raceid;
-    long int govid;
-
     if (argn != 3) {
         notify(playernum, governor, "Race and Gov number required.\n");
 
         return;
     }
 
-    raceid = atoi(args[1]);
-    govid = atoi(args[2]);
+    long int raceid = atoi(args[1]);
+    long int govid = atoi(args[2]);
 
     if ((raceid > Num_races) || (raceid < 1) || (govid < 0) || (govid > 5)) {
         notify(playernum, governor, "Invalid race or governor.\n");
@@ -3539,25 +3503,21 @@ void last_logip(int playernum, int governor, int unused3, int unused4, orbitinfo
 #ifdef CHAP_AUTH
 void client_key(char *randompasswdptr)
 {
-    int b;
-    int len;
-    int randnb;
-    float len2;
     char randomchar[80];
     char randompasswd[32];
 
     strcpy(randomchar,
            "0123456789abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz");
 
-    len = CHAP_KEYSIZE;
-    len2 = (float)strlen(randomchar);
+    int len = CHAP_KEYSIZE;
+    float len2 = (float)strlen(randomchar);
 
     /* Initialize random sequence */
     srand(time(NULL) + getpid());
 
     /* Setting random value to each character of the activation key */
-    for (b = 0; b < len; ++b) {
-        randnb = (int)((len2 * rand()) / (RAND_MAX + 1.0));
+    for (int b = 0; b < len; ++b) {
+        int randnb = (int)((len2 * rand()) / (RAND_MAX + 1.0));
         randompasswd[b] = randomchar[randnb];
     }
 
@@ -3592,10 +3552,8 @@ void close_game(int playernum, int governor, int unused3, int unused4, orbitinfo
 
 void read_schedule_file(int playernum, int governor)
 {
-    FILE *sfile;
-
     /* Read in and parse the schedule file -mfw */
-    sfile = fopen(SCHEDULEFL, "r");
+    FILE *sfile = fopen(SCHEDULEFL, "r");
 
     if (sfile) {
         if (!getschedule(sfile)) {
@@ -3657,11 +3615,7 @@ void _freeship(int playernum, int governor, int unused3, int unused4, orbitinfo 
 #ifdef ACCESS_CHECK
 int address_ok(struct sockaddr_in *ap)
 {
-    int i;
     ac_t *acp;
-    FILE *afile;
-    char *cp;
-    char *mp;
     char ibuf[1024];
     char aval;
     int mask;
@@ -3669,11 +3623,11 @@ int address_ok(struct sockaddr_in *ap)
 
     if (!ainit) {
         ainit = 1;
-        afile = fopen(ACCESSFL, "r");
+        FILE *afile = fopen(ACCESSFL, "r");
 
         if (afile) {
             while (fgets(ibuf, sizeof(ibuf), afile)) {
-                cp = ibuf;
+                char *cp = ibuf;
                 aval = 1;
 
                 while (isspace(*cp)) {
@@ -3689,7 +3643,7 @@ int address_ok(struct sockaddr_in *ap)
                     aval = 0;
                 }
 
-                mp = cp;
+                char *mp = cp;
 
                 while ((*mp != '/') && (*mp != '\n') && (*mp != '\r')) {
                     ++mp;
@@ -3726,7 +3680,7 @@ int address_ok(struct sockaddr_in *ap)
 
     acp = ac_tab;
 
-    for (i = 0; i < naddresses; ++i) {
+    for (int i = 0; i < naddresses; ++i) {
         if (address_match(&ap->sin_addr, &acp->ac_addr, acp->ac_cidr)) {
             return acp->ac_value;
         }
@@ -3741,18 +3695,14 @@ int address_match(struct in_addr *addr,
                   struct in_addr *apat,
                   int cidr)
 {
-    unsigned long int mask;
-    unsigned long int net;
-    int size;
-
     if (!cidr) {
         return 1;
     }
 
-    size = sizeof(mask) * NBBY;
-    mask = ~(~1 << (size - 1));
+    int size = sizeof(unsigned long int) * NBBY;
+    unsigned long int mask = ~(~1 << (size - 1));
     mask = mask >> (size - cidr);
-    net = addr->s_addr & mask;
+    unsigned long int net = addr->s_addr & mask;
 
     if (net == apat->s_addr) {
         return 1;
@@ -3788,8 +3738,6 @@ void add_address(unsigned long ina, int mask, int aval)
 
 void show_uptime(int playernum, int governor, int unused3, int unused4, orbitinfo *unused5)
 {
-    time_t now;
-    time_t total;
     struct tm *mytm;
     char tbuf[80];
 
@@ -3799,8 +3747,8 @@ void show_uptime(int playernum, int governor, int unused3, int unused4, orbitinf
         return;
     }
 
-    now = time(0);
-    total = now - boot_time;
+    time_t now = time(0);
+    time_t total = now - boot_time;
     mytm = gmtime(&total);
 
     sprintf(tbuf,

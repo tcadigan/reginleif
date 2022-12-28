@@ -178,8 +178,8 @@ void csp_relation(int playernum, int governor)
                     p,
                     irt,
                     race->translate[p - 1],
-                    isallied(race, p, 100, (int)race->God),
-                    isallied(r, q, (int)race->translate[p - 1], (int)race->God),
+                    iallied(race, p, 100, (int)race->God),
+                    iallied(r, q, (int)race->translate[p - 1], (int)race->God),
                     r->name);
         }
     }

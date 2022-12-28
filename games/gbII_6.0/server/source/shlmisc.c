@@ -1552,6 +1552,39 @@ void no_permission(int playernum, int governor, char const *order, int level)
         break;
     }
 
+    sprintf(buf, "The \"%s\" command requires a minimum level of %s to run.\n",
+            order, rank);
+
+    notify(playernum, governor, buf);
+}
+
+void no_permission_thing(int playernum, int governor, char const *order, int level)
+{
+    char rank[9];
+
+    switch (level) {
+    case LEADER:
+        strcpy(rank, "leader");
+
+        break;
+    case GENERAL:
+        strcpy(rank, "general");
+
+        break;
+    case CAPTAIN:
+        strcpy(rank, "captain");
+
+        break;
+    case PRIVATE:
+        strcpy(rank, "private");
+
+        break;
+    case NOVICE:
+        strcpy(rank, "novice");
+
+        break;
+    }
+
     sprintf(buf,
             "The \"%s\" command requires a minimum level of %s,\n",
             order,

@@ -115,8 +115,6 @@ void post(char const *msg, int type)
 {
     char telefl[100];
     char pbuf[1024]; /* This is needed, don't use global pointer! */
-    FILE *news_fd;
-    char *p;
 
     memset((char *)telefl, 0, sizeof(telefl));
 
@@ -143,7 +141,7 @@ void post(char const *msg, int type)
     }
 
     /* Look for special symbols */
-    for (p = (char *)msg; *p; ++p) {
+    for (char *p = (char *)msg; *p; ++p) {
         if (*p == ';') {
             *p = '\n';
         } else if (*p == '|') {
@@ -151,7 +149,7 @@ void post(char const *msg, int type)
         }
     }
 
-    news_fd = fopen(telefl, "a");
+    FILE *news_fd = fopen(telefl, "a");
 
     if (news_fd != NULL) {
         tm = time(0);

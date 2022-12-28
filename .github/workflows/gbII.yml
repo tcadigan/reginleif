@@ -1,0 +1,23 @@
+name: Galactic Bloodshed II build
+
+on:
+  push:
+    paths:
+    - 'games/GBII_6.0/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: A build job
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/general-build
+        with:
+          path: games/gbII_6.0/client/source
+          language: C
+          dependencies: libtinfo-dev libncurses5-dev
+      - uses: ./.github/actions/general-build
+        with:
+          path: games/gbII_6.0/server/source
+          language: C
+          dependencies: libtinfo-dev libncurses5-dev

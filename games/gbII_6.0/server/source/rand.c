@@ -182,7 +182,7 @@ int round_rand(double x)
     }
 }
 
-int rpos_neg(void)
+int rposneg(void)
 {
     if (firsttime) {
         init_rand();

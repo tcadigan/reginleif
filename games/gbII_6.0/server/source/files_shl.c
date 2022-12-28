@@ -719,7 +719,7 @@ void Putpower(powertype p[MAXPLAYERS])
     close_file(power_fd);
 }
 
-void GetPower(powertype p[MAXPLAYERS])
+void Getpower(powertype p[MAXPLAYERS])
 {
     int power_fd;
 
