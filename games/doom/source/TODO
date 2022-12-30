@@ -1,0 +1,121 @@
+- Create web repository for sources, patches,
+  news, and pointer to doom-editing mailing
+  list.
+
+- Get DOOM Public License from id
+
+-----------------------------------------------
+
+- Remove m_fixed, switch to floating point.
+  More stable, and prolly even faster.
+
+- Make SCREENWIDTH/HEIGHT work at startup?
+  Well, the HUD/STBar stuff is tied to the
+  scales implied by the graphics. Rather do
+  GLDOOM and use texture mapping.
+
+- Fix aspect ratio?
+  320x200 is nothing viable nowadays.
+  A 320x240 base (4:3) would be a lot better.
+  See above on width/height.
+
+- Limited look up/down by y-shearing?
+  Prolly not worth it, rather switch to GLDOOM.
+
+- Switch to C++?
+  The action function pointers have varying
+  argument lists (no parameter, one, etc.).
+  C++ doesn't like that much. A major rewrite.
+
+- Switch to doommain.c plus libdoom? Have
+  libref, libgame, etc.?
+  Another majore rewrite.
+
+- Use XFree86 DGA, prolly not that much faster
+  then MIT SHM, but allows for directly sampled
+  mouse (and even freelook). Recommended for
+  GLDOOM.
+
+- Put together an accompanying developer toolkit
+  source distribution: DEU, RMB, BSP for Linux/X.
+
+- Move info.h, info.c, sounds.h, sounds.c and
+  other data to a separate lump in the WAD,
+  or into a libgame.so, to separate the
+  generic stuff (refresh, I/O) from the
+  DOOM specifics.
+
+- Decide whether precaching all sounds is
+  better then retrieving and releasing
+  every so often. DOOM seems to do that
+  frequently (8bit stuff, originally for
+  DOS), and the Linux sound is 16bit
+  (conversion in the mixing, requires
+  some padding) - we prolly got the memory
+  to spare.
+
+- 16bpp CLUT. The lightmaps and the
+  framebuffer could be changed to switch
+  to 64k colors. Proly better to do
+  GLDOOM right away.
+
+- Remove checks for commercial etc., in
+  non-essentiall issues (enabling PWAD's).
+
+- Change (simplify) determination of
+  sky texture (done by game version).
+  Explicit?
+
+- Remove all game version checks
+
+- Different handling of Demo - don't
+  exit on "different game version"
+
+- How about shareware/retail "You are here"
+  intermission animation? Wasn't in
+  commercial (DOOM 2).
+
+- Double shotgun in DOOM1, all weapons with
+  shareware
+
+- Checks for required lumps. We need fallbacks
+  for lumps that are not present, that is,
+  default sounds etc. to be used instead,
+  or removing THINGS w/o sprites etc.
+
+- Client/server? I'd sugest ripping off som stuff
+  from the abandond IBM WebView project
+
+- Blockmap
+  The BLOCKMAP lump might be (partly) redundant,
+  as the BSP allows for clipping (except certain
+  LineDefs that will no spawn Segs).
+
+- LOS
+  REJECT and intersection based LOS checking could be
+  done using the BSP. In case of REJECT, certain
+  monster AI special effects would be lost, though.
+
+- Correct handling of heing in collision. This is
+  not done, and the checks are scattered around in
+  many places. It does require handling of "player
+  on top of monster" situations, too - we have to
+  make sure the players falls off far enough to
+  avoid getting "stuck in monster".
+
+- Remove obsolete menus (Detail. Music Volume?)
+
+- Clip explosion range damage (and sprites) using
+  REJECT? That is, if one Sector/SSector not
+  visible from the other, do not apply damage,
+  not render sprite if player in other sector.
+  Hmmm - explosion behind small pillar might not be
+  visible at all, but do we care?
+
+- Ungraceful and untimely demise of Linuxdoom (core
+  instead of I_Error) will leave idle sndserver
+  processes in your system, blocking /dev/bsp.
+  A timeout on lack of input for "sndserver?"
+
+- Threaded sndserver? SHM mixing buffer?
+  Or internal, timer-based?
